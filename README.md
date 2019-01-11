@@ -29,7 +29,7 @@ For any questions or remarks, please contact Prof. Dr. Rens van de Schoot (a.g.j
 Contributors: 
 
 - Rens van de Schoot (a.g.j.vandeschoot@uu.nl, @Rensvandeschoot)
-- Daniel Oberski (d.l.oberski@uu.nl, @doab)
+- Daniel Oberski (d.l.oberski@uu.nl, @daob)
 - Parisa Zahedi (p.zahedi@uu.nl, @parisa-zahedi)
 - Jonathan de Bruin (@J535D165)
 - Kees van Eijden
