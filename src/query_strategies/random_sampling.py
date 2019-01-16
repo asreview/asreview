@@ -53,7 +53,7 @@ class RandomSampling(QueryStrategy):
         random_state = kwargs.pop('random_state', None)
         self.random_state_ = self.seed_random_state(random_state)
 
-    def seed_random_state(seed):
+    def seed_random_state(self,seed):
         """Turn seed into np.random.RandomState instance
         """
         if (seed is None) or (isinstance(seed, int)):
