@@ -144,7 +144,7 @@ def main(args):
     # tf.set_random_seed(seed)
 
     model = deep_model(**kwargs_model)
-    #init_weights = model._model.get_weights()
+    init_weights = model._model.get_weights()
 
     result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
     query_i = 0
@@ -159,7 +159,7 @@ def main(args):
         # np.random.seed(seed)
         # tf.set_random_seed(seed)
 
-        model = deep_model(**kwargs_model)
+        #model = deep_model(**kwargs_model)
         # train the model
         model.train(pool)
 
@@ -208,7 +208,7 @@ def main(args):
 
         
         # reset the memory of the model
-        #model._model.set_weights(init_weights)
+        model._model.set_weights(init_weights)
 
         # update the query counter
         query_i += 1
