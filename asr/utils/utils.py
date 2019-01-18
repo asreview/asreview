@@ -10,7 +10,7 @@ import pickle
 from sklearn.model_selection import train_test_split
 
 # project dependencies
-from utils.config import DATA_DIR, PTSD_PATH, DRUG_DIR, DEPRESSION_PATH
+from asr.utils.config import DATA_DIR, PTSD_PATH, DRUG_DIR, DEPRESSION_PATH
 
 # PARAMETER_PATH = os.path.join(DATA_DIR, "parameters.txt")
 

@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 import pickle
 
-from utils.config import *
+from asr.utils.config import *
 
 # parse arguments if available
 parser = argparse.ArgumentParser(description='Dataset preparation')

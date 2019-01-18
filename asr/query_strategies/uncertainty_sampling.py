@@ -18,7 +18,7 @@ smallest margin method (margin sampling).
 
 """
 import numpy as np
-from query_strategies.interface import QueryStrategy
+from asr.query_strategies.interface import QueryStrategy
 
 class UncertaintySampling(QueryStrategy):
     """

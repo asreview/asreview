@@ -20,17 +20,17 @@ import argparse
 import numpy as np
 import pandas as pd
 
-from models.lstm import LSTM_Model
-from query_strategies.uncertainty_sampling import UncertaintySampling
-from query_strategies.random_sampling import RandomSampling
-from query_strategies.model_change_sampling import ModelChangeSampling
+from asr.models.lstm import LSTM_Model
+from asr.query_strategies.uncertainty_sampling import UncertaintySampling
+from asr.query_strategies.random_sampling import RandomSampling
+from asr.query_strategies.model_change_sampling import ModelChangeSampling
 
 # demo utils
-from utils.utils import *
-from utils.config import *
-from base.dataset import *
+from asr.utils.utils import *
+from asr.utils.config import *
+from asr.base.dataset import *
 
-from select_init_indices import *
+from asr.select_init_indices import *
 
 # parse arguments if available
 parser = argparse.ArgumentParser(description='Active learning parameters')
@@ -103,8 +103,8 @@ def make_pool(X, y, prelabeled=np.arange(5)):
     return Dataset(X, y_train_labeled), Dataset(X, y)
 
 
-def main(args):
-    
+def review(args):
+
     # Read dataset, labels and embedding layer from pickle file.
     pickle_fp = os.path.join(TEMP_DATA_DIR,args.dataset, args.dataset + '_pickle.pickle')
     with open(pickle_fp, 'rb') as f:
@@ -225,13 +225,19 @@ def main(args):
     input("Press any key to continue...")
 
 
-if __name__ == '__main__':
+def main():
 
     # parse all the arguments
     args = parser.parse_args()
 
     try:
-        # start the active learning algorithm
-        main(args)
+        # start the review process
+        review(args)
     except KeyboardInterrupt:
         print('Closing down.')
+
+
+
+if __name__ == '__main__':
+
+    main(args)

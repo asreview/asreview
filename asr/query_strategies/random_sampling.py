@@ -12,7 +12,7 @@
 
 """Random Sampling
 """
-from query_strategies.interface import QueryStrategy
+from asr.query_strategies.interface import QueryStrategy
 import numpy as np
 
 class RandomSampling(QueryStrategy):
