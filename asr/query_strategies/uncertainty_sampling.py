@@ -7,25 +7,26 @@
   note = {available as arXiv preprint \\url {https://arxiv.org/abs/1710.00379}},
   month = oct,
   year = 2017
-    }    
-"""
+    }
 
-""" Uncertainty Sampling
+Uncertainty Sampling
 
 This module contains a class that implements two of the most well-known
 uncertainty sampling query strategies: the least confidence method and the
 smallest margin method (margin sampling).
 
 """
+
 import numpy as np
+
 from asr.query_strategies.interface import QueryStrategy
+
 
 class UncertaintySampling(QueryStrategy):
     """
     Todo: add lcb to comments
           try sm and entropy in code
     """
-
     """Uncertainty Sampling
 
     This class implements Uncertainty Sampling active learning algorithm [1]_.
@@ -91,11 +92,10 @@ class UncertaintySampling(QueryStrategy):
         #         "model has to be a ContinuousModel or ProbabilisticModel"
         #     )
 
-        if self.method not in ['lc', 'sm', 'entropy','lcb']:
+        if self.method not in ['lc', 'sm', 'entropy', 'lcb']:
             raise TypeError(
                 "supported methods are ['lc', 'sm', 'entropy'], the given one "
-                "is: " + self.method
-            )
+                "is: " + self.method)
 
         # if self.method=='entropy' and \
         #         not isinstance(self.model, ProbabilisticModel):
@@ -104,15 +104,19 @@ class UncertaintySampling(QueryStrategy):
         #     )
 
     def make_lcb_score(self, pred_vals):
-        included_size = len([x[1] for x in self._pool.data if x[1]==1])
-        training_size = len([x[1] for x in self._pool.data if x[1] is not None])
-        
-        pp = included_size/training_size
-        pmax = (0.5 + 1-pp)/2
-         
-        score = np.array([py/pmax if py<pmax else (1-py)/pmax for py in pred_vals[:,1]])
+        included_size = len([x[1] for x in self._pool.data if x[1] == 1])
+        training_size = len(
+            [x[1] for x in self._pool.data if x[1] is not None])
+
+        pp = included_size / training_size
+        pmax = (0.5 + 1 - pp) / 2
+
+        score = np.array([
+            py / pmax if py < pmax else (1 - py) / pmax
+            for py in pred_vals[:, 1]
+        ])
         return score
-        
+
     def make_query(self, n=1):
         """Return the index of the sample to be queried and labeled and
         selection score of each sample. Read-only.
@@ -125,21 +129,18 @@ class UncertaintySampling(QueryStrategy):
             The index of the next unlabeled sample to be queried and labeled.
 
         """
-        
-               
+
         unlabeled_entry_ids, X_pool = zip(
             # *self.dataset.get_unlabeled_entries()
-            *self._pool.get_unlabeled_entries()
-        )
+            *self._pool.get_unlabeled_entries())
 
-        
         # if isinstance(self.model, ProbabilisticModel):
         #     dvalue = self.model.predict_proba(X_pool)
         # elif isinstance(self.model, ContinuousModel):
         #     dvalue = self.model.predict_real(X_pool)
 
         dvalue = self.model.predict(X_pool)
-        
+
         if self.method == 'lc':  # least confident
             score = -np.max(dvalue, axis=1)
 
@@ -151,11 +152,11 @@ class UncertaintySampling(QueryStrategy):
 
         elif self.method == 'entropy':
             score = np.sum(-dvalue * np.log(dvalue), axis=1)
-        
+
         elif self.method == 'lcb':
             score = self.make_lcb_score(dvalue)
 
-
         ask_ids = score.argsort()[-n:]
 
-        return [unlabeled_entry_ids[id] for id in ask_ids] if n > 1 else unlabeled_entry_ids[ask_ids[0]]
+        return [unlabeled_entry_ids[id] for id in ask_ids
+                ] if n > 1 else unlabeled_entry_ids[ask_ids[0]]

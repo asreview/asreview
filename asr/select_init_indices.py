@@ -24,28 +24,31 @@ parser.add_argument(
     help='Initial number of included papers')
 
 
-def select_prelabeled(labels, init_included): #, seed 
-    """ """
-    
-    included_indexes = np.where(labels[:, 1] == 1)[0] #index of included papers
-    excluded_indexes = np.where(labels[:, 1] == 0)[0] #index of excluded papers
-   
-    included_number = min(init_included, len(included_indexes)) #select the minimum number that should be selected
-    
-    #np.random.seed(seed)
+def select_prelabeled(labels, init_included):
+
+    # index of included papers
+    included_indexes = np.where(labels[:, 1] == 1)[0]
+    # index of excluded papers
+    excluded_indexes = np.where(labels[:, 1] == 0)[0]
+
+    # select the minimum number that should be selected
+    included_number = min(init_included, len(included_indexes))
+
     # select randomly from included papers
     to_add_indx = np.random.choice(
         included_indexes, included_number, replace=False)
-    
-    inc_rest = [x for x in included_indexes if x not in to_add_indx] # non-selected included papers
-        
-    non_selected_index = np.append(excluded_indexes,inc_rest) # all non-selected indexes
-    
+
+    # non-selected included papers
+    inc_rest = [x for x in included_indexes if x not in to_add_indx]
+
+    # all non-selected indexes
+    non_selected_index = np.append(excluded_indexes, inc_rest)
+
     #select a sample of init_included papers from non-selected indexes - to get a balanced set
     to_add_indx = np.append(
         to_add_indx,
         np.random.choice(non_selected_index, included_number, replace=False))
-    
+
     return to_add_indx
 
 

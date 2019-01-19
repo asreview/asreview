@@ -11,7 +11,66 @@ final included set) and with zero false negatives (or any other small number).
 
 ## Technical documentation
 
-Follows. 
+## Installation
+
+Install the development version of this project with the command below.
+
+``` bash
+pip install git+git@github.com:msdslab/automated-systematic-review.git
+```
+
+## Usage 
+
+### Option 1
+
+Start an interactive review process in the CMD.exe or shell. 
+
+``` bash
+asr yourdata.csv --batch_size=10 
+```
+
+### Option 2: As a Python module.
+
+Start an interactive review process in the CMD.exe or shell. 
+
+``` bash
+from asr import Review
+
+asr = Review('test')
+asr.start()
+
+```
+
+### Parameters
+
+```
+> asr -h
+usage: asr [-h] [-T T] [--dataset DATASET] [--quota QUOTA]
+           [--init_included_papers INIT_INCLUDED_PAPERS]
+           [--batch_size BATCH_SIZE] [--model MODEL]
+           [--query_strategy QUERY_STRATEGY] [--dropout DROPOUT]
+           [--init_indices INIT_INDICES]
+
+Active learning parameters
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -T T                  Task number.
+  --dataset DATASET     The dataset to use for training.
+  --quota QUOTA         The number of queries
+  --init_included_papers INIT_INCLUDED_PAPERS
+                        Initial number of included papers
+  --batch_size BATCH_SIZE
+                        Batch size
+  --model MODEL         A deep learning model to use for classification.
+  --query_strategy QUERY_STRATEGY
+                        The query strategy
+  --dropout DROPOUT     dropout
+  --init_indices INIT_INDICES
+
+
+```
+
 
 ## Planning
 

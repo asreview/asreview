@@ -16,7 +16,6 @@ from abc import ABCMeta, abstractmethod
 
 
 class QueryStrategy(with_metaclass(ABCMeta, object)):
-
     """Pool-based query strategy
 
     A QueryStrategy advices on which unlabeled data to be queried next given
@@ -58,5 +57,3 @@ class QueryStrategy(with_metaclass(ABCMeta, object)):
             The index of the next unlabeled sample to be queried and labeled.
         """
         pass
-
-

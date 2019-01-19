@@ -9,14 +9,14 @@
   year = 2017
     }    
 """
-
 """Random Sampling
 """
-from asr.query_strategies.interface import QueryStrategy
 import numpy as np
 
-class RandomSampling(QueryStrategy):
+from asr.query_strategies.interface import QueryStrategy
 
+
+class RandomSampling(QueryStrategy):
     r"""Random sampling
 
     This class implements the random query strategy. A random entry from the
@@ -53,15 +53,16 @@ class RandomSampling(QueryStrategy):
         random_state = kwargs.pop('random_state', None)
         self.random_state_ = self.seed_random_state(random_state)
 
-    def seed_random_state(self,seed):
+    def seed_random_state(self, seed):
         """Turn seed into np.random.RandomState instance
         """
         if (seed is None) or (isinstance(seed, int)):
             return np.random.RandomState(seed)
         elif isinstance(seed, np.random.RandomState):
             return seed
-        raise ValueError("%r can not be used to generate numpy.random.RandomState"
-                        " instance" % seed)
+        raise ValueError(
+            "%r can not be used to generate numpy.random.RandomState"
+            " instance" % seed)
 
     # @inherit_docstring_from(QueryStrategy)
     def make_query(self, n=1):
@@ -69,8 +70,5 @@ class RandomSampling(QueryStrategy):
         dataset = self.dataset
         unlabeled_entry_ids, _ = zip(*dataset.get_unlabeled_entries())
         entry_id = self.random_state_.choice(
-            unlabeled_entry_ids,
-            size=n,
-            replace=False
-        )
+            unlabeled_entry_ids, size=n, replace=False)
         return list(entry_id) if n > 1 else entry_id[0]
