@@ -9,6 +9,8 @@ software is designed to take over the step of screening abstracts and titles
 with a minimum of papers to be read by a human (in the training set and in the
 final included set) and with zero false negatives (or any other small number). 
 
+Dutch newspaper NRC on this project ["Software vist de beste artikelen uit een bibliotheek van duizenden."](https://www.nrc.nl/nieuws/2019/01/14/software-vist-de-beste-artikelen-eruit-a3628952)
+
 ## Technical documentation
 
 Follows. 
