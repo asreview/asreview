@@ -13,10 +13,13 @@ final included set) and with zero false negatives (or any other small number).
 
 ## Installation
 
-Install the development version of this project with the command below.
+The Automated Systematic Review project requires Python 3.6+. 
+
+Install the Automated Systematic Review project directly from this github page. 
+One can do this with pip and git.
 
 ``` bash
-pip install git+git@github.com:msdslab/automated-systematic-review.git
+pip install git+https://github.com/msdslab/automated-systematic-review.git
 ```
 
 ## Usage 
