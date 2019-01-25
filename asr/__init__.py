@@ -1,3 +1,3 @@
-from asr.systematic_review_active import SystematicReview
+from asr.base import ReviewOracle, ReviewInteractive
 
-from asr.utils import text_to_features
+from asr.utils import load_data, text_to_features

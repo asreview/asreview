@@ -56,7 +56,11 @@ setup(
     # data_files=[('my_data', ['data/data_file'])],
 
     entry_points={
-        'console_scripts': ['asr=asr.systematic_review_active:main'],
+        'console_scripts': [
+            'asr-oracle=asr.systematic_review_active:review_oracle',
+            'asr=asr.systematic_review_active:review_interactive',
+            'asr-interactive=asr.systematic_review_active:review_interactive'],
+
     },
 
     project_urls={

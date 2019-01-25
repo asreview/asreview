@@ -4,7 +4,7 @@
 # Arguments:
 #     -T: Task number
 #     --dataset: Name of dataset
-#     --quota: The number of queries
+#     --n_queries: The number of queries
 #     --init_included_papers: Initial number of included papers
 #     --batch_size : Batch size
 #     --model: A deep learning model to use for classification.
@@ -17,17 +17,15 @@ import os
 import argparse
 
 # data frameworks
-import numpy as np
-import pandas as pd
+
 
 # modAL dependencies
-from modAL.models import ActiveLearner
 from modAL.uncertainty import uncertainty_sampling
 
 # asr dependencies
-from asr.utils import load_data, text_to_features
+import asr
+from asr.utils import text_to_features
 from asr.query_strategies import random_sampling
-from asr.init_sampling import sample_prelabeled
 
 
 EPOCHS = 3
@@ -38,155 +36,63 @@ N_EXCLUDED = 40
 N_INSTANCES = 50
 
 # parse arguments if available
-parser = argparse.ArgumentParser(description='Active learning parameters')
-# Task number
-parser.add_argument("-T", default=1, type=int, help='Task number.')
-# Database name
+parser = argparse.ArgumentParser(
+    description='Systematic review with the help of an oracle.'
+)
+# File path to the data.
 parser.add_argument(
-    "--n_instances",
-    default=N_INSTANCES,
-    type=int,
-    help='Number of paper queried each query.')
-parser.add_argument(
-    "--dataset",
+    "dataset",
     type=str,
-    default='ptsd',
-    help="The dataset to use for training.")
-# The number of iteration
-parser.add_argument(
-    "--quota", type=int, default=10, help="The number of queries")
-# The initial number of included papers
-parser.add_argument(
-    "--init_included_papers",
-    default=10,
-    type=int,
-    help='Initial number of included papers')
-# The number of papers that is labeled for each iteration
-parser.add_argument("--batch_size", default=10, type=int, help='Batch size')
-# Machine learninng model
+    metavar='X',
+    help=("File path to the dataset. The dataset " +
+          "needs to be in the standardised format.")
+)
+
+# Active learning parameters
 parser.add_argument(
     '--model',
     type=str,
     default='lstm',
-    help="A deep learning model to use for classification.")
-# Query strategy
+    help="The prediction model for Active Learning. Default 'LSTM'.")
 parser.add_argument(
-    "--query_strategy", type=str, default='lc', help="The query strategy")
-# Dropout
-parser.add_argument("--dropout", default=0.4, type=float, help='dropout')
+    "--query_strategy",
+    type=str,
+    default='lc',
+    help="The query strategy for Active Learning. Default 'lc'.")
+parser.add_argument(
+    "--n_instances",
+    default=N_INSTANCES,
+    type=int,
+    help='Number of papers queried each query.')
+parser.add_argument(
+    "--n_queries",
+    type=int,
+    default=None,
+    help="The number of queries. Default None"
+)
 
-parser.add_argument("--init_indices", type=bool, default=True)
+# Initial data (prior knowledge)
+parser.add_argument(
+    "--n_included",
+    default=None,
+    type=int,
+    nargs="*",
+    help='Initial included papers.')
 
-
-class SystematicReview(object):
-    """Automated Systematic Review"""
-
-    def __init__(self,
-                 model,
-                 query_strategy,
-                 n_instances=1,
-                 log_output="logs/"):
-        super(SystematicReview, self).__init__()
-        self.model = model
-        self.query_strategy = query_strategy
-        self.n_instances = n_instances
-        self.log_output = log_output
-
-        self.n_included = N_INCLUDED
-        self.n_excluded = N_EXCLUDED
-
-    def interactive(self):
-
-        raise RuntimeError("Not implemented.")
-
-    def oracle(self, X, y):
-
-        # pool indices
-        pool_ind = np.arange(X.shape[0])
-
-        # Create the initial knowledge
-        init_ind = sample_prelabeled(
-            y,
-            n_included=self.n_included,
-            n_excluded=self.n_excluded,
-            random_state=None  # TODO
-        )
-        weights = {0: 1 / y[:, 0].mean(), 1: 1 / y[:, 1].mean()}
-
-        # initialize ActiveLearner
-        self.learner = ActiveLearner(
-            estimator=self.model,
-            X_training=X[init_ind, ],
-            y_training=y[init_ind, ],
-
-            # keyword arguments to pass to keras.fit()
-            batch_size=BATCH_SIZE,
-            epochs=EPOCHS,
-            shuffle=True,
-            class_weight=weights,
-
-            verbose=1)
-
-        # remove the initial sample from the pool
-        pool_ind = np.delete(pool_ind, init_ind)
-
-        # result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
-        query_i = 0
-        n_queries = 10
-
-        while query_i <= n_queries:
-
-            # Make a query from the pool.
-            query_ind, query_instance = self.learner.query(
-                X,
-                n_instances=self.n_instances,
-                verbose=1
-            )
-
-            # Teach the learner the new labelled data.
-            self.learner.teach(
-                X=X[query_ind],
-                y=y[query_ind],
-                only_new=False,  # check docs!!!!
-
-                # keyword arguments to pass to keras.fit()
-                batch_size=BATCH_SIZE,
-                epochs=EPOCHS,
-                shuffle=True,
-                class_weight=weights,
-
-                verbose=1)
-
-            # remove queried instance from pool
-            pool_ind = np.delete(pool_ind, query_ind, axis=0)
-
-            # predict the label of the unlabeled entries in the pool
-            pred = self.learner.predict(X[pool_ind])
-
-            # # reset the memory of the model
-            # self.learner._model.set_weights(init_weights)
-
-            # update the query counter
-            query_i += 1
-
-        # save the result to a file
-        # output_dir = os.path.join(log_output, 'file.log')
-        # if not os.path.exists(output_dir):
-        #     os.makedirs(output_dir)
-        # export_path = os.path.join(
-        #     output_dir, 'dataset_{}_systematic_review_active{}_q_{}.csv'.format(
-        #         args.dataset, args.T, args.query_strategy))
-
-        # result_df.to_csv(export_path)
-        # input("Press any key to continue...")
+parser.add_argument(
+    "--n_excluded",
+    default=None,
+    type=int,
+    nargs="*",
+    help='Initial excluded papers.')
 
 
-def main():
+def review_oracle():
 
     # parse all the arguments
     args = parser.parse_args()
 
-    # data, labels = load_data(args.dataset)
+    # data, labels = asr.load_data(args.dataset)
 
     # # get the model
     # if isinstance(args.dataset, str) & (args.model.lower() == 'lstm'):
@@ -209,7 +115,7 @@ def main():
 # /////////////////////// HACK
     import pickle
     pickle_fp = os.path.join(
-        '..', #'..',
+        '..',  # '..',
         'automated-systematic-review-simulations',
         'pickle',
         'ptsd_vandeschoot_words_20000.pkl'
@@ -255,7 +161,7 @@ def main():
 
     try:
         # start the review process
-        reviewer = SystematicReview(
+        reviewer = asr.Review(
             model, query_func, n_instances=args.n_instances)
         reviewer.oracle(X, y)
 
@@ -263,6 +169,11 @@ def main():
         print('Closing down.')
 
 
+def review_interactive():
+
+    raise NotImplementedError("Not implemented yet.")
+
+
 if __name__ == '__main__':
 
-    main()
+    review_oracle()
