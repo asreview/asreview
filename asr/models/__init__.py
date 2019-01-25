@@ -1,0 +1,1 @@
+from asr.models.lstm import create_lstm_model

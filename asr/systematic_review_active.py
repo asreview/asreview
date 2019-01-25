@@ -16,212 +16,169 @@
 import os
 import argparse
 
+# data frameworks
 import numpy as np
 import pandas as pd
 
-from asr.models.lstm import LSTM_Model
-from asr.query_strategies import (
-    UncertaintySampling, RandomSampling, ModelChangeSampling
-)
+# modAL dependencies
+from modAL.models import ActiveLearner
+from modAL.uncertainty import uncertainty_sampling
+
+# asr dependencies
+from asr.utils import load_data, text_to_features
+from asr.query_strategies import random_sampling
+from asr.init_sampling import sample_prelabeled
 
 
-# demo utils
-from asr.utils.utils import *
-from asr.utils.config import TEMP_DATA_DIR, ACTIVE_OUTPUT_DIR
-from asr.base.dataset import Dataset
+EPOCHS = 3
+BATCH_SIZE = 64
 
-from asr.select_init_indices import *
+N_INCLUDED = 10
+N_EXCLUDED = 40
+N_INSTANCES = 50
 
 # parse arguments if available
 parser = argparse.ArgumentParser(description='Active learning parameters')
-""" Task number """
+# Task number
 parser.add_argument("-T", default=1, type=int, help='Task number.')
-""" Database name """
+# Database name
+parser.add_argument(
+    "--n_instances",
+    default=N_INSTANCES,
+    type=int,
+    help='Number of paper queried each query.')
 parser.add_argument(
     "--dataset",
     type=str,
     default='ptsd',
     help="The dataset to use for training.")
-""" The number of iteration """
+# The number of iteration
 parser.add_argument(
     "--quota", type=int, default=10, help="The number of queries")
-""" The initial number of included papers """
+# The initial number of included papers
 parser.add_argument(
     "--init_included_papers",
     default=10,
     type=int,
     help='Initial number of included papers')
-""" The number of papers that is labeled for each iteration """
+# The number of papers that is labeled for each iteration
 parser.add_argument("--batch_size", default=10, type=int, help='Batch size')
-""" Machine learninng model """
+# Machine learninng model
 parser.add_argument(
     '--model',
     type=str,
-    default='LSTM',
+    default='lstm',
     help="A deep learning model to use for classification.")
-""" Query strategy """
+# Query strategy
 parser.add_argument(
     "--query_strategy", type=str, default='lc', help="The query strategy")
-""" Dropout """
+# Dropout
 parser.add_argument("--dropout", default=0.4, type=float, help='dropout')
 
 parser.add_argument("--init_indices", type=bool, default=True)
 
 
-def make_pool(X, y, prelabeled=np.arange(5)):
-    """Function to split dataset into train and test dataset.
+class SystematicReview(object):
+    """Automated Systematic Review"""
 
-    Arguments
-    ------
+    def __init__(self,
+                 model,
+                 query_strategy,
+                 n_instances=1,
+                 log_output="logs/"):
+        super(SystematicReview, self).__init__()
+        self.model = model
+        self.query_strategy = query_strategy
+        self.n_instances = n_instances
+        self.log_output = log_output
 
-    prelabeled: list
-        List of indices for which the label is already available.
+        self.n_included = N_INCLUDED
+        self.n_excluded = N_EXCLUDED
 
-    """
-    y = y.argmax(axis=1)
-    # a set of labels is already labeled by the oracle
-    y_train_labeled = np.array([None] * len(y))
+    def interactive(self):
 
-    y_train_labeled[prelabeled] = y[prelabeled]
+        raise RuntimeError("Not implemented.")
 
-    # we are making a pool of the train data
-    # the 'prelabeled' labels of the dataset are already labeled.
-    return Dataset(X, y_train_labeled), Dataset(X, y)
+    def oracle(self, X, y):
 
+        # pool indices
+        pool_ind = np.arange(X.shape[0])
 
-def load_data(fp):
-    """Load papers and their labels."""
-
-    df = pd.read_csv(fp)
-
-    # make texts and labels
-    texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
-
-    try:
-        labels = df["included_final"]
-    except KeyError(err):
-        return texts.values
-
-    return texts.values, labels.values
-
-
-def review(fp_data, model, pos_labels=None, neg_labels=None, args):
-
-    data, labels = load_data(fp_data)
-
-    # # Read dataset, labels and embedding layer from pickle file.
-    # pickle_fp = os.path.join(TEMP_DATA_DIR, args.dataset,
-    #                          args.dataset + '_pickle.pickle')
-    # with open(pickle_fp, 'rb') as f:
-    #     data, labels, embedding_layer, _, _ = pickle.load(f)
-
-    # label the first batch (the initial labels) To compare different query
-    # strategies we need a fixed set of prelabeled papers. To do so: By
-    # default prelabeled_indexes are read from prelabeled_indices.csv if
-    # args.init_indices == False then the list of prelabled_indices are
-    # generated here.
-
-    # seed = 2017 + args.T
-
-    # if args.init_indices == False:
-    #     prelabeled_index = select_prelabeled(
-    #         labels, args.init_included_papers)
-    # else:
-    #     labeled_indices_fp = os.path.join(
-    #         TEMP_DATA_DIR, args.dataset,
-    #         args.dataset + '_prelabeled_indices.csv')
-    #     prelabeled_data = pd.read_csv(labeled_indices_fp, names=['idx'])
-    #     prelabeled_index = prelabeled_data.idx.tolist()
-
-    if pos_labels:
-        pass
-    if neg_labels:
-        pass
-
-    print('prelabeled_index', prelabeled_index)
-    pool, pool_ideal = make_pool(data, labels, prelabeled=prelabeled_index)
-
-    # get the model
-    if isinstance(model, str) & model.lower() == 'lstm':
-        model = LSTM_Model(
-            backwards=True,
-            dropout=args.dropout,
-            optimizer='rmsprop',
-            max_sequence_length=1000,
-            embedding_layer=embedding_layer
+        # Create the initial knowledge
+        init_ind = sample_prelabeled(
+            y,
+            n_included=self.n_included,
+            n_excluded=self.n_excluded,
+            random_state=None  # TODO
         )
-        # method to setup model (not with init) for example to built vocabulary
-        init_weights = model._model.get_weights()  # move this to method 'get_model_params' or 'params'
-    else:
-        raise ValueError('Model not found.')
+        weights = {0: 1 / y[:, 0].mean(), 1: 1 / y[:, 1].mean()}
 
-    result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
-    query_i = 0
+        # initialize ActiveLearner
+        self.learner = ActiveLearner(
+            estimator=self.model,
+            X_training=X[init_ind, ],
+            y_training=y[init_ind, ],
 
-    # prev_model is used for model change sampling
-    prev_score = np.array([])
-    while query_i <= args.quota:
+            # keyword arguments to pass to keras.fit()
+            batch_size=BATCH_SIZE,
+            epochs=EPOCHS,
+            shuffle=True,
+            class_weight=weights,
 
-        # make a query from the pool
-        print("Asking sample from pool with %s" % args.query_strategy)
+            verbose=1)
 
-        # train the model
-        model.train(pool)
+        # remove the initial sample from the pool
+        pool_ind = np.delete(pool_ind, init_ind)
 
-        # predict the label of the unlabeled entries in the pool
-        idx_features = pool.get_unlabeled_entries()
-        idx = [x[0] for x in idx_features]
-        features = [x[1] for x in idx_features]
-        pred = model.predict(features)
+        # result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
+        query_i = 0
+        n_queries = 10
 
-        # store result in dataframe
-        c_name = str(query_i)
-        result_df[c_name] = -1
-        result_df.loc[idx, c_name] = pred[:, 1]
+        while query_i <= n_queries:
 
-        # make query
-        if (args.query_strategy == 'lc'):
-            qs = UncertaintySampling(pool, method='lc', model=model)
-        elif (args.query_strategy == 'random'):
-            qs = RandomSampling(pool)
-        elif (args.query_strategy == 'lcb'):
-            qs = UncertaintySampling(pool, method='lcb', model=model)
-        elif (args.query_strategy == 'lcbmc'):
-            qs = ModelChangeSampling(
-                pool, method='lcbmc', model=model, prev_score=prev_score)
-        ask_id = qs.make_query(n=args.batch_size)
+            # Make a query from the pool.
+            query_ind, query_instance = self.learner.query(
+                X,
+                n_instances=self.n_instances,
+                verbose=1
+            )
 
-        if not isinstance(ask_id, list):
-            ask_id = [ask_id]
+            # Teach the learner the new labelled data.
+            self.learner.teach(
+                X=X[query_ind],
+                y=y[query_ind],
+                only_new=False,  # check docs!!!!
 
-        if (args.query_strategy == 'lcbmc'):
+                # keyword arguments to pass to keras.fit()
+                batch_size=BATCH_SIZE,
+                epochs=EPOCHS,
+                shuffle=True,
+                class_weight=weights,
 
-            prev_score = np.array(
-                [qs.score[i] for i, x in enumerate(idx) if x not in ask_id])
-            print('prev_score shape', prev_score.shape)
-            print('idx', len(idx))
-            print('prev_score', prev_score)
+                verbose=1)
 
-        for i in ask_id:
-            lb = int(labels[i][1])
-            pool.update(i, lb)
+            # remove queried instance from pool
+            pool_ind = np.delete(pool_ind, query_ind, axis=0)
 
-        # reset the memory of the model
-        model._model.set_weights(init_weights)
+            # predict the label of the unlabeled entries in the pool
+            pred = self.learner.predict(X[pool_ind])
 
-        # update the query counter
-        query_i += 1
+            # # reset the memory of the model
+            # self.learner._model.set_weights(init_weights)
 
-    # save the result to a file
-    output_dir = os.path.join(ACTIVE_OUTPUT_DIR, args.dataset)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    export_path = os.path.join(
-        output_dir, 'dataset_{}_systematic_review_active{}_q_{}.csv'.format(
-            args.dataset, args.T, args.query_strategy))
+            # update the query counter
+            query_i += 1
 
-    result_df.to_csv(export_path)
-    input("Press any key to continue...")
+        # save the result to a file
+        # output_dir = os.path.join(log_output, 'file.log')
+        # if not os.path.exists(output_dir):
+        #     os.makedirs(output_dir)
+        # export_path = os.path.join(
+        #     output_dir, 'dataset_{}_systematic_review_active{}_q_{}.csv'.format(
+        #         args.dataset, args.T, args.query_strategy))
+
+        # result_df.to_csv(export_path)
+        # input("Press any key to continue...")
 
 
 def main():
@@ -229,13 +186,83 @@ def main():
     # parse all the arguments
     args = parser.parse_args()
 
+    # data, labels = load_data(args.dataset)
+
+    # # get the model
+    # if isinstance(args.dataset, str) & (args.model.lower() == 'lstm'):
+
+    #     from keras.utils import to_categorical
+    #     from keras.wrappers.scikit_learn import KerasClassifier
+    #     from asr.models import create_lstm_model
+
+    #     # create features and labels
+    #     X, word_index = text_to_features(data)
+    #     y = to_categorical(labels) if labels.ndim == 1 else labels
+
+    #     # Load embedding layer. This takes some time.
+    #     from asr.models.embedding import load_embedding, sample_embedding
+
+    #     embedding_fp = os.path.join("data", "pretrained_models", "wiki.en.vec")
+    #     embedding, words = load_embedding(embedding_fp)
+    #     embedding_matrix = sample_embedding(embedding, words, word_index)
+
+# /////////////////////// HACK
+    import pickle
+    pickle_fp = os.path.join(
+        '..', #'..',
+        'automated-systematic-review-simulations',
+        'pickle',
+        'ptsd_vandeschoot_words_20000.pkl'
+    )
+    with open(pickle_fp, 'rb') as f:
+        X, y, embedding_matrix = pickle.load(f)
+
+    # get the model
+    if isinstance(args.dataset, str) & (args.model.lower() == 'lstm'):
+
+        from keras.wrappers.scikit_learn import KerasClassifier
+        from asr.models import create_lstm_model
+# ///////////////////// HACK
+
+        # create the model
+        model = KerasClassifier(
+            create_lstm_model(
+                embedding_matrix=embedding_matrix,
+                backwards=True,
+                dropout=args.dropout,
+                max_sequence_length=1000
+            )
+        )
+
+    else:
+        raise ValueError('Model not found.')
+
+    # Pick query strategy
+    if (args.query_strategy in ['lc', 'sm']):
+        query_func_str = 'Least confidence'
+        query_func = uncertainty_sampling
+    elif (args.query_strategy == 'random'):
+        query_func_str = 'Random'
+        query_func = random_sampling
+    # elif (args.query_strategy == 'lcb'):
+    #     qs = UncertaintySampling(pool, method='lcb', model=model)
+    # elif (args.query_strategy == 'lcbmc'):
+    #     qs = ModelChangeSampling(
+    #         pool, method='lcbmc', model=model, prev_score=prev_score)
+    else:
+        pass
+    print('Query strategy: {}.'.format(query_func_str))
+
     try:
         # start the review process
-        review(args)
+        reviewer = SystematicReview(
+            model, query_func, n_instances=args.n_instances)
+        reviewer.oracle(X, y)
+
     except KeyboardInterrupt:
         print('Closing down.')
 
 
 if __name__ == '__main__':
 
-    main(args)
+    main()

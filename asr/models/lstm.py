@@ -1,80 +1,76 @@
-import numpy as np
-from keras.layers import Dense, Input, LSTM
-from keras.models import Model
-from keras.utils import to_categorical
+from keras.layers import Dense, LSTM, Embedding
+from keras.models import Sequential
 
-class LSTM_Model():
+
+def create_lstm_model(embedding_matrix,
+                      backwards=True,
+                      dropout=0.4,
+                      optimizer='rmsprop',
+                      max_sequence_length=1000,
+                      verbose=1):
+    """Return callable lstm model. 
+
+    Arguments
+    ---------
+    
+    Returns
+    -------
+    callable:
+        A function that return the Keras Sklearn model when 
+        called.
+
     """
-    """
-    # training arguments
-    batch_size = 16
-    epoch_no = 10
 
-    def __init__(self, *args, **kwargs):
-        self._model = self._get_lstm_model(*args, **kwargs)
+    # The Sklearn API requires a callable as result.
+    # https://keras.io/scikit-learn-api/
+    def wrap_model():
 
-    def train(self, *args, **kwargs):
-        self._train_model(*args, **kwargs)
+        model = Sequential()
 
+        # add first embedding layer with pretrained wikipedia weights
+        model.add(
+            Embedding(
+                embedding_matrix.shape[0],
+                embedding_matrix.shape[1],
+                weights=[embedding_matrix],
+                input_length=max_sequence_length,
+                trainable=False
+            )
+        )
 
-    def predict(self, feature, *args, **kwargs):
-        return self._model.predict(np.array(feature))
+        # add LSTM layer
+        model.add(
+            LSTM(
+                10,
+                input_shape=(max_sequence_length, ),
+                go_backwards=backwards,
+                dropout=dropout
+            )
+        )
 
-    def _get_lstm_model(self, backwards, dropout, optimizer,
-                        max_sequence_length, embedding_layer):
-        sequence_input = Input(shape=(max_sequence_length, ), dtype='int32')
-        embedded_sequences = embedding_layer(sequence_input)
+        # add Dense layer with relu activation
+        model.add(
+            Dense(
+                128,
+                activation='relu'
+            )
+        )
 
-        x = LSTM(
-            10,
-            input_shape=(max_sequence_length, ),
-            go_backwards=backwards,
-            dropout=dropout)(embedded_sequences)
-        x = Dense(128, activation='relu')(x)
-        output = Dense(2, activation='softmax')(x)
+        # add Dense layer
+        model.add(
+            Dense(
+                2,
+                activation='softmax'
+            )
+        )
 
-        model_lstm = Model(inputs=sequence_input, outputs=output)
-
-        model_lstm.compile(
+        # Compile model
+        model.compile(
             loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])
 
-        model_lstm.summary()
-        return model_lstm
+        if verbose == 1:
+            model.summary()
 
-    def _train_model(self, *args):
+        return model
 
-         if len(args)>1:
-            x_train = np.array(args[0])
-            y_train = np.array(args[1])
-            x_val = np.array(args[2])
-            y_val = np.array(args[3])            
-            
-            weights = {0: 1 / y_train[:, 0].mean(), 1: 1 / y_train[:, 1].mean()}
-            self._model.fit(
-                x_train,
-                y_train,
-                batch_size=self.batch_size,
-                epochs=self.epoch_no,
-                validation_data=(x_val, y_val),
-                shuffle=True,
-                class_weight=weights,
-                verbose=0)
-         else:
-            dataset = args[0] 
-            x_train, y_train_ = dataset.format_sklearn()
-
-            if y_train_.ndim==1:    
-                y_train = to_categorical(np.asarray(y_train_))
-            else:
-                y_train = y_train_
-
-            weights = {0: 1 / y_train[:, 0].mean(), 1: 1 / y_train[:, 1].mean()}
-    
-            self._model.fit(
-                x_train,
-                y_train,
-                batch_size=self.batch_size,
-                epochs=self.epoch_no,
-                shuffle=True,
-                class_weight=weights,
-                verbose=0)
+    return wrap_model
