@@ -43,13 +43,13 @@ A systematic review with interaction with an expert.
 Start a review process in the CMD.exe or shell. 
 
 ``` bash
-asr YOUR_DATA.csv
+asr interactive YOUR_DATA.csv
 ```
 
 The available parameters are: 
 
 ```bash
-usage: asr-oracle [-h] [--model MODEL] [--query_strategy QUERY_STRATEGY]
+usage: asr interactive [-h] [--model MODEL] [--query_strategy QUERY_STRATEGY]
                   [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
                   [--n_included [N_INCLUDED [N_INCLUDED ...]]]
                   [--n_excluded [N_EXCLUDED [N_EXCLUDED ...]]]
@@ -125,16 +125,16 @@ can give you an indication of the time and work you can save.
 ### Command Line Interface
 
 A systematic review with an oracle works in a similar way. Instead of `asr`,
-you need `asr-oracle`.
+you need `asr oracle`.
 
 ``` bash
-asr-oracle YOUR_DATA.csv
+asr oracle YOUR_DATA.csv
 ```
 
 The available parameters are: 
 
 ```bash
-usage: asr-oracle [-h] [--model MODEL] [--query_strategy QUERY_STRATEGY]
+usage: asr oracle [-h] [--model MODEL] [--query_strategy QUERY_STRATEGY]
                   [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
                   [--n_included [N_INCLUDED [N_INCLUDED ...]]]
                   [--n_excluded [N_EXCLUDED [N_EXCLUDED ...]]]
