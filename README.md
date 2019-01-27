@@ -10,6 +10,8 @@ with a minimum of papers to be read by a human (in the training set and in the
 final included set) and with zero false negatives (or any other small number). 
 
 
+
+
 Table of Contents
 =================
 
@@ -22,6 +24,7 @@ Table of Contents
          * [Command Line Interface](#command-line-interface-1)
          * [Python API](#python-api-1)
       * [Contact and contributors.](#contact-and-contributors)
+
 
 ## Installation
 
@@ -198,6 +201,12 @@ asr = ReviewInteractive(model, uncertainty_sampling)
 asr.review(X)
 
 ```
+
+## Developement and contributions
+
+- Use [yapf]() as formatter for python code. 
+- **Run module as `__main__`.** Use `python -m asr` to run the module as main. This 
+  can be useful when debugging the CLI and entry_points.
 
 ## Contact and contributors. 
 

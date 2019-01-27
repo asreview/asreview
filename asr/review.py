@@ -6,101 +6,35 @@
 
 import os
 import sys
+import warnings
 import argparse
-
-# data frameworks
-
 
 # modAL dependencies
 from modAL.uncertainty import uncertainty_sampling
 
 # asr dependencies
-from asr.base import ReviewOracle
+from asr.base import ReviewOracle, ReviewInteractive
 from asr.utils import load_data, text_to_features
 from asr.query_strategies import random_sampling
-
-MODES = ["interactive", "oracle"]
-
-MODEL = 'lstm'
-QUERY_STRATEGY = 'lc'
-
-EPOCHS = 3
-BATCH_SIZE = 64
-
-N_INCLUDED = 10
-N_EXCLUDED = 40
-N_INSTANCES = 50
-
-
-def parse_arguments(prog=sys.argv[0]):
-
-    # parse arguments if available
-    parser = argparse.ArgumentParser(
-        prog=prog,
-        description='Systematic review with the help of an oracle.'
-    )
-    # File path to the data.
-    parser.add_argument(
-        "dataset",
-        type=str,
-        metavar='X',
-        help=("File path to the dataset. The dataset " +
-              "needs to be in the standardised format.")
-    )
-    # Active learning parameters
-    parser.add_argument(
-        '--model',
-        type=str,
-        default=MODEL,
-        help="The prediction model for Active Learning. Default 'LSTM'.")
-    parser.add_argument(
-        "--query_strategy",
-        type=str,
-        default=QUERY_STRATEGY,
-        help="The query strategy for Active Learning. Default 'lc'.")
-    parser.add_argument(
-        "--n_instances",
-        default=N_INSTANCES,
-        type=int,
-        help='Number of papers queried each query.')
-    parser.add_argument(
-        "--n_queries",
-        type=int,
-        default=None,
-        help="The number of queries. Default None"
-    )
-
-    # Initial data (prior knowledge)
-    parser.add_argument(
-        "--n_included",
-        default=None,
-        type=int,
-        nargs="*",
-        help='Initial included papers.')
-
-    parser.add_argument(
-        "--n_excluded",
-        default=None,
-        type=int,
-        nargs="*",
-        help='Initial excluded papers.')
-
-    return parser
 
 
 def review(dataset,
            mode='interactive',
-           model= MODEL,
-           query_strategy= QUERY_STRATEGY,
-           n_instances=N_INSTANCES, dropout=0.4, **kwargs):
+           model="lstm",
+           query_strategy="lc",
+           n_instances=1, dropout=0.4, **kwargs):
+
+    if mode == 'interactive':
+        print("Interactive mode not implemented.")
+        return
 
     # data, labels = load_data(dataset)
 
     # # get the model
     # if isinstance(dataset, str) & (model.lower() == 'lstm'):
 
-    #     from keras.utils import to_categorical
-    #     from keras.wrappers.scikit_learn import KerasClassifier
+    #     from tensorflow.keras.utils import to_categorical
+    #     from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
     #     from asr.models import create_lstm_model
 
     #     # create features and labels
@@ -128,7 +62,7 @@ def review(dataset,
     # get the model
     if isinstance(dataset, str) & (model.lower() == 'lstm'):
 
-        from keras.wrappers.scikit_learn import KerasClassifier
+        from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
         from asr.models import create_lstm_model
 # ///////////////////// HACK
 
@@ -173,55 +107,13 @@ def review(dataset,
         print('Closing down.')
 
 
-def review_interactive():
+def review_interactive(dataset, **kwargs):
     """CLI to the interactive mode."""
 
-    parser = parse_arguments(prog="asr interactive")
-    args = parser.parse_args(sys.argv[2:])
-
-    args_dict = vars(args)
-    path = args_dict.pop("dataset")
-
-    # review(path, mode='interactive', **args_dict)
-
-    raise NotImplementedError("Not implemented yet.")
+    review(dataset, mode='interactive', **kwargs)
 
 
-def review_oracle():
+def review_oracle(dataset, **kwargs):
     """CLI to the oracle mode."""
 
-    parser = parse_arguments(prog="asr oracle")
-    args = parser.parse_args(sys.argv[2:])
-
-    args_dict = vars(args)
-    path = args_dict.pop("dataset")
-
-    review(path, mode='oracle', **args_dict)
-
-
-def main():
-
-    # launch asr interactively
-    if len(sys.argv) > 1 and sys.argv[1] == "interactive":
-        review_interactive()
-
-    # launch asr with oracle
-    elif len(sys.argv) > 1 and sys.argv[1] == "oracle":
-        review_oracle()
-
-    # no valid sub command
-    else:
-        parser = argparse.ArgumentParser(
-            description='Automated Systematic Review.'
-        )
-        parser.add_argument(
-            "subcommand",
-            type=lambda x: isinstance(x, str) and x in MODES,
-            help="the subcommand to launch"
-        )
-        parser.parse_args()
-
-
-if __name__ == '__main__':
-
-    main()
+    review(dataset, mode='oracle', **kwargs)

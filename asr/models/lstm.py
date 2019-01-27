@@ -1,5 +1,7 @@
-from keras.layers import Dense, LSTM, Embedding
-from keras.models import Sequential
+
+
+from tensorflow.keras.layers import Dense, LSTM, Embedding
+from tensorflow.keras.models import Sequential
 
 
 def create_lstm_model(embedding_matrix,

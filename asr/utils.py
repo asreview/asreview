@@ -2,8 +2,6 @@
 
 # external dependencies
 import pandas as pd
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
 
 
 def load_data(fp):
@@ -51,6 +49,9 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
     np.ndarray, dict
         The array with features and the dictiory that maps words to values.
     """
+
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
 
     # fit on texts
     tokenizer = Tokenizer(num_words=num_words)
