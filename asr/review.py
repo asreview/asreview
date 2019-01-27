@@ -13,20 +13,17 @@ import argparse
 from modAL.uncertainty import uncertainty_sampling
 
 # asr dependencies
-from asr.base import ReviewOracle, ReviewInteractive
+from asr import ReviewOracle, ReviewInteractive
 from asr.utils import load_data, text_to_features
 from asr.query_strategies import random_sampling
+from asr.ascii import ASCII_TEA
 
 
 def review(dataset,
            mode='interactive',
            model="lstm",
            query_strategy="lc",
-           n_instances=1, dropout=0.4, **kwargs):
-
-    if mode == 'interactive':
-        print("Interactive mode not implemented.")
-        return
+           n_instances=1, dropout=0.4, verbose=1, **kwargs):
 
     # data, labels = load_data(dataset)
 
@@ -47,6 +44,10 @@ def review(dataset,
     #     embedding_fp = os.path.join("data", "pretrained_models", "wiki.en.vec")
     #     embedding, words = load_embedding(embedding_fp)
     #     embedding_matrix = sample_embedding(embedding, words, word_index)
+
+    if mode == "interactive":
+        print("Prepare dataset.\n")
+        print(ASCII_TEA)
 
     # /////////////////////// HACK
     import pickle
@@ -100,7 +101,8 @@ def review(dataset,
         reviewer = ReviewOracle(
             model,
             query_func,
-            n_instances=n_instances)
+            n_instances=n_instances,
+            verbose=verbose)
         reviewer.review(X, y)
 
     except KeyboardInterrupt:

@@ -79,6 +79,12 @@ def parse_arguments(prog=sys.argv[0]):
         nargs="*",
         help='Initial excluded papers.')
 
+    parser.add_argument(
+        "--verbose",
+        default=1,
+        type=int,
+        help='Verbosity')
+
     return parser
 
 

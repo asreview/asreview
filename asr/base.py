@@ -20,22 +20,17 @@ class Review(object):
                  model,
                  query_strategy,
                  n_instances=1,
-                 log_output='logs'):
+                 log_output='logs',
+                 verbose=1):
         super(Review, self).__init__()
         self.model = model
         self.query_strategy = query_strategy
         self.n_instances = n_instances
         self.log_output = log_output
+        self.verbose = verbose
 
         self.n_included = N_INCLUDED
         self.n_excluded = N_EXCLUDED
-
-
-class ReviewOracle(Review):
-    """Automated Systematic Review"""
-
-    def __init__(self, *args, **kwargs):
-        super(ReviewOracle, self).__init__(*args, **kwargs)
 
     def review(self, X, y):
 
@@ -63,7 +58,7 @@ class ReviewOracle(Review):
             shuffle=True,
             class_weight=weights,
 
-            verbose=1)
+            verbose=self.verbose)
 
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
@@ -78,7 +73,7 @@ class ReviewOracle(Review):
             query_ind, query_instance = self.learner.query(
                 X,
                 n_instances=self.n_instances,
-                verbose=1
+                verbose=self.verbose
             )
 
             # Teach the learner the new labelled data.
@@ -117,6 +112,13 @@ class ReviewOracle(Review):
 
         # result_df.to_csv(export_path)
         # input("Press any key to continue...")
+
+
+class ReviewOracle(Review):
+    """Automated Systematic Review"""
+
+    def __init__(self, *args, **kwargs):
+        super(ReviewOracle, self).__init__(*args, **kwargs)
 
 
 class ReviewInteractive(Review):
