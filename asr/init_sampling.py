@@ -11,7 +11,9 @@ so-called 'pre-knowledge' of the researcher.
 import numpy as np
 
 
-def sample_prelabeled(labels, n_included=10, n_excluded=10, random_state=None):
+def sample_prior_knowledge(
+        labels, n_included=10,
+        n_excluded=10, random_state=None):
     """Function to sample prelabelled articles.
 
     Arguments

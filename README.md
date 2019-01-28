@@ -9,7 +9,14 @@ software is designed to take over the step of screening abstracts and titles
 with a minimum of papers to be read by a human (in the training set and in the
 final included set) and with zero false negatives (or any other small number). 
 
+The software implements an interactive and an oracle systematic review modus.
 
+- **Interactive** The interactive modus is an systematic review with interaction 
+  with the reviewer. When enabled, the reviewer get a new papers presented and 
+  has to classify them. 
+- **Oracle** The oracle modus can be used to measure the performance of our 
+  software on an existing systematic review. The software can show how many
+  papers you potentially could have skipped reviewing.
 
 
 Table of Contents
