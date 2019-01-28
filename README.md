@@ -19,6 +19,12 @@ The software implements an interactive and an oracle systematic review modus.
   papers you potentially could have skipped reviewing.
 
 
+This project consists of multiple repositories. The following respositories are 
+publicly available: 
+
+- [automated-systematic-review-datasets](https://github.com/msdslab/automated-systematic-review-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by software.
+- [automated-systematic-review-simulations](https://github.com/msdslab/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and/or visualisation of the results.
+
 Table of Contents
 =================
 
