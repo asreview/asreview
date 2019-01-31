@@ -12,9 +12,15 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+# Extract version from cbsodata.py
+for line in open(path.join("asr", "__init__.py")):
+    if line.startswith('__version__'):
+        exec(line)
+        break
+
 setup(
     name='asr',
-    version='0.0.1',
+    version=__version__,  # noqa
     description='Automated Systematic Review',
     long_description=long_description,
     long_description_content_type='text/markdown',
