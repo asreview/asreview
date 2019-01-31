@@ -21,9 +21,6 @@ from asr.ascii import ASCII_TEA
 from asr.types import is_pickle
 
 
-EMBEDDING_FP = os.path.join("data", "pretrained_models", "wiki.en.vec")
-
-
 def _get_query_method(method):
     """Function to get the query method"""
 
@@ -51,8 +48,10 @@ def review(dataset,
            model="lstm",
            query_strategy="lc",
            n_instances=1,
-           embedding_fp=EMBEDDING_FP,
+           embedding=None,
            verbose=1,
+           included=[],
+           excluded=[],
            **kwargs
 ):
 
@@ -78,14 +77,14 @@ def review(dataset,
         data, labels = load_data(dataset)
 
         # get the model
-        if isinstance(dataset, str) & (model.lower() == 'lstm'):
+        if isinstance(dataset, str) & (model.lower() == 'lstm') & (embedding is not None):
 
             from tensorflow.keras.utils import to_categorical
 
             # create features and labels
             X, word_index = text_to_features(data)
             y = to_categorical(labels) if labels.ndim == 1 else labels
-            embedding_matrix = _load_embedding_matrix(embedding_fp, word_index)
+            embedding_matrix = _load_embedding_matrix(embedding, word_index)
 
     # get the model
     if isinstance(dataset, str) & (model.lower() == 'lstm'):

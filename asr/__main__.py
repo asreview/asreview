@@ -64,7 +64,12 @@ def parse_arguments(prog=sys.argv[0]):
         default=None,
         help="The number of queries. Default None"
     )
-
+    parser.add_argument(
+        "--embedding",
+        type=str,
+        default=None,
+        help="File path of embedding matrix. Required for LSTM model."
+    )
     # Initial data (prior knowledge)
     parser.add_argument(
         "--n_included",

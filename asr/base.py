@@ -5,6 +5,7 @@ import numpy as np
 from modAL.models import ActiveLearner
 
 from asr.init_sampling import sample_prior_knowledge
+from asr.utils import Logger
 
 
 EPOCHS = 3
@@ -26,7 +27,7 @@ class Review(ABC):
                  frac_included=None,
                  n_instances=1,
                  n_queries=10,
-                 log_output='logs',
+                 log_file=None,
                  verbose=1):
         super(Review, self).__init__()
 
@@ -39,11 +40,13 @@ class Review(ABC):
 
         self.n_instances = n_instances
         self.n_queries = n_queries
-        self.log_output = log_output
+        self.log_file = log_file
         self.verbose = verbose
 
         self.n_included = N_INCLUDED
         self.n_excluded = N_EXCLUDED
+
+        self._logger = Logger()
 
     @abstractmethod
     def _prior_knowledge(self):
@@ -111,13 +114,17 @@ class Review(ABC):
                 shuffle=True,
                 class_weight=_weights,
 
-                verbose=1)
+                verbose=self.verbose)
 
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_ind, axis=0)
 
             # predict the label of the unlabeled entries in the pool
             pred = self.learner.predict(self.X[pool_ind])
+
+            # add results to logger
+            self._logger.add_training_log(query_ind, y, i=query_i)
+            # self._logger.add_pool_log(pool_ind, pred, i=query_i)
 
             # # reset the memory of the model
             # self.learner._model.set_weights(init_weights)
@@ -126,15 +133,12 @@ class Review(ABC):
             query_i += 1
 
         # save the result to a file
-        # output_dir = os.path.join(log_output, 'file.log')
-        # if not os.path.exists(output_dir):
-        #     os.makedirs(output_dir)
-        # export_path = os.path.join(
-        #     output_dir, 'dataset_{}_systematic_review_active{}_q_{}.csv'.format(
-        #         args.dataset, args.T, args.query_strategy))
+        if self.log_file:
+            self._logger.save()
 
-        # result_df.to_csv(export_path)
-        # input("Press any key to continue...")
+        # print the results
+        if self.verbose:
+            print(self._logger._print_logs())
 
 
 class ReviewOracle(Review):

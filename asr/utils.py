@@ -1,4 +1,6 @@
 # Cpython dependencies
+import pathlib
+import json
 
 # external dependencies
 import pandas as pd
@@ -74,3 +76,76 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
                   if i <= num_words}
 
     return x, word_index
+
+
+class Logger(object):
+    """Class for logging the Systematic Review"""
+
+    def __init__(self, X=None):
+        super(Logger, self).__init__()
+
+        self.X = X
+
+        # since python 3, this is an ordered dict
+        self._log_dict = {}
+
+    def __str__(self):
+
+        self._print_logs()
+
+    def _print_logs(self):
+
+        s = "Logs of the Systematic Review process:\n"
+        for i, value in self._log_dict.items():
+            s += f"Query {i} - Reduction {value}"
+
+        return s
+
+    def add_training_log(self, indices, labels, i=None):
+        """Add training indices and their labels.
+
+        Arguments
+        ---------
+        indices: list, np.array
+            A list of indices used for training.
+        labels: list
+            A list of labels corresponding with the training indices.
+        i: int
+            The query number.
+        """
+
+        if i is None:
+            i = max(self._log_dict.keys()) + 1
+
+        self._log_dict[i] = {'labelled': list(zip(indices, labels))}
+
+    def add_pool_log(self, indices, pred, i=None):
+        """Add inverse pool indices and their labels.
+
+        Arguments
+        ---------
+        indices: list, np.array
+            A list of indices used for inverse pool.
+        pred: list
+            A list of labels corresponding with the inverse pool indices.
+        i: int
+            The query number.
+        """
+
+        raise NotImplementedError()
+
+    def save(self, fp):
+        """Save logs to file.
+
+        Arguments
+        ---------
+        fp: str
+            The file path to export the results to.
+
+        """
+        fp = pathlib.Path(fp)
+
+        fp.mkdir(parents=True, exist_ok=True)
+
+        with open(fp, 'w') as outfile:
+            json.dump(self._print_logs, outfile)
