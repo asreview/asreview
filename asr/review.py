@@ -52,6 +52,9 @@ def review(dataset,
            verbose=1,
            included=[],
            excluded=[],
+           n_included=None,
+           n_excluded=None,
+           save_model=None,
            **kwargs
 ):
 
@@ -104,39 +107,42 @@ def review(dataset,
     # Pick query strategy
     query_fn, query_str = _get_query_method(query_strategy)
 
+    if mode == 'oracle':
+        # start the review process
+        reviewer = ReviewOracle(
+            X, y,
+            model,
+            query_fn,
+            n_instances=n_instances,
+            verbose=verbose,
+            **kwargs)
+    elif mode == 'interactive':
+
+        if included is None:
+            # provide prior knowledge
+            print("Are there papers you definitively want to include?")
+            included = input(
+                "Give the indices of these papers. Separate them with spaces.\n"
+                "Include: ")
+
+        if excluded is None: 
+            print("Are there papers you definitively want to exclude?")
+            excluded = input(
+                "Give the indices of these papers. Separate them with spaces.\n"
+                "Exclude: ")
+
+        # start the review process
+        reviewer = ReviewInteractive(
+            X,
+            model,
+            query_fn,
+            X,  # replace this with the data
+            n_instances=n_instances,
+            verbose=verbose,
+            **kwargs)
+
+    # wrap in try expect to capture keyboard interrupt
     try:
-
-        if mode == 'oracle':
-            # start the review process
-            reviewer = ReviewOracle(
-                X, y,
-                model,
-                query_fn,
-                n_instances=n_instances,
-                verbose=verbose)
-        elif mode == 'interactive':
-
-            if included is None:
-                # provide prior knowledge
-                print("Are there papers you definitively want to include?")
-                included = input(
-                    "Give the indices of these papers. Separate them with spaces.\n"
-                    "Include: ")
-
-            if excluded is None: 
-                print("Are there papers you definitively want to exclude?")
-                excluded = input(
-                    "Give the indices of these papers. Separate them with spaces.\n"
-                    "Exclude: ")
-
-            # start the review process
-            reviewer = ReviewInteractive(
-                X,
-                model,
-                query_fn,
-                n_instances=n_instances,
-                verbose=verbose)
-
         # Start the review process.
         reviewer.review()
 
@@ -144,6 +150,15 @@ def review(dataset,
 
         # TODO: save results.
         print('\nClosing down the automated systematic review.')
+        print('\nSaving results.')
+
+        # save the result to a file
+        if reviewer.log_file:
+            reviewer.save_log(reviewer.log_file)
+
+        # print the results
+        if reviewer.verbose:
+            print(reviewer._logger._print_logs())
 
 
 def review_interactive(dataset, **kwargs):

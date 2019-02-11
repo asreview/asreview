@@ -7,7 +7,6 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 
-
 EPOCHS = 3
 BATCH_SIZE = 64
 
@@ -19,11 +18,11 @@ class Review(ABC):
     """Base class for Systematic Review"""
 
     def __init__(self,
-                 X, 
-                 y = None,
-                 model = None,
-                 query_strategy = None,
-                 data = None,
+                 X,
+                 y=None,
+                 model=None,
+                 query_strategy=None,
+                 data=None,
                  frac_included=None,
                  n_instances=1,
                  n_queries=10,
@@ -63,10 +62,13 @@ class Review(ABC):
         pool_ind = np.arange(self.X.shape[0])
 
         # add prior knowledge
-        init_ind = self._prior_knowledge()
+        init_ind, init_labels = self._prior_knowledge()
 
         if self.frac_included is not None:
-            _weights = {0: 1 / (1-self.frac_included), 1: 1 / self.frac_included}
+            _weights = {
+                0: 1 / (1 - self.frac_included),
+                1: 1 / self.frac_included
+            }
         else:
             _weights = None
 
@@ -74,20 +76,18 @@ class Review(ABC):
         self.learner = ActiveLearner(
             estimator=self.model,
             X_training=self.X[init_ind, ],
-            y_training=self.y[init_ind, ],
+            y_training=init_labels,
 
             # keyword arguments to pass to keras.fit()
             batch_size=BATCH_SIZE,
             epochs=EPOCHS,
             shuffle=True,
             class_weight=_weights,
-
             verbose=self.verbose)
 
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
 
-        # result_df = pd.DataFrame({'label': [x[1] for x in pool_ideal.data]})
         query_i = 0
 
         while query_i <= self.n_queries:
@@ -96,8 +96,7 @@ class Review(ABC):
             query_ind, query_instance = self.learner.query(
                 self.X[pool_ind],
                 n_instances=self.n_instances,
-                verbose=self.verbose
-            )
+                verbose=self.verbose)
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
@@ -113,7 +112,6 @@ class Review(ABC):
                 epochs=EPOCHS,
                 shuffle=True,
                 class_weight=_weights,
-
                 verbose=self.verbose)
 
             # remove queried instance from pool
@@ -134,11 +132,16 @@ class Review(ABC):
 
         # save the result to a file
         if self.log_file:
-            self._logger.save()
+            self.save_log(self.log_file)
 
         # print the results
         if self.verbose:
             print(self._logger._print_logs())
+
+    def save_logs(self, *args, **kwargs):
+        """Save the logs to a file."""
+
+        self._logger.save(*args, **kwargs)
 
 
 class ReviewOracle(Review):
@@ -146,8 +149,7 @@ class ReviewOracle(Review):
 
     def __init__(self, X, y, model, query_strategy, *args, **kwargs):
         super(ReviewOracle, self).__init__(
-            X, y, model, query_strategy, data=None, *args, **kwargs
-        )
+            X, y, model, query_strategy, data=None, *args, **kwargs)
 
     def _prior_knowledge(self):
 
@@ -159,10 +161,21 @@ class ReviewOracle(Review):
             random_state=None  # TODO
         )
 
-        return init_ind
+        return init_ind, self.y[init_ind, ]
 
     def _classify(self, ind):
-        """Classify with oracle."""
+        """Classify with oracle.
+
+        Arguments
+        ---------
+        ind: list, np.array
+            A list with indices
+
+        Returns
+        -------
+        list, np.array
+            The corresponding true labels for each indice.
+        """
 
         return self.y[ind, ]
 
@@ -172,31 +185,72 @@ class ReviewInteractive(Review):
 
     def __init__(self, X, model, query_strategy, data, *args, **kwargs):
         super(ReviewInteractive, self).__init__(
-            X, y=None, model=model, query_strategy=query_strategy,
-            data=data, *args, **kwargs
-        )
+            X,
+            y=None,
+            model=model,
+            query_strategy=query_strategy,
+            data=data,
+            *args,
+            **kwargs)
 
     def _prior_knowledge(self):
 
-        # Create the prior knowledge
-        init_ind = sample_prior_knowledge(
-            self.y,
-            n_included=self.n_included,
-            n_excluded=self.n_excluded,
-            random_state=None  # TODO
-        )
+        return np.array([0,1,2,3,4,5]), np.array([[1, 0],[1,0],[1,0],[ 1,0],[0,1],[0,1]])  # TODO
 
-        return init_ind
+    def _format_paper(self,
+                      title=None,
+                      abstract=None,
+                      keywords=None,
+                      authors=None):
 
-    def _format_paper(self, title=None, abstract=None, keywords=None, authors=None):
+        return f"{title}\n{authors}\n{abstract}\n"
 
-        return f"{title}\n{authors}\n{abstract}"
+    def _classify_paper(self, index):
+
+        # CLI paper format
+        # _gui_paper = self._format_paper(
+        #     title=self.data.iloc[i, "title"],
+        #     abstract=self.data.iloc[i, "abstract"],
+        #     authors=self.data.iloc[i, "authors"])
+        # print(_gui_paper)
+        print(self.X[index])
+
+        def _interact():
+            # interact with the user
+            included = input("Include [1] or exclude [0]:")
+
+            try:
+                included = int(included)
+
+                if included not in [0, 1]:
+                    raise ValueError
+
+                return included
+            except Exception:
+
+                # try again
+                print(f"Incorrect value '{included}'")
+                return _interact()
+
+        included = _interact()
+
+        if included == 1:
+            label = [0, 1]
+        elif included == 0:
+            label = [1, 0]
+        else:
+            raise Exception
+
+        return label
 
     def _classify(self, ind):
 
-        y = np.zeros((len(ind),))
+        y = np.zeros((len(ind), 2))
 
-        for i in ind:
-            print(self.X[i])
+        for j, index in enumerate(ind):
+
+            label = self._classify_paper(index)
+
+            y[j] = label
 
         return y
