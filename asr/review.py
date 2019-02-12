@@ -10,6 +10,8 @@ import warnings
 import argparse
 import pickle
 
+import pandas
+
 # modAL dependencies
 from modAL.uncertainty import uncertainty_sampling
 
@@ -62,6 +64,11 @@ def review(dataset,
     # PREPARE FEATURES.
     #
     # Generate features from the dataset.
+    if mode in MODUS:
+        if verbose:
+            print(f"Start review in '{mode}' mode.")
+    else:
+        raise ValueError(f"Unknown mode '{mode}'.")
 
     # if the provided file is a pickle file
     if is_pickle(dataset):
@@ -69,6 +76,9 @@ def review(dataset,
             data_obj = pickle.load(f)
         if isinstance(data_obj, tuple) and len(data_obj) == 3:
             X, y, embedding_matrix = data_obj
+            data = None
+        elif isinstance(data_obj, tuple) and len(data_obj) == 4:
+            X, y, embedding_matrix, data = data_obj
         else:
             raise ValueError("Incorrect pickle object.")
     else:
@@ -78,7 +88,8 @@ def review(dataset,
             print("Prepare dataset.\n")
             print(ASCII_TEA)
 
-        data, labels = load_data(dataset)
+        data = pandas.read_csv(dataset)
+        texts, labels = load_data(dataset)
 
         # get the model
         if isinstance(dataset, str) & (model.lower() == 'lstm') & (embedding is not None):
@@ -86,7 +97,7 @@ def review(dataset,
             from tensorflow.keras.utils import to_categorical
 
             # create features and labels
-            X, word_index = text_to_features(data)
+            X, word_index = text_to_features(texts)
             y = to_categorical(labels) if labels.ndim == 1 else labels
             embedding_matrix = _load_embedding_matrix(embedding, word_index)
 
@@ -126,7 +137,7 @@ def review(dataset,
                 "Give the indices of these papers. Separate them with spaces.\n"
                 "Include: ")
 
-        if excluded is None: 
+        if excluded is None:
             print("Are there papers you definitively want to exclude?")
             excluded = input(
                 "Give the indices of these papers. Separate them with spaces.\n"
@@ -137,7 +148,7 @@ def review(dataset,
             X,
             model,
             query_fn,
-            X,  # replace this with the data
+            data,
             n_instances=n_instances,
             verbose=verbose,
             **kwargs)

@@ -6,6 +6,7 @@ from modAL.models import ActiveLearner
 
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
+from asr.ascii import ASCII_TEA
 
 EPOCHS = 3
 BATCH_SIZE = 64
@@ -56,6 +57,11 @@ class Review(ABC):
         """Classify the provided indices."""
         pass
 
+    def _prior_teach(self):
+        """Function called before training model."""
+
+        pass
+
     def _stop_iter(self, query_i):
 
         # don't stop if there is no stopping criteria
@@ -86,6 +92,9 @@ class Review(ABC):
         else:
             _weights = None
 
+        # train model
+        self._prior_teach()
+
         # initialize ActiveLearner
         self.learner = ActiveLearner(
             estimator=self.model,
@@ -114,6 +123,9 @@ class Review(ABC):
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
+
+            # train model
+            self._prior_teach()
 
             # Teach the learner the new labelled data.
             self.learner.teach(
@@ -211,23 +223,26 @@ class ReviewOracle(Review):
 
         return np.array([0,1,2,3,4,5]), np.array([[1, 0],[1,0],[1,0],[ 1,0],[0,1],[0,1]])  # TODO
 
+    def _prior_teach(self):
+
+        print(ASCII_TEA)
+
     def _format_paper(self,
                       title=None,
                       abstract=None,
                       keywords=None,
                       authors=None):
 
-        return f"{title}\n{authors}\n{abstract}\n"
+        return f"{title}\n{authors}\n\n{abstract}\n"
 
     def _classify_paper(self, index):
 
         # CLI paper format
-        # _gui_paper = self._format_paper(
-        #     title=self.data.iloc[i, "title"],
-        #     abstract=self.data.iloc[i, "abstract"],
-        #     authors=self.data.iloc[i, "authors"])
-        # print(_gui_paper)
-        print(self.X[index])
+        _gui_paper = self._format_paper(
+            title=self.data.iloc[index]["title"],
+            abstract=self.data.iloc[index]["abstract"],
+            authors=self.data.iloc[index]["authors"])
+        print(_gui_paper)
 
         def _interact():
             # interact with the user
