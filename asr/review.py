@@ -53,10 +53,10 @@ def review(dataset,
            n_instances=1,
            embedding=None,
            verbose=1,
-           included=[],
-           excluded=[],
-           n_included=None,
-           n_excluded=None,
+           prior_included=None,
+           prior_excluded=None,
+           n_prior_included=None,
+           n_prior_excluded=None,
            save_model=None,
            **kwargs
 ):
@@ -127,21 +127,28 @@ def review(dataset,
             query_fn,
             n_instances=n_instances,
             verbose=verbose,
+            prior_included=prior_included,
+            prior_excluded=prior_excluded,
+            n_prior_included=n_prior_included,
+            n_prior_excluded=n_prior_excluded,
             **kwargs)
+
     elif mode == MODUS[0]:
 
-        if included is None:
+        if prior_included is None:
             # provide prior knowledge
             print("Are there papers you definitively want to include?")
-            included = input(
+            prior_included = input(
                 "Give the indices of these papers. Separate them with spaces.\n"
                 "Include: ")
+            prior_included = list(map(int, prior_included.split()))
 
-        if excluded is None:
+        if prior_excluded is None:
             print("Are there papers you definitively want to exclude?")
-            excluded = input(
+            prior_excluded = input(
                 "Give the indices of these papers. Separate them with spaces.\n"
                 "Exclude: ")
+            prior_excluded = list(map(int, prior_excluded.split()))
 
         # start the review process
         reviewer = ReviewOracle(
@@ -151,6 +158,8 @@ def review(dataset,
             data,
             n_instances=n_instances,
             verbose=verbose,
+            prior_included=prior_included,
+            prior_excluded=prior_excluded,
             **kwargs)
 
     # wrap in try expect to capture keyboard interrupt

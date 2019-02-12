@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import ast
 
 import numpy as np
 
@@ -23,10 +24,11 @@ class Review(ABC):
                  y=None,
                  model=None,
                  query_strategy=None,
-                 data=None,
                  frac_included=None,
                  n_instances=1,
                  n_queries=None,
+                 prior_included=[],
+                 prior_excluded=[],
                  log_file=None,
                  verbose=1):
         super(Review, self).__init__()
@@ -35,7 +37,6 @@ class Review(ABC):
         self.y = y
         self.model = model
         self.query_strategy = query_strategy
-        self.data = data
         self.frac_included = frac_included
 
         self.n_instances = n_instances
@@ -43,8 +44,8 @@ class Review(ABC):
         self.log_file = log_file
         self.verbose = verbose
 
-        self.n_included = N_INCLUDED
-        self.n_excluded = N_EXCLUDED
+        self.prior_included = prior_included
+        self.prior_excluded = prior_excluded
 
         self._logger = Logger()
 
@@ -174,17 +175,27 @@ class Review(ABC):
 class ReviewSimulate(Review):
     """Automated Systematic Review"""
 
-    def __init__(self, X, y, model, query_strategy, *args, **kwargs):
+    def __init__(self,
+                 X,
+                 y,
+                 model,
+                 query_strategy,
+                 n_prior_included=None,
+                 n_prior_excluded=None,
+                 *args, **kwargs):
         super(ReviewSimulate, self).__init__(
             X, y, model, query_strategy, data=None, *args, **kwargs)
+
+        self.n_prior_included = n_prior_included
+        self.n_prior_excluded = n_prior_excluded
 
     def _prior_knowledge(self):
 
         # Create the prior knowledge
         init_ind = sample_prior_knowledge(
             self.y,
-            n_included=self.n_included,
-            n_excluded=self.n_excluded,
+            n_prior_included=self.n_prior_included,
+            n_prior_excluded=self.n_prior_excluded,
             random_state=None  # TODO
         )
 
@@ -210,22 +221,44 @@ class ReviewSimulate(Review):
 class ReviewOracle(Review):
     """Automated Systematic Review"""
 
-    def __init__(self, X, model, query_strategy, data, *args, **kwargs):
+    def __init__(self, X, model, query_strategy, data, use_cli_colors=True,
+                 *args, **kwargs):
         super(ReviewOracle, self).__init__(
             X,
             y=None,
             model=model,
             query_strategy=query_strategy,
-            data=data,
             *args,
             **kwargs)
 
-    def _prior_knowledge(self):
+        self.data = data
 
-        return np.array([0,1,2,3,4,5]), np.array([[1, 0],[1,0],[1,0],[ 1,0],[0,1],[0,1]])  # TODO
+        self.use_cli_colors = use_cli_colors
+
+    def _prior_knowledge(self):
+        """Create prior knowledge from arguments."""
+
+        prior_indices = np.append(
+            self.prior_included,
+            self.prior_excluded
+        )
+
+        prior_included_labels = np.zeros((len(self.prior_included), 2))
+        prior_included_labels[:, 1] = 1
+
+        prior_excluded_labels = np.zeros((len(self.prior_excluded), 2))
+        prior_excluded_labels[:, 0] = 1
+
+        prior_labels = np.concatenate([
+            prior_included_labels,
+            prior_excluded_labels
+        ])
+
+        return prior_indices, prior_labels
 
     def _prior_teach(self):
 
+        print("\n\n We work, you drink tea.\n")
         print(ASCII_TEA)
 
     def _format_paper(self,
@@ -234,9 +267,19 @@ class ReviewOracle(Review):
                       keywords=None,
                       authors=None):
 
-        return f"{title}\n{authors}\n\n{abstract}\n"
+        # authors = "; ".join(authors)
+
+        if self.use_cli_colors:
+            title = "\033[95m" + title + "\033[0m"
+
+        # return f"\n{title}\n\n{abstract}\n"
+        return f"\n{title}\n{authors}\n\n{abstract}\n"
 
     def _classify_paper(self, index):
+
+        # abstract = ast.literal_eval(
+        #     self.data.iloc[index]["abstract"]
+        # )
 
         # CLI paper format
         _gui_paper = self._format_paper(
@@ -247,7 +290,7 @@ class ReviewOracle(Review):
 
         def _interact():
             # interact with the user
-            included = input("Include [1] or exclude [0]:")
+            included = input("Include [1] or exclude [0]: ")
 
             try:
                 included = int(included)

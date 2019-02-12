@@ -12,7 +12,7 @@ warnings.simplefilter("ignore")
 
 from asr import __version__  # noqa
 from asr.review import review_oracle, review_simulate  # noqa
-
+from asr.config import MODUS
 
 MODES = ["interactive", "oracle"]
 
@@ -27,7 +27,7 @@ N_EXCLUDED = 40
 N_INSTANCES = 50
 
 
-def parse_arguments(prog=sys.argv[0]):
+def parse_arguments(mode, prog=sys.argv[0]):
 
     # parse arguments if available
     parser = argparse.ArgumentParser(
@@ -70,24 +70,43 @@ def parse_arguments(prog=sys.argv[0]):
         default=None,
         help="File path of embedding matrix. Required for LSTM model."
     )
+
     # Initial data (prior knowledge)
     parser.add_argument(
-        "--n_included",
+        "--prior_included",
         default=None,
-        type=int,
+        type=list,
         nargs="*",
         help="Initial included papers.")
 
     parser.add_argument(
-        "--n_excluded",
+        "--prior_excluded",
         default=None,
-        type=int,
+        type=list,
         nargs="*",
-        help="Initial excluded papers.")
+        help="Initial included papers.")
+
+    # these flag are only available for the simulation modus
+    if mode == MODES[1]:
+
+        # Initial data (prior knowledge)
+        parser.add_argument(
+            "--n_prior_included",
+            default=None,
+            type=int,
+            nargs="*",
+            help="Sample n prior included papers. Only used when --prior_included is not given.")
+
+        parser.add_argument(
+            "--n_prior_excluded",
+            default=None,
+            type=int,
+            nargs="*",
+            help="Sample n prior excluded papers. Only used when --prior_excluded is not given.")
 
     # logging and verbosity
     parser.add_argument(
-        "-l", "--log_file",
+        "--log_file", "-l",
         default=None,
         type=str,
         help="Location to store the log results."
@@ -99,7 +118,7 @@ def parse_arguments(prog=sys.argv[0]):
         help="Location to store the model."
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "--verbose", "-v",
         default=1,
         type=int,
         help="Verbosity")
@@ -109,7 +128,7 @@ def parse_arguments(prog=sys.argv[0]):
 
 def _review_oracle():
 
-    parser = parse_arguments(prog="asr oracle")
+    parser = parse_arguments(MODES[0], prog="asr oracle")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
@@ -121,7 +140,7 @@ def _review_oracle():
 def _review_simulate():
     """CLI to the oracle mode."""
 
-    parser = parse_arguments(prog="asr simulate")
+    parser = parse_arguments(MODES[1], prog="asr simulate")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
