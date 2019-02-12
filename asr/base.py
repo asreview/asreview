@@ -101,7 +101,7 @@ class Review(ABC):
             X_training=self.X[init_ind, ],
             y_training=init_labels,
 
-            # keyword arguments to pass to keras.fit()
+            # keyword arguments to pass to keras.fit()  # TODO remove this!!!!
             batch_size=BATCH_SIZE,
             epochs=EPOCHS,
             shuffle=True,
@@ -133,11 +133,12 @@ class Review(ABC):
                 y=y,
                 only_new=False,  # check docs!!!!
 
-                # keyword arguments to pass to keras.fit()
+                # keyword arguments to pass to keras.fit()  # TODO remove this (not part of core)
                 batch_size=BATCH_SIZE,
                 epochs=EPOCHS,
                 shuffle=True,
                 class_weight=_weights,
+
                 verbose=self.verbose)
 
             # remove queried instance from pool
