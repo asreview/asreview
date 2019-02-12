@@ -50,6 +50,20 @@ One can do this with pip and git.
 pip install git+https://github.com/msdslab/automated-systematic-review.git
 ```
 
+## Quick start
+
+Start an interactive systematic review with the following line in your shell
+
+```
+asr oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 --log_file results.log
+```
+
+The dataset `YOUR_DATA.csv` is the dataset you would like to review in an
+systematic review. We use `prior_included` to pass prior knowledge of the
+researcher to the model. The numbers are the row numbers of the articles
+(starting at 0). The results are saved to `results.log`.
+
+
 ## Systematic Review with oracle
 
 A systematic review with oracle with an expert.
