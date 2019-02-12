@@ -11,7 +11,7 @@ import warnings
 warnings.simplefilter("ignore")
 
 from asr import __version__  # noqa
-from asr.review import review_interactive, review_oracle  # noqa
+from asr.review import review_oracle, review_simulate  # noqa
 
 
 MODES = ["interactive", "oracle"]
@@ -107,19 +107,7 @@ def parse_arguments(prog=sys.argv[0]):
     return parser
 
 
-def _review_interactive():
-
-    parser = parse_arguments(prog="asr interactive")
-    args = parser.parse_args(sys.argv[2:])
-
-    args_dict = vars(args)
-    path = args_dict.pop("dataset")
-
-    review_interactive(path, **args_dict)
-
-
 def _review_oracle():
-    """CLI to the oracle mode."""
 
     parser = parse_arguments(prog="asr oracle")
     args = parser.parse_args(sys.argv[2:])
@@ -130,15 +118,27 @@ def _review_oracle():
     review_oracle(path, **args_dict)
 
 
+def _review_simulate():
+    """CLI to the oracle mode."""
+
+    parser = parse_arguments(prog="asr simulate")
+    args = parser.parse_args(sys.argv[2:])
+
+    args_dict = vars(args)
+    path = args_dict.pop("dataset")
+
+    review_simulate(path, **args_dict)
+
+
 def main():
 
     # launch asr interactively
-    if len(sys.argv) > 1 and sys.argv[1] == "interactive":
-        _review_interactive()
+    if len(sys.argv) > 1 and sys.argv[1] == "oracle":
+        _review_oracle()
 
     # launch asr with oracle
-    elif len(sys.argv) > 1 and sys.argv[1] == "oracle":
-        _review_oracle()
+    elif len(sys.argv) > 1 and sys.argv[1] == "simulate":
+        _review_simulate()
 
     # no valid sub command
     else:

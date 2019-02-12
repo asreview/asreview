@@ -14,7 +14,7 @@ import pickle
 from modAL.uncertainty import uncertainty_sampling
 
 # asr dependencies
-from asr import ReviewOracle, ReviewInteractive
+from asr import ReviewSimulate, ReviewOracle
 from asr.utils import load_data, text_to_features
 from asr.query_strategies import random_sampling
 from asr.ascii import ASCII_TEA
@@ -44,7 +44,7 @@ def _load_embedding_matrix(fp, word_index):
 
 
 def review(dataset,
-           mode='interactive',
+           mode='oracle',
            model="lstm",
            query_strategy="lc",
            n_instances=1,
@@ -109,7 +109,7 @@ def review(dataset,
 
     if mode == 'oracle':
         # start the review process
-        reviewer = ReviewOracle(
+        reviewer = ReviewSimulate(
             X, y,
             model,
             query_fn,
@@ -132,7 +132,7 @@ def review(dataset,
                 "Exclude: ")
 
         # start the review process
-        reviewer = ReviewInteractive(
+        reviewer = ReviewOracle(
             X,
             model,
             query_fn,
@@ -161,13 +161,13 @@ def review(dataset,
             print(reviewer._logger._print_logs())
 
 
-def review_interactive(dataset, **kwargs):
+def review_oracle(dataset, **kwargs):
     """CLI to the interactive mode."""
 
-    review(dataset, mode='interactive', **kwargs)
+    review(dataset, mode='oracle', **kwargs)
 
 
-def review_oracle(dataset, **kwargs):
+def review_simulate(dataset, **kwargs):
     """CLI to the oracle mode."""
 
-    review(dataset, mode='oracle', **kwargs)
+    review(dataset, mode='simulate', **kwargs)

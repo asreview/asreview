@@ -9,12 +9,12 @@ software is designed to take over the step of screening abstracts and titles
 with a minimum of papers to be read by a human (in the training set and in the
 final included set) and with zero false negatives (or any other small number). 
 
-The software implements an interactive and an oracle systematic review modus.
+The software implements an oracle and a simulation systematic review mode.
 
-- **Interactive** The interactive modus is an systematic review with interaction 
-  with the reviewer. When enabled, the reviewer get a new papers presented and 
-  has to classify them. 
-- **Oracle** The oracle modus can be used to measure the performance of our 
+- **Oracle** The oracle modus is an systematic review with interaction 
+  with the reviewer (the oracle). When enabled, the reviewer get a new papers 
+  presented and has to classify them. 
+- **Simulate** The simulation modus can be used to measure the performance of our 
   software on an existing systematic review. The software can show how many
   papers you potentially could have skipped reviewing.
 
@@ -30,10 +30,10 @@ Table of Contents
 
    * [Automated Systematic Review](#automated-systematic-review)
       * [Installation](#installation)
-      * [Systematic Review with interaction](#systematic-review-with-interaction)
+      * [Systematic Review with oracle](#systematic-review-with-oracle)
          * [Command Line Interface](#command-line-interface)
          * [Python API](#python-api)
-      * [Systematic Review with oracle](#systematic-review-with-oracle)
+      * [Systematic Review with labels](#systematic-review-with-labels)
          * [Command Line Interface](#command-line-interface-1)
          * [Python API](#python-api-1)
       * [Contact and contributors.](#contact-and-contributors)
@@ -50,25 +50,27 @@ One can do this with pip and git.
 pip install git+https://github.com/msdslab/automated-systematic-review.git
 ```
 
-## Systematic Review with interaction
+## Systematic Review with oracle
 
-A systematic review with interaction with an expert.
+A systematic review with oracle with an expert.
 
 ### Command Line Interface
 
 Start a review process in the CMD.exe or shell. 
 
 ``` bash
-asr interactive YOUR_DATA.csv
+asr oracle YOUR_DATA.csv
 ```
 
 The available parameters are: 
 
 ```bash
-usage: asr interactive [-h] [--model MODEL] [--query_strategy QUERY_STRATEGY]
+usage: asr oracle [-h] [-m MODEL] [-q QUERY_STRATEGY]
                   [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
+                  [--embedding EMBEDDING]
                   [--n_included [N_INCLUDED [N_INCLUDED ...]]]
-                  [--n_excluded [N_EXCLUDED [N_EXCLUDED ...]]]
+                  [--n_excluded [N_EXCLUDED [N_EXCLUDED ...]]] [-l LOG_FILE]
+                  [--save_model SAVE_MODEL] [-v VERBOSE]
                   X
 
 Systematic review with the help of an oracle.
@@ -79,18 +81,28 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --model MODEL         The prediction model for Active Learning. Default
+  -m MODEL, --model MODEL
+                        The prediction model for Active Learning. Default
                         'LSTM'.
-  --query_strategy QUERY_STRATEGY
+  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
                         The query strategy for Active Learning. Default 'lc'.
   --n_instances N_INSTANCES
                         Number of papers queried each query.
   --n_queries N_QUERIES
                         The number of queries. Default None
+  --embedding EMBEDDING
+                        File path of embedding matrix. Required for LSTM
+                        model.
   --n_included [N_INCLUDED [N_INCLUDED ...]]
                         Initial included papers.
   --n_excluded [N_EXCLUDED [N_EXCLUDED ...]]
                         Initial excluded papers.
+  -l LOG_FILE, --log_file LOG_FILE
+                        Location to store the log results.
+  --save_model SAVE_MODEL
+                        Location to store the model.
+  -v VERBOSE, --verbose VERBOSE
+                        Verbosity
 ```
 
 ### Python API
@@ -132,29 +144,31 @@ asr.review(X)
 
 
 
-## Systematic Review with oracle 
+## Systematic Review with labels 
 
-A systematic review with an oracle as an expert. This can be useful for
+A systematic review with an true labels as an expert. This can be useful for
 simulating the systematic review process on datasets you reviewed. The tool
 can give you an indication of the time and work you can save.
 
 ### Command Line Interface
 
-A systematic review with an oracle works in a similar way. Instead of `asr`,
-you need `asr oracle`.
+A systematic review with an oracle works in a similar way. Instead of `asr oracle`,
+you need `asr simulate`.
 
 ``` bash
-asr oracle YOUR_DATA.csv
+asr simulate YOUR_DATA.csv
 ```
 
 The available parameters are: 
 
 ```bash
-usage: asr oracle [-h] [--model MODEL] [--query_strategy QUERY_STRATEGY]
-                  [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
-                  [--n_included [N_INCLUDED [N_INCLUDED ...]]]
-                  [--n_excluded [N_EXCLUDED [N_EXCLUDED ...]]]
-                  X
+usage: asr simulate [-h] [-m MODEL] [-q QUERY_STRATEGY]
+                    [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
+                    [--embedding EMBEDDING]
+                    [--n_included [N_INCLUDED [N_INCLUDED ...]]]
+                    [--n_excluded [N_EXCLUDED [N_EXCLUDED ...]]] [-l LOG_FILE]
+                    [--save_model SAVE_MODEL] [-v VERBOSE]
+                    X
 
 Systematic review with the help of an oracle.
 
@@ -164,18 +178,28 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --model MODEL         The prediction model for Active Learning. Default
+  -m MODEL, --model MODEL
+                        The prediction model for Active Learning. Default
                         'LSTM'.
-  --query_strategy QUERY_STRATEGY
+  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
                         The query strategy for Active Learning. Default 'lc'.
   --n_instances N_INSTANCES
                         Number of papers queried each query.
   --n_queries N_QUERIES
                         The number of queries. Default None
+  --embedding EMBEDDING
+                        File path of embedding matrix. Required for LSTM
+                        model.
   --n_included [N_INCLUDED [N_INCLUDED ...]]
                         Initial included papers.
   --n_excluded [N_EXCLUDED [N_EXCLUDED ...]]
                         Initial excluded papers.
+  -l LOG_FILE, --log_file LOG_FILE
+                        Location to store the log results.
+  --save_model SAVE_MODEL
+                        Location to store the model.
+  -v VERBOSE, --verbose VERBOSE
+                        Verbosity
 ```
 
 ### Python API
@@ -186,7 +210,7 @@ API. It requires some knowledge on creating an interface.
 ``` python
 from keras.utils import to_categorical
 
-from asr import load_data, ReviewInteractive
+from asr import load_data, ReviewSimulate
 from asr.query_strategies import uncertainty_sampling
 from asr.utils import text_to_features
 from asr.models.embedding import load_embedding, sample_embedding
@@ -210,7 +234,7 @@ model = create_lstm_model(
 )
 
 # start the review process.
-asr = ReviewInteractive(model, uncertainty_sampling)
+asr = ReviewSimulate(model, uncertainty_sampling)
 asr.review(X)
 
 ```

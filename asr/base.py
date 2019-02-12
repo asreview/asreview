@@ -144,7 +144,7 @@ class Review(ABC):
         self._logger.save(*args, **kwargs)
 
 
-class ReviewOracle(Review):
+class ReviewSimulate(Review):
     """Automated Systematic Review"""
 
     def __init__(self, X, y, model, query_strategy, *args, **kwargs):
@@ -180,7 +180,7 @@ class ReviewOracle(Review):
         return self.y[ind, ]
 
 
-class ReviewInteractive(Review):
+class ReviewOracle(Review):
     """Automated Systematic Review"""
 
     def __init__(self, X, model, query_strategy, data, *args, **kwargs):
