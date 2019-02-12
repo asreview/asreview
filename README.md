@@ -242,8 +242,28 @@ asr.review(X)
 ## Developement and contributions
 
 - Use [yapf]() as formatter for python code. 
-- **Run module as `__main__`.** Use `python -m asr` to run the module as main. This 
-  can be useful when debugging the CLI and entry_points.
+
+### Entry points
+
+Use `python -m asr` to run the module as main. This can be useful when
+debugging the CLI and entry_points. 
+
+```
+python -m asr oracle yourfile.csv
+```
+is the same as:
+```
+asr oracle yourfile.csv
+```
+
+### Debug using pickle dataset. 
+
+Clone the simulations repository next to this repository. Now you can debug code with the code below:
+
+``` python
+python -m asr oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl 
+```
+
 
 ## Contact and contributors. 
 
