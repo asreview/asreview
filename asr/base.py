@@ -148,7 +148,7 @@ class ReviewSimulate(Review):
     """Automated Systematic Review"""
 
     def __init__(self, X, y, model, query_strategy, *args, **kwargs):
-        super(ReviewOracle, self).__init__(
+        super(ReviewSimulate, self).__init__(
             X, y, model, query_strategy, data=None, *args, **kwargs)
 
     def _prior_knowledge(self):
@@ -184,7 +184,7 @@ class ReviewOracle(Review):
     """Automated Systematic Review"""
 
     def __init__(self, X, model, query_strategy, data, *args, **kwargs):
-        super(ReviewInteractive, self).__init__(
+        super(ReviewOracle, self).__init__(
             X,
             y=None,
             model=model,
