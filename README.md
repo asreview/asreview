@@ -260,8 +260,9 @@ asr oracle yourfile.csv
 
 Clone the simulations repository next to this repository. Now you can debug code with the code below:
 
-``` python
-python -m asr oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl --n_instances 5```
+``` sh
+python -m asr oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl --n_instances 5
+```
 
 
 ## Contact and contributors. 
