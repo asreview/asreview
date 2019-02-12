@@ -25,7 +25,7 @@ class Review(ABC):
                  data=None,
                  frac_included=None,
                  n_instances=1,
-                 n_queries=10,
+                 n_queries=None,
                  log_file=None,
                  verbose=1):
         super(Review, self).__init__()
@@ -55,6 +55,20 @@ class Review(ABC):
     def _classify(self, ind):
         """Classify the provided indices."""
         pass
+
+    def _stop_iter(self, query_i):
+
+        # don't stop if there is no stopping criteria
+        # TODO: implement a stop when the pool is empty
+        if self.n_queries is None:
+            return False
+
+        # number of queries not met yet
+        if query_i <= self.n_queries:
+            return False
+
+        # stop
+        return True
 
     def review(self):
 
@@ -90,7 +104,7 @@ class Review(ABC):
 
         query_i = 0
 
-        while query_i <= self.n_queries:
+        while not self._stop_iter(query_i):
 
             # Make a query from the pool.
             query_ind, query_instance = self.learner.query(

@@ -16,6 +16,7 @@ from modAL.uncertainty import uncertainty_sampling
 # asr dependencies
 from asr import ReviewSimulate, ReviewOracle
 from asr.utils import load_data, text_to_features
+from asr.config import MODUS
 from asr.query_strategies import random_sampling
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle
@@ -73,7 +74,7 @@ def review(dataset,
     else:
 
         # This takes some time
-        if mode == "interactive":
+        if mode == MODUS[0]:
             print("Prepare dataset.\n")
             print(ASCII_TEA)
 
@@ -107,7 +108,7 @@ def review(dataset,
     # Pick query strategy
     query_fn, query_str = _get_query_method(query_strategy)
 
-    if mode == 'oracle':
+    if mode == MODUS[1]:
         # start the review process
         reviewer = ReviewSimulate(
             X, y,
@@ -116,7 +117,7 @@ def review(dataset,
             n_instances=n_instances,
             verbose=verbose,
             **kwargs)
-    elif mode == 'interactive':
+    elif mode == MODUS[0]:
 
         if included is None:
             # provide prior knowledge
