@@ -23,6 +23,10 @@ from asr.query_strategies import random_sampling
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle
 
+# constants
+EPOCHS = 3
+BATCH_SIZE = 64
+
 
 def _get_query_method(method):
     """Function to get the query method"""
@@ -58,6 +62,7 @@ def review(dataset,
            n_prior_included=None,
            n_prior_excluded=None,
            save_model=None,
+           frac_included=None,
            **kwargs
 ):
 
@@ -101,7 +106,22 @@ def review(dataset,
             y = to_categorical(labels) if labels.ndim == 1 else labels
             embedding_matrix = _load_embedding_matrix(embedding, word_index)
 
-    # get the model
+        elif isinstance(dataset, str) & (model.lower() == 'nb'):
+
+            from sklearn.pipeline import Pipeline
+            from sklearn.feature_extraction.text import TfidfTransformer
+            from sklearn.feature_extraction.text import CountVectorizer
+
+            text_clf = Pipeline([('vect', CountVectorizer()),
+                                 ('tfidf', TfidfTransformer())])
+
+            X = text_clf.fit_transform(texts)
+            y = labels
+
+    # Models
+
+    fit_kwargs = {}
+
     if isinstance(dataset, str) & (model.lower() == 'lstm'):
 
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
@@ -113,6 +133,22 @@ def review(dataset,
                               verbose=verbose)
         )
 
+        # arguments to pass to the fit
+        fit_kwargs['batch_size'] = BATCH_SIZE
+        fit_kwargs['epochs'] = EPOCHS
+        fit_kwargs['shuffle'] = True
+        fit_kwargs['verbose'] = verbose
+
+        if frac_included is not None:
+            fit_kwargs['class_weight'] = {
+                0: 1 / (1 - frac_included),
+                1: 1 / frac_included
+            }
+
+    elif isinstance(dataset, str) & (model.lower() in ['nb']):
+        from asr.models import create_nb_model
+
+        model = create_nb_model()
     else:
         raise ValueError('Model not found.')
 
@@ -160,6 +196,11 @@ def review(dataset,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
+
+            # fit keyword arguments
+            fit_kwargs=fit_kwargs,
+
+            # other keyword arguments
             **kwargs)
 
     # wrap in try expect to capture keyboard interrupt

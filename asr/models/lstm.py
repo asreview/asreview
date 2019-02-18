@@ -10,15 +10,15 @@ def create_lstm_model(embedding_matrix,
                       optimizer='rmsprop',
                       max_sequence_length=1000,
                       verbose=1):
-    """Return callable lstm model. 
+    """Return callable lstm model.
 
     Arguments
     ---------
-    
+
     Returns
     -------
     callable:
-        A function that return the Keras Sklearn model when 
+        A function that return the Keras Sklearn model when
         called.
 
     """

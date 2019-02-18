@@ -9,9 +9,6 @@ from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
 
-EPOCHS = 3
-BATCH_SIZE = 64
-
 N_INCLUDED = 10
 N_EXCLUDED = 40
 
@@ -24,12 +21,12 @@ class Review(ABC):
                  y=None,
                  model=None,
                  query_strategy=None,
-                 frac_included=None,
                  n_instances=1,
                  n_queries=None,
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
+                 fit_kwargs={},
                  verbose=1):
         super(Review, self).__init__()
 
@@ -37,7 +34,6 @@ class Review(ABC):
         self.y = y
         self.model = model
         self.query_strategy = query_strategy
-        self.frac_included = frac_included
 
         self.n_instances = n_instances
         self.n_queries = n_queries
@@ -46,6 +42,8 @@ class Review(ABC):
 
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
+
+        self.fit_kwargs = fit_kwargs
 
         self._logger = Logger()
 
@@ -85,29 +83,17 @@ class Review(ABC):
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
 
-        if self.frac_included is not None:
-            _weights = {
-                0: 1 / (1 - self.frac_included),
-                1: 1 / self.frac_included
-            }
-        else:
-            _weights = None
-
         # train model
         self._prior_teach()
 
         # initialize ActiveLearner
         self.learner = ActiveLearner(
             estimator=self.model,
-            X_training=self.X[init_ind, ],
+            X_training=self.X[init_ind],
             y_training=init_labels,
 
-            # keyword arguments to pass to keras.fit()  # TODO remove this!!!!
-            batch_size=BATCH_SIZE,
-            epochs=EPOCHS,
-            shuffle=True,
-            class_weight=_weights,
-            verbose=self.verbose)
+            # additional arguments to pass to fit
+            **self.fit_kwargs)
 
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
@@ -119,8 +105,9 @@ class Review(ABC):
             # Make a query from the pool.
             query_ind, query_instance = self.learner.query(
                 self.X[pool_ind],
-                n_instances=self.n_instances,
-                verbose=self.verbose)
+                n_instances=self.n_instances  # ,
+                # verbose=self.verbose
+            )
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
@@ -134,13 +121,8 @@ class Review(ABC):
                 y=y,
                 only_new=False,  # check docs!!!!
 
-                # keyword arguments to pass to keras.fit()  # TODO remove this (not part of core)
-                batch_size=BATCH_SIZE,
-                epochs=EPOCHS,
-                shuffle=True,
-                class_weight=_weights,
-
-                verbose=self.verbose)
+                # additional arguments to pass to fit
+                **self.fit_kwargs)
 
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_ind, axis=0)
