@@ -206,6 +206,8 @@ def review(dataset,
     # wrap in try expect to capture keyboard interrupt
     try:
         # Start the review process.
+        if verbose:
+            print("Start with the systematic review.")
         reviewer.review()
 
     except KeyboardInterrupt:
