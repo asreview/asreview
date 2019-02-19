@@ -12,14 +12,11 @@ import pickle
 
 import pandas
 
-# modAL dependencies
-from modAL.uncertainty import uncertainty_sampling
-
 # asr dependencies
 from asr import ReviewSimulate, ReviewOracle
 from asr.utils import load_data, text_to_features
 from asr.config import MODUS
-from asr.query_strategies import random_sampling
+from asr.query_strategies import random_sampling, uncertainty_sampling
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 
