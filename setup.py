@@ -45,7 +45,13 @@ setup(
     keywords='systematic review',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 
-    install_requires=['numpy', 'keras', 'sklearn', 'modAL'],
+    install_requires=[
+        'numpy',
+        'tensorflow',
+        'sklearn',
+        'pandas',
+        'modAL'
+    ],
 
     extras_require={
         'dev': ['check-manifest'],
