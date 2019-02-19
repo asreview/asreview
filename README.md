@@ -380,6 +380,12 @@ next to this repository. Now you can debug code with the code below:
 python -m asr oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl --n_instances 5
 ```
 
+## Publications
+
+- Dutch newspaper NRC on this project ["Software vist de beste artikelen uit een bibliotheek van duizenden."](https://www.nrc.nl/nieuws/2019/01/14/software-vist-de-beste-artikelen-eruit-a3628952)
+- News site of Utrecht University: ["A digital tracker dog for datasets"
+](https://www.dub.uu.nl/en/depth/digital-tracker-dog-datasets)
+
 
 ## Contact and contributors
 
