@@ -75,14 +75,14 @@ def parse_arguments(mode, prog=sys.argv[0]):
     parser.add_argument(
         "--prior_included",
         default=None,
-        type=list,
+        type=int,
         nargs="*",
         help="Initial included papers.")
 
     parser.add_argument(
         "--prior_excluded",
         default=None,
-        type=list,
+        type=int,
         nargs="*",
         help="Initial included papers.")
 

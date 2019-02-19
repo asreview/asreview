@@ -21,7 +21,7 @@ from asr.utils import load_data, text_to_features
 from asr.config import MODUS
 from asr.query_strategies import random_sampling
 from asr.ascii import ASCII_TEA
-from asr.types import is_pickle
+from asr.types import is_pickle, convert_list_type
 
 # constants
 EPOCHS = 3
@@ -99,14 +99,12 @@ def review(dataset,
         # get the model
         if isinstance(dataset, str) & (model.lower() == 'lstm') & (embedding is not None):
 
-            from tensorflow.keras.utils import to_categorical
-
             # create features and labels
             X, word_index = text_to_features(texts)
-            y = to_categorical(labels) if labels.ndim == 1 else labels
+            y = labels
             embedding_matrix = _load_embedding_matrix(embedding, word_index)
 
-        elif isinstance(dataset, str) & (model.lower() == 'nb'):
+        elif isinstance(dataset, str) & (model.lower() in ['nb', 'svc', 'svm']):
 
             from sklearn.pipeline import Pipeline
             from sklearn.feature_extraction.text import TfidfTransformer
@@ -149,6 +147,11 @@ def review(dataset,
         from asr.models import create_nb_model
 
         model = create_nb_model()
+
+    elif isinstance(dataset, str) & (model.lower() in ['svm', 'svc']):
+        from asr.models import create_svc_model
+
+        model = create_svc_model()
     else:
         raise ValueError('Model not found.')
 
@@ -177,14 +180,14 @@ def review(dataset,
             prior_included = input(
                 "Give the indices of these papers. Separate them with spaces.\n"
                 "Include: ")
-            prior_included = list(map(int, prior_included.split()))
+            prior_included = convert_list_type(prior_included.split(), int)
 
         if prior_excluded is None:
             print("Are there papers you definitively want to exclude?")
             prior_excluded = input(
                 "Give the indices of these papers. Separate them with spaces.\n"
                 "Exclude: ")
-            prior_excluded = list(map(int, prior_excluded.split()))
+            prior_excluded = convert_list_type(prior_excluded.split(), int)
 
         # start the review process
         reviewer = ReviewOracle(

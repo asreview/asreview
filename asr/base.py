@@ -225,11 +225,8 @@ class ReviewOracle(Review):
             self.prior_excluded
         )
 
-        prior_included_labels = np.zeros((len(self.prior_included), 2))
-        prior_included_labels[:, 1] = 1
-
-        prior_excluded_labels = np.zeros((len(self.prior_excluded), 2))
-        prior_excluded_labels[:, 0] = 1
+        prior_included_labels = np.ones((len(self.prior_included),))
+        prior_excluded_labels = np.zeros((len(self.prior_excluded),))
 
         prior_labels = np.concatenate([
             prior_included_labels,
@@ -290,9 +287,9 @@ class ReviewOracle(Review):
         included = _interact()
 
         if included == 1:
-            label = [0, 1]
+            label = 1
         elif included == 0:
-            label = [1, 0]
+            label = 0
         else:
             raise Exception
 
@@ -300,7 +297,7 @@ class ReviewOracle(Review):
 
     def _classify(self, ind):
 
-        y = np.zeros((len(ind), 2))
+        y = np.zeros((len(ind), ))
 
         for j, index in enumerate(ind):
 

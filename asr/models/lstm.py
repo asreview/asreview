@@ -61,8 +61,8 @@ def create_lstm_model(embedding_matrix,
         # add Dense layer
         model.add(
             Dense(
-                2,
-                activation='softmax'
+                1,
+                activation='sigmoid'
             )
         )
 
