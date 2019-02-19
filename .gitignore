@@ -5,16 +5,15 @@ backup/
 output/
 batch_files/
 
-data_tmp/
-data_temp/
-
-# exclude pretrained model
-# download these models
+# exclude pretrained models
 data/pretrained_models/*
 !data/pretrained_models/.gitkeep
-data/pretrained_models/word2vec/*
-!data/pretrained_models/word2vec/.gitkeep
-data/datasets/depression_review
+
+# exclude all datasets except data of Van de Schoot
+data/datasets/*
+!data/datasets/ptsd_vandeschoot/*.csv
+
+
 .ipython/
 .jupyter/
 .local/
