@@ -1,0 +1,3 @@
+
+
+MODUS = ["oracle", "simulate"]
