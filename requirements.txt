@@ -1,8 +1,0 @@
-keras
-keras_metrics
-numpy
-pandas
-sklearn
-tensorflow
-prettytable
-scipy
