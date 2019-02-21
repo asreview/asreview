@@ -398,12 +398,12 @@ For any questions or remarks, please contact Prof. Dr. Rens van de Schoot
 
 Researchers:
 
-- Rens van de Schoot (a.g.j.vandeschoot@uu.nl, [@Rensvandeschoot](github.com/Rensvandeschoot))
-- Daniel Oberski (d.l.oberski@uu.nl, [@daob](github.com/daob))
+- Rens van de Schoot (a.g.j.vandeschoot@uu.nl, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
+- Daniel Oberski (d.l.oberski@uu.nl, [@daob](https://github.com/daob))
 
 Engineers and students:
 
-- Parisa Zahedi (p.zahedi@uu.nl, [@parisa-zahedi](github.com/parisa-zahedi))
-- Jonathan de Bruin ([@J535D165](github.com/J535D165))
-- Kees van Eijden
-- Qixiang Fang
+- Parisa Zahedi (p.zahedi@uu.nl, [@parisa-zahedi](https://github.com/parisa-zahedi))
+- Jonathan de Bruin (j.debruin1@uu.nl, [@J535D165](https://github.com/J535D165))
+- Kees van Eijden (k.vaneijden@uu.nl, [@KvEijden](https://github.com/KvEijden))
+- Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
