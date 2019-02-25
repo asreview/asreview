@@ -166,7 +166,7 @@ class ReviewSimulate(Review):
                  n_prior_excluded=None,
                  *args, **kwargs):
         super(ReviewSimulate, self).__init__(
-            X, y, model, query_strategy, data=None, *args, **kwargs)
+            X, y, model, query_strategy, *args, **kwargs)
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
