@@ -92,14 +92,14 @@ def parse_arguments(mode, prog=sys.argv[0]):
         # Initial data (prior knowledge)
         parser.add_argument(
             "--n_prior_included",
-            default=None,
+            default=10,
             type=int,
             nargs="*",
             help="Sample n prior included papers. Only used when --prior_included is not given.")
 
         parser.add_argument(
             "--n_prior_excluded",
-            default=None,
+            default=10,
             type=int,
             nargs="*",
             help="Sample n prior excluded papers. Only used when --prior_excluded is not given.")

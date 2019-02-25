@@ -42,8 +42,8 @@ def sample_prior_knowledge(
     r = np.random.RandomState(random_state)
 
     # retrieve the index of included and excluded papers
-    included_indexes = np.where(labels[:, 1] == 1)[0]
-    excluded_indexes = np.where(labels[:, 1] == 0)[0]
+    included_indexes = np.where(labels == 1)[0]
+    excluded_indexes = np.where(labels == 0)[0]
 
     # select randomly from included and excluded papers
     included_indexes_sample = r.choice(
