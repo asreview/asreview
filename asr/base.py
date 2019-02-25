@@ -166,7 +166,7 @@ class ReviewSimulate(Review):
                  n_prior_excluded=None,
                  *args, **kwargs):
         super(ReviewSimulate, self).__init__(
-            X, y, model, query_strategy, data=None, *args, **kwargs)
+            X, y, model, query_strategy, *args, **kwargs)
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
@@ -176,8 +176,8 @@ class ReviewSimulate(Review):
         # Create the prior knowledge
         init_ind = sample_prior_knowledge(
             self.y,
-            n_prior_included=self.n_prior_included,
-            n_prior_excluded=self.n_prior_excluded,
+            n_included=self.n_prior_included,
+            n_excluded=self.n_prior_excluded,
             random_state=None  # TODO
         )
 
