@@ -405,5 +405,6 @@ Engineers and students:
 
 - Parisa Zahedi (p.zahedi@uu.nl, [@parisa-zahedi](https://github.com/parisa-zahedi))
 - Jonathan de Bruin (j.debruin1@uu.nl, [@J535D165](https://github.com/J535D165))
+- Raoul Schram (r.d.schram@uu.nl, [@qubixes](https://github.com/qubixes))
 - Kees van Eijden (k.vaneijden@uu.nl, [@KvEijden](https://github.com/KvEijden))
 - Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
