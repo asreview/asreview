@@ -12,7 +12,7 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-# Extract version from cbsodata.py
+# Extract version
 for line in open(path.join("asr", "__init__.py")):
     if line.startswith('__version__'):
         exec(line)
@@ -38,7 +38,6 @@ setup(
         'License :: OSI Approved :: MIT License',
 
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
