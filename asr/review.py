@@ -216,13 +216,13 @@ def review(dataset,
         print('\nClosing down the automated systematic review.')
         print('\nSaving results.')
 
-        # save the result to a file
-        if reviewer.log_file:
-            reviewer.save_log(reviewer.log_file)
+    # save the result to a file
+    if reviewer.log_file:
+        reviewer.save_logs(reviewer.log_file)
 
-        # print the results
-        if reviewer.verbose:
-            print(reviewer._logger._print_logs())
+    # print the results
+    if reviewer.verbose:
+        print(reviewer._logger._print_logs())
 
 
 def review_oracle(dataset, **kwargs):

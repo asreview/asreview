@@ -4,6 +4,7 @@ import json
 
 # external dependencies
 import pandas as pd
+import numpy as np
 
 
 def load_data(fp):
@@ -114,6 +115,13 @@ class Logger(object):
             The query number.
         """
 
+        # ensure that variables are serializable
+        if isinstance(indices, np.ndarray):
+            indices = indices.tolist()
+        if isinstance(labels, np.ndarray):
+            labels = labels.tolist()
+
+        # the query number
         if i is None:
             i = max(self._log_dict.keys()) + 1
 
@@ -145,7 +153,8 @@ class Logger(object):
         """
         fp = pathlib.Path(fp)
 
-        fp.mkdir(parents=True, exist_ok=True)
+        if fp.is_file:
+            fp.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(fp, 'w') as outfile:
-            json.dump(self._print_logs, outfile)
+        with fp.open('w') as outfile:
+            json.dump(self._log_dict, outfile)
