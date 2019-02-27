@@ -39,7 +39,7 @@ def create_svc_model(verbose=1):
 
     """
 
-    model = SVC()
+    model = SVC(probability=True)
 
     if verbose:
         print(model)
