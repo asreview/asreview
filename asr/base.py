@@ -61,19 +61,25 @@ class Review(ABC):
 
         pass
 
-    def _stop_iter(self, query_i):
+    def _stop_iter(self, query_i, pool):
+        """Criteria for stopping iteration.
+
+        Stop iterating if:
+            - n_queries is reached
+            - the pool is empty
+        """
+
+        stop_iter = False
+
+        # if the pool is empty, always stop
+        if len(pool) == 0:
+            stop_iter = True
 
         # don't stop if there is no stopping criteria
-        # TODO: implement a stop when the pool is empty
-        if self.n_queries is None:
-            return False
+        if self.n_queries is not None and query_i > self.n_queries:
+            stop_iter = True
 
-        # number of queries not met yet
-        if query_i <= self.n_queries:
-            return False
-
-        # stop
-        return True
+        return stop_iter
 
     def review(self):
 
@@ -100,12 +106,12 @@ class Review(ABC):
 
         query_i = 0
 
-        while not self._stop_iter(query_i):
+        while not self._stop_iter(query_i, pool_ind):
 
             # Make a query from the pool.
             query_ind, query_instance = self.learner.query(
                 self.X[pool_ind],
-                n_instances=self.n_instances  # ,
+                n_instances=min(self.n_instances, len(pool_ind))  # ,
                 # verbose=self.verbose
             )
 
@@ -128,7 +134,8 @@ class Review(ABC):
             pool_ind = np.delete(pool_ind, query_ind, axis=0)
 
             # predict the label of the unlabeled entries in the pool
-            pred = self.learner.predict(self.X[pool_ind])
+            if len(pool_ind) > 0:
+                pred = self.learner.predict(self.X[pool_ind])
 
             # add results to logger
             self._logger.add_training_log(query_ind, y, i=query_i)
