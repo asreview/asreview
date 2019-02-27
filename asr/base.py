@@ -142,7 +142,7 @@ class Review(ABC):
 
         # save the result to a file
         if self.log_file:
-            self.save_log(self.log_file)
+            self.save_logs(self.log_file)
 
         # print the results
         if self.verbose:
