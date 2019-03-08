@@ -43,7 +43,7 @@ def _load_embedding_matrix(fp, word_index):
 
     from asr.models.embedding import load_embedding, sample_embedding
 
-    embedding = load_embedding(fp)
+    embedding = load_embedding(fp, word_index=word_index)
     return sample_embedding(embedding, word_index)
 
 
