@@ -36,4 +36,8 @@ Utils
 
 .. autofunction:: asr.load_data
 
+.. autofunction:: asr.load_embedding
+
+.. autofunction:: asr.sample_embedding
+
 
