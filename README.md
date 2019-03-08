@@ -31,20 +31,19 @@ following respositories are (or will become) publicly available:
 
 ## Table of Contents
 
-   * [Automated Systematic Review](#automated-systematic-review)
-   * [Table of Contents](#table-of-contents)
-      * [Installation](#installation)
-      * [Quick start](#quick-start)
-      * [Systematic Review with oracle](#systematic-review-with-oracle)
-         * [Command Line Interface (oracle mode)](#command-line-interface-oracle-mode)
-         * [Python API (oracle mode)](#python-api-oracle-mode)
-      * [Systematic Review with labels](#systematic-review-with-labels)
-         * [Command Line Interface (simulate mode)](#command-line-interface-simulate-mode)
-         * [Python API (simulate mode)](#python-api-simulate-mode)
-      * [Developement and contributions](#developement-and-contributions)
-         * [Entry points](#entry-points)
-         * [Debug using pickle dataset](#debug-using-pickle-dataset)
-      * [Contact and contributors](#contact-and-contributors)
+* [Table of Contents](#table-of-contents)
+* [Installation](#installation)
+* [Quick start](#quick-start)
+* [Systematic Review with oracle](#systematic-review-with-oracle)
+   * [Command Line Interface (oracle mode)](#command-line-interface-oracle-mode)
+   * [Python API (oracle mode)](#python-api-oracle-mode)
+* [Systematic Review with labels](#systematic-review-with-labels)
+   * [Command Line Interface (simulate mode)](#command-line-interface-simulate-mode)
+   * [Python API (simulate mode)](#python-api-simulate-mode)
+* [Developement and contributions](#developement-and-contributions)
+   * [Entry points](#entry-points)
+   * [Debug using pickle dataset](#debug-using-pickle-dataset)
+* [Contact and contributors](#contact-and-contributors)
 
 
 ## Installation
