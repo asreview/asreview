@@ -19,6 +19,8 @@ from asr.config import MODUS
 from asr.query_strategies import random_sampling, uncertainty_sampling
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
+from asr.models.embedding import download_embedding, EMBEDDING_EN
+from asr.utils import get_data_home
 
 # constants
 EPOCHS = 3
@@ -94,7 +96,11 @@ def review(dataset,
         texts, labels = load_data(dataset)
 
         # get the model
-        if isinstance(dataset, str) & (model.lower() == 'lstm') & (embedding is not None):
+        if isinstance(dataset, str) & (model.lower() == 'lstm'):
+
+            if embedding is None:
+                download_embedding(verbose=verbose)
+                embedding = os.path.join(get_data_home(), EMBEDDING_EN["name"])
 
             # create features and labels
             X, word_index = text_to_features(texts)

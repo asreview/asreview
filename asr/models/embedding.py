@@ -1,6 +1,19 @@
+import gzip
+import io
+import os
+import shutil
 from multiprocessing import Process, Queue, cpu_count
+from urllib.request import urlopen
 
 import numpy as np
+
+from asr.utils import get_data_home
+
+
+EMBEDDING_EN = {
+    "url": "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.vec.gz",  # noqa
+    "name": 'fasttext.cc.en.300.vec'
+}
 
 
 def _embedding_reader(filename, input_queue, block_size=1000):
@@ -88,6 +101,47 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
         output_queue.put({"ErrorBadInputValues": badValues})
     else:
         output_queue.put(embedding_dict)
+
+
+def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
+                       data_home=None, verbose=1):
+    """Download word embedding file.
+
+    Download word embedding file, unzip the file and save to the
+    file system.
+
+    Parameters
+    ----------
+    url: str
+        The URL of the gzipped word embedding file
+    name: str
+        The filename of the embedding file.
+    data_home: str
+        The location of the ASR datasets. Default `asr.utils.get_data_home()`
+    verbose: int
+        The verbosity. Default 1.
+
+    """
+
+    if data_home is None:
+        data_home = get_data_home()
+
+    out_fp = os.path.join(data_home, name)
+
+    if verbose:
+        print(f'download {url}')
+
+    r = urlopen(url)
+    compressed_file = io.BytesIO(r.read())
+
+    if verbose:
+        print(f'save to {out_fp}')
+
+    decompressed_file = gzip.GzipFile(fileobj=compressed_file)
+
+    with open(out_fp, 'wb') as out_file:
+        for line in decompressed_file:
+            out_file.write(line)
 
 
 def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
