@@ -9,6 +9,7 @@ import sys
 import warnings
 import argparse
 import pickle
+from pathlib import Path
 
 import pandas
 
@@ -99,8 +100,14 @@ def review(dataset,
         if isinstance(dataset, str) & (model.lower() == 'lstm'):
 
             if embedding is None:
-                download_embedding(verbose=verbose)
-                embedding = os.path.join(get_data_home(), EMBEDDING_EN["name"])
+                embedding = Path(
+                    get_data_home(), 
+                    EMBEDDING_EN["name"]
+                ).expanduser()
+
+                if not embedding.exists():
+                    download_embedding(verbose=verbose)
+
 
             # create features and labels
             X, word_index = text_to_features(texts)

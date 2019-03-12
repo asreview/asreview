@@ -1,8 +1,8 @@
 # Cpython dependencies
 import json
-import pathlib
+from os import environ
+from pathlib import Path
 import shutil
-from os import environ, makedirs, path
 
 # external dependencies
 import numpy as np
@@ -183,10 +183,12 @@ def get_data_home(data_home=None):
     """
     if data_home is None:
         data_home = environ.get('ASR_DATA',
-                                path.join('~', 'asr_data'))
-    data_home = path.expanduser(data_home)
-    if not path.exists(data_home):
-        makedirs(data_home)
+                                Path('~', 'asr_data'))
+    data_home = Path(data_home).expanduser()
+
+    if not data_home.exists():
+        data_home.mkdir(parents=True, exist_ok=True)
+
     return data_home
 
 

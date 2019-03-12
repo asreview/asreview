@@ -3,6 +3,7 @@ import io
 import os
 import shutil
 from multiprocessing import Process, Queue, cpu_count
+from pathlib import Path
 from urllib.request import urlopen
 
 import numpy as np
@@ -126,7 +127,7 @@ def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
     if data_home is None:
         data_home = get_data_home()
 
-    out_fp = os.path.join(data_home, name)
+    out_fp = Path(data_home, name)
 
     if verbose:
         print(f'download {url}')
