@@ -8,6 +8,7 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
+from asr.query_strategies.uncertainty_sampling import usample_cached
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -76,7 +77,7 @@ class Review(ABC):
             stop_iter = True
 
         # don't stop if there is no stopping criteria
-        if self.n_queries is not None and query_i > self.n_queries:
+        if self.n_queries is not None and query_i >= self.n_queries:
             stop_iter = True
 
         return stop_iter
@@ -97,6 +98,7 @@ class Review(ABC):
             estimator=self.model,
             X_training=self.X[init_ind],
             y_training=init_labels,
+            query_strategy=usample_cached,
 
             # additional arguments to pass to fit
             **self.fit_kwargs)
@@ -104,28 +106,33 @@ class Review(ABC):
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
 
+        self._logger.add_training_log(init_ind, init_labels, i=0)
         query_i = 0
 
         while not self._stop_iter(query_i, pool_ind):
-
+            pred_proba = []
             # Make a query from the pool.
             query_ind, query_instance = self.learner.query(
                 self.X[pool_ind],
-                n_instances=min(self.n_instances, len(pool_ind))  # ,
-                # verbose=self.verbose
+                n_instances=min(self.n_instances, len(pool_ind)),
+                pred_proba=pred_proba,
             )
+
+            # Log the probabilities of samples in the pool being included.
+            if len(pred_proba) > 0:
+                self._logger.add_pool_pred_prob(
+                    pool_ind, pred_proba[0], i=query_i
+                )
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
-
             # train model
             self._prior_teach()
-
             # Teach the learner the new labelled data.
             self.learner.teach(
                 X=query_instance,
                 y=y,
-                only_new=False,  # check docs!!!!
+                only_new=False,  # Only query papers not already labeled.
 
                 # additional arguments to pass to fit
                 **self.fit_kwargs)
@@ -133,27 +140,24 @@ class Review(ABC):
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_ind, axis=0)
 
-            # predict the label of the unlabeled entries in the pool
-            if len(pool_ind) > 0:
-                pred = self.learner.predict(self.X[pool_ind])
-
-            # add results to logger
-            self._logger.add_training_log(query_ind, y, i=query_i)
-            # self._logger.add_pool_log(pool_ind, pred, i=query_i)
-
-            # # reset the memory of the model
-            # self.learner._model.set_weights(init_weights)
+            # Add the query indexes to the log.
+            self._logger.add_training_log(query_ind, y, i=query_i+1)
 
             # update the query counter
             query_i += 1
 
-        # save the result to a file
+        # Produce the final set of prediction probabilities
+        if len(pool_ind) > 0:
+            pred_proba = self.learner.predict_proba(self.X[pool_ind])
+            self._logger.add_pool_pred_prob(pool_ind, pred_proba, i=query_i)
+
+        # Save the result to a file
         if self.log_file:
             self.save_logs(self.log_file)
 
         # print the results
         if self.verbose:
-            print(self._logger._print_logs())
+            print(f"Saved results in log file: {self.log_file}")
 
     def save_logs(self, *args, **kwargs):
         """Save the logs to a file."""

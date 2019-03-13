@@ -105,6 +105,16 @@ class Logger(object):
 
         return s
 
+    def _add_log(self, new_dict, i):
+        # the query number
+        if i is None:
+            i = max(self._log_dict.keys()) + 1
+
+        if i >= len(self._log_dict):
+            self._log_dict[i] = {}
+
+        self._log_dict[i].update(new_dict)
+
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
 
@@ -123,27 +133,50 @@ class Logger(object):
             indices = indices.tolist()
         if isinstance(labels, np.ndarray):
             labels = labels.tolist()
+        new_dict = {'labelled': list(zip(indices, labels))}
+        self._add_log(new_dict, i)
 
-        # the query number
-        if i is None:
-            i = max(self._log_dict.keys()) + 1
-
-        self._log_dict[i] = {'labelled': list(zip(indices, labels))}
-
-    def add_pool_log(self, indices, pred, i=None):
+    def add_pool_predict_log(self, indices, pred, i=None):
         """Add inverse pool indices and their labels.
 
         Arguments
         ---------
         indices: list, np.array
-            A list of indices used for inverse pool.
-        pred: list
-            A list of labels corresponding with the inverse pool indices.
+            A list of indices used for unlabeled pool.
+        pred: np.array
+            A list of predictions for those samples.
         i: int
             The query number.
         """
 
-        raise NotImplementedError()
+        if isinstance(indices, np.ndarray):
+            indices = indices.tolist()
+        pred = np.reshape(pred, -1)
+        if isinstance(pred, np.ndarray):
+            pred = pred.tolist()
+        new_dict = {'predictions': list(zip(indices, pred))}
+        self._add_log(new_dict, i)
+
+    def add_pool_pred_prob(self, indices, pred_proba, i=None):
+        """Add inverse pool indices and their labels.
+
+        Arguments
+        ---------
+        indices: list, np.array
+            A list of indices used for unlabeled pool.
+        pred: np.array
+            Array of prediction probabilities for unlabeled pool.
+        i: int
+            The query number.
+        """
+
+        if isinstance(indices, np.ndarray):
+            indices = indices.tolist()
+        pred_proba = pred_proba[:, 1]
+        if isinstance(pred_proba, np.ndarray):
+            pred_proba = pred_proba.tolist()
+        new_dict = {'prediction_probabilities': list(zip(indices, pred_proba))}
+        self._add_log(new_dict, i)
 
     def save(self, fp):
         """Save logs to file.
@@ -154,13 +187,13 @@ class Logger(object):
             The file path to export the results to.
 
         """
-        fp = pathlib.Path(fp)
+        fp = Path(fp)
 
         if fp.is_file:
             fp.parent.mkdir(parents=True, exist_ok=True)
 
         with fp.open('w') as outfile:
-            json.dump(self._log_dict, outfile)
+            json.dump(self._log_dict, outfile, indent=2)
 
 
 def get_data_home(data_home=None):

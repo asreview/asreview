@@ -138,12 +138,6 @@ def review(dataset,
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
         from asr.models import create_lstm_model
 
-        # create the model
-        model = KerasClassifier(
-            create_lstm_model(embedding_matrix=embedding_matrix,
-                              verbose=verbose)
-        )
-
         # arguments to pass to the fit
         fit_kwargs['batch_size'] = BATCH_SIZE
         fit_kwargs['epochs'] = EPOCHS
@@ -155,6 +149,13 @@ def review(dataset,
                 0: 1 / (1 - frac_included),
                 1: 1 / frac_included
             }
+
+        # create the model
+        model = KerasClassifier(
+            create_lstm_model(embedding_matrix=embedding_matrix,
+                              verbose=verbose),
+            **fit_kwargs
+        )
 
     elif isinstance(dataset, str) & (model.lower() in ['nb']):
         from asr.models import create_nb_model
@@ -231,14 +232,16 @@ def review(dataset,
         # TODO: save results.
         print('\nClosing down the automated systematic review.')
         print('\nSaving results.')
+        if reviewer.log_file:
+            reviewer.save_logs(reviewer.log_file)
 
     # save the result to a file
     if reviewer.log_file:
         reviewer.save_logs(reviewer.log_file)
 
     # print the results
-    if reviewer.verbose:
-        print(reviewer._logger._print_logs())
+#     if reviewer.verbose:
+#         print(reviewer._logger._print_logs())
 
 
 def review_oracle(dataset, **kwargs):
