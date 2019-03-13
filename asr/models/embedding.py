@@ -95,6 +95,13 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
 
                 # store the results
                 embedding[word] = np.asarray(coefs, dtype=np.float32)
+            word = values[0]
+            if word_index is not None and word not in word_index:
+                continue
+            coefs = values[1:emb_vec_dim + 1]
+
+            # store the results
+            embedding[word] = np.asarray(coefs, dtype=np.float32)
         output_queue.put(embedding)
 
     # We removed the "DONE" from the input queue, so put it back in for
