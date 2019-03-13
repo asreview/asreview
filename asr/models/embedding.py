@@ -40,6 +40,20 @@ def _embedding_reader(filename, input_queue, block_size=1000):
     input_queue.put("DONE")
 
 
+def _embedding_aggregator(output_queue, n_worker):
+    embedding = {}
+
+    num_done = 0
+    while num_done < n_worker:
+        new_embedding = output_queue.get()
+        if new_embedding == "DONE":
+            num_done += 1
+        else:
+            embedding.update(new_embedding)
+
+    return embedding
+
+
 def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     """ Process that reads the word embeddings from a file.
 
@@ -55,10 +69,11 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
         Dictionary of the sample embedding.
     """
 
-    embedding_dict = {}
+#     embedding_dict = {}
     badInput = False
     badValues = {}
     while not badInput:
+        embedding = {}
         buffer = input_queue.get()
         if buffer == "DONE":
             break
@@ -77,7 +92,8 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
             coefs = values[1:emb_vec_dim + 1]
 
             # store the results
-            embedding_dict[word] = np.asarray(coefs, dtype=np.float32)
+            embedding[word] = np.asarray(coefs, dtype=np.float32)
+        output_queue.put(embedding)
 
     # We removed the "DONE" from the input queue, so put it back in for
     # the other processes.
@@ -86,8 +102,9 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     # Store the results in the output queue
     if badInput:
         output_queue.put({"ErrorBadInputValues": badValues})
-    else:
-        output_queue.put(embedding_dict)
+    output_queue.put("DONE")
+#     else:
+#         emb_dict = (embedding_dict)
 
 
 def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
@@ -133,9 +150,10 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
     if verbose == 1:
         print(f"Reading {n_words} vectors with {emb_vec_dim} dimensions.")
 
-    embedding = {}
-
     worker_procs = []
+    p = Process(target=_embedding_reader, args=(fp, input_queue),
+                daemon=True)
+    worker_procs.append(p)
     for _ in range(n_jobs):
         p = Process(
             target=_embedding_worker,
@@ -144,17 +162,15 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
         worker_procs.append(p)
 
     # Start workers.
-    for i in range(n_jobs):
-        worker_procs[i].start()
-    _embedding_reader(fp, input_queue)
+    for proc in worker_procs:
+        proc.start()
+    embedding = _embedding_aggregator(output_queue, n_jobs)
 
     # Merge dictionaries of workers
-    for _ in range(n_jobs):
-        embedding.update(output_queue.get())
 
     # Join workers
-    for i in range(n_jobs):
-        worker_procs[i].join()
+    for proc in worker_procs:
+        proc.join()
 
     if "ErrorBadInputValues" in embedding:
         badValues = embedding["ErrorBadInputValues"]
