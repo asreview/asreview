@@ -69,7 +69,6 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
         Dictionary of the sample embedding.
     """
 
-#     embedding_dict = {}
     badInput = False
     badValues = {}
     while not badInput:
@@ -103,8 +102,6 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     if badInput:
         output_queue.put({"ErrorBadInputValues": badValues})
     output_queue.put("DONE")
-#     else:
-#         emb_dict = (embedding_dict)
 
 
 def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
