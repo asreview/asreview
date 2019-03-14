@@ -40,20 +40,6 @@ def _embedding_reader(filename, input_queue, block_size=1000):
     input_queue.put("DONE")
 
 
-def _embedding_aggregator(output_queue, n_worker):
-    embedding = {}
-
-    num_done = 0
-    while num_done < n_worker:
-        new_embedding = output_queue.get()
-        if new_embedding == "DONE":
-            num_done += 1
-        else:
-            embedding.update(new_embedding)
-
-    return embedding
-
-
 def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     """ Process that reads the word embeddings from a file.
 
@@ -102,6 +88,35 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     if badInput:
         output_queue.put({"ErrorBadInputValues": badValues})
     output_queue.put("DONE")
+
+
+def _embedding_aggregator(output_queue, n_worker):
+    """ Process that aggregates the results of the workers.
+        This should be the main/original process.
+
+    Parameters
+    ----------
+    output_queue: Queue
+        This queue is the output queue of the workers.
+    n_worker: int
+        The number of worker processes.
+
+    Returns
+    -------
+    Aggregated embedding dictionary.
+    """
+
+    embedding = {}
+
+    num_done = 0
+    while num_done < n_worker:
+        new_embedding = output_queue.get()
+        if new_embedding == "DONE":
+            num_done += 1
+        else:
+            embedding.update(new_embedding)
+
+    return embedding
 
 
 def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
