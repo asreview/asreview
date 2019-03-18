@@ -64,11 +64,13 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
             break
 
         for line in buffer:
+            line = line.rstrip()
             values = line.split(' ')
 
-            if len(values) != emb_vec_dim + 2:
+            if len(values) != emb_vec_dim + 1:
                 badInput = True
                 badValues = values
+                print(f"Error: bad input in embedding vector.")
                 break
 
             word = values[0]
