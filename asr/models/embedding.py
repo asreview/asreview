@@ -57,7 +57,7 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
 
     badInput = False
     badValues = {}
-    while not badInput:
+    while True:
         embedding = {}
         buffer = input_queue.get()
         if buffer == "DONE":
@@ -68,18 +68,19 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
             values = line.split(' ')
 
             if len(values) != emb_vec_dim + 1:
+                if not badInput:
+                    print("Error: bad input in embedding vector.")
                 badInput = True
                 badValues = values
-                print(f"Error: bad input in embedding vector.")
                 break
+            else:
+                word = values[0]
+                if word_index is not None and word not in word_index:
+                    continue
+                coefs = values[1:emb_vec_dim + 1]
 
-            word = values[0]
-            if word_index is not None and word not in word_index:
-                continue
-            coefs = values[1:emb_vec_dim + 1]
-
-            # store the results
-            embedding[word] = np.asarray(coefs, dtype=np.float32)
+                # store the results
+                embedding[word] = np.asarray(coefs, dtype=np.float32)
         output_queue.put(embedding)
 
     # We removed the "DONE" from the input queue, so put it back in for
