@@ -4,10 +4,6 @@
 #
 # Authors: Parisa Zahedi, Jonathan de Bruin
 
-import os
-import sys
-import warnings
-import argparse
 import pickle
 import time
 from pathlib import Path
@@ -25,7 +21,7 @@ from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.utils import get_data_home
 
 # constants
-EPOCHS = 3
+EPOCHS = 10
 BATCH_SIZE = 64
 
 
@@ -65,7 +61,7 @@ def review(dataset,
            save_model=None,
            frac_included=None,
            **kwargs
-):
+           ):
 
     # PREPARE FEATURES.
     #
@@ -228,20 +224,18 @@ def review(dataset,
         reviewer.review()
 
     except KeyboardInterrupt:
-
-        # TODO: save results.
         print('\nClosing down the automated systematic review.')
         print('\nSaving results.')
         if reviewer.log_file:
             reviewer.save_logs(reviewer.log_file)
+        else:
+            print(reviewer._logger._print_logs())
 
     # save the result to a file
     if reviewer.log_file:
         reviewer.save_logs(reviewer.log_file)
-
-    # print the results
-#     if reviewer.verbose:
-#         print(reviewer._logger._print_logs())
+    else:
+        print(reviewer._logger._print_logs())
 
 
 def review_oracle(dataset, **kwargs):
