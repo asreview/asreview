@@ -9,6 +9,7 @@ import sys
 import warnings
 import argparse
 import pickle
+import time
 from pathlib import Path
 
 import pandas
@@ -101,13 +102,15 @@ def review(dataset,
 
             if embedding is None:
                 embedding = Path(
-                    get_data_home(), 
+                    get_data_home(),
                     EMBEDDING_EN["name"]
                 ).expanduser()
 
                 if not embedding.exists():
+                    print("Warning: will start to download large"
+                          "embedding file in 10 seconds.")
+                    time.sleep(10)
                     download_embedding(verbose=verbose)
-
 
             # create features and labels
             X, word_index = text_to_features(texts)
