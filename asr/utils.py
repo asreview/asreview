@@ -1,10 +1,13 @@
 # Cpython dependencies
-import pathlib
 import json
+from os import environ
+from pathlib import Path
+import shutil
 
 # external dependencies
-import pandas as pd
 import numpy as np
+
+import pandas as pd
 
 
 def load_data(fp):
@@ -158,3 +161,45 @@ class Logger(object):
 
         with fp.open('w') as outfile:
             json.dump(self._log_dict, outfile)
+
+
+def get_data_home(data_home=None):
+    """Return the path of the ASR data dir.
+
+    This folder is used by some large dataset loaders to avoid downloading the
+    data several times.
+    By default the data dir is set to a folder named 'asr_data' in the
+    user home folder.
+    Alternatively, it can be set by the 'ASR_DATA' environment
+    variable or programmatically by giving an explicit folder path. The '~'
+    symbol is expanded to the user home folder.
+    If the folder does not already exist, it is automatically created.
+
+    Parameters
+    ----------
+    data_home : str | None
+        The path to scikit-learn data dir.
+
+    """
+    if data_home is None:
+        data_home = environ.get('ASR_DATA',
+                                Path('~', 'asr_data'))
+    data_home = Path(data_home).expanduser()
+
+    if not data_home.exists():
+        data_home.mkdir(parents=True, exist_ok=True)
+
+    return data_home
+
+
+def clear_data_home(data_home=None):
+    """Delete all the content of the data home cache.
+
+    Parameters
+    ----------
+    data_home : str | None
+        The path to scikit-learn data dir.
+
+    """
+    data_home = get_data_home(data_home)
+    shutil.rmtree(data_home)
