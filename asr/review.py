@@ -15,7 +15,6 @@ from asr import ReviewSimulate, ReviewOracle
 from asr.utils import load_data, text_to_features
 from asr.config import MODUS
 from asr.query_strategies import random_sampling, uncertainty_sampling
-from asr.query_strategies import usample_cached
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 from asr.models.embedding import download_embedding, EMBEDDING_EN
@@ -29,10 +28,8 @@ BATCH_SIZE = 64
 def _get_query_method(method):
     """Function to get the query method"""
 
-    if method in ['lc', 'sm']:
-        return uncertainty_sampling, 'Least confidence'
-    if method in ['uncertainty']:
-        return usample_cached, 'Uncertainty sampling'
+    if method in ['lc', 'sm', 'uncertainty']:
+        return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
     elif method == 'random':
         return random_sampling, 'Random'
     else:
@@ -53,7 +50,7 @@ def _load_embedding_matrix(fp, word_index):
 def review(dataset,
            mode='oracle',
            model="lstm",
-           query_strategy="lc",
+           query_strategy="uncertainty",
            n_instances=1,
            embedding=None,
            verbose=1,
@@ -170,6 +167,8 @@ def review(dataset,
 
     # Pick query strategy
     query_fn, query_str = _get_query_method(query_strategy)
+    if verbose:
+        print(f"Query strategy: {query_str}")
 
     if mode == MODUS[1]:
         # start the review process

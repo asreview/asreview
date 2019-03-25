@@ -20,17 +20,6 @@ def classifier_uncertainty(
         classifier: BaseEstimator, X: modALinput, pred_proba: list=None,
         **predict_proba_kwargs
         ) -> np.ndarray:
-    """
-    Classification uncertainty of the classifier for the provided samples.
-    Args:
-        classifier: The classifier for which the uncertainty is to be measured.
-        X: The samples for which the uncertainty of classification is to be
-            measured.
-        **predict_proba_kwargs: Keyword arguments to be passed
-            for the :meth:`predict_proba` of the classifier.
-    Returns:
-        Classifier uncertainty, which is 1 - P(prediction is correct).
-    """
     # calculate uncertainty for each point provided
     try:
         classwise_uncertainty = classifier.predict_proba(
@@ -44,26 +33,37 @@ def classifier_uncertainty(
     return uncertainty
 
 
-def usample_cached(classifier: BaseEstimator, X: modALinput,
-                   n_instances: int = 1, random_tie_break: bool = False,
-                   **uncertainty_measure_kwargs
-                   ) -> Tuple[np.ndarray, modALinput]:
+def uncertainty_sampling(classifier: BaseEstimator, X: modALinput,
+                         n_instances: int = 1, random_tie_break: bool = False,
+                         **uncertainty_measure_kwargs
+                         ) -> Tuple[np.ndarray, modALinput]:
     """
     Uncertainty sampling query strategy.
     Selects the least sure instances for labelling.
-    Args:
-        classifier: The classifier for which the labels are to be queried.
-        X: The pool of samples to query from.
-        n_instances: Number of samples to be queried.
-        random_tie_break: If True, shuffles utility scores to randomize
-            the order. This can be used to break the tie when the highest
-            utility score is not unique.
-        **uncertainty_measure_kwargs: Keyword arguments to be passed for
-            the uncertainty measure function.
-    Returns:
+
+    Parameters
+    ----------
+    classifier: BaseEstimator
+        The classifier for which the labels are to be queried.
+    X: modALinput
+        The pool of samples to query from.
+    n_instances: int
+        Number of samples to be queried.
+    random_tie_break: bool
+        If True, shuffles utility scores to randomize the order.
+        This can be used to break the tie when the highest
+        utility score is not unique.
+    **uncertainty_measure_kwargs:
+        Keyword arguments to be passed for
+        the uncertainty measure function.
+
+    Returns
+    -------
+    np.ndarray, modALinput
         The indices of the instances from X chosen to be labelled;
         the instances from X chosen to be labelled.
     """
+
     uncertainty = classifier_uncertainty(
         classifier, X, **uncertainty_measure_kwargs)
 
