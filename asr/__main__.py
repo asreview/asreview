@@ -70,6 +70,12 @@ def parse_arguments(mode, prog=sys.argv[0]):
         default=None,
         help="File path of embedding matrix. Required for LSTM model."
     )
+    parser.add_argument(
+        "--frac_included",
+        type=float,
+        default=None,
+        help="Fraction of included papers, an estimate for the classifier."
+    )
 
     # Initial data (prior knowledge)
     parser.add_argument(

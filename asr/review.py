@@ -141,10 +141,14 @@ def review(dataset,
         fit_kwargs['verbose'] = verbose
 
         if frac_included is not None:
+            weight0 = 1 / (1 - frac_included)
+            weight1 = 1 / frac_included
             fit_kwargs['class_weight'] = {
-                0: 1 / (1 - frac_included),
-                1: 1 / frac_included
+                0: weight0,
+                1: weight1
             }
+            if verbose:
+                print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
 
         # create the model
         model = KerasClassifier(
