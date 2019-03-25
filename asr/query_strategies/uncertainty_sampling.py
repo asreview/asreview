@@ -2,9 +2,14 @@
 Uncertainty sampling while saving probabilities.
 '''
 
-# Code based on https://modal-python.readthedocs.io/
-# en/latest/content/overview/modAL-in-a-nutshell.html
-# MIT license - Copyright (c) 2017 Tivadar Danka
+# Code based on https://github.com/modAL-python/
+# modAL/blob/dev/modAL/uncertainty.py
+#
+# Documentation:
+# https://modal-python.readthedocs.io/en/latest/
+# content/apireference/uncertainty.html
+#
+# MIT license - Copyright (c) 2019 Tivadar Danka
 
 from typing import Tuple
 

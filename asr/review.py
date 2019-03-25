@@ -150,7 +150,7 @@ def review(dataset,
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
                               verbose=verbose),
-            **fit_kwargs
+            verbose=verbose
         )
 
     elif isinstance(dataset, str) & (model.lower() in ['nb']):
@@ -182,6 +182,11 @@ def review(dataset,
             prior_excluded=prior_excluded,
             n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded,
+
+            # Fit keyword arguments
+            fit_kwargs=fit_kwargs,
+
+            # Other
             **kwargs)
 
     elif mode == MODUS[0]:

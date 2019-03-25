@@ -136,7 +136,7 @@ class Logger(object):
         new_dict = {'labelled': list(zip(indices, labels))}
         self._add_log(new_dict, i)
 
-    def add_pool_predict_log(self, indices, pred, i=None):
+    def add_pool_predict(self, indices, pred, i=None):
         """Add inverse pool indices and their labels.
 
         Arguments
@@ -157,7 +157,7 @@ class Logger(object):
         new_dict = {'predictions': list(zip(indices, pred))}
         self._add_log(new_dict, i)
 
-    def add_pool_pred_prob(self, indices, pred_proba, i=None):
+    def add_pool_proba(self, indices, pred_proba, i=None):
         """Add inverse pool indices and their labels.
 
         Arguments

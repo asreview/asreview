@@ -120,7 +120,7 @@ class Review(ABC):
             # Log the probabilities of samples in the pool being included.
             if len(pred_proba) == 0:
                 pred_proba = [self.learner.predict_proba(self.X[pool_ind])]
-            self._logger.add_pool_pred_prob(
+            self._logger.add_pool_proba(
                     pool_ind, pred_proba[0], i=query_i
             )
 
@@ -132,7 +132,9 @@ class Review(ABC):
             self.learner.teach(
                 X=query_instance,
                 y=y,
-                only_new=False,  # Only query papers not already labeled.
+
+                # Train on both new and old labels, since we're retraining all.
+                only_new=False,
 
                 # additional arguments to pass to fit
                 **self.fit_kwargs)
@@ -149,7 +151,7 @@ class Review(ABC):
         # Produce the final set of prediction probabilities
         if len(pool_ind) > 0:
             pred_proba = self.learner.predict_proba(self.X[pool_ind])
-            self._logger.add_pool_pred_prob(pool_ind, pred_proba, i=query_i)
+            self._logger.add_pool_proba(pool_ind, pred_proba, i=query_i)
 
         # Save the result to a file
         if self.log_file:
