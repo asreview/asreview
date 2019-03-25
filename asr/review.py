@@ -15,6 +15,7 @@ from asr import ReviewSimulate, ReviewOracle
 from asr.utils import load_data, text_to_features
 from asr.config import MODUS
 from asr.query_strategies import random_sampling, uncertainty_sampling
+from asr.query_strategies import usample_cached
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 from asr.models.embedding import download_embedding, EMBEDDING_EN
@@ -30,6 +31,8 @@ def _get_query_method(method):
 
     if method in ['lc', 'sm']:
         return uncertainty_sampling, 'Least confidence'
+    if method in ['uncertainty']:
+        return usample_cached, 'Uncertainty sampling'
     elif method == 'random':
         return random_sampling, 'Random'
     else:

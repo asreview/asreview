@@ -8,7 +8,6 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
-from asr.query_strategies.uncertainty_sampling import usample_cached
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -98,7 +97,7 @@ class Review(ABC):
             estimator=self.model,
             X_training=self.X[init_ind],
             y_training=init_labels,
-            query_strategy=usample_cached,
+            query_strategy=self.query_strategy,
 
             # additional arguments to pass to fit
             **self.fit_kwargs)
@@ -119,10 +118,11 @@ class Review(ABC):
             )
 
             # Log the probabilities of samples in the pool being included.
-            if len(pred_proba) > 0:
-                self._logger.add_pool_pred_prob(
+            if len(pred_proba) == 0:
+                pred_proba = [self.learner.predict_proba(self.X[pool_ind])]
+            self._logger.add_pool_pred_prob(
                     pool_ind, pred_proba[0], i=query_i
-                )
+            )
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
