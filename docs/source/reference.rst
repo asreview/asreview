@@ -25,9 +25,7 @@ Models
 Query strategies
 ----------------
 
-.. autofunction:: asr.query_strategies.entropy_sampling
 .. autofunction:: asr.query_strategies.uncertainty_sampling
-.. autofunction:: asr.query_strategies.margin_sampling
 .. autofunction:: asr.query_strategies.random_sampling
 
 
