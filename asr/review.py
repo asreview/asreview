@@ -4,10 +4,6 @@
 #
 # Authors: Parisa Zahedi, Jonathan de Bruin
 
-import os
-import sys
-import warnings
-import argparse
 import pickle
 import time
 from pathlib import Path
@@ -25,15 +21,15 @@ from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.utils import get_data_home
 
 # constants
-EPOCHS = 3
+EPOCHS = 10
 BATCH_SIZE = 64
 
 
 def _get_query_method(method):
     """Function to get the query method"""
 
-    if method in ['lc', 'sm']:
-        return uncertainty_sampling, 'Least confidence'
+    if method in ['lc', 'sm', 'uncertainty']:
+        return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
     elif method == 'random':
         return random_sampling, 'Random'
     else:
@@ -54,7 +50,7 @@ def _load_embedding_matrix(fp, word_index):
 def review(dataset,
            mode='oracle',
            model="lstm",
-           query_strategy="lc",
+           query_strategy="uncertainty",
            n_instances=1,
            embedding=None,
            verbose=1,
@@ -65,7 +61,7 @@ def review(dataset,
            save_model=None,
            frac_included=None,
            **kwargs
-):
+           ):
 
     # PREPARE FEATURES.
     #
@@ -138,12 +134,6 @@ def review(dataset,
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
         from asr.models import create_lstm_model
 
-        # create the model
-        model = KerasClassifier(
-            create_lstm_model(embedding_matrix=embedding_matrix,
-                              verbose=verbose)
-        )
-
         # arguments to pass to the fit
         fit_kwargs['batch_size'] = BATCH_SIZE
         fit_kwargs['epochs'] = EPOCHS
@@ -155,6 +145,13 @@ def review(dataset,
                 0: 1 / (1 - frac_included),
                 1: 1 / frac_included
             }
+
+        # create the model
+        model = KerasClassifier(
+            create_lstm_model(embedding_matrix=embedding_matrix,
+                              verbose=verbose),
+            verbose=verbose
+        )
 
     elif isinstance(dataset, str) & (model.lower() in ['nb']):
         from asr.models import create_nb_model
@@ -170,6 +167,8 @@ def review(dataset,
 
     # Pick query strategy
     query_fn, query_str = _get_query_method(query_strategy)
+    if verbose:
+        print(f"Query strategy: {query_str}")
 
     if mode == MODUS[1]:
         # start the review process
@@ -183,6 +182,11 @@ def review(dataset,
             prior_excluded=prior_excluded,
             n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded,
+
+            # Fit keyword arguments
+            fit_kwargs=fit_kwargs,
+
+            # Other
             **kwargs)
 
     elif mode == MODUS[0]:
@@ -227,17 +231,17 @@ def review(dataset,
         reviewer.review()
 
     except KeyboardInterrupt:
-
-        # TODO: save results.
         print('\nClosing down the automated systematic review.')
         print('\nSaving results.')
+        if reviewer.log_file:
+            reviewer.save_logs(reviewer.log_file)
+        else:
+            print(reviewer._logger._print_logs())
 
     # save the result to a file
     if reviewer.log_file:
         reviewer.save_logs(reviewer.log_file)
-
-    # print the results
-    if reviewer.verbose:
+    else:
         print(reviewer._logger._print_logs())
 
 

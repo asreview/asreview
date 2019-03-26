@@ -17,7 +17,7 @@ from asr.config import MODUS
 MODES = ["interactive", "oracle"]
 
 MODEL = "lstm"
-QUERY_STRATEGY = "lc"
+QUERY_STRATEGY = "uncertainty"
 
 EPOCHS = 3
 BATCH_SIZE = 64
@@ -52,7 +52,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
         "-q", "--query_strategy",
         type=str,
         default=QUERY_STRATEGY,
-        help="The query strategy for Active Learning. Default 'lc'.")
+        help="The query strategy for Active Learning. Default 'uncertainty'.")
     parser.add_argument(
         "--n_instances",
         default=N_INSTANCES,
