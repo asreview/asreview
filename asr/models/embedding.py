@@ -277,15 +277,21 @@ def sample_embedding(embedding, word_index, verbose=1):
         print(f"Creating matrix with {n_words}+1 vectors with {emb_vec_dim} \
         dimensions.")
 
+    n_extra_words = 50
     # n+1 because 0 is preserved in the tokenizing process.
-    embedding_matrix = np.zeros((n_words + 1, emb_vec_dim))
+    embedding_matrix = np.zeros((n_words + 1, emb_vec_dim+n_extra_words))
 
+    i_extra = 0
     for word, i in word_index.items():
 
         # words not found in embedding vocabulary will be all-zeros.
         coefs = embedding.get(word)
         if coefs is not None:
-            embedding_matrix[i] = coefs
+            embedding_matrix[i][0:emb_vec_dim] = coefs
+        elif i_extra < n_extra_words:
+            embedding_matrix[i][emb_vec_dim+i_extra] = 1
+            i_extra += 1
+            print(word)
 
     if verbose == 1:
         print('Shape of embedding matrix: ', embedding_matrix.shape)
