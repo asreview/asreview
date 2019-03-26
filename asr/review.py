@@ -19,6 +19,7 @@ from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.utils import get_data_home
+from asr.query_strategies import max_sampling
 
 # constants
 EPOCHS = 10
@@ -28,7 +29,9 @@ BATCH_SIZE = 64
 def _get_query_method(method):
     """Function to get the query method"""
 
-    if method in ['lc', 'sm', 'uncertainty']:
+    if method in ['max', 'max_sampling']:
+        return max_sampling, "Maximum inclusion sampling"
+    elif method in ['lc', 'sm', 'uncertainty']:
         return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
     elif method == 'random':
         return random_sampling, 'Random'
