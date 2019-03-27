@@ -77,6 +77,12 @@ def parse_arguments(mode, prog=sys.argv[0]):
         help="Fraction of included papers, an estimate for the classifier."
     )
 
+    parser.add_argument(
+        "--config_file",
+        type=str,
+        default=None,
+        help="Configuration file with model parameters"
+    )
     # Initial data (prior knowledge)
     parser.add_argument(
         "--prior_included",

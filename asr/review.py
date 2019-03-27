@@ -7,6 +7,8 @@
 import pickle
 import time
 from pathlib import Path
+import os
+from configparser import ConfigParser
 
 import pandas
 
@@ -18,12 +20,8 @@ from asr.query_strategies import random_sampling, uncertainty_sampling
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 from asr.models.embedding import download_embedding, EMBEDDING_EN
-from asr.utils import get_data_home
+from asr.utils import get_data_home, _unsafe_dict_update
 from asr.query_strategies import max_sampling
-
-# constants
-EPOCHS = 10
-BATCH_SIZE = 64
 
 
 def _get_query_method(method):
@@ -50,6 +48,27 @@ def _load_embedding_matrix(fp, word_index):
     return sample_embedding(embedding, word_index)
 
 
+def config_from_file(config_file):
+    if config_file is None or not os.path.isfile(config_file):
+        print(f"Didn't find configuration file: {config_file}")
+        return {}
+
+    config = ConfigParser()
+    config.read(config_file)
+
+    settings = {}
+
+    for sect in config:
+        if sect == "global_settings":
+            settings.update(dict(config.items(sect)))
+        elif sect == "model_param" or sect == "fit_param":
+            settings[sect] = dict(config.items(sect))
+        elif sect != "DEFAULT":
+            print(f"Warning: section [{sect}] is ignored in"
+                  f" config file {config_file}")
+    return settings
+
+
 def review(dataset,
            mode='oracle',
            model="lstm",
@@ -63,8 +82,22 @@ def review(dataset,
            n_prior_excluded=None,
            save_model=None,
            frac_included=None,
+           config_file=None,
            **kwargs
            ):
+
+    settings = {
+        "model": model.lower(),
+        "n_instances": n_instances,
+        "query_strategy": query_strategy,
+        "mode": mode,
+        "model_param": {},
+        "fit_param": {},
+    }
+
+    settings = _unsafe_dict_update(settings, config_from_file(config_file))
+#     TODO: broken
+#     settings.update(config_from_file(config_file))
 
     # PREPARE FEATURES.
     #
@@ -117,7 +150,6 @@ def review(dataset,
             embedding_matrix = _load_embedding_matrix(embedding, word_index)
 
         elif isinstance(dataset, str) & (model.lower() in ['nb', 'svc', 'svm']):
-
             from sklearn.pipeline import Pipeline
             from sklearn.feature_extraction.text import TfidfTransformer
             from sklearn.feature_extraction.text import CountVectorizer
@@ -133,30 +165,18 @@ def review(dataset,
     fit_kwargs = {}
 
     if isinstance(dataset, str) & (model.lower() == 'lstm'):
-
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-        from asr.models import create_lstm_model
+        from asr.models.lstm import create_lstm_model, lstm_model_defaults
+        from asr.models.lstm import lstm_fit_defaults
 
-        # arguments to pass to the fit
-        fit_kwargs['batch_size'] = BATCH_SIZE
-        fit_kwargs['epochs'] = EPOCHS
-        fit_kwargs['shuffle'] = True
-        fit_kwargs['verbose'] = verbose
-
-        if frac_included is not None:
-            weight0 = 1 / (1 - frac_included)
-            weight1 = 1 / frac_included
-            fit_kwargs['class_weight'] = {
-                0: weight0,
-                1: weight1
-            }
-            if verbose:
-                print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-
+        model_kwargs = lstm_model_defaults(settings, verbose)
+        fit_kwargs = lstm_fit_defaults(settings, frac_included, verbose)
+        settings["model_param"] = model_kwargs
+        settings["fit_param"] = fit_kwargs
         # create the model
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
-                              verbose=verbose),
+                              **model_kwargs),
             verbose=verbose
         )
 
@@ -235,6 +255,7 @@ def review(dataset,
         # Start the review process.
         if verbose:
             print("Start with the systematic review.")
+        reviewer._logger.add_model_param(settings)
         reviewer.review()
 
     except KeyboardInterrupt:

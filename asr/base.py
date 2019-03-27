@@ -108,6 +108,9 @@ class Review(ABC):
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
 
+        # Labeled indices
+        label_ind = init_ind
+
         # train model
         self._prior_teach()
 
@@ -124,7 +127,7 @@ class Review(ABC):
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
 
-        self._logger.add_training_log(init_ind, init_labels, i=0)
+        self._logger.add_training_log(init_ind, init_labels)
         query_i = 0
 
         while not self._stop_iter(query_i, pool_ind):
@@ -139,9 +142,13 @@ class Review(ABC):
             # Log the probabilities of samples in the pool being included.
             if len(pred_proba) == 0:
                 pred_proba = [self.learner.predict_proba(self.X[pool_ind])]
-            self._logger.add_pool_proba(
-                    pool_ind, pred_proba[0], i=query_i
+            self._logger.add_proba(
+                    pool_ind, pred_proba[0]
             )
+
+            pred_proba_label = self.learner.predict_proba(self.X[label_ind])
+            self._logger.add_proba(label_ind, pred_proba_label,
+                                   logname="labeled_proba")
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
@@ -160,9 +167,10 @@ class Review(ABC):
 
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_ind, axis=0)
+            label_ind = np.concatenate((label_ind, query_ind))
 
             # Add the query indexes to the log.
-            self._logger.add_training_log(query_ind, y, i=query_i+1)
+            self._logger.add_training_log(query_ind, y)
 
             # update the query counter
             query_i += 1
@@ -170,7 +178,11 @@ class Review(ABC):
         # Produce the final set of prediction probabilities
         if len(pool_ind) > 0:
             pred_proba = self.learner.predict_proba(self.X[pool_ind])
-            self._logger.add_pool_proba(pool_ind, pred_proba, i=query_i)
+            self._logger.add_proba(pool_ind, pred_proba)
+
+        pred_proba_label = self.learner.predict_proba(self.X[label_ind])
+        self._logger.add_proba(label_ind, pred_proba_label,
+                               logname="labeled_proba")
 
         # Save the result to a file
         if self.log_file:
