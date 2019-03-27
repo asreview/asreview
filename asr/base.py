@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import ast
 
 import numpy as np
 
@@ -11,6 +10,26 @@ from asr.ascii import ASCII_TEA
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
+
+
+def _merge_prior_knowledge(included, excluded, return_labels=True):
+    """Merge prior included and prior excluded."""
+
+    prior_indices = np.append(included, excluded)
+
+    if return_labels:
+
+        prior_included_labels = np.ones((len(included),))
+        prior_excluded_labels = np.zeros((len(excluded),))
+
+        labels = np.concatenate([
+            prior_included_labels,
+            prior_excluded_labels
+        ])
+
+        return prior_indices, labels
+    else:
+        return prior_indices
 
 
 class Review(ABC):
@@ -186,15 +205,30 @@ class ReviewSimulate(Review):
 
     def _prior_knowledge(self):
 
-        # Create the prior knowledge
-        init_ind = sample_prior_knowledge(
-            self.y,
-            n_included=self.n_prior_included,
-            n_excluded=self.n_prior_excluded,
-            random_state=None  # TODO
-        )
+        if self.prior_included and self.prior_excluded:
+            prior_indices, prior_labels = _merge_prior_knowledge(
+                self.prior_included,
+                self.prior_excluded
+            )
 
-        return init_ind, self.y[init_ind, ]
+            return prior_indices, prior_labels
+
+        elif self.n_prior_included and self.n_prior_excluded:
+
+            # Create the prior knowledge
+            init_ind = sample_prior_knowledge(
+                self.y,
+                n_prior_included=self.n_prior_included,
+                n_prior_excluded=self.n_prior_excluded,
+                random_state=None  # TODO
+            )
+
+            return init_ind, self.y[init_ind, ]
+        else:
+            raise ValueError(
+                "provide both prior_included and prior_excluded, "
+                "or n_prior_included and n_prior_excluded"
+            )
 
     def _classify(self, ind):
         """Classify with oracle.
@@ -233,18 +267,8 @@ class ReviewOracle(Review):
     def _prior_knowledge(self):
         """Create prior knowledge from arguments."""
 
-        prior_indices = np.append(
-            self.prior_included,
-            self.prior_excluded
-        )
-
-        prior_included_labels = np.ones((len(self.prior_included),))
-        prior_excluded_labels = np.zeros((len(self.prior_excluded),))
-
-        prior_labels = np.concatenate([
-            prior_included_labels,
-            prior_excluded_labels
-        ])
+        prior_indices, prior_labels = _merge_prior_knowledge(
+            self.prior_included, self.prior_excluded)
 
         return prior_indices, prior_labels
 
