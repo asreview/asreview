@@ -27,7 +27,7 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
                  ) -> Tuple[np.ndarray, modALinput]:
     """
     Maximum sampling query strategy.
-    Selects the least sure instances for labelling.
+    Selects the samples with the highest prediction probability.
 
     Parameters
     ----------

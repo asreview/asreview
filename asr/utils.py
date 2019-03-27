@@ -11,13 +11,31 @@ import numpy as np
 import pandas as pd
 
 
-def _unsafe_dict_update(default_dict, new_dict):
-    my_dict = default_dict
-    for key in my_dict:
-        if key in new_dict:
-            str_val = new_dict[key]
-            my_dict[key] = type(my_dict[key])(str_val)
-    return my_dict
+def _unsafe_dict_update(default_dict, override_dict):
+    """
+    Using defaults and an overriding dictionary, create a new dictionary.
+    This new dictionary has the same values as the default dictionary and
+    the same types. Thus, if there are values that are in the overriding
+    dictionary, but not in the original, they will be ignored.
+
+    Arguments
+    ---------
+    default_dict: dict
+        Starting dictionary with defaults.
+    override_dict: dict
+        Dictionary with custom values (such as model parameters).
+
+    Returns
+    -------
+    dict
+        Merged dictionary.
+    """
+    new_dict = default_dict
+    for key in new_dict:
+        if key in override_dict:
+            str_val = override_dict[key]
+            new_dict[key] = type(new_dict[key])(str_val)
+    return new_dict
 
 
 def load_data(fp):
@@ -120,6 +138,7 @@ class Logger(object):
         if i is None:
             i = 0
             while i in self._log_dict:
+                # If the keys of the new dictionary don't exist, this is it.
                 if set(new_dict.keys()).isdisjoint(self._log_dict[i].keys()):
                     break
                 i += 1

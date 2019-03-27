@@ -1,23 +1,19 @@
-
-
 from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.models import Sequential
 
 from asr.utils import _unsafe_dict_update
 
-# constants
-EPOCHS = 50
-BATCH_SIZE = 32
-
 
 def lstm_fit_defaults(settings, frac_included, verbose=1):
+    """ Set the fit defaults and merge them with custom settings. """
     # arguments to pass to the fit
     fit_kwargs = {}
-    fit_kwargs['batch_size'] = BATCH_SIZE
-    fit_kwargs['epochs'] = EPOCHS
+    fit_kwargs['batch_size'] = 32
+    fit_kwargs['epochs'] = 10
     fit_kwargs['shuffle'] = True
     fit_kwargs['verbose'] = verbose
 
+    # Set the class weights from the frac_included estimate.
     if frac_included is not None:
         weight0 = 1 / (1 - frac_included)
         weight1 = 1 / frac_included
@@ -34,6 +30,7 @@ def lstm_fit_defaults(settings, frac_included, verbose=1):
 
 
 def lstm_model_defaults(settings, verbose=1):
+    """ Set the lstm model defaults. """
     model_kwargs = {}
     model_kwargs['backwards'] = True
     model_kwargs['dropout'] = 0.4
