@@ -121,7 +121,6 @@ class Logger(object):
             i = 0
             while i in self._log_dict:
                 if set(new_dict.keys()).isdisjoint(self._log_dict[i].keys()):
-                    print(f"{new_dict.keys()} vs {self._log_dict[i].keys()}")
                     break
                 i += 1
 
