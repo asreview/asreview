@@ -1,7 +1,5 @@
 import gzip
 import io
-import os
-import shutil
 from multiprocessing import Process, Queue, cpu_count
 from pathlib import Path
 from urllib.request import urlopen
