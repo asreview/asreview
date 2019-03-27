@@ -130,8 +130,8 @@ class Logger(object):
 
         self._log_dict[i].update(new_dict)
 
-    def add_model_param(self, model_param):
-        self._log_dict["settings"] = model_param
+    def add_settings(self, settings):
+        self._log_dict["settings"] = settings
 
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
