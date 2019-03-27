@@ -3,12 +3,59 @@
 from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.models import Sequential
 
+from asr.utils import _unsafe_dict_update
+
+# constants
+EPOCHS = 50
+BATCH_SIZE = 32
+
+
+def lstm_fit_defaults(settings, frac_included, verbose=1):
+    # arguments to pass to the fit
+    fit_kwargs = {}
+    fit_kwargs['batch_size'] = BATCH_SIZE
+    fit_kwargs['epochs'] = EPOCHS
+    fit_kwargs['shuffle'] = True
+    fit_kwargs['verbose'] = verbose
+
+    if frac_included is not None:
+        weight0 = 1 / (1 - frac_included)
+        weight1 = 1 / frac_included
+        fit_kwargs['class_weight'] = {
+            0: weight0,
+            1: weight1
+        }
+        if verbose:
+            print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
+
+    settings['fit_param'] = _unsafe_dict_update(
+        fit_kwargs, settings['fit_param'])
+    return settings['fit_param']
+
+
+def lstm_model_defaults(settings, verbose=1):
+    model_kwargs = {}
+    model_kwargs['backwards'] = True
+    model_kwargs['dropout'] = 0.4
+    model_kwargs['optimizer'] = "rmsprop"
+    model_kwargs['max_sequence_length'] = 1000
+    model_kwargs['verbose'] = verbose
+    model_kwargs['lstm_out_width'] = 20
+    model_kwargs['dense_width'] = 128
+
+    upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
+    settings['model_param'] = upd_param
+
+    return upd_param
+
 
 def create_lstm_model(embedding_matrix,
                       backwards=True,
                       dropout=0.4,
                       optimizer='rmsprop',
                       max_sequence_length=1000,
+                      lstm_out_width=20,
+                      dense_width=128,
                       verbose=1):
     """Return callable lstm model.
 
@@ -43,18 +90,19 @@ def create_lstm_model(embedding_matrix,
         # add LSTM layer
         model.add(
             LSTM(
-                10,
+                lstm_out_width,
                 input_shape=(max_sequence_length, ),
                 go_backwards=backwards,
-                dropout=dropout
+                dropout=dropout,
+                recurrent_dropout=dropout,
             )
         )
 
         # add Dense layer with relu activation
         model.add(
             Dense(
-                128,
-                activation='relu'
+                dense_width,
+                activation='relu',
             )
         )
 

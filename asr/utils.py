@@ -3,11 +3,21 @@ import json
 from os import environ
 from pathlib import Path
 import shutil
+from datetime import datetime
 
 # external dependencies
 import numpy as np
 
 import pandas as pd
+
+
+def _unsafe_dict_update(default_dict, new_dict):
+    my_dict = default_dict
+    for key in my_dict:
+        if key in new_dict:
+            str_val = new_dict[key]
+            my_dict[key] = type(my_dict[key])(str_val)
+    return my_dict
 
 
 def load_data(fp):
@@ -91,14 +101,14 @@ class Logger(object):
         self.X = X
 
         # since python 3, this is an ordered dict
-        self._log_dict = {}
+        self._log_dict = {"time": {"start_time": str(datetime.now())}}
 
     def __str__(self):
 
         self._print_logs()
 
     def _print_logs(self):
-
+        self._log_dict["time"]["end_time"] = str(datetime.now())
         s = "Logs of the Systematic Review process:\n"
         for i, value in self._log_dict.items():
             s += f"Query {i} - Reduction {value}"
@@ -106,14 +116,22 @@ class Logger(object):
         return s
 
     def _add_log(self, new_dict, i):
-        # the query number
+        # Find the first number that is not logged yet.
         if i is None:
-            i = max(self._log_dict.keys()) + 1
+            i = 0
+            while i in self._log_dict:
+                if set(new_dict.keys()).isdisjoint(self._log_dict[i].keys()):
+                    print(f"{new_dict.keys()} vs {self._log_dict[i].keys()}")
+                    break
+                i += 1
 
-        if i >= len(self._log_dict):
+        if i not in self._log_dict:
             self._log_dict[i] = {}
 
         self._log_dict[i].update(new_dict)
+
+    def add_model_param(self, model_param):
+        self._log_dict["settings"] = model_param
 
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
@@ -157,7 +175,7 @@ class Logger(object):
         new_dict = {'predictions': list(zip(indices, pred))}
         self._add_log(new_dict, i)
 
-    def add_pool_proba(self, indices, pred_proba, i=None):
+    def add_proba(self, indices, pred_proba, logname="pool_proba", i=None):
         """Add inverse pool indices and their labels.
 
         Arguments
@@ -175,7 +193,7 @@ class Logger(object):
         pred_proba = pred_proba[:, 1]
         if isinstance(pred_proba, np.ndarray):
             pred_proba = pred_proba.tolist()
-        new_dict = {'prediction_probabilities': list(zip(indices, pred_proba))}
+        new_dict = {logname: list(zip(indices, pred_proba))}
         self._add_log(new_dict, i)
 
     def save(self, fp):
@@ -187,6 +205,7 @@ class Logger(object):
             The file path to export the results to.
 
         """
+        self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)
 
         if fp.is_file:
