@@ -96,8 +96,6 @@ def review(dataset,
     }
 
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
-#     TODO: broken
-#     settings.update(config_from_file(config_file))
 
     # PREPARE FEATURES.
     #
@@ -171,8 +169,6 @@ def review(dataset,
 
         model_kwargs = lstm_model_defaults(settings, verbose)
         fit_kwargs = lstm_fit_defaults(settings, frac_included, verbose)
-        settings["model_param"] = model_kwargs
-        settings["fit_param"] = fit_kwargs
         # create the model
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
@@ -255,7 +251,7 @@ def review(dataset,
         # Start the review process.
         if verbose:
             print("Start with the systematic review.")
-        reviewer._logger.add_model_param(settings)
+        reviewer._logger.add_settings(settings)
         reviewer.review()
 
     except KeyboardInterrupt:
