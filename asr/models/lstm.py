@@ -13,6 +13,10 @@ def lstm_fit_defaults(settings, frac_included, verbose=1):
     fit_kwargs['shuffle'] = True
     fit_kwargs['verbose'] = verbose
 
+    if "frac_included" in settings['fit_param']:
+        frac_included = settings['fit_param'].pop('frac_included')
+        frac_included = float(frac_included)
+
     # Set the class weights from the frac_included estimate.
     if frac_included is not None:
         weight0 = 1 / (1 - frac_included)
