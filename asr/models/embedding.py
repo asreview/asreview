@@ -290,7 +290,6 @@ def sample_embedding(embedding, word_index, n_extra_words=50, verbose=1):
         elif i_extra < n_extra_words:
             embedding_matrix[i][emb_vec_dim+i_extra] = 1
             i_extra += 1
-            print(word)
 
     if verbose == 1:
         print('Shape of embedding matrix: ', embedding_matrix.shape)
