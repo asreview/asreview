@@ -189,7 +189,7 @@ def review(dataset,
         raise ValueError('Model not found.')
 
     # Pick query strategy
-    query_fn, query_str = _get_query_method(query_strategy)
+    query_fn, query_str = _get_query_method(settings["query_strategy"])
     if verbose:
         print(f"Query strategy: {query_str}")
 
