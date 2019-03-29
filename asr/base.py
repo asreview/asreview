@@ -133,11 +133,14 @@ class Review(ABC):
         while not self._stop_iter(query_i, pool_ind):
             pred_proba = []
             # Make a query from the pool.
-            query_ind, query_instance = self.learner.query(
+            # query_ind_pool are indices relative to the pool_ind.
+            query_pool_ind, query_instance = self.learner.query(
                 self.X[pool_ind],
                 n_instances=min(self.n_instances, len(pool_ind)),
                 pred_proba=pred_proba,
             )
+            # Get the query indices relative to all paper ids.
+            query_ind = pool_ind[query_pool_ind]
 
             # Log the probabilities of samples in the pool being included.
             if len(pred_proba) == 0:
@@ -165,12 +168,12 @@ class Review(ABC):
                 # additional arguments to pass to fit
                 **self.fit_kwargs)
 
-            # remove queried instance from pool
-            label_ind = np.concatenate((label_ind, pool_ind[query_ind]))
-            pool_ind = np.delete(pool_ind, query_ind, axis=0)
-
             # Add the query indexes to the log.
             self._logger.add_training_log(query_ind, y)
+
+            # remove queried instance from pool
+            label_ind = np.concatenate((label_ind, query_ind))
+            pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # update the query counter
             query_i += 1
