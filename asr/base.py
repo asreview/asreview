@@ -166,8 +166,8 @@ class Review(ABC):
                 **self.fit_kwargs)
 
             # remove queried instance from pool
+            label_ind = np.concatenate((label_ind, pool_ind[query_ind]))
             pool_ind = np.delete(pool_ind, query_ind, axis=0)
-            label_ind = np.concatenate((label_ind, query_ind))
 
             # Add the query indexes to the log.
             self._logger.add_training_log(query_ind, y)
