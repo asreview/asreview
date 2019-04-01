@@ -1,5 +1,7 @@
 # Automated Systematic Review
 
+[![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review)
+
 *This project is work in progress and **not** production ready.*
 
 Systematic Reviews are “top of the bill” in research. The number of systematic
