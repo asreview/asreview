@@ -102,9 +102,9 @@ class Review(ABC):
 
     def review(self):
 
-        # create the pool and training/label indices.
+        # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
-        train_ind = np.array([])
+        train_ind = np.array([], dtype=int)
 
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
@@ -152,7 +152,7 @@ class Review(ABC):
 
             pred_proba_train = self.learner.predict_proba(self.X[train_ind])
             self._logger.add_proba(train_ind, pred_proba_train,
-                                   logname="labeled_proba")
+                                   logname="train_proba")
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
@@ -186,7 +186,7 @@ class Review(ABC):
 
         pred_proba_train = self.learner.predict_proba(self.X[train_ind])
         self._logger.add_proba(train_ind, pred_proba_train,
-                               logname="labeled_proba")
+                               logname="train_proba")
 
         # Save the result to a file
         if self.log_file:
