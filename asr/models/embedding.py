@@ -250,7 +250,7 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
     return embedding
 
 
-def sample_embedding(embedding, word_index, n_extra_words=50, verbose=1):
+def sample_embedding(embedding, word_index, n_extra_words=None, verbose=1):
     """Sample embedding matrix
 
     Parameters
@@ -276,6 +276,9 @@ def sample_embedding(embedding, word_index, n_extra_words=50, verbose=1):
     if verbose == 1:
         print(f"Creating matrix with {n_words}+1 vectors with {emb_vec_dim} \
         dimensions.")
+
+    if n_extra_words is None:
+        n_extra_words = 0
 
     # n+1 because 0 is preserved in the tokenizing process.
     embedding_matrix = np.zeros((n_words + 1, emb_vec_dim+n_extra_words))
