@@ -4,6 +4,8 @@ from os import environ
 from pathlib import Path
 import shutil
 from datetime import datetime
+import os
+from configparser import ConfigParser
 
 # external dependencies
 import numpy as np
@@ -273,3 +275,25 @@ def clear_data_home(data_home=None):
     """
     data_home = get_data_home(data_home)
     shutil.rmtree(data_home)
+
+
+def config_from_file(config_file):
+    if config_file is None or not os.path.isfile(config_file):
+        print(f"Didn't find configuration file: {config_file}")
+        return {}
+
+    config = ConfigParser()
+    config.read(config_file)
+
+    settings = {}
+
+    for sect in config:
+        if sect == "global_settings":
+            settings.update(dict(config.items(sect)))
+        elif sect == "model_param" or sect == "fit_param":
+            settings[sect] = dict(config.items(sect))
+        elif sect != "DEFAULT":
+            print(f"Warning: section [{sect}] is ignored in"
+                  f" config file {config_file}")
+    return settings
+

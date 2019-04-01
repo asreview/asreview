@@ -7,8 +7,6 @@
 import pickle
 import time
 from pathlib import Path
-import os
-from configparser import ConfigParser
 
 import pandas
 
@@ -20,7 +18,8 @@ from asr.query_strategies import random_sampling, uncertainty_sampling
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 from asr.models.embedding import download_embedding, EMBEDDING_EN
-from asr.utils import get_data_home, _unsafe_dict_update
+from asr.models.embedding import load_embedding, sample_embedding
+from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
 from asr.query_strategies import max_sampling
 
 
@@ -39,42 +38,12 @@ def _get_query_method(method):
         )
 
 
-def _load_embedding_matrix(fp, word_index):
-    """Load embedding"""
-
-    from asr.models.embedding import load_embedding, sample_embedding
-
-    embedding = load_embedding(fp, word_index=word_index)
-    return sample_embedding(embedding, word_index)
-
-
-def config_from_file(config_file):
-    if config_file is None or not os.path.isfile(config_file):
-        print(f"Didn't find configuration file: {config_file}")
-        return {}
-
-    config = ConfigParser()
-    config.read(config_file)
-
-    settings = {}
-
-    for sect in config:
-        if sect == "global_settings":
-            settings.update(dict(config.items(sect)))
-        elif sect == "model_param" or sect == "fit_param":
-            settings[sect] = dict(config.items(sect))
-        elif sect != "DEFAULT":
-            print(f"Warning: section [{sect}] is ignored in"
-                  f" config file {config_file}")
-    return settings
-
-
 def review(dataset,
            mode='oracle',
            model="lstm",
            query_strategy="uncertainty",
            n_instances=1,
-           embedding=None,
+           embedding_fp=None,
            verbose=1,
            prior_included=None,
            prior_excluded=None,
@@ -130,13 +99,13 @@ def review(dataset,
         # get the model
         if isinstance(dataset, str) & (model.lower() == 'lstm'):
 
-            if embedding is None:
-                embedding = Path(
+            if embedding_fp is None:
+                embedding_fp = Path(
                     get_data_home(),
                     EMBEDDING_EN["name"]
                 ).expanduser()
 
-                if not embedding.exists():
+                if not embedding_fp.exists():
                     print("Warning: will start to download large"
                           "embedding file in 10 seconds.")
                     time.sleep(10)
@@ -145,7 +114,8 @@ def review(dataset,
             # create features and labels
             X, word_index = text_to_features(texts)
             y = labels
-            embedding_matrix = _load_embedding_matrix(embedding, word_index)
+            embedding = load_embedding(embedding_fp, word_index=word_index)
+            embedding_matrix = sample_embedding(embedding, word_index)
 
         elif isinstance(dataset, str) & (model.lower() in ['nb', 'svc', 'svm']):
             from sklearn.pipeline import Pipeline
