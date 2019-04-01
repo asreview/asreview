@@ -68,6 +68,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
         "--embedding",
         type=str,
         default=None,
+        dest='embedding_fp',
         help="File path of embedding matrix. Required for LSTM model."
     )
     parser.add_argument(

@@ -102,14 +102,15 @@ class Review(ABC):
 
     def review(self):
 
-        # create the pool indices
+        # create the pool and training/label indices.
         pool_ind = np.arange(self.X.shape[0])
+        train_ind = np.array([])
 
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
 
         # Labeled indices
-        label_ind = init_ind
+        train_ind = np.append(train_ind, init_ind)
 
         # train model
         self._prior_teach()
@@ -149,8 +150,8 @@ class Review(ABC):
                     pool_ind, pred_proba[0]
             )
 
-            pred_proba_label = self.learner.predict_proba(self.X[label_ind])
-            self._logger.add_proba(label_ind, pred_proba_label,
+            pred_proba_train = self.learner.predict_proba(self.X[train_ind])
+            self._logger.add_proba(train_ind, pred_proba_train,
                                    logname="labeled_proba")
 
             # classify records (can be the user or an oracle)
@@ -172,7 +173,7 @@ class Review(ABC):
             self._logger.add_training_log(query_ind, y)
 
             # remove queried instance from pool
-            label_ind = np.concatenate((label_ind, query_ind))
+            train_ind = np.append(train_ind, query_ind)
             pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # update the query counter
@@ -183,8 +184,8 @@ class Review(ABC):
             pred_proba = self.learner.predict_proba(self.X[pool_ind])
             self._logger.add_proba(pool_ind, pred_proba)
 
-        pred_proba_label = self.learner.predict_proba(self.X[label_ind])
-        self._logger.add_proba(label_ind, pred_proba_label,
+        pred_proba_train = self.learner.predict_proba(self.X[train_ind])
+        self._logger.add_proba(train_ind, pred_proba_train,
                                logname="labeled_proba")
 
         # Save the result to a file
