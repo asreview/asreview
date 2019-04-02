@@ -18,6 +18,11 @@ def lstm_fit_defaults(settings, frac_included, verbose=1):
         frac_included = settings['fit_param'].pop('frac_included')
         frac_included = float(frac_included)
 
+    if "dyn_class_weight" in settings['fit_param']:
+        dyn_cw = float(settings['fit_param']['dyn_class_weight'])
+        fit_kwargs["dyn_class_weight"] = dyn_cw
+        print(f"Using dynamic class weights: {dyn_cw}")
+
     # Set the class weights from the frac_included estimate.
     if frac_included is not None:
         weight0 = 1 / (1 - frac_included)
