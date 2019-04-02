@@ -12,6 +12,22 @@ N_INCLUDED = 10
 N_EXCLUDED = 40
 
 
+def _set_dyn_cw(n_included, n_queried, fit_kwargs, dyn_cw=None):
+    if dyn_cw is None:
+        return
+    weight0 = 1
+    if n_included:
+        weight1 = (n_queried-n_included)/(dyn_cw*n_included)
+    else:
+        weight1 = 1
+    fit_kwargs['class_weight'] = {
+        0: weight0,
+        1: weight1,
+    }
+    print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
+    print(f"{n_included}, {n_queried}")
+
+
 def _merge_prior_knowledge(included, excluded, return_labels=True):
     """Merge prior included and prior excluded."""
 
@@ -108,9 +124,16 @@ class Review(ABC):
 
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
+        n_included = np.sum(init_labels)
 
         # Labeled indices
         train_ind = np.append(train_ind, init_ind)
+
+        if "dyn_class_weight" in self.fit_kwargs:
+            dyn_cw = self.fit_kwargs.pop("dyn_class_weight")
+        else:
+            dyn_cw = None
+        _set_dyn_cw(n_included, len(train_ind), self.fit_kwargs, dyn_cw)
 
         # train model
         self._prior_teach()
@@ -156,6 +179,8 @@ class Review(ABC):
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
+            n_included += np.sum(y)
+            _set_dyn_cw(n_included, len(y) + len(train_ind), self.fit_kwargs, dyn_cw)
             # train model
             self._prior_teach()
             # Teach the learner the new labelled data.
