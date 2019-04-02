@@ -134,8 +134,8 @@ def review(dataset,
 
     if isinstance(dataset, str) & (model.lower() == 'lstm'):
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-        from asr.models.lstm import create_lstm_model, lstm_model_defaults
-        from asr.models.lstm import lstm_fit_defaults
+        from asr.models.lstm2 import create_lstm_model, lstm_model_defaults
+        from asr.models.lstm2 import lstm_fit_defaults
 
         model_kwargs = lstm_model_defaults(settings, verbose)
         fit_kwargs = lstm_fit_defaults(settings, frac_included, verbose)
