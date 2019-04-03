@@ -4,8 +4,30 @@
 # external dependencies
 from RISparser import TAG_KEY_MAPPING, readris
 
+import pandas as pd
+
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
+
+
+def read_csv(fp, labels=None):
+    """CVS file reader.
+
+    Parameters
+    ----------
+    fp: str, pathlib.Path
+        File path to the CSV file.
+
+    Returns
+    -------
+    list:
+        List with entries.
+
+    """
+
+    df = pd.read_csv(fp)
+
+    return df.to_dict('records')
 
 
 def read_ris(fp, labels=None):

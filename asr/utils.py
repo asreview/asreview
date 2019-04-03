@@ -1,16 +1,17 @@
 # Cpython dependencies
 import json
-from os import environ
-from pathlib import Path
-import shutil
-from datetime import datetime
 import os
+import shutil
 from configparser import ConfigParser
+from datetime import datetime
+from pathlib import Path
 
 # external dependencies
 import numpy as np
 
 import pandas as pd
+
+from asr.readers import NAME_LABEL_INCLUDED, read_csv, read_ris
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -56,17 +57,24 @@ def load_data(fp):
         is not available, this column is not returned.
     """
 
-    df = pd.read_csv(fp)
+    if Path(fp).suffix in [".csv", ".CSV"]:
+        data = read_csv(fp)
+    elif Path(fp).suffix in [".ris", ".RIS"]:
+        data = read_ris(fp)
+    else:
+        raise ValueError("Unknown file extension.")
+
+    # parse data in pandas dataframe
+    df = pd.DataFrame(data)
 
     # make texts and labels
     texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
 
     try:
-        labels = df["included_final"]
+        labels = df[NAME_LABEL_INCLUDED]
+        return texts.values, labels.values
     except KeyError:
         return texts.values
-
-    return texts.values, labels.values
 
 
 def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
@@ -254,8 +262,8 @@ def get_data_home(data_home=None):
 
     """
     if data_home is None:
-        data_home = environ.get('ASR_DATA',
-                                Path('~', 'asr_data'))
+        data_home = os.environ.get('ASR_DATA',
+                                   Path('~', 'asr_data'))
     data_home = Path(data_home).expanduser()
 
     if not data_home.exists():
