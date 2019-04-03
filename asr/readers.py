@@ -5,8 +5,7 @@
 from RISparser import TAG_KEY_MAPPING, readris
 
 
-
-def read_ris(fp, label=None):
+def read_ris(fp, labels=None):
     """RIS file reader.
 
     Parameters
@@ -26,8 +25,8 @@ def read_ris(fp, label=None):
     # build a map of the tags
     mapping = TAG_KEY_MAPPING
 
-    if label:
-        mapping["LABEL"] = "label_included"
+    if labels:
+        mapping["LI"] = "label_included"
 
     with open(fp, 'r') as bibliography_file:
         entries = list(readris(bibliography_file, mapping=mapping))
