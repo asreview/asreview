@@ -4,6 +4,9 @@
 # external dependencies
 from RISparser import TAG_KEY_MAPPING, readris
 
+RIS_KEY_LABEL_INCLUDED = "LI"
+NAME_LABEL_INCLUDED = "label_included"
+
 
 def read_ris(fp, labels=None):
     """RIS file reader.
@@ -26,7 +29,7 @@ def read_ris(fp, labels=None):
     mapping = TAG_KEY_MAPPING
 
     if labels:
-        mapping["LI"] = "label_included"
+        mapping[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
 
     with open(fp, 'r') as bibliography_file:
         entries = list(readris(bibliography_file, mapping=mapping))
