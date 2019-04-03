@@ -49,7 +49,8 @@ setup(
         'tensorflow',
         'sklearn',
         'pandas',
-        'modAL'
+        'modAL',
+        'RISparser'
     ],
 
     extras_require={
