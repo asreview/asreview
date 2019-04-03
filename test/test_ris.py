@@ -11,6 +11,8 @@ def test_ris_reader_without_labels():
 
     assert len(data) == 2
 
+    assert 'label_included' not in data[0].keys()
+
 
 def test_ris_reader_with_labels():
 
