@@ -7,6 +7,7 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
+from asr.balanced_al import rebalance_train_data
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -180,16 +181,18 @@ class Review(ABC):
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
             n_included += np.sum(y)
-            _set_dyn_cw(n_included, len(y) + len(train_ind), self.fit_kwargs, dyn_cw)
+            train_ind = np.append(train_ind, query_ind)
+            train_X, train_y = rebalance_train_data(self.X[train_ind], self.y[train_ind])
+#             _set_dyn_cw(n_included, len(y) + len(train_ind), self.fit_kwargs, dyn_cw)
             # train model
             self._prior_teach()
             # Teach the learner the new labelled data.
             self.learner.teach(
-                X=query_instance,
-                y=y,
+                X=train_X,
+                y=train_y,
 
                 # Train on both new and old labels, since we're retraining all.
-                only_new=False,
+                only_new=True,
 
                 # additional arguments to pass to fit
                 **self.fit_kwargs)
@@ -198,7 +201,6 @@ class Review(ABC):
             self._logger.add_training_log(query_ind, y)
 
             # remove queried instance from pool
-            train_ind = np.append(train_ind, query_ind)
             pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # update the query counter
