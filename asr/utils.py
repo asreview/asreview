@@ -6,11 +6,13 @@ import shutil
 from datetime import datetime
 import os
 from configparser import ConfigParser
+import sys
 
 # external dependencies
 import numpy as np
 
 import pandas as pd
+import copy
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -96,13 +98,39 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
     # tokenize sequences
     tokens = tokenizer.texts_to_sequences(sequences)
 
-    # pad sequences with zeros.
+    #pad sequences with zeros.
     x = pad_sequences(
         tokens,
         maxlen=max_sequence_length,
         padding=padding,
         truncating=truncating
     )
+    for i, old_x in enumerate(x):
+        nz = max_sequence_length-1
+#         print(old_x[-50:])
+        while old_x[nz] == 0:
+            nz -= 1
+        nz += 1
+        new_x = old_x.copy()
+#         print(len(old_x))
+#         print(nz)
+#         print(old_x)
+
+        j = 1
+        while nz*j < max_sequence_length:
+            cp_len = min(nz*(j+1), max_sequence_length)-nz*j
+            new_x[nz*j:nz*j+cp_len] = old_x[0:cp_len]
+#             print(nz*j, nz*j+cp_len, 0, cp_len)
+            j += 1
+#         print(new_x[-50:])
+#         print(old_x[-50:])
+        x[i] = new_x
+#         print(new_x)
+#         sys.exit()
+    
+#     print(tokens)
+#     print(x)
+    
 
     # word index hack. see issue
     # https://github.com/keras-team/keras/issues/8092
@@ -151,7 +179,7 @@ class Logger(object):
         self._log_dict[i].update(new_dict)
 
     def add_settings(self, settings):
-        self._log_dict["settings"] = settings
+        self._log_dict["settings"] = copy.deepcopy(settings)
 
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
