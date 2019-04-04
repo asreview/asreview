@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from numpy import linalg as LA
 
 from modAL.models import ActiveLearner
 
@@ -37,8 +38,8 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
 
     if return_labels:
 
-        prior_included_labels = np.ones((len(included),))
-        prior_excluded_labels = np.zeros((len(excluded),))
+        prior_included_labels = np.ones((len(included),), dtype=int)
+        prior_excluded_labels = np.zeros((len(excluded),), dtype=int)
 
         labels = np.concatenate([
             prior_included_labels,
@@ -119,7 +120,9 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-        
+#         X_copy = self.X.copy()
+#         y_copy = self.y.copy()
+#         print(LA.norm(self.X), LA.norm(self.y))
         n_epoch = self.fit_kwargs['epochs']
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
@@ -154,11 +157,16 @@ class Review(ABC):
             # additional arguments to pass to fit
             **self.fit_kwargs)
 
-
         self._logger.add_training_log(init_ind, init_labels)
         query_i = 0
-
+#         self.y[0] = 3
+#         print(np.where(self.y == 1))
+#         print(y_copy)
+#         print(np.array_equal(self.X, X_copy), np.array_equal(self.y, y_copy))
         while not self._stop_iter(query_i, pool_ind):
+#             print(LA.norm(self.X), LA.norm(self.y))
+#             print(np.array_equal(self.X, X_copy), np.array_equal(self.y, y_copy))
+
             pred_proba = []
             # Make a query from the pool.
             # query_ind_pool are indices relative to the pool_ind.
@@ -187,11 +195,21 @@ class Review(ABC):
             y = self._classify(query_ind)
             n_included += np.sum(y)
             train_ind = np.append(train_ind, query_ind)
-            train_X, train_y, n_mini_epoch = rebalance_train_data(self.X[train_ind], self.y[train_ind], max_mini_epoch=n_epoch)
+            train_X, train_y, n_mini_epoch = rebalance_train_data(
+                self.X[train_ind], self.y[train_ind], max_mini_epoch=n_epoch)
             self.fit_kwargs['epochs'] = int(n_epoch/n_mini_epoch+0.9999)
-#             _set_dyn_cw(n_included, len(y) + len(train_ind), self.fit_kwargs, dyn_cw)
-            validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
 
+            validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
+#             for i, rx in enumerate(train_X):
+#                 print("Here equal")
+#                 for j, compx in enumerate(X_copy):
+#                     if np.array_equal(compx, rx):
+#                         print(i, train_y[i], j, y_copy[j])
+#                         assert train_y[i] == y_copy[j]
+#                 print(rx, train_y[i], i)
+#             print(train_ind)
+#             print(train_X)
+#             print(train_y)
             # train model
             self._prior_teach()
             # Teach the learner the new labelled data.
