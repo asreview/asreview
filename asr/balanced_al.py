@@ -41,6 +41,26 @@ def rebalance_train_data(X, y, imbalance=0.25, max_mini_epoch=None):
     return X[all_ind], y[all_ind], n_mini_epoch
 
 
+def undersample(X, y, imbalance=0.5):
+    n_sample = len(y)
+    one_ind = np.where(y == 1)[0]
+    zero_ind = np.where(y == 0)[0]
+    np.random.shuffle(zero_ind)
+    n_one = len(one_ind)
+    n_zero = len(zero_ind)
+
+    if n_one/n_sample > imbalance:
+        return X, y
+
+#     n_mini_epoch = int(imbalance/(1-imbalance) * n_zero/n_one+1)
+    n_zero_epoch = int(n_one*(1/imbalance-1))
+
+    rand_zero = zero_ind[np.random.choice(n_zero, n_zero_epoch)]
+    all_ind = np.append(one_ind, rand_zero)
+
+    return X[all_ind], y[all_ind], 1
+
+
 def validation_data(X, y, fit_kwargs, ratio=1):
     one_ind = np.where(y == 1)[0]
     zero_ind = np.where(y == 0)[0]
