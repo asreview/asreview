@@ -227,6 +227,7 @@ def review(dataset,
     except KeyboardInterrupt:
         print('\nClosing down the automated systematic review.')
         print('\nSaving results.')
+
         if reviewer.log_file:
             reviewer.save_logs(reviewer.log_file)
         else:

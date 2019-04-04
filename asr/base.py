@@ -8,6 +8,7 @@ from asr.init_sampling import sample_prior_knowledge
 from asr.logging import Logger
 from asr.ascii import ASCII_TEA
 from asr.balanced_al import rebalance_train_data
+from asr.balanced_al import validation_data
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -118,7 +119,8 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-
+        
+        n_epoch = self.fit_kwargs['epochs']
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
         train_ind = np.array([], dtype=int)
@@ -129,13 +131,16 @@ class Review(ABC):
 
         # Labeled indices
         train_ind = np.append(train_ind, init_ind)
+        # remove the initial sample from the pool
+        pool_ind = np.delete(pool_ind, init_ind)
 
-        if "dyn_class_weight" in self.fit_kwargs:
-            dyn_cw = self.fit_kwargs.pop("dyn_class_weight")
-        else:
-            dyn_cw = None
-        _set_dyn_cw(n_included, len(train_ind), self.fit_kwargs, dyn_cw)
+#         if "dyn_class_weight" in self.fit_kwargs:
+#             dyn_cw = self.fit_kwargs.pop("dyn_class_weight")
+#         else:
+#             dyn_cw = None
+#         _set_dyn_cw(n_included, len(train_ind), self.fit_kwargs, dyn_cw)
 
+        validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
         # train model
         self._prior_teach()
 
@@ -149,8 +154,6 @@ class Review(ABC):
             # additional arguments to pass to fit
             **self.fit_kwargs)
 
-        # remove the initial sample from the pool
-        pool_ind = np.delete(pool_ind, init_ind)
 
         self._logger.add_training_log(init_ind, init_labels)
         query_i = 0
@@ -177,13 +180,18 @@ class Review(ABC):
             pred_proba_train = self.learner.predict_proba(self.X[train_ind])
             self._logger.add_proba(train_ind, pred_proba_train,
                                    logname="train_proba")
+            # remove queried instance from pool
+            pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # classify records (can be the user or an oracle)
             y = self._classify(query_ind)
             n_included += np.sum(y)
             train_ind = np.append(train_ind, query_ind)
-            train_X, train_y = rebalance_train_data(self.X[train_ind], self.y[train_ind])
+            train_X, train_y, n_mini_epoch = rebalance_train_data(self.X[train_ind], self.y[train_ind], max_mini_epoch=n_epoch)
+            self.fit_kwargs['epochs'] = int(n_epoch/n_mini_epoch+0.9999)
 #             _set_dyn_cw(n_included, len(y) + len(train_ind), self.fit_kwargs, dyn_cw)
+            validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
+
             # train model
             self._prior_teach()
             # Teach the learner the new labelled data.
@@ -200,8 +208,6 @@ class Review(ABC):
             # Add the query indexes to the log.
             self._logger.add_training_log(query_ind, y)
 
-            # remove queried instance from pool
-            pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # update the query counter
             query_i += 1
