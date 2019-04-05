@@ -8,7 +8,7 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
-from asr.balanced_al import rebalance_train_data
+from asr.balanced_al import rebalance_train_data, balanced_train_data
 from asr.balanced_al import validation_data, undersample
 
 N_INCLUDED = 10
@@ -124,6 +124,8 @@ class Review(ABC):
 #         y_copy = self.y.copy()
 #         print(LA.norm(self.X), LA.norm(self.y))
         n_epoch = self.fit_kwargs['epochs']
+        batch_size = self.fit_kwargs['batch_size']
+        ratio = 1
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
         train_ind = np.array([], dtype=int)
@@ -150,28 +152,25 @@ class Review(ABC):
         # initialize ActiveLearner
         self.learner = ActiveLearner(
             estimator=self.model,
-#             X_training=self.X[init_ind],
-#             y_training=init_labels,
             query_strategy=self.query_strategy,
 
             # additional arguments to pass to fit
             **self.fit_kwargs)
+#         print(np.where(self.y == 1))
+        train_X, train_y = balanced_train_data(
+            self.X[train_ind], self.y[train_ind], self.fit_kwargs,
+            ratio=ratio, pref_batch_size=batch_size, n_epoch=n_epoch)
+
         self.model.fit(
-            x=self.X[init_ind],
-            y=init_labels,
+            x=train_X,
+            y=train_y,
             **self.fit_kwargs,
             )
         self._logger.add_training_log(init_ind, init_labels)
         query_i = 0
-#         self.y[0] = 3
-#         print(np.where(self.y == 1))
-#         print(y_copy)
-#         print(np.array_equal(self.X, X_copy), np.array_equal(self.y, y_copy))
+
         while not self._stop_iter(query_i, pool_ind):
-#             print(LA.norm(self.X), LA.norm(self.y))
-#             print(np.array_equal(self.X, X_copy), np.array_equal(self.y, y_copy))
-#             if query_i == 0:
-#                 n_epoch = 100
+
             pred_proba = []
             # Make a query from the pool.
             # query_ind_pool are indices relative to the pool_ind.
@@ -202,10 +201,9 @@ class Review(ABC):
             train_ind = np.append(train_ind, query_ind)
 #             train_X, train_y, n_mini_epoch = rebalance_train_data(
 #                 self.X[train_ind], self.y[train_ind], max_mini_epoch=n_epoch)
-            train_X, train_y, n_mini_epoch = rebalance_train_data(
-                self.X[train_ind], self.y[train_ind])
-
-            self.fit_kwargs['epochs'] = int(n_epoch/n_mini_epoch+0.9999)
+            train_X, train_y = balanced_train_data(
+                self.X[train_ind], self.y[train_ind], self.fit_kwargs,
+                ratio=ratio, pref_batch_size=batch_size, n_epoch=n_epoch)
 
             validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
 #             for i, rx in enumerate(train_X):
