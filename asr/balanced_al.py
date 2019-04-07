@@ -135,17 +135,16 @@ def balanced_train_data(X, y, fit_kwargs, ratio=1.0, shuffle=True,
 
 
 def undersample(X, y, fit_kwargs, ratio=1.0, shuffle=True):
-    n_sample = len(y)
     one_ind = np.where(y == 1)[0]
     zero_ind = np.where(y == 0)[0]
     np.random.shuffle(zero_ind)
     n_one = len(one_ind)
     n_zero = len(zero_ind)
 
-    if n_one/n_sample > ratio:
+    if n_one/n_zero >= ratio:
         shuf_ind = np.append(one_ind, zero_ind)
     else:
-        n_zero_epoch = int(n_one*(1/ratio-1))
+        n_zero_epoch = ceil(n_one/ratio)
         rand_idx = np.random.choice(n_zero, n_zero_epoch, replace=False)
         rand_zero = zero_ind[rand_idx]
         shuf_ind = np.append(one_ind, rand_zero)
