@@ -137,7 +137,6 @@ def balanced_train_data(X, y, fit_kwargs, ratio=1.0, shuffle=True,
 def undersample(X, y, fit_kwargs, ratio=1.0, shuffle=True):
     one_ind = np.where(y == 1)[0]
     zero_ind = np.where(y == 0)[0]
-    np.random.shuffle(zero_ind)
     n_one = len(one_ind)
     n_zero = len(zero_ind)
 
