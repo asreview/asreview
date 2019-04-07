@@ -8,6 +8,25 @@ from asr.utils import _unsafe_dict_update
 # from keras.layers.pooling import MaxPool1D
 from asr.balanced_al import _set_class_weight
 
+
+def lstm_model_defaults(settings, verbose=1):
+    """ Set the lstm model defaults. """
+    model_kwargs = {}
+    model_kwargs['backwards'] = True
+    model_kwargs['dropout'] = 0.4
+    model_kwargs['optimizer'] = "rmsprop"
+    model_kwargs['max_sequence_length'] = 1000
+    model_kwargs['verbose'] = verbose
+    model_kwargs['lstm_out_width'] = 20
+    model_kwargs['dense_width'] = 128
+    model_kwargs['lstm_pool_size'] = 100
+
+    upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
+    settings['model_param'] = upd_param
+
+    return upd_param
+
+
 def lstm_fit_defaults(settings, verbose=1):
     """ Set the fit defaults and merge them with custom settings. """
     # arguments to pass to the fit
@@ -34,24 +53,6 @@ def lstm_fit_defaults(settings, verbose=1):
         fit_kwargs, settings['fit_param'])
     _set_class_weight(1/fit_kwargs['frac_included'], fit_kwargs)
     return settings['fit_param']
-
-
-def lstm_model_defaults(settings, verbose=1):
-    """ Set the lstm model defaults. """
-    model_kwargs = {}
-    model_kwargs['backwards'] = True
-    model_kwargs['dropout'] = 0.4
-    model_kwargs['optimizer'] = "rmsprop"
-    model_kwargs['max_sequence_length'] = 1000
-    model_kwargs['verbose'] = verbose
-    model_kwargs['lstm_out_width'] = 20
-    model_kwargs['dense_width'] = 128
-    model_kwargs['lstm_pool_size'] = 100
-
-    upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
-    settings['model_param'] = upd_param
-
-    return upd_param
 
 
 def create_lstm_model(embedding_matrix,
