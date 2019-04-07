@@ -97,9 +97,8 @@ def balanced_train_data(X, y, fit_kwargs, ratio=1.0, shuffle=True,
 
     fixed_ind = np.tile(ind[fixed], n_mini_epoch)
     usample_copy = np.copy(ind[1-fixed])
-    if shuffle:
-        np.random.shuffle(usample_copy)
-        np.random.shuffle(ind[1-fixed])
+    np.random.shuffle(usample_copy)
+    np.random.shuffle(ind[1-fixed])
     usample_ind = np.append(ind[1-fixed], usample_copy)
 
     if fixed == 0:
