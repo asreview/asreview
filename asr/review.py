@@ -138,7 +138,7 @@ def review(dataset,
         from asr.models.lstm2 import lstm_fit_defaults
 
         model_kwargs = lstm_model_defaults(settings, verbose)
-        fit_kwargs = lstm_fit_defaults(settings, frac_included, verbose)
+        fit_kwargs = lstm_fit_defaults(settings, verbose)
         # create the model
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
@@ -175,6 +175,8 @@ def review(dataset,
             prior_excluded=prior_excluded,
             n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded,
+            embedding_matrix=embedding_matrix,
+            model_kwargs=model_kwargs,
 
             # Fit keyword arguments
             fit_kwargs=fit_kwargs,

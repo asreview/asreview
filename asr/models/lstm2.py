@@ -1,11 +1,14 @@
+import tensorflow as tf
 from tensorflow.keras.layers import Dense, LSTM, Embedding, MaxPooling1D, Flatten
 from tensorflow.keras.models import Sequential
-
+# from keras.optimizers import RMSprop
+from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.constraints import MaxNorm
 from asr.utils import _unsafe_dict_update
 # from keras.layers.pooling import MaxPool1D
+from asr.balanced_al import _set_class_weight
 
-
-def lstm_fit_defaults(settings, frac_included, verbose=1):
+def lstm_fit_defaults(settings, verbose=1):
     """ Set the fit defaults and merge them with custom settings. """
     # arguments to pass to the fit
     fit_kwargs = {}
@@ -13,29 +16,23 @@ def lstm_fit_defaults(settings, frac_included, verbose=1):
     fit_kwargs['epochs'] = 10
     fit_kwargs['shuffle'] = True
     fit_kwargs['verbose'] = verbose
+    fit_kwargs['frac_included'] = 0.1
+    fit_kwargs['train_dist'] = "rebalanced"
+    fit_kwargs['ratio'] = 1.0
 
-    if "frac_included" in settings['fit_param']:
-        frac_included = settings['fit_param'].pop('frac_included')
-        frac_included = float(frac_included)
+#     if "frac_included" in settings['fit_param']:
+#         frac_included = float(settings['fit_param']['frac_included'])
+#         frac_included = float(frac_included)
 
-    if "dyn_class_weight" in settings['fit_param']:
-        dyn_cw = float(settings['fit_param']['dyn_class_weight'])
-        fit_kwargs["dyn_class_weight"] = dyn_cw
-        print(f"Using dynamic class weights: {dyn_cw}")
+#     if "dyn_class_weight" in settings['fit_param']:
+#         dyn_cw = float(settings['fit_param']['dyn_class_weight'])
+#         fit_kwargs["dyn_class_weight"] = dyn_cw
+#         print(f"Using dynamic class weights: {dyn_cw}")
 
-    # Set the class weights from the frac_included estimate.
-    if frac_included is not None:
-        weight0 = 1 / (1 - frac_included)
-        weight1 = 1 / frac_included
-        fit_kwargs['class_weight'] = {
-            0: weight0,
-            1: weight1
-        }
-        if verbose:
-            print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-
+    print(fit_kwargs)
     settings['fit_param'] = _unsafe_dict_update(
         fit_kwargs, settings['fit_param'])
+    _set_class_weight(1/fit_kwargs['frac_included'], fit_kwargs)
     return settings['fit_param']
 
 
@@ -105,6 +102,7 @@ def create_lstm_model(embedding_matrix,
                 dropout=dropout,
                 recurrent_dropout=dropout,
                 return_sequences=True,
+                kernel_constraint=MaxNorm(),
             )
         )
 
@@ -132,6 +130,8 @@ def create_lstm_model(embedding_matrix,
             )
         )
 
+        optimizer = RMSprop(lr=0.01)
+#         optimizer = tf.keras.optimizers.Adam(lr=0.1)
         # Compile model
         model.compile(
             loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])

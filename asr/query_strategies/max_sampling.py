@@ -52,7 +52,7 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
         the instances from X chosen to be labelled.
     """
     try:
-        proba = classifier.predict_proba(X, **kwargs)
+        proba = classifier.predict_proba(X, **kwargs, verbose=1)
     except NotFittedError:
         proba = np.ones(shape=(X.shape[0], ))
 
@@ -60,8 +60,8 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
         pred_proba.append(proba)
 
     if not random_tie_break:
-        query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)
+        query_idx = multi_argmax(proba[:, 0], n_instances=n_instances)
     else:
-        query_idx = shuffled_argmax(proba[:, 1], n_instances=n_instances)
+        query_idx = shuffled_argmax(proba[:, 0], n_instances=n_instances)
 
     return query_idx, X[query_idx]
