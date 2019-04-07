@@ -38,7 +38,11 @@ def _unsafe_dict_update(default_dict, override_dict):
     for key in new_dict:
         if key in override_dict:
             str_val = override_dict[key]
-            new_dict[key] = type(new_dict[key])(str_val)
+            try:
+                new_dict[key] = type(new_dict[key])(str_val)
+            except TypeError:
+#                 print()
+                raise(TypeError(f"Error at {key}"))
     return new_dict
 
 
@@ -238,7 +242,7 @@ class Logger(object):
 
         if isinstance(indices, np.ndarray):
             indices = indices.tolist()
-        pred_proba = pred_proba[:, 1]
+        pred_proba = pred_proba[:, 0]
         if isinstance(pred_proba, np.ndarray):
             pred_proba = pred_proba.tolist()
         new_dict = {logname: list(zip(indices, pred_proba))}

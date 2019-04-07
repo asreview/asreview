@@ -9,26 +9,13 @@ from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
 from asr.balanced_al import rebalance_train_data, balanced_train_data
-from asr.balanced_al import validation_data, undersample
+from asr.balanced_al import validation_data, undersample, _set_class_weight
+from asr.models.lstm2 import create_lstm_model
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
 
 
-def _set_dyn_cw(n_included, n_queried, fit_kwargs, dyn_cw=None):
-    if dyn_cw is None:
-        return
-    weight0 = 1
-    if n_included:
-        weight1 = (n_queried-n_included)/(dyn_cw*n_included)
-    else:
-        weight1 = 1
-    fit_kwargs['class_weight'] = {
-        0: weight0,
-        1: weight1,
-    }
-    print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-    print(f"{n_included}, {n_queried}")
 
 
 def _merge_prior_knowledge(included, excluded, return_labels=True):
@@ -65,6 +52,8 @@ class Review(ABC):
                  prior_excluded=[],
                  log_file=None,
                  fit_kwargs={},
+                 model_kwargs={},
+                 embedding_matrix=None,
                  verbose=1):
         super(Review, self).__init__()
 
@@ -82,6 +71,8 @@ class Review(ABC):
         self.prior_excluded = prior_excluded
 
         self.fit_kwargs = fit_kwargs
+        self.model_kwargs = model_kwargs
+        self.embedding_matrix = embedding_matrix
 
         self._logger = Logger()
 
@@ -120,61 +111,65 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-#         X_copy = self.X.copy()
-#         y_copy = self.y.copy()
-#         print(LA.norm(self.X), LA.norm(self.y))
         n_epoch = self.fit_kwargs['epochs']
         batch_size = self.fit_kwargs['batch_size']
-        ratio = 1
+        train_dist = self.fit_kwargs.pop('train_dist')
+        frac_included = self.fit_kwargs.pop('frac_included')
+        if train_dist == "rebalanced":
+            get_train_data = balanced_train_data
+            extra_train_args = {
+                "pref_batch_size": batch_size,
+                "n_epoch": n_epoch,
+                "frac_included": frac_included,
+            }
+        else:
+            get_train_data = undersample
+            extra_train_args = {}
+            _set_class_weight(1/frac_included, self.fit_kwargs)
+        extra_train_args['ratio'] = self.fit_kwargs.pop('ratio')
+        extra_train_args['shuffle'] = self.fit_kwargs['shuffle']
+        extra_train_args['fit_kwargs'] = self.fit_kwargs
+        self.fit_kwargs['shuffle'] = False
+
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
-        train_ind = np.array([], dtype=int)
+#         train_ind = np.array([], dtype=int)
 
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
-#         n_included = np.sum(init_labels)
+        train_ind = init_ind.copy()
 
-        # Labeled indices
-        train_ind = np.append(train_ind, init_ind)
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
 
-#         if "dyn_class_weight" in self.fit_kwargs:
-#             dyn_cw = self.fit_kwargs.pop("dyn_class_weight")
-#         else:
-#             dyn_cw = None
-#         _set_dyn_cw(n_included, len(train_ind), self.fit_kwargs, dyn_cw)
+        print(f"batch_size = {self.fit_kwargs['batch_size']}")
 
-        validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
-        # train model
-        self._prior_teach()
-
-        # initialize ActiveLearner
-        self.learner = ActiveLearner(
-            estimator=self.model,
-            query_strategy=self.query_strategy,
-
-            # additional arguments to pass to fit
-            **self.fit_kwargs)
-#         print(np.where(self.y == 1))
-        train_X, train_y = balanced_train_data(
-            self.X[train_ind], self.y[train_ind], self.fit_kwargs,
-            ratio=ratio, pref_batch_size=batch_size, n_epoch=n_epoch)
-
-        self.model.fit(
-            x=train_X,
-            y=train_y,
-            **self.fit_kwargs,
-            )
-        self._logger.add_training_log(init_ind, init_labels)
         query_i = 0
+        query_ind = init_ind
 
-        while not self._stop_iter(query_i, pool_ind):
+        while not self._stop_iter(query_i-1, pool_ind):
+            self._logger.add_training_log(query_ind, self.y[query_ind])
+
+            validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
+            X_train, y_train = get_train_data(self.X[train_ind],
+                                              self.y[train_ind],
+                                              **extra_train_args)
+
+            from asr.query_strategies.max_sampling import max_sampling
+            self.model = create_lstm_model(
+                embedding_matrix=self.embedding_matrix,
+                **self.model_kwargs)()
+            self.model.fit(
+                x=X_train,
+                y=y_train,
+                **self.fit_kwargs,
+            )
 
             pred_proba = []
             # Make a query from the pool.
             # query_ind_pool are indices relative to the pool_ind.
-            query_pool_ind, query_instance = self.learner.query(
+            query_pool_ind, _ = max_sampling(
+                self.model,
                 self.X[pool_ind],
                 n_instances=min(self.n_instances, len(pool_ind)),
                 pred_proba=pred_proba,
@@ -184,66 +179,30 @@ class Review(ABC):
 
             # Log the probabilities of samples in the pool being included.
             if len(pred_proba) == 0:
-                pred_proba = [self.learner.predict_proba(self.X[pool_ind])]
-            self._logger.add_proba(
-                    pool_ind, pred_proba[0]
-            )
+                pred_proba = [self.model.predict_proba(self.X[pool_ind])]
+            self._logger.add_proba(pool_ind, pred_proba[0])
 
-            pred_proba_train = self.learner.predict_proba(self.X[train_ind])
+            # Log the probabilities of samples that were trained.
+            pred_proba_train = self.model.predict_proba(self.X[train_ind])
             self._logger.add_proba(train_ind, pred_proba_train,
                                    logname="train_proba")
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # classify records (can be the user or an oracle)
-            y = self._classify(query_ind)
-#             n_included += np.sum(y)
             train_ind = np.append(train_ind, query_ind)
-#             train_X, train_y, n_mini_epoch = rebalance_train_data(
-#                 self.X[train_ind], self.y[train_ind], max_mini_epoch=n_epoch)
-            train_X, train_y = balanced_train_data(
-                self.X[train_ind], self.y[train_ind], self.fit_kwargs,
-                ratio=ratio, pref_batch_size=batch_size, n_epoch=n_epoch)
-
-            validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
-#             for i, rx in enumerate(train_X):
-#                 print("Here equal")
-#                 for j, compx in enumerate(X_copy):
-#                     if np.array_equal(compx, rx):
-#                         print(i, train_y[i], j, y_copy[j])
-#                         assert train_y[i] == y_copy[j]
-#                 print(rx, train_y[i], i)
-#             print(train_ind)
-#             print(train_X)
-#             print(train_y)
-            # train model
-            self._prior_teach()
-            # Teach the learner the new labelled data.
-            self.learner.teach(
-                X=train_X,
-                y=train_y,
-
-                # Train on both new and old labels, since we're retraining all.
-                only_new=True,
-
-                # additional arguments to pass to fit
-                **self.fit_kwargs)
-
-            # Add the query indexes to the log.
-            self._logger.add_training_log(query_ind, y)
-
 
             # update the query counter
             query_i += 1
 
         # Produce the final set of prediction probabilities
-        if len(pool_ind) > 0:
-            pred_proba = self.learner.predict_proba(self.X[pool_ind])
-            self._logger.add_proba(pool_ind, pred_proba)
+#         if len(pool_ind) > 0:
+#             pred_proba = self.model.predict_proba(self.X[pool_ind], verbose=1)
+#             self._logger.add_proba(pool_ind, pred_proba)
 
-        pred_proba_train = self.learner.predict_proba(self.X[train_ind])
-        self._logger.add_proba(train_ind, pred_proba_train,
-                               logname="train_proba")
+#         pred_proba_train = self.model.predict_proba(self.X[train_ind])
+#         self._logger.add_proba(train_ind, pred_proba_train,
+#                                logname="train_proba")
 
         # Save the result to a file
         if self.log_file:
