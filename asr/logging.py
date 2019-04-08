@@ -82,7 +82,7 @@ class Logger(object):
 
     def __str__(self):
 
-        self._print_logs()
+        return self._print_logs()
 
     def _print_logs(self):
         self._log_dict["time"]["end_time"] = str(datetime.now())
