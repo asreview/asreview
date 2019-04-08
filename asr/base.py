@@ -5,7 +5,7 @@ import numpy as np
 from modAL.models import ActiveLearner
 
 from asr.init_sampling import sample_prior_knowledge
-from asr.utils import Logger
+from asr.logging import Logger
 from asr.ascii import ASCII_TEA
 
 N_INCLUDED = 10
