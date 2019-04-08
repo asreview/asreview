@@ -111,6 +111,8 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
+        print("start_xxx")
+        print(self.fit_kwargs)
         n_epoch = self.fit_kwargs['epochs']
         batch_size = self.fit_kwargs['batch_size']
         train_dist = self.fit_kwargs.pop('train_dist')
@@ -128,8 +130,10 @@ class Review(ABC):
             _set_class_weight(1/frac_included, self.fit_kwargs)
         extra_train_args['ratio'] = self.fit_kwargs.pop('ratio')
         extra_train_args['shuffle'] = self.fit_kwargs['shuffle']
+        print(extra_train_args)
         extra_train_args['fit_kwargs'] = self.fit_kwargs
         self.fit_kwargs['shuffle'] = False
+        print(extra_train_args)
 
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
@@ -143,6 +147,7 @@ class Review(ABC):
         pool_ind = np.delete(pool_ind, init_ind)
 
         print(f"batch_size = {self.fit_kwargs['batch_size']}")
+        print(np.where(self.y == 1))
 
         query_i = 0
         query_ind = init_ind
@@ -151,10 +156,10 @@ class Review(ABC):
             self._logger.add_training_log(query_ind, self.y[query_ind])
 
             validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
-            X_train, y_train = get_train_data(self.X[train_ind],
-                                              self.y[train_ind],
-                                              **extra_train_args)
-
+            X_train, y_train, ind = get_train_data(self.X[train_ind],
+                                                   self.y[train_ind],
+                                                   **extra_train_args)
+            print(train_ind[ind])
             from asr.query_strategies.max_sampling import max_sampling
             self.model = create_lstm_model(
                 embedding_matrix=self.embedding_matrix,

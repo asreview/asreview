@@ -39,6 +39,7 @@ def lstm_fit_defaults(settings, verbose=1):
     fit_kwargs['train_dist'] = "rebalanced"
     fit_kwargs['ratio'] = 1.0
 
+    print(settings['fit_param'])
 #     if "frac_included" in settings['fit_param']:
 #         frac_included = float(settings['fit_param']['frac_included'])
 #         frac_included = float(frac_included)
@@ -52,6 +53,8 @@ def lstm_fit_defaults(settings, verbose=1):
     settings['fit_param'] = _unsafe_dict_update(
         fit_kwargs, settings['fit_param'])
     _set_class_weight(1/fit_kwargs['frac_included'], fit_kwargs)
+    print(settings['fit_param'])
+
     return settings['fit_param']
 
 
