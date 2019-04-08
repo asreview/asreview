@@ -59,6 +59,8 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
     if pred_proba is not None:
         pred_proba.append(proba)
 
+#     print(proba)
+#     print(n_instances)
     if not random_tie_break:
         query_idx = multi_argmax(proba[:, 0], n_instances=n_instances)
     else:
