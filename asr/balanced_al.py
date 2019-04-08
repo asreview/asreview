@@ -4,7 +4,7 @@ Created on 3 Apr 2019
 @author: qubix
 '''
 import numpy as np
-from math import log, inf, ceil
+from math import log, inf, ceil, floor
 from copy import deepcopy
 from tensorflow.python.keras.engine.distributed_training_utils import set_weights
 # from asr.balanced_al import _set_class_weight
@@ -132,6 +132,45 @@ def balanced_train_data(X, y, fit_kwargs, ratio=1.0, shuffle=True,
 #     else:
 #         _set_class_weight(1/(frac_included*n_mini_epoch), fit_kwargs)
     return X[all_ind].copy(), y[all_ind].copy()
+
+
+def triple_balance_train(X_rand, y_rand, X_pred, y_pred, fit_kwargs, n_epoch=None, shuffle=True):
+    X = np.concatenate((X_rand, X_pred))
+    y = np.concatenate((y_rand, y_pred))
+
+    one_ind = np.where(y == 1)[0]
+    zero_rand_ind = np.where(y_rand == 0)[0]
+    zero_pred_ind = len(y_rand)+np.where(y_pred == 0)[0]
+#     zero_ind = np.append(zero_rand_ind, zero_pred_ind)
+
+    n_one = len(one_ind)
+    n_zero_rand = len(zero_rand_ind)
+    n_zero_pred = len(zero_pred_ind)
+
+    n_mini_epoch = max(1, ceil(n_zero_pred/n_one), ceil(n_zero_rand/n_one))
+    n_total = n_one*n_mini_epoch
+
+#     print(n_mini_epoch)
+#     print(n_one, n_zero_rand, n_zero_pred)
+#     print(one_ind, zero_rand_ind, zero_pred_ind)
+    while len(one_ind) < n_total:
+        one_ind = np.append(one_ind, one_ind)
+    while n_zero_rand and len(zero_rand_ind) < n_total:
+        zero_rand_ind = np.append(zero_rand_ind, zero_rand_ind)
+    while n_zero_pred and len(zero_pred_ind) < n_total:
+        zero_pred_ind = np.append(zero_pred_ind, zero_pred_ind)
+
+    all_ind = np.array([], dtype=int)
+    for i in range(n_mini_epoch):
+        new_ind = one_ind[i*n_one:(i+1)*n_one].copy()
+        new_ind = np.append(new_ind, zero_pred_ind[i*n_one:(i+1)*n_one])
+        new_ind = np.append(new_ind, zero_rand_ind[i*n_one:(i+1)*n_one])
+        if shuffle:
+            np.random.shuffle(new_ind)
+        all_ind = np.append(all_ind, new_ind)
+    fit_kwargs['epochs'] = ceil(n_epoch/n_mini_epoch)
+#     print(all_ind)
+    return X[all_ind], y[all_ind]
 
 
 def undersample(X, y, fit_kwargs, ratio=1.0, shuffle=True):

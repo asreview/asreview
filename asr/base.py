@@ -11,6 +11,8 @@ from asr.ascii import ASCII_TEA
 from asr.balanced_al import rebalance_train_data, balanced_train_data
 from asr.balanced_al import validation_data, undersample, _set_class_weight
 from asr.models.lstm2 import create_lstm_model
+from asr.balanced_al import triple_balance_train
+from asr.query_strategies.random_sampling import random_sampling
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -111,8 +113,8 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-        print("start_xxx")
-        print(self.fit_kwargs)
+#         print("start_xxx")
+#         print(self.fit_kwargs)
         n_epoch = self.fit_kwargs['epochs']
         batch_size = self.fit_kwargs['batch_size']
         train_dist = self.fit_kwargs.pop('train_dist')
@@ -130,10 +132,12 @@ class Review(ABC):
             _set_class_weight(1/frac_included, self.fit_kwargs)
         extra_train_args['ratio'] = self.fit_kwargs.pop('ratio')
         extra_train_args['shuffle'] = self.fit_kwargs['shuffle']
-        print(extra_train_args)
+#         print(extra_train_args)
         extra_train_args['fit_kwargs'] = self.fit_kwargs
         self.fit_kwargs['shuffle'] = False
-        print(extra_train_args)
+#         print(extra_train_args)
+        n_instance_max = round(self.n_instances*0.95)
+        n_instance_rand = self.n_instances-n_instance_max
 
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
@@ -141,13 +145,15 @@ class Review(ABC):
 
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
-        train_ind = init_ind.copy()
+#         train_ind = init_ind.copy()
+        rand_ind = init_ind.copy()
+        pred_ind = np.array([], dtype=int)
 
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
 
-        print(f"batch_size = {self.fit_kwargs['batch_size']}")
-        print(np.where(self.y == 1))
+#         print(f"batch_size = {self.fit_kwargs['batch_size']}")
+#         print(np.where(self.y == 1))
 
         query_i = 0
         query_ind = init_ind
@@ -156,10 +162,13 @@ class Review(ABC):
             self._logger.add_training_log(query_ind, self.y[query_ind])
 
             validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
-            X_train, y_train, ind = get_train_data(self.X[train_ind],
-                                                   self.y[train_ind],
-                                                   **extra_train_args)
-            print(train_ind[ind])
+            X_train, y_train = triple_balance_train(self.X[rand_ind],
+                                                    self.y[rand_ind],
+                                                    self.X[pred_ind],
+                                                    self.y[pred_ind],
+                                                    fit_kwargs=self.fit_kwargs,
+                                                    n_epoch=n_epoch)
+#             print(train_ind[ind])
             from asr.query_strategies.max_sampling import max_sampling
             self.model = create_lstm_model(
                 embedding_matrix=self.embedding_matrix,
@@ -173,29 +182,45 @@ class Review(ABC):
             pred_proba = []
             # Make a query from the pool.
             # query_ind_pool are indices relative to the pool_ind.
+#             print(min(n_instance_max, len(pool_ind)))
             query_pool_ind, _ = max_sampling(
                 self.model,
                 self.X[pool_ind],
-                n_instances=min(self.n_instances, len(pool_ind)),
+                n_instances=min(n_instance_max, len(pool_ind)),
                 pred_proba=pred_proba,
             )
             # Get the query indices relative to all paper ids.
-            query_ind = pool_ind[query_pool_ind]
+            query_max_ind = pool_ind[query_pool_ind]
 
             # Log the probabilities of samples in the pool being included.
             if len(pred_proba) == 0:
                 pred_proba = [self.model.predict_proba(self.X[pool_ind])]
             self._logger.add_proba(pool_ind, pred_proba[0])
 
+            train_ind = np.append(rand_ind, pred_ind)
+
             # Log the probabilities of samples that were trained.
             pred_proba_train = self.model.predict_proba(self.X[train_ind])
             self._logger.add_proba(train_ind, pred_proba_train,
                                    logname="train_proba")
+
+            pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
+            pred_ind = np.append(pred_ind, query_max_ind)
+
+            query_pool_ind, _ = random_sampling(
+                self.model,
+                self.X[pool_ind],
+                n_instances=min(n_instance_rand, len(pool_ind))
+            )
+
+            query_rand_ind = pool_ind[query_pool_ind]
+            rand_ind = np.append(rand_ind, query_rand_ind)
+
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
             # classify records (can be the user or an oracle)
-            train_ind = np.append(train_ind, query_ind)
+#             train_ind = np.append(train_ind, query_ind)
 
             # update the query counter
             query_i += 1
