@@ -21,7 +21,7 @@ def read_log(log_fp):
     """
     log_fp_path = Path(log_fp)
 
-    if log_fp_path.is_file() and log_fp_path.suffix == ".json":
+    try:
 
         with open(log_fp_path, "r") as f:
 
@@ -30,8 +30,8 @@ def read_log(log_fp):
 
             return log
 
-    else:
-        raise ValueError(f"Incorrect file path {log_fp}")
+    except Exception as err:
+        raise err
 
 
 def read_logs_from_dir(log_dir, prefix=None):
@@ -59,7 +59,9 @@ def read_logs_from_dir(log_dir, prefix=None):
         for x in log_fp_path.iterdir():
 
             try:
-                if prefix and str(x).startswidth(prefix):
+                if prefix and not str(x).startswidth(prefix):
+                    continue
+                else:
                     log_list.append(read_log(x))
             except ValueError:
                 pass
