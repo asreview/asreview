@@ -144,14 +144,16 @@ def undersample(X, y, fit_kwargs, ratio=1.0, shuffle=True):
         shuf_ind = np.append(one_ind, zero_ind)
     else:
         n_zero_epoch = ceil(n_one/ratio)
-        rand_idx = np.random.choice(n_zero, n_zero_epoch, replace=False)
-        rand_zero = zero_ind[rand_idx]
-        shuf_ind = np.append(one_ind, rand_zero)
-
+        shuf_ind = np.append(one_ind, zero_ind[-n_zero_epoch:])
+#         rand_idx = np.random.choice(n_zero, n_zero_epoch, replace=False)
+#         rand_zero = zero_ind[rand_idx]
+#         shuf_ind = np.append(one_ind, rand_zero)
+    print(shuffle)
     if shuffle:
         np.random.shuffle(shuf_ind)
+    print(shuf_ind)
     fit_kwargs['batch_size'] = len(shuf_ind)
-    return X[shuf_ind].copy(), y[shuf_ind].copy()
+    return X[shuf_ind].copy(), y[shuf_ind].copy(), shuf_ind
 
 
 def validation_data(X, y, fit_kwargs, ratio=1):
