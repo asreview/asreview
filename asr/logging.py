@@ -59,7 +59,7 @@ def read_logs_from_dir(log_dir, prefix=None):
         for x in log_fp_path.iterdir():
 
             try:
-                if prefix and not str(x).startswidth(prefix):
+                if prefix and not x.name.startswith(prefix):
                     continue
                 else:
                     log_list.append(read_log(x))
