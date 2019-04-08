@@ -1,7 +1,7 @@
 1. 
 TY  - JOUR
 ID  - 12345
-T1  - Title of reference
+TI  - Title of reference
 A1  - Marx, Karl
 A1  - Lindgren, Astrid
 A2  - Glattauer, Daniel
@@ -28,7 +28,7 @@ ER  -
 2. 
 TY  - JOUR
 ID  - 12345
-T1  - The title of the reference
+TI  - The title of the reference
 A1  - Marxus, Karlus
 A1  - Lindgren, Astrid
 A2  - Glattauer, Daniel

@@ -40,6 +40,7 @@ following respositories are (or will become) publicly available:
 * [Table of Contents](#table-of-contents)
 * [Installation](#installation)
 * [Quick start](#quick-start)
+* [Datasets](#datasets)
 * [Systematic Review with oracle](#systematic-review-with-oracle)
    * [Command Line Interface (oracle mode)](#command-line-interface-oracle-mode)
    * [Python API (oracle mode)](#python-api-oracle-mode)
@@ -139,6 +140,17 @@ asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
   --prior_included 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
+## Datasets
+
+The ASR software accepts datasets in the RIS and CSV file format. [RIS
+files](https://en.wikipedia.org/wiki/RIS_(file_format)) are used by digital
+libraries, like IEEE Xplore, Scopus and ScienceDirect. Citation managers
+Mendeley and EndNote support the RIS format as well. For simulation, we use an
+additional RIS tag with the letters `LI`. For CSV files, the software accepts
+a set of predetermined labels in line with the ones used in RIS files. Please
+see the project [Automatic Systematic Review
+Datasets](https://github.com/msdslab/automated-systematic-review-datasets) for
+the complete standard.
 
 
 ## Systematic Review with oracle
