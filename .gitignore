@@ -1,19 +1,5 @@
 ## General
 
-logs/
-backup/
-output/
-batch_files/
-
-# exclude pretrained models
-data/pretrained_models/*
-!data/pretrained_models/.gitkeep
-
-# exclude all datasets except data of Van de Schoot
-data/datasets/*
-!data/datasets/ptsd_vandeschoot/*.csv
-
-
 .ipython/
 .jupyter/
 .local/
@@ -77,7 +63,6 @@ coverage.xml
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 
