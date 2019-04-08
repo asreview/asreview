@@ -156,10 +156,10 @@ class Review(ABC):
 #         print(np.where(self.y == 1))
 
         query_i = 0
-        query_ind = init_ind
+        all_query_ind = init_ind
 
         while not self._stop_iter(query_i-1, pool_ind):
-            self._logger.add_training_log(query_ind, self.y[query_ind])
+            self._logger.add_training_log(all_query_ind, self.y[all_query_ind])
 
             validation_data(self.X[pool_ind], self.y[pool_ind], self.fit_kwargs)
             X_train, y_train = triple_balance_train(self.X[rand_ind],
@@ -219,6 +219,7 @@ class Review(ABC):
             # remove queried instance from pool
             pool_ind = np.delete(pool_ind, query_pool_ind, axis=0)
 
+            all_query_ind = np.append(query_rand_ind, query_max_ind)
             # classify records (can be the user or an oracle)
 #             train_ind = np.append(train_ind, query_ind)
 
