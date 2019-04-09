@@ -4,9 +4,8 @@ Created on 3 Apr 2019
 @author: qubix
 '''
 import numpy as np
-from math import log, inf, ceil, floor
+from math import log, inf, ceil
 from copy import deepcopy
-from tensorflow.python.keras.engine.distributed_training_utils import set_weights
 # from asr.balanced_al import _set_class_weight
 
 
@@ -134,7 +133,8 @@ def balanced_train_data(X, y, fit_kwargs, ratio=1.0, shuffle=True,
     return X[all_ind].copy(), y[all_ind].copy()
 
 
-def triple_balance_train(X_rand, y_rand, X_pred, y_pred, fit_kwargs, n_epoch=None, shuffle=True):
+def triple_balance_train(X_rand, y_rand, X_pred, y_pred, fit_kwargs,
+                         n_epoch=None, shuffle=True):
     X = np.concatenate((X_rand, X_pred))
     y = np.concatenate((y_rand, y_pred))
 

@@ -13,11 +13,10 @@ from asr.balanced_al import validation_data, undersample, _set_class_weight
 from asr.models.lstm2 import create_lstm_model
 from asr.balanced_al import triple_balance_train
 from asr.query_strategies.random_sampling import random_sampling
+from query_strategies.rand_max import rand_max_sampling
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
-
-
 
 
 def _merge_prior_knowledge(included, excluded, return_labels=True):
@@ -113,8 +112,6 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-#         print("start_xxx")
-#         print(self.fit_kwargs)
         n_epoch = self.fit_kwargs['epochs']
         batch_size = self.fit_kwargs['batch_size']
         train_dist = self.fit_kwargs.pop('train_dist')
@@ -132,29 +129,26 @@ class Review(ABC):
             _set_class_weight(1/frac_included, self.fit_kwargs)
         extra_train_args['ratio'] = self.fit_kwargs.pop('ratio')
         extra_train_args['shuffle'] = self.fit_kwargs['shuffle']
-#         print(extra_train_args)
         extra_train_args['fit_kwargs'] = self.fit_kwargs
         self.fit_kwargs['shuffle'] = False
-#         print(extra_train_args)
         n_instance_max = round(self.n_instances*0.95)
         n_instance_rand = self.n_instances-n_instance_max
 
         # create the pool and training indices.
         pool_ind = np.arange(self.X.shape[0])
-#         train_ind = np.array([], dtype=int)
 
         # add prior knowledge
         init_ind, init_labels = self._prior_knowledge()
-#         train_ind = init_ind.copy()
         rand_ind = init_ind.copy()
         pred_ind = np.array([], dtype=int)
 
         # remove the initial sample from the pool
         pool_ind = np.delete(pool_ind, init_ind)
 
-#         print(f"batch_size = {self.fit_kwargs['batch_size']}")
-#         print(np.where(self.y == 1))
-
+        self.learner = ActiveLearner(
+            estimator=self.model,
+            query_strategy=rand_max_sampling
+        )
         query_i = 0
         all_query_ind = init_ind
 
@@ -226,14 +220,6 @@ class Review(ABC):
             # update the query counter
             query_i += 1
 
-        # Produce the final set of prediction probabilities
-#         if len(pool_ind) > 0:
-#             pred_proba = self.model.predict_proba(self.X[pool_ind], verbose=1)
-#             self._logger.add_proba(pool_ind, pred_proba)
-
-#         pred_proba_train = self.model.predict_proba(self.X[train_ind])
-#         self._logger.add_proba(train_ind, pred_proba_train,
-#                                logname="train_proba")
 
         # Save the result to a file
         if self.log_file:
