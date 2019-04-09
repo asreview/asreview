@@ -22,8 +22,11 @@ from modAL.utils.selection import multi_argmax, shuffled_argmax
 
 
 def max_sampling(classifier: BaseEstimator, X: modALinput,
-                 n_instances: int = 1, random_tie_break: bool = False,
-                 extra_results={}, **kwargs
+                 pool_idx=None,
+                 n_instances: int = 1,
+                 extra_vars={},
+                 random_tie_break: bool = False,
+                 **kwargs
                  ) -> Tuple[np.ndarray, modALinput]:
     """
     Maximum sampling query strategy.
@@ -51,10 +54,13 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
         The indices of the instances from X chosen to be labelled;
         the instances from X chosen to be labelled.
     """
+    n_samples = X.shape[0]
+    if pool_idx is None:
+        pool_idx = np.arange(n_samples)
     try:
-        proba = classifier.predict_proba(X, **kwargs, verbose=1)
+        proba = classifier.predict_proba(X[pool_idx], **kwargs, verbose=1)
     except NotFittedError:
-        proba = np.ones(shape=(X.shape[0], ))
+        proba = np.ones(shape=(len(pool_idx), ))
 
     extra_results['pred_proba'] = proba
 
@@ -65,4 +71,4 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
     else:
         query_idx = shuffled_argmax(proba[:, 1], n_instances=n_instances)
 
-    return query_idx, X[query_idx]
+    return pool_idx[query_idx], X[pool_idx[query_idx]]

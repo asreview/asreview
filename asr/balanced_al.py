@@ -133,44 +133,68 @@ def balanced_train_data(X, y, fit_kwargs, ratio=1.0, shuffle=True,
     return X[all_ind].copy(), y[all_ind].copy()
 
 
-def triple_balance_train(X_rand, y_rand, X_pred, y_pred, fit_kwargs,
-                         n_epoch=None, shuffle=True):
-    X = np.concatenate((X_rand, X_pred))
-    y = np.concatenate((y_rand, y_pred))
+def simple_td(X, y, train_idx, extra_vars={}):
+    return X[train_idx], y[train_idx]
 
-    one_ind = np.where(y == 1)[0]
-    zero_rand_ind = np.where(y_rand == 0)[0]
-    zero_pred_ind = len(y_rand)+np.where(y_pred == 0)[0]
-#     zero_ind = np.append(zero_rand_ind, zero_pred_ind)
 
-    n_one = len(one_ind)
-    n_zero_rand = len(zero_rand_ind)
-    n_zero_pred = len(zero_pred_ind)
+def triple_balance_td(X, y, train_idx, extra_vars={}):
+    fit_kwargs = extra_vars.get("fit_kwargs", {})
+    max_idx = extra_vars.get("max_idx", np.array([], dtype=int))
+    rand_idx = extra_vars.get("rand_idx", train_idx)
+
+    if 'pref_epochs' not in extra_vars:
+        extra_vars['pref_epoch'] = fit_kwargs.get('epochs', 1)
+    if 'shuffle' not in extra_vars:
+        extra_vars['shuffle'] = fit_kwargs.get('shuffle', True)
+    shuffle = extra_vars['shuffle']
+    pref_epochs = extra_vars['pref_epochs']
+
+    if "last_max_idx" in extra_vars:
+        max_idx = np.append(max_idx, extra_vars['last_max_idx'])
+        rand_idx = np.append(rand_idx, extra_vars['last_rand_idx'])
+    else:
+        rand_idx = train_idx
+
+    one_idx = train_idx[np.where(y[train_idx] == 0)]
+    zero_max_idx = max_idx[np.where(y[max_idx] == 0)]
+    zero_rand_idx = rand_idx[np.where(y[rand_idx] == 0)]
+
+    for idx in max_idx:
+        if y[idx] == 0:
+            zero_max_idx.append(idx)
+        else:
+            one_idx.append(idx)
+
+    for idx in rand_idx:
+        if y[idx] == 0:
+            zero_rand_idx.append(idx)
+        else:
+            one_idx.append(idx)
+
+    n_one = len(one_idx)
+    n_zero_rand = len(zero_rand_idx)
+    n_zero_pred = len(zero_max_idx)
 
     n_mini_epoch = max(1, ceil(n_zero_pred/n_one), ceil(n_zero_rand/n_one))
     n_total = n_one*n_mini_epoch
 
-#     print(n_mini_epoch)
-#     print(n_one, n_zero_rand, n_zero_pred)
-#     print(one_ind, zero_rand_ind, zero_pred_ind)
-    while len(one_ind) < n_total:
-        one_ind = np.append(one_ind, one_ind)
-    while n_zero_rand and len(zero_rand_ind) < n_total:
-        zero_rand_ind = np.append(zero_rand_ind, zero_rand_ind)
-    while n_zero_pred and len(zero_pred_ind) < n_total:
-        zero_pred_ind = np.append(zero_pred_ind, zero_pred_ind)
+    while len(one_idx) < n_total:
+        one_idx = np.append(one_idx, one_idx)
+    while n_zero_rand and len(zero_rand_idx) < n_total:
+        zero_rand_idx = np.append(zero_rand_idx, zero_rand_idx)
+    while n_zero_pred and len(zero_max_idx) < n_total:
+        zero_max_idx = np.append(zero_max_idx, zero_max_idx)
 
-    all_ind = np.array([], dtype=int)
+    all_idx = np.array([], dtype=int)
     for i in range(n_mini_epoch):
-        new_ind = one_ind[i*n_one:(i+1)*n_one].copy()
-        new_ind = np.append(new_ind, zero_pred_ind[i*n_one:(i+1)*n_one])
-        new_ind = np.append(new_ind, zero_rand_ind[i*n_one:(i+1)*n_one])
+        new_idx = one_idx[i*n_one:(i+1)*n_one].copy()
+        new_idx = np.append(new_idx, zero_max_idx[i*n_one:(i+1)*n_one])
+        new_idx = np.append(new_idx, zero_rand_idx[i*n_one:(i+1)*n_one])
         if shuffle:
-            np.random.shuffle(new_ind)
-        all_ind = np.append(all_ind, new_ind)
-    fit_kwargs['epochs'] = ceil(n_epoch/n_mini_epoch)
-#     print(all_ind)
-    return X[all_ind], y[all_ind]
+            np.random.shuffle(new_idx)
+        all_idx = np.append(all_idx, new_idx)
+    fit_kwargs['epochs'] = ceil(pref_epochs/n_mini_epoch)
+    return X[all_idx], y[all_idx]
 
 
 def undersample(X, y, fit_kwargs, ratio=1.0, shuffle=True):
