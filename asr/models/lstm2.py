@@ -40,14 +40,6 @@ def lstm_fit_defaults(settings, verbose=1):
     fit_kwargs['ratio'] = 1.0
 
     print(settings['fit_param'])
-#     if "frac_included" in settings['fit_param']:
-#         frac_included = float(settings['fit_param']['frac_included'])
-#         frac_included = float(frac_included)
-
-#     if "dyn_class_weight" in settings['fit_param']:
-#         dyn_cw = float(settings['fit_param']['dyn_class_weight'])
-#         fit_kwargs["dyn_class_weight"] = dyn_cw
-#         print(f"Using dynamic class weights: {dyn_cw}")
 
     print(fit_kwargs)
     settings['fit_param'] = _unsafe_dict_update(
