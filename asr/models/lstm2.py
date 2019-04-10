@@ -112,15 +112,8 @@ def create_lstm_model(embedding_matrix,
         model.add(
             Flatten()
         )
-        # add Dense layer with relu activation
-#         model.add(
-#             Dense(
-#                 dense_width,
-#                 activation='relu',
-#             )
-#         )
 
-        # add Dense layer
+        # Add output layer
         model.add(
             Dense(
                 1,
