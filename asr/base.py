@@ -7,9 +7,7 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
-from asr.balanced_al import triple_balance_td, simple_td
-from asr.query_strategies.random_sampling import random_sampling
-from query_strategies.rand_max import rand_max_sampling
+from asr.balanced_al import simple_td
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -109,13 +107,7 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-        extra_vars = {}
-        extra_vars['pref_epoch'] = self.fit_kwargs.get('epochs')
-        extra_vars['pref_batch_size'] = self.fit_kwargs.get('batch_size')
-        extra_vars['shuffle'] = self.fit_kwargs.get('shuffle')
-        extra_vars['fit_kwargs'] = self.fit_kwargs
-        if 'shuffle' in self.fit_kwargs:
-            self.fit_kwargs['shuffle'] = False
+        self.extra_vars['fit_kwargs'] = self.fit_kwargs
 
         # create the pool and training indices.
         n_samples = self.X.shape[0]
@@ -134,34 +126,36 @@ class Review(ABC):
         )
         query_i = 0
         train_idx = init_idx.copy()
+        query_idx = train_idx
 
         while not self._stop_iter(query_i-1, pool_idx):
-            self._logger.add_training_log(train_idx, self.y[train_idx])
+            self._logger.add_training_log(query_idx, self.y[query_idx])
 
+            # Get the training data.
             X_train, y_train = self.train_data(self.X, self.y, train_idx,
-                                               extra_vars=extra_vars)
+                                               extra_vars=self.extra_vars)
 
+            # Train the model on the training data.
             self.learner.teach(
                 X=X_train,
                 y=y_train,
                 only_new=True,
-                *self.fit_kwargs
+                **self.fit_kwargs
             )
-
-            pred_proba = []
 
             # Make a query from the pool.
             query_idx, _ = self.learner.query(
-                classifier=self.model,
                 X=self.X,
                 pool_idx=pool_idx,
                 n_instances=min(self.n_instances, len(pool_idx)),
+                extra_vars=self.extra_vars
             )
 
             # Log the probabilities of samples in the pool being included.
+            pred_proba = self.extra_vars.get('pred_proba', [])
             if len(pred_proba) == 0:
-                pred_proba = [self.learner.predict_proba(self.X[pool_idx])]
-            self._logger.add_proba(pool_idx, pred_proba[0])
+                pred_proba = self.learner.predict_proba(self.X[pool_idx])
+            self._logger.add_proba(pool_idx, pred_proba)
 
             # Log the probabilities of samples that were trained.
             pred_proba_train = self.learner.predict_proba(self.X[train_idx])
@@ -170,8 +164,8 @@ class Review(ABC):
 
             self.y[query_idx] = self._classify(query_idx)
 
+            # Update training/pool indices
             train_idx = np.append(train_idx, query_idx)
-
             pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
 
             # update the query counter
