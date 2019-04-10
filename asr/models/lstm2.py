@@ -1,8 +1,8 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Dense, LSTM, Embedding, MaxPooling1D, Flatten
+from tensorflow.keras.layers import Dense, LSTM, Embedding
+from tensorflow.keras.layers import MaxPooling1D, Flatten
 from tensorflow.keras.models import Sequential
 # from keras.optimizers import RMSprop
-from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.optimizers import RMSprop, Adam
 from tensorflow.keras.constraints import MaxNorm
 from asr.utils import _unsafe_dict_update
 # from keras.layers.pooling import MaxPool1D
@@ -18,8 +18,8 @@ def lstm_model_defaults(settings, verbose=1):
     model_kwargs['max_sequence_length'] = 1000
     model_kwargs['verbose'] = verbose
     model_kwargs['lstm_out_width'] = 20
-    model_kwargs['dense_width'] = 128
     model_kwargs['lstm_pool_size'] = 100
+    model_kwargs['learn_rate_mult'] = 1.0
 
     upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
     settings['model_param'] = upd_param
@@ -29,23 +29,25 @@ def lstm_model_defaults(settings, verbose=1):
 
 def lstm_fit_defaults(settings, verbose=1):
     """ Set the fit defaults and merge them with custom settings. """
+
+    # Extra variables
+    extra_vars = {}
+    extra_vars['shuffle'] = True
+    extra_vars['class_weight_inc'] = 30.0
+    extra_vars['train_data_fn'] = "triple_balance"
+
     # arguments to pass to the fit
     fit_kwargs = {}
     fit_kwargs['batch_size'] = 32
     fit_kwargs['epochs'] = 10
-    fit_kwargs['shuffle'] = True
     fit_kwargs['verbose'] = verbose
-    fit_kwargs['frac_included'] = 0.1
-    fit_kwargs['train_dist'] = "rebalanced"
-    fit_kwargs['ratio'] = 1.0
 
-    print(settings['fit_param'])
-
-    print(fit_kwargs)
     settings['fit_param'] = _unsafe_dict_update(
         fit_kwargs, settings['fit_param'])
-    _set_class_weight(1/fit_kwargs['frac_included'], fit_kwargs)
-    print(settings['fit_param'])
+    settings['extra_vars'] = _unsafe_dict_update(
+        extra_vars, settings['extra_vars'])
+
+    _set_class_weight(extra_vars['class_weight_inc'], fit_kwargs)
 
     return settings['fit_param']
 
@@ -56,8 +58,8 @@ def create_lstm_model(embedding_matrix,
                       optimizer='rmsprop',
                       max_sequence_length=1000,
                       lstm_out_width=20,
-                      dense_width=128,
                       lstm_pool_size=100,
+                      learn_rate_mult=1.0,
                       verbose=1):
     """Return callable lstm model.
 
@@ -126,11 +128,15 @@ def create_lstm_model(embedding_matrix,
             )
         )
 
-        optimizer = RMSprop(lr=0.01)
-#         optimizer = tf.keras.optimizers.Adam(lr=0.1)
+        if optimizer == "rmsprop":
+            optimizer_fn = Adam(lr=0.1*learn_rate_mult)
+        else:
+            optimizer_fn = RMSprop(lr=0.01*learn_rate_mult)
+
         # Compile model
         model.compile(
-            loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])
+            loss='binary_crossentropy', optimizer=optimizer_fn,
+            metrics=['acc'])
 
         if verbose == 1:
             model.summary()

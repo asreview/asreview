@@ -2,35 +2,7 @@ from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.models import Sequential
 
 from asr.utils import _unsafe_dict_update
-
-
-def lstm_fit_defaults(settings, frac_included, verbose=1):
-    """ Set the fit defaults and merge them with custom settings. """
-    # arguments to pass to the fit
-    fit_kwargs = {}
-    fit_kwargs['batch_size'] = 32
-    fit_kwargs['epochs'] = 10
-    fit_kwargs['shuffle'] = True
-    fit_kwargs['verbose'] = verbose
-
-    if "frac_included" in settings['fit_param']:
-        frac_included = settings['fit_param'].pop('frac_included')
-        frac_included = float(frac_included)
-
-    # Set the class weights from the frac_included estimate.
-    if frac_included is not None:
-        weight0 = 1 / (1 - frac_included)
-        weight1 = 1 / frac_included
-        fit_kwargs['class_weight'] = {
-            0: weight0,
-            1: weight1
-        }
-        if verbose:
-            print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-
-    settings['fit_param'] = _unsafe_dict_update(
-        fit_kwargs, settings['fit_param'])
-    return settings['fit_param']
+from asr.balanced_al import _set_class_weight
 
 
 def lstm_model_defaults(settings, verbose=1):
@@ -48,6 +20,29 @@ def lstm_model_defaults(settings, verbose=1):
     settings['model_param'] = upd_param
 
     return upd_param
+
+
+def lstm_fit_defaults(settings, verbose=1):
+    """ Set the fit defaults and merge them with custom settings. """
+    extra_vars = {}
+    extra_vars['shuffle'] = True
+    extra_vars['class_weight_inc'] = 30
+    extra_vars['train_data_fn'] = "triple_balance"
+
+    # arguments to pass to the fit
+    fit_kwargs = {}
+    fit_kwargs['batch_size'] = 32
+    fit_kwargs['epochs'] = 10
+    fit_kwargs['verbose'] = verbose
+
+    settings['fit_param'] = _unsafe_dict_update(
+        fit_kwargs, settings['fit_param'])
+    settings['extra_vars'] = _unsafe_dict_update(
+        extra_vars, settings['extra_vars'])
+
+    _set_class_weight(extra_vars['class_weight_inc'], fit_kwargs)
+
+    return settings['fit_param']
 
 
 def create_lstm_model(embedding_matrix,

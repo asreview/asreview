@@ -10,7 +10,7 @@ from copy import deepcopy
 
 
 def _set_class_weight(weight1, fit_kwargs):
-    weight0 = 1
+    weight0 = 1.0
 #     if n_included:
 #         weight1 = (n_queried-n_included)/(dyn_cw*n_included)
     fit_kwargs['class_weight'] = {
@@ -155,10 +155,14 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
     else:
         rand_idx = train_idx
 
-    one_idx = train_idx[np.where(y[train_idx] == 0)]
+    extra_vars['rand_idx'] = rand_idx
+    extra_vars['max_idx'] = max_idx
+
+    one_idx = train_idx[np.where(y[train_idx] == 1)]
     zero_max_idx = max_idx[np.where(y[max_idx] == 0)]
     zero_rand_idx = rand_idx[np.where(y[rand_idx] == 0)]
 
+    print(one_idx, zero_rand_idx, zero_max_idx)
     n_one = len(one_idx)
     n_zero_rand = len(zero_rand_idx)
     n_zero_pred = len(zero_max_idx)
