@@ -116,39 +116,27 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
     # tokenize sequences
     tokens = tokenizer.texts_to_sequences(sequences)
 
-    #pad sequences with zeros.
+    # Pad sequences with zeros.
     x = pad_sequences(
         tokens,
         maxlen=max_sequence_length,
         padding=padding,
         truncating=truncating
     )
+
     for i, old_x in enumerate(x):
         nz = max_sequence_length-1
-#         print(old_x[-50:])
         while old_x[nz] == 0:
             nz -= 1
         nz += 1
         new_x = old_x.copy()
-#         print(len(old_x))
-#         print(nz)
-#         print(old_x)
 
         j = 1
         while nz*j < max_sequence_length:
             cp_len = min(nz*(j+1), max_sequence_length)-nz*j
             new_x[nz*j:nz*j+cp_len] = old_x[0:cp_len]
-#             print(nz*j, nz*j+cp_len, 0, cp_len)
             j += 1
-#         print(new_x[-50:])
-#         print(old_x[-50:])
         x[i] = new_x
-#         print(new_x)
-#         sys.exit()
-    
-#     print(tokens)
-#     print(x)
-    
 
     # word index hack. see issue
     # https://github.com/keras-team/keras/issues/8092
@@ -213,9 +201,10 @@ def config_from_file(config_file):
     for sect in config:
         if sect == "global_settings":
             settings.update(dict(config.items(sect)))
-        elif sect == "model_param" or sect == "fit_param":
+        elif (sect == "model_param" or sect == "fit_param" or
+              sect == "extra_vars"):
             settings[sect] = dict(config.items(sect))
         elif sect != "DEFAULT":
-            print(f"Warning: section [{sect}] is ignored in"
-                  f" config file {config_file}")
+            print (f"Warning: section [{sect}] is ignored in "
+                   f"config file {config_file}")
     return settings

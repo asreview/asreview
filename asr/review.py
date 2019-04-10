@@ -21,8 +21,8 @@ from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.models.embedding import load_embedding, sample_embedding
 from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
 from asr.query_strategies import max_sampling
-from ctypes.test.test_array_in_pointer import Value
 from asr.balanced_al import triple_balance_td, simple_td
+from asr.query_strategies.rand_max import rand_max_sampling
 
 
 def _get_query_method(method):
@@ -30,6 +30,8 @@ def _get_query_method(method):
 
     if method in ['max', 'max_sampling']:
         return max_sampling, "Maximum inclusion sampling"
+    if method in ['rand_max', 'rand_max_sampling']:
+        return rand_max_sampling, "Mix of random and max inclusion sampling"
     elif method in ['lc', 'sm', 'uncertainty']:
         return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
     elif method == 'random':
@@ -38,6 +40,19 @@ def _get_query_method(method):
         raise ValueError(
             f"Query strategy '{method}' not found."
         )
+
+
+def _default_settings(model, n_instances, query_strategy, mode):
+    settings = {
+        "model": model.lower(),
+        "n_instances": n_instances,
+        "query_strategy": query_strategy,
+        "mode": mode,
+        "model_param": {},
+        "fit_param": {},
+        "extra_vars": {},
+    }
+    return settings
 
 
 def review(dataset,
@@ -57,15 +72,7 @@ def review(dataset,
            **kwargs
            ):
 
-    settings = {
-        "model": model.lower(),
-        "n_instances": n_instances,
-        "query_strategy": query_strategy,
-        "mode": mode,
-        "model_param": {},
-        "fit_param": {},
-    }
-
+    settings = _default_settings(model, n_instances, query_strategy, mode)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     model = settings['model']
 
@@ -174,10 +181,13 @@ def review(dataset,
     if verbose:
         print(f"Query strategy: {query_str}")
 
-    if base_model == "RNN":
+    train_data_fn = simple_td
+    train_data_method = settings['extra_vars'].get("train_data_fn", "simple")
+    if train_data_method == "triple_balance":
         train_data_fn = triple_balance_td
-    else:
-        train_data_fn = simple_td
+
+    if verbose:
+        print(f"Using {train_data_method} method to obtain training data.")
 
     if mode == MODUS[1]:
         # start the review process
