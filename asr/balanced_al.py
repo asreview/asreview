@@ -1,18 +1,13 @@
 '''
-Created on 3 Apr 2019
-
-@author: qubix
+Functions that resample the training data.
 '''
 import numpy as np
-from math import log, inf, ceil
-from copy import deepcopy
-# from asr.balanced_al import _set_class_weight
+from math import ceil
 
 
 def _set_class_weight(weight1, fit_kwargs):
+    """ Used in RNN's to have quicker learning. """
     weight0 = 1.0
-#     if n_included:
-#         weight1 = (n_queried-n_included)/(dyn_cw*n_included)
     fit_kwargs['class_weight'] = {
         0: weight0,
         1: weight1,
@@ -21,10 +16,30 @@ def _set_class_weight(weight1, fit_kwargs):
 
 
 def simple_td(X, y, train_idx, extra_vars={}):
+    """
+    Function that does not resample the training set.
+
+    Arguments
+    ---------
+    X: np.array
+        Complete matrix of all samples.
+    y: np.array
+        Classified results of all samples.
+    extra_vars: dict:
+        Extra variables that can be passed around between functions.
+
+    Returns
+    -------
+    np.array:
+        Training samples.
+    np.array:
+        Classification of training samples.
+    """
     return X[train_idx], y[train_idx]
 
 
 def triple_balance_td(X, y, train_idx, extra_vars={}):
+    """ """
     fit_kwargs = extra_vars.get("fit_kwargs", {})
     max_idx = extra_vars.get("max_idx", np.array([], dtype=int))
     rand_idx = extra_vars.get("rand_idx", train_idx)

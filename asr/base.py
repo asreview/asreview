@@ -120,6 +120,7 @@ class Review(ABC):
         # remove the initial sample from the pool
         pool_idx = np.delete(pool_idx, init_idx)
 
+        # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
             estimator=self.model,
             query_strategy=self.query_strategy
@@ -162,6 +163,7 @@ class Review(ABC):
             self._logger.add_proba(train_idx, pred_proba_train,
                                    logname="train_proba")
 
+            # Classify the queried papers.
             self.y[query_idx] = self._classify(query_idx)
 
             # Update training/pool indices
