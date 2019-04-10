@@ -21,6 +21,8 @@ from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.models.embedding import load_embedding, sample_embedding
 from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
 from asr.query_strategies import max_sampling
+from ctypes.test.test_array_in_pointer import Value
+from asr.balanced_al import triple_balance_td, simple_td
 
 
 def _get_query_method(method):
@@ -65,7 +67,10 @@ def review(dataset,
     }
 
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
+    model = settings['model']
 
+    if model == "lstm" or model == "lstm2":
+        base_model = "RNN"
     # PREPARE FEATURES.
     #
     # Generate features from the dataset.
@@ -97,7 +102,7 @@ def review(dataset,
         texts, labels = load_data(dataset)
 
         # get the model
-        if isinstance(dataset, str) & (model.lower() == 'lstm'):
+        if isinstance(dataset, str) & (base_model == "RNN"):
 
             if embedding_fp is None:
                 embedding_fp = Path(
@@ -132,10 +137,16 @@ def review(dataset,
 
     fit_kwargs = {}
 
-    if isinstance(dataset, str) & (model.lower() == 'lstm'):
+    if isinstance(dataset, str) & (base_model == 'RNN'):
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-        from asr.models.lstm2 import create_lstm_model, lstm_model_defaults
-        from asr.models.lstm2 import lstm_fit_defaults
+        if model == "lstm":
+            from asr.models.lstm import create_lstm_model, lstm_model_defaults
+            from asr.models.lstm import lstm_fit_defaults
+        elif model == "lstm2":
+            from asr.models.lstm2 import create_lstm_model, lstm_model_defaults
+            from asr.models.lstm2 import lstm_fit_defaults
+        else:
+            raise ValueError(f"Unknown model {model}")
 
         model_kwargs = lstm_model_defaults(settings, verbose)
         fit_kwargs = lstm_fit_defaults(settings, verbose)
@@ -163,20 +174,24 @@ def review(dataset,
     if verbose:
         print(f"Query strategy: {query_str}")
 
+    if base_model == "RNN":
+        train_data_fn = triple_balance_td
+    else:
+        train_data_fn = simple_td
+
     if mode == MODUS[1]:
         # start the review process
         reviewer = ReviewSimulate(
             X, y,
             model,
             query_fn,
+            train_data_fn=train_data_fn,
             n_instances=n_instances,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded,
-            embedding_matrix=embedding_matrix,
-            model_kwargs=model_kwargs,
 
             # Fit keyword arguments
             fit_kwargs=fit_kwargs,
@@ -228,17 +243,17 @@ def review(dataset,
 
     except KeyboardInterrupt:
         print('\nClosing down the automated systematic review.')
-        print('\nSaving results.')
+#         print('\nSaving results.')
 
-        if reviewer.log_file:
-            reviewer.save_logs(reviewer.log_file)
-        else:
-            print(reviewer._logger._print_logs())
+#         if reviewer.log_file:
+#             reviewer.save_logs(reviewer.log_file)
+#         else:
+#             print(reviewer._logger._print_logs())
 
     # save the result to a file
-    if reviewer.log_file:
-        reviewer.save_logs(reviewer.log_file)
-    else:
+#     if reviewer.log_file:
+#         reviewer.save_logs(reviewer.log_file)
+    if not reviewer.log_file:
         print(reviewer._logger._print_logs())
 
 

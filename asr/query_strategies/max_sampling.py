@@ -21,11 +21,12 @@ from modAL.utils.data import modALinput
 from modAL.utils.selection import multi_argmax, shuffled_argmax
 
 
-def max_sampling(classifier: BaseEstimator, X: modALinput,
-                 pool_idx=None,
+def max_sampling(classifier: BaseEstimator,
+                 X: modALinput,
                  n_instances: int = 1,
-                 extra_vars={},
                  random_tie_break: bool = False,
+                 pool_idx=None,
+                 extra_vars={},
                  **kwargs
                  ) -> Tuple[np.ndarray, modALinput]:
     """
@@ -62,10 +63,8 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
     except NotFittedError:
         proba = np.ones(shape=(len(pool_idx), ))
 
-    extra_results['pred_proba'] = proba
+    extra_vars['pred_proba'] = proba
 
-#     print(proba)
-#     print(n_instances)
     if not random_tie_break:
         query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)
     else:

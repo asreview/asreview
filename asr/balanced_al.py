@@ -143,7 +143,7 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
     rand_idx = extra_vars.get("rand_idx", train_idx)
 
     if 'pref_epochs' not in extra_vars:
-        extra_vars['pref_epoch'] = fit_kwargs.get('epochs', 1)
+        extra_vars['pref_epochs'] = fit_kwargs.get('epochs', 1)
     if 'shuffle' not in extra_vars:
         extra_vars['shuffle'] = fit_kwargs.get('shuffle', True)
     shuffle = extra_vars['shuffle']
@@ -158,18 +158,6 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
     one_idx = train_idx[np.where(y[train_idx] == 0)]
     zero_max_idx = max_idx[np.where(y[max_idx] == 0)]
     zero_rand_idx = rand_idx[np.where(y[rand_idx] == 0)]
-
-    for idx in max_idx:
-        if y[idx] == 0:
-            zero_max_idx.append(idx)
-        else:
-            one_idx.append(idx)
-
-    for idx in rand_idx:
-        if y[idx] == 0:
-            zero_rand_idx.append(idx)
-        else:
-            one_idx.append(idx)
 
     n_one = len(one_idx)
     n_zero_rand = len(zero_rand_idx)
