@@ -21,7 +21,7 @@ from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.models.embedding import load_embedding, sample_embedding
 from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
 from asr.query_strategies import max_sampling
-from asr.balanced_al import triple_balance_td, simple_td
+from asr.balanced_al import triple_balance_td, simple_td, undersample_td
 from asr.query_strategies.rand_max import rand_max_sampling
 
 
@@ -40,6 +40,17 @@ def _get_query_method(method):
         raise ValueError(
             f"Query strategy '{method}' not found."
         )
+
+
+def _get_train_data_method(method):
+    if method == "simple":
+        return simple_td, "All training data"
+    elif method == "triple_balance":
+        return triple_balance_td, "Triple balanced (max,rand) training data"
+    elif method in ["undersample", "undersampling"]:
+        return undersample_td, "Undersampled training data"
+    else:
+        raise ValueError(f"Training data method {method} not found")
 
 
 def _default_settings(model, n_instances, query_strategy, mode):
@@ -181,13 +192,11 @@ def review(dataset,
     if verbose:
         print(f"Query strategy: {query_str}")
 
-    train_data_fn = simple_td
-    train_data_method = settings['extra_vars'].get("train_data_fn", "simple")
-    if train_data_method == "triple_balance":
-        train_data_fn = triple_balance_td
-
+    train_method = settings['extra_vars'].get('train_data_fn', 'simple')
+    train_data_fn, train_method = _get_train_data_method(train_method)
+    settings['extra_vars']['train_data_fn'] = train_method
     if verbose:
-        print(f"Using {train_data_method} method to obtain training data.")
+        print(f"Using {train_method} method to obtain training data.")
 
     if mode == MODUS[1]:
         # start the review process
@@ -215,14 +224,16 @@ def review(dataset,
             # provide prior knowledge
             print("Are there papers you definitively want to include?")
             prior_included = input(
-                "Give the indices of these papers. Separate them with spaces.\n"
+                "Give the indices of these papers. "
+                "Separate them with spaces.\n"
                 "Include: ")
             prior_included = convert_list_type(prior_included.split(), int)
 
         if prior_excluded is None:
             print("Are there papers you definitively want to exclude?")
             prior_excluded = input(
-                "Give the indices of these papers. Separate them with spaces.\n"
+                "Give the indices of these papers. "
+                "Separate them with spaces.\n"
                 "Exclude: ")
             prior_excluded = convert_list_type(prior_excluded.split(), int)
 
