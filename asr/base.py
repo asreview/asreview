@@ -135,7 +135,8 @@ class Review(ABC):
             # Get the training data.
             X_train, y_train = self.train_data(self.X, self.y, train_idx,
                                                extra_vars=self.extra_vars)
-
+#             print(X_train)
+#             print(y_train)
             # Train the model on the training data.
             self.learner.teach(
                 X=X_train,

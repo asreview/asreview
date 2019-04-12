@@ -35,6 +35,9 @@ def lstm_fit_defaults(settings, verbose=1):
     extra_vars['shuffle'] = True
     extra_vars['class_weight_inc'] = 30.0
     extra_vars['train_data_fn'] = "triple_balance"
+    extra_vars['n_extra_words'] = 55
+    extra_vars['one_zero_beta'] = 0.4
+    extra_vars['rand_max_weight_b'] = 30
 
     # arguments to pass to the fit
     fit_kwargs = {}

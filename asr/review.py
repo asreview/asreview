@@ -85,6 +85,7 @@ def review(dataset,
 
     settings = _default_settings(model, n_instances, query_strategy, mode)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
+    extra_vars = settings['extra_vars']
     model = settings['model']
 
     if model == "lstm" or model == "lstm2":
@@ -137,8 +138,11 @@ def review(dataset,
             # create features and labels
             X, word_index = text_to_features(texts)
             y = labels
+#             print(extra_vars)
+            n_extra_words = extra_vars.get('n_extra_words', 0)
             embedding = load_embedding(embedding_fp, word_index=word_index)
-            embedding_matrix = sample_embedding(embedding, word_index)
+            embedding_matrix = sample_embedding(embedding, word_index,
+                                                n_extra_words)
 
         elif isinstance(dataset, str) & (model.lower() in ['nb', 'svc', 'svm']):
             from sklearn.pipeline import Pipeline
@@ -214,6 +218,7 @@ def review(dataset,
 
             # Fit keyword arguments
             fit_kwargs=fit_kwargs,
+            extra_vars=settings['extra_vars'],
 
             # Other
             **kwargs)
@@ -250,6 +255,7 @@ def review(dataset,
 
             # fit keyword arguments
             fit_kwargs=fit_kwargs,
+            extra_vars=extra_vars,
 
             # other keyword arguments
             **kwargs)
