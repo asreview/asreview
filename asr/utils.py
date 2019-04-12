@@ -115,10 +115,14 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
         truncating=truncating
     )
 
+    # Loop the sequences instead of padding.
     for i, old_x in enumerate(x):
         nz = max_sequence_length-1
-        while old_x[nz] == 0:
+        while nz >= 0 & old_x[nz] == 0:
             nz -= 1
+        # If there are only 0's (no data), continue.
+        if nz < 0:
+            continue
         nz += 1
         new_x = old_x.copy()
 
@@ -235,7 +239,7 @@ class Logger(object):
 
         if isinstance(indices, np.ndarray):
             indices = indices.tolist()
-        pred_proba = pred_proba[:, 0]
+        pred_proba = pred_proba[:, 1]
         if isinstance(pred_proba, np.ndarray):
             pred_proba = pred_proba.tolist()
         new_dict = {logname: list(zip(indices, pred_proba))}
