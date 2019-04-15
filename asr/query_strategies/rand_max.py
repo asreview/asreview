@@ -61,16 +61,20 @@ def rand_max_sampling(classifier: BaseEstimator,
         extra_vars['max_frac'] = max_frac
 
     n_instance_max = floor(n_instances*max_frac)
+#     print(f"{n_instances*max_frac}-{n_instance_max}")
     if np.random.random_sample() < n_instances*max_frac-n_instance_max:
         n_instance_max += 1
     n_instance_rand = n_instances-n_instance_max
+#     print(n_instance_max, n_instance_rand)
 
     max_idx, _ = max_sampling(classifier, X, pool_idx=pool_idx,
                               n_instances=n_instance_max,
                               extra_vars=extra_vars,
                               **kwargs)
 
-    new_pool_idx = np.delete(pool_idx, max_idx, axis=0)
+    query_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
+    query_idx = np.append(query_idx, max_idx)
+    new_pool_idx = np.delete(np.arange(n_samples), query_idx, axis=0)
     rand_idx, _ = random_sampling(classifier, X, pool_idx=new_pool_idx,
                                   n_instances=n_instance_rand,
                                   extra_results=extra_vars,
