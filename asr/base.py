@@ -7,7 +7,7 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.utils import Logger
 from asr.ascii import ASCII_TEA
-from asr.balanced_al import simple_td
+from asr.balanced_al import simple_td, validation_data
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -137,6 +137,7 @@ class Review(ABC):
                                                extra_vars=self.extra_vars)
 #             print(X_train)
 #             print(y_train)
+            validation_data(self.X[pool_idx], self.y[pool_idx], self.fit_kwargs, ratio=1)
             # Train the model on the training data.
             self.learner.teach(
                 X=X_train,

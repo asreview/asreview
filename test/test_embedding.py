@@ -6,7 +6,7 @@ import urllib.request
 from asr.models.embedding import load_embedding, sample_embedding
 
 
-def random_words(n_words=1000):
+def random_words(n_words=1000, other_word_dict={}):
     """ Generator of random (ascii) words.
 
     Parameters
@@ -29,7 +29,7 @@ def random_words(n_words=1000):
         new_word = ""
         for _ in range(n_letters):
             new_word += random.choice(string.ascii_letters)
-        if new_word not in word_dict:
+        if new_word not in word_dict and new_word not in other_word_dict:
             word_dict[new_word] = i
             i += 1
     return list(word_dict)
@@ -51,9 +51,19 @@ def random_sample_embedding(words, n_samples=200):
         Dictionary containing sampled words as keys and order as values.
     """
 
+    assert len(words) >= n_samples
     keys = random.sample(words, n_samples)
     order = random.sample(range(1, n_samples+1), n_samples)
-    return dict(zip(keys, order))
+    for i in range(1, n_samples+1):
+        assert i in order
+    word_index = dict(zip(keys, order))
+    assert len(keys) == n_samples
+    assert len(order) == n_samples
+    print(keys)
+    print(order)
+    print(words)
+    assert len(word_index) == n_samples
+    return word_index
 
 
 def random_embedding(words, emb_vec_dim=300):
@@ -137,15 +147,15 @@ def test_load_embedding(tmpdir):
     write_random_embedding(full_embedding, tmpfile)
 
     # Test with one worker process, no sampling.
-    emb1 = load_embedding(tmpfile, word_index=None, n_jobs=1, verbose=0)
+    emb1 = load_embedding(tmpfile, word_index=None, n_jobs=1, verbose=1)
     check_embedding(emb1, full_embedding, n_words, emb_vec_dim)
 
     # Test with all cores, sampling.
-    emb2 = load_embedding(tmpfile, word_index, n_jobs=-1, verbose=0)
+    emb2 = load_embedding(tmpfile, word_index, n_jobs=-1, verbose=1)
     check_embedding(emb2, full_embedding, n_samples, emb_vec_dim)
 
     # Test with 3+1 cores, sampling.
-    emb3 = load_embedding(tmpfile, word_index, n_jobs=3, verbose=0)
+    emb3 = load_embedding(tmpfile, word_index, n_jobs=3, verbose=1)
     check_embedding(emb3, full_embedding, n_samples, emb_vec_dim)
 
 
@@ -159,12 +169,12 @@ def test_sample_embedding():
 
     # Generate embedding.
     words = random_words(n_words)
-    all_words = random_words(n_words_extra) + words
+    all_words = random_words(n_words_extra, words) + words
     word_index = random_sample_embedding(all_words, n_samples)
     full_embedding = random_embedding(words, emb_vec_dim)
     emb_matrix = sample_embedding(full_embedding, word_index,
                                   n_extra_words=emb_extra,
-                                  verbose=0)
+                                  verbose=1)
 
     assert emb_matrix.shape == (n_samples+1, emb_vec_dim+emb_extra)
     i_extra = 0

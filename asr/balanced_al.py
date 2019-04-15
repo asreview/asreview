@@ -129,8 +129,11 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
                        _n_mini_epoch(n_zero_rand, n_zero_rand_epoch),
                        _n_mini_epoch(n_zero_max, n_zero_max_epoch)
                        )
-    #     n_total = n_one*n_mini_epoch
-
+#     print("++++++++++++++++++++++")
+#     print(one_idx)
+#     print(zero_rand_idx)
+#     print(zero_max_idx)
+#     print("----------------------")
     # Replicate the indices until we have enough.
     while len(one_idx) < n_one_epoch*n_mini_epoch:
         one_idx = np.append(one_idx, one_idx)
@@ -150,6 +153,7 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
         new_idx = np.append(new_idx, new_zero_max_idx)
         if shuffle:
             np.random.shuffle(new_idx)
+#         print(new_idx)
         all_idx = np.append(all_idx, new_idx)
 
     # Set the number of epochs.
@@ -161,6 +165,7 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
             efrac = (efrac_one*efrac_zero_rand*efrac_zero_max)**(1./3.)
         else:
             efrac = (efrac_one*efrac_zero_rand)**(1./2.)
+        efrac = 1.0
         print(f"Fraction of mini epoch = {efrac}")
         fit_kwargs['epochs'] = ceil(pref_epochs/(efrac*n_mini_epoch))
     return X[all_idx], y[all_idx]

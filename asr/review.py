@@ -87,6 +87,7 @@ def review(dataset,
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     extra_vars = settings['extra_vars']
     model = settings['model']
+    print(f"Using {model} model")
 
     if model == "lstm" or model == "lstm2":
         base_model = "RNN"

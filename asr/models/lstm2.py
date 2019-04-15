@@ -44,6 +44,7 @@ def lstm_fit_defaults(settings, verbose=1):
     fit_kwargs['batch_size'] = 32
     fit_kwargs['epochs'] = 10
     fit_kwargs['verbose'] = verbose
+    fit_kwargs['shuffle'] = False
 
     settings['fit_param'] = _unsafe_dict_update(
         fit_kwargs, settings['fit_param'])
@@ -125,9 +126,9 @@ def create_lstm_model(embedding_matrix,
         )
 
         if optimizer == "rmsprop":
-            optimizer_fn = Adam(lr=0.1*learn_rate_mult)
-        else:
             optimizer_fn = RMSprop(lr=0.01*learn_rate_mult)
+        else:
+            optimizer_fn = Adam(lr=0.1*learn_rate_mult)
 
         # Compile model
         model.compile(
