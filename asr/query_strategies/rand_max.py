@@ -25,24 +25,25 @@ def rand_max_sampling(classifier: BaseEstimator,
                       **kwargs
                       ) -> Tuple[np.ndarray, modALinput]:
     """
-    Maximum sampling query strategy.
-    Selects the samples with the highest prediction probability.
+    Combination of random and maximum sampling.
+    By default samples the 95% of the instances with max sampling,
+    and 5% of the samples with random sampling.
 
     Parameters
     ----------
     classifier: BaseEstimator
         The classifier for which the labels are to be queried.
     X: modALinput
-        The pool of samples to query from.
+        The whole input matrix.
+    pool_idx: np.array
+        Indices of samples that are in the pool.
     n_instances: int
-        Number of samples to be queried.
-    random_tie_break: bool
-        If True, shuffles utility scores to randomize the order.
-        This can be used to break the tie when the highest
-        utility score is not unique.
+        Total number of samples to be queried.
+    extra_vars: dict
+        dictionary to pass through settings (such as the max/rand ratio),
+        as well as the indices that were obtained using max & random sampling.
     **kwargs:
-        Keyword arguments to be passed for
-        the prediction measure function.
+        Keyword arguments to be passed on to random/max sampling.
 
     Returns
     -------
@@ -54,27 +55,28 @@ def rand_max_sampling(classifier: BaseEstimator,
     n_samples = X.shape[0]
     if pool_idx is None:
         pool_idx = np.arange(n_samples)
-    try:
-        max_frac = extra_vars['max_frac']
-    except KeyError:
-        max_frac = 0.95
-        extra_vars['max_frac'] = max_frac
 
+    # Set the fraction of maximum sampling. Defaults to 95% max, 5% rand.
+    max_frac = extra_vars.get('max_frac', 0.95)
+
+    # Get the discrete number of instances for rand/max sampling.
     n_instance_max = floor(n_instances*max_frac)
-#     print(f"{n_instances*max_frac}-{n_instance_max}")
     if np.random.random_sample() < n_instances*max_frac-n_instance_max:
         n_instance_max += 1
     n_instance_rand = n_instances-n_instance_max
-#     print(n_instance_max, n_instance_rand)
 
+    # Do max sampling.
     max_idx, _ = max_sampling(classifier, X, pool_idx=pool_idx,
                               n_instances=n_instance_max,
                               extra_vars=extra_vars,
                               **kwargs)
 
+    # Remove indices found with max sampling from the pool.
     query_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
     query_idx = np.append(query_idx, max_idx)
     new_pool_idx = np.delete(np.arange(n_samples), query_idx, axis=0)
+
+    # Random sampling.
     rand_idx, _ = random_sampling(classifier, X, pool_idx=new_pool_idx,
                                   n_instances=n_instance_rand,
                                   extra_results=extra_vars,

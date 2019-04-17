@@ -128,6 +128,7 @@ class Review(ABC):
         query_i = 0
         train_idx = init_idx.copy()
         query_idx = train_idx
+        self._logger.add_labels(self.y)
 
         while not self._stop_iter(query_i-1, pool_idx):
             self._logger.add_training_log(query_idx, self.y[query_idx])
@@ -135,9 +136,9 @@ class Review(ABC):
             # Get the training data.
             X_train, y_train = self.train_data(self.X, self.y, train_idx,
                                                extra_vars=self.extra_vars)
-#             print(X_train)
-#             print(y_train)
-            validation_data(self.X[pool_idx], self.y[pool_idx], self.fit_kwargs, ratio=1)
+            validation_data(self.X[pool_idx], self.y[pool_idx],
+                            self.fit_kwargs, ratio=1)
+
             # Train the model on the training data.
             self.learner.teach(
                 X=X_train,
@@ -167,6 +168,7 @@ class Review(ABC):
 
             # Classify the queried papers.
             self.y[query_idx] = self._classify(query_idx)
+            self._logger.add_labels(self.y)
 
             # Update training/pool indices
             train_idx = np.append(train_idx, query_idx)
@@ -284,20 +286,12 @@ class ReviewOracle(Review):
                       keywords=None,
                       authors=None):
 
-        # authors = "; ".join(authors)
-
         if self.use_cli_colors:
             title = "\033[95m" + title + "\033[0m"
 
-        # return f"\n{title}\n\n{abstract}\n"
         return f"\n{title}\n{authors}\n\n{abstract}\n"
 
     def _classify_paper(self, index):
-
-        # abstract = ast.literal_eval(
-        #     self.data.iloc[index]["abstract"]
-        # )
-
         # CLI paper format
         _gui_paper = self._format_paper(
             title=self.data.iloc[index]["title"],

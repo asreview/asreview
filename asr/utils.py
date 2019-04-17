@@ -245,6 +245,9 @@ class Logger(object):
         new_dict = {logname: list(zip(indices, pred_proba))}
         self._add_log(new_dict, i)
 
+    def add_labels(self, y):
+        self._log_dict["labels"] = y.tolist()
+
     def save(self, fp):
         """Save logs to file.
 

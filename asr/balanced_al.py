@@ -9,10 +9,12 @@ def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, extra_vars={}):
     frac = (n_one+n_zero_max)/(n_samples-n_zero_rand)
     b = extra_vars.get("rand_max_weight_b", 30)
     print(f"Using for rand/max ratio: b = {b}")
-    delta = 0.2
+#     delta = 1.0
     alpha = 0.5
 
-    ratio = b*exp(-delta**alpha * log(b) * frac**(-alpha))
+#     ratio = b*exp(-delta**alpha * log(b) * frac**(-alpha))
+    ratio = b * exp(-log(b) * frac**alpha)
+    print(b, frac, alpha, ratio)
     return ratio
 
 
@@ -28,6 +30,7 @@ def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, extra_vars={}):
     n_zero_epoch = ceil(n_one/_one_zero_ratio(n_one, n_zero, extra_vars))
     rand_max_wr = _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, extra_vars)
     if n_zero_max:
+        print(rand_max_wr, n_zero_epoch, n_zero_max, n_zero_rand)
         n_zero_rand_epoch = rand_max_wr*n_zero_epoch/(rand_max_wr+n_zero_max/n_zero_rand)
         n_zero_rand_epoch = ceil(n_zero_rand_epoch)
     else:
@@ -118,7 +121,7 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
     n_one = len(one_idx)
     n_zero_rand = len(zero_rand_idx)
     n_zero_max = len(zero_max_idx)
-    n_samples = n_one + n_zero_rand + n_zero_max
+    n_samples = len(y)
 
     n_one_epoch, n_zero_rand_epoch, n_zero_max_epoch = _get_triple_dist(
         n_one, n_zero_rand, n_zero_max, n_samples, extra_vars)
