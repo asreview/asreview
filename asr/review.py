@@ -4,8 +4,9 @@
 #
 # Authors: Parisa Zahedi, Jonathan de Bruin
 
-import pickle
+import os
 import time
+import pickle
 from pathlib import Path
 
 import pandas
@@ -53,8 +54,10 @@ def _get_train_data_method(method):
         raise ValueError(f"Training data method {method} not found")
 
 
-def _default_settings(model, n_instances, query_strategy, mode):
+def _default_settings(model, n_instances, query_strategy, mode, data_fp):
+    data_name = os.path.basename(data_fp)
     settings = {
+        "data_file": data_name,
         "model": model.lower(),
         "n_instances": n_instances,
         "query_strategy": query_strategy,
@@ -83,7 +86,7 @@ def review(dataset,
            **kwargs
            ):
 
-    settings = _default_settings(model, n_instances, query_strategy, mode)
+    settings = _default_settings(model, n_instances, query_strategy, mode, dataset)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     extra_vars = settings['extra_vars']
     model = settings['model']
@@ -256,7 +259,7 @@ def review(dataset,
 
             # fit keyword arguments
             fit_kwargs=fit_kwargs,
-            extra_vars=extra_vars,
+            extra_vars=settings['extra_vars'],
 
             # other keyword arguments
             **kwargs)

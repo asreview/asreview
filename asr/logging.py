@@ -117,6 +117,9 @@ class Logger(object):
     def add_settings(self, settings):
         self._log_dict["settings"] = copy.deepcopy(settings)
 
+    def add_labels(self, y):
+        self._log_dict["labels"] = y.tolist()
+
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
 
