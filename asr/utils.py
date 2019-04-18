@@ -127,7 +127,7 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
     # Loop the sequences instead of padding.
     for i, old_x in enumerate(x):
         nz = max_sequence_length-1
-        while nz >= 0 & old_x[nz] == 0:
+        while nz >= 0 and old_x[nz] == 0:
             nz -= 1
         # If there are only 0's (no data), continue.
         if nz < 0:
