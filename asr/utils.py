@@ -81,7 +81,11 @@ def load_data(fp):
                      if label in LABEL_INCLUDED_VALUES]
 
     if len(column_labels) > 1:
-        raise ValueError("more than one column with labels found")
+        print('\x1b[0;30;41m Warning multiple valid label inclusion '
+              'columns detected. \x1b[0m')
+        print(f'Possible values: {column_labels}.')
+        print(f'Choosing the one with the highest priority'
+              f' {column_labels[0]}')
     elif len(column_labels) == 1:
         labels = df[column_labels[0]]
         return texts.values, labels.values

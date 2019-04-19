@@ -274,8 +274,8 @@ def sample_embedding(embedding, word_index, n_extra_words=0, verbose=1):
     n_words, emb_vec_dim = len(word_index), len(next(iter(embedding.values())))
 
     if verbose == 1:
-        print(f"Creating matrix with {n_words}+{n_extra_words} vectors "
-              f"with dimension {emb_vec_dim}.")
+        print(f"Creating matrix with {n_words} vectors "
+              f"with dimension {emb_vec_dim}+{n_extra_words}.")
 
     # n+1 because 0 is preserved in the tokenizing process.
     embedding_matrix = np.zeros((n_words + 1, emb_vec_dim+n_extra_words))

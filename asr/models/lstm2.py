@@ -37,7 +37,10 @@ def lstm_fit_defaults(settings, verbose=1):
     extra_vars['train_data_fn'] = "triple_balance"
     extra_vars['n_extra_words'] = 55
     extra_vars['one_zero_beta'] = 0.4
-    extra_vars['rand_max_weight_b'] = 30
+    extra_vars['one_zero_delta'] = 0.15
+    extra_vars['rand_max_weight_b'] = 10
+    extra_vars['rand_max_weight_alpha'] = 1.0
+    extra_vars['rand_max_frac'] = 0.05
 
     # arguments to pass to the fit
     fit_kwargs = {}

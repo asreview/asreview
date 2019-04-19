@@ -32,7 +32,10 @@ def read_csv(fp, labels=None):
 
     """
 
-    df = pd.read_csv(fp)
+    try:
+        df = pd.read_csv(fp)
+    except UnicodeDecodeError:
+        df = pd.read_csv(fp, encoding="ISO-8859-1")
 
     return df.to_dict('records')
 
