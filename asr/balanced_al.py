@@ -7,21 +7,25 @@ from math import ceil, exp, log
 
 def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, extra_vars={}):
     frac = (n_one+n_zero_max)/(n_samples-n_zero_rand)
-    b = extra_vars.get("rand_max_weight_b", 30)
-    print(f"Using for rand/max ratio: b = {b}")
+    b = extra_vars.get("rand_max_weight_b", 10)
+    alpha = extra_vars.get("rand_max_weight_alpha", 1.0)
+    print(f"Using for rand/max ratio: b = {b}, alpha = {alpha}")
 #     delta = 1.0
-    alpha = 0.5
 
 #     ratio = b*exp(-delta**alpha * log(b) * frac**(-alpha))
     ratio = b * exp(-log(b) * frac**alpha)
-    print(b, frac, alpha, ratio)
+    extra_vars['rand_max_weight_b'] = b
+    extra_vars['rand_max_weight_alpha'] = alpha
     return ratio
 
 
 def _one_zero_ratio(n_one, n_zero, extra_vars={}):
-    beta = extra_vars.get("one_zero_beta", 0.4)
-    print(f"Using for 1/0 ratio: beta = {beta}")
-    ratio = (n_one/n_zero)**beta
+    delta = extra_vars.get("one_zero_delta", 0.15)
+    beta = extra_vars.get("one_zero_beta", 0.6)
+#     print(f"Using for 1/0 ratio: beta = {beta}")
+    ratio = (1-delta)*(n_one/n_zero)**beta + delta
+    extra_vars['one_zero_delta'] = delta
+    extra_vars['one_zero_beta'] = beta
     return ratio
 
 
@@ -74,7 +78,7 @@ def simple_td(X, y, train_idx, extra_vars={}):
 
 
 def _n_mini_epoch(n_samples, epoch_size):
-    if n_samples <= 0:
+    if n_samples <= 0 or epoch_size <= 0:
         return 0
     return ceil(n_samples/epoch_size)
 
@@ -140,9 +144,9 @@ def triple_balance_td(X, y, train_idx, extra_vars={}):
     # Replicate the indices until we have enough.
     while len(one_idx) < n_one_epoch*n_mini_epoch:
         one_idx = np.append(one_idx, one_idx)
-    while n_zero_rand and len(zero_rand_idx) < n_zero_rand_epoch*n_mini_epoch:
+    while n_zero_rand_epoch and len(zero_rand_idx) < n_zero_rand_epoch*n_mini_epoch:
         zero_rand_idx = np.append(zero_rand_idx, zero_rand_idx)
-    while n_zero_max and len(zero_max_idx) < n_zero_max_epoch*n_mini_epoch:
+    while n_zero_max_epoch and len(zero_max_idx) < n_zero_max_epoch*n_mini_epoch:
         zero_max_idx = np.append(zero_max_idx, zero_max_idx)
 
     # Build the training set from the three groups.

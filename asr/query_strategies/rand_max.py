@@ -57,7 +57,8 @@ def rand_max_sampling(classifier: BaseEstimator,
         pool_idx = np.arange(n_samples)
 
     # Set the fraction of maximum sampling. Defaults to 95% max, 5% rand.
-    max_frac = extra_vars.get('max_frac', 0.95)
+    rand_max_frac = extra_vars.get('rand_max_frac', 0.05)
+    max_frac = 1-rand_max_frac
 
     # Get the discrete number of instances for rand/max sampling.
     n_instance_max = floor(n_instances*max_frac)
@@ -84,6 +85,7 @@ def rand_max_sampling(classifier: BaseEstimator,
 
     extra_vars['last_max_idx'] = max_idx
     extra_vars['last_rand_idx'] = rand_idx
+    extra_vars['rand_max_frac'] = rand_max_frac
     query_idx = np.append(max_idx, rand_idx)
 
     return query_idx, X[query_idx]

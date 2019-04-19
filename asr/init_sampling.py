@@ -45,6 +45,11 @@ def sample_prior_knowledge(
     included_indexes = np.where(labels == 1)[0]
     excluded_indexes = np.where(labels == 0)[0]
 
+#     print(n_prior_included)
+#     print(included_indexes)
+#     print(f"labels = {labels}")
+    if len(included_indexes) < n_prior_included[0]:
+        print(f"Found only {len(included_indexes)}, when I need {n_prior_included[0]}.")
     # select randomly from included and excluded papers
     included_indexes_sample = r.choice(
         included_indexes, n_prior_included, replace=False)

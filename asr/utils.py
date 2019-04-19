@@ -67,17 +67,27 @@ def load_data(fp):
         is not available, this column is not returned.
     """
 
-    df = pd.read_csv(fp)
+    try:
+        df = pd.read_csv(fp)
+    except UnicodeDecodeError:
+        df = pd.read_csv(fp, encoding="ISO-8859-1")
 
     # make texts and labels
     texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
 
-    try:
-        labels = df["included_final"]
-    except KeyError:
+    col_names = ["included_final", "included"]
+    col_found = False
+    for cname in col_names:
+        try:
+            labels = df[cname]
+            col_found = True
+            break
+        except KeyError:
+            pass
+    if col_found:
+        return texts.values, labels.values
+    else:
         return texts.values
-
-    return texts.values, labels.values
 
 
 def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
