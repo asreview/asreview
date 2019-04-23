@@ -6,21 +6,19 @@ from setuptools import setup, find_packages
 from os import path
 from io import open
 
+import versioneer
+
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-# Extract version
-for line in open(path.join("asr", "__init__.py")):
-    if line.startswith('__version__'):
-        exec(line)
-        break
 
 setup(
     name='asr',
-    version=__version__,  # noqa
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='Automated Systematic Review',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -28,15 +26,8 @@ setup(
     author='MSDSLab',
     author_email='j.debruin1@uu.nl',
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
         'Development Status :: 3 - Alpha',
-
-        # Pick your license as you wish
         'License :: OSI Approved :: MIT License',
-
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',

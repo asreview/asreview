@@ -5,6 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
+import asr
+
 
 def read_log(log_fp):
     """Read log file.
@@ -78,7 +80,11 @@ class Logger(object):
         super(Logger, self).__init__()
 
         # since python 3, this is an ordered dict
-        self._log_dict = {"time": {"start_time": str(datetime.now())}}
+        self._log_dict = {
+            "time": {"start_time": str(datetime.now())},
+            "version": 1,
+            "software_version": asr.__version__
+        }
 
     def __str__(self):
 
