@@ -1,0 +1,2 @@
+include versioneer.py
+include asr/_version.py
