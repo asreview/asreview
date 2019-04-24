@@ -8,6 +8,13 @@ import pandas as pd
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
+LABEL_INCLUDED_VALUES = [
+    "label_included",
+    "included_label",
+    "included_final",
+    "included",
+    "included_flag"
+]
 
 
 def read_csv(fp, labels=None):
