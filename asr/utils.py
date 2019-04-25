@@ -68,7 +68,8 @@ def load_data(fp):
     elif Path(fp).suffix in [".ris", ".RIS"]:
         data = read_ris(fp)
     else:
-        raise ValueError("Unknown file extension.")
+        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                         f"from file {fp}")
 
     # parse data in pandas dataframe
     df = pd.DataFrame(data)
