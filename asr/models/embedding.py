@@ -250,7 +250,7 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
     return embedding
 
 
-def sample_embedding(embedding, word_index, n_extra_words=0, verbose=1):
+def sample_embedding(embedding, word_index, verbose=1):
     """Sample embedding matrix
 
     Parameters
@@ -275,21 +275,15 @@ def sample_embedding(embedding, word_index, n_extra_words=0, verbose=1):
 
     if verbose == 1:
         print(f"Creating matrix with {n_words} vectors "
-              f"with dimension {emb_vec_dim}+{n_extra_words}.")
+              f"with dimension {emb_vec_dim}.")
 
     # n+1 because 0 is preserved in the tokenizing process.
-    embedding_matrix = np.zeros((n_words + 1, emb_vec_dim+n_extra_words))
+    embedding_matrix = np.zeros((n_words + 1, emb_vec_dim))
 
-    i_extra = 0
     for word, i in word_index.items():
         coefs = embedding.get(word)
         if coefs is not None:
-            embedding_matrix[i][0:emb_vec_dim] = coefs
-        # The first x words will be added to the embedding matrix.
-        elif i_extra < n_extra_words:
-            embedding_matrix[i][emb_vec_dim+i_extra] = 1
-            i_extra += 1
-#     print(i, n_words)
+            embedding_matrix[i] = coefs
     if verbose == 1:
         print('Shape of embedding matrix: ', embedding_matrix.shape)
 
