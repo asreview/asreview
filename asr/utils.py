@@ -86,11 +86,10 @@ def load_data(fp):
         print(f'Possible values: {column_labels}.')
         print(f'Choosing the one with the highest priority: '
               f'{column_labels[0]}')
-    elif len(column_labels) == 1:
-        labels = df[column_labels[0]]
-        return texts.values, labels.values
-    else:
+    elif len(column_labels) == 0:
         return texts.values
+    labels = df[column_labels[0]]
+    return texts.values, labels.values
 
 
 def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
