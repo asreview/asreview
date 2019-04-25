@@ -7,7 +7,7 @@ from pathlib import Path
 # external dependencies
 import pandas as pd
 
-from asr.readers import NAME_LABEL_INCLUDED, read_csv, read_ris
+from asr.readers import LABEL_INCLUDED_VALUES, read_csv, read_ris
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -63,13 +63,19 @@ def load_data(fp):
     # parse data in pandas dataframe
     df = pd.DataFrame(data)
 
-    # make texts and labels
+    # make texts
     texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
 
-    try:
-        labels = df[NAME_LABEL_INCLUDED]
+    # extract the label column
+    column_labels = [label for label in list(df)
+                     if label in LABEL_INCLUDED_VALUES]
+
+    if len(column_labels) > 1:
+        raise ValueError("more than one column with labels found")
+    elif len(column_labels) == 1:
+        labels = df[column_labels[0]]
         return texts.values, labels.values
-    except KeyError:
+    else:
         return texts.values
 
 
