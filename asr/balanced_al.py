@@ -10,9 +10,6 @@ def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, extra_vars={}):
     b = extra_vars.get("rand_max_weight_b", 10)
     alpha = extra_vars.get("rand_max_weight_alpha", 1.0)
     print(f"Using for rand/max ratio: b = {b}, alpha = {alpha}")
-#     delta = 1.0
-
-#     ratio = b*exp(-delta**alpha * log(b) * frac**(-alpha))
     ratio = b * exp(-log(b) * frac**alpha)
     extra_vars['rand_max_weight_b'] = b
     extra_vars['rand_max_weight_alpha'] = alpha
@@ -22,7 +19,6 @@ def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, extra_vars={}):
 def _one_zero_ratio(n_one, n_zero, extra_vars={}):
     delta = extra_vars.get("one_zero_delta", 0.15)
     beta = extra_vars.get("one_zero_beta", 0.6)
-#     print(f"Using for 1/0 ratio: beta = {beta}")
     ratio = (1-delta)*(n_one/n_zero)**beta + delta
     extra_vars['one_zero_delta'] = delta
     extra_vars['one_zero_beta'] = beta
@@ -54,27 +50,6 @@ def _set_class_weight(weight1, fit_kwargs):
     print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
 
 
-def simple_td(X, y, train_idx, extra_vars={}):
-    """
-    Function that does not resample the training set.
-
-    Arguments
-    ---------
-    X: np.array
-        Complete matrix of all samples.
-    y: np.array
-        Classified results of all samples.
-    extra_vars: dict:
-        Extra variables that can be passed around between functions.
-
-    Returns
-    -------
-    np.array:
-        Training samples.
-    np.array:
-        Classification of training samples.
-    """
-    return X[train_idx], y[train_idx]
 
 
 def _n_mini_epoch(n_samples, epoch_size):

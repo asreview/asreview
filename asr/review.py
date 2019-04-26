@@ -94,6 +94,8 @@ def review(dataset,
 
     if model == "lstm" or model == "lstm2":
         base_model = "RNN"
+    else:
+        base_model = "other"
     # PREPARE FEATURES.
     #
     # Generate features from the dataset.
@@ -274,16 +276,7 @@ def review(dataset,
 
     except KeyboardInterrupt:
         print('\nClosing down the automated systematic review.')
-#         print('\nSaving results.')
 
-#         if reviewer.log_file:
-#             reviewer.save_logs(reviewer.log_file)
-#         else:
-#             print(reviewer._logger._print_logs())
-
-    # save the result to a file
-#     if reviewer.log_file:
-#         reviewer.save_logs(reviewer.log_file)
     if not reviewer.log_file:
         print(reviewer._logger._print_logs())
 
