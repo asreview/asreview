@@ -6,6 +6,9 @@ from asr.balance_strategies.base import BaseTrainData
 
 
 class UndersampleTD(BaseTrainData):
+    """
+    Balancing class that undersamples the data with a given ratio.
+    """
     def __init__(self, balance_kwargs, fit_kwargs):
         super(UndersampleTD, self).__init__(balance_kwargs)
         if 'shuffle' in fit_kwargs:
@@ -31,6 +34,7 @@ def undersample_td(X, y, train_idx, ratio, shuffle):
     n_one = len(one_ind)
     n_zero = len(zero_ind)
 
+    # If we don't have an excess of 0's, give back all training_samples.
     if n_one/n_zero >= ratio:
         shuf_ind = np.append(one_ind, zero_ind)
     else:

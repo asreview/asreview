@@ -175,7 +175,6 @@ def test_sample_embedding():
                                   verbose=1)
 
     assert emb_matrix.shape == (n_samples+1, emb_vec_dim)
-    i_extra = 0
     for key in word_index:
         i_row = word_index[key]
         if key in words:

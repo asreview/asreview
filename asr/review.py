@@ -9,11 +9,9 @@ import time
 import pickle
 from pathlib import Path
 
-import pandas
-
 # asr dependencies
 from asr import ReviewSimulate, ReviewOracle
-from asr.utils import load_data, text_to_features
+from asr.utils import text_to_features
 from asr.config import MODUS
 from asr.query_strategies import random_sampling, uncertainty_sampling
 from asr.ascii import ASCII_TEA
@@ -29,6 +27,8 @@ from asr.balance_strategies import SimpleTD, TripleBalanceTD, UndersampleTD
 from asr.models import create_lstm_base_model, lstm_base_model_defaults
 from asr.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asr.models import lstm_fit_defaults
+
+from asr.readers import read_data
 
 
 def _get_query_method(method):
@@ -49,6 +49,7 @@ def _get_query_method(method):
 
 
 def _get_train_data_method(settings):
+    """ Function to get data rebalancing method. """
     method = settings.get("train_data_fn", "simple")
     settings["train_data_fn"] = method
     if method == "simple":
@@ -69,6 +70,7 @@ def _get_train_data_method(settings):
 
 
 def _default_settings(model, n_instances, query_strategy, mode, data_fp):
+    """ Create settings dictionary with values. """
     data_name = os.path.basename(data_fp)
     settings = {
         "data_file": data_name,
@@ -97,12 +99,12 @@ def review(dataset,
            n_prior_included=None,
            n_prior_excluded=None,
            save_model=None,
-           frac_included=None,
            config_file=None,
            **kwargs
            ):
 
-    settings = _default_settings(model, n_instances, query_strategy, mode, dataset)
+    settings = _default_settings(model, n_instances, query_strategy,
+                                 mode, dataset)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     model = settings['model']
     print(f"Using {model} model")
@@ -138,11 +140,10 @@ def review(dataset,
             print("Prepare dataset.\n")
             print(ASCII_TEA)
 
-        data = pandas.read_csv(dataset)
-        texts, labels = load_data(dataset)
+        texts, labels = read_data(dataset)
 
         # get the model
-        if isinstance(dataset, str) & (base_model == "RNN"):
+        if base_model == "RNN":
 
             if embedding_fp is None:
                 embedding_fp = Path(
@@ -162,7 +163,7 @@ def review(dataset,
             embedding = load_embedding(embedding_fp, word_index=word_index)
             embedding_matrix = sample_embedding(embedding, word_index)
 
-        elif isinstance(dataset, str) & (model.lower() in ['nb', 'svc', 'svm']):
+        elif model.lower() in ['nb', 'svc', 'svm']:
             from sklearn.pipeline import Pipeline
             from sklearn.feature_extraction.text import TfidfTransformer
             from sklearn.feature_extraction.text import CountVectorizer
@@ -176,7 +177,7 @@ def review(dataset,
     settings['fit_kwargs'] = {}
     settings['query_kwargs'] = {}
 
-    if isinstance(dataset, str) & (base_model == 'RNN'):
+    if base_model == 'RNN':
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
         if model == "lstm_base":
             model_kwargs = lstm_base_model_defaults(settings, verbose)
@@ -196,12 +197,12 @@ def review(dataset,
             verbose=verbose
         )
 
-    elif isinstance(dataset, str) & (model.lower() in ['nb']):
+    elif model.lower() in ['nb']:
         from asr.models import create_nb_model
 
         model = create_nb_model()
 
-    elif isinstance(dataset, str) & (model.lower() in ['svm', 'svc']):
+    elif model.lower() in ['svm', 'svc']:
         from asr.models import create_svc_model
 
         model = create_svc_model()

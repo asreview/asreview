@@ -1,10 +1,12 @@
 # Cpython dependencies
 
+from pathlib import Path
+import warnings
 
 # external dependencies
 from RISparser import TAG_KEY_MAPPING, readris
-
 import pandas as pd
+
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
@@ -15,6 +17,59 @@ LABEL_INCLUDED_VALUES = [
     "included",
     "included_flag"
 ]
+
+
+def load_data(*args, **kwargs):
+    """ [Deprecated] Load papers and their labels. @see read_data"""
+    warnings.warn("deprecated: use read_data instead of load_data",
+                  DeprecationWarning)
+    read_data(*args, **kwargs)
+
+
+def read_data(fp):
+    """Load papers and their labels.
+
+    Arguments
+    ---------
+    fp: str
+        File path to the data.
+
+    Returns
+    -------
+    np.ndarray, np.array
+        The title and abstract merged into a single string for each paper.
+        The labels for each paper. 1 is included, 0 is excluded. If this column
+        is not available, this column is not returned.
+    """
+
+    if Path(fp).suffix in [".csv", ".CSV"]:
+        data = read_csv(fp)
+    elif Path(fp).suffix in [".ris", ".RIS"]:
+        data = read_ris(fp)
+    else:
+        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                         f"from file {fp}")
+
+    # parse data in pandas dataframe
+    df = pd.DataFrame(data)
+
+    # make texts
+    texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
+
+    # extract the label column
+    column_labels = [label for label in list(df)
+                     if label in LABEL_INCLUDED_VALUES]
+
+    if len(column_labels) > 1:
+        print('\x1b[0;30;41m Warning multiple valid label inclusion '
+              'columns detected. \x1b[0m')
+        print(f'Possible values: {column_labels}.')
+        print(f'Choosing the one with the highest priority: '
+              f'{column_labels[0]}')
+    elif len(column_labels) == 0:
+        return texts.values
+    labels = df[column_labels[0]]
+    return texts.values, labels.values
 
 
 def read_csv(fp, labels=None):

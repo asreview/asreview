@@ -4,11 +4,6 @@ import shutil
 from configparser import ConfigParser
 from pathlib import Path
 
-# external dependencies
-import pandas as pd
-
-from asr.readers import LABEL_INCLUDED_VALUES, read_csv, read_ris
-
 
 def _unsafe_dict_update(default_dict, override_dict):
     """
@@ -45,52 +40,6 @@ def _unsafe_dict_update(default_dict, override_dict):
                 except TypeError:
                     raise(TypeError(f"Error at {key}"))
     return new_dict
-
-
-def load_data(fp):
-    """Load papers and their labels.
-
-    Arguments
-    ---------
-    fp: str
-        File path to the data.
-
-    Returns
-    -------
-    np.ndarray, np.array
-        The title and abstract merged into a single string for each paper.
-        The labels for each paper. 1 is included, 0 is excluded. If this column
-        is not available, this column is not returned.
-    """
-
-    if Path(fp).suffix in [".csv", ".CSV"]:
-        data = read_csv(fp)
-    elif Path(fp).suffix in [".ris", ".RIS"]:
-        data = read_ris(fp)
-    else:
-        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                         f"from file {fp}")
-
-    # parse data in pandas dataframe
-    df = pd.DataFrame(data)
-
-    # make texts
-    texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
-
-    # extract the label column
-    column_labels = [label for label in list(df)
-                     if label in LABEL_INCLUDED_VALUES]
-
-    if len(column_labels) > 1:
-        print('\x1b[0;30;41m Warning multiple valid label inclusion '
-              'columns detected. \x1b[0m')
-        print(f'Possible values: {column_labels}.')
-        print(f'Choosing the one with the highest priority: '
-              f'{column_labels[0]}')
-    elif len(column_labels) == 0:
-        return texts.values
-    labels = df[column_labels[0]]
-    return texts.values, labels.values
 
 
 def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
@@ -207,6 +156,7 @@ def _set_class_weight(weight1, fit_kwargs):
 
 
 def config_from_file(config_file):
+    """ Get settings from a configuration file using ConfigParser. """
     if config_file is None or not os.path.isfile(config_file):
         if config_file is not None:
             print(f"Didn't find configuration file: {config_file}")
@@ -217,6 +167,7 @@ def config_from_file(config_file):
 
     settings = {}
 
+    # Read the each of the sections.
     for sect in config:
         if sect == "global_settings":
             settings.update(dict(config.items(sect)))
