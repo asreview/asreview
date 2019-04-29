@@ -11,8 +11,7 @@
 import numpy as np
 
 
-def random_sampling(classifier, X, pool_idx, n_instances=1,
-                    extra_vars={}, **kwargs):
+def random_sampling(classifier, X, pool_idx, n_instances=1, **kwargs):
     n_samples = len(pool_idx)
     query_idx = np.random.choice(
         np.arange(n_samples),

@@ -196,9 +196,20 @@ def clear_data_home(data_home=None):
     shutil.rmtree(data_home)
 
 
+def _set_class_weight(weight1, fit_kwargs):
+    """ Used in RNN's to have quicker learning. """
+    weight0 = 1.0
+    fit_kwargs['class_weight'] = {
+        0: weight0,
+        1: weight1,
+    }
+    print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
+
+
 def config_from_file(config_file):
     if config_file is None or not os.path.isfile(config_file):
-        print(f"Didn't find configuration file: {config_file}")
+        if config_file is not None:
+            print(f"Didn't find configuration file: {config_file}")
         return {}
 
     config = ConfigParser()
@@ -210,7 +221,7 @@ def config_from_file(config_file):
         if sect == "global_settings":
             settings.update(dict(config.items(sect)))
         elif (sect == "model_param" or sect == "fit_param" or
-              sect == "extra_vars"):
+              sect == "query_param" or sect == "balance_param"):
             settings[sect] = dict(config.items(sect))
         elif sect != "DEFAULT":
             print (f"Warning: section [{sect}] is ignored in "

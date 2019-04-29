@@ -48,8 +48,7 @@ class Review(ABC):
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
-                 fit_kwargs={},
-                 extra_vars={},
+                 settings={},
                  verbose=1):
         super(Review, self).__init__()
 
@@ -67,8 +66,9 @@ class Review(ABC):
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
 
-        self.fit_kwargs = fit_kwargs
-        self.extra_vars = extra_vars
+        self.fit_kwargs = settings['fit_kwargs']
+        self.balance_kwargs = settings['balance_kwargs']
+        self.query_kwargs = settings['query_kwargs']
 
         self._logger = Logger()
 
@@ -107,7 +107,6 @@ class Review(ABC):
         return stop_iter
 
     def review(self):
-        self.extra_vars['fit_kwargs'] = self.fit_kwargs
 
         # create the pool and training indices.
         n_samples = self.X.shape[0]
@@ -134,8 +133,8 @@ class Review(ABC):
             self._logger.add_training_log(query_idx, self.y[query_idx])
 
             # Get the training data.
-            X_train, y_train = self.train_data(self.X, self.y, train_idx,
-                                               extra_vars=self.extra_vars)
+            X_train, y_train = self.train_data(
+                self.X, self.y, train_idx, **self.balance_kwargs)
 #             validation_data(self.X[pool_idx], self.y[pool_idx],
 #                             self.fit_kwargs, ratio=1)
 
@@ -152,11 +151,11 @@ class Review(ABC):
                 X=self.X,
                 pool_idx=pool_idx,
                 n_instances=min(self.n_instances, len(pool_idx)),
-                extra_vars=self.extra_vars
+                query_kwargs=self.query_kwargs
             )
 
             # Log the probabilities of samples in the pool being included.
-            pred_proba = self.extra_vars.get('pred_proba', [])
+            pred_proba = self.query_kwargs.get('pred_proba', [])
             if len(pred_proba) == 0:
                 pred_proba = self.learner.predict_proba(self.X[pool_idx])
             self._logger.add_proba(pool_idx, pred_proba)

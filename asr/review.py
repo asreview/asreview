@@ -22,8 +22,13 @@ from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.models.embedding import load_embedding, sample_embedding
 from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
 from asr.query_strategies import max_sampling
-from asr.balanced_al import triple_balance_td, simple_td, undersample_td
+# from asr.balanced_al import triple_balance_td, simple_td, undersample_td
 from asr.query_strategies.rand_max import rand_max_sampling
+from asr.balance_strategies import SimpleTD, TripleBalanceTD, UndersampleTD
+
+from asr.models import create_lstm_base_model, lstm_base_model_defaults
+from asr.models import create_lstm_pool_model, lstm_pool_model_defaults
+from asr.models import lstm_fit_defaults
 
 
 def _get_query_method(method):
@@ -33,7 +38,7 @@ def _get_query_method(method):
         return max_sampling, "Maximum inclusion sampling"
     if method in ['rand_max', 'rand_max_sampling']:
         return rand_max_sampling, "Mix of random and max inclusion sampling"
-    elif method in ['lc', 'sm', 'uncertainty']:
+    elif method in ['lc', 'sm', 'uncertainty', 'uncertainty_sampling']:
         return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
     elif method == 'random':
         return random_sampling, 'Random'
@@ -43,15 +48,24 @@ def _get_query_method(method):
         )
 
 
-def _get_train_data_method(method):
+def _get_train_data_method(settings):
+    method = settings.get("train_data_fn", "simple")
+    settings["train_data_fn"] = method
     if method == "simple":
-        return simple_td, "All training data"
+        td_obj = SimpleTD(settings['balance_param'])
+        td_string = "All training data"
     elif method == "triple_balance":
-        return triple_balance_td, "Triple balanced (max,rand) training data"
+        td_obj = TripleBalanceTD(
+            settings['balance_param'], settings['fit_kwargs'],
+            settings['query_kwargs'])
+        td_string = "Triple balanced (max,rand) training data"
     elif method in ["undersample", "undersampling"]:
-        return undersample_td, "Undersampled training data"
+        td_obj = UndersampleTD(settings['balance_param'])
+        td_string = "Undersampled training data"
     else:
         raise ValueError(f"Training data method {method} not found")
+    func, settings['balance_kwargs'] = td_obj.func_kwargs()
+    return func, td_string
 
 
 def _default_settings(model, n_instances, query_strategy, mode, data_fp):
@@ -59,12 +73,14 @@ def _default_settings(model, n_instances, query_strategy, mode, data_fp):
     settings = {
         "data_file": data_name,
         "model": model.lower(),
-        "n_instances": n_instances,
         "query_strategy": query_strategy,
+        "n_instances": n_instances,
+        "train_data_fn": "simple",
         "mode": mode,
         "model_param": {},
         "fit_param": {},
-        "extra_vars": {},
+        "query_param": {},
+        "balance_param": {},
     }
     return settings
 
@@ -88,11 +104,10 @@ def review(dataset,
 
     settings = _default_settings(model, n_instances, query_strategy, mode, dataset)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
-    extra_vars = settings['extra_vars']
     model = settings['model']
     print(f"Using {model} model")
 
-    if model == "lstm" or model == "lstm2":
+    if model in ["lstm_base", "lstm_pool"]:
         base_model = "RNN"
     else:
         base_model = "other"
@@ -144,11 +159,8 @@ def review(dataset,
             # create features and labels
             X, word_index = text_to_features(texts)
             y = labels
-#             print(extra_vars)
-            n_extra_words = extra_vars.get('n_extra_words', 0)
             embedding = load_embedding(embedding_fp, word_index=word_index)
-            embedding_matrix = sample_embedding(embedding, word_index,
-                                                n_extra_words)
+            embedding_matrix = sample_embedding(embedding, word_index)
 
         elif isinstance(dataset, str) & (model.lower() in ['nb', 'svc', 'svm']):
             from sklearn.pipeline import Pipeline
@@ -161,23 +173,22 @@ def review(dataset,
             X = text_clf.fit_transform(texts)
             y = labels
 
-    # Models
-
-    fit_kwargs = {}
+    settings['fit_kwargs'] = {}
+    settings['query_kwargs'] = {}
 
     if isinstance(dataset, str) & (base_model == 'RNN'):
         from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-        if model == "lstm":
-            from asr.models.lstm import create_lstm_model, lstm_model_defaults
-            from asr.models.lstm import lstm_fit_defaults
-        elif model == "lstm2":
-            from asr.models.lstm2 import create_lstm_model, lstm_model_defaults
-            from asr.models.lstm2 import lstm_fit_defaults
+        if model == "lstm_base":
+            model_kwargs = lstm_base_model_defaults(settings, verbose)
+            create_lstm_model = create_lstm_base_model
+        elif model == "lstm_pool":
+            model_kwargs = lstm_pool_model_defaults(settings, verbose)
+            create_lstm_model = create_lstm_pool_model
         else:
             raise ValueError(f"Unknown model {model}")
 
-        model_kwargs = lstm_model_defaults(settings, verbose)
-        fit_kwargs = lstm_fit_defaults(settings, verbose)
+        settings['fit_kwargs'] = lstm_fit_defaults(settings, verbose)
+        settings['query_kwargs']['verbose'] = verbose
         # create the model
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
@@ -202,12 +213,11 @@ def review(dataset,
     if verbose:
         print(f"Query strategy: {query_str}")
 
-    train_method = settings['extra_vars'].get('train_data_fn', 'simple')
-    train_data_fn, train_method = _get_train_data_method(train_method)
-    settings['extra_vars']['train_data_fn'] = train_method
+    train_data_fn, train_method = _get_train_data_method(settings)
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
+#     print(settings)
     if mode == MODUS[1]:
         # start the review process
         reviewer = ReviewSimulate(
@@ -223,8 +233,7 @@ def review(dataset,
             n_prior_excluded=n_prior_excluded,
 
             # Fit keyword arguments
-            fit_kwargs=fit_kwargs,
-            extra_vars=settings['extra_vars'],
+            settings=settings,
 
             # Other
             **kwargs)
@@ -260,8 +269,7 @@ def review(dataset,
             prior_excluded=prior_excluded,
 
             # fit keyword arguments
-            fit_kwargs=fit_kwargs,
-            extra_vars=settings['extra_vars'],
+            fit_kwargs=settings['fit_kwargs'],
 
             # other keyword arguments
             **kwargs)

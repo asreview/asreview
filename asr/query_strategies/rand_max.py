@@ -21,7 +21,7 @@ def rand_max_sampling(classifier: BaseEstimator,
                       X: modALinput,
                       pool_idx=None,
                       n_instances: int = 1,
-                      extra_vars={},
+                      query_kwargs={},
                       **kwargs
                       ) -> Tuple[np.ndarray, modALinput]:
     """
@@ -57,7 +57,7 @@ def rand_max_sampling(classifier: BaseEstimator,
         pool_idx = np.arange(n_samples)
 
     # Set the fraction of maximum sampling. Defaults to 95% max, 5% rand.
-    rand_max_frac = extra_vars.get('rand_max_frac', 0.05)
+    rand_max_frac = query_kwargs.get('rand_max_frac', 0.05)
     max_frac = 1-rand_max_frac
 
     # Get the discrete number of instances for rand/max sampling.
@@ -69,7 +69,7 @@ def rand_max_sampling(classifier: BaseEstimator,
     # Do max sampling.
     max_idx, _ = max_sampling(classifier, X, pool_idx=pool_idx,
                               n_instances=n_instance_max,
-                              extra_vars=extra_vars,
+                              query_kwargs=query_kwargs,
                               **kwargs)
 
     # Remove indices found with max sampling from the pool.
@@ -80,12 +80,12 @@ def rand_max_sampling(classifier: BaseEstimator,
     # Random sampling.
     rand_idx, _ = random_sampling(classifier, X, pool_idx=new_pool_idx,
                                   n_instances=n_instance_rand,
-                                  extra_results=extra_vars,
+                                  query_kwargs=query_kwargs,
                                   **kwargs)
 
-    extra_vars['last_max_idx'] = max_idx
-    extra_vars['last_rand_idx'] = rand_idx
-    extra_vars['rand_max_frac'] = rand_max_frac
+    query_kwargs['last_max_idx'] = max_idx
+    query_kwargs['last_rand_idx'] = rand_idx
+    query_kwargs['rand_max_frac'] = rand_max_frac
     query_idx = np.append(max_idx, rand_idx)
 
     return query_idx, X[query_idx]

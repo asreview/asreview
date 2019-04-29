@@ -2,10 +2,10 @@ from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.models import Sequential
 
 from asr.utils import _unsafe_dict_update
-from asr.balanced_al import _set_class_weight
+from asr.utils import _set_class_weight
 
 
-def lstm_model_defaults(settings, verbose=1):
+def lstm_base_model_defaults(settings, verbose=1):
     """ Set the lstm model defaults. """
     model_kwargs = {}
     model_kwargs['backwards'] = True
@@ -24,35 +24,31 @@ def lstm_model_defaults(settings, verbose=1):
 
 def lstm_fit_defaults(settings, verbose=1):
     """ Set the fit defaults and merge them with custom settings. """
-    extra_vars = {}
-    extra_vars['shuffle'] = True
-    extra_vars['class_weight_inc'] = 30
-    extra_vars['train_data_fn'] = "triple_balance"
 
     # arguments to pass to the fit
     fit_kwargs = {}
     fit_kwargs['batch_size'] = 32
     fit_kwargs['epochs'] = 10
     fit_kwargs['verbose'] = verbose
+    fit_kwargs['shuffle'] = False
+    fit_kwargs['class_weight_inc'] = 30.0
 
-    settings['fit_param'] = _unsafe_dict_update(
+    settings['fit_kwargs'] = _unsafe_dict_update(
         fit_kwargs, settings['fit_param'])
-    settings['extra_vars'] = _unsafe_dict_update(
-        extra_vars, settings['extra_vars'])
 
-    _set_class_weight(extra_vars['class_weight_inc'], fit_kwargs)
+    _set_class_weight(fit_kwargs.pop('class_weight_inc'), fit_kwargs)
 
-    return settings['fit_param']
+    return settings['fit_kwargs']
 
 
-def create_lstm_model(embedding_matrix,
-                      backwards=True,
-                      dropout=0.4,
-                      optimizer='rmsprop',
-                      max_sequence_length=1000,
-                      lstm_out_width=20,
-                      dense_width=128,
-                      verbose=1):
+def create_lstm_base_model(embedding_matrix,
+                           backwards=True,
+                           dropout=0.4,
+                           optimizer='rmsprop',
+                           max_sequence_length=1000,
+                           lstm_out_width=20,
+                           dense_width=128,
+                           verbose=1):
     """Return callable lstm model.
 
     Arguments

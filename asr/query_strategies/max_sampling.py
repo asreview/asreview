@@ -26,7 +26,7 @@ def max_sampling(classifier: BaseEstimator,
                  n_instances: int = 1,
                  random_tie_break: bool = False,
                  pool_idx=None,
-                 extra_vars={},
+                 query_kwargs={},
                  **kwargs
                  ) -> Tuple[np.ndarray, modALinput]:
     """
@@ -59,11 +59,11 @@ def max_sampling(classifier: BaseEstimator,
     if pool_idx is None:
         pool_idx = np.arange(n_samples)
     try:
-        proba = classifier.predict_proba(X[pool_idx], **kwargs, verbose=1)
+        proba = classifier.predict_proba(X[pool_idx], **kwargs)
     except NotFittedError:
         proba = np.ones(shape=(len(pool_idx), ))
 
-    extra_vars['pred_proba'] = proba
+    query_kwargs['pred_proba'] = proba
 
     if not random_tie_break:
         query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)

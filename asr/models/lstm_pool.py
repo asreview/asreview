@@ -1,15 +1,12 @@
 from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.layers import MaxPooling1D, Flatten
 from tensorflow.keras.models import Sequential
-# from keras.optimizers import RMSprop
 from tensorflow.keras.optimizers import RMSprop, Adam
 from tensorflow.keras.constraints import MaxNorm
 from asr.utils import _unsafe_dict_update
-# from keras.layers.pooling import MaxPool1D
-from asr.balanced_al import _set_class_weight
 
 
-def lstm_model_defaults(settings, verbose=1):
+def lstm_pool_model_defaults(settings, verbose=1):
     """ Set the lstm model defaults. """
     model_kwargs = {}
     model_kwargs['backwards'] = True
@@ -27,47 +24,15 @@ def lstm_model_defaults(settings, verbose=1):
     return upd_param
 
 
-def lstm_fit_defaults(settings, verbose=1):
-    """ Set the fit defaults and merge them with custom settings. """
-
-    # Extra variables
-    extra_vars = {}
-    extra_vars['shuffle'] = True
-    extra_vars['class_weight_inc'] = 30.0
-    extra_vars['train_data_fn'] = "triple_balance"
-    extra_vars['n_extra_words'] = 55
-    extra_vars['one_zero_beta'] = 0.4
-    extra_vars['one_zero_delta'] = 0.15
-    extra_vars['rand_max_weight_b'] = 10
-    extra_vars['rand_max_weight_alpha'] = 1.0
-    extra_vars['rand_max_frac'] = 0.05
-
-    # arguments to pass to the fit
-    fit_kwargs = {}
-    fit_kwargs['batch_size'] = 32
-    fit_kwargs['epochs'] = 10
-    fit_kwargs['verbose'] = verbose
-    fit_kwargs['shuffle'] = False
-
-    settings['fit_param'] = _unsafe_dict_update(
-        fit_kwargs, settings['fit_param'])
-    settings['extra_vars'] = _unsafe_dict_update(
-        extra_vars, settings['extra_vars'])
-
-    _set_class_weight(extra_vars['class_weight_inc'], fit_kwargs)
-
-    return settings['fit_param']
-
-
-def create_lstm_model(embedding_matrix,
-                      backwards=True,
-                      dropout=0.4,
-                      optimizer='rmsprop',
-                      max_sequence_length=1000,
-                      lstm_out_width=20,
-                      lstm_pool_size=100,
-                      learn_rate_mult=1.0,
-                      verbose=1):
+def create_lstm_pool_model(embedding_matrix,
+                           backwards=True,
+                           dropout=0.4,
+                           optimizer='rmsprop',
+                           max_sequence_length=1000,
+                           lstm_out_width=20,
+                           lstm_pool_size=100,
+                           learn_rate_mult=1.0,
+                           verbose=1):
     """Return callable lstm model.
 
     Arguments
