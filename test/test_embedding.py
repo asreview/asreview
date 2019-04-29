@@ -162,36 +162,27 @@ def test_load_embedding(tmpdir):
 def test_sample_embedding():
     """ Unit test for sample_embedding """
     n_words = 50
-    n_words_extra = 25
     n_samples = 55
     emb_vec_dim = 133
     emb_extra = 10
 
     # Generate embedding.
     words = random_words(n_words)
-    all_words = random_words(n_words_extra, words) + words
+    all_words = random_words(emb_extra, words) + words
     word_index = random_sample_embedding(all_words, n_samples)
     full_embedding = random_embedding(words, emb_vec_dim)
     emb_matrix = sample_embedding(full_embedding, word_index,
-                                  n_extra_words=emb_extra,
                                   verbose=1)
 
-    assert emb_matrix.shape == (n_samples+1, emb_vec_dim+emb_extra)
+    assert emb_matrix.shape == (n_samples+1, emb_vec_dim)
     i_extra = 0
     for key in word_index:
         i_row = word_index[key]
         if key in words:
             for i in range(emb_vec_dim):
                 assert emb_matrix[i_row][i] == full_embedding[key][i]
-            for i in range(emb_vec_dim, emb_vec_dim+emb_extra):
+            for i in range(emb_vec_dim, emb_vec_dim):
                 assert emb_matrix[i_row][i] == 0
-        else:
-            for i in range(emb_vec_dim+emb_extra):
-                if i-emb_vec_dim == i_extra:
-                    assert emb_matrix[i_row][i] == 1
-                else:
-                    assert emb_matrix[i_row][i] == 0
-            i_extra += 1
 
 
 def test_embedding_link():

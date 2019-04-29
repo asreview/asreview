@@ -259,8 +259,6 @@ def sample_embedding(embedding, word_index, verbose=1):
         A dictionary with the words and embedding vectors.
     word_index: dict
         A word_index like the output of Keras Tokenizer.word_index.
-    n_extra_words: int
-        Number of words not in the embedding to be added to the matrix.
     verbose: int
         The verbosity. Default 1.
 
