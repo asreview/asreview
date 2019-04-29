@@ -16,7 +16,7 @@ class UndersampleTD(BaseTrainData):
             fit_kwargs['shuffle'] = False
 
     def func_kwargs(self):
-        return undersample_td, self.balance_kwargs
+        return undersample, self.balance_kwargs
 
     def default_kwargs(self):
         defaults = {}
@@ -25,7 +25,7 @@ class UndersampleTD(BaseTrainData):
         return defaults
 
 
-def undersample_td(X, y, train_idx, ratio, shuffle):
+def undersample(X, y, train_idx, ratio, shuffle):
     """ Undersample the training set to balance 1's and 0's. """
 
     one_ind = train_idx[np.where(y[train_idx] == 1)]

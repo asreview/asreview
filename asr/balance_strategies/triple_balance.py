@@ -18,7 +18,7 @@ class TripleBalanceTD(BaseTrainData):
         self.balance_kwargs['query_kwargs'] = query_kwargs
 
     def func_kwargs(self):
-        return triple_balance_td, self.balance_kwargs
+        return triple_balance, self.balance_kwargs
 
     def default_kwargs(self):
         defaults = {}
@@ -101,7 +101,7 @@ def _n_mini_epoch(n_samples, epoch_size):
     return ceil(n_samples/epoch_size)
 
 
-def triple_balance_td(X, y, train_idx, fit_kwargs, query_kwargs,
+def triple_balance(X, y, train_idx, fit_kwargs, query_kwargs,
                       pref_epochs, shuffle, rand_max_idx, **dist_kwargs):
     """
     A more advanced function that does resample the training set.

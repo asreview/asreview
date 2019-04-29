@@ -1,7 +1,6 @@
 # Cpython dependencies
 
 from pathlib import Path
-import warnings
 
 # external dependencies
 from RISparser import TAG_KEY_MAPPING, readris
@@ -17,8 +16,6 @@ LABEL_INCLUDED_VALUES = [
     "included",
     "included_flag"
 ]
-
-
 
 
 def read_data(fp):

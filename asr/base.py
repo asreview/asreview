@@ -7,7 +7,7 @@ from modAL.models import ActiveLearner
 from asr.init_sampling import sample_prior_knowledge
 from asr.logging import Logger
 from asr.ascii import ASCII_TEA
-from asr.balance_strategies.simple import simple_td
+from asr.balance_strategies import full_sample
 
 N_INCLUDED = 10
 N_EXCLUDED = 40
@@ -42,7 +42,7 @@ class Review(ABC):
                  y=None,
                  model=None,
                  query_strategy=None,
-                 train_data_fn=simple_td,
+                 train_data_fn=full_sample,
                  n_instances=1,
                  n_queries=None,
                  prior_included=[],

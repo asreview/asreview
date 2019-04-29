@@ -22,7 +22,7 @@ from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
 from asr.query_strategies import max_sampling
 # from asr.balanced_al import triple_balance_td, simple_td, undersample_td
 from asr.query_strategies.rand_max import rand_max_sampling
-from asr.balance_strategies import SimpleTD, TripleBalanceTD, UndersampleTD
+from asr.balance_strategies import FullSampleTD, TripleBalanceTD, UndersampleTD
 
 from asr.models import create_lstm_base_model, lstm_base_model_defaults
 from asr.models import create_lstm_pool_model, lstm_pool_model_defaults
@@ -54,7 +54,7 @@ def _get_train_data_method(settings):
     method = settings.get("train_data_fn", "simple")
     settings["train_data_fn"] = method
     if method == "simple":
-        td_obj = SimpleTD(settings['balance_param'])
+        td_obj = FullSampleTD(settings['balance_param'])
         td_string = "All training data"
     elif method == "triple_balance":
         td_obj = TripleBalanceTD(

@@ -1,7 +1,7 @@
 from asr.balance_strategies.base import BaseTrainData
 
 
-def simple_td(X, y, train_idx):
+def full_sample(X, y, train_idx):
     """
     Function that does not resample the training set.
 
@@ -24,9 +24,9 @@ def simple_td(X, y, train_idx):
     return X[train_idx], y[train_idx]
 
 
-class SimpleTD(BaseTrainData):
+class FullSampleTD(BaseTrainData):
     def __init__(self, balance_kwargs):
-        super(SimpleTD, self).__init__(balance_kwargs)
+        super(FullSampleTD, self).__init__(balance_kwargs)
 
     def func_kwargs(self):
-        return simple_td, self.balance_kwargs
+        return full_sample, self.balance_kwargs
