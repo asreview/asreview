@@ -27,6 +27,7 @@ from asr.balance_strategies import SimpleTD, TripleBalanceTD, UndersampleTD
 from asr.models import create_lstm_base_model, lstm_base_model_defaults
 from asr.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asr.models import lstm_fit_defaults
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asr.readers import read_data
 
@@ -178,7 +179,6 @@ def review(dataset,
     settings['query_kwargs'] = {}
 
     if base_model == 'RNN':
-        from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
         if model == "lstm_base":
             model_kwargs = lstm_base_model_defaults(settings, verbose)
             create_lstm_model = create_lstm_base_model

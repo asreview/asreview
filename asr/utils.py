@@ -89,6 +89,7 @@ def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
         new_x = old_x.copy()
 
         j = 1
+        # Copy the old data to the new matrix.
         while nz*j < max_sequence_length:
             cp_len = min(nz*(j+1), max_sequence_length)-nz*j
             new_x[nz*j:nz*j+cp_len] = old_x[0:cp_len]
@@ -178,3 +179,10 @@ def config_from_file(config_file):
             print (f"Warning: section [{sect}] is ignored in "
                    f"config file {config_file}")
     return settings
+
+
+def load_data(*args, **kwargs):
+    """ [Deprecated] Load papers and their labels. @see read_data"""
+    warnings.warn("deprecated: use read_data instead of load_data",
+                  DeprecationWarning)
+    read_data(*args, **kwargs)

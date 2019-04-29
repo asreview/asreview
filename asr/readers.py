@@ -19,11 +19,6 @@ LABEL_INCLUDED_VALUES = [
 ]
 
 
-def load_data(*args, **kwargs):
-    """ [Deprecated] Load papers and their labels. @see read_data"""
-    warnings.warn("deprecated: use read_data instead of load_data",
-                  DeprecationWarning)
-    read_data(*args, **kwargs)
 
 
 def read_data(fp):
