@@ -32,14 +32,14 @@ This divides the training data into three sets: included papers, excluded papers
 shuffle=True
 
 # Start with a random/max weight ratio of 10 at 0% read papers.
-rand_max_b = 10
+rand_max_b=10
 
 # Decay to 1 with the following decay exponent:
-rand_max_alpha = 1.0
+rand_max_alpha=1.0
 
 # Decrease the included/excluded ratio with the power:
-one_zero_beta = 0.6
+one_zero_beta=0.6
 
 # Cap the included/excluded ratio at:
-one_zero_delta = 0.16
+one_zero_delta=0.16
 ```
