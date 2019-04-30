@@ -140,6 +140,10 @@ asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
   --prior_included 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
+## Tech
+
+There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md), and [rebalancing strategies](asr/balance_strategies/README.md) available.
+
 ## Datasets
 
 The ASR software accepts datasets in the RIS and CSV file format. [RIS
