@@ -32,12 +32,16 @@ from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from asr.readers import read_data
 
 
-def _get_query_method(method):
+def _get_query_method(settings):
     """Function to get the query method"""
 
+    method = settings['query_strategy']
     if method in ['max', 'max_sampling']:
         return max_sampling, "Maximum inclusion sampling"
     if method in ['rand_max', 'rand_max_sampling']:
+        settings['query_kwargs']['rand_max_frac'] = 0.05
+        settings['query_kwargs'] = _unsafe_dict_update(
+            settings['query_kwargs'], settings['query_param'])
         return rand_max_sampling, "Mix of random and max inclusion sampling"
     elif method in ['lc', 'sm', 'uncertainty', 'uncertainty_sampling']:
         return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
@@ -210,7 +214,7 @@ def review(dataset,
         raise ValueError('Model not found.')
 
     # Pick query strategy
-    query_fn, query_str = _get_query_method(settings["query_strategy"])
+    query_fn, query_str = _get_query_method(settings)
     if verbose:
         print(f"Query strategy: {query_str}")
 
