@@ -142,7 +142,7 @@ asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
 
 ## Tech
 
-There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md), and [rebalancing strategies](asr/balance_strategies/README.md) available.
+There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md), and [rebalancing strategies](asr/balance_strategies/README.md) available. A LSTM neural network based model is currently the best performing and optimized.
 
 ## Datasets
 
