@@ -72,8 +72,8 @@ def _one_zero_ratio(n_one, n_zero, beta, delta):
     return ratio
 
 
-def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, rand_max_b,
-                     rand_max_alpha, one_zero_beta, one_zero_delta):
+def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, rand_max_b=10,
+                     rand_max_alpha=1.0, one_zero_beta=0.6, one_zero_delta=0.15):
     " Get the number of 1's, random 0's and max 0's in each mini epoch. "
     n_zero = n_zero_rand+n_zero_max
 
@@ -101,8 +101,8 @@ def _n_mini_epoch(n_samples, epoch_size):
     return ceil(n_samples/epoch_size)
 
 
-def triple_balance(X, y, train_idx, fit_kwargs, query_kwargs,
-                      pref_epochs, shuffle, rand_max_idx, **dist_kwargs):
+def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
+                   pref_epochs=1, shuffle=True, rand_max_idx={}, **dist_kwargs):
     """
     A more advanced function that does resample the training set.
     Most likely only useful in combination with NN's, and possibly other

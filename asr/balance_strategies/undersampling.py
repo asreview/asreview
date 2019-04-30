@@ -25,7 +25,7 @@ class UndersampleTD(BaseTrainData):
         return defaults
 
 
-def undersample(X, y, train_idx, ratio, shuffle):
+def undersample(X, y, train_idx, ratio=1.0, shuffle=True):
     """ Undersample the training set to balance 1's and 0's. """
 
     one_ind = train_idx[np.where(y[train_idx] == 1)]

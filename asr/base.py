@@ -8,6 +8,8 @@ from asr.init_sampling import sample_prior_knowledge
 from asr.logging import Logger
 from asr.ascii import ASCII_TEA
 from asr.balance_strategies import full_sample
+from asr.balanced_al import validation_data
+
 
 N_INCLUDED = 10
 N_EXCLUDED = 40

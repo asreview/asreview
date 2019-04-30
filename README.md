@@ -333,7 +333,7 @@ from asr.utils import text_to_features
 from asr.models.embedding import load_embedding, sample_embedding
 
 # load data
-data, y = load_data(PATH_TO_DATA)
+data, y = read_data(PATH_TO_DATA)
 
 # create features and labels
 X, word_index = text_to_features(data)
