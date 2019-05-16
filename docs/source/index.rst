@@ -21,6 +21,9 @@ Welcome to ASR's documentation!
 .. automodule:: asr.query_strategies
    :members:
 
+.. automodule:: asr.balance_strategies
+   :members:
+
 Indices and tables
 ==================
 

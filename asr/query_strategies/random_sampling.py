@@ -11,11 +11,11 @@
 import numpy as np
 
 
-def random_sampling(classifier, X_pool, n_instances=1, **kwargs):
-    n_samples = len(X_pool)
+def random_sampling(classifier, X, pool_idx, n_instances=1, **kwargs):
+    n_samples = len(pool_idx)
     query_idx = np.random.choice(
         np.arange(n_samples),
         n_instances,
         replace=False
     )
-    return query_idx, X_pool[query_idx]
+    return pool_idx[query_idx], X[pool_idx[query_idx]]
