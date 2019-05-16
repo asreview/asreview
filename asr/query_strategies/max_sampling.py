@@ -21,9 +21,13 @@ from modAL.utils.data import modALinput
 from modAL.utils.selection import multi_argmax, shuffled_argmax
 
 
-def max_sampling(classifier: BaseEstimator, X: modALinput,
-                 n_instances: int = 1, random_tie_break: bool = False,
-                 pred_proba=None, **kwargs
+def max_sampling(classifier: BaseEstimator,
+                 X: modALinput,
+                 n_instances: int = 1,
+                 random_tie_break: bool = False,
+                 pool_idx=None,
+                 query_kwargs={},
+                 **kwargs
                  ) -> Tuple[np.ndarray, modALinput]:
     """
     Maximum sampling query strategy.
@@ -51,17 +55,19 @@ def max_sampling(classifier: BaseEstimator, X: modALinput,
         The indices of the instances from X chosen to be labelled;
         the instances from X chosen to be labelled.
     """
+    n_samples = X.shape[0]
+    if pool_idx is None:
+        pool_idx = np.arange(n_samples)
     try:
-        proba = classifier.predict_proba(X, **kwargs)
+        proba = classifier.predict_proba(X[pool_idx], **kwargs)
     except NotFittedError:
-        proba = np.ones(shape=(X.shape[0], ))
+        proba = np.ones(shape=(len(pool_idx), ))
 
-    if pred_proba is not None:
-        pred_proba.append(proba)
+    query_kwargs['pred_proba'] = proba
 
     if not random_tie_break:
         query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)
     else:
         query_idx = shuffled_argmax(proba[:, 1], n_instances=n_instances)
 
-    return query_idx, X[query_idx]
+    return pool_idx[query_idx], X[pool_idx[query_idx]]

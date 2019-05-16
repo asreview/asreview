@@ -2,38 +2,10 @@ from tensorflow.keras.layers import Dense, LSTM, Embedding
 from tensorflow.keras.models import Sequential
 
 from asr.utils import _unsafe_dict_update
+from asr.utils import _set_class_weight
 
 
-def lstm_fit_defaults(settings, frac_included, verbose=1):
-    """ Set the fit defaults and merge them with custom settings. """
-    # arguments to pass to the fit
-    fit_kwargs = {}
-    fit_kwargs['batch_size'] = 32
-    fit_kwargs['epochs'] = 10
-    fit_kwargs['shuffle'] = True
-    fit_kwargs['verbose'] = verbose
-
-    if "frac_included" in settings['fit_param']:
-        frac_included = settings['fit_param'].pop('frac_included')
-        frac_included = float(frac_included)
-
-    # Set the class weights from the frac_included estimate.
-    if frac_included is not None:
-        weight0 = 1 / (1 - frac_included)
-        weight1 = 1 / frac_included
-        fit_kwargs['class_weight'] = {
-            0: weight0,
-            1: weight1
-        }
-        if verbose:
-            print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-
-    settings['fit_param'] = _unsafe_dict_update(
-        fit_kwargs, settings['fit_param'])
-    return settings['fit_param']
-
-
-def lstm_model_defaults(settings, verbose=1):
+def lstm_base_model_defaults(settings, verbose=1):
     """ Set the lstm model defaults. """
     model_kwargs = {}
     model_kwargs['backwards'] = True
@@ -50,14 +22,33 @@ def lstm_model_defaults(settings, verbose=1):
     return upd_param
 
 
-def create_lstm_model(embedding_matrix,
-                      backwards=True,
-                      dropout=0.4,
-                      optimizer='rmsprop',
-                      max_sequence_length=1000,
-                      lstm_out_width=20,
-                      dense_width=128,
-                      verbose=1):
+def lstm_fit_defaults(settings, verbose=1):
+    """ Set the fit defaults and merge them with custom settings. """
+
+    # arguments to pass to the fit
+    fit_kwargs = {}
+    fit_kwargs['batch_size'] = 32
+    fit_kwargs['epochs'] = 10
+    fit_kwargs['verbose'] = verbose
+    fit_kwargs['shuffle'] = False
+    fit_kwargs['class_weight_inc'] = 30.0
+
+    settings['fit_kwargs'] = _unsafe_dict_update(
+        fit_kwargs, settings['fit_param'])
+
+    _set_class_weight(fit_kwargs.pop('class_weight_inc'), fit_kwargs)
+
+    return settings['fit_kwargs']
+
+
+def create_lstm_base_model(embedding_matrix,
+                           backwards=True,
+                           dropout=0.4,
+                           optimizer='rmsprop',
+                           max_sequence_length=1000,
+                           lstm_out_width=20,
+                           dense_width=128,
+                           verbose=1):
     """Return callable lstm model.
 
     Arguments

@@ -140,6 +140,10 @@ asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
   --prior_included 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
+## Tech
+
+There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md), and [rebalancing strategies](asr/balance_strategies/README.md) available. A LSTM neural network based model is currently the best performing and optimized.
+
 ## Datasets
 
 The ASR software accepts datasets in the RIS and CSV file format. [RIS
@@ -333,7 +337,7 @@ from asr.utils import text_to_features
 from asr.models.embedding import load_embedding, sample_embedding
 
 # load data
-data, y = load_data(PATH_TO_DATA)
+data, y = read_data(PATH_TO_DATA)
 
 # create features and labels
 X, word_index = text_to_features(data)

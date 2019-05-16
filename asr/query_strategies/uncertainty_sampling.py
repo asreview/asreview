@@ -22,7 +22,7 @@ from modAL.utils.selection import multi_argmax, shuffled_argmax
 
 
 def classifier_uncertainty(
-        classifier: BaseEstimator, X: modALinput, pred_proba: list=None,
+        classifier: BaseEstimator, X: modALinput, query_kwargs: dict=None,
         **predict_proba_kwargs
         ) -> np.ndarray:
     # calculate uncertainty for each point provided
@@ -31,15 +31,19 @@ def classifier_uncertainty(
             X, **predict_proba_kwargs)
     except NotFittedError:
         return np.ones(shape=(X.shape[0], ))
-    if pred_proba is not None:
-        pred_proba.append(classwise_uncertainty)
+    if query_kwargs is not None:
+        query_kwargs['pred_proba'] = classwise_uncertainty
     # for each point, select the maximum uncertainty
     uncertainty = 1 - np.max(classwise_uncertainty, axis=1)
     return uncertainty
 
 
-def uncertainty_sampling(classifier: BaseEstimator, X: modALinput,
-                         n_instances: int = 1, random_tie_break: bool = False,
+def uncertainty_sampling(classifier: BaseEstimator,
+                         X: modALinput,
+                         n_instances: int = 1,
+                         random_tie_break: bool = False,
+                         pool_idx=None,
+                         query_kwargs={},
                          **uncertainty_measure_kwargs
                          ) -> Tuple[np.ndarray, modALinput]:
     """
@@ -68,9 +72,14 @@ def uncertainty_sampling(classifier: BaseEstimator, X: modALinput,
         The indices of the instances from X chosen to be labelled;
         the instances from X chosen to be labelled.
     """
+    n_samples = X.shape[0]
+    if pool_idx is None:
+        pool_idx = np.arange(n_samples)
+    query_kwargs['pred_proba'] = []
 
     uncertainty = classifier_uncertainty(
-        classifier, X, **uncertainty_measure_kwargs)
+        classifier, X[pool_idx], query_kwargs,
+        **uncertainty_measure_kwargs)
 
     if not random_tie_break:
         query_idx = multi_argmax(uncertainty, n_instances=n_instances)

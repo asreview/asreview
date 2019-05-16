@@ -71,13 +71,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
         dest='embedding_fp',
         help="File path of embedding matrix. Required for LSTM model."
     )
-    parser.add_argument(
-        "--frac_included",
-        type=float,
-        default=None,
-        help="Fraction of included papers, an estimate for the classifier."
-    )
-
+    # Configuration file with model/balance/query parameters.
     parser.add_argument(
         "--config_file",
         type=str,

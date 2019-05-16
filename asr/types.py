@@ -5,7 +5,7 @@ def is_pickle(fp):
     return fp.endswith('.pkl') or fp.endswith('.pickle')
 
 
-def convert_list_type(x, type=int):
+def convert_list_type(x, to_type=int):
     """Convert elements in list to given type."""
 
-    return list(map(type, x))
+    return list(map(to_type, x))
