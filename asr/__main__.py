@@ -12,19 +12,11 @@ warnings.simplefilter("ignore")
 
 from asr import __version__  # noqa
 from asr.review import review_oracle, review_simulate  # noqa
-from asr.config import MODUS
+from asr.config import AVAILABLE_MODI  # noqa
 
-MODES = ["interactive", "oracle"]
-
-MODEL = "lstm"
-QUERY_STRATEGY = "uncertainty"
-
-EPOCHS = 3
-BATCH_SIZE = 64
-
-N_INCLUDED = 10
-N_EXCLUDED = 40
-N_INSTANCES = 50
+DEFAULT_MODEL = "lstm_base"
+DEFAULT_QUERY_STRATEGY = "uncertainty"
+DEFAULT_N_INSTANCES = 50
 
 
 def parse_arguments(mode, prog=sys.argv[0]):
@@ -46,16 +38,16 @@ def parse_arguments(mode, prog=sys.argv[0]):
     parser.add_argument(
         "-m", "--model",
         type=str,
-        default=MODEL,
+        default=DEFAULT_MODEL,
         help="The prediction model for Active Learning. Default 'LSTM'.")
     parser.add_argument(
         "-q", "--query_strategy",
         type=str,
-        default=QUERY_STRATEGY,
+        default=DEFAULT_QUERY_STRATEGY,
         help="The query strategy for Active Learning. Default 'uncertainty'.")
     parser.add_argument(
         "--n_instances",
-        default=N_INSTANCES,
+        default=DEFAULT_N_INSTANCES,
         type=int,
         help="Number of papers queried each query.")
     parser.add_argument(
@@ -94,7 +86,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
         help="Initial included papers.")
 
     # these flag are only available for the simulation modus
-    if mode == MODES[1]:
+    if mode == "simulate":
 
         # Initial data (prior knowledge)
         parser.add_argument(
@@ -102,14 +94,16 @@ def parse_arguments(mode, prog=sys.argv[0]):
             default=10,
             type=int,
             nargs="*",
-            help="Sample n prior included papers. Only used when --prior_included is not given.")
+            help="Sample n prior included papers. "
+                 "Only used when --prior_included is not given.")
 
         parser.add_argument(
             "--n_prior_excluded",
             default=10,
             type=int,
             nargs="*",
-            help="Sample n prior excluded papers. Only used when --prior_excluded is not given.")
+            help="Sample n prior excluded papers. "
+                 "Only used when --prior_excluded is not given.")
 
     # logging and verbosity
     parser.add_argument(
@@ -122,7 +116,10 @@ def parse_arguments(mode, prog=sys.argv[0]):
         "--save_model",
         default=None,
         type=str,
-        help="Location to store the model."
+        dest='save_model_fp',
+        help="Location to store the model and weights. "
+             "Only works for Keras/RNN models. "
+             "End file extension with '.json'."
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -135,7 +132,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
 
 def _review_oracle():
 
-    parser = parse_arguments(MODES[0], prog="asr oracle")
+    parser = parse_arguments("oracle", prog="asr oracle")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
@@ -147,7 +144,7 @@ def _review_oracle():
 def _review_simulate():
     """CLI to the oracle mode."""
 
-    parser = parse_arguments(MODES[1], prog="asr simulate")
+    parser = parse_arguments("simulate", prog="asr simulate")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
@@ -175,9 +172,10 @@ def main():
         parser.add_argument(
             "subcommand",
             nargs="?",
-            type=lambda x: isinstance(x, str) and x in MODES,
+            type=lambda x: isinstance(x, str) and x in AVAILABLE_MODI,
             default=None,
-            help="the subcommand to launch"
+            help=f"The subcommand to launch. Available commands:"
+            f" {AVAILABLE_MODI}"
         )
 
         # version

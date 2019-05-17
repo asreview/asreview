@@ -1,1 +1,1 @@
-MODUS = ["oracle", "simulate"]
+AVAILABLE_MODI = ["oracle", "simulate"]
