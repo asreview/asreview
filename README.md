@@ -11,18 +11,17 @@
 Systematic Reviews are “top of the bill” in research. The number of systematic
 reviews published by researchers increases year after year. But performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
-software is designed to take over the step of screening abstracts and titles
+software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false negatives.
 
 Our Automated Systematic Review (ASR) software implements an oracle and a
-simulation systematic review mode.
+simulation mode.
 
 - **Oracle** The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer has to
-  classify them.
+  The software presents papers to the reviewer, whereafter the reviewer classifies them.
 - **Simulate** The simulation modus is used to measure the performance of our
-  software on an existing systematic review. The software shows how many
+  software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
 This Automatic Systematic Review software is being developed as part of a
@@ -99,7 +98,7 @@ This command (`asr oracle`) runs the software in oracle mode on the
 that should definitely be included, while `prior_excluded` are IDs of papers
 that are definitely excluded. The higher the number of included/excluded papers,
 the quicker the ASR software will understand your choices for inclusion.
-The IDs are the idententifiers of papers starting from
+The IDs are the idententifiers of papers, starting from
 0 for the first paper found in the dataset.
 
 To benchmark an already executed review, use the simulation modus (`asr simulation`).
