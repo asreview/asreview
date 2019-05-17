@@ -9,8 +9,8 @@ def get_balance_strategy(settings):
     from asr.balance_strategies import TripleBalanceTD
     from asr.balance_strategies import UndersampleTD
 
-    method = settings.get("train_data_fn", "simple")
-    settings["train_data_fn"] = method
+    method = settings.get("balance_strategy", "simple")
+    settings["balance_strategy"] = method
     if method == "simple":
         td_obj = FullSampleTD(settings['balance_param'])
         td_string = "all training data"

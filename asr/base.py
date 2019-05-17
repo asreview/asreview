@@ -141,9 +141,6 @@ class Review(ABC):
 #                             self.fit_kwargs, ratio=1)
 
             # Train the model on the training data.
-            print(X_train)
-            print(y_train)
-            print(self.fit_kwargs)
             self.learner.teach(
                 X=X_train,
                 y=y_train,

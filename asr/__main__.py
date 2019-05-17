@@ -7,7 +7,7 @@ import sys
 import argparse
 import warnings
 
-# don"t show warnings in CLI app
+# don't show warnings in CLI app
 warnings.simplefilter("ignore")
 
 from asr import __version__  # noqa
@@ -16,6 +16,7 @@ from asr.config import AVAILABLE_MODI  # noqa
 
 DEFAULT_MODEL = "lstm_base"
 DEFAULT_QUERY_STRATEGY = "uncertainty"
+DEFAULT_BALANCE_STRATEGY = "simple"
 DEFAULT_N_INSTANCES = 50
 
 
@@ -45,6 +46,12 @@ def parse_arguments(mode, prog=sys.argv[0]):
         type=str,
         default=DEFAULT_QUERY_STRATEGY,
         help="The query strategy for Active Learning. Default 'uncertainty'.")
+    parser.add_argument(
+        "-b", "--balance_strategy",
+        type=str,
+        default=DEFAULT_BALANCE_STRATEGY,
+        help="Data rebalancing strategy mainly for RNN methods. Helps against"
+             " imbalanced dataset with few inclusions and many exclusions.")
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,

@@ -31,15 +31,16 @@ from asr.readers import read_data
 from os.path import splitext
 
 
-def _default_settings(model, n_instances, query_strategy, mode, data_fp):
+def _default_settings(model, n_instances, query_strategy, balance_strategy,
+                      mode, data_fp):
     """ Create settings dictionary with values. """
     data_name = os.path.basename(data_fp)
     settings = {
         "data_file": data_name,
         "model": model.lower(),
         "query_strategy": query_strategy,
+        "balance_strategy": balance_strategy,
         "n_instances": n_instances,
-        "train_data_fn": "simple",
         "mode": mode,
         "model_param": {},
         "fit_param": {},
@@ -53,6 +54,7 @@ def review(dataset,
            mode='oracle',
            model="lstm",
            query_strategy="uncertainty",
+           balance_strategy="simple",
            n_instances=1,
            embedding_fp=None,
            verbose=1,
@@ -66,7 +68,7 @@ def review(dataset,
            ):
 
     settings = _default_settings(model, n_instances, query_strategy,
-                                 mode, dataset)
+                                 balance_strategy, mode, dataset)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     model = settings['model']
     print(f"Using {model} model")
@@ -178,7 +180,6 @@ def review(dataset,
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
-    print(settings)
     if mode == "simulate":
         # start the review process
         reviewer = ReviewSimulate(
@@ -236,23 +237,22 @@ def review(dataset,
             **kwargs)
 
     # wrap in try expect to capture keyboard interrupt
-#     try:
+    try:
         # Start the review process.
-    if verbose:
-        print("Start with the systematic review.")
-    reviewer._logger.add_settings(settings)
-    reviewer.review()
+        if verbose:
+            print("Start with the systematic review.")
+        reviewer._logger.add_settings(settings)
+        reviewer.review()
+    except KeyboardInterrupt:
+        print('\nClosing down the automated systematic review.')
 
+    # If we're dealing with a keras model, we can save the last model weights.
     if save_model_fp is not None and base_model == "RNN":
         save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
         json_model = model.model.to_json()
         with open(save_model_fp, "w") as f:
             json.dump(json_model, f, indent=2)
         model.model.save_weights(save_model_h5_fp, overwrite=True)
-
-
-#     except KeyboardInterrupt:
-#         print('\nClosing down the automated systematic review.')
 
     if not reviewer.log_file:
         print(reviewer._logger._print_logs())
