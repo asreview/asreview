@@ -9,6 +9,7 @@ from asr.logging import Logger
 from asr.ascii import ASCII_TEA
 from asr.balance_strategies import full_sample
 from asr.balanced_al import validation_data
+from asr.query_strategies import max_sampling
 
 
 N_INCLUDED = 10
@@ -43,10 +44,10 @@ class Review(ABC):
                  X,
                  y=None,
                  model=None,
-                 query_strategy=None,
+                 query_strategy=max_sampling,
                  train_data_fn=full_sample,
                  n_instances=1,
-                 n_queries=None,
+                 n_queries=1,
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
@@ -56,6 +57,12 @@ class Review(ABC):
 
         self.X = X
         self.y = y
+
+        # Default to Naive Bayes model
+        if model is None:
+            from asr.models import create_nb_model
+            model = create_nb_model()
+
         self.model = model
         self.query_strategy = query_strategy
         self.train_data = train_data_fn
@@ -68,9 +75,9 @@ class Review(ABC):
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
 
-        self.fit_kwargs = settings['fit_kwargs']
-        self.balance_kwargs = settings['balance_kwargs']
-        self.query_kwargs = settings['query_kwargs']
+        self.fit_kwargs = settings.get('fit_kwargs', {})
+        self.balance_kwargs = settings.get('balance_kwargs', {})
+        self.query_kwargs = settings.get('query_kwargs', {})
 
         self._logger = Logger()
 
