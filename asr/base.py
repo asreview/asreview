@@ -12,8 +12,6 @@ from asr.balanced_al import validation_data
 from asr.query_strategies import max_sampling
 
 
-N_INCLUDED = 10
-N_EXCLUDED = 40
 NOT_AVAILABLE = -1
 
 
@@ -208,13 +206,11 @@ class ReviewSimulate(Review):
     def __init__(self,
                  X,
                  y,
-                 model,
-                 query_strategy,
                  n_prior_included=None,
                  n_prior_excluded=None,
                  *args, **kwargs):
         super(ReviewSimulate, self).__init__(
-            X, y, model, query_strategy, *args, **kwargs)
+            X, y, *args, **kwargs)
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
@@ -266,13 +262,11 @@ class ReviewSimulate(Review):
 class ReviewOracle(Review):
     """Automated Systematic Review"""
 
-    def __init__(self, X, model, query_strategy, data, use_cli_colors=True,
+    def __init__(self, X, data, use_cli_colors=True,
                  *args, **kwargs):
         super(ReviewOracle, self).__init__(
             X,
             y=np.tile([NOT_AVAILABLE], X.shape[0]),
-            model=model,
-            query_strategy=query_strategy,
             *args,
             **kwargs)
 

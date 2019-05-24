@@ -194,47 +194,44 @@ optional arguments:
 
 ### Python API (oracle mode)
 
-** Under construction / available at own risk **
-
 It is possible to create an interactive systematic reviewer with the Python
 API. It requires some knowledge on creating an interface. By default, a simple
 command line interface is used to interact with the reviewer.
 
 ``` python
-from asr import load_data, ReviewOracle
-from asr.query_strategies import uncertainty_sampling
+from asr import ReviewOracle
+from asr.readers import read_data
 from asr.utils import text_to_features
 from asr.models.embedding import load_embedding, sample_embedding
+from asr.models import create_lstm_pool_model
+from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 # load data
-data = load_data(PATH_TO_DATA)
+data, texts, _ = read_data(DATA_FILE)
 
 # create features and labels
-X, word_index = text_to_features(data)
+X, word_index = text_to_features(texts)
 
-# Load embedding layer. 
-embedding, words = load_embedding(PATH_TO_EMBEDDING)
-embedding_matrix = sample_embedding(embedding, words, word_index)
+# Load embedding layer.
+embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
+embedding_matrix = sample_embedding(embedding, word_index)
 
 # create the model
-model = create_lstm_model(
-    backwards=True,
-    optimizer='rmsprop',
-    embedding_layer=embedding_matrix
+model = KerasClassifier(
+    create_lstm_pool_model(embedding_matrix=embedding_matrix),
+    verbose=1,
 )
 
 # start the review process.
-asr = ReviewOracle(
-  X,
-  model,
-  uncertainty_sampling,
-  data,
-  n_instances=10,
-  prior_included=[29, 181, 379, 2001, 3928, 3929, 4547],
-  prior_excluded=[31, 90, 892, 3898, 3989, 4390]
+reviewer = ReviewOracle(
+    X,
+    data=data,
+    model=model,
+    n_instances=10,
+    prior_included=PRIOR_INC_LIST,  # List of some included papers
+    prior_excluded=PRIOR_EXC_LIST,  # List of some excluded papers
 )
-asr.review()
-
+reviewer.review()
 ```
 
 ## Systematic Review (simulation mode)
@@ -308,45 +305,44 @@ optional arguments:
 
 ### Python API (simulation mode)
 
-** Under construction / available at own risk **
 
 It is possible to simulate a systematic review with the Python
 API.
 
 ``` python
-from asr import load_data, ReviewSimulate
-from asr.query_strategies import uncertainty_sampling
+from asr import ReviewSimulate
+from asr.readers import read_data
 from asr.utils import text_to_features
 from asr.models.embedding import load_embedding, sample_embedding
+from asr.models import create_lstm_pool_model
+from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 # load data
-data, y = read_data(PATH_TO_DATA)
+_, texts, y = read_data(DATA_FILE)
 
 # create features and labels
-X, word_index = text_to_features(data)
+X, word_index = text_to_features(texts)
 
-# Load embedding layer. 
-embedding, words = load_embedding(PATH_TO_EMBEDDING)
-embedding_matrix = sample_embedding(embedding, words, word_index)
+# Load embedding layer.
+embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
+embedding_matrix = sample_embedding(embedding, word_index)
 
 # create the model
-model = create_lstm_model(
-    backwards=True,
-    optimizer='rmsprop',
-    embedding_layer=embedding_matrix
+model = KerasClassifier(
+    create_lstm_pool_model(embedding_matrix=embedding_matrix),
+    verbose=1,
 )
 
 # start the review process.
-asr = ReviewSimulate(
-  X, y,
-  model,
-  uncertainty_sampling,
-  n_instances=10,
-  prior_included=[29, 181, 379, 2001, 3928, 3929, 4547],
-  prior_excluded=[31, 90, 892, 3898, 3989, 4390]
+reviewer = ReviewSimulate(
+    X,
+    y=y,
+    model=model,
+    n_instances=10,
+    prior_included=PRIOR_INC_LIST,  # List of some included papers
+    prior_excluded=PRIOR_EXC_LIST,  # List of some excluded papers
 )
-asr.review()
-
+reviewer.review()
 ```
 
 ## Development and contributions

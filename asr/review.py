@@ -103,7 +103,7 @@ def review(dataset,
             print("Prepare dataset.\n")
             print(ASCII_TEA)
 
-        texts, labels = read_data(dataset)
+        data, texts, labels = read_data(dataset)
 
         # get the model
         if base_model == "RNN":
@@ -184,8 +184,8 @@ def review(dataset,
         # start the review process
         reviewer = ReviewSimulate(
             X, y,
-            model,
-            query_fn,
+            model=model,
+            query_strategy=query_fn,
             train_data_fn=train_data_fn,
             n_instances=n_instances,
             verbose=verbose,
@@ -193,9 +193,9 @@ def review(dataset,
             prior_excluded=prior_excluded,
             n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded,
-
-            # Fit keyword arguments
-            settings=settings,
+            fit_kwargs=settings['fit_kwargs'],
+            balance_kwargs=settings['balance_kwargs'],
+            query_kwargs=settings['query_kwargs'],
 
             # Other
             **kwargs)
@@ -222,16 +222,16 @@ def review(dataset,
         # start the review process
         reviewer = ReviewOracle(
             X,
-            model,
-            query_fn,
-            data,
+            model=model,
+            query_strategy=query_fn,
+            data=data,
             n_instances=n_instances,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-
-            # fit keyword arguments
             fit_kwargs=settings['fit_kwargs'],
+            balance_kwargs=settings['balance_kwargs'],
+            query_kwargs=settings['query_kwargs'],
 
             # other keyword arguments
             **kwargs)
