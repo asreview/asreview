@@ -4,6 +4,7 @@
 #
 # Authors: Parisa Zahedi, Jonathan de Bruin
 
+import json
 import os
 import time
 import pickle
@@ -12,17 +13,14 @@ from pathlib import Path
 # asr dependencies
 from asr import ReviewSimulate, ReviewOracle
 from asr.utils import text_to_features
-from asr.config import MODUS
-from asr.query_strategies import random_sampling, uncertainty_sampling
+from asr.config import AVAILABLE_MODI
 from asr.ascii import ASCII_TEA
 from asr.types import is_pickle, convert_list_type
 from asr.models.embedding import download_embedding, EMBEDDING_EN
 from asr.models.embedding import load_embedding, sample_embedding
 from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
-from asr.query_strategies import max_sampling
-# from asr.balanced_al import triple_balance_td, simple_td, undersample_td
-from asr.query_strategies.rand_max import rand_max_sampling
-from asr.balance_strategies import FullSampleTD, TripleBalanceTD, UndersampleTD
+from asr.query_strategies import get_query_strategy
+from asr.balance_strategies import get_balance_strategy
 
 from asr.models import create_lstm_base_model, lstm_base_model_defaults
 from asr.models import create_lstm_pool_model, lstm_pool_model_defaults
@@ -30,59 +28,19 @@ from asr.models import lstm_fit_defaults
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asr.readers import read_data
+from os.path import splitext
 
 
-def _get_query_method(settings):
-    """Function to get the query method"""
-
-    method = settings['query_strategy']
-    if method in ['max', 'max_sampling']:
-        return max_sampling, "Maximum inclusion sampling"
-    if method in ['rand_max', 'rand_max_sampling']:
-        settings['query_kwargs']['rand_max_frac'] = 0.05
-        settings['query_kwargs'] = _unsafe_dict_update(
-            settings['query_kwargs'], settings['query_param'])
-        return rand_max_sampling, "Mix of random and max inclusion sampling"
-    elif method in ['lc', 'sm', 'uncertainty', 'uncertainty_sampling']:
-        return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
-    elif method == 'random':
-        return random_sampling, 'Random'
-    else:
-        raise ValueError(
-            f"Query strategy '{method}' not found."
-        )
-
-
-def _get_train_data_method(settings):
-    """ Function to get data rebalancing method. """
-    method = settings.get("train_data_fn", "simple")
-    settings["train_data_fn"] = method
-    if method == "simple":
-        td_obj = FullSampleTD(settings['balance_param'])
-        td_string = "All training data"
-    elif method == "triple_balance":
-        td_obj = TripleBalanceTD(
-            settings['balance_param'], settings['fit_kwargs'],
-            settings['query_kwargs'])
-        td_string = "Triple balanced (max,rand) training data"
-    elif method in ["undersample", "undersampling"]:
-        td_obj = UndersampleTD(settings['balance_param'])
-        td_string = "Undersampled training data"
-    else:
-        raise ValueError(f"Training data method {method} not found")
-    func, settings['balance_kwargs'] = td_obj.func_kwargs()
-    return func, td_string
-
-
-def _default_settings(model, n_instances, query_strategy, mode, data_fp):
+def _default_settings(model, n_instances, query_strategy, balance_strategy,
+                      mode, data_fp):
     """ Create settings dictionary with values. """
     data_name = os.path.basename(data_fp)
     settings = {
         "data_file": data_name,
         "model": model.lower(),
         "query_strategy": query_strategy,
+        "balance_strategy": balance_strategy,
         "n_instances": n_instances,
-        "train_data_fn": "simple",
         "mode": mode,
         "model_param": {},
         "fit_param": {},
@@ -96,6 +54,7 @@ def review(dataset,
            mode='oracle',
            model="lstm",
            query_strategy="uncertainty",
+           balance_strategy="simple",
            n_instances=1,
            embedding_fp=None,
            verbose=1,
@@ -103,13 +62,13 @@ def review(dataset,
            prior_excluded=None,
            n_prior_included=None,
            n_prior_excluded=None,
-           save_model=None,
+           save_model_fp=None,
            config_file=None,
            **kwargs
            ):
 
     settings = _default_settings(model, n_instances, query_strategy,
-                                 mode, dataset)
+                                 balance_strategy, mode, dataset)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     model = settings['model']
     print(f"Using {model} model")
@@ -118,10 +77,9 @@ def review(dataset,
         base_model = "RNN"
     else:
         base_model = "other"
-    # PREPARE FEATURES.
-    #
-    # Generate features from the dataset.
-    if mode in MODUS:
+
+    # Check if mode is valid
+    if mode in AVAILABLE_MODI:
         if verbose:
             print(f"Start review in '{mode}' mode.")
     else:
@@ -141,7 +99,7 @@ def review(dataset,
     else:
 
         # This takes some time
-        if mode == MODUS[0]:
+        if mode == "oracle":
             print("Prepare dataset.\n")
             print(ASCII_TEA)
 
@@ -157,7 +115,7 @@ def review(dataset,
                 ).expanduser()
 
                 if not embedding_fp.exists():
-                    print("Warning: will start to download large"
+                    print("Warning: will start to download large "
                           "embedding file in 10 seconds.")
                     time.sleep(10)
                     download_embedding(verbose=verbose)
@@ -214,16 +172,15 @@ def review(dataset,
         raise ValueError('Model not found.')
 
     # Pick query strategy
-    query_fn, query_str = _get_query_method(settings)
+    query_fn, query_str = get_query_strategy(settings)
     if verbose:
         print(f"Query strategy: {query_str}")
 
-    train_data_fn, train_method = _get_train_data_method(settings)
+    train_data_fn, train_method = get_balance_strategy(settings)
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
-#     print(settings)
-    if mode == MODUS[1]:
+    if mode == "simulate":
         # start the review process
         reviewer = ReviewSimulate(
             X, y,
@@ -243,7 +200,7 @@ def review(dataset,
             # Other
             **kwargs)
 
-    elif mode == MODUS[0]:
+    elif mode == "oracle":
 
         if prior_included is None:
             # provide prior knowledge
@@ -286,9 +243,16 @@ def review(dataset,
             print("Start with the systematic review.")
         reviewer._logger.add_settings(settings)
         reviewer.review()
-
     except KeyboardInterrupt:
         print('\nClosing down the automated systematic review.')
+
+    # If we're dealing with a keras model, we can save the last model weights.
+    if save_model_fp is not None and base_model == "RNN":
+        save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
+        json_model = model.model.to_json()
+        with open(save_model_fp, "w") as f:
+            json.dump(json_model, f, indent=2)
+        model.model.save_weights(save_model_h5_fp, overwrite=True)
 
     if not reviewer.log_file:
         print(reviewer._logger._print_logs())
