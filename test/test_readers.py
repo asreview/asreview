@@ -28,15 +28,15 @@ def test_csv_reader_with_labels():
 def test_csv_load_data():
 
     fp = Path("test", "demo_data", "csv_example_with_labels.csv")
-    x, y = asr.read_data(fp)
+    _, x, y = asr.read_data(fp)
 
     assert x.shape[0] == 2
     assert y.shape[0] == 2
 
     fp = Path("test", "demo_data", "csv_example_without_labels.csv")
-    x = asr.read_data(fp)
+    _, x, y = asr.read_data(fp)
 
-    assert x.shape[0] == 2
+    assert x.shape[0] == 2 and y is None
 
 
 def test_ris_reader_without_labels():
@@ -63,12 +63,12 @@ def test_ris_reader_with_labels():
 def test_ris_load_data():
 
     fp = Path("test", "demo_data", "ris_example_with_labels.ris")
-    x, y = asr.read_data(fp)
+    _, x, y = asr.read_data(fp)
 
     assert x.shape[0] == 2
     assert y.shape[0] == 2
 
     fp = Path("test", "demo_data", "ris_example_without_labels.ris")
-    x = asr.read_data(fp)
+    _, x, y = asr.read_data(fp)
 
-    assert x.shape[0] == 2
+    assert x.shape[0] == 2 and y is None
