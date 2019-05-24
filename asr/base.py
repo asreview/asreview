@@ -51,7 +51,9 @@ class Review(ABC):
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
-                 settings={},
+                 fit_kwargs={},
+                 balance_kwargs={},
+                 query_kwargs={},
                  verbose=1):
         super(Review, self).__init__()
 
@@ -60,6 +62,9 @@ class Review(ABC):
 
         # Default to Naive Bayes model
         if model is None:
+            print("Warning: using naive Bayes model as default."
+                  "If you experience bad performance, read the documentation"
+                  " in order to implement a RNN based solution.")
             from asr.models import create_nb_model
             model = create_nb_model()
 
@@ -75,9 +80,9 @@ class Review(ABC):
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
 
-        self.fit_kwargs = settings.get('fit_kwargs', {})
-        self.balance_kwargs = settings.get('balance_kwargs', {})
-        self.query_kwargs = settings.get('query_kwargs', {})
+        self.fit_kwargs = fit_kwargs
+        self.balance_kwargs = balance_kwargs
+        self.query_kwargs = query_kwargs
 
         self._logger = Logger()
 
