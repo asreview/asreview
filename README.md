@@ -11,21 +11,18 @@
 Systematic Reviews are “top of the bill” in research. The number of systematic
 reviews published by researchers increases year after year. But performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
-software is designed to take over the step of screening abstracts and titles
-with a minimum of papers to be read by a human (in the training set and in the
-final included set) and with zero false negatives (or any other small number).
+software is designed to accelerate the step of screening abstracts and titles
+with a minimum of papers to be read by a human with no or very few false negatives.
 
 Our Automated Systematic Review (ASR) software implements an oracle and a
-simulation systematic review mode.
+simulation mode.
 
 - **Oracle** The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer has to
-  classify them.
+  The software presents papers to the reviewer, whereafter the reviewer classifies them.
 - **Simulate** The simulation modus is used to measure the performance of our
-  software on an existing systematic review. The software shows how many
-  papers you potentially could have skipped during the systematic review given
-  the parameter settings.
+  software on existing systematic reviews. The software shows how many
+  papers you could have potentially skipped during the systematic review.
 
 This Automatic Systematic Review software is being developed as part of a
 research project. This research project consists of multiple repositories. The
@@ -40,14 +37,15 @@ following respositories are (or will become) publicly available:
 * [Table of Contents](#table-of-contents)
 * [Installation](#installation)
 * [Quick start](#quick-start)
+* [Tech](#tech)
 * [Datasets](#datasets)
-* [Systematic Review with oracle](#systematic-review-with-oracle)
+* [Systematic Review (oracle mode)](#systematic-review-oracle-mode)
    * [Command Line Interface (oracle mode)](#command-line-interface-oracle-mode)
    * [Python API (oracle mode)](#python-api-oracle-mode)
-* [Systematic Review with labels](#systematic-review-with-labels)
-   * [Command Line Interface (simulate mode)](#command-line-interface-simulate-mode)
-   * [Python API (simulate mode)](#python-api-simulate-mode)
-* [Developement and contributions](#developement-and-contributions)
+* [Systematic Review (simulation mode)](#systematic-review-simulation-mode)
+   * [Command Line Interface (simulation mode)](#command-line-interface-simulation-mode)
+   * [Python API (simulation mode)](#python-api-simulation-mode)
+* [Development and contributions](#development-and-contributions)
    * [Entry points](#entry-points)
    * [Debug using pickle dataset](#debug-using-pickle-dataset)
 * [Contact and contributors](#contact-and-contributors)
@@ -66,17 +64,16 @@ pip install git+https://github.com/msdslab/automated-systematic-review.git
 
 ## Quick start
 
-This quick start describes how you can use the Command Line Interface (CLI)
-the Automated Systematic Review (ASR) software. Start an interactive
-systematic review (Oracle mode) with the following line in CMD or shell. The
-text below the example explain the parameters.
+The quickest way to start using the Automated Systematic Review (ASR) software is
+the Command Line Interface (CLI). 
+Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
 ``` sh
 asr oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
   --prior_included 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
-Example:
+Example output:
 
 ```
 Start review in 'oracle' mode.
@@ -89,51 +86,25 @@ Barber, B. K.
 
 Aims and method Drawing on empirical studies and literature reviews, this
 paper aims to clarify and qualify the relevance of resilience to youth
-experiencing political conflict. It focuses on the discordance between
-expectations of widespread dysfunction among conflict-affected youth and a
-body of empirical evidence that does not confirm these expectations. Findings
-The expectation for widespread dysfunction appears exaggerated, relying as it
-does on low correlations and on presumptions of universal response to
-adversity. Such a position ignores cultural differences in understanding and
-responding to adversity, and in the specific case of political conflict, it
-does not account for the critical role of ideologies and meaning systems that
-underlie the political conflict and shape a young people's interpretation of
-the conflict, and their exposure, participation, and processing of
-experiences. With respect to empirical evidence, the findings must be viewed
-as tentative given the primitive nature of research designs: namely,
-concentration on violence exposure as the primary risk factor, at the expense
-of recognizing war's impact on the broader ecology of youth's lives, including
-disruptions to key economic, social, and political resources; priority given
-to psychopathology in the assessment of youth functioning, rather than
-holistic assessments that would include social and institutional functioning
-and fit with cultural and normative expectations and transitions; and heavy
-reliance on cross-sectional, rather than longitudinal, studies. Conclusions
-Researchers and practitioners interested in employing resilience as a guiding
-construct will face such questions: Is resilience predicated on evidence of
-competent functioning across the breadth of risks associated with political
-conflict, across most or all domains of functioning, and/or across time? In
-reality, youth resilience amidst political conflict is likely a complex
-package of better and poorer functioning that varies over time and in direct
-relationship to social, economic, and political opportunities. Addressing this
-complexity will complicate the definition of resilience, but it confronts the
-ambiguities and limitations of work in cross-cultural contexts. © 2013 The
+...
 Authors. Journal of Child Psychology and Psychiatry © 2013 Association for
 Child and Adolescent Mental Health.
 
-Include [1] or exclude [0]: 
+Include [1] or exclude [0]:
 ```
 
-This code (`asr oracle`) runs the software in oracle mode. The dataset
-`YOUR_DATA.csv` is the dataset you would like to review in a systematic
-review. We use `prior_included` and `prior_excluded` to pass prior knowledge
-of the researcher to the model. Use `prior_included` for the indices of papers
-that need inclusion and `prior_included` for the indices of papers that need
-exclusion. The indices are the row numbers of the articles (starting at 0).
-The results are saved to `results.log`.
+This command (`asr oracle`) runs the software in oracle mode on the 
+`YOUR_DATA.csv` dataset. Passing `prior_included` signifies the paper IDs
+that should definitely be included, while `prior_excluded` are IDs of papers
+that are definitely excluded. The higher the number of included/excluded papers,
+the quicker the ASR software will understand your choices for inclusion.
+The IDs are the idententifiers of papers, starting from
+0 for the first paper found in the dataset.
 
-In simulation modus (`asr simulation`), `YOUR_DATA.csv` contains labels on the
-inclusion as well. The CLI for the simulation modus is similar with the oracle
-mode.
+To benchmark an already executed review, use the simulation modus (`asr simulation`).
+The dataset then needs an additional column ("label_included") to signify their inclusion
+in the final review. The command for the simulation modus is similar to the oracle
+mode:
 
 ``` sh
 asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
@@ -142,13 +113,18 @@ asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
 
 ## Tech
 
-There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md), and [rebalancing strategies](asr/balance_strategies/README.md) available. A LSTM neural network based model is currently the best performing and optimized.
+There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md),
+and [rebalancing strategies](asr/balance_strategies/README.md) available. 
+A LSTM neural network based model is currently the best performing and optimized. 
+By default, the ASR software will use models tuned on datasets available to us.
+Tuning of models, query strategies and rebalanceing strategies is possible either
+through the CLI or the API.
 
 ## Datasets
 
 The ASR software accepts datasets in the RIS and CSV file format. [RIS
 files](https://en.wikipedia.org/wiki/RIS_(file_format)) are used by digital
-libraries, like IEEE Xplore, Scopus and ScienceDirect. Citation managers
+libraries, such as IEEE Xplore, Scopus and ScienceDirect. Citation managers
 Mendeley and EndNote support the RIS format as well. For simulation, we use an
 additional RIS tag with the letters `LI`. For CSV files, the software accepts
 a set of predetermined labels in line with the ones used in RIS files. Please
@@ -157,9 +133,9 @@ Datasets](https://github.com/msdslab/automated-systematic-review-datasets) for
 the complete standard.
 
 
-## Systematic Review with oracle
+## Systematic Review (oracle mode)
 
-A systematic review with oracle with an expert.
+There are two ways to perform a systematic review in oracle (expert) mode:
 
 ### Command Line Interface (oracle mode)
 
@@ -169,12 +145,12 @@ Start a review process in the CMD.exe or shell.
 asr oracle YOUR_DATA.csv
 ```
 
-The available parameters are: 
+The available parameters are shown with the command `asr oracle --help`: 
 
 ```bash
 usage: asr oracle [-h] [-m MODEL] [-q QUERY_STRATEGY]
                   [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
-                  [--embedding EMBEDDING]
+                  [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
                   [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
                   [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
                   [--log_file LOG_FILE] [--save_model SAVE_MODEL]
@@ -193,14 +169,17 @@ optional arguments:
                         The prediction model for Active Learning. Default
                         'LSTM'.
   -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
-                        The query strategy for Active Learning. Default 'lc'.
+                        The query strategy for Active Learning. Default
+                        'uncertainty'.
   --n_instances N_INSTANCES
                         Number of papers queried each query.
   --n_queries N_QUERIES
                         The number of queries. Default None
-  --embedding EMBEDDING
+  --embedding EMBEDDING_FP
                         File path of embedding matrix. Required for LSTM
                         model.
+  --config_file CONFIG_FILE
+                        Configuration file with model parameters
   --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
                         Initial included papers.
   --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
@@ -214,6 +193,8 @@ optional arguments:
 ```
 
 ### Python API (oracle mode)
+
+** Under construction / available at own risk **
 
 It is possible to create an interactive systematic reviewer with the Python
 API. It requires some knowledge on creating an interface. By default, a simple
@@ -256,18 +237,15 @@ asr.review()
 
 ```
 
+## Systematic Review (simulation mode)
 
+A systematic review with the true labels from an expert. This can be useful to assess
+the performance of the ASR software on your specific needs as a reviewer.
 
-## Systematic Review with labels
-
-A systematic review with the true labels as an expert. This can be useful for
-simulating the systematic review process on datasets you reviewed in the past.
-The tool can give you an indication of the papers you can exclude from reviewing.
-
-### Command Line Interface (simulate mode)
+### Command Line Interface (simulation mode)
 
 The CLI for the ASR software in simulation modus is similar to the CLI of the
-oracle modus. Instead of `asr oracle`, you use `asr simulate`.
+oracle modus. Instead of `asr oracle`, use `asr simulate`.
 
 ``` bash
 asr simulate YOUR_DATA.csv
@@ -278,7 +256,7 @@ The available parameters are:
 ```bash
 usage: asr simulate [-h] [-m MODEL] [-q QUERY_STRATEGY]
                     [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
-                    [--embedding EMBEDDING]
+                    [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
                     [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
                     [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
                     [--n_prior_included [N_PRIOR_INCLUDED [N_PRIOR_INCLUDED ...]]]
@@ -299,14 +277,17 @@ optional arguments:
                         The prediction model for Active Learning. Default
                         'LSTM'.
   -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
-                        The query strategy for Active Learning. Default 'lc'.
+                        The query strategy for Active Learning. Default
+                        'uncertainty'.
   --n_instances N_INSTANCES
                         Number of papers queried each query.
   --n_queries N_QUERIES
                         The number of queries. Default None
-  --embedding EMBEDDING
+  --embedding EMBEDDING_FP
                         File path of embedding matrix. Required for LSTM
                         model.
+  --config_file CONFIG_FILE
+                        Configuration file with model parameters
   --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
                         Initial included papers.
   --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
@@ -325,7 +306,9 @@ optional arguments:
                         Verbosity
 ```
 
-### Python API (simulate mode)
+### Python API (simulation mode)
+
+** Under construction / available at own risk **
 
 It is possible to simulate a systematic review with the Python
 API.
@@ -366,7 +349,7 @@ asr.review()
 
 ```
 
-## Developement and contributions
+## Development and contributions
 
 - Use [yapf]() as formatter for python code. 
 
