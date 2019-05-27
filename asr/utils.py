@@ -182,10 +182,3 @@ def config_from_file(config_file):
             print (f"Warning: section [{sect}] is ignored in "
                    f"config file {config_file}")
     return settings
-
-
-def load_data(*args, **kwargs):
-    """ [Deprecated] Load papers and their labels. @see read_data"""
-    warnings.warn("deprecated: use read_data instead of load_data",
-                  DeprecationWarning)
-    return read_data(*args, **kwargs)
