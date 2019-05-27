@@ -35,6 +35,7 @@ following respositories are (or will become) publicly available:
 ## Table of Contents
 
 * [Table of Contents](#table-of-contents)
+* [Active Learning for reviewing papers](#active-learning-for-reviewing-papers)
 * [Installation](#installation)
 * [Quick start](#quick-start)
 * [Tech](#tech)
@@ -49,6 +50,17 @@ following respositories are (or will become) publicly available:
    * [Entry points](#entry-points)
    * [Debug using pickle dataset](#debug-using-pickle-dataset)
 * [Contact and contributors](#contact-and-contributors)
+
+## Active Learning for reviewing papers
+
+The ASR project implements learning algorithms that interactively query the
+researcher. This way of interactive training is known as
+[Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
+The ASR software offers support for classical learning algorithms and
+state-of-the-art learning algorithms like neural networks. The following image
+gives an overview of the process.
+
+![Active Learning for reviewing papers](images/deepreview.png)
 
 
 ## Installation
@@ -440,3 +452,4 @@ Engineers and students:
 - Raoul Schram (r.d.schram@uu.nl, [@qubixes](https://github.com/qubixes))
 - Kees van Eijden (k.vaneijden@uu.nl, [@KvEijden](https://github.com/KvEijden))
 - Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
+- Albert Hakema ([@sasafrass](https://github.com/sasafrass))
