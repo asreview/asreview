@@ -10,6 +10,12 @@ Welcome to ASR's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   models
+
+   query_strategies
+
+   balance_strategies
+
    reference
 
 .. automodule:: asr
