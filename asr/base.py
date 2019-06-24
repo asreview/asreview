@@ -9,10 +9,9 @@ from asr.logging import Logger
 from asr.ascii import ASCII_TEA
 from asr.balance_strategies import full_sample
 from asr.balanced_al import validation_data
+from asr.query_strategies import max_sampling
 
 
-N_INCLUDED = 10
-N_EXCLUDED = 40
 NOT_AVAILABLE = -1
 
 
@@ -43,19 +42,30 @@ class Review(ABC):
                  X,
                  y=None,
                  model=None,
-                 query_strategy=None,
+                 query_strategy=max_sampling,
                  train_data_fn=full_sample,
                  n_instances=1,
-                 n_queries=None,
+                 n_queries=1,
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
-                 settings={},
+                 fit_kwargs={},
+                 balance_kwargs={},
+                 query_kwargs={},
                  verbose=1):
         super(Review, self).__init__()
 
         self.X = X
         self.y = y
+
+        # Default to Naive Bayes model
+        if model is None:
+            print("Warning: using naive Bayes model as default."
+                  "If you experience bad performance, read the documentation"
+                  " in order to implement a RNN based solution.")
+            from asr.models import create_nb_model
+            model = create_nb_model()
+
         self.model = model
         self.query_strategy = query_strategy
         self.train_data = train_data_fn
@@ -68,9 +78,9 @@ class Review(ABC):
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
 
-        self.fit_kwargs = settings['fit_kwargs']
-        self.balance_kwargs = settings['balance_kwargs']
-        self.query_kwargs = settings['query_kwargs']
+        self.fit_kwargs = fit_kwargs
+        self.balance_kwargs = balance_kwargs
+        self.query_kwargs = query_kwargs
 
         self._logger = Logger()
 
@@ -196,13 +206,11 @@ class ReviewSimulate(Review):
     def __init__(self,
                  X,
                  y,
-                 model,
-                 query_strategy,
                  n_prior_included=None,
                  n_prior_excluded=None,
                  *args, **kwargs):
         super(ReviewSimulate, self).__init__(
-            X, y, model, query_strategy, *args, **kwargs)
+            X, y, *args, **kwargs)
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
@@ -254,13 +262,11 @@ class ReviewSimulate(Review):
 class ReviewOracle(Review):
     """Automated Systematic Review"""
 
-    def __init__(self, X, model, query_strategy, data, use_cli_colors=True,
+    def __init__(self, X, data, use_cli_colors=True,
                  *args, **kwargs):
         super(ReviewOracle, self).__init__(
             X,
             y=np.tile([NOT_AVAILABLE], X.shape[0]),
-            model=model,
-            query_strategy=query_strategy,
             *args,
             **kwargs)
 

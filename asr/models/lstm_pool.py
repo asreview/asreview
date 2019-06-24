@@ -45,9 +45,9 @@ def create_lstm_pool_model(embedding_matrix,
         called.
 
     """
-
     # The Sklearn API requires a callable as result.
     # https://keras.io/scikit-learn-api/
+
     def wrap_model():
 
         model = Sequential()

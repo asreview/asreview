@@ -59,9 +59,9 @@ def read_data(fp):
         print(f'Choosing the one with the highest priority: '
               f'{column_labels[0]}')
     elif len(column_labels) == 0:
-        return texts.values
+        return df, texts.values, None
     labels = df[column_labels[0]]
-    return texts.values, labels.values
+    return df, texts.values, labels.values
 
 
 def read_csv(fp, labels=None):
