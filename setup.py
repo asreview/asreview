@@ -16,7 +16,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 
 setup(
-    name='asr',
+    name='asreview',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description='Automated Systematic Review',
