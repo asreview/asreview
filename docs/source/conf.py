@@ -18,6 +18,29 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 sys.path.insert(0, os.path.abspath('..'))
 
 
+# -- Mock
+autodoc_mock_imports = [
+    "numpy",
+    "modAL",
+    "modAL.models",
+    "modAL.utils.data",
+    "modAL.utils.selection",
+    "RISparser",
+    "pandas",
+    "tensorflow",
+    "tensorflow.keras",
+    "tensorflow.keras.wrappers.scikit_learn",
+    "tensorflow.keras.models",
+    "tensorflow.keras.models.layers",
+    "tensorflow.keras.optimizers",
+    "tensorflow.keras.constraints",
+    "sklearn.naive_bayes",
+    "sklearn.svm",
+    "sklearn.base",
+    "sklearn.exceptions"
+]
+
+
 # -- Project information -----------------------------------------------------
 
 project = 'ASR'
@@ -79,7 +102,7 @@ pygments_style = None
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -184,7 +207,6 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-
 
 # -- Napoleon options --------------------------------------------------------
 
