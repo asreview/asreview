@@ -81,7 +81,7 @@ the Command Line Interface (CLI).
 Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
 ``` sh
-asr oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
+asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
   --prior_included 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
@@ -105,7 +105,7 @@ Child and Adolescent Mental Health.
 Include [1] or exclude [0]:
 ```
 
-This command (`asr oracle`) runs the software in oracle mode on the 
+This command (`asreview oracle`) runs the software in oracle mode on the 
 `YOUR_DATA.csv` dataset. Passing `prior_included` signifies the paper IDs
 that should definitely be included, while `prior_excluded` are IDs of papers
 that are definitely excluded. The higher the number of included/excluded papers,
@@ -113,13 +113,13 @@ the quicker the ASR software will understand your choices for inclusion.
 The IDs are the idententifiers of papers, starting from
 0 for the first paper found in the dataset.
 
-To benchmark an already executed review, use the simulation modus (`asr simulation`).
+To benchmark an already executed review, use the simulation modus (`asreview simulation`).
 The dataset then needs an additional column ("label_included") to signify their inclusion
 in the final review. The command for the simulation modus is similar to the oracle
 mode:
 
 ``` sh
-asr simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
+asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
   --prior_included 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
@@ -154,13 +154,13 @@ There are two ways to perform a systematic review in oracle (expert) mode:
 Start a review process in the CMD.exe or shell. 
 
 ``` bash
-asr oracle YOUR_DATA.csv
+asreview oracle YOUR_DATA.csv
 ```
 
 The available parameters are shown with the command `asr oracle --help`: 
 
 ```bash
-usage: asr oracle [-h] [-m MODEL] [-q QUERY_STRATEGY]
+usage: asreview oracle [-h] [-m MODEL] [-q QUERY_STRATEGY]
                   [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
                   [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
                   [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
@@ -266,7 +266,7 @@ asr simulate YOUR_DATA.csv
 The available parameters are: 
 
 ```bash
-usage: asr simulate [-h] [-m MODEL] [-q QUERY_STRATEGY]
+usage: asreview simulate [-h] [-m MODEL] [-q QUERY_STRATEGY]
                     [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
                     [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
                     [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
@@ -367,17 +367,17 @@ asr.review()
 
 ### Entry points
 
-Use `python -m asr` to run the module as main. This can be useful when
+Use `python -m asreview` to run the module as main. This can be useful when
 debugging the CLI and entry_points. 
 
 ```
-python -m asr oracle yourfile.csv
+python -m asreview oracle yourfile.csv
 ```
 
 is the same as:
 
 ```
-asr oracle yourfile.csv
+asreview oracle yourfile.csv
 ```
 
 ### Debug using pickle dataset
@@ -392,7 +392,7 @@ Clone the [simulations repository](https://github.com/msdslab/automated-systemat
 next to this repository. Now you can debug code with the code below:
 
 ``` sh
-python -m asr oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl --n_instances 5
+python -m asreview oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl --n_instances 5
 ```
 
 ### Embedding files
