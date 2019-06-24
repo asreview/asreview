@@ -61,7 +61,7 @@ The ASR software offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
-![Active Learning for reviewing papers](images/deepreview.png)
+![Active Learning for reviewing papers](https://github.com/msdslab/automated-systematic-review/blob/master/images/deepreview.png?raw=true)
 
 
 ## Installation
