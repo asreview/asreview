@@ -66,10 +66,15 @@ gives an overview of the process.
 
 ## Installation
 
-The ASR software requires Python 3.6+.
+The ASR software requires Python 3.6+. The project is available on Pypi. Install the 
+project with 
 
-Install the Automated Systematic Review project directly from this github page. 
-One can do this with pip and git.
+```bash 
+pip install asreview
+```
+
+Install the development version of the Automated Systematic Review project directly 
+from this Github page. One can do this with pip and git.
 
 ``` bash
 pip install git+https://github.com/msdslab/automated-systematic-review.git
