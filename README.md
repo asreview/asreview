@@ -365,7 +365,7 @@ reviewer.review()
 
 ## Development and contributions
 
-- Use [yapf]() as formatter for python code. 
+- Use [yapf](https://github.com/google/yapf) as formatter for python code. 
 
 ### Entry points
 
