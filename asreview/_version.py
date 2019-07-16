@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "asr-"
-    cfg.versionfile_source = "asr/_version.py"
+    cfg.parentdir_prefix = "asreview-"
+    cfg.versionfile_source = "asreview/_version.py"
     cfg.verbose = False
     return cfg
 

@@ -1,2 +1,2 @@
 include versioneer.py
-include asr/_version.py
+include asreview/_version.py
