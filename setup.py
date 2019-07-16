@@ -56,8 +56,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'asr=asr.__main__:main',
-            'asreview=asr.__main__:main'],
+            'asreview=asreview.__main__:main'],
 
     },
 
