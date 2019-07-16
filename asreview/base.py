@@ -4,12 +4,12 @@ import numpy as np
 
 from modAL.models import ActiveLearner
 
-from asr.init_sampling import sample_prior_knowledge
-from asr.logging import Logger
-from asr.ascii import ASCII_TEA
-from asr.balance_strategies import full_sample
-from asr.balanced_al import validation_data
-from asr.query_strategies import max_sampling
+from asreview.init_sampling import sample_prior_knowledge
+from asreview.logging import Logger
+from asreview.ascii import ASCII_TEA
+from asreview.balance_strategies import full_sample
+from asreview.balanced_al import validation_data
+from asreview.query_strategies import max_sampling
 
 
 NOT_AVAILABLE = -1
@@ -63,7 +63,7 @@ class Review(ABC):
             print("Warning: using naive Bayes model as default."
                   "If you experience bad performance, read the documentation"
                   " in order to implement a RNN based solution.")
-            from asr.models import create_nb_model
+            from asreview.models import create_nb_model
             model = create_nb_model()
 
         self.model = model

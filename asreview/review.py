@@ -11,23 +11,23 @@ import pickle
 from pathlib import Path
 
 # asr dependencies
-from asr import ReviewSimulate, ReviewOracle
-from asr.utils import text_to_features
-from asr.config import AVAILABLE_MODI
-from asr.ascii import ASCII_TEA
-from asr.types import is_pickle, convert_list_type
-from asr.models.embedding import download_embedding, EMBEDDING_EN
-from asr.models.embedding import load_embedding, sample_embedding
-from asr.utils import get_data_home, _unsafe_dict_update, config_from_file
-from asr.query_strategies import get_query_strategy
-from asr.balance_strategies import get_balance_strategy
+from asreview import ReviewSimulate, ReviewOracle
+from asreview.utils import text_to_features
+from asreview.config import AVAILABLE_MODI
+from asreview.ascii import ASCII_TEA
+from asreview.types import is_pickle, convert_list_type
+from asreview.models.embedding import download_embedding, EMBEDDING_EN
+from asreview.models.embedding import load_embedding, sample_embedding
+from asreview.utils import get_data_home, _unsafe_dict_update, config_from_file
+from asreview.query_strategies import get_query_strategy
+from asreview.balance_strategies import get_balance_strategy
 
-from asr.models import create_lstm_base_model, lstm_base_model_defaults
-from asr.models import create_lstm_pool_model, lstm_pool_model_defaults
-from asr.models import lstm_fit_defaults
+from asreview.models import create_lstm_base_model, lstm_base_model_defaults
+from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
+from asreview.models import lstm_fit_defaults
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asr.readers import read_data
+from asreview.readers import read_data
 from os.path import splitext
 
 
@@ -160,12 +160,12 @@ def review(dataset,
         )
 
     elif model.lower() in ['nb']:
-        from asr.models import create_nb_model
+        from asreview.models import create_nb_model
 
         model = create_nb_model()
 
     elif model.lower() in ['svm', 'svc']:
-        from asr.models import create_svc_model
+        from asreview.models import create_svc_model
 
         model = create_svc_model()
     else:

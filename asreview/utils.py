@@ -5,7 +5,7 @@ from configparser import ConfigParser
 from pathlib import Path
 import warnings
 
-from asr.readers import read_data
+from asreview.readers import read_data
 
 
 def _unsafe_dict_update(default_dict, override_dict):

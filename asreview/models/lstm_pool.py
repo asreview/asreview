@@ -3,7 +3,7 @@ from tensorflow.keras.layers import MaxPooling1D, Flatten
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import RMSprop, Adam
 from tensorflow.keras.constraints import MaxNorm
-from asr.utils import _unsafe_dict_update
+from asreview.utils import _unsafe_dict_update
 
 
 def lstm_pool_model_defaults(settings, verbose=1):

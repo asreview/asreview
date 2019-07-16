@@ -10,9 +10,9 @@ import warnings
 # don't show warnings in CLI app
 warnings.simplefilter("ignore")
 
-from asr import __version__  # noqa
-from asr.review import review_oracle, review_simulate  # noqa
-from asr.config import AVAILABLE_MODI  # noqa
+from asreview import __version__  # noqa
+from asreview.review import review_oracle, review_simulate  # noqa
+from asreview.config import AVAILABLE_MODI  # noqa
 
 DEFAULT_MODEL = "lstm_base"
 DEFAULT_QUERY_STRATEGY = "uncertainty"
