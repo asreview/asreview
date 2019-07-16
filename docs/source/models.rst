@@ -7,21 +7,21 @@ at the moment the lstm_pool algorithm.
 nb
 --
 
-See :func:`asr.models.create_nb_model`
+See :func:`asreview.models.create_nb_model`
 
 Naive Bayes model, default parameters.
 
 svc
 ---
 
-See :func:`asr.models.create_svc_model`
+See :func:`asreview.models.create_svc_model`
 
 Support Vector Machine algorithm. Unoptimized.
 
 LSTM-base
 ---------
 
-See :func:`asr.models.create_lstm_base_model`
+See :func:`asreview.models.create_lstm_base_model`
 
 LSTM model that consists of an embedding layer, LSTM layer with one
 output, dense layer, single sigmoid output node.
@@ -29,7 +29,7 @@ output, dense layer, single sigmoid output node.
 LSTM-pool
 ---------
 
-See :func:`asr.models.create_lstm_pool_model`
+See :func:`asreview.models.create_lstm_pool_model`
 
 LSTM model that consists of an embedding layer, LSTM layer with many
 outputs, max pooling layer, single sigmoid output node.
