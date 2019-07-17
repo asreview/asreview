@@ -6,6 +6,7 @@
 import sys
 import argparse
 import warnings
+import os
 
 # don't show warnings in CLI app
 warnings.simplefilter("ignore")
@@ -161,6 +162,9 @@ def _review_simulate():
 
 
 def main():
+    if os.path.basename(sys.argv[0]) == "asr":
+        print("Deprecation warning: 'asr' has been renamed to "
+              "'asreview', it will be removed in the future.")
 
     # launch asr interactively
     if len(sys.argv) > 1 and sys.argv[1] == "oracle":
