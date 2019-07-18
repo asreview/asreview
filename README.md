@@ -217,18 +217,18 @@ API. It requires some knowledge on creating an interface. By default, a simple
 command line interface is used to interact with the reviewer.
 
 ``` python
+import asreview
 from asreview import ReviewOracle
-from asreview.readers import read_data
-from asreview.utils import text_to_features
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.models import create_lstm_pool_model
+
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 # load data
-data, texts, _ = read_data(DATA_FILE)
+data, texts, _ = asreview.read_data(DATA_FILE)
 
 # create features and labels
-X, word_index = text_to_features(texts)
+X, word_index = asreview.text_to_features(texts)
 
 # Load embedding layer.
 embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
@@ -328,18 +328,18 @@ It is possible to simulate a systematic review with the Python
 API.
 
 ``` python
+import asreview
 from asreview import ReviewSimulate
-from asreview.readers import read_data
-from asreview.utils import text_to_features
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.models import create_lstm_pool_model
+
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 # load data
-_, texts, y = read_data(DATA_FILE)
+_, texts, y = asreview.read_data(DATA_FILE)
 
 # create features and labels
-X, word_index = text_to_features(texts)
+X, word_index = asreview.text_to_features(texts)
 
 # Load embedding layer.
 embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
