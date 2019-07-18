@@ -433,6 +433,28 @@ download_embedding()
 ](https://www.dub.uu.nl/en/depth/digital-tracker-dog-datasets)
 
 
+## Citation
+
+A research paper is coming up for this project. In the mean time, it can be cited with (fill in x and y for the version number):
+
+```
+ASReview Core Development Team (2019). ASReview: Software for automated systematic reviews [version 0.x.y]. Utrecht University, Utrecht, The Netherlands. Available at https://github.com/msdslab/automated-systematic-review.
+```
+
+BibTeX:
+
+```bibtex
+@Manual{,
+    title = {ASReview: Software for automated systematic reviews},
+    author = {{ASReview Core Development Team}},
+    organization = {Utrecht University},
+    address = {Utrecht, The Netherlands},
+    year = 2019,
+    url = {https://pypi.org/project/asreview/}
+} 
+```
+
+
 ## Contact and contributors
 
 This project is part of the research work conducted by the Department of
