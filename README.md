@@ -25,6 +25,8 @@ simulation mode.
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
+The full documentation is available at [https://asreview.readthedocs.io](https://asreview.readthedocs.io)
+
 This Automatic Systematic Review software is being developed as part of a
 research project. This research project consists of multiple repositories. The
 following respositories are (or will become) publicly available:
@@ -41,12 +43,6 @@ following respositories are (or will become) publicly available:
 * [Quick start](#quick-start)
 * [Tech](#tech)
 * [Datasets](#datasets)
-* [Systematic Review (oracle mode)](#systematic-review-oracle-mode)
-   * [Command Line Interface (oracle mode)](#command-line-interface-oracle-mode)
-   * [Python API (oracle mode)](#python-api-oracle-mode)
-* [Systematic Review (simulation mode)](#systematic-review-simulation-mode)
-   * [Command Line Interface (simulation mode)](#command-line-interface-simulation-mode)
-   * [Python API (simulation mode)](#python-api-simulation-mode)
 * [Development and contributions](#development-and-contributions)
    * [Entry points](#entry-points)
    * [Debug using pickle dataset](#debug-using-pickle-dataset)
@@ -150,219 +146,6 @@ see the project [Automatic Systematic Review
 Datasets](https://github.com/msdslab/automated-systematic-review-datasets) for
 the complete standard.
 
-
-## Systematic Review (oracle mode)
-
-There are two ways to perform a systematic review in oracle (expert) mode:
-
-### Command Line Interface (oracle mode)
-
-Start a review process in the CMD.exe or shell. 
-
-``` bash
-asreview oracle YOUR_DATA.csv
-```
-
-The available parameters are shown with the command `asreview oracle --help`: 
-
-```bash
-usage: asreview oracle [-h] [-m MODEL] [-q QUERY_STRATEGY]
-                  [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
-                  [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
-                  [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
-                  [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
-                  [--log_file LOG_FILE] [--save_model SAVE_MODEL]
-                  [--verbose VERBOSE]
-                  X
-
-Systematic review with the help of an oracle.
-
-positional arguments:
-  X                     File path to the dataset. The dataset needs to be in
-                        the standardised format.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -m MODEL, --model MODEL
-                        The prediction model for Active Learning. Default
-                        'LSTM'.
-  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
-                        The query strategy for Active Learning. Default
-                        'uncertainty'.
-  --n_instances N_INSTANCES
-                        Number of papers queried each query.
-  --n_queries N_QUERIES
-                        The number of queries. Default None
-  --embedding EMBEDDING_FP
-                        File path of embedding matrix. Required for LSTM
-                        model.
-  --config_file CONFIG_FILE
-                        Configuration file with model parameters
-  --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
-                        Initial included papers.
-  --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
-                        Initial included papers.
-  --log_file LOG_FILE, -l LOG_FILE
-                        Location to store the log results.
-  --save_model SAVE_MODEL
-                        Location to store the model.
-  --verbose VERBOSE, -v VERBOSE
-                        Verbosity
-```
-
-### Python API (oracle mode)
-
-It is possible to create an interactive systematic reviewer with the Python
-API. It requires some knowledge on creating an interface. By default, a simple
-command line interface is used to interact with the reviewer.
-
-``` python
-from asreview import ReviewOracle
-from asreview.readers import read_data
-from asreview.utils import text_to_features
-from asreview.models.embedding import load_embedding, sample_embedding
-from asreview.models import create_lstm_pool_model
-from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
-
-# load data
-data, texts, _ = read_data(DATA_FILE)
-
-# create features and labels
-X, word_index = text_to_features(texts)
-
-# Load embedding layer.
-embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
-embedding_matrix = sample_embedding(embedding, word_index)
-
-# create the model
-model = KerasClassifier(
-    create_lstm_pool_model(embedding_matrix=embedding_matrix),
-    verbose=1,
-)
-
-# start the review process.
-reviewer = ReviewOracle(
-    X,
-    data=data,
-    model=model,
-    n_instances=10,
-    prior_included=PRIOR_INC_LIST,  # List of some included papers
-    prior_excluded=PRIOR_EXC_LIST,  # List of some excluded papers
-)
-reviewer.review()
-```
-
-## Systematic Review (simulation mode)
-
-A systematic review with the true labels from an expert. This can be useful to assess
-the performance of the ASR software on your specific needs as a reviewer.
-
-### Command Line Interface (simulation mode)
-
-The CLI for the ASR software in simulation modus is similar to the CLI of the
-oracle modus. Instead of `asreview oracle`, use `asreview simulate`.
-
-``` bash
-asreview simulate YOUR_DATA.csv
-```
-
-The available parameters are: 
-
-```bash
-usage: asreview simulate [-h] [-m MODEL] [-q QUERY_STRATEGY]
-                    [--n_instances N_INSTANCES] [--n_queries N_QUERIES]
-                    [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
-                    [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
-                    [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
-                    [--n_prior_included [N_PRIOR_INCLUDED [N_PRIOR_INCLUDED ...]]]
-                    [--n_prior_excluded [N_PRIOR_EXCLUDED [N_PRIOR_EXCLUDED ...]]]
-                    [--log_file LOG_FILE] [--save_model SAVE_MODEL]
-                    [--verbose VERBOSE]
-                    X
-
-Systematic review with the help of an oracle.
-
-positional arguments:
-  X                     File path to the dataset. The dataset needs to be in
-                        the standardised format.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -m MODEL, --model MODEL
-                        The prediction model for Active Learning. Default
-                        'LSTM'.
-  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
-                        The query strategy for Active Learning. Default
-                        'uncertainty'.
-  --n_instances N_INSTANCES
-                        Number of papers queried each query.
-  --n_queries N_QUERIES
-                        The number of queries. Default None
-  --embedding EMBEDDING_FP
-                        File path of embedding matrix. Required for LSTM
-                        model.
-  --config_file CONFIG_FILE
-                        Configuration file with model parameters
-  --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
-                        Initial included papers.
-  --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
-                        Initial included papers.
-  --n_prior_included [N_PRIOR_INCLUDED [N_PRIOR_INCLUDED ...]]
-                        Sample n prior included papers. Only used when
-                        --prior_included is not given.
-  --n_prior_excluded [N_PRIOR_EXCLUDED [N_PRIOR_EXCLUDED ...]]
-                        Sample n prior excluded papers. Only used when
-                        --prior_excluded is not given.
-  --log_file LOG_FILE, -l LOG_FILE
-                        Location to store the log results.
-  --save_model SAVE_MODEL
-                        Location to store the model.
-  --verbose VERBOSE, -v VERBOSE
-                        Verbosity
-```
-
-### Python API (simulation mode)
-
-
-It is possible to simulate a systematic review with the Python
-API.
-
-``` python
-from asreview import ReviewSimulate
-from asreview.readers import read_data
-from asreview.utils import text_to_features
-from asreview.models.embedding import load_embedding, sample_embedding
-from asreview.models import create_lstm_pool_model
-from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
-
-# load data
-_, texts, y = read_data(DATA_FILE)
-
-# create features and labels
-X, word_index = text_to_features(texts)
-
-# Load embedding layer.
-embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
-embedding_matrix = sample_embedding(embedding, word_index)
-
-# create the model
-model = KerasClassifier(
-    create_lstm_pool_model(embedding_matrix=embedding_matrix),
-    verbose=1,
-)
-
-# start the review process.
-reviewer = ReviewSimulate(
-    X,
-    y=y,
-    model=model,
-    n_instances=10,
-    prior_included=PRIOR_INC_LIST,  # List of some included papers
-    prior_excluded=PRIOR_EXC_LIST,  # List of some excluded papers
-)
-reviewer.review()
-```
-
 ## Development and contributions
 
 - Use [yapf](https://github.com/google/yapf) as formatter for python code. 
@@ -424,7 +207,6 @@ os.environ['ASR_DATA'] = "~/my_asr_embedding_files"
 download_embedding()
 
 ```
-
 
 ## Publications
 
