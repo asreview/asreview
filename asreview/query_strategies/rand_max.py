@@ -13,8 +13,8 @@ from sklearn.base import BaseEstimator
 from modAL.utils.data import modALinput
 from math import floor
 
-from asr.query_strategies.max_sampling import max_sampling
-from asr.query_strategies.random_sampling import random_sampling
+from asreview.query_strategies.max_sampling import max_sampling
+from asreview.query_strategies.random_sampling import random_sampling
 
 
 def rand_max_sampling(classifier: BaseEstimator,

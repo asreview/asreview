@@ -5,8 +5,8 @@
 import sys
 import os
 
-from asr.query_strategies.interface import QueryStrategy
-from asr.query_strategies.uncertainty_sampling import UncertaintySampling
+from asreview.query_strategies.interface import QueryStrategy
+from asreview.query_strategies.uncertainty_sampling import UncertaintySampling
 
 
 class ModelChangeSampling(QueryStrategy):

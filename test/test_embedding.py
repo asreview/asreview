@@ -3,7 +3,7 @@ import random
 import os
 import urllib.request
 
-from asr.models.embedding import load_embedding, sample_embedding
+from asreview.models.embedding import load_embedding, sample_embedding
 
 
 def random_words(n_words=1000, other_word_dict={}):

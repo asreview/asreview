@@ -1,4 +1,4 @@
-from asr.balance_strategies.base import BaseTrainData
+from asreview.balance_strategies.base import BaseTrainData
 
 
 def full_sample(X, y, train_idx):

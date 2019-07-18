@@ -14,14 +14,14 @@ We have currently implemented the following balance strategies:
 Full Sampling
 -------------
 
-See :func:`asr.balance_strategies.full_sample`
+See :func:`asreview.balance_strategies.full_sample`
 
 This just uses all the data.
 
 Undersampling
 --------------
 
-See :func:`asr.balance_strategies.undersample`
+See :func:`asreview.balance_strategies.undersample`
 
 This undersamples the data, leaving out excluded papers so that the
 included and excluded papers are in some particular ratio (closer to
@@ -38,7 +38,7 @@ one). Configuration options are as follows:
 Triple Balance
 --------------
 
-See :func:`asr.balance_strategies.triple_balance`
+See :func:`asreview.balance_strategies.triple_balance`
 
 This divides the training data into three sets: included papers,
 excluded papers found with random sampling and papers found with max

@@ -6,13 +6,13 @@
 import sys
 import argparse
 import warnings
+import os
 
-# don't show warnings in CLI app
-warnings.simplefilter("ignore")
+import numpy as np
 
-from asr import __version__  # noqa
-from asr.review import review_oracle, review_simulate  # noqa
-from asr.config import AVAILABLE_MODI  # noqa
+from asreview import __version__  # noqa
+from asreview.review import review_oracle, review_simulate  # noqa
+from asreview.config import AVAILABLE_MODI  # noqa
 
 DEFAULT_MODEL = "lstm_base"
 DEFAULT_QUERY_STRATEGY = "uncertainty"
@@ -160,8 +160,14 @@ def _review_simulate():
     review_simulate(path, **args_dict)
 
 
-def main():
+def main_depr():
+    warnings.warn("'asr' has been renamed to "
+                  "'asreview', it will be removed in the future.\n",
+                  np.VisibleDeprecationWarning)
+    main()
 
+
+def main():
     # launch asr interactively
     if len(sys.argv) > 1 and sys.argv[1] == "oracle":
         _review_oracle()

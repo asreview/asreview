@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ASR's documentation!
-===============================
+Welcome to the ASReview documentation!
+======================================
 
 .. toctree::
    :maxdepth: 2
@@ -18,16 +18,16 @@ Welcome to ASR's documentation!
 
    reference
 
-.. automodule:: asr
+.. automodule:: asreview
    :members:
 
-.. automodule:: asr.models
+.. automodule:: asreview.models
    :members:
 
-.. automodule:: asr.query_strategies
+.. automodule:: asreview.query_strategies
    :members:
 
-.. automodule:: asr.balance_strategies
+.. automodule:: asreview.balance_strategies
    :members:
 
 Indices and tables
