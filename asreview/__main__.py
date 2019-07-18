@@ -8,8 +8,10 @@ import argparse
 import warnings
 import os
 
+import numpy as np
+
 # don't show warnings in CLI app
-warnings.simplefilter("ignore")
+# warnings.simplefilter("ignore")
 
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
@@ -161,11 +163,14 @@ def _review_simulate():
     review_simulate(path, **args_dict)
 
 
-def main():
-    if os.path.basename(sys.argv[0]) == "asr":
-        print("Deprecation warning: 'asr' has been renamed to "
-              "'asreview', it will be removed in the future.")
+def main_depr():
+    warnings.warn("'asr' has been renamed to "
+                  "'asreview', it will be removed in the future.\n",
+                  np.VisibleDeprecationWarning)
+    main()
 
+
+def main():
     # launch asr interactively
     if len(sys.argv) > 1 and sys.argv[1] == "oracle":
         _review_oracle()
