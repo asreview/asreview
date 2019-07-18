@@ -10,9 +10,6 @@ import os
 
 import numpy as np
 
-# don't show warnings in CLI app
-# warnings.simplefilter("ignore")
-
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
 from asreview.config import AVAILABLE_MODI  # noqa
