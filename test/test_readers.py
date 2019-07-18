@@ -1,7 +1,7 @@
 
 from pathlib import Path
 
-import asr
+import asreview as asr
 
 
 def test_csv_reader_without_labels():

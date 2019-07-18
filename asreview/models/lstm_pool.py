@@ -1,11 +1,12 @@
 from tensorflow.keras.layers import Dense, LSTM, Embedding
+from tensorflow.keras.layers import MaxPooling1D, Flatten
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import RMSprop, Adam
+from tensorflow.keras.constraints import MaxNorm
+from asreview.utils import _unsafe_dict_update
 
-from asr.utils import _unsafe_dict_update
-from asr.utils import _set_class_weight
 
-
-def lstm_base_model_defaults(settings, verbose=1):
+def lstm_pool_model_defaults(settings, verbose=1):
     """ Set the lstm model defaults. """
     model_kwargs = {}
     model_kwargs['backwards'] = True
@@ -14,7 +15,8 @@ def lstm_base_model_defaults(settings, verbose=1):
     model_kwargs['max_sequence_length'] = 1000
     model_kwargs['verbose'] = verbose
     model_kwargs['lstm_out_width'] = 20
-    model_kwargs['dense_width'] = 128
+    model_kwargs['lstm_pool_size'] = 100
+    model_kwargs['learn_rate_mult'] = 1.0
 
     upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
     settings['model_param'] = upd_param
@@ -22,32 +24,14 @@ def lstm_base_model_defaults(settings, verbose=1):
     return upd_param
 
 
-def lstm_fit_defaults(settings, verbose=1):
-    """ Set the fit defaults and merge them with custom settings. """
-
-    # arguments to pass to the fit
-    fit_kwargs = {}
-    fit_kwargs['batch_size'] = 32
-    fit_kwargs['epochs'] = 10
-    fit_kwargs['verbose'] = verbose
-    fit_kwargs['shuffle'] = False
-    fit_kwargs['class_weight_inc'] = 30.0
-
-    settings['fit_kwargs'] = _unsafe_dict_update(
-        fit_kwargs, settings['fit_param'])
-
-    _set_class_weight(fit_kwargs.pop('class_weight_inc'), fit_kwargs)
-
-    return settings['fit_kwargs']
-
-
-def create_lstm_base_model(embedding_matrix,
+def create_lstm_pool_model(embedding_matrix,
                            backwards=True,
                            dropout=0.4,
                            optimizer='rmsprop',
                            max_sequence_length=1000,
                            lstm_out_width=20,
-                           dense_width=128,
+                           lstm_pool_size=100,
+                           learn_rate_mult=1.0,
                            verbose=1):
     """Return callable lstm model.
 
@@ -87,18 +71,21 @@ def create_lstm_base_model(embedding_matrix,
                 go_backwards=backwards,
                 dropout=dropout,
                 recurrent_dropout=dropout,
+                return_sequences=True,
+                kernel_constraint=MaxNorm(),
             )
         )
 
-        # add Dense layer with relu activation
         model.add(
-            Dense(
-                dense_width,
-                activation='relu',
+            MaxPooling1D(
+                pool_size=lstm_pool_size,
             )
         )
+        model.add(
+            Flatten()
+        )
 
-        # add Dense layer
+        # Add output layer
         model.add(
             Dense(
                 1,
@@ -106,9 +93,15 @@ def create_lstm_base_model(embedding_matrix,
             )
         )
 
+        if optimizer == "rmsprop":
+            optimizer_fn = RMSprop(lr=0.01*learn_rate_mult)
+        else:
+            optimizer_fn = Adam(lr=0.1*learn_rate_mult)
+
         # Compile model
         model.compile(
-            loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])
+            loss='binary_crossentropy', optimizer=optimizer_fn,
+            metrics=['acc'])
 
         if verbose == 1:
             model.summary()

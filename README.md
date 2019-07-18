@@ -131,8 +131,8 @@ asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 
 
 ## Tech
 
-There are many different [models](asr/models/README.md), [query strategies](asr/query_strategies/README.md),
-and [rebalancing strategies](asr/balance_strategies/README.md) available. 
+There are many different [models](asreview/models/README.md), [query strategies](asreview/query_strategies/README.md),
+and [rebalancing strategies](asreview/balance_strategies/README.md) available. 
 A LSTM neural network based model is currently the best performing and optimized. 
 By default, the ASR software will use models tuned on datasets available to us.
 Tuning of models, query strategies and rebalanceing strategies is possible either
@@ -217,11 +217,11 @@ API. It requires some knowledge on creating an interface. By default, a simple
 command line interface is used to interact with the reviewer.
 
 ``` python
-from asr import ReviewOracle
-from asr.readers import read_data
-from asr.utils import text_to_features
-from asr.models.embedding import load_embedding, sample_embedding
-from asr.models import create_lstm_pool_model
+from asreview import ReviewOracle
+from asreview.readers import read_data
+from asreview.utils import text_to_features
+from asreview.models.embedding import load_embedding, sample_embedding
+from asreview.models import create_lstm_pool_model
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 # load data
@@ -328,11 +328,11 @@ It is possible to simulate a systematic review with the Python
 API.
 
 ``` python
-from asr import ReviewSimulate
-from asr.readers import read_data
-from asr.utils import text_to_features
-from asr.models.embedding import load_embedding, sample_embedding
-from asr.models import create_lstm_pool_model
+from asreview import ReviewSimulate
+from asreview.readers import read_data
+from asreview.utils import text_to_features
+from asreview.models.embedding import load_embedding, sample_embedding
+from asreview.models import create_lstm_pool_model
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 # load data
@@ -405,7 +405,7 @@ the users `~/asr_data` folder. You can download embedding files with the
 following command:
 
 ```python
-from asr.models.embedding import download_embedding
+from asreview.models.embedding import download_embedding
 
 download_embedding()
 ```
@@ -415,7 +415,7 @@ One can set the environment variable to change the default folder.
 ```
 import os
 
-from asr.models.embedding import download_embedding
+from asreview.models.embedding import download_embedding
 
 # set the environment variable
 os.environ['ASR_DATA'] = "~/my_asr_embedding_files"

@@ -1,7 +1,7 @@
 import numpy as np
 from math import ceil, exp, log
 
-from asr.balance_strategies.base import BaseTrainData
+from asreview.balance_strategies.base import BaseTrainData
 
 
 class TripleBalanceTD(BaseTrainData):

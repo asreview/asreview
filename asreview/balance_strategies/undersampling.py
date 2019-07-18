@@ -2,7 +2,7 @@ from math import ceil
 
 import numpy as np
 
-from asr.balance_strategies.base import BaseTrainData
+from asreview.balance_strategies.base import BaseTrainData
 
 
 class UndersampleTD(BaseTrainData):

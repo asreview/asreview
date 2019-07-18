@@ -6,7 +6,7 @@ from urllib.request import urlopen
 
 import numpy as np
 
-from asr.utils import get_data_home
+from asreview.utils import get_data_home
 
 
 EMBEDDING_EN = {
@@ -148,7 +148,7 @@ def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
     name: str
         The filename of the embedding file.
     data_home: str
-        The location of the ASR datasets. Default `asr.utils.get_data_home()`
+        The location of the ASR datasets. Default `asreview.utils.get_data_home()`
     verbose: int
         The verbosity. Default 1.
 

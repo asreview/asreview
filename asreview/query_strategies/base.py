@@ -2,9 +2,9 @@
 Expose selection of query methods.
 '''
 
-from asr.query_strategies import max_sampling, random_sampling
-from asr.query_strategies import uncertainty_sampling, rand_max_sampling
-from asr.utils import _unsafe_dict_update
+from asreview.query_strategies import max_sampling, random_sampling
+from asreview.query_strategies import uncertainty_sampling, rand_max_sampling
+from asreview.utils import _unsafe_dict_update
 
 
 def get_query_strategy(settings):
