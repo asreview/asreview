@@ -14,22 +14,20 @@ EMBEDDING_FILE with valid filenames):
 
 .. code-block::
 
-	from asreview import ReviewOracle
-	from asreview.readers import read_data
-	from asreview.utils import text_to_features
-	from asreview.models.embedding import load_embedding, sample_embedding
+	import asreview
 	from asreview.models import create_lstm_pool_model
+
 	from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 	
 	# load data
-	data, texts, _ = read_data(DATA_FILE)
+	data, texts, _ = asreview.read_data(DATA_FILE)
 	
 	# create features and labels
-	X, word_index = text_to_features(texts)
+	X, word_index = asreview.text_to_features(texts)
 	
 	# Load embedding layer.
-	embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
-	embedding_matrix = sample_embedding(embedding, word_index)
+	embedding = asreview.load_embedding(EMBEDDING_FILE, word_index=word_index)
+	embedding_matrix = asreview.sample_embedding(embedding, word_index)
 	
 	# create the model
 	model = KerasClassifier(
@@ -38,7 +36,7 @@ EMBEDDING_FILE with valid filenames):
 	)
 	
 	# start the review process.
-	reviewer = ReviewOracle(
+	reviewer = asreview.ReviewOracle(
 	    X,
 	    data=data,
 	    model=model,
@@ -56,22 +54,20 @@ An example of use the API for the simulation mode:
 
 .. code-block::
 
-	from asreview import ReviewSimulate
-	from asreview.readers import read_data
-	from asreview.utils import text_to_features
-	from asreview.models.embedding import load_embedding, sample_embedding
+	import asreview
 	from asreview.models import create_lstm_pool_model
+	
 	from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 	
 	# load data
-	_, texts, y = read_data(DATA_FILE)
+	_, texts, y = asreview.read_data(DATA_FILE)
 	
 	# create features and labels
-	X, word_index = text_to_features(texts)
+	X, word_index = asreview.text_to_features(texts)
 	
 	# Load embedding layer.
-	embedding = load_embedding(EMBEDDING_FILE, word_index=word_index)
-	embedding_matrix = sample_embedding(embedding, word_index)
+	embedding = asreview.load_embedding(EMBEDDING_FILE, word_index=word_index)
+	embedding_matrix = asreview.sample_embedding(embedding, word_index)
 	
 	# create the model
 	model = KerasClassifier(
@@ -80,7 +76,7 @@ An example of use the API for the simulation mode:
 	)
 	
 	# start the review process.
-	reviewer = ReviewSimulate(
+	reviewer = asreview.ReviewSimulate(
 	    X,
 	    y=y,
 	    model=model,
