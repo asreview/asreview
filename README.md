@@ -67,7 +67,7 @@ gives an overview of the process.
 ## Installation
 
 The ASR software requires Python 3.6+. The project is available on Pypi. Install the 
-project with 
+project with:
 
 ```bash 
 pip install asreview
