@@ -19,10 +19,10 @@ def test_csv_reader_with_labels():
     fp = Path("test", "demo_data", "csv_example_with_labels.csv")
     data = asr.read_csv(fp, labels=True)
 
-    assert len(data) == 2
+    assert len(data) == 6
 
-    assert data[0]['label_included'] == 1
-    assert data[1]['label_included'] == 0
+    for i in range(len(data)):
+        assert data[i]['label_included'] == 1 - (i % 2)
 
 
 def test_csv_load_data():
@@ -30,8 +30,8 @@ def test_csv_load_data():
     fp = Path("test", "demo_data", "csv_example_with_labels.csv")
     _, x, y = asr.read_data(fp)
 
-    assert x.shape[0] == 2
-    assert y.shape[0] == 2
+    assert x.shape[0] == 6
+    assert y.shape[0] == 6
 
     fp = Path("test", "demo_data", "csv_example_without_labels.csv")
     _, x, y = asr.read_data(fp)
