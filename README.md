@@ -127,8 +127,8 @@ asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 
 
 ## Tech
 
-There are many different [models](asreview/models/README.md), [query strategies](asreview/query_strategies/README.md),
-and [rebalancing strategies](asreview/balance_strategies/README.md) available. 
+There are many different [models](https://asreview.readthedocs.io/en/latest/models.html), [query strategies](https://asreview.readthedocs.io/en/latest/query_strategies.html),
+and [rebalancing strategies](https://asreview.readthedocs.io/en/latest/balance_strategies.html) available. 
 A LSTM neural network based model is currently the best performing and optimized. 
 By default, the ASR software will use models tuned on datasets available to us.
 Tuning of models, query strategies and rebalanceing strategies is possible either
