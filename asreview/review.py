@@ -17,6 +17,8 @@ from asreview.balance_strategies import get_balance_strategy
 from asreview.logging import Logger
 from asreview.settings import ASReviewSettings
 
+from asreview.settings import ASReviewSettings
+
 from asreview.models import create_lstm_base_model, lstm_base_model_defaults
 from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asreview.models import lstm_fit_defaults

@@ -86,3 +86,4 @@ class ASReviewSettings(object):
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "
                        f"config file {config_file}")
+
