@@ -45,6 +45,49 @@ def _unsafe_dict_update(default_dict, override_dict):
     return new_dict
 
 
+def _safe_dict_update(default_dict, override_dict):
+    """
+    Using defaults and an overriding dictionary, create a new dictionary.
+    This new dictionary has the same values as the default dictionary. 
+    Thus, if there are values that are in the overriding
+    dictionary, but not in the original, they will be ignored.
+    In contrast to the unsafe version, the type should be supplied in the default
+    dictionary: key: (value, type).
+
+    Arguments
+    ---------
+    default_dict: dict
+        Starting dictionary with defaults.
+    override_dict: dict
+        Dictionary with custom values (such as model parameters).
+
+    Returns
+    -------
+    dict
+        Merged dictionary.
+    """
+    new_dict = {}
+    for key in default_dict:
+        new_dict[key] = default_dict[key][0]
+
+    for key in override_dict:
+        if key not in default_dict:
+            print(f"Warning: key {key} is being ignored.")
+
+    for key in new_dict:
+        if key in override_dict:
+            str_val = override_dict[key]
+            type_val = default_dict[key][1]
+            if type_val == bool:
+                new_dict[key] = str_val in ["True", "true", "T", "t"]
+            else:
+                try:
+                    new_dict[key] = type_val(str_val)
+                except TypeError:
+                    raise(TypeError(f"Error at {key}"))
+    return new_dict
+
+
 def text_to_features(sequences, num_words=20000, max_sequence_length=1000,
                      padding='post', truncating='post'):
     """Convert text data into features.

@@ -18,9 +18,6 @@ DEFAULT_MODEL = "lstm_base"
 DEFAULT_QUERY_STRATEGY = "uncertainty"
 DEFAULT_BALANCE_STRATEGY = "simple"
 DEFAULT_N_INSTANCES = 50
-DEFAULT_N_QUERIES = 2
-DEFAULT_N_PRIOR_INCLUDED = 10
-DEFAULT_N_PRIOR_EXCLUDED = 10
 
 
 def parse_arguments(mode, prog=sys.argv[0]):
@@ -63,7 +60,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
     parser.add_argument(
         "--n_queries",
         type=int,
-        default=DEFAULT_N_QUERIES,
+        default=None,
         help="The number of queries. Default None"
     )
     parser.add_argument(
@@ -101,17 +98,15 @@ def parse_arguments(mode, prog=sys.argv[0]):
         # Initial data (prior knowledge)
         parser.add_argument(
             "--n_prior_included",
-            default=DEFAULT_N_PRIOR_INCLUDED,
+            default=None,
             type=int,
-            nargs="*",
             help="Sample n prior included papers. "
                  "Only used when --prior_included is not given.")
 
         parser.add_argument(
             "--n_prior_excluded",
-            default=DEFAULT_N_PRIOR_EXCLUDED,
+            default=None,
             type=int,
-            nargs="*",
             help="Sample n prior excluded papers. "
                  "Only used when --prior_excluded is not given.")
 

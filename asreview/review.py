@@ -18,9 +18,11 @@ from asreview.ascii import ASCII_TEA
 from asreview.types import is_pickle, convert_list_type
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
-from asreview.utils import get_data_home, _unsafe_dict_update, config_from_file
+from asreview.utils import get_data_home
 from asreview.query_strategies import get_query_strategy
 from asreview.balance_strategies import get_balance_strategy
+
+from asreview.settings import ASReviewSettings
 
 from asreview.models import create_lstm_base_model, lstm_base_model_defaults
 from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
@@ -29,30 +31,6 @@ from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.readers import read_data
 from os.path import splitext
-
-
-def _default_settings(model, n_instances, n_queries, n_prior_included,
-                      n_prior_excluded, query_strategy,
-                      balance_strategy, mode, data_fp):
-    """ Create settings dictionary with values. """
-    data_name = os.path.basename(data_fp)
-    settings = {
-        "data_file": data_name,
-        "model": model.lower(),
-        "query_strategy": query_strategy,
-        "balance_strategy": balance_strategy,
-        "n_instances": n_instances,
-        "n_queries": n_queries,
-        "n_prior_included": n_prior_included,
-        "n_prior_excluded": n_prior_excluded,
-        "mode": mode,
-        "model_param": {},
-        "fit_param": {},
-        "query_param": {},
-        "balance_param": {},
-    }
-    print(settings)
-    return settings
 
 
 def review(dataset,
@@ -73,11 +51,11 @@ def review(dataset,
            **kwargs
            ):
 
-    settings = _default_settings(model, n_instances, n_queries,
-                                 n_prior_included, n_prior_excluded,
-                                 query_strategy,
-                                 balance_strategy, mode, dataset)
-    settings = _unsafe_dict_update(settings, config_from_file(config_file))
+    settings = ASReviewSettings(model, n_instances, n_queries,
+                                n_prior_included, n_prior_excluded,
+                                query_strategy,
+                                balance_strategy, mode, dataset
+                                ).override(config_file)
     model = settings['model']
     print(f"Using {model} model")
 
