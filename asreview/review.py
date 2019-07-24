@@ -31,8 +31,9 @@ from asreview.readers import read_data
 from os.path import splitext
 
 
-def _default_settings(model, n_instances, query_strategy, balance_strategy,
-                      mode, data_fp):
+def _default_settings(model, n_instances, n_queries, n_prior_included,
+                      n_prior_excluded, query_strategy,
+                      balance_strategy, mode, data_fp):
     """ Create settings dictionary with values. """
     data_name = os.path.basename(data_fp)
     settings = {
@@ -41,12 +42,16 @@ def _default_settings(model, n_instances, query_strategy, balance_strategy,
         "query_strategy": query_strategy,
         "balance_strategy": balance_strategy,
         "n_instances": n_instances,
+        "n_queries": n_queries,
+        "n_prior_included": n_prior_included,
+        "n_prior_excluded": n_prior_excluded,
         "mode": mode,
         "model_param": {},
         "fit_param": {},
         "query_param": {},
         "balance_param": {},
     }
+    print(settings)
     return settings
 
 
@@ -56,18 +61,21 @@ def review(dataset,
            query_strategy="uncertainty",
            balance_strategy="simple",
            n_instances=1,
+           n_queries=1,
            embedding_fp=None,
            verbose=1,
            prior_included=None,
            prior_excluded=None,
-           n_prior_included=None,
-           n_prior_excluded=None,
+           n_prior_included=-1,
+           n_prior_excluded=-1,
            save_model_fp=None,
            config_file=None,
            **kwargs
            ):
 
-    settings = _default_settings(model, n_instances, query_strategy,
+    settings = _default_settings(model, n_instances, n_queries,
+                                 n_prior_included, n_prior_excluded,
+                                 query_strategy,
                                  balance_strategy, mode, dataset)
     settings = _unsafe_dict_update(settings, config_from_file(config_file))
     model = settings['model']
@@ -188,6 +196,7 @@ def review(dataset,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
             n_instances=n_instances,
+            n_queries=n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
@@ -226,6 +235,7 @@ def review(dataset,
             query_strategy=query_fn,
             data=data,
             n_instances=n_instances,
+            n_queries=n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
