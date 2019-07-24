@@ -61,7 +61,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
     parser.add_argument(
         "--n_queries",
         type=int,
-        default=None,
+        default=DEFAULT_N_QUERIES,
         help="The number of queries. Default None"
     )
     parser.add_argument(

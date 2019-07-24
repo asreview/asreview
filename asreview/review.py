@@ -65,6 +65,7 @@ def review(dataset,
 
         settings.from_file(config_file)
     model = settings.model
+
     print(f"Using {model} model")
 
     if model in ["lstm_base", "lstm_pool"]:
