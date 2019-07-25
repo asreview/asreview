@@ -6,7 +6,6 @@
 import sys
 import argparse
 import warnings
-import os
 
 import numpy as np
 
@@ -18,6 +17,8 @@ DEFAULT_MODEL = "lstm_base"
 DEFAULT_QUERY_STRATEGY = "uncertainty"
 DEFAULT_BALANCE_STRATEGY = "simple"
 DEFAULT_N_INSTANCES = 50
+DEFAULT_N_PRIOR_INCLUDED = 10
+DEFAULT_N_PRIOR_EXCLUDED = 10
 
 
 def parse_arguments(mode, prog=sys.argv[0]):
@@ -98,14 +99,14 @@ def parse_arguments(mode, prog=sys.argv[0]):
         # Initial data (prior knowledge)
         parser.add_argument(
             "--n_prior_included",
-            default=None,
+            default=DEFAULT_N_PRIOR_INCLUDED,
             type=int,
             help="Sample n prior included papers. "
                  "Only used when --prior_included is not given.")
 
         parser.add_argument(
             "--n_prior_excluded",
-            default=None,
+            default=DEFAULT_N_PRIOR_EXCLUDED,
             type=int,
             help="Sample n prior excluded papers. "
                  "Only used when --prior_excluded is not given.")

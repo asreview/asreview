@@ -48,7 +48,7 @@ def _unsafe_dict_update(default_dict, override_dict):
 def _safe_dict_update(default_dict, override_dict):
     """
     Using defaults and an overriding dictionary, create a new dictionary.
-    This new dictionary has the same values as the default dictionary. 
+    This new dictionary has the same values as the default dictionary.
     Thus, if there are values that are in the overriding
     dictionary, but not in the original, they will be ignored.
     In contrast to the unsafe version, the type should be supplied in the default

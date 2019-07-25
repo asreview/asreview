@@ -216,11 +216,6 @@ class ReviewSimulate(Review):
         self.n_prior_excluded = n_prior_excluded
 
     def _prior_knowledge(self):
-        if self.n_prior_included is not None and self.n_prior_included < 0:
-            self.n_prior_included = None
-        if self.n_prior_excluded is not None and self.n_prior_excluded < 0:
-            self.n_prior_included = None
-
         if self.prior_included and self.prior_excluded:
             prior_indices, prior_labels = _merge_prior_knowledge(
                 self.prior_included,

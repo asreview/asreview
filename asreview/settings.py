@@ -1,9 +1,8 @@
-from abc import ABC
 import os
 from asreview.utils import config_from_file, _safe_dict_update
 
 
-class ASReviewSettings(ABC):
+class ASReviewSettings(object):
     def __init__(self, model, n_instances, n_queries, n_prior_included,
                  n_prior_excluded, query_strategy,
                  balance_strategy, mode, data_fp):
