@@ -218,4 +218,3 @@ class Logger(object):
         with open(fp, "r") as f:
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
-     
