@@ -5,7 +5,7 @@ import numpy as np
 from modAL.models import ActiveLearner
 
 from asreview.init_sampling import sample_prior_knowledge
-from asreview.logging import Logger
+from asreview.logging import Logger, query_key
 from asreview.ascii import ASCII_TEA
 from asreview.balance_strategies import full_sample
 from asreview.balanced_al import validation_data
@@ -52,6 +52,7 @@ class Review(ABC):
                  fit_kwargs={},
                  balance_kwargs={},
                  query_kwargs={},
+                 logger=None,
                  verbose=1):
         super(Review, self).__init__()
 
@@ -82,7 +83,12 @@ class Review(ABC):
         self.balance_kwargs = balance_kwargs
         self.query_kwargs = query_kwargs
 
-        self._logger = Logger()
+        if logger is None:
+            self._logger = Logger()
+            self.start_from_logger = False
+        else:
+            self._logger = logger
+            self.start_from_logger = True
 
     @abstractmethod
     def _prior_knowledge(self):
@@ -117,6 +123,29 @@ class Review(ABC):
             stop_iter = True
 
         return stop_iter
+        
+    def _prepare_with_logger(self):
+        query_i = 0
+        train_idx = []
+        self.y = np.array(self._logger._log_dict["labels"])
+        n_samples = len(self.y)
+        print(list(self._logger._log_dict.keys()))
+        qk = query_key(query_i)
+        while qk in self._logger._log_dict:
+            new_labels = self._logger._log_dict[qk]["labelled"]
+            labels = [x[0] for x in new_labels]
+            train_idx.extend(labels)
+            query_i += 1
+            qk = query_key(query_i)
+        query_i -= 1
+        if query_i>=0:
+            qk = query_key(query_i)
+            self._logger._log_dict[qk].pop("pool_proba", None)
+            self._logger._log_dict[qk].pop("train_proba", None)
+        pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
+        print(self._logger._log_dict)
+        
+        return (query_i, np.array(train_idx), pool_idx)
 
     def review(self):
 
@@ -136,13 +165,22 @@ class Review(ABC):
             estimator=self.model,
             query_strategy=self.query_strategy
         )
-        query_i = 0
-        train_idx = init_idx.copy()
-        query_idx = train_idx
-        self._logger.add_labels(self.y)
+        
+        if self.start_from_logger:
+            query_i, train_idx, pool_idx = self._prepare_with_logger()
+            print(query_i)
+            hot_start = True
+        else:
+            query_i = 0
+            train_idx = init_idx.copy()
+            self._logger.add_labels(self.y)
+            self._logger.add_training_log(init_idx, self.y[init_idx])
+            hot_start = False
 
         while not self._stop_iter(query_i-1, pool_idx):
-            self._logger.add_training_log(query_idx, self.y[query_idx])
+#             if not hot_start:
+#             else:
+#                 hot_start = False
 
             # Get the training data.
             X_train, y_train = self.train_data(
@@ -166,6 +204,7 @@ class Review(ABC):
                 query_kwargs=self.query_kwargs
             )
 
+
             # Log the probabilities of samples in the pool being included.
             pred_proba = self.query_kwargs.get('pred_proba', [])
             if len(pred_proba) == 0:
@@ -176,6 +215,8 @@ class Review(ABC):
             pred_proba_train = self.learner.predict_proba(self.X[train_idx])
             self._logger.add_proba(train_idx, pred_proba_train,
                                    logname="train_proba")
+
+            self._logger.add_training_log(query_idx, self.y[query_idx])
 
             # Classify the queried papers.
             self.y[query_idx] = self._classify(query_idx)

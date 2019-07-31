@@ -8,6 +8,9 @@ import numpy as np
 
 import asreview
 
+def query_key(query_i):
+    return str(query_i)
+
 
 def read_log(log_fp):
     """Read log file.
@@ -25,7 +28,6 @@ def read_log(log_fp):
     log_fp_path = Path(log_fp)
 
     try:
-
         with open(log_fp_path, "r") as f:
 
             log = Logger()
@@ -77,15 +79,19 @@ def read_logs_from_dir(log_dir, prefix=None):
 class Logger(object):
     """Class for logging the Systematic Review"""
 
-    def __init__(self):
+    def __init__(self, log_fp=None):
         super(Logger, self).__init__()
-
-        # since python 3, this is an ordered dict
-        self._log_dict = {
-            "time": {"start_time": str(datetime.now())},
-            "version": 1,
-            "software_version": asreview.__version__
-        }
+        
+        if log_fp is not None:
+            self.restore(log_fp)
+            self._log_dict["time"]["start_time"] = str(datetime.now())
+        else:
+            # since python 3, this is an ordered dict
+            self._log_dict = {
+                "time": {"start_time": str(datetime.now())},
+                "version": 1,
+                "software_version": asreview.__version__
+            }
 
     def __str__(self):
 
@@ -103,16 +109,19 @@ class Logger(object):
         # Find the first number that is not logged yet.
         if i is None:
             i = 0
-            while i in self._log_dict:
+            qk = query_key(i)
+            while qk in self._log_dict:
                 # If the keys of the new dictionary don't exist, this is it.
-                if set(new_dict.keys()).isdisjoint(self._log_dict[i].keys()):
+                if set(new_dict.keys()).isdisjoint(self._log_dict[qk].keys()):
                     break
                 i += 1
+                qk = query_key(i)
 
-        if i not in self._log_dict:
-            self._log_dict[i] = {}
+        qk = query_key(i)
+        if qk not in self._log_dict:
+            self._log_dict[qk] = {}
 
-        self._log_dict[i].update(new_dict)
+        self._log_dict[qk].update(new_dict)
 
     def add_settings(self, settings):
         self._log_dict["settings"] = copy.deepcopy(settings)
@@ -200,3 +209,7 @@ class Logger(object):
 
         with fp.open('w') as outfile:
             json.dump(self._log_dict, outfile, indent=2)
+
+    def restore(self, fp):
+        with open(fp, "r") as f:
+            self._log_dict = json.load(f)

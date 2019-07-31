@@ -78,6 +78,14 @@ def parse_arguments(mode, prog=sys.argv[0]):
         default=None,
         help="Configuration file with model parameters"
     )
+    # Continue with previous log file.
+    parser.add_argument(
+        "--continue",
+        type=str,
+        default=None,
+        dest="src_log_fp",
+        help="Continue session starting from previous log file."
+    )
     # Initial data (prior knowledge)
     parser.add_argument(
         "--prior_included",

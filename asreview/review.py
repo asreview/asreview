@@ -21,7 +21,7 @@ from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
 from asreview.query_strategies import get_query_strategy
 from asreview.balance_strategies import get_balance_strategy
-
+from asreview.logging import Logger
 from asreview.settings import ASReviewSettings
 
 from asreview.models import create_lstm_base_model, lstm_base_model_defaults
@@ -48,14 +48,20 @@ def review(dataset,
            n_prior_excluded=-1,
            save_model_fp=None,
            config_file=None,
+           src_log_fp=None,
            **kwargs
            ):
 
-    settings = ASReviewSettings(model, n_instances, n_queries,
-                                n_prior_included, n_prior_excluded,
-                                query_strategy,
-                                balance_strategy, mode, dataset
-                                ).override(config_file)
+    if src_log_fp is not None:
+        logger = Logger(log_fp=src_log_fp)
+        settings = logger._log_dict["settings"]
+    else:
+        logger = None
+        settings = ASReviewSettings(model, n_instances, n_queries,
+                                    n_prior_included, n_prior_excluded,
+                                    query_strategy,
+                                    balance_strategy, mode, dataset
+                                    ).override(config_file)
     model = settings['model']
     print(f"Using {model} model")
 
@@ -183,6 +189,7 @@ def review(dataset,
             fit_kwargs=settings['fit_kwargs'],
             balance_kwargs=settings['balance_kwargs'],
             query_kwargs=settings['query_kwargs'],
+            logger=logger,
 
             # Other
             **kwargs)
@@ -220,6 +227,7 @@ def review(dataset,
             fit_kwargs=settings['fit_kwargs'],
             balance_kwargs=settings['balance_kwargs'],
             query_kwargs=settings['query_kwargs'],
+            logger=logger,
 
             # other keyword arguments
             **kwargs)
