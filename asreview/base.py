@@ -125,12 +125,23 @@ class Review(ABC):
         return stop_iter
         
     def _prepare_with_logger(self):
+        """ If we start the reviewer from a log file, we need to do some
+            preparation work. The final result should be a log dictionary in
+            a state where the labeled papares are one step ahead of the probabilities.
+            Any excess probabilities (pool_proba and train_proba) are thrown away and
+            recomputed.
+        
+        Returns
+        -------
+        tuple:
+            The query index, training indices and pool_indices.
+        """
         query_i = 0
         train_idx = []
         self.y = np.array(self._logger._log_dict["labels"])
-        n_samples = len(self.y)
-        print(list(self._logger._log_dict.keys()))
         qk = query_key(query_i)
+
+        # Capture the labelled indices from the log file.
         while qk in self._logger._log_dict:
             new_labels = self._logger._log_dict[qk]["labelled"]
             labels = [x[0] for x in new_labels]
@@ -138,50 +149,42 @@ class Review(ABC):
             query_i += 1
             qk = query_key(query_i)
         query_i -= 1
+
+        # Throw away the last probabilities if they have the same key as the query.
         if query_i>=0:
             qk = query_key(query_i)
             self._logger._log_dict[qk].pop("pool_proba", None)
             self._logger._log_dict[qk].pop("train_proba", None)
-        pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
-        print(self._logger._log_dict)
         
-        return (query_i, np.array(train_idx), pool_idx)
+        return (query_i, np.array(train_idx))
 
     def review(self):
+        """ Do the systematic review, writing the results to the log file. """
 
-        # create the pool and training indices.
+        if self.start_from_logger:
+            query_i, train_idx = self._prepare_with_logger()
+        else:
+            # add prior knowledge
+            init_idx, init_labels = self._prior_knowledge()
+            self.y[init_idx] = init_labels
+
+            query_i = 0
+            train_idx = init_idx.copy()
+
+            self._logger.add_labels(self.y)
+            self._logger.add_training_log(init_idx, self.y[init_idx])
+
+        # Pool indices are the complement of the training indices.
         n_samples = self.X.shape[0]
-        pool_idx = np.arange(n_samples)
-
-        # add prior knowledge
-        init_idx, init_labels = self._prior_knowledge()
-        self.y[init_idx] = init_labels
-
-        # remove the initial sample from the pool
-        pool_idx = np.delete(pool_idx, init_idx)
+        pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
 
         # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
             estimator=self.model,
             query_strategy=self.query_strategy
         )
-        
-        if self.start_from_logger:
-            query_i, train_idx, pool_idx = self._prepare_with_logger()
-            print(query_i)
-            hot_start = True
-        else:
-            query_i = 0
-            train_idx = init_idx.copy()
-            self._logger.add_labels(self.y)
-            self._logger.add_training_log(init_idx, self.y[init_idx])
-            hot_start = False
 
         while not self._stop_iter(query_i-1, pool_idx):
-#             if not hot_start:
-#             else:
-#                 hot_start = False
-
             # Get the training data.
             X_train, y_train = self.train_data(
                 self.X, self.y, train_idx, **self.balance_kwargs)

@@ -84,7 +84,6 @@ class Logger(object):
         
         if log_fp is not None:
             self.restore(log_fp)
-            self._log_dict["time"]["start_time"] = str(datetime.now())
         else:
             # since python 3, this is an ordered dict
             self._log_dict = {
