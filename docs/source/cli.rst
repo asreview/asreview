@@ -15,7 +15,7 @@ Start a review process in the CMD.exe or shell.
 	asreview oracle YOUR_DATA.csv
 
 
-The available parameters are shown with the command `asreview oracle --help`: 
+The available parameters are shown with the command ``asreview oracle --help``: 
 
 .. code-block:: bash
 
@@ -66,7 +66,7 @@ Simulation mode
 ---------------
 
 The CLI for the ASR software in simulation modus is similar to the CLI of the
-oracle modus. Instead of `asreview oracle`, use `asreview simulate`.
+oracle modus. Instead of ``asreview oracle``, use ``asreview simulate``.
 
 .. code-block:: bash
 
