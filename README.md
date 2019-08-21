@@ -85,7 +85,7 @@ Start an interactive systematic review (Oracle mode) with the following line in 
 
 ``` sh
 asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
-  --prior_included 31 90 892 3898 3989 4390 --log_file results.log
+  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
 Example output:
