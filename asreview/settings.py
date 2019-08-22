@@ -2,7 +2,7 @@ import os
 from configparser import ConfigParser
 
 
-settings_type_dict = {
+SETTINGS_TYPE_DICT = {
     "data_file": str,
     "model": str,
     "query_strategy": str,
@@ -53,7 +53,7 @@ class ASReviewSettings(object):
             if sect == "global_settings":
                 for key, value in config.items(sect):
                     try:
-                        setattr(self, key, settings_type_dict[key](value))
+                        setattr(self, key, SETTINGS_TYPE_DICT[key](value))
                     except (KeyError, TypeError):
                         print(f"Warning: value with key '{key}' is ignored (spelling mistake?).")
                         

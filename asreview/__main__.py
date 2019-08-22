@@ -80,7 +80,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
     )
     # Continue with previous log file.
     parser.add_argument(
-        "--continue",
+        "-s", "--session-from-log",
         type=str,
         default=None,
         dest="src_log_fp",
