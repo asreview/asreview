@@ -8,6 +8,7 @@ import numpy as np
 
 import asreview
 from asreview.settings import ASReviewSettings
+from collections import OrderedDict
 
 def query_key(query_i):
     return str(query_i)
@@ -87,11 +88,11 @@ class Logger(object):
             self.restore(log_fp)
         else:
             # since python 3, this is an ordered dict
-            self._log_dict = {
+            self._log_dict = OrderedDict({
                 "time": {"start_time": str(datetime.now())},
                 "version": 1,
                 "software_version": asreview.__version__
-            }
+            })
 
     def __str__(self):
 
@@ -202,6 +203,7 @@ class Logger(object):
 
         """
         self._log_dict["settings"] = vars(self.settings)
+        self._log_dict.move_to_end("settings", last=False)
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)
 
@@ -214,5 +216,5 @@ class Logger(object):
 
     def restore(self, fp):
         with open(fp, "r") as f:
-            self._log_dict = json.load(f)
+            self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))

@@ -7,8 +7,8 @@ SETTINGS_TYPE_DICT = {
     "model": str,
     "query_strategy": str,
     "balance_strategy": str,
-    "n_instances": str,
-    "n_queries": str,
+    "n_instances": int,
+    "n_queries": int,
     "n_prior_included": int,
     "n_prior_excluded": int,
     "mode": str,
@@ -20,24 +20,37 @@ SETTINGS_TYPE_DICT = {
 
 
 class ASReviewSettings(object):
-    def __init__(self, model, n_instances, n_queries, n_prior_included,
-                 n_prior_excluded, query_strategy,
-                 balance_strategy, mode, data_fp, model_param={}, fit_param={},
-                 query_param={}, balance_param={}
-                 ):
-        self.data_name = os.path.basename(data_fp)
-        self.model = model
-        self.n_instances = n_instances
-        self.n_queries = n_queries
-        self.n_prior_included = n_prior_included
-        self.n_prior_excluded = n_prior_excluded
-        self.query_strategy = query_strategy
-        self.balance_strategy = balance_strategy
-        self.mode = mode
-        self.model_param = model_param
-        self.fit_param = fit_param
-        self.query_param = query_param
-        self.balance_param = balance_param
+#     def __init__(self, model, n_instances, n_queries, n_prior_included,
+#                 n_prior_excluded, query_strategy,
+#                 balance_strategy, mode, data_fp=None, data_name=None, model_param={},
+#                 fit_param={}, query_param={}, balance_param={}, **kwargs
+#                 ):
+    def __init__(self, data_fp=None, data_name=None, **kwargs):   
+        if data_name is not None:
+            self.data_name = data_name
+        elif data_fp is not None:
+            self.data_name = os.path.basename(data_fp)
+        else:
+            self.data_name = "unknown"
+#         for key in kwargs
+#         self.model = model
+#         self.n_instances = n_instances
+#         self.n_queries = n_queries
+#         self.n_prior_included = n_prior_included
+#         self.n_prior_excluded = n_prior_excluded
+#         self.query_strategy = query_strategy
+#         self.balance_strategy = balance_strategy
+#         self.mode = mode
+#         self.model_param = model_param
+#         self.fit_param = fit_param
+#         self.query_param = query_param
+#         self.balance_param = balance_param
+#         
+        for key in kwargs:
+            try:
+                setattr(self, key, SETTINGS_TYPE_DICT[key](kwargs[key]))
+            except (KeyError, TypeError):
+                setattr(self, key, kwargs[key])
 
     def from_file(self, config_file):
         if config_file is None or not os.path.isfile(config_file):

@@ -50,11 +50,19 @@ def review(dataset,
         settings = logger.settings
     else:
         logger = None
-        settings = ASReviewSettings(model, n_instances, n_queries,
-                                    n_prior_included, n_prior_excluded,
-                                    query_strategy,
-                                    balance_strategy, mode, dataset
+#         settings = ASReviewSettings(model, n_instances, n_queries,
+#                                     n_prior_included, n_prior_excluded,
+#                                     query_strategy,
+#                                     balance_strategy, mode, dataset
+#                                     )
+        settings = ASReviewSettings(model=model, n_instances=n_instances, 
+                                    n_queries=n_queries,
+                                    n_prior_included=n_prior_included, 
+                                    n_prior_excluded=n_prior_excluded,
+                                    query_strategy=query_strategy,
+                                    balance_strategy=balance_strategy, mode=mode, data_fp=dataset
                                     )
+
         settings.from_file(config_file)
     model = settings.model
     print(f"Using {model} model")
@@ -166,6 +174,7 @@ def review(dataset,
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
+    print(settings.n_queries, n_queries)
     if mode == "simulate":
         # start the review process
         reviewer = ReviewSimulate(
@@ -173,13 +182,13 @@ def review(dataset,
             model=model,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
-            n_instances=n_instances,
-            n_queries=n_queries,
+            n_instances=settings.n_instances,
+            n_queries=settings.n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-            n_prior_included=n_prior_included,
-            n_prior_excluded=n_prior_excluded,
+            n_prior_included=settings.n_prior_included,
+            n_prior_excluded=settings.n_prior_excluded,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
@@ -213,8 +222,8 @@ def review(dataset,
             model=model,
             query_strategy=query_fn,
             data=data,
-            n_instances=n_instances,
-            n_queries=n_queries,
+            n_instances=settings.n_instances,
+            n_queries=settings.n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
