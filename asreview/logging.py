@@ -7,6 +7,7 @@ import copy
 import numpy as np
 
 import asreview
+from asreview.settings import ASReviewSettings
 
 def query_key(query_i):
     return str(query_i)
@@ -123,7 +124,7 @@ class Logger(object):
         self._log_dict[qk].update(new_dict)
 
     def add_settings(self, settings):
-        self._log_dict["settings"] = copy.deepcopy(settings)
+        self.settings = copy.deepcopy(settings)
 
     def add_labels(self, y):
         self._log_dict["labels"] = y.tolist()
@@ -200,6 +201,7 @@ class Logger(object):
             The file path to export the results to.
 
         """
+        self._log_dict["settings"] = vars(self.settings)
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)
 
@@ -208,7 +210,9 @@ class Logger(object):
 
         with fp.open('w') as outfile:
             json.dump(self._log_dict, outfile, indent=2)
+        del self._log_dict["settings"]
 
     def restore(self, fp):
         with open(fp, "r") as f:
             self._log_dict = json.load(f)
+        self.settings = ASReviewSettings(**self._log_dict.pop("settings"))

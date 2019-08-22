@@ -54,7 +54,7 @@ def review(dataset,
 
     if src_log_fp is not None:
         logger = Logger(log_fp=src_log_fp)
-        settings = logger._log_dict["settings"]
+        settings = logger.settings
     else:
         logger = None
         settings = ASReviewSettings(model, n_instances, n_queries,
@@ -62,7 +62,7 @@ def review(dataset,
                                     query_strategy,
                                     balance_strategy, mode, dataset
                                     ).override(config_file)
-    model = settings['model']
+    model = settings.model
     print(f"Using {model} model")
 
     if model in ["lstm_base", "lstm_pool"]:
@@ -129,8 +129,8 @@ def review(dataset,
             X = text_clf.fit_transform(texts)
             y = labels
 
-    settings['fit_kwargs'] = {}
-    settings['query_kwargs'] = {}
+    settings.fit_kwargs = {}
+    settings.query_kwargs = {}
 
     if base_model == 'RNN':
         if model == "lstm_base":
@@ -142,8 +142,8 @@ def review(dataset,
         else:
             raise ValueError(f"Unknown model {model}")
 
-        settings['fit_kwargs'] = lstm_fit_defaults(settings, verbose)
-        settings['query_kwargs']['verbose'] = verbose
+        settings.fit_kwargs = lstm_fit_defaults(settings, verbose)
+        settings.query_kwargs['verbose'] = verbose
         # create the model
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
@@ -186,9 +186,9 @@ def review(dataset,
             prior_excluded=prior_excluded,
             n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded,
-            fit_kwargs=settings['fit_kwargs'],
-            balance_kwargs=settings['balance_kwargs'],
-            query_kwargs=settings['query_kwargs'],
+            fit_kwargs=settings.fit_kwargs,
+            balance_kwargs=settings.balance_kwargs,
+            query_kwargs=settings.query_kwargs,
             logger=logger,
 
             # Other
@@ -224,9 +224,9 @@ def review(dataset,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-            fit_kwargs=settings['fit_kwargs'],
-            balance_kwargs=settings['balance_kwargs'],
-            query_kwargs=settings['query_kwargs'],
+            fit_kwargs=settings.fit_kwargs,
+            balance_kwargs=settings.balance_kwargs,
+            query_kwargs=settings.query_kwargs,
             logger=logger,
 
             # other keyword arguments

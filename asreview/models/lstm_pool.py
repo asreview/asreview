@@ -18,8 +18,8 @@ def lstm_pool_model_defaults(settings, verbose=1):
     model_kwargs['lstm_pool_size'] = 100
     model_kwargs['learn_rate_mult'] = 1.0
 
-    upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
-    settings['model_param'] = upd_param
+    upd_param = _unsafe_dict_update(model_kwargs, settings.model_param)
+    settings.model_param = upd_param
 
     return upd_param
 

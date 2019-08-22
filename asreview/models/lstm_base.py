@@ -16,8 +16,8 @@ def lstm_base_model_defaults(settings, verbose=1):
     model_kwargs['lstm_out_width'] = 20
     model_kwargs['dense_width'] = 128
 
-    upd_param = _unsafe_dict_update(model_kwargs, settings['model_param'])
-    settings['model_param'] = upd_param
+    upd_param = _unsafe_dict_update(model_kwargs, settings.model_param)
+    settings.model_param = upd_param
 
     return upd_param
 
@@ -33,12 +33,12 @@ def lstm_fit_defaults(settings, verbose=1):
     fit_kwargs['shuffle'] = False
     fit_kwargs['class_weight_inc'] = 30.0
 
-    settings['fit_kwargs'] = _unsafe_dict_update(
-        fit_kwargs, settings['fit_param'])
+    settings.fit_kwargs = _unsafe_dict_update(
+        fit_kwargs, settings.fit_param)
 
     _set_class_weight(fit_kwargs.pop('class_weight_inc'), fit_kwargs)
 
-    return settings['fit_kwargs']
+    return settings.fit_kwargs
 
 
 def create_lstm_base_model(embedding_matrix,

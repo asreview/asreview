@@ -1,7 +1,6 @@
 # Cpython dependencies
 import os
 import shutil
-from configparser import ConfigParser
 from pathlib import Path
 import warnings
 
@@ -200,28 +199,3 @@ def _set_class_weight(weight1, fit_kwargs):
         1: weight1,
     }
     print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-
-
-def config_from_file(config_file):
-    """ Get settings from a configuration file using ConfigParser. """
-    if config_file is None or not os.path.isfile(config_file):
-        if config_file is not None:
-            print(f"Didn't find configuration file: {config_file}")
-        return {}
-
-    config = ConfigParser()
-    config.read(config_file)
-
-    settings = {}
-
-    # Read the each of the sections.
-    for sect in config:
-        if sect == "global_settings":
-            settings.update(dict(config.items(sect)))
-        elif (sect == "model_param" or sect == "fit_param" or
-              sect == "query_param" or sect == "balance_param"):
-            settings[sect] = dict(config.items(sect))
-        elif sect != "DEFAULT":
-            print (f"Warning: section [{sect}] is ignored in "
-                   f"config file {config_file}")
-    return settings
