@@ -55,7 +55,8 @@ class ASReviewSettings(object):
                     try:
                         setattr(self, key, SETTINGS_TYPE_DICT[key](value))
                     except (KeyError, TypeError):
-                        print(f"Warning: value with key '{key}' is ignored (spelling mistake?).")
+                        print(f"Warning: value with key '{key}' is ignored (spelling mistake"
+                              ", wrong type?).")
                         
             elif (sect == "model_param" or sect == "fit_param" or
                   sect == "query_param" or sect == "balance_param"):

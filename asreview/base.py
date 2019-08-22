@@ -8,7 +8,6 @@ from asreview.init_sampling import sample_prior_knowledge
 from asreview.logging import Logger, query_key
 from asreview.ascii import ASCII_TEA
 from asreview.balance_strategies import full_sample
-from asreview.balanced_al import validation_data
 from asreview.query_strategies import max_sampling
 
 

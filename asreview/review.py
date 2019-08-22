@@ -1,11 +1,4 @@
-#!/usr/bin/env python3
-# Systematic Review with LSTM Active
-#
-#
-# Authors: Parisa Zahedi, Jonathan de Bruin
-
 import json
-import os
 import time
 import pickle
 from pathlib import Path
@@ -61,7 +54,8 @@ def review(dataset,
                                     n_prior_included, n_prior_excluded,
                                     query_strategy,
                                     balance_strategy, mode, dataset
-                                    ).override(config_file)
+                                    )
+        settings.from_file(config_file)
     model = settings.model
     print(f"Using {model} model")
 

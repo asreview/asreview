@@ -2,9 +2,6 @@
 import os
 import shutil
 from pathlib import Path
-import warnings
-
-from asreview.readers import read_data
 
 
 def _unsafe_dict_update(default_dict, override_dict):
