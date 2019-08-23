@@ -9,22 +9,21 @@ def get_balance_strategy(settings):
     from asreview.balance_strategies import TripleBalanceTD
     from asreview.balance_strategies import UndersampleTD
 
-    method = settings.get("balance_strategy", "simple")
-    settings["balance_strategy"] = method
+    method = getattr(settings, "balance_strategy", "simple")
+    settings.balance_strategy = method
     if method == "simple":
-        td_obj = FullSampleTD(settings['balance_param'])
+        td_obj = FullSampleTD(settings.balance_param)
         td_string = "all training data"
     elif method == "triple_balance":
         td_obj = TripleBalanceTD(
-            settings['balance_param'], settings['fit_kwargs'],
-            settings['query_kwargs'])
+            settings.balance_param, settings.fit_kwargs, settings.query_kwargs)
         td_string = "triple balanced (max,rand) training data"
     elif method in ["undersample", "undersampling"]:
-        td_obj = UndersampleTD(settings['balance_param'])
+        td_obj = UndersampleTD(settings.balance_param)
         td_string = "undersampled training data"
     else:
         raise ValueError(f"Training data method {method} not found")
-    func, settings['balance_kwargs'] = td_obj.func_kwargs()
+    func, settings.balance_kwargs = td_obj.func_kwargs()
     return func, td_string
 
 

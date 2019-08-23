@@ -27,13 +27,15 @@ def test_svm(monkeypatch):
 
 
 def check_log(log_dict):
-    assert len(log_dict[0]["labelled"]) == 4
-    assert len(log_dict[0]["train_proba"]) == 4
-    assert len(log_dict[0]["pool_proba"]) == 2
+    assert len(log_dict["0"]["labelled"]) == 4
+    assert len(log_dict["0"]["train_proba"]) == 4
+    assert len(log_dict["0"]["pool_proba"]) == 2
 
-    assert len(log_dict[1]["labelled"]) == 1
-    assert len(log_dict[1]["train_proba"]) == 5
-    assert len(log_dict[1]["pool_proba"]) == 1
+    assert len(log_dict["1"]["labelled"]) == 1
+    assert len(log_dict["1"]["train_proba"]) == 5
+    assert len(log_dict["1"]["pool_proba"]) == 1
+
+    assert len(log_dict["2"]["labelled"]) == 1
 
     assert "time" in log_dict
     assert "version" in log_dict
