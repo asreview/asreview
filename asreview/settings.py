@@ -20,16 +20,30 @@ SETTINGS_TYPE_DICT = {
 
 
 class ASReviewSettings(object):
-#     def __init__(self, model, n_instances, n_queries, n_prior_included,
-#                 n_prior_excluded, query_strategy,
-#                 balance_strategy, mode, data_fp=None, data_name=None, model_param={},
-#                 fit_param={}, query_param={}, balance_param={}, **kwargs
-#                 ):
-    def __init__(self, data_fp=None, data_name=None, **kwargs):   
-        if data_name is not None:
-            self.data_name = data_name
-        elif data_fp is not None:
-            self.data_name = os.path.basename(data_fp)
+    def __init__(self, mode, model, query_strategy, balance_strategy,
+                 n_instances, n_queries, n_prior_included=None,
+                 n_prior_excluded=None, data_fp=None, data_name=None, model_param={},
+                 fit_param={}, query_param={}, balance_param={}, **kwargs
+                 ):
+        all_args = locals().copy()
+        del all_args["self"]
+        del all_args["kwargs"]
+        print(all_args)
+        self._from_args(**all_args, **kwargs)
+        
+#     def __init__(self, data_fp=None, data_name=None, **kwargs):   
+
+    def _from_args(self, **kwargs):
+        for key in kwargs:
+            try:
+                setattr(self, key, SETTINGS_TYPE_DICT[key](kwargs[key]))
+            except (KeyError, TypeError):
+                setattr(self, key, kwargs[key])
+
+        if "data_name" in kwargs and kwargs["data_name"] is not None:
+            self.data_name = kwargs["data_name"]
+        elif "data_fp" in kwargs and kwargs["data_fp"] is not None:
+            self.data_name = os.path.basename(kwargs["data_fp"])
         else:
             self.data_name = "unknown"
 #         for key in kwargs
@@ -46,11 +60,6 @@ class ASReviewSettings(object):
 #         self.query_param = query_param
 #         self.balance_param = balance_param
 #         
-        for key in kwargs:
-            try:
-                setattr(self, key, SETTINGS_TYPE_DICT[key](kwargs[key]))
-            except (KeyError, TypeError):
-                setattr(self, key, kwargs[key])
 
     def from_file(self, config_file):
         if config_file is None or not os.path.isfile(config_file):
