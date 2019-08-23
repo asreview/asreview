@@ -1,11 +1,7 @@
 # Cpython dependencies
 import os
 import shutil
-from configparser import ConfigParser
 from pathlib import Path
-import warnings
-
-from asreview.readers import read_data
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -36,10 +32,53 @@ def _unsafe_dict_update(default_dict, override_dict):
         if key in override_dict:
             str_val = override_dict[key]
             if type(new_dict[key]) == bool:
-                new_dict[key] = str_val in ["True", "true", "T", "t"]
+                new_dict[key] = str_val in ["True", "true", "T", "t", True]
             else:
                 try:
                     new_dict[key] = type(new_dict[key])(str_val)
+                except TypeError:
+                    raise(TypeError(f"Error at {key}"))
+    return new_dict
+
+
+def _safe_dict_update(default_dict, override_dict):
+    """
+    Using defaults and an overriding dictionary, create a new dictionary.
+    This new dictionary has the same values as the default dictionary.
+    Thus, if there are values that are in the overriding
+    dictionary, but not in the original, they will be ignored.
+    In contrast to the unsafe version, the type should be supplied in the default
+    dictionary: key: (value, type).
+
+    Arguments
+    ---------
+    default_dict: dict
+        Starting dictionary with defaults.
+    override_dict: dict
+        Dictionary with custom values (such as model parameters).
+
+    Returns
+    -------
+    dict
+        Merged dictionary.
+    """
+    new_dict = {}
+    for key in default_dict:
+        new_dict[key] = default_dict[key][0]
+
+    for key in override_dict:
+        if key not in default_dict:
+            print(f"Warning: key {key} is being ignored.")
+
+    for key in new_dict:
+        if key in override_dict:
+            str_val = override_dict[key]
+            type_val = default_dict[key][1]
+            if type_val == bool:
+                new_dict[key] = str_val in ["True", "true", "T", "t"]
+            else:
+                try:
+                    new_dict[key] = type_val(str_val)
                 except TypeError:
                     raise(TypeError(f"Error at {key}"))
     return new_dict
@@ -157,28 +196,3 @@ def _set_class_weight(weight1, fit_kwargs):
         1: weight1,
     }
     print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
-
-
-def config_from_file(config_file):
-    """ Get settings from a configuration file using ConfigParser. """
-    if config_file is None or not os.path.isfile(config_file):
-        if config_file is not None:
-            print(f"Didn't find configuration file: {config_file}")
-        return {}
-
-    config = ConfigParser()
-    config.read(config_file)
-
-    settings = {}
-
-    # Read the each of the sections.
-    for sect in config:
-        if sect == "global_settings":
-            settings.update(dict(config.items(sect)))
-        elif (sect == "model_param" or sect == "fit_param" or
-              sect == "query_param" or sect == "balance_param"):
-            settings[sect] = dict(config.items(sect))
-        elif sect != "DEFAULT":
-            print (f"Warning: section [{sect}] is ignored in "
-                   f"config file {config_file}")
-    return settings

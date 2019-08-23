@@ -12,7 +12,7 @@ Oracle mode
 An example that uses the ASReview API (fill in DATA_FILE and 
 EMBEDDING_FILE with valid filenames):
 
-.. code-block::
+.. code-block:: python
 
 	import asreview
 	from asreview.models import create_lstm_pool_model
@@ -52,7 +52,7 @@ Simulation mode
 
 An example of use the API for the simulation mode:
 
-.. code-block::
+.. code-block:: python
 
 	import asreview
 	from asreview.models import create_lstm_pool_model

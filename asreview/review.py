@@ -1,11 +1,4 @@
-#!/usr/bin/env python3
-# Systematic Review with LSTM Active
-#
-#
-# Authors: Parisa Zahedi, Jonathan de Bruin
-
 import json
-import os
 import time
 import pickle
 from pathlib import Path
@@ -18,9 +11,11 @@ from asreview.ascii import ASCII_TEA
 from asreview.types import is_pickle, convert_list_type
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
-from asreview.utils import get_data_home, _unsafe_dict_update, config_from_file
+from asreview.utils import get_data_home
 from asreview.query_strategies import get_query_strategy
 from asreview.balance_strategies import get_balance_strategy
+from asreview.logging import Logger
+from asreview.settings import ASReviewSettings
 
 from asreview.models import create_lstm_base_model, lstm_base_model_defaults
 from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
@@ -31,46 +26,45 @@ from asreview.readers import read_data
 from os.path import splitext
 
 
-def _default_settings(model, n_instances, query_strategy, balance_strategy,
-                      mode, data_fp):
-    """ Create settings dictionary with values. """
-    data_name = os.path.basename(data_fp)
-    settings = {
-        "data_file": data_name,
-        "model": model.lower(),
-        "query_strategy": query_strategy,
-        "balance_strategy": balance_strategy,
-        "n_instances": n_instances,
-        "mode": mode,
-        "model_param": {},
-        "fit_param": {},
-        "query_param": {},
-        "balance_param": {},
-    }
-    return settings
-
-
 def review(dataset,
            mode='oracle',
            model="lstm",
            query_strategy="uncertainty",
            balance_strategy="simple",
            n_instances=1,
+           n_queries=1,
            embedding_fp=None,
            verbose=1,
            prior_included=None,
            prior_excluded=None,
-           n_prior_included=None,
-           n_prior_excluded=None,
+           n_prior_included=-1,
+           n_prior_excluded=-1,
            save_model_fp=None,
            config_file=None,
+           src_log_fp=None,
            **kwargs
            ):
 
-    settings = _default_settings(model, n_instances, query_strategy,
-                                 balance_strategy, mode, dataset)
-    settings = _unsafe_dict_update(settings, config_from_file(config_file))
-    model = settings['model']
+    if src_log_fp is not None:
+        logger = Logger(log_fp=src_log_fp)
+        settings = logger.settings
+    else:
+        logger = None
+#         settings = ASReviewSettings(model, n_instances, n_queries,
+#                                     n_prior_included, n_prior_excluded,
+#                                     query_strategy,
+#                                     balance_strategy, mode, dataset
+#                                     )
+        settings = ASReviewSettings(model=model, n_instances=n_instances, 
+                                    n_queries=n_queries,
+                                    n_prior_included=n_prior_included, 
+                                    n_prior_excluded=n_prior_excluded,
+                                    query_strategy=query_strategy,
+                                    balance_strategy=balance_strategy, mode=mode, data_fp=dataset
+                                    )
+
+        settings.from_file(config_file)
+    model = settings.model
     print(f"Using {model} model")
 
     if model in ["lstm_base", "lstm_pool"]:
@@ -137,8 +131,8 @@ def review(dataset,
             X = text_clf.fit_transform(texts)
             y = labels
 
-    settings['fit_kwargs'] = {}
-    settings['query_kwargs'] = {}
+    settings.fit_kwargs = {}
+    settings.query_kwargs = {}
 
     if base_model == 'RNN':
         if model == "lstm_base":
@@ -150,8 +144,8 @@ def review(dataset,
         else:
             raise ValueError(f"Unknown model {model}")
 
-        settings['fit_kwargs'] = lstm_fit_defaults(settings, verbose)
-        settings['query_kwargs']['verbose'] = verbose
+        settings.fit_kwargs = lstm_fit_defaults(settings, verbose)
+        settings.query_kwargs['verbose'] = verbose
         # create the model
         model = KerasClassifier(
             create_lstm_model(embedding_matrix=embedding_matrix,
@@ -180,6 +174,7 @@ def review(dataset,
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
+    print(settings.n_queries, n_queries)
     if mode == "simulate":
         # start the review process
         reviewer = ReviewSimulate(
@@ -187,15 +182,17 @@ def review(dataset,
             model=model,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
-            n_instances=n_instances,
+            n_instances=settings.n_instances,
+            n_queries=settings.n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-            n_prior_included=n_prior_included,
-            n_prior_excluded=n_prior_excluded,
-            fit_kwargs=settings['fit_kwargs'],
-            balance_kwargs=settings['balance_kwargs'],
-            query_kwargs=settings['query_kwargs'],
+            n_prior_included=settings.n_prior_included,
+            n_prior_excluded=settings.n_prior_excluded,
+            fit_kwargs=settings.fit_kwargs,
+            balance_kwargs=settings.balance_kwargs,
+            query_kwargs=settings.query_kwargs,
+            logger=logger,
 
             # Other
             **kwargs)
@@ -225,13 +222,15 @@ def review(dataset,
             model=model,
             query_strategy=query_fn,
             data=data,
-            n_instances=n_instances,
+            n_instances=settings.n_instances,
+            n_queries=settings.n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-            fit_kwargs=settings['fit_kwargs'],
-            balance_kwargs=settings['balance_kwargs'],
-            query_kwargs=settings['query_kwargs'],
+            fit_kwargs=settings.fit_kwargs,
+            balance_kwargs=settings.balance_kwargs,
+            query_kwargs=settings.query_kwargs,
+            logger=logger,
 
             # other keyword arguments
             **kwargs)
