@@ -19,26 +19,24 @@ LABEL_INCLUDED_VALUES = [
 ]
 
 class ASReviewData:
-    def __init__(self, raw_data, labels=None, title=None, abstract=None, keywords=None,
+    def __init__(self, raw_df, labels=None, title=None, abstract=None, keywords=None,
+                 article_id=None,
                  label_col=LABEL_INCLUDED_VALUES[0]):
-        self.raw_data = raw_data
+        self.raw_df = raw_df
         self.labels = labels
         self.title = title
         self.abstract = abstract
         self.label_col = label_col
         self.keywords = keywords
+        self.article_id = article_id
 
-    def from_csv(self, fp):
-        self.raw_data = read_csv(fp)
-
-    def from_ris(self, fp):
-        self.raw_data = read_ris(fp)
-
+        if article_id is None:
+            article_id = np.arange(len(raw_df.index))
 
     @classmethod
-    def from_data_frame(cls, raw_data):
+    def from_data_frame(cls, raw_df):
         # extract the label column
-        column_labels = [label for label in list(raw_data)
+        column_labels = [label for label in list(raw_df)
                          if label in LABEL_INCLUDED_VALUES]
 
         if len(column_labels) > 1:
@@ -47,51 +45,56 @@ class ASReviewData:
             print(f'Possible values: {column_labels}.')
             print(f'Choosing the one with the highest priority: '
                   f'{column_labels[0]}')
-        data_kwargs={"raw_data": raw_data}
+        data_kwargs={"raw_df": raw_df}
+        print(raw_df)
         if len(column_labels) > 0:
-            data_kwargs['labels'] = raw_data[column_labels[0]].values
+            data_kwargs['labels'] = raw_df[column_labels[0]].values
             data_kwargs['label_col'] = column_labels[0]
 
         try:
-            data_kwargs['title'] = raw_data['title'].fillna('').values
+            data_kwargs['title'] = raw_df['title'].fillna('').values
         except KeyError:
             pass
         
         try:
-            data_kwargs['abstract'] = raw_data['abstract'].fillna('').values
+            data_kwargs['abstract'] = raw_df['abstract'].fillna('').values
         except KeyError:
             pass  
           
         try:
-            data_kwargs['keywords'] = raw_data['keywords'].fillna('').values
+            data_kwargs['keywords'] = raw_df['keywords'].fillna('').values
         except KeyError:
             pass
         return cls(**data_kwargs)
 
     @classmethod
+    def from_csv(cls, fp):
+        return cls.from_data_frame(pd.DataFrame(read_csv(fp)))
+
+    @classmethod
+    def from_ris(cls, fp):
+        return cls.from_data_frame(pd.DataFrame(read_ris(fp)))
+
+    @classmethod
     def from_file(cls, fp):
         if Path(fp).suffix in [".csv", ".CSV"]:
-            raw_data = read_csv(fp)
+            return cls.from_csv(fp)
         elif Path(fp).suffix in [".ris", ".RIS"]:
-            raw_data = read_ris(fp)
+            return cls.from_ris(fp)
         else:
             raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                         f"from file {fp}")
-
-        raw_data = pd.DataFrame(raw_data)
-        return cls.from_data_frame(raw_data)
-        
+                         f"from file {fp}") 
      
     def get_data(self):
         texts = []
         for i in range(len(self.title)):
             texts.append(self.title[i] + " " + self.abstract[i])
-        return self.raw_data, np.array(texts), self.labels
+        return self.raw_df, np.array(texts), self.labels
 
     def to_csv(self, csv_fp, labels=None):
         if labels is not None:
-            self.raw_data[self.label_col] = labels
-        self.raw_data.to_csv(csv_fp)            
+            self.raw_df[self.label_col] = labels
+        self.raw_df.to_csv(csv_fp)            
                 
 
 def read_data(fp):
