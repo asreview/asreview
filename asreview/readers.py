@@ -19,15 +19,14 @@ LABEL_INCLUDED_VALUES = [
 ]
 
 class ASReviewData:
-    def __init__(self, fp=None):
-        self.raw_data = None
-        self.labels = None
-        self.title = None
-        self.abstract = None
-        self.label_col = LABEL_INCLUDED_VALUES[0]
-
-        if fp is not None:
-            self.from_file(fp)
+    def __init__(self, raw_data, labels=None, title=None, abstract=None, keywords=None,
+                 label_col=LABEL_INCLUDED_VALUES[0]):
+        self.raw_data = raw_data
+        self.labels = labels
+        self.title = title
+        self.abstract = abstract
+        self.label_col = label_col
+        self.keywords = keywords
 
     def from_csv(self, fp):
         self.raw_data = read_csv(fp)
@@ -35,19 +34,11 @@ class ASReviewData:
     def from_ris(self, fp):
         self.raw_data = read_ris(fp)
 
-    def from_file(self, fp):
-        if Path(fp).suffix in [".csv", ".CSV"]:
-            self.raw_data = read_csv(fp)
-        elif Path(fp).suffix in [".ris", ".RIS"]:
-            self.raw_data = read_ris(fp)
-        else:
-            raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                         f"from file {fp}")
 
-        self.raw_data = pd.DataFrame(self.raw_data)
-        
+    @classmethod
+    def from_data_frame(cls, raw_data):
         # extract the label column
-        column_labels = [label for label in list(self.raw_data)
+        column_labels = [label for label in list(raw_data)
                          if label in LABEL_INCLUDED_VALUES]
 
         if len(column_labels) > 1:
@@ -56,26 +47,41 @@ class ASReviewData:
             print(f'Possible values: {column_labels}.')
             print(f'Choosing the one with the highest priority: '
                   f'{column_labels[0]}')
-            
+        data_kwargs={"raw_data": raw_data}
         if len(column_labels) > 0:
-            self.labels = self.raw_data[column_labels[0]].values
-            self.label_col = column_labels[0]
+            data_kwargs['labels'] = raw_data[column_labels[0]].values
+            data_kwargs['label_col'] = column_labels[0]
 
         try:
-            self.title = self.raw_data['title'].fillna('').values
+            data_kwargs['title'] = raw_data['title'].fillna('').values
         except KeyError:
-            self.title = None
+            pass
         
         try:
-            self.abstract = self.raw_data['abstract'].fillna('').values
+            data_kwargs['abstract'] = raw_data['abstract'].fillna('').values
         except KeyError:
-            self.abstract = None
-            
+            pass  
+          
         try:
-            self.keywords = self.raw_data['keywords'].fillna('').values
+            data_kwargs['keywords'] = raw_data['keywords'].fillna('').values
         except KeyError:
-            self.keywords = None
-    
+            pass
+        return cls(**data_kwargs)
+
+    @classmethod
+    def from_file(cls, fp):
+        if Path(fp).suffix in [".csv", ".CSV"]:
+            raw_data = read_csv(fp)
+        elif Path(fp).suffix in [".ris", ".RIS"]:
+            raw_data = read_ris(fp)
+        else:
+            raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                         f"from file {fp}")
+
+        raw_data = pd.DataFrame(raw_data)
+        return cls.from_data_frame(raw_data)
+        
+     
     def get_data(self):
         texts = []
         for i in range(len(self.title)):
