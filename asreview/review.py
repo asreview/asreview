@@ -175,7 +175,6 @@ def review(dataset,
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
-    print(settings.n_queries, n_queries)
     if mode == "simulate":
         # start the review process
         reviewer = ReviewSimulate(

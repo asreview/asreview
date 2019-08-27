@@ -33,7 +33,6 @@ class ASReviewSettings(object):
         all_args = locals().copy()
         del all_args["self"]
         del all_args["kwargs"]
-        print(all_args)
         self._from_args(**all_args, **kwargs)
 
     def _from_args(self, **kwargs):

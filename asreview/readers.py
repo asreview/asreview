@@ -36,7 +36,7 @@ class ASReviewData(object):
         self.authors = authors
 
         if article_id is None:
-            article_id = np.arange(len(raw_df.index))
+            self.article_id = np.arange(len(raw_df.index))
 
     @classmethod
     def from_data_frame(cls, raw_df):
