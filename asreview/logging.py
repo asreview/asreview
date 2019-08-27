@@ -130,6 +130,16 @@ class Logger(object):
     def add_labels(self, y):
         self._log_dict["labels"] = y.tolist()
 
+    def add_query_info(self, query_kwargs, i=None):
+        if 'last_bounds' not in query_kwargs:
+            print("Error: lastbounds not found/.")
+            return
+        new_dict = {
+            'label_methods': 
+                query_kwargs['last_bounds']
+        }
+        self._add_log(new_dict, i)
+
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
 
@@ -218,4 +228,36 @@ class Logger(object):
         with open(fp, "r") as f:
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
-     
+
+
+    def get_rand_max_idx(self):
+        # Reinstate the random/max sampling information.
+        i=0
+        qk = query_key(i)
+        rand_idx = []
+        max_idx = []
+        while qk in self._log_dict:
+            if "labelled" not in self._log_dict[qk]:
+                i += 1
+                qk = query_key(i)
+                continue
+            if "label_methods" not in self._log_dict[qk]:
+                rand_idx.extend(self._log_dict[qk]["labelled"])
+            else:
+                for bound in self._log_dict[qk]["label_methods"]:
+                    query_type = bound[0]
+                    start = bound[1]
+                    end = bound[2]
+                    idx = self._log_dict[qk]["labelled"][start:end]
+                    if query_type == "max":
+                        max_idx.extend(idx)
+                    elif query_type == "random" or query_type == "rand":
+                        rand_idx.extend(idx)
+            i += 1
+            qk = query_key(i)
+        rand_idx = [x[0] for x in rand_idx]
+        max_idx = [x[0] for x in max_idx]
+        return np.array(rand_idx), np.array(max_idx)
+#         print("rand_max: ", len(rand_idx), len(max_idx))
+#         print(rand_idx, max_idx)
+        
