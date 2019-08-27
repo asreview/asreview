@@ -86,6 +86,10 @@ def rand_max_sampling(classifier: BaseEstimator,
     query_kwargs['last_max_idx'] = max_idx
     query_kwargs['last_rand_idx'] = rand_idx
     query_kwargs['rand_max_frac'] = rand_max_frac
+    query_kwargs['last_bounds']  = [
+        ("max", 0, n_instance_max),
+        ("random", n_instance_max, n_instances),
+    ]
     query_idx = np.append(max_idx, rand_idx)
 
     return query_idx, X[query_idx]

@@ -164,6 +164,10 @@ class Review(ABC):
 
         if self.start_from_logger:
             query_i, train_idx = self._prepare_with_logger()
+            rand_idx, max_idx = self._logger.get_rand_max_idx()
+            self.query_kwargs["rand_idx"] = rand_idx
+            self.query_kwargs["max_idx"] = max_idx
+            print(len(max_idx), len(rand_idx))
         else:
             # add prior knowledge
             init_idx, init_labels = self._prior_knowledge()
@@ -174,6 +178,8 @@ class Review(ABC):
 
             self._logger.add_labels(self.y)
             self._logger.add_training_log(init_idx, self.y[init_idx])
+            self.query_kwargs['last_bounds'] = [("random", 0, len(init_idx))]
+            self._logger.add_query_info(self.query_kwargs)
 
         # Pool indices are the complement of the training indices.
         n_samples = self.X.shape[0]
@@ -220,6 +226,7 @@ class Review(ABC):
                                    logname="train_proba")
 
             self._logger.add_training_log(query_idx, self.y[query_idx])
+            self._logger.add_query_info(self.query_kwargs)
 
             # Classify the queried papers.
             self.y[query_idx] = self._classify(query_idx)
