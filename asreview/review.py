@@ -22,7 +22,7 @@ from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asreview.models import lstm_fit_defaults
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.readers import read_data
+from asreview.readers import ASReviewData
 from os.path import splitext
 
 
@@ -55,12 +55,13 @@ def review(dataset,
 #                                     query_strategy,
 #                                     balance_strategy, mode, dataset
 #                                     )
-        settings = ASReviewSettings(model=model, n_instances=n_instances, 
+        settings = ASReviewSettings(model=model, n_instances=n_instances,
                                     n_queries=n_queries,
-                                    n_prior_included=n_prior_included, 
+                                    n_prior_included=n_prior_included,
                                     n_prior_excluded=n_prior_excluded,
                                     query_strategy=query_strategy,
-                                    balance_strategy=balance_strategy, mode=mode, data_fp=dataset
+                                    balance_strategy=balance_strategy,
+                                    mode=mode, data_fp=dataset
                                     )
 
         settings.from_file(config_file)
@@ -86,9 +87,8 @@ def review(dataset,
             data_obj = pickle.load(f)
         if isinstance(data_obj, tuple) and len(data_obj) == 3:
             X, y, embedding_matrix = data_obj
-            data = None
         elif isinstance(data_obj, tuple) and len(data_obj) == 4:
-            X, y, embedding_matrix, data = data_obj
+            X, y, embedding_matrix, _ = data_obj
         else:
             raise ValueError("Incorrect pickle object.")
     else:
@@ -98,7 +98,8 @@ def review(dataset,
             print("Prepare dataset.\n")
             print(ASCII_TEA)
 
-        data, texts, labels = read_data(dataset)
+        as_data = ASReviewData.from_file(dataset)
+        _, texts, labels = as_data.get_data()
 
         # get the model
         if base_model == "RNN":
@@ -175,7 +176,6 @@ def review(dataset,
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
-    print(settings.n_queries, n_queries)
     if mode == "simulate":
         # start the review process
         reviewer = ReviewSimulate(
@@ -222,7 +222,7 @@ def review(dataset,
             X,
             model=model,
             query_strategy=query_fn,
-            data=data,
+            as_data=as_data,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,

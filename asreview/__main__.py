@@ -13,10 +13,10 @@ from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
 from asreview.config import AVAILABLE_MODI  # noqa
 
-DEFAULT_MODEL = "lstm_base"
-DEFAULT_QUERY_STRATEGY = "uncertainty"
-DEFAULT_BALANCE_STRATEGY = "simple"
-DEFAULT_N_INSTANCES = 50
+DEFAULT_MODEL = "lstm_pool"
+DEFAULT_QUERY_STRATEGY = "rand_max"
+DEFAULT_BALANCE_STRATEGY = "triple_balance"
+DEFAULT_N_INSTANCES = 20
 DEFAULT_N_PRIOR_INCLUDED = 10
 DEFAULT_N_PRIOR_EXCLUDED = 10
 
