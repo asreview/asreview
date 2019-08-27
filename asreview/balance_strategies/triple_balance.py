@@ -117,10 +117,10 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     if "last_max_idx" in query_kwargs:
         max_idx = np.append(max_idx, query_kwargs['last_max_idx'])
         rand_idx = np.append(rand_idx, query_kwargs['last_rand_idx'])
-    else:
-        rand_idx = train_idx
+#     else:
+#         rand_idx = train_idx
 
-    # Write them beack for next round.
+    # Write them back for next round.
     if shuffle:
         np.random.shuffle(rand_idx)
         np.random.shuffle(max_idx)

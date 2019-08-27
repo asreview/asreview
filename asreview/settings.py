@@ -28,10 +28,7 @@ class ASReviewSettings(object):
         all_args = locals().copy()
         del all_args["self"]
         del all_args["kwargs"]
-        print(all_args)
         self._from_args(**all_args, **kwargs)
-        
-#     def __init__(self, data_fp=None, data_name=None, **kwargs):   
 
     def _from_args(self, **kwargs):
         for key in kwargs:
@@ -46,20 +43,6 @@ class ASReviewSettings(object):
             self.data_name = os.path.basename(kwargs["data_fp"])
         else:
             self.data_name = "unknown"
-#         for key in kwargs
-#         self.model = model
-#         self.n_instances = n_instances
-#         self.n_queries = n_queries
-#         self.n_prior_included = n_prior_included
-#         self.n_prior_excluded = n_prior_excluded
-#         self.query_strategy = query_strategy
-#         self.balance_strategy = balance_strategy
-#         self.mode = mode
-#         self.model_param = model_param
-#         self.fit_param = fit_param
-#         self.query_param = query_param
-#         self.balance_param = balance_param
-#         
 
     def from_file(self, config_file):
         if config_file is None or not os.path.isfile(config_file):
@@ -86,3 +69,4 @@ class ASReviewSettings(object):
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "
                        f"config file {config_file}")
+
