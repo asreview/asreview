@@ -20,10 +20,15 @@ SETTINGS_TYPE_DICT = {
 
 
 class ASReviewSettings(object):
+    """ Dictionary like object that stores the configuration of a
+        review session. The main difference being that it type checks (some)
+        of its contents.
+    """
     def __init__(self, mode, model, query_strategy, balance_strategy,
                  n_instances, n_queries, n_prior_included=None,
-                 n_prior_excluded=None, data_fp=None, data_name=None, model_param={},
-                 fit_param={}, query_param={}, balance_param={}, **kwargs
+                 n_prior_excluded=None, data_fp=None, data_name=None,
+                 model_param={}, fit_param={}, query_param={},
+                 balance_param={}, **kwargs
                  ):
         all_args = locals().copy()
         del all_args["self"]
@@ -45,14 +50,22 @@ class ASReviewSettings(object):
             self.data_name = "unknown"
 
     def from_file(self, config_file):
+        """ Fill the contents of settings by reading a config file.
+
+        Arguments
+        ---------
+        config_file: str
+            Source configuration file.
+
+        """
         if config_file is None or not os.path.isfile(config_file):
             if config_file is not None:
                 print(f"Didn't find configuration file: {config_file}")
             return {}
-    
+
         config = ConfigParser()
         config.read(config_file)
-        
+
         # Read the each of the sections.
         for sect in config:
             if sect == "global_settings":
@@ -60,9 +73,9 @@ class ASReviewSettings(object):
                     try:
                         setattr(self, key, SETTINGS_TYPE_DICT[key](value))
                     except (KeyError, TypeError):
-                        print(f"Warning: value with key '{key}' is ignored (spelling mistake"
-                              ", wrong type?).")
-                        
+                        print(f"Warning: value with key '{key}' is ignored "
+                              "(spelling mistake, wrong type?).")
+
             elif (sect == "model_param" or sect == "fit_param" or
                   sect == "query_param" or sect == "balance_param"):
                 setattr(self, sect, dict(config.items(sect)))

@@ -11,7 +11,7 @@ from asreview.balance_strategies import full_sample
 from asreview.query_strategies import max_sampling
 
 
-NOT_AVAILABLE = -1
+NOT_AVAILABLE = np.nan
 
 
 def _merge_prior_knowledge(included, excluded, return_labels=True):
@@ -122,14 +122,14 @@ class Review(ABC):
             stop_iter = True
 
         return stop_iter
-        
+
     def _prepare_with_logger(self):
         """ If we start the reviewer from a log file, we need to do some
             preparation work. The final result should be a log dictionary in
-            a state where the labeled papares are one step ahead of the probabilities.
-            Any excess probabilities (pool_proba and train_proba) are thrown away and
-            recomputed.
-        
+            a state where the labeled papares are one step ahead of the
+            probabilities. Any excess probabilities (pool_proba and
+            train_proba) are thrown away and recomputed.
+
         Returns
         -------
         tuple:
@@ -149,12 +149,14 @@ class Review(ABC):
             qk = query_key(query_i)
         query_i -= 1
 
-        # Throw away the last probabilities if they have the same key as the query.
-        if query_i>=0:
+        # Throw away the last probabilities if they have the same key
+        # as the query. These values should be overwritten, since we're starting
+        # out by training the model again.
+        if query_i >= 0:
             qk = query_key(query_i)
             self._logger._log_dict[qk].pop("pool_proba", None)
             self._logger._log_dict[qk].pop("train_proba", None)
-        
+
         return (query_i, np.array(train_idx))
 
     def review(self):
@@ -211,7 +213,6 @@ class Review(ABC):
                 n_instances=min(self.n_instances, len(pool_idx)),
                 query_kwargs=self.query_kwargs
             )
-
 
             # Log the probabilities of samples in the pool being included.
             pred_proba = self.query_kwargs.get('pred_proba', [])
@@ -311,7 +312,7 @@ class ReviewSimulate(Review):
 class ReviewOracle(Review):
     """Automated Systematic Review"""
 
-    def __init__(self, X, data, use_cli_colors=True,
+    def __init__(self, X, as_data, use_cli_colors=True,
                  *args, **kwargs):
         super(ReviewOracle, self).__init__(
             X,
@@ -319,7 +320,7 @@ class ReviewOracle(Review):
             *args,
             **kwargs)
 
-        self.data = data
+        self.as_data = as_data
 
         self.use_cli_colors = use_cli_colors
 
@@ -349,11 +350,7 @@ class ReviewOracle(Review):
 
     def _classify_paper(self, index):
         # CLI paper format
-        _gui_paper = self._format_paper(
-            title=self.data.iloc[index]["title"],
-            abstract=self.data.iloc[index]["abstract"],
-            authors=self.data.iloc[index]["authors"])
-        print(_gui_paper)
+        self.as_data.print_record(index)
 
         def _interact():
             # interact with the user

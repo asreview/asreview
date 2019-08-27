@@ -10,6 +10,7 @@ import asreview
 from asreview.settings import ASReviewSettings
 from collections import OrderedDict
 
+
 def query_key(query_i):
     return str(query_i)
 
@@ -83,7 +84,6 @@ class Logger(object):
 
     def __init__(self, log_fp=None):
         super(Logger, self).__init__()
-        
         if log_fp is not None:
             self.restore(log_fp)
         else:
@@ -95,7 +95,6 @@ class Logger(object):
             })
 
     def __str__(self):
-
         return self._print_logs()
 
     def _print_logs(self):
@@ -229,7 +228,6 @@ class Logger(object):
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
 
-
     def get_rand_max_idx(self):
         # Reinstate the random/max sampling information.
         i=0
@@ -260,4 +258,3 @@ class Logger(object):
         return np.array(rand_idx), np.array(max_idx)
 #         print("rand_max: ", len(rand_idx), len(max_idx))
 #         print(rand_idx, max_idx)
-        
