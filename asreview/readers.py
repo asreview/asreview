@@ -7,6 +7,7 @@ from RISparser import TAG_KEY_MAPPING, readris
 import pandas as pd
 import numpy as np
 
+from asreview.base import NOT_AVAILABLE
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
@@ -19,7 +20,9 @@ LABEL_INCLUDED_VALUES = [
 ]
 
 
-class ASReviewData:
+class ASReviewData(object):
+    """ Data object to store csv/ris file. Extracts relevant properties
+        of papers. """
     def __init__(self, raw_df, labels=None, title=None, abstract=None,
                  keywords=None, article_id=None, authors=None,
                  label_col=LABEL_INCLUDED_VALUES[0]):
@@ -37,6 +40,7 @@ class ASReviewData:
 
     @classmethod
     def from_data_frame(cls, raw_df):
+        """ Get a review data object from a pandas dataframe. """
         # extract the label column
         column_labels = [label for label in list(raw_df)
                          if label in LABEL_INCLUDED_VALUES]
@@ -94,6 +98,7 @@ class ASReviewData:
                              f"from file {fp}")
 
     def format_record(self, i, use_cli_colors=True):
+        " Format one record for displaying in the CLI. "
         if self.title is not None:
             title = self.title[i]
         else:
@@ -126,6 +131,7 @@ class ASReviewData:
         print(_gui_paper)
 
     def get_data(self):
+        "Equivalent of 'read_data'; get texts, labels from data object."
         texts = []
         for i in range(len(self.title)):
             texts.append(self.title[i] + " " + self.abstract[i])
@@ -179,7 +185,7 @@ def read_data(fp):
               f'{column_labels[0]}')
     elif len(column_labels) == 0:
         return df, texts.values, None
-    labels = df[column_labels[0]]
+    labels = df[column_labels[0]].fillna(NOT_AVAILABLE)
     return df, texts.values, labels.values
 
 

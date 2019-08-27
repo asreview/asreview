@@ -44,7 +44,6 @@ def check_log(log_dict):
 
 def check_lstm(lstm_model, monkeypatch):
     # load data
-#     data, texts, _ = asr.read_data(data_fp)
     as_data = asr.ASReviewData.from_file(data_fp)
     _, texts, _ = as_data.get_data()
 
@@ -81,7 +80,6 @@ def check_lstm(lstm_model, monkeypatch):
 
 def check_nb_svm(sk_model, monkeypatch):
     # load data
-#     data, texts, _ = asr.read_data(data_fp)
     as_data = asr.ASReviewData.from_file(data_fp)
     _, texts, _ = as_data.get_data()
 

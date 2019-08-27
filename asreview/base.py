@@ -11,7 +11,7 @@ from asreview.balance_strategies import full_sample
 from asreview.query_strategies import max_sampling
 
 
-NOT_AVAILABLE = -1
+NOT_AVAILABLE = np.nan
 
 
 def _merge_prior_knowledge(included, excluded, return_labels=True):
@@ -149,7 +149,9 @@ class Review(ABC):
             qk = query_key(query_i)
         query_i -= 1
 
-        # Throw away the last probabilities if they have the same key as the query.
+        # Throw away the last probabilities if they have the same key
+        # as the query. These values should be overwritten, since we're starting
+        # out by training the model again.
         if query_i >= 0:
             qk = query_key(query_i)
             self._logger._log_dict[qk].pop("pool_proba", None)
