@@ -18,9 +18,10 @@ LABEL_INCLUDED_VALUES = [
     "included_flag"
 ]
 
+
 class ASReviewData:
-    def __init__(self, raw_df, labels=None, title=None, abstract=None, keywords=None,
-                 article_id=None,
+    def __init__(self, raw_df, labels=None, title=None, abstract=None,
+                 keywords=None, article_id=None, authors=None,
                  label_col=LABEL_INCLUDED_VALUES[0]):
         self.raw_df = raw_df
         self.labels = labels
@@ -29,6 +30,7 @@ class ASReviewData:
         self.label_col = label_col
         self.keywords = keywords
         self.article_id = article_id
+        self.authors = authors
 
         if article_id is None:
             article_id = np.arange(len(raw_df.index))
@@ -41,11 +43,11 @@ class ASReviewData:
 
         if len(column_labels) > 1:
             print('\x1b[0;30;41m Warning multiple valid label inclusion '
-                'columns detected. \x1b[0m')
+                  'columns detected. \x1b[0m')
             print(f'Possible values: {column_labels}.')
             print(f'Choosing the one with the highest priority: '
                   f'{column_labels[0]}')
-        data_kwargs={"raw_df": raw_df}
+        data_kwargs = {"raw_df": raw_df}
         print(raw_df)
         if len(column_labels) > 0:
             data_kwargs['labels'] = raw_df[column_labels[0]].values
@@ -55,16 +57,22 @@ class ASReviewData:
             data_kwargs['title'] = raw_df['title'].fillna('').values
         except KeyError:
             pass
-        
+
         try:
             data_kwargs['abstract'] = raw_df['abstract'].fillna('').values
         except KeyError:
-            pass  
-          
+            pass
+
         try:
             data_kwargs['keywords'] = raw_df['keywords'].fillna('').values
         except KeyError:
             pass
+
+        try:
+            data_kwargs['authors'] = raw_df['authors'].fillna('').values
+        except KeyError:
+            pass
+
         return cls(**data_kwargs)
 
     @classmethod
@@ -83,8 +91,40 @@ class ASReviewData:
             return cls.from_ris(fp)
         else:
             raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                         f"from file {fp}") 
-     
+                             f"from file {fp}")
+
+    def format_record(self, i, use_cli_colors=True):
+        if self.title is not None:
+            title = self.title[i]
+        else:
+            title = ""
+
+        if use_cli_colors:
+            title = "\033[95m" + title + "\033[0m"
+
+        if self.authors is not None:
+            authors = self.authors[i]
+        else:
+            authors = ""
+
+        if self.abstract is not None:
+            abstract = self.abstract[i]
+        else:
+            abstract = ""
+
+        return f"\n{title}\n{authors}\n\n{abstract}\n"
+
+    def print_record(self, *args, **kwargs):
+        print(self.format_record(*args, **kwargs))
+
+    def _classify_paper(self, index):
+        # CLI paper format
+        _gui_paper = self._format_paper(
+            title=self.data.iloc[index]["title"],
+            abstract=self.data.iloc[index]["abstract"],
+            authors=self.data.iloc[index]["authors"])
+        print(_gui_paper)
+
     def get_data(self):
         texts = []
         for i in range(len(self.title)):
@@ -94,8 +134,8 @@ class ASReviewData:
     def to_csv(self, csv_fp, labels=None):
         if labels is not None:
             self.raw_df[self.label_col] = labels
-        self.raw_df.to_csv(csv_fp)            
-                
+        self.raw_df.to_csv(csv_fp)
+
 
 def read_data(fp):
     """Load papers and their labels.

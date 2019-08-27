@@ -44,7 +44,9 @@ def check_log(log_dict):
 
 def check_lstm(lstm_model, monkeypatch):
     # load data
-    data, texts, _ = asr.read_data(data_fp)
+#     data, texts, _ = asr.read_data(data_fp)
+    as_data = asr.ASReviewData.from_file(data_fp)
+    _, texts, _ = as_data.get_data()
 
     # create features and labels
     X, word_index = asr.text_to_features(texts)
@@ -65,7 +67,7 @@ def check_lstm(lstm_model, monkeypatch):
     # start the review process.
     reviewer = asr.ReviewOracle(
         X,
-        data=data,
+        as_data=as_data,
         model=model,
         n_instances=1,
         n_queries=1,
@@ -79,7 +81,9 @@ def check_lstm(lstm_model, monkeypatch):
 
 def check_nb_svm(sk_model, monkeypatch):
     # load data
-    data, texts, _ = asr.read_data(data_fp)
+#     data, texts, _ = asr.read_data(data_fp)
+    as_data = asr.ASReviewData.from_file(data_fp)
+    _, texts, _ = as_data.get_data()
 
     # create features and labels
     X, _ = asr.text_to_features(texts)
@@ -92,7 +96,7 @@ def check_nb_svm(sk_model, monkeypatch):
     # start the review process.
     reviewer = asr.ReviewOracle(
         X,
-        data=data,
+        as_data=as_data,
         model=model,
         n_instances=1,
         n_queries=1,

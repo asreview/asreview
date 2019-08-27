@@ -10,6 +10,7 @@ import asreview
 from asreview.settings import ASReviewSettings
 from collections import OrderedDict
 
+
 def query_key(query_i):
     return str(query_i)
 
@@ -83,7 +84,6 @@ class Logger(object):
 
     def __init__(self, log_fp=None):
         super(Logger, self).__init__()
-        
         if log_fp is not None:
             self.restore(log_fp)
         else:
@@ -95,7 +95,6 @@ class Logger(object):
             })
 
     def __str__(self):
-
         return self._print_logs()
 
     def _print_logs(self):
@@ -218,4 +217,5 @@ class Logger(object):
         with open(fp, "r") as f:
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
+
      
