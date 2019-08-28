@@ -6,7 +6,7 @@ from pathlib import Path
 # asr dependencies
 from asreview import ReviewSimulate, ReviewOracle
 from asreview.utils import text_to_features
-from asreview.config import AVAILABLE_MODI
+from asreview.config import AVAILABLE_MODI, DEMO_DATASETS
 from asreview.ascii import ASCII_TEA
 from asreview.types import is_pickle, convert_list_type
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
@@ -44,6 +44,10 @@ def review(dataset,
            src_log_fp=None,
            **kwargs
            ):
+
+    # Find the URL of the datasets if the dataset is an example dataset.
+    if dataset in DEMO_DATASETS.keys():
+        dataset = DEMO_DATASETS[dataset]
 
     if src_log_fp is not None:
         logger = Logger(log_fp=src_log_fp)
