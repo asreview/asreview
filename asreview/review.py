@@ -45,7 +45,7 @@ def review(dataset,
            **kwargs
            ):
 
-    # Find the URL of the datasets if the dataset is an exampe dataset.
+    # Find the URL of the datasets if the dataset is an example dataset.
     if dataset in DEMO_DATASETS.keys():
         dataset = DEMO_DATASETS[dataset]
 
