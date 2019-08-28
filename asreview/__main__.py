@@ -41,23 +41,27 @@ def parse_arguments(mode, prog=sys.argv[0]):
         "-m", "--model",
         type=str,
         default=DEFAULT_MODEL,
-        help="The prediction model for Active Learning. Default 'LSTM'.")
+        help=f"The prediction model for Active Learning. "
+             f"Default '{DEFAULT_MODEL}'.")
     parser.add_argument(
         "-q", "--query_strategy",
         type=str,
         default=DEFAULT_QUERY_STRATEGY,
-        help="The query strategy for Active Learning. Default 'uncertainty'.")
+        help=f"The query strategy for Active Learning. "
+             f"Default '{DEFAULT_QUERY_STRATEGY}'.")
     parser.add_argument(
         "-b", "--balance_strategy",
         type=str,
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
-             " imbalanced dataset with few inclusions and many exclusions.")
+             " imbalanced dataset with few inclusions and many exclusions. "
+             f"Default {DEFAULT_BALANCE_STRATEGY}")
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,
         type=int,
-        help="Number of papers queried each query.")
+        help="Number of papers queried each query."
+             f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_queries",
         type=int,
@@ -110,14 +114,16 @@ def parse_arguments(mode, prog=sys.argv[0]):
             default=DEFAULT_N_PRIOR_INCLUDED,
             type=int,
             help="Sample n prior included papers. "
-                 "Only used when --prior_included is not given.")
+                 "Only used when --prior_included is not given. "
+                 f"Default {DEFAULT_N_PRIOR_INCLUDED}")
 
         parser.add_argument(
             "--n_prior_excluded",
             default=DEFAULT_N_PRIOR_EXCLUDED,
             type=int,
             help="Sample n prior excluded papers. "
-                 "Only used when --prior_excluded is not given.")
+                 "Only used when --prior_excluded is not given. "
+                 f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
     # logging and verbosity
     parser.add_argument(
