@@ -52,7 +52,7 @@ class ASReviewData(object):
             print(f'Choosing the one with the highest priority: '
                   f'{column_labels[0]}')
         data_kwargs = {"raw_df": raw_df}
-        print(raw_df)
+
         if len(column_labels) > 0:
             data_kwargs['labels'] = raw_df[column_labels[0]].values
             data_kwargs['label_col'] = column_labels[0]
