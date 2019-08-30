@@ -162,79 +162,56 @@ class Review(ABC):
     def review(self):
         """ Do the systematic review, writing the results to the log file. """
 
-        if self.start_from_logger:
-            query_i, train_idx = self._prepare_with_logger()
-            rand_idx, max_idx = self._logger.get_rand_max_idx()
-            self.query_kwargs["rand_idx"] = rand_idx
-            self.query_kwargs["max_idx"] = max_idx
-            print(len(max_idx), len(rand_idx))
-        else:
-            # add prior knowledge
-            init_idx, init_labels = self._prior_knowledge()
-            self.y[init_idx] = init_labels
-
-            query_i = 0
-            train_idx = init_idx.copy()
-
-            self._logger.add_labels(self.y)
-            self._logger.add_training_log(init_idx, self.y[init_idx])
-            self.query_kwargs['last_bounds'] = [("random", 0, len(init_idx))]
-            self._logger.add_query_info(self.query_kwargs)
-
-        # Pool indices are the complement of the training indices.
-        n_samples = self.X.shape[0]
-        pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
-
         # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
             estimator=self.model,
             query_strategy=self.query_strategy
         )
 
-        while not self._stop_iter(query_i-1, pool_idx):
-            # Get the training data.
-            X_train, y_train = self.train_data(
-                self.X, self.y, train_idx, **self.balance_kwargs)
-#             validation_data(self.X[pool_idx], self.y[pool_idx],
-#                             self.fit_kwargs, ratio=1)
+        if self.start_from_logger:
+            query_i, self.train_idx = self._prepare_with_logger()
+            rand_idx, max_idx = self._logger.get_rand_max_idx()
+            self.query_kwargs["rand_idx"] = rand_idx
+            self.query_kwargs["max_idx"] = max_idx
+        else:
+            # add prior knowledge
+            init_idx, init_labels = self._prior_knowledge()
+            self.y[init_idx] = init_labels
 
-            # Train the model on the training data.
-            self.learner.teach(
-                X=X_train,
-                y=y_train,
-                only_new=True,
-                **self.fit_kwargs
-            )
+            query_i = 0
+            self.train_idx = init_idx.copy()
 
-            # Make a query from the pool.
-            query_idx, _ = self.learner.query(
-                X=self.X,
-                pool_idx=pool_idx,
-                n_instances=min(self.n_instances, len(pool_idx)),
-                query_kwargs=self.query_kwargs
-            )
-
-            # Log the probabilities of samples in the pool being included.
-            pred_proba = self.query_kwargs.get('pred_proba', [])
-            if len(pred_proba) == 0:
-                pred_proba = self.learner.predict_proba(self.X[pool_idx])
-            self._logger.add_proba(pool_idx, pred_proba)
-
-            # Log the probabilities of samples that were trained.
-            pred_proba_train = self.learner.predict_proba(self.X[train_idx])
-            self._logger.add_proba(train_idx, pred_proba_train,
-                                   logname="train_proba")
-
-            self._logger.add_training_log(query_idx, self.y[query_idx])
+            self._logger.add_labels(self.y)
+            self._logger.add_training_log(init_idx, self.y[init_idx])
+            self.query_kwargs['last_bounds'] = [("random", 0, len(init_idx))]
             self._logger.add_query_info(self.query_kwargs)
 
-            # Classify the queried papers.
+            # train the algorithm with prior knowledge
+            self.teach()
+
+        # Pool indices are the complement of the training indices.
+        self.pool = Pool(
+            np.delete(np.arange(self.X.shape[0]), self.train_idx, axis=0)
+        )
+
+        while not self._stop_iter(query_i-1, self.pool.idx):
+
+            # STEP 1: Make a new query
+            query_idx = self.query(
+                n_instances=min(self.n_instances, len(self.pool))
+            )
+
+            # STEP 2: Classify the queried papers.
             self.y[query_idx] = self._classify(query_idx)
             self._logger.add_labels(self.y)
 
-            # Update training/pool indices
-            train_idx = np.append(train_idx, query_idx)
-            pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
+            # STEP 3: Train the algorithm with new data
+            # Update the training data and pool afterwards
+            self.teach()
+            self.train_idx = np.append(self.train_idx, query_idx)
+            self.pool.remove(self.train_idx)
+
+            # STEP 4: write all results to the logger
 
             # update the query counter
             query_i += 1
@@ -245,10 +222,72 @@ class Review(ABC):
                 if self.verbose:
                     print(f"Saved results in log file: {self.log_file}")
 
+    def partial_review(self):
+
+        # STEP 1: Make a new query
+        query_idx = self.query(
+            n_instances=min(self.n_instances, len(self.pool))
+        )
+
+        # STEP 2: Classify the queried papers.
+        self.y[query_idx] = self._classify(query_idx)
+        self._logger.add_labels(self.y)
+
+        # STEP 3: Train the algorithm with new data
+        # Update the training data and pool afterwards
+        self.teach()
+        self.train_idx = np.append(self.train_idx, query_idx)
+        self.pool.remove(self.train_idx)
+
+    def query(self, n_instances):
+        """Query new results."""
+
+        # Make a query from the pool.
+        query_idx, _ = self.learner.query(
+            X=self.X,
+            pool_idx=self.pool.idx,
+            n_instances=n_instances,
+            query_kwargs=self.query_kwargs
+        )
+
+        self._logger.add_training_log(query_idx, self.y[query_idx])
+        self._logger.add_query_info(self.query_kwargs)
+
+        return query_idx
+
+    def teach(self):
+        """Teach the algorithm with new data."""
+
+        # Get the training data.
+        X_train, y_train = self.train_data(
+            self.X, self.y, self.train_idx, **self.balance_kwargs)
+
+        # Train the model on the training data.
+        self.learner.teach(
+            X=X_train,
+            y=y_train,
+            only_new=True,
+            **self.fit_kwargs
+        )
+
     def save_logs(self, *args, **kwargs):
         """Save the logs to a file."""
 
         self._logger.save(*args, **kwargs)
+
+
+class Pool(object):
+    """Pool with document identifiers."""
+
+    def __init__(self, idx=[]):
+        self.idx = idx
+
+    def __len__(self):
+        return len(self.idx)
+
+    def remove(self, idx_remove):
+        """Remove items from pool."""
+        self.idx = np.delete(self.idx, idx_remove, axis=0).tolist()
 
 
 class ReviewSimulate(Review):
