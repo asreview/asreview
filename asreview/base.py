@@ -34,7 +34,7 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
         return prior_indices
 
 
-class Review(ABC):
+class BaseReview(object):
     """Base class for Systematic Review"""
 
     def __init__(self,
@@ -53,10 +53,12 @@ class Review(ABC):
                  query_kwargs={},
                  logger=None,
                  verbose=1):
-        super(Review, self).__init__()
+        super(BaseReview, self).__init__()
 
         self.X = X
         self.y = y
+        if y is None:
+            self.y = np.full(X.shape[0], NOT_AVAILABLE)
 
         # Default to Naive Bayes model
         if model is None:
@@ -82,18 +84,35 @@ class Review(ABC):
         self.balance_kwargs = balance_kwargs
         self.query_kwargs = query_kwargs
 
+        self.query_i = 0
+        self.train_idx = np.array([])
+        self.model_trained = False
+
         if logger is None:
             self._logger = Logger()
             self.start_from_logger = False
         else:
             self._logger = logger
+            self._prepare_with_logger()
             self.start_from_logger = True
 
-    @abstractmethod
+        # Initialize learner, but don't start training yet.
+        self.learner = ActiveLearner(
+            estimator=self.model,
+            query_strategy=self.query_strategy
+        )
+
+    @classmethod
+    def from_logger(cls, *args, **kwargs):
+        reviewer = cls(*args, **kwargs)
+        reviewer._prepare_with_logger()
+        return reviewer
+
+#     @abstractmethod
     def _prior_knowledge(self):
         pass
 
-    @abstractmethod
+#     @abstractmethod
     def _classify(self, ind):
         """Classify the provided indices."""
         pass
@@ -157,23 +176,18 @@ class Review(ABC):
             self._logger._log_dict[qk].pop("pool_proba", None)
             self._logger._log_dict[qk].pop("train_proba", None)
 
-        return (query_i, np.array(train_idx))
+        self.train_idx = np.array(train_idx)
+        self.query_i = query_i
+        rand_idx, max_idx = self._logger.get_rand_max_idx()
+        self.query_kwargs["rand_idx"] = rand_idx
+        self.query_kwargs["max_idx"] = max_idx
+
+#     def _prepare_from_scratch(self):
 
     def review(self):
         """ Do the systematic review, writing the results to the log file. """
 
-        # Initialize learner, but don't start training yet.
-        self.learner = ActiveLearner(
-            estimator=self.model,
-            query_strategy=self.query_strategy
-        )
-
-        if self.start_from_logger:
-            query_i, self.train_idx = self._prepare_with_logger()
-            rand_idx, max_idx = self._logger.get_rand_max_idx()
-            self.query_kwargs["rand_idx"] = rand_idx
-            self.query_kwargs["max_idx"] = max_idx
-        else:
+        if not self.start_from_logger:
             # add prior knowledge
             init_idx, init_labels = self._prior_knowledge()
             self.y[init_idx] = init_labels
@@ -190,9 +204,9 @@ class Review(ABC):
             self.teach()
 
         # Pool indices are the complement of the training indices.
-        self.pool = Pool(
-            np.delete(np.arange(self.X.shape[0]), self.train_idx, axis=0)
-        )
+#         self.pool = Pool(
+#             np.delete(np.arange(self.X.shape[0]), self.train_idx, axis=0)
+#         )
 
         while not self._stop_iter(query_i-1, self.pool.idx):
 
@@ -242,20 +256,30 @@ class Review(ABC):
     def query(self, n_instances):
         """Query new results."""
 
-        # Make a query from the pool.
-        query_idx, _ = self.learner.query(
-            X=self.X,
-            pool_idx=self.pool.idx,
-            n_instances=n_instances,
-            query_kwargs=self.query_kwargs
-        )
+        pool_idx = np.delete(np.arange(self.X.shape[0]), self.train_idx, axis=0)
 
-        self._logger.add_training_log(query_idx, self.y[query_idx])
-        self._logger.add_query_info(self.query_kwargs)
-
+        n_instances = min(n_instances, len(pool_idx))
+        if not self.model_trained:
+            query_idx = np.random.choice(len(pool_idx), n_instances)
+        else:
+            # Make a query from the pool.
+            query_idx, _ = self.learner.query(
+                X=self.X,
+                pool_idx=pool_idx,
+                n_instances=n_instances,
+                query_kwargs=self.query_kwargs
+            )
         return query_idx
+#         self._logger.add_training_log(query_idx, self.y[query_idx])
+#         self._logger.add_query_info(self.query_kwargs)
 
-    def teach(self):
+#         return query_idx
+
+    def classify(self, query_idx, inclusions):
+        self.y[query_idx] = inclusions
+        self._logger.add_training_log(query_idx, inclusions)
+
+    def train(self):
         """Teach the algorithm with new data."""
 
         # Get the training data.
@@ -276,21 +300,21 @@ class Review(ABC):
         self._logger.save(*args, **kwargs)
 
 
-class Pool(object):
-    """Pool with document identifiers."""
+# class Pool(object):
+#     """Pool with document identifiers."""
+# 
+#     def __init__(self, idx=[]):
+#         self.idx = idx
+# 
+#     def __len__(self):
+#         return len(self.idx)
+# 
+#     def remove(self, idx_remove):
+#         """Remove items from pool."""
+#         self.idx = np.delete(self.idx, idx_remove, axis=0).tolist()
 
-    def __init__(self, idx=[]):
-        self.idx = idx
 
-    def __len__(self):
-        return len(self.idx)
-
-    def remove(self, idx_remove):
-        """Remove items from pool."""
-        self.idx = np.delete(self.idx, idx_remove, axis=0).tolist()
-
-
-class ReviewSimulate(Review):
+class ReviewSimulate(BaseReview):
     """Automated Systematic Review"""
 
     def __init__(self,
@@ -348,7 +372,7 @@ class ReviewSimulate(Review):
         return self.y[ind, ]
 
 
-class ReviewOracle(Review):
+class ReviewOracle(BaseReview):
     """Automated Systematic Review"""
 
     def __init__(self, X, as_data, use_cli_colors=True,
