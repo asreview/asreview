@@ -176,8 +176,8 @@ class BaseReview(ABC):
         query_i -= 1
 
         # Throw away the last probabilities if they have the same key
-        # as the query. These values should be overwritten, since we're starting
-        # out by training the model again.
+        # as the query. These values should be overwritten, since we're
+        # starting out by training the model again.
         if query_i >= 0:
             qk = query_key(query_i)
             self._logger._log_dict[qk].pop("pool_proba", None)
@@ -242,7 +242,8 @@ class BaseReview(ABC):
     def query(self, n_instances):
         """Query new results."""
 
-        pool_idx = np.delete(np.arange(self.X.shape[0]), self.train_idx, axis=0)
+        pool_idx = np.delete(np.arange(self.X.shape[0]),
+                             self.train_idx, axis=0)
 
         n_instances = min(n_instances, len(pool_idx))
         if not self.model_trained:
@@ -312,4 +313,3 @@ class BaseReview(ABC):
         except BaseException:
             pass
         return my_instance
-

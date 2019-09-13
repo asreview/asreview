@@ -1,14 +1,13 @@
-import json
 import time
 import pickle
 from pathlib import Path
 
 # ASReview dependencies
-from asreview import ReviewSimulate, ReviewOracle
+from asreview import ReviewSimulate, ReviewOracle, MinimalReview
 from asreview.utils import text_to_features
-from asreview.config import AVAILABLE_MODI, DEMO_DATASETS
-from asreview.ascii import ASCII_TEA
-from asreview.types import is_pickle, convert_list_type
+from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES
+from asreview.config import DEMO_DATASETS
+from asreview.types import is_pickle
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
@@ -23,8 +22,6 @@ from asreview.models import lstm_fit_defaults
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.readers import ASReviewData
-from os.path import splitext
-from asreview.base import BaseReview
 
 
 def get_reviewer(dataset,
@@ -75,11 +72,11 @@ def get_reviewer(dataset,
         base_model = "other"
 
     # Check if mode is valid
-#     if mode in AVAILABLE_MODI:
-    if verbose:
-        print(f"Start review in '{mode}' mode.")
-#     else:
-#         raise ValueError(f"Unknown mode '{mode}'.")
+    if mode in AVAILABLE_REVIEW_CLASSES:
+        if verbose:
+            print(f"Start review in '{mode}' mode.")
+    else:
+        raise ValueError(f"Unknown mode '{mode}'.")
 
     # if the provided file is a pickle file
     if is_pickle(dataset):
@@ -212,8 +209,8 @@ def get_reviewer(dataset,
 
             # other keyword arguments
             **kwargs)
-    elif mode == "base":
-        reviewer = BaseReview(
+    elif mode == "minimal":
+        reviewer = MinimalReview(
             X,
             model=model,
             query_strategy=query_fn,
@@ -236,7 +233,10 @@ def get_reviewer(dataset,
     return reviewer
 
 
-def review(*args, **kwargs):
+def review(*args, mode="simulate", **kwargs):
+    if mode not in AVAILABLE_CLI_MODI:
+        raise ValueError(f"Unknown mode '{mode}'.")
+
     reviewer = get_reviewer(args, **kwargs)
 
     # Wrap in try expect to capture keyboard interrupt
