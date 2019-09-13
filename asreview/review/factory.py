@@ -227,6 +227,8 @@ def get_reviewer(dataset,
 
             # other keyword arguments
             **kwargs)
+    else:
+        raise ValueError("Error finding mode, should never come here...")
 
     reviewer._logger.add_settings(settings)
 

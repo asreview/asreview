@@ -27,7 +27,6 @@ class TripleBalanceTD(BaseTrainData):
         defaults['one_zero_beta'] = 0.6
         defaults['one_zero_delta'] = 0.15
         defaults['shuffle'] = True
-        defaults['rand_max_idx'] = {}
         return defaults
 
 
