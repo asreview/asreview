@@ -213,6 +213,7 @@ class Logger(object):
         """
         self._log_dict["settings"] = copy.deepcopy(vars(self.settings))
         self._log_dict["settings"]["query_kwargs"].pop("src_query_idx", None)
+        self._log_dict["settings"]["query_kwargs"].pop("pred_proba", None)
         self._log_dict.move_to_end("settings", last=False)
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)

@@ -58,13 +58,17 @@ def max_sampling(classifier: BaseEstimator,
     n_samples = X.shape[0]
     if pool_idx is None:
         pool_idx = np.arange(n_samples)
-    try:
-        proba = classifier.predict_proba(X[pool_idx], **kwargs)
-    except NotFittedError:
-        proba = np.ones(shape=(len(pool_idx), ))
 
-    query_kwargs['pred_proba'] = proba
+    # First attempt to get the probabilities from the dictionary.
+    proba = query_kwargs.get('pred_proba', [])
+    if len(proba) != n_samples:
+        try:
+            proba = classifier.predict_proba(X, **kwargs)
+        except NotFittedError:
+            proba = np.ones(shape=(n_samples, ))
+        query_kwargs['pred_proba'] = proba
 
+    proba = proba[pool_idx]
     if not random_tie_break:
         query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)
     else:
