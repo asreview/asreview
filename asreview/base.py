@@ -1,6 +1,8 @@
+import os
 from abc import ABC, abstractmethod
 
 import numpy as np
+import dill
 
 from modAL.models import ActiveLearner
 
@@ -9,6 +11,8 @@ from asreview.logging import Logger, query_key
 from asreview.ascii import ASCII_TEA
 from asreview.balance_strategies import full_sample
 from asreview.query_strategies import max_sampling
+from tensorflow.python.keras.models import load_model
+from distutils.core import _setup_stop_after
 
 
 NOT_AVAILABLE = np.nan
@@ -85,8 +89,10 @@ class BaseReview(object):
         self.query_kwargs = query_kwargs
 
         self.query_i = 0
-        self.train_idx = np.array([])
+        self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
+
+        self.query_kwargs["src_query_idx"] = {}
 
         if logger is None:
             self._logger = Logger()
@@ -101,6 +107,7 @@ class BaseReview(object):
             estimator=self.model,
             query_strategy=self.query_strategy
         )
+        print(self.train_idx.dtype)
 
     @classmethod
     def from_logger(cls, *args, **kwargs):
@@ -122,7 +129,7 @@ class BaseReview(object):
 
         pass
 
-    def _stop_iter(self, query_i, pool):
+    def _stop_iter(self, query_i, n_pool):
         """Criteria for stopping iteration.
 
         Stop iterating if:
@@ -133,7 +140,7 @@ class BaseReview(object):
         stop_iter = False
 
         # if the pool is empty, always stop
-        if len(pool) == 0:
+        if n_pool == 0:
             stop_iter = True
 
         # don't stop if there is no stopping criteria
@@ -156,14 +163,17 @@ class BaseReview(object):
         """
         query_i = 0
         train_idx = []
-        self.y = np.array(self._logger._log_dict["labels"])
+        if "labels" in self._logger._log_dict:
+            self.y = np.array(self._logger._log_dict["labels"])
         qk = query_key(query_i)
 
         # Capture the labelled indices from the log file.
         while qk in self._logger._log_dict:
             new_labels = self._logger._log_dict[qk]["labelled"]
-            labels = [x[0] for x in new_labels]
-            train_idx.extend(labels)
+            label_idx = [x[0] for x in new_labels]
+            inclusions = [x[1] for x in new_labels]
+            self.y[label_idx] = inclusions
+            train_idx.extend(label_idx)
             query_i += 1
             qk = query_key(query_i)
         query_i -= 1
@@ -176,15 +186,11 @@ class BaseReview(object):
             self._logger._log_dict[qk].pop("pool_proba", None)
             self._logger._log_dict[qk].pop("train_proba", None)
 
-        self.train_idx = np.array(train_idx)
+        self.train_idx = np.array(train_idx, dtype=np.int)
         self.query_i = query_i
-        rand_idx, max_idx = self._logger.get_rand_max_idx()
-        self.query_kwargs["rand_idx"] = rand_idx
-        self.query_kwargs["max_idx"] = max_idx
+        self.query_kwargs["src_query_idx"] = self._logger.get_src_query_idx()
 
-#     def _prepare_from_scratch(self):
-
-    def review(self):
+    def review(self, stop_after_class=True):
         """ Do the systematic review, writing the results to the log file. """
 
         if not self.start_from_logger:
@@ -192,7 +198,7 @@ class BaseReview(object):
             init_idx, init_labels = self._prior_knowledge()
             self.y[init_idx] = init_labels
 
-            query_i = 0
+            self.query_i = 0
             self.train_idx = init_idx.copy()
 
             self._logger.add_labels(self.y)
@@ -201,34 +207,34 @@ class BaseReview(object):
             self._logger.add_query_info(self.query_kwargs)
 
             # train the algorithm with prior knowledge
-            self.teach()
+            self.train()
 
-        # Pool indices are the complement of the training indices.
-#         self.pool = Pool(
-#             np.delete(np.arange(self.X.shape[0]), self.train_idx, axis=0)
-#         )
-
-        while not self._stop_iter(query_i-1, self.pool.idx):
+        n_pool = self.X.shape[0] - len(self.train_idx)
+        while not self._stop_iter(self.query_i-1, n_pool):
 
             # STEP 1: Make a new query
             query_idx = self.query(
-                n_instances=min(self.n_instances, len(self.pool))
+                n_instances=min(self.n_instances, n_pool)
             )
 
             # STEP 2: Classify the queried papers.
             self.y[query_idx] = self._classify(query_idx)
             self._logger.add_labels(self.y)
 
+            # Option to stop after the classification set instead of training.
+            if stop_after_class and self._stop_iter(self.query_i, n_pool):
+                return
+
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
-            self.teach()
             self.train_idx = np.append(self.train_idx, query_idx)
-            self.pool.remove(self.train_idx)
+            self.train()
 
             # STEP 4: write all results to the logger
 
             # update the query counter
-            query_i += 1
+            self.query_i += 1
+            n_pool = self.X.shape[0] - len(self.train_idx)
 
             # Save the result to a file
             if self.log_file:
@@ -236,22 +242,22 @@ class BaseReview(object):
                 if self.verbose:
                     print(f"Saved results in log file: {self.log_file}")
 
-    def partial_review(self):
+#     def partial_review(self):
 
         # STEP 1: Make a new query
-        query_idx = self.query(
-            n_instances=min(self.n_instances, len(self.pool))
-        )
+#         query_idx = self.query(
+#             n_instances=min(self.n_instances, len(self.pool))
+#         )
 
         # STEP 2: Classify the queried papers.
-        self.y[query_idx] = self._classify(query_idx)
-        self._logger.add_labels(self.y)
+#         self.y[query_idx] = self._classify(query_idx)
+#         self._logger.add_labels(self.y)
 
         # STEP 3: Train the algorithm with new data
         # Update the training data and pool afterwards
-        self.teach()
-        self.train_idx = np.append(self.train_idx, query_idx)
-        self.pool.remove(self.train_idx)
+#         self.teach()
+#         self.train_idx = np.append(self.train_idx, query_idx)
+#         self.pool.remove(self.train_idx)
 
     def query(self, n_instances):
         """Query new results."""
@@ -270,18 +276,22 @@ class BaseReview(object):
                 query_kwargs=self.query_kwargs
             )
         return query_idx
-#         self._logger.add_training_log(query_idx, self.y[query_idx])
-#         self._logger.add_query_info(self.query_kwargs)
-
-#         return query_idx
 
     def classify(self, query_idx, inclusions):
         self.y[query_idx] = inclusions
+        self.train_idx = np.unique(np.append(self.train_idx, query_idx))
         self._logger.add_training_log(query_idx, inclusions)
 
     def train(self):
         """Teach the algorithm with new data."""
 
+        num_zero = np.count_nonzero(self.y == 0)
+        num_one = np.count_nonzero(self.y == 1)
+        if num_zero == 0 or num_one == 0:
+            return
+        print(num_zero, num_one)
+        print(self.train_idx)
+        print(self.y[self.train_idx])
         # Get the training data.
         X_train, y_train = self.train_data(
             self.X, self.y, self.train_idx, **self.balance_kwargs)
@@ -299,19 +309,29 @@ class BaseReview(object):
 
         self._logger.save(*args, **kwargs)
 
+    def to_pickle(self, pickle_fp):
+        try:
+            with open(pickle_fp, "wb") as fp:
+                dill.dump(self, fp)
+        except TypeError:
+            model_fp = os.path.splitext(pickle_fp)[0]+".h5"
+            self.model.model.save(model_fp)
+            current_model = self.model.__dict__.pop("model", None)
+            with open(pickle_fp, "wb") as fp:
+                dill.dump(self, fp)
+            setattr(self.model, "model", current_model)
 
-# class Pool(object):
-#     """Pool with document identifiers."""
-# 
-#     def __init__(self, idx=[]):
-#         self.idx = idx
-# 
-#     def __len__(self):
-#         return len(self.idx)
-# 
-#     def remove(self, idx_remove):
-#         """Remove items from pool."""
-#         self.idx = np.delete(self.idx, idx_remove, axis=0).tolist()
+    @classmethod
+    def from_pickle(cls, pickle_fp):
+        with open(pickle_fp, "rb") as fp:
+            my_instance = dill.load(fp)
+        try:
+            model_fp = os.path.splitext(pickle_fp)[0]+".h5"
+            current_model = load_model(model_fp)
+            setattr(my_instance.model, "model", current_model)
+        except BaseException:
+            pass
+        return my_instance
 
 
 class ReviewSimulate(BaseReview):

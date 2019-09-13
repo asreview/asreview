@@ -134,7 +134,7 @@ class Logger(object):
             print("Error: lastbounds not found/.")
             return
         new_dict = {
-            'label_methods': 
+            'label_methods':
                 query_kwargs['last_bounds']
         }
         self._add_log(new_dict, i)
@@ -211,7 +211,8 @@ class Logger(object):
             The file path to export the results to.
 
         """
-        self._log_dict["settings"] = vars(self.settings)
+        self._log_dict["settings"] = copy.deepcopy(vars(self.settings))
+        self._log_dict["settings"]["query_kwargs"].pop("src_query_idx", None)
         self._log_dict.move_to_end("settings", last=False)
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)
@@ -228,33 +229,33 @@ class Logger(object):
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
 
-    def get_rand_max_idx(self):
+    def get_src_query_idx(self):
         # Reinstate the random/max sampling information.
-        i=0
+        i = 0
         qk = query_key(i)
-        rand_idx = []
-        max_idx = []
+        src_query_idx = {"random": []}
+#         rand_idx = []
+#         max_idx = []
         while qk in self._log_dict:
             if "labelled" not in self._log_dict[qk]:
                 i += 1
                 qk = query_key(i)
                 continue
             if "label_methods" not in self._log_dict[qk]:
-                rand_idx.extend(self._log_dict[qk]["labelled"])
+                src_query_idx["random"].extend(self._log_dict[qk]["labelled"])
             else:
                 for bound in self._log_dict[qk]["label_methods"]:
                     query_type = bound[0]
                     start = bound[1]
                     end = bound[2]
                     idx = self._log_dict[qk]["labelled"][start:end]
-                    if query_type == "max":
-                        max_idx.extend(idx)
-                    elif query_type == "random" or query_type == "rand":
-                        rand_idx.extend(idx)
+                    if query_type not in src_query_idx:
+                        src_query_idx[query_type] = []
+                    src_query_idx[query_type].extend(idx)
             i += 1
             qk = query_key(i)
-        rand_idx = [x[0] for x in rand_idx]
-        max_idx = [x[0] for x in max_idx]
-        return np.array(rand_idx), np.array(max_idx)
-#         print("rand_max: ", len(rand_idx), len(max_idx))
-#         print(rand_idx, max_idx)
+        for query_type in src_query_idx:
+            src_query_idx[query_type] = np.array(
+                [x[0] for x in src_query_idx[query_type]], dtype=int)
+        return src_query_idx
+
