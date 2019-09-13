@@ -1,5 +1,5 @@
 from asreview.review import BaseReview
-from asreview.base import _merge_prior_knowledge
+from asreview.review.base import _merge_prior_knowledge
 from asreview.init_sampling import sample_prior_knowledge
 
 

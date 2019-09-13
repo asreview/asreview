@@ -1,18 +1,20 @@
 import os
 from abc import ABC, abstractmethod
 
-import numpy as np
-import dill
 
 from modAL.models import ActiveLearner
+from tensorflow.python.keras.models import load_model
+import numpy as np
+import dill
 
 from asreview.logging import Logger, query_key
 from asreview.balance_strategies import full_sample
 from asreview.query_strategies import max_sampling
-from tensorflow.python.keras.models import load_model
+from asreview.config import NOT_AVAILABLE
 
 
-NOT_AVAILABLE = np.nan
+def get_pool_idx(X, train_idx):
+    return np.delete(np.arange(X.shape[0]), train_idx, axis=0)
 
 
 def _merge_prior_knowledge(included, excluded, return_labels=True):
@@ -199,14 +201,14 @@ class BaseReview(ABC):
             self.train_idx = init_idx.copy()
 
             self._logger.add_labels(self.y)
-            self._logger.add_training_log(init_idx, self.y[init_idx])
             self.query_kwargs['last_bounds'] = [("random", 0, len(init_idx))]
-            self._logger.add_query_info(self.query_kwargs)
+            self.log_query(init_idx)
 
-            # train the algorithm with prior knowledge
-            self.train()
-
+        # train the algorithm with prior knowledge
+        self.train()
+        self.log_probabilities()
         n_pool = self.X.shape[0] - len(self.train_idx)
+
         while not self._stop_iter(self.query_i-1, n_pool):
 
             # STEP 1: Make a new query
@@ -218,18 +220,22 @@ class BaseReview(ABC):
             self.y[query_idx] = self._get_labels(query_idx)
             self._logger.add_labels(self.y)
 
+            # STEP 3: Run inference (if necessary) and log the probabilities of
+            # the model.
+            self.train_idx = np.append(self.train_idx, query_idx)
+            self.log_query(query_idx)
+
             # Option to stop after the classification set instead of training.
             if stop_after_class and self._stop_iter(self.query_i, n_pool):
                 return
 
-            # STEP 3: Train the algorithm with new data
+            # STEP 4: Train the algorithm with new data
             # Update the training data and pool afterwards
-            self.train_idx = np.append(self.train_idx, query_idx)
             self.train()
+            self.log_probabilities()
 
-            # STEP 4: write all results to the logger
-
-            # update the query counter
+            # STEP 5: Write all results to the logger
+            # Update the query counter
             self.query_i += 1
             n_pool = self.X.shape[0] - len(self.train_idx)
 
@@ -239,15 +245,31 @@ class BaseReview(ABC):
                 if self.verbose:
                     print(f"Saved results in log file: {self.log_file}")
 
+    def log_probabilities(self):
+            pool_idx = get_pool_idx(self.X, self.train_idx)
+
+            # Log the probabilities of samples in the pool being included.
+            pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
+            if len(pred_proba) == 0:
+                pred_proba = self.learner.predict_proba(self.X)
+            self._logger.add_proba(pool_idx, pred_proba[pool_idx])
+
+            # Log the probabilities of samples that were trained.
+            self._logger.add_proba(self.train_idx, pred_proba[self.train_idx],
+                                   logname="train_proba")
+
+    def log_query(self, query_idx):
+            self._logger.add_training_log(query_idx, self.y[query_idx])
+            self._logger.add_query_info(self.query_kwargs)
+
     def query(self, n_instances):
         """Query new results."""
 
-        pool_idx = np.delete(np.arange(self.X.shape[0]),
-                             self.train_idx, axis=0)
+        pool_idx = get_pool_idx(self.X, self.train_idx)
 
         n_instances = min(n_instances, len(pool_idx))
         if not self.model_trained:
-            query_idx = np.random.choice(len(pool_idx), n_instances)
+            query_idx = pool_idx[np.random.choice(len(pool_idx), n_instances)]
         else:
             # Make a query from the pool.
             query_idx, _ = self.learner.query(
@@ -270,9 +292,6 @@ class BaseReview(ABC):
         num_one = np.count_nonzero(self.y == 1)
         if num_zero == 0 or num_one == 0:
             return
-        print(num_zero, num_one)
-        print(self.train_idx)
-        print(self.y[self.train_idx])
         # Get the training data.
         X_train, y_train = self.train_data(
             self.X, self.y, self.train_idx, **self.balance_kwargs)
@@ -284,6 +303,8 @@ class BaseReview(ABC):
             only_new=True,
             **self.fit_kwargs
         )
+        self.query_kwargs["pred_proba"] = self.learner.predict_proba(self.X)
+        self.model_trained = True
 
     def save_logs(self, *args, **kwargs):
         """Save the logs to a file."""

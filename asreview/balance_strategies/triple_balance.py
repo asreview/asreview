@@ -73,7 +73,8 @@ def _one_zero_ratio(n_one, n_zero, beta, delta):
 
 
 def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, rand_max_b=10,
-                     rand_max_alpha=1.0, one_zero_beta=0.6, one_zero_delta=0.15):
+                     rand_max_alpha=1.0, one_zero_beta=0.6,
+                     one_zero_delta=0.15):
     " Get the number of 1's, random 0's and max 0's in each mini epoch. "
     n_zero = n_zero_rand+n_zero_max
 
@@ -102,7 +103,7 @@ def _n_mini_epoch(n_samples, epoch_size):
 
 
 def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
-                   pref_epochs=1, shuffle=True, rand_max_idx={}, **dist_kwargs):
+                   pref_epochs=1, shuffle=True, **dist_kwargs):
     """
     A more advanced function that does resample the training set.
     Most likely only useful in combination with NN's, and possibly other
@@ -154,8 +155,10 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     all_idx = np.array([], dtype=int)
     for i in range(n_mini_epoch):
         new_one_idx = one_idx[i*n_one_epoch:(i+1)*n_one_epoch]
-        new_zero_rand_idx = zero_rand_idx[i*n_zero_rand_epoch:(i+1)*n_zero_rand_epoch]
-        new_zero_max_idx = zero_max_idx[i*n_zero_max_epoch:(i+1)*n_zero_max_epoch]
+        new_zero_rand_idx = zero_rand_idx[
+            i*n_zero_rand_epoch:(i+1)*n_zero_rand_epoch]
+        new_zero_max_idx = zero_max_idx[
+            i*n_zero_max_epoch:(i+1)*n_zero_max_epoch]
         new_idx = new_one_idx
         new_idx = np.append(new_idx, new_zero_rand_idx)
         new_idx = np.append(new_idx, new_zero_max_idx)

@@ -1,9 +1,9 @@
 import numpy as np
 
 from asreview.review import BaseReview
-from asreview.review.base import NOT_AVAILABLE, _merge_prior_knowledge
+from asreview.review.base import _merge_prior_knowledge
 from asreview.ascii import ASCII_TEA
-
+from asreview.config import NOT_AVAILABLE
 
 class ReviewOracle(BaseReview):
     """Automated Systematic Review"""

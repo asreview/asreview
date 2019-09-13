@@ -3,7 +3,7 @@ import pickle
 from pathlib import Path
 
 # ASReview dependencies
-from asreview import ReviewSimulate, ReviewOracle, MinimalReview
+from asreview.review import ReviewSimulate, ReviewOracle, MinimalReview
 from asreview.utils import text_to_features
 from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEMO_DATASETS
