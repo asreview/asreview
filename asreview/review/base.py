@@ -6,13 +6,10 @@ import dill
 
 from modAL.models import ActiveLearner
 
-from asreview.init_sampling import sample_prior_knowledge
 from asreview.logging import Logger, query_key
-from asreview.ascii import ASCII_TEA
 from asreview.balance_strategies import full_sample
 from asreview.query_strategies import max_sampling
 from tensorflow.python.keras.models import load_model
-from distutils.core import _setup_stop_after
 
 
 NOT_AVAILABLE = np.nan
@@ -38,7 +35,7 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
         return prior_indices
 
 
-class BaseReview(object):
+class BaseReview(ABC):
     """Base class for Systematic Review"""
 
     def __init__(self,
@@ -115,12 +112,12 @@ class BaseReview(object):
         reviewer._prepare_with_logger()
         return reviewer
 
-#     @abstractmethod
+    @abstractmethod
     def _prior_knowledge(self):
         pass
 
-#     @abstractmethod
-    def _classify(self, ind):
+    @abstractmethod
+    def _get_labels(self, ind):
         """Classify the provided indices."""
         pass
 
@@ -218,7 +215,7 @@ class BaseReview(object):
             )
 
             # STEP 2: Classify the queried papers.
-            self.y[query_idx] = self._classify(query_idx)
+            self.y[query_idx] = self._get_labels(query_idx)
             self._logger.add_labels(self.y)
 
             # Option to stop after the classification set instead of training.
@@ -241,23 +238,6 @@ class BaseReview(object):
                 self.save_logs(self.log_file)
                 if self.verbose:
                     print(f"Saved results in log file: {self.log_file}")
-
-#     def partial_review(self):
-
-        # STEP 1: Make a new query
-#         query_idx = self.query(
-#             n_instances=min(self.n_instances, len(self.pool))
-#         )
-
-        # STEP 2: Classify the queried papers.
-#         self.y[query_idx] = self._classify(query_idx)
-#         self._logger.add_labels(self.y)
-
-        # STEP 3: Train the algorithm with new data
-        # Update the training data and pool afterwards
-#         self.teach()
-#         self.train_idx = np.append(self.train_idx, query_idx)
-#         self.pool.remove(self.train_idx)
 
     def query(self, n_instances):
         """Query new results."""
@@ -333,144 +313,3 @@ class BaseReview(object):
             pass
         return my_instance
 
-
-class ReviewSimulate(BaseReview):
-    """Automated Systematic Review"""
-
-    def __init__(self,
-                 X,
-                 y,
-                 n_prior_included=None,
-                 n_prior_excluded=None,
-                 *args, **kwargs):
-        super(ReviewSimulate, self).__init__(
-            X, y, *args, **kwargs)
-
-        self.n_prior_included = n_prior_included
-        self.n_prior_excluded = n_prior_excluded
-
-    def _prior_knowledge(self):
-        if self.prior_included and self.prior_excluded:
-            prior_indices, prior_labels = _merge_prior_knowledge(
-                self.prior_included,
-                self.prior_excluded
-            )
-
-            return prior_indices, prior_labels
-
-        elif self.n_prior_included and self.n_prior_excluded:
-
-            # Create the prior knowledge
-            init_ind = sample_prior_knowledge(
-                self.y,
-                n_prior_included=self.n_prior_included,
-                n_prior_excluded=self.n_prior_excluded,
-                random_state=None  # TODO
-            )
-
-            return init_ind, self.y[init_ind, ]
-        else:
-            raise ValueError(
-                "provide both prior_included and prior_excluded, "
-                "or n_prior_included and n_prior_excluded"
-            )
-
-    def _classify(self, ind):
-        """Classify with oracle.
-
-        Arguments
-        ---------
-        ind: list, np.array
-            A list with indices
-
-        Returns
-        -------
-        list, np.array
-            The corresponding true labels for each indice.
-        """
-
-        return self.y[ind, ]
-
-
-class ReviewOracle(BaseReview):
-    """Automated Systematic Review"""
-
-    def __init__(self, X, as_data, use_cli_colors=True,
-                 *args, **kwargs):
-        super(ReviewOracle, self).__init__(
-            X,
-            y=np.tile([NOT_AVAILABLE], X.shape[0]),
-            *args,
-            **kwargs)
-
-        self.as_data = as_data
-
-        self.use_cli_colors = use_cli_colors
-
-    def _prior_knowledge(self):
-        """Create prior knowledge from arguments."""
-
-        prior_indices, prior_labels = _merge_prior_knowledge(
-            self.prior_included, self.prior_excluded)
-
-        return prior_indices, prior_labels
-
-    def _prior_teach(self):
-
-        print("\n\n We work, you drink tea.\n")
-        print(ASCII_TEA)
-
-    def _format_paper(self,
-                      title=None,
-                      abstract=None,
-                      keywords=None,
-                      authors=None):
-
-        if self.use_cli_colors:
-            title = "\033[95m" + title + "\033[0m"
-
-        return f"\n{title}\n{authors}\n\n{abstract}\n"
-
-    def _classify_paper(self, index):
-        # CLI paper format
-        self.as_data.print_record(index)
-
-        def _interact():
-            # interact with the user
-            included = input("Include [1] or exclude [0]: ")
-
-            try:
-                included = int(included)
-
-                if included not in [0, 1]:
-                    raise ValueError
-
-                return included
-            except Exception:
-
-                # try again
-                print(f"Incorrect value '{included}'")
-                return _interact()
-
-        included = _interact()
-
-        if included == 1:
-            label = 1
-        elif included == 0:
-            label = 0
-        else:
-            raise Exception
-
-        return label
-
-    def _classify(self, ind):
-
-        y = np.zeros((len(ind), ))
-
-        for j, index in enumerate(ind):
-
-            label = self._classify_paper(index)
-
-            y[j] = label
-
-        return y
