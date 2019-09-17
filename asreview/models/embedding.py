@@ -1,3 +1,4 @@
+import logging
 import gzip
 import io
 from multiprocessing import Process, Queue, cpu_count
@@ -135,7 +136,7 @@ def _embedding_aggregator(output_queue, n_worker):
 
 
 def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
-                       data_home=None, verbose=1):
+                       data_home=None):
     """Download word embedding file.
 
     Download word embedding file, unzip the file and save to the
@@ -148,9 +149,8 @@ def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
     name: str
         The filename of the embedding file.
     data_home: str
-        The location of the ASR datasets. Default `asreview.utils.get_data_home()`
-    verbose: int
-        The verbosity. Default 1.
+        The location of the ASR datasets.
+        Default `asreview.utils.get_data_home()`
 
     """
 
@@ -159,14 +159,12 @@ def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
 
     out_fp = Path(data_home, name)
 
-    if verbose:
-        print(f'download {url}')
+    logging.info(f'Start downloading: {url}')
 
     r = urlopen(url)
     compressed_file = io.BytesIO(r.read())
 
-    if verbose:
-        print(f'save to {out_fp}')
+    logging.info(f'Save embedding to {out_fp}')
 
     decompressed_file = gzip.GzipFile(fileobj=compressed_file)
 
@@ -216,7 +214,9 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
         n_words, emb_vec_dim = list(map(int, f.readline().split(' ')))
 
     if verbose == 1:
-        print(f"Reading {n_words} vectors with {emb_vec_dim} dimensions.")
+        logging.info(
+            f"Reading {n_words} vectors with {emb_vec_dim} dimensions."
+        )
 
     worker_procs = []
     p = Process(target=_embedding_reader, args=(fp, input_queue),
@@ -245,7 +245,7 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
         raise ValueError(f"Check embedding matrix, bad format: {badValues}")
 
     if verbose == 1:
-        print(f"Found {len(embedding)} word vectors.")
+        logging.info(f"Found {len(embedding)} word vectors.")
 
     return embedding
 
