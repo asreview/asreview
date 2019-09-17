@@ -56,7 +56,7 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         The mode to run ASReview. Options:
         'simulate' and 'oracle'.
     prog : str
-        The program name. For example 'oracle'.
+        The program name. For example 'asreview'.
 
     Returns
     -------
@@ -202,7 +202,7 @@ def _parse_arguments(mode, prog=sys.argv[0]):
 
 def _review_oracle():
 
-    parser = _parse_arguments("oracle", prog="asr oracle")
+    parser = _parse_arguments("oracle", prog="asreview oracle")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
@@ -214,7 +214,7 @@ def _review_oracle():
 def _review_simulate():
     """CLI to the oracle mode."""
 
-    parser = _parse_arguments("simulate", prog="asr simulate")
+    parser = _parse_arguments("simulate", prog="asreview simulate")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
