@@ -1,5 +1,7 @@
-import numpy as np
+import logging
 from math import ceil, exp, log
+
+import numpy as np
 
 from asreview.balance_strategies.base import BaseTrainData
 
@@ -131,8 +133,8 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     # Get the distribution of 1's, and random 0's and max 0's.
     n_one_epoch, n_zero_rand_epoch, n_zero_max_epoch = _get_triple_dist(
         n_one, n_zero_rand, n_zero_max, n_samples, **dist_kwargs)
-    print(f"(1, 0_rand, 0_max) = "
-          f"({n_one_epoch}, {n_zero_rand_epoch}, {n_zero_max_epoch})")
+    logging.debug(f"(1, 0_rand, 0_max) = "
+                  f"({n_one_epoch}, {n_zero_rand_epoch}, {n_zero_max_epoch})")
 
     # Calculate the number of mini epochs, and # of samples for each group.
     n_mini_epoch = max(_n_mini_epoch(n_one, n_one_epoch),
@@ -175,6 +177,6 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
         else:
             efrac = (efrac_one*efrac_zero_rand)**(1./2.)
         efrac = 1.0
-        print(f"Fraction of mini epoch = {efrac}")
+        logging.debug(f"Fraction of mini epoch = {efrac}")
         fit_kwargs['epochs'] = ceil(pref_epochs/(efrac*n_mini_epoch))
     return X[all_idx], y[all_idx]
