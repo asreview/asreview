@@ -7,7 +7,7 @@ from RISparser import TAG_KEY_MAPPING, readris
 import pandas as pd
 import numpy as np
 
-from asreview.base import NOT_AVAILABLE
+from asreview.config import NOT_AVAILABLE
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
