@@ -50,16 +50,23 @@ class ReviewOracle(BaseReview):
 
         def _interact():
             # interact with the user
-            included = input("Include [1] or exclude [0]: ")
+            included = input("Include [1] or exclude [0] (stop [S]): ")
 
             try:
-                included = int(included)
-
-                if included not in [0, 1]:
+                if included not in ["0", "1", "S", "s"]:
                     raise ValueError
 
-                return included
-            except Exception:
+                # stop by raising KeyBoardError
+                if included in ["s", "S", "STOP"]:
+                    stop_input = input("Are you sure you want to stop [y/n]: ")
+                    if stop_input in ["Y", "y", "yes"]:
+                        raise KeyboardInterrupt
+                    else:
+                        return _interact()
+
+                return int(included)
+
+            except ValueError:
 
                 # try again
                 print(f"Incorrect value '{included}'")
