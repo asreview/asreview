@@ -12,14 +12,14 @@ import numpy as np
 
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
-from asreview.config import AVAILABLE_MODI  # noqa
+from asreview.config import AVAILABLE_CLI_MODI  # noqa
 
 # Descriptions
 
 PROG_DESCRIPTION = f"""
 Automated Systematic Review (ASReview).
 
-Use one of the modi: '{AVAILABLE_MODI[0]}' or '{AVAILABLE_MODI[1]}'
+Use one of the modi: '{AVAILABLE_CLI_MODI[0]}' or '{AVAILABLE_CLI_MODI[1]}'
 """
 
 PROG_DESCRIPTION_SIMULATE = """
@@ -248,10 +248,10 @@ def main():
         parser.add_argument(
             "subcommand",
             nargs="?",
-            type=lambda x: isinstance(x, str) and x in AVAILABLE_MODI,
+            type=lambda x: isinstance(x, str) and x in AVAILABLE_CLI_MODI,
             default=None,
             help=f"The subcommand to launch. Available commands: "
-            f"{AVAILABLE_MODI}"
+            f"{AVAILABLE_CLI_MODI}"
         )
 
         # version
