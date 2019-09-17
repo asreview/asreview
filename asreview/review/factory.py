@@ -239,7 +239,7 @@ def review(*args, mode="simulate", **kwargs):
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
 
-    reviewer = get_reviewer(args, **kwargs)
+    reviewer = get_reviewer(*args, **kwargs)
 
     # Wrap in try expect to capture keyboard interrupt
     try:
