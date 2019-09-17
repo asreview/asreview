@@ -1,14 +1,13 @@
-import json
 import time
 import pickle
 from pathlib import Path
 
-# asr dependencies
-from asreview import ReviewSimulate, ReviewOracle
+# ASReview dependencies
+from asreview.review import ReviewSimulate, ReviewOracle, MinimalReview
 from asreview.utils import text_to_features
-from asreview.config import AVAILABLE_MODI, DEMO_DATASETS
-from asreview.ascii import ASCII_TEA
-from asreview.types import is_pickle, convert_list_type
+from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES
+from asreview.config import DEMO_DATASETS
+from asreview.types import is_pickle
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
@@ -23,27 +22,26 @@ from asreview.models import lstm_fit_defaults
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.readers import ASReviewData
-from os.path import splitext
 
 
-def review(dataset,
-           mode='oracle',
-           model="lstm_pool",
-           query_strategy="rand_max",
-           balance_strategy="simple",
-           n_instances=1,
-           n_queries=1,
-           embedding_fp=None,
-           verbose=1,
-           prior_included=None,
-           prior_excluded=None,
-           n_prior_included=5,
-           n_prior_excluded=5,
-           save_model_fp=None,
-           config_file=None,
-           src_log_fp=None,
-           **kwargs
-           ):
+def get_reviewer(dataset,
+                 mode='oracle',
+                 model="lstm_pool",
+                 query_strategy="rand_max",
+                 balance_strategy="simple",
+                 n_instances=1,
+                 n_queries=1,
+                 embedding_fp=None,
+                 verbose=1,
+                 prior_included=None,
+                 prior_excluded=None,
+                 n_prior_included=5,
+                 n_prior_excluded=5,
+                 save_model_fp=None,
+                 config_file=None,
+                 src_log_fp=None,
+                 **kwargs
+                 ):
 
     # Find the URL of the datasets if the dataset is an example dataset.
     if dataset in DEMO_DATASETS.keys():
@@ -54,11 +52,6 @@ def review(dataset,
         settings = logger.settings
     else:
         logger = None
-#         settings = ASReviewSettings(model, n_instances, n_queries,
-#                                     n_prior_included, n_prior_excluded,
-#                                     query_strategy,
-#                                     balance_strategy, mode, dataset
-#                                     )
         settings = ASReviewSettings(model=model, n_instances=n_instances,
                                     n_queries=n_queries,
                                     n_prior_included=n_prior_included,
@@ -79,7 +72,7 @@ def review(dataset,
         base_model = "other"
 
     # Check if mode is valid
-    if mode in AVAILABLE_MODI:
+    if mode in AVAILABLE_REVIEW_CLASSES:
         if verbose:
             print(f"Start review in '{mode}' mode.")
     else:
@@ -96,12 +89,6 @@ def review(dataset,
         else:
             raise ValueError("Incorrect pickle object.")
     else:
-
-        # This takes some time
-        if mode == "oracle":
-            print("Prepare dataset.\n")
-            print(ASCII_TEA)
-
         as_data = ASReviewData.from_file(dataset)
         _, texts, labels = as_data.get_data()
 
@@ -203,24 +190,6 @@ def review(dataset,
             **kwargs)
 
     elif mode == "oracle":
-
-        if prior_included is None:
-            # provide prior knowledge
-            print("Are there papers you definitively want to include?")
-            prior_included = input(
-                "Give the indices of these papers. "
-                "Separate them with spaces.\n"
-                "Include: ")
-            prior_included = convert_list_type(prior_included.split(), int)
-
-        if prior_excluded is None:
-            print("Are there papers you definitively want to exclude?")
-            prior_excluded = input(
-                "Give the indices of these papers. "
-                "Separate them with spaces.\n"
-                "Exclude: ")
-            prior_excluded = convert_list_type(prior_excluded.split(), int)
-
         # start the review process
         reviewer = ReviewOracle(
             X,
@@ -240,24 +209,53 @@ def review(dataset,
 
             # other keyword arguments
             **kwargs)
+    elif mode == "minimal":
+        reviewer = MinimalReview(
+            X,
+            model=model,
+            query_strategy=query_fn,
+            train_data_fn=train_data_fn,
+            n_instances=settings.n_instances,
+            n_queries=settings.n_queries,
+            verbose=verbose,
+            prior_included=prior_included,
+            prior_excluded=prior_excluded,
+            fit_kwargs=settings.fit_kwargs,
+            balance_kwargs=settings.balance_kwargs,
+            query_kwargs=settings.query_kwargs,
+            logger=logger,
 
-    # wrap in try expect to capture keyboard interrupt
+            # other keyword arguments
+            **kwargs)
+    else:
+        raise ValueError("Error finding mode, should never come here...")
+
+    reviewer._logger.add_settings(settings)
+
+    return reviewer
+
+
+def review(*args, mode="simulate", **kwargs):
+    if mode not in AVAILABLE_CLI_MODI:
+        raise ValueError(f"Unknown mode '{mode}'.")
+
+    reviewer = get_reviewer(args, **kwargs)
+
+    # Wrap in try expect to capture keyboard interrupt
     try:
         # Start the review process.
-        if verbose:
-            print("Start with the systematic review.")
-        reviewer._logger.add_settings(settings)
         reviewer.review()
     except KeyboardInterrupt:
         print('\nClosing down the automated systematic review.')
 
     # If we're dealing with a keras model, we can save the last model weights.
-    if save_model_fp is not None and base_model == "RNN":
-        save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
-        json_model = model.model.to_json()
-        with open(save_model_fp, "w") as f:
-            json.dump(json_model, f, indent=2)
-        model.model.save_weights(save_model_h5_fp, overwrite=True)
+    if kwargs['save_model_fp'] is not None:
+        raise NotImplementedError
+#         save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
+#         json_model = model.model.to_json()
+#         with open(save_model_fp, "w") as f:
+#             json.dump(json_model, f, indent=2)
+#         model.model.save_weights(save_model_h5_fp, overwrite=True)
 
     if not reviewer.log_file:
         print(reviewer._logger._print_logs())

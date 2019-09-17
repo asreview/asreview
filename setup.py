@@ -41,7 +41,8 @@ setup(
         'sklearn',
         'pandas',
         'modAL',
-        'RISparser'
+        'RISparser',
+        'dill'
     ],
 
     extras_require={
