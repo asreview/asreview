@@ -1,3 +1,4 @@
+import logging
 import time
 import pickle
 from pathlib import Path
@@ -7,7 +8,7 @@ from asreview.review import ReviewSimulate, ReviewOracle, MinimalReview
 from asreview.utils import text_to_features
 from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEMO_DATASETS
-from asreview.types import is_pickle
+from asreview.types import is_pickle, convert_list_type
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
@@ -64,8 +65,6 @@ def get_reviewer(dataset,
         settings.from_file(config_file)
     model = settings.model
 
-    print(f"Using {model} model")
-
     if model in ["lstm_base", "lstm_pool"]:
         base_model = "RNN"
     else:
@@ -77,6 +76,7 @@ def get_reviewer(dataset,
             print(f"Start review in '{mode}' mode.")
     else:
         raise ValueError(f"Unknown mode '{mode}'.")
+    print(f"Model: '{model}'")
 
     # if the provided file is a pickle file
     if is_pickle(dataset):
@@ -190,6 +190,24 @@ def get_reviewer(dataset,
             **kwargs)
 
     elif mode == "oracle":
+
+        if prior_included is None:
+            # provide prior knowledge
+            print("Are there papers you definitively want to include?")
+            prior_included = input(
+                "Give the indices of these papers. "
+                "Separate them with spaces.\n"
+                "Include: ")
+            prior_included = convert_list_type(prior_included.split(), int)
+
+        if prior_excluded is None:
+            print("Are there papers you definitively want to exclude?")
+            prior_excluded = input(
+                "Give the indices of these papers. "
+                "Separate them with spaces.\n"
+                "Exclude: ")
+            prior_excluded = convert_list_type(prior_excluded.split(), int)
+
         # start the review process
         reviewer = ReviewOracle(
             X,
