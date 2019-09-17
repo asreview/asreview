@@ -54,11 +54,6 @@ def review(dataset,
         settings = logger.settings
     else:
         logger = None
-#         settings = ASReviewSettings(model, n_instances, n_queries,
-#                                     n_prior_included, n_prior_excluded,
-#                                     query_strategy,
-#                                     balance_strategy, mode, dataset
-#                                     )
         settings = ASReviewSettings(model=model, n_instances=n_instances,
                                     n_queries=n_queries,
                                     n_prior_included=n_prior_included,
