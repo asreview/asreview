@@ -242,7 +242,7 @@ def main():
     # no valid sub command
     else:
         parser = argparse.ArgumentParser(
-            prog="asr",
+            prog="asreview",
             description=PROG_DESCRIPTION
         )
         parser.add_argument(
