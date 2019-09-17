@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-"""CLI for ASR project."""
+"""Command Line Interface (CLI) for ASReview project."""
 
-import sys
 import argparse
+import sys
 import warnings
+from argparse import RawTextHelpFormatter
 
 import numpy as np
 
@@ -13,6 +14,31 @@ from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
 from asreview.config import AVAILABLE_MODI  # noqa
 
+# Descriptions
+
+PROG_DESCRIPTION = f"""
+Automated Systematic Review (ASReview).
+
+Use one of the modi: '{AVAILABLE_MODI[0]}' or '{AVAILABLE_MODI[1]}'
+"""
+
+PROG_DESCRIPTION_SIMULATE = """
+Automated Systematic Review (ASReview) for simulation runs.
+
+The simulation modus is used to measure the performance of our
+software on existing systematic reviews. The software shows how many
+papers you could have potentially skipped during the systematic
+review."""
+
+PROG_DESCRIPTION_ORACLE = """
+Automated Systematic Review (ASReview) with interaction with oracle.
+
+The oracle modus is used to perform a systematic review with
+interaction by the reviewer (the ‘oracle’ in literature on active
+learning). The software presents papers to the reviewer, whereafter
+the reviewer classifies them."""
+
+# CLI defaults
 DEFAULT_MODEL = "lstm_pool"
 DEFAULT_QUERY_STRATEGY = "rand_max"
 DEFAULT_BALANCE_STRATEGY = "triple_balance"
@@ -21,20 +47,42 @@ DEFAULT_N_PRIOR_INCLUDED = 10
 DEFAULT_N_PRIOR_EXCLUDED = 10
 
 
-def parse_arguments(mode, prog=sys.argv[0]):
+def _parse_arguments(mode, prog=sys.argv[0]):
+    """Argument parser for oracle and simulate.
+
+    Parameters
+    ----------
+    mode : str
+        The mode to run ASReview. Options:
+        'simulate' and 'oracle'.
+    prog : str
+        The program name. For example 'asreview'.
+
+    Returns
+    -------
+    argparse.ArgumentParser
+        Configured argparser.
+    """
+
+    if mode == "simulate":
+        prog_description = PROG_DESCRIPTION_SIMULATE
+    elif mode == "oracle":
+        prog_description = PROG_DESCRIPTION_ORACLE
+    else:
+        prog_description = ""
 
     # parse arguments if available
     parser = argparse.ArgumentParser(
         prog=prog,
-        description="Systematic review with the help of an oracle."
+        description=prog_description,
+        formatter_class=RawTextHelpFormatter
     )
     # File path to the data.
     parser.add_argument(
         "dataset",
         type=str,
         metavar="X",
-        help=("File path to the dataset. The dataset " +
-              "needs to be in the standardised format.")
+        help="File path to the dataset or one of the built-in datasets."
     )
     # Active learning parameters
     parser.add_argument(
@@ -55,7 +103,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
              " imbalanced dataset with few inclusions and many exclusions. "
-             f"Default {DEFAULT_BALANCE_STRATEGY}")
+             f"Default '{DEFAULT_BALANCE_STRATEGY}'")
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,
@@ -66,14 +114,16 @@ def parse_arguments(mode, prog=sys.argv[0]):
         "--n_queries",
         type=int,
         default=None,
-        help="The number of queries. Default None"
+        help="The number of queries. By default, the program"
+             "stops after all documents are reviewed or is "
+             "interrupted by the user."
     )
     parser.add_argument(
         "--embedding",
         type=str,
         default=None,
         dest='embedding_fp',
-        help="File path of embedding matrix. Required for LSTM model."
+        help="File path of embedding matrix. Required for LSTM models."
     )
     # Configuration file with model/balance/query parameters.
     parser.add_argument(
@@ -96,14 +146,14 @@ def parse_arguments(mode, prog=sys.argv[0]):
         default=None,
         type=int,
         nargs="*",
-        help="Initial included papers.")
+        help="A list of included papers.")
 
     parser.add_argument(
         "--prior_excluded",
         default=None,
         type=int,
         nargs="*",
-        help="Initial included papers.")
+        help="A list of excluded papers. Optional.")
 
     # these flag are only available for the simulation modus
     if mode == "simulate":
@@ -152,7 +202,7 @@ def parse_arguments(mode, prog=sys.argv[0]):
 
 def _review_oracle():
 
-    parser = parse_arguments("oracle", prog="asr oracle")
+    parser = _parse_arguments("oracle", prog="asreview oracle")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
@@ -164,7 +214,7 @@ def _review_oracle():
 def _review_simulate():
     """CLI to the oracle mode."""
 
-    parser = parse_arguments("simulate", prog="asr simulate")
+    parser = _parse_arguments("simulate", prog="asreview simulate")
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
@@ -193,15 +243,15 @@ def main():
     else:
         parser = argparse.ArgumentParser(
             prog="asr",
-            description="Automated Systematic Review."
+            description=PROG_DESCRIPTION
         )
         parser.add_argument(
             "subcommand",
             nargs="?",
             type=lambda x: isinstance(x, str) and x in AVAILABLE_MODI,
             default=None,
-            help=f"The subcommand to launch. Available commands:"
-            f" {AVAILABLE_MODI}"
+            help=f"The subcommand to launch. Available commands: "
+            f"{AVAILABLE_MODI}"
         )
 
         # version
