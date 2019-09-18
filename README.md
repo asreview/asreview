@@ -38,6 +38,10 @@ following respositories are (or will become) publicly available:
 
 ## Table of Contents
 
+Table of Contents
+=================
+
+* [Automated Systematic Review](#automated-systematic-review)
 * [Table of Contents](#table-of-contents)
 * [Active Learning for reviewing papers](#active-learning-for-reviewing-papers)
 * [Installation](#installation)
@@ -47,6 +51,9 @@ following respositories are (or will become) publicly available:
 * [Development and contributions](#development-and-contributions)
    * [Entry points](#entry-points)
    * [Debug using pickle dataset](#debug-using-pickle-dataset)
+   * [Embedding files](#embedding-files)
+* [Publications](#publications)
+* [Citation](#citation)
 * [Contact and contributors](#contact-and-contributors)
 
 ## Active Learning for reviewing papers
