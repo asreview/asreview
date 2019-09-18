@@ -106,7 +106,6 @@ class BaseReview(ABC):
             estimator=self.model,
             query_strategy=self.query_strategy
         )
-        print(self.train_idx.dtype)
 
     @classmethod
     def from_logger(cls, *args, **kwargs):
