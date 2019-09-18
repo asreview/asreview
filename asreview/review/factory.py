@@ -9,9 +9,11 @@ from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 # ASReview dependencies
 from asreview.review import ReviewSimulate, ReviewOracle, MinimalReview
 from asreview.utils import text_to_features
-from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES
-from asreview.config import DEMO_DATASETS, KERAS_MODELS
 from asreview.types import is_pickle
+from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES,\
+    DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY, DEFAULT_BALANCE_STRATEGY,\
+    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED,\
+    DEMO_DATASETS, KERAS_MODELS
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
@@ -29,18 +31,17 @@ from asreview.readers import ASReviewData
 
 def get_reviewer(dataset,
                  mode='oracle',
-                 model="lstm_pool",
-                 query_strategy="rand_max",
-                 balance_strategy="simple",
-                 n_instances=1,
+                 model=DEFAULT_MODEL,
+                 query_strategy=DEFAULT_QUERY_STRATEGY,
+                 balance_strategy=DEFAULT_BALANCE_STRATEGY,
+                 n_instances=DEFAULT_N_INSTANCES,
                  n_queries=1,
                  embedding_fp=None,
                  verbose=1,
                  prior_included=None,
                  prior_excluded=None,
-                 n_prior_included=5,
-                 n_prior_excluded=5,
-                 save_model_fp=None,
+                 n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
+                 n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  config_file=None,
                  src_log_fp=None,
                  **kwargs
@@ -230,7 +231,7 @@ def get_reviewer(dataset,
     return reviewer
 
 
-def review(*args, mode="simulate", model="lstm_pool", save_model_fp=None,
+def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
            **kwargs):
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
