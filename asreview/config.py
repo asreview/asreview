@@ -8,3 +8,5 @@ DEMO_DATASETS = {
 }
 
 NOT_AVAILABLE = np.nan
+
+KERAS_MODELS = ["lstm_base", "lstm_pool"]

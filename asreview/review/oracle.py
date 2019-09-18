@@ -4,6 +4,8 @@ from asreview.review import BaseReview
 from asreview.review.base import _merge_prior_knowledge
 from asreview.ascii import ASCII_TEA
 from asreview.config import NOT_AVAILABLE
+from asreview.types import convert_list_type
+
 
 class ReviewOracle(BaseReview):
     """Automated Systematic Review"""
@@ -20,13 +22,33 @@ class ReviewOracle(BaseReview):
 
         self.use_cli_colors = use_cli_colors
 
+    def priors_from_cli(self, force=False):
+        if self.prior_included is None or force:
+            # provide prior knowledge
+            print("Are there papers you definitively want to include?")
+            prior_included = input(
+                "Give the indices of these papers. "
+                "Separate them with spaces.\n"
+                "Include: ")
+            self.prior_included = convert_list_type(
+                prior_included.split(), int)
+
+        if self.prior_excluded is None or force:
+            print("Are there papers you definitively want to exclude?")
+            prior_excluded = input(
+                "Give the indices of these papers. "
+                "Separate them with spaces.\n"
+                "Exclude: ")
+            self.prior_excluded = convert_list_type(
+                prior_excluded.split(), int)
+
     def _prior_knowledge(self):
         """Create prior knowledge from arguments."""
 
+        self.priors_from_cli()
         prior_indices, prior_labels = _merge_prior_knowledge(
             self.prior_included, self.prior_excluded)
-
-        return prior_indices, prior_labels
+        return np.array(prior_indices, dtype=np.int), np.array(prior_labels, dtype=np.int)
 
     def _prior_teach(self):
 
