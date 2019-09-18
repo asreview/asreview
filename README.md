@@ -49,10 +49,6 @@ Table of Contents
 * [Tech](#tech)
 * [Datasets](#datasets)
 * [Frequently Asked Questions](#frequently-asked-questions)
-* [Development and contributions](#development-and-contributions)
-   * [Entry points](#entry-points)
-   * [Debug using pickle dataset](#debug-using-pickle-dataset)
-   * [Embedding files](#embedding-files)
 * [Publications](#publications)
 * [Citation](#citation)
 * [Contact and contributors](#contact-and-contributors)
@@ -159,7 +155,7 @@ the complete standard.
 
 ### Unknown command "asreview" on command line or terminal
 
-In some situations, the entrypoint "asreview" can not be found after
+In some situations, the entry point "asreview" can not be found after
 installation. First check whether the package is correctly installed. Do this
 with the command `python -m asreview -h`. If this shows a decription of the
 program, please use `python -m` in front of all your commands. For example 
@@ -172,70 +168,8 @@ python -m asreview oracle yourfile.csv
 
 MacOS and Linux users can learn about bash on the website
 [programminghistorian.org](https://programminghistorian.org/en/lessons/intro-to-bash).
-Windows users also follow this tutorial, but might prefer a tutorial on
+Windows users may also follow this tutorial, but might prefer a tutorial on
 `cmd.exe`.
-
-## Development and contributions
-
-- Use [yapf](https://github.com/google/yapf) as formatter for python code. 
-
-### Entry points
-
-Use `python -m asreview` to run the module as main. This can be useful when
-debugging the CLI and entry_points. 
-
-```
-python -m asreview oracle yourfile.csv
-```
-
-is the same as:
-
-```
-asreview oracle yourfile.csv
-```
-
-### Debug using pickle dataset
-
-Using the ASR software in combination with an embedding layer is
-computationally intensive. Subsetting the wikipedia vocabulary is the main
-reason for the extensive computational time. This problems results in a large
-amount of wasted computational time on the HPC cluster. Therefore, we use
-pickle files to speed the initialization up.
-
-Clone the [simulations repository](https://github.com/msdslab/automated-systematic-review-simulations)
-next to this repository. Now you can debug code with the code below:
-
-``` sh
-python -m asreview oracle ../automated-systematic-review-simulations/pickle/ptsd_vandeschoot_words_20000.pkl --n_instances 5
-```
-
-### Embedding files
-
-Embedding files contains pretrained model weights. The weights are used as
-prior knowledge of the neural network. By default, these weights are stored in
-the users `~/asr_data` folder. You can download embedding files with the
-following command:
-
-```python
-from asreview.models.embedding import download_embedding
-
-download_embedding()
-```
-
-One can set the environment variable to change the default folder.
-
-```
-import os
-
-from asreview.models.embedding import download_embedding
-
-# set the environment variable
-os.environ['ASR_DATA'] = "~/my_asr_embedding_files"
-
-# download the files
-download_embedding()
-
-```
 
 ## Publications
 

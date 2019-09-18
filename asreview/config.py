@@ -8,3 +8,13 @@ DEMO_DATASETS = {
 }
 
 NOT_AVAILABLE = np.nan
+
+KERAS_MODELS = ["lstm_base", "lstm_pool"]
+
+# CLI defaults
+DEFAULT_MODEL = "lstm_pool"
+DEFAULT_QUERY_STRATEGY = "rand_max"
+DEFAULT_BALANCE_STRATEGY = "triple_balance"
+DEFAULT_N_INSTANCES = 20
+DEFAULT_N_PRIOR_INCLUDED = 10
+DEFAULT_N_PRIOR_EXCLUDED = 10
