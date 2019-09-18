@@ -13,6 +13,10 @@ import numpy as np
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
 from asreview.config import AVAILABLE_CLI_MODI  # noqa
+from asreview.config import DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY,\
+                            DEFAULT_BALANCE_STRATEGY, DEFAULT_N_INSTANCES,\
+                            DEFAULT_N_PRIOR_INCLUDED,\
+                            DEFAULT_N_PRIOR_EXCLUDED
 
 # Descriptions
 
@@ -37,14 +41,6 @@ The oracle modus is used to perform a systematic review with
 interaction by the reviewer (the ‘oracle’ in literature on active
 learning). The software presents papers to the reviewer, whereafter
 the reviewer classifies them."""
-
-# CLI defaults
-DEFAULT_MODEL = "lstm_pool"
-DEFAULT_QUERY_STRATEGY = "rand_max"
-DEFAULT_BALANCE_STRATEGY = "triple_balance"
-DEFAULT_N_INSTANCES = 20
-DEFAULT_N_PRIOR_INCLUDED = 10
-DEFAULT_N_PRIOR_EXCLUDED = 10
 
 
 def _parse_arguments(mode, prog=sys.argv[0]):
