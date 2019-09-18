@@ -12,7 +12,8 @@ from asreview.utils import text_to_features
 from asreview.types import is_pickle
 from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES,\
     DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY, DEFAULT_BALANCE_STRATEGY,\
-    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED
+    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED,\
+    DEMO_DATASETS, KERAS_MODELS
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
@@ -230,7 +231,7 @@ def get_reviewer(dataset,
     return reviewer
 
 
-def review(*args, mode="simulate", model="lstm_pool", save_model_fp=None,
+def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
            **kwargs):
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
