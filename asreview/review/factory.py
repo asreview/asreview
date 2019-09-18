@@ -1,14 +1,17 @@
-import logging
 import time
 import pickle
 from pathlib import Path
+from os.path import splitext
+import json
+
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 # ASReview dependencies
 from asreview.review import ReviewSimulate, ReviewOracle, MinimalReview
 from asreview.utils import text_to_features
 from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES
-from asreview.config import DEMO_DATASETS
-from asreview.types import is_pickle, convert_list_type
+from asreview.config import DEMO_DATASETS, KERAS_MODELS
+from asreview.types import is_pickle
 from asreview.models.embedding import download_embedding, EMBEDDING_EN
 from asreview.models.embedding import load_embedding, sample_embedding
 from asreview.utils import get_data_home
@@ -20,7 +23,6 @@ from asreview.settings import ASReviewSettings
 from asreview.models import create_lstm_base_model, lstm_base_model_defaults
 from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asreview.models import lstm_fit_defaults
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.readers import ASReviewData
 
@@ -167,8 +169,8 @@ def get_reviewer(dataset,
     if verbose:
         print(f"Using {train_method} method to obtain training data.")
 
+    # Initialize the review class.
     if mode == "simulate":
-        # start the review process
         reviewer = ReviewSimulate(
             X, y,
             model=model,
@@ -185,30 +187,9 @@ def get_reviewer(dataset,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
             logger=logger,
-
-            # Other
             **kwargs)
 
     elif mode == "oracle":
-
-        if prior_included is None:
-            # provide prior knowledge
-            print("Are there papers you definitively want to include?")
-            prior_included = input(
-                "Give the indices of these papers. "
-                "Separate them with spaces.\n"
-                "Include: ")
-            prior_included = convert_list_type(prior_included.split(), int)
-
-        if prior_excluded is None:
-            print("Are there papers you definitively want to exclude?")
-            prior_excluded = input(
-                "Give the indices of these papers. "
-                "Separate them with spaces.\n"
-                "Exclude: ")
-            prior_excluded = convert_list_type(prior_excluded.split(), int)
-
-        # start the review process
         reviewer = ReviewOracle(
             X,
             model=model,
@@ -224,8 +205,6 @@ def get_reviewer(dataset,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
             logger=logger,
-
-            # other keyword arguments
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
@@ -242,8 +221,6 @@ def get_reviewer(dataset,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
             logger=logger,
-
-            # other keyword arguments
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
@@ -253,11 +230,12 @@ def get_reviewer(dataset,
     return reviewer
 
 
-def review(*args, mode="simulate", **kwargs):
+def review(*args, mode="simulate", model="lstm_pool", save_model_fp=None,
+           **kwargs):
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
 
-    reviewer = get_reviewer(*args, **kwargs)
+    reviewer = get_reviewer(*args, model=model, **kwargs)
 
     # Wrap in try expect to capture keyboard interrupt
     try:
@@ -267,13 +245,12 @@ def review(*args, mode="simulate", **kwargs):
         print('\nClosing down the automated systematic review.')
 
     # If we're dealing with a keras model, we can save the last model weights.
-    if kwargs['save_model_fp'] is not None:
-        raise NotImplementedError
-#         save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
-#         json_model = model.model.to_json()
-#         with open(save_model_fp, "w") as f:
-#             json.dump(json_model, f, indent=2)
-#         model.model.save_weights(save_model_h5_fp, overwrite=True)
+    if save_model_fp is not None and model in KERAS_MODELS:
+        save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
+        json_model = model.model.to_json()
+        with open(save_model_fp, "w") as f:
+            json.dump(json_model, f, indent=2)
+        model.model.save_weights(save_model_h5_fp, overwrite=True)
 
     if not reviewer.log_file:
         print(reviewer._logger._print_logs())

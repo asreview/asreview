@@ -205,7 +205,8 @@ class BaseReview(ABC):
 
         # train the algorithm with prior knowledge
         self.train()
-        self.log_probabilities()
+        if self.model_trained:
+            self.log_probabilities()
         n_pool = self.X.shape[0] - len(self.train_idx)
 
         while not self._stop_iter(self.query_i-1, n_pool):
@@ -231,7 +232,8 @@ class BaseReview(ABC):
             # STEP 4: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
-            self.log_probabilities()
+            if self.model_trained:
+                self.log_probabilities()
 
             # STEP 5: Write all results to the logger
             # Update the query counter
