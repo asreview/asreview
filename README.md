@@ -48,6 +48,7 @@ Table of Contents
 * [Quick start](#quick-start)
 * [Tech](#tech)
 * [Datasets](#datasets)
+* [Frequently Asked Questions](#frequently-asked-questions)
 * [Development and contributions](#development-and-contributions)
    * [Entry points](#entry-points)
    * [Debug using pickle dataset](#debug-using-pickle-dataset)
@@ -153,6 +154,26 @@ a set of predetermined labels in line with the ones used in RIS files. Please
 see the project [Automatic Systematic Review
 Datasets](https://github.com/msdslab/automated-systematic-review-datasets) for
 the complete standard.
+
+## Frequently Asked Questions
+
+### Unknown command "asreview" on command line or terminal
+
+In some situations, the entrypoint "asreview" can not be found after
+installation. First check whether the package is correctly installed. Do this
+with the command `python -m asreview -h`. If this shows a decription of the
+program, please use `python -m` in front of all your commands. For example 
+
+```
+python -m asreview oracle yourfile.csv
+```
+
+### How do I work with the Command Line?
+
+MacOS and Linux users can learn about bash on the website
+[programminghistorian.org](https://programminghistorian.org/en/lessons/intro-to-bash).
+Windows users also follow this tutorial, but might prefer a tutorial on
+`cmd.exe`.
 
 ## Development and contributions
 
