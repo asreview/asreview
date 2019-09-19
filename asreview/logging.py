@@ -235,8 +235,7 @@ class Logger(object):
         i = 0
         qk = query_key(i)
         src_query_idx = {"random": []}
-#         rand_idx = []
-#         max_idx = []
+
         while qk in self._log_dict:
             if "labelled" not in self._log_dict[qk]:
                 i += 1
@@ -259,4 +258,3 @@ class Logger(object):
             src_query_idx[query_type] = np.array(
                 [x[0] for x in src_query_idx[query_type]], dtype=int)
         return src_query_idx
-

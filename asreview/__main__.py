@@ -86,13 +86,13 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         type=str,
         default=DEFAULT_MODEL,
         help=f"The prediction model for Active Learning. "
-             f"Default '{DEFAULT_MODEL}'.")
+             f"Default '{DEFAULT_MODEL}'.")  #noqa
     parser.add_argument(
         "-q", "--query_strategy",
         type=str,
         default=DEFAULT_QUERY_STRATEGY,
         help=f"The query strategy for Active Learning. "
-             f"Default '{DEFAULT_QUERY_STRATEGY}'.")
+             f"Default '{DEFAULT_QUERY_STRATEGY}'.")  #noqa
     parser.add_argument(
         "-b", "--balance_strategy",
         type=str,
@@ -110,8 +110,16 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         "--n_queries",
         type=int,
         default=None,
-        help="The number of queries. By default, the program"
+        help="The number of queries. By default, the program "
              "stops after all documents are reviewed or is "
+             "interrupted by the user."
+    )
+    parser.add_argument(
+        "-n", "--n_papers",
+        type=int,
+        default=None,
+        help="The number of papers to be reviewed. By default, "
+             "the program stops after all documents are reviewed or is "
              "interrupted by the user."
     )
     parser.add_argument(
