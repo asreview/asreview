@@ -48,7 +48,8 @@ class ReviewOracle(BaseReview):
         self.priors_from_cli()
         prior_indices, prior_labels = _merge_prior_knowledge(
             self.prior_included, self.prior_excluded)
-        return np.array(prior_indices, dtype=np.int), np.array(prior_labels, dtype=np.int)
+        return np.array(prior_indices, dtype=np.int), np.array(
+            prior_labels, dtype=np.int)
 
     def _prior_teach(self):
 

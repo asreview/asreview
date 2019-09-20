@@ -119,7 +119,6 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
         if qtype != "max":
             rand_idx = np.append(rand_idx, query_kwargs["query_src"][qtype])
 
-    print(len(max_idx), len(rand_idx))
     # Write them back for next round.
     if shuffle:
         np.random.shuffle(rand_idx)

@@ -48,7 +48,7 @@ def get_reviewer(dataset,
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
-        Of the arguments. 
+        Of the arguments.
     """
 
     # Find the URL of the datasets if the dataset is an example dataset.
