@@ -277,7 +277,10 @@ class BaseReview(ABC):
 
             # Option to stop after the classification set instead of training.
             if stop_after_class and self._stop_iter(self.query_i, n_pool):
-                self.save_logs(self.log_file)
+                if self.log_file:
+                    self.save_logs(self.log_file)
+                    if self.verbose:
+                        print(f"Saved results in log file: {self.log_file}")
                 return
 
             # STEP 4: Train the algorithm with new data
