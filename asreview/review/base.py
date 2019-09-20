@@ -25,10 +25,11 @@ def update_query_type(query_kwargs):
 
     for qtype in query_kwargs["last_query_type"]:
         rel_idx = np.arange(idx_start, idx_start + qtype[1])
+        new_idx = true_idx[rel_idx].tolist()
         if qtype[0] not in query_src:
-            query_src[qtype] = true_idx[rel_idx]
+            query_src[qtype[0]] = new_idx
         else:
-            query_src[qtype].extend(true_idx[rel_idx])
+            query_src[qtype[0]].extend(new_idx)
         idx_start += qtype[1]
     query_kwargs["query_src"] = query_src
     query_kwargs["last_query_type"] = []
@@ -111,7 +112,7 @@ class BaseReview(ABC):
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
 
-        self.query_kwargs["src_query_idx"] = {}
+        self.query_kwargs["query_src"] = {}
 
         if logger is None:
             self._logger = Logger()
@@ -206,26 +207,28 @@ class BaseReview(ABC):
 
         # Capture the labelled indices from the log file.
         while qk in self._logger._log_dict:
+            if "labelled" not in self._logger._log_dict[qk]:
+                continue
             new_labels = self._logger._log_dict[qk]["labelled"]
+            label_methods = self._logger._log_dict[qk]["label_methods"]
             label_idx = [x[0] for x in new_labels]
             inclusions = [x[1] for x in new_labels]
             self.y[label_idx] = inclusions
             train_idx.extend(label_idx)
+            self.query_kwargs["last_query_idx"] = label_idx
+            self.query_kwargs["last_query_type"] = label_methods
+            update_query_type(self.query_kwargs)
             query_i += 1
             qk = query_key(query_i)
+
         query_i -= 1
 
         # Throw away the last probabilities if they have the same key
         # as the query. These values should be overwritten, since we're
         # starting out by training the model again.
-        if query_i >= 0:
-            qk = query_key(query_i)
-            self._logger._log_dict[qk].pop("pool_proba", None)
-            self._logger._log_dict[qk].pop("train_proba", None)
 
         self.train_idx = np.array(train_idx, dtype=np.int)
         self.query_i = query_i
-        self.query_kwargs["src_query_idx"] = self._logger.get_src_query_idx()
 
     def review(self, stop_after_class=True):
         """ Do the systematic review, writing the results to the log file. """
@@ -242,6 +245,9 @@ class BaseReview(ABC):
             self.query_kwargs['last_query_type'] = [("initial", len(init_idx))]
             self.query_kwargs['last_query_idx'] = self.train_idx.tolist()
             self.log_query(init_idx)
+
+        if self._stop_iter(self.query_i, self.n_pool()):
+            return
 
         # train the algorithm with prior knowledge
         self.train()
@@ -345,6 +351,9 @@ class BaseReview(ABC):
         num_one = np.count_nonzero(self.y[self.train_idx] == 1)
         if num_zero == 0 or num_one == 0:
             return
+
+        update_query_type(self.query_kwargs)
+
         # Get the training data.
         X_train, y_train = self.train_data(
             self.X, self.y, self.train_idx, **self.balance_kwargs)
@@ -359,7 +368,6 @@ class BaseReview(ABC):
         self.query_kwargs["pred_proba"] = self.learner.predict_proba(self.X)
         self.model_trained = True
         self.query_i += 1
-        update_query_type(self.query_kwargs)
 
     def save_logs(self, *args, **kwargs):
         """Save the logs to a file."""

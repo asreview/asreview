@@ -250,31 +250,31 @@ class Logger(object):
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
 
-    def get_src_query_idx(self):
-        # Reinstate the random/max sampling information.
-        i = 0
-        qk = query_key(i)
-        src_query_idx = {"random": []}
-
-        while qk in self._log_dict:
-            if "labelled" not in self._log_dict[qk]:
-                i += 1
-                qk = query_key(i)
-                continue
-            if "label_methods" not in self._log_dict[qk]:
-                src_query_idx["random"].extend(self._log_dict[qk]["labelled"])
-            else:
-                for bound in self._log_dict[qk]["label_methods"]:
-                    query_type = bound[0]
-                    start = bound[1]
-                    end = bound[2]
-                    idx = self._log_dict[qk]["labelled"][start:end]
-                    if query_type not in src_query_idx:
-                        src_query_idx[query_type] = []
-                    src_query_idx[query_type].extend(idx)
-            i += 1
-            qk = query_key(i)
-        for query_type in src_query_idx:
-            src_query_idx[query_type] = np.array(
-                [x[0] for x in src_query_idx[query_type]], dtype=int)
-        return src_query_idx
+#     def get_src_query_idx(self):
+#         # Reinstate the random/max sampling information.
+#         i = 0
+#         qk = query_key(i)
+#         src_query_idx = {"random": []}
+# 
+#         while qk in self._log_dict:
+#             if "labelled" not in self._log_dict[qk]:
+#                 i += 1
+#                 qk = query_key(i)
+#                 continue
+#             if "label_methods" not in self._log_dict[qk]:
+#                 src_query_idx["random"].extend(self._log_dict[qk]["labelled"])
+#             else:
+#                 for bound in self._log_dict[qk]["label_methods"]:
+#                     query_type = bound[0]
+#                     start = bound[1]
+#                     end = bound[2]
+#                     idx = self._log_dict[qk]["labelled"][start:end]
+#                     if query_type not in src_query_idx:
+#                         src_query_idx[query_type] = []
+#                     src_query_idx[query_type].extend(idx)
+#             i += 1
+#             qk = query_key(i)
+#         for query_type in src_query_idx:
+#             src_query_idx[query_type] = np.array(
+#                 [x[0] for x in src_query_idx[query_type]], dtype=int)
+#         return src_query_idx
