@@ -2,7 +2,7 @@ from asreview.review import BaseReview
 
 
 class MinimalReview(BaseReview):
-    """Automated Systematic Review"""
+    """ Minimal review class, can be used to do reviewing in a granularly. """
 
     def __init__(self, *args, **kwargs):
         super(MinimalReview, self).__init__(*args, **kwargs)

@@ -8,7 +8,7 @@ from asreview.types import convert_list_type
 
 
 class ReviewOracle(BaseReview):
-    """Automated Systematic Review"""
+    """ Review class for Oracle mode on the command line. """
 
     def __init__(self, X, as_data, use_cli_colors=True,
                  *args, **kwargs):

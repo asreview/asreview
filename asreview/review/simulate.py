@@ -19,16 +19,16 @@ class ReviewSimulate(BaseReview):
         self.n_prior_excluded = n_prior_excluded
 
     def _prior_knowledge(self):
-        if self.prior_included and self.prior_excluded:
+        """ Get the prior knowledge, either from specific paper IDs,
+            and if they're not given from the number of in/exclusions. """
+        if self.prior_included or self.prior_excluded:
             prior_indices, prior_labels = _merge_prior_knowledge(
                 self.prior_included,
                 self.prior_excluded
             )
 
             return prior_indices, prior_labels
-
-        elif self.n_prior_included and self.n_prior_excluded:
-
+        else:
             # Create the prior knowledge
             init_ind = sample_prior_knowledge(
                 self.y,
@@ -38,11 +38,6 @@ class ReviewSimulate(BaseReview):
             )
 
             return init_ind, self.y[init_ind, ]
-        else:
-            raise ValueError(
-                "provide both prior_included and prior_excluded, "
-                "or n_prior_included and n_prior_excluded"
-            )
 
     def _get_labels(self, ind):
         """ Get the labels directly from memory.

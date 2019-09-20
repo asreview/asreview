@@ -15,6 +15,19 @@ def query_key(query_i):
     return str(query_i)
 
 
+def merge_query_type(query_type):
+    merged = []
+    for q in query_type:
+        try:
+            if q[0] == merged[-1][0]:
+                merged[-1] = (merged[-1][0], merged[-1][1] + q[1])
+                continue
+        except IndexError:
+            pass
+        merged.append(q)
+    return merged
+
+
 def read_log(log_fp):
     """Read log file.
 
@@ -105,7 +118,7 @@ class Logger(object):
 
         return s
 
-    def _add_log(self, new_dict, i):
+    def _add_log(self, new_dict, i, append_result=False):
         # Find the first number that is not logged yet.
         if i is None:
             i = 0
@@ -121,7 +134,11 @@ class Logger(object):
         if qk not in self._log_dict:
             self._log_dict[qk] = {}
 
-        self._log_dict[qk].update(new_dict)
+        for key in new_dict:
+            if key in self._log_dict[qk] and append_result:
+                self._log_dict[qk][key].extend(new_dict[key])
+            else:
+                self._log_dict[qk].update(new_dict)
 
     def add_settings(self, settings):
         self.settings = copy.deepcopy(settings)
@@ -130,14 +147,17 @@ class Logger(object):
         self._log_dict["labels"] = y.tolist()
 
     def add_query_info(self, query_kwargs, i=None):
-        if 'last_bounds' not in query_kwargs:
-            print("Error: lastbounds not found/.")
+        if 'last_query_type' not in query_kwargs:
+            print("Error: lastbounds not found.")
             return
+
+        query_kwargs['last_query_type'] = merge_query_type(
+            query_kwargs['last_query_type'])
         new_dict = {
             'label_methods':
-                query_kwargs['last_bounds']
+                query_kwargs['last_query_type']
         }
-        self._add_log(new_dict, i)
+        self._add_log(new_dict, i, append_result=False)
 
     def add_training_log(self, indices, labels, i=None):
         """Add training indices and their labels.
@@ -158,7 +178,7 @@ class Logger(object):
         if isinstance(labels, np.ndarray):
             labels = labels.tolist()
         new_dict = {'labelled': list(zip(indices, labels))}
-        self._add_log(new_dict, i)
+        self._add_log(new_dict, i, append_result=True)
 
     def add_pool_predict(self, indices, pred, i=None):
         """Add inverse pool indices and their labels.
@@ -179,7 +199,7 @@ class Logger(object):
         if isinstance(pred, np.ndarray):
             pred = pred.tolist()
         new_dict = {'predictions': list(zip(indices, pred))}
-        self._add_log(new_dict, i)
+        self._add_log(new_dict, i, append_result=False)
 
     def add_proba(self, indices, pred_proba, logname="pool_proba", i=None):
         """Add inverse pool indices and their labels.

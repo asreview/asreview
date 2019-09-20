@@ -47,6 +47,9 @@ def get_reviewer(dataset,
                  src_log_fp=None,
                  **kwargs
                  ):
+    """ Get a review object from arguments. See __main__.py for a description
+        Of the arguments. 
+    """
 
     # Find the URL of the datasets if the dataset is an example dataset.
     if dataset in DEMO_DATASETS.keys():
@@ -192,7 +195,6 @@ def get_reviewer(dataset,
             query_kwargs=settings.query_kwargs,
             logger=logger,
             **kwargs)
-
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
@@ -238,6 +240,7 @@ def get_reviewer(dataset,
 
 def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
            **kwargs):
+    """ Perform a review from arguments. Compatible with the CLI interface. """
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
 

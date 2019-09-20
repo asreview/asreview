@@ -9,7 +9,7 @@ import dill
 
 from asreview.logging import Logger, query_key
 from asreview.balance_strategies import full_sample
-from asreview.query_strategies import max_sampling
+from asreview.query_strategies import max_sampling, random_sampling
 from asreview.config import NOT_AVAILABLE, DEFAULT_N_INSTANCES
 
 
@@ -17,10 +17,28 @@ def get_pool_idx(X, train_idx):
     return np.delete(np.arange(X.shape[0]), train_idx, axis=0)
 
 
+def update_query_type(query_kwargs):
+    query_src = query_kwargs.get("query_src", {})
+
+    idx_start = 0
+    true_idx = np.array(query_kwargs["last_query_idx"], dtype=np.int)
+
+    for qtype in query_kwargs["last_query_type"]:
+        rel_idx = np.arange(idx_start, idx_start + qtype[1])
+        if qtype[0] not in query_src:
+            query_src[qtype] = true_idx[rel_idx]
+        else:
+            query_src[qtype].extend(true_idx[rel_idx])
+        idx_start += qtype[1]
+    query_kwargs["query_src"] = query_src
+    query_kwargs["last_query_type"] = []
+    query_kwargs["last_query_idx"] = []
+
+
 def _merge_prior_knowledge(included, excluded, return_labels=True):
     """Merge prior included and prior excluded."""
 
-    prior_indices = np.append(included, excluded)
+    prior_indices = np.array(np.append(included, excluded), dtype=np.int)
 
     if return_labels:
 
@@ -157,7 +175,8 @@ class BaseReview(ABC):
     def n_pool(self):
         return self.X.shape[0] - len(self.train_idx)
 
-    def _next_n_instances(self):
+    def _next_n_instances(self):  # Could be merged with _stop_iter someday.
+        """ Get the batch size for the next query. """
         n_instances = self.n_instances
         n_pool = self.n_pool()
 
@@ -220,8 +239,8 @@ class BaseReview(ABC):
             self.train_idx = init_idx.copy()
 
             self._logger.add_labels(self.y)
-            self.query_kwargs['last_bounds'] = [("random", 0, len(init_idx))]
-            self.query_kwargs['src_query_idx'] = {"random": self.train_idx}
+            self.query_kwargs['last_query_type'] = [("initial", len(init_idx))]
+            self.query_kwargs['last_query_idx'] = self.train_idx.tolist()
             self.log_query(init_idx)
 
         # train the algorithm with prior knowledge
@@ -268,23 +287,27 @@ class BaseReview(ABC):
                     print(f"Saved results in log file: {self.log_file}")
 
     def log_probabilities(self):
-            pool_idx = get_pool_idx(self.X, self.train_idx)
+        """ Store the modeling probabilities of the training indices and
+            pool indices. """
+        pool_idx = get_pool_idx(self.X, self.train_idx)
 
-            # Log the probabilities of samples in the pool being included.
-            pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
-            if len(pred_proba) == 0:
-                pred_proba = self.learner.predict_proba(self.X)
-            self._logger.add_proba(pool_idx, pred_proba[pool_idx],
-                                   logname="pool_proba", i=self.query_i)
+        # Log the probabilities of samples in the pool being included.
+        pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
+        if len(pred_proba) == 0:
+            pred_proba = self.learner.predict_proba(self.X)
+        self._logger.add_proba(pool_idx, pred_proba[pool_idx],
+                               logname="pool_proba", i=self.query_i)
 
-            # Log the probabilities of samples that were trained.
-            self._logger.add_proba(self.train_idx, pred_proba[self.train_idx],
-                                   logname="train_proba", i=self.query_i)
+        # Log the probabilities of samples that were trained.
+        self._logger.add_proba(self.train_idx, pred_proba[self.train_idx],
+                               logname="train_proba", i=self.query_i)
 
     def log_query(self, query_idx):
-            self._logger.add_training_log(query_idx, self.y[query_idx],
-                                          self.query_i)
-            self._logger.add_query_info(self.query_kwargs, self.query_i)
+        # Save the query results to the logger.
+        self._logger.add_training_log(query_idx, self.y[query_idx],
+                                      self.query_i)
+        # Log the source of the queries (random, max, etc)
+        self._logger.add_query_info(self.query_kwargs, self.query_i)
 
     def query(self, n_instances):
         """Query new results."""
@@ -292,8 +315,13 @@ class BaseReview(ABC):
         pool_idx = get_pool_idx(self.X, self.train_idx)
 
         n_instances = min(n_instances, len(pool_idx))
+
+        # If the model is not trained, choose random papers.
         if not self.model_trained:
-            query_idx = pool_idx[np.random.choice(len(pool_idx), n_instances)]
+            query_idx, _ = random_sampling(
+                None, X=self.X, pool_idx=pool_idx, n_instances=n_instances,
+                query_kwargs=self.query_kwargs)
+
         else:
             # Make a query from the pool.
             query_idx, _ = self.learner.query(
@@ -305,15 +333,16 @@ class BaseReview(ABC):
         return query_idx
 
     def classify(self, query_idx, inclusions):
+        """ Classify new papers and update the training indices. """
         self.y[query_idx] = inclusions
         self.train_idx = np.unique(np.append(self.train_idx, query_idx))
         self._logger.add_training_log(query_idx, inclusions, self.query_i)
 
     def train(self):
-        """Teach the algorithm with new data."""
+        """ Train the model. """
 
-        num_zero = np.count_nonzero(self.y == 0)
-        num_one = np.count_nonzero(self.y == 1)
+        num_zero = np.count_nonzero(self.y[self.train_idx] == 0)
+        num_one = np.count_nonzero(self.y[self.train_idx] == 1)
         if num_zero == 0 or num_one == 0:
             return
         # Get the training data.
@@ -330,6 +359,7 @@ class BaseReview(ABC):
         self.query_kwargs["pred_proba"] = self.learner.predict_proba(self.X)
         self.model_trained = True
         self.query_i += 1
+        update_query_type(self.query_kwargs)
 
     def save_logs(self, *args, **kwargs):
         """Save the logs to a file."""
@@ -337,6 +367,14 @@ class BaseReview(ABC):
         self._logger.save(*args, **kwargs)
 
     def to_pickle(self, pickle_fp):
+        """
+        Dump the self object to a pickle fill (using dill). Keras models
+        Cannot be dumped, so they are written to a separate h5 file. The
+        model is briefly popped out of the object to allow the rest to be
+        written to a file. Do not rely on this method for long term storage
+        of the class, since library changes could easily break it. In those
+        cases, use the log + h5 file instead.
+        """
         try:
             with open(pickle_fp, "wb") as fp:
                 dill.dump(self, fp)
@@ -350,6 +388,9 @@ class BaseReview(ABC):
 
     @classmethod
     def from_pickle(cls, pickle_fp):
+        """
+        Create a BaseReview object from a pickle file, and optiona h5 file.
+        """
         with open(pickle_fp, "rb") as fp:
             my_instance = dill.load(fp)
         try:

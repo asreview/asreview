@@ -11,11 +11,17 @@
 import numpy as np
 
 
-def random_sampling(classifier, X, pool_idx, n_instances=1, **kwargs):
+def random_sampling(classifier, X, pool_idx, n_instances=1, query_kwargs={},
+                    **kwargs):
     n_samples = len(pool_idx)
     query_idx = np.random.choice(
         np.arange(n_samples),
         n_instances,
         replace=False
     )
+
+    if len(query_idx) > 0:
+        query_kwargs['last_query_type'].append(("random", len(query_idx)))
+        query_kwargs['last_query_idx'].extend(pool_idx[query_idx].tolist())
+
     return pool_idx[query_idx], X[pool_idx[query_idx]]

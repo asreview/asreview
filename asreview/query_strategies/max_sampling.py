@@ -74,4 +74,8 @@ def max_sampling(classifier: BaseEstimator,
     else:
         query_idx = shuffled_argmax(proba[:, 1], n_instances=n_instances)
 
+    if len(query_idx) > 0:
+        query_kwargs['last_query_type'].append(("max", len(query_idx)))
+        query_kwargs['last_query_idx'].extend(pool_idx[query_idx].tolist())
+
     return pool_idx[query_idx], X[pool_idx[query_idx]]

@@ -45,9 +45,6 @@ def sample_prior_knowledge(
     included_indexes = np.where(labels == 1)[0]
     excluded_indexes = np.where(labels == 0)[0]
 
-#     print(n_prior_included)
-#     print(included_indexes)
-#     print(f"labels = {labels}")
     if len(included_indexes) < n_prior_included:
         print(f"Found only {len(included_indexes)}, "
               f"when I need {n_prior_included}.")
