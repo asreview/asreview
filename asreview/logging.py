@@ -146,19 +146,6 @@ class Logger(object):
     def add_labels(self, y):
         self._log_dict["labels"] = y.tolist()
 
-    def add_query_info(self, query_kwargs, i=None):
-        if 'last_query_type' not in query_kwargs:
-            print("Error: lastbounds not found.")
-            return
-
-        query_kwargs['last_query_type'] = merge_query_type(
-            query_kwargs['last_query_type'])
-        new_dict = {
-            'label_methods':
-                query_kwargs['last_query_type']
-        }
-        self._add_log(new_dict, i, append_result=False)
-
     def add_classification(self, indices, labels, methods, i=None):
         """Add training indices and their labels.
 

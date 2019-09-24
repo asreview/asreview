@@ -197,14 +197,20 @@ class BaseReview(ABC):
             inclusions = [x[1] for x in new_labels]
             self.y[label_idx] = inclusions
             train_idx.extend(label_idx)
+
+            # Update the internal query sources.
+            start_idx = 0
+            for method in label_methods:
+                if method[0] not in self.query_kwargs["query_src"]:
+                    self.query_kwargs["query_src"][method[0]] = []
+                self.query_kwargs["query_src"][method[0]].extend(
+                    label_idx[start_idx:start_idx+method[1]]
+                )
+                start_idx += method[1]
             query_i += 1
             qk = query_key(query_i)
 
         query_i -= 1
-
-        # Throw away the last probabilities if they have the same key
-        # as the query. These values should be overwritten, since we're
-        # starting out by training the model again.
 
         self.train_idx = np.array(train_idx, dtype=np.int)
         self.query_i = query_i
@@ -240,7 +246,6 @@ class BaseReview(ABC):
 
             # STEP 2: Classify the queried papers.
             self.classify(query_idx, self._get_labels(query_idx))
-            self._logger.add_labels(self.y)
 
             # Option to stop after the classification set instead of training.
             if stop_after_class and self._stop_iter(self.query_i,
@@ -327,6 +332,7 @@ class BaseReview(ABC):
 
         self._logger.add_classification(query_idx, inclusions, methods=methods,
                                         i=self.query_i)
+        self._logger.add_labels(self.y)
 
     def train(self):
         """ Train the model. """
