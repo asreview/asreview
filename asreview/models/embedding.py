@@ -136,7 +136,7 @@ def _embedding_aggregator(output_queue, n_worker):
 
 
 def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
-                       data_home=None):
+                       data_home=None, verbose=None):
     """Download word embedding file.
 
     Download word embedding file, unzip the file and save to the
