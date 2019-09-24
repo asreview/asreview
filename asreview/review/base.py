@@ -110,6 +110,13 @@ class BaseReview(ABC):
             query_strategy=self.query_strategy
         )
 
+        if not self.start_from_logger:
+            # add prior knowledge
+            init_idx, init_labels = self._prior_knowledge()
+            self.query_i = 0
+            self.train_idx = np.array([], dtype=np.int)
+            self.classify(init_idx, init_labels, method="initial")
+
     @classmethod
     def from_logger(cls, *args, **kwargs):
         reviewer = cls(*args, **kwargs)
@@ -141,6 +148,7 @@ class BaseReview(ABC):
         stop_iter = False
         n_train = self.X.shape[0] - n_pool
 
+        print(n_pool, self.n_papers, self.n_queries, query_i)
         # if the pool is empty, always stop
         if n_pool == 0:
             stop_iter = True
@@ -217,13 +225,6 @@ class BaseReview(ABC):
 
     def review(self, stop_after_class=True):
         """ Do the systematic review, writing the results to the log file. """
-
-        if not self.start_from_logger:
-            # add prior knowledge
-            init_idx, init_labels = self._prior_knowledge()
-            self.query_i = 0
-            self.train_idx = np.array([], dtype=np.int)
-            self.classify(init_idx, init_labels, method="initial")
 
         if self._stop_iter(self.query_i, self.n_pool()):
             return

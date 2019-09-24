@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 import asreview as asr
 from asreview.models.sklearn_models import create_nb_model, create_svc_model
@@ -8,15 +7,26 @@ from asreview.review.factory import get_reviewer
 data_fp = os.path.join("test", "demo_data", "csv_example_with_labels.csv")
 embedding_fp = os.path.join("test", "demo_data", "csv_example_with_labels.vec")
 cfg_dir = os.path.join("test", "cfg_files")
-test_log_fp = os.path.join("test", "log_files", "test.json")
-
-
-def test_lstm_pool(monkeypatch):
-    check_lstm(monkeypatch, config_file=os.path.join(cfg_dir, "lstm_base.ini"))
+src_log_fp = os.path.join("test", "log_files", "start_from_1.json")
 
 
 def test_lstm_base(monkeypatch):
     check_lstm(monkeypatch, config_file=os.path.join(cfg_dir, "lstm_base.ini"))
+
+
+def test_lstm_pool(monkeypatch):
+    check_lstm(monkeypatch,
+               config_file=os.path.join(cfg_dir, "lstm_pool.ini"))
+
+
+def test_lstm_pool_from_log(monkeypatch):
+    check_lstm(monkeypatch, src_log_fp=src_log_fp,
+               config_file=os.path.join(cfg_dir, "lstm_pool.ini"))
+
+
+def test_lstm_pool_granular(monkeypatch):
+    check_lstm(monkeypatch, use_granular=True,
+               config_file=os.path.join(cfg_dir, "lstm_pool.ini"))
 
 
 def test_nb(monkeypatch):
@@ -57,13 +67,27 @@ def check_log(log_dict):
     assert "labels" in log_dict and len(log_dict["labels"]) == 6
 
 
-def check_lstm(monkeypatch, **kwargs):
+def check_lstm(monkeypatch, use_granular=False, **kwargs):
     monkeypatch.setattr('builtins.input', lambda _: "0")
     # start the review process.
     reviewer = get_reviewer(data_fp, mode="oracle", embedding_fp=embedding_fp,
                             prior_included=[1, 3], prior_excluded=[2, 4],
-                            log_file=test_log_fp, **kwargs)
-    reviewer.review()
+                            **kwargs)
+    if use_granular:
+        # Two loops of training and classification.
+        reviewer.train()
+        reviewer.log_probabilities()
+        query_idx = reviewer.query(1)
+        inclusions = reviewer._get_labels(query_idx)
+        reviewer.classify(query_idx, inclusions)
+
+        reviewer.train()
+        reviewer.log_probabilities()
+        query_idx = reviewer.query(1)
+        inclusions = reviewer._get_labels(query_idx)
+        reviewer.classify(query_idx, inclusions)
+    else:
+        reviewer.review()
     check_log(reviewer._logger._log_dict)
 
 
