@@ -63,7 +63,7 @@ class BaseReview(ABC):
         self.y = y
         if y is None:
             self.y = np.full(X.shape[0], NOT_AVAILABLE)
-
+        self.y = np.array(self.y, dtype=np.int)
         # Default to Naive Bayes model
         if model is None:
             print("Warning: using naive Bayes model as default."
@@ -184,7 +184,7 @@ class BaseReview(ABC):
         query_i = 0
         train_idx = []
         if "labels" in self._logger._log_dict:
-            self.y = np.array(self._logger._log_dict["labels"])
+            self.y = np.array(self._logger._log_dict["labels"], dtype=np.int)
         qk = query_key(query_i)
 
         # Capture the labelled indices from the log file.
@@ -245,6 +245,7 @@ class BaseReview(ABC):
             )
 
             # STEP 2: Classify the queried papers.
+            print(self._get_labels(query_idx))
             self.classify(query_idx, self._get_labels(query_idx))
 
             # Option to stop after the classification set instead of training.
