@@ -20,8 +20,7 @@ def random_sampling(classifier, X, pool_idx, n_instances=1, query_kwargs={},
         replace=False
     )
 
-    if len(query_idx) > 0:
-        query_kwargs['last_query_type'].append(("random", len(query_idx)))
-        query_kwargs['last_query_idx'].extend(pool_idx[query_idx].tolist())
+    for idx in query_idx:
+        query_kwargs['current_queries'][pool_idx[idx]] = "random"
 
     return pool_idx[query_idx], X[pool_idx[query_idx]]

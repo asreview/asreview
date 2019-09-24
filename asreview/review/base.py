@@ -17,25 +17,6 @@ def get_pool_idx(X, train_idx):
     return np.delete(np.arange(X.shape[0]), train_idx, axis=0)
 
 
-def update_query_type(query_kwargs):
-    query_src = query_kwargs.get("query_src", {})
-
-    idx_start = 0
-    true_idx = np.array(query_kwargs["last_query_idx"], dtype=np.int)
-
-    for qtype in query_kwargs["last_query_type"]:
-        rel_idx = np.arange(idx_start, idx_start + qtype[1])
-        new_idx = true_idx[rel_idx].tolist()
-        if qtype[0] not in query_src:
-            query_src[qtype[0]] = new_idx
-        else:
-            query_src[qtype[0]].extend(new_idx)
-        idx_start += qtype[1]
-    query_kwargs["query_src"] = query_src
-    query_kwargs["last_query_type"] = []
-    query_kwargs["last_query_idx"] = []
-
-
 def _merge_prior_knowledge(included, excluded, return_labels=True):
     """Merge prior included and prior excluded."""
 
@@ -113,6 +94,7 @@ class BaseReview(ABC):
         self.model_trained = False
 
         self.query_kwargs["query_src"] = {}
+        self.query_kwargs["current_queries"] = {}
 
         if logger is None:
             self._logger = Logger()
@@ -215,9 +197,6 @@ class BaseReview(ABC):
             inclusions = [x[1] for x in new_labels]
             self.y[label_idx] = inclusions
             train_idx.extend(label_idx)
-            self.query_kwargs["last_query_idx"] = label_idx
-            self.query_kwargs["last_query_type"] = label_methods
-            update_query_type(self.query_kwargs)
             query_i += 1
             qk = query_key(query_i)
 
@@ -236,15 +215,9 @@ class BaseReview(ABC):
         if not self.start_from_logger:
             # add prior knowledge
             init_idx, init_labels = self._prior_knowledge()
-            self.y[init_idx] = init_labels
-
             self.query_i = 0
-            self.train_idx = init_idx.copy()
-
-            self._logger.add_labels(self.y)
-            self.query_kwargs['last_query_type'] = [("initial", len(init_idx))]
-            self.query_kwargs['last_query_idx'] = self.train_idx.tolist()
-            self.log_query(init_idx)
+            self.train_idx = np.array([], dtype=np.int)
+            self.classify(init_idx, init_labels, method="initial")
 
         if self._stop_iter(self.query_i, self.n_pool()):
             return
@@ -266,30 +239,25 @@ class BaseReview(ABC):
             )
 
             # STEP 2: Classify the queried papers.
-            self.y[query_idx] = self._get_labels(query_idx)
+            self.classify(query_idx, self._get_labels(query_idx))
             self._logger.add_labels(self.y)
 
-            # STEP 3: Run inference (if necessary) and log the probabilities of
-            # the model.
-            self.train_idx = np.append(self.train_idx, query_idx)
-            self.log_query(query_idx)
-            n_pool = self.X.shape[0] - len(self.train_idx)
-
             # Option to stop after the classification set instead of training.
-            if stop_after_class and self._stop_iter(self.query_i, n_pool):
+            if stop_after_class and self._stop_iter(self.query_i,
+                                                    self.n_pool()):
                 if self.log_file:
                     self.save_logs(self.log_file)
                     if self.verbose:
                         print(f"Saved results in log file: {self.log_file}")
                 return
 
-            # STEP 4: Train the algorithm with new data
+            # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
             if self.model_trained:
                 self.log_probabilities()
 
-            # STEP 5: Save the logs.
+            # STEP 4: Save the logs.
             if self.log_file:
                 self.save_logs(self.log_file)
                 if self.verbose:
@@ -310,13 +278,6 @@ class BaseReview(ABC):
         # Log the probabilities of samples that were trained.
         self._logger.add_proba(self.train_idx, pred_proba[self.train_idx],
                                logname="train_proba", i=self.query_i)
-
-    def log_query(self, query_idx):
-        # Save the query results to the logger.
-        self._logger.add_training_log(query_idx, self.y[query_idx],
-                                      self.query_i)
-        # Log the source of the queries (random, max, etc)
-        self._logger.add_query_info(self.query_kwargs, self.query_i)
 
     def query(self, n_instances):
         """Query new results."""
@@ -341,11 +302,31 @@ class BaseReview(ABC):
             )
         return query_idx
 
-    def classify(self, query_idx, inclusions):
+    def classify(self, query_idx, inclusions, method=None):
         """ Classify new papers and update the training indices. """
         self.y[query_idx] = inclusions
         self.train_idx = np.unique(np.append(self.train_idx, query_idx))
-        self._logger.add_training_log(query_idx, inclusions, self.query_i)
+        if method is None:
+            methods = []
+            for idx in query_idx:
+                method = self.query_kwargs["current_queries"].pop(idx, None)
+                if method is None:
+                    method = "unknown"
+                methods.append([idx, method])
+                if method in self.query_kwargs["query_src"]:
+                    self.query_kwargs["query_src"][method].append(idx)
+                else:
+                    self.query_kwargs["query_src"][method] = [idx]
+        else:
+            methods = [[idx, method] for idx in query_idx]
+            if method in self.query_kwargs["query_src"]:
+                self.query_kwargs["query_src"][method].extend(
+                    query_idx.tolist())
+            else:
+                self.query_kwargs["query_src"][method] = query_idx.tolist()
+
+        self._logger.add_classification(query_idx, inclusions, methods=methods,
+                                        i=self.query_i)
 
     def train(self):
         """ Train the model. """
@@ -354,8 +335,6 @@ class BaseReview(ABC):
         num_one = np.count_nonzero(self.y[self.train_idx] == 1)
         if num_zero == 0 or num_one == 0:
             return
-
-        update_query_type(self.query_kwargs)
 
         # Get the training data.
         X_train, y_train = self.train_data(
@@ -386,6 +365,8 @@ class BaseReview(ABC):
         of the class, since library changes could easily break it. In those
         cases, use the log + h5 file instead.
         """
+        if "model" in self.model.__dict__:
+            print(type(self.model.model).__name__)
         try:
             with open(pickle_fp, "wb") as fp:
                 dill.dump(self, fp)

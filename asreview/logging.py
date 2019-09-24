@@ -159,7 +159,7 @@ class Logger(object):
         }
         self._add_log(new_dict, i, append_result=False)
 
-    def add_training_log(self, indices, labels, i=None):
+    def add_classification(self, indices, labels, methods, i=None):
         """Add training indices and their labels.
 
         Arguments
@@ -177,6 +177,19 @@ class Logger(object):
             indices = indices.tolist()
         if isinstance(labels, np.ndarray):
             labels = labels.tolist()
+
+        qi = query_key(i)
+        if qi not in self._log_dict:
+            self._log_dict[qi] = {}
+        label_methods = self._log_dict[qi].get("label_methods", [])
+        for method in methods:
+            if len(label_methods) and label_methods[-1][0] == method[1]:
+                label_methods[-1][1] += 1
+            else:
+                label_methods.append([method[1], 1])
+
+        new_dict = {'label_methods': label_methods}
+        self._add_log(new_dict, i, append_result=False)
         new_dict = {'labelled': list(zip(indices, labels))}
         self._add_log(new_dict, i, append_result=True)
 
@@ -232,8 +245,9 @@ class Logger(object):
 
         """
         self._log_dict["settings"] = copy.deepcopy(vars(self.settings))
-        self._log_dict["settings"]["query_kwargs"].pop("src_query_idx", None)
         self._log_dict["settings"]["query_kwargs"].pop("pred_proba", None)
+        self._log_dict["settings"]["query_kwargs"].pop("query_src", None)
+        self._log_dict["settings"]["query_kwargs"].pop("current_queries", None)
         self._log_dict.move_to_end("settings", last=False)
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)
