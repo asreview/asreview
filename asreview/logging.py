@@ -16,19 +16,6 @@ def query_key(query_i):
     return str(query_i)
 
 
-def merge_query_type(query_type):
-    merged = []
-    for q in query_type:
-        try:
-            if q[0] == merged[-1][0]:
-                merged[-1] = (merged[-1][0], merged[-1][1] + q[1])
-                continue
-        except IndexError:
-            pass
-        merged.append(q)
-    return merged
-
-
 def read_log(log_fp):
     """Read log file.
 

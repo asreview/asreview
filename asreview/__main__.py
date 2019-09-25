@@ -8,7 +8,11 @@ import sys
 import warnings
 from argparse import RawTextHelpFormatter
 
+warnings.filterwarnings("ignore")
+
 import numpy as np
+import tensorflow as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
@@ -17,6 +21,7 @@ from asreview.config import DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY,\
                             DEFAULT_BALANCE_STRATEGY, DEFAULT_N_INSTANCES,\
                             DEFAULT_N_PRIOR_INCLUDED,\
                             DEFAULT_N_PRIOR_EXCLUDED
+
 
 # Descriptions
 
@@ -197,7 +202,7 @@ def _parse_arguments(mode, prog=sys.argv[0]):
     )
     parser.add_argument(
         "--verbose", "-v",
-        default=1,
+        default=0,
         type=int,
         help="Verbosity")
 

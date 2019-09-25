@@ -145,7 +145,6 @@ class BaseReview(ABC):
         stop_iter = False
         n_train = self.X.shape[0] - n_pool
 
-        print(n_pool, self.n_papers, self.n_queries, query_i)
         # if the pool is empty, always stop
         if n_pool == 0:
             stop_iter = True
@@ -243,7 +242,6 @@ class BaseReview(ABC):
             )
 
             # STEP 2: Classify the queried papers.
-            print(self._get_labels(query_idx))
             self.classify(query_idx, self._get_labels(query_idx))
 
             # Option to stop after the classification set instead of training.

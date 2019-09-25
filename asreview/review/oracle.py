@@ -107,7 +107,7 @@ class ReviewOracle(BaseReview):
 
     def _get_labels(self, ind):
 
-        y = np.zeros((len(ind), ), dtype=int)
+        y = np.zeros((len(ind), ), dtype=np.int)
 
         for j, index in enumerate(ind):
 
