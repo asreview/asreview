@@ -28,6 +28,7 @@ from asreview.models import lstm_fit_defaults
 
 from asreview.readers import ASReviewData
 from asreview.ascii import ASCII_LOGO, ASCII_TEA
+import logging
 
 
 def get_reviewer(dataset,
@@ -39,7 +40,7 @@ def get_reviewer(dataset,
                  n_papers=None,
                  n_queries=None,
                  embedding_fp=None,
-                 verbose=1,
+                 verbose=0,
                  prior_included=None,
                  prior_excluded=None,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
@@ -81,11 +82,13 @@ def get_reviewer(dataset,
 
     # Check if mode is valid
     if mode in AVAILABLE_REVIEW_CLASSES:
-        if verbose:
-            print(f"Start review in '{mode}' mode.")
+        logging.info(f"Start review in '{mode}' mode.")
     else:
         raise ValueError(f"Unknown mode '{mode}'.")
-    print(f"Model: '{model}'")
+    logging.debug(settings)
+#     if verbose >= 2:
+#         print(settings)
+#     print(f"Model: '{model}'")
 
     # if the provided file is a pickle file
     if is_pickle(dataset):
@@ -114,13 +117,14 @@ def get_reviewer(dataset,
                     print("Warning: will start to download large "
                           "embedding file in 10 seconds.")
                     time.sleep(10)
-                    download_embedding(verbose=verbose)
+                    download_embedding()
 
             # create features and labels
             X, word_index = text_to_features(texts)
             y = labels
             if mode == "oracle":
-                print(ASCII_TEA)
+                print("Loading embedding matrix. "
+                      "This can take several minutes.")
             embedding = load_embedding(embedding_fp, word_index=word_index)
             embedding_matrix = sample_embedding(embedding, word_index)
 
@@ -171,12 +175,10 @@ def get_reviewer(dataset,
 
     # Pick query strategy
     query_fn, query_str = get_query_strategy(settings)
-    if verbose:
-        print(f"Query strategy: {query_str}")
+    logging.info(f"Query strategy: {query_str}")
 
     train_data_fn, train_method = get_balance_strategy(settings)
-    if verbose:
-        print(f"Using {train_method} method to obtain training data.")
+    logging.info(f"Using {train_method} method to obtain training data.")
 
     # Initialize the review class.
     if mode == "simulate":
@@ -270,7 +272,6 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
 
 def review_oracle(dataset, *args, **kwargs):
     """CLI to the interactive mode."""
-    print(ASCII_LOGO)
     review(dataset, *args, mode='oracle', **kwargs)
 
 

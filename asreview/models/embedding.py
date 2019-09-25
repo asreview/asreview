@@ -136,7 +136,7 @@ def _embedding_aggregator(output_queue, n_worker):
 
 
 def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
-                       data_home=None, verbose=None):
+                       data_home=None):
     """Download word embedding file.
 
     Download word embedding file, unzip the file and save to the
@@ -173,7 +173,7 @@ def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
             out_file.write(line)
 
 
-def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
+def load_embedding(fp, word_index=None, n_jobs=None):
     """Load embedding matrix from file.
 
     The embedding matrix needs to be stored in the
@@ -213,10 +213,9 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
     with open(fp, 'r', encoding='utf-8', newline='\n') as f:
         n_words, emb_vec_dim = list(map(int, f.readline().split(' ')))
 
-    if verbose == 1:
-        logging.info(
-            f"Reading {n_words} vectors with {emb_vec_dim} dimensions."
-        )
+    logging.debug(
+        f"Reading {n_words} vectors with {emb_vec_dim} dimensions."
+    )
 
     worker_procs = []
     p = Process(target=_embedding_reader, args=(fp, input_queue),
@@ -244,13 +243,12 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
         bad_values = embedding["ErrorBadInputValues"]
         raise ValueError(f"Check embedding matrix, bad format: {bad_values}")
 
-    if verbose == 1:
-        logging.info(f"Found {len(embedding)} word vectors.")
+    logging.debug(f"Found {len(embedding)} word vectors.")
 
     return embedding
 
 
-def sample_embedding(embedding, word_index, verbose=1):
+def sample_embedding(embedding, word_index):
     """Sample embedding matrix
 
     Parameters
@@ -271,9 +269,8 @@ def sample_embedding(embedding, word_index, verbose=1):
 
     n_words, emb_vec_dim = len(word_index), len(next(iter(embedding.values())))
 
-    if verbose == 1:
-        print(f"Creating matrix with {n_words} vectors "
-              f"with dimension {emb_vec_dim}.")
+    logging.debug(f"Creating matrix with {n_words} vectors "
+                  f"with dimension {emb_vec_dim}.")
 
     # n+1 because 0 is preserved in the tokenizing process.
     embedding_matrix = np.zeros((n_words + 1, emb_vec_dim))
@@ -282,7 +279,6 @@ def sample_embedding(embedding, word_index, verbose=1):
         coefs = embedding.get(word)
         if coefs is not None:
             embedding_matrix[i] = coefs
-    if verbose == 1:
-        print('Shape of embedding matrix: ', embedding_matrix.shape)
+    logging.debug(f'Shape of embedding matrix: {embedding_matrix.shape}')
 
     return embedding_matrix
