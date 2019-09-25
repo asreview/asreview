@@ -68,8 +68,8 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
         Dictionary of the sample embedding.
     """
 
-    badInput = False
-    badValues = {}
+    bad_input = False
+    bad_values = {}
     while True:
         embedding = {}
         buffer = input_queue.get()
@@ -81,19 +81,19 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
             values = line.split(' ')
 
             if len(values) != emb_vec_dim + 1:
-                if not badInput:
+                if not bad_input:
                     print("Error: bad input in embedding vector.")
-                badInput = True
-                badValues = values
+                bad_input = True
+                bad_values = values
                 break
-            else:
-                word = values[0]
-                if word_index is not None and word not in word_index:
-                    continue
-                coefs = values[1:emb_vec_dim + 1]
 
-                # store the results
-                embedding[word] = np.asarray(coefs, dtype=np.float32)
+            word = values[0]
+            if word_index is not None and word not in word_index:
+                continue
+            coefs = values[1:emb_vec_dim + 1]
+
+            # store the results
+            embedding[word] = np.asarray(coefs, dtype=np.float32)
         output_queue.put(embedding)
 
     # We removed the "DONE" from the input queue, so put it back in for
@@ -101,8 +101,8 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     input_queue.put("DONE")
 
     # Store the results in the output queue
-    if badInput:
-        output_queue.put({"ErrorBadInputValues": badValues})
+    if bad_input:
+        output_queue.put({"ErrorBadInputValues": bad_values})
     output_queue.put("DONE")
 
 
@@ -241,8 +241,8 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
         proc.join()
 
     if "ErrorBadInputValues" in embedding:
-        badValues = embedding["ErrorBadInputValues"]
-        raise ValueError(f"Check embedding matrix, bad format: {badValues}")
+        bad_values = embedding["ErrorBadInputValues"]
+        raise ValueError(f"Check embedding matrix, bad format: {bad_values}")
 
     if verbose == 1:
         logging.info(f"Found {len(embedding)} word vectors.")

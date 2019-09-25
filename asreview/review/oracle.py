@@ -10,8 +10,8 @@ from asreview.types import convert_list_type
 class ReviewOracle(BaseReview):
     """ Review class for Oracle mode on the command line. """
 
-    def __init__(self, X, as_data, use_cli_colors=True,
-                 *args, **kwargs):
+    def __init__(self, X, as_data, *args, use_cli_colors=True,
+                 **kwargs):
         super(ReviewOracle, self).__init__(
             X,
             y=np.tile([NOT_AVAILABLE], X.shape[0]),
@@ -84,8 +84,7 @@ class ReviewOracle(BaseReview):
                     stop_input = input("Are you sure you want to stop [y/n]: ")
                     if stop_input in ["Y", "y", "yes"]:
                         raise KeyboardInterrupt
-                    else:
-                        return _interact()
+                    return _interact()
 
                 return int(included)
 

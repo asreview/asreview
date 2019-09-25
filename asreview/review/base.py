@@ -23,7 +23,6 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
     prior_indices = np.array(np.append(included, excluded), dtype=np.int)
 
     if return_labels:
-
         prior_included_labels = np.ones((len(included),), dtype=int)
         prior_excluded_labels = np.zeros((len(excluded),), dtype=int)
 
@@ -33,8 +32,7 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
         ])
 
         return prior_indices, labels
-    else:
-        return prior_indices
+    return prior_indices
 
 
 class BaseReview(ABC):
@@ -134,7 +132,6 @@ class BaseReview(ABC):
 
     def _prior_teach(self):
         """Function called before training model."""
-
         pass
 
     def _stop_iter(self, query_i, n_pool):
@@ -397,6 +394,6 @@ class BaseReview(ABC):
             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
             current_model = load_model(model_fp)
             setattr(my_instance.model, "model", current_model)
-        except BaseException:
+        except Exception:
             pass
         return my_instance

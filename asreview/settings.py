@@ -63,7 +63,7 @@ class ASReviewSettings(object):
         if config_file is None or not os.path.isfile(config_file):
             if config_file is not None:
                 print(f"Didn't find configuration file: {config_file}")
-            return {}
+            return
 
         config = ConfigParser()
         config.read(config_file)
@@ -78,8 +78,8 @@ class ASReviewSettings(object):
                         print(f"Warning: value with key '{key}' is ignored "
                               "(spelling mistake, wrong type?).")
 
-            elif (sect == "model_param" or sect == "fit_param" or
-                  sect == "query_param" or sect == "balance_param"):
+            elif sect in ["model_param", "fit_param", "query_param",
+                          "balance_param"]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "

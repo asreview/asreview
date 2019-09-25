@@ -64,7 +64,7 @@ setup(
     },
 
     project_urls={
-        'Bug Reports': 'https://github.com/msdslab/automated-systematic-review/issues',
+        'Bug Reports': 'https://github.com/msdslab/automated-systematic-review/issues',  #noqa
         'Source': 'https://github.com/msdslab/automated-systematic-review/',
     },
 )

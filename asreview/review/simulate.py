@@ -9,9 +9,10 @@ class ReviewSimulate(BaseReview):
     def __init__(self,
                  X,
                  y,
+                 *args,
                  n_prior_included=None,
                  n_prior_excluded=None,
-                 *args, **kwargs):
+                 **kwargs):
         super(ReviewSimulate, self).__init__(
             X, y, *args, **kwargs)
 
@@ -28,16 +29,15 @@ class ReviewSimulate(BaseReview):
             )
 
             return prior_indices, prior_labels
-        else:
-            # Create the prior knowledge
-            init_ind = sample_prior_knowledge(
-                self.y,
-                n_prior_included=self.n_prior_included,
-                n_prior_excluded=self.n_prior_excluded,
-                random_state=None  # TODO
-            )
+        # Create the prior knowledge
+        init_ind = sample_prior_knowledge(
+            self.y,
+            n_prior_included=self.n_prior_included,
+            n_prior_excluded=self.n_prior_excluded,
+            random_state=None  # TODO
+        )
 
-            return init_ind, self.y[init_ind, ]
+        return init_ind, self.y[init_ind, ]
 
     def _get_labels(self, ind):
         """ Get the labels directly from memory.

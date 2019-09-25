@@ -2,16 +2,17 @@ import json
 from datetime import datetime
 from pathlib import Path
 import copy
+from collections import OrderedDict
 
 
 import numpy as np
 
 import asreview
 from asreview.settings import ASReviewSettings
-from collections import OrderedDict
 
 
 def query_key(query_i):
+    "Get key from iteration number."
     return str(query_i)
 
 
@@ -74,7 +75,6 @@ def read_logs_from_dir(log_dir, prefix=None):
     log_fp_path = Path(log_dir)
 
     if log_fp_path.is_dir():
-
         log_list = []
 
         for x in log_fp_path.iterdir():
@@ -82,14 +82,12 @@ def read_logs_from_dir(log_dir, prefix=None):
             try:
                 if prefix and not x.name.startswith(prefix):
                     continue
-                else:
-                    log_list.append(read_log(x))
+                log_list.append(read_log(x))
             except ValueError:
                 pass
 
         return log_list
-    else:
-        raise ValueError("log_dir is not a valid directory.")
+    raise ValueError("log_dir is not a valid directory.")
 
 
 class Logger(object):
@@ -97,6 +95,7 @@ class Logger(object):
 
     def __init__(self, log_fp=None):
         super(Logger, self).__init__()
+        self.settings = None
         if log_fp is not None:
             self.restore(log_fp)
         else:
@@ -112,11 +111,11 @@ class Logger(object):
 
     def _print_logs(self):
         self._log_dict["time"]["end_time"] = str(datetime.now())
-        s = "Logs of the Systematic Review process:\n"
+        log_str = "Logs of the Systematic Review process:\n"
         for i, value in self._log_dict.items():
-            s += f"Query {i} - Reduction {value}"
+            log_str += f"Query {i} - Reduction {value}"
 
-        return s
+        return log_str
 
     def _add_log(self, new_dict, i, append_result=False):
         # Find the first number that is not logged yet.

@@ -74,8 +74,9 @@ def test_ris_load_data():
 
     assert x.shape[0] == 2 and y is None
 
+
 def test_csv_write_data():
     fp_in = Path("test", "demo_data", "csv_example_with_labels.csv")
     fp_out = Path("test", "out_data", "csv_out_example.csv")
     asr_data = ASReviewData.from_file(fp_in)
-    asr_data.to_csv(fp_out, labels=[0,1,0,1,0,1])
+    asr_data.to_csv(fp_out, labels=[0, 1, 0, 1, 0, 1])
