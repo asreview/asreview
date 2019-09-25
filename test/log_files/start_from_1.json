@@ -1,0 +1,156 @@
+{
+  "settings": {
+    "balance_param": {
+      "one_zero_beta": "0.6",
+      "one_zero_delta": "0.15",
+      "rand_max_b": "10",
+      "rand_max_alpha": "0.1",
+      "shuffle": "True"
+    },
+    "query_param": {
+      "rand_max_frac": "0.05"
+    },
+    "fit_param": {
+      "batch_size": "10",
+      "epochs": "2",
+      "class_weight_inc": "30"
+    },
+    "model_param": {
+      "backwards": true,
+      "dropout": 0.5,
+      "optimizer": "rmsprop",
+      "max_sequence_length": 1000,
+      "verbose": 1,
+      "lstm_out_width": 10,
+      "lstm_pool_size": 100,
+      "learn_rate_mult": 1.0
+    },
+    "data_name": "csv_example_with_labels.csv",
+    "data_fp": "test/demo_data/csv_example_with_labels.csv",
+    "n_prior_excluded": 10,
+    "n_prior_included": 10,
+    "n_papers": null,
+    "n_queries": 2,
+    "n_instances": 1,
+    "balance_strategy": "triple_balance",
+    "query_strategy": "max",
+    "model": "lstm_pool",
+    "mode": "oracle",
+    "fit_kwargs": {
+      "batch_size": 10,
+      "epochs": 2,
+      "verbose": 1,
+      "shuffle": false,
+      "class_weight": {
+        "0": 1.0,
+        "1": 30.0
+      }
+    },
+    "query_kwargs": {
+      "verbose": 1
+    },
+    "balance_kwargs": {
+      "rand_max_b": 10,
+      "rand_max_alpha": 0.1,
+      "one_zero_beta": 0.6,
+      "one_zero_delta": 0.15,
+      "shuffle": true,
+      "pref_epochs": 2,
+      "fit_kwargs": {
+        "batch_size": 10,
+        "epochs": 2,
+        "verbose": 1,
+        "shuffle": false,
+        "class_weight": {
+          "0": 1.0,
+          "1": 30.0
+        }
+      },
+      "query_kwargs": {
+        "verbose": 1
+      }
+    }
+  },
+  "time": {
+    "start_time": "2019-09-24 15:53:24.024626",
+    "end_time": "2019-09-24 15:53:30.242884"
+  },
+  "version": 1,
+  "software_version": "0.1.1+37.gc3e9b80.dirty",
+  "0": {
+    "label_methods": [
+      [
+        "initial",
+        4
+      ]
+    ],
+    "labelled": [
+      [
+        1,
+        1
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        4,
+        0
+      ]
+    ]
+  },
+  "labels": [
+    -9223372036854775808,
+    1,
+    0,
+    1,
+    0,
+    0
+  ],
+  "1": {
+    "pool_proba": [
+      [
+        0,
+        0.9534816741943359
+      ],
+      [
+        5,
+        0.9553650617599487
+      ]
+    ],
+    "train_proba": [
+      [
+        1,
+        0.9553650617599487
+      ],
+      [
+        2,
+        0.9534816741943359
+      ],
+      [
+        3,
+        0.9553650617599487
+      ],
+      [
+        4,
+        0.9534816741943359
+      ]
+    ],
+    "label_methods": [
+      [
+        "max",
+        1
+      ]
+    ],
+    "labelled": [
+      [
+        5,
+        0
+      ]
+    ]
+  }
+}

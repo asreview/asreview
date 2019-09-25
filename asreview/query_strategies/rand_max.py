@@ -83,24 +83,6 @@ def rand_max_sampling(classifier: BaseEstimator,
                                   query_kwargs=query_kwargs,
                                   **kwargs)
 
-    if "max" not in query_kwargs['src_query_idx']:
-        query_kwargs["src_query_idx"]["max"] = np.array(max_idx, dtype=np.int)
-    else:
-        query_kwargs["src_query_idx"]["max"] = np.append(
-            query_kwargs["src_query_idx"]["max"], max_idx)
-
-    if "random" not in query_kwargs['src_query_idx']:
-        query_kwargs["src_query_idx"]["random"] = np.array(
-            rand_idx, dtype=np.int)
-    else:
-        query_kwargs["src_query_idx"]["random"] = np.append(
-            query_kwargs["src_query_idx"]["random"], rand_idx)
-
-    query_kwargs['rand_max_frac'] = rand_max_frac
-    query_kwargs['last_bounds'] = [
-        ("max", 0, n_instance_max),
-        ("random", n_instance_max, n_instances),
-    ]
     query_idx = np.append(max_idx, rand_idx)
 
     return query_idx, X[query_idx]

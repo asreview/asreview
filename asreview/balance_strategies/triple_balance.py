@@ -112,8 +112,12 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     """
     # We want to know which training indices are from rand/max sampling.
     # If we have no information, assume everything is random.
-    max_idx = query_kwargs["src_query_idx"].get("max", np.array([], dtype=int))
-    rand_idx = query_kwargs["src_query_idx"].get("random", train_idx)
+
+    max_idx = np.array(query_kwargs["query_src"].get("max", []), dtype=np.int)
+    rand_idx = np.array([], dtype=np.int)
+    for qtype in query_kwargs["query_src"]:
+        if qtype != "max":
+            rand_idx = np.append(rand_idx, query_kwargs["query_src"][qtype])
 
     # Write them back for next round.
     if shuffle:

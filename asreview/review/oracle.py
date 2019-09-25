@@ -8,10 +8,10 @@ from asreview.types import convert_list_type
 
 
 class ReviewOracle(BaseReview):
-    """Automated Systematic Review"""
+    """ Review class for Oracle mode on the command line. """
 
-    def __init__(self, X, as_data, use_cli_colors=True,
-                 *args, **kwargs):
+    def __init__(self, X, as_data, *args, use_cli_colors=True,
+                 **kwargs):
         super(ReviewOracle, self).__init__(
             X,
             y=np.tile([NOT_AVAILABLE], X.shape[0]),
@@ -42,13 +42,18 @@ class ReviewOracle(BaseReview):
             self.prior_excluded = convert_list_type(
                 prior_excluded.split(), int)
 
+    def train(self, *args, **kwargs):
+        print(ASCII_TEA)
+        super(ReviewOracle, self).train(*args, **kwargs)
+
     def _prior_knowledge(self):
         """Create prior knowledge from arguments."""
 
         self.priors_from_cli()
         prior_indices, prior_labels = _merge_prior_knowledge(
             self.prior_included, self.prior_excluded)
-        return np.array(prior_indices, dtype=np.int), np.array(prior_labels, dtype=np.int)
+        return np.array(prior_indices, dtype=np.int), np.array(
+            prior_labels, dtype=np.int)
 
     def _prior_teach(self):
 
@@ -83,8 +88,7 @@ class ReviewOracle(BaseReview):
                     stop_input = input("Are you sure you want to stop [y/n]: ")
                     if stop_input in ["Y", "y", "yes"]:
                         raise KeyboardInterrupt
-                    else:
-                        return _interact()
+                    return _interact()
 
                 return int(included)
 
@@ -107,7 +111,7 @@ class ReviewOracle(BaseReview):
 
     def _get_labels(self, ind):
 
-        y = np.zeros((len(ind), ))
+        y = np.zeros((len(ind), ), dtype=np.int)
 
         for j, index in enumerate(ind):
 

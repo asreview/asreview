@@ -89,13 +89,13 @@ class ASReviewData(object):
 
     @classmethod
     def from_file(cls, fp):
+        "Create instance from csv/ris file."
         if Path(fp).suffix in [".csv", ".CSV"]:
             return cls.from_csv(fp)
-        elif Path(fp).suffix in [".ris", ".RIS"]:
+        if Path(fp).suffix in [".ris", ".RIS"]:
             return cls.from_ris(fp)
-        else:
-            raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                             f"from file {fp}")
+        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                         f"from file {fp}")
 
     def format_record(self, i, use_cli_colors=True):
         " Format one record for displaying in the CLI. "
@@ -120,15 +120,8 @@ class ASReviewData(object):
         return f"\n{title}\n{authors}\n\n{abstract}\n"
 
     def print_record(self, *args, **kwargs):
+        "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
-
-    def _classify_paper(self, index):
-        # CLI paper format
-        _gui_paper = self._format_paper(
-            title=self.data.iloc[index]["title"],
-            abstract=self.data.iloc[index]["abstract"],
-            authors=self.data.iloc[index]["authors"])
-        print(_gui_paper)
 
     def get_data(self):
         "Equivalent of 'read_data'; get texts, labels from data object."
