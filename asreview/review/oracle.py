@@ -42,6 +42,10 @@ class ReviewOracle(BaseReview):
             self.prior_excluded = convert_list_type(
                 prior_excluded.split(), int)
 
+    def train(self, *args, **kwargs):
+        print(ASCII_TEA)
+        super(ReviewOracle, self).train(*args, **kwargs)
+
     def _prior_knowledge(self):
         """Create prior knowledge from arguments."""
 

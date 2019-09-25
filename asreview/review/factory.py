@@ -27,6 +27,7 @@ from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asreview.models import lstm_fit_defaults
 
 from asreview.readers import ASReviewData
+from asreview.ascii import ASCII_LOGO, ASCII_TEA
 
 
 def get_reviewer(dataset,
@@ -118,6 +119,8 @@ def get_reviewer(dataset,
             # create features and labels
             X, word_index = text_to_features(texts)
             y = labels
+            if mode == "oracle":
+                print(ASCII_TEA)
             embedding = load_embedding(embedding_fp, word_index=word_index)
             embedding_matrix = sample_embedding(embedding, word_index)
 
@@ -265,13 +268,13 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
         print(reviewer._logger._print_logs())
 
 
-def review_oracle(dataset, **kwargs):
+def review_oracle(dataset, *args, **kwargs):
     """CLI to the interactive mode."""
+    print(ASCII_LOGO)
+    review(dataset, *args, mode='oracle', **kwargs)
 
-    review(dataset, mode='oracle', **kwargs)
 
-
-def review_simulate(dataset, **kwargs):
+def review_simulate(dataset, *args, **kwargs):
     """CLI to the oracle mode."""
 
-    review(dataset, mode='simulate', **kwargs)
+    review(dataset, *args, mode='simulate', **kwargs)

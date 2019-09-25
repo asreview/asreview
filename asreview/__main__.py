@@ -10,17 +10,16 @@ from argparse import RawTextHelpFormatter
 
 warnings.filterwarnings("ignore")
 
-import numpy as np
-import tensorflow as tf
+import numpy as np  # noqa
+import tensorflow as tf # noqa
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
 from asreview.config import AVAILABLE_CLI_MODI  # noqa
-from asreview.config import DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY,\
-                            DEFAULT_BALANCE_STRATEGY, DEFAULT_N_INSTANCES,\
-                            DEFAULT_N_PRIOR_INCLUDED,\
-                            DEFAULT_N_PRIOR_EXCLUDED
+from asreview.config import (  # noqa
+    DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY, DEFAULT_BALANCE_STRATEGY,
+    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED)
 
 
 # Descriptions
