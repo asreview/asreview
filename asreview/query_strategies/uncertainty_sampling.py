@@ -22,7 +22,7 @@ from modAL.utils.selection import multi_argmax, shuffled_argmax
 
 
 def classifier_uncertainty(
-        classifier: BaseEstimator, X: modALinput, query_kwargs: dict=None,
+        classifier: BaseEstimator, X: modALinput, query_kwargs: dict = None,
         **predict_proba_kwargs
         ) -> np.ndarray:
     # calculate uncertainty for each point provided

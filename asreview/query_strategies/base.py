@@ -18,11 +18,13 @@ def get_query_strategy(settings):
         settings.query_kwargs = _unsafe_dict_update(
             settings.query_kwargs, settings.query_param)
         return rand_max_sampling, "Mix of random and max inclusion sampling"
-    elif method in ['lc', 'sm', 'uncertainty', 'uncertainty_sampling']:
+
+    if method in ['lc', 'sm', 'uncertainty', 'uncertainty_sampling']:
         return uncertainty_sampling, 'Least confidence / Uncertainty sampling'
-    elif method == 'random':
+
+    if method == 'random':
         return random_sampling, 'Random'
-    else:
-        raise ValueError(
-            f"Query strategy '{method}' not found."
-        )
+
+    raise ValueError(
+        f"Query strategy '{method}' not found."
+    )

@@ -88,8 +88,7 @@ the Command Line Interface (CLI).
 Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
 ``` sh
-asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
-  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
+asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 --log_file results.log
 ```
 
 Example output:
@@ -126,7 +125,8 @@ in the final review. The command for the simulation modus is similar to the orac
 mode:
 
 ``` sh
-asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 --log_file results.log
+asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
+  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
 ## Tech

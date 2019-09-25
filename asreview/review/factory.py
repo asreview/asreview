@@ -27,6 +27,7 @@ from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asreview.models import lstm_fit_defaults
 
 from asreview.readers import ASReviewData
+from asreview.ascii import ASCII_LOGO, ASCII_TEA
 
 
 def get_reviewer(dataset,
@@ -35,7 +36,8 @@ def get_reviewer(dataset,
                  query_strategy=DEFAULT_QUERY_STRATEGY,
                  balance_strategy=DEFAULT_BALANCE_STRATEGY,
                  n_instances=DEFAULT_N_INSTANCES,
-                 n_queries=1,
+                 n_papers=None,
+                 n_queries=None,
                  embedding_fp=None,
                  verbose=1,
                  prior_included=None,
@@ -46,6 +48,9 @@ def get_reviewer(dataset,
                  src_log_fp=None,
                  **kwargs
                  ):
+    """ Get a review object from arguments. See __main__.py for a description
+        Of the arguments.
+    """
 
     # Find the URL of the datasets if the dataset is an example dataset.
     if dataset in DEMO_DATASETS.keys():
@@ -58,6 +63,7 @@ def get_reviewer(dataset,
         logger = None
         settings = ASReviewSettings(model=model, n_instances=n_instances,
                                     n_queries=n_queries,
+                                    n_papers=n_papers,
                                     n_prior_included=n_prior_included,
                                     n_prior_excluded=n_prior_excluded,
                                     query_strategy=query_strategy,
@@ -113,6 +119,8 @@ def get_reviewer(dataset,
             # create features and labels
             X, word_index = text_to_features(texts)
             y = labels
+            if mode == "oracle":
+                print(ASCII_TEA)
             embedding = load_embedding(embedding_fp, word_index=word_index)
             embedding_matrix = sample_embedding(embedding, word_index)
 
@@ -177,6 +185,7 @@ def get_reviewer(dataset,
             model=model,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
+            n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
@@ -189,7 +198,6 @@ def get_reviewer(dataset,
             query_kwargs=settings.query_kwargs,
             logger=logger,
             **kwargs)
-
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
@@ -197,6 +205,7 @@ def get_reviewer(dataset,
             query_strategy=query_fn,
             as_data=as_data,
             train_data_fn=train_data_fn,
+            n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
@@ -213,6 +222,7 @@ def get_reviewer(dataset,
             model=model,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
+            n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
@@ -233,10 +243,11 @@ def get_reviewer(dataset,
 
 def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
            **kwargs):
+    """ Perform a review from arguments. Compatible with the CLI interface. """
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
 
-    reviewer = get_reviewer(*args, model=model, **kwargs)
+    reviewer = get_reviewer(*args, mode=mode, model=model, **kwargs)
 
     # Wrap in try expect to capture keyboard interrupt
     try:
@@ -257,13 +268,13 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
         print(reviewer._logger._print_logs())
 
 
-def review_oracle(dataset, **kwargs):
+def review_oracle(dataset, *args, **kwargs):
     """CLI to the interactive mode."""
+    print(ASCII_LOGO)
+    review(dataset, *args, mode='oracle', **kwargs)
 
-    review(dataset, mode='oracle', **kwargs)
 
-
-def review_simulate(dataset, **kwargs):
+def review_simulate(dataset, *args, **kwargs):
     """CLI to the oracle mode."""
 
-    review(dataset, mode='simulate', **kwargs)
+    review(dataset, *args, mode='simulate', **kwargs)
