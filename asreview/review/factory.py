@@ -28,7 +28,6 @@ from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
 from asreview.models import lstm_fit_defaults
 
 from asreview.readers import ASReviewData
-from asreview.ascii import ASCII_LOGO, ASCII_TEA
 
 
 def get_reviewer(dataset,
