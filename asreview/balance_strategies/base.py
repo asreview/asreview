@@ -1,16 +1,14 @@
 from abc import ABC
 from abc import abstractmethod
 
+from asreview.balance_strategies.full_sampling import FullSampleTD
+from asreview.balance_strategies.triple_balance import TripleBalanceTD
+from asreview.balance_strategies.undersampling import UndersampleTD
 from asreview.utils import _unsafe_dict_update
 
 
 def get_balance_strategy(settings):
     """ Function to get data rebalancing method. """
-
-    from asreview.balance_strategies import FullSampleTD
-    from asreview.balance_strategies import TripleBalanceTD
-    from asreview.balance_strategies import UndersampleTD
-
     method = getattr(settings, "balance_strategy", "simple")
     settings.balance_strategy = method
     if method == "simple":
