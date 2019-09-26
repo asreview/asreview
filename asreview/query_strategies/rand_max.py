@@ -1,17 +1,9 @@
-'''
-Created on 9 Apr 2019
-
-@author: qubix
-'''
-
-
+from math import floor
 from typing import Tuple
 
 import numpy as np
-from sklearn.base import BaseEstimator
-
 from modAL.utils.data import modALinput
-from math import floor
+from sklearn.base import BaseEstimator
 
 from asreview.query_strategies.max_sampling import max_sampling
 from asreview.query_strategies.random_sampling import random_sampling

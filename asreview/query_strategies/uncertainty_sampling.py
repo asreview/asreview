@@ -1,7 +1,4 @@
-'''
-Uncertainty sampling while saving probabilities.
-'''
-
+'''Uncertainty sampling while saving probabilities.'''
 # Code based on https://github.com/modAL-python/
 # modAL/blob/dev/modAL/uncertainty.py
 #
@@ -10,15 +7,14 @@ Uncertainty sampling while saving probabilities.
 # content/apireference/uncertainty.html
 #
 # MIT license - Copyright (c) 2019 Tivadar Danka
-
 from typing import Tuple
 
 import numpy as np
-from sklearn.exceptions import NotFittedError
-from sklearn.base import BaseEstimator
-
 from modAL.utils.data import modALinput
-from modAL.utils.selection import multi_argmax, shuffled_argmax
+from modAL.utils.selection import multi_argmax
+from modAL.utils.selection import shuffled_argmax
+from sklearn.base import BaseEstimator
+from sklearn.exceptions import NotFittedError
 
 
 def classifier_uncertainty(
