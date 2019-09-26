@@ -1,4 +1,7 @@
-'''Functions that resample the training data.'''
+'''
+Functions that resample the training data.
+'''
+
 import numpy as np
 
 

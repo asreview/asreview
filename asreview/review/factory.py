@@ -1,43 +1,33 @@
+import time
+import pickle
+from pathlib import Path
+from os.path import splitext
 import json
 import logging
-import pickle
-import time
-from os.path import splitext
-from pathlib import Path
 
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.balance_strategies import get_balance_strategy
-from asreview.config import AVAILABLE_CLI_MODI
-from asreview.config import AVAILABLE_REVIEW_CLASSES
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_MODEL
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
-from asreview.config import DEFAULT_N_PRIOR_INCLUDED
-from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEMO_DATASETS
-from asreview.config import KERAS_MODELS
-from asreview.logging import Logger
-from asreview.models import create_lstm_base_model
-from asreview.models import create_lstm_pool_model
-from asreview.models import lstm_base_model_defaults
-from asreview.models import lstm_fit_defaults
-from asreview.models import lstm_pool_model_defaults
-from asreview.models.embedding import download_embedding
-from asreview.models.embedding import EMBEDDING_EN
-from asreview.models.embedding import load_embedding
-from asreview.models.embedding import sample_embedding
-from asreview.query_strategies import get_query_strategy
-from asreview.readers import ASReviewData
-from asreview.review import MinimalReview
-from asreview.review import ReviewOracle
-from asreview.review import ReviewSimulate
-from asreview.settings import ASReviewSettings
-from asreview.types import is_pickle
-from asreview.utils import get_data_home
-from asreview.utils import text_to_features
 # ASReview dependencies
+from asreview.review import ReviewSimulate, ReviewOracle, MinimalReview
+from asreview.utils import text_to_features
+from asreview.types import is_pickle
+from asreview.config import AVAILABLE_CLI_MODI, AVAILABLE_REVIEW_CLASSES,\
+    DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY, DEFAULT_BALANCE_STRATEGY,\
+    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED,\
+    DEMO_DATASETS, KERAS_MODELS
+from asreview.models.embedding import download_embedding, EMBEDDING_EN
+from asreview.models.embedding import load_embedding, sample_embedding
+from asreview.utils import get_data_home
+from asreview.query_strategies import get_query_strategy
+from asreview.balance_strategies import get_balance_strategy
+from asreview.logging import Logger
+from asreview.settings import ASReviewSettings
+
+from asreview.models import create_lstm_base_model, lstm_base_model_defaults
+from asreview.models import create_lstm_pool_model, lstm_pool_model_defaults
+from asreview.models import lstm_fit_defaults
+
+from asreview.readers import ASReviewData
 
 
 def get_reviewer(dataset,
