@@ -27,25 +27,32 @@ ASCII_LOGO = """
 
 ASCII_MSG_ORACLE = """
 ---------------------------------------------------------------------------------
-|                                                                               |
-| Welcome to the ASReview Automated Systematic Review software.                 |
-| In this mode the computer will assist you in creating your systematic review. |
-| After giving it a few papers that are either included or excluded,            |
-| it will compute a model and show progressively more relevant papers.          |
-| You can stop the review at any time by typing "S"                             |
-| or by pressing Ctrl + C or for mac users Cmd + C.                             |
-| Your progress will be saved.                                                  |
-|                                                                               |
+|                                                                                |
+|  Welcome to the ASReview Automated Systematic Review software.                 |
+|  In this mode the computer will assist you in creating your systematic review. |
+|  After giving it a few papers that are either included or excluded,            |
+|  it will compute a model and show progressively more relevant papers.          |
+|  You can stop the review at any time by typing "S" + Enter                     |
+|  or by pressing Ctrl + C.                                                      |
+|  Your progress will be saved.                                                  |
+|                                                                                |
+|  GitHub page:        https://github.com/msdslab/automated-systematic-review    |
+|  Questions/remarks:  a.g.j.vandeschoot@uu.nl                                   |
+|                                                                                |
 ---------------------------------------------------------------------------------
 """
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
 |                                                                               |
-| Welcome to the ASReview Automated Systematic Review software.                 |
-| In this mode the computer will simulate how well the ASReview software        |
-| could have accelerate the systematic review of your dataset.                  |
-| You can sit back and relax while the computer runs this simulation.           |
+|  Welcome to the ASReview Automated Systematic Review software.                |
+|  In this mode the computer will simulate how well the ASReview software       |
+|  could have accelerate the systematic review of your dataset.                 |
+|  You can sit back and relax while the computer runs this simulation.          |
+|                                                                               |
+|  GitHub page:        https://github.com/msdslab/automated-systematic-review   |
+|  Questions/remarks:  a.g.j.vandeschoot@uu.nl                                  |
+|                                                                               |
 ---------------------------------------------------------------------------------
 """
 

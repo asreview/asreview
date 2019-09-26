@@ -3,6 +3,7 @@ import pickle
 from pathlib import Path
 from os.path import splitext
 import json
+import logging
 
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
@@ -28,7 +29,6 @@ from asreview.models import lstm_fit_defaults
 
 from asreview.readers import ASReviewData
 from asreview.ascii import ASCII_LOGO, ASCII_TEA
-import logging
 
 
 def get_reviewer(dataset,
