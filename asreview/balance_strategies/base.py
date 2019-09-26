@@ -1,6 +1,4 @@
-from abc import ABC
-from abc import abstractmethod
-
+from abc import ABC, abstractmethod
 from asreview.utils import _unsafe_dict_update
 
 

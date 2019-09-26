@@ -1,19 +1,16 @@
 import os
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
-import dill
-import numpy as np
+
 from modAL.models import ActiveLearner
 from tensorflow.python.keras.models import load_model
+import numpy as np
+import dill
 
+from asreview.logging import Logger, query_key
 from asreview.balance_strategies import full_sample
-from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import NOT_AVAILABLE
-from asreview.logging import Logger
-from asreview.logging import query_key
-from asreview.query_strategies import max_sampling
-from asreview.query_strategies import random_sampling
+from asreview.query_strategies import max_sampling, random_sampling
+from asreview.config import NOT_AVAILABLE, DEFAULT_N_INSTANCES
 
 
 def get_pool_idx(X, train_idx):
