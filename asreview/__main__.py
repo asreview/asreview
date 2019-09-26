@@ -7,6 +7,8 @@ import argparse
 import sys
 import warnings
 from argparse import RawTextHelpFormatter
+import logging
+from asreview.ascii import welcome_message
 
 warnings.filterwarnings("ignore")
 
@@ -208,6 +210,28 @@ def _parse_arguments(mode, prog=sys.argv[0]):
     return parser
 
 
+def _review_general(mode="oracle"):
+    parser = _parse_arguments(mode, prog="asreview " + mode)
+    args = parser.parse_args(sys.argv[2:])
+
+    args_dict = vars(args)
+    path = args_dict.pop("dataset")
+
+    verbose = args_dict.get("verbose", 0)
+    if verbose == 0:
+        logging.getLogger().setLevel(logging.WARNING)
+    elif verbose == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif verbose >= 2:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    print(welcome_message(mode))
+    if mode == "oracle":
+        review_oracle(path, **args_dict)
+    elif mode == "simulate":
+        review_simulate(path, **args_dict)
+
+
 def _review_oracle():
 
     parser = _parse_arguments("oracle", prog="asreview oracle")
@@ -240,12 +264,12 @@ def main_depr():
 
 def main():
     # launch asr interactively
-    if len(sys.argv) > 1 and sys.argv[1] == "oracle":
-        _review_oracle()
+    if len(sys.argv) > 1 and sys.argv[1] in ["oracle", "simulate"]:
+        _review_general(sys.argv[1])
 
-    # launch asr with oracle
-    elif len(sys.argv) > 1 and sys.argv[1] == "simulate":
-        _review_simulate()
+#     launch asr with oracle
+#     elif len(sys.argv) > 1 and sys.argv[1] == "simulate":
+#         _review_simulate()
 
     # no valid sub command
     else:

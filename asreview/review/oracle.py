@@ -25,7 +25,7 @@ class ReviewOracle(BaseReview):
     def priors_from_cli(self, force=False):
         if self.prior_included is None or force:
             # provide prior knowledge
-            print("Are there papers you definitively want to include?")
+            print("\nAre there papers you definitively want to include?")
             prior_included = input(
                 "Give the indices of these papers. "
                 "Separate them with spaces.\n"
@@ -34,7 +34,7 @@ class ReviewOracle(BaseReview):
                 prior_included.split(), int)
 
         if self.prior_excluded is None or force:
-            print("Are there papers you definitively want to exclude?")
+            print("\nAre there papers you definitively want to exclude?")
             prior_excluded = input(
                 "Give the indices of these papers. "
                 "Separate them with spaces.\n"
