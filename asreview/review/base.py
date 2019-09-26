@@ -307,7 +307,8 @@ class BaseReview(ABC):
     def classify(self, query_idx, inclusions, method=None):
         """ Classify new papers and update the training indices. """
         self.y[query_idx] = inclusions
-        self.train_idx = np.unique(np.append(self.train_idx, query_idx))
+        query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
+        self.train_idx = np.append(self.train_idx, query_idx)
         if method is None:
             methods = []
             for idx in query_idx:
@@ -355,15 +356,31 @@ class BaseReview(ABC):
         self.query_i += 1
 
     def statistics(self):
-        last_one_pos = np.argmax(self.y[self.train_idx][::-1])
-        last_inclusion = len(self.train_idx)-last_one_pos-1
+        n_initial = 0
+        try:
+            initial_meth = self._logger._log_dict["0"]["label_methods"][0]
+            if initial_meth[0] == "initial":
+                n_initial = initial_meth[1]
+        except (IndexError, KeyError):
+            pass
+
+        try:
+            if np.count_nonzero(self.y[self.train_idx[n_initial:]] == 1) == 0:
+                last_inclusion = len(self.train_idx[n_initial:])
+            else:
+                last_inclusion = np.nonzero(
+                    self.y[self.train_idx[n_initial:]][::-1] == 1)[0][0]
+        except ValueError:
+            last_inclusion = 0
+#         last_inclusion = len(self.train_idx)-last_one_pos-1
         stats = {
             "n_included": np.count_nonzero(self.y[self.train_idx] == 1),
             "n_excluded": np.count_nonzero(self.y[self.train_idx] == 0),
             "n_papers": len(self.y),
             "n_reviewed": len(self.train_idx),
-            "n_pool": len(self.n_pool),
+            "n_pool": self.n_pool(),
             "last_inclusion": last_inclusion,
+            "n_initial": n_initial,
         }
         return stats
 

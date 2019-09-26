@@ -7,6 +7,17 @@ from asreview.config import NOT_AVAILABLE
 from asreview.types import convert_list_type
 
 
+def update_stats(stats, label):
+    if label == 1:
+        stats["n_included"] += 1
+        stats["last_inclusion"] = 0
+    else:
+        stats["n_excluded"] += 1
+        stats["last_inclusion"] += 1
+    stats["n_reviewed"] += 1
+    stats["n_pool"] -= 1
+
+
 class ReviewOracle(BaseReview):
     """ Review class for Oracle mode on the command line. """
 
@@ -71,9 +82,10 @@ class ReviewOracle(BaseReview):
 
         return f"\n{title}\n{authors}\n\n{abstract}\n"
 
-    def _get_labels_paper(self, index):
+    def _get_labels_paper(self, index, stat_str=None):
         # CLI paper format
         self.as_data.print_record(index)
+        print(stat_str + "\n")
 
         def _interact():
             # interact with the user
@@ -109,15 +121,27 @@ class ReviewOracle(BaseReview):
 
         return label
 
+    def get_stats(self, stats):
+        n_included = stats["n_included"]
+        n_papers = stats["n_papers"]
+        n_reviewed = stats["n_reviewed"]
+        perc_read = 100*(stats["n_reviewed"]/stats["n_papers"])
+        perc_included = 100*n_included/n_reviewed
+        last_inclusion = stats["last_inclusion"]
+        stat_str = (f"| {perc_read:.2f}% read | {last_inclusion} since last "
+                    f"inclusion | {perc_included:.2f}% included |"
+                    f" total papers: {n_papers} |")
+        return stat_str
+
     def _get_labels(self, ind):
 
         y = np.zeros((len(ind), ), dtype=np.int)
         stats = self.statistics()
 
         for j, index in enumerate(ind):
-            print(stats)
-            label = self._get_labels_paper(index)
-
+            label = self._get_labels_paper(index,
+                                           stat_str=self.get_stats(stats))
+            update_stats(stats, label)
             y[j] = label
 
         return y
