@@ -1,7 +1,5 @@
 import logging
-from math import ceil
-from math import exp
-from math import log
+from math import ceil, exp, log
 
 import numpy as np
 
