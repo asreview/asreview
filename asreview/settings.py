@@ -84,3 +84,12 @@ class ASReviewSettings(object):
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "
                        f"config file {config_file}")
+
+    def __str__(self):
+        info_str = "----------------------------\n"
+        for attrib in SETTINGS_TYPE_DICT:
+            value = getattr(self, attrib, None)
+            if value is not None:
+                info_str += attrib + ": " + str(value) + "\n"
+        info_str += "----------------------------\n"
+        return info_str

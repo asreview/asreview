@@ -2,6 +2,7 @@
 import os
 import shutil
 from pathlib import Path
+import logging
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -195,4 +196,4 @@ def _set_class_weight(weight1, fit_kwargs):
         0: weight0,
         1: weight1,
     }
-    print(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
+    logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
