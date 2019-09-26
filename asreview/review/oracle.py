@@ -112,9 +112,10 @@ class ReviewOracle(BaseReview):
     def _get_labels(self, ind):
 
         y = np.zeros((len(ind), ), dtype=np.int)
+        stats = self.statistics()
 
         for j, index in enumerate(ind):
-
+            print(stats)
             label = self._get_labels_paper(index)
 
             y[j] = label

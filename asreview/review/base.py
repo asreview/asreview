@@ -354,6 +354,19 @@ class BaseReview(ABC):
         self.model_trained = True
         self.query_i += 1
 
+    def statistics(self):
+        last_one_pos = np.argmax(self.y[self.train_idx][::-1])
+        last_inclusion = len(self.train_idx)-last_one_pos-1
+        stats = {
+            "n_included": np.count_nonzero(self.y[self.train_idx] == 1),
+            "n_excluded": np.count_nonzero(self.y[self.train_idx] == 0),
+            "n_papers": len(self.y),
+            "n_reviewed": len(self.train_idx),
+            "n_pool": len(self.n_pool),
+            "last_inclusion": last_inclusion,
+        }
+        return stats
+
     def save_logs(self, *args, **kwargs):
         """Save the logs to a file."""
 
