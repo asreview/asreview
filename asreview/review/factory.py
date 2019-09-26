@@ -86,9 +86,6 @@ def get_reviewer(dataset,
     else:
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
-#     if verbose >= 2:
-#         print(settings)
-#     print(f"Model: '{model}'")
 
     # if the provided file is a pickle file
     if is_pickle(dataset):
