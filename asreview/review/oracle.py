@@ -1,9 +1,8 @@
 import numpy as np
-
-from asreview.review import BaseReview
-from asreview.review.base import _merge_prior_knowledge
 from asreview.ascii import ASCII_TEA
 from asreview.config import NOT_AVAILABLE
+from asreview.review import BaseReview
+from asreview.review.base import _merge_prior_knowledge
 from asreview.types import convert_list_type
 
 

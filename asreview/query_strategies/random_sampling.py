@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """Random sampling strategy."""
-
 # Code based on https://modal-python.readthedocs.io/
 # en/latest/content/overview/modAL-in-a-nutshell.html
 # MIT license - Copyright (c) 2017 Tivadar Danka
-
-
 import numpy as np
 
 

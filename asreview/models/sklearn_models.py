@@ -1,4 +1,3 @@
-
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 

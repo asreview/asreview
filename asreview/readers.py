@@ -1,13 +1,12 @@
 # Cpython dependencies
-
 from pathlib import Path
 
-# external dependencies
-from RISparser import TAG_KEY_MAPPING, readris
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 from asreview.config import NOT_AVAILABLE
+from RISparser import readris
+from RISparser import TAG_KEY_MAPPING
+# external dependencies
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"

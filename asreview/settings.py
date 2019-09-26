@@ -1,5 +1,6 @@
 import os
 from configparser import ConfigParser
+
 from asreview.config import DEFAULT_N_INSTANCES
 
 
