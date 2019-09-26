@@ -1,8 +1,10 @@
-from tensorflow.keras.layers import Dense, LSTM, Embedding
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import LSTM
 from tensorflow.keras.models import Sequential
 
-from asreview.utils import _unsafe_dict_update
 from asreview.utils import _set_class_weight
+from asreview.utils import _unsafe_dict_update
 
 
 def lstm_base_model_defaults(settings, verbose=1):

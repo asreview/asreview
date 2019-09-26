@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """Initial sample.
 
 This module is used to draw an initial sample. This sample is the
 so-called 'pre-knowledge' of the researcher.
 
 """
-
 import numpy as np
 
 
