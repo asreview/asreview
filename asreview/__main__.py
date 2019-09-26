@@ -1,27 +1,30 @@
-#!/usr/bin/env python
-# encoding: utf-8
-
 """Command Line Interface (CLI) for ASReview project."""
-
 import argparse
+import logging
 import sys
 import warnings
 from argparse import RawTextHelpFormatter
-import logging
-from asreview.ascii import welcome_message
 
+# ignore all warnings
 warnings.filterwarnings("ignore")
 
-import numpy as np  # noqa
-import tensorflow as tf # noqa
+import numpy as np
+import tensorflow as tf
+
+# ignore tensorflow warnings
 tf.logging.set_verbosity(tf.logging.ERROR)
 
-from asreview import __version__  # noqa
-from asreview.review import review_oracle, review_simulate  # noqa
-from asreview.config import AVAILABLE_CLI_MODI  # noqa
-from asreview.config import (  # noqa
-    DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY, DEFAULT_BALANCE_STRATEGY,
-    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED)
+from asreview import __version__
+from asreview.ascii import welcome_message
+from asreview.config import AVAILABLE_CLI_MODI
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
+from asreview.config import DEFAULT_N_PRIOR_INCLUDED
+from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.review import review_oracle
+from asreview.review import review_simulate
 
 
 # Descriptions

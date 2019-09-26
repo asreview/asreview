@@ -1,9 +1,8 @@
-'''
-Expose selection of query methods.
-'''
-
-from asreview.query_strategies import max_sampling, random_sampling
-from asreview.query_strategies import uncertainty_sampling, rand_max_sampling
+'''Expose selection of query methods.'''
+from asreview.query_strategies import max_sampling
+from asreview.query_strategies import rand_max_sampling
+from asreview.query_strategies import random_sampling
+from asreview.query_strategies import uncertainty_sampling
 from asreview.utils import _unsafe_dict_update
 
 

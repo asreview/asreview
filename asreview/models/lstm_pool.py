@@ -1,8 +1,13 @@
-from tensorflow.keras.layers import Dense, LSTM, Embedding
-from tensorflow.keras.layers import MaxPooling1D, Flatten
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import RMSprop, Adam
 from tensorflow.keras.constraints import MaxNorm
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import MaxPooling1D
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import RMSprop
+
 from asreview.utils import _unsafe_dict_update
 
 

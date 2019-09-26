@@ -1,7 +1,9 @@
-import logging
 import gzip
 import io
-from multiprocessing import Process, Queue, cpu_count
+import logging
+from multiprocessing import cpu_count
+from multiprocessing import Process
+from multiprocessing import Queue
 from pathlib import Path
 from urllib.request import urlopen
 
