@@ -5,6 +5,8 @@ import time
 from os.path import splitext
 from pathlib import Path
 
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+
 from asreview.balance_strategies import get_balance_strategy
 from asreview.config import AVAILABLE_CLI_MODI
 from asreview.config import AVAILABLE_REVIEW_CLASSES
@@ -35,8 +37,6 @@ from asreview.settings import ASReviewSettings
 from asreview.types import is_pickle
 from asreview.utils import get_data_home
 from asreview.utils import text_to_features
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-# ASReview dependencies
 
 
 def get_reviewer(dataset,
