@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from asreview.config import EMAIL_ADDRESS
+from asreview.config import GITHUB_PAGE
+
 
 
 ASCII_TEA = """
@@ -36,11 +39,11 @@ ASCII_MSG_ORACLE = """
 |  or by pressing Ctrl + C.                                                      |
 |  Your progress will be saved.                                                  |
 |                                                                                |
-|  GitHub page:        https://github.com/msdslab/automated-systematic-review    |
-|  Questions/remarks:  a.g.j.vandeschoot@uu.nl                                   |
+|  GitHub page:        {0: <58}|
+|  Questions/remarks:  {1: <58}|
 |                                                                                |
 ---------------------------------------------------------------------------------
-"""
+""".format(GITHUB_PAGE, EMAIL_ADDRESS)
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
@@ -50,11 +53,11 @@ ASCII_MSG_SIMULATE = """
 |  could have accelerate the systematic review of your dataset.                 |
 |  You can sit back and relax while the computer runs this simulation.          |
 |                                                                               |
-|  GitHub page:        https://github.com/msdslab/automated-systematic-review   |
-|  Questions/remarks:  a.g.j.vandeschoot@uu.nl                                  |
+|  GitHub page:        {0: <58}|
+|  Questions/remarks:  {1: <58}|
 |                                                                               |
 ---------------------------------------------------------------------------------
-"""
+""".format(GITHUB_PAGE, EMAIL_ADDRESS)
 
 
 def welcome_message(mode="oracle"):
