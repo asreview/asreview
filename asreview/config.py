@@ -18,3 +18,6 @@ DEFAULT_BALANCE_STRATEGY = "triple_balance"
 DEFAULT_N_INSTANCES = 20
 DEFAULT_N_PRIOR_INCLUDED = 10
 DEFAULT_N_PRIOR_EXCLUDED = 10
+
+GITHUB_PAGE = "https://github.com/msdslab/automated-systematic-review"
+EMAIL_ADDRESS = "asreview@uu.nl"
