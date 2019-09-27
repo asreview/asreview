@@ -1,7 +1,6 @@
 '''
 Functions that resample the training data.
 '''
-
 import numpy as np
 
 

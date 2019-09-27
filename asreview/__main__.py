@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """Command Line Interface (CLI) for ASReview project."""
-
 import argparse
+import logging
 import sys
 import warnings
 from argparse import RawTextHelpFormatter
-import logging
+
 from asreview.ascii import welcome_message
 
 warnings.filterwarnings("ignore")
