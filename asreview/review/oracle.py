@@ -83,7 +83,7 @@ class ReviewOracle(BaseReview):
                     assert len(df_order) == len(self.y)
                     for i in range(len(self.y)):
                         assert i in df_order
-                    labels = np.full(len(self.y), np.nan, dtype=np.int)
+                    labels = np.full(len(self.y), np.nan, dtype=object)
                     labels[self.train_idx] = self.y[self.train_idx]
                     self.as_data.to_csv(csv_fp=export_input, labels=labels,
                                         df_order=df_order)
