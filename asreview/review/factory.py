@@ -256,12 +256,8 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
 
     reviewer = get_reviewer(*args, mode=mode, model=model, **kwargs)
 
-    # Wrap in try expect to capture keyboard interrupt
-    try:
-        # Start the review process.
-        reviewer.review()
-    except KeyboardInterrupt:
-        print('\nClosing down the automated systematic review.')
+    # Start the review process.
+    reviewer.review()
 
     # If we're dealing with a keras model, we can save the last model weights.
     if save_model_fp is not None and model in KERAS_MODELS:

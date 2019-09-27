@@ -221,7 +221,7 @@ class BaseReview(ABC):
         self.train_idx = np.array(train_idx, dtype=np.int)
         self.query_i = query_i
 
-    def review(self, stop_after_class=True):
+    def review(self, stop_after_class=True, instant_save=False):
         """ Do the systematic review, writing the results to the log file. """
 
         if self._stop_iter(self.query_i, self.n_pool()):
@@ -244,7 +244,12 @@ class BaseReview(ABC):
             )
 
             # STEP 2: Classify the queried papers.
-            self.classify(query_idx, self._get_labels(query_idx))
+            if instant_save:
+                for idx in query_idx:
+                    idx_array = np.array([idx], dtype=np.int)
+                    self.classify(idx_array, self._get_labels(idx_array))
+            else:
+                self.classify(query_idx, self._get_labels(query_idx))
 
             # Option to stop after the classification set instead of training.
             if stop_after_class and self._stop_iter(self.query_i,

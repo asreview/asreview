@@ -132,9 +132,12 @@ class ASReviewData(object):
             texts.append(self.title[i] + " " + self.abstract[i])
         return self.raw_df, np.array(texts), self.labels
 
-    def to_csv(self, csv_fp, labels=None):
+    def to_csv(self, csv_fp, labels=None, df_order=None):
         if labels is not None:
             self.raw_df[self.label_col] = labels
+
+        if df_order is not None:
+            self.raw_df = self.raw_df.reindex(df_order)
         self.raw_df.to_csv(csv_fp)
 
 
