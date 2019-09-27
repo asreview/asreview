@@ -23,8 +23,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/msdslab/automated-systematic-review',
-    author='MSDSLab',
-    author_email='j.debruin1@uu.nl',
+    author='ASReview Core Development Team',
+    author_email='asreview@uu.nl',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
