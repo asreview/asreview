@@ -227,6 +227,6 @@ Affiliated Researchers:
 - Lars Tummers
 
 Students:
-- Gerbrich Ferdinands
+- Gerbrich Ferdinands (g.ferdinands@uu.nl, [@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
 - Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
 - Albert Harkema (a.d.harkema@uu.nl, [@sasafrass](https://github.com/sasafrass))
