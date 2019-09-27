@@ -196,6 +196,8 @@ class BaseReview(ABC):
         # Capture the labelled indices from the log file.
         while qk in self._logger._log_dict:
             if "labelled" not in self._logger._log_dict[qk]:
+                query_i += 1
+                qk = query_key(query_i)
                 continue
             new_labels = self._logger._log_dict[qk]["labelled"]
             label_methods = self._logger._log_dict[qk]["label_methods"]
@@ -217,6 +219,10 @@ class BaseReview(ABC):
             qk = query_key(query_i)
 
         query_i -= 1
+        if query_i > 0:
+            qk = query_key(query_i)
+            if "labelled" not in self._logger._log_dict[qk]:
+                query_i -= 1
 
         self.train_idx = np.array(train_idx, dtype=np.int)
         self.query_i = query_i

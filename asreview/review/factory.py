@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import pickle
 import time
 from os.path import splitext
@@ -271,9 +272,29 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
         print(reviewer._logger._print_logs())
 
 
-def review_oracle(dataset, *args, **kwargs):
+def review_oracle(dataset, *args, src_log_fp=None, log_file=None, **kwargs):
     """CLI to the interactive mode."""
-    review(dataset, *args, mode='oracle', **kwargs)
+
+    if (src_log_fp is None and log_file is not None
+            and os.path.isfile(log_file)):
+        while(True):
+            continue_input = input("Project detected. Continue [y/n]?")
+            if continue_input in ["Y", "y", "yes"]:
+                src_log_fp = log_file
+                break
+            if continue_input not in ["N", "n", "no"]:
+                print("Please provide 'y' or 'no'.")
+                continue
+            overwrite_input = input("This will delete your previous"
+                                    " project and start a new one.\n Is that"
+                                    " what you want [y/n]?")
+            if overwrite_input in ["Y", "y", "yes"]:
+                break
+            else:
+                return
+
+    review(dataset, *args, mode='oracle', src_log_fp=src_log_fp,
+           log_file=log_file, **kwargs)
 
 
 def review_simulate(dataset, *args, **kwargs):

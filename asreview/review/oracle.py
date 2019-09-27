@@ -79,10 +79,7 @@ class ReviewOracle(BaseReview):
                         proba_order = np.argsort(pred_proba[pool_idx, 1])
                     else:
                         proba_order = np.arange(len(pool_idx))
-#                     print(proba_order.tolist())
-#                     print(pool_idx.tolist())
                     df_order = np.append(self.train_idx, pool_idx[proba_order])
-#                     print(df_order.tolist())
                     assert len(df_order) == len(self.y)
                     for i in range(len(self.y)):
                         assert i in df_order
