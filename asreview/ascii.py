@@ -3,7 +3,6 @@ from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
 
 
-
 ASCII_TEA = """
                 (  )   (   )  )
                  ) (   )  (  (
