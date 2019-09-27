@@ -1,8 +1,9 @@
 import logging
-from math import ceil, exp, log
+from math import ceil
+from math import exp
+from math import log
 
 import numpy as np
-
 from asreview.balance_strategies.base import BaseTrainData
 
 

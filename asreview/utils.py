@@ -1,8 +1,8 @@
 # Cpython dependencies
+import logging
 import os
 import shutil
 from pathlib import Path
-import logging
 
 
 def _unsafe_dict_update(default_dict, override_dict):
