@@ -98,25 +98,28 @@ class ASReviewData(object):
 
     def format_record(self, i, use_cli_colors=True):
         " Format one record for displaying in the CLI. "
-        if self.title is not None:
+        if self.title is not None and len(self.title[0]) > 0:
             title = self.title[i]
+            if use_cli_colors:
+                title = "\033[95m" + title + "\033[0m"
+            title += "\n"
         else:
             title = ""
 
-        if use_cli_colors:
-            title = "\033[95m" + title + "\033[0m"
-
-        if self.authors is not None:
-            authors = self.authors[i]
+        if self.authors is not None and len(self.authors[i]) > 0:
+            authors = self.authors[i] + "\n"
         else:
             authors = ""
 
-        if self.abstract is not None:
+        if self.abstract is not None and len(self.abstract[i]) > 0:
             abstract = self.abstract[i]
+            abstract = "\n" + abstract + "\n"
         else:
             abstract = ""
 
-        return f"\n{title}\n{authors}\n\n{abstract}\n"
+        return ("\n\n----------------------------------"
+                f"\n{title}{authors}{abstract}"
+                "----------------------------------\n\n")
 
     def print_record(self, *args, **kwargs):
         "Print a record to the CLI."
