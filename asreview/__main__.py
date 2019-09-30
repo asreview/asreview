@@ -231,29 +231,6 @@ def _review_general(mode="oracle"):
         review_simulate(path, **args_dict)
 
 
-def _review_oracle():
-
-    parser = _parse_arguments("oracle", prog="asreview oracle")
-    args = parser.parse_args(sys.argv[2:])
-
-    args_dict = vars(args)
-    path = args_dict.pop("dataset")
-
-    review_oracle(path, **args_dict)
-
-
-def _review_simulate():
-    """CLI to the oracle mode."""
-
-    parser = _parse_arguments("simulate", prog="asreview simulate")
-    args = parser.parse_args(sys.argv[2:])
-
-    args_dict = vars(args)
-    path = args_dict.pop("dataset")
-
-    review_simulate(path, **args_dict)
-
-
 def main_depr():
     warnings.warn("'asr' has been renamed to "
                   "'asreview', it will be removed in the future.\n",
@@ -265,10 +242,6 @@ def main():
     # launch asr interactively
     if len(sys.argv) > 1 and sys.argv[1] in ["oracle", "simulate"]:
         _review_general(sys.argv[1])
-
-#     launch asr with oracle
-#     elif len(sys.argv) > 1 and sys.argv[1] == "simulate":
-#         _review_simulate()
 
     # no valid sub command
     else:
