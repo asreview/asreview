@@ -3,7 +3,11 @@ from abc import ABC
 from abc import abstractmethod
 
 import dill
+from modAL.models import ActiveLearner
 import numpy as np
+from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
+
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
@@ -11,8 +15,6 @@ from asreview.logging import Logger
 from asreview.logging import query_key
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
-from modAL.models import ActiveLearner
-from tensorflow.python.keras.models import load_model
 
 
 def get_pool_idx(X, train_idx):
@@ -32,7 +34,6 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
             prior_included_labels,
             prior_excluded_labels
         ])
-
         return prior_indices, labels
     return prior_indices
 
@@ -319,6 +320,7 @@ class BaseReview(ABC):
 
     def classify(self, query_idx, inclusions, method=None):
         """ Classify new papers and update the training indices. """
+        query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
         query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
         self.train_idx = np.append(self.train_idx, query_idx)
@@ -402,7 +404,7 @@ class BaseReview(ABC):
 
         self._logger.save(*args, **kwargs)
 
-    def to_pickle(self, pickle_fp):
+    def save(self, pickle_fp):
         """
         Dump the self object to a pickle fill (using dill). Keras models
         Cannot be dumped, so they are written to a separate h5 file. The
@@ -411,21 +413,18 @@ class BaseReview(ABC):
         of the class, since library changes could easily break it. In those
         cases, use the log + h5 file instead.
         """
-        if "model" in self.model.__dict__:
-            print(type(self.model.model).__name__)
-        try:
-            with open(pickle_fp, "wb") as fp:
-                dill.dump(self, fp)
-        except TypeError:
+        if isinstance(self.model, KerasClassifier) and self.model_trained:
             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
             self.model.model.save(model_fp)
             current_model = self.model.__dict__.pop("model", None)
             with open(pickle_fp, "wb") as fp:
                 dill.dump(self, fp)
             setattr(self.model, "model", current_model)
+        else:
+            dill.dump(self, fp)
 
     @classmethod
-    def from_pickle(cls, pickle_fp):
+    def load(cls, pickle_fp):
         """
         Create a BaseReview object from a pickle file, and optiona h5 file.
         """
