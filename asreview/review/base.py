@@ -3,10 +3,10 @@ from abc import ABC
 from abc import abstractmethod
 
 import dill
-# from keras.wrappers.scikit_learn import KerasClassifier
 from modAL.models import ActiveLearner
 import numpy as np
 from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
@@ -34,7 +34,6 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
             prior_included_labels,
             prior_excluded_labels
         ])
-        KerasC
         return prior_indices, labels
     return prior_indices
 
