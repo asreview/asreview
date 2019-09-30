@@ -56,6 +56,44 @@ class ReviewOracle(BaseReview):
         print(ASCII_TEA)
         super(ReviewOracle, self).train(*args, **kwargs)
 
+    def review(self, *args, instant_save=True, **kwargs):
+        try:
+            super(ReviewOracle, self).review(*args, instant_save=instant_save,
+                                             **kwargs)
+        except KeyboardInterrupt:
+            self._export_csv()
+
+    def _export_csv(self):
+        try:
+            while(True):
+                export_input = input(
+                    "\nExport to file? Give filename ending "
+                    "with .csv or leave blank for no export: ")
+                if len(export_input) == 0:
+                    break
+                if export_input.endswith(".csv"):
+                    pred_proba = self.query_kwargs.get('pred_proba', None)
+                    pool_idx = np.delete(np.arange(len(self.y)),
+                                         self.train_idx)
+                    if pred_proba is not None:
+                        proba_order = np.argsort(pred_proba[pool_idx, 1])
+                    else:
+                        proba_order = np.arange(len(pool_idx))
+                    df_order = np.append(self.train_idx, pool_idx[proba_order])
+                    assert len(df_order) == len(self.y)
+                    for i in range(len(self.y)):
+                        assert i in df_order
+                    labels = np.full(len(self.y), np.nan, dtype=object)
+                    labels[self.train_idx] = self.y[self.train_idx]
+                    self.as_data.to_csv(csv_fp=export_input, labels=labels,
+                                        df_order=df_order)
+                    break
+                print("Either leave blank or give filename that ends with "
+                      "'.csv'.")
+        except KeyboardInterrupt:
+            pass
+        print('\nClosing down the automated systematic review.')
+
     def _prior_knowledge(self):
         """Create prior knowledge from arguments."""
 
