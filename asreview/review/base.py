@@ -3,8 +3,10 @@ from abc import ABC
 from abc import abstractmethod
 
 import dill
-import numpy as np
 from keras.wrappers.scikit_learn import KerasClassifier
+from modAL.models import ActiveLearner
+import numpy as np
+from tensorflow.python.keras.models import load_model
 
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
@@ -13,8 +15,6 @@ from asreview.logging import Logger
 from asreview.logging import query_key
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
-from modAL.models import ActiveLearner
-from tensorflow.python.keras.models import load_model
 
 
 def get_pool_idx(X, train_idx):
