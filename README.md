@@ -201,32 +201,34 @@ BibTeX:
 
 ## Contact and contributors
 
-This project is part of the research work conducted by the Department of
-Methodology & Statistics, Faculty of Social and Behavioral Sciences, Utrecht
-University, The Netherlands in collaboration with Utrecht Applied Data Science, 
-Information and Technology Services, and Utrecht University Library.
+This project is part of the research work conducted by the [Department of
+Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
+University, The Netherlands in collaboration with [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science), 
+[Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its), and [Utrecht University Library](https://www.uu.nl/en/university-library).
 
 For any questions or remarks, please send an email to asreview@uu.nl.
 
-Coordination (Utrecht Applied Data Science - Universiteit Utrecht):
-- Rens van de Schoot (Main coordinator - a.g.j.vandeschoot@uu.nl, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
-- Daniel Oberski (Scientific Director - d.l.oberski@uu.nl, [@daob](https://github.com/daob))
+**Coordination** [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science):
+- [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator - a.g.j.vandeschoot@uu.nl, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
+- [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director - d.l.oberski@uu.nl, [@daob](https://github.com/daob))
 
-Engineers (Information and Technology Services (ITS) - Universiteit Utrecht):
+**Engineers** [Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its):
 - Parisa Zahedi (p.zahedi@uu.nl, [@parisa-zahedi](https://github.com/parisa-zahedi))
 - Jonathan de Bruin (j.debruin1@uu.nl, [@J535D165](https://github.com/J535D165))
 - Raoul Schram (r.d.schram@uu.nl, [@qubixes](https://github.com/qubixes))
 - Kees van Eijden (k.vaneijden@uu.nl, [@KvEijden](https://github.com/KvEijden))
 
-Librarians Utrecht University Library:
+**Librarians** [Utrecht University Library](https://www.uu.nl/en/university-library):
 - Jan de Boer 
 - Edu Hackenitz
+- Felix Weijdema
+- Bianca Kramer 
 
-Affiliated Researchers:
-- Pim Huijnen
-- Lars Tummers
+**Affiliated Researchers**:
+- [Pim Huijnen](https://www.uu.nl/staff/PHuijnen) (Digital Cultural History at the Department of History and Art History)
+- [Lars Tummers](https://www.uu.nl/staff/LGTummers) (Public Management and Behavior at Utrecht University, School of Governance)
 
-Students:
+**Students**:
 - Gerbrich Ferdinands (g.ferdinands@uu.nl, [@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
 - Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
 - Albert Harkema (a.d.harkema@uu.nl, [@sasafrass](https://github.com/sasafrass))
