@@ -5,6 +5,7 @@ from math import log
 
 import numpy as np
 from asreview.balance_strategies.base import BaseTrainData
+from asreview.balance_strategies.full_sampling import full_sample
 
 
 class TripleBalanceTD(BaseTrainData):
@@ -124,6 +125,12 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     if shuffle:
         np.random.shuffle(rand_idx)
         np.random.shuffle(max_idx)
+
+    if len(rand_idx) or len(max_idx) == 0:
+        logging.debug("Warning: trying to use triple balance, but unable to"
+                      f", because we have {len(max_idx)} max samples and "
+                      f"{len(rand_idx)} random samples.")
+        return full_sample(X, y, train_idx)
 
     # Split the idx into three groups: 1's, random 0's, max 0's.
     one_idx = train_idx[np.where(y[train_idx] == 1)]
