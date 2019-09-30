@@ -208,27 +208,27 @@ University, The Netherlands in collaboration with [Utrecht Applied Data Science]
 
 For any questions or remarks, please send an email to asreview@uu.nl.
 
-**Coordination** [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science):
-- [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator - a.g.j.vandeschoot@uu.nl, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
-- [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director - d.l.oberski@uu.nl, [@daob](https://github.com/daob))
+**Coordination**
+- [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
+- [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob))
 
-**Engineers** [Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its):
-- Parisa Zahedi (p.zahedi@uu.nl, [@parisa-zahedi](https://github.com/parisa-zahedi))
-- Jonathan de Bruin (j.debruin1@uu.nl, [@J535D165](https://github.com/J535D165))
-- Raoul Schram (r.d.schram@uu.nl, [@qubixes](https://github.com/qubixes))
-- Kees van Eijden (k.vaneijden@uu.nl, [@KvEijden](https://github.com/KvEijden))
+**Engineers** 
+- Jonathan de Bruin (Lead engineer, [@J535D165](https://github.com/J535D165))
+- Parisa Zahedi ([@parisa-zahedi](https://github.com/parisa-zahedi))
+- Raoul Schram ([@qubixes](https://github.com/qubixes))
+- Kees van Eijden ([@KvEijden](https://github.com/KvEijden))
 
-**Librarians** [Utrecht University Library](https://www.uu.nl/en/university-library):
+**Librarians**
 - Jan de Boer 
 - Edu Hackenitz
 - Felix Weijdema
 - Bianca Kramer 
 
-**Affiliated Researchers**:
+**Affiliated Researchers**
 - [Pim Huijnen](https://www.uu.nl/staff/PHuijnen) (Digital Cultural History at the Department of History and Art History)
 - [Lars Tummers](https://www.uu.nl/staff/LGTummers) (Public Management and Behavior at Utrecht University, School of Governance)
 
-**Students**:
-- Gerbrich Ferdinands (g.ferdinands@uu.nl, [@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
+**Students**
+- Gerbrich Ferdinands ([@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
 - Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
-- Albert Harkema (a.d.harkema@uu.nl, [@sasafrass](https://github.com/sasafrass))
+- Albert Harkema ([@sasafrass](https://github.com/sasafrass))
