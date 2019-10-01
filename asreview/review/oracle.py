@@ -163,7 +163,10 @@ class ReviewOracle(BaseReview):
         n_papers = stats["n_papers"]
         n_reviewed = stats["n_reviewed"]
         perc_read = 100*(stats["n_reviewed"]/stats["n_papers"])
-        perc_included = 100*n_included/n_reviewed
+        if(n_reviewed == 0):
+            perc_included = np.nan
+        else:
+            perc_included = 100*n_included/n_reviewed
         last_inclusion = stats["last_inclusion"]
         stat_str = (f"| {perc_read:.2f}% read | {last_inclusion} since last "
                     f"inclusion | {perc_included:.2f}% included |"
