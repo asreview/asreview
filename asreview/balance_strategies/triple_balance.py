@@ -137,6 +137,12 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     zero_max_idx = max_idx[np.where(y[max_idx] == 0)]
     zero_rand_idx = rand_idx[np.where(y[rand_idx] == 0)]
 
+    if len(zero_rand_idx) == 0 or len(zero_max_idx) == 0:
+        logging.debug("Warning: trying to use triple balance, but unable to"
+                      f", because we have {len(zero_max_idx)} zero max samples"
+                      f" and {len(zero_rand_idx)} random samples.")
+        return full_sample(X, y, train_idx)
+
     n_one = len(one_idx)
     n_zero_rand = len(zero_rand_idx)
     n_zero_max = len(zero_max_idx)
