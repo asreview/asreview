@@ -9,11 +9,6 @@ import numpy as np
 from asreview.settings import ASReviewSettings
 
 
-def query_key(query_i):
-    "Get key from iteration number."
-    return str(query_i)
-
-
 def read_log(log_fp):
     """Read log file.
 
@@ -88,7 +83,8 @@ class Logger(object):
             self._log_dict = OrderedDict({
                 "time": {"start_time": str(datetime.now())},
                 "version": 1,
-                "software_version": asreview.__version__
+                "software_version": asreview.__version__,
+                "results": [],
             })
 
     def __str__(self):
@@ -102,27 +98,24 @@ class Logger(object):
 
         return log_str
 
-    def _add_log(self, new_dict, i, append_result=False):
+    def _add_to_log(self, new_dict, i, append_result=False):
         # Find the first number that is not logged yet.
+        results = self._log_dict["results"]
         if i is None:
-            i = 0
-            qk = query_key(i)
-            while qk in self._log_dict:
-                # If the keys of the new dictionary don't exist, this is it.
-                if set(new_dict.keys()).isdisjoint(self._log_dict[qk].keys()):
-                    break
-                i += 1
-                qk = query_key(i)
+            if (len(results) > 0
+                    and set(new_dict.keys()).isdisjoint(results[-1])):
+                i = len(results)-1
+            else:
+                i = len(results)
 
-        qk = query_key(i)
-        if qk not in self._log_dict:
-            self._log_dict[qk] = {}
+        while i >= len(results):
+            results.append({})
 
         for key in new_dict:
-            if key in self._log_dict[qk] and append_result:
-                self._log_dict[qk][key].extend(new_dict[key])
+            if key in results[i] and append_result:
+                results[i][key].extend(new_dict[key])
             else:
-                self._log_dict[qk].update(new_dict)
+                results[i][key] = new_dict[key]
 
     def add_settings(self, settings):
         self.settings = copy.deepcopy(settings)
@@ -149,10 +142,11 @@ class Logger(object):
         if isinstance(labels, np.ndarray):
             labels = labels.tolist()
 
-        qi = query_key(i)
-        if qi not in self._log_dict:
-            self._log_dict[qi] = {}
-        label_methods = self._log_dict[qi].get("label_methods", [])
+        results = self._log_dict["results"]
+        while i >= len(results):
+            results.append({})
+
+        label_methods = results[i].get("label_methods", [])
         for method in methods:
             if len(label_methods) and label_methods[-1][0] == method[1]:
                 label_methods[-1][1] += 1
@@ -160,9 +154,9 @@ class Logger(object):
                 label_methods.append([method[1], 1])
 
         new_dict = {'label_methods': label_methods}
-        self._add_log(new_dict, i, append_result=False)
+        self._add_to_log(new_dict, i, append_result=False)
         new_dict = {'labelled': list(zip(indices, labels))}
-        self._add_log(new_dict, i, append_result=True)
+        self._add_to_log(new_dict, i, append_result=True)
 
     def add_pool_predict(self, indices, pred, i=None):
         """Add inverse pool indices and their labels.
@@ -183,7 +177,7 @@ class Logger(object):
         if isinstance(pred, np.ndarray):
             pred = pred.tolist()
         new_dict = {'predictions': list(zip(indices, pred))}
-        self._add_log(new_dict, i, append_result=False)
+        self._add_to_log(new_dict, i, append_result=False)
 
     def add_proba(self, indices, pred_proba, logname="pool_proba", i=None):
         """Add inverse pool indices and their labels.
@@ -204,7 +198,7 @@ class Logger(object):
         if isinstance(pred_proba, np.ndarray):
             pred_proba = pred_proba.tolist()
         new_dict = {logname: list(zip(indices, pred_proba))}
-        self._add_log(new_dict, i)
+        self._add_to_log(new_dict, i)
 
     def save(self, fp):
         """Save logs to file.
