@@ -213,7 +213,6 @@ class BaseReview(ABC):
                 )
                 start_idx += method[1]
 
-        query_i -= 1
         if query_i > 0:
             if "labelled" not in self._logger._log_dict["results"][query_i]:
                 query_i -= 1
