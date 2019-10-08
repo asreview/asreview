@@ -16,7 +16,7 @@ def get_balance_strategy(settings):
             settings.balance_param, settings.fit_kwargs, settings.query_kwargs)
         td_string = "triple balanced (max,rand) training data"
     elif method in ["undersample", "undersampling"]:
-        td_obj = UndersampleTD(**settings.balance_param)
+        td_obj = UndersampleTD(settings.balance_param, settings.fit_kwargs)
         td_string = "undersampled training data"
     else:
         raise ValueError(f"Training data method {method} not found")
