@@ -13,11 +13,10 @@ class ReviewSimulate(BaseReview):
                  n_prior_included=None,
                  n_prior_excluded=None,
                  **kwargs):
-        super(ReviewSimulate, self).__init__(
-            X, y, *args, **kwargs)
-
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
+        super(ReviewSimulate, self).__init__(
+            X, y, *args, **kwargs)
 
     def _prior_knowledge(self):
         """ Get the prior knowledge, either from specific paper IDs,

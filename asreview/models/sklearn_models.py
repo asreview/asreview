@@ -24,7 +24,7 @@ def create_nb_model():
     return model
 
 
-def create_svc_model():
+def create_svc_model(*args, gamma="scale", **kwargs):
     """Return callable SVM model.
 
     Arguments
@@ -37,8 +37,7 @@ def create_svc_model():
         called.
 
     """
-
-    model = SVC(probability=True)
+    model = SVC(*args, gamma=gamma, probability=True, **kwargs)
     logging.debug(model)
 
     return model

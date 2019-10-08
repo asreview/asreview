@@ -29,7 +29,7 @@ from asreview.models.embedding import download_embedding
 from asreview.models.embedding import EMBEDDING_EN
 from asreview.models.embedding import load_embedding
 from asreview.models.embedding import sample_embedding
-from asreview.query_strategies import get_query_strategy
+from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
@@ -180,7 +180,7 @@ def get_reviewer(dataset,
         raise ValueError('Model not found.')
 
     # Pick query strategy
-    query_fn, query_str = get_query_strategy(settings)
+    query_fn, query_str = get_query_with_settings(settings)
     logging.info(f"Query strategy: {query_str}")
 
     train_data_fn, train_method = get_balance_strategy(settings)

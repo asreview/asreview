@@ -126,7 +126,7 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
         np.random.shuffle(rand_idx)
         np.random.shuffle(max_idx)
 
-    if len(rand_idx) or len(max_idx) == 0:
+    if len(rand_idx) == 0 or len(max_idx) == 0:
         logging.debug("Warning: trying to use triple balance, but unable to"
                       f", because we have {len(max_idx)} max samples and "
                       f"{len(rand_idx)} random samples.")
