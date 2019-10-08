@@ -12,7 +12,6 @@ from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
 from asreview.logging import Logger
-from asreview.logging import query_key
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
 
@@ -192,16 +191,13 @@ class BaseReview(ABC):
         train_idx = []
         if "labels" in self._logger._log_dict:
             self.y = np.array(self._logger._log_dict["labels"], dtype=np.int)
-        qk = query_key(query_i)
 
         # Capture the labelled indices from the log file.
-        while qk in self._logger._log_dict:
-            if "labelled" not in self._logger._log_dict[qk]:
-                query_i += 1
-                qk = query_key(query_i)
+        for query_i, res in enumerate(self._logger._log_dict["results"]):
+            if "labelled" not in res:
                 continue
-            new_labels = self._logger._log_dict[qk]["labelled"]
-            label_methods = self._logger._log_dict[qk]["label_methods"]
+            new_labels = res["labelled"]
+            label_methods = res["label_methods"]
             label_idx = [x[0] for x in new_labels]
             inclusions = [x[1] for x in new_labels]
             self.y[label_idx] = inclusions
@@ -216,13 +212,9 @@ class BaseReview(ABC):
                     label_idx[start_idx:start_idx+method[1]]
                 )
                 start_idx += method[1]
-            query_i += 1
-            qk = query_key(query_i)
 
-        query_i -= 1
         if query_i > 0:
-            qk = query_key(query_i)
-            if "labelled" not in self._logger._log_dict[qk]:
+            if "labelled" not in self._logger._log_dict["results"][query_i]:
                 query_i -= 1
 
         self.train_idx = np.array(train_idx, dtype=np.int)

@@ -10,6 +10,15 @@ cfg_dir = os.path.join("test", "cfg_files")
 src_log_fp = os.path.join("test", "log_files", "start_from_1.json")
 
 
+# To generate log file to start from, don't forget to set
+# n_queries in the generated log file to 2.
+
+# def test_lstm_base(monkeypatch):
+#     check_lstm(monkeypatch,
+#                config_file=os.path.join(cfg_dir, "lstm_pool_query_1.ini"),
+#                log_file=os.path.join("test", "log_files", "test.json"))
+
+
 def test_lstm_base(monkeypatch):
     check_lstm(monkeypatch, config_file=os.path.join(cfg_dir, "lstm_base.ini"))
 
@@ -47,20 +56,23 @@ def check_label_methods(label_methods, n_labeled, methods):
 
 
 def check_log(log_dict):
-    print(log_dict)
-    check_label_methods(log_dict["0"]["label_methods"], 4, ["initial"])
-    check_label_methods(log_dict["1"]["label_methods"], 1, ["max", "random"])
-    check_label_methods(log_dict["2"]["label_methods"], 1, ["max", "random"])
+    results = log_dict["results"]
 
-    assert len(log_dict["0"]["labelled"]) == 4
-    assert len(log_dict["1"]["labelled"]) == 1
-    assert len(log_dict["2"]["labelled"]) == 1
+    for i, res in enumerate(results):
+        print(i, ":", res)
+    check_label_methods(results[0]["label_methods"], 4, ["initial"])
+    check_label_methods(results[1]["label_methods"], 1, ["max", "random"])
+    check_label_methods(results[2]["label_methods"], 1, ["max", "random"])
 
-    assert len(log_dict["1"]["train_proba"]) == 4
-    assert len(log_dict["1"]["pool_proba"]) == 2
+    assert len(results[0]["labelled"]) == 4
+    assert len(results[1]["labelled"]) == 1
+    assert len(results[2]["labelled"]) == 1
 
-    assert len(log_dict["2"]["train_proba"]) == 5
-    assert len(log_dict["2"]["pool_proba"]) == 1
+    assert len(results[1]["train_proba"]) == 4
+    assert len(results[1]["pool_proba"]) == 2
+
+    assert len(results[2]["train_proba"]) == 5
+    assert len(results[2]["pool_proba"]) == 1
 
     assert "time" in log_dict
     assert "version" in log_dict
