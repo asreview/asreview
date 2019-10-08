@@ -38,9 +38,6 @@ following respositories are (or will become) publicly available:
 
 ## Table of Contents
 
-Table of Contents
-=================
-
 * [Automated Systematic Review](#automated-systematic-review)
 * [Table of Contents](#table-of-contents)
 * [Active Learning for reviewing papers](#active-learning-for-reviewing-papers)
