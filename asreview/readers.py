@@ -1,12 +1,12 @@
-# Cpython dependencies
+import logging
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from asreview.config import NOT_AVAILABLE
 from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
-# external dependencies
+
+from asreview.config import NOT_AVAILABLE
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
@@ -18,6 +18,7 @@ LABEL_INCLUDED_VALUES = [
     "included_flag"
 ]
 
+# Add label_included into the specification and create reverse mapping.
 TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
 KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
 for label in LABEL_INCLUDED_VALUES:
@@ -169,6 +170,15 @@ class ASReviewData(object):
 
 
 def write_ris(df, ris_fp):
+    """Write dataframe to RIS file.
+
+    Arguments
+    ---------
+    df: pandas.Dataframe
+        Dataframe to export.
+    ris_fp: str
+        RIS file to export to.
+    """
     column_names = list(df)
     column_key = []
     for col in column_names:
@@ -176,10 +186,12 @@ def write_ris(df, ris_fp):
             column_key.append(KEY_TAG_MAPPING[col])
         except KeyError:
             column_key.append('UK')
-            print(f"Cannot find column {col} in specification.")
+            logging.info(f"Cannot find column {col} in specification.")
 
     n_row = df.shape[0]
 
+    # According to RIS specifications, a record should begin with TY.
+    # Thus, the column id is inserted before all the other.
     col_order = []
     for i, key in enumerate(column_key):
         if key == 'TY':
