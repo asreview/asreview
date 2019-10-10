@@ -264,15 +264,14 @@ def main():
             action='store_true',
             help="print the ASR version number and exit")
 
-        args = parser.parse_args()
+        args, _ = parser.parse_known_args()
 
         # output the version
         if args.version:
             print(__version__)
             return
 
-        if args.subcommand is None:
-            print("Use 'asr -h' to view help.")
+        parser.print_help()
 
 
 # execute main function
