@@ -21,7 +21,7 @@ class ReviewSimulate(BaseReview):
     def _prior_knowledge(self):
         """ Get the prior knowledge, either from specific paper IDs,
             and if they're not given from the number of in/exclusions. """
-        if self.prior_included or self.prior_excluded:
+        if self.prior_included is not None or self.prior_excluded is not None:
             prior_indices, prior_labels = _merge_prior_knowledge(
                 self.prior_included,
                 self.prior_excluded
