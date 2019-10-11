@@ -16,7 +16,6 @@ def update_stats(stats, label):
     stats["n_reviewed"] += 1
     stats["n_pool"] -= 1
 
-
 class ReviewOracle(BaseReview):
     """ Review class for Oracle mode on the command line. """
 
@@ -61,17 +60,17 @@ class ReviewOracle(BaseReview):
             super(ReviewOracle, self).review(*args, instant_save=instant_save,
                                              **kwargs)
         except KeyboardInterrupt:
-            self._export_csv()
+            self._export()
 
-    def _export_csv(self):
+    def _export(self):
         try:
             while(True):
                 export_input = input(
                     "\nExport to file? Give filename ending "
-                    "with .csv or leave blank for no export: ")
+                    "with .csv or .ris.\n Leave blank for no export:  ")
                 if len(export_input) == 0:
                     break
-                if export_input.endswith(".csv"):
+                if export_input.endswith((".csv", ".ris")):
                     pred_proba = self.query_kwargs.get('pred_proba', None)
                     pool_idx = np.delete(np.arange(len(self.y)),
                                          self.train_idx)
@@ -85,8 +84,8 @@ class ReviewOracle(BaseReview):
                         assert i in df_order
                     labels = np.full(len(self.y), np.nan, dtype=object)
                     labels[self.train_idx] = self.y[self.train_idx]
-                    self.as_data.to_csv(csv_fp=export_input, labels=labels,
-                                        df_order=df_order)
+                    self.as_data.to_file(fp=export_input, labels=labels,
+                                         df_order=df_order)
                     break
                 print("Either leave blank or give filename that ends with "
                       "'.csv'.")
