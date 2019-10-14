@@ -74,7 +74,7 @@ class BaseReview(ABC):
 
         self.model = model
         self.query_strategy = query_strategy
-        self.train_data = train_data_fn
+        self.balance_strategy = train_data_fn
 
         self.n_papers = n_papers
         self.n_instances = n_instances
@@ -348,7 +348,7 @@ class BaseReview(ABC):
             return
 
         # Get the training data.
-        X_train, y_train = self.train_data(
+        X_train, y_train = self.balance_strategy(
             self.X, self.y, self.train_idx, **self.balance_kwargs)
 
         # Train the model on the training data.

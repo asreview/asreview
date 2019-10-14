@@ -15,14 +15,12 @@ class TripleBalanceTD(BaseTrainData):
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
     """
-    def __init__(self, balance_kwargs, fit_kwargs, query_kwargs):
+    def __init__(self, balance_kwargs={}, fit_kwargs={}, query_kwargs={}):
         super(TripleBalanceTD, self).__init__(balance_kwargs)
         self.balance_kwargs['pref_epochs'] = int(fit_kwargs.get('epochs', 1))
         self.balance_kwargs['fit_kwargs'] = fit_kwargs
         self.balance_kwargs['query_kwargs'] = query_kwargs
-
-    def func_kwargs(self):
-        return triple_balance, self.balance_kwargs
+        self.function = triple_balance
 
     def default_kwargs(self):
         defaults = {}
@@ -38,7 +36,7 @@ class TripleBalanceTD(BaseTrainData):
         parameter_space = {
             "bal_rand_max_b": hp.lognormal("bal_rand_max_b", 2, 2),
             "bal_rand_max_alpha": hp.uniform("bal_rand_max_alpha", 0, 2),
-            "bal_one_zero_delta": hp.uniform("bal_one_zero_delta", 0.999, 0.001),
+            "bal_one_zero_delta": hp.uniform("bal_one_zero_delta", 0.001, 0.999),  #noqa
             "bal_one_zero_beta": hp.uniform("bal_one_zero_beta", 0, 2),
         }
         return parameter_space

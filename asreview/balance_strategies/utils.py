@@ -22,3 +22,12 @@ def get_balance_strategy(settings):
         raise ValueError(f"Training data method {method} not found")
     func, settings.balance_kwargs = td_obj.func_kwargs()
     return func, td_string
+
+
+def get_balance_class(method):
+    if method in ["simple", "full"]:
+        return FullSampleTD
+    if method in ["triple", "triple_balance"]:
+        return TripleBalanceTD
+    if method in ["undersample", "undersampling"]:
+        return UndersampleTD
