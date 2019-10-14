@@ -105,7 +105,8 @@ def _n_mini_epoch(n_samples, epoch_size):
     return ceil(n_samples/epoch_size)
 
 
-def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
+def triple_balance(X, y, train_idx, fit_kwargs={},
+                   query_kwargs={"query_src": {}},
                    pref_epochs=1, shuffle=True, **dist_kwargs):
     """
     A more advanced function that does resample the training set.
