@@ -187,6 +187,13 @@ def _parse_arguments(mode, prog=sys.argv[0]):
                  "Only used when --prior_excluded is not given. "
                  f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
+        parser.add_argument(
+            "--save_freq",
+            default=1,
+            type=int,
+            help="Save log file approximately every x papers."
+                 "Default 1.")
+
     # logging and verbosity
     parser.add_argument(
         "--log_file", "-l",

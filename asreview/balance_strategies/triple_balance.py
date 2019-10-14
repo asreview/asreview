@@ -1,9 +1,9 @@
 import logging
-from math import ceil
-from math import exp
+from math import floor
 from math import log
 
 import numpy as np
+
 from asreview.balance_strategies.base import BaseTrainData
 from asreview.balance_strategies.full_sampling import full_sample
 
@@ -15,26 +15,36 @@ class TripleBalanceTD(BaseTrainData):
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
     """
-    def __init__(self, balance_kwargs, fit_kwargs, query_kwargs):
+    def __init__(self, balance_kwargs={}, query_kwargs={}, **kwargs):
         super(TripleBalanceTD, self).__init__(balance_kwargs)
-        self.balance_kwargs['pref_epochs'] = int(fit_kwargs.get('epochs', 1))
-        self.balance_kwargs['fit_kwargs'] = fit_kwargs
         self.balance_kwargs['query_kwargs'] = query_kwargs
-
-    def func_kwargs(self):
-        return triple_balance, self.balance_kwargs
+        self.function = triple_balance
 
     def default_kwargs(self):
         defaults = {}
-        defaults['rand_max_b'] = 10
-        defaults['rand_max_alpha'] = 1.0
-        defaults['one_zero_beta'] = 0.6
-        defaults['one_zero_delta'] = 0.15
+        defaults['one_a'] = 10.0
+        defaults['one_alpha'] = 1.0
+        defaults['zero_b'] = 0.5
+        defaults['zero_beta'] = 1.0
+        defaults['zero_max_c'] = 0.5
+        defaults['zero_max_gamma'] = 2.0
         defaults['shuffle'] = True
         return defaults
 
+    def hyperopt_space(self):
+        from hyperopt import hp
+        parameter_space = {
+            "bal_one_a": hp.lognormal("bal_one_a", 2, 2),
+            "bal_one_alpha": hp.uniform("bal_one_alpha", -2, 2),
+            "bal_zero_b": hp.uniform("bal_zero_b", 0, 1),
+            # "bal_zero_beta": hp.uniform("bal_zero_beta", 0, 2),
+            "bal_zero_max_c": hp.uniform("bal_zero_max_c", 0, 1),
+            # "bal_zero_max_gamma": hp.uniform("bal_zero_max_gamma", 0.01, 2)
+        }
+        return parameter_space
 
-def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, b, alpha):
+
+def _one_weight(n_one, n_zero, a, alpha):
     """
     Get the weight ratio between random and max samples.
 
@@ -50,12 +60,16 @@ def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, b, alpha):
     float:
         Weight ratio between random/max instances.
     """
-    frac = (n_one+n_zero_max)/(n_samples-n_zero_rand)
-    ratio = b * exp(-log(b) * frac**alpha)
-    return ratio
+    weight = a * (n_one/n_zero)**(-alpha)
+    return weight
 
 
-def _one_zero_ratio(n_one, n_zero, beta, delta):
+def _zero_weight(n_read, b, beta):
+    weight = 1 - (1-b) * (1+log(n_read))**(-beta)
+    return weight
+
+
+def _zero_max_weight(fraction_read, c, gamma):
     """
     Get the weight ratio between ones and zeros.
 
@@ -71,43 +85,55 @@ def _one_zero_ratio(n_one, n_zero, beta, delta):
     float:
         Weight ratio between 1's and 0's
     """
-    ratio = (1-delta)*(n_one/n_zero)**beta + delta
-    return ratio
+    weight = 1 - (1-c)*(1-fraction_read)**gamma
+    return weight
 
 
-def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, rand_max_b=10,
-                     rand_max_alpha=1.0, one_zero_beta=0.6,
-                     one_zero_delta=0.15):
+def random_round(value):
+    base = int(floor(value))
+    if np.random.rand() < value-base:
+        base += 1
+    return base
+
+
+def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train,
+                     one_a, one_alpha,
+                     zero_b, zero_beta,
+                     zero_max_c, zero_max_gamma):
     " Get the number of 1's, random 0's and max 0's in each mini epoch. "
-    n_zero = n_zero_rand+n_zero_max
+    n_zero = n_zero_rand + n_zero_max
+    n_read = n_one + n_zero
+    one_weight = _one_weight(n_one, n_zero, one_a, one_alpha)
+    zero_weight = _zero_weight(n_read, zero_b, zero_beta)
+    zero_max_weight = _zero_max_weight(
+        n_read/n_samples, zero_max_c, zero_max_gamma)
 
-    # First get the number of ones and zeros in each mini epoch.
-    oz_ratio = _one_zero_ratio(n_one, n_zero, one_zero_beta, one_zero_delta)
-    n_zero_epoch = ceil(n_one/oz_ratio)
+    tot_zo_weight = one_weight * n_one + zero_weight * n_zero
 
-    # Then the number of random zeros and max zeros in each mini epoch.
-    rand_max_wr = _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples,
-                                   rand_max_b, rand_max_alpha)
-    if n_zero_max:
-        n_zero_rand_epoch = n_zero_epoch/(rand_max_wr+n_zero_max/n_zero_rand)
-        n_zero_rand_epoch = ceil(rand_max_wr*n_zero_rand_epoch)
-    else:
-        n_zero_rand_epoch = n_zero_epoch
-    n_zero_max_epoch = n_zero_epoch-n_zero_rand_epoch
+    n_one_train = random_round(one_weight*n_one*n_train/tot_zo_weight)
+    n_one_train = max(1, min(n_train-2, n_one_train))
+    n_zero_train = n_train-n_one_train
 
-    return n_one, n_zero_rand_epoch, n_zero_max_epoch
+    tot_rm_weight = 1*n_zero_rand + zero_max_weight*n_zero_max
+    n_zero_rand_train = random_round(
+        n_zero_train * 1*n_zero_rand/tot_rm_weight)
+    n_zero_rand_train = max(1, min(n_zero_rand-1, n_zero_rand_train))
+    n_zero_max_train = n_zero_train - n_zero_rand_train
 
-
-def _n_mini_epoch(n_samples, epoch_size):
-    " Compute the size of mini epochs needed to use all data. "
-    if n_samples <= 0 or epoch_size <= 0:
-        return 0
-    return ceil(n_samples/epoch_size)
+    return n_one_train, n_zero_rand_train, n_zero_max_train
 
 
-def triple_balance(X, y, train_idx, fit_kwargs={},
-                   query_kwargs={"query_src": {}},
-                   pref_epochs=1, shuffle=True, **dist_kwargs):
+def fill_training(src_idx, n_train):
+    n_copy = np.int(n_train/len(src_idx))
+    n_sample = n_train - n_copy*len(src_idx)
+    dest_idx = np.tile(src_idx, n_copy).reshape(-1)
+    dest_idx = np.append(dest_idx,
+                         np.random.choice(src_idx, n_sample, replace=False))
+    return dest_idx
+
+
+def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
+                   shuffle=True, **dist_kwargs):
     """
     A more advanced function that does resample the training set.
     Most likely only useful in combination with NN's, and possibly other
@@ -148,54 +174,21 @@ def triple_balance(X, y, train_idx, fit_kwargs={},
     n_zero_rand = len(zero_rand_idx)
     n_zero_max = len(zero_max_idx)
     n_samples = len(y)
+    n_train = len(train_idx)
 
     # Get the distribution of 1's, and random 0's and max 0's.
-    n_one_epoch, n_zero_rand_epoch, n_zero_max_epoch = _get_triple_dist(
-        n_one, n_zero_rand, n_zero_max, n_samples, **dist_kwargs)
+    n_one_train, n_zero_rand_train, n_zero_max_train = _get_triple_dist(
+        n_one, n_zero_rand, n_zero_max, n_samples, n_train, **dist_kwargs)
     logging.debug(f"(1, 0_rand, 0_max) = "
-                  f"({n_one_epoch}, {n_zero_rand_epoch}, {n_zero_max_epoch})")
+                  f"({n_one_train}, {n_zero_rand_train}, {n_zero_max_train})")
 
-    # Calculate the number of mini epochs, and # of samples for each group.
-    n_mini_epoch = max(_n_mini_epoch(n_one, n_one_epoch),
-                       _n_mini_epoch(n_zero_rand, n_zero_rand_epoch),
-                       _n_mini_epoch(n_zero_max, n_zero_max_epoch)
-                       )
+    one_train_idx = fill_training(one_idx, n_one_train)
+    zero_rand_train_idx = fill_training(zero_rand_idx, n_zero_rand_train)
+    zero_max_train_idx = fill_training(zero_max_idx, n_zero_max_train)
 
-    # Replicate the indices until we have enough.
-    while len(one_idx) < n_one_epoch*n_mini_epoch:
-        one_idx = np.append(one_idx, one_idx)
-    while (n_zero_rand_epoch and
-           len(zero_rand_idx) < n_zero_rand_epoch*n_mini_epoch):
-        zero_rand_idx = np.append(zero_rand_idx, zero_rand_idx)
-    while (n_zero_max_epoch and
-           len(zero_max_idx) < n_zero_max_epoch*n_mini_epoch):
-        zero_max_idx = np.append(zero_max_idx, zero_max_idx)
+#     print(one_train_idx, zero_rand_train_idx, zero_max_train_idx)
+    all_idx = np.concatenate(
+        [one_train_idx, zero_rand_train_idx, zero_max_train_idx])
+    np.random.shuffle(all_idx)
 
-    # Build the training set from the three groups.
-    all_idx = np.array([], dtype=int)
-    for i in range(n_mini_epoch):
-        new_one_idx = one_idx[i*n_one_epoch:(i+1)*n_one_epoch]
-        new_zero_rand_idx = zero_rand_idx[
-            i*n_zero_rand_epoch:(i+1)*n_zero_rand_epoch]
-        new_zero_max_idx = zero_max_idx[
-            i*n_zero_max_epoch:(i+1)*n_zero_max_epoch]
-        new_idx = new_one_idx
-        new_idx = np.append(new_idx, new_zero_rand_idx)
-        new_idx = np.append(new_idx, new_zero_max_idx)
-        if shuffle:
-            np.random.shuffle(new_idx)
-        all_idx = np.append(all_idx, new_idx)
-
-    # Set the number of epochs in the fit_kwargs.
-    if 'epochs' in fit_kwargs:
-        efrac_one = n_one_epoch/n_one
-        efrac_zero_rand = n_zero_rand_epoch/n_zero_rand
-        if n_zero_max:
-            efrac_zero_max = n_zero_max_epoch/n_zero_max
-            efrac = (efrac_one*efrac_zero_rand*efrac_zero_max)**(1./3.)
-        else:
-            efrac = (efrac_one*efrac_zero_rand)**(1./2.)
-        efrac = 1.0
-        logging.debug(f"Fraction of mini epoch = {efrac}")
-        fit_kwargs['epochs'] = ceil(pref_epochs/(efrac*n_mini_epoch))
     return X[all_idx], y[all_idx]

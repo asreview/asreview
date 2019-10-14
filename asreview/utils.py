@@ -189,11 +189,12 @@ def clear_data_home(data_home=None):
     shutil.rmtree(data_home)
 
 
-def _set_class_weight(weight1, fit_kwargs):
+def _set_class_weight(weight1):
     """ Used in RNN's to have quicker learning. """
     weight0 = 1.0
-    fit_kwargs['class_weight'] = {
+    cw_class = {
         0: weight0,
         1: weight1,
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
+    return cw_class

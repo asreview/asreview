@@ -1,45 +1,11 @@
-from asreview.utils import _set_class_weight
-from asreview.utils import _unsafe_dict_update
+
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-
-def lstm_base_model_defaults(settings, verbose=1):
-    """ Set the lstm model defaults. """
-    model_kwargs = {}
-    model_kwargs['backwards'] = True
-    model_kwargs['dropout'] = 0.4
-    model_kwargs['optimizer'] = "rmsprop"
-    model_kwargs['max_sequence_length'] = 1000
-    model_kwargs['verbose'] = verbose
-    model_kwargs['lstm_out_width'] = 20
-    model_kwargs['dense_width'] = 128
-
-    upd_param = _unsafe_dict_update(model_kwargs, settings.model_param)
-    settings.model_param = upd_param
-
-    return upd_param
-
-
-def lstm_fit_defaults(settings, verbose=1):
-    """ Set the fit defaults and merge them with custom settings. """
-
-    # arguments to pass to the fit
-    fit_kwargs = {}
-    fit_kwargs['batch_size'] = 32
-    fit_kwargs['epochs'] = 10
-    fit_kwargs['verbose'] = verbose
-    fit_kwargs['shuffle'] = False
-    fit_kwargs['class_weight_inc'] = 30.0
-
-    settings.fit_kwargs = _unsafe_dict_update(
-        fit_kwargs, settings.fit_param)
-
-    _set_class_weight(fit_kwargs.pop('class_weight_inc'), fit_kwargs)
-
-    return settings.fit_kwargs
+from asreview.models.keras import KerasModel
 
 
 def create_lstm_base_model(embedding_matrix,
@@ -117,3 +83,59 @@ def create_lstm_base_model(embedding_matrix,
         return model
 
     return wrap_model
+
+
+class LSTMBaseModel(KerasModel):
+    def __init__(self, param, **kwargs):
+        super(LSTMBaseModel, self).__init__(param, **kwargs)
+        self.name = "lstm_base"
+
+    def model(self):
+        embedding_matrix = self.get_embedding_matrix()
+        model_param = self.model_param()
+        model = create_lstm_base_model(embedding_matrix, **model_param)
+        verbose = model_param.get("verbose", self.default_param()["verbose"])
+        return KerasClassifier(model, verbose=verbose)
+
+    def default_param(self):
+        kwargs = {
+            "backwards": True,
+            "dropout": 0.4,
+            "optimizer": "rmsprop",
+            "max_sequence_length": 1000,
+            "lstm_out_width": 20,
+            "dense_width": 128,
+            "verbose": 1,
+            "batch_size": 32,
+            "epochs": 10,
+            "shuffle": False,
+            "class_weight_inc": 30.0,
+        }
+        return kwargs
+
+    def full_hyper_space(self):
+        from hyperopt import hp
+        hyper_choices = {
+            "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
+        }
+        hyper_space = {
+            "mdl_optimizer": hp.choice("mdl_optimizer",
+                                       hyper_choices["mdl_optimizer"]),
+            "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
+            "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
+            "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
+        }
+        return hyper_space, hyper_choices
+
+    def fit_param_names(self):
+        param_names = [
+            "batch_size", "epochs", "shuffle", "class_weight_inc", "verbose",
+        ]
+        return param_names
+
+    def model_param_names(self):
+        param_names = [
+            "backwards", "dropout", "optimizer", "max_sequence_length",
+            "lstm_out_width", "dense_width", "verbose",
+        ]
+        return param_names

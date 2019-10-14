@@ -1,4 +1,5 @@
 import numpy as np
+
 from asreview.ascii import ASCII_TEA
 from asreview.config import NOT_AVAILABLE
 from asreview.review import BaseReview
@@ -15,6 +16,7 @@ def update_stats(stats, label):
         stats["last_inclusion"] += 1
     stats["n_reviewed"] += 1
     stats["n_pool"] -= 1
+
 
 class ReviewOracle(BaseReview):
     """ Review class for Oracle mode on the command line. """

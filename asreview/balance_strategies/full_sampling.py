@@ -25,8 +25,6 @@ def full_sample(X, y, train_idx):
 
 
 class FullSampleTD(BaseTrainData):
-    def __init__(self, balance_kwargs):
+    def __init__(self, balance_kwargs={}, **kwargs):
         super(FullSampleTD, self).__init__(balance_kwargs)
-
-    def func_kwargs(self):
-        return full_sample, self.balance_kwargs
+        self.function = full_sample

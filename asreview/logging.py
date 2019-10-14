@@ -4,8 +4,9 @@ from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 
-import asreview
 import numpy as np
+
+import asreview
 from asreview.settings import ASReviewSettings
 
 
