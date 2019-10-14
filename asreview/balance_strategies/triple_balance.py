@@ -33,6 +33,16 @@ class TripleBalanceTD(BaseTrainData):
         defaults['shuffle'] = True
         return defaults
 
+    def hyperopt_space(self):
+        from hyperopt import hp
+        parameter_space = {
+            "bal_rand_max_b": hp.lognormal("bal_rand_max_b", 2, 2),
+            "bal_rand_max_alpha": hp.uniform("bal_rand_max_alpha", 0, 2),
+            "bal_one_zero_delta": hp.uniform("bal_one_zero_delta", 0.999, 0.001),
+            "bal_one_zero_beta": hp.uniform("bal_one_zero_beta", 0, 2),
+        }
+        return parameter_space
+
 
 def _rand_max_weight(n_one, n_zero_rand, n_zero_max, n_samples, b, alpha):
     """
