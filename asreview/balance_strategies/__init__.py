@@ -5,3 +5,4 @@ from asreview.balance_strategies.triple_balance import TripleBalanceTD
 from asreview.balance_strategies.undersampling import undersample
 from asreview.balance_strategies.undersampling import UndersampleTD
 from asreview.balance_strategies.utils import get_balance_strategy
+from asreview.balance_strategies.utils import get_balance_class
