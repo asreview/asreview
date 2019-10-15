@@ -132,7 +132,7 @@ def fill_training(src_idx, n_train):
     return dest_idx
 
 
-def triple_balance(X, y, train_idx, query_kwargs={},
+def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
                    shuffle=True, **dist_kwargs):
     """
     A more advanced function that does resample the training set.
