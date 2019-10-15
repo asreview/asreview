@@ -2,11 +2,11 @@ import logging
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
-from abc import ABC, abstractmethod
-from asreview.utils import _unsafe_dict_update
+
+from asreview.models.base import BaseModel
 
 
-def create_nb_model():
+def create_nb_model(*args, **kwargs):
     """Return callable NaiveBayes model.
 
     Arguments
@@ -20,10 +20,34 @@ def create_nb_model():
 
     """
 
-    model = MultinomialNB()
+    model = MultinomialNB(*args, **kwargs)
     logging.debug(model)
 
     return model
+
+
+class NBModel(BaseModel):
+    def __init__(self, model_kwargs={}, **kwargs):
+        super(NBModel, self).__init__(model_kwargs)
+        self.name = "nb"
+
+    def model(self, *args, **kwargs):
+        model = create_nb_model(*args, **self.model_kwargs, **kwargs)
+        return model
+
+    def default_kwargs(self):
+        kwargs = {
+            "alpha": 1.0,
+        }
+        return kwargs
+
+    def full_hyper_space(self):
+        from hyperopt import hp
+        hyper_choices = {}
+        hyper_space = {
+            "mdl_alpha": hp.lognormal("mdl_alpha", 0, 2),
+        }
+        return hyper_space, hyper_choices
 
 
 def create_svc_model(*args, gamma="scale", class_weight=None, **kwargs):
@@ -51,50 +75,10 @@ def create_svc_model(*args, gamma="scale", class_weight=None, **kwargs):
     return model
 
 
-class BaseModel(ABC):
-    def __init__(self, model_kwargs):
-        self.name = "base"
-        self.model_kwargs = self.default_kwargs()
-        self.model_kwargs = _unsafe_dict_update(self.model_kwargs, model_kwargs)
-
-    def model_kwargs(self):
-        return self.model(), self.model_kwargs
-
-    @abstractmethod
-    def model(self):
-        raise NotImplementedError
-
-    def default_kwargs(self):
-        return {}
-
-    def full_hyper_space(self):
-        return {}, {}
-
-    def hyper_space(self, exclude=[], **kwargs):
-        from hyperopt import hp
-        hyper_space, hyper_choices = self.full_hyper_space()
-
-        for hyper_par in exclude:
-            hyper_space.pop(self._full(hyper_par), None)
-            hyper_choices.pop(self._full(hyper_par), None)
-
-        for hyper_par in kwargs:
-            full_hyper = self._full(hyper_par)
-            hyper_val = kwargs[hyper_par]
-            hyper_space[full_hyper] = hp.choice(full_hyper, [hyper_val])
-            hyper_choices[full_hyper] = [hyper_val]
-        return hyper_space, hyper_choices
-
-    def _full(self, par):
-        return "mdl_" + par
-
-    def _small(self, par):
-        return par[4:]
-
-
 class SVCModel(BaseModel):
-    def __init__(self, model_kwargs={}):
+    def __init__(self, model_kwargs={}, random_state=None):
         super(SVCModel, self).__init__(model_kwargs)
+        self.model_kwargs["random_state"] = random_state
         self.name = "svm"
 
     def model(self, *args, **kwargs):

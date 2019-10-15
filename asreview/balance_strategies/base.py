@@ -18,3 +18,6 @@ class BaseTrainData(ABC):
 
     def default_kwargs(self):
         return {}
+
+    def hyperopt_space(self):
+        return {}
