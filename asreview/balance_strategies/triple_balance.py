@@ -24,7 +24,7 @@ class TripleBalanceTD(BaseTrainData):
 
     def default_kwargs(self):
         defaults = {}
-        defaults['rand_max_b'] = 10
+        defaults['rand_max_b'] = 10.0
         defaults['rand_max_alpha'] = 1.0
         defaults['one_zero_beta'] = 0.6
         defaults['one_zero_delta'] = 0.15
