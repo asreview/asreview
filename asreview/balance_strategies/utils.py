@@ -13,7 +13,7 @@ def get_balance_strategy(settings):
         td_string = "all training data"
     elif method == "triple_balance":
         td_obj = TripleBalanceTD(
-            settings.balance_param, settings.fit_kwargs, settings.query_kwargs)
+            settings.balance_param, settings.query_kwargs)
         td_string = "triple balanced (max,rand) training data"
     elif method in ["undersample", "undersampling"]:
         td_obj = UndersampleTD(settings.balance_param)
