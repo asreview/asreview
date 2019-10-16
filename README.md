@@ -210,22 +210,22 @@ For any questions or remarks, please send an email to asreview@uu.nl.
 - [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob))
 
 **Engineers** 
-- Jonathan de Bruin (Lead engineer, [@J535D165](https://github.com/J535D165))
-- Parisa Zahedi ([@parisa-zahedi](https://github.com/parisa-zahedi))
+- [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165))
+- [Parisa Zahedi](https://www.linkedin.com/in/parisa-zahedi-28b17148/) ([@parisa-zahedi](https://github.com/parisa-zahedi))
 - Raoul Schram ([@qubixes](https://github.com/qubixes))
-- Kees van Eijden ([@KvEijden](https://github.com/KvEijden))
+- [Kees van Eijden](https://www.uu.nl/staff/CJvanEijden) ([@KvEijden](https://github.com/KvEijden))
 
 **Librarians**
-- Jan de Boer 
-- Edu Hackenitz
-- Felix Weijdema
-- Bianca Kramer 
+- [Jan de Boer](https://www.uu.nl/staff/JdeBoer) 
+- [Edu Hackenitz](https://www.uu.nl/staff/EJMHackenitz)
+- [Felix Weijdema](https://www.uu.nl/staff/FPWeijdema)
+- [Bianca Kramer](https://www.uu.nl/staff/BMRKramer) 
 
 **Affiliated Researchers**
 - [Pim Huijnen](https://www.uu.nl/staff/PHuijnen) (Digital Cultural History at the Department of History and Art History)
 - [Lars Tummers](https://www.uu.nl/staff/LGTummers) (Public Management and Behavior at Utrecht University, School of Governance)
 
 **Students**
-- Gerbrich Ferdinands ([@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
-- Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
+- [Gerbrich Ferdinands](https://www.linkedin.com/in/gerbrich-ferdinands-a21838b8) ([@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
+- [Qixiang Fang](https://www.uu.nl/staff/QFang) ([@fqixiang](https://github.com/fqixiang))
 - Albert Harkema ([@sasafrass](https://github.com/sasafrass))
