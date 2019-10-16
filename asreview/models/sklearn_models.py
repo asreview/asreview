@@ -2,6 +2,9 @@ import logging
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import CountVectorizer
 
 from asreview.models.base import BaseModel
 
@@ -80,6 +83,14 @@ class SVCModel(BaseModel):
         super(SVCModel, self).__init__(model_kwargs)
         self.model_kwargs["random_state"] = random_state
         self.name = "svm"
+
+    def get_Xy(self, texts, labels):
+        text_clf = Pipeline([('vect', CountVectorizer()),
+                             ('tfidf', TfidfTransformer())])
+
+        X = text_clf.fit_transform(texts)
+        y = labels
+        return X, y
 
     def model(self, *args, **kwargs):
         model = create_svc_model(*args, **self.model_kwargs, **kwargs)

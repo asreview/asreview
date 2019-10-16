@@ -6,8 +6,6 @@ import time
 from os.path import splitext
 from pathlib import Path
 
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-
 from asreview.balance_strategies import get_balance_strategy
 from asreview.config import AVAILABLE_CLI_MODI
 from asreview.config import AVAILABLE_REVIEW_CLASSES
@@ -20,24 +18,13 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.logging import Logger
-from asreview.models import create_lstm_base_model
-from asreview.models import create_lstm_pool_model
-from asreview.models import lstm_base_model_defaults
-from asreview.models import lstm_fit_defaults
-from asreview.models import lstm_pool_model_defaults
-from asreview.models.embedding import download_embedding
-from asreview.models.embedding import EMBEDDING_EN
-from asreview.models.embedding import load_embedding
-from asreview.models.embedding import sample_embedding
 from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.types import is_pickle
-from asreview.utils import get_data_home
-from asreview.utils import text_to_features
+from asreview.models.utils import get_model_class
 
 
 def get_reviewer(dataset,
@@ -56,6 +43,9 @@ def get_reviewer(dataset,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  config_file=None,
                  src_log_fp=None,
+                 model_param=None,
+                 query_param=None,
+                 balance_param=None,
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
@@ -71,23 +61,21 @@ def get_reviewer(dataset,
         settings = logger.settings
     else:
         logger = None
-        settings = ASReviewSettings(model=model, n_instances=n_instances,
-                                    n_queries=n_queries,
-                                    n_papers=n_papers,
-                                    n_prior_included=n_prior_included,
-                                    n_prior_excluded=n_prior_excluded,
-                                    query_strategy=query_strategy,
-                                    balance_strategy=balance_strategy,
-                                    mode=mode, data_fp=dataset
-                                    )
+        settings = ASReviewSettings(
+            model=model, n_instances=n_instances, n_queries=n_queries,
+            n_papers=n_papers, n_prior_included=n_prior_included,
+            n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
+            balance_strategy=balance_strategy, mode=mode, data_fp=dataset)
 
         settings.from_file(config_file)
-    model = settings.model
+    if model_param is not None:
+        settings.model_param = model_param
+    if query_param is not None:
+        settings.query_param = query_param
+    if balance_param is not None:
+        settings.balance_param = balance_param
 
-    if model in ["lstm_base", "lstm_pool"]:
-        base_model = "RNN"
-    else:
-        base_model = "other"
+    model = settings.model
 
     # Check if mode is valid
     if mode in AVAILABLE_REVIEW_CLASSES:
@@ -96,89 +84,19 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    # if the provided file is a pickle file
-    if is_pickle(dataset):
-        with open(dataset, 'rb') as f:
-            data_obj = pickle.load(f)
-        if isinstance(data_obj, tuple) and len(data_obj) == 3:
-            X, y, embedding_matrix = data_obj
-        elif isinstance(data_obj, tuple) and len(data_obj) == 4:
-            X, y, embedding_matrix, _ = data_obj
-        else:
-            raise ValueError("Incorrect pickle object.")
-    else:
-        as_data = ASReviewData.from_file(dataset)
-        _, texts, labels = as_data.get_data()
+    as_data = ASReviewData.from_file(dataset)
+    _, texts, labels = as_data.get_data()
 
-        # get the model
-        if base_model == "RNN":
+    model_class = get_model_class(model)
+    model_inst = model_class(model_param=settings.model_param,
+                             fit_param=settings.fit_param,
+                             embedding_fp=embedding_fp)
+    X, y = model_inst.get_Xy(texts, labels)
 
-            if embedding_fp is None:
-                embedding_fp = Path(
-                    get_data_home(),
-                    EMBEDDING_EN["name"]
-                ).expanduser()
+    model_fn = model_inst.model()
+    settings.fit_kwargs = model_inst.fit_kwargs()
 
-                if not embedding_fp.exists():
-                    print("Warning: will start to download large "
-                          "embedding file in 10 seconds.")
-                    time.sleep(10)
-                    download_embedding()
-
-            # create features and labels
-            X, word_index = text_to_features(texts)
-            y = labels
-            if mode == "oracle":
-                print("Loading embedding matrix. "
-                      "This can take several minutes.")
-            embedding = load_embedding(embedding_fp, word_index=word_index)
-            embedding_matrix = sample_embedding(embedding, word_index)
-
-        elif model.lower() in ['nb', 'svc', 'svm']:
-            from sklearn.pipeline import Pipeline
-            from sklearn.feature_extraction.text import TfidfTransformer
-            from sklearn.feature_extraction.text import CountVectorizer
-
-            text_clf = Pipeline([('vect', CountVectorizer()),
-                                 ('tfidf', TfidfTransformer())])
-
-            X = text_clf.fit_transform(texts)
-            y = labels
-
-    settings.fit_kwargs = {}
     settings.query_kwargs = {}
-
-    if base_model == 'RNN':
-        if model == "lstm_base":
-            model_kwargs = lstm_base_model_defaults(settings, verbose)
-            create_lstm_model = create_lstm_base_model
-        elif model == "lstm_pool":
-            model_kwargs = lstm_pool_model_defaults(settings, verbose)
-            create_lstm_model = create_lstm_pool_model
-        else:
-            raise ValueError(f"Unknown model {model}")
-
-        settings.fit_kwargs = lstm_fit_defaults(settings, verbose)
-        settings.query_kwargs['verbose'] = verbose
-        # create the model
-        model = KerasClassifier(
-            create_lstm_model(embedding_matrix=embedding_matrix,
-                              **model_kwargs),
-            verbose=verbose
-        )
-
-    elif model.lower() in ['nb']:
-        from asreview.models import create_nb_model
-
-        model = create_nb_model()
-
-    elif model.lower() in ['svm', 'svc']:
-        from asreview.models import create_svc_model
-
-        model = create_svc_model()
-    else:
-        raise ValueError('Model not found.')
-
     # Pick query strategy
     query_fn, query_str = get_query_with_settings(settings)
     logging.info(f"Query strategy: {query_str}")
@@ -190,7 +108,7 @@ def get_reviewer(dataset,
     if mode == "simulate":
         reviewer = ReviewSimulate(
             X, y,
-            model=model,
+            model=model_fn,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
             n_papers=settings.n_papers,
@@ -209,7 +127,7 @@ def get_reviewer(dataset,
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
-            model=model,
+            model=model_fn,
             query_strategy=query_fn,
             as_data=as_data,
             train_data_fn=train_data_fn,
@@ -227,7 +145,7 @@ def get_reviewer(dataset,
     elif mode == "minimal":
         reviewer = MinimalReview(
             X,
-            model=model,
+            model=model_fn,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
             n_papers=settings.n_papers,
