@@ -1,9 +1,11 @@
-from asreview.utils import _set_class_weight
-from asreview.utils import _unsafe_dict_update
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.models import Sequential
+
+from asreview.utils import _set_class_weight
+from asreview.utils import _unsafe_dict_update
+from asreview.models.base import BaseModel
 
 
 def lstm_base_model_defaults(settings, verbose=1):
@@ -117,3 +119,25 @@ def create_lstm_base_model(embedding_matrix,
         return model
 
     return wrap_model
+
+
+class LSTMBaseModel(BaseModel):
+    def __init__(self, model_kwargs={}, **kwargs):
+        super(LSTMBaseModel, self).__init__(model_kwargs)
+        self.name = "lstm_base"
+
+    def model(self, embedding_matrix):
+        model = create_lstm_base_model(embedding_matrix, **self.model_kwargs)
+        return model
+
+    def default_kwargs(self):
+        kwargs = {
+            "backwards": True,
+            "dropout": 0.4,
+            "optimizer": "rmsprop",
+            "max_sequence_length": 1000,
+            "lstm_out_width": 20,
+            "dense_width": 128,
+            "verbose": 1,
+        }
+        return kwargs
