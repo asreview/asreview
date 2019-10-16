@@ -13,7 +13,10 @@ warnings.filterwarnings("ignore")
 
 import numpy as np  # noqa
 import tensorflow as tf # noqa
-tf.logging.set_verbosity(tf.logging.ERROR)
+try:
+    tf.logging.set_verbosity(tf.logging.ERROR)
+except AttributeError:
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
