@@ -16,6 +16,7 @@ def update_stats(stats, label):
     stats["n_reviewed"] += 1
     stats["n_pool"] -= 1
 
+
 class ReviewOracle(BaseReview):
     """ Review class for Oracle mode on the command line. """
 

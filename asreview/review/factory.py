@@ -1,10 +1,7 @@
 import json
 import logging
 import os
-import pickle
-import time
 from os.path import splitext
-from pathlib import Path
 
 from asreview.balance_strategies import get_balance_strategy
 from asreview.config import AVAILABLE_CLI_MODI
