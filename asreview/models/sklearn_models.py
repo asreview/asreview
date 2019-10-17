@@ -79,9 +79,9 @@ def create_svc_model(*args, gamma="scale", class_weight=None, **kwargs):
 
 
 class SVCModel(BaseModel):
-    def __init__(self, model_kwargs={}, random_state=None, **kwargs):
-        super(SVCModel, self).__init__(model_kwargs)
-        self.model_kwargs["random_state"] = random_state
+    def __init__(self, param={}, random_state=None, **kwargs):
+        super(SVCModel, self).__init__(param)
+        self.param["random_state"] = random_state
         self.name = "svm"
 
     def get_Xy(self, texts, labels):
@@ -93,7 +93,7 @@ class SVCModel(BaseModel):
         return X, y
 
     def model(self):
-        model = create_svc_model(**self.model_kwargs)
+        model = create_svc_model(**self.param)
         return model
 
     def default_param(self):

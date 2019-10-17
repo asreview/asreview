@@ -86,15 +86,16 @@ def create_lstm_base_model(embedding_matrix,
 
 
 class LSTMBaseModel(KerasModel):
-    def __init__(self, model_param={}, fit_param={}, **kwargs):
-        super(LSTMBaseModel, self).__init__(model_param, fit_param, **kwargs)
+    def __init__(self, param, **kwargs):
+        super(LSTMBaseModel, self).__init__(param, **kwargs)
         self.name = "lstm_base"
 
     def model(self):
         embedding_matrix = self.get_embedding_matrix()
-        model = create_lstm_base_model(embedding_matrix, **self.model_param)
-        return KerasClassifier(model,
-                               verbose=self.model_param.get("verbose", 0))
+        model_param = self.model_param()
+        model = create_lstm_base_model(embedding_matrix, **model_param)
+        verbose = model_param.get("verbose", self.default_param()["verbose"])
+        return KerasClassifier(model, verbose=verbose)
 
     def default_param(self):
         kwargs = {
@@ -134,7 +135,7 @@ class LSTMBaseModel(KerasModel):
 
     def model_param_names(self):
         param_names = [
-            "backward", "dropout", "optimizer", "max_sequence_length",
+            "backwards", "dropout", "optimizer", "max_sequence_length",
             "lstm_out_width", "dense_width", "verbose",
         ]
         return param_names

@@ -88,8 +88,7 @@ def get_reviewer(dataset,
     _, texts, labels = as_data.get_data()
 
     model_class = get_model_class(model)
-    model_inst = model_class(model_param=settings.model_param,
-                             fit_param=settings.fit_param,
+    model_inst = model_class(param=settings.model_param,
                              embedding_fp=embedding_fp)
     X, y = model_inst.get_Xy(texts, labels)
 
