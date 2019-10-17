@@ -3,6 +3,7 @@ from math import floor
 from math import log
 
 import numpy as np
+
 from asreview.balance_strategies.base import BaseTrainData
 from asreview.balance_strategies.full_sampling import full_sample
 

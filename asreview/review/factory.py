@@ -15,13 +15,13 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.logging import Logger
+from asreview.models.utils import get_model_class
 from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.models.utils import get_model_class
 
 
 def get_reviewer(dataset,

@@ -2,19 +2,16 @@ import logging
 import time
 from pathlib import Path
 
+from tensorflow.keras import optimizers
+
 from asreview.models.base import BaseModel
-
-from asreview.utils import get_data_home
-from asreview.utils import text_to_features
-
 from asreview.models.embedding import download_embedding
 from asreview.models.embedding import EMBEDDING_EN
 from asreview.models.embedding import load_embedding
 from asreview.models.embedding import sample_embedding
-
+from asreview.utils import get_data_home
+from asreview.utils import text_to_features
 from asreview.utils import _set_class_weight
-
-from tensorflow.keras import optimizers
 
 
 def _get_optimizer(optimizer, lr_mult=1.0):

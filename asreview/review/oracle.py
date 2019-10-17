@@ -1,4 +1,5 @@
 import numpy as np
+
 from asreview.ascii import ASCII_TEA
 from asreview.config import NOT_AVAILABLE
 from asreview.review import BaseReview
