@@ -9,6 +9,20 @@ from sklearn.feature_extraction.text import CountVectorizer
 from asreview.models.base import BaseModel
 
 
+class SKLearnModel(BaseModel):
+    def __init__(self, param={}, **kwargs):
+        super(SKLearnModel, self).__init__(param)
+        self.name = "sklearn"
+
+    def get_Xy(self, texts, labels):
+        text_clf = Pipeline([('vect', CountVectorizer()),
+                             ('tfidf', TfidfTransformer())])
+
+        X = text_clf.fit_transform(texts)
+        y = labels
+        return X, y
+
+
 def create_nb_model(*args, **kwargs):
     """Return callable NaiveBayes model.
 
@@ -30,12 +44,12 @@ def create_nb_model(*args, **kwargs):
 
 
 class NBModel(BaseModel):
-    def __init__(self, model_kwargs={}, **kwargs):
-        super(NBModel, self).__init__(model_kwargs)
+    def __init__(self, param={}, **kwargs):
+        super(NBModel, self).__init__(param, **kwargs)
         self.name = "nb"
 
-    def model(self, *args, **kwargs):
-        model = create_nb_model(*args, **self.model_kwargs, **kwargs)
+    def model(self):
+        model = create_nb_model(**self.model_param())
         return model
 
     def default_kwargs(self):
@@ -72,28 +86,21 @@ def create_svc_model(*args, gamma="scale", class_weight=None, **kwargs):
             1: class_weight,
         }
 
-    model = SVC(*args, gamma=gamma, class_weight=class_weight, probability=True, **kwargs)
+    model = SVC(*args, gamma=gamma, class_weight=class_weight,
+                probability=True, **kwargs)
     logging.debug(model)
 
     return model
 
 
-class SVCModel(BaseModel):
+class SVCModel(SKLearnModel):
     def __init__(self, param={}, random_state=None, **kwargs):
-        super(SVCModel, self).__init__(param)
+        super(SVCModel, self).__init__(param, **kwargs)
         self.param["random_state"] = random_state
         self.name = "svm"
 
-    def get_Xy(self, texts, labels):
-        text_clf = Pipeline([('vect', CountVectorizer()),
-                             ('tfidf', TfidfTransformer())])
-
-        X = text_clf.fit_transform(texts)
-        y = labels
-        return X, y
-
     def model(self):
-        model = create_svc_model(**self.param)
+        model = create_svc_model(**self.model_param())
         return model
 
     def default_param(self):

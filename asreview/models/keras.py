@@ -19,15 +19,15 @@ from tensorflow.keras import optimizers
 
 def _get_optimizer(optimizer, lr_mult=1.0):
     if optimizer == "sgd":
-        return optimizers.SGD(learning_rate=0.01*lr_mult)
+        return optimizers.SGD(lr=0.01*lr_mult)
     elif optimizer == "rmsprop":
-        return optimizers.RMSprop(learning_rate=0.001*lr_mult)
+        return optimizers.RMSprop(lr=0.001*lr_mult)
     elif optimizer == "adagrad":
-        return optimizers.Adagrad(learning_rate=0.01*lr_mult)
+        return optimizers.Adagrad(lr=0.01*lr_mult)
     elif optimizer == "adam":
-        return optimizers.Adam(learning_rate=0.001*lr_mult)
+        return optimizers.Adam(lr=0.001*lr_mult)
     elif optimizer == "nadam":
-        return optimizers.Nadam(learning_rate=0.002*lr_mult)
+        return optimizers.Nadam(lr=0.002*lr_mult)
     raise NotImplementedError
 
 
