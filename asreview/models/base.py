@@ -23,6 +23,9 @@ class BaseModel(ABC):
     def model(self):
         raise NotImplementedError
 
+    def get_Xy(self):
+        raise NotImplementedError
+
     def default_param(self):
         return {}
 

@@ -43,7 +43,7 @@ def create_nb_model(*args, **kwargs):
     return model
 
 
-class NBModel(BaseModel):
+class NBModel(SKLearnModel):
     def __init__(self, param={}, **kwargs):
         super(NBModel, self).__init__(param, **kwargs)
         self.name = "nb"
@@ -52,7 +52,7 @@ class NBModel(BaseModel):
         model = create_nb_model(**self.model_param())
         return model
 
-    def default_kwargs(self):
+    def default_param(self):
         kwargs = {
             "alpha": 1.0,
         }
