@@ -4,24 +4,26 @@ from asreview.utils import _unsafe_dict_update
 
 
 class BaseModel(ABC):
-    def __init__(self, model_param, fit_param):
+    def __init__(self, param):
         self.name = "base"
-        self.model_param = _unsafe_dict_update(
-            self.default_param(), model_param)
-        self.fit_param = _unsafe_dict_update(
-            self.default_fit_param(), fit_param)
+        self.param = _unsafe_dict_update(self.default_param(), param)
+
+    def fit_param(self):
+        fit_param = {x: self.param[x] for x in self.fit_param_names()}
+        return fit_param
+
+    def model_param(self):
+        model_param = {x: self.param[x] for x in self.model_param_names()}
+        return model_param
 
     def fit_kwargs(self):
-        return self.fit_param
+        return self.fit_param()
 
     @abstractmethod
     def model(self):
         raise NotImplementedError
 
     def default_param(self):
-        return {}
-
-    def default_fit_param(self):
         return {}
 
     def full_hyper_space(self):
@@ -47,3 +49,9 @@ class BaseModel(ABC):
 
     def _small(self, par):
         return par[4:]
+
+    def model_param_names(self):
+        return list(self.param.keys())
+
+    def fit_param_names(self):
+        return []
