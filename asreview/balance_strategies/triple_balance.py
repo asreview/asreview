@@ -111,13 +111,13 @@ def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train,
     tot_zo_weight = one_weight * n_one + zero_weight * n_zero
 
     n_one_train = random_round(one_weight*n_one*n_train/tot_zo_weight)
-    n_one_train = min(n_train-2, n_one_train)
+    n_one_train = max(1, min(n_train-2, n_one_train))
     n_zero_train = n_train-n_one_train
 
     tot_rm_weight = 1*n_zero_rand + zero_max_weight*n_zero_max
     n_zero_rand_train = random_round(
         n_zero_train * 1*n_zero_rand/tot_rm_weight)
-    n_zero_rand_train = min(n_zero_rand-1, n_zero_rand_train)
+    n_zero_rand_train = max(1, min(n_zero_rand-1, n_zero_rand_train))
     n_zero_max_train = n_zero_train - n_zero_rand_train
 
     return n_one_train, n_zero_rand_train, n_zero_max_train
