@@ -66,6 +66,7 @@ class ASReviewSettings(object):
             return
 
         config = ConfigParser()
+        config.optionxform = str
         config.read(config_file)
 
         # Read the each of the sections.
