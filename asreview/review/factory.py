@@ -38,6 +38,7 @@ def get_reviewer(dataset,
                  prior_excluded=None,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
+                 save_freq=1,
                  config_file=None,
                  src_log_fp=None,
                  model_param=None,
@@ -119,6 +120,7 @@ def get_reviewer(dataset,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
             logger=logger,
+            save_freq=save_freq,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(

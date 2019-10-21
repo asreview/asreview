@@ -52,6 +52,7 @@ class BaseReview(ABC):
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
+                 save_freq=1,
                  fit_kwargs={},
                  balance_kwargs={},
                  query_kwargs={},
@@ -81,6 +82,7 @@ class BaseReview(ABC):
         self.n_queries = n_queries
         self.log_file = log_file
         self.verbose = verbose
+        self.save_freq = save_freq
 
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
@@ -223,6 +225,8 @@ class BaseReview(ABC):
     def review(self, stop_after_class=True, instant_save=False):
         """ Do the systematic review, writing the results to the log file. """
 
+        save_query_freq = self.n_instances / self.save_freq
+
         if self._stop_iter(self.query_i, self.n_pool()):
             return
 
@@ -253,11 +257,7 @@ class BaseReview(ABC):
             # Option to stop after the classification set instead of training.
             if stop_after_class and self._stop_iter(self.query_i,
                                                     self.n_pool()):
-                if self.log_file:
-                    self.save_logs(self.log_file)
-                    if self.verbose:
-                        print(f"Saved results in log file: {self.log_file}")
-                return
+                break
 
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
@@ -266,10 +266,16 @@ class BaseReview(ABC):
                 self.log_probabilities()
 
             # STEP 4: Save the logs.
-            if self.log_file:
+            if self.log_file and (self.query_i % save_query_freq) == 0:
                 self.save_logs(self.log_file)
                 if self.verbose:
                     print(f"Saved results in log file: {self.log_file}")
+
+        # STEP 4: Save the logs.
+        if self.log_file:
+            self.save_logs(self.log_file)
+            if self.verbose:
+                print(f"Saved results in log file: {self.log_file}")
 
     def log_probabilities(self):
         """ Store the modeling probabilities of the training indices and
