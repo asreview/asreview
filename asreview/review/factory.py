@@ -63,7 +63,8 @@ def get_reviewer(dataset,
             model=model, n_instances=n_instances, n_queries=n_queries,
             n_papers=n_papers, n_prior_included=n_prior_included,
             n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
-            balance_strategy=balance_strategy, mode=mode, data_fp=dataset)
+            balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
+            save_freq=save_freq)
 
         settings.from_file(config_file)
     if model_param is not None:

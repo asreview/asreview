@@ -14,6 +14,7 @@ SETTINGS_TYPE_DICT = {
     "n_queries": int,
     "n_prior_included": int,
     "n_prior_excluded": int,
+    "save_freq": int,
     "mode": str,
     "model_param": dict,
     "query_param": dict,
@@ -29,6 +30,7 @@ class ASReviewSettings(object):
     def __init__(self, mode, model, query_strategy, balance_strategy,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
+                 save_freq=1,
                  data_fp=None, data_name=None, model_param={},
                  query_param={}, balance_param={}, **kwargs
                  ):
