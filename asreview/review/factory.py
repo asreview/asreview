@@ -121,7 +121,7 @@ def get_reviewer(dataset,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
             logger=logger,
-            save_freq=save_freq,
+            save_freq=settings.save_freq,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
