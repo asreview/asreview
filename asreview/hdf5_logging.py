@@ -4,6 +4,7 @@ from datetime import datetime
 import h5py
 import numpy as np
 import itertools
+from asreview.settings import ASReviewSettings
 
 
 def _append_to_dataset(name, values, g, dtype):
@@ -46,12 +47,14 @@ class HDF5_Logger(object):
 
     def __init__(self, log_fp, read_only=False):
         self.settings = None
+        self.empty = True
+        self._n_labels = None
         super(HDF5_Logger, self).__init__()
         self.read_only = read_only
         self.restore(log_fp, read_only=read_only)
 
-    def __del__(self):
-        self.close()
+#     def __del__(self):
+#         self.close()
 
     def __enter__(self):
         return self
@@ -89,8 +92,19 @@ class HDF5_Logger(object):
 
         return hdf_dict
 
+    def is_empty(self):
+        return len(self.f["results"]) == 0
+
     def set_labels(self, y):
-        self.f["labels"][...] = y.tolist()
+        if "labels" not in self.f:
+            self.f.create_dataset("labels", y.shape, dtype=np.int, data=y)
+        else:
+            self.f["labels"][...] = y
+
+    def n_labels(self):
+        if self._n_labels is None:
+            self._n_labels = len(self.f["labels"])
+        return self._n_labels
 
     def add_classification(self, idx, labels, methods, query_i):
         """Add training indices and their labels.
@@ -115,6 +129,12 @@ class HDF5_Logger(object):
         _append_to_dataset('labels', labels, g, dtype=np.int)
         _append_to_dataset('methods', np_methods, g, dtype='S20')
 
+#         bool_array = np.full(self.n_labels(), False, dtype=bool)
+#         bool_array[idx] = True
+#         self.f["labels"][bool_array] = labels
+#         for i, index in enumerate(idx):
+#             self.f["labels"][index] = labels[i]
+
     def add_proba(self, pool_idx, train_idx, proba, query_i):
         """Add inverse pool indices and their labels.
 
@@ -132,6 +152,11 @@ class HDF5_Logger(object):
         g.create_dataset("train_idx", data=train_idx, dtype=np.int)
         g.create_dataset("proba", data=proba, dtype=np.float)
 
+    def add_settings(self, settings):
+        self.settings = settings
+        self.f.attrs.pop('settings', None)
+        self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
+
     def n_queries(self):
         return len(self.f['results'].keys())
 
@@ -147,7 +172,7 @@ class HDF5_Logger(object):
                 continue
             new_idx = g['idx'][:]
             methods = g['methods'][:]
-            train_idx.append(new_idx)
+            train_idx.extend(new_idx.tolist())
             for i in range(len(new_idx)):
                 method = methods[i]
                 idx = new_idx[i]
@@ -155,7 +180,7 @@ class HDF5_Logger(object):
                     query_src[method] = []
                 query_src[method].append(idx)
 
-        train_idx = np.reshape(train_idx, -1)
+        train_idx = np.array(train_idx, dtype=np.int)
         query_i = self.n_queries()
         if 'new_labels' not in self.f[f'/results/{query_i-1}/new_labels']:
             query_i -= 1
@@ -182,17 +207,17 @@ class HDF5_Logger(object):
 
         self.f = h5py.File(fp, mode)
         try:
-            self.settings = json.loads(self.f.attrs['settings'])
+            settings_dict = json.loads(self.f.attrs['settings'])
+            if "mode" in settings_dict:
+                self.settings = ASReviewSettings(**settings_dict)
         except KeyError:
-            pass
+            self.create_structure()
 
-    def create(self, settings):
+    def create_structure(self):
         self.f.attrs['start_time'] = np.string_(datetime.now())
         self.f.attrs['end_time'] = np.string_(datetime.now())
-        self.f.attrs['settings'] = np.string_(json.dumps(settings))
+        self.f.attrs['settings'] = np.string_("{}")
         self.f.create_group('results')
-        self.f.create_dataset('labels', dtype=np.int)
-        self.settings = settings
 
     def close(self):
         if not self.read_only:

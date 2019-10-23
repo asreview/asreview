@@ -41,7 +41,8 @@ def get_reviewer(dataset,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  save_freq=1,
                  config_file=None,
-                 src_log_fp=None,
+                 log_file=None,
+#                  src_log_fp=None,
                  model_param=None,
                  query_param=None,
                  balance_param=None,
@@ -63,9 +64,9 @@ def get_reviewer(dataset,
         save_freq=save_freq)
     cli_settings.from_file(config_file)
 
-    if src_log_fp is not None:
-        with HDF5_Logger(src_log_fp) as logger:
-            if logger.settings is None:
+    if log_file is not None:
+        with HDF5_Logger(log_file) as logger:
+            if logger.is_empty():
                 logger.add_settings(cli_settings)
             settings = logger.settings
     else:
@@ -125,7 +126,7 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            log_file=src_log_fp,
+            log_file=log_file,
             save_freq=settings.save_freq,
             **kwargs)
     elif mode == "oracle":
@@ -166,8 +167,6 @@ def get_reviewer(dataset,
     else:
         raise ValueError("Error finding mode, should never come here...")
 
-    reviewer._logger.add_settings(settings)
-
     return reviewer
 
 
@@ -194,29 +193,27 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
         print(reviewer._logger._print_logs())
 
 
-def review_oracle(dataset, *args, src_log_fp=None, log_file=None, **kwargs):
+def review_oracle(dataset, *args, **kwargs):
     """CLI to the interactive mode."""
 
-    if (src_log_fp is None and log_file is not None
-            and os.path.isfile(log_file)):
-        while(True):
-            continue_input = input("Project detected. Continue [y/n]?")
-            if continue_input in ["Y", "y", "yes"]:
-                src_log_fp = log_file
-                break
-            if continue_input not in ["N", "n", "no"]:
-                print("Please provide 'y' or 'no'.")
-                continue
-            overwrite_input = input("This will delete your previous"
-                                    " project and start a new one.\n Is that"
-                                    " what you want [y/n]?")
-            if overwrite_input in ["Y", "y", "yes"]:
-                break
-            else:
-                return
+#     if (log_file is not None
+#             and os.path.isfile(log_file)):
+#         while(True):
+#             continue_input = input("Project detected. Continue [y/n]?")
+#             if continue_input in ["Y", "y", "yes"]:
+#                 break
+#             if continue_input not in ["N", "n", "no"]:
+#                 print("Please provide 'y' or 'no'.")
+#                 continue
+#             overwrite_input = input("This will delete your previous"
+#                                     " project and start a new one.\n Is that"
+#                                     " what you want [y/n]?")
+#             if overwrite_input in ["Y", "y", "yes"]:
+#                 break
+#             else:
+#                 return
 
-    review(dataset, *args, mode='oracle', src_log_fp=src_log_fp,
-           log_file=log_file, **kwargs)
+    review(dataset, *args, mode='oracle', **kwargs)
 
 
 def review_simulate(dataset, *args, **kwargs):

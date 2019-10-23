@@ -3,7 +3,7 @@ from abc import ABC
 from abc import abstractmethod
 
 import dill
-from modAL.models import ActiveLearner
+from modAL.models import ActiveLearner as ModALLearner
 import numpy as np
 from tensorflow.python.keras.models import load_model
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
@@ -11,10 +11,10 @@ from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
-from asreview.logging import Logger
+# from asreview.logging import Logger
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
-from asreview.hdf5_logging import HDFS_Logger
+from asreview.hdf5_logging import HDF5_Logger
 
 
 def get_pool_idx(X, train_idx):
@@ -36,6 +36,18 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
         ])
         return prior_indices, labels
     return prior_indices
+
+
+class ActiveLearner(ModALLearner):
+    def __init__(self, *args, **kwargs):
+        super(ActiveLearner, self).__init__(*args, **kwargs)
+
+    def teach(self, X, y, bootstrap=False, only_new=False, **fit_kwargs):
+        if not only_new:
+            self._add_training_data(X, y)
+            self._fit_to_known(bootstrap=bootstrap, **fit_kwargs)
+        else:
+            self._fit_on_new(X, y, bootstrap=bootstrap, **fit_kwargs)
 
 
 class BaseReview(ABC):
@@ -67,9 +79,6 @@ class BaseReview(ABC):
         self.y = np.array(self.y, dtype=np.int)
         # Default to Naive Bayes model
         if model is None:
-            print("Warning: using naive Bayes model as default."
-                  "If you experience bad performance, read the documentation"
-                  " in order to implement a RNN based solution.")
             from asreview.models import create_nb_model
             model = create_nb_model()
 
@@ -102,14 +111,15 @@ class BaseReview(ABC):
 #             self._logger = Logger()
 #             self.start_from_logger = False
 #         else:
-        with HDFS_Logger(log_file) as logger:
-            if not logger.empty:
+        with HDF5_Logger(log_file) as logger:
+            if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
                 self.y = y
                 self.train_idx = train_idx
                 self.query_src = query_src
                 self.query_i = query_i
             else:
+                logger.set_labels(self.y)
                 init_idx, init_labels = self._prior_knowledge()
                 self.query_i = 0
                 self.train_idx = np.array([], dtype=np.int)
@@ -192,19 +202,19 @@ class BaseReview(ABC):
         n_pool = self.X.shape[0] - len(self.train_idx)
 
         while not self._stop_iter(self.query_i-1, n_pool):
-
+            print(self.query_i)
             # STEP 1: Make a new query
             query_idx = self.query(
                 n_instances=self._next_n_instances()
             )
 
-            # STEP 2: Classify the queried papers.
+#             STEP 2: Classify the queried papers.
             if instant_save:
                 for idx in query_idx:
                     idx_array = np.array([idx], dtype=np.int)
-                    self.classify(idx_array, self._get_labels(idx_array))
+                    self.classify(idx_array, self._get_labels(idx_array), logger)
             else:
-                self.classify(query_idx, self._get_labels(query_idx))
+                self.classify(query_idx, self._get_labels(query_idx), logger)
 
             # Option to stop after the classification set instead of training.
             if (stop_after_class and
@@ -214,10 +224,10 @@ class BaseReview(ABC):
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
-            self.log_probabilities()
+            self.log_probabilities(logger)
 
     def review(self, *args, **kwargs):
-        with HDFS_Logger(self.log_fp) as logger:
+        with HDF5_Logger(self.log_file) as logger:
             self._do_review(logger, *args, **kwargs)
 
     def log_probabilities(self, logger):
@@ -269,13 +279,13 @@ class BaseReview(ABC):
                 method = self.query_kwargs["current_queries"].pop(idx, None)
                 if method is None:
                     method = "unknown"
-                methods.append([idx, method])
+                methods.append(method)
                 if method in self.query_kwargs["query_src"]:
                     self.query_kwargs["query_src"][method].append(idx)
                 else:
                     self.query_kwargs["query_src"][method] = [idx]
         else:
-            methods = [[idx, method] for idx in query_idx]
+            methods = np.full(len(query_idx), method)
             if method in self.query_kwargs["query_src"]:
                 self.query_kwargs["query_src"][method].extend(
                     query_idx.tolist())
@@ -283,8 +293,8 @@ class BaseReview(ABC):
                 self.query_kwargs["query_src"][method] = query_idx.tolist()
 
         logger.add_classification(query_idx, inclusions, methods=methods,
-                                  i=self.query_i)
-        logger.add_labels(self.y)
+                                  query_i=self.query_i)
+        logger.set_labels(self.y)
 
     def train(self):
         """ Train the model. """
