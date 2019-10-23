@@ -1,7 +1,6 @@
 # Cpython dependencies
 import logging
 import os
-import shutil
 from pathlib import Path
 
 
@@ -176,19 +175,6 @@ def get_data_home(data_home=None):
     return data_home
 
 
-def clear_data_home(data_home=None):
-    """Delete all the content of the data home cache.
-
-    Parameters
-    ----------
-    data_home : str | None
-        The path to scikit-learn data dir.
-
-    """
-    data_home = get_data_home(data_home)
-    shutil.rmtree(data_home)
-
-
 def _set_class_weight(weight1):
     """ Used in RNN's to have quicker learning. """
     weight0 = 1.0
@@ -198,3 +184,4 @@ def _set_class_weight(weight1):
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
+
