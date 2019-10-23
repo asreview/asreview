@@ -3,35 +3,37 @@ from pathlib import Path
 import asreview as asr
 
 
-def test_log_reader():
+def test_json_logger():
 
-    log_fp = Path("test", "demo_data", "logs", "results0.log")
+    log_fp = Path("test", "log_files", "test_1_inst.json")
 
-    log = asr.read_log(str(log_fp))
-
-    assert isinstance(log, asr.Logger)
-
-
-def test_batch_log_reader():
-
-    log_folder = Path("test", "demo_data", "logs")
-
-    log_list = asr.read_logs_from_dir(str(log_folder))
-
-    assert len(log_list) == 2
-
-    assert all(map(lambda x: isinstance(x, asr.Logger), log_list))
+    with asr.Logger.from_file(str(log_fp)) as logger:
+        assert isinstance(logger, asr.json_logging.JSON_Logger)
 
 
-def test_batch_log_reader_prefix():
+def test_hdf5_logger():
+    log_fp = Path("test", "log_files", "test_1_inst.h5")
+    with asr.Logger.from_file(str(log_fp)) as logger:
+        assert isinstance(logger, asr.hdf5_logging.HDF5_Logger)
 
-    log_folder = Path("test", "demo_data", "logs")
 
-    log_list = asr.read_logs_from_dir(
-        str(log_folder),
-        prefix="results"
-    )
+def check_label_methods(label_methods, n_labels, methods):
+    assert len(label_methods) == n_labels
+    for method in label_methods:
+        assert method in methods
 
-    assert len(log_list) == 1
 
-    assert all(map(lambda x: isinstance(x, asr.Logger), log_list))
+def check_log(logger):
+
+    check_label_methods(logger.get("label_methods", 0), 4, ["initial"])
+    check_label_methods(logger.get("label_methods", 1), 1, ["max", "random"])
+
+    assert len(logger.get("labelled", 0)) == 4
+    assert len(logger.get("labelled", 1)) == 1
+
+    assert len(logger.get("train_idx", 1)) == 4
+    assert len(logger.get("pool_idx", 1)) == 2
+
+    assert len(logger.get("labels")) == 6
+
+    assert logger.n_queries() == 2

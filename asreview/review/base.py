@@ -3,7 +3,7 @@ from abc import ABC
 from abc import abstractmethod
 
 import dill
-from modAL.models import ActiveLearner
+from modAL.models import ActiveLearner as ModALLearner
 import numpy as np
 from tensorflow.python.keras.models import load_model
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
@@ -37,6 +37,18 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
     return prior_indices
 
 
+class ActiveLearner(ModALLearner):
+    def __init__(self, *args, **kwargs):
+        super(ActiveLearner, self).__init__(*args, **kwargs)
+
+    def teach(self, X, y, bootstrap=False, only_new=False, **fit_kwargs):
+        if not only_new:
+            self._add_training_data(X, y)
+            self._fit_to_known(bootstrap=bootstrap, **fit_kwargs)
+        else:
+            self._fit_on_new(X, y, bootstrap=bootstrap, **fit_kwargs)
+
+
 class BaseReview(ABC):
     """Base class for Systematic Review"""
 
@@ -56,7 +68,6 @@ class BaseReview(ABC):
                  fit_kwargs={},
                  balance_kwargs={},
                  query_kwargs={},
-                 logger=None,
                  verbose=1):
         super(BaseReview, self).__init__()
 
@@ -67,9 +78,6 @@ class BaseReview(ABC):
         self.y = np.array(self.y, dtype=np.int)
         # Default to Naive Bayes model
         if model is None:
-            print("Warning: using naive Bayes model as default."
-                  "If you experience bad performance, read the documentation"
-                  " in order to implement a RNN based solution.")
             from asreview.models import create_nb_model
             model = create_nb_model()
 
@@ -98,32 +106,25 @@ class BaseReview(ABC):
         self.query_kwargs["query_src"] = {}
         self.query_kwargs["current_queries"] = {}
 
-        if logger is None:
-            self._logger = Logger()
-            self.start_from_logger = False
-        else:
-            self._logger = logger
-            self._prepare_with_logger()
-            self.start_from_logger = True
+        with Logger.from_file(log_file) as logger:
+            if not logger.is_empty():
+                y, train_idx, query_src, query_i = logger.review_state()
+                self.y = y
+                self.train_idx = train_idx
+                self.query_src = query_src
+                self.query_i = query_i
+            else:
+                logger.set_labels(self.y)
+                init_idx, init_labels = self._prior_knowledge()
+                self.query_i = 0
+                self.train_idx = np.array([], dtype=np.int)
+                self.classify(init_idx, init_labels, logger, method="initial")
 
         # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
             estimator=self.model,
             query_strategy=self.query_strategy
         )
-
-        if not self.start_from_logger:
-            # add prior knowledge
-            init_idx, init_labels = self._prior_knowledge()
-            self.query_i = 0
-            self.train_idx = np.array([], dtype=np.int)
-            self.classify(init_idx, init_labels, method="initial")
-
-    @classmethod
-    def from_logger(cls, *args, **kwargs):
-        reviewer = cls(*args, **kwargs)
-        reviewer._prepare_with_logger()
-        return reviewer
 
     @abstractmethod
     def _prior_knowledge(self):
@@ -177,121 +178,61 @@ class BaseReview(ABC):
             n_instances = min(n_instances, papers_left)
         return n_instances
 
-    def _prepare_with_logger(self):
-        """ If we start the reviewer from a log file, we need to do some
-            preparation work. The final result should be a log dictionary in
-            a state where the labeled papares are one step ahead of the
-            probabilities. Any excess probabilities (pool_proba and
-            train_proba) are thrown away and recomputed.
-
-        Returns
-        -------
-        tuple:
-            The query index, training indices and pool_indices.
-        """
-        query_i = 0
-        train_idx = []
-        if "labels" in self._logger._log_dict:
-            self.y = np.array(self._logger._log_dict["labels"], dtype=np.int)
-
-        # Capture the labelled indices from the log file.
-        for query_i, res in enumerate(self._logger._log_dict["results"]):
-            if "labelled" not in res:
-                continue
-            new_labels = res["labelled"]
-            label_methods = res["label_methods"]
-            label_idx = [x[0] for x in new_labels]
-            inclusions = [x[1] for x in new_labels]
-            self.y[label_idx] = inclusions
-            train_idx.extend(label_idx)
-
-            # Update the internal query sources.
-            start_idx = 0
-            for method in label_methods:
-                if method[0] not in self.query_kwargs["query_src"]:
-                    self.query_kwargs["query_src"][method[0]] = []
-                self.query_kwargs["query_src"][method[0]].extend(
-                    label_idx[start_idx:start_idx+method[1]]
-                )
-                start_idx += method[1]
-
-        if query_i > 0:
-            if "labelled" not in self._logger._log_dict["results"][query_i]:
-                query_i -= 1
-
-        self.train_idx = np.array(train_idx, dtype=np.int)
-        self.query_i = query_i
-
-    def review(self, stop_after_class=True, instant_save=False):
+    def _do_review(self, logger, stop_after_class=True, instant_save=False):
         """ Do the systematic review, writing the results to the log file. """
-
-        save_query_freq = self.n_instances / self.save_freq
 
         if self._stop_iter(self.query_i, self.n_pool()):
             return
 
         # train the algorithm with prior knowledge
         self.train()
-        if self.model_trained:
-            self.log_probabilities()
-            if self.log_file:
-                self.save_logs(self.log_file)
+        self.log_probabilities(logger)
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
         while not self._stop_iter(self.query_i-1, n_pool):
-
             # STEP 1: Make a new query
             query_idx = self.query(
                 n_instances=self._next_n_instances()
             )
 
-            # STEP 2: Classify the queried papers.
+#             STEP 2: Classify the queried papers.
             if instant_save:
                 for idx in query_idx:
                     idx_array = np.array([idx], dtype=np.int)
-                    self.classify(idx_array, self._get_labels(idx_array))
+                    self.classify(idx_array, self._get_labels(idx_array),
+                                  logger)
             else:
-                self.classify(query_idx, self._get_labels(query_idx))
+                self.classify(query_idx, self._get_labels(query_idx), logger)
 
             # Option to stop after the classification set instead of training.
-            if stop_after_class and self._stop_iter(self.query_i,
-                                                    self.n_pool()):
+            if (stop_after_class and
+                    self._stop_iter(self.query_i, self.n_pool())):
                 break
 
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
-            if self.model_trained:
-                self.log_probabilities()
+            self.log_probabilities(logger)
 
-            # STEP 4: Save the logs.
-            if self.log_file and (self.query_i % save_query_freq) == 0:
-                self.save_logs(self.log_file)
-                if self.verbose:
-                    print(f"Saved results in log file: {self.log_file}")
+    def review(self, *args, **kwargs):
+        with Logger.from_file(self.log_file) as logger:
+            self._do_review(logger, *args, **kwargs)
 
-        # STEP 4: Save the logs.
-        if self.log_file:
-            self.save_logs(self.log_file)
-            if self.verbose:
-                print(f"Saved results in log file: {self.log_file}")
-
-    def log_probabilities(self):
+    def log_probabilities(self, logger):
         """ Store the modeling probabilities of the training indices and
             pool indices. """
+        if not self.model_trained:
+            return
+
         pool_idx = get_pool_idx(self.X, self.train_idx)
 
         # Log the probabilities of samples in the pool being included.
         pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
             pred_proba = self.learner.predict_proba(self.X)
-        self._logger.add_proba(pool_idx, pred_proba[pool_idx],
-                               logname="pool_proba", i=self.query_i)
-
-        # Log the probabilities of samples that were trained.
-        self._logger.add_proba(self.train_idx, pred_proba[self.train_idx],
-                               logname="train_proba", i=self.query_i)
+        proba_1 = np.array([x[1] for x in pred_proba])
+        logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
     def query(self, n_instances):
         """Query new results."""
@@ -316,7 +257,7 @@ class BaseReview(ABC):
             )
         return query_idx
 
-    def classify(self, query_idx, inclusions, method=None):
+    def classify(self, query_idx, inclusions, logger, method=None):
         """ Classify new papers and update the training indices. """
         query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
@@ -328,22 +269,22 @@ class BaseReview(ABC):
                 method = self.query_kwargs["current_queries"].pop(idx, None)
                 if method is None:
                     method = "unknown"
-                methods.append([idx, method])
+                methods.append(method)
                 if method in self.query_kwargs["query_src"]:
                     self.query_kwargs["query_src"][method].append(idx)
                 else:
                     self.query_kwargs["query_src"][method] = [idx]
         else:
-            methods = [[idx, method] for idx in query_idx]
+            methods = np.full(len(query_idx), method)
             if method in self.query_kwargs["query_src"]:
                 self.query_kwargs["query_src"][method].extend(
                     query_idx.tolist())
             else:
                 self.query_kwargs["query_src"][method] = query_idx.tolist()
 
-        self._logger.add_classification(query_idx, inclusions, methods=methods,
-                                        i=self.query_i)
-        self._logger.add_labels(self.y)
+        logger.add_classification(query_idx, inclusions, methods=methods,
+                                  query_i=self.query_i)
+        logger.set_labels(self.y)
 
     def train(self):
         """ Train the model. """
@@ -369,13 +310,10 @@ class BaseReview(ABC):
         self.query_i += 1
 
     def statistics(self):
-        n_initial = 0
         try:
-            initial_meth = self._logger._log_dict["0"]["label_methods"][0]
-            if initial_meth[0] == "initial":
-                n_initial = initial_meth[1]
-        except (IndexError, KeyError):
-            pass
+            n_initial = len(self.query_kwargs['query_src']['initial'])
+        except KeyError:
+            n_initial = 0
 
         try:
             if np.count_nonzero(self.y[self.train_idx[n_initial:]] == 1) == 0:
@@ -385,7 +323,7 @@ class BaseReview(ABC):
                     self.y[self.train_idx[n_initial:]][::-1] == 1)[0][0]
         except ValueError:
             last_inclusion = 0
-#         last_inclusion = len(self.train_idx)-last_one_pos-1
+
         stats = {
             "n_included": np.count_nonzero(self.y[self.train_idx] == 1),
             "n_excluded": np.count_nonzero(self.y[self.train_idx] == 0),
@@ -396,11 +334,6 @@ class BaseReview(ABC):
             "n_initial": n_initial,
         }
         return stats
-
-    def save_logs(self, *args, **kwargs):
-        """Save the logs to a file."""
-
-        self._logger.save(*args, **kwargs)
 
     def save(self, pickle_fp):
         """
