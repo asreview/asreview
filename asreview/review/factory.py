@@ -22,6 +22,7 @@ from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
+from asreview.hdf5_logging import HDF5_Logger
 
 
 def get_reviewer(dataset,
@@ -54,19 +55,23 @@ def get_reviewer(dataset,
     if dataset in DEMO_DATASETS.keys():
         dataset = DEMO_DATASETS[dataset]
 
-    if src_log_fp is not None:
-        logger = Logger(log_fp=src_log_fp)
-        settings = logger.settings
-    else:
-        logger = None
-        settings = ASReviewSettings(
-            model=model, n_instances=n_instances, n_queries=n_queries,
-            n_papers=n_papers, n_prior_included=n_prior_included,
-            n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
-            balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
-            save_freq=save_freq)
+    cli_settings = ASReviewSettings(
+        model=model, n_instances=n_instances, n_queries=n_queries,
+        n_papers=n_papers, n_prior_included=n_prior_included,
+        n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
+        balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
+        save_freq=save_freq)
+    cli_settings.from_file(config_file)
 
-        settings.from_file(config_file)
+    if src_log_fp is not None:
+        with HDF5_Logger(src_log_fp) as logger:
+            if logger.settings is None:
+                logger.add_settings(cli_settings)
+            settings = logger.settings
+    else:
+        settings = cli_settings
+        logger = None
+
     if model_param is not None:
         settings.model_param = model_param
     if query_param is not None:
@@ -120,7 +125,7 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            logger=logger,
+            log_file=src_log_fp,
             save_freq=settings.save_freq,
             **kwargs)
     elif mode == "oracle":

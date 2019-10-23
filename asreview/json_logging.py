@@ -28,7 +28,7 @@ def read_log(log_fp):
     try:
         with open(log_fp_path, "r") as f:
 
-            log = Logger()
+            log = JSONLogger()
             log._log_dict = json.load(f)
 
             return log
@@ -71,11 +71,11 @@ def read_logs_from_dir(log_dir, prefix=None):
     raise ValueError("log_dir is not a valid directory.")
 
 
-class Logger(object):
+class JSONLogger(object):
     """Class for logging the Systematic Review"""
 
     def __init__(self, log_fp=None):
-        super(Logger, self).__init__()
+        super(JSONLogger, self).__init__()
         self.settings = None
         if log_fp is not None:
             self.restore(log_fp)
