@@ -23,7 +23,6 @@ class JSON_Logger(object):
         return self
 
     def __exit__(self, *_, **__):
-        print(self.n_queries())
         self.save()
 
     def __str__(self):

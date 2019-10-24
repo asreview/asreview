@@ -11,10 +11,8 @@ from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
-# from asreview.logging import Logger
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
-# from asreview.hdf5_logging import HDF5_Logger
 from asreview.utils import get_logger_class
 
 
@@ -108,10 +106,6 @@ class BaseReview(ABC):
         self.query_kwargs["query_src"] = {}
         self.query_kwargs["current_queries"] = {}
 
-#         if log is None:
-#             self._logger = Logger()
-#             self.start_from_logger = False
-#         else:
         Logger = get_logger_class(log_file)
         with Logger(log_file) as logger:
             if not logger.is_empty():
@@ -132,12 +126,6 @@ class BaseReview(ABC):
             estimator=self.model,
             query_strategy=self.query_strategy
         )
-
-#     @classmethod
-#     def from_logger(cls, *args, **kwargs):
-#         reviewer = cls(*args, **kwargs)
-#         reviewer._prepare_with_logger()
-#         return reviewer
 
     @abstractmethod
     def _prior_knowledge(self):
@@ -213,7 +201,8 @@ class BaseReview(ABC):
             if instant_save:
                 for idx in query_idx:
                     idx_array = np.array([idx], dtype=np.int)
-                    self.classify(idx_array, self._get_labels(idx_array), logger)
+                    self.classify(idx_array, self._get_labels(idx_array),
+                                  logger)
             else:
                 self.classify(query_idx, self._get_labels(query_idx), logger)
 
