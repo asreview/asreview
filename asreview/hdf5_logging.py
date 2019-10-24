@@ -47,14 +47,9 @@ class HDF5_Logger(object):
 
     def __init__(self, log_fp, read_only=False):
         self.settings = None
-        self.empty = True
-        self._n_labels = None
         super(HDF5_Logger, self).__init__()
         self.read_only = read_only
         self.restore(log_fp, read_only=read_only)
-
-#     def __del__(self):
-#         self.close()
 
     def __enter__(self):
         return self
@@ -100,11 +95,6 @@ class HDF5_Logger(object):
             self.f.create_dataset("labels", y.shape, dtype=np.int, data=y)
         else:
             self.f["labels"][...] = y
-
-    def n_labels(self):
-        if self._n_labels is None:
-            self._n_labels = len(self.f["labels"])
-        return self._n_labels
 
     def add_classification(self, idx, labels, methods, query_i):
         """Add training indices and their labels.
@@ -182,7 +172,7 @@ class HDF5_Logger(object):
 
         train_idx = np.array(train_idx, dtype=np.int)
         query_i = self.n_queries()
-        if 'new_labels' not in self.f[f'/results/{query_i-1}/new_labels']:
+        if 'labels' not in self.f[f'/results/{query_i-1}/new_labels']:
             query_i -= 1
 
         return labels, train_idx, query_src, query_i

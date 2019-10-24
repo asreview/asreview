@@ -1,4 +1,3 @@
-import copy
 import json
 from collections import OrderedDict
 from datetime import datetime
@@ -10,83 +9,20 @@ import asreview
 from asreview.settings import ASReviewSettings
 
 
-def read_log(log_fp):
-    """Read log file.
-
-    Arguments
-    ---------
-    log_fp: str, pathlib.Path
-        File path of the log file.
-
-    Returns
-    -------
-    Logger:
-        A Logger object with logs.
-    """
-    log_fp_path = Path(log_fp)
-
-    try:
-        with open(log_fp_path, "r") as f:
-
-            log = JSONLogger()
-            log._log_dict = json.load(f)
-
-            return log
-
-    except Exception as err:
-        raise err
-
-
-def read_logs_from_dir(log_dir, prefix=None):
-    """Read log files from directory.
-
-    Arguments
-    ---------
-    log_dir: str, pathlib.Path
-        Directory in which to find the log file(s).
-    prefix: str
-        Prefix for log files. For example 'result_'.
-
-    Returns
-    -------
-    list:
-        A list with Logger objects.
-    """
-
-    log_fp_path = Path(log_dir)
-
-    if log_fp_path.is_dir():
-        log_list = []
-
-        for x in log_fp_path.iterdir():
-
-            try:
-                if prefix and not x.name.startswith(prefix):
-                    continue
-                log_list.append(read_log(x))
-            except ValueError:
-                pass
-
-        return log_list
-    raise ValueError("log_dir is not a valid directory.")
-
-
 class JSONLogger(object):
     """Class for logging the Systematic Review"""
 
-    def __init__(self, log_fp=None):
+    def __init__(self, log_fp, *_, **__):
         super(JSONLogger, self).__init__()
         self.settings = None
-        if log_fp is not None:
-            self.restore(log_fp)
-        else:
-            # since python 3, this is an ordered dict
-            self._log_dict = OrderedDict({
-                "time": {"start_time": str(datetime.now())},
-                "version": 1,
-                "software_version": asreview.__version__,
-                "results": [],
-            })
+        self.log_fp = log_fp
+        self.restore(log_fp)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.save()
 
     def __str__(self):
         return self._print_logs()
@@ -118,13 +54,17 @@ class JSONLogger(object):
             else:
                 results[i][key] = new_dict[key]
 
+    def is_empty(self):
+        return len(self._log_dict["results"]) == 0
+
+    def set_labels(self, y):
+        self._log_dict["labels"] = y
+
     def add_settings(self, settings):
-        self.settings = copy.deepcopy(settings)
+        self.settings = settings
+        self._log_dict["settings"] = vars(settings)
 
-    def add_labels(self, y):
-        self._log_dict["labels"] = y.tolist()
-
-    def add_classification(self, indices, labels, methods, i=None):
+    def add_classification(self, idx, labels, methods, query_i):
         """Add training indices and their labels.
 
         Arguments
@@ -138,49 +78,17 @@ class JSONLogger(object):
         """
 
         # ensure that variables are serializable
-        if isinstance(indices, np.ndarray):
-            indices = indices.tolist()
+        if isinstance(idx, np.ndarray):
+            indices = idx.tolist()
         if isinstance(labels, np.ndarray):
             labels = labels.tolist()
+        if isinstance(methods, np.ndarray):
+            methods = methods.tolist()
 
-        results = self._log_dict["results"]
-        while i >= len(results):
-            results.append({})
+        new_dict = {'labelled': list(zip(indices, labels, methods))}
+        self._add_to_log(new_dict, query_i, append_result=True)
 
-        label_methods = results[i].get("label_methods", [])
-        for method in methods:
-            if len(label_methods) and label_methods[-1][0] == method[1]:
-                label_methods[-1][1] += 1
-            else:
-                label_methods.append([method[1], 1])
-
-        new_dict = {'label_methods': label_methods}
-        self._add_to_log(new_dict, i, append_result=False)
-        new_dict = {'labelled': list(zip(indices, labels))}
-        self._add_to_log(new_dict, i, append_result=True)
-
-    def add_pool_predict(self, indices, pred, i=None):
-        """Add inverse pool indices and their labels.
-
-        Arguments
-        ---------
-        indices: list, np.array
-            A list of indices used for unlabeled pool.
-        pred: np.array
-            A list of predictions for those samples.
-        i: int
-            The query number.
-        """
-
-        if isinstance(indices, np.ndarray):
-            indices = indices.tolist()
-        pred = np.reshape(pred, -1)
-        if isinstance(pred, np.ndarray):
-            pred = pred.tolist()
-        new_dict = {'predictions': list(zip(indices, pred))}
-        self._add_to_log(new_dict, i, append_result=False)
-
-    def add_proba(self, indices, pred_proba, logname="pool_proba", i=None):
+    def add_proba(self, pool_idx, train_idx, proba, query_i):
         """Add inverse pool indices and their labels.
 
         Arguments
@@ -192,16 +100,40 @@ class JSONLogger(object):
         i: int
             The query number.
         """
+        new_dict = {
+            "pool_idx": pool_idx.tolist(),
+            "train_idx": train_idx.tolist(),
+            "proba": proba.tolist(),
+        }
+        self._add_to_log(new_dict, query_i)
 
-        if isinstance(indices, np.ndarray):
-            indices = indices.tolist()
-        pred_proba = pred_proba[:, 1]
-        if isinstance(pred_proba, np.ndarray):
-            pred_proba = pred_proba.tolist()
-        new_dict = {logname: list(zip(indices, pred_proba))}
-        self._add_to_log(new_dict, i)
+    def n_queries(self):
+        return len(self._log_dict["results"])
 
-    def save(self, fp):
+    def review_state(self):
+        labels = np.array(self._log_dict["labels"], dtype=np.int)
+
+        train_idx = []
+        query_src = {}
+        for query_i, res in enumerate(self._log_dict["results"]):
+            if "labelled" not in res:
+                continue
+            label_idx = [x[0] for x in res["labelled"]]
+            inclusions = [x[1] for x in res["labelled"]]
+            label_meth = [x[2] for x in res["labelled"]]
+            for i, meth in enumerate(label_meth):
+                if meth not in query_src:
+                    query_src[meth] = []
+                query_src[meth].append(label_idx[i])
+                labels[label_idx[i]] = inclusions[i]
+            train_idx.extend(label_idx)
+        if query_i > 0 and "labelled" not in self._log_dict["results"][-1]:
+            query_i -= 1
+
+        train_idx = np.array(train_idx, dtype=np.int)
+        return labels, train_idx, query_src, query_i
+
+    def save(self):
         """Save logs to file.
 
         Arguments
@@ -210,22 +142,30 @@ class JSONLogger(object):
             The file path to export the results to.
 
         """
-        self._log_dict["settings"] = copy.deepcopy(vars(self.settings))
-        self._log_dict["settings"]["query_kwargs"].pop("pred_proba", None)
-        self._log_dict["settings"]["query_kwargs"].pop("query_src", None)
-        self._log_dict["settings"]["query_kwargs"].pop("current_queries", None)
-        self._log_dict.move_to_end("settings", last=False)
         self._log_dict["time"]["end_time"] = str(datetime.now())
-        fp = Path(fp)
+        fp = Path(self.log_fp)
 
         if fp.is_file:
             fp.parent.mkdir(parents=True, exist_ok=True)
 
         with fp.open('w') as outfile:
             json.dump(self._log_dict, outfile, indent=2)
-        del self._log_dict["settings"]
 
     def restore(self, fp):
-        with open(fp, "r") as f:
-            self._log_dict = OrderedDict(json.load(f))
-        self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
+        try:
+            with open(fp, "r") as f:
+                self._log_dict = OrderedDict(json.load(f))
+            self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
+        except FileNotFoundError:
+            self.create_structure()
+
+    def create_structure(self):
+        self._log_dict = OrderedDict({
+            "time": {"start_time": str(datetime.now())},
+            "version": 1,
+            "software_version": asreview.__version__,
+            "results": [],
+        })
+
+    def close(self):
+        self.save()
