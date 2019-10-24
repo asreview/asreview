@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from pathlib import Path
 
 import h5py
 import numpy as np
@@ -195,6 +196,7 @@ class HDF5_Logger(object):
         else:
             mode = 'a'
 
+        Path(fp).parent.mkdir(parents=True, exist_ok=True)
         self.f = h5py.File(fp, mode)
         try:
             settings_dict = json.loads(self.f.attrs['settings'])
