@@ -9,11 +9,12 @@ import asreview
 from asreview.settings import ASReviewSettings
 
 
-class JSONLogger(object):
+class JSON_Logger(object):
     """Class for logging the Systematic Review"""
 
     def __init__(self, log_fp, *_, **__):
-        super(JSONLogger, self).__init__()
+        super(JSON_Logger, self).__init__()
+        self.log_version = "1.0"
         self.settings = None
         self.log_fp = log_fp
         self.restore(log_fp)
@@ -21,7 +22,7 @@ class JSONLogger(object):
     def __enter__(self):
         return self
 
-    def __exit__(self):
+    def __exit__(self, *_, **__):
         self.save()
 
     def __str__(self):
@@ -155,6 +156,11 @@ class JSONLogger(object):
         try:
             with open(fp, "r") as f:
                 self._log_dict = OrderedDict(json.load(f))
+            log_version = self._log_dict["log_version"]
+            if log_version != self.log_version:
+                raise ValueError(
+                    f"Log cannot be read: logger version {self.log_version}, "
+                    f"logfile version {log_version}.")
             self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
         except FileNotFoundError:
             self.create_structure()
@@ -162,7 +168,7 @@ class JSONLogger(object):
     def create_structure(self):
         self._log_dict = OrderedDict({
             "time": {"start_time": str(datetime.now())},
-            "version": 1,
+            "log_version": self.log_version,
             "software_version": asreview.__version__,
             "results": [],
         })

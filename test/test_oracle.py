@@ -7,7 +7,10 @@ from asreview.review.factory import get_reviewer
 data_fp = os.path.join("test", "demo_data", "csv_example_with_labels.csv")
 embedding_fp = os.path.join("test", "demo_data", "csv_example_with_labels.vec")
 cfg_dir = os.path.join("test", "cfg_files")
-src_log_fp = os.path.join("test", "log_files", "start_from_1.json")
+log_dir = os.path.join("test", "log_files")
+h5_log_file = os.path.join(log_dir, "test.h5")
+json_log_file = os.path.join(log_dir, "test.json")
+src_log_fp = os.path.join(log_dir, "start_from_1.json")
 
 
 # To generate log file to start from, don't forget to set
@@ -20,22 +23,26 @@ src_log_fp = os.path.join("test", "log_files", "start_from_1.json")
 
 
 def test_lstm_base(monkeypatch):
-    check_lstm(monkeypatch, config_file=os.path.join(cfg_dir, "lstm_base.ini"))
+    check_lstm(monkeypatch, config_file=os.path.join(cfg_dir, "lstm_base.ini"),
+               log_file=h5_log_file)
 
 
 def test_lstm_pool(monkeypatch):
     check_lstm(monkeypatch,
-               config_file=os.path.join(cfg_dir, "lstm_pool.ini"))
+               config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+               log_file=json_log_file)
 
 
 def test_lstm_pool_from_log(monkeypatch):
     check_lstm(monkeypatch, src_log_fp=src_log_fp,
-               config_file=os.path.join(cfg_dir, "lstm_pool.ini"))
+               config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+               log_file=h5_log_file)
 
 
 def test_lstm_pool_granular(monkeypatch):
     check_lstm(monkeypatch, use_granular=True,
-               config_file=os.path.join(cfg_dir, "lstm_pool.ini"))
+               config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+               log_file=json_log_file)
 
 
 def test_nb(monkeypatch):
@@ -79,11 +86,18 @@ def check_log(log_dict):
     assert "labels" in log_dict and len(log_dict["labels"]) == 6
 
 
-def check_lstm(monkeypatch, use_granular=False, **kwargs):
+def check_lstm(monkeypatch, use_granular=False, log_file=h5_log_file,
+               **kwargs):
+    try:
+        os.unlink(log_file)
+    except OSError:
+        pass
+
     monkeypatch.setattr('builtins.input', lambda _: "0")
     # start the review process.
     reviewer = get_reviewer(data_fp, mode="oracle", embedding_fp=embedding_fp,
                             prior_included=[1, 3], prior_excluded=[2, 4],
+                            log_file=log_file,
                             **kwargs)
     if use_granular:
         # Two loops of training and classification.

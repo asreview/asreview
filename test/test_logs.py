@@ -3,35 +3,15 @@ from pathlib import Path
 import asreview as asr
 
 
-def test_log_reader():
+def test_json_logger():
 
-    log_fp = Path("test", "demo_data", "logs", "results0.log")
+    log_fp = Path("test", "demo_data", "logs", "test.json")
 
-    log = asr.read_log(str(log_fp))
-
-    assert isinstance(log, asr.Logger)
-
-
-def test_batch_log_reader():
-
-    log_folder = Path("test", "demo_data", "logs")
-
-    log_list = asr.read_logs_from_dir(str(log_folder))
-
-    assert len(log_list) == 2
-
-    assert all(map(lambda x: isinstance(x, asr.Logger), log_list))
+    with asr.JSONLogger(str(log_fp)) as logger:
+        assert isinstance(logger, asr.JSONLogger)
 
 
-def test_batch_log_reader_prefix():
-
-    log_folder = Path("test", "demo_data", "logs")
-
-    log_list = asr.read_logs_from_dir(
-        str(log_folder),
-        prefix="results"
-    )
-
-    assert len(log_list) == 1
-
-    assert all(map(lambda x: isinstance(x, asr.Logger), log_list))
+def test_hdf5_logger():
+    log_fp = Path("test", "demo_data", "logs", "test.h5")
+    with asr.HDF5_Logger(str(log_fp)) as logger:
+        assert isinstance(logger, asr.HDF5_Logger)

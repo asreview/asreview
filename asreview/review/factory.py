@@ -14,7 +14,6 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
-from asreview.logging import Logger
 from asreview.models.utils import get_model_class
 from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
@@ -23,6 +22,7 @@ from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.hdf5_logging import HDF5_Logger
+from asreview.utils import get_logger_class
 
 
 def get_reviewer(dataset,
@@ -42,7 +42,6 @@ def get_reviewer(dataset,
                  save_freq=1,
                  config_file=None,
                  log_file=None,
-#                  src_log_fp=None,
                  model_param=None,
                  query_param=None,
                  balance_param=None,
@@ -64,8 +63,10 @@ def get_reviewer(dataset,
         save_freq=save_freq)
     cli_settings.from_file(config_file)
 
+    Logger = get_logger_class(log_file)
+
     if log_file is not None:
-        with HDF5_Logger(log_file) as logger:
+        with Logger(log_file) as logger:
             if logger.is_empty():
                 logger.add_settings(cli_settings)
             settings = logger.settings
@@ -145,7 +146,7 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            logger=logger,
+            log_file=log_file,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
@@ -162,7 +163,7 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            logger=logger,
+            log_file=log_file,
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
