@@ -173,7 +173,7 @@ class HDF5_Logger(object):
                 query_src[method].append(idx)
 
         train_idx = np.array(train_idx, dtype=np.int)
-        query_i = self.n_queries()
+        query_i = self.n_queries()-1
         if 'labels' not in self.f[f'/results/{query_i-1}/new_labels']:
             query_i -= 1
 
@@ -191,6 +191,28 @@ class HDF5_Logger(object):
         self.f['end_time'] = str(datetime.now())
         self.f.flush()
 
+    def get(self, variable, query_i=None, idx=None):
+        if query_i is not None:
+            g = self.f[f"/results/{query_i}"]
+        array = None
+        if variable == "label_methods":
+            array = np.array(g["new_labels"]["methods"]).astype('U20')
+        if variable == "label_idx" or variable == "labelled":
+            array = np.array(g["new_labels"]["idx"], dtype=int)
+        if variable == "proba":
+            array = np.array(g["proba"], dtype=np.float)
+        if variable == "labels":
+            array = np.array(self.f["labels"], dtype=np.int)
+        if variable == "pool_idx":
+            array = np.array(g["pool_idx"], dtype=np.int)
+        if variable == "train_idx":
+            array = np.array(g["train_idx"], dtype=np.int)
+        if array is None:
+            return None
+        if idx is not None:
+            return array[idx]
+        return array
+
     def restore(self, fp, read_only=False):
         if read_only:
             mode = 'r'
@@ -200,7 +222,7 @@ class HDF5_Logger(object):
         Path(fp).parent.mkdir(parents=True, exist_ok=True)
         self.f = h5py.File(fp, mode)
         try:
-            log_version = self.f.attrs['log_version']
+            log_version = self.f.attrs['log_version'].decode("ascii")
             if log_version != self.log_version:
                 raise ValueError(
                     f"Log cannot be read: logger version {self.log_version}, "

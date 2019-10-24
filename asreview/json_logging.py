@@ -23,6 +23,7 @@ class JSON_Logger(object):
         return self
 
     def __exit__(self, *_, **__):
+        print(self.n_queries())
         self.save()
 
     def __str__(self):
@@ -59,7 +60,7 @@ class JSON_Logger(object):
         return len(self._log_dict["results"]) == 0
 
     def set_labels(self, y):
-        self._log_dict["labels"] = y
+        self._log_dict["labels"] = y.tolist()
 
     def add_settings(self, settings):
         self.settings = settings
@@ -152,6 +153,31 @@ class JSON_Logger(object):
         with fp.open('w') as outfile:
             json.dump(self._log_dict, outfile, indent=2)
 
+    def get(self, variable, query_i=None, idx=None):
+        if query_i is not None:
+            res = self._log_dict["results"][query_i]
+
+        array = None
+        if variable == "label_methods":
+            array = res["labelled"]
+            array = np.array([x[2] for x in array], dtype=str)
+        elif variable in ["label_idx", "labelled"]:
+            array = res["labelled"]
+            array = np.array([x[0] for x in array], dtype=np.int)
+        elif variable == "labels":
+            array = np.array(self._log_dict["labels"], dtype=np.int)
+        elif variable == "proba":
+            array = np.array(res["proba"], dtype=np.float)
+        elif variable == "train_idx":
+            array = np.array(res["train_idx"], dtype=np.int)
+        elif variable == "pool_idx":
+            array = np.array(res["pool_idx"], dtype=np.int)
+        if array is None:
+            return None
+        if idx is not None:
+            return array[idx]
+        return array
+
     def restore(self, fp):
         try:
             with open(fp, "r") as f:
@@ -161,7 +187,7 @@ class JSON_Logger(object):
                 raise ValueError(
                     f"Log cannot be read: logger version {self.log_version}, "
                     f"logfile version {log_version}.")
-            self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
+            self.settings = ASReviewSettings(**self._log_dict["settings"])
         except FileNotFoundError:
             self.create_structure()
 

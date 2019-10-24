@@ -14,7 +14,8 @@ from asreview.config import NOT_AVAILABLE
 # from asreview.logging import Logger
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
-from asreview.hdf5_logging import HDF5_Logger
+# from asreview.hdf5_logging import HDF5_Logger
+from asreview.utils import get_logger_class
 
 
 def get_pool_idx(X, train_idx):
@@ -111,7 +112,8 @@ class BaseReview(ABC):
 #             self._logger = Logger()
 #             self.start_from_logger = False
 #         else:
-        with HDF5_Logger(log_file) as logger:
+        Logger = get_logger_class(log_file)
+        with Logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
                 self.y = y
@@ -202,7 +204,6 @@ class BaseReview(ABC):
         n_pool = self.X.shape[0] - len(self.train_idx)
 
         while not self._stop_iter(self.query_i-1, n_pool):
-            print(self.query_i)
             # STEP 1: Make a new query
             query_idx = self.query(
                 n_instances=self._next_n_instances()
@@ -227,7 +228,8 @@ class BaseReview(ABC):
             self.log_probabilities(logger)
 
     def review(self, *args, **kwargs):
-        with HDF5_Logger(self.log_file) as logger:
+        Logger = get_logger_class(self.log_file)
+        with Logger(self.log_file) as logger:
             self._do_review(logger, *args, **kwargs)
 
     def log_probabilities(self, logger):
@@ -321,7 +323,7 @@ class BaseReview(ABC):
 
     def statistics(self):
         try:
-            n_initial = self.query_kwargs['query_src']['initial']
+            n_initial = len(self.query_kwargs['query_src']['initial'])
         except KeyError:
             n_initial = 0
 

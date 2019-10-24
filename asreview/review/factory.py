@@ -21,7 +21,6 @@ from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.hdf5_logging import HDF5_Logger
 from asreview.utils import get_logger_class
 
 
@@ -64,6 +63,7 @@ def get_reviewer(dataset,
     cli_settings.from_file(config_file)
 
     Logger = get_logger_class(log_file)
+    print(Logger)
 
     if log_file is not None:
         with Logger(log_file) as logger:
@@ -74,6 +74,10 @@ def get_reviewer(dataset,
         settings = cli_settings
         logger = None
 
+    if n_queries is not None:
+        settings.n_queries = n_queries
+    if n_papers is not None:
+        settings.n_papers = n_papers
     if model_param is not None:
         settings.model_param = model_param
     if query_param is not None:

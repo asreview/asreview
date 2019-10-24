@@ -7,8 +7,8 @@ def test_json_logger():
 
     log_fp = Path("test", "demo_data", "logs", "test.json")
 
-    with asr.JSONLogger(str(log_fp)) as logger:
-        assert isinstance(logger, asr.JSONLogger)
+    with asr.JSON_Logger(str(log_fp)) as logger:
+        assert isinstance(logger, asr.JSON_Logger)
 
 
 def test_hdf5_logger():
