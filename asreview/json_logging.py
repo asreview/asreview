@@ -196,6 +196,7 @@ class JSON_Logger(object):
             "time": {"start_time": str(datetime.now())},
             "version": self.version,
             "software_version": asreview.__version__,
+            "settings": {},
             "results": [],
         })
 
