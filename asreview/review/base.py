@@ -231,7 +231,8 @@ class BaseReview(ABC):
         pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
             pred_proba = self.learner.predict_proba(self.X)
-        logger.add_proba(pool_idx, self.train_idx, pred_proba, self.query_i)
+        proba_1 = np.array([x[1] for x in pred_proba])
+        logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
     def query(self, n_instances):
         """Query new results."""
