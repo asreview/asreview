@@ -1,11 +1,7 @@
 # Cpython dependencies
 import logging
 import os
-import shutil
 from pathlib import Path
-
-from asreview.hdf5_logging import HDF5_Logger
-from asreview.json_logging import JSON_Logger
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -189,14 +185,3 @@ def _set_class_weight(weight1):
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
 
-
-def get_logger_class(fp):
-    if fp is None:
-        return None
-
-    log_ext = os.path.splitext(fp)[1]
-    if log_ext in ['.h5', '.hdf5', '.he5']:
-        Logger = HDF5_Logger
-    else:
-        Logger = JSON_Logger
-    return Logger

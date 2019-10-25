@@ -11,9 +11,9 @@ from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
+from asreview.logging import Logger
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
-from asreview.utils import get_logger_class
 
 
 def get_pool_idx(X, train_idx):
@@ -106,8 +106,7 @@ class BaseReview(ABC):
         self.query_kwargs["query_src"] = {}
         self.query_kwargs["current_queries"] = {}
 
-        Logger = get_logger_class(log_file)
-        with Logger(log_file) as logger:
+        with Logger.from_file(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
                 self.y = y
@@ -217,8 +216,7 @@ class BaseReview(ABC):
             self.log_probabilities(logger)
 
     def review(self, *args, **kwargs):
-        Logger = get_logger_class(self.log_file)
-        with Logger(self.log_file) as logger:
+        with Logger.from_file(self.log_file) as logger:
             self._do_review(logger, *args, **kwargs)
 
     def log_probabilities(self, logger):

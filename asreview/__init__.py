@@ -1,5 +1,4 @@
-from asreview.hdf5_logging import HDF5_Logger
-from asreview.json_logging import JSON_Logger
+from asreview.logging import Logger
 from asreview.models.embedding import load_embedding
 from asreview.models.embedding import sample_embedding
 from asreview.readers import ASReviewData

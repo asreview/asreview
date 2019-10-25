@@ -14,6 +14,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
+from asreview.logging import Logger
 from asreview.models.utils import get_model_class
 from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
@@ -21,7 +22,6 @@ from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.utils import get_logger_class
 
 
 def get_reviewer(dataset,
@@ -62,11 +62,8 @@ def get_reviewer(dataset,
         save_freq=save_freq)
     cli_settings.from_file(config_file)
 
-    Logger = get_logger_class(log_file)
-    print(Logger)
-
     if log_file is not None:
-        with Logger(log_file) as logger:
+        with Logger.from_file(log_file) as logger:
             if logger.is_empty():
                 logger.add_settings(cli_settings)
             settings = logger.settings
