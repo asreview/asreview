@@ -1,8 +1,8 @@
 import os
 from shutil import copyfile
 
+from asreview.logging import Logger
 from asreview.review.factory import get_reviewer
-from asreview.utils import get_logger_class
 
 data_fp = os.path.join("test", "demo_data", "csv_example_with_labels.csv")
 embedding_fp = os.path.join("test", "demo_data", "csv_example_with_labels.vec")
@@ -109,9 +109,8 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
                             prior_included=[1, 3], prior_excluded=[2, 4],
                             log_file=log_file,
                             **kwargs)
-    Logger = get_logger_class(log_file)
     if use_granular:
-        with Logger(log_file) as logger:
+        with Logger.from_file(log_file) as logger:
             # Two loops of training and classification.
             reviewer.train()
             reviewer.log_probabilities(logger)
@@ -127,5 +126,5 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
     else:
         reviewer.review()
 
-    with Logger(log_file) as logger:
+    with Logger.from_file(log_file, read_only=True) as logger:
         check_log(logger)
