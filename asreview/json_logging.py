@@ -144,6 +144,9 @@ class JSON_Logger(object):
             The file path to export the results to.
 
         """
+        if self.read_only:
+            raise ValueError("Logging error: trying to save when opened file"
+                             " in read_only mode.")
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(self.log_fp)
 
