@@ -14,7 +14,7 @@ class JSON_Logger(object):
 
     def __init__(self, log_fp, *_, **__):
         super(JSON_Logger, self).__init__()
-        self.log_version = "1.0"
+        self.version = "2.0"
         self.settings = None
         self.log_fp = log_fp
         self.restore(log_fp)
@@ -181,10 +181,10 @@ class JSON_Logger(object):
         try:
             with open(fp, "r") as f:
                 self._log_dict = OrderedDict(json.load(f))
-            log_version = self._log_dict["log_version"]
-            if log_version != self.log_version:
+            log_version = self._log_dict["version"]
+            if log_version != self.version:
                 raise ValueError(
-                    f"Log cannot be read: logger version {self.log_version}, "
+                    f"Log cannot be read: logger version {self.version}, "
                     f"logfile version {log_version}.")
             self.settings = ASReviewSettings(**self._log_dict["settings"])
         except FileNotFoundError:
@@ -193,7 +193,7 @@ class JSON_Logger(object):
     def create_structure(self):
         self._log_dict = OrderedDict({
             "time": {"start_time": str(datetime.now())},
-            "log_version": self.log_version,
+            "version": self.version,
             "software_version": asreview.__version__,
             "results": [],
         })
