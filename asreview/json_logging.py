@@ -12,8 +12,9 @@ from asreview.settings import ASReviewSettings
 class JSON_Logger(object):
     """Class for logging the Systematic Review"""
 
-    def __init__(self, log_fp, *_, **__):
+    def __init__(self, log_fp, *_, read_only=False, **__):
         super(JSON_Logger, self).__init__()
+        self.read_only = read_only
         self.version = "2.0"
         self.settings = None
         self.log_fp = log_fp
@@ -23,7 +24,7 @@ class JSON_Logger(object):
         return self
 
     def __exit__(self, *_, **__):
-        self.save()
+        self.close()
 
     def __str__(self):
         return self._print_logs()
@@ -199,4 +200,5 @@ class JSON_Logger(object):
         })
 
     def close(self):
-        self.save()
+        if not self.read_only:
+            self.save()

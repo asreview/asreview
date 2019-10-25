@@ -49,7 +49,7 @@ class HDF5_Logger(object):
     def __init__(self, log_fp, read_only=False):
         self.settings = None
         super(HDF5_Logger, self).__init__()
-        self.log_version = "1.0"
+        self.version = "1.0"
         self.read_only = read_only
         self.restore(log_fp, read_only=read_only)
 
@@ -222,10 +222,10 @@ class HDF5_Logger(object):
         Path(fp).parent.mkdir(parents=True, exist_ok=True)
         self.f = h5py.File(fp, mode)
         try:
-            log_version = self.f.attrs['log_version'].decode("ascii")
-            if log_version != self.log_version:
+            log_version = self.f.attrs['version'].decode("ascii")
+            if log_version != self.version:
                 raise ValueError(
-                    f"Log cannot be read: logger version {self.log_version}, "
+                    f"Log cannot be read: logger version {self.version}, "
                     f"logfile version {log_version}.")
             settings_dict = json.loads(self.f.attrs['settings'])
             if "mode" in settings_dict:
@@ -237,7 +237,7 @@ class HDF5_Logger(object):
         self.f.attrs['start_time'] = np.string_(datetime.now())
         self.f.attrs['end_time'] = np.string_(datetime.now())
         self.f.attrs['settings'] = np.string_("{}")
-        self.f.attrs['log_version'] = np.string_(self.log_version)
+        self.f.attrs['version'] = np.string_(self.version)
         self.f.create_group('results')
 
     def close(self):
