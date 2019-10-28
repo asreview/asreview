@@ -1,15 +1,10 @@
-Run ASReview software with PTSD example
+10 minutes into ASReview
 ================
-Gerbrich Ferdinands
-2019-10-28
-
-This tutorial has been created using `asreview v0.2.1` and `macOS
-Catalina 10.15`.
 
 This tutorial will guide you in running the ASReview software. It
 consists of two parts, 0) [the installation of the ASReview
-software](#zero-install) and 1) [a demonstration of the Oracle mode of
-the ASReview software](#oracle-ptsd).
+software](#0-installing-the-asreview-software) and 1) [a demonstration of the Oracle mode of
+the ASReview software](#1-running-oracle-mode-with-the-ptsd-dataset).
 
 # 0\. Installing the ASReview software
 
@@ -58,7 +53,7 @@ Python 2.7.6
 ```
 
 If your Python version is 3.6.x or higher, you can skip to [section 0.2
-Installing the ASReview software](#install-asreview).
+Installing the ASReview software](#02-install-asreview).
 
 If this is not the case, as in the example above, follow the
 instructions in [the next section](#Anaconda) to install a more recent
@@ -107,7 +102,7 @@ Python 3.7.3
 If your Python version is 3.6+, you can start installing the ASReview
 software on your computer. To install the ASReview software, follow the
 steps below. If you’ve already installed the ASReview software, you can
-skip to [section 1](#oracle-ptsd).
+skip to [section 1](#1-running-oracle-mode-with-the-ptsd-dataset).
 
 To install the ASReview software, run the following in the Terminal:
 
@@ -352,3 +347,9 @@ open results.log
 In this file you can find:
 
   - `pool_proba`
+
+
+*&copy; 2019, ASReview Team, Gerbrich Ferdinands
+
+This tutorial has been created using `asreview v0.2.1` and `macOS
+Catalina 10.15`.*
