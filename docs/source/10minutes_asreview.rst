@@ -3,18 +3,15 @@
 
 This tutorial will guide you in running the ASReview software. It
 consists of two parts, 0) `the installation of the ASReview
-software <#0-installing-the-asreview-software>`__ and 1) `a
+software <#installing-the-asreview-software>`__ and 1) `a
 demonstration of the Oracle mode of the ASReview
-software <#1-running-oracle-mode-with-the-ptsd-dataset>`__.
+software <#running-oracle-mode-with-the-ptsd-dataset>`__.
 
-0. Installing the ASReview software
-===================================
+Installing the ASReview software
+--------------------------------
 
 Before installing the ASReview software, you have to set up the Command
 Line Interface and Python.
-
-Opening the Command Line Interface (CLI)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ASReview can be run through the Command Line Interface (CLI), also
 known as the bash shell. Command Line Interface allows you to interact
@@ -38,9 +35,6 @@ First, open the CLI on your computer:
 If you want to learn more about CLI, you can read `this
 introduction <https://programminghistorian.org/en/lessons/intro-to-bash#opening-your-shell>`__.
 
-Python 3.6+
-^^^^^^^^^^^
-
 The ASReview software requires Python 3.6+. To check the Python version
 on your computer, type the following command in the CLI and press the
 return button:
@@ -63,8 +57,8 @@ If this is not the case, as in the example above, follow the
 instructions in `the next section <#Anaconda>`__ to install a more
 recent version of Python.
 
-0.1 Install Python
-------------------
+Install Python
+~~~~~~~~~~~~~~
 
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Besides Anaconda,
@@ -102,8 +96,8 @@ CLI returns:
 
     Python 3.7.3
 
-0.2 Install ASReview
---------------------
+Install ASReview
+~~~~~~~~~~~~~~~~
 
 If your Python version is 3.6+, you can start installing the ASReview
 software on your computer. To install the ASReview software, follow the
@@ -129,8 +123,8 @@ If ASReview was installed succesfully, you will get output like:
 
 You are now ready to start your first Automated Systematic Review!
 
-1. Running Oracle mode with the PTSD dataset
-============================================
+Running Oracle mode with the PTSD dataset
+-----------------------------------------
 
 As an example, we use the PTSD dataset. This dataset contains x titles
 and abstract on PTSD. From this dataset, we want to select papers
@@ -147,7 +141,7 @@ start this process, run:
 
 The following will show on your screen:
 
-.. code:: bash
+.. code::
 
 
                 _____ _____            _
@@ -178,8 +172,8 @@ Note that if this is the first time you run the ASReview software,
 loading the embedding matrix can take a couple of minutes. In subsequent
 runs, loading the matrix will only take a few seconds.
 
-1.2 Including and excluding papers beforehand
----------------------------------------------
+Including and excluding papers beforehand
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In case you already know of papers you want to in- or exclude from your
 systematic review in advance, you can indicate this.
@@ -211,9 +205,6 @@ systematic review.
 Here, type for example ``31 90 892 3898 3989 4390``, to indicate the
 papers that you want to be excluded from your systematic review.
 
-Options
-~~~~~~~
-
 Instead of setting up the ASReview software step by step, it is possible
 to run the software and indicate papers you want to in- and exclude all
 in one command:
@@ -222,15 +213,15 @@ in one command:
 
     asreview oracle example_ptsd --prior_included 29 181 379 2001 3928 3929 4547 --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
 
-1.3 Running the model
----------------------
+Running the model
+~~~~~~~~~~~~~~~~~
 
 The software will attempt to classify the papers in the dataset into two
 categories: papers to be included in, and papers to be excluded from the
 systematic review. To improve its decisions, it will ask for your input
 iteratively.
 
-.. code:: bash
+.. code::
 
 
                     (  )   (   )  )
@@ -250,7 +241,7 @@ At each iteration, the model will present you with a number of abstracts
 to include or exclude the presented abstract in your systematic review.
 Indicate your decision by typing ``1`` (include) or ``0`` (exclude).
 
-.. code:: bash
+.. code::
 
     ----------------------------------
     Distributional Assumptions of Growth Mixture Models: Implications for Overextraction of Latent Trajectory Classes
@@ -342,14 +333,11 @@ the options and the defaults.
       --verbose VERBOSE, -v VERBOSE
                             Verbosity
 
-1.4 Wrapping up the Automated Systematic Review
------------------------------------------------
+Wrapping up the Automated Systematic Review
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ASReview software will keep presenting abstracts. When you feel like
 you have read enough, you can quit by pressing ``S``.
-
-The results.log file
-~~~~~~~~~~~~~~~~~~~~
 
 The results of your Automated Systematic Review can be found in the
 ``results.log`` file. You can open this file by running
@@ -362,7 +350,5 @@ In this file you can find:
 
 -  ``pool_proba``
 
-\*© 2019, ASReview Team, Gerbrich Ferdinands
-
-This tutorial has been created using ``asreview v0.2.1`` and
-``macOS Catalina 10.15``.\*
+*© 2019, ASReview Team, Gerbrich Ferdinands.*
+This tutorial has been created using  ``asreview v0.2.1`` and ``macOS Catalina 10.15``.

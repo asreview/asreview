@@ -98,7 +98,7 @@ https://github.com/msdslab/automated-systematic-review.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Basic
+   :caption: Basics
 
    ASReview <self>
 
@@ -108,7 +108,7 @@ https://github.com/msdslab/automated-systematic-review.
 
    api
 
- .. toctree::
+.. toctree::
    :maxdepth: 2
    :caption: Reference
 
