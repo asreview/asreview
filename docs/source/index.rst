@@ -98,13 +98,19 @@ https://github.com/msdslab/automated-systematic-review.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Basic
 
    ASReview <self>
+
+   10minutes_asreview
 
    cli
 
    api
+
+ .. toctree::
+   :maxdepth: 2
+   :caption: Reference
 
    models
 
