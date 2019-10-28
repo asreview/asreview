@@ -26,7 +26,7 @@ simulation mode.
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
-The full documentation is available at [https://asreview.readthedocs.io](https://asreview.readthedocs.io)
+Our tutorial ["10 Minutes into ASReview"](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) is an introduction into ASReview for new users. The full documentation is available at [https://asreview.readthedocs.io](https://asreview.readthedocs.io)
 
 This Automatic Systematic Review software is being developed as part of a
 research project. This research project consists of multiple repositories. The
