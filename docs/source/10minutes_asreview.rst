@@ -3,7 +3,7 @@
 
 This tutorial will guide you in running the ASReview software. It
 consists of two parts, 0) `the installation of the ASReview
-software <#installing-the-asreview-software>`__ and 1) `a
+software <installing-the-asreview-software>`__ and 1) `a
 demonstration of the Oracle mode of the ASReview
 software <#running-oracle-mode-with-the-ptsd-dataset>`__.
 
@@ -51,10 +51,10 @@ your computer. For example:
     Python 2.7.6
 
 If your Python version is 3.6.x or higher, you can skip to `section 0.2
-Installing the ASReview software <#02-install-asreview>`__.
+Installing the ASReview software <#install-asreview>`__.
 
 If this is not the case, as in the example above, follow the
-instructions in `the next section <#Anaconda>`__ to install a more
+instructions in `the next section <#install-python>`__ to install a more
 recent version of Python.
 
 Install Python
@@ -85,7 +85,7 @@ the manuals below:
    here <https://docs.anaconda.com/anaconda/install/linux/>`__
 
 As you did before, you can now call ``python --version`` in the CLI, to
-re-check the version of the Python installation on your computer by.
+re-check the version of the Python installation on your computer.
 This should correspond to the 3.x version of Anaconda you installed
 earlier.
 
@@ -102,7 +102,7 @@ Install ASReview
 If your Python version is 3.6+, you can start installing the ASReview
 software on your computer. To install the ASReview software, follow the
 steps below. If you’ve already installed the ASReview software, you can
-skip to `section 1 <#1-running-oracle-mode-with-the-ptsd-dataset>`__.
+skip to `the next section <#running-oracle-mode-with-the-ptsd-dataset>`__.
 
 To install the ASReview software, run the following in the Terminal:
 
