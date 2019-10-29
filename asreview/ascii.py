@@ -34,9 +34,6 @@ ASCII_MSG_ORACLE = """
 |  In this mode the computer will assist you in creating your systematic review. |
 |  After giving it a few papers that are either included or excluded,            |
 |  it will compute a model and show progressively more relevant papers.          |
-|  You can stop the review at any time by typing "S" + Enter                     |
-|  or by pressing Ctrl + C.                                                      |
-|  Your progress will be saved.                                                  |
 |                                                                                |
 |  GitHub page:        {0: <58}|
 |  Questions/remarks:  {1: <58}|

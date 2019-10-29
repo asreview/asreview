@@ -15,6 +15,7 @@ from asreview.utils import _set_class_weight
 
 
 def _get_optimizer(optimizer, lr_mult=1.0):
+    "Get optimizer with correct learning rate."
     if optimizer == "sgd":
         return optimizers.SGD(lr=0.01*lr_mult)
     elif optimizer == "rmsprop":
@@ -29,6 +30,7 @@ def _get_optimizer(optimizer, lr_mult=1.0):
 
 
 class KerasModel(BaseModel):
+    "Base Keras model."
     def __init__(self, param={}, embedding_fp=None, **kwargs):
         super(KerasModel, self).__init__(param)
         self.name = "keras"

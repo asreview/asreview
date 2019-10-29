@@ -184,4 +184,3 @@ def _set_class_weight(weight1):
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
-

@@ -160,6 +160,7 @@ class HDF5_Logger(object):
         return len(self.f['results'].keys())
 
     def review_state(self):
+        "Get internal review state variables from hdf5 file."
         labels = np.array(self.f['labels'][:], dtype=np.int)
 
         train_idx = []
@@ -199,6 +200,7 @@ class HDF5_Logger(object):
         self.f.flush()
 
     def get(self, variable, query_i=None, idx=None):
+        "Get variables from hdf5 file."
         if query_i is not None:
             g = self.f[f"/results/{query_i}"]
         array = None
@@ -223,6 +225,7 @@ class HDF5_Logger(object):
         return array
 
     def restore(self, fp, read_only=False):
+        "Restore logger from hdf5 file."
         if read_only:
             mode = 'r'
         else:
@@ -243,6 +246,7 @@ class HDF5_Logger(object):
             self.create_structure()
 
     def create_structure(self):
+        "Initialize (empty) structure."
         self.f.attrs['start_time'] = np.string_(datetime.now())
         self.f.attrs['end_time'] = np.string_(datetime.now())
         self.f.attrs['settings'] = np.string_("{}")

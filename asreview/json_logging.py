@@ -7,12 +7,12 @@ import numpy as np
 
 import asreview
 from asreview.settings import ASReviewSettings
-from asreview.simulation.statistics import _get_labeled_order
-from asreview.simulation.statistics import _get_last_proba_order
+from asreview.analysis.statistics import _get_labeled_order
+from asreview.analysis.statistics import _get_last_proba_order
 
 
 class Dict_Logger(object):
-    """Class for logging the Systematic Review"""
+    """Class for logging the Systematic Review with no storage."""
     def __init__(self, *_, **__):
         super(Dict_Logger, self).__init__()
         self.read_only = False
@@ -56,7 +56,6 @@ class Dict_Logger(object):
             else:
                 i = len(results)
 
-        print(f"i = {i}: {new_dict}")
         while i >= len(results):
             results.append({})
 
@@ -67,6 +66,7 @@ class Dict_Logger(object):
                 results[i][key] = new_dict[key]
 
     def is_empty(self):
+        """Check if there are any results present."""
         return len(self._log_dict["results"]) == 0
 
     def set_labels(self, y):
@@ -123,9 +123,11 @@ class Dict_Logger(object):
         self._add_to_log(new_dict, query_i)
 
     def n_queries(self):
+        """Get the number of stored queries."""
         return len(self._log_dict["results"])
 
     def review_state(self):
+        """Get the state of the review variables from the internal state."""
         labels = np.array(self._log_dict["labels"], dtype=np.int)
 
         train_idx = []
@@ -149,6 +151,7 @@ class Dict_Logger(object):
         return labels, train_idx, query_src, query_i
 
     def get(self, variable, query_i=None, idx=None):
+        """Get data from the internal state."""
         if query_i is not None:
             res = self._log_dict["results"][query_i]
 

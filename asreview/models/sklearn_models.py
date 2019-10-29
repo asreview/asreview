@@ -10,6 +10,7 @@ from asreview.models.base import BaseModel
 
 
 class SKLearnModel(BaseModel):
+    "Base SKLearn model."
     def __init__(self, param={}, **kwargs):
         super(SKLearnModel, self).__init__(param)
         self.name = "sklearn"
@@ -44,6 +45,7 @@ def create_nb_model(*args, **kwargs):
 
 
 class NBModel(SKLearnModel):
+    "Naive Bayes SKLearn model."
     def __init__(self, param={}, **kwargs):
         super(NBModel, self).__init__(param, **kwargs)
         self.name = "nb"
@@ -54,7 +56,7 @@ class NBModel(SKLearnModel):
 
     def default_param(self):
         kwargs = {
-            "alpha": 1.0,
+            "alpha": 3.822,
         }
         return kwargs
 
@@ -94,6 +96,7 @@ def create_svc_model(*args, gamma="scale", class_weight=None, **kwargs):
 
 
 class SVCModel(SKLearnModel):
+    "Support Vector Machine SKLearn model."
     def __init__(self, param={}, random_state=None, **kwargs):
         super(SVCModel, self).__init__(param, **kwargs)
         self.param["random_state"] = random_state

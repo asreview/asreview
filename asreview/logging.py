@@ -2,6 +2,7 @@ import os
 
 
 def get_logger_class(fp):
+    "Get logging class from file extension."
     from asreview.hdf5_logging import HDF5_Logger
     from asreview.json_logging import JSON_Logger
     from asreview.json_logging import Dict_Logger
@@ -18,6 +19,7 @@ def get_logger_class(fp):
 
 
 class Logger(object):
+    "Wrapper Logger class to easily get the right logger from file extension."
     def __init__(self, logger):
         self.logger = logger
 

@@ -95,6 +95,10 @@ class BaseReview(ABC):
 
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
+        if prior_included is None:
+            self.prior_included = []
+        if prior_excluded is None:
+            self.prior_excluded = []
 
         self.fit_kwargs = fit_kwargs
         self.balance_kwargs = balance_kwargs
@@ -115,7 +119,6 @@ class BaseReview(ABC):
                 self.query_src = query_src
                 self.query_i = query_i
             else:
-                print(final_labels)
                 if final_labels is not None:
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
@@ -183,8 +186,6 @@ class BaseReview(ABC):
         return n_instances
 
     def _do_review(self, logger, stop_after_class=True, instant_save=False):
-        """ Do the systematic review, writing the results to the log file. """
-
         if self._stop_iter(self.query_i, self.n_pool()):
             return
 
@@ -220,6 +221,16 @@ class BaseReview(ABC):
             self.log_probabilities(logger)
 
     def review(self, *args, **kwargs):
+        """ Do the systematic review, writing the results to the log file.
+
+        Arguments:
+        ----------
+        stop_after_class: bool
+            When to stop; if True stop after classification step, otherwise
+            stop after training step.
+        instant_save: bool
+            If True, save results after each single classification.
+        """
         with Logger.from_file(self.log_file) as logger:
             self._do_review(logger, *args, **kwargs)
 
@@ -239,7 +250,18 @@ class BaseReview(ABC):
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
     def query(self, n_instances):
-        """Query new results."""
+        """Query new results.
+
+        Arguments
+        ---------
+        n_instances: int
+            Batch size of the queries, i.e. number of papers to be queried.
+
+        Returns
+        -------
+        np.array:
+            Indices of papers queried.
+        """
 
         pool_idx = get_pool_idx(self.X, self.train_idx)
 
@@ -262,7 +284,19 @@ class BaseReview(ABC):
         return query_idx
 
     def classify(self, query_idx, inclusions, logger, method=None):
-        """ Classify new papers and update the training indices. """
+        """ Classify new papers and update the training indices.
+
+        It automaticaly updates the logger.
+
+        Arguments:
+        ----------
+        query_idx: list, np.array
+            Indices to classify.
+        inclusions: list, np.array
+            Labels of the query_idx.
+        logger: BaseLogger
+            Logger to store the classification in.
+        """
         query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
         query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
@@ -314,6 +348,7 @@ class BaseReview(ABC):
         self.query_i += 1
 
     def statistics(self):
+        "Get a number of statistics about the current state of the review."
         try:
             n_initial = len(self.query_kwargs['query_src']['initial'])
         except KeyError:
