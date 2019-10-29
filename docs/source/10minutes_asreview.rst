@@ -126,8 +126,8 @@ You are now ready to start your first Automated Systematic Review!
 Running Oracle mode with the PTSD dataset
 -----------------------------------------
 
-As an example, we use the PTSD dataset. This dataset contains x titles
-and abstract on PTSD. From this dataset, we want to select papers
+As an example, we use the PTSD dataset. This dataset contains titles
+and abstract of papers on post-traumatic stress disorder. From this dataset, we want to select papers
 relevant to our systematic review, without reading all the abstracts. To
 start this process, run:
 
@@ -135,9 +135,7 @@ start this process, run:
 
     asreview oracle example_ptsd --log_file results.log
 
-.. code:: bash
 
-    asreview oracle example_ptsd -m 'nb' --log_file results.log --verbose 2
 
 The following will show on your screen:
 
@@ -255,15 +253,15 @@ Indicate your decision by typing ``1`` (include) or ``0`` (exclude).
 
     Include [1] or exclude [0] (stop [S]):
 
-When you need a break, you can type ``S`` to quit. You can always return
+When you want to quit reviewing, you can type ``S``. You can always return
 to your automated systematic review later.
 
 Under the hood
 ~~~~~~~~~~~~~~
 
-At every iteration, ASReview presents you with the abstracts it deems
-most relevant for your review. ASReview bases its decisions on the
-papers you indicated prior to running the analysis, and the subsequent
+At every iteration, ASReview orders each paper by their likeliness of inclusion, 
+with the most likely papers presented first for reading. ASReview bases its 
+decisions on the papers you indicated prior to running the analysis, and the subsequent
 decisions you make on the abstracts you get presented with during the
 analysis. The higher the number of included/excluded papers, the quicker
 the software recognizes your choices for inclusion.
@@ -336,8 +334,13 @@ the options and the defaults.
 Wrapping up the Automated Systematic Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ASReview software will keep presenting abstracts. When you feel like
-you have read enough, you can quit by pressing ``S``.
+The ASReview software will keep presenting abstracts. 
+The longer you continue reading, the better the model will 
+understand your review requirements, and the less likely any important papers 
+are left not reviewed. You can stop reading abstracts at any time, by pressing ``S``.
+
+You can view the results by using the 'export to csv' option after stopping your review. 
+Papers are ordered first by review order and for those not reviewed by likeliness of inclusion (most likely first).
 
 The results of your Automated Systematic Review can be found in the
 ``results.log`` file. You can open this file by running
