@@ -50,8 +50,8 @@ your computer. For example:
 
     Python 2.7.6
 
-If your Python version is 3.6.x or higher, you can skip to `section 0.2
-Installing the ASReview software <#install-asreview>`__.
+If your Python version is 3.6.x or higher, you can skip to `section
+'Installing the ASReview software' <#install-asreview>`__.
 
 If this is not the case, as in the example above, follow the
 instructions in `the next section <#install-python>`__ to install a more
@@ -109,10 +109,6 @@ To install the ASReview software, run the following in the Terminal:
 .. code:: bash
 
     pip install asreview
-
-.. code:: bash
-
-    pip install --upgrade asreview
 
 If ASReview was installed succesfully, you will get output like:
 
@@ -340,18 +336,8 @@ understand your review requirements, and the less likely any important papers
 are left not reviewed. You can stop reading abstracts at any time, by pressing ``S``.
 
 You can view the results by using the 'export to csv' option after stopping your review. 
-Papers are ordered first by review order and for those not reviewed by likeliness of inclusion (most likely first).
+Papers are ordered presenting order, those papers who are not presented are ordered by likeliness of inclusion (most likely first).
 
-The results of your Automated Systematic Review can be found in the
-``results.log`` file. You can open this file by running
-
-.. code:: bash
-
-    open results.log
-
-In this file you can find:
-
--  ``pool_proba``
 
 *© 2019, ASReview Team, Gerbrich Ferdinands.*
 This tutorial has been created using  ``asreview v0.2.1`` and ``macOS Catalina 10.15``.
