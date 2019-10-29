@@ -42,12 +42,16 @@ setup(
         'pandas',
         'modAL',
         'RISparser',
-        'dill'
+        'dill',
+        'PyInquirer',
+        'fuzzywuzzy',
+        'h5py',
     ],
 
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage'],
+        'faster Levenshtein': ['python-Levenshtein'],
     },
 
     # package_data={

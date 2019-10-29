@@ -62,7 +62,6 @@ def get_reviewer(dataset,
         balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
         save_freq=save_freq, abstract_only=abstract_only)
     cli_settings.from_file(config_file)
-    print(cli_settings)
 
     if log_file is not None:
         with Logger.from_file(log_file) as logger:
@@ -199,31 +198,74 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
             json.dump(json_model, f, indent=2)
         model.model.save_weights(save_model_h5_fp, overwrite=True)
 
-    if not reviewer.log_file:
-        print(reviewer._logger._print_logs())
 
-
-def review_oracle(dataset, *args, **kwargs):
+def review_oracle(dataset, *args, log_file=None, **kwargs):
     """CLI to the interactive mode."""
+    from PyInquirer import prompt, Separator
+    if log_file is None:
+        while True:
+            question = [{
+                'type': 'input',
+                'name': 'log_file',
+                'message': 'Please provide a file to store '
+                'the results of your review:'
+            }]
+            log_file = prompt(question).get("log_file", "")
+            if len(log_file) == 0:
+                question = [{
+                    'type': 'confirm',
+                    'message': 'Are you sure you want to continue without'
+                    ' saving?',
+                    'name': 'force_continue',
+                    'default': 'False',
+                }]
+                force_continue = prompt(question).get('force_continue', False)
+                if force_continue:
+                    log_file = None
+                    break
+            else:
+                if os.path.isfile(log_file):
+                    question = [{
+                        'type': 'list',
+                        'name': 'action',
+                        'message': f'File {log_file} exists, what do you want'
+                        ' to do?',
+                        'choices': [
+                            f'Continue review from {log_file}',
+                            f'Delete review in {log_file} and start a new'
+                            ' review',
+                            f'Choose another file name.',
+                            Separator(),
+                            f'Exit'
+                        ]
+                    }]
+                    action = prompt(question).get('action', 'Exit')
+                    if action == "Exit":
+                        return
+                    if action.startswith("Continue"):
+                        break
+                    if action.startswith("Choose another"):
+                        continue
+                    if action.startswith("Delete"):
+                        question = [{
+                            'type': 'confirm',
+                            'message': f'Are you sure you want to delete '
+                            '{log_file}?',
+                            'name': 'delete',
+                            'default': 'False',
+                        }]
+                        delete = prompt(question).get("delete", False)
+                        if delete:
+                            os.remove(log_file)
+                            break
+                        else:
+                            continue
 
-#     if (log_file is not None
-#             and os.path.isfile(log_file)):
-#         while(True):
-#             continue_input = input("Project detected. Continue [y/n]?")
-#             if continue_input in ["Y", "y", "yes"]:
-#                 break
-#             if continue_input not in ["N", "n", "no"]:
-#                 print("Please provide 'y' or 'no'.")
-#                 continue
-#             overwrite_input = input("This will delete your previous"
-#                                     " project and start a new one.\n Is that"
-#                                     " what you want [y/n]?")
-#             if overwrite_input in ["Y", "y", "yes"]:
-#                 break
-#             else:
-#                 return
-
-    review(dataset, *args, mode='oracle', **kwargs)
+                break
+    try:
+        review(dataset, *args, mode='oracle', log_file=log_file, **kwargs)
+    except KeyboardInterrupt:
+        print('\nClosing down the automated systematic review.')
 
 
 def review_simulate(dataset, *args, **kwargs):

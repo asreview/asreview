@@ -24,7 +24,22 @@ def create_lstm_pool_model(embedding_matrix,
 
     Arguments
     ---------
-
+    embedding_matrix: np.array
+        Embedding matrix to use with LSTM model.
+    backwards: bool
+        Whether to have a forward or backward LSTM.
+    optimizer: str
+        Optimizer to use.
+    max_sequence_length: int
+        Maximum length of the text record to classify.
+    lstm_out_width: int
+        Output width of the LSTM.
+    lstm_pool_size: int
+        Size of the pool, must be a divisor of max_sequence_length.
+    learn_rate_mult: float
+        Learn rate multiplier of default learning rate.
+    verbose: int
+        Verbosity.
     Returns
     -------
     callable:

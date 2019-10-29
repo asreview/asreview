@@ -22,11 +22,11 @@ class TripleBalanceTD(BaseTrainData):
 
     def default_kwargs(self):
         defaults = {}
-        defaults['one_a'] = 10.0
-        defaults['one_alpha'] = 1.0
-        defaults['zero_b'] = 0.5
+        defaults['one_a'] = 2.155
+        defaults['one_alpha'] = 0.94
+        defaults['zero_b'] = 0.789
         defaults['zero_beta'] = 1.0
-        defaults['zero_max_c'] = 0.5
+        defaults['zero_max_c'] = 0.835
         defaults['zero_max_gamma'] = 2.0
         defaults['shuffle'] = True
         return defaults

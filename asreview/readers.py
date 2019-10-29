@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
+from fuzzywuzzy import fuzz
 
 from asreview.config import NOT_AVAILABLE
 
@@ -23,6 +24,13 @@ TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
 KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
 for label in LABEL_INCLUDED_VALUES:
     KEY_TAG_MAPPING[label] = "LI"
+
+
+def get_fuzzy_ranking(keywords, str_list):
+    rank_list = np.zeros(len(str_list), dtype=np.float)
+    for i, my_str in enumerate(str_list):
+        rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
+    return rank_list
 
 
 class ASReviewData(object):
@@ -64,14 +72,12 @@ class ASReviewData(object):
                 NOT_AVAILABLE).values, dtype=np.int)
             data_kwargs['label_col'] = column_labels[0]
 
-        print(abstract_only, raw_df.columns)
         if 'inclusion_code' in raw_df.columns and abstract_only:
             inclusion_codes = raw_df['inclusion_code'].fillna(
                 NOT_AVAILABLE).values
             inclusion_codes = np.array(inclusion_codes, dtype=np.int)
             data_kwargs['final_labels'] = data_kwargs['labels']
             data_kwargs['labels'] = inclusion_codes > 0
-            print(data_kwargs['final_labels'])
 
         def fill_column(dst_dict, key):
             try:
@@ -102,6 +108,25 @@ class ASReviewData(object):
         raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
                          f"from file {fp}")
 
+    def preview_record(self, i, w_title=80, w_authors=40):
+        "Return a preview string for record i."
+        title_str = ""
+        author_str = ""
+        if self.title is not None:
+            if len(self.title[i]) > w_title:
+                title_str = self.title[i][:w_title-2] + ".."
+            else:
+                title_str = self.title[i]
+        if self.authors is not None:
+            if len(self.authors[i]) > w_authors:
+                author_str = self.authors[i][:w_authors-2] + ".."
+            else:
+                author_str = self.authors[i]
+        format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
+        format_str += "}"
+        prev_str = format_str.format(title_str, author_str)
+        return prev_str
+
     def format_record(self, i, use_cli_colors=True):
         " Format one record for displaying in the CLI. "
         if self.title is not None and len(self.title[0]) > 0:
@@ -130,6 +155,49 @@ class ASReviewData(object):
     def print_record(self, *args, **kwargs):
         "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
+
+    def fuzzy_find(self, keywords, threshold=50, max_return=10,
+                   exclude=None):
+        """Find a record using keywords.
+
+        It looks for keywords in the title/authors/keywords
+        (for as much is available). Using the fuzzywuzzy package it creates
+        a ranking based on token set matching.
+
+        Arguments
+        ---------
+        keywords: str
+            A string of keywords together, can be a combination.
+        threshold: float
+            Don't return records below this threshold.
+        max_return: int
+            Maximum number of records to return.
+
+        Returns
+        -------
+        list:
+            Sorted list of indexes that match best the keywords.
+        """
+        match_str = ""
+        if self.title is not None:
+            match_str += self.title + " "
+        if self.authors is not None:
+            match_str += self.authors + " "
+        if self.keywords is not None:
+            match_str += self.keywords
+
+        new_ranking = get_fuzzy_ranking(keywords, match_str)
+        sorted_idx = np.argsort(-new_ranking)
+        best_idx = []
+        for idx in sorted_idx:
+            if idx in exclude:
+                continue
+            if len(best_idx) >= max_return:
+                break
+            if len(best_idx) > 0 and new_ranking[idx] < threshold:
+                break
+            best_idx.append(idx)
+        return np.array(best_idx, dtype=np.int).tolist()
 
     def get_data(self):
         "Equivalent of 'read_data'; get texts, labels from data object."

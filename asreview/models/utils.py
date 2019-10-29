@@ -4,6 +4,7 @@ from asreview.models.lstm_pool import LSTMPoolModel
 
 
 def get_model_class(model):
+    "Get class of model from string."
     models = {
         "svm": SVCModel,
         "nb": NBModel,

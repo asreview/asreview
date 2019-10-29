@@ -31,7 +31,7 @@ class ASReviewSettings(object):
     def __init__(self, mode, model, query_strategy, balance_strategy,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
-                 save_freq=1,
+                 save_freq=1, abstract_only=False,
                  data_fp=None, data_name=None, model_param={},
                  query_param={}, balance_param={}, **kwargs
                  ):

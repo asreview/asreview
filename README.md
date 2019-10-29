@@ -85,33 +85,15 @@ the Command Line Interface (CLI).
 Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
 ``` sh
-asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 --log_file results.log
+asreview oracle YOUR_DATA.csv --log_file results.json
 ```
 
-Example output:
-
-```
-Start review in 'oracle' mode.
-Prepare dataset.
-Start with the Systematic Review.
-
-Annual research review: The experience of youth with political conflict -
-Challenging notions of resilience and encouraging research refinement
-Barber, B. K.
-
-Aims and method Drawing on empirical studies and literature reviews, this
-paper aims to clarify and qualify the relevance of resilience to youth
-...
-Authors. Journal of Child Psychology and Psychiatry © 2013 Association for
-Child and Adolescent Mental Health.
-
-Include [1] or exclude [0]:
-```
+![](docs/gifs/fancy-cli.gif)
 
 This command (`asreview oracle`) runs the software in oracle mode on the 
-`YOUR_DATA.csv` dataset. Passing `prior_included` signifies the paper IDs
-that should definitely be included, while `prior_excluded` are IDs of papers
-that are definitely excluded. The higher the number of included/excluded papers,
+`YOUR_DATA.csv` dataset. 
+
+The higher the number of papers that you manually include in ASReview,
 the quicker the ASR software will understand your choices for inclusion.
 The IDs are the idententifiers of papers, starting from
 0 for the first paper found in the dataset.
@@ -123,17 +105,16 @@ mode:
 
 ``` sh
 asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
-  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
+  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.h5
 ```
 
 ## Tech
 
 There are many different [models](https://asreview.readthedocs.io/en/latest/models.html), [query strategies](https://asreview.readthedocs.io/en/latest/query_strategies.html),
-and [rebalancing strategies](https://asreview.readthedocs.io/en/latest/balance_strategies.html) available. 
-A LSTM neural network based model is currently the best performing and optimized. 
-By default, the ASR software will use models tuned on datasets available to us.
-Tuning of models, query strategies and rebalanceing strategies is possible either
-through the CLI or the API.
+and [rebalancing strategies](https://asreview.readthedocs.io/en/latest/balance_strategies.html) available.
+Currently, the best performing and optimized model is a Naive Bayes model; by default this model is used.
+
+Hyperparameters of models, query strategies and rebalancing strategies is possible through supplying a configuration file.
 
 ## Datasets
 
