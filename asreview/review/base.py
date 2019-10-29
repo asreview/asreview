@@ -68,6 +68,7 @@ class BaseReview(ABC):
                  fit_kwargs={},
                  balance_kwargs={},
                  query_kwargs={},
+                 final_labels=None,
                  verbose=1):
         super(BaseReview, self).__init__()
 
@@ -114,6 +115,9 @@ class BaseReview(ABC):
                 self.query_src = query_src
                 self.query_i = query_i
             else:
+                print(final_labels)
+                if final_labels is not None:
+                    logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
                 init_idx, init_labels = self._prior_knowledge()
                 self.query_i = 0

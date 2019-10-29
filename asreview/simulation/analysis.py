@@ -34,7 +34,10 @@ class Analysis():
 
         self._first_file = list(self.loggers.keys())[0]
         self.labels = self.loggers[self._first_file].get('labels')
-        self.final_labels = self.loggers[self._first_file].get('final_labels')
+        try:
+            self.final_labels = self.loggers[self._first_file].get('final_labels')
+        except KeyError:
+            pass
         self.empty = False
         self.inc_found = {}
 
@@ -135,7 +138,7 @@ class Analysis():
                 return (norm_yr[i] - norm_xr[i],
                         (x_return[i], x_return[i]),
                         (x_return[i]*y_coef, y_result[i]))
-        return None
+        return (None, None, None)
 
     def RRF(self, val=10, x_format="percentage", **kwargs):
         norm_xr, norm_yr, _ = self.inclusions_found(

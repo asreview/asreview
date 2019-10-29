@@ -44,6 +44,7 @@ def get_reviewer(dataset,
                  model_param=None,
                  query_param=None,
                  balance_param=None,
+                 abstract_only=False,
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
@@ -59,8 +60,9 @@ def get_reviewer(dataset,
         n_papers=n_papers, n_prior_included=n_prior_included,
         n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
         balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
-        save_freq=save_freq)
+        save_freq=save_freq, abstract_only=abstract_only)
     cli_settings.from_file(config_file)
+    print(cli_settings)
 
     if log_file is not None:
         with Logger.from_file(log_file) as logger:
@@ -91,8 +93,13 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    as_data = ASReviewData.from_file(dataset)
+    as_data = ASReviewData.from_file(dataset,
+                                     abstract_only=settings.abstract_only)
     _, texts, labels = as_data.get_data()
+
+    if as_data.final_labels is not None:
+        with Logger.from_file(log_file) as logger:
+            logger.set_final_labels(as_data.final_labels)
 
     model_class = get_model_class(model)
     model_inst = model_class(param=settings.model_param,
@@ -130,6 +137,7 @@ def get_reviewer(dataset,
             query_kwargs=settings.query_kwargs,
             log_file=log_file,
             save_freq=settings.save_freq,
+            final_labels=as_data.final_labels,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(

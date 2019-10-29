@@ -10,6 +10,9 @@ def _add_WSS(WSS, analysis, ax, col, result_format, box_dist=0.5):
 
     text = f"WSS@{WSS}%"
     _, WSS_x, WSS_y = analysis.WSS(WSS, x_format=result_format)
+    if WSS_x is None or WSS_y is None:
+        return
+
     text_pos_x = WSS_x[0] + box_dist
     text_pos_y = (WSS_y[0] + WSS_y[1])/2
     plt.plot(WSS_x, WSS_y, color=col)
@@ -23,6 +26,8 @@ def _add_RRF(RRF, analysis, ax, col, result_format, box_dist=0.5):
 
     text = f"RRF@{RRF}%"
     _, RRF_x, RRF_y = analysis.RRF(RRF, x_format=result_format)
+    if RRF_x is None or RRF_y is None:
+        return
 
     text_pos_x = RRF_x[0] + box_dist
     text_pos_y = (RRF_y[0] + RRF_y[1])/2
@@ -64,7 +69,7 @@ class Plot():
         plt.legend()
         plt.show()
 
-    def plot_inc_found(self, result_format="percentage"):
+    def plot_inc_found(self, result_format="percentage", abstract_only=False):
         """
         Plot the number of queries that turned out to be included
         in the final review.
@@ -76,6 +81,7 @@ class Plot():
 
         for i, data_key in enumerate(self.analyses):
             analysis = self.analyses[data_key]
+
             inc_found = analysis.inclusions_found(result_format=result_format)
             if result_format == "percentage":
                 box_dist = 0.5
@@ -89,6 +95,22 @@ class Plot():
             myplot = plt.errorbar(*inc_found, color=col)
             legend_name.append(f"{data_key}")
             legend_plt.append(myplot)
+
+            if abstract_only:
+                inc_found_final = analysis.inclusions_found(
+                    result_format=result_format, final_labels=True)
+                prev_value = 0
+                x_vals = []
+                y_vals = []
+                for i in range(len(inc_found_final[0])):
+                    if inc_found_final[1][i] != prev_value:
+                        x_vals.append(inc_found_final[0][i])
+                        y_vals.append(inc_found[1][i])
+                        prev_value = inc_found_final[1][i]
+#                 print(inc_found_final[0])
+                myplot = plt.scatter(x_vals, y_vals, color="red")
+#                 legend_name.append(f"{data_key} (final)")
+                legend_plt.append(myplot)
 
         plt.legend(legend_plt, legend_name, loc="lower right")
 

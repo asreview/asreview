@@ -72,6 +72,9 @@ class Dict_Logger(object):
     def set_labels(self, y):
         self._log_dict["labels"] = y.tolist()
 
+    def set_final_labels(self, y):
+        self._log_dict["final_labels"] = y.tolist()
+
     def add_settings(self, settings):
         self.settings = settings
         self._log_dict["settings"] = vars(settings)
@@ -158,6 +161,8 @@ class Dict_Logger(object):
             array = np.array([x[0] for x in array], dtype=np.int)
         elif variable == "labels":
             array = np.array(self._log_dict["labels"], dtype=np.int)
+        elif variable == "final_labels":
+            array = np.array(self._log_dict["final_labels"], dtype=np.int)
         elif variable == "proba":
             array = np.array(res["proba"], dtype=np.float)
         elif variable == "train_idx":
