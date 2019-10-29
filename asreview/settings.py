@@ -19,6 +19,7 @@ SETTINGS_TYPE_DICT = {
     "model_param": dict,
     "query_param": dict,
     "balance_param": dict,
+    "abstract_only": bool,
 }
 
 

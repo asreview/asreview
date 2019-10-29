@@ -30,7 +30,7 @@ class ASReviewData(object):
         of papers. """
     def __init__(self, raw_df, labels=None, title=None, abstract=None,
                  keywords=None, article_id=None, authors=None,
-                 label_col=LABEL_INCLUDED_VALUES[0]):
+                 label_col=LABEL_INCLUDED_VALUES[0], final_labels=None):
         self.raw_df = raw_df
         self.labels = labels
         self.title = title
@@ -39,12 +39,13 @@ class ASReviewData(object):
         self.keywords = keywords
         self.article_id = article_id
         self.authors = authors
+        self.final_labels = final_labels
 
         if article_id is None:
             self.article_id = np.arange(len(raw_df.index))
 
     @classmethod
-    def from_data_frame(cls, raw_df):
+    def from_data_frame(cls, raw_df, abstract_only=False):
         """ Get a review data object from a pandas dataframe. """
         # extract the label column
         column_labels = [label for label in list(raw_df)
@@ -63,6 +64,15 @@ class ASReviewData(object):
                 NOT_AVAILABLE).values, dtype=np.int)
             data_kwargs['label_col'] = column_labels[0]
 
+        print(abstract_only, raw_df.columns)
+        if 'inclusion_code' in raw_df.columns and abstract_only:
+            inclusion_codes = raw_df['inclusion_code'].fillna(
+                NOT_AVAILABLE).values
+            inclusion_codes = np.array(inclusion_codes, dtype=np.int)
+            data_kwargs['final_labels'] = data_kwargs['labels']
+            data_kwargs['labels'] = inclusion_codes > 0
+            print(data_kwargs['final_labels'])
+
         def fill_column(dst_dict, key):
             try:
                 dst_dict[key] = raw_df[key.lower()].fillna('').values
@@ -75,20 +85,20 @@ class ASReviewData(object):
         return cls(**data_kwargs)
 
     @classmethod
-    def from_csv(cls, fp):
-        return cls.from_data_frame(pd.DataFrame(read_csv(fp)))
+    def from_csv(cls, fp, *args, **kwargs):
+        return cls.from_data_frame(pd.DataFrame(read_csv(fp)), *args, **kwargs)
 
     @classmethod
-    def from_ris(cls, fp):
-        return cls.from_data_frame(pd.DataFrame(read_ris(fp)))
+    def from_ris(cls, fp, *args, **kwargs):
+        return cls.from_data_frame(pd.DataFrame(read_ris(fp)), *args, **kwargs)
 
     @classmethod
-    def from_file(cls, fp):
+    def from_file(cls, fp, *args, **kwargs):
         "Create instance from csv/ris file."
         if Path(fp).suffix in [".csv", ".CSV"]:
-            return cls.from_csv(fp)
+            return cls.from_csv(fp, *args, **kwargs)
         if Path(fp).suffix in [".ris", ".RIS"]:
-            return cls.from_ris(fp)
+            return cls.from_ris(fp, *args, **kwargs)
         raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
                          f"from file {fp}")
 

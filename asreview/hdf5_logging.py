@@ -98,6 +98,13 @@ class HDF5_Logger(object):
         else:
             self.f["labels"][...] = y
 
+    def set_final_labels(self, y):
+        if "final_labels" not in self.f:
+            self.f.create_dataset(
+                "final_labels", y.shape, dtype=np.int, data=y)
+        else:
+            self.f["final_labels"][...] = y
+
     def add_classification(self, idx, labels, methods, query_i):
         """Add training indices and their labels.
 
@@ -203,6 +210,8 @@ class HDF5_Logger(object):
             array = np.array(g["proba"], dtype=np.float)
         if variable == "labels":
             array = np.array(self.f["labels"], dtype=np.int)
+        if variable == "final_labels":
+            array = np.array(self.f["final_labels"], dtype=np.int)
         if variable == "pool_idx":
             array = np.array(g["pool_idx"], dtype=np.int)
         if variable == "train_idx":
