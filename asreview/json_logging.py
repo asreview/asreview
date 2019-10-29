@@ -7,18 +7,17 @@ import numpy as np
 
 import asreview
 from asreview.settings import ASReviewSettings
+from asreview.simulation.statistics import _get_labeled_order
+from asreview.simulation.statistics import _get_last_proba_order
 
 
-class JSON_Logger(object):
+class Dict_Logger(object):
     """Class for logging the Systematic Review"""
-
-    def __init__(self, log_fp, *_, read_only=False, **__):
-        super(JSON_Logger, self).__init__()
-        self.read_only = read_only
-        self.version = "2.0"
-        self.settings = None
-        self.log_fp = log_fp
-        self.restore(log_fp)
+    def __init__(self, *_, **__):
+        super(Dict_Logger, self).__init__()
+        self.read_only = False
+        self.version = "1.0"
+        self.create_structure()
 
     def __enter__(self):
         return self
@@ -31,9 +30,19 @@ class JSON_Logger(object):
 
     def _print_logs(self):
         self._log_dict["time"]["end_time"] = str(datetime.now())
-        log_str = "Logs of the Systematic Review process:\n"
-        for i, value in self._log_dict.items():
-            log_str += f"Query {i} - Reduction {value}"
+        label_order, _ = _get_labeled_order(self)
+        labels_assigned = self.get("labels")[label_order]
+        labels = list(zip(label_order, labels_assigned))
+
+        log_str = "Labeled during review:\n\n"
+        for label in labels:
+            log_str += f"{label[0]} => {label[1]}\n"
+
+        pool_order = _get_last_proba_order(self)
+        if len(pool_order) > 0:
+            log_str += "\n\n Most likely included according to ASReview:\n\n"
+            for idx in pool_order:
+                log_str += f"{idx}\n"
 
         return log_str
 
@@ -47,6 +56,7 @@ class JSON_Logger(object):
             else:
                 i = len(results)
 
+        print(f"i = {i}: {new_dict}")
         while i >= len(results):
             results.append({})
 
@@ -135,27 +145,6 @@ class JSON_Logger(object):
         train_idx = np.array(train_idx, dtype=np.int)
         return labels, train_idx, query_src, query_i
 
-    def save(self):
-        """Save logs to file.
-
-        Arguments
-        ---------
-        fp: str
-            The file path to export the results to.
-
-        """
-        if self.read_only:
-            raise ValueError("Logging error: trying to save when opened file"
-                             " in read_only mode.")
-        self._log_dict["time"]["end_time"] = str(datetime.now())
-        fp = Path(self.log_fp)
-
-        if fp.is_file:
-            fp.parent.mkdir(parents=True, exist_ok=True)
-
-        with fp.open('w') as outfile:
-            json.dump(self._log_dict, outfile, indent=2)
-
     def get(self, variable, query_i=None, idx=None):
         if query_i is not None:
             res = self._log_dict["results"][query_i]
@@ -181,19 +170,6 @@ class JSON_Logger(object):
             return array[idx]
         return array
 
-    def restore(self, fp):
-        try:
-            with open(fp, "r") as f:
-                self._log_dict = OrderedDict(json.load(f))
-            log_version = self._log_dict["version"]
-            if log_version != self.version:
-                raise ValueError(
-                    f"Log cannot be read: logger version {self.version}, "
-                    f"logfile version {log_version}.")
-            self.settings = ASReviewSettings(**self._log_dict["settings"])
-        except FileNotFoundError:
-            self.create_structure()
-
     def create_structure(self):
         self._log_dict = OrderedDict({
             "time": {"start_time": str(datetime.now())},
@@ -206,3 +182,49 @@ class JSON_Logger(object):
     def close(self):
         if not self.read_only:
             self.save()
+
+    def save(self):
+        print(self)
+
+
+class JSON_Logger(Dict_Logger):
+    def __init__(self, log_fp, *_, read_only=False, **__):
+        self.read_only = read_only
+        self.version = "2.0"
+        self.log_fp = log_fp
+        self.restore(log_fp)
+        self.read_only = read_only
+
+    def save(self):
+        """Save logs to file.
+
+        Arguments
+        ---------
+        fp: str
+            The file path to export the results to.
+
+        """
+        if self.read_only:
+            raise ValueError("Logging error: trying to save when opened file"
+                             " in read_only mode.")
+        self._log_dict["time"]["end_time"] = str(datetime.now())
+        fp = Path(self.log_fp)
+
+        if fp.is_file:
+            fp.parent.mkdir(parents=True, exist_ok=True)
+
+        with fp.open('w') as outfile:
+            json.dump(self._log_dict, outfile, indent=2)
+
+    def restore(self, fp):
+        try:
+            with open(fp, "r") as f:
+                self._log_dict = OrderedDict(json.load(f))
+            log_version = self._log_dict["version"]
+            if log_version != self.version:
+                raise ValueError(
+                    f"Log cannot be read: logger version {self.version}, "
+                    f"logfile version {log_version}.")
+            self.settings = ASReviewSettings(**self._log_dict["settings"])
+        except FileNotFoundError:
+            self.create_structure()

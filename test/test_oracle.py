@@ -1,6 +1,8 @@
 import os
 from shutil import copyfile
 
+import numpy as np
+
 from asreview.logging import Logger
 from asreview.review.factory import get_reviewer
 
@@ -63,7 +65,7 @@ def test_nb(monkeypatch):
 def test_svm(monkeypatch):
     check_model(monkeypatch,
                 model="svm",
-                log_file=json_log_file,
+                log_file=None,
                 use_granular=False,
                 n_instances=1,
                 n_queries=2)
@@ -98,7 +100,8 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
                 continue_from_log=False, mode="oracle", **kwargs):
     if not continue_from_log:
         try:
-            os.unlink(log_file)
+            if log_file is not None:
+                os.unlink(log_file)
         except OSError:
             pass
 
@@ -124,7 +127,19 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
             inclusions = reviewer._get_labels(query_idx)
             reviewer.classify(query_idx, inclusions, logger)
     else:
-        reviewer.review()
+        with Logger.from_file(log_file) as logger:
+            if log_file is None:
+                logger.set_labels(reviewer.y)
+                init_idx, init_labels = reviewer._prior_knowledge()
+                reviewer.query_i = 0
+                reviewer.train_idx = np.array([], dtype=np.int)
+                reviewer.classify(init_idx, init_labels, logger, method="initial")
 
-    with Logger.from_file(log_file, read_only=True) as logger:
-        check_log(logger)
+            reviewer._do_review(logger)
+            if log_file is None:
+                print(logger._log_dict)
+                check_log(logger)
+
+    if log_file is not None:
+        with Logger.from_file(log_file, read_only=True) as logger:
+            check_log(logger)

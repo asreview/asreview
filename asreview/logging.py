@@ -1,12 +1,13 @@
 import os
 
-from asreview.hdf5_logging import HDF5_Logger
-from asreview.json_logging import JSON_Logger
-
 
 def get_logger_class(fp):
+    from asreview.hdf5_logging import HDF5_Logger
+    from asreview.json_logging import JSON_Logger
+    from asreview.json_logging import Dict_Logger
+
     if fp is None:
-        return None
+        return Dict_Logger
 
     log_ext = os.path.splitext(fp)[1]
     if log_ext in ['.h5', '.hdf5', '.he5']:
