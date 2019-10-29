@@ -3,18 +3,14 @@ Created on 9 Apr 2019
 
 @author: qubix
 '''
-
-
+from math import floor
 from typing import Tuple
 
 import numpy as np
-from sklearn.base import BaseEstimator
-
-from modAL.utils.data import modALinput
-from math import floor
-
 from asreview.query_strategies.max_sampling import max_sampling
 from asreview.query_strategies.random_sampling import random_sampling
+from modAL.utils.data import modALinput
+from sklearn.base import BaseEstimator
 
 
 def rand_max_sampling(classifier: BaseEstimator,
@@ -83,24 +79,6 @@ def rand_max_sampling(classifier: BaseEstimator,
                                   query_kwargs=query_kwargs,
                                   **kwargs)
 
-    if "max" not in query_kwargs['src_query_idx']:
-        query_kwargs["src_query_idx"]["max"] = np.array(max_idx, dtype=np.int)
-    else:
-        query_kwargs["src_query_idx"]["max"] = np.append(
-            query_kwargs["src_query_idx"]["max"], max_idx)
-
-    if "random" not in query_kwargs['src_query_idx']:
-        query_kwargs["src_query_idx"]["random"] = np.array(
-            rand_idx, dtype=np.int)
-    else:
-        query_kwargs["src_query_idx"]["random"] = np.append(
-            query_kwargs["src_query_idx"]["random"], rand_idx)
-
-    query_kwargs['rand_max_frac'] = rand_max_frac
-    query_kwargs['last_bounds'] = [
-        ("max", 0, n_instance_max),
-        ("random", n_instance_max, n_instances),
-    ]
     query_idx = np.append(max_idx, rand_idx)
 
     return query_idx, X[query_idx]

@@ -1,12 +1,15 @@
 import os
 from configparser import ConfigParser
 
+from asreview.config import DEFAULT_N_INSTANCES
+
 
 SETTINGS_TYPE_DICT = {
     "data_file": str,
     "model": str,
     "query_strategy": str,
     "balance_strategy": str,
+    "n_papers": int,
     "n_instances": int,
     "n_queries": int,
     "n_prior_included": int,
@@ -25,10 +28,10 @@ class ASReviewSettings(object):
         of its contents.
     """
     def __init__(self, mode, model, query_strategy, balance_strategy,
-                 n_instances, n_queries, n_prior_included=None,
-                 n_prior_excluded=None, data_fp=None, data_name=None,
-                 model_param={}, fit_param={}, query_param={},
-                 balance_param={}, **kwargs
+                 n_instances=DEFAULT_N_INSTANCES, n_queries=None,
+                 n_papers=None, n_prior_included=None, n_prior_excluded=None,
+                 data_fp=None, data_name=None, model_param={}, fit_param={},
+                 query_param={}, balance_param={}, **kwargs
                  ):
         all_args = locals().copy()
         del all_args["self"]
@@ -61,7 +64,7 @@ class ASReviewSettings(object):
         if config_file is None or not os.path.isfile(config_file):
             if config_file is not None:
                 print(f"Didn't find configuration file: {config_file}")
-            return {}
+            return
 
         config = ConfigParser()
         config.read(config_file)
@@ -76,9 +79,18 @@ class ASReviewSettings(object):
                         print(f"Warning: value with key '{key}' is ignored "
                               "(spelling mistake, wrong type?).")
 
-            elif (sect == "model_param" or sect == "fit_param" or
-                  sect == "query_param" or sect == "balance_param"):
+            elif sect in ["model_param", "fit_param", "query_param",
+                          "balance_param"]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "
                        f"config file {config_file}")
+
+    def __str__(self):
+        info_str = "----------------------------\n"
+        for attrib in SETTINGS_TYPE_DICT:
+            value = getattr(self, attrib, None)
+            if value is not None:
+                info_str += attrib + ": " + str(value) + "\n"
+        info_str += "----------------------------\n"
+        return info_str

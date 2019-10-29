@@ -1,18 +1,12 @@
+import copy
 import json
+from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
-import copy
-
-
-import numpy as np
 
 import asreview
+import numpy as np
 from asreview.settings import ASReviewSettings
-from collections import OrderedDict
-
-
-def query_key(query_i):
-    return str(query_i)
 
 
 def read_log(log_fp):
@@ -61,7 +55,6 @@ def read_logs_from_dir(log_dir, prefix=None):
     log_fp_path = Path(log_dir)
 
     if log_fp_path.is_dir():
-
         log_list = []
 
         for x in log_fp_path.iterdir():
@@ -69,14 +62,12 @@ def read_logs_from_dir(log_dir, prefix=None):
             try:
                 if prefix and not x.name.startswith(prefix):
                     continue
-                else:
-                    log_list.append(read_log(x))
+                log_list.append(read_log(x))
             except ValueError:
                 pass
 
         return log_list
-    else:
-        raise ValueError("log_dir is not a valid directory.")
+    raise ValueError("log_dir is not a valid directory.")
 
 
 class Logger(object):
@@ -84,6 +75,7 @@ class Logger(object):
 
     def __init__(self, log_fp=None):
         super(Logger, self).__init__()
+        self.settings = None
         if log_fp is not None:
             self.restore(log_fp)
         else:
@@ -91,7 +83,8 @@ class Logger(object):
             self._log_dict = OrderedDict({
                 "time": {"start_time": str(datetime.now())},
                 "version": 1,
-                "software_version": asreview.__version__
+                "software_version": asreview.__version__,
+                "results": [],
             })
 
     def __str__(self):
@@ -99,29 +92,30 @@ class Logger(object):
 
     def _print_logs(self):
         self._log_dict["time"]["end_time"] = str(datetime.now())
-        s = "Logs of the Systematic Review process:\n"
+        log_str = "Logs of the Systematic Review process:\n"
         for i, value in self._log_dict.items():
-            s += f"Query {i} - Reduction {value}"
+            log_str += f"Query {i} - Reduction {value}"
 
-        return s
+        return log_str
 
-    def _add_log(self, new_dict, i):
+    def _add_to_log(self, new_dict, i, append_result=False):
         # Find the first number that is not logged yet.
+        results = self._log_dict["results"]
         if i is None:
-            i = 0
-            qk = query_key(i)
-            while qk in self._log_dict:
-                # If the keys of the new dictionary don't exist, this is it.
-                if set(new_dict.keys()).isdisjoint(self._log_dict[qk].keys()):
-                    break
-                i += 1
-                qk = query_key(i)
+            if (len(results) > 0
+                    and set(new_dict.keys()).isdisjoint(results[-1])):
+                i = len(results)-1
+            else:
+                i = len(results)
 
-        qk = query_key(i)
-        if qk not in self._log_dict:
-            self._log_dict[qk] = {}
+        while i >= len(results):
+            results.append({})
 
-        self._log_dict[qk].update(new_dict)
+        for key in new_dict:
+            if key in results[i] and append_result:
+                results[i][key].extend(new_dict[key])
+            else:
+                results[i][key] = new_dict[key]
 
     def add_settings(self, settings):
         self.settings = copy.deepcopy(settings)
@@ -129,17 +123,7 @@ class Logger(object):
     def add_labels(self, y):
         self._log_dict["labels"] = y.tolist()
 
-    def add_query_info(self, query_kwargs, i=None):
-        if 'last_bounds' not in query_kwargs:
-            print("Error: lastbounds not found/.")
-            return
-        new_dict = {
-            'label_methods':
-                query_kwargs['last_bounds']
-        }
-        self._add_log(new_dict, i)
-
-    def add_training_log(self, indices, labels, i=None):
+    def add_classification(self, indices, labels, methods, i=None):
         """Add training indices and their labels.
 
         Arguments
@@ -157,8 +141,22 @@ class Logger(object):
             indices = indices.tolist()
         if isinstance(labels, np.ndarray):
             labels = labels.tolist()
+
+        results = self._log_dict["results"]
+        while i >= len(results):
+            results.append({})
+
+        label_methods = results[i].get("label_methods", [])
+        for method in methods:
+            if len(label_methods) and label_methods[-1][0] == method[1]:
+                label_methods[-1][1] += 1
+            else:
+                label_methods.append([method[1], 1])
+
+        new_dict = {'label_methods': label_methods}
+        self._add_to_log(new_dict, i, append_result=False)
         new_dict = {'labelled': list(zip(indices, labels))}
-        self._add_log(new_dict, i)
+        self._add_to_log(new_dict, i, append_result=True)
 
     def add_pool_predict(self, indices, pred, i=None):
         """Add inverse pool indices and their labels.
@@ -179,7 +177,7 @@ class Logger(object):
         if isinstance(pred, np.ndarray):
             pred = pred.tolist()
         new_dict = {'predictions': list(zip(indices, pred))}
-        self._add_log(new_dict, i)
+        self._add_to_log(new_dict, i, append_result=False)
 
     def add_proba(self, indices, pred_proba, logname="pool_proba", i=None):
         """Add inverse pool indices and their labels.
@@ -200,7 +198,7 @@ class Logger(object):
         if isinstance(pred_proba, np.ndarray):
             pred_proba = pred_proba.tolist()
         new_dict = {logname: list(zip(indices, pred_proba))}
-        self._add_log(new_dict, i)
+        self._add_to_log(new_dict, i)
 
     def save(self, fp):
         """Save logs to file.
@@ -212,8 +210,9 @@ class Logger(object):
 
         """
         self._log_dict["settings"] = copy.deepcopy(vars(self.settings))
-        self._log_dict["settings"]["query_kwargs"].pop("src_query_idx", None)
         self._log_dict["settings"]["query_kwargs"].pop("pred_proba", None)
+        self._log_dict["settings"]["query_kwargs"].pop("query_src", None)
+        self._log_dict["settings"]["query_kwargs"].pop("current_queries", None)
         self._log_dict.move_to_end("settings", last=False)
         self._log_dict["time"]["end_time"] = str(datetime.now())
         fp = Path(fp)
@@ -229,34 +228,3 @@ class Logger(object):
         with open(fp, "r") as f:
             self._log_dict = OrderedDict(json.load(f))
         self.settings = ASReviewSettings(**self._log_dict.pop("settings"))
-
-    def get_src_query_idx(self):
-        # Reinstate the random/max sampling information.
-        i = 0
-        qk = query_key(i)
-        src_query_idx = {"random": []}
-#         rand_idx = []
-#         max_idx = []
-        while qk in self._log_dict:
-            if "labelled" not in self._log_dict[qk]:
-                i += 1
-                qk = query_key(i)
-                continue
-            if "label_methods" not in self._log_dict[qk]:
-                src_query_idx["random"].extend(self._log_dict[qk]["labelled"])
-            else:
-                for bound in self._log_dict[qk]["label_methods"]:
-                    query_type = bound[0]
-                    start = bound[1]
-                    end = bound[2]
-                    idx = self._log_dict[qk]["labelled"][start:end]
-                    if query_type not in src_query_idx:
-                        src_query_idx[query_type] = []
-                    src_query_idx[query_type].extend(idx)
-            i += 1
-            qk = query_key(i)
-        for query_type in src_query_idx:
-            src_query_idx[query_type] = np.array(
-                [x[0] for x in src_query_idx[query_type]], dtype=int)
-        return src_query_idx
-

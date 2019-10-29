@@ -147,15 +147,15 @@ def test_load_embedding(tmpdir):
     write_random_embedding(full_embedding, tmpfile)
 
     # Test with one worker process, no sampling.
-    emb1 = load_embedding(tmpfile, word_index=None, n_jobs=1, verbose=1)
+    emb1 = load_embedding(tmpfile, word_index=None, n_jobs=1)
     check_embedding(emb1, full_embedding, n_words, emb_vec_dim)
 
     # Test with all cores, sampling.
-    emb2 = load_embedding(tmpfile, word_index, n_jobs=-1, verbose=1)
+    emb2 = load_embedding(tmpfile, word_index, n_jobs=-1)
     check_embedding(emb2, full_embedding, n_samples, emb_vec_dim)
 
     # Test with 3+1 cores, sampling.
-    emb3 = load_embedding(tmpfile, word_index, n_jobs=3, verbose=1)
+    emb3 = load_embedding(tmpfile, word_index, n_jobs=3)
     check_embedding(emb3, full_embedding, n_samples, emb_vec_dim)
 
 
@@ -171,8 +171,7 @@ def test_sample_embedding():
     all_words = random_words(emb_extra, words) + words
     word_index = random_sample_embedding(all_words, n_samples)
     full_embedding = random_embedding(words, emb_vec_dim)
-    emb_matrix = sample_embedding(full_embedding, word_index,
-                                  verbose=1)
+    emb_matrix = sample_embedding(full_embedding, word_index)
 
     assert emb_matrix.shape == (n_samples+1, emb_vec_dim)
     for key in word_index:

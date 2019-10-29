@@ -1,9 +1,10 @@
+import logging
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 
 
-def create_nb_model(verbose=1):
+def create_nb_model():
     """Return callable NaiveBayes model.
 
     Arguments
@@ -18,14 +19,12 @@ def create_nb_model(verbose=1):
     """
 
     model = MultinomialNB()
-
-    if verbose:
-        print(model)
+    logging.debug(model)
 
     return model
 
 
-def create_svc_model(verbose=1):
+def create_svc_model(*args, gamma="scale", **kwargs):
     """Return callable SVM model.
 
     Arguments
@@ -38,10 +37,7 @@ def create_svc_model(verbose=1):
         called.
 
     """
-
-    model = SVC(probability=True)
-
-    if verbose:
-        print(model)
+    model = SVC(*args, gamma=gamma, probability=True, **kwargs)
+    logging.debug(model)
 
     return model

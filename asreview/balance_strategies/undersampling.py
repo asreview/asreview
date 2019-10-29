@@ -1,7 +1,6 @@
 from math import ceil
 
 import numpy as np
-
 from asreview.balance_strategies.base import BaseTrainData
 
 
@@ -41,7 +40,7 @@ def undersample(X, y, train_idx, ratio=1.0, shuffle=True):
         n_zero_epoch = ceil(n_one/ratio)
         zero_under = np.random.choice(np.arange(n_zero), n_zero_epoch,
                                       replace=False)
-        shuf_ind = np.append(one_ind, zero_under)
+        shuf_ind = np.append(one_ind, zero_ind[zero_under])
 
     if shuffle:
         np.random.shuffle(shuf_ind)

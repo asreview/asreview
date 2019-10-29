@@ -1,7 +1,6 @@
 '''
 Max sampling while saving prediction probabilities.
 '''
-
 # Code based on https://github.com/modAL-python/
 # modAL/blob/dev/modAL/uncertainty.py
 #
@@ -10,15 +9,14 @@ Max sampling while saving prediction probabilities.
 # content/apireference/uncertainty.html
 #
 # MIT license - Copyright (c) 2019 Tivadar Danka
-
 from typing import Tuple
 
 import numpy as np
-from sklearn.exceptions import NotFittedError
-from sklearn.base import BaseEstimator
-
 from modAL.utils.data import modALinput
-from modAL.utils.selection import multi_argmax, shuffled_argmax
+from modAL.utils.selection import multi_argmax
+from modAL.utils.selection import shuffled_argmax
+from sklearn.base import BaseEstimator
+from sklearn.exceptions import NotFittedError
 
 
 def max_sampling(classifier: BaseEstimator,
@@ -73,5 +71,8 @@ def max_sampling(classifier: BaseEstimator,
         query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)
     else:
         query_idx = shuffled_argmax(proba[:, 1], n_instances=n_instances)
+
+    for idx in query_idx:
+        query_kwargs['current_queries'][pool_idx[idx]] = "max"
 
     return pool_idx[query_idx], X[pool_idx[query_idx]]

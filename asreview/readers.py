@@ -1,11 +1,10 @@
-# Cpython dependencies
-
+import logging
 from pathlib import Path
 
-# external dependencies
-from RISparser import TAG_KEY_MAPPING, readris
-import pandas as pd
 import numpy as np
+import pandas as pd
+from RISparser import readris
+from RISparser import TAG_KEY_MAPPING
 
 from asreview.config import NOT_AVAILABLE
 
@@ -18,6 +17,12 @@ LABEL_INCLUDED_VALUES = [
     "included",
     "included_flag"
 ]
+
+# Add label_included into the specification and create reverse mapping.
+TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
+KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
+for label in LABEL_INCLUDED_VALUES:
+    KEY_TAG_MAPPING[label] = "LI"
 
 
 class ASReviewData(object):
@@ -54,28 +59,18 @@ class ASReviewData(object):
         data_kwargs = {"raw_df": raw_df}
 
         if len(column_labels) > 0:
-            data_kwargs['labels'] = raw_df[column_labels[0]].values
+            data_kwargs['labels'] = np.array(raw_df[column_labels[0]].fillna(
+                NOT_AVAILABLE).values, dtype=np.int)
             data_kwargs['label_col'] = column_labels[0]
 
-        try:
-            data_kwargs['title'] = raw_df['title'].fillna('').values
-        except KeyError:
-            pass
+        def fill_column(dst_dict, key):
+            try:
+                dst_dict[key] = raw_df[key.lower()].fillna('').values
+            except KeyError:
+                pass
 
-        try:
-            data_kwargs['abstract'] = raw_df['abstract'].fillna('').values
-        except KeyError:
-            pass
-
-        try:
-            data_kwargs['keywords'] = raw_df['keywords'].fillna('').values
-        except KeyError:
-            pass
-
-        try:
-            data_kwargs['authors'] = raw_df['authors'].fillna('').values
-        except KeyError:
-            pass
+        for key in ['title', 'abstract', 'keywords', 'authors']:
+            fill_column(data_kwargs, key)
 
         return cls(**data_kwargs)
 
@@ -89,46 +84,42 @@ class ASReviewData(object):
 
     @classmethod
     def from_file(cls, fp):
+        "Create instance from csv/ris file."
         if Path(fp).suffix in [".csv", ".CSV"]:
             return cls.from_csv(fp)
-        elif Path(fp).suffix in [".ris", ".RIS"]:
+        if Path(fp).suffix in [".ris", ".RIS"]:
             return cls.from_ris(fp)
-        else:
-            raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                             f"from file {fp}")
+        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                         f"from file {fp}")
 
     def format_record(self, i, use_cli_colors=True):
         " Format one record for displaying in the CLI. "
-        if self.title is not None:
+        if self.title is not None and len(self.title[0]) > 0:
             title = self.title[i]
+            if use_cli_colors:
+                title = "\033[95m" + title + "\033[0m"
+            title += "\n"
         else:
             title = ""
 
-        if use_cli_colors:
-            title = "\033[95m" + title + "\033[0m"
-
-        if self.authors is not None:
-            authors = self.authors[i]
+        if self.authors is not None and len(self.authors[i]) > 0:
+            authors = self.authors[i] + "\n"
         else:
             authors = ""
 
-        if self.abstract is not None:
+        if self.abstract is not None and len(self.abstract[i]) > 0:
             abstract = self.abstract[i]
+            abstract = "\n" + abstract + "\n"
         else:
             abstract = ""
 
-        return f"\n{title}\n{authors}\n\n{abstract}\n"
+        return ("\n\n----------------------------------"
+                f"\n{title}{authors}{abstract}"
+                "----------------------------------\n\n")
 
     def print_record(self, *args, **kwargs):
+        "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
-
-    def _classify_paper(self, index):
-        # CLI paper format
-        _gui_paper = self._format_paper(
-            title=self.data.iloc[index]["title"],
-            abstract=self.data.iloc[index]["abstract"],
-            authors=self.data.iloc[index]["authors"])
-        print(_gui_paper)
 
     def get_data(self):
         "Equivalent of 'read_data'; get texts, labels from data object."
@@ -137,10 +128,87 @@ class ASReviewData(object):
             texts.append(self.title[i] + " " + self.abstract[i])
         return self.raw_df, np.array(texts), self.labels
 
-    def to_csv(self, csv_fp, labels=None):
+    def to_file(self, fp, labels=None, df_order=None):
+        """
+        Export data object to file.
+        Both RIS and CSV are supported file formats at the moment.
+
+        Arguments
+        ---------
+        fp: str
+            Filepath to export to.
+        labels: list, np.array
+            Labels to be inserted into the dataframe before export.
+        df_order: list, np.array
+            Optionally, dataframe rows can be reordered.
+        """
+        if Path(fp).suffix in [".csv", ".CSV"]:
+            self.to_csv(fp, labels=labels, df_order=df_order)
+        elif Path(fp).suffix in [".ris", ".RIS"]:
+            self.to_ris(fp, labels=labels, df_order=df_order)
+        else:
+            raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                             f"from file {fp}")
+
+    def to_csv(self, csv_fp, labels=None, df_order=None):
+        new_df = self.raw_df.copy()
         if labels is not None:
-            self.raw_df[self.label_col] = labels
-        self.raw_df.to_csv(csv_fp)
+            new_df[self.label_col] = labels
+
+        if df_order is not None:
+            new_df = self.raw_df.reindex(df_order)
+        new_df.to_csv(csv_fp)
+
+    def to_ris(self, ris_fp, labels=None, df_order=None):
+        new_df = self.raw_df.copy()
+        if labels is not None:
+            new_df[self.label_col] = labels
+
+        if df_order is not None:
+            new_df = self.raw_df.reindex(df_order)
+        write_ris(new_df, ris_fp)
+
+
+def write_ris(df, ris_fp):
+    """Write dataframe to RIS file.
+
+    Arguments
+    ---------
+    df: pandas.Dataframe
+        Dataframe to export.
+    ris_fp: str
+        RIS file to export to.
+    """
+    column_names = list(df)
+    column_key = []
+    for col in column_names:
+        try:
+            column_key.append(KEY_TAG_MAPPING[col])
+        except KeyError:
+            column_key.append('UK')
+            logging.info(f"Cannot find column {col} in specification.")
+
+    n_row = df.shape[0]
+
+    # According to RIS specifications, a record should begin with TY.
+    # Thus, the column id is inserted before all the other.
+    col_order = []
+    for i, key in enumerate(column_key):
+        if key == 'TY':
+            col_order.insert(0, i)
+        else:
+            col_order.append(i)
+
+    with open(ris_fp, "w") as fp:
+        for i_row in range(n_row):
+            for i_col in col_order:
+                value = df.iloc[i_row, i_col]
+                if isinstance(value, list):
+                    for val in value:
+                        fp.write(f"{column_key[i_col]}  - {val}\n")
+                else:
+                    fp.write(f"{column_key[i_col]}  - {value}\n")
+            fp.write("ER  - \n\n")
 
 
 def read_data(fp):
@@ -189,7 +257,7 @@ def read_data(fp):
     return df, texts.values, labels.values
 
 
-def read_csv(fp, labels=None):
+def read_csv(fp):
     """CVS file reader.
 
     Parameters
@@ -212,7 +280,7 @@ def read_csv(fp, labels=None):
     return df.to_dict('records')
 
 
-def read_ris(fp, labels=None):
+def read_ris(fp):
     """RIS file reader.
 
     Parameters
@@ -229,13 +297,7 @@ def read_ris(fp, labels=None):
 
     """
 
-    # build a map of the tags
-    mapping = TAG_KEY_MAPPING
-
-    if labels:
-        mapping[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
-
     with open(fp, 'r') as bibliography_file:
-        entries = list(readris(bibliography_file, mapping=mapping))
+        entries = list(readris(bibliography_file, mapping=TAG_KEY_MAPPING))
 
     return entries

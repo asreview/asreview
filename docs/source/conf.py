@@ -45,8 +45,8 @@ autodoc_mock_imports = [
 # -- Project information -----------------------------------------------------
 
 project = 'ASReview'
-copyright = '2019, Methodology and Statistics, Utrecht University'
-author = 'Methodology and Statistics, Utrecht University'
+copyright = '2019, ASReview Core Development Team'
+author = 'ASReview Core Development Team, Utrecht University'
 
 # The short X.Y version
 version = ''

@@ -1,9 +1,11 @@
 import logging
-from math import ceil, exp, log
+from math import ceil
+from math import exp
+from math import log
 
 import numpy as np
-
 from asreview.balance_strategies.base import BaseTrainData
+from asreview.balance_strategies.full_sampling import full_sample
 
 
 class TripleBalanceTD(BaseTrainData):
@@ -103,7 +105,8 @@ def _n_mini_epoch(n_samples, epoch_size):
     return ceil(n_samples/epoch_size)
 
 
-def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
+def triple_balance(X, y, train_idx, fit_kwargs={},
+                   query_kwargs={"query_src": {}},
                    pref_epochs=1, shuffle=True, **dist_kwargs):
     """
     A more advanced function that does resample the training set.
@@ -112,18 +115,34 @@ def triple_balance(X, y, train_idx, fit_kwargs={}, query_kwargs={},
     """
     # We want to know which training indices are from rand/max sampling.
     # If we have no information, assume everything is random.
-    max_idx = query_kwargs["src_query_idx"].get("max", np.array([], dtype=int))
-    rand_idx = query_kwargs["src_query_idx"].get("random", train_idx)
+
+    max_idx = np.array(query_kwargs["query_src"].get("max", []), dtype=np.int)
+    rand_idx = np.array([], dtype=np.int)
+    for qtype in query_kwargs["query_src"]:
+        if qtype != "max":
+            rand_idx = np.append(rand_idx, query_kwargs["query_src"][qtype])
 
     # Write them back for next round.
     if shuffle:
         np.random.shuffle(rand_idx)
         np.random.shuffle(max_idx)
 
+    if len(rand_idx) == 0 or len(max_idx) == 0:
+        logging.debug("Warning: trying to use triple balance, but unable to"
+                      f", because we have {len(max_idx)} max samples and "
+                      f"{len(rand_idx)} random samples.")
+        return full_sample(X, y, train_idx)
+
     # Split the idx into three groups: 1's, random 0's, max 0's.
     one_idx = train_idx[np.where(y[train_idx] == 1)]
     zero_max_idx = max_idx[np.where(y[max_idx] == 0)]
     zero_rand_idx = rand_idx[np.where(y[rand_idx] == 0)]
+
+    if len(zero_rand_idx) == 0 or len(zero_max_idx) == 0:
+        logging.debug("Warning: trying to use triple balance, but unable to"
+                      f", because we have {len(zero_max_idx)} zero max samples"
+                      f" and {len(zero_rand_idx)} random samples.")
+        return full_sample(X, y, train_idx)
 
     n_one = len(one_idx)
     n_zero_rand = len(zero_rand_idx)

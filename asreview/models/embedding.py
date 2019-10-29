@@ -1,12 +1,13 @@
-import logging
 import gzip
 import io
-from multiprocessing import Process, Queue, cpu_count
+import logging
+from multiprocessing import cpu_count
+from multiprocessing import Process
+from multiprocessing import Queue
 from pathlib import Path
 from urllib.request import urlopen
 
 import numpy as np
-
 from asreview.utils import get_data_home
 
 
@@ -68,8 +69,8 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
         Dictionary of the sample embedding.
     """
 
-    badInput = False
-    badValues = {}
+    bad_input = False
+    bad_values = {}
     while True:
         embedding = {}
         buffer = input_queue.get()
@@ -81,19 +82,19 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
             values = line.split(' ')
 
             if len(values) != emb_vec_dim + 1:
-                if not badInput:
+                if not bad_input:
                     print("Error: bad input in embedding vector.")
-                badInput = True
-                badValues = values
+                bad_input = True
+                bad_values = values
                 break
-            else:
-                word = values[0]
-                if word_index is not None and word not in word_index:
-                    continue
-                coefs = values[1:emb_vec_dim + 1]
 
-                # store the results
-                embedding[word] = np.asarray(coefs, dtype=np.float32)
+            word = values[0]
+            if word_index is not None and word not in word_index:
+                continue
+            coefs = values[1:emb_vec_dim + 1]
+
+            # store the results
+            embedding[word] = np.asarray(coefs, dtype=np.float32)
         output_queue.put(embedding)
 
     # We removed the "DONE" from the input queue, so put it back in for
@@ -101,8 +102,8 @@ def _embedding_worker(input_queue, output_queue, emb_vec_dim, word_index=None):
     input_queue.put("DONE")
 
     # Store the results in the output queue
-    if badInput:
-        output_queue.put({"ErrorBadInputValues": badValues})
+    if bad_input:
+        output_queue.put({"ErrorBadInputValues": bad_values})
     output_queue.put("DONE")
 
 
@@ -173,7 +174,7 @@ def download_embedding(url=EMBEDDING_EN['url'], name=EMBEDDING_EN['name'],
             out_file.write(line)
 
 
-def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
+def load_embedding(fp, word_index=None, n_jobs=None):
     """Load embedding matrix from file.
 
     The embedding matrix needs to be stored in the
@@ -213,10 +214,9 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
     with open(fp, 'r', encoding='utf-8', newline='\n') as f:
         n_words, emb_vec_dim = list(map(int, f.readline().split(' ')))
 
-    if verbose == 1:
-        logging.info(
-            f"Reading {n_words} vectors with {emb_vec_dim} dimensions."
-        )
+    logging.debug(
+        f"Reading {n_words} vectors with {emb_vec_dim} dimensions."
+    )
 
     worker_procs = []
     p = Process(target=_embedding_reader, args=(fp, input_queue),
@@ -241,16 +241,15 @@ def load_embedding(fp, word_index=None, n_jobs=None, verbose=1):
         proc.join()
 
     if "ErrorBadInputValues" in embedding:
-        badValues = embedding["ErrorBadInputValues"]
-        raise ValueError(f"Check embedding matrix, bad format: {badValues}")
+        bad_values = embedding["ErrorBadInputValues"]
+        raise ValueError(f"Check embedding matrix, bad format: {bad_values}")
 
-    if verbose == 1:
-        logging.info(f"Found {len(embedding)} word vectors.")
+    logging.debug(f"Found {len(embedding)} word vectors.")
 
     return embedding
 
 
-def sample_embedding(embedding, word_index, verbose=1):
+def sample_embedding(embedding, word_index):
     """Sample embedding matrix
 
     Parameters
@@ -271,9 +270,8 @@ def sample_embedding(embedding, word_index, verbose=1):
 
     n_words, emb_vec_dim = len(word_index), len(next(iter(embedding.values())))
 
-    if verbose == 1:
-        print(f"Creating matrix with {n_words} vectors "
-              f"with dimension {emb_vec_dim}.")
+    logging.debug(f"Creating matrix with {n_words} vectors "
+                  f"with dimension {emb_vec_dim}.")
 
     # n+1 because 0 is preserved in the tokenizing process.
     embedding_matrix = np.zeros((n_words + 1, emb_vec_dim))
@@ -282,7 +280,6 @@ def sample_embedding(embedding, word_index, verbose=1):
         coefs = embedding.get(word)
         if coefs is not None:
             embedding_matrix[i] = coefs
-    if verbose == 1:
-        print('Shape of embedding matrix: ', embedding_matrix.shape)
+    logging.debug(f'Shape of embedding matrix: {embedding_matrix.shape}')
 
     return embedding_matrix

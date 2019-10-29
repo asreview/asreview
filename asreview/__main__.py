@@ -1,22 +1,30 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 """Command Line Interface (CLI) for ASReview project."""
-
 import argparse
+import logging
 import sys
 import warnings
 from argparse import RawTextHelpFormatter
 
-import numpy as np
+from asreview.ascii import welcome_message
+
+warnings.filterwarnings("ignore")
+
+import numpy as np  # noqa
+import tensorflow as tf # noqa
+try:
+    tf.logging.set_verbosity(tf.logging.ERROR)
+except AttributeError:
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from asreview import __version__  # noqa
 from asreview.review import review_oracle, review_simulate  # noqa
 from asreview.config import AVAILABLE_CLI_MODI  # noqa
-from asreview.config import DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY,\
-                            DEFAULT_BALANCE_STRATEGY, DEFAULT_N_INSTANCES,\
-                            DEFAULT_N_PRIOR_INCLUDED,\
-                            DEFAULT_N_PRIOR_EXCLUDED
+from asreview.config import (  # noqa
+    DEFAULT_MODEL, DEFAULT_QUERY_STRATEGY, DEFAULT_BALANCE_STRATEGY,
+    DEFAULT_N_INSTANCES, DEFAULT_N_PRIOR_INCLUDED, DEFAULT_N_PRIOR_EXCLUDED)
+
 
 # Descriptions
 
@@ -86,13 +94,13 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         type=str,
         default=DEFAULT_MODEL,
         help=f"The prediction model for Active Learning. "
-             f"Default '{DEFAULT_MODEL}'.")
+             f"Default '{DEFAULT_MODEL}'.")  #noqa
     parser.add_argument(
         "-q", "--query_strategy",
         type=str,
         default=DEFAULT_QUERY_STRATEGY,
         help=f"The query strategy for Active Learning. "
-             f"Default '{DEFAULT_QUERY_STRATEGY}'.")
+             f"Default '{DEFAULT_QUERY_STRATEGY}'.")  #noqa
     parser.add_argument(
         "-b", "--balance_strategy",
         type=str,
@@ -110,8 +118,16 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         "--n_queries",
         type=int,
         default=None,
-        help="The number of queries. By default, the program"
+        help="The number of queries. By default, the program "
              "stops after all documents are reviewed or is "
+             "interrupted by the user."
+    )
+    parser.add_argument(
+        "-n", "--n_papers",
+        type=int,
+        default=None,
+        help="The number of papers to be reviewed. By default, "
+             "the program stops after all documents are reviewed or is "
              "interrupted by the user."
     )
     parser.add_argument(
@@ -189,34 +205,33 @@ def _parse_arguments(mode, prog=sys.argv[0]):
     )
     parser.add_argument(
         "--verbose", "-v",
-        default=1,
+        default=0,
         type=int,
         help="Verbosity")
 
     return parser
 
 
-def _review_oracle():
-
-    parser = _parse_arguments("oracle", prog="asreview oracle")
+def _review_general(mode="oracle"):
+    parser = _parse_arguments(mode, prog="asreview " + mode)
     args = parser.parse_args(sys.argv[2:])
 
     args_dict = vars(args)
     path = args_dict.pop("dataset")
 
-    review_oracle(path, **args_dict)
+    verbose = args_dict.get("verbose", 0)
+    if verbose == 0:
+        logging.getLogger().setLevel(logging.WARNING)
+    elif verbose == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif verbose >= 2:
+        logging.getLogger().setLevel(logging.DEBUG)
 
-
-def _review_simulate():
-    """CLI to the oracle mode."""
-
-    parser = _parse_arguments("simulate", prog="asreview simulate")
-    args = parser.parse_args(sys.argv[2:])
-
-    args_dict = vars(args)
-    path = args_dict.pop("dataset")
-
-    review_simulate(path, **args_dict)
+    print(welcome_message(mode))
+    if mode == "oracle":
+        review_oracle(path, **args_dict)
+    elif mode == "simulate":
+        review_simulate(path, **args_dict)
 
 
 def main_depr():
@@ -228,12 +243,8 @@ def main_depr():
 
 def main():
     # launch asr interactively
-    if len(sys.argv) > 1 and sys.argv[1] == "oracle":
-        _review_oracle()
-
-    # launch asr with oracle
-    elif len(sys.argv) > 1 and sys.argv[1] == "simulate":
-        _review_simulate()
+    if len(sys.argv) > 1 and sys.argv[1] in ["oracle", "simulate"]:
+        _review_general(sys.argv[1])
 
     # no valid sub command
     else:
@@ -256,15 +267,14 @@ def main():
             action='store_true',
             help="print the ASR version number and exit")
 
-        args = parser.parse_args()
+        args, _ = parser.parse_known_args()
 
         # output the version
         if args.version:
             print(__version__)
             return
 
-        if args.subcommand is None:
-            print("Use 'asr -h' to view help.")
+        parser.print_help()
 
 
 # execute main function

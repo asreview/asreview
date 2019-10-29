@@ -1,6 +1,6 @@
 # Automated Systematic Review
 
-[![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345593.svg)](https://doi.org/10.5281/zenodo.3345593)
+[![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
 
 
 
@@ -26,7 +26,7 @@ simulation mode.
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
-The full documentation is available at [https://asreview.readthedocs.io](https://asreview.readthedocs.io)
+Our tutorial ["10 Minutes into ASReview"](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) is an introduction into ASReview for new users. The full documentation is available at [https://asreview.readthedocs.io](https://asreview.readthedocs.io)
 
 This Automatic Systematic Review software is being developed as part of a
 research project. This research project consists of multiple repositories. The
@@ -34,12 +34,9 @@ following respositories are (or will become) publicly available:
 
 - [automated-systematic-review-datasets](https://github.com/msdslab/automated-systematic-review-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
 - [automated-systematic-review-simulations](https://github.com/msdslab/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
-- [automated-systematic-review-benchmarks](https://github.com/msdslab/automated-systematic-review-benchmarks) A repository that is used to compare and benchmark software on systematic reviews.
+
 
 ## Table of Contents
-
-Table of Contents
-=================
 
 * [Automated Systematic Review](#automated-systematic-review)
 * [Table of Contents](#table-of-contents)
@@ -88,8 +85,7 @@ the Command Line Interface (CLI).
 Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
 ``` sh
-asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
-  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
+asreview oracle YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 --log_file results.log
 ```
 
 Example output:
@@ -126,8 +122,8 @@ in the final review. The command for the simulation modus is similar to the orac
 mode:
 
 ``` sh
-asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \ 
-  --prior_included 31 90 892 3898 3989 4390 --log_file results.log
+asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
+  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
 ```
 
 ## Tech
@@ -202,23 +198,34 @@ BibTeX:
 
 ## Contact and contributors
 
-This project is part of the research work conducted by the Department of
-Methodology & Statistics, Faculty of Social and Behavioral Sciences, Utrecht
-University, The Netherlands.
+This project is part of the research work conducted by the [Department of
+Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
+University, The Netherlands in collaboration with [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science), 
+[Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its), and [Utrecht University Library](https://www.uu.nl/en/university-library).
 
-For any questions or remarks, please contact Prof. Dr. Rens van de Schoot
-(a.g.j.vandeschoot@uu.nl).
+For any questions or remarks, please send an email to asreview@uu.nl.
 
-Researchers:
+**Coordination**
+- [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
+- [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob))
 
-- Rens van de Schoot (a.g.j.vandeschoot@uu.nl, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
-- Daniel Oberski (d.l.oberski@uu.nl, [@daob](https://github.com/daob))
+**Engineers** 
+- [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165))
+- [Parisa Zahedi](https://www.linkedin.com/in/parisa-zahedi-28b17148/) ([@parisa-zahedi](https://github.com/parisa-zahedi))
+- Raoul Schram ([@qubixes](https://github.com/qubixes))
+- [Kees van Eijden](https://www.uu.nl/staff/CJvanEijden) ([@KvEijden](https://github.com/KvEijden))
 
-Engineers and students:
+**Librarians**
+- [Jan de Boer](https://www.uu.nl/staff/JdeBoer) 
+- [Edu Hackenitz](https://www.uu.nl/staff/EJMHackenitz)
+- [Felix Weijdema](https://www.uu.nl/staff/FPWeijdema)
+- [Bianca Kramer](https://www.uu.nl/staff/BMRKramer) 
 
-- Parisa Zahedi (p.zahedi@uu.nl, [@parisa-zahedi](https://github.com/parisa-zahedi))
-- Jonathan de Bruin (j.debruin1@uu.nl, [@J535D165](https://github.com/J535D165))
-- Raoul Schram (r.d.schram@uu.nl, [@qubixes](https://github.com/qubixes))
-- Kees van Eijden (k.vaneijden@uu.nl, [@KvEijden](https://github.com/KvEijden))
-- Qixiang Fang ([@fqixiang](https://github.com/fqixiang))
-- Albert Harkema (a.d.harkema@uu.nl, [@sasafrass](https://github.com/sasafrass))
+**Affiliated Researchers**
+- [Pim Huijnen](https://www.uu.nl/staff/PHuijnen) (Digital Cultural History at the Department of History and Art History)
+- [Lars Tummers](https://www.uu.nl/staff/LGTummers) (Public Management and Behavior at Utrecht University, School of Governance)
+
+**Students**
+- [Gerbrich Ferdinands](https://www.linkedin.com/in/gerbrich-ferdinands-a21838b8) ([@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
+- [Qixiang Fang](https://www.uu.nl/staff/QFang) ([@fqixiang](https://github.com/fqixiang))
+- Albert Harkema ([@sasafrass](https://github.com/sasafrass))
