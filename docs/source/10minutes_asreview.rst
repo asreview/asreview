@@ -3,7 +3,7 @@
 
 This tutorial will guide you in running the ASReview software. It
 consists of two parts, 0) `the installation of the ASReview
-software <#installing-the-asreview-software>`__ and 1) `a
+software <installing-the-asreview-software>`__ and 1) `a
 demonstration of the Oracle mode of the ASReview
 software <#running-oracle-mode-with-the-ptsd-dataset>`__.
 
@@ -50,11 +50,11 @@ your computer. For example:
 
     Python 2.7.6
 
-If your Python version is 3.6.x or higher, you can skip to `section 0.2
-Installing the ASReview software <#02-install-asreview>`__.
+If your Python version is 3.6.x or higher, you can skip to `section
+'Installing the ASReview software' <#install-asreview>`__.
 
 If this is not the case, as in the example above, follow the
-instructions in `the next section <#Anaconda>`__ to install a more
+instructions in `the next section <#install-python>`__ to install a more
 recent version of Python.
 
 Install Python
@@ -85,7 +85,7 @@ the manuals below:
    here <https://docs.anaconda.com/anaconda/install/linux/>`__
 
 As you did before, you can now call ``python --version`` in the CLI, to
-re-check the version of the Python installation on your computer by.
+re-check the version of the Python installation on your computer.
 This should correspond to the 3.x version of Anaconda you installed
 earlier.
 
@@ -102,17 +102,13 @@ Install ASReview
 If your Python version is 3.6+, you can start installing the ASReview
 software on your computer. To install the ASReview software, follow the
 steps below. If you’ve already installed the ASReview software, you can
-skip to `section 1 <#1-running-oracle-mode-with-the-ptsd-dataset>`__.
+skip to `the next section <#running-oracle-mode-with-the-ptsd-dataset>`__.
 
 To install the ASReview software, run the following in the Terminal:
 
 .. code:: bash
 
     pip install asreview
-
-.. code:: bash
-
-    pip install --upgrade asreview
 
 If ASReview was installed succesfully, you will get output like:
 
@@ -126,8 +122,8 @@ You are now ready to start your first Automated Systematic Review!
 Running Oracle mode with the PTSD dataset
 -----------------------------------------
 
-As an example, we use the PTSD dataset. This dataset contains x titles
-and abstract on PTSD. From this dataset, we want to select papers
+As an example, we use the PTSD dataset. This dataset contains titles
+and abstract of papers on post-traumatic stress disorder. From this dataset, we want to select papers
 relevant to our systematic review, without reading all the abstracts. To
 start this process, run:
 
@@ -135,9 +131,7 @@ start this process, run:
 
     asreview oracle example_ptsd --log_file results.log
 
-.. code:: bash
 
-    asreview oracle example_ptsd -m 'nb' --log_file results.log --verbose 2
 
 The following will show on your screen:
 
@@ -255,15 +249,15 @@ Indicate your decision by typing ``1`` (include) or ``0`` (exclude).
 
     Include [1] or exclude [0] (stop [S]):
 
-When you need a break, you can type ``S`` to quit. You can always return
+When you want to quit reviewing, you can type ``S``. You can always return
 to your automated systematic review later.
 
 Under the hood
 ~~~~~~~~~~~~~~
 
-At every iteration, ASReview presents you with the abstracts it deems
-most relevant for your review. ASReview bases its decisions on the
-papers you indicated prior to running the analysis, and the subsequent
+At every iteration, ASReview orders each paper by their likeliness of inclusion, 
+with the most likely papers presented first for reading. ASReview bases its 
+decisions on the papers you indicated prior to running the analysis, and the subsequent
 decisions you make on the abstracts you get presented with during the
 analysis. The higher the number of included/excluded papers, the quicker
 the software recognizes your choices for inclusion.
@@ -336,19 +330,14 @@ the options and the defaults.
 Wrapping up the Automated Systematic Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ASReview software will keep presenting abstracts. When you feel like
-you have read enough, you can quit by pressing ``S``.
+The ASReview software will keep presenting abstracts. 
+The longer you continue reading, the better the model will 
+understand your review requirements, and the less likely any important papers 
+are left not reviewed. You can stop reading abstracts at any time, by pressing ``S``.
 
-The results of your Automated Systematic Review can be found in the
-``results.log`` file. You can open this file by running
+You can view the results by using the 'export to csv' option after stopping your review. 
+Papers are ordered presenting order, those papers who are not presented are ordered by likeliness of inclusion (most likely first).
 
-.. code:: bash
-
-    open results.log
-
-In this file you can find:
-
--  ``pool_proba``
 
 *© 2019, ASReview Team, Gerbrich Ferdinands.*
 This tutorial has been created using  ``asreview v0.2.1`` and ``macOS Catalina 10.15``.
