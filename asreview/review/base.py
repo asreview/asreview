@@ -11,7 +11,7 @@ from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
-from asreview.logging import Logger
+from asreview.logging import open_logger
 from asreview.query_strategies import max_sampling
 from asreview.query_strategies import random_sampling
 
@@ -64,7 +64,6 @@ class BaseReview(ABC):
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
-                 save_freq=1,
                  fit_kwargs={},
                  balance_kwargs={},
                  query_kwargs={},
@@ -91,7 +90,6 @@ class BaseReview(ABC):
         self.n_queries = n_queries
         self.log_file = log_file
         self.verbose = verbose
-        self.save_freq = save_freq
 
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
@@ -111,7 +109,7 @@ class BaseReview(ABC):
         self.query_kwargs["query_src"] = {}
         self.query_kwargs["current_queries"] = {}
 
-        with Logger.from_file(log_file) as logger:
+        with open_logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
                 self.y = y
@@ -201,7 +199,7 @@ class BaseReview(ABC):
                 n_instances=self._next_n_instances()
             )
 
-#             STEP 2: Classify the queried papers.
+            # STEP 2: Classify the queried papers.
             if instant_save:
                 for idx in query_idx:
                     idx_array = np.array([idx], dtype=np.int)
@@ -231,7 +229,7 @@ class BaseReview(ABC):
         instant_save: bool
             If True, save results after each single classification.
         """
-        with Logger.from_file(self.log_file) as logger:
+        with open_logger(self.log_file) as logger:
             self._do_review(logger, *args, **kwargs)
 
     def log_probabilities(self, logger):

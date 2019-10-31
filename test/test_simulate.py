@@ -3,7 +3,7 @@ from shutil import copyfile
 
 import numpy as np
 
-from asreview.logging import Logger
+from asreview.logging import open_logger
 from asreview.review.factory import get_reviewer
 
 data_fp = os.path.join("test", "demo_data", "csv_example_with_labels.csv")
@@ -81,9 +81,9 @@ def check_log(logger):
     check_label_methods(logger.get("label_methods", 1), 1, ["max", "random"])
     check_label_methods(logger.get("label_methods", 2), 1, ["max", "random"])
 
-    assert len(logger.get("labelled", 0)) == 4
-    assert len(logger.get("labelled", 1)) == 1
-    assert len(logger.get("labelled", 2)) == 1
+    assert len(logger.get("inclusions", 0)) == 4
+    assert len(logger.get("inclusions", 1)) == 1
+    assert len(logger.get("inclusions", 2)) == 1
 
     assert len(logger.get("train_idx", 1)) == 4
     assert len(logger.get("pool_idx", 1)) == 2
@@ -111,7 +111,7 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
                             log_file=log_file,
                             **kwargs)
     if use_granular:
-        with Logger.from_file(log_file) as logger:
+        with open_logger(log_file) as logger:
             # Two loops of training and classification.
             reviewer.train()
             reviewer.log_probabilities(logger)
@@ -125,13 +125,14 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
             inclusions = reviewer._get_labels(query_idx)
             reviewer.classify(query_idx, inclusions, logger)
     else:
-        with Logger.from_file(log_file) as logger:
+        with open_logger(log_file) as logger:
             if log_file is None:
                 logger.set_labels(reviewer.y)
                 init_idx, init_labels = reviewer._prior_knowledge()
                 reviewer.query_i = 0
                 reviewer.train_idx = np.array([], dtype=np.int)
-                reviewer.classify(init_idx, init_labels, logger, method="initial")
+                reviewer.classify(init_idx, init_labels, logger,
+                                  method="initial")
 
             reviewer._do_review(logger)
             if log_file is None:
@@ -139,5 +140,5 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
                 check_log(logger)
 
     if log_file is not None:
-        with Logger.from_file(log_file, read_only=True) as logger:
+        with open_logger(log_file, read_only=True) as logger:
             check_log(logger)

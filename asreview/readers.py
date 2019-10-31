@@ -1,13 +1,17 @@
 import logging
 from pathlib import Path
+import warnings
 
 import numpy as np
 import pandas as pd
 from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
-from fuzzywuzzy import fuzz
 
 from asreview.config import NOT_AVAILABLE
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore")
+    from fuzzywuzzy import fuzz
 
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
@@ -19,11 +23,17 @@ LABEL_INCLUDED_VALUES = [
     "included_flag"
 ]
 
-# Add label_included into the specification and create reverse mapping.
-TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
-KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-for label in LABEL_INCLUDED_VALUES:
-    KEY_TAG_MAPPING[label] = "LI"
+
+def _tag_key_mapping(reverse=False):
+    # Add label_included into the specification and create reverse mapping.
+    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
+    KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
+    for label in LABEL_INCLUDED_VALUES:
+        KEY_TAG_MAPPING[label] = "LI"
+    if reverse:
+        return KEY_TAG_MAPPING
+    else:
+        return TAG_KEY_MAPPING
 
 
 def get_fuzzy_ranking(keywords, str_list):
@@ -261,7 +271,8 @@ def write_ris(df, ris_fp):
     column_key = []
     for col in column_names:
         try:
-            column_key.append(KEY_TAG_MAPPING[col])
+            rev_mapping = _tag_key_mapping(reverse=True)
+            column_key.append(rev_mapping[col])
         except KeyError:
             column_key.append('UK')
             logging.info(f"Cannot find column {col} in specification.")
@@ -376,6 +387,7 @@ def read_ris(fp):
     """
 
     with open(fp, 'r') as bibliography_file:
-        entries = list(readris(bibliography_file, mapping=TAG_KEY_MAPPING))
+        mapping = _tag_key_mapping(reverse=False)
+        entries = list(readris(bibliography_file, mapping=mapping))
 
     return entries

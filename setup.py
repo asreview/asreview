@@ -51,13 +51,8 @@ setup(
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage'],
-        'faster Levenshtein': ['python-Levenshtein'],
+        'performance': ['python-Levenshtein'],
     },
-
-    # package_data={
-    #     'sample': ['data/package_data.dat'],
-    # },
-    # data_files=[('my_data', ['data/data_file'])],
 
     entry_points={
         'console_scripts': [

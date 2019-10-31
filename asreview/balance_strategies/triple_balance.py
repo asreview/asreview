@@ -15,10 +15,17 @@ class TripleBalanceTD(BaseTrainData):
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
     """
-    def __init__(self, balance_kwargs={}, query_kwargs={}, **kwargs):
+    def __init__(self, balance_kwargs={}, query_kwargs={}, **__):
         super(TripleBalanceTD, self).__init__(balance_kwargs)
         self.balance_kwargs['query_kwargs'] = query_kwargs
-        self.function = triple_balance
+
+    @staticmethod
+    def function():
+        return triple_balance
+
+    @staticmethod
+    def description():
+        return "triple balanced (max,rand) training data."
 
     def default_kwargs(self):
         defaults = {}
