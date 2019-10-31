@@ -9,11 +9,14 @@ Reference
 Low level API 
 -------------
 
-.. autoclass:: asreview.ReviewSimulate
+.. autofunction:: asreview.review.get_reviewer
+
+.. autoclass:: asreview.review.BaseReview
    :members:
 
+.. autoclass:: asreview.ReviewSimulate
+
 .. autoclass:: asreview.ReviewOracle
-   :members:
 
 Models
 ------
@@ -43,9 +46,21 @@ Utils
 -----
 
 .. autofunction:: asreview.read_data
-
 .. autofunction:: asreview.load_embedding
-
 .. autofunction:: asreview.sample_embedding
 
+Loggers
+-------
 
+.. autofunction:: asreview.logging.open_logger 
+.. autoclass:: asreview.logging.BaseLogger
+	:members:
+.. autoclass:: asreview.logging.HDF5Logger
+.. autoclass:: asreview.logging.JSONLogger
+.. autoclass:: asreview.logging.DictLogger
+
+Analysis
+--------
+
+.. autoclass:: asreview.analysis.Analysis
+	:members:

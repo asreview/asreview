@@ -9,9 +9,16 @@ class UndersampleTD(BaseTrainData):
     """
     Balancing class that undersamples the data with a given ratio.
     """
-    def __init__(self, balance_kwargs={}, **kwargs):
+    def __init__(self, balance_kwargs={}, **__):
         super(UndersampleTD, self).__init__(balance_kwargs)
-        self.function = undersample
+
+    @staticmethod
+    def function():
+        return undersample
+
+    @staticmethod
+    def description():
+        return "undersampled training data"
 
     def default_kwargs(self):
         defaults = {}

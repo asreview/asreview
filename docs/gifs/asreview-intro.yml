@@ -1,0 +1,501 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /Users/qubix/Documents/work/asr/automated-systematic-review
+  
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 118
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 38
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 2000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: floating
+    title: terminal
+    style:
+      border: 0px black solid
+      # boxShadow: none
+      # margin: 0px
+  
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+  
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+  
+  # The size of the font
+  fontSize: 12
+  
+  # The height of lines
+  lineHeight: 1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+  
+# Records, feel free to edit them
+records:
+  - delay: 172
+    content: "\e]7;file://RMBP-2.local/Users/qubix/Documents/work/asr/automated-systematic-review\a\e[1;33muser\e[1;31m@\e[1;32mmachine\e[0;37m~/Documents/systematic-review\e[m\e[0;0m>"
+  - delay: 100
+    content: a
+  - delay: 100
+    content: s
+  - delay: 100
+    content: r
+  - delay: 100
+    content: e
+  - delay: 100
+    content: v
+  - delay: 100
+    content: i
+  - delay: 100
+    content: e
+  - delay: 100
+    content: w
+  - delay: 100
+    content: ' '
+  - delay: 100
+    content: o
+  - delay: 100
+    content: r
+  - delay: 100
+    content: a
+  - delay: 100
+    content: c
+  - delay: 100
+    content: l
+  - delay: 100
+    content: e
+  - delay: 100
+    content: ' '
+  - delay: 100
+    content: e
+  - delay: 100
+    content: x
+  - delay: 100
+    content: a
+  - delay: 100
+    content: m
+  - delay: 100
+    content: p
+  - delay: 100
+    content: l
+  - delay: 100
+    content: e
+  - delay: 100
+    content: _
+  - delay: 100
+    content: p
+  - delay: 100
+    content: t
+  - delay: 100
+    content: s
+  - delay: 100
+    content: d
+  - delay: 100
+    content: ' '
+  - delay: 100
+    content: '-'
+  - delay: 100
+    content: '-'
+  - delay: 100
+    content: l
+  - delay: 100
+    content: o
+  - delay: 100
+    content: g
+  - delay: 100
+    content: _
+  - delay: 100
+    content: f
+  - delay: 100
+    content: i
+  - delay: 100
+    content: l
+  - delay: 100
+    content: e
+  - delay: 100
+    content: ' '
+  - delay: 100
+    content: m
+  - delay: 100
+    content: 'y'
+  - delay: 100
+    content: r
+  - delay: 100
+    content: e
+  - delay: 100
+    content: v
+  - delay: 100
+    content: i
+  - delay: 100
+    content: e
+  - delay: 100
+    content: w
+  - delay: 100
+    content: .
+  - delay: 100
+    content: h
+  - delay: 100
+    content: '5'
+  - delay: 300
+    content: "\r\n"
+  - delay: 3509
+    content: "\r\n            _____ _____            _\r\n     /\\    / ____|  __ \\          (_)\r\n    /  \\  | (___ | |__) |_____   ___  _____      __\r\n   / /\\ \\  \\___ \\|  _  // _ \\ \\ / / |/ _ \\ \\ /\\ / /\r\n  / ____ \\ ____) | | \\ \\  __/\\ V /| |  __/\\ V  V /\r\n /_/    \\_\\_____/|_|  \\_\\___| \\_/ |_|\\___| \\_/\\_/\r\n\r\n---------------------------------------------------------------------------------\r\n|                                                                                |\r\n|  Welcome to the ASReview Automated Systematic Review software.                 |\r\n|  In this mode the computer will assist you in creating your systematic review. |\r\n|  After giving it a few papers that are either included or excluded,            |\r\n|  it will compute a model and show progressively more relevant papers.          |\r\n|                                                                                |\r\n|  GitHub page:        https://github.com/msdslab/automated-systematic-review    |\r\n|  Questions/remarks:  asreview@uu.nl                                            |\r\n|                                                                                |\r\n---------------------------------------------------------------------------------\r\n\r\n"
+  - delay: 3254
+    content: "\e[?1l\e[6n"
+  - delay: 7
+    content: "\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m What do you want to do next? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mFind papers by keywords\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mA\e[0md\e[0md\e[0m \e[0mp\e[0ma\e[0mp\e[0me\e[0mr\e[0ms\e[0m \e[0mf\e[0mr\e[0mo\e[0mm\e[0m \e[0mI\e[0mD\e[0m'\e[0ms\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0ma\e[0mr\e[0mt\e[0m \e[0mr\e[0me\e[0mv\e[0mi\e[0me\e[0mw\e[0m \e[0m(\e[0m0\e[0m \e[0mi\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0md\e[0m,\e[0m \e[0m0\e[0m \e[0me\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0md\e[0m)\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[5A\e[0m"
+  - delay: 25
+    content: "\e[?25l\e[0m"
+  - delay: 1791
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m What do you want to do next? \e[0;38;5;214;1m Find papers by keywords\e[55D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 23
+    content: "\e[?1l\e[6n\e[?2004h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Find papers using keywords/authors/title:  \e[45D\e[45C\e[0m\e[?12l\e[?25h"
+  - delay: 11
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\e[4A\e[45C\e[0m\e[?12l\e[?25h"
+  - delay: 1093
+    content: "\e[?25l\e[0;38;5;214;1mS\e[0m\e[?12l\e[?25h"
+  - delay: 184
+    content: "\e[?25l\e[0;38;5;214;1mc\e[0m\e[?12l\e[?25h"
+  - delay: 328
+    content: "\e[?25l\e[0;38;5;214;1mh\e[0m\e[?12l\e[?25h"
+  - delay: 209
+    content: "\e[?25l\e[0;38;5;214;1mo\e[0m\e[?12l\e[?25h"
+  - delay: 134
+    content: "\e[?25l\e[0;38;5;214;1mo\e[0m\e[?12l\e[?25h"
+  - delay: 185
+    content: "\e[?25l\e[0;38;5;214;1mt\e[0m\e[?12l\e[?25h"
+  - delay: 456
+    content: "\e[?25l\e[51D\e[0m\e[J\e[0;38;5;67m?\e[0;1m Find papers using keywords/authors/title:  \e[0;38;5;214;1mSchoot\e[51D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?2004l"
+  - delay: 512
+    content: "\e[?1l\e[6n"
+  - delay: 15
+    content: "\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLatent trajectory studies: the basics, how to interpret the results, and what ..   van de Schoot, R.              \r\e[117C \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mr\e[0mo\e[0ml\e[0mo\e[0mn\e[0mg\e[0me\e[0md\e[0m \e[0mg\e[0mr\e[0mi\e[0me\e[0mf\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m,\e[0m \e[0md\e[0me\e[0mp\e[0mr\e[0me\e[0ms\e[0ms\e[0mi\e[0mo\e[0mn\e[0m,\e[0m \e[0ma\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0ma\e[0mr\e[0me\e[0m \e[0md\e[0mi\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mB\e[0mo\e[0me\e[0ml\e[0me\e[0mn\e[0m,\e[0m \e[0mP\e[0ma\e[0mu\e[0ml\e[0m \e[0mA\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mS\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0m \e[0mT\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0mi\e[0mn\e[0m \e[0mD\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0m \e[0mV\e[0mo\e[0ml\e[0mu\e[0mn\e[0mt\e[0me\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0mR\e[0mo\e[0ml\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mS\e[0me\e[0ml\e[0mf\e[0m-\e[0mE\e[0mf\e[0mf\e[0mi\e[0mc\e[0ma\e[0mc\e[0my\e[0m,\e[0m \e[0mS\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0mo\e[0mr\e[0mm\e[0ma\e[0mr\e[0m,\e[0m \e[0mS\e[0m.\e[0m \e[0mB\e[0m.\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mo\e[0mk\e[0mi\e[0mn\e[0mg\e[0m \e[0mb\e[0me\e[0my\e[0mo\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0mc\e[0mh\e[0mi\e[0ml\e[0md\e[0mr\e[0me\e[0mn\e[0m:\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mA\e[0ml\e[0mi\e[0ms\e[0mi\e[0mc\e[0m,\e[0m \e[0mE\e[0mv\e[0ma\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0mr\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mT\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0me\e[0mx\e[0mp\e[0me\e[0mr\e[0mi\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mr\e[0mu\e[0mp\e[0mt\e[0ms\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mm\e[0me\e[0ma\e[0ms\e[0mu\e[0mr\e[0me\e[0mm\e[0me\e[0mn\e[0mt\e[0m \e[0mi\e[0mn\e[0mv\e[0ma\e[0mr\e[0mi\e[0ma\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0ma\e[0m \e[0mp\e[0mo\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\r\e[117C\e[0m,\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mA\e[0mn\e[0mg\e[0me\e[0mr\e[0m:\e[0m \e[0mC\e[0ma\e[0mu\e[0ms\e[0me\e[0m \e[0mo\e[0mr\e[0m \e[0mC\e[0mo\e[0mn\e[0ms\e[0me\e[0mq\e[0mu\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0mS\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m?\e[0m \e[0mA\e[0m \e[0mP\e[0mr\e[0mo\e[0ms\e[0mp\e[0me\e[0mc\e[0mt\e[0mi\e[0mv\e[0me\e[0m \e[0mS\e[0mt\e[0mu\e[0md\e[0my\e[0m \e[0mo\e[0mf\e[0m \e[0mD\e[0mu\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mE\e[0mn\e[0mg\e[0me\e[0ml\e[0mh\e[0ma\e[0mr\e[0md\e[0m,\e[0m \e[0mI\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0ml\e[0ms\e[0m \e[0mt\e[0mo\e[0m \e[0me\e[0ms\e[0mt\e[0mi\e[0mm\e[0ma\e[0mt\e[0me\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0mV\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0ms\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0ms\e[0m \e[0ma\e[0mf\e[0mt\e[0me\e[0mr\e[0m \e[0me\e[0mx\e[0mp\e[0mo\e[0ms\e[0mu\e[0mr\e[0me\e[0m \e[0mt\e[0mo\e[0m \e[0mt\e[0mw\e[0mo\e[0m \e[0mf\e[0mi\e[0mr\e[0me\e[0m \e[0md\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mC\e[0mo\e[0mm\e[0mp\e[0ma\e[0mr\e[0ma\e[0mt\e[0mi\e[0mv\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0mL\e[0mo\e[0me\e[0my\e[0m,\e[0m \e[0mN\e[0m.\e[0m \e[0mE\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mr\e[0me\e[0mt\e[0mu\e[0mr\e[0mn\e[9D\e[12A\e[0m"
+  - delay: 22
+    content: "\e[?25l\e[0m"
+  - delay: 1125
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0my\e[0m \e[0ms\e[0mt\e[0mu\e[0md\e[0mi\e[0me\e[0ms\e[0m:\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mb\e[0ma\e[0ms\e[0mi\e[0mc\e[0ms\e[0m,\e[0m \e[0mh\e[0mo\e[0mw\e[0m \e[0mt\e[0mo\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mp\e[0mr\e[0me\e[0mt\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mr\e[0me\e[0ms\e[0mu\e[0ml\e[0mt\e[0ms\e[0m,\e[0m \e[0ma\e[0mn\e[0md\e[0m \e[0mw\e[0mh\e[0ma\e[0mt\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInternet-based early intervention to prevent posttraumatic stress disorder in ..   Mouthaan, Joanne, Sijbrandij, M\r\e[117Ca\e[2A\r\e[0m"
+  - delay: 655
+    content: "\e[?25l\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLatent trajectory studies: the basics, how to interpret the results, and what ..   van de Schoot, R.              \r\e[117C \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[2A\r\e[0m"
+  - delay: 551
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0my\e[0m \e[0ms\e[0mt\e[0mu\e[0md\e[0mi\e[0me\e[0ms\e[0m:\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mb\e[0ma\e[0ms\e[0mi\e[0mc\e[0ms\e[0m,\e[0m \e[0mh\e[0mo\e[0mw\e[0m \e[0mt\e[0mo\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mp\e[0mr\e[0me\e[0mt\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mr\e[0me\e[0ms\e[0mu\e[0ml\e[0mt\e[0ms\e[0m,\e[0m \e[0ma\e[0mn\e[0md\e[0m \e[0mw\e[0mh\e[0ma\e[0mt\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInternet-based early intervention to prevent posttraumatic stress disorder in ..   Mouthaan, Joanne, Sijbrandij, M\r\e[117Ca\e[2A\r\e[0m"
+  - delay: 161
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mProlonged grief disorder, depression, and posttraumatic stress disorder are di..   Boelen, Paul A., van de Schoot,\r\e[117C \e[3A\r\e[0m"
+  - delay: 923
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0;38;5;214;1m Prolonged grief disorder, depression, and posttraumatic stress disorder are di..   Boele\r\e[117Cn\r\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l\r\n\r\n----------------------------------\r\n\e[95mProlonged grief disorder, depression, and posttraumatic stress disorder are distinguishable syndromes\e[0m\r\nBoelen, Paul A., van de Schoot, Rens, van den Hout, Marcel A., de Keijser, Jos, van den Bout, Jan\r\n\r\nBackground: This study examined the distinctiveness of symptoms of Prolonged Grief Disorder (PGD), depression, and posttraumatic stress disorder (PTSD). We compared the fit of a one-factor model with the fit of four hierarchical models in which symptoms formed three distinct correlated higher-order dimensions, and PTSD-items were modeled in different ways. Methods: Self-reported data were available from two samples; 572 mourners recruited via the internet and 408 mourners recruited via healthcare workers. Results: In Sample 1, the unitary model did not fit the data. The four hierarchical models all fit better. The model in which PTSD-items constituted four lower-order factors of reexperiencing, avoidance, dysphoria, and hyperarousal fit the data best. The fit was further improved, when one weak PGD-item and one weak PTSD-item were removed, and error-terms of similar items were allowed to correlate. Findings from Sample 1 were replicated in Sample 2. Limitations: This study relied on self-reported data. Not all PGD-criteria and depression-criteria were assessed. Conclusions: This is the first confirmatory factor analysis study showing that symptoms of PGD, depression, and PTSD represent distinguishable syndromes. PGD-symptoms should be addressed in the assessment and treatment of bereaved people seeking treatment. (PsycINFO Database Record (c) 2012 APA, all rights reserved) (journal abstract)\r\n----------------------------------\r\n\r\n\r\n"
+  - delay: 19
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 16
+    content: "\e[?25l\e[0m"
+  - delay: 1137
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Include\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 20
+    content: "\e[?1l\e[6n"
+  - delay: 16
+    content: "\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLatent trajectory studies: the basics, how to interpret the results, and what ..   van de Schoot, R.              \r\e[117C \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mS\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0m \e[0mT\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0mi\e[0mn\e[0m \e[0mD\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0m \e[0mV\e[0mo\e[0ml\e[0mu\e[0mn\e[0mt\e[0me\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0mR\e[0mo\e[0ml\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mS\e[0me\e[0ml\e[0mf\e[0m-\e[0mE\e[0mf\e[0mf\e[0mi\e[0mc\e[0ma\e[0mc\e[0my\e[0m,\e[0m \e[0mS\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0mo\e[0mr\e[0mm\e[0ma\e[0mr\e[0m,\e[0m \e[0mS\e[0m.\e[0m \e[0mB\e[0m.\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mo\e[0mk\e[0mi\e[0mn\e[0mg\e[0m \e[0mb\e[0me\e[0my\e[0mo\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0mc\e[0mh\e[0mi\e[0ml\e[0md\e[0mr\e[0me\e[0mn\e[0m:\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mA\e[0ml\e[0mi\e[0ms\e[0mi\e[0mc\e[0m,\e[0m \e[0mE\e[0mv\e[0ma\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0mr\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mT\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0me\e[0mx\e[0mp\e[0me\e[0mr\e[0mi\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mr\e[0mu\e[0mp\e[0mt\e[0ms\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mm\e[0me\e[0ma\e[0ms\e[0mu\e[0mr\e[0me\e[0mm\e[0me\e[0mn\e[0mt\e[0m \e[0mi\e[0mn\e[0mv\e[0ma\e[0mr\e[0mi\e[0ma\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0ma\e[0m \e[0mp\e[0mo\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\r\e[117C\e[0m,\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mA\e[0mn\e[0mg\e[0me\e[0mr\e[0m:\e[0m \e[0mC\e[0ma\e[0mu\e[0ms\e[0me\e[0m \e[0mo\e[0mr\e[0m \e[0mC\e[0mo\e[0mn\e[0ms\e[0me\e[0mq\e[0mu\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0mS\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m?\e[0m \e[0mA\e[0m \e[0mP\e[0mr\e[0mo\e[0ms\e[0mp\e[0me\e[0mc\e[0mt\e[0mi\e[0mv\e[0me\e[0m \e[0mS\e[0mt\e[0mu\e[0md\e[0my\e[0m \e[0mo\e[0mf\e[0m \e[0mD\e[0mu\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mE\e[0mn\e[0mg\e[0me\e[0ml\e[0mh\e[0ma\e[0mr\e[0md\e[0m,\e[0m \e[0mI\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0ml\e[0ms\e[0m \e[0mt\e[0mo\e[0m \e[0me\e[0ms\e[0mt\e[0mi\e[0mm\e[0ma\e[0mt\e[0me\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0mV\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0ms\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0ms\e[0m \e[0ma\e[0mf\e[0mt\e[0me\e[0mr\e[0m \e[0me\e[0mx\e[0mp\e[0mo\e[0ms\e[0mu\e[0mr\e[0me\e[0m \e[0mt\e[0mo\e[0m \e[0mt\e[0mw\e[0mo\e[0m \e[0mf\e[0mi\e[0mr\e[0me\e[0m \e[0md\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mC\e[0mo\e[0mm\e[0mp\e[0ma\e[0mr\e[0ma\e[0mt\e[0mi\e[0mv\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0mL\e[0mo\e[0me\e[0my\e[0m,\e[0m \e[0mN\e[0m.\e[0m \e[0mE\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mr\e[0me\e[0mt\e[0mu\e[0mr\e[0mn\e[9D\e[11A\e[0m"
+  - delay: 19
+    content: "\e[?25l\e[0m"
+  - delay: 581
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0my\e[0m \e[0ms\e[0mt\e[0mu\e[0md\e[0mi\e[0me\e[0ms\e[0m:\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mb\e[0ma\e[0ms\e[0mi\e[0mc\e[0ms\e[0m,\e[0m \e[0mh\e[0mo\e[0mw\e[0m \e[0mt\e[0mo\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mp\e[0mr\e[0me\e[0mt\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mr\e[0me\e[0ms\e[0mu\e[0ml\e[0mt\e[0ms\e[0m,\e[0m \e[0ma\e[0mn\e[0md\e[0m \e[0mw\e[0mh\e[0ma\e[0mt\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInternet-based early intervention to prevent posttraumatic stress disorder in ..   Mouthaan, Joanne, Sijbrandij, M\r\e[117Ca\e[2A\r\e[0m"
+  - delay: 176
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mUsing Bayesian statistics for modeling PTSD through Latent Growth Mixture Mode..   Depaoli, S., van de Schoot, R.,\r\e[117C \e[3A\r\e[0m"
+  - delay: 151
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mPTSD Symptom Trajectories in Disaster Volunteers: The Role of Self-Efficacy, S..   Thormar, S. B., Sijbrandij, M.,\r\e[117C \e[4A\r\e[0m"
+  - delay: 516
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0;38;5;214;1m PTSD Symptom Trajectories in Disaster Volunteers: The Role of Self-Efficacy, S..   Thorm\r\e[117Ca\r\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l\r\n\r\n----------------------------------\r\n\e[95mPTSD Symptom Trajectories in Disaster Volunteers: The Role of Self-Efficacy, Social Acknowledgement, and Tasks Carried Out\e[0m\r\nThormar, S. B., Sijbrandij, M., Gersons, B. P., Van de Schoot, R., Juen, B., Karlsson, T., Olff, M.\r\n\r\nMillions of volunteers respond after disasters, with a 24% to 46% risk of developing posttraumatic stress disorder (PTSD). It is unclear which symptom trajectories develop and how they differ between core (volunteering before the disaster) and noncore volunteers (joining after the disaster) and which factors predict trajectories. Symptoms of PTSD were assessed at 6-, 12-, and 18-months postearthquake in 449 volunteers in Indonesia. Demographics, previous mental health service use, self-efficacy, social acknowledgment, and type of tasks were assessed at 6 months. In both core and noncore volunteers, 2 PTSD symptom trajectories emerged: a resilient trajectory (moderate levels of symptoms with a slow decrease over time; 90.9%) and a chronic trajectory (higher levels of symptoms with an increase over time; 9.1%). In both trajectories, core volunteers had fewer symptoms than noncore volunteers. Core volunteers in the chronic trajectory were characterized by having sought prior mental help, reported lower levels of self-efficacy and social acknowledgment, and were more likely to have provided psychosocial support to beneficiaries (Cramer's V = .17 to .27, partial eta2 = .02 to .06). Aid organizations should identify and follow up chronic PTSD trajectories in volunteers, including the noncore, who may be out of sight to the organization after the acute response phase.\r\n----------------------------------\r\n\r\n\r\n"
+  - delay: 18
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 17
+    content: "\e[?25l\e[0m"
+  - delay: 1337
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Include\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 20
+    content: "\e[?1l\e[6n"
+  - delay: 12
+    content: "\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLatent trajectory studies: the basics, how to interpret the results, and what ..   van de Schoot, R.              \r\e[117C \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mo\e[0mk\e[0mi\e[0mn\e[0mg\e[0m \e[0mb\e[0me\e[0my\e[0mo\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0mc\e[0mh\e[0mi\e[0ml\e[0md\e[0mr\e[0me\e[0mn\e[0m:\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mA\e[0ml\e[0mi\e[0ms\e[0mi\e[0mc\e[0m,\e[0m \e[0mE\e[0mv\e[0ma\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0mr\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mT\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0me\e[0mx\e[0mp\e[0me\e[0mr\e[0mi\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mr\e[0mu\e[0mp\e[0mt\e[0ms\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mm\e[0me\e[0ma\e[0ms\e[0mu\e[0mr\e[0me\e[0mm\e[0me\e[0mn\e[0mt\e[0m \e[0mi\e[0mn\e[0mv\e[0ma\e[0mr\e[0mi\e[0ma\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0ma\e[0m \e[0mp\e[0mo\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\r\e[117C\e[0m,\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mA\e[0mn\e[0mg\e[0me\e[0mr\e[0m:\e[0m \e[0mC\e[0ma\e[0mu\e[0ms\e[0me\e[0m \e[0mo\e[0mr\e[0m \e[0mC\e[0mo\e[0mn\e[0ms\e[0me\e[0mq\e[0mu\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0mS\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m?\e[0m \e[0mA\e[0m \e[0mP\e[0mr\e[0mo\e[0ms\e[0mp\e[0me\e[0mc\e[0mt\e[0mi\e[0mv\e[0me\e[0m \e[0mS\e[0mt\e[0mu\e[0md\e[0my\e[0m \e[0mo\e[0mf\e[0m \e[0mD\e[0mu\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mE\e[0mn\e[0mg\e[0me\e[0ml\e[0mh\e[0ma\e[0mr\e[0md\e[0m,\e[0m \e[0mI\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0ml\e[0ms\e[0m \e[0mt\e[0mo\e[0m \e[0me\e[0ms\e[0mt\e[0mi\e[0mm\e[0ma\e[0mt\e[0me\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0mV\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0ms\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0ms\e[0m \e[0ma\e[0mf\e[0mt\e[0me\e[0mr\e[0m \e[0me\e[0mx\e[0mp\e[0mo\e[0ms\e[0mu\e[0mr\e[0me\e[0m \e[0mt\e[0mo\e[0m \e[0mt\e[0mw\e[0mo\e[0m \e[0mf\e[0mi\e[0mr\e[0me\e[0m \e[0md\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mC\e[0mo\e[0mm\e[0mp\e[0ma\e[0mr\e[0ma\e[0mt\e[0mi\e[0mv\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0mL\e[0mo\e[0me\e[0my\e[0m,\e[0m \e[0mN\e[0m.\e[0m \e[0mE\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mr\e[0me\e[0mt\e[0mu\e[0mr\e[0mn\e[9D\e[10A\e[0m"
+  - delay: 19
+    content: "\e[?25l\e[0m"
+  - delay: 457
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0my\e[0m \e[0ms\e[0mt\e[0mu\e[0md\e[0mi\e[0me\e[0ms\e[0m:\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mb\e[0ma\e[0ms\e[0mi\e[0mc\e[0ms\e[0m,\e[0m \e[0mh\e[0mo\e[0mw\e[0m \e[0mt\e[0mo\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mp\e[0mr\e[0me\e[0mt\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mr\e[0me\e[0ms\e[0mu\e[0ml\e[0mt\e[0ms\e[0m,\e[0m \e[0ma\e[0mn\e[0md\e[0m \e[0mw\e[0mh\e[0ma\e[0mt\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInternet-based early intervention to prevent posttraumatic stress disorder in ..   Mouthaan, Joanne, Sijbrandij, M\r\e[117Ca\e[2A\r\e[0m"
+  - delay: 160
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mUsing Bayesian statistics for modeling PTSD through Latent Growth Mixture Mode..   Depaoli, S., van de Schoot, R.,\r\e[117C \e[3A\r\e[0m"
+  - delay: 152
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLooking beyond posttraumatic stress disorder in children: Posttraumatic stress..   Alisic, Eva, van der Schoot, T.\r\e[117C \e[4A\r\e[0m"
+  - delay: 152
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mo\e[0mk\e[0mi\e[0mn\e[0mg\e[0m \e[0mb\e[0me\e[0my\e[0mo\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0mc\e[0mh\e[0mi\e[0ml\e[0md\e[0mr\e[0me\e[0mn\e[0m:\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mA\e[0ml\e[0mi\e[0ms\e[0mi\e[0mc\e[0m,\e[0m \e[0mE\e[0mv\e[0ma\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0mr\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mT\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mThe experience of traumatic events disrupts the measurement invariance of a po..   Lommen, M. J. J., van de Schoot\r\e[117C,\e[5A\r\e[0m"
+  - delay: 152
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0me\e[0mx\e[0mp\e[0me\e[0mr\e[0mi\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mr\e[0mu\e[0mp\e[0mt\e[0ms\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mm\e[0me\e[0ma\e[0ms\e[0mu\e[0mr\e[0me\e[0mm\e[0me\e[0mn\e[0mt\e[0m \e[0mi\e[0mn\e[0mv\e[0ma\e[0mr\e[0mi\e[0ma\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0ma\e[0m \e[0mp\e[0mo\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\r\e[117C\e[0m,\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mAnger: Cause or Consequence of Posttraumatic Stress? A Prospective Study of Du..   Lommen, M. J. J., Engelhard, I.\r\e[117C \e[6A\r\e[0m"
+  - delay: 572
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0;38;5;214;1m Anger: Cause or Consequence of Posttraumatic Stress? A Prospective Study of Du..   Lomme\r\e[117Cn\r\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l\r\n\r\n----------------------------------\r\n\e[95mAnger: Cause or Consequence of Posttraumatic Stress? A Prospective Study of Dutch Soldiers\e[0m\r\nLommen, M. J. J., Engelhard, I. M., van de Schoot, R., van den Hout, M. A.\r\n\r\nMany studies have shown that individuals with posttraumatic stress disorder (PTSD) experience more anger over time and across situations (i.e., trait anger) than trauma-exposed individuals without PTSD. There is a lack of prospective research, however, that considers anger levels before trauma exposure. The aim of this study was to prospectively assess the relationship between trait anger and PTSD symptoms, with several known risk factors, including baseline symptoms, neuroticism, and stressor severity in the model. Participants were 249 Dutch soldiers tested approximately 2 months before and approximately 2 months and 9 months after their deployment to Afghanistan. Trait anger and PTSD symptom severity were measured at all assessments. Structural equation modeling including cross-lagged effects showed that higher trait anger before deployment predicted higher PTSD symptoms 2 months after deployment (β = .36), with stressor severity and baseline symptoms in the model, but not with neuroticism in the model. Trait anger at 2 months postdeployment did not predict PTSD symptom severity at 9 months, and PTSD symptom severity 2 months postdeployment did not predict subsequent trait anger scores. Findings suggest that trait anger may be a pretrauma vulnerability factor for PTSD symptoms, but does not add variance beyond the effect of neuroticism. © 2014 International Society for Traumatic Stress Studies.\r\n----------------------------------\r\n\r\n\r\n"
+  - delay: 18
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 17
+    content: "\e[?25l\e[0m"
+  - delay: 473
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mExclude\e[2A\e[10D\e[0m"
+  - delay: 279
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Exclude\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 20
+    content: "\e[?1l\e[6n"
+  - delay: 10
+    content: "\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLatent trajectory studies: the basics, how to interpret the results, and what ..   van de Schoot, R.              \r\e[117C \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mo\e[0mk\e[0mi\e[0mn\e[0mg\e[0m \e[0mb\e[0me\e[0my\e[0mo\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0mc\e[0mh\e[0mi\e[0ml\e[0md\e[0mr\e[0me\e[0mn\e[0m:\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mA\e[0ml\e[0mi\e[0ms\e[0mi\e[0mc\e[0m,\e[0m \e[0mE\e[0mv\e[0ma\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0mr\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mT\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0me\e[0mx\e[0mp\e[0me\e[0mr\e[0mi\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mr\e[0mu\e[0mp\e[0mt\e[0ms\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mm\e[0me\e[0ma\e[0ms\e[0mu\e[0mr\e[0me\e[0mm\e[0me\e[0mn\e[0mt\e[0m \e[0mi\e[0mn\e[0mv\e[0ma\e[0mr\e[0mi\e[0ma\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0ma\e[0m \e[0mp\e[0mo\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\r\e[117C\e[0m,\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0ml\e[0ms\e[0m \e[0mt\e[0mo\e[0m \e[0me\e[0ms\e[0mt\e[0mi\e[0mm\e[0ma\e[0mt\e[0me\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0mV\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0ms\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0ms\e[0m \e[0ma\e[0mf\e[0mt\e[0me\e[0mr\e[0m \e[0me\e[0mx\e[0mp\e[0mo\e[0ms\e[0mu\e[0mr\e[0me\e[0m \e[0mt\e[0mo\e[0m \e[0mt\e[0mw\e[0mo\e[0m \e[0mf\e[0mi\e[0mr\e[0me\e[0m \e[0md\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mC\e[0mo\e[0mm\e[0mp\e[0ma\e[0mr\e[0ma\e[0mt\e[0mi\e[0mv\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0mL\e[0mo\e[0me\e[0my\e[0m,\e[0m \e[0mN\e[0m.\e[0m \e[0mE\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mr\e[0me\e[0mt\e[0mu\e[0mr\e[0mn\e[9D\e[9A\e[0m"
+  - delay: 21
+    content: "\e[?25l\e[0m"
+  - delay: 448
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0my\e[0m \e[0ms\e[0mt\e[0mu\e[0md\e[0mi\e[0me\e[0ms\e[0m:\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mb\e[0ma\e[0ms\e[0mi\e[0mc\e[0ms\e[0m,\e[0m \e[0mh\e[0mo\e[0mw\e[0m \e[0mt\e[0mo\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mp\e[0mr\e[0me\e[0mt\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mr\e[0me\e[0ms\e[0mu\e[0ml\e[0mt\e[0ms\e[0m,\e[0m \e[0ma\e[0mn\e[0md\e[0m \e[0mw\e[0mh\e[0ma\e[0mt\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInternet-based early intervention to prevent posttraumatic stress disorder in ..   Mouthaan, Joanne, Sijbrandij, M\r\e[117Ca\e[2A\r\e[0m"
+  - delay: 152
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mt\e[0me\e[0mr\e[0mn\e[0me\e[0mt\e[0m-\e[0mb\e[0ma\e[0ms\e[0me\e[0md\e[0m \e[0me\e[0ma\e[0mr\e[0ml\e[0my\e[0m \e[0mi\e[0mn\e[0mt\e[0me\e[0mr\e[0mv\e[0me\e[0mn\e[0mt\e[0mi\e[0mo\e[0mn\e[0m \e[0mt\e[0mo\e[0m \e[0mp\e[0mr\e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mM\e[0mo\e[0mu\e[0mt\e[0mh\e[0ma\e[0ma\e[0mn\e[0m,\e[0m \e[0mJ\e[0mo\e[0ma\e[0mn\e[0mn\e[0me\e[0m,\e[0m \e[0mS\e[0mi\e[0mj\e[0mb\e[0mr\e[0ma\e[0mn\e[0md\e[0mi\e[0mj\e[0m,\e[0m \e[0mM\r\e[117C\e[0ma\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mUsing Bayesian statistics for modeling PTSD through Latent Growth Mixture Mode..   Depaoli, S., van de Schoot, R.,\r\e[117C \e[3A\r\e[0m"
+  - delay: 143
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mU\e[0ms\e[0mi\e[0mn\e[0mg\e[0m \e[0mB\e[0ma\e[0my\e[0me\e[0ms\e[0mi\e[0ma\e[0mn\e[0m \e[0ms\e[0mt\e[0ma\e[0mt\e[0mi\e[0ms\e[0mt\e[0mi\e[0mc\e[0ms\e[0m \e[0mf\e[0mo\e[0mr\e[0m \e[0mm\e[0mo\e[0md\e[0me\e[0ml\e[0mi\e[0mn\e[0mg\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mh\e[0mr\e[0mo\e[0mu\e[0mg\e[0mh\e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mD\e[0me\e[0mp\e[0ma\e[0mo\e[0ml\e[0mi\e[0m,\e[0m \e[0mS\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLooking beyond posttraumatic stress disorder in children: Posttraumatic stress..   Alisic, Eva, van der Schoot, T.\r\e[117C \e[4A\r\e[0m"
+  - delay: 145
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mo\e[0mk\e[0mi\e[0mn\e[0mg\e[0m \e[0mb\e[0me\e[0my\e[0mo\e[0mn\e[0md\e[0m \e[0mp\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mo\e[0mr\e[0md\e[0me\e[0mr\e[0m \e[0mi\e[0mn\e[0m \e[0mc\e[0mh\e[0mi\e[0ml\e[0md\e[0mr\e[0me\e[0mn\e[0m:\e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mA\e[0ml\e[0mi\e[0ms\e[0mi\e[0mc\e[0m,\e[0m \e[0mE\e[0mv\e[0ma\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0mr\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mT\e[0m.\r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mThe experience of traumatic events disrupts the measurement invariance of a po..   Lommen, M. J. J., van de Schoot\r\e[117C,\e[5A\r\e[0m"
+  - delay: 144
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mT\e[0mh\e[0me\e[0m \e[0me\e[0mx\e[0mp\e[0me\e[0mr\e[0mi\e[0me\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0me\e[0mv\e[0me\e[0mn\e[0mt\e[0ms\e[0m \e[0md\e[0mi\e[0ms\e[0mr\e[0mu\e[0mp\e[0mt\e[0ms\e[0m \e[0mt\e[0mh\e[0me\e[0m \e[0mm\e[0me\e[0ma\e[0ms\e[0mu\e[0mr\e[0me\e[0mm\e[0me\e[0mn\e[0mt\e[0m \e[0mi\e[0mn\e[0mv\e[0ma\e[0mr\e[0mi\e[0ma\e[0mn\e[0mc\e[0me\e[0m \e[0mo\e[0mf\e[0m \e[0ma\e[0m \e[0mp\e[0mo\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mL\e[0mo\e[0mm\e[0mm\e[0me\e[0mn\e[0m,\e[0m \e[0mM\e[0m.\e[0m \e[0mJ\e[0m.\e[0m \e[0mJ\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\r\e[117C\e[0m,\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mLatent Growth Mixture Models to estimate PTSD trajectories                         Van de Schoot, R.              \r\e[117C \e[6A\r\e[0m"
+  - delay: 144
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mL\e[0ma\e[0mt\e[0me\e[0mn\e[0mt\e[0m \e[0mG\e[0mr\e[0mo\e[0mw\e[0mt\e[0mh\e[0m \e[0mM\e[0mi\e[0mx\e[0mt\e[0mu\e[0mr\e[0me\e[0m \e[0mM\e[0mo\e[0md\e[0me\e[0ml\e[0ms\e[0m \e[0mt\e[0mo\e[0m \e[0me\e[0ms\e[0mt\e[0mi\e[0mm\e[0ma\e[0mt\e[0me\e[0m \e[0mP\e[0mT\e[0mS\e[0mD\e[0m \e[0mt\e[0mr\e[0ma\e[0mj\e[0me\e[0mc\e[0mt\e[0mo\e[0mr\e[0mi\e[0me\e[0ms\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0mV\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\e[0m \e[0mR\e[0m.\e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \e[0m \r\e[117C\e[0m \e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mPosttraumatic stress symptoms after exposure to two fire disasters: Comparativ..   van Loey, N. E., van de Schoot,\r\e[117C \e[7A\r\e[0m"
+  - delay: 383
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mP\e[0mo\e[0ms\e[0mt\e[0mt\e[0mr\e[0ma\e[0mu\e[0mm\e[0ma\e[0mt\e[0mi\e[0mc\e[0m \e[0ms\e[0mt\e[0mr\e[0me\e[0ms\e[0ms\e[0m \e[0ms\e[0my\e[0mm\e[0mp\e[0mt\e[0mo\e[0mm\e[0ms\e[0m \e[0ma\e[0mf\e[0mt\e[0me\e[0mr\e[0m \e[0me\e[0mx\e[0mp\e[0mo\e[0ms\e[0mu\e[0mr\e[0me\e[0m \e[0mt\e[0mo\e[0m \e[0mt\e[0mw\e[0mo\e[0m \e[0mf\e[0mi\e[0mr\e[0me\e[0m \e[0md\e[0mi\e[0ms\e[0ma\e[0ms\e[0mt\e[0me\e[0mr\e[0ms\e[0m:\e[0m \e[0mC\e[0mo\e[0mm\e[0mp\e[0ma\e[0mr\e[0ma\e[0mt\e[0mi\e[0mv\e[0m.\e[0m.\e[0m \e[0m \e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0mL\e[0mo\e[0me\e[0my\e[0m,\e[0m \e[0mN\e[0m.\e[0m \e[0mE\e[0m.\e[0m,\e[0m \e[0mv\e[0ma\e[0mn\e[0m \e[0md\e[0me\e[0m \e[0mS\e[0mc\e[0mh\e[0mo\e[0mo\e[0mt\e[0m,\r\e[117C\e[0m \e[0m\r\r\n\r\r\n\e[0;38;5;214;1m ❯ \e[0mreturn\e[9A\e[9D\e[0m"
+  - delay: 452
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Choose a paper to review: \e[0;38;5;214;1m return\e[35D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 18
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m What do you want to do next? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mFind papers by keywords\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mA\e[0md\e[0md\e[0m \e[0mp\e[0ma\e[0mp\e[0me\e[0mr\e[0ms\e[0m \e[0mf\e[0mr\e[0mo\e[0mm\e[0m \e[0mI\e[0mD\e[0m'\e[0ms\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0ma\e[0mr\e[0mt\e[0m \e[0mr\e[0me\e[0mv\e[0mi\e[0me\e[0mw\e[0m \e[0m(\e[0m2\e[0m \e[0mi\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0md\e[0m,\e[0m \e[0m1\e[0m \e[0me\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0md\e[0m)\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[5A\e[0m"
+  - delay: 18
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[8A\e[0m"
+  - delay: 1419
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mF\e[0mi\e[0mn\e[0md\e[0m \e[0mp\e[0ma\e[0mp\e[0me\e[0mr\e[0ms\e[0m \e[0mb\e[0my\e[0m \e[0mk\e[0me\e[0my\e[0mw\e[0mo\e[0mr\e[0md\e[0ms\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mAdd papers from ID's\e[2A\e[23D\e[0m"
+  - delay: 774
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m What do you want to do next? \e[0;38;5;214;1m Add papers from ID's\e[52D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 20
+    content: "\e[?1l\e[6n\e[?2004h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Which papers do you want to include?\e[0m\r\r\n\e[0;1mSeparate paper indices by spaces:  \e[35D\e[35C\e[0m\e[?12l\e[?25h"
+  - delay: 10
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[6A\e[35C\e[0m\e[?12l\e[?25h"
+  - delay: 1243
+    content: "\e[?25l\e[0;38;5;214;1m2\e[0m\e[?12l\e[?25h"
+  - delay: 280
+    content: "\e[?25l\e[0;38;5;214;1m \e[0m\e[?12l\e[?25h"
+  - delay: 160
+    content: "\e[?25l\e[0;38;5;214;1m3\e[0m\e[?12l\e[?25h"
+  - delay: 183
+    content: "\e[?25l\e[0;38;5;214;1m \e[0m\e[?12l\e[?25h"
+  - delay: 225
+    content: "\e[?25l\e[0;38;5;214;1m4\e[0m\e[?12l\e[?25h"
+  - delay: 703
+    content: "\e[?25l\e[A\e[40D\e[0m\e[J\e[0;38;5;67m?\e[0;1m Which papers do you want to include?\e[0m\r\r\n\e[0;1mSeparate paper indices by spaces:  \e[0;38;5;214;1m2 3 4\e[40D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?2004l"
+  - delay: 22
+    content: "\e[?1l\e[6n\e[?2004h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Which papers do you want to exclude?\e[0m\r\r\n\e[0;1mSeparate paper indices by spaces:  \e[35D\e[35C\e[0m\e[?12l\e[?25h"
+  - delay: 9
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\e[4A\e[35C\e[0m\e[?12l\e[?25h"
+  - delay: 1200
+    content: "\e[?25l\e[0;38;5;214;1m7\e[0m\e[?12l\e[?25h"
+  - delay: 224
+    content: "\e[?25l\e[0;38;5;214;1m \e[0m\e[?12l\e[?25h"
+  - delay: 176
+    content: "\e[?25l\e[0;38;5;214;1m8\e[0m\e[?12l\e[?25h"
+  - delay: 183
+    content: "\e[?25l\e[0;38;5;214;1m \e[0m\e[?12l\e[?25h"
+  - delay: 151
+    content: "\e[?25l\e[0;38;5;214;1m9\e[0m\e[?12l\e[?25h"
+  - delay: 473
+    content: "\e[?25l\e[A\e[40D\e[0m\e[J\e[0;38;5;67m?\e[0;1m Which papers do you want to exclude?\e[0m\r\r\n\e[0;1mSeparate paper indices by spaces:  \e[0;38;5;214;1m7 8 9\e[40D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?2004l"
+  - delay: 21
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m What do you want to do next? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mFind papers by keywords\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mA\e[0md\e[0md\e[0m \e[0mp\e[0ma\e[0mp\e[0me\e[0mr\e[0ms\e[0m \e[0mf\e[0mr\e[0mo\e[0mm\e[0m \e[0mI\e[0mD\e[0m'\e[0ms\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0ma\e[0mr\e[0mt\e[0m \e[0mr\e[0me\e[0mv\e[0mi\e[0me\e[0mw\e[0m \e[0m(\e[0m5\e[0m \e[0mi\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0md\e[0m,\e[0m \e[0m4\e[0m \e[0me\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0md\e[0m)\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[5A\e[0m"
+  - delay: 19
+    content: "\e[?25l\e[0m"
+  - delay: 1253
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mF\e[0mi\e[0mn\e[0md\e[0m \e[0mp\e[0ma\e[0mp\e[0me\e[0mr\e[0ms\e[0m \e[0mb\e[0my\e[0m \e[0mk\e[0me\e[0my\e[0mw\e[0mo\e[0mr\e[0md\e[0ms\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\e[0;38;5;214;1m ❯ \e[0mStop\e[5A\e[7D\e[0m"
+  - delay: 206
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\e[0;38;5;214;1m ❯ \e[0mStart review (5 included, 4 excluded)\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[5A\e[7D\e[0m"
+  - delay: 569
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m What do you want to do next? \e[0;38;5;214;1m Start review (5 included, 4 excluded)\e[69D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 33
+    content: "\r\n                (  )   (   )  )\r\n                 ) (   )  (  (\r\n                 ( )  (    ) )\r\n                 _____________\r\n                <_____________> ___\r\n                |             |/ _ \\ \r\n                |               | | |\r\n                |               |_| |\r\n             ___|             |\\___/\r\n            /    \\___________/    \\ \r\n            \\_____________________/\r\n\r\n"
+  - delay: 17
+    content: "\r\n\r\n----------------------------------\r\n\e[95mPosttraumatic stress disorder and prolonged grief in refugees exposed to trauma and loss\e[0m\r\nNickerson, A., Liddell, B. J., Maccallum, F., Steel, Z., Silove, D., Bryant, R. A.\r\n\r\nBackground: While a large proportion of conflict-affected populations have been dually exposed to trauma and loss, there is inadequate research identifying differential symptom profiles related to bereavement and trauma exposure in these groups. The objective of this study were to (1) determine whether there are distinct classes of posttraumatic stress disorder (PTSD) and prolonged grief disorder (PGD) symptoms in bereaved trauma survivors exposed to conflict and persecution, and (2) examine whether particular types of refugee experiences and stressors differentially predict symptom profiles. Methods: Participants were 248 Mandaean adult refugees who were assessed at an average of 4.3 years since entering Australia following persecution in Iraq. PTSD, PGD, trauma exposure, adjustment difficulties since relocation, and English proficiency were measured. Latent class analysis was used to elucidate symptom profiles of PTSD and PGD in this sample. Results: Latent class analysis revealed four classes of participants: a combined PTSD/PGD class (16%), a predominantly PTSD class (25%), a predominantly PGD class (16%), and a resilient class (43%). Whereas membership in the PTSD/PGD class was predicted by exposure to traumatic loss, those in the PGD class were more likely to have experienced adaptation difficulties since relocation, and individuals in the PTSD class were more likely to have experienced difficulties related to loss of culture and support. Conclusions: This study provides evidence that specific symptom patterns emerge following exposure to mass trauma and loss. These profiles are associated with distinct types of traumatic experiences and post-migration living difficulties. These results have substantial public health implications for assessment and intervention following mass trauma. © 2014 Nickerson et al.; licensee BioMed Central Ltd.\r\n----------------------------------\r\n\r\n\r\n| 0.16% read | 0 since last inclusion | 55.56% included | total papers: 5782 |\r\n\r\n"
+  - delay: 18
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 23
+    content: "\e[?25l\e[0m"
+  - delay: 1648
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Include\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 5
+    content: "\r\n                (  )   (   )  )\r\n                 ) (   )  (  (\r\n                 ( )  (    ) )\r\n                 _____________\r\n                <_____________> ___\r\n                |             |/ _ \\ \r\n                |               | | |\r\n                |               |_| |\r\n             ___|             |\\___/\r\n            /    \\___________/    \\ \r\n            \\_____________________/\r\n\r\n"
+  - delay: 16
+    content: "\r\n\r\n----------------------------------\r\n\e[95mIs prolonged grief distinct from bereavement-related posttraumatic stress?\e[0m\r\nGolden, A. M. J., Dalgleish, T.\r\n\r\nProlonged grief disorder (PGD) (previously called complicated grief (CG)) is proposed as a distinct post loss syndrome, with its own core symptoms. A key issue concerning the diagnostic validity of PGD is whether it can reliably be distinguished from related psychiatric outcomes following bereavement. This study therefore sought to determine whether the core symptoms of PGD could be distinguished from those of bereavement-related anxiety, depression and posttraumatic stress disorder (PTSD). Data were derived from a community sample of 223 bereaved adults in Croatia. PGD symptomatology was measured using the Revised Inventory of Complicated Grief. Depression and anxiety symptoms were measured using the Beck Depression and Anxiety Inventories, respectively. The intrusion and avoidance symptoms of PTSD were assessed using the Revised Impact of Event Scale. The distinctiveness of the five symptom clusters was examined using principal component analysis (PCA). Symptoms of prolonged grief, depression, anxiety, PTSD-intrusion, and PTSD-avoidance clustered together into five distinct factors. These results support the phenomenological distinctiveness of prolonged grief symptoms, from those of bereavement-related anxiety, depression and, for the first time, PTSD. © 2009 Elsevier Ireland Ltd.\r\n----------------------------------\r\n\r\n\r\n| 0.17% read | 0 since last inclusion | 60.00% included | total papers: 5782 |\r\n\r\n"
+  - delay: 21
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 20
+    content: "\e[?25l\e[0m"
+  - delay: 1303
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mExclude\e[2A\e[10D\e[0m"
+  - delay: 712
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Exclude\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 5
+    content: "\r\n                (  )   (   )  )\r\n                 ) (   )  (  (\r\n                 ( )  (    ) )\r\n                 _____________\r\n                <_____________> ___\r\n                |             |/ _ \\ \r\n                |               | | |\r\n                |               |_| |\r\n             ___|             |\\___/\r\n            /    \\___________/    \\ \r\n            \\_____________________/\r\n\r\n"
+  - delay: 18
+    content: "\r\n\r\n----------------------------------\r\n\e[95mPatterns of victimization, suicide attempt, and posttraumatic stress disorder in Greenlandic adolescents: a latent class analysis\e[0m\r\nKarsberg, S., Armour, C., Elklit, A.\r\n\r\nAim The current study had two main aims. The first was to identify groups of adolescents based on their similarity of responding across a number of victimizing and potentially traumatic events (PTEs). In doing so, we employed the statistical technique of Latent Class Analysis (LCA). The second aim was to assess the relationship between our resultant classes and the covariates of gender, suicide attempt, and PTSD. Methods Two hundred and sixty-nine Greenlandic school students, aged 12-18 (M = 15.4, SD = 1.84) were assessed for their level of exposure to PTEs. In addition, adolescents were assessed for the psychological impact of these events. A LCA was performed on seven binary indicators representing PTEs. Logistic regression was subsequently implemented to ascertain the relationships between latent classes and covariates. Results Three distinct classes were uncovered: a violence, neglect, and bullying class (class 1), a wide-ranging multiple PTE class (class 2), and a normative/baseline class (class 3). Notably, classes 1 and 2 were largely separated by the presence or absence of sexual PTEs. Individuals who reported having previously attempted suicide were almost six times more likely to be members of class 1 (OR = 5.97) and almost four times more likely to be members of class 2 (OR = 3.87) compared to the baseline class (class 3). Individuals who met the diagnostic criteria for PTSD were five times as likely to be members of class 1 and class 2 (OR = 5.09) compared to the baseline class. No significant associations were found between classes and gender. Conclusion The results underline the complexity of the interplay between multiple victimization experiences, traumatization, and suicide attempts. © 2014 Springer-Verlag Berlin Heidelberg.\r\n----------------------------------\r\n\r\n\r\n| 0.19% read | 1 since last inclusion | 54.55% included | total papers: 5782 |\r\n\r\n"
+  - delay: 16
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 21
+    content: "\e[?25l\e[0m"
+  - delay: 1504
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Include\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 5
+    content: "\r\n                (  )   (   )  )\r\n                 ) (   )  (  (\r\n                 ( )  (    ) )\r\n                 _____________\r\n                <_____________> ___\r\n                |             |/ _ \\ \r\n                |               | | |\r\n                |               |_| |\r\n             ___|             |\\___/\r\n            /    \\___________/    \\ \r\n            \\_____________________/\r\n\r\n"
+  - delay: 15
+    content: "\r\n\r\n----------------------------------\r\n\e[95mVictimization Profiles, Non-Suicidal Self-Injury, Suicide Attempt, and Post-Traumatic Stress Disorder Symptomology: Application of Latent Class Analysis\e[0m\r\nDhingra, K., Boduszek, D., Sharratt, K.\r\n\r\nFew studies have incorporated multiple dimensions of victimization or examined whether victimization profiles differ by gender. Consequently, the present study sought to extend prior research by using latent class analysis (LCA) to identify naturally occurring subgroups of individuals who have experienced victimization, and to test for sex differences. Data from 4,016 females and 3,032 males in the Adult Psychiatric Morbidity Survey (APMS) were analyzed. Evidence of the existence of similar victimization subtypes for both males and females emerged, with a three-class solution providing the best fit to the data for both sexes. Furthermore, the classes were labeled \"low victimization\" (the baseline class; Class 3), the \"high victimization class\" (Class 1), and \"the bullying and domestic violence class\" (Class 2) for both males and females. Multinomial logistic regression was used to interpret the nature of the latent classes, or groups, by estimating the associations with post-traumatic stress disorder (PTSD) dimensions, suicide attempt, and non-suicidal self-injury. Although different constellations of victimization experiences did not emerge through the gender-specific analyses, the nature of the associations between class membership and external variables differed between males and females. Findings highlight the heterogeneity of victimization experiences and their relations to functioning, and have implications for policy and practice implications.\r\n----------------------------------\r\n\r\n\r\n| 0.21% read | 0 since last inclusion | 58.33% included | total papers: 5782 |\r\n\r\n"
+  - delay: 20
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 21
+    content: "\e[?25l\e[0m"
+  - delay: 738
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mExclude\e[2A\e[10D\e[0m"
+  - delay: 1215
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Exclude\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 5
+    content: "\r\n                (  )   (   )  )\r\n                 ) (   )  (  (\r\n                 ( )  (    ) )\r\n                 _____________\r\n                <_____________> ___\r\n                |             |/ _ \\ \r\n                |               | | |\r\n                |               |_| |\r\n             ___|             |\\___/\r\n            /    \\___________/    \\ \r\n            \\_____________________/\r\n\r\n"
+  - delay: 16
+    content: "\r\n\r\n----------------------------------\r\n\e[95mSubtypes of alcohol dependence in military veterans: A latent class analysis\e[0m\r\nArias, A., Mota, N., Trevisan, L., Southwick, S., Pietrzak, R.\r\n\r\nPurpose: To better understand alcoholism among US military veterans, we sought to examine subtypes in a nationally representative sample. Methods: We included 404 veterans with a lifetime history of AD from the National Health and Resilience in Veterans Study (NHRVS). Diagnosis of AD was made with the Mini Neuropsychiatric Inventory (MINI). We performed a latent class analysis (LCA) in Mplus utilizing the following indicator variables: MINI AD items (7), lifetime nicotine dependence (ND), lifetime drug use disorder (DUD), lifetime history of Major Depressive Disorder (MDD), and Post-Traumatic Stress Disorder (PTSD). ANOVAs were performed with class as a predictor variable for multiple outcome measures. Results: We found three classes of veterans with a history of AD, and a three class solution was a better fitting model compared to a two class model, (likelihood ratio v2 = -2316.2, mean = 16.8, s.d. = 16.9, p = 0.034). ANOVA revealed that class was a significant predictor of quality of life (F = 18.96, p < 0.001), physical health (F = 5.83, p = 0.003), mental health (F = 32.6, p = 0.000), conscientiousness (F = 23.4, p = 0.000), hostility (F = 23.4, p = 0.000), and cognitive function (F = 23.4, p < 0.001). Post-hoc pair-wise comparisons between the three classes yielded significant differences on all measures (most p's ≤ 0.006, mostly medium to large effect sizes). Class 1 (n = 42, 10.3%): The comorbidity subtype (CMB) is a highly comorbid subtype, with the highest risk of MDD and PTSD, also more likely than class 3 to have lifetime DUD or ND. Class 2 (n = 111, 27.2%): the severe and comorbid AD class (SAD) is more likely to have had all symptoms of AD (especially withdrawal and inability to quit), and is more likely than class 3 to have a lifetime DUD or ND, and past year problem drinking compared to the other two classes. They are more likely than class 3 and less likely than class 1 to have comorbid MDD or PTSD. Class 3 (n = 265, 62.5%): the non-comorbid type (NC) has less symptoms of withdrawal, less inability to quit, less overall symptoms of AD than class 1, and less likelihood of comorbid conditions than either class 1 or 2. Class 3 had greater function across multiple domains. Conclusions: Veterans have a unique profile of AD subtypes. We plan to further explore the predictive validity of these subtypes by analyzing longitudinal follow-up data for this cohort. Further study of these subtypes may help improve the treatment of alcoholism in veterans, and prevent poor outcomes.\r\n----------------------------------\r\n\r\n\r\n| 0.22% read | 1 since last inclusion | 53.85% included | total papers: 5782 |\r\n\r\n"
+  - delay: 24
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 18
+    content: "\e[?25l\e[0m"
+  - delay: 1982
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Include\e[30D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 5
+    content: "\r\n                (  )   (   )  )\r\n                 ) (   )  (  (\r\n                 ( )  (    ) )\r\n                 _____________\r\n                <_____________> ___\r\n                |             |/ _ \\ \r\n                |               | | |\r\n                |               |_| |\r\n             ___|             |\\___/\r\n            /    \\___________/    \\ \r\n            \\_____________________/\r\n\r\n"
+  - delay: 16
+    content: "\r\n\r\n----------------------------------\r\n\e[95mA person-centred approach to modelling population experiences of trauma and mental illness\e[0m\r\nHouston, J. E., Shevlin, M., Adamson, G., Murphy, J.\r\n\r\nBackground: Exposure to traumatic events has been implicated in the onset and development of a range of psychiatric disorders. People can be exposed to multiple traumatic events and previous research suggests that traumatic experiences may cluster at the individual level. Methods: This study aimed to examine the distribution of traumatic experiences in a large nationally representative sample using latent class analysis, and estimate the relationship between these classes and a number of demographic and clinical variables. Data from the National Comorbidity Survey was used. Results: Four latent classes, each representative of a range of traumatic experiences were identified. The classes were labelled 'high risk' (class 1), 'exposure to non-sexual adult interpersonal/non-interpersonal trauma' (class 2), 'intermediate risk/sexual abuse' (class 3), and 'low risk' (class 4). Each of the latent classes was predicted by several of the demographic variables. In addition, membership of classes 1, 2, and 3 increased the risk of each of the clinical variables. Conclusions: The findings have clinical implications for the assessment of trauma histories across a range of psychiatric diagnoses. © 2010 Springer-Verlag.\r\n----------------------------------\r\n\r\n\r\n| 0.24% read | 0 since last inclusion | 57.14% included | total papers: 5782 |\r\n\r\n"
+  - delay: 18
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 23
+    content: "\e[?25l\e[0m"
+  - delay: 1065
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mExclude\e[2A\e[10D\e[0m"
+  - delay: 150
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\r\r\n\e[0;38;5;214;1m ❯ \e[0mExport\e[4A\e[9D\e[0m"
+  - delay: 487
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Export\e[29D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 20
+    content: "\e[?1l\e[6n\e[?2004h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Type file name for export ending with .csv or .ris  \e[54D\e[54C\e[0m\e[?12l\e[?25h"
+  - delay: 10
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[5A\e[54C\e[0m\e[?12l\e[?25h"
+  - delay: 1083
+    content: "\e[?25l\e[0;38;5;214;1mm\e[0m\e[?12l\e[?25h"
+  - delay: 280
+    content: "\e[?25l\e[0;38;5;214;1my\e[0m\e[?12l\e[?25h"
+  - delay: 159
+    content: "\e[?25l\e[0;38;5;214;1mr\e[0m\e[?12l\e[?25h"
+  - delay: 97
+    content: "\e[?25l\e[0;38;5;214;1me\e[0m\e[?12l\e[?25h"
+  - delay: 239
+    content: "\e[?25l\e[0;38;5;214;1mv\e[0m\e[?12l\e[?25h"
+  - delay: 200
+    content: "\e[?25l\e[0;38;5;214;1mi\e[0m\e[?12l\e[?25h"
+  - delay: 79
+    content: "\e[?25l\e[0;38;5;214;1me\e[0m\e[?12l\e[?25h"
+  - delay: 65
+    content: "\e[?25l\e[0;38;5;214;1mw\e[0m\e[?12l\e[?25h"
+  - delay: 233
+    content: "\e[?25l\e[0;38;5;214;1m.\e[0m\e[?12l\e[?25h"
+  - delay: 280
+    content: "\e[?25l\e[0;38;5;214;1mc\e[0m\e[?12l\e[?25h"
+  - delay: 96
+    content: "\e[?25l\e[0;38;5;214;1ms\e[0m\e[?12l\e[?25h"
+  - delay: 175
+    content: "\e[?25l\e[0;38;5;214;1mv\e[0m\e[?12l\e[?25h"
+  - delay: 167
+    content: "\e[?25l\e[66D\e[0m\e[J\e[0;38;5;67m?\e[0;1m Type file name for export ending with .csv or .ris  \e[0;38;5;214;1mmyreview.csv\e[66D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?2004l"
+  - delay: 601
+    content: "\e[?1l\e[6n\e[?2004h\e[?1000h\e[?1015h\e[?1006h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0m (Use arrow keys)\e[0m\r\r\n\e[0;38;5;214;1m ❯ \e[0mInclude\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mE\e[0mx\e[0mp\e[0mo\e[0mr\e[0mt\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m-\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mS\e[0mt\e[0mo\e[0mp\e[7D\e[6A\e[0m"
+  - delay: 17
+    content: "\e[?25l\e[0m"
+  - delay: 940
+    content: "\e[?25l\e[0m\r\r\n\e[0m \e[0m \e[0m \e[0mI\e[0mn\e[0mc\e[0ml\e[0mu\e[0md\e[0me\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[0;38;5;214;1m ❯ \e[0mStop\e[6A\e[7D\e[0m"
+  - delay: 662
+    content: "\e[?25l\e[0m\e[J\e[0;38;5;67m?\e[0;1m Include or Exclude? \e[0;38;5;214;1m Stop\e[27D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?1000l\e[?1015l\e[?1006l\e[?2004l"
+  - delay: 22
+    content: "\e[?1l\e[6n\e[?2004h\e[?25l\e[?7l\e[0m\e[0m\e[J\e[0;38;5;67m?\e[0;1m Are you sure you want to stop? \e[0m (Y/n)\e[39D\e[39C\e[0m\e[?12l\e[?25h"
+  - delay: 17
+    content: "\e[?25l\e[0m\r\r\n\r\r\n\r\r\n\r\r\n\r\r\n\e[5A\e[39C\e[0m\e[?12l\e[?25h"
+  - delay: 1233
+    content: "\e[?25l\e[39D\e[0m\e[J\e[0;38;5;67m?\e[0;1m Are you sure you want to stop? \e[0;38;5;214;1m Yes\e[37D\e[0m\r\r\n\e[J\e[?7h\e[0m\e[?12l\e[?25h\e[?2004l\r\nClosing down the automated systematic review.\r\n"
+  - delay: 323
+    content: "\e]7;file://RMBP-2.local/Users/qubix/Documents/work/asr/automated-systematic-review\a\e[1;33mqubix\e[1;31m@\e[1;32mRMBP-2\e[0;37m~/Documents/work/asr/automated-systematic-review\e[m\e[0;0m>"

@@ -88,14 +88,14 @@ Start an interactive systematic review (Oracle mode) with the following line in 
 asreview oracle YOUR_DATA.csv --log_file results.json
 ```
 
-![](docs/gifs/fancy-cli.gif)
+![](docs/gifs/asreview-intro.gif)
 
 This command (`asreview oracle`) runs the software in oracle mode on the 
 `YOUR_DATA.csv` dataset. 
 
 The higher the number of papers that you manually include in ASReview,
 the quicker the ASR software will understand your choices for inclusion.
-The IDs are the idententifiers of papers, starting from
+The IDs are the identifiers of papers, starting from
 0 for the first paper found in the dataset.
 
 To benchmark an already executed review, use the simulation modus (`asreview simulation`).
@@ -104,8 +104,7 @@ in the final review. The command for the simulation modus is similar to the orac
 mode:
 
 ``` sh
-asreview simulate YOUR_DATA.csv --prior_included 29 181 379 2001 3928 3929 4547 \
-  --prior_excluded 31 90 892 3898 3989 4390 --log_file results.h5
+asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_file results.h5
 ```
 
 ## Tech

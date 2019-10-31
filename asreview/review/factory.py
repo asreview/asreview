@@ -3,7 +3,7 @@ import logging
 import os
 from os.path import splitext
 
-from asreview.balance_strategies import get_balance_strategy
+from asreview.balance_strategies.utils import get_balance_with_settings
 from asreview.config import AVAILABLE_CLI_MODI
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -14,7 +14,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
-from asreview.logging import Logger
+from asreview.logging.utils import open_logger
 from asreview.models.utils import get_model_class
 from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
@@ -38,7 +38,6 @@ def get_reviewer(dataset,
                  prior_excluded=None,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
-                 save_freq=1,
                  config_file=None,
                  log_file=None,
                  model_param=None,
@@ -60,11 +59,11 @@ def get_reviewer(dataset,
         n_papers=n_papers, n_prior_included=n_prior_included,
         n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
         balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
-        save_freq=save_freq, abstract_only=abstract_only)
+        abstract_only=abstract_only)
     cli_settings.from_file(config_file)
 
     if log_file is not None:
-        with Logger.from_file(log_file) as logger:
+        with open_logger(log_file) as logger:
             if logger.is_empty():
                 logger.add_settings(cli_settings)
             settings = logger.settings
@@ -97,7 +96,7 @@ def get_reviewer(dataset,
     _, texts, labels = as_data.get_data()
 
     if as_data.final_labels is not None:
-        with Logger.from_file(log_file) as logger:
+        with open_logger(log_file) as logger:
             logger.set_final_labels(as_data.final_labels)
 
     model_class = get_model_class(model)
@@ -113,7 +112,7 @@ def get_reviewer(dataset,
     query_fn, query_str = get_query_with_settings(settings)
     logging.info(f"Query strategy: {query_str}")
 
-    train_data_fn, train_method = get_balance_strategy(settings)
+    train_data_fn, train_method = get_balance_with_settings(settings)
     logging.info(f"Using {train_method} method to obtain training data.")
 
     # Initialize the review class.
@@ -135,7 +134,6 @@ def get_reviewer(dataset,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
             log_file=log_file,
-            save_freq=settings.save_freq,
             final_labels=as_data.final_labels,
             **kwargs)
     elif mode == "oracle":

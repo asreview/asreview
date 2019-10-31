@@ -9,7 +9,6 @@ from argparse import RawTextHelpFormatter
 
 from asreview.ascii import welcome_message
 
-warnings.filterwarnings("ignore")
 
 import numpy as np  # noqa
 import tensorflow as tf # noqa
@@ -144,14 +143,6 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         default=None,
         help="Configuration file with model parameters"
     )
-    # Continue with previous log file.
-#     parser.add_argument(
-#         "-s", "--session-from-log",
-#         type=str,
-#         default=None,
-#         dest="src_log_fp",
-#         help="Continue session starting from previous log file."
-#     )
     # Initial data (prior knowledge)
     parser.add_argument(
         "--prior_included",
@@ -186,13 +177,6 @@ def _parse_arguments(mode, prog=sys.argv[0]):
             help="Sample n prior excluded papers. "
                  "Only used when --prior_excluded is not given. "
                  f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
-
-        parser.add_argument(
-            "--save_freq",
-            default=1,
-            type=int,
-            help="Save log file approximately every x papers."
-                 "Default 1.")
 
     # logging and verbosity
     parser.add_argument(

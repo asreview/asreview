@@ -29,9 +29,6 @@ one). Configuration options are as follows:
 
 .. code:: ini
 
-   # Shuffle the samples
-   shuffle=True
-
    # Set the ratio of included/excluded to 1
    ratio=1.0
 
@@ -45,20 +42,15 @@ excluded papers found with random sampling and papers found with max
 sampling. They are balanced according to forumla’s depending on the
 percentage of papers read in the dataset, the number of papers with
 random/max sampling etc. Works best for stochastic training algorithms.
+Reduces to both full sampling and undersampling with corresponding
+parameters.
 
 .. code:: ini
 
-   # Shuffle the samples
-   shuffle=True
-
-   # Start with a random/max weight ratio of 10 at 0% read papers.
-   rand_max_b=10
-
-   # Decay to 1 with the following decay exponent:
-   rand_max_alpha=1.0
-
-   # Decrease the included/excluded ratio with the power:
-   one_zero_beta=0.6
-
-   # Cap the included/excluded ratio at:
-   one_zero_delta=0.16
+ 	one_a=2.155
+ 	one_alpha=0.94
+ 	zero_b=0.789
+ 	zero_beta=1.0
+ 	zero_max_c=0.835
+ 	zero_max_gamma=2.0
+ 	shuffle=True

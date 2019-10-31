@@ -4,6 +4,9 @@ Application Programming Interface (API)
 For more control over the workings of the ASReview software, a API is provided.
 For example, it is possible to define a new model or sampling strategy and use it with ASReview.
 
+The easiest way to start a review using the API is to use the factory, see 
+:func:`asreview.review.get_reviewer`.
+
 There are two modes: oracle (review) and simulation (benchmark).
 
 Oracle mode

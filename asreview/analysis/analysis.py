@@ -7,7 +7,7 @@ import os
 import numpy as np
 from scipy import stats
 
-from asreview.analysis.readers import loggers_from_dir
+from asreview.logging.utils import loggers_from_dir
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
@@ -146,7 +146,7 @@ class Analysis():
 
         return inc_found_avg, inc_found_err, inc_after_init, n_initial
 
-    def WSS(self, val=100, x_format="percentage", **kwargs):
+    def wss(self, val=100, x_format="percentage", **kwargs):
         """Get the WSS (Work Saved Sampled) value.
 
         Arguments
@@ -183,8 +183,22 @@ class Analysis():
                         (x_return[i]*y_coef, y_result[i]))
         return (None, None, None)
 
-    def RRF(self, val=10, x_format="percentage", **kwargs):
-        """Get RRF, format same as WSS()."""
+    def rrf(self, val=10, x_format="percentage", **kwargs):
+        """Get the RRF (Relevant References Found).
+
+        Arguments
+        ---------
+        val:
+            At which recall, between 0 and 100.
+        x_format:
+            Format for position of RRF value in graph.
+
+        Returns
+        -------
+        tuple:
+            Tuple consisting of RRF value, x_positions, y_positions of RRF bar.
+
+        """
         norm_xr, norm_yr, _ = self.inclusions_found(
             result_format="percentage", **kwargs)
 
