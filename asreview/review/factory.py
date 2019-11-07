@@ -248,7 +248,7 @@ def review_oracle(dataset, *args, log_file=None, **kwargs):
                         question = [{
                             'type': 'confirm',
                             'message': f'Are you sure you want to delete '
-                            '{log_file}?',
+                            f'{log_file}?',
                             'name': 'delete',
                             'default': 'False',
                         }]
