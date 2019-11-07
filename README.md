@@ -32,7 +32,7 @@ with a minimum of papers to be read by a human with no or very few false negativ
 The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the
 researcher. This way of interactive training is known as
 [Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
-ASRevie offers support for classical learning algorithms and
+ASReview offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
