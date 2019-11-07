@@ -155,6 +155,7 @@ def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
         if qtype != "max":
             rand_idx = np.append(rand_idx, query_kwargs["query_src"][qtype])
 
+    rand_idx = rand_idx.astype(int)
     # Write them back for next round.
     if shuffle:
         np.random.shuffle(rand_idx)

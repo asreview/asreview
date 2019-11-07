@@ -114,7 +114,7 @@ class BaseReview(ABC):
                 y, train_idx, query_src, query_i = logger.review_state()
                 self.y = y
                 self.train_idx = train_idx
-                self.query_src = query_src
+                self.query_kwargs["query_src"] = query_src
                 self.query_i = query_i
             else:
                 if final_labels is not None:
