@@ -23,7 +23,6 @@ The available parameters are shown with the command ``asreview oracle --help``:
 	                       [-b BALANCE_STRATEGY] [--n_instances N_INSTANCES]
 	                       [--n_queries N_QUERIES] [-n N_PAPERS]
 	                       [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
-	                       [-s SRC_LOG_FP]
 	                       [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
 	                       [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
 	                       [--log_file LOG_FILE] [--save_model SAVE_MODEL_FP]
@@ -43,13 +42,13 @@ The available parameters are shown with the command ``asreview oracle --help``:
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  -m MODEL, --model MODEL
-	                        The prediction model for Active Learning. Default 'lstm_pool'.
+	                        The prediction model for Active Learning. Default 'nb'.
 	  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
 	                        The query strategy for Active Learning. Default 'rand_max'.
 	  -b BALANCE_STRATEGY, --balance_strategy BALANCE_STRATEGY
 	                        Data rebalancing strategy mainly for RNN methods. Helps against imbalanced dataset with few inclusions and many exclusions. Default 'triple_balance'
 	  --n_instances N_INSTANCES
-	                        Number of papers queried each query.Default 20.
+	                        Number of papers queried each query.Default 1.
 	  --n_queries N_QUERIES
 	                        The number of queries. By default, the program stops after all documents are reviewed or is interrupted by the user.
 	  -n N_PAPERS, --n_papers N_PAPERS
@@ -58,8 +57,6 @@ The available parameters are shown with the command ``asreview oracle --help``:
 	                        File path of embedding matrix. Required for LSTM models.
 	  --config_file CONFIG_FILE
 	                        Configuration file with model parameters
-	  -s SRC_LOG_FP, --session-from-log SRC_LOG_FP
-	                        Continue session starting from previous log file.
 	  --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
 	                        A list of included papers.
 	  --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
@@ -90,7 +87,7 @@ The available parameters are:
 	                         [-b BALANCE_STRATEGY] [--n_instances N_INSTANCES]
 	                         [--n_queries N_QUERIES] [-n N_PAPERS]
 	                         [--embedding EMBEDDING_FP]
-	                         [--config_file CONFIG_FILE] [-s SRC_LOG_FP]
+	                         [--config_file CONFIG_FILE]
 	                         [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
 	                         [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
 	                         [--n_prior_included N_PRIOR_INCLUDED]
@@ -112,13 +109,13 @@ The available parameters are:
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  -m MODEL, --model MODEL
-	                        The prediction model for Active Learning. Default 'lstm_pool'.
+	                        The prediction model for Active Learning. Default 'nb'.
 	  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
 	                        The query strategy for Active Learning. Default 'rand_max'.
 	  -b BALANCE_STRATEGY, --balance_strategy BALANCE_STRATEGY
 	                        Data rebalancing strategy mainly for RNN methods. Helps against imbalanced dataset with few inclusions and many exclusions. Default 'triple_balance'
 	  --n_instances N_INSTANCES
-	                        Number of papers queried each query.Default 20.
+	                        Number of papers queried each query.Default 1.
 	  --n_queries N_QUERIES
 	                        The number of queries. By default, the program stops after all documents are reviewed or is interrupted by the user.
 	  -n N_PAPERS, --n_papers N_PAPERS
@@ -127,8 +124,6 @@ The available parameters are:
 	                        File path of embedding matrix. Required for LSTM models.
 	  --config_file CONFIG_FILE
 	                        Configuration file with model parameters
-	  -s SRC_LOG_FP, --session-from-log SRC_LOG_FP
-	                        Continue session starting from previous log file.
 	  --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
 	                        A list of included papers.
 	  --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]

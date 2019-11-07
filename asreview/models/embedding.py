@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.request import urlopen
 
 import numpy as np
+
 from asreview.utils import get_data_home
 
 

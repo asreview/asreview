@@ -6,11 +6,12 @@ Created on 9 Apr 2019
 from math import floor
 from typing import Tuple
 
+from modAL.utils.data import modALinput
 import numpy as np
+from sklearn.base import BaseEstimator
+
 from asreview.query_strategies.max_sampling import max_sampling
 from asreview.query_strategies.random_sampling import random_sampling
-from modAL.utils.data import modALinput
-from sklearn.base import BaseEstimator
 
 
 def rand_max_sampling(classifier: BaseEstimator,

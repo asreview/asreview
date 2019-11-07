@@ -1,4 +1,4 @@
-from asreview.utils import _unsafe_dict_update
+
 from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
@@ -6,26 +6,9 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import MaxPooling1D
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-
-def lstm_pool_model_defaults(settings, verbose=1):
-    """ Set the lstm model defaults. """
-    model_kwargs = {}
-    model_kwargs['backwards'] = True
-    model_kwargs['dropout'] = 0.4
-    model_kwargs['optimizer'] = "rmsprop"
-    model_kwargs['max_sequence_length'] = 1000
-    model_kwargs['verbose'] = verbose
-    model_kwargs['lstm_out_width'] = 20
-    model_kwargs['lstm_pool_size'] = 100
-    model_kwargs['learn_rate_mult'] = 1.0
-
-    upd_param = _unsafe_dict_update(model_kwargs, settings.model_param)
-    settings.model_param = upd_param
-
-    return upd_param
+from asreview.models.keras import KerasModel, _get_optimizer
 
 
 def create_lstm_pool_model(embedding_matrix,
@@ -41,7 +24,22 @@ def create_lstm_pool_model(embedding_matrix,
 
     Arguments
     ---------
-
+    embedding_matrix: np.array
+        Embedding matrix to use with LSTM model.
+    backwards: bool
+        Whether to have a forward or backward LSTM.
+    optimizer: str
+        Optimizer to use.
+    max_sequence_length: int
+        Maximum length of the text record to classify.
+    lstm_out_width: int
+        Output width of the LSTM.
+    lstm_pool_size: int
+        Size of the pool, must be a divisor of max_sequence_length.
+    learn_rate_mult: float
+        Learn rate multiplier of default learning rate.
+    verbose: int
+        Verbosity.
     Returns
     -------
     callable:
@@ -97,10 +95,7 @@ def create_lstm_pool_model(embedding_matrix,
             )
         )
 
-        if optimizer == "rmsprop":
-            optimizer_fn = RMSprop(lr=0.01*learn_rate_mult)
-        else:
-            optimizer_fn = Adam(lr=0.1*learn_rate_mult)
+        optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
 
         # Compile model
         model.compile(
@@ -113,3 +108,61 @@ def create_lstm_pool_model(embedding_matrix,
         return model
 
     return wrap_model
+
+
+class LSTMPoolModel(KerasModel):
+    def __init__(self, param={}, **kwargs):
+        super(LSTMPoolModel, self).__init__(param, **kwargs)
+        self.name = "lstm_base"
+
+    def model(self):
+        embedding_matrix = self.get_embedding_matrix()
+        model_param = self.model_param()
+        model = create_lstm_pool_model(embedding_matrix, **model_param)
+        verbose = model_param.get("verbose", self.default_param()["verbose"])
+        return KerasClassifier(model, verbose=verbose)
+
+    def default_param(self):
+        kwargs = {
+            "backwards": True,
+            "dropout": 0.4,
+            "optimizer": "rmsprop",
+            "max_sequence_length": 1000,
+            "lstm_out_width": 20,
+            "lstm_pool_size": 128,
+            "learn_rate_mult": 1.0,
+            "verbose": 1,
+            "batch_size": 32,
+            "epochs": 10,
+            "shuffle": False,
+            "class_weight_inc": 30.0
+        }
+        return kwargs
+
+    def full_hyper_space(self):
+        from hyperopt import hp
+        hyper_choices = {
+            "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
+        }
+        hyper_space = {
+            "mdl_optimizer": hp.choice("mdl_optimizer",
+                                       hyper_choices["mdl_optimizer"]),
+            "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
+            "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
+            "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
+            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 2)
+        }
+        return hyper_space, hyper_choices
+
+    def fit_param_names(self):
+        param_names = [
+            "batch_size", "epochs", "shuffle", "class_weight_inc", "verbose",
+        ]
+        return param_names
+
+    def model_param_names(self):
+        param_names = [
+            "backwards", "dropout", "optimizer", "max_sequence_length",
+            "lstm_out_width", "lstm_pool_size", "learn_rate_mult", "verbose",
+        ]
+        return param_names

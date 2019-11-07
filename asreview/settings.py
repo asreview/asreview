@@ -16,9 +16,9 @@ SETTINGS_TYPE_DICT = {
     "n_prior_excluded": int,
     "mode": str,
     "model_param": dict,
-    "fit_param": dict,
     "query_param": dict,
     "balance_param": dict,
+    "abstract_only": bool,
 }
 
 
@@ -30,7 +30,8 @@ class ASReviewSettings(object):
     def __init__(self, mode, model, query_strategy, balance_strategy,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
-                 data_fp=None, data_name=None, model_param={}, fit_param={},
+                 abstract_only=False,
+                 data_fp=None, data_name=None, model_param={},
                  query_param={}, balance_param={}, **kwargs
                  ):
         all_args = locals().copy()
@@ -67,6 +68,7 @@ class ASReviewSettings(object):
             return
 
         config = ConfigParser()
+        config.optionxform = str
         config.read(config_file)
 
         # Read the each of the sections.
@@ -79,8 +81,7 @@ class ASReviewSettings(object):
                         print(f"Warning: value with key '{key}' is ignored "
                               "(spelling mistake, wrong type?).")
 
-            elif sect in ["model_param", "fit_param", "query_param",
-                          "balance_param"]:
+            elif sect in ["model_param", "query_param", "balance_param"]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "

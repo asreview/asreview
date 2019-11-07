@@ -38,7 +38,9 @@ autodoc_mock_imports = [
     "sklearn.naive_bayes",
     "sklearn.svm",
     "sklearn.base",
-    "sklearn.exceptions"
+    "sklearn.exceptions",
+    "scipy",
+    "h5py",
 ]
 
 
