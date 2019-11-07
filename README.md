@@ -20,22 +20,25 @@
 ---
 
 ## ASReview: Active learning for reviewing papers
+
+:point_right: [Check out our new tutorial "10 minutes into ASReview"](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) :point_left:
+
 Systematic Reviews are “top of the bill” in research. The number of systematic
 reviews published by researchers increases year after year. But performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false negatives. 
 
-The Automated Systematic Review (ASR) project implements learning algorithms that interactively query the
+The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the
 researcher. This way of interactive training is known as
 [Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
-The ASR software offers support for classical learning algorithms and
+ASRevie offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
 ![Active Learning for reviewing papers](https://github.com/msdslab/automated-systematic-review/blob/master/images/deepreview.png?raw=true)
 
-Our ASR software implements two different modes:
+Our ASReview software implements two different modes:
 
 - **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
@@ -47,7 +50,7 @@ Our ASR software implements two different modes:
 
 ## Installation
 
-The ASR software requires Python 3.6+. The project is available on Pypi. Install the 
+The ASReview software requires Python 3.6+. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the 
 project with:
 
 ```bash 
@@ -77,7 +80,7 @@ This command (`asreview oracle`) runs the software in oracle mode on the
 `YOUR_DATA.csv` dataset. 
 
 The higher the number of papers that you manually include in ASReview,
-the quicker the ASR software will understand your choices for inclusion.
+the quicker the ASReview software will understand your choices for inclusion.
 The IDs are the identifiers of papers, starting from
 0 for the first paper found in the dataset.
 
