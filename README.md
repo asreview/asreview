@@ -1,58 +1,32 @@
-# Automated Systematic Review
+
+``` 
+
+            _____ _____            _
+     /\    / ____|  __ \          (_)
+    /  \  | (___ | |__) |_____   ___  _____      __
+   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
+  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
+ /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
+
+
+```
 
 [![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
 
-
-
 --- 
 
-*This project is work in progress and **not** production ready.*
+:wrench: *This project is work in progress and **not** production ready.*
 
 ---
 
+## ASReview: Active learning for reviewing papers
 Systematic Reviews are “top of the bill” in research. The number of systematic
 reviews published by researchers increases year after year. But performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
 software is designed to accelerate the step of screening abstracts and titles
-with a minimum of papers to be read by a human with no or very few false negatives.
+with a minimum of papers to be read by a human with no or very few false negatives. 
 
-Our Automated Systematic Review (ASR) software implements an oracle and a
-simulation mode.
-
-- **Oracle** The oracle modus is used to perform a systematic review with
-  interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them.
-- **Simulate** The simulation modus is used to measure the performance of our
-  software on existing systematic reviews. The software shows how many
-  papers you could have potentially skipped during the systematic review.
-
-Our tutorial ["10 Minutes into ASReview"](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) is an introduction into ASReview for new users. The full documentation is available at [https://asreview.readthedocs.io](https://asreview.readthedocs.io)
-
-This Automatic Systematic Review software is being developed as part of a
-research project. This research project consists of multiple repositories. The
-following respositories are (or will become) publicly available:
-
-- [automated-systematic-review-datasets](https://github.com/msdslab/automated-systematic-review-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
-- [automated-systematic-review-simulations](https://github.com/msdslab/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
-
-
-## Table of Contents
-
-* [Automated Systematic Review](#automated-systematic-review)
-* [Table of Contents](#table-of-contents)
-* [Active Learning for reviewing papers](#active-learning-for-reviewing-papers)
-* [Installation](#installation)
-* [Quick start](#quick-start)
-* [Tech](#tech)
-* [Datasets](#datasets)
-* [Frequently Asked Questions](#frequently-asked-questions)
-* [Publications](#publications)
-* [Citation](#citation)
-* [Contact and contributors](#contact-and-contributors)
-
-## Active Learning for reviewing papers
-
-The ASR project implements learning algorithms that interactively query the
+The Automated Systematic Review (ASR) project implements learning algorithms that interactively query the
 researcher. This way of interactive training is known as
 [Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
 The ASR software offers support for classical learning algorithms and
@@ -60,6 +34,15 @@ state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
 ![Active Learning for reviewing papers](https://github.com/msdslab/automated-systematic-review/blob/master/images/deepreview.png?raw=true)
+
+Our ASR software implements two different modes:
+
+- **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
+  interaction by the reviewer (the 'oracle' in literature on active learning).
+  The software presents papers to the reviewer, whereafter the reviewer classifies them.
+- **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure the performance of our
+  software on existing systematic reviews. The software shows how many
+  papers you could have potentially skipped during the systematic review.
 
 
 ## Installation
@@ -71,8 +54,8 @@ project with:
 pip install asreview
 ```
 
-Install the development version of the Automated Systematic Review project directly 
-from this Github page. One can do this with pip and git.
+Or, install the development version of the Automated Systematic Review project directly 
+from this Github page.
 
 ``` bash
 pip install git+https://github.com/msdslab/automated-systematic-review.git
@@ -107,45 +90,17 @@ mode:
 asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_file results.h5
 ```
 
-## Tech
+## Resources 
 
-There are many different [models](https://asreview.readthedocs.io/en/latest/models.html), [query strategies](https://asreview.readthedocs.io/en/latest/query_strategies.html),
-and [rebalancing strategies](https://asreview.readthedocs.io/en/latest/balance_strategies.html) available.
-Currently, the best performing and optimized model is a Naive Bayes model; by default this model is used.
+- The full documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
+- [10 Minutes into ASReview](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) An introduction into ASReview for new users. 
+- [automated-systematic-review-datasets](https://github.com/msdslab/automated-systematic-review-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
+- [automated-systematic-review-simulations](https://github.com/msdslab/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
-Hyperparameters of models, query strategies and rebalancing strategies is possible through supplying a configuration file.
 
-## Datasets
+## License
+[LICENSE](LICENSE)
 
-The ASR software accepts datasets in the RIS and CSV file format. [RIS
-files](https://en.wikipedia.org/wiki/RIS_(file_format)) are used by digital
-libraries, such as IEEE Xplore, Scopus and ScienceDirect. Citation managers
-Mendeley and EndNote support the RIS format as well. For simulation, we use an
-additional RIS tag with the letters `LI`. For CSV files, the software accepts
-a set of predetermined labels in line with the ones used in RIS files. Please
-see the project [Automatic Systematic Review
-Datasets](https://github.com/msdslab/automated-systematic-review-datasets) for
-the complete standard.
-
-## Frequently Asked Questions
-
-### Unknown command "asreview" on command line or terminal
-
-In some situations, the entry point "asreview" can not be found after
-installation. First check whether the package is correctly installed. Do this
-with the command `python -m asreview -h`. If this shows a decription of the
-program, please use `python -m` in front of all your commands. For example 
-
-```
-python -m asreview oracle yourfile.csv
-```
-
-### How do I work with the Command Line?
-
-MacOS and Linux users can learn about bash on the website
-[programminghistorian.org](https://programminghistorian.org/en/lessons/intro-to-bash).
-Windows users may also follow this tutorial, but might prefer a tutorial on
-`cmd.exe`.
 
 ## Publications
 
@@ -174,7 +129,6 @@ BibTeX:
     url = {https://pypi.org/project/asreview/}
 } 
 ```
-
 
 ## Contact and contributors
 
