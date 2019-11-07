@@ -1,11 +1,9 @@
 import numpy as np
-from asreview.balance_strategies import undersample, full_sample
-from asreview.balance_strategies import triple_balance
+from asreview.balance_strategies.utils import get_balance_strategy
 
 
 def generate_data(n_feature=20, n_sample=10):
     X = np.random.rand(n_sample, n_feature)
-#     y = np.random.randint(0, 2, n_sample)
     n_sample_zero = np.int(n_sample/2)
     n_sample_one = n_sample - n_sample_zero
     y = np.append(np.zeros(n_sample_zero), np.ones(n_sample_one))
@@ -29,7 +27,8 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
     assert np.all(y[partition_idx] == y_partition)
 
 
-def check_multiple(balance_fn, n_partition=100, n_feature=200, n_sample=100):
+def check_multiple(balance_fn, balance_kwargs, n_partition=100, n_feature=200,
+                   n_sample=100):
     X, y = generate_data(n_feature=n_feature, n_sample=n_sample)
     for _ in range(n_partition):
         n_train = np.random.randint(10, n_sample)
@@ -40,17 +39,22 @@ def check_multiple(balance_fn, n_partition=100, n_feature=200, n_sample=100):
             num_one = np.count_nonzero(y[train_idx] == 1)
             if num_zero > 0 and num_one > 0:
                 break
-        X_train, y_train = balance_fn(X, y, train_idx)
+        X_train, y_train = balance_fn(X, y, train_idx, **balance_kwargs)
         check_partition(X, y, X_train, y_train, train_idx)
 
 
 def test_undersample():
-    check_multiple(undersample)
+    check_balance("undersample")
 
 
 def test_simple():
-    check_multiple(full_sample)
+    check_balance("simple")
 
 
 def test_triple():
-    check_multiple(triple_balance)
+    check_balance("triple_balance")
+
+
+def check_balance(balance_strategy):
+    func, kwargs, _ = get_balance_strategy(balance_strategy)
+    check_multiple(func, kwargs)

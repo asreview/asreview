@@ -1,6 +1,4 @@
-from asreview.logging import Logger
-from asreview.logging import read_log
-from asreview.logging import read_logs_from_dir
+from asreview.logging.utils import open_logger
 from asreview.models.embedding import load_embedding
 from asreview.models.embedding import sample_embedding
 from asreview.readers import ASReviewData

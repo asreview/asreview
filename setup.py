@@ -42,18 +42,17 @@ setup(
         'pandas',
         'modAL',
         'RISparser',
-        'dill'
+        'dill',
+        'PyInquirer',
+        'fuzzywuzzy',
+        'h5py',
     ],
 
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage'],
+        'performance': ['python-Levenshtein'],
     },
-
-    # package_data={
-    #     'sample': ['data/package_data.dat'],
-    # },
-    # data_files=[('my_data', ['data/data_file'])],
 
     entry_points={
         'console_scripts': [

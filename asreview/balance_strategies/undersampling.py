@@ -1,6 +1,7 @@
 from math import ceil
 
 import numpy as np
+
 from asreview.balance_strategies.base import BaseTrainData
 
 
@@ -8,23 +9,31 @@ class UndersampleTD(BaseTrainData):
     """
     Balancing class that undersamples the data with a given ratio.
     """
-    def __init__(self, balance_kwargs, fit_kwargs):
+    def __init__(self, balance_kwargs={}, **__):
         super(UndersampleTD, self).__init__(balance_kwargs)
-        if 'shuffle' in fit_kwargs:
-            self.balance_kwargs['shuffle'] = fit_kwargs['shuffle']
-            fit_kwargs['shuffle'] = False
 
-    def func_kwargs(self):
-        return undersample, self.balance_kwargs
+    @staticmethod
+    def function():
+        return undersample
+
+    @staticmethod
+    def description():
+        return "undersampled training data"
 
     def default_kwargs(self):
         defaults = {}
-        defaults['shuffle'] = True
         defaults['ratio'] = 1.0
         return defaults
 
+    def hyperopt_space(self):
+        from hyperopt import hp
+        parameter_space = {
+            "bal_ratio": hp.lognormal('bal_ratio', 0, 1),
+        }
+        return parameter_space
 
-def undersample(X, y, train_idx, ratio=1.0, shuffle=True):
+
+def undersample(X, y, train_idx, ratio=1.0):
     """ Undersample the training set to balance 1's and 0's. """
 
     one_ind = train_idx[np.where(y[train_idx] == 1)]
@@ -42,6 +51,5 @@ def undersample(X, y, train_idx, ratio=1.0, shuffle=True):
                                       replace=False)
         shuf_ind = np.append(one_ind, zero_ind[zero_under])
 
-    if shuffle:
-        np.random.shuffle(shuf_ind)
+    np.random.shuffle(shuf_ind)
     return X[shuf_ind], y[shuf_ind]

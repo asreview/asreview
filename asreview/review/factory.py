@@ -1,14 +1,9 @@
 import json
 import logging
 import os
-import pickle
-import time
 from os.path import splitext
-from pathlib import Path
 
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-
-from asreview.balance_strategies import get_balance_strategy
+from asreview.balance_strategies.utils import get_balance_with_settings
 from asreview.config import AVAILABLE_CLI_MODI
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -19,25 +14,14 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
-from asreview.logging import Logger
-from asreview.models import create_lstm_base_model
-from asreview.models import create_lstm_pool_model
-from asreview.models import lstm_base_model_defaults
-from asreview.models import lstm_fit_defaults
-from asreview.models import lstm_pool_model_defaults
-from asreview.models.embedding import download_embedding
-from asreview.models.embedding import EMBEDDING_EN
-from asreview.models.embedding import load_embedding
-from asreview.models.embedding import sample_embedding
+from asreview.logging.utils import open_logger
+from asreview.models.utils import get_model_class
 from asreview.query_strategies.base import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.types import is_pickle
-from asreview.utils import get_data_home
-from asreview.utils import text_to_features
 
 
 def get_reviewer(dataset,
@@ -55,7 +39,11 @@ def get_reviewer(dataset,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  config_file=None,
-                 src_log_fp=None,
+                 log_file=None,
+                 model_param=None,
+                 query_param=None,
+                 balance_param=None,
+                 abstract_only=False,
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
@@ -66,28 +54,35 @@ def get_reviewer(dataset,
     if dataset in DEMO_DATASETS.keys():
         dataset = DEMO_DATASETS[dataset]
 
-    if src_log_fp is not None:
-        logger = Logger(log_fp=src_log_fp)
-        settings = logger.settings
+    cli_settings = ASReviewSettings(
+        model=model, n_instances=n_instances, n_queries=n_queries,
+        n_papers=n_papers, n_prior_included=n_prior_included,
+        n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
+        balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
+        abstract_only=abstract_only)
+    cli_settings.from_file(config_file)
+
+    if log_file is not None:
+        with open_logger(log_file) as logger:
+            if logger.is_empty():
+                logger.add_settings(cli_settings)
+            settings = logger.settings
     else:
+        settings = cli_settings
         logger = None
-        settings = ASReviewSettings(model=model, n_instances=n_instances,
-                                    n_queries=n_queries,
-                                    n_papers=n_papers,
-                                    n_prior_included=n_prior_included,
-                                    n_prior_excluded=n_prior_excluded,
-                                    query_strategy=query_strategy,
-                                    balance_strategy=balance_strategy,
-                                    mode=mode, data_fp=dataset
-                                    )
 
-        settings.from_file(config_file)
+    if n_queries is not None:
+        settings.n_queries = n_queries
+    if n_papers is not None:
+        settings.n_papers = n_papers
+    if model_param is not None:
+        settings.model_param = model_param
+    if query_param is not None:
+        settings.query_param = query_param
+    if balance_param is not None:
+        settings.balance_param = balance_param
+
     model = settings.model
-
-    if model in ["lstm_base", "lstm_pool"]:
-        base_model = "RNN"
-    else:
-        base_model = "other"
 
     # Check if mode is valid
     if mode in AVAILABLE_REVIEW_CLASSES:
@@ -96,101 +91,35 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    # if the provided file is a pickle file
-    if is_pickle(dataset):
-        with open(dataset, 'rb') as f:
-            data_obj = pickle.load(f)
-        if isinstance(data_obj, tuple) and len(data_obj) == 3:
-            X, y, embedding_matrix = data_obj
-        elif isinstance(data_obj, tuple) and len(data_obj) == 4:
-            X, y, embedding_matrix, _ = data_obj
-        else:
-            raise ValueError("Incorrect pickle object.")
-    else:
-        as_data = ASReviewData.from_file(dataset)
-        _, texts, labels = as_data.get_data()
+    as_data = ASReviewData.from_file(dataset,
+                                     abstract_only=settings.abstract_only)
+    _, texts, labels = as_data.get_data()
 
-        # get the model
-        if base_model == "RNN":
+    if as_data.final_labels is not None:
+        with open_logger(log_file) as logger:
+            logger.set_final_labels(as_data.final_labels)
 
-            if embedding_fp is None:
-                embedding_fp = Path(
-                    get_data_home(),
-                    EMBEDDING_EN["name"]
-                ).expanduser()
+    model_class = get_model_class(model)
+    model_inst = model_class(param=settings.model_param,
+                             embedding_fp=embedding_fp)
+    X, y = model_inst.get_Xy(texts, labels)
 
-                if not embedding_fp.exists():
-                    print("Warning: will start to download large "
-                          "embedding file in 10 seconds.")
-                    time.sleep(10)
-                    download_embedding()
+    model_fn = model_inst.model()
+    settings.fit_kwargs = model_inst.fit_kwargs()
 
-            # create features and labels
-            X, word_index = text_to_features(texts)
-            y = labels
-            if mode == "oracle":
-                print("Loading embedding matrix. "
-                      "This can take several minutes.")
-            embedding = load_embedding(embedding_fp, word_index=word_index)
-            embedding_matrix = sample_embedding(embedding, word_index)
-
-        elif model.lower() in ['nb', 'svc', 'svm']:
-            from sklearn.pipeline import Pipeline
-            from sklearn.feature_extraction.text import TfidfTransformer
-            from sklearn.feature_extraction.text import CountVectorizer
-
-            text_clf = Pipeline([('vect', CountVectorizer()),
-                                 ('tfidf', TfidfTransformer())])
-
-            X = text_clf.fit_transform(texts)
-            y = labels
-
-    settings.fit_kwargs = {}
     settings.query_kwargs = {}
-
-    if base_model == 'RNN':
-        if model == "lstm_base":
-            model_kwargs = lstm_base_model_defaults(settings, verbose)
-            create_lstm_model = create_lstm_base_model
-        elif model == "lstm_pool":
-            model_kwargs = lstm_pool_model_defaults(settings, verbose)
-            create_lstm_model = create_lstm_pool_model
-        else:
-            raise ValueError(f"Unknown model {model}")
-
-        settings.fit_kwargs = lstm_fit_defaults(settings, verbose)
-        settings.query_kwargs['verbose'] = verbose
-        # create the model
-        model = KerasClassifier(
-            create_lstm_model(embedding_matrix=embedding_matrix,
-                              **model_kwargs),
-            verbose=verbose
-        )
-
-    elif model.lower() in ['nb']:
-        from asreview.models import create_nb_model
-
-        model = create_nb_model()
-
-    elif model.lower() in ['svm', 'svc']:
-        from asreview.models import create_svc_model
-
-        model = create_svc_model()
-    else:
-        raise ValueError('Model not found.')
-
     # Pick query strategy
     query_fn, query_str = get_query_with_settings(settings)
     logging.info(f"Query strategy: {query_str}")
 
-    train_data_fn, train_method = get_balance_strategy(settings)
+    train_data_fn, train_method = get_balance_with_settings(settings)
     logging.info(f"Using {train_method} method to obtain training data.")
 
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(
             X, y,
-            model=model,
+            model=model_fn,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
             n_papers=settings.n_papers,
@@ -204,12 +133,13 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            logger=logger,
+            log_file=log_file,
+            final_labels=as_data.final_labels,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
-            model=model,
+            model=model_fn,
             query_strategy=query_fn,
             as_data=as_data,
             train_data_fn=train_data_fn,
@@ -222,12 +152,12 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            logger=logger,
+            log_file=log_file,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
             X,
-            model=model,
+            model=model_fn,
             query_strategy=query_fn,
             train_data_fn=train_data_fn,
             n_papers=settings.n_papers,
@@ -239,12 +169,10 @@ def get_reviewer(dataset,
             fit_kwargs=settings.fit_kwargs,
             balance_kwargs=settings.balance_kwargs,
             query_kwargs=settings.query_kwargs,
-            logger=logger,
+            log_file=log_file,
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
-
-    reviewer._logger.add_settings(settings)
 
     return reviewer
 
@@ -268,33 +196,74 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
             json.dump(json_model, f, indent=2)
         model.model.save_weights(save_model_h5_fp, overwrite=True)
 
-    if not reviewer.log_file:
-        print(reviewer._logger._print_logs())
 
-
-def review_oracle(dataset, *args, src_log_fp=None, log_file=None, **kwargs):
+def review_oracle(dataset, *args, log_file=None, **kwargs):
     """CLI to the interactive mode."""
-
-    if (src_log_fp is None and log_file is not None
-            and os.path.isfile(log_file)):
-        while(True):
-            continue_input = input("Project detected. Continue [y/n]?")
-            if continue_input in ["Y", "y", "yes"]:
-                src_log_fp = log_file
-                break
-            if continue_input not in ["N", "n", "no"]:
-                print("Please provide 'y' or 'no'.")
-                continue
-            overwrite_input = input("This will delete your previous"
-                                    " project and start a new one.\n Is that"
-                                    " what you want [y/n]?")
-            if overwrite_input in ["Y", "y", "yes"]:
-                break
+    from PyInquirer import prompt, Separator
+    if log_file is None:
+        while True:
+            question = [{
+                'type': 'input',
+                'name': 'log_file',
+                'message': 'Please provide a file to store '
+                'the results of your review:'
+            }]
+            log_file = prompt(question).get("log_file", "")
+            if len(log_file) == 0:
+                question = [{
+                    'type': 'confirm',
+                    'message': 'Are you sure you want to continue without'
+                    ' saving?',
+                    'name': 'force_continue',
+                    'default': 'False',
+                }]
+                force_continue = prompt(question).get('force_continue', False)
+                if force_continue:
+                    log_file = None
+                    break
             else:
-                return
+                if os.path.isfile(log_file):
+                    question = [{
+                        'type': 'list',
+                        'name': 'action',
+                        'message': f'File {log_file} exists, what do you want'
+                        ' to do?',
+                        'choices': [
+                            f'Continue review from {log_file}',
+                            f'Delete review in {log_file} and start a new'
+                            ' review',
+                            f'Choose another file name.',
+                            Separator(),
+                            f'Exit'
+                        ]
+                    }]
+                    action = prompt(question).get('action', 'Exit')
+                    if action == "Exit":
+                        return
+                    if action.startswith("Continue"):
+                        break
+                    if action.startswith("Choose another"):
+                        continue
+                    if action.startswith("Delete"):
+                        question = [{
+                            'type': 'confirm',
+                            'message': f'Are you sure you want to delete '
+                            '{log_file}?',
+                            'name': 'delete',
+                            'default': 'False',
+                        }]
+                        delete = prompt(question).get("delete", False)
+                        if delete:
+                            os.remove(log_file)
+                            break
+                        else:
+                            continue
 
-    review(dataset, *args, mode='oracle', src_log_fp=src_log_fp,
-           log_file=log_file, **kwargs)
+                break
+    try:
+        review(dataset, *args, mode='oracle', log_file=log_file, **kwargs)
+    except KeyboardInterrupt:
+        print('\nClosing down the automated systematic review.')
 
 
 def review_simulate(dataset, *args, **kwargs):

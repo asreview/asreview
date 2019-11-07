@@ -2,21 +2,21 @@ Models
 ======
 
 There are several models implemented currently. The best performing is
-at the moment the lstm_pool algorithm.
+at the moment the Naive Bayes algorithm.
 
 nb
 --
 
 See :func:`asreview.models.create_nb_model`
 
-Naive Bayes model, default parameters.
+SKLearn Naive Bayes model.
 
 svc
 ---
 
 See :func:`asreview.models.create_svc_model`
 
-Support Vector Machine algorithm. Unoptimized.
+SKLearn Support Vector Machine algorithm.
 
 LSTM-base
 ---------

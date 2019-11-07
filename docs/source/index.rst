@@ -37,7 +37,7 @@ The source code is freely available at
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
+   :caption: Advanced
 
    models
 
@@ -57,6 +57,9 @@ The source code is freely available at
    :members:
 
 .. automodule:: asreview.balance_strategies
+   :members:
+
+.. automodule:: asreview.logging
    :members:
 
 

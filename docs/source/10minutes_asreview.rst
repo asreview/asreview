@@ -129,48 +129,41 @@ start this process, run:
 
 .. code:: bash
 
-    asreview oracle example_ptsd --log_file results.log
+    asreview oracle example_ptsd --log_file myreview.h5
 
+If you have a .ris or .csv file ready for review, you would replace ``example_ptsd`` with this file
+instead. The log file ``myreview.h5`` stores the details of your systematic review;
+your review choices, model parameters, model predictions and more.
 
 
 The following will show on your screen:
 
-.. code::
+.. image:: ../gifs/asreview-intro.gif
 
 
-                _____ _____            _
-         /\    / ____|  __ \          (_)
-        /  \  | (___ | |__) |_____   ___  _____      __
-       / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
-      / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
-     /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
+After starting ASReview, you will be presented with a small menu with two options to
+indicate which papers you know should be included or excluded beforehand. Remember that
+inclusions are much more important for the review software predictions than exclusions.
 
-    ---------------------------------------------------------------------------------
-    |                                                                                |
-    |  Welcome to the ASReview Automated Systematic Review software.                 |
-    |  In this mode the computer will assist you in creating your systematic review. |
-    |  After giving it a few papers that are either included or excluded,            |
-    |  it will compute a model and show progressively more relevant papers.          |
-    |  You can stop the review at any time by typing "S" + Enter                     |
-    |  or by pressing Ctrl + C.                                                      |
-    |  Your progress will be saved.                                                  |
-    |                                                                                |
-    |  GitHub page:        https://github.com/msdslab/automated-systematic-review    |
-    |  Questions/remarks:  asreview@uu.nl                                            |
-    |                                                                                |
-    ---------------------------------------------------------------------------------
+Including and excluding papers using the paper finder
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Loading embedding matrix. This can take several minutes.
+The easiest way to find papers to include is by using the built-in paper finder.
+Select the option ``Find papers by keywords``. You can now search your data set by authors,
+keywords and title, or a combination thereof. You don't have to type in an exact match. 
+For example, if you are looking for a paper by Schoot with Bayesian in the title, you can
+type ``schoot bayesian``, and the finder will try to find that paper in the data set.
 
-Note that if this is the first time you run the ASReview software,
-loading the embedding matrix can take a couple of minutes. In subsequent
-runs, loading the matrix will only take a few seconds.
+After putting in your search words, you will be presented with a list of relevant papers to
+your search criteria (minimum 1, maximum 10). Select the paper(s) you were looking for to review
+them, and return to the base menu.
 
-Including and excluding papers beforehand
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Including and excluding papers by identifiers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In case you already know of papers you want to in- or exclude from your
-systematic review in advance, you can indicate this.
+Another method of indication inclusions and exclusions before the main review process is by
+giving the paper identifiers directly to the ASReview software. These identifiers are simply the 
+order of the papers in your dataset, starting from zero.
 
 The software will first ask you to indicate papers you definitely want
 to **include** in your systematic review.
@@ -207,33 +200,19 @@ in one command:
 
     asreview oracle example_ptsd --prior_included 29 181 379 2001 3928 3929 4547 --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
 
-Running the model
-~~~~~~~~~~~~~~~~~
+The systematic review process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The software will attempt to classify the papers in the dataset into two
 categories: papers to be included in, and papers to be excluded from the
 systematic review. To improve its decisions, it will ask for your input
 iteratively.
 
-.. code::
-
-
-                    (  )   (   )  )
-                     ) (   )  (  (
-                     ( )  (    ) )
-                     _____________
-                    <_____________> ___
-                    |             |/ _ \
-                    |               | | |
-                    |               |_| |
-                 ___|             |\___/
-                /    \___________/    \
-                \_____________________/
-
-At each iteration, the model will present you with a number of abstracts
-(20 by default). You have to to let the software know whether you want
+ASReview will continuously present you with abstracts to review. After reviewing
+a certain number of abstracts (by default 1), it will update the model.
+You have to to let the software know whether you want
 to include or exclude the presented abstract in your systematic review.
-Indicate your decision by typing ``1`` (include) or ``0`` (exclude).
+Indicate your decision using the arrow keys.
 
 .. code::
 
@@ -245,12 +224,21 @@ Indicate your decision by typing ``1`` (include) or ``0`` (exclude).
     ----------------------------------
 
 
-    | 0.10% read | 0 since last inclusion | 0.00% included | total papers: 5782 |
+    | 0.10% read | 0 since last inclusion | 0.00% included | total papers: 6/5782 |
 
-    Include [1] or exclude [0] (stop [S]):
+	? Include or Exclude?  (Use arrow keys)
+	> Exclude
+	  Include
+	  -----------
+	  Export
+	  -----------
+	  Stop
 
-When you want to quit reviewing, you can type ``S``. You can always return
-to your automated systematic review later.
+If you want to export the results of your review, use the ``Export`` option, and when
+prompted, give the filename for export.
+
+You can stop the review by using the ``Stop`` option. You can later continue the review by using
+the same log file.
 
 Under the hood
 ~~~~~~~~~~~~~~
@@ -301,21 +289,19 @@ the options and the defaults.
     optional arguments:
       -h, --help            show this help message and exit
       -m MODEL, --model MODEL
-                            The prediction model for Active Learning. Default 'lstm_pool'.
+                            The prediction model for Active Learning. Default 'nb'.
       -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
                             The query strategy for Active Learning. Default 'rand_max'.
       -b BALANCE_STRATEGY, --balance_strategy BALANCE_STRATEGY
                             Data rebalancing strategy mainly for RNN methods. Helps against imbalanced dataset with few inclusions and many exclusions. Default 'triple_balance'
       --n_instances N_INSTANCES
-                            Number of papers queried each query.Default 20.
+                            Number of papers queried each query. Default 1.
       --n_queries N_QUERIES
                             The number of queries. By default, the programstops after all documents are reviewed or is interrupted by the user.
       --embedding EMBEDDING_FP
                             File path of embedding matrix. Required for LSTM models.
       --config_file CONFIG_FILE
                             Configuration file with model parameters
-      -s SRC_LOG_FP, --session-from-log SRC_LOG_FP
-                            Continue session starting from previous log file.
       --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
                             A list of included papers.
       --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
@@ -333,11 +319,9 @@ Wrapping up the Automated Systematic Review
 The ASReview software will keep presenting abstracts. 
 The longer you continue reading, the better the model will 
 understand your review requirements, and the less likely any important papers 
-are left not reviewed. You can stop reading abstracts at any time, by pressing ``S``.
+are left not reviewed. You can stop reading abstracts at any time, by pressing using the ``Stop``
+option.
 
 You can view the results by using the 'export to csv' option after stopping your review. 
-Papers are ordered presenting order, those papers who are not presented are ordered by likeliness of inclusion (most likely first).
-
-
-*© 2019, ASReview Team, Gerbrich Ferdinands.*
-This tutorial has been created using  ``asreview v0.2.1`` and ``macOS Catalina 10.15``.
+Papers are ordered as follows: first the included papers, then unlabeled papers by decreasing 
+likeliness of inclusions, then excluded papers.
