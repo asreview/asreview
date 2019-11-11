@@ -74,7 +74,7 @@ Start an interactive systematic review (Oracle mode) with the following line in 
 asreview oracle YOUR_DATA.csv --log_file results.json
 ```
 
-![](docs/gifs/asreview-intro.gif)
+![ASReview Command Line Interface](https://github.com/msdslab/automated-systematic-review/raw/master/docs/gifs/asreview-intro.gif)
 
 This command (`asreview oracle`) runs the software in oracle mode on the 
 `YOUR_DATA.csv` dataset. 
