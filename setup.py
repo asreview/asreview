@@ -15,17 +15,26 @@
 # based on https://github.com/pypa/sampleproject - MIT License
 
 # Always prefer setuptools over distutils
+import re
 from setuptools import setup, find_packages
 from os import path
 from io import open
 
 import versioneer
 
-here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+def get_long_description():
+    """Get project description based on README"""
+    here = path.abspath(path.dirname(__file__))
+
+    # Get the long description from the README file
+    with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+        long_description = f.read()
+
+    # remove emoji
+    long_description = re.sub(r"\:[a-z_]+\:", "", long_description)
+
+    return long_description
 
 
 setup(
@@ -33,7 +42,7 @@ setup(
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description='Automated Systematic Review',
-    long_description=long_description,
+    long_description=get_long_description(),
     long_description_content_type='text/markdown',
     url='https://github.com/msdslab/automated-systematic-review',
     author='ASReview Core Development Team',
@@ -47,7 +56,6 @@ setup(
     ],
     keywords='systematic review',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
-
     install_requires=[
         'numpy',
         'tensorflow',
@@ -60,23 +68,20 @@ setup(
         'fuzzywuzzy',
         'h5py',
     ],
-
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage'],
         'performance': ['python-Levenshtein'],
     },
-
     entry_points={
         'console_scripts': [
             'asreview=asreview.__main__:main',
             'asr=asreview.__main__:main_depr',
         ],
-
     },
-
     project_urls={
-        'Bug Reports': 'https://github.com/msdslab/automated-systematic-review/issues',  #noqa
+        'Bug Reports':
+            'https://github.com/msdslab/automated-systematic-review/issues',
         'Source': 'https://github.com/msdslab/automated-systematic-review/',
     },
 )
