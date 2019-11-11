@@ -129,7 +129,8 @@ BibTeX:
     organization = {Utrecht University},
     address = {Utrecht, The Netherlands},
     year = 2019,
-    url = {https://pypi.org/project/asreview/}
+    doi = {10.5281/zenodo.3345592},
+    url = {https://doi.org/10.5281/zenodo.3345592}
 } 
 ```
 
