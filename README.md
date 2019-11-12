@@ -1,6 +1,6 @@
 [![ASReview bot](images/RepoCardGithub-1280.jpg)](https://github.com/msdslab/automated-systematic-review)
 
-## ASReview: Active learning for reviewing papers
+## ASReview: Active learning for systematic reviews
 
 [![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
 
@@ -111,7 +111,7 @@ BibTeX:
 
 ```bibtex
 @Manual{,
-    title = {ASReview: Software for automated systematic reviews},
+    title = {ASReview: Active learning for systematic reviews},
     author = {{ASReview Core Development Team}},
     organization = {Utrecht University},
     address = {Utrecht, The Netherlands},
