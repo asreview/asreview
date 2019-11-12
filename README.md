@@ -1,15 +1,4 @@
-
-``` 
-
-            _____ _____            _
-     /\    / ____|  __ \          (_)
-    /  \  | (___ | |__) |_____   ___  _____      __
-   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
-  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
- /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
-
-
-```
+[![ASReview bot](images/RepoCardGithub-1280.jpg)](https://github.com/msdslab/automated-systematic-review)
 
 [![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
 
@@ -36,7 +25,7 @@ ASReview offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
-![Active Learning for reviewing papers](https://github.com/msdslab/automated-systematic-review/blob/master/images/deepreview.png?raw=true)
+[![Active Learning for reviewing papers](https://github.com/msdslab/automated-systematic-review/blob/master/images/deepreview.png?raw=true)](https://github.com/msdslab/automated-systematic-review)
 
 Our ASReview software implements two different modes:
 
