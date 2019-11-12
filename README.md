@@ -1,14 +1,12 @@
 [![ASReview bot](images/RepoCardGithub-1280.jpg)](https://github.com/msdslab/automated-systematic-review)
 
+## ASReview: Active learning for reviewing papers
+
 [![Build Status](https://travis-ci.com/msdslab/automated-systematic-review.svg?branch=master)](https://travis-ci.com/msdslab/automated-systematic-review) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
 
---- 
-
-:wrench: *This project is work in progress and **not** production ready.*
+:wrench: *This project is work in progress and not production ready.*
 
 ---
-
-## ASReview: Active learning for reviewing papers
 
 :point_right: [Check out our new tutorial "10 minutes into ASReview"](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) :point_left:
 
