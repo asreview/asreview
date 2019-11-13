@@ -1,4 +1,4 @@
-[![ASReview bot](images/RepoCardGithub-1280.jpg)](https://github.com/msdslab/automated-systematic-review)
+[![ASReview bot](images/RepoCardGithub-1280x640px.png)](https://github.com/msdslab/automated-systematic-review)
 
 ## ASReview: Active learning for systematic reviews
 
