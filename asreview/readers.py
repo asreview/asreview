@@ -103,13 +103,18 @@ class ASReviewData(object):
             data_kwargs['final_labels'] = data_kwargs['labels']
             data_kwargs['labels'] = inclusion_codes > 0
 
-        def fill_column(dst_dict, key):
-            try:
-                dst_dict[key] = raw_df[key.lower()].fillna('').values
-            except KeyError:
-                pass
+        def fill_column(dst_dict, keys):
+            if not isinstance(keys, list):
+                keys = [keys]
+            dst_key = keys[0]
+            for key in keys:
+                try:
+                    dst_dict[dst_key] = raw_df[key.lower()].fillna('').values
+                except KeyError:
+                    pass
 
-        for key in ['title', 'abstract', 'keywords', 'authors']:
+        for key in [['title', 'primary_title'],
+                    'abstract', 'keywords', 'authors']:
             fill_column(data_kwargs, key)
 
         return cls(**data_kwargs)
@@ -400,8 +405,13 @@ def read_ris(fp):
 
     """
 
-    with open(fp, 'r') as bibliography_file:
-        mapping = _tag_key_mapping(reverse=False)
-        entries = list(readris(bibliography_file, mapping=mapping))
+    try:
+        with open(fp, 'r', encoding='utf-8') as bibliography_file:
+            mapping = _tag_key_mapping(reverse=False)
+            entries = list(readris(bibliography_file, mapping=mapping))
+    except IOError:
+        with open(fp, 'r', encoding='utf-8-sig') as bibliography_file:
+            mapping = _tag_key_mapping(reverse=False)
+            entries = list(readris(bibliography_file, mapping=mapping))
 
     return entries
