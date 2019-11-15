@@ -212,8 +212,13 @@ class ASReviewData(object):
             match_str += self.title + " "
         if self.authors is not None:
             match_str += self.authors + " "
+        if isinstance(self.keywords[0], list):
+            new_keywords = np.array([" ".join(x) for x in self.keywords])
+            print(match_str.shape, self.title.shape, new_keywords.shape)
+        else:
+            new_keywords = self.keywords
         if self.keywords is not None:
-            match_str += self.keywords
+            match_str += new_keywords
 
         new_ranking = get_fuzzy_ranking(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
