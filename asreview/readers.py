@@ -123,7 +123,7 @@ class ASReviewData(object):
                     pass
 
         for key in [['title', 'primary_title'],
-                    ['authors', 'author names'],
+                    ['authors', 'author names', 'first_authors'],
                     'abstract', 'keywords']:
             fill_column(data_kwargs, key)
 
