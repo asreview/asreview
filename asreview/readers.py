@@ -225,7 +225,6 @@ class ASReviewData(object):
         if self.keywords is not None:
             if isinstance(self.keywords[0], list):
                 new_keywords = np.array([" ".join(x) for x in self.keywords])
-                print(match_str.shape, self.title.shape, new_keywords.shape)
             else:
                 new_keywords = self.keywords
             match_str += new_keywords
