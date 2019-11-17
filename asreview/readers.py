@@ -73,6 +73,13 @@ class ASReviewData(object):
         self.authors = authors
         self.final_labels = final_labels
 
+        if authors is None:
+            print("Warning: could not locate authors in data.")
+        if title is None:
+            print("Warning could not locate titles in data.")
+        if abstract is None:
+            print("Warning could not locate abstracts in data.")
+
         if article_id is None:
             self.article_id = np.arange(len(raw_df.index))
 
@@ -107,14 +114,17 @@ class ASReviewData(object):
             if not isinstance(keys, list):
                 keys = [keys]
             dst_key = keys[0]
+            df_columns = {col_name.lower(): col_name
+                          for col_name in list(raw_df)}
             for key in keys:
                 try:
-                    dst_dict[dst_key] = raw_df[key.lower()].fillna('').values
+                    dst_dict[dst_key] = raw_df[df_columns[key]].fillna('').values
                 except KeyError:
                     pass
 
         for key in [['title', 'primary_title'],
-                    'abstract', 'keywords', 'authors']:
+                    ['authors', 'author names'],
+                    'abstract', 'keywords']:
             fill_column(data_kwargs, key)
 
         return cls(**data_kwargs)
@@ -212,12 +222,12 @@ class ASReviewData(object):
             match_str += self.title + " "
         if self.authors is not None:
             match_str += self.authors + " "
-        if isinstance(self.keywords[0], list):
-            new_keywords = np.array([" ".join(x) for x in self.keywords])
-            print(match_str.shape, self.title.shape, new_keywords.shape)
-        else:
-            new_keywords = self.keywords
         if self.keywords is not None:
+            if isinstance(self.keywords[0], list):
+                new_keywords = np.array([" ".join(x) for x in self.keywords])
+                print(match_str.shape, self.title.shape, new_keywords.shape)
+            else:
+                new_keywords = self.keywords
             match_str += new_keywords
 
         new_ranking = get_fuzzy_ranking(keywords, match_str)
