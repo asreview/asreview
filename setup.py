@@ -59,6 +59,7 @@ setup(
         'PyInquirer',
         'fuzzywuzzy',
         'h5py',
+        'xlrd>=1.0.0',
     ],
 
     extras_require={

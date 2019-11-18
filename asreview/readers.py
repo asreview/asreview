@@ -16,6 +16,7 @@ import logging
 from pathlib import Path
 import warnings
 
+
 import numpy as np
 import pandas as pd
 from RISparser import readris
@@ -76,9 +77,9 @@ class ASReviewData(object):
         if authors is None:
             print("Warning: could not locate authors in data.")
         if title is None:
-            print("Warning could not locate titles in data.")
+            print("Warning: could not locate titles in data.")
         if abstract is None:
-            print("Warning could not locate abstracts in data.")
+            print("Warning: could not locate abstracts in data.")
 
         if article_id is None:
             self.article_id = np.arange(len(raw_df.index))
@@ -114,7 +115,7 @@ class ASReviewData(object):
             if not isinstance(keys, list):
                 keys = [keys]
             dst_key = keys[0]
-            df_columns = {col_name.lower(): col_name
+            df_columns = {str(col_name).lower(): col_name
                           for col_name in list(raw_df)}
             for key in keys:
                 try:
@@ -138,14 +139,14 @@ class ASReviewData(object):
         return cls.from_data_frame(pd.DataFrame(read_ris(fp)), *args, **kwargs)
 
     @classmethod
+    def from_excel(cls, fp, *args, **kwargs):
+        return cls.from_data_frame(
+            pd.DataFrame(read_excel(fp)), *args, **kwargs)
+
+    @classmethod
     def from_file(cls, fp, *args, **kwargs):
-        "Create instance from csv/ris file."
-        if Path(fp).suffix in [".csv", ".CSV"]:
-            return cls.from_csv(fp, *args, **kwargs)
-        if Path(fp).suffix in [".ris", ".RIS"]:
-            return cls.from_ris(fp, *args, **kwargs)
-        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                         f"from file {fp}")
+        "Create instance from csv/ris/excel file."
+        return cls.from_data_frame(_df_from_file(fp), *args, **kwargs)
 
     def preview_record(self, i, w_title=80, w_authors=40):
         "Return a preview string for record i."
@@ -333,6 +334,22 @@ def write_ris(df, ris_fp):
             fp.write("ER  - \n\n")
 
 
+def _df_from_file(fp):
+    if Path(fp).suffix in [".csv", ".CSV"]:
+        data = read_csv(fp)
+    elif Path(fp).suffix in [".ris", ".RIS"]:
+        data = read_ris(fp)
+    elif Path(fp).suffix in [".xlsx", ".XLSX"]:
+        data = read_excel(fp)
+    else:
+        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
+                         f"from file {fp}")
+
+    # parse data in pandas dataframe
+    df = pd.DataFrame(data)
+    return df
+
+
 def read_data(fp):
     """Load papers and their labels.
 
@@ -348,18 +365,7 @@ def read_data(fp):
         The labels for each paper. 1 is included, 0 is excluded. If this column
         is not available, this column is not returned.
     """
-
-    if Path(fp).suffix in [".csv", ".CSV"]:
-        data = read_csv(fp)
-    elif Path(fp).suffix in [".ris", ".RIS"]:
-        data = read_ris(fp)
-    else:
-        raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
-                         f"from file {fp}")
-
-    # parse data in pandas dataframe
-    df = pd.DataFrame(data)
-
+    df = _df_from_file(fp)
     # make texts
     texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
 
@@ -393,13 +399,47 @@ def read_csv(fp):
         List with entries.
 
     """
-
     try:
         df = pd.read_csv(fp)
     except UnicodeDecodeError:
         df = pd.read_csv(fp, encoding="ISO-8859-1")
 
     return df.to_dict('records')
+
+
+def read_excel(fp):
+    """Excel file reader.
+
+    Parameters
+    ----------
+    fp: str, pathlib.Path
+        File path to the Excel file (.xlsx).
+
+    Returns
+    -------
+    list:
+        List with entries.
+
+    """
+    try:
+        dfs = pd.read_excel(fp, sheet_name=None)
+    except UnicodeDecodeError:
+        dfs = pd.read_excel(fp, sheet_name=None, encoding="ISO-8859-1")
+
+    best_sheet = None
+    sheet_obj_val = -1
+    wanted_columns = [
+        'title', 'primary_title', 'authors', 'author names', 'first_authors',
+        'abstract', 'keywords']
+    wanted_columns.extend(LABEL_INCLUDED_VALUES)
+    for sheet_name in dfs:
+        col_names = set([col.lower() for col in list(dfs[sheet_name])])
+        obj_val = len(col_names & set(wanted_columns))
+        if obj_val > sheet_obj_val:
+            sheet_obj_val = obj_val
+            best_sheet = sheet_name
+
+    return dfs[best_sheet].to_dict('records')
 
 
 def read_ris(fp):
