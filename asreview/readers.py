@@ -24,6 +24,7 @@ from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
 
 from asreview.config import NOT_AVAILABLE
+from asreview.exceptions import BadFileFormatError
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -76,11 +77,11 @@ class ASReviewData(object):
         self.final_labels = final_labels
 
         if authors is None:
-            print("Warning: could not locate authors in data.")
+            logging.warning("Could not locate authors in data.")
         if title is None:
-            print("Warning: could not locate titles in data.")
+            BadFileFormatError("Could not locate titles in data.")
         if abstract is None:
-            print("Warning: could not locate abstracts in data.")
+            BadFileFormatError("Could not locate abstracts in data.")
 
         if article_id is None:
             self.article_id = np.arange(len(raw_df.index))
