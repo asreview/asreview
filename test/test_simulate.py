@@ -6,8 +6,8 @@ import numpy as np
 from asreview.logging import open_logger
 from asreview.review.factory import get_reviewer
 
-data_fp = os.path.join("test", "demo_data", "csv_example_with_labels.csv")
-embedding_fp = os.path.join("test", "demo_data", "csv_example_with_labels.vec")
+data_fp = os.path.join("test", "demo_data", "generic_labels.csv")
+embedding_fp = os.path.join("test", "demo_data", "generic.vec")
 cfg_dir = os.path.join("test", "cfg_files")
 log_dir = os.path.join("test", "log_files")
 h5_log_file = os.path.join(log_dir, "test.h5")

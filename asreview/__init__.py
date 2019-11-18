@@ -18,6 +18,8 @@ from asreview.models.embedding import sample_embedding
 from asreview.readers import ASReviewData
 from asreview.readers import read_csv
 from asreview.readers import read_data
+from asreview.readers import read_excel
+from asreview.readers import read_pubmed_xml
 from asreview.readers import read_ris
 from asreview.review import get_reviewer
 from asreview.review import MinimalReview
