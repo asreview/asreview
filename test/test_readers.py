@@ -17,7 +17,7 @@ from asreview.readers import ASReviewData
         ("generic.ris", 2, None, []),
         ("generic_labels.ris", 2, [1, 0], []),
         ("pubmed_zotero.ris", 6, None, []),
-        ("pubmed_endnote.txt", 6, None, ['authors']),
+        ("pubmed_endnote.txt", 6, None, []),
         ("scopus.ris", 6, None, []),
         #  ("ovid_psycinfo.ris", 6, None, []),
     ])

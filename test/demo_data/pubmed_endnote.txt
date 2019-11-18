@@ -1,171 +1,380 @@
-﻿TY  - JOUR
-AN  - 11217687
-DA  - Jan
-DO  - 10.1055/s-2001-10705
-DP  - NLM
-ET  - 2001/02/24
-IS  - 1
-KW  - Colitis, Ulcerative/*therapy
-*Complementary Therapies
-Humans
-Patient Education as Topic
-Treatment Outcome
-LA  - ger
-N1  - German Society of Digestive and Metabolic Diseases
-Consensus Development Conference
-Guideline
-Journal Article
-Practice Guideline
-Review
-Germany
-Z Gastroenterol. 2001 Jan;39(1):69-70. doi: 10.1055/s-2001-10705.
-OP  - Leitlinien der DGVS. Komplementare Therapien.
-PY  - 2001
-SN  - 0044-2771 (Print)
-0044-2771
-SP  - 69-70
-ST  - [Guidelines of the DGVS. Complementary therapy. German Society of Digestive and Metabolic Diseases]
-T2  - Z Gastroenterol
-TI  - [Guidelines of the DGVS. Complementary therapy. German Society of Digestive and Metabolic Diseases]
-VL  - 39
-ID  - 593
-ER  - 
 
 TY  - JOUR
-AB  - GW Pharmaceuticals is undertaking a major research programme in the UK to develop and market distinct cannabis-based prescription medicines [THC:CBD, High THC, High CBD] in a range of medical conditions. The cannabis for this programme is grown in a secret location in the UK. It is expected that the product will be marketed in the US in late 2003. GW's cannabis-based products include selected phytocannabinoids from cannabis plants, including D9 tetrahydrocannabinol (THC) and cannabidiol (CBD). The company is investigating their use in three delivery systems, including sublingual spray, sublingual tablet and inhaled (but not smoked) dosage forms. The technology is protected by patent applications. Four different formulations are currently being investigated, including High THC, THC:CBD (narrow ratio), THC:CBD (broad ratio) and High CBD. GW is also developing a specialist security technology that will be incorporated in all its drug delivery systems. This technology allows for the recording and remote monitoring of patient usage to prevent any potential abuse of its cannabis-based medicines. GW plans to enter into agreements with other companies following phase III development, to secure the best commercialisation terms for its cannabis-based medicines. In June 2003, GW announced that exclusive commercialisation rights for the drug in the UK had been licensed to Bayer AG. The drug will be marketed under the Sativex brand name. This agreement also provides Bayer with an option to expand their license to include the European Union and certain world markets. GW was granted a clinical trial exemption certificate by the Medicines Control Agency to conduct clinical studies with cannabis-based medicines in the UK. The exemption includes investigations in the relief of pain of neurological origin and defects of neurological function in the following indications: multiple sclerosis (MS), spinal cord injury, peripheral nerve injury, central nervous system damage, neuroinvasive cancer, dystonias, cerebral vascular accident and spina bifida, as well as for the relief of pain and inflammation in rheumatoid arthritis and also pain relief in brachial plexus injury. The UK Government stated that it would be willing to amend the Misuse of Drugs Act 1971 to permit the introduction of a cannabis-based medicine. GW stated in its 2002 Annual Report that it was currently conducting five phase III trials of its cannabis derivatives, including a double-blind, placebo-controlled trial with a sublingual spray containing High THC in more than 100 patients with cancer pain in the UK. Also included is a phase III trial of THC:CBD (narrow ratio) being conducted in patients with severe pain due to brachial plexus injury, as are two more phase III trials of THC:CBD (narrow ratio) targeting spasticity and bladder dysfunction in multiple sclerosis patients. Another phase III trial of THC:CBD (narrow ratio) in patients with spinal cord injury is also being conducted. Results from the trials are expected during 2003. Three additional trials are also in the early stages of planning. These trials include a phase I trial of THC:CBD (broad ratio) in patients with inflammatory bowel disease, a phase I trial of High CBD in patients with psychotic disorders such as schizophrenia, and a preclinical trial of High CBD in various CNS disorders (including epilepsy, stroke and head injury). GW Pharmaceuticals submitted an application for approval of cannabis-based medicines to UK regulatory authorities in March 2003. Originally GW hoped to market cannabis-based prescription medicines by 2004, but is now planning for a launch in the UK towards the end of 2003. Several trials for GW's cannabis derivatives have also been completed, including four randomised, double-blind, placebo-controlled phase III clinical trials conducted in the UK. The trials were initiated by GW in April 2002, to investigate the use of a sublingual spray containing THC:CBD (narrow ratio) in the following medical conditions: pain in spinal cord injury, pain and sleep in MS and spinal cord injury, neuropathic pain in MS and general neuropathic pain (presented as allodynia). Results from these trials show that THC:CBD (narrow ratio) caused statistically significant reductions in neuropathic pain in patients with MS and other conditions. In addition, improvements in other MS symptoms were observed as well. Phase II studies of THC:CBD (narrow ratio) have also been completed in patients with MS, spinal cord injury, neuropathic pain and a small number of patients with peripheral neuropathy secondary to diabetes mellitus or AIDS. A phase II trial of THC:CBD (broad ratio) has also been completed in a small number of patients with rheumatoid arthritis, as has a trial of High CBD in patients with neurogenic symptoms. A phase II trial has also been evaluated with High THC in small numbers of patients for the treatment of perioperative pain. The phase II trials provided positive results and confirmed an excellent safety profile for cannabis-based medicines. GW Pharmaceuticals received an IND approval to commence phase II clinical trials in Canada in patients with chronic pain, multiple sclerosis and spinal cord injury in 2002. Following meetings with the US FDA, Drug Enforcement Agency (DEA), the Office for National Drug Control Policy, and National Institute for Drug Abuse, GW was granted an import license from the DEA and has imported its first cannabis extracts into the US. Preclinical research with these extracts in the US is ongoing.
-AN  - 12952500
-DO  - 10.2165/00126839-200304050-00005
-DP  - NLM
-ET  - 2003/09/04
-IS  - 5
-KW  - Administration, Sublingual
-Analgesics, Opioid/administration & dosage/pharmacology/*therapeutic use
-Cannabis/*chemistry
-Clinical Trials as Topic
-Humans
-Pain/*drug therapy
-*Phytotherapy
-Plant Preparations/therapeutic use
-LA  - eng
-N1  - Journal Article
-Review
-New Zealand
-Drugs R D. 2003;4(5):306-9. doi: 10.2165/00126839-200304050-00005.
-PY  - 2003
-SN  - 1174-5886 (Print)
-1174-5886
-SP  - 306-9
-ST  - Cannabis-based medicines--GW pharmaceuticals: high CBD, high THC, medicinal cannabis--GW pharmaceuticals, THC:CBD
-T2  - Drugs R D
-TI  - Cannabis-based medicines--GW pharmaceuticals: high CBD, high THC, medicinal cannabis--GW pharmaceuticals, THC:CBD
-VL  - 4
-ID  - 568
-ER  - 
-
-TY  - JOUR
-AN  - 15609615
-DA  - Nov
-DP  - NLM
-ET  - 2004/12/22
-IS  - 11
-KW  - Anti-Inflammatory Agents/therapeutic use
-Colitis, Ulcerative/*diagnosis/*drug therapy
-Diagnosis, Differential
-Drug Therapy, Combination
-Drugs, Chinese Herbal/therapeutic use
-Humans
-Medicine, Chinese Traditional
-Prednisone/therapeutic use
-LA  - chi
-N1  - Guideline
-Journal Article
-China
-Zhongguo Zhong Xi Yi Jie He Za Zhi. 2004 Nov;24(11):1052-5.
-PY  - 2004
-SN  - 1003-5370 (Print)
-1003-5370
-SP  - 1052-5
-ST  - [Scheme on diagnosis and treatment of ulcerative colitis by integrative Chinese and Western medicine (draft)]
-T2  - Zhongguo Zhong Xi Yi Jie He Za Zhi
-TI  - [Scheme on diagnosis and treatment of ulcerative colitis by integrative Chinese and Western medicine (draft)]
-VL  - 24
-ID  - 540
-ER  - 
-
-TY  - JOUR
-AN  - 15199891
+AB  - Non-steroidal anti-inflammatory drug (NSAID) intake is associated with high prevalence of gastrointestinal or cardiovascular adverse effects. All efforts to develop NSAIDs that spare the gastrointestinal tract and the cardiovasculature are still far from achieving a breakthrough. In the last two decades, preparations of the gum resin of Boswellia serrata (a traditional ayurvedic medicine) and of other Boswellia species have experienced increasing popularity in Western countries. Animal studies and pilot clinical trials support the potential of B. serrata gum resin extract (BSE) for the treatment of a variety of inflammatory diseases like inflammatory bowel disease, rheumatoid arthritis, osteoarthritis and asthma. Moreover, in 2002 the European Medicines Agency classified BSE as an 'orphan drug' for the treatment of peritumoral brain oedema. Compared to NSAIDs, it is expected that the administration of BSE is associated with better tolerability, which needs to be confirmed in further clinical trials. Until recently, the pharmacological effects of BSE were mainly attributed to suppression of leukotriene formation via inhibition of 5-lipoxygenase (5-LO) by two boswellic acids, 11-keto-beta-boswellic acid (KBA) and acetyl-11-keto-beta-boswellic acid (AKBA). These two boswellic acids have also been chosen in the monograph of Indian frankincense in European Pharmacopoiea 6.0 as markers to ensure the quality of the air-dried gum resin exudate of B. serrata. Furthermore, several dietary supplements advertise the enriched content of KBA and AKBA. However, boswellic acids failed to inhibit leukotriene formation in human whole blood, and pharmacokinetic data revealed very low concentrations of AKBA and KBA in plasma, being far below the effective concentrations for bioactivity in vitro. Moreover, permeability studies suggest poor absorption of AKBA following oral administration. In view of these results, the previously assumed mode of action - that is, 5-LO inhibition - is questionable. On the other hand, 100-fold higher plasma concentrations have been determined for beta-boswellic acid, which inhibits microsomal prostaglandin E synthase-1 and the serine protease cathepsin G. Thus, these two enzymes might be reasonable molecular targets related to the anti-inflammatory properties of BSE. In view of the results of clinical trials and the experimental data from in vitro studies of BSE, and the available pharmacokinetic and metabolic data on boswellic acids, this review presents different perspectives and gives a differentiated insight into the possible mechanisms of action of BSE in humans. It underlines BSE as a promising alternative to NSAIDs, which warrants investigation in further pharmacological studies and clinical trials.
+AD  - Central Laboratory of German Pharmacists, Eschborn, Germany. m.tawab@zentrallabor.com
+AN  - 21553931
+AU  - Abdel-Tawab, M.
+AU  - Werz, O.
+AU  - Schubert-Zsilavecz, M.
 DA  - Jun
+DO  - 10.2165/11586800-000000000-00000
 DP  - NLM
-ET  - 2004/06/18
+ET  - 2011/05/11
 IS  - 6
-KW  - *Aloe
-Colitis, Ulcerative/*drug therapy
+KW  - Animals
+Anti-Inflammatory Agents/adverse effects/pharmacokinetics/*pharmacology
+Boswellia/*chemistry
+Clinical Trials as Topic
+Disease Models, Animal
+Drug Evaluation, Preclinical
 Humans
+Inflammation/drug therapy/physiopathology
+Medicine, Ayurvedic
+Plant Extracts/adverse effects/pharmacokinetics/*pharmacology
+LA  - eng
+N1  - 1179-1926
+Abdel-Tawab, Mona
+Werz, Oliver
+Schubert-Zsilavecz, Manfred
+Journal Article
+Review
+Switzerland
+Clin Pharmacokinet. 2011 Jun;50(6):349-69. doi: 10.2165/11586800-000000000-00000.
+PY  - 2011
+SN  - 0312-5963
+SP  - 349-69
+ST  - Boswellia serrata: an overall assessment of in vitro, preclinical, pharmacokinetic and clinical data
+T2  - Clin Pharmacokinet
+TI  - Boswellia serrata: an overall assessment of in vitro, preclinical, pharmacokinetic and clinical data
+VL  - 50
+ID  - 369
+ER  - 
+
+TY  - JOUR
+AB  - Ulcerative colitis is a well-known inflammatory bowel disease. Although there are drugs that are effective against this disease, the prevention and attenuation of ulcerative colitis by food rich in functional ingredients without side effects is desired because some drugs have side effects. In this study, we investigated the effects of yuzu (Citrus junos Tanaka), a citrus fruit native to northeast Asia, on a mouse dextran sulfate sodium (DSS)-induced colitis model. Mice given drinking water containing DSS showed significant weight loss, colon shortening, diarrhea, and visible fecal blood. In contrast, mice fed a diet containing 5% yuzu peel for 14 d before receiving DSS showed significant attenuation of these phenotypes. To clarify the mechanism underlying the attenuation, we investigated the anti-inflammatory and antioxidant effects of yuzu peel. We found that yuzu peel extract suppressed tumor necrosis factor-alpha (TNF-alpha) production in lipopolysaccharide (LPS)-stimulated mice and murine macrophage cell line through suppression of nuclear factor-kappaB (NF-kappaB) activation. In addition, we confirmed that yuzu peel extract had a moderate antioxidant effect. These results suggest that yuzu peel attenuates the pathologies of DSS-induced colitis by coordinately suppressing inflammation and oxidative stress against lipids in vivo.
+AD  - Health Research Institute, National Institute of Advanced Industrial Science and Technology (AIST).
+Shikoku Research Institute Inc.
+Kagawa Prefectural Industrial Technology Center.
+Faculty of Medicine, Kagawa University.
+Biomedical Research Institute, National Institute of Advanced Industrial Science and Technology (AIST).
+AN  - 29459515
+AU  - Abe, H.
+AU  - Ishioka, M.
+AU  - Fujita, Y.
+AU  - Umeno, A.
+AU  - Yasunaga, M.
+AU  - Sato, A.
+AU  - Ohnishi, S.
+AU  - Suzuki, S.
+AU  - Ishida, N.
+AU  - Shichiri, M.
+AU  - Yoshida, Y.
+AU  - Nakajima, Y.
+DA  - Mar 1
+DO  - 10.5650/jos.ess17184
+DP  - NLM
+ET  - 2018/02/21
+IS  - 3
+KW  - Administration, Oral
+Animals
+Anti-Inflammatory Agents/pharmacology
+Antioxidants/pharmacology
+Cell Line
+Citrus/*chemistry
+Colitis, Ulcerative/*chemically induced/*drug therapy/prevention & control
+Dextran Sulfate/*adverse effects
+Disease Models, Animal
+Macrophages/metabolism
+Male
+Mice, Inbred BALB C
+NF-kappa B/metabolism
+Oxidative Stress/drug effects
 *Phytotherapy
+Plant Extracts/*administration & dosage/isolation & purification
+Tumor Necrosis Factor-alpha/metabolism
+antioxidant against lipids
+citrus flavonoid
+experimental colitis
+inflammation
+oxidative stress
+yuzu
 LA  - eng
-N1  - News
-United States
-Health News. 2004 Jun;10(6):2.
-PY  - 2004
-SN  - 1081-5880 (Print)
-1081-5880
-SP  - 2
-ST  - Aloe vera helps ulcerative colitis
-T2  - Health News
-TI  - Aloe vera helps ulcerative colitis
-VL  - 10
-ID  - 551
-ER  - 
-
-TY  - JOUR
-AB  - OBJECTIVE: The purpose of this evidence based analysis was to determine the effectiveness and safety of ultraviolet phototherapy for moderate-to-severe plaque psoriasis. RESEARCH QUESTIONS: The specific research questions for the evidence review were as follows: What is the safety of ultraviolet phototherapy for moderate-to-severe plaque psoriasis?What is the effectiveness of ultraviolet phototherapy for moderate-to-severe plaque psoriasis? CLINICAL NEED: TARGET POPULATION AND CONDITION Psoriasis is a common chronic, systemic inflammatory disease affecting the skin, nails and occasionally the joints and has a lifelong waning and waxing course. It has a worldwide occurrence with a prevalence of at least 2% of the general population, making it one of the most common systemic inflammatory diseases. The immune-mediated disease has several clinical presentations with the most common (85% - 90%) being plaque psoriasis. Characteristic features of psoriasis include scaling, redness, and elevation of the skin. Patients with psoriasis may also present with a range of disabling symptoms such as pruritus (itching), pain, bleeding, or burning associated with plaque lesions and up to 30% are classified as having moderate-to-severe disease. Further, some psoriasis patients can be complex medical cases in which diabetes, inflammatory bowel disease, and hypertension are more likely to be present than in control populations and 10% also suffer from arthritis (psoriatic arthritis). The etiology of psoriasis is unknown but is thought to result from complex interactions between the environment and predisposing genes. Management of psoriasis is related to the extent of the skin involvement, although its presence on the hands, feet, face or genitalia can present challenges. Moderate-to-severe psoriasis is managed by phototherapy and a range of systemic agents including traditional immunosuppressants such as methotrexate and cyclospsorin. Treatment with modern immunosuppressant agents known as biologicals, which more specifically target the immune defects of the disease, is usually reserved for patients with contraindications and those failing or unresponsive to treatments with traditional immunosuppressants or phototherapy. Treatment plans are based on a long-term approach to managing the disease, patient's expectations, individual responses and risk of complications. The treatment goals are several fold but primarily to: 1) improve physical signs and secondary psychological effects,2) reduce inflammation and control skin shedding,3) control physical signs as long as possible, and to4) avoid factors that can aggravate the condition.Approaches are generally individualized because of the variable presentation, quality of life implications, co-existent medical conditions, and triggering factors (e.g. stress, infections and medications). Individual responses and commitments to therapy also present possible limitations. PHOTOTHERAPY: Ultraviolet phototherapy units have been licensed since February 1993 as a class 2 device in Canada. Units are available as hand held devices, hand and foot devices, full-body panel, and booth styles for institutional and home use. Units are also available with a range of ultraviolet A, broad and narrow band ultraviolet B (BB-UVB and NB-UVB) lamps. After establishing appropriate ultraviolet doses, three-times weekly treatment schedules for 20 to 25 treatments are generally needed to control symptoms. EVIDENCE-BASED ANALYSIS METHODS: The literature search strategy employed keywords and subject headings to capture the concepts of 1) phototherapy and 2) psoriasis. The search involved runs in the following databases: Ovid MEDLINE (1996 to March Week 3 2009), OVID MEDLINE In-Process and Other Non-Indexed Citations, EMBASE (1980 to 2009 Week 13), the Wiley Cochrane Library, and the Centre for Reviews and Dissemination/International Agency for Health Technology Assessment. Parallel search strategies were developed for the remaining databases. Search results were limited to human and English-language published between January 1999 and March 31, 2009. Search alerts were generated and reviewed for relevant literature up until May 31, 2009. Inclusion CriteriaExclusion CriteriaEnglish language reports and human studiesUltraviolet phototherapy interventions for plaque-type psoriasisReports involving efficacy and/or safety outcome studiesOriginal reports with defined study methodologyStandardized measurements on outcome events such as technical success, safety, effectiveness, durability, quality of life or patient satisfactionNon-systematic reviews, letters, comments and editorialsRandomized trials involving side-to-side or half body comparisonsRandomized trials not involving ultraviolet phototherapy intervention for plaque-type psoriasisTrials involving dosing studies, pilot feasibility studies or lacking control groups SUMMARY OF FINDINGS: A 2000 health technology evidence report on the overall management of psoriasis by The National Institute Health Research (NIHR) Health Technology Assessment Program of the UK was identified in the MAS evidence-based review. The report included 109 RCT studies published between 1966 and June 1999 involving four major treatment approaches - 51 on phototherapy, 32 on oral retinoids, 18 on cyclosporin and five on fumarates.. The absence of RCTs on methotrexate was noted as original studies with this agent had been performed prior to 1966. Of the 51 RCT studies involving phototherapy, 22 involved UVA, 21 involved UVB, five involved both UVA and UVB and three involved natural light as a source of UV. The RCT studies included comparisons of treatment schedules, ultraviolet source, addition of adjuvant therapies, and comparisons between phototherapy and topical treatment schedules. Because of heterogeneity, no synthesis or meta-analysis could be performed. Overall, the reviewers concluded that the efficacy of only five therapies could be supported from the RCT-based evidence review: photochemotherapy or phototherapy, cyclosporin, systemic retinoids, combination topical vitamin D(3) analogues (calcipotriol) and corticosteroids in combination with phototherapy and fumarates. Although there was no RCT evidence supporting methotrexate, it's efficacy for psoriasis is well known and it continues to be a treatment mainstay. The conclusion of the NIHR evidence review was that both photochemotherapy and phototherapy were effective treatments for clearing psoriasis, although their comparative effectiveness was unknown. Despite the conclusions on efficacy, a number of issues were identified in the evidence review and several areas for future research were discussed to address these limitations. Trials focusing on comparative effectiveness, either between ultraviolet sources or between classes of treatment such as methotrexate versus phototherapy, were recommended to refine treatment algorithms. The need for better assessment of cost-effectiveness of therapies to consider systemic drug costs and costs of surveillance, as well as drug efficacy, were also noted. Overall, the authors concluded that phototherapy and photochemotherapy had important roles in psoriasis management and were standard therapeutic options for psoriasis offered in dermatology practices. The MAS evidence-based review focusing on the RCT trial evidence for ultraviolet phototherapy management of moderate-to-severe plaque psoriasis was performed as an update to the NIHR 2000 systemic review on treatments for severe psoriasis. In this review, an additional 26 RCT reports examining phototherapy or photochemotherapy for psoriasis were identified. Among the studies were two RCTs comparing ultraviolet wavelength sources, five RCTs comparing different forms of phototherapy, four RCTs combining phototherapy with prior spa saline bathing, nine RCTs combining phototherapy with topical agents, two RCTs combining phototherapy with the systemic immunosuppressive agents methotrexate or alefacept, one RCT comparing phototherapy with an additional light source (the excimer laser), and one comparing a combination therapy with phototherapy and psychological intervention involving simultaneous audiotape sessions on mindfulness and stress reduction. Two trials also examined the effect of treatment setting on effectiveness of phototherapy, one on inpatient versus outpatient therapy and one on outpatient clinic versus home-based phototherapy. CONCLUSIONS: The conclusions of the MAS evidence-based review are outlined in Table ES1. In summary, phototherapy provides good control of clinical symptoms in the short term for patients with moderate-to-severe plaque-type psoriasis that have failed or are unresponsive to management with topical agents. However, many of the evidence gaps identified in the NIHR 2000 evidence review on psoriasis management persisted. In particular, the lack of evidence on the comparative effectiveness and/or cost-effectiveness between the major treatment options for moderate-to-severe psoriasis remained. The evidence on effectiveness and safety of longer term strategies for disease management has also not been addressed. Evidence for the safety, effectiveness, or cost-effectiveness of phototherapy delivered in various settings is emerging but is limited. In addition, because all available treatments for psoriasis - a disease with a high prevalence, chronicity, and cost - are palliative rather than curative, strategies for disease control and improvements in self-efficacy employed in other chronic disease management strategies should be investigated. (ABSTRACT TRUNCATED)
-AN  - 23074532
-C2  - PMC3377497
-DP  - NLM
-ET  - 2009/01/01
-IS  - 27
-LA  - eng
-N1  - Medical Advisory Secretariat
+N1  - 1347-3352
+Abe, Hiroko
+Ishioka, Mika
+Fujita, Yasuko
+Umeno, Aya
+Yasunaga, Mayu
+Sato, Akihiko
+Ohnishi, Shigehiko
+Suzuki, Shingo
+Ishida, Noriko
+Shichiri, Mototada
+Yoshida, Yasukazu
+Nakajima, Yoshihiro
 Journal Article
-Canada
-Ont Health Technol Assess Ser. 2009;9(27):1-66. Epub 2009 Nov 1.
-PY  - 2009
-SN  - 1915-7398 (Print)
-1915-7398
-SP  - 1-66
-ST  - Ultraviolet Phototherapy Management of Moderate-to-Severe Plaque Psoriasis: An Evidence-Based Analysis
-T2  - Ont Health Technol Assess Ser
-TI  - Ultraviolet Phototherapy Management of Moderate-to-Severe Plaque Psoriasis: An Evidence-Based Analysis
-VL  - 9
-ID  - 442
+Japan
+J Oleo Sci. 2018 Mar 1;67(3):335-344. doi: 10.5650/jos.ess17184. Epub 2018 Feb 19.
+PY  - 2018
+SN  - 1345-8957
+SP  - 335-344
+ST  - Yuzu (Citrus junos Tanaka) Peel Attenuates Dextran Sulfate Sodium-induced Murine Experimental Colitis
+T2  - J Oleo Sci
+TI  - Yuzu (Citrus junos Tanaka) Peel Attenuates Dextran Sulfate Sodium-induced Murine Experimental Colitis
+VL  - 67
+ID  - 62
 ER  - 
 
 TY  - JOUR
-AN  - 20681286
-DA  - May
+AB  - Carpolobia lutea G. Don (CL) is used in folk medicine for the treatment of inflammatory disorders. Effort in this study is to evaluate the beneficial effect of the aqueous-methanol extract of leaf of CL in a rat model of acetic acid induced colitis. Male Wistar rats were distributed into 6 groups of 7 rats each; non colitic, untreated colitic and colitic rats treated with graded doses of CL (100-800 mg/kg). Rats were pre-treated for 2 days before colitis induction and thereafter for 7 days post colitic induction. 24 h after the last treatment, animals were sacrificed and colonic inflammation was evaluated both macroscopically and biochemically. Macroscopic damage score, weight/length ratio, myeloperoxidase (MPO) activity and tumor necrotic factor alpha (TNF-alpha) levels, were significantly higher in untreated colitic rats in comparison with non colitic rats (P<0.05). Treatment with CL significantly reduced the macroscopic damage scores, neutrophil infiltration (MPO activity) and TNF-alpha level (P<0.05). In addition, C. lutea significantly prevented depletion of colonic GSH and (SOD) levels (P<0.05). It appears that the beneficial effect of methanol extract of C. lutea leaf observed in this study is dose dependent and is related to its antioxidant and anti-inflammatory activity.
+AD  - Department of Pharmacology and Therapeutics, College of Medicine, University of Ibadan, Ibadan, Nigeria.
+AN  - 27626602
+AU  - Abiodun, O. O.
+AU  - Oshinloye, A. O.
+DA  - Jan
+DO  - 10.1055/s-0042-114572
 DP  - NLM
-ET  - 2010/08/05
-IS  - 5
-KW  - Colitis, Ulcerative/*diagnosis/*drug therapy/etiology
-Drugs, Chinese Herbal/*therapeutic use
-Humans
-Medicine, Chinese Traditional/*methods
+ET  - 2016/09/15
+IS  - 1
+KW  - Acetic Acid
+Animals
+Anti-Inflammatory Agents/pharmacology
+Colitis, Ulcerative/chemically induced/complications/*drug therapy
+Colon/metabolism/pathology
+Disease Models, Animal
+Dose-Response Relationship, Drug
+Glutathione/metabolism
+Inflammation/complications/*drug therapy/pathology
+Male
+Oxidative Stress/*drug effects
+Peroxidase/metabolism
+*Phytotherapy
+Plant Extracts/chemistry/*pharmacology/*therapeutic use
+Plant Leaves/chemistry
+Polygalaceae/*chemistry
+Rats
+Superoxide Dismutase/metabolism
+Tumor Necrosis Factor-alpha/metabolism
+LA  - eng
+N1  - 2194-9387
+Abiodun, O O
+Oshinloye, A O
+Journal Article
+Germany
+Drug Res (Stuttg). 2017 Jan;67(1):20-24. doi: 10.1055/s-0042-114572. Epub 2016 Sep 14.
+PY  - 2017
+SN  - 2194-9379
+SP  - 20-24
+ST  - Carpolobia lutea G. Don (Polygalaceae) Inhibits Inflammation and Oxidative Stress in an Acetic Acid Induced Model of Rat Colitis
+T2  - Drug Res (Stuttg)
+TI  - Carpolobia lutea G. Don (Polygalaceae) Inhibits Inflammation and Oxidative Stress in an Acetic Acid Induced Model of Rat Colitis
+VL  - 67
+ID  - 131
+ER  - 
+
+TY  - JOUR
+AB  - ETHNOPHARMOCOLOGICAL RELEVANCE: Terminalia catappa Linn (Combretaceae) is a medicinal plant with anti-inflammatory, anti-diarrhoeal and antioxidant properties, frequently found in tropical regions. Considering its characteristics, it could be useful for the treatment of inflammatory bowel disease, which is associated with inflammation, oxidative stress and an immune dysfunction. Thus this study evaluates the immunomodulatory properties and the intestinal anti-inflammatory effect of an ethanolic extract of the stem bark of T. catappa (ETCB) both in vitro (in RAW 264.7 macrophages) and in vivo, in the trinitrobenzenesulfonic acid (TNBS) model of rat colitis. MATERIALS AND METHODS: The phenolic compounds in ETCB were identified and quantified using HPLC-DAD-qTOF-MS. The immunomodulatory activity ETCB was tested in vitro by determining the macrophage production of IL-1beta and nitrites. In vivo studies were performed in the TNBS model of rat colitis. ETCB was given (25, 50 and 100mg/kg/day) orally for two days prior to colitis induction and thereafter for 7 days. Response to treatment was assessed by scoring the gross appearance of the colon, and determining myeloperoxidase activity, gene expression of pro-inflammatory cytokines like TNF-alpha, IL-23 and IL-6, chemokines, inducible nitric oxide synthase and proteins crucial in the maintenance of the intestinal mucosal barrier integrity like mucins (MUC-2, MUC-3) and villin. RESULTS: ETCB was able to inhibit IL-1beta and nitrite production in vitro in RAW 264.7 macrophages. Moreover, treatment of TNBS colitic rats with ETCB resulted in a decreased colonic damage score and weight/length ratio. It also reduced the colonic neutrophil infiltration indicated by a lower myeloperoxidase activity and prevented the depletion of colonic glutathione levels in colitic rats. In addition, treatment with ETCB down-regulated the gene expression of pro-inflammatory mediators (TNF-alpha, IL-23, IL-6 and CINC-1) and iNOS in colitic rats. Moreover, the gene expression of mucosal barrier proteins like MUC-2, MUC-3 and villin were up-regulated in colitic rats treated with ETCB. The dose of ETCB that produced the most significant beneficial effect was 100mg/kg. Regarding the chemical composition of ETCB, 31 phenolic compounds were identified, including ellagic acid, catalagin and gallic acid. CONCLUSION: The beneficial effect of ETCB in the TNBS induced colitis in rats could be related to its antioxidant, immunomodulatory and anti-inflammatory activities, which could be attributed to the phenolic compounds identified.
+AD  - Department of Pharmacology and Therapeutics, College of Medicine, University of Ibadan, Ibadan, Nigeria.
+CIBER-EHD, Department of Pharmacology, ibs.GRANADA, Centre for Biomedical Research (CIBM), University of Granada, Granada, Spain.
+Department of Analytical Chemistry, Faculty of Sciences, University of Granada, Avenida Fuentenueva s/n, 18071 Granada, Spain; Research and Development Centre for Functional Food (CIDAF), Health-Science Technological Park, Avenida del Conocimiento 37, 18016 Granada, Spain.
+CIBER-EHD, Department of Pharmacology, ibs.GRANADA, Centre for Biomedical Research (CIBM), University of Granada, Granada, Spain. Electronic address: jgalvez@ugr.es.
+AN  - 27452660
+AU  - Abiodun, O. O.
+AU  - Rodriguez-Nogales, A.
+AU  - Algieri, F.
+AU  - Gomez-Caravaca, A. M.
+AU  - Segura-Carretero, A.
+AU  - Utrilla, M. P.
+AU  - Rodriguez-Cabezas, M. E.
+AU  - Galvez, J.
+DA  - Nov 4
+DO  - 10.1016/j.jep.2016.07.056
+DP  - NLM
+ET  - 2016/07/28
+KW  - Animals
+Anti-Inflammatory Agents/isolation & purification/*pharmacology
+Chromatography, High Pressure Liquid
+Colitis/chemically induced/immunology/metabolism/*prevention & control
+Colon/*drug effects/immunology/metabolism/pathology
+Cytokines/metabolism
+Disease Models, Animal
+Dose-Response Relationship, Drug
+Ethanol/*chemistry
+Female
+Immunologic Factors/isolation & purification/*pharmacology
+Inflammation Mediators/metabolism
+Macrophages/*drug effects/immunology/metabolism
+Mass Spectrometry
+Mice
+Microfilament Proteins/metabolism
+Mucins/metabolism
+Nitric Oxide Synthase Type II/metabolism
+Nitrites/metabolism
+Phenols/isolation & purification/pharmacology
 Phytotherapy
-LA  - chi
-N1  - Branch of Gastrointestinal Diseases
-China Association of Chinese Medicine
+Plant Bark/*chemistry
+Plant Extracts/isolation & purification/*pharmacology
+Plants, Medicinal
+RAW 264.7 Cells
+Rats, Wistar
+Solvents/*chemistry
+Terminalia/*chemistry
+Trinitrobenzenesulfonic Acid
+*Antioxidant activity
+*Immunomodulatory
+*Polyphenols
+*RAW 264.7 macrophages
+*TNBS rat colitis
+*Terminalia catappa L.
+LA  - eng
+N1  - 1872-7573
+Abiodun, Oyindamola O
+Rodriguez-Nogales, Alba
+Algieri, Francesca
+Gomez-Caravaca, Ana Maria
+Segura-Carretero, Antonio
+Utrilla, M Pilar
+Rodriguez-Cabezas, M Elena
+Galvez, Julio
 Journal Article
-Research Support, U.S. Gov't, Non-P.H.S.
-China
-Zhongguo Zhong Xi Yi Jie He Za Zhi. 2010 May;30(5):527-32.
-PY  - 2010
-SN  - 1003-5370 (Print)
-1003-5370
-SP  - 527-32
-ST  - [Consensus on Chinese medical diagnosis and treatment of ulcerative colitis (2009)]
-T2  - Zhongguo Zhong Xi Yi Jie He Za Zhi
-TI  - [Consensus on Chinese medical diagnosis and treatment of ulcerative colitis (2009)]
-VL  - 30
-ID  - 404
+Ireland
+J Ethnopharmacol. 2016 Nov 4;192:309-319. doi: 10.1016/j.jep.2016.07.056. Epub 2016 Jul 21.
+PY  - 2016
+SN  - 0378-8741
+SP  - 309-319
+ST  - Antiinflammatory and immunomodulatory activity of an ethanolic extract from the stem bark of Terminalia catappa L. (Combretaceae): In vitro and in vivo evidences
+T2  - J Ethnopharmacol
+TI  - Antiinflammatory and immunomodulatory activity of an ethanolic extract from the stem bark of Terminalia catappa L. (Combretaceae): In vitro and in vivo evidences
+VL  - 192
+ID  - 135
+ER  - 
+
+TY  - JOUR
+AB  - BACKGROUND: Complementary and alternative medicines (CAM) are widely used by patients with inflammatory bowel disease (IBD). Few data have been published on the impact of CAM on the quality of life (QOL). AIMS: The aim of the study was to describe CAM use in French patients with IBD, identify characteristics associated with CAM use, and assess the impact of CAM on the QOL. METHODS: We conducted an internet survey on CAM through the French IBD patient's association website. Patients had to answer a questionnaire (LimeSurvey application) about sociodemography, IBD treatment, CAM type, socioeconomic data, and QOL using the Short IBD Questionnaire (SIBDQ). Patients noted the impact of CAM on their symptoms and on their QOL on a scale of 0-100. CAM users and nonusers were compared by univariate and multivariate analyses. RESULTS: A total of 936 IBD patients responded and 767 (82.4%) filled up the whole questionnaire: 503 reported CAM use and 172 had never used. The types of CAM reported were diet-based (30.7%), body-based (25.1%), homeopathic or traditional medicine (19.6%), naturopathy (15.2%), and mind-body medicine (9.1%). The gastroenterologist was aware of CAM use in only 46% of patients. CAM users were more likely to have ulcerative colitis [odds ratio (OR)=1.78, P=0.018], clinical remission (OR=1.42, P=0.06), high level of education (OR=1.51, P=0.02), poor observance (OR=1.81, P=0.017), or to have terminated conventional treatment (OR=2.03, P=0.003). CAM users tend to have higher rates of SIBDQ scores, greater than 50 (OR=1.57, P=0.06). Improvement in symptoms and QOL was reported with all CAM types except mind medicine. CONCLUSION: CAM use is widespread among IBD patients. CAM users report improvement in symptoms and QOL, but they tend to stop their conventional treatment. Better information about CAM might improve adherence to conventional treatment.
+AD  - aDepartment of Gastroenterology, Cochin Hospital, APHP, Paris bAssociation Francois Aupetit cEmile Roux Hospital, APHP, Limeil-Brevannes dDepartment of Gastroenterology and Hepatology, GHI Le Raincy-Montfermeil, Montfermeil, France.
+AN  - 24407360
+AU  - Abitbol, V.
+AU  - Lahmek, P.
+AU  - Buisson, A.
+AU  - Olympie, A.
+AU  - Poupardin, C.
+AU  - Chaussade, S.
+AU  - Lesgourgues, B.
+AU  - Nahon, S.
+DA  - Mar
+DO  - 10.1097/meg.0000000000000040
+DP  - NLM
+ET  - 2014/01/11
+IS  - 3
+KW  - Adolescent
+Adult
+Aged
+Child
+Complementary Therapies/methods/*statistics & numerical data
+Female
+France
+Gastrointestinal Agents/therapeutic use
+Health Care Surveys
+Humans
+Inflammatory Bowel Diseases/drug therapy/*rehabilitation
+Male
+Medication Adherence/statistics & numerical data
+Middle Aged
+Patient Satisfaction
+Psychometrics
+*Quality of Life
+Socioeconomic Factors
+Treatment Outcome
+Young Adult
+LA  - eng
+N1  - 1473-5687
+Abitbol, Vered
+Lahmek, Pierre
+Buisson, Anne
+Olympie, Alain
+Poupardin, Cecile
+Chaussade, Stanislas
+Lesgourgues, Bruno
+Nahon, Stephane
+Journal Article
+England
+Eur J Gastroenterol Hepatol. 2014 Mar;26(3):288-94. doi: 10.1097/MEG.0000000000000040.
+PY  - 2014
+SN  - 0954-691x
+SP  - 288-94
+ST  - Impact of complementary and alternative medicine on the quality of life in inflammatory bowel disease: results from a French national survey
+T2  - Eur J Gastroenterol Hepatol
+TI  - Impact of complementary and alternative medicine on the quality of life in inflammatory bowel disease: results from a French national survey
+VL  - 26
+ID  - 249
+ER  - 
+
+TY  - JOUR
+AB  - BACKGROUND: Indigo naturalis (IND) is an herbal medicine that has been used as an anti-inflammatory agent to treat diseases including dermatitis and inflammatory bowel disease in China. However, the mechanism by which IND exerts its immunomodulatory effect is not well understood. METHODS: A murine model of dermatitis and inflammatory bowel disease, both induced by oxazolone (OXA), was treated with IND. The severity of dermatitis was evaluated based on ear thickness measurements and histological scoring. The severity of colitis was evaluated by measuring body weight, histological scoring, and endoscopic scoring. The expression of inflammatory cytokines in ear and colon tissue was evaluated using real-time PCR. 16S rRNA DNA sequencing of feces from OXA-induced colitis mice was performed before and after IND treatment. The effects of IND on OXA-induced colitis were also evaluated after depleting the gut flora with antibiotics to test whether alteration of the gut flora by IND influenced the course of intestinal inflammation in this model. RESULTS: IND treatment ameliorated OXA dermatitis with a reduction in IL-4 and eosinophil recruitment. However, OXA colitis was significantly aggravated in spite of a reduction in intestinal IL-13, a pivotal cytokine in the induction of the colitis. It was found that IND dramatically altered the gut flora and IND no longer exacerbated colitis when colitis was induced after gut flora depletion. CONCLUSIONS: Our data suggest that IND could modify the inflammatory immune response in multiple ways, either directly (i.e., modification of the allergic immune cell activity) or indirectly (i.e., alteration of commensal compositions).
+AD  - Division of Gastroenterology, Department of Internal Medicine, Kobe University Graduate School of Medicine, Hyogo, Japan.
+AN  - 28482341
+AU  - Adachi, S.
+AU  - Hoshi, N.
+AU  - Inoue, J.
+AU  - Yasutomi, E.
+AU  - Otsuka, T.
+AU  - Dhakhwa, R.
+AU  - Wang, Z.
+AU  - Koo, Y.
+AU  - Takamatsu, T.
+AU  - Matsumura, Y.
+AU  - Yamairi, H.
+AU  - Watanabe, D.
+AU  - Ooi, M.
+AU  - Tanahashi, T.
+AU  - Nishiumi, S.
+AU  - Yoshida, M.
+AU  - Azuma, T.
+DO  - 10.1159/000471923
+DP  - NLM
+ET  - 2017/05/10
+IS  - 1
+KW  - Adjuvants, Immunologic
+Animals
+Colitis/drug therapy/immunology/*microbiology/pathology
+Colon/immunology/pathology
+DNA, Bacterial/analysis
+Dermatitis, Allergic Contact/*drug therapy/pathology
+Feces/microbiology
+Gastrointestinal Microbiome/*drug effects
+Indigo Carmine/*adverse effects/pharmacology/*therapeutic use
+Interleukin-13/immunology
+Male
+Mice, Inbred BALB C
+Mice, Inbred C57BL
+Oxazolone
+Phytotherapy
+Skin/pathology
+Colitis
+Dermatitis
+Herbal medicine
+Indigo naturalis
+Microflora
+Qing dai
+LA  - eng
+N1  - 1423-0097
+Adachi, Soichiro
+Hoshi, Namiko
+Inoue, Jun
+Yasutomi, Eiichiro
+Otsuka, Takafumi
+Dhakhwa, Ramesh
+Wang, Zi
+Koo, Yuna
+Takamatsu, Toshihiro
+Matsumura, Yuriko
+Yamairi, Haruka
+Watanabe, Daisuke
+Ooi, Makoto
+Tanahashi, Toshihito
+Nishiumi, Shin
+Yoshida, Masaru
+Azuma, Takeshi
+Journal Article
+Switzerland
+Int Arch Allergy Immunol. 2017;173(1):23-33. doi: 10.1159/000471923. Epub 2017 May 9.
+PY  - 2017
+SN  - 1018-2438
+SP  - 23-33
+ST  - Indigo Naturalis Ameliorates Oxazolone-Induced Dermatitis but Aggravates Colitis by Changing the Composition of Gut Microflora
+T2  - Int Arch Allergy Immunol
+TI  - Indigo Naturalis Ameliorates Oxazolone-Induced Dermatitis but Aggravates Colitis by Changing the Composition of Gut Microflora
+VL  - 173
+ID  - 99
 ER  - 
 
