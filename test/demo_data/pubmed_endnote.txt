@@ -1,0 +1,171 @@
+﻿TY  - JOUR
+AN  - 11217687
+DA  - Jan
+DO  - 10.1055/s-2001-10705
+DP  - NLM
+ET  - 2001/02/24
+IS  - 1
+KW  - Colitis, Ulcerative/*therapy
+*Complementary Therapies
+Humans
+Patient Education as Topic
+Treatment Outcome
+LA  - ger
+N1  - German Society of Digestive and Metabolic Diseases
+Consensus Development Conference
+Guideline
+Journal Article
+Practice Guideline
+Review
+Germany
+Z Gastroenterol. 2001 Jan;39(1):69-70. doi: 10.1055/s-2001-10705.
+OP  - Leitlinien der DGVS. Komplementare Therapien.
+PY  - 2001
+SN  - 0044-2771 (Print)
+0044-2771
+SP  - 69-70
+ST  - [Guidelines of the DGVS. Complementary therapy. German Society of Digestive and Metabolic Diseases]
+T2  - Z Gastroenterol
+TI  - [Guidelines of the DGVS. Complementary therapy. German Society of Digestive and Metabolic Diseases]
+VL  - 39
+ID  - 593
+ER  - 
+
+TY  - JOUR
+AB  - GW Pharmaceuticals is undertaking a major research programme in the UK to develop and market distinct cannabis-based prescription medicines [THC:CBD, High THC, High CBD] in a range of medical conditions. The cannabis for this programme is grown in a secret location in the UK. It is expected that the product will be marketed in the US in late 2003. GW's cannabis-based products include selected phytocannabinoids from cannabis plants, including D9 tetrahydrocannabinol (THC) and cannabidiol (CBD). The company is investigating their use in three delivery systems, including sublingual spray, sublingual tablet and inhaled (but not smoked) dosage forms. The technology is protected by patent applications. Four different formulations are currently being investigated, including High THC, THC:CBD (narrow ratio), THC:CBD (broad ratio) and High CBD. GW is also developing a specialist security technology that will be incorporated in all its drug delivery systems. This technology allows for the recording and remote monitoring of patient usage to prevent any potential abuse of its cannabis-based medicines. GW plans to enter into agreements with other companies following phase III development, to secure the best commercialisation terms for its cannabis-based medicines. In June 2003, GW announced that exclusive commercialisation rights for the drug in the UK had been licensed to Bayer AG. The drug will be marketed under the Sativex brand name. This agreement also provides Bayer with an option to expand their license to include the European Union and certain world markets. GW was granted a clinical trial exemption certificate by the Medicines Control Agency to conduct clinical studies with cannabis-based medicines in the UK. The exemption includes investigations in the relief of pain of neurological origin and defects of neurological function in the following indications: multiple sclerosis (MS), spinal cord injury, peripheral nerve injury, central nervous system damage, neuroinvasive cancer, dystonias, cerebral vascular accident and spina bifida, as well as for the relief of pain and inflammation in rheumatoid arthritis and also pain relief in brachial plexus injury. The UK Government stated that it would be willing to amend the Misuse of Drugs Act 1971 to permit the introduction of a cannabis-based medicine. GW stated in its 2002 Annual Report that it was currently conducting five phase III trials of its cannabis derivatives, including a double-blind, placebo-controlled trial with a sublingual spray containing High THC in more than 100 patients with cancer pain in the UK. Also included is a phase III trial of THC:CBD (narrow ratio) being conducted in patients with severe pain due to brachial plexus injury, as are two more phase III trials of THC:CBD (narrow ratio) targeting spasticity and bladder dysfunction in multiple sclerosis patients. Another phase III trial of THC:CBD (narrow ratio) in patients with spinal cord injury is also being conducted. Results from the trials are expected during 2003. Three additional trials are also in the early stages of planning. These trials include a phase I trial of THC:CBD (broad ratio) in patients with inflammatory bowel disease, a phase I trial of High CBD in patients with psychotic disorders such as schizophrenia, and a preclinical trial of High CBD in various CNS disorders (including epilepsy, stroke and head injury). GW Pharmaceuticals submitted an application for approval of cannabis-based medicines to UK regulatory authorities in March 2003. Originally GW hoped to market cannabis-based prescription medicines by 2004, but is now planning for a launch in the UK towards the end of 2003. Several trials for GW's cannabis derivatives have also been completed, including four randomised, double-blind, placebo-controlled phase III clinical trials conducted in the UK. The trials were initiated by GW in April 2002, to investigate the use of a sublingual spray containing THC:CBD (narrow ratio) in the following medical conditions: pain in spinal cord injury, pain and sleep in MS and spinal cord injury, neuropathic pain in MS and general neuropathic pain (presented as allodynia). Results from these trials show that THC:CBD (narrow ratio) caused statistically significant reductions in neuropathic pain in patients with MS and other conditions. In addition, improvements in other MS symptoms were observed as well. Phase II studies of THC:CBD (narrow ratio) have also been completed in patients with MS, spinal cord injury, neuropathic pain and a small number of patients with peripheral neuropathy secondary to diabetes mellitus or AIDS. A phase II trial of THC:CBD (broad ratio) has also been completed in a small number of patients with rheumatoid arthritis, as has a trial of High CBD in patients with neurogenic symptoms. A phase II trial has also been evaluated with High THC in small numbers of patients for the treatment of perioperative pain. The phase II trials provided positive results and confirmed an excellent safety profile for cannabis-based medicines. GW Pharmaceuticals received an IND approval to commence phase II clinical trials in Canada in patients with chronic pain, multiple sclerosis and spinal cord injury in 2002. Following meetings with the US FDA, Drug Enforcement Agency (DEA), the Office for National Drug Control Policy, and National Institute for Drug Abuse, GW was granted an import license from the DEA and has imported its first cannabis extracts into the US. Preclinical research with these extracts in the US is ongoing.
+AN  - 12952500
+DO  - 10.2165/00126839-200304050-00005
+DP  - NLM
+ET  - 2003/09/04
+IS  - 5
+KW  - Administration, Sublingual
+Analgesics, Opioid/administration & dosage/pharmacology/*therapeutic use
+Cannabis/*chemistry
+Clinical Trials as Topic
+Humans
+Pain/*drug therapy
+*Phytotherapy
+Plant Preparations/therapeutic use
+LA  - eng
+N1  - Journal Article
+Review
+New Zealand
+Drugs R D. 2003;4(5):306-9. doi: 10.2165/00126839-200304050-00005.
+PY  - 2003
+SN  - 1174-5886 (Print)
+1174-5886
+SP  - 306-9
+ST  - Cannabis-based medicines--GW pharmaceuticals: high CBD, high THC, medicinal cannabis--GW pharmaceuticals, THC:CBD
+T2  - Drugs R D
+TI  - Cannabis-based medicines--GW pharmaceuticals: high CBD, high THC, medicinal cannabis--GW pharmaceuticals, THC:CBD
+VL  - 4
+ID  - 568
+ER  - 
+
+TY  - JOUR
+AN  - 15609615
+DA  - Nov
+DP  - NLM
+ET  - 2004/12/22
+IS  - 11
+KW  - Anti-Inflammatory Agents/therapeutic use
+Colitis, Ulcerative/*diagnosis/*drug therapy
+Diagnosis, Differential
+Drug Therapy, Combination
+Drugs, Chinese Herbal/therapeutic use
+Humans
+Medicine, Chinese Traditional
+Prednisone/therapeutic use
+LA  - chi
+N1  - Guideline
+Journal Article
+China
+Zhongguo Zhong Xi Yi Jie He Za Zhi. 2004 Nov;24(11):1052-5.
+PY  - 2004
+SN  - 1003-5370 (Print)
+1003-5370
+SP  - 1052-5
+ST  - [Scheme on diagnosis and treatment of ulcerative colitis by integrative Chinese and Western medicine (draft)]
+T2  - Zhongguo Zhong Xi Yi Jie He Za Zhi
+TI  - [Scheme on diagnosis and treatment of ulcerative colitis by integrative Chinese and Western medicine (draft)]
+VL  - 24
+ID  - 540
+ER  - 
+
+TY  - JOUR
+AN  - 15199891
+DA  - Jun
+DP  - NLM
+ET  - 2004/06/18
+IS  - 6
+KW  - *Aloe
+Colitis, Ulcerative/*drug therapy
+Humans
+*Phytotherapy
+LA  - eng
+N1  - News
+United States
+Health News. 2004 Jun;10(6):2.
+PY  - 2004
+SN  - 1081-5880 (Print)
+1081-5880
+SP  - 2
+ST  - Aloe vera helps ulcerative colitis
+T2  - Health News
+TI  - Aloe vera helps ulcerative colitis
+VL  - 10
+ID  - 551
+ER  - 
+
+TY  - JOUR
+AB  - OBJECTIVE: The purpose of this evidence based analysis was to determine the effectiveness and safety of ultraviolet phototherapy for moderate-to-severe plaque psoriasis. RESEARCH QUESTIONS: The specific research questions for the evidence review were as follows: What is the safety of ultraviolet phototherapy for moderate-to-severe plaque psoriasis?What is the effectiveness of ultraviolet phototherapy for moderate-to-severe plaque psoriasis? CLINICAL NEED: TARGET POPULATION AND CONDITION Psoriasis is a common chronic, systemic inflammatory disease affecting the skin, nails and occasionally the joints and has a lifelong waning and waxing course. It has a worldwide occurrence with a prevalence of at least 2% of the general population, making it one of the most common systemic inflammatory diseases. The immune-mediated disease has several clinical presentations with the most common (85% - 90%) being plaque psoriasis. Characteristic features of psoriasis include scaling, redness, and elevation of the skin. Patients with psoriasis may also present with a range of disabling symptoms such as pruritus (itching), pain, bleeding, or burning associated with plaque lesions and up to 30% are classified as having moderate-to-severe disease. Further, some psoriasis patients can be complex medical cases in which diabetes, inflammatory bowel disease, and hypertension are more likely to be present than in control populations and 10% also suffer from arthritis (psoriatic arthritis). The etiology of psoriasis is unknown but is thought to result from complex interactions between the environment and predisposing genes. Management of psoriasis is related to the extent of the skin involvement, although its presence on the hands, feet, face or genitalia can present challenges. Moderate-to-severe psoriasis is managed by phototherapy and a range of systemic agents including traditional immunosuppressants such as methotrexate and cyclospsorin. Treatment with modern immunosuppressant agents known as biologicals, which more specifically target the immune defects of the disease, is usually reserved for patients with contraindications and those failing or unresponsive to treatments with traditional immunosuppressants or phototherapy. Treatment plans are based on a long-term approach to managing the disease, patient's expectations, individual responses and risk of complications. The treatment goals are several fold but primarily to: 1) improve physical signs and secondary psychological effects,2) reduce inflammation and control skin shedding,3) control physical signs as long as possible, and to4) avoid factors that can aggravate the condition.Approaches are generally individualized because of the variable presentation, quality of life implications, co-existent medical conditions, and triggering factors (e.g. stress, infections and medications). Individual responses and commitments to therapy also present possible limitations. PHOTOTHERAPY: Ultraviolet phototherapy units have been licensed since February 1993 as a class 2 device in Canada. Units are available as hand held devices, hand and foot devices, full-body panel, and booth styles for institutional and home use. Units are also available with a range of ultraviolet A, broad and narrow band ultraviolet B (BB-UVB and NB-UVB) lamps. After establishing appropriate ultraviolet doses, three-times weekly treatment schedules for 20 to 25 treatments are generally needed to control symptoms. EVIDENCE-BASED ANALYSIS METHODS: The literature search strategy employed keywords and subject headings to capture the concepts of 1) phototherapy and 2) psoriasis. The search involved runs in the following databases: Ovid MEDLINE (1996 to March Week 3 2009), OVID MEDLINE In-Process and Other Non-Indexed Citations, EMBASE (1980 to 2009 Week 13), the Wiley Cochrane Library, and the Centre for Reviews and Dissemination/International Agency for Health Technology Assessment. Parallel search strategies were developed for the remaining databases. Search results were limited to human and English-language published between January 1999 and March 31, 2009. Search alerts were generated and reviewed for relevant literature up until May 31, 2009. Inclusion CriteriaExclusion CriteriaEnglish language reports and human studiesUltraviolet phototherapy interventions for plaque-type psoriasisReports involving efficacy and/or safety outcome studiesOriginal reports with defined study methodologyStandardized measurements on outcome events such as technical success, safety, effectiveness, durability, quality of life or patient satisfactionNon-systematic reviews, letters, comments and editorialsRandomized trials involving side-to-side or half body comparisonsRandomized trials not involving ultraviolet phototherapy intervention for plaque-type psoriasisTrials involving dosing studies, pilot feasibility studies or lacking control groups SUMMARY OF FINDINGS: A 2000 health technology evidence report on the overall management of psoriasis by The National Institute Health Research (NIHR) Health Technology Assessment Program of the UK was identified in the MAS evidence-based review. The report included 109 RCT studies published between 1966 and June 1999 involving four major treatment approaches - 51 on phototherapy, 32 on oral retinoids, 18 on cyclosporin and five on fumarates.. The absence of RCTs on methotrexate was noted as original studies with this agent had been performed prior to 1966. Of the 51 RCT studies involving phototherapy, 22 involved UVA, 21 involved UVB, five involved both UVA and UVB and three involved natural light as a source of UV. The RCT studies included comparisons of treatment schedules, ultraviolet source, addition of adjuvant therapies, and comparisons between phototherapy and topical treatment schedules. Because of heterogeneity, no synthesis or meta-analysis could be performed. Overall, the reviewers concluded that the efficacy of only five therapies could be supported from the RCT-based evidence review: photochemotherapy or phototherapy, cyclosporin, systemic retinoids, combination topical vitamin D(3) analogues (calcipotriol) and corticosteroids in combination with phototherapy and fumarates. Although there was no RCT evidence supporting methotrexate, it's efficacy for psoriasis is well known and it continues to be a treatment mainstay. The conclusion of the NIHR evidence review was that both photochemotherapy and phototherapy were effective treatments for clearing psoriasis, although their comparative effectiveness was unknown. Despite the conclusions on efficacy, a number of issues were identified in the evidence review and several areas for future research were discussed to address these limitations. Trials focusing on comparative effectiveness, either between ultraviolet sources or between classes of treatment such as methotrexate versus phototherapy, were recommended to refine treatment algorithms. The need for better assessment of cost-effectiveness of therapies to consider systemic drug costs and costs of surveillance, as well as drug efficacy, were also noted. Overall, the authors concluded that phototherapy and photochemotherapy had important roles in psoriasis management and were standard therapeutic options for psoriasis offered in dermatology practices. The MAS evidence-based review focusing on the RCT trial evidence for ultraviolet phototherapy management of moderate-to-severe plaque psoriasis was performed as an update to the NIHR 2000 systemic review on treatments for severe psoriasis. In this review, an additional 26 RCT reports examining phototherapy or photochemotherapy for psoriasis were identified. Among the studies were two RCTs comparing ultraviolet wavelength sources, five RCTs comparing different forms of phototherapy, four RCTs combining phototherapy with prior spa saline bathing, nine RCTs combining phototherapy with topical agents, two RCTs combining phototherapy with the systemic immunosuppressive agents methotrexate or alefacept, one RCT comparing phototherapy with an additional light source (the excimer laser), and one comparing a combination therapy with phototherapy and psychological intervention involving simultaneous audiotape sessions on mindfulness and stress reduction. Two trials also examined the effect of treatment setting on effectiveness of phototherapy, one on inpatient versus outpatient therapy and one on outpatient clinic versus home-based phototherapy. CONCLUSIONS: The conclusions of the MAS evidence-based review are outlined in Table ES1. In summary, phototherapy provides good control of clinical symptoms in the short term for patients with moderate-to-severe plaque-type psoriasis that have failed or are unresponsive to management with topical agents. However, many of the evidence gaps identified in the NIHR 2000 evidence review on psoriasis management persisted. In particular, the lack of evidence on the comparative effectiveness and/or cost-effectiveness between the major treatment options for moderate-to-severe psoriasis remained. The evidence on effectiveness and safety of longer term strategies for disease management has also not been addressed. Evidence for the safety, effectiveness, or cost-effectiveness of phototherapy delivered in various settings is emerging but is limited. In addition, because all available treatments for psoriasis - a disease with a high prevalence, chronicity, and cost - are palliative rather than curative, strategies for disease control and improvements in self-efficacy employed in other chronic disease management strategies should be investigated. (ABSTRACT TRUNCATED)
+AN  - 23074532
+C2  - PMC3377497
+DP  - NLM
+ET  - 2009/01/01
+IS  - 27
+LA  - eng
+N1  - Medical Advisory Secretariat
+Journal Article
+Canada
+Ont Health Technol Assess Ser. 2009;9(27):1-66. Epub 2009 Nov 1.
+PY  - 2009
+SN  - 1915-7398 (Print)
+1915-7398
+SP  - 1-66
+ST  - Ultraviolet Phototherapy Management of Moderate-to-Severe Plaque Psoriasis: An Evidence-Based Analysis
+T2  - Ont Health Technol Assess Ser
+TI  - Ultraviolet Phototherapy Management of Moderate-to-Severe Plaque Psoriasis: An Evidence-Based Analysis
+VL  - 9
+ID  - 442
+ER  - 
+
+TY  - JOUR
+AN  - 20681286
+DA  - May
+DP  - NLM
+ET  - 2010/08/05
+IS  - 5
+KW  - Colitis, Ulcerative/*diagnosis/*drug therapy/etiology
+Drugs, Chinese Herbal/*therapeutic use
+Humans
+Medicine, Chinese Traditional/*methods
+Phytotherapy
+LA  - chi
+N1  - Branch of Gastrointestinal Diseases
+China Association of Chinese Medicine
+Journal Article
+Research Support, U.S. Gov't, Non-P.H.S.
+China
+Zhongguo Zhong Xi Yi Jie He Za Zhi. 2010 May;30(5):527-32.
+PY  - 2010
+SN  - 1003-5370 (Print)
+1003-5370
+SP  - 527-32
+ST  - [Consensus on Chinese medical diagnosis and treatment of ulcerative colitis (2009)]
+T2  - Zhongguo Zhong Xi Yi Jie He Za Zhi
+TI  - [Consensus on Chinese medical diagnosis and treatment of ulcerative colitis (2009)]
+VL  - 30
+ID  - 404
+ER  - 
+

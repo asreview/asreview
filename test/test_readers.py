@@ -8,21 +8,26 @@ from asreview.readers import ASReviewData
 
 
 @mark.parametrize(
-    "test_file,n_lines,labels",
+    "test_file,n_lines,labels,ignore_col",
     [
-        ("embase.csv", 6, None),
-        ("embase.ris", 6, None),
-        ("generic.csv", 2, None),
-        ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0]),
-        ("generic.ris", 2, None),
-        ("generic_labels.ris", 2, [1, 0]),
+        ("embase.csv", 6, None, []),
+        ("embase.ris", 6, None, []),
+        ("generic.csv", 2, None, []),
+        ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0], []),
+        ("generic.ris", 2, None, []),
+        ("generic_labels.ris", 2, [1, 0], []),
+        ("pubmed_zotero.ris", 6, None, []),
+        ("pubmed_endnote.txt", 6, None, ['authors']),
+        ("scopus.ris", 6, None, []),
+        #  ("ovid_psycinfo.ris", 6, None, []),
     ])
-def test_reader(test_file, n_lines, labels):
+def test_reader(test_file, n_lines, labels, ignore_col):
     fp = Path("test", "demo_data", test_file)
     as_data = asr.ASReviewData.from_file(fp)
     assert as_data.raw_df.shape[0] == n_lines
 
     cols = ['title', 'abstract', 'authors', 'article_id']
+    cols = [col for col in cols if col not in ignore_col]
     if labels is not None:
         cols.append('labels')
         for i in range(n_lines):

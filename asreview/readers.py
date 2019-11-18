@@ -337,7 +337,7 @@ def write_ris(df, ris_fp):
 def _df_from_file(fp):
     if Path(fp).suffix in [".csv", ".CSV"]:
         data = read_csv(fp)
-    elif Path(fp).suffix in [".ris", ".RIS"]:
+    elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
         data = read_ris(fp)
     elif Path(fp).suffix in [".xlsx", ".XLSX"]:
         data = read_excel(fp)
