@@ -15,6 +15,7 @@
 import logging
 from pathlib import Path
 import warnings
+import xml.etree.ElementTree as ET
 
 
 import numpy as np
@@ -335,12 +336,14 @@ def write_ris(df, ris_fp):
 
 
 def _df_from_file(fp):
-    if Path(fp).suffix in [".csv", ".CSV"]:
+    if Path(fp).suffix.lower() == ".csv":
         data = read_csv(fp)
-    elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
+    elif Path(fp).suffix.lower() in [".ris", ".txt"]:
         data = read_ris(fp)
-    elif Path(fp).suffix in [".xlsx", ".XLSX"]:
+    elif Path(fp).suffix.lower() == ".xslx":
         data = read_excel(fp)
+    elif Path(fp).suffix.lower() == ".xml":
+        data = read_pubmed_xml(fp)
     else:
         raise ValueError(f"Unknown file extension: {Path(fp).suffix}.\n"
                          f"from file {fp}")
@@ -440,6 +443,55 @@ def read_excel(fp):
             best_sheet = sheet_name
 
     return dfs[best_sheet].to_dict('records')
+
+
+def read_pubmed_xml(fp):
+    """PubMed XML file reader.
+
+    Parameters
+    ----------
+    fp: str, pathlib.Path
+        File path to the XML file (.xml).
+
+    Returns
+    -------
+    list:
+        List with entries.
+    """
+    tree = ET.parse(fp)
+    root = tree.getroot()
+
+    records = []
+    for child in root:
+        parts = []
+        elem = child.find('MedlineCitation/Article/ArticleTitle')
+        title = elem.text.replace('[', '').replace(']', '')
+
+        for elem in child.iter('AbstractText'):
+            parts.append(elem.text)
+        authors = []
+        for author in child.iter('Author'):
+            author_elems = []
+            for elem in author.iter('ForeName'):
+                author_elems.append(elem.text)
+            for elem in author.iter('LastName'):
+                author_elems.append(elem.text)
+            authors.append(" ".join(author_elems))
+
+        author_str = ", ".join(authors)
+        abstract = " ".join(parts)
+
+        keyword_list = [keyword.text for keyword in child.iter('Keyword')]
+        keywords = ", ".join(keyword_list)
+
+        new_record = {
+            "abstract": abstract,
+            "title": title,
+            "authors": author_str,
+            "keywords": keywords,
+        }
+        records.append(new_record)
+    return records
 
 
 def read_ris(fp):
