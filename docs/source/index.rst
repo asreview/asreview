@@ -82,7 +82,7 @@ ASReview Core Development Team (2019). ASReview: Software for automated systemat
 reviews [version 0.x.y]. Utrecht University, Utrecht, The Netherlands. Available at
 https://github.com/msdslab/automated-systematic-review.
 
-.. code-block:: bibtex
+.. code-block:: text
 
 	@Manual{
 		title = {ASReview: Software for automated systematic reviews},
