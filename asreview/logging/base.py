@@ -63,8 +63,8 @@ class BaseLogger(ABC):
     def add_settings(self, settings):
         """Add settings to the logger.
 
-        Arguments:
-        ----------
+        Arguments
+        ---------
         settings: ASReviewSettings
             Settings object to add to the logger.
         """
