@@ -56,6 +56,7 @@ setup(
     ],
     keywords='systematic review',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    python_requires='~=3.6',
     install_requires=[
         'numpy',
         'tensorflow',
