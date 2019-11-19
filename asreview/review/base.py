@@ -233,10 +233,10 @@ class BaseReview(ABC):
             self.log_probabilities(logger)
 
     def review(self, *args, **kwargs):
-        """ Do the systematic review, writing the results to the log file.
+        """Do the systematic review, writing the results to the log file.
 
-        Arguments:
-        ----------
+        Arguments
+        ---------
         stop_after_class: bool
             When to stop; if True stop after classification step, otherwise
             stop after training step.
@@ -300,8 +300,8 @@ class BaseReview(ABC):
 
         It automaticaly updates the logger.
 
-        Arguments:
-        ----------
+        Arguments
+        ---------
         query_idx: list, np.array
             Indices to classify.
         inclusions: list, np.array
