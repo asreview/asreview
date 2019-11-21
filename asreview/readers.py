@@ -520,7 +520,7 @@ def read_ris(fp):
                 mapping = _tag_key_mapping(reverse=False)
                 entries = list(readris(bibliography_file, mapping=mapping))
                 break
-        except UnicodeDecodeError:
+        except UnicodeDecodeError, IOError:
             pass
 
     if entries is None:
