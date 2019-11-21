@@ -512,13 +512,17 @@ def read_ris(fp):
 
     """
 
-    try:
-        with open(fp, 'r', encoding='utf-8') as bibliography_file:
-            mapping = _tag_key_mapping(reverse=False)
-            entries = list(readris(bibliography_file, mapping=mapping))
-    except IOError:
-        with open(fp, 'r', encoding='utf-8-sig') as bibliography_file:
-            mapping = _tag_key_mapping(reverse=False)
-            entries = list(readris(bibliography_file, mapping=mapping))
+    encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
+    entries = None
+    for encoding in encodings:
+        try:
+            with open(fp, 'r', encoding=encoding) as bibliography_file:
+                mapping = _tag_key_mapping(reverse=False)
+                entries = list(readris(bibliography_file, mapping=mapping))
+                break
+        except UnicodeDecodeError:
+            pass
 
+    if entries is None:
+        raise ValueError("Cannot find proper encoding for data file.")
     return entries
