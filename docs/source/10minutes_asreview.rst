@@ -3,7 +3,7 @@
 
 This tutorial will guide you in running the ASReview software. It
 consists of two parts, 0) `the installation of the ASReview
-software <installing-the-asreview-software>`__ and 1) `a
+software <#installing-the-asreview-software>`__ and 1) `a
 demonstration of the Oracle mode of the ASReview
 software <#running-oracle-mode-with-the-ptsd-dataset>`__.
 
@@ -115,9 +115,12 @@ If ASReview was installed succesfully, you will get output like:
 .. code:: bash
 
     Installing collected packages: asreview
-    Successfully installed asreview-0.3.0
+    Successfully installed asreview-0.3.2
 
 You are now ready to start your first Automated Systematic Review!
+
+In case you do not get this output, please consult
+`the FAQ <faq.html>`__ to solve the issue.
 
 Running Oracle mode with the PTSD dataset
 -----------------------------------------
@@ -132,8 +135,19 @@ start this process, run:
     asreview oracle example_ptsd --log_file myreview.h5
 
 If you have a .ris or .csv file ready for review, you would replace ``example_ptsd`` with this file
-instead. The log file ``myreview.h5`` stores the details of your systematic review;
+instead:
+
+
+.. code:: bash
+
+	asreview oracle example_file.csv --log_file myreview.h5
+
+
+The log file ``myreview.h5`` stores the details of your systematic review;
 your review choices, model parameters, model predictions and more.
+
+In case this command returns ` Unknown command “asreview” on command line or terminal`, please consult
+`the FAQ <faq.html>`__ to solve the issue.
 
 
 The following will show on your screen:
@@ -142,8 +156,12 @@ The following will show on your screen:
 
 
 After starting ASReview, you will be presented with a small menu with two options to
-indicate which papers you know should be included or excluded beforehand. Remember that
-inclusions are much more important for the review software predictions than exclusions.
+indicate which papers you know should be included or excluded beforehand. The first is
+to use the built-in paper finder, the second is to include papers by the order in which
+they occur in your data file.
+
+Remember that inclusions are much more important for the review software predictions
+than exclusions.
 
 Including and excluding papers using the paper finder
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

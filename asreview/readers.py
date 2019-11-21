@@ -341,7 +341,7 @@ def _df_from_file(fp):
         data = read_csv(fp)
     elif Path(fp).suffix.lower() in [".ris", ".txt"]:
         data = read_ris(fp)
-    elif Path(fp).suffix.lower() == ".xslx":
+    elif Path(fp).suffix.lower() == ".xlsx":
         data = read_excel(fp)
     elif Path(fp).suffix.lower() == ".xml":
         data = read_pubmed_xml(fp)
