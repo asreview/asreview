@@ -232,15 +232,13 @@ class ASReviewData(object):
             Sorted list of indexes that match best the keywords.
         """
         match_str = np.full(self.title.shape, "x", dtype=object)
-        print(match_str[1:6])
-        print(self.title[1:6])
+
         if self.title is not None:
             for i, title in enumerate(self.title):
                 match_str[i, ] = str(title) + " "
         if self.authors is not None:
             for i in range(len(self.authors)):
                 match_str[i] += format_to_str(self.authors[i]) + " "
-        print(match_str[1:6])
         if self.keywords is not None:
             if isinstance(self.keywords[0], list):
                 new_keywords = np.array([" ".join(x) for x in self.keywords])
@@ -249,7 +247,6 @@ class ASReviewData(object):
             for i in range(len(new_keywords)):
                 match_str[i] += str(new_keywords[i])
 
-        print(match_str[1:10])
         new_ranking = get_fuzzy_ranking(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
         best_idx = []
