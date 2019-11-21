@@ -231,28 +231,16 @@ class ASReviewData(object):
         list:
             Sorted list of indexes that match best the keywords.
         """
-        match_str = np.full(self.title.shape, "")
-        
+        match_str = np.full(self.title.shape, "x", dtype=object)
+        print(match_str[1:6])
+        print(self.title[1:6])
         if self.title is not None:
             for i, title in enumerate(self.title):
-                match_str[i] = str(self.title[i]) + " "
-#             match_str += self.title.astype(str) + np.full(self.title.shape, " ")
-#             match_str += self.title.astype(str) + np.full(self.title.shape, " ")
+                match_str[i, ] = str(title) + " "
         if self.authors is not None:
-            if isinstance(self.authors[0], list):
-                new_authors = np.full(self.authors.shape, "")
-                for i, author in enumerate(self.authors):
-                    new_author = ""
-                    for sub in author:
-                        new_author += sub + " "
-                    new_authors[i] = new_author
-#                 new_authors = np.array([" ".join(str(x)) for x in self.authors])
-            else:
-                new_authors = self.authors
-#             match_str += new_authors + " "
             for i in range(len(self.authors)):
-                match_str[i] += str(new_authors[i]) + " "
-
+                match_str[i] += format_to_str(self.authors[i]) + " "
+        print(match_str[1:6])
         if self.keywords is not None:
             if isinstance(self.keywords[0], list):
                 new_keywords = np.array([" ".join(x) for x in self.keywords])
@@ -260,8 +248,8 @@ class ASReviewData(object):
                 new_keywords = self.keywords
             for i in range(len(new_keywords)):
                 match_str[i] += str(new_keywords[i])
-#             match_str += new_keywords
 
+        print(match_str[1:10])
         new_ranking = get_fuzzy_ranking(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
         best_idx = []
