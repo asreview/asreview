@@ -237,7 +237,7 @@ Indicate your decision using the arrow keys.
 If you want to export the results of your review, use the ``Export`` option, and when
 prompted, provide a filename with either a ``.csv`` or ``.ris`` file extension.
 
-You can stop the review by using the ``Stop`` option. You can later continue the review by calling the same log file (``myrewview.h5``)
+You can stop the review by using the ``Stop`` option. You can later continue the review by calling the same log file (``myreview.h5``)
 
 Under the hood
 ~~~~~~~~~~~~~~
@@ -322,5 +322,5 @@ are left not reviewed. You can stop reading abstracts at any time, by using the 
 
 You can view the results of your automated systematic review by using the `` Export`` option. The export file you created earlier (for example ``myresults.csv``) can be viewed by running ``open myresults.csv``.
 
-In the exported file, papers are ordered as follows: first the manually included papers, followed by the unlabeled papers by decreasing
-likeliness of inclusions, then the manually excluded papers.
+In the exported file, papers are ordered as follows: 1) the manually included papers, 2) the unlabeled papers by decreasing
+likeliness of inclusions, 3) the manually excluded papers.
