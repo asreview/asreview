@@ -31,6 +31,8 @@ The source code is freely available at
 
    10minutes_asreview
 
+   faq
+
    cli
 
    api
