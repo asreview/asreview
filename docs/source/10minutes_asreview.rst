@@ -115,7 +115,7 @@ If ASReview was installed succesfully, you will get output like:
 .. code:: bash
 
     Installing collected packages: asreview
-    Successfully installed asreview-0.3.1
+    Successfully installed asreview-0.3.2
 
 You are now ready to start your first Automated Systematic Review!
 
