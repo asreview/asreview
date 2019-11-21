@@ -2,6 +2,22 @@ Frequently Asked Questions
 ==========================
 
 
+Unknown command "pip" on command line or terminal
+-------------------------------------------------
+
+If you get one of the following errors:
+
+.. code:: bash
+
+	-bash: pip: No such file or directory
+
+.. code:: bash
+
+	'pip' is not recognized as an internal or external command, operable program or batch file.
+
+It means that your path is incorrectly set during python installation. See the 
+`section 'Install Python' <10minutes_asreview.html#install-python>`__.
+
 Unknown command "asreview" on command line or terminal
 ------------------------------------------------------
 
