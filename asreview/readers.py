@@ -41,6 +41,16 @@ LABEL_INCLUDED_VALUES = [
 ]
 
 
+def format_to_str(obj):
+    res = ""
+    if isinstance(obj, list):
+        for sub in obj:
+            res += str(sub) + " "
+    else:
+        res = obj
+    return res
+
+
 def _tag_key_mapping(reverse=False):
     # Add label_included into the specification and create reverse mapping.
     TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
@@ -160,10 +170,11 @@ class ASReviewData(object):
             else:
                 title_str = self.title[i]
         if self.authors is not None:
-            if len(self.authors[i]) > w_authors:
-                author_str = self.authors[i][:w_authors-2] + ".."
+            cur_authors = format_to_str(self.authors[i])
+            if len(cur_authors) > w_authors:
+                author_str = cur_authors[:w_authors-2] + ".."
             else:
-                author_str = self.authors[i]
+                author_str = cur_authors
         format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
         format_str += "}"
         prev_str = format_str.format(title_str, author_str)
@@ -220,17 +231,36 @@ class ASReviewData(object):
         list:
             Sorted list of indexes that match best the keywords.
         """
-        match_str = ""
+        match_str = np.full(self.title.shape, "")
+        
         if self.title is not None:
-            match_str += self.title + " "
+            for i, title in enumerate(self.title):
+                match_str[i] = str(self.title[i]) + " "
+#             match_str += self.title.astype(str) + np.full(self.title.shape, " ")
+#             match_str += self.title.astype(str) + np.full(self.title.shape, " ")
         if self.authors is not None:
-            match_str += self.authors + " "
+            if isinstance(self.authors[0], list):
+                new_authors = np.full(self.authors.shape, "")
+                for i, author in enumerate(self.authors):
+                    new_author = ""
+                    for sub in author:
+                        new_author += sub + " "
+                    new_authors[i] = new_author
+#                 new_authors = np.array([" ".join(str(x)) for x in self.authors])
+            else:
+                new_authors = self.authors
+#             match_str += new_authors + " "
+            for i in range(len(self.authors)):
+                match_str[i] += str(new_authors[i]) + " "
+
         if self.keywords is not None:
             if isinstance(self.keywords[0], list):
                 new_keywords = np.array([" ".join(x) for x in self.keywords])
             else:
                 new_keywords = self.keywords
-            match_str += new_keywords
+            for i in range(len(new_keywords)):
+                match_str[i] += str(new_keywords[i])
+#             match_str += new_keywords
 
         new_ranking = get_fuzzy_ranking(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
@@ -520,7 +550,7 @@ def read_ris(fp):
                 mapping = _tag_key_mapping(reverse=False)
                 entries = list(readris(bibliography_file, mapping=mapping))
                 break
-        except UnicodeDecodeError, IOError:
+        except (UnicodeDecodeError, IOError):
             pass
 
     if entries is None:
