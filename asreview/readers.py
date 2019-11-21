@@ -191,7 +191,7 @@ class ASReviewData(object):
             title = ""
 
         if self.authors is not None and len(self.authors[i]) > 0:
-            authors = self.authors[i] + "\n"
+            authors = format_to_str(self.authors[i]) + "\n"
         else:
             authors = ""
 
