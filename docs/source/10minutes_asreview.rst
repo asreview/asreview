@@ -115,7 +115,7 @@ If ASReview was installed succesfully, you will get output like:
 .. code:: bash
 
     Installing collected packages: asreview
-    Successfully installed asreview-0.2.1
+    Successfully installed asreview-0.3.0
 
 You are now ready to start your first Automated Systematic Review!
 
@@ -150,9 +150,9 @@ Including and excluding papers using the paper finder
 
 The easiest way to find papers to include is by using the built-in paper finder.
 Select the option ``Find papers by keywords``. You can now search your data set by authors,
-keywords and title, or a combination thereof. You don't have to type in an exact match. 
+keywords and title, or a combination thereof. You don't have to type in an exact match.
 For example, if you are looking for a paper by Schoot with Bayesian in the title, you can
-type ``schoot bayesian``, and the finder will try to find that paper in the data set.
+type ``schoot bayesian``, and the finder will try to find that paper in the dataset.
 
 After putting in your search words, you will be presented with a list of relevant papers to
 your search criteria (minimum 1, maximum 10). Select the paper(s) you were looking for to review
@@ -162,7 +162,7 @@ Including and excluding papers by identifiers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Another method of indication inclusions and exclusions before the main review process is by
-giving the paper identifiers directly to the ASReview software. These identifiers are simply the 
+giving the paper identifiers directly to the ASReview software. These identifiers are simply the
 order of the papers in your dataset, starting from zero.
 
 The software will first ask you to indicate papers you definitely want
@@ -198,7 +198,7 @@ in one command:
 
 .. code:: bash
 
-    asreview oracle example_ptsd --prior_included 29 181 379 2001 3928 3929 4547 --prior_excluded 31 90 892 3898 3989 4390 --log_file results.log
+    asreview oracle example_ptsd --prior_included 29 181 379 2001 3928 3929 4547 --prior_excluded 31 90 892 3898 3989 4390 --log_file myreview.h5
 
 The systematic review process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -235,20 +235,19 @@ Indicate your decision using the arrow keys.
 	  Stop
 
 If you want to export the results of your review, use the ``Export`` option, and when
-prompted, give the filename for export.
+prompted, provide a filename with either a ``.csv`` or ``.ris`` file extension.
 
-You can stop the review by using the ``Stop`` option. You can later continue the review by using
-the same log file.
+You can stop the review by using the ``Stop`` option. You can later continue the review by calling the same log file (``myreview.h5``)
 
 Under the hood
 ~~~~~~~~~~~~~~
 
-At every iteration, ASReview orders each paper by their likeliness of inclusion, 
-with the most likely papers presented first for reading. ASReview bases its 
+At every iteration, ASReview orders each paper by their likeliness of inclusion,
+with the most likely papers presented first for reading. ASReview bases its
 decisions on the papers you indicated prior to running the analysis, and the subsequent
 decisions you make on the abstracts you get presented with during the
 analysis. The higher the number of included/excluded papers, the quicker
-the software recognizes your choices for inclusion.
+the software recognises your choices for inclusion.
 
 The underlying technique in the software can be adapted by the user.
 More specifically, you can choose different
@@ -261,7 +260,7 @@ in the ASReview software.
 
 The options you want the software to use have to be specified in the
 ``asreview oracle`` command. If no options are specified, the ASReview
-software will use its defautls. Run ``asreview oracle --help`` to view
+software will use its defaults. Run ``asreview oracle --help`` to view
 the options and the defaults.
 
 .. code:: bash
@@ -316,12 +315,12 @@ the options and the defaults.
 Wrapping up the Automated Systematic Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ASReview software will keep presenting abstracts. 
-The longer you continue reading, the better the model will 
-understand your review requirements, and the less likely any important papers 
-are left not reviewed. You can stop reading abstracts at any time, by pressing using the ``Stop``
-option.
+The ASReview software will keep presenting abstracts.
+The longer you continue reading, the better the model will
+understand your review requirements, and the less likely any important papers
+are left not reviewed. You can stop reading abstracts at any time, by using the ``Stop`` option.
 
-You can view the results by using the 'export to csv' option after stopping your review. 
-Papers are ordered as follows: first the included papers, then unlabeled papers by decreasing 
-likeliness of inclusions, then excluded papers.
+You can view the results of your automated systematic review by using the `` Export`` option. The export file you created earlier (for example ``myresults.csv``) can be viewed by running ``open myresults.csv``.
+
+In the exported file, papers are ordered as follows: 1) the manually included papers, 2) the unlabeled papers by decreasing
+likeliness of inclusions, 3) the manually excluded papers.
