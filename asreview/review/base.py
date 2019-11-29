@@ -126,6 +126,10 @@ class BaseReview(ABC):
         with open_logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
+                if X.shape[0] != len(y):
+                    raise ValueError("The log file does not correspond to the "
+                                     "given data file, please use another log "
+                                     "file or dataset.")
                 self.y = y
                 self.train_idx = train_idx
                 self.query_kwargs["query_src"] = query_src
