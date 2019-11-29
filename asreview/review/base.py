@@ -37,6 +37,11 @@ def get_pool_idx(X, train_idx):
 def _merge_prior_knowledge(included, excluded, return_labels=True):
     """Merge prior included and prior excluded."""
 
+    if included is None:
+        included = []
+    if excluded is None:
+        excluded = []
+
     prior_indices = np.array(np.append(included, excluded), dtype=np.int)
 
     if return_labels:
@@ -107,10 +112,6 @@ class BaseReview(ABC):
 
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
-        if prior_included is None:
-            self.prior_included = []
-        if prior_excluded is None:
-            self.prior_excluded = []
 
         self.fit_kwargs = fit_kwargs
         self.balance_kwargs = balance_kwargs
@@ -262,6 +263,7 @@ class BaseReview(ABC):
         pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
             pred_proba = self.learner.predict_proba(self.X)
+
         proba_1 = np.array([x[1] for x in pred_proba])
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 

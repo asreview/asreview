@@ -85,6 +85,7 @@ def _get_proba_order(logger, query_i):
 
     if pool_idx is None:
         return None
+
     proba = logger.get("proba", query_i)[pool_idx]
     return pool_idx[np.argsort(proba)]
 

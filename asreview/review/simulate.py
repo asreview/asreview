@@ -40,7 +40,6 @@ class ReviewSimulate(BaseReview):
                 self.prior_included,
                 self.prior_excluded
             )
-
             return prior_indices, prior_labels
         # Create the prior knowledge
         init_ind = sample_prior_knowledge(
@@ -49,7 +48,6 @@ class ReviewSimulate(BaseReview):
             n_prior_excluded=self.n_prior_excluded,
             random_state=None  # TODO
         )
-
         return init_ind, self.y[init_ind, ]
 
     def _get_labels(self, ind):

@@ -154,7 +154,10 @@ class ReviewOracle(BaseReview):
 
     def _prior_knowledge(self):
         """Create prior knowledge from arguments."""
-
+        if self.prior_included is None:
+            self.prior_included = []
+        if self.prior_excluded is None:
+            self.prior_excluded = []
         self.priors_from_cli()
         prior_indices, prior_labels = _merge_prior_knowledge(
             self.prior_included, self.prior_excluded)
