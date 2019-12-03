@@ -122,8 +122,6 @@ class ReviewOracle(BaseReview):
                       logger, method="initial")
         self.classify(new_excluded, np.zeros(len(new_excluded)),
                       logger, method="initial")
-#         self.prior_included.extend()
-#         self.prior_excluded.extend()
 
     def main_menu(self, logger, *args, **kwargs):
         "Get initial papers for modelling."
@@ -254,7 +252,7 @@ class ReviewOracle(BaseReview):
         pred_proba = self.query_kwargs.get('pred_proba', None)
         pool_idx = np.delete(np.arange(len(self.y)), self.train_idx)
         if pred_proba is not None:
-            proba_order = np.argsort(pred_proba[pool_idx, 1])
+            proba_order = np.argsort(-pred_proba[pool_idx, 1])
         else:
             proba_order = np.arange(len(pool_idx))
         train_zero = self.train_idx[np.where(self.y[self.train_idx] == 0)[0]]
