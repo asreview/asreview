@@ -259,9 +259,6 @@ class ReviewOracle(BaseReview):
         train_one = self.train_idx[np.where(self.y[self.train_idx] == 1)[0]]
         df_order = np.concatenate(
             (train_one, pool_idx[proba_order], train_zero), axis=None)
-        assert len(df_order) == len(self.y)
-        for i in range(len(self.y)):
-            assert i in df_order
         labels = np.full(len(self.y), np.nan, dtype=object)
         labels[self.train_idx] = self.y[self.train_idx]
         self.as_data.to_file(fp=file_name, labels=labels,
