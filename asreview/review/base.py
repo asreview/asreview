@@ -141,8 +141,6 @@ class BaseReview(ABC):
                 logger.set_labels(self.y)
                 self._prior_knowledge(logger)
                 self.query_i = 0
-#                 self.train_idx = np.array([], dtype=np.int)
-#                 self.classify(init_idx, init_labels, logger, method="initial")
 
         # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
@@ -160,9 +158,6 @@ class BaseReview(ABC):
             self.classify(self.prior_excluded,
                           np.zeros(len(self.prior_included)),
                           logger, method="initial")
-#     @abstractmethod
-#     def _prior_knowledge(self):
-#         pass
 
     @abstractmethod
     def _get_labels(self, ind):

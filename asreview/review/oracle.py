@@ -15,10 +15,8 @@
 import numpy as np
 from PyInquirer import prompt, Separator
 
-from asreview.ascii import ASCII_TEA
 from asreview.config import NOT_AVAILABLE
 from asreview.review import BaseReview
-from asreview.review.base import _merge_prior_knowledge
 from asreview.types import convert_list_type
 from asreview.logging.utils import open_logger
 
@@ -62,7 +60,6 @@ class ReviewOracle(BaseReview):
         except KeyError:
             return
 
-#         all_prior = self.prior_included + self.prior_excluded
         paper_idx = self.as_data.fuzzy_find(keywords, exclude=self.train_idx)
 
         # Get the (possibly) relevant papers.
@@ -90,10 +87,6 @@ class ReviewOracle(BaseReview):
             # Get the label for the selected paper.
             label = self._get_labels_paper(idx, ask_stop=False)
             self.classify([idx], [label], logger, method="initial")
-#             if label == 1:
-#                 self.prior_included.append(idx)
-#             elif label == 0:
-#                 self.prior_excluded.append(idx)
 
             # Remove the selected choice from the list.
             del choices[choice_idx]
@@ -161,7 +154,15 @@ class ReviewOracle(BaseReview):
             elif action.startswith("Export"):
                 self._export()
             elif action.startswith("Stop"):
-                raise KeyboardInterrupt
+                question = [{
+                    'type': 'confirm',
+                    'message': "Are you sure you want to stop?",
+                    'name': 'stop',
+                    'default': 'false',
+                }]
+                stop = prompt(question).get('stop', True)
+                if stop:
+                    raise KeyboardInterrupt
             elif action.startswith("Continue review"):
                 try:
                     self._do_review(logger, *args, **kwargs)
@@ -171,16 +172,9 @@ class ReviewOracle(BaseReview):
     def review(self, *args, instant_save=True, **kwargs):
         with open_logger(self.log_file) as logger:
             self.main_menu(logger, *args, instant_save=instant_save, **kwargs)
-#         self.priors_from_cli()
-#         prior_indices, prior_labels = _merge_prior_knowledge(
-#             self.prior_included, self.prior_excluded)
-#         return np.array(prior_indices, dtype=np.int), np.array(
-#             prior_labels, dtype=np.int)
 
     def _prior_teach(self):
         pass
-#         print("\n\n We work, you drink tea.\n")
-#         print(ASCII_TEA)
 
     def _format_paper(self,
                       title=None,
@@ -224,27 +218,6 @@ class ReviewOracle(BaseReview):
                 }
             ]
             action = prompt(question).get("action", 'Back to main menu')
-#             if action.starts"stop" and ask_stop:
-#                 question = [
-#                     {
-#                         'type': 'confirm',
-#                         'message': "Are you sure you want to stop?",
-#                         'name': 'stop',
-#                         'default': 'false',
-#                     }
-#                 ]
-#             if action.startswith('Back to main menu'):
-#                 return None
-#             else:
-#                 return 
-#             stopping = prompt(question).get('Back to main menu', True)
-#                 if stopping:
-#                     return None
-#                 else:
-#                     return _interact()
-#             elif action == "export":
-#                 self._export()
-#                 return _interact()
             return action
 
         action = _interact()
@@ -259,12 +232,7 @@ class ReviewOracle(BaseReview):
         return label
 
     def train(self, *args, **kwargs):
-        print(ASCII_TEA)
         super(ReviewOracle, self).train(*args, **kwargs)
-
-#     def review(self, *args, instant_save=True, **kwargs):
-#         super(ReviewOracle, self).review(*args, instant_save=instant_save,
-#                                          **kwargs)
 
     def _export(self):
         """Export the results to a csv file.

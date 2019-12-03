@@ -32,7 +32,7 @@ class ReviewSimulate(BaseReview):
         super(ReviewSimulate, self).__init__(
             X, y, *args, **kwargs)
 
-    def _prior_knowledge(self):
+    def _prior_knowledge(self, logger):
         """ Get the prior knowledge, either from specific paper IDs,
             and if they're not given from the number of in/exclusions. """
         if self.prior_included is not None or self.prior_excluded is not None:
@@ -40,15 +40,16 @@ class ReviewSimulate(BaseReview):
                 self.prior_included,
                 self.prior_excluded
             )
-            return prior_indices, prior_labels
-        # Create the prior knowledge
-        init_ind = sample_prior_knowledge(
-            self.y,
-            n_prior_included=self.n_prior_included,
-            n_prior_excluded=self.n_prior_excluded,
-            random_state=None  # TODO
-        )
-        return init_ind, self.y[init_ind, ]
+        else:
+            # Create the prior knowledge
+            init_ind = sample_prior_knowledge(
+                self.y,
+                n_prior_included=self.n_prior_included,
+                n_prior_excluded=self.n_prior_excluded,
+                random_state=None  # TODO
+            )
+            prior_indices, prior_labels = init_ind, self.y[init_ind, ]
+        self.classify(prior_indices, prior_labels, logger, method="initial")
 
     def _get_labels(self, ind):
         """ Get the labels directly from memory.
