@@ -139,10 +139,10 @@ class BaseReview(ABC):
                 if final_labels is not None:
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
-                init_idx, init_labels = self._prior_knowledge()
+                self._prior_knowledge(logger)
                 self.query_i = 0
-                self.train_idx = np.array([], dtype=np.int)
-                self.classify(init_idx, init_labels, logger, method="initial")
+#                 self.train_idx = np.array([], dtype=np.int)
+#                 self.classify(init_idx, init_labels, logger, method="initial")
 
         # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
@@ -150,9 +150,19 @@ class BaseReview(ABC):
             query_strategy=self.query_strategy
         )
 
-    @abstractmethod
-    def _prior_knowledge(self):
-        pass
+    def _prior_knowledge(self, logger):
+        """Create prior knowledge from arguments."""
+        if self.prior_included is not None and len(self.prior_included) > 0:
+            self.classify(self.prior_included,
+                          np.ones(len(self.prior_included)),
+                          logger, method="initial")
+        if self.prior_excluded is not None and len(self.prior_excluded) > 0:
+            self.classify(self.prior_excluded,
+                          np.zeros(len(self.prior_included)),
+                          logger, method="initial")
+#     @abstractmethod
+#     def _prior_knowledge(self):
+#         pass
 
     @abstractmethod
     def _get_labels(self, ind):

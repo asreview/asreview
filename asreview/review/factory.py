@@ -200,6 +200,7 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
     reviewer = get_reviewer(*args, mode=mode, model=model, **kwargs)
 
     # Start the review process.
+    print("Start review!")
     reviewer.review()
 
     # If we're dealing with a keras model, we can save the last model weights.
