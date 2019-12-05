@@ -228,7 +228,7 @@ class Analysis():
                 return (norm_yr[i],
                         (x_return[i], x_return[i]),
                         (0, y_return[i]))
-        return None
+        return (None, None, None)
 
     def avg_time_to_discovery(self):
         """Get the best/last estimate on how long it takes to find a paper.
