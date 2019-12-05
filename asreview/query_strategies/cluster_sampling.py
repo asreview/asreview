@@ -135,9 +135,9 @@ def cluster_sampling(classifier: BaseEstimator,
                               **kwargs)
 
     # Remove indices found with max sampling from the pool.
-    query_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
-    query_idx = np.append(query_idx, max_idx)
-    pool_idx = np.delete(np.arange(n_samples), query_idx, axis=0)
+    train_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
+    train_idx = np.append(train_idx, max_idx)
+    pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
 
     cluster_member = query_kwargs['clusters']
     clusters = {}
@@ -154,17 +154,19 @@ def cluster_sampling(classifier: BaseEstimator,
         except ValueError:
             raise
 
-    clust_query_idx = []
+    clust_idx = []
     cluster_ids = list(clusters)
     for _ in range(n_instance_clust):
         cluster_id = np.random.choice(cluster_ids, 1)[0]
-        clust_query_idx.append(clusters[cluster_id].pop()[0])
+        clust_idx.append(clusters[cluster_id].pop()[0])
         if len(clusters[cluster_id]) == 0:
             del clusters[cluster_id]
             cluster_ids = list(clusters)
 
-    clust_query_idx = np.array(clust_query_idx)
-    for idx in clust_query_idx:
+    clust_idx = np.array(clust_idx)
+    for idx in clust_idx:
         query_kwargs['current_queries'][idx] = "cluster"
-    query_idx = np.append(query_idx, clust_query_idx)
+    assert len(clust_idx) == n_instance_clust
+    assert len(max_idx) == n_instance_max
+    query_idx = np.append(max_idx, clust_idx)
     return query_idx, X[query_idx]
