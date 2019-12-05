@@ -115,6 +115,8 @@ class ASReviewData(object):
             data_kwargs['labels'] = np.array(raw_df[column_labels[0]].fillna(
                 NOT_AVAILABLE).values, dtype=np.int)
             data_kwargs['label_col'] = column_labels[0]
+        else:
+            data_kwargs['label_col'] = LABEL_INCLUDED_VALUES[0]
 
         if 'inclusion_code' in raw_df.columns and abstract_only:
             inclusion_codes = raw_df['inclusion_code'].fillna(
@@ -295,7 +297,7 @@ class ASReviewData(object):
             new_df[self.label_col] = labels
 
         if df_order is not None:
-            new_df = self.raw_df.reindex(df_order)
+            new_df = new_df.reindex(df_order)
         new_df.to_csv(csv_fp)
 
     def to_ris(self, ris_fp, labels=None, df_order=None):
@@ -304,7 +306,7 @@ class ASReviewData(object):
             new_df[self.label_col] = labels
 
         if df_order is not None:
-            new_df = self.raw_df.reindex(df_order)
+            new_df = new_df.reindex(df_order)
         write_ris(new_df, ris_fp)
 
 

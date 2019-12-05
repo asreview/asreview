@@ -88,6 +88,7 @@ def loggers_from_dir(data_dir, prefix="result"):
             continue
 
         log_fp = os.path.join(data_dir, log_file)
-        loggers[log_file] = open_logger(log_fp, read_only=True)
+        logger_class = _get_logger_class(log_fp)
+        loggers[log_file] = logger_class(log_fp=log_fp, read_only=True)
 
     return loggers
