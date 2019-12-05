@@ -78,7 +78,7 @@ class NBModel(SKLearnModel):
         from hyperopt import hp
         hyper_choices = {}
         hyper_space = {
-            "mdl_alpha": hp.lognormal("mdl_alpha", 0, 2),
+            "mdl_alpha": hp.lognormal("mdl_alpha", 0, 1),
         }
         return hyper_space, hyper_choices
 

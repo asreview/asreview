@@ -35,6 +35,19 @@ from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 
 
+from asreview.query_strategies.base import BaseQueryStrategy
+
+
+class QueryUncertainty(BaseQueryStrategy):
+    @staticmethod
+    def function():
+        return uncertainty_sampling
+
+    @staticmethod
+    def description():
+        return "uncertainty sampling."
+
+
 def classifier_uncertainty(
         classifier: BaseEstimator, X: modALinput, query_kwargs: dict = None,
         **predict_proba_kwargs

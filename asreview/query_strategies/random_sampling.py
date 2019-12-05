@@ -20,6 +20,18 @@
 
 import numpy as np
 
+from asreview.query_strategies.base import BaseQueryStrategy
+
+
+class QueryRandom(BaseQueryStrategy):
+    @staticmethod
+    def function():
+        return random_sampling
+
+    @staticmethod
+    def description():
+        return "random sampling."
+
 
 def random_sampling(classifier, X, pool_idx, n_instances=1, query_kwargs={},
                     **kwargs):

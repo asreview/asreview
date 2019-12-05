@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.query_strategies.base import get_query_strategy
+from asreview.query_strategies.utils import get_query_strategy
 from asreview.query_strategies.max_sampling import max_sampling
 from asreview.query_strategies.rand_max import rand_max_sampling
 from asreview.query_strategies.random_sampling import random_sampling
