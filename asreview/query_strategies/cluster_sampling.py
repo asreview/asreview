@@ -169,4 +169,8 @@ def cluster_sampling(classifier: BaseEstimator,
     assert len(clust_idx) == n_instance_clust
     assert len(max_idx) == n_instance_max
     query_idx = np.append(max_idx, clust_idx)
-    return query_idx, X[query_idx]
+    try:
+        return query_idx, X[query_idx]
+    except IndexError:
+        print(query_idx, len(query_idx))
+        raise
