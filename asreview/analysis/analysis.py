@@ -49,6 +49,9 @@ class Analysis():
         self.labels = None
         self.empty = True
 
+        if loggers is None:
+            return
+
         self.key = key
         self.loggers = loggers
         self.num_runs = len(self.loggers)

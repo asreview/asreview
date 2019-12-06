@@ -58,6 +58,7 @@ def get_reviewer(dataset,
                  query_param=None,
                  balance_param=None,
                  abstract_only=False,
+                 extra_dataset=[],
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
@@ -105,9 +106,19 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    as_data = ASReviewData.from_file(dataset,
+    as_data = ASReviewData.from_file(dataset, extra_dataset=extra_dataset,
                                      abstract_only=settings.abstract_only)
     _, texts, labels = as_data.get_data()
+    data_prior_included, data_prior_excluded = as_data.get_priors()
+    print(len(data_prior_excluded), len(data_prior_included))
+    if len(data_prior_included) != 0:
+        if prior_included is None:
+            prior_included = []
+        prior_included.extend(data_prior_included.tolist())
+    if len(data_prior_excluded) != 0:
+        if prior_excluded is None:
+            prior_excluded = []
+        prior_excluded.extend(data_prior_excluded.tolist())
 
     if as_data.final_labels is not None:
         with open_logger(log_file) as logger:

@@ -170,6 +170,14 @@ def _parse_arguments(mode, prog=sys.argv[0]):
         nargs="*",
         help="A list of excluded papers. Optional.")
 
+    parser.add_argument(
+        "--extra_dataset",
+        default=[],
+#         nargs="*",
+        action='append',
+        help="A dataset with labels to improve training. Can be used multiple times."
+    )
+
     # these flag are only available for the simulation modus
     if mode == "simulate":
 
