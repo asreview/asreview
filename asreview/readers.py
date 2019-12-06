@@ -81,8 +81,9 @@ def merge_arrays(array_a, array_b, n_paper_a, n_paper_b, fill="", type_=object):
 
 
 class ASReviewData(object):
-    """ Data object to store csv/ris file. Extracts relevant properties
-        of papers. """
+    """Data object to store csv/ris file.
+
+    Extracts relevant properties of papers. """
     def __init__(self, raw_df, labels=None, title=None, abstract=None,
                  keywords=None, article_id=None, authors=None,
                  label_col=LABEL_INCLUDED_VALUES[0], final_labels=None):
@@ -109,6 +110,15 @@ class ASReviewData(object):
             self.article_id = np.arange(len(raw_df.index))
 
     def append(self, as_data):
+        """Append another ASReviewData object.
+
+        It puts the training data at the end.
+
+        Arguments
+        ---------
+        as_data: ASReviewData
+            Dataset to append.
+        """
         if as_data.labels is None:
             BadFileFormatError("Additional datasets should have labels.")
         if self.labels is None:
@@ -309,6 +319,7 @@ class ASReviewData(object):
         return self.raw_df, np.array(texts, dtype=object), self.labels
 
     def get_priors(self):
+        "Get prior_included, prior_excluded from dataset."
         zero_idx = np.where(self.labels[self.n_paper_train:] == 0)[0]
         one_idx = np.where(self.labels[self.n_paper_train:] == 1)[0]
         return one_idx + self.n_paper_train, zero_idx + self.n_paper_train

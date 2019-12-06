@@ -173,9 +173,9 @@ def _parse_arguments(mode, prog=sys.argv[0]):
     parser.add_argument(
         "--extra_dataset",
         default=[],
-#         nargs="*",
         action='append',
-        help="A dataset with labels to improve training. Can be used multiple times."
+        help="A dataset with labels to improve training. Can be used multiple"
+             " times."
     )
 
     # these flag are only available for the simulation modus
