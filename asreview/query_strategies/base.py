@@ -22,10 +22,10 @@ from asreview.utils import _unsafe_dict_update
 
 class BaseQueryStrategy(ABC):
     "Abstract class for query strategies."
-    def __init__(self, query_kwargs, *_, **__):
+    def __init__(self, query_kwargs={}, *_, **__):
         self.query_kwargs = self.default_kwargs()
-        self.balance_kwargs = _unsafe_dict_update(self.query_kwargs,
-                                                  query_kwargs)
+        self.query_kwargs = _unsafe_dict_update(self.query_kwargs,
+                                                query_kwargs)
 
     def func_kwargs_descr(self):
         return (self.__class__.function(), self.query_kwargs,
