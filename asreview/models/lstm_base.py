@@ -100,7 +100,7 @@ def create_lstm_base_model(embedding_matrix,
 
 
 class LSTMBaseModel(KerasModel):
-    def __init__(self, param, **kwargs):
+    def __init__(self, param={}, **kwargs):
         super(LSTMBaseModel, self).__init__(param, **kwargs)
         self.name = "lstm_base"
 
