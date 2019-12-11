@@ -34,6 +34,18 @@ from modAL.utils.selection import shuffled_argmax
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 
+from asreview.query_strategies.base import BaseQueryStrategy
+
+
+class QueryMax(BaseQueryStrategy):
+    @staticmethod
+    def function():
+        return max_sampling
+
+    @staticmethod
+    def description():
+        return "max sampling."
+
 
 def max_sampling(classifier: BaseEstimator,
                  X: modALinput,

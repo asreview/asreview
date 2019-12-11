@@ -164,10 +164,6 @@ class BaseReview(ABC):
         """Classify the provided indices."""
         pass
 
-    def _prior_teach(self):
-        """Function called before training model."""
-        pass
-
     def _stop_iter(self, query_i, n_pool):
         """Criteria for stopping iteration.
 

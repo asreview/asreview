@@ -30,7 +30,7 @@ from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.logging.utils import open_logger
 from asreview.models.utils import get_model_class
-from asreview.query_strategies.base import get_query_with_settings
+from asreview.query_strategies.utils import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
@@ -121,9 +121,9 @@ def get_reviewer(dataset,
     model_fn = model_inst.model()
     settings.fit_kwargs = model_inst.fit_kwargs()
 
-    settings.query_kwargs = {}
     # Pick query strategy
-    query_fn, query_str = get_query_with_settings(settings)
+    query_fn, query_str = get_query_with_settings(
+        settings, texts, embedding_fp)
     logging.info(f"Query strategy: {query_str}")
 
     train_data_fn, train_method = get_balance_with_settings(settings)
