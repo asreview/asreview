@@ -23,8 +23,5 @@ class MinimalReview(BaseReview):
     def __init__(self, *args, **kwargs):
         super(MinimalReview, self).__init__(*args, **kwargs)
 
-    def _prior_knowledge(self):
-        return np.array([], dtype=np.int), np.array([], dtype=np.int)
-
     def _get_labels(self, ind):
         raise NotImplementedError

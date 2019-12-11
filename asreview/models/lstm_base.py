@@ -19,7 +19,7 @@ from tensorflow.keras.layers import LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.models.keras import KerasModel
+from asreview.models.keras import KerasModel, _get_optimizer
 
 
 def create_lstm_base_model(embedding_matrix,
@@ -29,6 +29,7 @@ def create_lstm_base_model(embedding_matrix,
                            max_sequence_length=1000,
                            lstm_out_width=20,
                            dense_width=128,
+                           learn_rate_mult=1.0,
                            verbose=1):
     """Return callable lstm model.
 
@@ -87,9 +88,12 @@ def create_lstm_base_model(embedding_matrix,
             )
         )
 
+        optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
+
         # Compile model
         model.compile(
-            loss='binary_crossentropy', optimizer=optimizer, metrics=['acc'])
+            loss='binary_crossentropy',
+            optimizer=optimizer_fn, metrics=['acc'])
 
         if verbose == 1:
             model.summary()
@@ -118,10 +122,11 @@ class LSTMBaseModel(KerasModel):
             "optimizer": "rmsprop",
             "max_sequence_length": 1000,
             "lstm_out_width": 20,
+            "learn_rate_mult": 1.0,
             "dense_width": 128,
             "verbose": 1,
             "batch_size": 32,
-            "epochs": 10,
+            "epochs": 35,
             "shuffle": False,
             "class_weight_inc": 30.0,
         }
@@ -129,15 +134,12 @@ class LSTMBaseModel(KerasModel):
 
     def full_hyper_space(self):
         from hyperopt import hp
-        hyper_choices = {
-            "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
-        }
+        hyper_choices = {}
         hyper_space = {
-            "mdl_optimizer": hp.choice("mdl_optimizer",
-                                       hyper_choices["mdl_optimizer"]),
             "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
             "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
             "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
+            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
         }
         return hyper_space, hyper_choices
 
