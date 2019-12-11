@@ -110,7 +110,6 @@ def get_reviewer(dataset,
                                      abstract_only=settings.abstract_only)
     _, texts, labels = as_data.get_data()
     data_prior_included, data_prior_excluded = as_data.get_priors()
-    print(len(data_prior_excluded), len(data_prior_included))
     if len(data_prior_included) != 0:
         if prior_included is None:
             prior_included = []
