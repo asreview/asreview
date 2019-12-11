@@ -171,9 +171,6 @@ class ReviewOracle(BaseReview):
         with open_logger(self.log_file) as logger:
             self.main_menu(logger, *args, instant_save=instant_save, **kwargs)
 
-    def _prior_teach(self):
-        pass
-
     def _format_paper(self,
                       title=None,
                       abstract=None,

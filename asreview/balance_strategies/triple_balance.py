@@ -55,8 +55,8 @@ class TripleBalanceTD(BaseTrainData):
     def hyperopt_space(self):
         from hyperopt import hp
         parameter_space = {
-            "bal_one_a": hp.lognormal("bal_one_a", 2, 2),
-            "bal_one_alpha": hp.uniform("bal_one_alpha", -2, 2),
+            "bal_one_a": hp.lognormal("bal_one_a", 0, 1),
+            "bal_one_alpha": hp.uniform("bal_one_alpha", 0, 2),
             "bal_zero_b": hp.uniform("bal_zero_b", 0, 1),
             # "bal_zero_beta": hp.uniform("bal_zero_beta", 0, 2),
             "bal_zero_max_c": hp.uniform("bal_zero_max_c", 0, 1),
