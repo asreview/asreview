@@ -95,6 +95,7 @@ asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_
 ## Publications
 
 - Dutch newspaper NRC on this project ["Software vist de beste artikelen uit een bibliotheek van duizenden."](https://www.nrc.nl/nieuws/2019/01/14/software-vist-de-beste-artikelen-eruit-a3628952)
+- News site of Utrecht University: [ASReview: Smart source screening software for academia and beyond](https://www.uu.nl/en/news/asreview-smart-source-screening-software-for-academia-and-beyond)
 - News site of Utrecht University: ["A digital tracker dog for datasets"
 ](https://www.dub.uu.nl/en/depth/digital-tracker-dog-datasets)
 
