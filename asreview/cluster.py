@@ -72,8 +72,6 @@ def get_Xy(data_fp, embedding_fp):
 
 def get_X(texts, embedding_fp):
     embedding = load_embedding(embedding_fp)
-#     as_data = ASReviewData.from_file(data_fp)
-#     _, text, _ = as_data.get_data()
     text_counts = get_freq_dict(texts)
     idf = get_idf(text_counts)
     X = get_X_from_dict(text_counts, idf, embedding)
