@@ -18,10 +18,10 @@ from typing import Tuple
 from modAL.utils.data import modALinput
 import numpy as np
 from sklearn.base import BaseEstimator
+from sklearn.cluster import KMeans
 from sklearn.exceptions import NotFittedError
 
 from asreview.query_strategies.max_sampling import max_sampling
-from sklearn.cluster import KMeans
 from asreview.query_strategies.base import BaseQueryStrategy
 from asreview.cluster import get_cluster_X
 

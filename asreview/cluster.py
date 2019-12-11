@@ -4,8 +4,9 @@ from math import log
 
 import numpy as np
 
-from asreview import ASReviewData, load_embedding
 from keras_preprocessing.text import text_to_word_sequence
+
+from asreview import ASReviewData, load_embedding
 
 
 def get_freq_dict(all_text):
