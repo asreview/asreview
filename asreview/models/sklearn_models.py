@@ -14,6 +14,7 @@
 
 import logging
 
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
@@ -25,9 +26,10 @@ from asreview.models.base import BaseModel
 
 class SKLearnModel(BaseModel):
     "Base SKLearn model."
-    def __init__(self, param={}, **kwargs):
+    def __init__(self, param={}, embedding_fp=None, **kwargs):
         super(SKLearnModel, self).__init__(param)
         self.name = "sklearn"
+        self.embedding_fp = embedding_fp
 
     def get_Xy(self, texts, labels):
         text_clf = Pipeline([('vect', CountVectorizer()),
@@ -79,6 +81,63 @@ class NBModel(SKLearnModel):
         hyper_choices = {}
         hyper_space = {
             "mdl_alpha": hp.lognormal("mdl_alpha", 0, 1),
+        }
+        return hyper_space, hyper_choices
+
+
+def create_rf_model(*args, n_estimators=100, max_features=10,
+                    class_weight=None, **kwargs):
+    """Return callable SVM model.
+
+    Arguments
+    ---------
+
+    Returns
+    -------
+    callable:
+        A function that return the Sklearn model when
+        called.
+
+    """
+    if class_weight is not None:
+        class_weight = {
+            0: 1,
+            1: class_weight,
+        }
+
+    model = RandomForestClassifier(*args, n_estimators=int(n_estimators),
+                                   max_features=int(max_features),
+                                   class_weight=class_weight, **kwargs)
+    logging.debug(model)
+
+    return model
+
+
+class RFModel(SKLearnModel):
+    "Random Forest SKLearn model."
+    def __init__(self, param={}, **kwargs):
+        super(RFModel, self).__init__(param, **kwargs)
+        self.name = "rf"
+
+    def model(self):
+        model = create_rf_model(**self.model_param())
+        return model
+
+    def default_param(self):
+        kwargs = {
+            "n_estimators": 100,
+            "max_features": 10,
+            "class_weight": 1.0,
+        }
+        return kwargs
+
+    def full_hyper_space(self):
+        from hyperopt import hp
+        hyper_choices = {}
+        hyper_space = {
+            "mdl_n_estimators": hp.quniform("mdl_n_estimators", 10, 100, 1),
+            "mdl_max_features": hp.quniform("mdl_max_features", 6, 10, 1),
+            "mdl_class_weight": hp.lognormal('mdl_class_weight', 0, 1),
         }
         return hyper_space, hyper_choices
 

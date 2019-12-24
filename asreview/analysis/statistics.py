@@ -129,3 +129,124 @@ def _get_limits(loggers, query_i, labels, proba_allow_miss=[]):
         if len(allow_miss) == 0:
             break
     return limits
+
+
+def _random_ttd(loggers, query_i, labels):
+    all_ttd = []
+    for logger in loggers.values():
+        try:
+            pool_idx = logger.get("pool_idx", query_i)
+        except KeyError:
+#             all_ttd.append(0)
+            continue
+
+#         print(pool_idx)
+        pool_labels = labels[pool_idx]
+        n_included = np.sum(pool_labels)
+
+        if n_included == 0:
+            continue
+#         print(n_included, pool_labels)
+        ttd = 0
+        p_only_zero = 1
+#         print(query_i, len(pool_labels), n_included)
+        for i in range(len(pool_labels) - n_included):
+            p_first = n_included/(len(pool_labels)-i)
+            ttd += p_only_zero*p_first*i
+            p_only_zero *= (1-p_first)
+        all_ttd.append(ttd)
+
+    if len(all_ttd) == 0:
+        ttd_avg = 0
+    else:
+        ttd_avg = np.average(all_ttd)
+    return ttd_avg
+
+
+def _max_ttd(loggers, query_i, labels):
+    all_ttd = []
+    for logger in loggers.values():
+        proba_order = _get_proba_order(logger, query_i)
+        if proba_order is None:
+            all_ttd.append(0)
+            continue
+        if len(proba_order) == 0:
+#             all_ttd.append(0)
+            continue
+
+#         print(proba_order[-10:])
+#         print(list(reversed(labels[proba_order]))[:10])
+        x = np.where(labels[proba_order] == 1)[0]
+#         print(x)
+        if len(x) == 0:
+            ttd = 0
+        else:
+            ttd = (len(proba_order)-1) - x[-1]
+        all_ttd.append(ttd)
+
+    if len(all_ttd) == 0:
+        ttd_avg = 0
+    else:
+        ttd_avg = np.average(all_ttd)
+    return ttd_avg
+
+
+def _cluster_order(all_dict, power=0):
+    scores = []
+    for clust_id in all_dict:
+        for i in range(all_dict[clust_id]):
+            new_score = (i+1) * pow(all_dict[clust_id], -power)
+            scores.append((clust_id, new_score))
+    scores = sorted(scores, key=lambda x: x[1])
+    return [x[0] for x in scores]
+
+
+def _get_clustering(all_prediction, pool_idx, labels):
+    pool_prediction = all_prediction[pool_idx]
+    one_idx = np.where(labels[pool_idx] == 1)[0]
+    unique, counts = np.unique(pool_prediction, return_counts=True)
+    all_dict = {unique[i]: counts[i] for i in range(len(unique))}
+    all_counts = [all_dict.get(i, 0) for i in range(np.max(unique)+1)]
+
+    prediction = pool_prediction[one_idx, ]
+    unique, counts = np.unique(prediction, return_counts=True)
+    one_dict = {unique[i]: counts[i] for i in range(len(unique))}
+    one_counts = [one_dict.get(i, 0) for i in range(len(all_counts))]
+    return all_dict, all_counts, one_dict, one_counts
+
+
+def _cluster_ttd(loggers, query_i, labels, all_prediction):
+    all_ttd = []
+    for logger in loggers.values():
+        try:
+            pool_idx = logger.get("pool_idx", query_i)
+        except KeyError:
+            all_ttd.append(0)
+            continue
+
+        all_dict, all_counts, _one_dict, one_counts = _get_clustering(
+            all_prediction, pool_idx, labels)
+        cluster_order = _cluster_order(all_dict)
+
+        p_only_zero = 1
+        ttd = 0
+        if np.sum(one_counts) == 0:
+            continue
+#         print(one_counts, all_counts, cluster_order)
+        for i, i_clust in enumerate(cluster_order):
+            try:
+                p_first = one_counts[i_clust]/all_counts[i_clust]
+            except IndexError:
+                print(i_clust, list(all_dict), len(all_counts), len(one_counts))
+            ttd += p_only_zero*p_first*i
+            p_only_zero *= 1-p_first
+            all_counts[i_clust] -= 1
+            if p_only_zero < 1e-6:
+                break
+        all_ttd.append(ttd)
+
+    if len(all_ttd) == 0:
+        ttd_avg = 0
+    else:
+        ttd_avg = np.average(all_ttd)
+    return ttd_avg

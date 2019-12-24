@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.sklearn_models import SVCModel, NBModel
+from asreview.models.sklearn_models import SVCModel, NBModel, RFModel
 from asreview.models.lstm_base import LSTMBaseModel
 from asreview.models.lstm_pool import LSTMPoolModel
 
@@ -24,5 +24,6 @@ def get_model_class(model):
         "nb": NBModel,
         "lstm_base": LSTMBaseModel,
         "lstm_pool": LSTMPoolModel,
+        "rf": RFModel,
     }
     return models.get(model, None)
