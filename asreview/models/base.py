@@ -31,6 +31,7 @@ class BaseModel(ABC):
     def __init__(self, param):
         self.name = "base"
         self.param = _unsafe_dict_update(self.default_param(), param)
+#         self._model = None
 
     def fit_param(self):
         "Obtain fit parameters from parameters."
@@ -53,6 +54,13 @@ class BaseModel(ABC):
     @abstractmethod
     def get_Xy(self):
         raise NotImplementedError
+
+#     def fit(self):
+#         if self._model is None:
+#             self._model = self.model()
+# 
+#         X, y = self.get_Xy()
+#         self._model.fit(X, y, **self.fit_kwargs())
 
     def default_param(self):
         "Get default parameters"

@@ -153,6 +153,29 @@ def fill_training(src_idx, n_train):
     return dest_idx
 
 
+def double_balance(X, y, train_idx, a=2.155, alpha=0.94, b=0.789, beta=1.0):
+    one_idx = train_idx[np.where(y[train_idx] == 1)]
+    zero_idx = train_idx[np.where(y[train_idx] == 0)]
+    n_one = len(one_idx)
+    n_zero = len(zero_idx)
+    n_train = n_one + n_zero
+
+    one_weight = _one_weight(n_one, n_zero, a, alpha)
+    zero_weight = _zero_weight(n_one+n_zero, b, beta)
+    tot_zo_weight = one_weight * n_one + zero_weight * n_zero
+    n_one_train = random_round(one_weight*n_one*n_train/tot_zo_weight)
+    n_one_train = max(1, min(n_train-2, n_one_train))
+    n_zero_train = n_train-n_one_train
+
+    one_train_idx = fill_training(one_idx, n_one_train)
+    zero_train_idx = fill_training(zero_idx, n_zero_train)
+
+    all_idx = np.concatenate([one_train_idx, zero_train_idx])
+    np.random.shuffle(all_idx)
+
+    return X[all_idx], y[all_idx]
+
+
 def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
                    shuffle=True, **dist_kwargs):
     """

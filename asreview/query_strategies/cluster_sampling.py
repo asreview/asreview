@@ -23,13 +23,14 @@ from sklearn.exceptions import NotFittedError
 
 from asreview.query_strategies.max_sampling import max_sampling
 from asreview.query_strategies.base import BaseQueryStrategy
-from asreview.cluster import get_cluster_X
+from asreview.unsupervised.embedding_idf import EmbeddingIdf
 
 
 class QueryCluster(BaseQueryStrategy):
     def __init__(self, query_kwargs={}, texts=None, embedding_fp=None):
         super(QueryCluster, self).__init__(query_kwargs)
-        self.query_kwargs['cluster_X'] = get_cluster_X(texts, embedding_fp)
+        cluster_model = EmbeddingIdf({"embedding_fp": embedding_fp})
+        self.query_kwargs['cluster_X'] = cluster_model.fit_transform(texts)
 
     def default_kwargs(self):
         defaults = {
