@@ -16,9 +16,9 @@ import numpy as np
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+from tensorflow.keras import regularizers
 
 from asreview.models.keras import _get_optimizer
-from keras import regularizers
 from asreview.models.base import BaseModel
 from asreview.unsupervised import Doc2Vec
 from asreview.utils import _set_class_weight

@@ -8,7 +8,7 @@ from asreview.unsupervised.base import BaseUnsupervised
 
 
 class EmbeddingIdf(BaseUnsupervised):
-    name = "doc2vec"
+    name = "embedding_idf"
 
     def __init__(self, param={}):
         super(EmbeddingIdf, self).__init__(param)
