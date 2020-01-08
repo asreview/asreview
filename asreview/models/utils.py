@@ -15,6 +15,7 @@
 from asreview.models.sklearn_models import SVCModel, NBModel, RFModel
 from asreview.models.lstm_base import LSTMBaseModel
 from asreview.models.lstm_pool import LSTMPoolModel
+from asreview.models.dense_nn import DenseNNModel
 
 
 def get_model_class(model):
@@ -25,5 +26,6 @@ def get_model_class(model):
         "lstm_base": LSTMBaseModel,
         "lstm_pool": LSTMPoolModel,
         "rf": RFModel,
+        "dense_nn": DenseNNModel
     }
     return models.get(model, None)

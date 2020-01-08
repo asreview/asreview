@@ -14,3 +14,4 @@
 
 from asreview.unsupervised.doc2vec import Doc2Vec
 from asreview.unsupervised.tfidf import Tfidf
+from asreview.unsupervised.utils import get_unsupervised_class

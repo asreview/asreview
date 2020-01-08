@@ -14,6 +14,8 @@
 
 from asreview.balance_strategies.full_sampling import full_sample
 from asreview.balance_strategies.full_sampling import FullSampleTD
+from asreview.balance_strategies.double_balance import double_balance
+from asreview.balance_strategies.double_balance import DoubleBalanceTD
 from asreview.balance_strategies.triple_balance import triple_balance
 from asreview.balance_strategies.triple_balance import TripleBalanceTD
 from asreview.balance_strategies.undersampling import undersample

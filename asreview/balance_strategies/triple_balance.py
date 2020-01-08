@@ -13,13 +13,15 @@
 # limitations under the License.
 
 import logging
-from math import floor
-from math import log
 
 import numpy as np
 
 from asreview.balance_strategies.base import BaseTrainData
 from asreview.balance_strategies.full_sampling import full_sample
+from asreview.balance_strategies.double_balance import _one_weight
+from asreview.balance_strategies.double_balance import _zero_weight
+from asreview.balance_strategies.double_balance import fill_training
+from asreview.balance_strategies.double_balance import random_round
 
 
 class TripleBalanceTD(BaseTrainData):
@@ -65,31 +67,6 @@ class TripleBalanceTD(BaseTrainData):
         return parameter_space
 
 
-def _one_weight(n_one, n_zero, a, alpha):
-    """
-    Get the weight ratio between random and max samples.
-
-    Parameters
-    ----------
-    b: float
-        Ratio between rand/max at 0% queried.
-    alpha: float
-        Power law governing the transition.
-
-    Returns
-    -------
-    float:
-        Weight ratio between random/max instances.
-    """
-    weight = a * (n_one/n_zero)**(-alpha)
-    return weight
-
-
-def _zero_weight(n_read, b, beta):
-    weight = 1 - (1-b) * (1+log(n_read))**(-beta)
-    return weight
-
-
 def _zero_max_weight(fraction_read, c, gamma):
     """
     Get the weight ratio between ones and zeros.
@@ -108,13 +85,6 @@ def _zero_max_weight(fraction_read, c, gamma):
     """
     weight = 1 - (1-c)*(1-fraction_read)**gamma
     return weight
-
-
-def random_round(value):
-    base = int(floor(value))
-    if np.random.rand() < value-base:
-        base += 1
-    return base
 
 
 def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train,
@@ -142,38 +112,6 @@ def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train,
     n_zero_max_train = n_zero_train - n_zero_rand_train
 
     return n_one_train, n_zero_rand_train, n_zero_max_train
-
-
-def fill_training(src_idx, n_train):
-    n_copy = np.int(n_train/len(src_idx))
-    n_sample = n_train - n_copy*len(src_idx)
-    dest_idx = np.tile(src_idx, n_copy).reshape(-1)
-    dest_idx = np.append(dest_idx,
-                         np.random.choice(src_idx, n_sample, replace=False))
-    return dest_idx
-
-
-def double_balance(X, y, train_idx, a=2.155, alpha=0.94, b=0.789, beta=1.0):
-    one_idx = train_idx[np.where(y[train_idx] == 1)]
-    zero_idx = train_idx[np.where(y[train_idx] == 0)]
-    n_one = len(one_idx)
-    n_zero = len(zero_idx)
-    n_train = n_one + n_zero
-
-    one_weight = _one_weight(n_one, n_zero, a, alpha)
-    zero_weight = _zero_weight(n_one+n_zero, b, beta)
-    tot_zo_weight = one_weight * n_one + zero_weight * n_zero
-    n_one_train = random_round(one_weight*n_one*n_train/tot_zo_weight)
-    n_one_train = max(1, min(n_train-2, n_one_train))
-    n_zero_train = n_train-n_one_train
-
-    one_train_idx = fill_training(one_idx, n_one_train)
-    zero_train_idx = fill_training(zero_idx, n_zero_train)
-
-    all_idx = np.concatenate([one_train_idx, zero_train_idx])
-    np.random.shuffle(all_idx)
-
-    return X[all_idx], y[all_idx]
 
 
 def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
@@ -213,7 +151,9 @@ def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
         logging.debug("Warning: trying to use triple balance, but unable to"
                       f", because we have {len(zero_max_idx)} zero max samples"
                       f" and {len(zero_rand_idx)} random samples.")
-        return full_sample(X, y, train_idx)
+        return full_sample(X, y, train_idx,
+                           dist_kwargs["one_a"], dist_kwargs["one_alpha"],
+                           dist_kwargs["one_b"], dist_kwargs["one_beta"])
 
     n_one = len(one_idx)
     n_zero_rand = len(zero_rand_idx)
@@ -231,7 +171,6 @@ def triple_balance(X, y, train_idx, query_kwargs={"query_src": {}},
     zero_rand_train_idx = fill_training(zero_rand_idx, n_zero_rand_train)
     zero_max_train_idx = fill_training(zero_max_idx, n_zero_max_train)
 
-#     print(one_train_idx, zero_rand_train_idx, zero_max_train_idx)
     all_idx = np.concatenate(
         [one_train_idx, zero_rand_train_idx, zero_max_train_idx])
     np.random.shuffle(all_idx)

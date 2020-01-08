@@ -3,7 +3,7 @@ from math import log
 import numpy as np
 from keras_preprocessing.text import text_to_word_sequence
 
-from asreview import load_embedding
+from asreview.models.embedding import load_embedding
 from asreview.unsupervised.base import BaseUnsupervised
 
 

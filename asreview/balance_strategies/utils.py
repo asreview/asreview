@@ -15,6 +15,7 @@
 from asreview.balance_strategies.full_sampling import FullSampleTD
 from asreview.balance_strategies.triple_balance import TripleBalanceTD
 from asreview.balance_strategies.undersampling import UndersampleTD
+from asreview.balance_strategies.double_balance import DoubleBalanceTD
 
 
 def get_balance_strategy(method, balance_param={},
@@ -25,6 +26,8 @@ def get_balance_strategy(method, balance_param={},
         td_obj = TripleBalanceTD(balance_param, query_kwargs)
     elif method in ["undersample", "undersampling"]:
         td_obj = UndersampleTD(balance_param)
+    elif method in ["double", "double_balance"]:
+        td_obj = DoubleBalanceTD(balance_param)
     else:
         raise ValueError(f"Training data method {method} not found")
     return td_obj.func_kwargs_descr()
@@ -48,3 +51,6 @@ def get_balance_class(method):
         return TripleBalanceTD
     if method in ["undersample", "undersampling"]:
         return UndersampleTD
+    if method in ["double", "double_balance"]:
+        return DoubleBalanceTD
+    raise ValueError(f"Error: method '{method}' for balancing does not exist.")

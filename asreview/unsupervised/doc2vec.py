@@ -6,13 +6,26 @@ from asreview.unsupervised.base import BaseUnsupervised
 from copy import deepcopy
 
 
-def train_model(corpus, param):
+def train_model(corpus, param, dm=None):
     import gensim
-    model = gensim.models.doc2vec.Doc2Vec(**param)
+    train_param = deepcopy(param)
+    if dm is not None:
+        train_param["dm"] = dm
+        train_param["vector_size"] = int(train_param["vector_size"]/2)
+
+    model = gensim.models.doc2vec.Doc2Vec(**train_param)
     model.build_vocab(corpus)
     model.train(corpus, total_examples=model.corpus_count,
                 epochs=model.epochs)
     return model
+
+
+def transform_text(model, corpus):
+    X = []
+    for doc_id in range(len(corpus)):
+        doc_vec = model.infer_vector(corpus[doc_id].words)
+        X.append(doc_vec)
+    return np.array(X)
 
 
 class Doc2Vec(BaseUnsupervised):
@@ -21,6 +34,9 @@ class Doc2Vec(BaseUnsupervised):
     def __init__(self, param={}):
         super(Doc2Vec, self).__init__(param)
         self.param = {key: int(value) for key, value in self.param.items()}
+        self.model = None
+        self.model_dm = None
+        self.model_dbow = None
 
     def default_param(self):
         return {
@@ -68,6 +84,43 @@ class Doc2Vec(BaseUnsupervised):
                 doc_vec = model.infer_vector(corpus[doc_id].words)
                 X.append(doc_vec)
         return np.array(X)
+
+    def fit(self, texts):
+        try:
+            from gensim.utils import simple_preprocess
+            from gensim.models.doc2vec import TaggedDocument
+        except ImportError:
+            print("Error: install gensim package (`pip install gensim`) to use"
+                  " doc2vec.")
+            sys.exit(192)
+        corpus = [TaggedDocument(simple_preprocess(text), [i])
+                  for i, text in enumerate(texts)]
+
+        model_type = self.param.get("dm", 1)
+        if model_type == 2:
+            self.model_dm = train_model(corpus, self.param, dm=1)
+            self.model_dbow = train_model(corpus, self.param, dm=0)
+        else:
+            self.model = train_model(corpus, self.param)
+
+    def transform(self, texts):
+        try:
+            from gensim.utils import simple_preprocess
+            from gensim.models.doc2vec import TaggedDocument
+        except ImportError:
+            print("Error: install gensim package (`pip install gensim`) to use"
+                  " doc2vec.")
+            sys.exit(192)
+        corpus = [TaggedDocument(simple_preprocess(text), [i])
+                  for i, text in enumerate(texts)]
+        model_type = self.param.get("dm", 1)
+        if model_type == 2:
+            X_dm = transform_text(self.model_dm, corpus)
+            X_dbow = transform_text(self.model_dbow, corpus)
+            X = np.concatenate((X_dm, X_dbow), axis=1)
+        else:
+            X = transform_text(self.model, corpus)
+        return X
 
     def full_hyper_space(self):
         from hyperopt import hp
