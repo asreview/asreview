@@ -30,7 +30,7 @@ from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.logging.utils import open_logger
 from asreview.models.utils import get_model_class
-from asreview.query_strategies.base import get_query_with_settings
+from asreview.query_strategies.utils import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
@@ -58,6 +58,7 @@ def get_reviewer(dataset,
                  query_param=None,
                  balance_param=None,
                  abstract_only=False,
+                 extra_dataset=[],
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
@@ -105,9 +106,18 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    as_data = ASReviewData.from_file(dataset,
+    as_data = ASReviewData.from_file(dataset, extra_dataset=extra_dataset,
                                      abstract_only=settings.abstract_only)
     _, texts, labels = as_data.get_data()
+    data_prior_included, data_prior_excluded = as_data.get_priors()
+    if len(data_prior_included) != 0:
+        if prior_included is None:
+            prior_included = []
+        prior_included.extend(data_prior_included.tolist())
+    if len(data_prior_excluded) != 0:
+        if prior_excluded is None:
+            prior_excluded = []
+        prior_excluded.extend(data_prior_excluded.tolist())
 
     if as_data.final_labels is not None:
         with open_logger(log_file) as logger:
@@ -121,9 +131,9 @@ def get_reviewer(dataset,
     model_fn = model_inst.model()
     settings.fit_kwargs = model_inst.fit_kwargs()
 
-    settings.query_kwargs = {}
     # Pick query strategy
-    query_fn, query_str = get_query_with_settings(settings)
+    query_fn, query_str = get_query_with_settings(
+        settings, texts, embedding_fp)
     logging.info(f"Query strategy: {query_str}")
 
     train_data_fn, train_method = get_balance_with_settings(settings)

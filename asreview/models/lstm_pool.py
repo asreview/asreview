@@ -147,7 +147,7 @@ class LSTMPoolModel(KerasModel):
             "learn_rate_mult": 1.0,
             "verbose": 1,
             "batch_size": 32,
-            "epochs": 10,
+            "epochs": 35,
             "shuffle": False,
             "class_weight_inc": 30.0
         }
@@ -155,16 +155,13 @@ class LSTMPoolModel(KerasModel):
 
     def full_hyper_space(self):
         from hyperopt import hp
-        hyper_choices = {
-            "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
-        }
+
+        hyper_choices = {}
         hyper_space = {
-            "mdl_optimizer": hp.choice("mdl_optimizer",
-                                       hyper_choices["mdl_optimizer"]),
             "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
             "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
             "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
-            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 2)
+            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
         }
         return hyper_space, hyper_choices
 

@@ -70,9 +70,20 @@ def get_fuzzy_ranking(keywords, str_list):
     return rank_list
 
 
+def merge_arrays(array_a, array_b, n_paper_a, n_paper_b, fill="", type_=object):
+    if array_a is None and array_b is not None:
+        array_a = np.full(n_paper_a, fill).astype(type_)
+    if array_a is not None and array_b is None:
+        array_b = np.full(n_paper_b, fill).astype(type_)
+    if array_a is not None:
+        array_a = np.append(array_a, array_b)
+    return array_a
+
+
 class ASReviewData(object):
-    """ Data object to store csv/ris file. Extracts relevant properties
-        of papers. """
+    """Data object to store csv/ris file.
+
+    Extracts relevant properties of papers. """
     def __init__(self, raw_df, labels=None, title=None, abstract=None,
                  keywords=None, article_id=None, authors=None,
                  label_col=LABEL_INCLUDED_VALUES[0], final_labels=None):
@@ -93,8 +104,38 @@ class ASReviewData(object):
         if abstract is None:
             BadFileFormatError("Could not locate abstracts in data.")
 
+        self.n_paper_train = len(self.raw_df.index)
+        self.n_paper = self.n_paper_train
         if article_id is None:
             self.article_id = np.arange(len(raw_df.index))
+
+    def append(self, as_data):
+        """Append another ASReviewData object.
+
+        It puts the training data at the end.
+
+        Arguments
+        ---------
+        as_data: ASReviewData
+            Dataset to append.
+        """
+        if as_data.labels is None:
+            BadFileFormatError("Additional datasets should have labels.")
+        if self.labels is None:
+            self.labels = np.full(self.n_paper, NOT_AVAILABLE)
+        self.labels = np.append(self.labels, as_data.labels)
+
+        self.title = np.append(self.title, as_data.title)
+        self.abstract = np.append(self.abstract, as_data.abstract)
+        self.article_id = np.append(self.article_id, as_data.article_id + self.n_paper)
+        self.keywords = merge_arrays(self.keywords, as_data.keywords, self.n_paper,
+                                     as_data.n_paper, "", object)
+        self.authors = merge_arrays(self.authors, as_data.authors, self.n_paper,
+                                    as_data.n_paper, "", object)
+        self.final_labels = merge_arrays(self.final_labels, as_data.final_labels,
+                                         self.n_paper, as_data.n_paper, NOT_AVAILABLE,
+                                         np.int)
+        self.n_paper += as_data.n_paper
 
     @classmethod
     def from_data_frame(cls, raw_df, abstract_only=False):
@@ -115,6 +156,8 @@ class ASReviewData(object):
             data_kwargs['labels'] = np.array(raw_df[column_labels[0]].fillna(
                 NOT_AVAILABLE).values, dtype=np.int)
             data_kwargs['label_col'] = column_labels[0]
+        else:
+            data_kwargs['label_col'] = LABEL_INCLUDED_VALUES[0]
 
         if 'inclusion_code' in raw_df.columns and abstract_only:
             inclusion_codes = raw_df['inclusion_code'].fillna(
@@ -156,9 +199,17 @@ class ASReviewData(object):
             pd.DataFrame(read_excel(fp)), *args, **kwargs)
 
     @classmethod
-    def from_file(cls, fp, *args, **kwargs):
+    def from_file(cls, fp, *args, extra_dataset=[], **kwargs):
         "Create instance from csv/ris/excel file."
-        return cls.from_data_frame(_df_from_file(fp), *args, **kwargs)
+        as_data = cls.from_data_frame(_df_from_file(fp), *args, **kwargs)
+
+        if len(extra_dataset) == 0:
+            return as_data
+
+        for prior_fp in extra_dataset:
+            prior_as_data = cls.from_data_frame(_df_from_file(prior_fp), *args, **kwargs)
+            as_data.append(prior_as_data)
+        return as_data
 
     def preview_record(self, i, w_title=80, w_authors=40):
         "Return a preview string for record i."
@@ -265,7 +316,13 @@ class ASReviewData(object):
         texts = []
         for i in range(len(self.title)):
             texts.append(self.title[i] + " " + self.abstract[i])
-        return self.raw_df, np.array(texts), self.labels
+        return self.raw_df, np.array(texts, dtype=object), self.labels
+
+    def get_priors(self):
+        "Get prior_included, prior_excluded from dataset."
+        zero_idx = np.where(self.labels[self.n_paper_train:] == 0)[0]
+        one_idx = np.where(self.labels[self.n_paper_train:] == 1)[0]
+        return one_idx + self.n_paper_train, zero_idx + self.n_paper_train
 
     def to_file(self, fp, labels=None, df_order=None):
         """
@@ -295,7 +352,7 @@ class ASReviewData(object):
             new_df[self.label_col] = labels
 
         if df_order is not None:
-            new_df = self.raw_df.reindex(df_order)
+            new_df = new_df.reindex(df_order)
         new_df.to_csv(csv_fp)
 
     def to_ris(self, ris_fp, labels=None, df_order=None):
@@ -304,7 +361,7 @@ class ASReviewData(object):
             new_df[self.label_col] = labels
 
         if df_order is not None:
-            new_df = self.raw_df.reindex(df_order)
+            new_df = new_df.reindex(df_order)
         write_ris(new_df, ris_fp)
 
 

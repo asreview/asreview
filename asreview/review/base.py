@@ -37,6 +37,11 @@ def get_pool_idx(X, train_idx):
 def _merge_prior_knowledge(included, excluded, return_labels=True):
     """Merge prior included and prior excluded."""
 
+    if included is None:
+        included = []
+    if excluded is None:
+        excluded = []
+
     prior_indices = np.array(np.append(included, excluded), dtype=np.int)
 
     if return_labels:
@@ -107,10 +112,6 @@ class BaseReview(ABC):
 
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
-        if prior_included is None:
-            self.prior_included = []
-        if prior_excluded is None:
-            self.prior_excluded = []
 
         self.fit_kwargs = fit_kwargs
         self.balance_kwargs = balance_kwargs
@@ -126,6 +127,10 @@ class BaseReview(ABC):
         with open_logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
+                if X.shape[0] != len(y):
+                    raise ValueError("The log file does not correspond to the "
+                                     "given data file, please use another log "
+                                     "file or dataset.")
                 self.y = y
                 self.train_idx = train_idx
                 self.query_kwargs["query_src"] = query_src
@@ -134,10 +139,8 @@ class BaseReview(ABC):
                 if final_labels is not None:
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
-                init_idx, init_labels = self._prior_knowledge()
+                self._prior_knowledge(logger)
                 self.query_i = 0
-                self.train_idx = np.array([], dtype=np.int)
-                self.classify(init_idx, init_labels, logger, method="initial")
 
         # Initialize learner, but don't start training yet.
         self.learner = ActiveLearner(
@@ -145,17 +148,20 @@ class BaseReview(ABC):
             query_strategy=self.query_strategy
         )
 
-    @abstractmethod
-    def _prior_knowledge(self):
-        pass
+    def _prior_knowledge(self, logger):
+        """Create prior knowledge from arguments."""
+        if self.prior_included is not None and len(self.prior_included) > 0:
+            self.classify(self.prior_included,
+                          np.ones(len(self.prior_included)),
+                          logger, method="initial")
+        if self.prior_excluded is not None and len(self.prior_excluded) > 0:
+            self.classify(self.prior_excluded,
+                          np.zeros(len(self.prior_included)),
+                          logger, method="initial")
 
     @abstractmethod
     def _get_labels(self, ind):
         """Classify the provided indices."""
-        pass
-
-    def _prior_teach(self):
-        """Function called before training model."""
         pass
 
     def _stop_iter(self, query_i, n_pool):
@@ -258,6 +264,7 @@ class BaseReview(ABC):
         pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
             pred_proba = self.learner.predict_proba(self.X)
+
         proba_1 = np.array([x[1] for x in pred_proba])
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 

@@ -21,6 +21,30 @@ from sklearn.base import BaseEstimator
 
 from asreview.query_strategies.max_sampling import max_sampling
 from asreview.query_strategies.random_sampling import random_sampling
+from asreview.query_strategies.base import BaseQueryStrategy
+
+
+class QueryRandMax(BaseQueryStrategy):
+    def default_kwargs(self):
+        defaults = {
+            "max_frac": 0.95
+        }
+        return defaults
+
+    def hyperopt_space(self):
+        from hyperopt import hp
+        parameter_space = {
+            "qry_max_frac": hp.uniform('qry_max_frac', 0, 1),
+        }
+        return parameter_space
+
+    @staticmethod
+    def function():
+        return rand_max_sampling
+
+    @staticmethod
+    def description():
+        return "combination of random and max sampling."
 
 
 def rand_max_sampling(classifier: BaseEstimator,
@@ -63,8 +87,7 @@ def rand_max_sampling(classifier: BaseEstimator,
         pool_idx = np.arange(n_samples)
 
     # Set the fraction of maximum sampling. Defaults to 95% max, 5% rand.
-    rand_max_frac = query_kwargs.get('rand_max_frac', 0.05)
-    max_frac = 1-rand_max_frac
+    max_frac = query_kwargs.get('max_frac', 0.95)
 
     # Get the discrete number of instances for rand/max sampling.
     n_instance_max = floor(n_instances*max_frac)

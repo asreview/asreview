@@ -15,11 +15,10 @@
 import numpy as np
 from PyInquirer import prompt, Separator
 
-from asreview.ascii import ASCII_TEA
 from asreview.config import NOT_AVAILABLE
 from asreview.review import BaseReview
-from asreview.review.base import _merge_prior_knowledge
 from asreview.types import convert_list_type
+from asreview.logging.utils import open_logger
 
 
 def update_stats(stats, label):
@@ -47,7 +46,7 @@ class ReviewOracle(BaseReview):
 
         self.use_cli_colors = use_cli_colors
 
-    def _papers_from_finder(self):
+    def _papers_from_finder(self, logger):
         "Find papers using a fuzzy finder in the available records."
         question = [
             {
@@ -61,8 +60,7 @@ class ReviewOracle(BaseReview):
         except KeyError:
             return
 
-        all_prior = self.prior_included + self.prior_excluded
-        paper_idx = self.as_data.fuzzy_find(keywords, exclude=all_prior)
+        paper_idx = self.as_data.fuzzy_find(keywords, exclude=self.train_idx)
 
         # Get the (possibly) relevant papers.
         choices = []
@@ -88,17 +86,14 @@ class ReviewOracle(BaseReview):
 
             # Get the label for the selected paper.
             label = self._get_labels_paper(idx, ask_stop=False)
-            if label == 1:
-                self.prior_included.append(idx)
-            elif label == 0:
-                self.prior_excluded.append(idx)
+            self.classify([idx], [label], logger, method="initial")
 
             # Remove the selected choice from the list.
             del choices[choice_idx]
             del paper_idx[choice_idx]
         return
 
-    def _papers_from_id(self):
+    def _papers_from_id(self, logger):
         "Get papers by a list of IDs."
         question = [
             {
@@ -120,51 +115,61 @@ class ReviewOracle(BaseReview):
             excluded = answer["excluded"]
         except KeyError:
             return
-        self.prior_included.extend(convert_list_type(included.split(), int))
-        self.prior_excluded.extend(convert_list_type(excluded.split(), int))
 
-    def priors_from_cli(self):
+        new_included = convert_list_type(included.split(), int)
+        new_excluded = convert_list_type(excluded.split(), int)
+        self.classify(new_included, np.ones(len(new_included)),
+                      logger, method="initial")
+        self.classify(new_excluded, np.zeros(len(new_excluded)),
+                      logger, method="initial")
+
+    def main_menu(self, logger, *args, **kwargs):
         "Get initial papers for modelling."
         while True:
-            question = [
-                {
-                    'type': 'list',
-                    'name': 'action',
-                    'message': 'What do you want to do next?',
-                    'choices': [
-                        "Find papers by keywords",
-                        "Add papers from ID's",
-                        Separator(),
-                        f"Start review ({len(self.prior_included)} included, "
-                        f"{len(self.prior_excluded)} excluded)",
-                        "Stop"
-                    ]
-                }
-            ]
+            n_included = np.sum(self.y[self.train_idx] == 1)
+            n_excluded = np.sum(self.y[self.train_idx] == 0)
+            question = [{
+                'type': 'list',
+                'name': 'action',
+                'message': 'What do you want to do next?',
+                'choices': [
+                    "Find papers by keywords",
+                    "Find papers by ID",
+                    Separator(),
+                    f"Continue review ({n_included} included, "
+                    f"{n_excluded} excluded)",
+                    "Export",
+                    Separator(),
+                    "Stop"
+                ]
+            }]
             action = prompt(question).get("action", "Stop")
 
-            if action.startswith("Add papers"):
-                self._papers_from_id()
-            elif action.startswith("Find papers"):
-                self._papers_from_finder()
+            if action.endswith("by keywords"):
+                self._papers_from_finder(logger)
+            elif action.endswith("by ID"):
+                self._papers_from_id(logger)
+            elif action.startswith("Export"):
+                self._export()
             elif action.startswith("Stop"):
-                raise KeyboardInterrupt
-            elif action.startswith("Start review"):
-                break
+                question = [{
+                    'type': 'confirm',
+                    'message': "Are you sure you want to stop?",
+                    'name': 'stop',
+                    'default': 'false',
+                }]
+                stop = prompt(question).get('stop', True)
+                if stop:
+                    raise KeyboardInterrupt
+            elif action.startswith("Continue review"):
+                try:
+                    self._do_review(logger, *args, **kwargs)
+                except KeyboardInterrupt:
+                    pass
 
-    def _prior_knowledge(self):
-        """Create prior knowledge from arguments."""
-
-        self.priors_from_cli()
-        prior_indices, prior_labels = _merge_prior_knowledge(
-            self.prior_included, self.prior_excluded)
-        return np.array(prior_indices, dtype=np.int), np.array(
-            prior_labels, dtype=np.int)
-
-    def _prior_teach(self):
-
-        print("\n\n We work, you drink tea.\n")
-        print(ASCII_TEA)
+    def review(self, *args, instant_save=True, **kwargs):
+        with open_logger(self.log_file) as logger:
+            self.main_menu(logger, *args, instant_save=instant_save, **kwargs)
 
     def _format_paper(self,
                       title=None,
@@ -177,7 +182,7 @@ class ReviewOracle(BaseReview):
 
         return f"\n{title}\n{authors}\n\n{abstract}\n"
 
-    def _get_labels_paper(self, index, stat_str=None, ask_stop=True):
+    def _get_labels_paper(self, index, stat_str=None, ask_stop=False):
         """Ask the user for a label for a particular paper.
 
         Arguments
@@ -202,30 +207,12 @@ class ReviewOracle(BaseReview):
                     'message': 'Include or Exclude?',
                     'default': 'Exclude',
                     'choices': [
-                        'Exclude', 'Include', Separator(),
-                        'Export', Separator(), 'Stop'
+                        'Exclude', 'Include', Separator(), 'Back to main menu'
                     ],
                     'filter': lambda val: val.lower()
                 }
             ]
-            action = prompt(question).get("action", "stop")
-            if action == "stop" and ask_stop:
-                question = [
-                    {
-                        'type': 'confirm',
-                        'message': "Are you sure you want to stop?",
-                        'name': 'stop',
-                        'default': 'false',
-                    }
-                ]
-                stopping = prompt(question).get("stop", True)
-                if stopping:
-                    return None
-                else:
-                    return _interact()
-            elif action == "export":
-                self._export()
-                return _interact()
+            action = prompt(question).get("action", 'Back to main menu')
             return action
 
         action = _interact()
@@ -240,12 +227,7 @@ class ReviewOracle(BaseReview):
         return label
 
     def train(self, *args, **kwargs):
-        print(ASCII_TEA)
         super(ReviewOracle, self).train(*args, **kwargs)
-
-    def review(self, *args, instant_save=True, **kwargs):
-        super(ReviewOracle, self).review(*args, instant_save=instant_save,
-                                         **kwargs)
 
     def _export(self):
         """Export the results to a csv file.
@@ -267,16 +249,13 @@ class ReviewOracle(BaseReview):
         pred_proba = self.query_kwargs.get('pred_proba', None)
         pool_idx = np.delete(np.arange(len(self.y)), self.train_idx)
         if pred_proba is not None:
-            proba_order = np.argsort(pred_proba[pool_idx, 1])
+            proba_order = np.argsort(-pred_proba[pool_idx, 1])
         else:
             proba_order = np.arange(len(pool_idx))
         train_zero = self.train_idx[np.where(self.y[self.train_idx] == 0)[0]]
         train_one = self.train_idx[np.where(self.y[self.train_idx] == 1)[0]]
         df_order = np.concatenate(
             (train_one, pool_idx[proba_order], train_zero), axis=None)
-        assert len(df_order) == len(self.y)
-        for i in range(len(self.y)):
-            assert i in df_order
         labels = np.full(len(self.y), np.nan, dtype=object)
         labels[self.train_idx] = self.y[self.train_idx]
         self.as_data.to_file(fp=file_name, labels=labels,
