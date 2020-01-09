@@ -24,7 +24,7 @@ from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
 from asreview.logging import open_logger
-from asreview.models.sklearn_models import NBModel
+from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
 from asreview.balance_strategies.simple import SimpleBalance
 from asreview.query_strategies.random import RandomQuery

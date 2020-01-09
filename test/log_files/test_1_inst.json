@@ -1,10 +1,43 @@
 {
   "time": {
-    "start_time": "2019-10-25 17:03:35.162661",
-    "end_time": "2019-12-03 12:39:50.082340"
+    "start_time": "2020-01-09 16:10:26.263195",
+    "end_time": "2020-01-09 16:29:16.367531"
   },
-  "version": "2.0",
-  "software_version": "0.2.0+36.g2f1b446.dirty",
+  "version": "2.1",
+  "software_version": "0.3.1+14.gd39b057.dirty",
+  "settings": {
+    "feature_param": {},
+    "balance_param": {
+      "a": 2.155,
+      "alpha": 0.94,
+      "b": 0.789,
+      "beta": 1.0,
+      "c": 0.835,
+      "gamma": 2.0,
+      "shuffle": true
+    },
+    "query_param": {
+      "strategy_1": "max",
+      "strategy_2": "random",
+      "mix_ratio": 0.95
+    },
+    "model_param": {
+      "alpha": 3.822
+    },
+    "data_name": "generic_labels.csv",
+    "data_fp": "test/demo_data/generic_labels.csv",
+    "abstract_only": false,
+    "n_prior_excluded": 10,
+    "n_prior_included": 10,
+    "n_papers": null,
+    "n_queries": 1,
+    "n_instances": 1,
+    "feature_extraction": "tfidf",
+    "balance_strategy": "triple",
+    "query_strategy": "max_random",
+    "model": "nb",
+    "mode": "simulate"
+  },
   "results": [
     {
       "labelled": [
@@ -42,12 +75,12 @@
         4
       ],
       "proba": [
-        0.47726859251642934,
-        0.520578521066692,
-        0.47726859251642934,
-        0.520578521066692,
-        0.47726859251642934,
-        0.520578521066692
+        0.492857124745845,
+        0.5060465068253844,
+        0.492857124745845,
+        0.5060465068253844,
+        0.492857124745845,
+        0.5060465068253844
       ],
       "labelled": [
         [
@@ -58,23 +91,6 @@
       ]
     }
   ],
-  "settings": {
-    "balance_param": {},
-    "query_param": {},
-    "model_param": {},
-    "data_name": "csv_example_with_labels.csv",
-    "data_fp": "test/demo_data/csv_example_with_labels.csv",
-    "save_freq": 1,
-    "n_prior_excluded": 10,
-    "n_prior_included": 10,
-    "n_papers": null,
-    "n_queries": 1,
-    "n_instances": 1,
-    "balance_strategy": "triple_balance",
-    "query_strategy": "rand_max",
-    "model": "nb",
-    "mode": "simulate"
-  },
   "labels": [
     1,
     1,

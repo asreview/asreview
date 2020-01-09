@@ -47,7 +47,8 @@ def check_write_logger(tmpdir, log_file):
 
     settings = ASReviewSettings(mode="simulate", model="nb",
                                 query_strategy="rand_max",
-                                balance_strategy="simple")
+                                balance_strategy="simple",
+                                feature_extraction="tfidf")
 
     n_records = 6
     n_half = int(n_records/2)

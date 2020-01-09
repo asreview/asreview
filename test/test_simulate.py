@@ -41,16 +41,16 @@ def test_log_continue_h5():
                 continue_from_log=True, n_instances=1, n_queries=2)
 
 
-def test_lstm_base():
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_base.ini"),
-                log_file=h5_log_file)
+# def test_lstm_base():
+#     check_model(mode="simulate",
+#                 config_file=os.path.join(cfg_dir, "lstm_base.ini"),
+#                 log_file=h5_log_file)
 
 
-def test_lstm_pool():
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
-                log_file=json_log_file)
+# def test_lstm_pool():
+#     check_model(mode="simulate",
+#                 config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+#                 log_file=json_log_file)
 
 
 def test_nb():

@@ -39,5 +39,8 @@ def get_query_model(method, *args, **kwargs):
     query_class = get_query_class(method)
     if query_class == MixedQuery:
         mix = method.split("_")
+        for i in range(2):
+            kwargs.pop("strategy_" + str(i+1), None)
+        print(kwargs, args, mix)
         return query_class(mix[0], mix[1], *args, **kwargs)
     return query_class(*args, **kwargs)

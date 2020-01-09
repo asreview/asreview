@@ -32,7 +32,7 @@ def get_serial_list(array, dtype=None):
 
 class DictLogger(BaseLogger):
     """Class for logging the Systematic Review with no storage."""
-    version = "1.0"
+    version = "1.1"
     read_only = False
 
     def __init__(self, log_fp, *_, **__):

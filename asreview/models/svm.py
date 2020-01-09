@@ -31,7 +31,8 @@ class SVMModel(BaseModel):
                 1: class_weight,
             }
         self._model = SVC(kernel=kernel, C=C, class_weight=class_weight,
-                          random_state=random_state, gamma=gamma)
+                          random_state=random_state, gamma=gamma,
+                          probability=True)
 
     def full_hyper_space(self):
         from hyperopt import hp
