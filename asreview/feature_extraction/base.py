@@ -1,20 +1,13 @@
 from abc import ABC, abstractmethod
+import inspect
 
 
-class BaseUnsupervised(ABC):
+class BaseFeatureExtraction(ABC):
     name = "base"
-
-    def __init__(self, param={}):
-        self.param = self.default_param()
-        self.param.update(param)
-        self.const_param = list(param)
 
     @abstractmethod
     def fit_transform(self, texts):
         raise NotImplementedError
-
-    def default_param(self):
-        return {}
 
     def full_hyper_space(self):
         return {}, {}
@@ -28,3 +21,12 @@ class BaseUnsupervised(ABC):
 
     def _full(self, par_name):
         return "usp_" + par_name
+
+    @property
+    def default_param(self):
+        signature = inspect.signature(self.__init__)
+        return {
+            k: v.default
+            for k, v in signature.parameters.items()
+            if v.default is not inspect.Parameter.empty
+        }

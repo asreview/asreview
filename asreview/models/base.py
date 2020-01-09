@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-
-from asreview.utils import _unsafe_dict_update
+from abc import ABC
+import inspect
 
 
 class BaseModel(ABC):
@@ -28,43 +27,25 @@ class BaseModel(ABC):
     process. Fit parameters can be distinct from fit_kwargs (which are passed
     to the fit function).
     """
-    def __init__(self, param):
-        self.name = "base"
-        self.param = _unsafe_dict_update(self.default_param(), param)
-#         self._model = None
+    name = "base"
 
-    def fit_param(self):
-        "Obtain fit parameters from parameters."
-        fit_param = {x: self.param[x] for x in self.fit_param_names()}
-        return fit_param
+    def __init__(self):
+        self._model = None
 
-    def model_param(self):
-        "Obtain model parameters from parameters."
-        model_param = {x: self.param[x] for x in self.model_param_names()}
-        return model_param
+    def fit(self, X, y):
+        return self._model.fit(X, y)
 
-    def fit_kwargs(self):
-        "Get fit arguments from fit parameters."
-        return self.fit_param()
+    def predict_proba(self, X):
+        return self._model.predict_proba(X)
 
-    @abstractmethod
-    def model(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_Xy(self):
-        raise NotImplementedError
-
-#     def fit(self):
-#         if self._model is None:
-#             self._model = self.model()
-# 
-#         X, y = self.get_Xy()
-#         self._model.fit(X, y, **self.fit_kwargs())
-
+    @property
     def default_param(self):
-        "Get default parameters"
-        return {}
+        signature = inspect.signature(self.__init__)
+        return {
+            k: v.default
+            for k, v in signature.parameters.items()
+            if v.default is not inspect.Parameter.empty
+        }
 
     def full_hyper_space(self):
         """Get a hyperparameter space to use with hyperopt.
@@ -115,11 +96,3 @@ class BaseModel(ABC):
     def _small(self, par):
         "Remove 'mdl_' from parameter names."
         return par[4:]
-
-    def model_param_names(self):
-        "All model parameter names."
-        return list(self.param.keys())
-
-    def fit_param_names(self):
-        "All fit parameter names."
-        return []

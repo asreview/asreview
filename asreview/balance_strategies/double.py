@@ -1,36 +1,68 @@
+# Copyright 2019 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from math import log, floor
 
 import numpy as np
 
-from asreview.balance_strategies.base import BaseTrainData
+from asreview.balance_strategies.base import BaseBalance
+from asreview.balance_strategies.simple import SimpleBalance
 
 
-class DoubleBalanceTD(BaseTrainData):
+class DoubleBalance(BaseBalance):
     """
     Class to get the three way rebalancing function and arguments.
     It divides the data into three groups: 1's, 0's from random sampling,
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
     """
-    def __init__(self, balance_kwargs={}, **__):
-        super(DoubleBalanceTD, self).__init__(balance_kwargs)
+    name = "double balance"
 
-    @staticmethod
-    def function():
-        return double_balance
+    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0, shuffle=True):
+        super(DoubleBalance, self).__init__()
+        self.a = a
+        self.alpha = alpha
+        self.b = b
+        self.beta = beta
+        self.shuffle = shuffle
+        self.fallback_model = SimpleBalance()
 
-    @staticmethod
-    def description():
-        return "double balanced (max,rand) training data."
+    def sample(self, X, y, train_idx, shared):
+        one_idx = train_idx[np.where(y[train_idx] == 1)]
+        zero_idx = train_idx[np.where(y[train_idx] == 0)]
 
-    def default_kwargs(self):
-        defaults = {}
-        defaults['a'] = 2.155
-        defaults['alpha'] = 0.94
-        defaults['b'] = 0.789
-        defaults['beta'] = 1.0
-        defaults['shuffle'] = True
-        return defaults
+        if len(one_idx) == 0 or len(zero_idx) == 0:
+            self.fallback_model.sample(X, y, train_idx, shared)
+
+        n_one = len(one_idx)
+        n_zero = len(zero_idx)
+        n_train = n_one + n_zero
+
+        one_weight = _one_weight(n_one, n_zero, self.a, self.alpha)
+        zero_weight = _zero_weight(n_one+n_zero, self.b, self.beta)
+        tot_zo_weight = one_weight * n_one + zero_weight * n_zero
+        n_one_train = random_round(one_weight*n_one*n_train/tot_zo_weight)
+        n_one_train = max(1, min(n_train-2, n_one_train))
+        n_zero_train = n_train-n_one_train
+
+        one_train_idx = fill_training(one_idx, n_one_train)
+        zero_train_idx = fill_training(zero_idx, n_zero_train)
+
+        all_idx = np.concatenate([one_train_idx, zero_train_idx])
+        np.random.shuffle(all_idx)
+
+        return X[all_idx], y[all_idx]
 
     def hyperopt_space(self):
         from hyperopt import hp

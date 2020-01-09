@@ -2,10 +2,10 @@ import sys
 
 import numpy as np
 
-from asreview.unsupervised.base import BaseUnsupervised
+from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
-class SBERT(BaseUnsupervised):
+class SBERT(BaseFeatureExtraction):
     name = "sbert"
 
     def fit_transform(self, texts):

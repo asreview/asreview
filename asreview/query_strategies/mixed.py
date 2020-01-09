@@ -1,0 +1,91 @@
+# Copyright 2019 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import logging
+from math import floor
+
+import numpy as np
+
+from asreview.query_strategies.base import BaseQueryStrategy
+from asreview.query_strategies.utils import get_query_model
+
+
+class MixedQuery(BaseQueryStrategy):
+    name = "mixed"
+
+    def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
+                 **kwargs):
+        super(MixedQuery, self).__init__()
+        kwargs_1 = {}
+        kwargs_2 = {}
+        for key, value in kwargs.items():
+            if key.startswith(strategy_1):
+                new_key = key[len(strategy_1)+1:]
+                kwargs_1[new_key] = value
+            elif key.starts_with(strategy_2):
+                new_key = key[len(strategy_2)+1:]
+                kwargs_2[new_key] = value
+            else:
+                logging.warn(f"Key {key} is being ignored for the mixed "
+                             "({strategy_1}, {strategy_2}) query strategy.")
+
+        self.query_model1 = get_query_model(strategy_1)
+        self.query_model2 = get_query_model(strategy_2)
+        self.mix_ratio = mix_ratio
+
+    def query(self, classifier, X, pool_idx=None, n_instances=1, shared={}):
+        n_samples = X.shape[0]
+        if pool_idx is None:
+            pool_idx = np.arange(n_samples)
+
+        n_instances_1 = floor(n_instances*self.mix_ratio)
+        if np.random.random_sample() < n_instances*self.mix_ratio-n_instances_1:
+            n_instances_1 += 1
+        n_instances_2 = n_instances-n_instances_1
+
+        query_idx_1, X_1 = self.query_model1.query(
+            classifier, X, pool_idx=pool_idx, n_instances=n_instances_1,
+            shared=shared)
+
+        train_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
+        train_idx = np.append(train_idx, query_idx_1)
+        new_pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
+        query_idx_2, X_2 = self.query_model2.query(
+            classifier, X, pool_idx=new_pool_idx, n_instances=n_instances_2,
+            shared=shared)
+
+        query_idx = np.append(query_idx_1, query_idx_2)
+
+        if n_instances_1 == 0:
+            X = X_1
+        elif n_instances_2 == 0:
+            X = X_2
+        else:
+            X = np.concatenate((X_1, X_2), axis=1)
+
+        return query_idx, X
+
+    def hyperopt_space(self):
+        space_1, _ = self.query_model1.hyperopt_space()
+        space_2, _ = self.query_model2.hyperopt_space()
+        parameter_space = {}
+        for key, value in space_1.items():
+            new_key = "qry_" + self.strategy_1 + key[4:]
+            parameter_space[new_key] = value
+
+        for key, value in space_2.items():
+            new_key = "qry_" + self.strategy_2 + key[4:]
+            parameter_space[new_key] = value
+
+        return parameter_space, {}

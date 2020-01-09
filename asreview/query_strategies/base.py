@@ -12,37 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
+from abc import ABC
+import inspect
 
-'''
-Expose selection of query methods.
-'''
-from asreview.utils import _unsafe_dict_update
+import numpy as np
+from sklearn.exceptions import NotFittedError
 
 
 class BaseQueryStrategy(ABC):
     "Abstract class for query strategies."
-    def __init__(self, query_kwargs={}, *_, **__):
-        self.query_kwargs = self.default_kwargs()
-        self.query_kwargs = _unsafe_dict_update(self.query_kwargs,
-                                                query_kwargs)
+    name = "base"
 
-    def func_kwargs_descr(self):
-        return (self.__class__.function(), self.query_kwargs,
-                self.__class__.description())
+    def query(self, classifier, X, pool_idx=None, n_instances=1, shared={}):
+        n_samples = X.shape[0]
+        if pool_idx is None:
+            pool_idx = np.arange(n_samples)
 
-    def default_kwargs(self):
-        return {}
+        if self.use_proba:
+            proba = shared.get('pred_proba', [])
+            if len(proba) != n_samples:
+                try:
+                    proba = classifier.predict_proba(X)
+                except NotFittedError:
+                    proba = np.ones(shape=(n_samples, ))
+                shared['pred_proba'] = proba
+            query_idx, X_query = self._query(X, pool_idx, n_instances, proba)
+        else:
+            query_idx, X_query = self._query(X, pool_idx, n_instances)
 
-    def hyperopt_space(self):
-        return {}
+        for idx in query_idx:
+            shared['current_queries'][idx] = self.name
 
-    @staticmethod
-    @abstractmethod
-    def function():
-        raise NotImplementedError
+        return query_idx, X_query
 
-    @staticmethod
-    @abstractmethod
-    def description():
-        raise NotImplementedError
+    @property
+    def default_param(self):
+        signature = inspect.signature(self.__init__)
+        return {
+            k: v.default
+            for k, v in signature.parameters.items()
+            if v.default is not inspect.Parameter.empty
+        }

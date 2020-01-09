@@ -12,23 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-import inspect
+from asreview.balance_strategies.base import BaseBalance
 
 
-class BaseBalance(ABC):
-    " Abstract class for balance strategies. "
-    name = "base"
+class SimpleBalance(BaseBalance):
+    name = "full sampling"
 
-    @abstractmethod
     def sample(self, X, y, train_idx, shared):
-        raise NotImplementedError
+        """
+        Function that does not resample the training set.
 
-    @property
-    def default_param(self):
-        signature = inspect.signature(self.__init__)
-        return {
-            k: v.default
-            for k, v in signature.parameters.items()
-            if v.default is not inspect.Parameter.empty
-        }
+        Arguments
+        ---------
+        X: np.array
+            Complete matrix of all samples.
+        y: np.array
+            Classified results of all samples.
+        extra_vars: dict:
+            Extra variables that can be passed around between functions.
+
+        Returns
+        -------
+        np.array:
+            Training samples.
+        np.array:
+            Classification of training samples.
+        """
+        return X[train_idx], y[train_idx]

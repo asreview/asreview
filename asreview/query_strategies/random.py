@@ -12,13 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# from asreview.models.lstm_base import create_lstm_base_model, LSTMBaseModel
-# from asreview.models.lstm_pool import create_lstm_pool_model, LSTMPoolModel
-# from asreview.models.sklearn_models import create_nb_model, NBModel
-# from asreview.models.sklearn_models import create_svc_model, SVCModel
-# from asreview.models.utils import get_model_class
+"""Random sampling strategy."""
 
-from asreview.models.nb import NBModel
-from asreview.models.rf import RFModel
-from asreview.models.dense_nn import DenseNNModel
-from asreview.models.svm import SVMModel
+import numpy as np
+
+from asreview.query_strategies.base import BaseQueryStrategy
+
+
+class RandomQuery(BaseQueryStrategy):
+    name = "random"
+    use_proba = False
+
+    def _query(self, X, pool_idx, n_instances=1):
+        n_samples = len(pool_idx)
+        query_idx = np.random.choice(
+            np.arange(n_samples),
+            n_instances,
+            replace=False
+        )
+        return pool_idx[query_idx], X[pool_idx[query_idx]]

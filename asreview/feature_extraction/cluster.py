@@ -64,4 +64,3 @@ def get_one_all_dict(prediction, labels):
     one_dict = {unique[i]: counts[i] for i in range(len(unique))}
     one_counts = [one_dict.get(i, 0) for i in range(len(all_counts))]
     return one_dict, all_dict
-

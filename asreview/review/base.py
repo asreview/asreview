@@ -17,17 +17,17 @@ from abc import ABC
 from abc import abstractmethod
 
 import dill
-from modAL.models import ActiveLearner as ModALLearner
 import numpy as np
 from tensorflow.python.keras.models import load_model
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.balance_strategies import full_sample
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
 from asreview.logging import open_logger
-from asreview.query_strategies import max_sampling
-from asreview.query_strategies import random_sampling
+from asreview.models.sklearn_models import NBModel
+from asreview.query_strategies.max import MaxQuery
+from asreview.balance_strategies.simple import SimpleBalance
+from asreview.query_strategies.random import RandomQuery
 
 
 def get_pool_idx(X, train_idx):
@@ -56,18 +56,6 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
     return prior_indices
 
 
-class ActiveLearner(ModALLearner):
-    def __init__(self, *args, **kwargs):
-        super(ActiveLearner, self).__init__(*args, **kwargs)
-
-    def teach(self, X, y, bootstrap=False, only_new=False, **fit_kwargs):
-        if not only_new:
-            self._add_training_data(X, y)
-            self._fit_to_known(bootstrap=bootstrap, **fit_kwargs)
-        else:
-            self._fit_on_new(X, y, bootstrap=bootstrap, **fit_kwargs)
-
-
 class BaseReview(ABC):
     """Base class for Systematic Review"""
 
@@ -75,17 +63,14 @@ class BaseReview(ABC):
                  X,
                  y=None,
                  model=None,
-                 query_strategy=max_sampling,
-                 train_data_fn=full_sample,
+                 query_model=None,
+                 balance_model=None,
                  n_papers=None,
                  n_instances=DEFAULT_N_INSTANCES,
                  n_queries=None,
                  prior_included=[],
                  prior_excluded=[],
                  log_file=None,
-                 fit_kwargs={},
-                 balance_kwargs={},
-                 query_kwargs={},
                  final_labels=None,
                  verbose=1):
         super(BaseReview, self).__init__()
@@ -97,12 +82,20 @@ class BaseReview(ABC):
         self.y = np.array(self.y, dtype=np.int)
         # Default to Naive Bayes model
         if model is None:
-            from asreview.models import create_nb_model
-            model = create_nb_model()
+            model = NBModel()
+        if query_model is None:
+            query_model = MaxQuery()
+        if balance_model is None:
+            balance_model = SimpleBalance()
 
         self.model = model
-        self.query_strategy = query_strategy
-        self.balance_strategy = train_data_fn
+        self.balance_model = balance_model
+        self.query_model = query_model
+
+        self.shared = {"query_src": {}, "current_queries": {}}
+        self.model.shared = self.shared
+        self.query_model.shared = self.shared
+        self.balance_model.shared = self.shared
 
         self.n_papers = n_papers
         self.n_instances = n_instances
@@ -113,16 +106,9 @@ class BaseReview(ABC):
         self.prior_included = prior_included
         self.prior_excluded = prior_excluded
 
-        self.fit_kwargs = fit_kwargs
-        self.balance_kwargs = balance_kwargs
-        self.query_kwargs = query_kwargs
-
         self.query_i = 0
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
-
-        self.query_kwargs["query_src"] = {}
-        self.query_kwargs["current_queries"] = {}
 
         with open_logger(log_file) as logger:
             if not logger.is_empty():
@@ -133,7 +119,7 @@ class BaseReview(ABC):
                                      "file or dataset.")
                 self.y = y
                 self.train_idx = train_idx
-                self.query_kwargs["query_src"] = query_src
+                self.shared["query_src"] = query_src
                 self.query_i = query_i
             else:
                 if final_labels is not None:
@@ -141,12 +127,6 @@ class BaseReview(ABC):
                 logger.set_labels(self.y)
                 self._prior_knowledge(logger)
                 self.query_i = 0
-
-        # Initialize learner, but don't start training yet.
-        self.learner = ActiveLearner(
-            estimator=self.model,
-            query_strategy=self.query_strategy
-        )
 
     def _prior_knowledge(self, logger):
         """Create prior knowledge from arguments."""
@@ -261,9 +241,10 @@ class BaseReview(ABC):
         pool_idx = get_pool_idx(self.X, self.train_idx)
 
         # Log the probabilities of samples in the pool being included.
-        pred_proba = self.query_kwargs.get('pred_proba', np.array([]))
+        pred_proba = self.shared.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
-            pred_proba = self.learner.predict_proba(self.X)
+            pred_proba = self.model.predict_proba(self.X)
+            self.shared['perd_proba'] = pred_proba
 
         proba_1 = np.array([x[1] for x in pred_proba])
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
@@ -288,17 +269,18 @@ class BaseReview(ABC):
 
         # If the model is not trained, choose random papers.
         if not self.model_trained:
-            query_idx, _ = random_sampling(
-                None, X=self.X, pool_idx=pool_idx, n_instances=n_instances,
-                query_kwargs=self.query_kwargs)
+            query_idx, _ = RandomQuery().query(
+                None, self.X, pool_idx, n_instances=n_instances,
+                shared=self.shared)
 
         else:
             # Make a query from the pool.
-            query_idx, _ = self.learner.query(
+            query_idx, _ = self.query_model.query(
+                self.model,
                 X=self.X,
                 pool_idx=pool_idx,
                 n_instances=n_instances,
-                query_kwargs=self.query_kwargs
+                shared=self.shared,
             )
         return query_idx
 
@@ -323,21 +305,21 @@ class BaseReview(ABC):
         if method is None:
             methods = []
             for idx in query_idx:
-                method = self.query_kwargs["current_queries"].pop(idx, None)
+                method = self.shared["current_queries"].pop(idx, None)
                 if method is None:
                     method = "unknown"
                 methods.append(method)
-                if method in self.query_kwargs["query_src"]:
-                    self.query_kwargs["query_src"][method].append(idx)
+                if method in self.shared["query_src"]:
+                    self.shared["query_src"][method].append(idx)
                 else:
-                    self.query_kwargs["query_src"][method] = [idx]
+                    self.shared["query_src"][method] = [idx]
         else:
             methods = np.full(len(query_idx), method)
-            if method in self.query_kwargs["query_src"]:
-                self.query_kwargs["query_src"][method].extend(
+            if method in self.shared["query_src"]:
+                self.shared["query_src"][method].extend(
                     query_idx.tolist())
             else:
-                self.query_kwargs["query_src"][method] = query_idx.tolist()
+                self.shared["query_src"][method] = query_idx.tolist()
 
         logger.add_classification(query_idx, inclusions, methods=methods,
                                   query_i=self.query_i)
@@ -352,24 +334,22 @@ class BaseReview(ABC):
             return
 
         # Get the training data.
-        X_train, y_train = self.balance_strategy(
-            self.X, self.y, self.train_idx, **self.balance_kwargs)
+        X_train, y_train = self.balance_model.sample(
+            self.X, self.y, self.train_idx, shared=self.shared)
 
         # Train the model on the training data.
-        self.learner.teach(
+        self.model.fit(
             X=X_train,
             y=y_train,
-            only_new=True,
-            **self.fit_kwargs
         )
-        self.query_kwargs["pred_proba"] = self.learner.predict_proba(self.X)
+        self.shared["pred_proba"] = self.model.predict_proba(self.X)
         self.model_trained = True
         self.query_i += 1
 
     def statistics(self):
         "Get a number of statistics about the current state of the review."
         try:
-            n_initial = len(self.query_kwargs['query_src']['initial'])
+            n_initial = len(self.shared['query_src']['initial'])
         except KeyError:
             n_initial = 0
 

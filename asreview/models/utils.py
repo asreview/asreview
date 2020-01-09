@@ -12,20 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.sklearn_models import SVCModel, NBModel, RFModel
-from asreview.models.lstm_base import LSTMBaseModel
-from asreview.models.lstm_pool import LSTMPoolModel
-from asreview.models.dense_nn import DenseNNModel
 
-
-def get_model_class(model):
+def get_model_class(method):
     "Get class of model from string."
+    from asreview.models.dense_nn import DenseNNModel
+    from asreview.models.svm import SVMModel
+    from asreview.models.nb import NBModel
+    from asreview.models.rf import RFModel
     models = {
-        "svm": SVCModel,
+        "svm": SVMModel,
         "nb": NBModel,
-        "lstm_base": LSTMBaseModel,
-        "lstm_pool": LSTMPoolModel,
         "rf": RFModel,
         "dense_nn": DenseNNModel
     }
-    return models.get(model, None)
+    try:
+        return models[method]
+    except KeyError:
+        raise ValueError(f"Error: training method '{method}' is not implemented.")
+
+
+def get_model(method, *args, **kwargs):
+    model_class = get_model_class(method)
+    return model_class(*args, **kwargs)

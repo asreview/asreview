@@ -1,8 +1,22 @@
+# Copyright 2019 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import sys
 
 import numpy as np
 
-from asreview.unsupervised.base import BaseUnsupervised
+from asreview.feature_extraction.base import BaseFeatureExtraction
 from copy import deepcopy
 
 
@@ -28,28 +42,24 @@ def transform_text(model, corpus):
     return np.array(X)
 
 
-class Doc2Vec(BaseUnsupervised):
+class Doc2Vec(BaseFeatureExtraction):
     name = "doc2vec"
 
-    def __init__(self, param={}):
-        super(Doc2Vec, self).__init__(param)
+    def __init__(self, vector_size=40, epochs=33, min_count=1, workers=1,
+                 window=7, dm_concat=0, dm=2, dbow_words=0):
+        super(Doc2Vec, self).__init__()
+        self.vector_size = int(vector_size)
+        self.epochs = int(epochs)
+        self.min_count = int(min_count)
+        self.workers = int(workers)
+        self.window = int(window)
+        self.dm_concat = dm_concat
+        self.dm = dm
+        self.dbow_words = dbow_words
         self.param = {key: int(value) for key, value in self.param.items()}
         self.model = None
         self.model_dm = None
         self.model_dbow = None
-
-    def default_param(self):
-        return {
-            "vector_size": 40,
-            "epochs": 33,
-            "min_count": 1,
-            "workers": 4,
-            "window": 7,
-            "dm_concat": 0,
-            "dm": 2,
-            "dbow_words": 0,
-            # "alpha": ??
-        }
 
     def fit_transform(self, texts):
         try:

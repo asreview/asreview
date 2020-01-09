@@ -31,6 +31,7 @@ SETTINGS_TYPE_DICT = {
     "mode": str,
     "model_param": dict,
     "query_param": dict,
+    "feature_param": dict,
     "balance_param": dict,
     "abstract_only": bool,
 }
@@ -42,11 +43,12 @@ class ASReviewSettings(object):
         of its contents.
     """
     def __init__(self, mode, model, query_strategy, balance_strategy,
+                 feature_extraction,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
                  abstract_only=False,
                  data_fp=None, data_name=None, model_param={},
-                 query_param={}, balance_param={}, **kwargs
+                 query_param={}, balance_param={}, feature_param={}, **kwargs
                  ):
         all_args = locals().copy()
         del all_args["self"]
@@ -95,7 +97,8 @@ class ASReviewSettings(object):
                         print(f"Warning: value with key '{key}' is ignored "
                               "(spelling mistake, wrong type?).")
 
-            elif sect in ["model_param", "query_param", "balance_param"]:
+            elif sect in ["model_param", "query_param", "balance_param",
+                          "feature_param"]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "

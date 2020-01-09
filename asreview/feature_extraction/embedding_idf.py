@@ -1,32 +1,40 @@
+# Copyright 2019 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from math import log
 
 import numpy as np
 from keras_preprocessing.text import text_to_word_sequence
 
 from asreview.models.embedding import load_embedding
-from asreview.unsupervised.base import BaseUnsupervised
+from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
-class EmbeddingIdf(BaseUnsupervised):
+class EmbeddingIdf(BaseFeatureExtraction):
     name = "embedding_idf"
 
-    def __init__(self, param={}):
-        super(EmbeddingIdf, self).__init__(param)
-        self.param = {key: int(value) for key, value in self.param.items()}
+    def __init__(self, embedding_fp=None):
+        super(EmbeddingIdf, self).__init__()
+        self.embedding_fp = embedding_fp
         self.embedding = None
-
-    def default_param(self):
-        return {
-            "embedding_fp": None,
-        }
 
     def fit_transform(self, texts):
         if self.embedding is None:
-            embedding_fp = self.param["embedding_fp"]
-            if embedding_fp is None:
+            if self.embedding_fp is None:
                 raise ValueError(
                     "Error: need embedding to train Embeddingdf model.")
-            self.embedding = load_embedding(embedding_fp, n_jobs=-1)
+            self.embedding = load_embedding(self.embedding_fp, n_jobs=-1)
 
         text_counts = _get_freq_dict(texts)
         idf = _get_idf(text_counts)
