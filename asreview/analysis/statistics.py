@@ -232,7 +232,6 @@ def _cluster_ttd(loggers, query_i, labels, all_prediction):
         ttd = 0
         if np.sum(one_counts) == 0:
             continue
-#         print(one_counts, all_counts, cluster_order)
         for i, i_clust in enumerate(cluster_order):
             try:
                 p_first = one_counts[i_clust]/all_counts[i_clust]

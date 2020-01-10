@@ -34,7 +34,7 @@ from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.models.utils import get_model
+from asreview.models.utils import get_model, get_model_class
 from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model
@@ -135,14 +135,21 @@ def get_reviewer(dataset,
         with open_logger(log_file) as logger:
             logger.set_final_labels(as_data.final_labels)
 
-    train_model = get_model(model, **settings.model_param)
-    query_model = get_query_model(query_strategy, **settings.query_param)
-    balance_model = get_balance_model(balance_strategy,
+    print(get_model_class(settings.model).default_param)
+
+    train_model = get_model(settings.model, **settings.model_param)
+    query_model = get_query_model(settings.query_strategy,
+                                  **settings.query_param)
+    balance_model = get_balance_model(settings.balance_strategy,
                                       **settings.balance_param)
-    feature_model = get_feature_model(feature_extraction,
+    feature_model = get_feature_model(settings.feature_extraction,
                                       **settings.feature_param)
 
     X = feature_model.fit_transform(texts)
+
+    if train_model.name.startswith("lstm-"):
+        train_model.embedding_matrix = feature_model.get_embedding_matrix(
+            texts, embedding_fp)
 
     _add_defaults(settings.query_param, query_model.default_param)
     _add_defaults(settings.model_param, train_model.default_param)

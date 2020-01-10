@@ -16,6 +16,7 @@ from asreview.feature_extraction.doc2vec import Doc2Vec
 from asreview.feature_extraction.tfidf import Tfidf
 from asreview.feature_extraction.sbert import SBERT
 from asreview.feature_extraction.embedding_idf import EmbeddingIdf
+from asreview.feature_extraction.embedding_lstm import EmbeddingLSTM
 
 
 def get_unsupervised_class(method):
@@ -23,7 +24,8 @@ def get_unsupervised_class(method):
         "doc2vec": Doc2Vec,
         "tfidf": Tfidf,
         "sbert": SBERT,
-        "embedding-idf": EmbeddingIdf
+        "embedding-idf": EmbeddingIdf,
+        "embedding-lstm": EmbeddingLSTM,
     }
     try:
         return models[method]

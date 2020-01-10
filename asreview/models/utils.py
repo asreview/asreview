@@ -19,11 +19,16 @@ def get_model_class(method):
     from asreview.models.svm import SVMModel
     from asreview.models.nb import NBModel
     from asreview.models.rf import RFModel
+    from asreview.models.lstm_base import LSTMBaseModel
+    from asreview.models.lstm_pool import LSTMPoolModel
+
     models = {
         "svm": SVMModel,
         "nb": NBModel,
         "rf": RFModel,
-        "dense_nn": DenseNNModel
+        "nn-2-layer": DenseNNModel,
+        "lstm-base": LSTMBaseModel,
+        "lstm-pool": LSTMPoolModel
     }
     try:
         return models[method]

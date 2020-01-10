@@ -12,21 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras import regularizers
 
-from asreview.models.keras import _get_optimizer
+from asreview.models.lstm_base import _get_optimizer
 from asreview.models.base import BaseModel
-from asreview.feature_extraction import Doc2Vec
 from asreview.utils import _set_class_weight
 
 
 class DenseNNModel(BaseModel):
     "Dense neural network model"
-    name = "dense_nn"
+    name = "nn-2-layer"
 
     def __init__(self, dense_width=128, optimizer='rmsprop',
                  learn_rate=1.0, regularization=0.01, verbose=0,

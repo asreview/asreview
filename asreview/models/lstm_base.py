@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from tensorflow.keras import optimizers
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.models.keras import KerasModel, _get_optimizer
+from asreview.models.base import BaseModel
+from asreview.utils import _set_class_weight
 
 
 def create_lstm_base_model(embedding_matrix,
@@ -29,7 +30,7 @@ def create_lstm_base_model(embedding_matrix,
                            max_sequence_length=1000,
                            lstm_out_width=20,
                            dense_width=128,
-                           learn_rate_mult=1.0,
+                           learn_rate=1.0,
                            verbose=1):
     """Return callable lstm model.
 
@@ -43,11 +44,7 @@ def create_lstm_base_model(embedding_matrix,
         called.
 
     """
-    # The Sklearn API requires a callable as result.
-    # https://keras.io/scikit-learn-api/
-
-    def wrap_model():
-
+    def model_wrapper():
         model = Sequential()
 
         # add first embedding layer with pretrained wikipedia weights
@@ -88,49 +85,77 @@ def create_lstm_base_model(embedding_matrix,
             )
         )
 
-        optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
+        optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
         # Compile model
         model.compile(
             loss='binary_crossentropy',
             optimizer=optimizer_fn, metrics=['acc'])
 
-        if verbose == 1:
-            model.summary()
+        if verbose >= 1:
+            model.summary(verbose=verbose)
 
         return model
 
-    return wrap_model
+    return model_wrapper
 
 
-class LSTMBaseModel(KerasModel):
-    def __init__(self, param={}, **kwargs):
-        super(LSTMBaseModel, self).__init__(param, **kwargs)
-        self.name = "lstm_base"
+def _get_optimizer(optimizer, lr_mult=1.0):
+    "Get optimizer with correct learning rate."
+    if optimizer == "sgd":
+        return optimizers.SGD(lr=0.01*lr_mult)
+    elif optimizer == "rmsprop":
+        return optimizers.RMSprop(lr=0.001*lr_mult)
+    elif optimizer == "adagrad":
+        return optimizers.Adagrad(lr=0.01*lr_mult)
+    elif optimizer == "adam":
+        return optimizers.Adam(lr=0.001*lr_mult)
+    elif optimizer == "nadam":
+        return optimizers.Nadam(lr=0.002*lr_mult)
+    raise NotImplementedError
 
-    def model(self):
-        embedding_matrix = self.get_embedding_matrix()
-        model_param = self.model_param()
-        model = create_lstm_base_model(embedding_matrix, **model_param)
-        verbose = model_param.get("verbose", self.default_param()["verbose"])
-        return KerasClassifier(model, verbose=verbose)
 
-    def default_param(self):
-        kwargs = {
-            "backwards": True,
-            "dropout": 0.4,
-            "optimizer": "rmsprop",
-            "max_sequence_length": 1000,
-            "lstm_out_width": 20,
-            "learn_rate_mult": 1.0,
-            "dense_width": 128,
-            "verbose": 1,
-            "batch_size": 32,
-            "epochs": 35,
-            "shuffle": False,
-            "class_weight_inc": 30.0,
-        }
-        return kwargs
+class LSTMBaseModel(BaseModel):
+    name = "lstm-base"
+
+    def __init__(self, embedding_matrix=None, backwards=True, dropout=0.4,
+                 optimizer="rmsprop", lstm_out_width=20, learn_rate=1.0,
+                 dense_width=128, verbose=0, batch_size=32, epochs=35,
+                 shuffle=False, class_weight=30.0):
+        super(LSTMBaseModel, self).__init__()
+        self.embedding_matrix = embedding_matrix
+        self.backwards = backwards
+        self.dropout = dropout
+        self.optimizer = optimizer
+        self.lstm_out_width = lstm_out_width
+        self.learn_rate = learn_rate
+        self.dense_width = dense_width
+        self.verbose = verbose
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.shuffle = shuffle
+        self.class_weight = _set_class_weight(class_weight)
+        self._model = None
+        self.sequence_length = None
+
+    def fit(self, X, y):
+        sequence_length = X.shape[1]
+        if self._model is None or sequence_length != self.sequence_length:
+            self.sequence_length = sequence_length
+            keras_model = create_lstm_base_model(
+                embedding_matrix=self.embedding_matrix,
+                backwards=self.backwards, dropout=self.dropout,
+                optimizer=self.optimizer,
+                max_sequence_length=self.sequence_length,
+                lstm_out_width=self.lstm_out_width,
+                dense_width=self.dense_width,
+                learn_rate=self.learn_rate, verbose=self.verbose)
+            print(keras_model)
+            self._model = KerasClassifier(keras_model, verbose=self.verbose)
+
+        self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
+                        shuffle=self.shuffle, class_weight=self.class_weight,
+                        verbose=self.verbose)
 
     def full_hyper_space(self):
         from hyperopt import hp
@@ -142,16 +167,3 @@ class LSTMBaseModel(KerasModel):
             "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
         }
         return hyper_space, hyper_choices
-
-    def fit_param_names(self):
-        param_names = [
-            "batch_size", "epochs", "shuffle", "class_weight_inc", "verbose",
-        ]
-        return param_names
-
-    def model_param_names(self):
-        param_names = [
-            "backwards", "dropout", "optimizer", "max_sequence_length",
-            "lstm_out_width", "dense_width", "verbose",
-        ]
-        return param_names

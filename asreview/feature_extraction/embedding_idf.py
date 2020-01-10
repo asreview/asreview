@@ -17,12 +17,12 @@ from math import log
 import numpy as np
 from keras_preprocessing.text import text_to_word_sequence
 
-from asreview.models.embedding import load_embedding
+from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
-    name = "embedding_idf"
+    name = "embedding-idf"
 
     def __init__(self, embedding_fp=None):
         super(EmbeddingIdf, self).__init__()
