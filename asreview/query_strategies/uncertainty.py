@@ -40,4 +40,4 @@ class UncertaintyQuery(BaseQueryStrategy):
         else:
             query_idx = shuffled_argmax(uncertainty, n_instances=n_instances)
 
-            return pool_idx[query_idx], X[pool_idx[query_idx]]
+        return pool_idx[query_idx], X[pool_idx[query_idx]]

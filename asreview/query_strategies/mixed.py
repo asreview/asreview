@@ -68,11 +68,11 @@ class MixedQuery(BaseQueryStrategy):
         query_idx = np.append(query_idx_1, query_idx_2)
 
         if n_instances_1 == 0:
-            X = X_1
-        elif n_instances_2 == 0:
             X = X_2
+        elif n_instances_2 == 0:
+            X = X_1
         else:
-            X = np.concatenate((X_1, X_2), axis=1)
+            X = np.concatenate((X_1, X_2), axis=0)
 
         return query_idx, X
 

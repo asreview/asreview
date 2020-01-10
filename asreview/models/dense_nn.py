@@ -57,6 +57,11 @@ class DenseNNModel(BaseModel):
         self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
                         shuffle=self.shuffle, verbose=self.verbose)
 
+    def predict_proba(self, X):
+        if scipy.sparse.issparse(X):
+            X = X.toarray()
+        return super(DenseNNModel, self).predict_proba(self, X)
+
     def full_hyper_space(self):
         from hyperopt import hp
         hyper_choices = {
