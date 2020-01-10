@@ -56,7 +56,7 @@ def _convert_types(par_defaults, param):
                     raise(TypeError(
                         f"Error converting key in config file: {par}"))
         except KeyError:
-            logging.warn(f"Parameter {par} does not have a default.")
+            logging.warning(f"Parameter {par} does not have a default.")
 
 
 class ASReviewSettings(object):

@@ -44,11 +44,12 @@ class DenseNNModel(BaseModel):
         self.input_dim = None
 
     def fit(self, X, y):
-        if self._model is None or X.shape[0] != self.input_dim:
-            self.input_dim = X.shape[0]
-            self._model = create_dense_nn_model(
+        if self._model is None or X.shape[1] != self.input_dim:
+            self.input_dim = X.shape[1]
+            keras_model = create_dense_nn_model(
                 self.input_dim, self.dense_width, self.optimizer,
                 self.learn_rate, self.regularization, self.verbose)
+            self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
         self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
                         shuffle=self.shuffle, verbose=self.verbose)
@@ -89,44 +90,46 @@ def create_dense_nn_model(vector_size=40,
         called.
 
     """
-    model = Sequential()
+    def model_wrapper():
+        model = Sequential()
 
-    model.add(
-        Dense(
-            dense_width,
-            input_dim=vector_size,
-            kernel_regularizer=regularizers.l2(regularization),
-            activity_regularizer=regularizers.l1(regularization),
-            activation='relu',
+        model.add(
+            Dense(
+                dense_width,
+                input_dim=vector_size,
+                kernel_regularizer=regularizers.l2(regularization),
+                activity_regularizer=regularizers.l1(regularization),
+                activation='relu',
+            )
         )
-    )
 
-    # add Dense layer with relu activation
-    model.add(
-        Dense(
-            dense_width,
-            kernel_regularizer=regularizers.l2(regularization),
-            activity_regularizer=regularizers.l1(regularization),
-            activation='relu',
+        # add Dense layer with relu activation
+        model.add(
+            Dense(
+                dense_width,
+                kernel_regularizer=regularizers.l2(regularization),
+                activity_regularizer=regularizers.l1(regularization),
+                activation='relu',
+            )
         )
-    )
 
-    # add Dense layer
-    model.add(
-        Dense(
-            1,
-            activation='sigmoid'
+        # add Dense layer
+        model.add(
+            Dense(
+                1,
+                activation='sigmoid'
+            )
         )
-    )
 
-    optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
+        optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
 
-    # Compile model
-    model.compile(
-        loss='binary_crossentropy',
-        optimizer=optimizer_fn, metrics=['acc'])
+        # Compile model
+        model.compile(
+            loss='binary_crossentropy',
+            optimizer=optimizer_fn, metrics=['acc'])
 
-    if verbose == 1:
-        model.summary()
+        if verbose >= 1:
+            model.summary()
 
-    return KerasClassifier(model)
+        return model
+    return model_wrapper
