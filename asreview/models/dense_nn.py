@@ -60,7 +60,7 @@ class DenseNNModel(BaseModel):
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
             X = X.toarray()
-        return super(DenseNNModel, self).predict_proba(self, X)
+        return super(DenseNNModel, self).predict_proba(X)
 
     def full_hyper_space(self):
         from hyperopt import hp
