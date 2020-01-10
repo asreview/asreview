@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import scipy
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
@@ -44,6 +45,8 @@ class DenseNNModel(BaseModel):
         self.input_dim = None
 
     def fit(self, X, y):
+        if scipy.sparse.issparse(X):
+            X = X.toarray()
         if self._model is None or X.shape[1] != self.input_dim:
             self.input_dim = X.shape[1]
             keras_model = create_dense_nn_model(
