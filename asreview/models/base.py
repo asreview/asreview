@@ -33,13 +33,34 @@ class BaseModel(ABC):
         self._model = None
 
     def fit(self, X, y):
+        """Fit the model to the data.
+
+        X: np.array
+            Feature matrix to fit.
+        y: np.array
+            Labels for supervised learning.
+        """
         return self._model.fit(X, y)
 
     def predict_proba(self, X):
+        """Get the inclusion probability for each sample.
+
+        Arguments
+        ---------
+        X: np.array
+            Feature matrix to predict.
+
+        Returns
+        -------
+        np.array:
+            Array with the probabilities for each class, with two
+            columns (class 0, and class 1) and the number of samples rows.
+        """
         return self._model.predict_proba(X)
 
     @property
     def default_param(self):
+        """Get the default parameters of the model."""
         signature = inspect.signature(self.__init__)
         return {
             k: v.default

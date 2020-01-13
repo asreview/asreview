@@ -24,12 +24,38 @@ from asreview.utils import _set_class_weight
 
 
 class DenseNNModel(BaseModel):
-    "Dense neural network model"
+    """Dense neural network model.
+
+    Uses two dense layers of the same size.
+    """
     name = "nn-2-layer"
 
     def __init__(self, dense_width=128, optimizer='rmsprop',
                  learn_rate=1.0, regularization=0.01, verbose=0,
                  epochs=35, batch_size=32, shuffle=False, class_weight=30.0):
+        """Initialize the 2-layer neural network model.
+
+        Arguments
+        ---------
+        dense_width: int
+            Size of the dense layers.
+        optimizer: str
+            Name of the Keras optimizer.
+        learn_rate: float
+            Learning rate multiplier of the default learning rate.
+        regularization: float
+            Strength of the regularization on the weights and biases.
+        verbose: int
+            Verbosity of the model mirroring the values for Keras.
+        epochs: int
+            Number of epochs to train the neural network.
+        batch_size: int
+            Batch size used for the neural network.
+        shuffle: bool
+            Whether to shuffle the training data prior to training.
+        class_weight: float
+            Class weights for inclusions (1's).
+        """
         super(DenseNNModel, self).__init__()
         self.dense_width = dense_width
         self.optimizer = optimizer
@@ -49,7 +75,7 @@ class DenseNNModel(BaseModel):
             X = X.toarray()
         if self._model is None or X.shape[1] != self.input_dim:
             self.input_dim = X.shape[1]
-            keras_model = create_dense_nn_model(
+            keras_model = _create_dense_nn_model(
                 self.input_dim, self.dense_width, self.optimizer,
                 self.learn_rate, self.regularization, self.verbose)
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
@@ -80,16 +106,13 @@ class DenseNNModel(BaseModel):
         return hyper_space, hyper_choices
 
 
-def create_dense_nn_model(vector_size=40,
-                          dense_width=128,
-                          optimizer='rmsprop',
-                          learn_rate_mult=1.0,
-                          regularization=0.01,
-                          verbose=1):
+def _create_dense_nn_model(vector_size=40,
+                           dense_width=128,
+                           optimizer='rmsprop',
+                           learn_rate_mult=1.0,
+                           regularization=0.01,
+                           verbose=1):
     """Return callable lstm model.
-
-    Arguments
-    ---------
 
     Returns
     -------

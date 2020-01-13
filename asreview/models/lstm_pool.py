@@ -27,35 +27,16 @@ from asreview.models.base import BaseModel
 from asreview.utils import _set_class_weight
 
 
-def create_lstm_pool_model(embedding_matrix,
-                           backwards=True,
-                           dropout=0.4,
-                           optimizer='rmsprop',
-                           max_sequence_length=1000,
-                           lstm_out_width=20,
-                           lstm_pool_size=100,
-                           learn_rate=1.0,
-                           verbose=1):
+def _create_lstm_pool_model(embedding_matrix,
+                            backwards=True,
+                            dropout=0.4,
+                            optimizer='rmsprop',
+                            max_sequence_length=1000,
+                            lstm_out_width=20,
+                            lstm_pool_size=100,
+                            learn_rate=1.0,
+                            verbose=1):
     """Return callable lstm model.
-
-    Arguments
-    ---------
-    embedding_matrix: np.array
-        Embedding matrix to use with LSTM model.
-    backwards: bool
-        Whether to have a forward or backward LSTM.
-    optimizer: str
-        Optimizer to use.
-    max_sequence_length: int
-        Maximum length of the text record to classify.
-    lstm_out_width: int
-        Output width of the LSTM.
-    lstm_pool_size: int
-        Size of the pool, must be a divisor of max_sequence_length.
-    learn_rate_mult: float
-        Learn rate multiplier of default learning rate.
-    verbose: int
-        Verbosity.
     Returns
     -------
     callable:
@@ -125,12 +106,47 @@ def create_lstm_pool_model(embedding_matrix,
 
 
 class LSTMPoolModel(BaseModel):
+    """ LSTM pool class.
+
+    LSTM model consisting of an embedding layer, one LSTM layer, and one
+    max pooling layer.
+    """
     name = "lstm-pool"
 
     def __init__(self, embedding_matrix=None, backwards=True, dropout=0.4,
                  optimizer="rmsprop", lstm_out_width=20, lstm_pool_size=128,
                  learn_rate=1.0, verbose=0, batch_size=32, epochs=35,
                  shuffle=False, class_weight=30.0):
+        """Initialize the LSTM pool model.
+
+        Arguments
+        ---------
+        embedding_matrix: np.array
+            Embedding matrix to use with LSTM model.
+        backwards: bool
+            Whether to have a forward or backward LSTM.
+        dropout: float
+            Value in [0, 1.0) that gives the dropout and recurrent
+            dropout rate for the LSTM model.
+        optimizer: str
+            Optimizer to use.
+        lstm_out_width: int
+            Output width of the LSTM.
+        lstm_pool_size: int
+            Size of the pool, must be a divisor of max_sequence_length.
+        learn_rate: float
+            Learn rate multiplier of default learning rate.
+        verbose: int
+            Verbosity.
+        batch_size: int
+            Size of the batch size for the LSTM model.
+        epochs: int
+            Number of epochs to train the LSTM model.
+        shuffle: bool
+            Whether to shuffle the data before starting to train.
+        class_weight: float
+            Class weight for the included papers.
+        """
         super(LSTMPoolModel, self).__init__()
         self.embedding_matrix = embedding_matrix
         self.backwards = backwards
@@ -151,7 +167,7 @@ class LSTMPoolModel(BaseModel):
         sequence_length = X.shape[1]
         if self._model is None or sequence_length != self.sequence_length:
             self.sequence_length = sequence_length
-            keras_model = create_lstm_pool_model(
+            keras_model = _create_lstm_pool_model(
                 embedding_matrix=self.embedding_matrix,
                 backwards=self.backwards,
                 dropout=self.dropout, optimizer=self.optimizer,

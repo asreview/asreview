@@ -17,11 +17,29 @@ import inspect
 
 
 class BaseBalance(ABC):
-    " Abstract class for balance strategies. "
+    "Abstract class for balance strategies."
     name = "base"
 
     @abstractmethod
     def sample(self, X, y, train_idx, shared):
+        """Resample the training data.
+
+        Arguments
+        ---------
+        X: np.array
+            Complete feature matrix.
+        y: np.array
+            Labels for all papers.
+        train_idx: np.array
+            Training indices, that is all papers that have been reviewed.
+        shared: dict
+            Dictionary to share data between balancing models and other models.
+
+        Returns
+        -------
+        np.array, np.array:
+            X_train, y_train: the resampled matrix, labels.
+        """
         raise NotImplementedError
 
     @property

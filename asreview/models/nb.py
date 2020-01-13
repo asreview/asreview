@@ -24,8 +24,14 @@ class NBModel(BaseModel):
     name = "nb"
 
     def __init__(self, alpha=3.822):
+        """Initialize the SKLearn Naive Bayes model.
+
+        Arguments:
+        ----------
+        alpha: float
+            Parameter to set the regularization strength of the model.
+        """
         super(NBModel, self).__init__()
-#         self.name = "nb"
         self._model = MultinomialNB(alpha=alpha)
         logging.debug(self._model)
 

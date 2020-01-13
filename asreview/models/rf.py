@@ -22,6 +22,19 @@ class RFModel(BaseModel):
 
     def __init__(self, n_estimators=100, max_features=10, class_weight=1.0,
                  random_state=None):
+        """Initialize the SKLearn Random Forest model.
+
+        Arguments
+        ---------
+        n_estimators: int
+            Number of estimators.
+        max_features: int
+            Number of features in the model.
+        class_weight: float
+            Class weight of the inclusions.
+        random_state: int, RandomState
+            Set the random state of the RNG.
+        """
         super(RFModel, self).__init__()
         if class_weight is not None:
             class_weight = {

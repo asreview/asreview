@@ -73,6 +73,47 @@ class BaseReview(ABC):
                  log_file=None,
                  final_labels=None,
                  verbose=1):
+        """ Initialize base class for systematic reviews.
+
+        Arguments
+        ---------
+        X: np.array
+            The feature matrix for the current dataset.
+        y: np.array
+            Labels of each paper, 1 for included, 0 for excluded.
+            Can be set to None, to indicate inclusion data is not available.
+        model: BaseModel
+            Initialized model to fit the data during active learning.
+            See asreview.models.utils.py for possible models.
+        query_model: BaseQueryModel
+            Initialized model to query new instances for review, such as random
+            sampling or max sampling.
+            See asreview.query_strategies.utils.py for query models.
+        balance_model: BaseBalanceModel
+            Initialized model to redistribute the training data during the
+            active learning process. They might either resample or undersample
+            specific papers.
+        n_papers: int
+            Number of papers to review during the active learning process,
+            excluding the number of initial priors. To review all papers, set
+            n_papers to None.
+        n_instances: int
+            Number of papers to query at each step in the active learning
+            process.
+        n_queries: int
+            Number of steps/queries to perform. Set to None for no limit.
+        prior_included: list
+            List of papers (ids) that are included a priori.
+        prior_excluded: list
+            List of papers (ids) that are excluded a priori.
+        log_file: str
+            Path to log file.
+        final_labels: np.array
+            Final labels if we're using a two step inclusion process.
+            For example, if at one step a paper is considered after reading the
+            abstract and then at the second step, a final decision is made on
+            the basis of the full text.
+        """
         super(BaseReview, self).__init__()
 
         self.X = X

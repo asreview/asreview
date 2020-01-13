@@ -14,7 +14,18 @@
 
 
 def get_model_class(method):
-    "Get class of model from string."
+    """Get class of model from string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the model, e.g. 'svm', 'nb' or 'lstm-pool'.
+
+    Returns
+    -------
+    BaseModel:
+        Class corresponding to the method.
+    """
     from asreview.models.dense_nn import DenseNNModel
     from asreview.models.svm import SVMModel
     from asreview.models.nb import NBModel
@@ -33,9 +44,21 @@ def get_model_class(method):
     try:
         return models[method]
     except KeyError:
-        raise ValueError(f"Error: training method '{method}' is not implemented.")
+        raise ValueError(
+            f"Error: training method '{method}' is not implemented.")
 
 
 def get_model(method, *args, **kwargs):
+    """Get an instance of a model from a string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the model.
+    *args:
+        Arguments for the model.
+    **kwargs:
+        Keyword arguments for the model.
+    """
     model_class = get_model_class(method)
     return model_class(*args, **kwargs)

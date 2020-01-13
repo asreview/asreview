@@ -23,6 +23,21 @@ class SVMModel(BaseModel):
 
     def __init__(self, gamma="auto", class_weight=0.249, C=15.4,
                  kernel="linear", random_state=None):
+        """Initialize the SKLearn SVM model.
+
+        Arguments
+        ---------
+        gamma: str
+            Gamma parameter of the SVM model.
+        class_weight:
+            class_weight of the inclusions.
+        C:
+            C parameter of the SVM model.
+        kernel:
+            SVM kernel type.
+        random_state:
+            State of the RNG.
+        """
         super(SVMModel, self).__init__()
         self.gamma = gamma
         if class_weight is not None:
