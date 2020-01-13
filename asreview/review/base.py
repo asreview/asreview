@@ -18,8 +18,8 @@ from abc import abstractmethod
 
 import dill
 import numpy as np
-from tensorflow.python.keras.models import load_model
-from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
+from tensorflow.keras.models import load_model
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import NOT_AVAILABLE
