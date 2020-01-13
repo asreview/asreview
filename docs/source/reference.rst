@@ -21,26 +21,48 @@ Low level API
 Models
 ------
 
-.. autofunction:: asreview.models.create_lstm_base_model
-.. autofunction:: asreview.models.create_lstm_pool_model
-.. autofunction:: asreview.models.create_nb_model
-.. autofunction:: asreview.models.create_svc_model
+.. autoclass:: asreview.models.NBModel
+.. autoclass:: asreview.models.RFModel
+.. autoclass:: asreview.models.DenseNNModel
+.. autoclass:: asreview.models.SVMModel
+.. autoclass:: asreview.models.LSTMBaseModel
+.. autoclass:: asreview.models.LSTMPoolModel
+.. autofunction:: asreview.models.get_model
+.. autofunction:: asreview.models.get_model_class
 
 Query strategies
 ----------------
 
-.. autofunction:: asreview.query_strategies.uncertainty_sampling
-.. autofunction:: asreview.query_strategies.random_sampling
-.. autofunction:: asreview.query_strategies.max_sampling
-.. autofunction:: asreview.query_strategies.rand_max_sampling
-
+.. autoclass:: asreview.query_strategies.MaxQuery
+.. autoclass:: asreview.query_strategies.MixedQuery
+.. autoclass:: asreview.query_strategies.UncertaintyQuery
+.. autoclass:: asreview.query_strategies.RandomQuery
+.. autoclass:: asreview.query_strategies.ClusterQuery
+.. autofunction:: asreview.query_strategies.get_query_model
+.. autofunction:: asreview.query_strategies.get_query_class
 
 Balance Strategies
 ------------------
 
-.. autofunction:: asreview.balance_strategies.full_sample
-.. autofunction:: asreview.balance_strategies.undersample
-.. autofunction:: asreview.balance_strategies.triple_balance
+.. autoclass:: asreview.balance_strategies.SimpleBalance
+.. autoclass:: asreview.balance_strategies.DoubleBalance
+.. autoclass:: asreview.balance_strategies.TripleBalance
+.. autoclass:: asreview.balance_strategies.UndersampleBalance
+.. autofunction:: asreview.balance_strategies.get_balance_model
+.. autofunction:: asreview.balance_strategies.get_balance_class
+
+
+Feature Extraction
+------------------
+
+.. autoclass:: asreview.feature_extraction.Doc2Vec
+.. autoclass:: asreview.feature_extraction.Tfidf
+.. autoclass:: asreview.feature_extraction.EmbeddingIdf
+.. autoclass:: asreview.feature_extraction.SBERT
+.. autofunction:: asreview.feature_extraction.get_feature_model
+.. autofunction:: asreview.feature_extraction.get_feature_class
+
+
 
 Utils
 -----

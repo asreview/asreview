@@ -19,7 +19,7 @@ from asreview.feature_extraction.embedding_idf import EmbeddingIdf
 from asreview.feature_extraction.embedding_lstm import EmbeddingLSTM
 
 
-def get_unsupervised_class(method):
+def get_feature_class(method):
     models = {
         "doc2vec": Doc2Vec,
         "tfidf": Tfidf,
@@ -34,5 +34,5 @@ def get_unsupervised_class(method):
 
 
 def get_feature_model(method, *args, **kwargs):
-    model_class = get_unsupervised_class(method)
+    model_class = get_feature_class(method)
     return model_class(*args, **kwargs)

@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from asreview.balance_strategies.simple import SimpleBalance
+from asreview.balance_strategies.double import DoubleBalance
 from asreview.balance_strategies.triple import TripleBalance
 from asreview.balance_strategies.undersample import UndersampleBalance
-from asreview.balance_strategies.double import DoubleBalance
+from asreview.balance_strategies.utils import get_balance_model
+from asreview.balance_strategies.utils import get_balance_class

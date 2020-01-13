@@ -24,3 +24,5 @@ from asreview.models.dense_nn import DenseNNModel
 from asreview.models.svm import SVMModel
 from asreview.models.lstm_base import LSTMBaseModel
 from asreview.models.lstm_pool import LSTMPoolModel
+from asreview.models.utils import get_model
+from asreview.models.utils import get_model_class
