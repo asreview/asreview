@@ -9,6 +9,13 @@ class BaseFeatureExtraction(ABC):
         self.fit(texts)
         return self.transform(texts)
 
+    def fit(self, texts):
+        pass
+
+    @abstractmethod
+    def transform(self, texts):
+        raise NotImplementedError
+
     def full_hyper_space(self):
         return {}, {}
 
@@ -20,7 +27,7 @@ class BaseFeatureExtraction(ABC):
         return hyper_space, hyper_choices
 
     def _full(self, par_name):
-        return "usp_" + par_name
+        return "fex_" + par_name
 
     @property
     def default_param(self):

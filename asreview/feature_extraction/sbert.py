@@ -8,7 +8,7 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 class SBERT(BaseFeatureExtraction):
     name = "sbert"
 
-    def fit_transform(self, texts):
+    def transform(self, texts):
         try:
             from sentence_transformers.SentenceTransformer import SentenceTransformer  #noqa
         except ImportError:

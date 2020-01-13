@@ -29,7 +29,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
         self.embedding_fp = embedding_fp
         self.embedding = None
 
-    def fit_transform(self, texts):
+    def transform(self, texts):
         if self.embedding is None:
             if self.embedding_fp is None:
                 raise ValueError(

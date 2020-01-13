@@ -43,7 +43,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         self.n_jobs = n_jobs
         self.loop_sequence = loop_sequence
 
-    def fit_transform(self, texts):
+    def transform(self, texts):
         self.X, self.word_index = text_to_features(
             texts, loop_sequence=self.loop_sequence, num_words=self.num_words,
             max_sequence_length=self.max_sequence_length,

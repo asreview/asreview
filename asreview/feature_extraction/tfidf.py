@@ -11,7 +11,7 @@ class Tfidf(BaseFeatureExtraction):
     def __init__(self, ngram_max=1):
         self.ngram_max = ngram_max
 
-    def fit_transform(self, texts):
+    def transform(self, texts):
         text_clf = Pipeline([
             ('vect', CountVectorizer(ngram_range=(1, self.ngram_max))),
             ('tfidf', TfidfTransformer())]
