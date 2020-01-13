@@ -5,9 +5,9 @@ import inspect
 class BaseFeatureExtraction(ABC):
     name = "base"
 
-    @abstractmethod
     def fit_transform(self, texts):
-        raise NotImplementedError
+        self.fit(texts)
+        return self.transform(texts)
 
     def full_hyper_space(self):
         return {}, {}
