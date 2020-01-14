@@ -16,12 +16,12 @@
 
 import numpy as np
 
-from asreview.query_strategies.base import BaseQueryStrategy
+from asreview.query_strategies.base import NotProbaQueryStrategy
 
 
-class RandomQuery(BaseQueryStrategy):
+class RandomQuery(NotProbaQueryStrategy):
+    "Random sampling query strategy."
     name = "random"
-    use_proba = False
 
     def _query(self, X, pool_idx, n_instances=1):
         n_samples = len(pool_idx)

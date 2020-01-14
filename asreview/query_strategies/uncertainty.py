@@ -23,14 +23,22 @@ from modAL.utils.selection import multi_argmax
 from modAL.utils.selection import shuffled_argmax
 
 
-from asreview.query_strategies.base import BaseQueryStrategy
+from asreview.query_strategies.base import ProbaQueryStrategy
 
 
-class UncertaintyQuery(BaseQueryStrategy):
+class UncertaintyQuery(ProbaQueryStrategy):
+    "Maximum uncertainty query strategy."
     name = "uncertainty"
-    use_proba = True
 
     def __init__(self, random_tie_break=False):
+        """Initialize the maximum uncertainty query strategy.
+
+        Arguments:
+        ----------
+        random_tie_break: bool
+            If true randomly decide which ones to include by tie-break.
+        """
+        super(UncertaintyQuery, self).__init__()
         self.random_tie_break = random_tie_break
 
     def _query(self, X, pool_idx, n_instances=1, proba=None):

@@ -22,10 +22,32 @@ from asreview.query_strategies.utils import get_query_model
 
 
 class MixedQuery(BaseQueryStrategy):
+    """Class for mixed query strategy.
+
+    The idea is to use two different query strategies at the same time with a
+    ratio of one to the other.
+    """
     name = "mixed"
 
     def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
                  **kwargs):
+        """Initialize the Mixed query strategy
+
+        Arguments
+        ---------
+        strategy_1: str
+            Name of the first query strategy.
+        strategy_2: str
+            Name of the second query strategy.
+        mix_ratio: float
+            Portion of queries done by the first strategy. So a mix_ratio of
+            0.95 means that 95% of the time query strategy 1 is used and 5% of
+            the time query strategy 2.
+        **kwargs: dict
+            Keyword arguments for the two strategy. To specify which of the
+            strategies the argument is for, prepend with the name of the query
+            strategy and an underscore, e.g. 'max_' for maximal sampling.
+        """
         super(MixedQuery, self).__init__()
         kwargs_1 = {}
         kwargs_2 = {}
@@ -49,18 +71,23 @@ class MixedQuery(BaseQueryStrategy):
         if pool_idx is None:
             pool_idx = np.arange(n_samples)
 
+        # Split the number of instances for the query strategies.
         n_instances_1 = floor(n_instances*self.mix_ratio)
         if np.random.random_sample() < n_instances*self.mix_ratio-n_instances_1:
             n_instances_1 += 1
         n_instances_2 = n_instances-n_instances_1
 
+        # Perform the query with strategy 1.
         query_idx_1, X_1 = self.query_model1.query(
             classifier, X, pool_idx=pool_idx, n_instances=n_instances_1,
             shared=shared)
 
+        # Remove the query indices from the pool.
         train_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
         train_idx = np.append(train_idx, query_idx_1)
         new_pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
+
+        # Perform the query with strategy 2.
         query_idx_2, X_2 = self.query_model2.query(
             classifier, X, pool_idx=new_pool_idx, n_instances=n_instances_2,
             shared=shared)

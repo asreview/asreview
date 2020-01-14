@@ -30,6 +30,7 @@ Models
 .. autofunction:: asreview.models.get_model
 .. autofunction:: asreview.models.get_model_class
 
+
 Query strategies
 ----------------
 
@@ -40,6 +41,7 @@ Query strategies
 .. autoclass:: asreview.query_strategies.ClusterQuery
 .. autofunction:: asreview.query_strategies.get_query_model
 .. autofunction:: asreview.query_strategies.get_query_class
+
 
 Balance Strategies
 ------------------

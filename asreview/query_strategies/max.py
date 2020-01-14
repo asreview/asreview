@@ -19,14 +19,21 @@ Max sampling while saving prediction probabilities.
 from modAL.utils.selection import multi_argmax
 from modAL.utils.selection import shuffled_argmax
 
-from asreview.query_strategies.base import BaseQueryStrategy
+from asreview.query_strategies.base import ProbaQueryStrategy
 
 
-class MaxQuery(BaseQueryStrategy):
+class MaxQuery(ProbaQueryStrategy):
+    "Maximum sampling query strategy."
     name = "max"
-    use_proba = True
 
     def __init__(self, random_tie_break=False):
+        """Initialize the max query strategy.
+
+        Arguments:
+        ----------
+        random_tie_break: bool
+            If true randomly decide which ones to include by tie-break.
+        """
         super(MaxQuery, self).__init__()
         self.random_tie_break = random_tie_break
 

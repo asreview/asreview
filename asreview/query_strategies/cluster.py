@@ -17,22 +17,33 @@ from math import floor
 import numpy as np
 from sklearn.cluster import KMeans
 
-from asreview.query_strategies.base import BaseQueryStrategy
+from asreview.query_strategies.base import ProbaQueryStrategy
 from asreview.feature_extraction.doc2vec import Doc2Vec
 from asreview.query_strategies.max import MaxQuery
 
 
-class ClusterQuery(BaseQueryStrategy):
+class ClusterQuery(ProbaQueryStrategy):
     name = "cluster"
-    use_proba = True
 
-    def __init__(self, texts, cluster_size=350, update_cluster=200,
-                 max_frac=0.5):
+    def __init__(self, texts, cluster_size=350, update_interval=200, **kwargs):
+        """Initialize the clustering strategy.
+
+        Arguments
+        ---------
+        texts: list
+            List of sequences to create feature matrix.
+        cluster_size: int
+            Size of the clusters to be made. If the size of the clusters is
+            smaller than the size of the pool, fall back to max sampling.
+        update_cluster: int
+            Update the clustering every x instances.
+        **kwargs: dict
+            Keyword arguments for the doc2vec feature model.
+        """
         super(ClusterQuery, self).__init__()
-        self.max_frac = max_frac
         self.cluster_size = cluster_size
-        self.update_cluster = update_cluster
-        feature_model = Doc2Vec()
+        self.update_interval = update_interval
+        feature_model = Doc2Vec(**kwargs)
         self.cluster_X = feature_model.fit_transform(texts)
         self.last_update = None
         self.fallback_model = MaxQuery()
@@ -43,7 +54,8 @@ class ClusterQuery(BaseQueryStrategy):
             pool_idx = np.arange(n_samples)
 
         last_update = self.last_update
-        if last_update is None or last_update-len(pool_idx) < self.update_cluster:
+        if (last_update is None or self.update_interval is None or
+                last_update-len(pool_idx) >= self.update_interval):
             n_clusters = round(len(pool_idx)/self.cluster_size)
             if n_clusters <= 1:
                 return self.fallback_model()._query(
@@ -53,21 +65,6 @@ class ClusterQuery(BaseQueryStrategy):
             model = KMeans(n_clusters=n_clusters, n_init=1)
             self.clusters = model.fit_predict(X)
             self.last_update = len(pool_idx)
-
-        # Get the discrete number of instances for rand/max sampling.
-        n_instance_max = floor(n_instances*self.max_frac)
-        if np.random.random_sample() < n_instances*self.max_frac-n_instance_max:
-            n_instance_max += 1
-        n_instance_clust = n_instances-n_instance_max
-
-        # Do max sampling.
-        max_idx, _ = self.fallback_model()._query(
-            X, pool_idx=pool_idx, n_instances=n_instance_max, proba=proba)
-
-        # Remove indices found with max sampling from the pool.
-        train_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
-        train_idx = np.append(train_idx, max_idx)
-        pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
 
         clusters = {}
         for idx in pool_idx:
@@ -79,25 +76,23 @@ class ClusterQuery(BaseQueryStrategy):
 
         for cluster_id in clusters:
             try:
-                clusters[cluster_id] = sorted(clusters[cluster_id], key=lambda x: x[1])
+                clusters[cluster_id] = sorted(
+                    clusters[cluster_id], key=lambda x: x[1])
             except ValueError:
                 raise
 
         clust_idx = []
         cluster_ids = list(clusters)
-        for _ in range(n_instance_clust):
+        for _ in range(n_instances):
             cluster_id = np.random.choice(cluster_ids, 1)[0]
             clust_idx.append(clusters[cluster_id].pop()[0])
             if len(clusters[cluster_id]) == 0:
                 del clusters[cluster_id]
                 cluster_ids = list(clusters)
 
-        clust_idx = np.array(clust_idx)
-        assert len(clust_idx) == n_instance_clust
-        assert len(max_idx) == n_instance_max
-        query_idx = np.append(max_idx, clust_idx)
+        clust_idx = np.array(clust_idx, dtype=int)
 
-        return query_idx, X[query_idx]
+        return clust_idx, X[clust_idx]
 
     def hyperopt_space(self):
         from hyperopt import hp

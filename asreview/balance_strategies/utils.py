@@ -28,7 +28,8 @@ def get_balance_class(method):
     try:
         return balance_models[method]
     except KeyError:
-        raise ValueError(f"Error: balance method '{method}' is not implemented.")
+        raise ValueError(
+            f"Error: balance method '{method}' is not implemented.")
 
 
 def get_balance_model(method, *args, **kwargs):

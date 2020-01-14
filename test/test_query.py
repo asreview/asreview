@@ -1,8 +1,10 @@
 from pytest import mark
 import numpy as np
+import os
 
 from asreview.query_strategies.utils import get_query_model
 from asreview.models.utils import get_model
+from asreview.readers import ASReviewData
 
 
 @mark.parametrize(
@@ -13,12 +15,25 @@ from asreview.models.utils import get_model
         "random_max",
         "max_random",
         "uncertainty",
-        "max_uncertainty"
+        "max_uncertainty",
+        "cluster",
     ])
 def test_query(query_strategy, n_features=50, n_sample=100,
                n_instances_list=[0, 1, 5, 50], n_train_idx=[0, 1, 5, 50]):
     classifier = get_model("rf")
-    query_model = get_query_model(query_strategy)
+    if query_strategy == "cluster":
+        data_fp = os.path.join("test", "demo_data", "generic.csv")
+        _, texts, _ = ASReviewData.from_file(data_fp).get_data()
+        while len(texts) < n_features:
+            texts = np.append(texts, texts)
+            print(len(texts))
+#             texts.extend(texts)
+        texts = texts[:n_features]
+        query_model = get_query_model(
+            query_strategy, texts=texts, update_interval=None,
+            cluster_size=int(n_sample/3))
+    else:
+        query_model = get_query_model(query_strategy)
     X = np.random.rand(n_sample, n_features)
 
     y = np.concatenate((np.zeros(n_sample//2), np.ones(n_sample//2)), axis=0)
