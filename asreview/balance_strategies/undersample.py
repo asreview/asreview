@@ -20,12 +20,19 @@ from asreview.balance_strategies.base import BaseBalance
 
 
 class UndersampleBalance(BaseBalance):
-    """
-    Balancing class that undersamples the data with a given ratio.
+    """Balancing class that undersamples the data with a given ratio.
     """
     name = "undersampling"
 
     def __init__(self, ratio=1.0):
+        """Initialize the undersampling balance strategy.
+
+        Arguments
+        ---------
+        ratio: double
+            Undersampling ratio of the zero's. If for example we set a ratio of
+            0.25, we would sample only a quarter of the zeros and all the ones.
+        """
         super(UndersampleBalance, self).__init__()
         self.ratio = ratio
 

@@ -73,7 +73,8 @@ class MixedQuery(BaseQueryStrategy):
 
         # Split the number of instances for the query strategies.
         n_instances_1 = floor(n_instances*self.mix_ratio)
-        if np.random.random_sample() < n_instances*self.mix_ratio-n_instances_1:
+        leftovers = n_instances*self.mix_ratio-n_instances_1
+        if np.random.random_sample() < leftovers:
             n_instances_1 += 1
         n_instances_2 = n_instances-n_instances_1
 

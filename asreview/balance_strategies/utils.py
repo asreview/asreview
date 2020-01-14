@@ -19,6 +19,18 @@ from asreview.balance_strategies.double import DoubleBalance
 
 
 def get_balance_class(method):
+    """Get class of balance model from string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the model, e.g. 'simple', 'double' or 'undersample'.
+
+    Returns
+    -------
+    BaseBalanceModel:
+        Class corresponding to the method.
+    """
     balance_models = {
         "simple": SimpleBalance,
         "double": DoubleBalance,
@@ -33,5 +45,16 @@ def get_balance_class(method):
 
 
 def get_balance_model(method, *args, **kwargs):
+    """Get an instance of a balance model from a string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the balance model.
+    *args:
+        Arguments for the balance model.
+    **kwargs:
+        Keyword arguments for the balance model.
+    """
     balance_class = get_balance_class(method)
     return balance_class(*args, **kwargs)

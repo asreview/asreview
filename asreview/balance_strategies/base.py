@@ -44,6 +44,13 @@ class BaseBalance(ABC):
 
     @property
     def default_param(self):
+        """Get the default parameters of the balance strategy.
+
+        Returns
+        -------
+        dict:
+            Dictionary with parameter: default_value
+        """
         signature = inspect.signature(self.__init__)
         return {
             k: v.default

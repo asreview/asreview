@@ -31,10 +31,37 @@ class TripleBalance(BaseBalance):
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
     """
-    name = "double balance"
+    name = "triple-balance"
 
     def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0, c=0.835,
                  gamma=2.0, shuffle=True):
+        """Initialize the triple balance strategy.
+
+        Arguments
+        ---------
+        a: double
+            Governs the weight of the 1's. Higher values mean linearly more 1's
+            in your training sample.
+        alpha: double
+            Governs the scaling the weight of the 1's, as a function of the
+            ratio of ones to zeros. A positive value means that the lower the
+            ratio of zeros to ones, the higher the weight of the ones.
+        b: double
+            Governs how strongly we want to sample depending on the total
+            number of samples. A value of 1 means no dependence on the total
+            number of samples, while lower values mean increasingly stronger
+            dependence on the number of samples.
+        beta: double
+            Governs the scaling of the weight of the zeros depending on the
+            number of samples. Higher values means that larger samples are more
+            strongly penalizing zeros.
+        c: double
+            Value between one and zero that governs the weight of samples done
+            with maximal sampling. Higher values mean higher weight.
+        gamma: double
+            Governs the scaling of the weight of the max samples as a function
+            of the % of papers read. Higher values mean stronger scaling.
+        """
         super(TripleBalance, self).__init__()
         self.a = a
         self.alpha = alpha
