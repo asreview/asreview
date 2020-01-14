@@ -30,7 +30,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
     """
     name = "embedding-idf"
 
-    def __init__(self, embedding_fp=None):
+    def __init__(self, *args, embedding_fp=None, **kwargs):
         """Initialize the Embedding-Idf model
 
         Arguments
@@ -38,7 +38,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
         embedding_fp: str
             Path to embedding.
         """
-        super(EmbeddingIdf, self).__init__()
+        super(EmbeddingIdf, self).__init__(*args, **kwargs)
         self.embedding_fp = embedding_fp
         self.embedding = None
 
@@ -104,5 +104,3 @@ def _get_X_from_dict(text_dicts, idf, embedding):
         text_vec /= np.linalg.norm(text_vec)
         X[i] = text_vec
     return X
-
-

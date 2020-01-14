@@ -32,9 +32,9 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     """Class to create embedding matrices for LSTM models."""
     name = "embedding-lstm"
 
-    def __init__(self, loop_sequence=True, num_words=20000,
+    def __init__(self, *args, loop_sequence=True, num_words=20000,
                  max_sequence_length=1000, padding='post', truncating='post',
-                 n_jobs=1):
+                 n_jobs=1, **kwargs):
         """Initialize the embedding matrix feature extraction.
 
         Arguments
@@ -53,7 +53,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         n_jobs:
             Number of processors used in reading the embedding matrix.
         """
-        super(EmbeddingLSTM, self).__init__()
+        super(EmbeddingLSTM, self).__init__(*args, **kwargs)
         self.embedding = None
         self.num_words = num_words
         self.max_sequence_length = max_sequence_length

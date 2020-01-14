@@ -145,7 +145,7 @@ def get_reviewer(dataset,
     feature_model = get_feature_model(settings.feature_extraction,
                                       **settings.feature_param)
 
-    X = feature_model.fit_transform(texts)
+    X = feature_model.fit_transform(texts, as_data.title, as_data.abstract)
 
     if train_model.name.startswith("lstm-"):
         train_model.embedding_matrix = feature_model.get_embedding_matrix(

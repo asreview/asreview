@@ -137,19 +137,15 @@ def _random_ttd(loggers, query_i, labels):
         try:
             pool_idx = logger.get("pool_idx", query_i)
         except KeyError:
-#             all_ttd.append(0)
             continue
 
-#         print(pool_idx)
         pool_labels = labels[pool_idx]
         n_included = np.sum(pool_labels)
 
         if n_included == 0:
             continue
-#         print(n_included, pool_labels)
         ttd = 0
         p_only_zero = 1
-#         print(query_i, len(pool_labels), n_included)
         for i in range(len(pool_labels) - n_included):
             p_first = n_included/(len(pool_labels)-i)
             ttd += p_only_zero*p_first*i
@@ -171,13 +167,9 @@ def _max_ttd(loggers, query_i, labels):
             all_ttd.append(0)
             continue
         if len(proba_order) == 0:
-#             all_ttd.append(0)
             continue
 
-#         print(proba_order[-10:])
-#         print(list(reversed(labels[proba_order]))[:10])
         x = np.where(labels[proba_order] == 1)[0]
-#         print(x)
         if len(x) == 0:
             ttd = 0
         else:
@@ -236,7 +228,8 @@ def _cluster_ttd(loggers, query_i, labels, all_prediction):
             try:
                 p_first = one_counts[i_clust]/all_counts[i_clust]
             except IndexError:
-                print(i_clust, list(all_dict), len(all_counts), len(one_counts))
+                print(
+                    i_clust, list(all_dict), len(all_counts), len(one_counts))
             ttd += p_only_zero*p_first*i
             p_only_zero *= 1-p_first
             all_counts[i_clust] -= 1

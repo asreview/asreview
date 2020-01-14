@@ -9,7 +9,7 @@ class Tfidf(BaseFeatureExtraction):
     """Class to apply SKLearn Tf-idf to texts."""
     name = "tf-idf"
 
-    def __init__(self, ngram_max=1):
+    def __init__(self, *args, ngram_max=1, **kwargs):
         """Initialize tfidf class.
 
         Arguments
@@ -18,6 +18,7 @@ class Tfidf(BaseFeatureExtraction):
             Can use up to ngrams up to ngram_max. For example in the case of
             ngram_max=2, monograms and bigrams could be used.
         """
+        super(Tfidf, self).__init__(*args, **kwargs)
         self.ngram_max = ngram_max
 
     def transform(self, texts):

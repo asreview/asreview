@@ -41,8 +41,9 @@ class Doc2Vec(BaseFeatureExtraction):
     """Base class for doc2vec feature extraction."""
     name = "doc2vec"
 
-    def __init__(self, vector_size=40, epochs=33, min_count=1, workers=1,
-                 window=7, dm_concat=0, dm=2, dbow_words=0):
+    def __init__(self, *args, vector_size=40, epochs=33, min_count=1,
+                 workers=1, window=7, dm_concat=0, dm=2, dbow_words=0,
+                 **kwargs):
         """Initialize the doc2vec model.
 
         Arguments
@@ -70,7 +71,7 @@ class Doc2Vec(BaseFeatureExtraction):
         dbow_words: int
             Whether to train the word vectors using the skipgram method.
         """
-        super(Doc2Vec, self).__init__()
+        super(Doc2Vec, self).__init__(*args, **kwargs)
         self.vector_size = int(vector_size)
         self.epochs = int(epochs)
         self.min_count = int(min_count)
