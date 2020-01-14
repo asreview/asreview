@@ -6,6 +6,7 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
 class SBERT(BaseFeatureExtraction):
+    """Sentence BERT class for feature extraction."""
     name = "sbert"
 
     def transform(self, texts):

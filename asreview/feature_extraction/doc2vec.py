@@ -19,17 +19,17 @@ import numpy as np
 from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
-def train_model(corpus, *args, **kwargs):
+def _train_model(corpus, *args, **kwargs):
     import gensim
 
-    model = gensim.models.doc2vec.Doc2Vec(*args, **kwargs, )
+    model = gensim.models.doc2vec.Doc2Vec(*args, **kwargs)
     model.build_vocab(corpus)
     model.train(corpus, total_examples=model.corpus_count,
                 epochs=model.epochs)
     return model
 
 
-def transform_text(model, corpus):
+def _transform_text(model, corpus):
     X = []
     for doc_id in range(len(corpus)):
         doc_vec = model.infer_vector(corpus[doc_id].words)
@@ -38,10 +38,38 @@ def transform_text(model, corpus):
 
 
 class Doc2Vec(BaseFeatureExtraction):
+    """Base class for doc2vec feature extraction."""
     name = "doc2vec"
 
     def __init__(self, vector_size=40, epochs=33, min_count=1, workers=1,
                  window=7, dm_concat=0, dm=2, dbow_words=0):
+        """Initialize the doc2vec model.
+
+        Arguments
+        ---------
+        vector_size: int
+            Output size of the vector.
+        epochs: int
+            Number of epochs to train the doc2vec model.
+        min_count: int
+            Minimum number of occurences for a word in the corpus for it to
+            be included in the model.
+        workers: int
+            Number of threads to train the model with.
+        window: int
+            Maximum distance over which word vectors influence each other.
+        dm_concat: int
+            Whether to concatenate word vectors or not.
+            See paper for more detail.
+        dm: int
+            Model to use.
+            0: Use distribute bag of words (DBOW).
+            1: Use distributed memory (DM).
+            2: Use both of the above with half the vector size and concatenate
+            them.
+        dbow_words: int
+            Whether to train the word vectors using the skipgram method.
+        """
         super(Doc2Vec, self).__init__()
         self.vector_size = int(vector_size)
         self.epochs = int(epochs)
@@ -79,10 +107,10 @@ class Doc2Vec(BaseFeatureExtraction):
 
         if self.dm == 2:
             model_param["vector_size"] = int(model_param["vector_size"]/2)
-            self.model_dm = train_model(corpus, **model_param, dm=1)
-            self.model_dbow = train_model(corpus, **model_param, dm=0)
+            self.model_dm = _train_model(corpus, **model_param, dm=1)
+            self.model_dbow = _train_model(corpus, **model_param, dm=0)
         else:
-            self.model = train_model(corpus, **model_param, dm=self.dm)
+            self.model = _train_model(corpus, **model_param, dm=self.dm)
 
     def transform(self, texts):
         try:
@@ -96,11 +124,11 @@ class Doc2Vec(BaseFeatureExtraction):
                   for i, text in enumerate(texts)]
 
         if self.dm == 2:
-            X_dm = transform_text(self.model_dm, corpus)
-            X_dbow = transform_text(self.model_dbow, corpus)
+            X_dm = _transform_text(self.model_dm, corpus)
+            X_dbow = _transform_text(self.model_dbow, corpus)
             X = np.concatenate((X_dm, X_dbow), axis=1)
         else:
-            X = transform_text(self.model, corpus)
+            X = _transform_text(self.model, corpus)
         return X
 
     def full_hyper_space(self):
@@ -108,7 +136,8 @@ class Doc2Vec(BaseFeatureExtraction):
         eps = 1e-7
         hyper_choices = {}
         hyper_space = {
-            "fex_vector_size": hp.quniform("fex_vector_size", 31.5, 127.5-eps, 8),
+            "fex_vector_size": hp.quniform(
+                "fex_vector_size", 31.5, 127.5-eps, 8),
             "fex_epochs": hp.quniform("fex_epochs", 20, 50, 1),
             "fex_min_count": hp.quniform("fex_min_count", 0.5, 2.499999, 1),
             "fex_window": hp.quniform("fex_window", 4.5, 9.4999999, 1),

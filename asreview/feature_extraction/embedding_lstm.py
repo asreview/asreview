@@ -29,11 +29,30 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
 class EmbeddingLSTM(BaseFeatureExtraction):
+    """Class to create embedding matrices for LSTM models."""
     name = "embedding-lstm"
 
-    def __init__(self, loop_sequence=1, num_words=20000,
+    def __init__(self, loop_sequence=True, num_words=20000,
                  max_sequence_length=1000, padding='post', truncating='post',
                  n_jobs=1):
+        """Initialize the embedding matrix feature extraction.
+
+        Arguments
+        ---------
+        loop_sequence: bool
+            Instead of zeros at the start/end of sequence loop it.
+        num_words: int
+            Maximum number of unique words to be processed.
+        max_sequence_length: int
+            Maximum length of the sequence. Shorter get struncated.
+            Longer sequences get either padded with zeros or looped.
+        padding: str
+            Which side should be padded [pre/post].
+        truncating:
+            Which side should be truncated [pre/post].
+        n_jobs:
+            Number of processors used in reading the embedding matrix.
+        """
         super(EmbeddingLSTM, self).__init__()
         self.embedding = None
         self.num_words = num_words
@@ -89,29 +108,6 @@ EMBEDDING_EN = {
 }
 
 
-# def get_embedding_matrix(embedding_fp, texts):
-#     self.fit_transform(texts)
-#     if self.embedding_fp is None:
-#         self.embedding_fp = Path(
-#             get_data_home(),
-#             EMBEDDING_EN["name"]
-#         ).expanduser()
-# 
-#         if not self.embedding_fp.exists():
-#             logging.warning("Warning: will start to download large "
-#                             "embedding file in 10 seconds.")
-#             time.sleep(10)
-#             download_embedding()
-#     logging.info("Loading embedding matrix. "
-#                  "This can take several minutes.")
-# 
-#     self.embedding = load_embedding(
-#         self.embedding_fp, n_jobs=self.n_jobs)
-#     self.embedding_matrix = sample_embedding(
-#         self.embedding, self.word_index)
-#     return self.embedding_matrix
-
-
 def loop_sequences(X, max_sequence_length=1000):
     # Loop the sequences instead of padding.
     for i, old_x in enumerate(X):
@@ -134,7 +130,7 @@ def loop_sequences(X, max_sequence_length=1000):
     return X
 
 
-def text_to_features(sequences, loop_sequence=1, num_words=20000,
+def text_to_features(sequences, loop_sequence=True, num_words=20000,
                      max_sequence_length=1000,
                      padding='post', truncating='post'):
     """Convert text data into features.
@@ -170,7 +166,7 @@ def text_to_features(sequences, loop_sequence=1, num_words=20000,
         truncating=truncating
     )
 
-    if loop_sequence != 0:
+    if loop_sequence:
         x = loop_sequences(x, max_sequence_length)
     # word index hack. see issue
     # https://github.com/keras-team/keras/issues/8092

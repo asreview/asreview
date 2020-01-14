@@ -22,9 +22,22 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
+    """Class for Embedding-Idf model.
+
+    This model averages the weighted word vectors of all the words in the text,
+    in order to get a single feature vector for each text. The weights are
+    provided by the inverse document frequencies.
+    """
     name = "embedding-idf"
 
     def __init__(self, embedding_fp=None):
+        """Initialize the Embedding-Idf model
+
+        Arguments
+        ---------
+        embedding_fp: str
+            Path to embedding.
+        """
         super(EmbeddingIdf, self).__init__()
         self.embedding_fp = embedding_fp
         self.embedding = None

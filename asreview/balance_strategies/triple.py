@@ -70,8 +70,7 @@ class TripleBalance(BaseBalance):
         self.c = c
         self.gamma = gamma
         self.shuffle = shuffle
-        self.fallback_model = DoubleBalance(
-            a=a, alpha=alpha, b=b, beta=beta, shuffle=shuffle)
+        self.fallback_model = DoubleBalance(a=a, alpha=alpha, b=b, beta=beta)
 
     def sample(self, X, y, train_idx, shared):
         max_idx = np.array(shared["query_src"].get("max", []), dtype=np.int)

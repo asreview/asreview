@@ -20,6 +20,18 @@ from asreview.feature_extraction.embedding_lstm import EmbeddingLSTM
 
 
 def get_feature_class(method):
+    """Get class of feature extraction from string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the feature model, e.g. 'doc2vec', 'tfidf' or 'embedding-lstm'.
+
+    Returns
+    -------
+    BaseFeatureExtraction:
+        Class corresponding to the method.
+    """
     models = {
         "doc2vec": Doc2Vec,
         "tfidf": Tfidf,
@@ -34,5 +46,16 @@ def get_feature_class(method):
 
 
 def get_feature_model(method, *args, **kwargs):
+    """Get an instance of a feature extraction model from a string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the feature extraction model.
+    *args:
+        Arguments for the feature extraction model.
+    **kwargs:
+        Keyword arguments for thefeature extraction  model.
+    """
     model_class = get_feature_class(method)
     return model_class(*args, **kwargs)
