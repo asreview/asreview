@@ -22,6 +22,7 @@ from asreview.models.nb import NBModel
 from asreview.models.rf import RFModel
 from asreview.models.dense_nn import DenseNNModel
 from asreview.models.svm import SVMModel
+from asreview.models.logistic import LogisticModel
 from asreview.models.lstm_base import LSTMBaseModel
 from asreview.models.lstm_pool import LSTMPoolModel
 from asreview.models.utils import get_model

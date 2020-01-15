@@ -84,6 +84,13 @@ def test_nn_2_layer():
                 n_instances=1, n_queries=2)
 
 
+def test_logistic():
+    check_model(mode="simulate",
+                model="logistic",
+                log_file=json_log_file,
+                n_instances=1, n_queries=2)
+
+
 def check_label_methods(label_methods, n_labels, methods):
     assert len(label_methods) == n_labels
     for method in label_methods:

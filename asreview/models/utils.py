@@ -30,6 +30,7 @@ def get_model_class(method):
     from asreview.models.svm import SVMModel
     from asreview.models.nb import NBModel
     from asreview.models.rf import RFModel
+    from asreview.models.logistic import LogisticModel
     from asreview.models.lstm_base import LSTMBaseModel
     from asreview.models.lstm_pool import LSTMPoolModel
 
@@ -39,7 +40,8 @@ def get_model_class(method):
         "rf": RFModel,
         "nn-2-layer": DenseNNModel,
         "lstm-base": LSTMBaseModel,
-        "lstm-pool": LSTMPoolModel
+        "lstm-pool": LSTMPoolModel,
+        "logistic": LogisticModel,
     }
     try:
         return models[method]
