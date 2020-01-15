@@ -55,9 +55,9 @@ class UndersampleBalance(BaseBalance):
         np.random.shuffle(shuf_ind)
         return X[shuf_ind], y[shuf_ind]
 
-    def hyperopt_space(self):
+    def full_hyper_space(self):
         from hyperopt import hp
         parameter_space = {
             "bal_ratio": hp.lognormal('bal_ratio', 0, 1),
         }
-        return parameter_space
+        return parameter_space, {}

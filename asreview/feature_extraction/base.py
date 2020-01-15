@@ -33,8 +33,10 @@ class BaseFeatureExtraction(ABC):
             X_titles = self.transform(titles)
             X_abstracts = self.transform(abstracts)
             if issparse(X_titles) and issparse(X_abstracts):
-                return hstack([X_titles, X_abstracts])
-            return np.concatenate((X_titles, X_abstracts), axis=1)
+                X_merge = hstack([X_titles, X_abstracts]).tocsr()
+            else:
+                X_merge = np.concatenate((X_titles, X_abstracts), axis=1)
+            return X_merge
         return self.transform(texts)
 
     def fit(self, texts):
@@ -76,9 +78,6 @@ class BaseFeatureExtraction(ABC):
         hyper_space.update(ex_hyper_space)
         hyper_choices.update(ex_hyper_choices)
 
-        for par_name in self.const_param:
-            hyper_space.pop(self._full(par_name), None)
-            hyper_choices.pop(self._full(par_name), None)
         return hyper_space, hyper_choices
 
     def extra_hyper_space(self):

@@ -135,8 +135,6 @@ def get_reviewer(dataset,
         with open_logger(log_file) as logger:
             logger.set_final_labels(as_data.final_labels)
 
-    print(get_model_class(settings.model).default_param)
-
     train_model = get_model(settings.model, **settings.model_param)
     query_model = get_query_model(settings.query_strategy,
                                   **settings.query_param)

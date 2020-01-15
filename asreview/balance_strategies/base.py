@@ -57,3 +57,10 @@ class BaseBalance(ABC):
             for k, v in signature.parameters.items()
             if v.default is not inspect.Parameter.empty
         }
+
+    def full_hyper_space(self):
+        return {}, {}
+
+    def hyper_space(self):
+        hyper_space, hyper_choices = self.full_hyper_space()
+        return hyper_space, hyper_choices

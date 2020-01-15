@@ -125,7 +125,7 @@ class TripleBalance(BaseBalance):
 
         return X[all_idx], y[all_idx]
 
-    def hyperopt_space(self):
+    def full_hyper_space(self):
         from hyperopt import hp
         parameter_space = {
             "bal_one_a": hp.lognormal("bal_one_a", 0, 1),
@@ -135,7 +135,7 @@ class TripleBalance(BaseBalance):
             "bal_zero_max_c": hp.uniform("bal_zero_max_c", 0, 1),
             # "bal_zero_max_gamma": hp.uniform("bal_zero_max_gamma", 0.01, 2)
         }
-        return parameter_space
+        return parameter_space, {}
 
 
 def _zero_max_weight(fraction_read, c, gamma):

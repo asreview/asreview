@@ -27,7 +27,7 @@ class Tfidf(BaseFeatureExtraction):
             ('tfidf', TfidfTransformer())]
         )
 
-        X = text_clf.fit_transform(texts)
+        X = text_clf.fit_transform(texts).tocsr()
         return X
 
     def full_hyper_space(self):
