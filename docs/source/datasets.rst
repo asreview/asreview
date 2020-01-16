@@ -60,7 +60,7 @@ Call: ``example_cohen``
 
 Using your own data
 ---------------------
-    :wrench: This instruction is currently under construction. 
+    This instruction is currently under construction. 
     
 To carry out an automated systematic review on your own dataset, your datafile needs to adhere to a certain format. 
 
