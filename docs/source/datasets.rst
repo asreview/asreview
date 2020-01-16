@@ -66,7 +66,7 @@ To carry out an automated systematic review on your own dataset, your datafile n
 
 ASReview accepts the following formats: 
  - ``.ris``
- - ``.csv`` / ``.xlsx` / ``.xls``
+ - ``.csv`` / ``.xlsx`` / ``.xls``
 
 Such a format can be obtained by exporting your papers from your reference manager, e.g. RefWorks, Mendeley, EndNote, ZoTero.
 
