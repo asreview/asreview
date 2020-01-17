@@ -58,7 +58,7 @@ class BaseQueryStrategy(ABC):
 class ProbaQueryStrategy(BaseQueryStrategy):
     name = "proba"
 
-    def query(self, classifier, X, pool_idx=None, n_instances=1, shared={}):
+    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
         """Query method for strategies which use class probabilities.
         """
         n_samples = X.shape[0]
@@ -87,11 +87,8 @@ class ProbaQueryStrategy(BaseQueryStrategy):
 class NotProbaQueryStrategy(BaseQueryStrategy):
     name = "not_proba"
 
-    def query(self, classifier, X, pool_idx=None, n_instances=1, shared={}):
-        """Query method that can be overloaded.
-
-        If you want to use this method without overloading, you should define
-        a _query method. There are two types 
+    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
+        """Query method for strategies which do not use class probabilities
         """
         n_samples = X.shape[0]
         if pool_idx is None:

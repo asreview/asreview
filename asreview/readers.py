@@ -311,12 +311,10 @@ class ASReviewData(object):
             best_idx.append(idx)
         return np.array(best_idx, dtype=np.int).tolist()
 
-    def get_data(self):
-        "Equivalent of 'read_data'; get texts, labels from data object."
-        texts = []
-        for i in range(len(self.title)):
-            texts.append(self.title[i] + " " + self.abstract[i])
-        return self.raw_df, np.array(texts, dtype=object), self.labels
+    @property
+    def texts(self):
+        return [self.title[i] + " " + self.abstract[i]
+                for i in range(len(self.title))]
 
     def get_priors(self):
         "Get prior_included, prior_excluded from dataset."

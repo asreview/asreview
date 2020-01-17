@@ -311,14 +311,14 @@ class BaseReview(ABC):
         # If the model is not trained, choose random papers.
         if not self.model_trained:
             query_idx, _ = RandomQuery().query(
-                None, self.X, pool_idx, n_instances=n_instances,
+                self.X, None, pool_idx, n_instances=n_instances,
                 shared=self.shared)
 
         else:
             # Make a query from the pool.
             query_idx, _ = self.query_model.query(
-                self.model,
                 X=self.X,
+                classifier=self.model,
                 pool_idx=pool_idx,
                 n_instances=n_instances,
                 shared=self.shared,

@@ -25,7 +25,7 @@ def test_features(feature_extraction, split_ta):
     data_fp = os.path.join("test", "demo_data", "generic.csv")
 
     as_data = ASReviewData.from_file(data_fp)
-    _, texts, _ = as_data.get_data()
+    texts = as_data.texts
     if feature_extraction.startswith("embedding-"):
         model = get_feature_model(feature_extraction, split_ta=split_ta,
                                   embedding_fp=embedding_fp)

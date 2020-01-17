@@ -120,7 +120,9 @@ def get_reviewer(dataset,
 
     as_data = ASReviewData.from_file(dataset, extra_dataset=extra_dataset,
                                      abstract_only=settings.abstract_only)
-    _, texts, y = as_data.get_data()
+    texts = as_data.texts
+    y = as_data.labels
+
     data_prior_included, data_prior_excluded = as_data.get_priors()
     if len(data_prior_included) != 0:
         if prior_included is None:

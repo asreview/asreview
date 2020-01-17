@@ -66,7 +66,7 @@ class MixedQuery(BaseQueryStrategy):
         self.query_model2 = get_query_model(strategy_2)
         self.mix_ratio = mix_ratio
 
-    def query(self, classifier, X, pool_idx=None, n_instances=1, shared={}):
+    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
         n_samples = X.shape[0]
         if pool_idx is None:
             pool_idx = np.arange(n_samples)
@@ -80,7 +80,7 @@ class MixedQuery(BaseQueryStrategy):
 
         # Perform the query with strategy 1.
         query_idx_1, X_1 = self.query_model1.query(
-            classifier, X, pool_idx=pool_idx, n_instances=n_instances_1,
+            X, classifier, pool_idx=pool_idx, n_instances=n_instances_1,
             shared=shared)
 
         # Remove the query indices from the pool.
@@ -90,7 +90,7 @@ class MixedQuery(BaseQueryStrategy):
 
         # Perform the query with strategy 2.
         query_idx_2, X_2 = self.query_model2.query(
-            classifier, X, pool_idx=new_pool_idx, n_instances=n_instances_2,
+            X, classifier, pool_idx=new_pool_idx, n_instances=n_instances_2,
             shared=shared)
 
         query_idx = np.append(query_idx_1, query_idx_2)

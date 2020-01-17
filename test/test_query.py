@@ -23,7 +23,7 @@ def test_query(query_strategy, n_features=50, n_sample=100,
     classifier = get_model("rf")
     if query_strategy == "cluster":
         data_fp = os.path.join("test", "demo_data", "generic.csv")
-        _, texts, _ = ASReviewData.from_file(data_fp).get_data()
+        texts = ASReviewData.from_file(data_fp).texts
         while len(texts) < n_features:
             texts = np.append(texts, texts)
             print(len(texts))
@@ -52,7 +52,7 @@ def test_query(query_strategy, n_features=50, n_sample=100,
             train_idx = np.random.choice(
                 np.arange(n_sample), n_train, replace=False)
             pool_idx = np.delete(np.arange(n_sample), train_idx)
-            query_idx, X_query = query_model.query(classifier, X, pool_idx,
+            query_idx, X_query = query_model.query(X, classifier, pool_idx,
                                                    n_instances, shared)
             check_integrity(query_idx, X_query, X, pool_idx, shared,
                             n_instances, sources)
