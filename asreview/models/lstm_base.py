@@ -19,8 +19,97 @@ from tensorflow.keras.layers import LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
+
+
+class LSTMBaseModel(BaseTrainModel):
+    """ LSTM base class.
+
+    LSTM model consisting of an embedding layer, one LSTM layer, and one
+    dense layer.
+    """
+    name = "lstm-base"
+
+    def __init__(self, embedding_matrix=None, backwards=True, dropout=0.4,
+                 optimizer="rmsprop", lstm_out_width=20, learn_rate=1.0,
+                 dense_width=128, verbose=0, batch_size=32, epochs=35,
+                 shuffle=False, class_weight=30.0):
+        """Initialize the LSTM base model.
+
+        Arguments
+        ---------
+        embedding_matrix: np.array
+            Embedding matrix to use with LSTM model.
+        backwards: bool
+            Whether to have a forward or backward LSTM.
+        dropout: float
+            Value in [0, 1.0) that gives the dropout and recurrent
+            dropout rate for the LSTM model.
+        optimizer: str
+            Optimizer to use.
+        lstm_out_width: int
+            Output width of the LSTM.
+        learn_rate: float
+            Learn rate multiplier of default learning rate.
+        dense_width: int
+            Size of the dense layer of the model.
+        verbose: int
+            Verbosity.
+        batch_size: int
+            Size of the batch size for the LSTM model.
+        epochs: int
+            Number of epochs to train the LSTM model.
+        shuffle: bool
+            Whether to shuffle the data before starting to train.
+        class_weight: float
+            Class weight for the included papers.
+        """
+        super(LSTMBaseModel, self).__init__()
+        self.embedding_matrix = embedding_matrix
+        self.backwards = backwards
+        self.dropout = dropout
+        self.optimizer = optimizer
+        self.lstm_out_width = lstm_out_width
+        self.learn_rate = learn_rate
+        self.dense_width = dense_width
+        self.verbose = verbose
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.shuffle = shuffle
+        self.class_weight = _set_class_weight(class_weight)
+        self._model = None
+        self.sequence_length = None
+
+    def fit(self, X, y):
+        sequence_length = X.shape[1]
+        if self._model is None or sequence_length != self.sequence_length:
+            self.sequence_length = sequence_length
+            keras_model = _create_lstm_base_model(
+                embedding_matrix=self.embedding_matrix,
+                backwards=self.backwards, dropout=self.dropout,
+                optimizer=self.optimizer,
+                max_sequence_length=self.sequence_length,
+                lstm_out_width=self.lstm_out_width,
+                dense_width=self.dense_width,
+                learn_rate=self.learn_rate, verbose=self.verbose)
+            print(keras_model)
+            self._model = KerasClassifier(keras_model, verbose=self.verbose)
+
+        self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
+                        shuffle=self.shuffle, class_weight=self.class_weight,
+                        verbose=self.verbose)
+
+    def full_hyper_space(self):
+        from hyperopt import hp
+        hyper_choices = {}
+        hyper_space = {
+            "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
+            "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
+            "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
+            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
+        }
+        return hyper_space, hyper_choices
 
 
 def _create_lstm_base_model(embedding_matrix,
@@ -109,92 +198,3 @@ def _get_optimizer(optimizer, lr_mult=1.0):
     elif optimizer == "nadam":
         return optimizers.Nadam(lr=0.002*lr_mult)
     raise NotImplementedError
-
-
-class LSTMBaseModel(BaseModel):
-    """ LSTM base class.
-
-    LSTM model consisting of an embedding layer, one LSTM layer, and one
-    dense layer.
-    """
-    name = "lstm-base"
-
-    def __init__(self, embedding_matrix=None, backwards=True, dropout=0.4,
-                 optimizer="rmsprop", lstm_out_width=20, learn_rate=1.0,
-                 dense_width=128, verbose=0, batch_size=32, epochs=35,
-                 shuffle=False, class_weight=30.0):
-        """Initialize the LSTM base model.
-
-        Arguments
-        ---------
-        embedding_matrix: np.array
-            Embedding matrix to use with LSTM model.
-        backwards: bool
-            Whether to have a forward or backward LSTM.
-        dropout: float
-            Value in [0, 1.0) that gives the dropout and recurrent
-            dropout rate for the LSTM model.
-        optimizer: str
-            Optimizer to use.
-        lstm_out_width: int
-            Output width of the LSTM.
-        learn_rate: float
-            Learn rate multiplier of default learning rate.
-        dense_width: int
-            Size of the dense layer of the model.
-        verbose: int
-            Verbosity.
-        batch_size: int
-            Size of the batch size for the LSTM model.
-        epochs: int
-            Number of epochs to train the LSTM model.
-        shuffle: bool
-            Whether to shuffle the data before starting to train.
-        class_weight: float
-            Class weight for the included papers.
-        """
-        super(LSTMBaseModel, self).__init__()
-        self.embedding_matrix = embedding_matrix
-        self.backwards = backwards
-        self.dropout = dropout
-        self.optimizer = optimizer
-        self.lstm_out_width = lstm_out_width
-        self.learn_rate = learn_rate
-        self.dense_width = dense_width
-        self.verbose = verbose
-        self.batch_size = batch_size
-        self.epochs = epochs
-        self.shuffle = shuffle
-        self.class_weight = _set_class_weight(class_weight)
-        self._model = None
-        self.sequence_length = None
-
-    def fit(self, X, y):
-        sequence_length = X.shape[1]
-        if self._model is None or sequence_length != self.sequence_length:
-            self.sequence_length = sequence_length
-            keras_model = _create_lstm_base_model(
-                embedding_matrix=self.embedding_matrix,
-                backwards=self.backwards, dropout=self.dropout,
-                optimizer=self.optimizer,
-                max_sequence_length=self.sequence_length,
-                lstm_out_width=self.lstm_out_width,
-                dense_width=self.dense_width,
-                learn_rate=self.learn_rate, verbose=self.verbose)
-            print(keras_model)
-            self._model = KerasClassifier(keras_model, verbose=self.verbose)
-
-        self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
-                        shuffle=self.shuffle, class_weight=self.class_weight,
-                        verbose=self.verbose)
-
-    def full_hyper_space(self):
-        from hyperopt import hp
-        hyper_choices = {}
-        hyper_space = {
-            "mdl_dropout": hp.uniform("mdl_dropout", 0, 0.9),
-            "mdl_lstm_out_width": hp.quniform("mdl_lstm_out_width", 1, 50, 1),
-            "mdl_dense_width": hp.quniform("mdl_dense_width", 1, 200, 1),
-            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
-        }
-        return hyper_space, hyper_choices

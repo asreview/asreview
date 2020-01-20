@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-import inspect
+from abc import abstractmethod
+from asreview.base_model import BaseModel
 
 
-class BaseBalance(ABC):
+class BaseBalance(BaseModel):
     "Abstract class for balance strategies."
-    name = "base"
+    name = "base-balance"
 
     @abstractmethod
     def sample(self, X, y, train_idx, shared):
@@ -41,26 +41,3 @@ class BaseBalance(ABC):
             X_train, y_train: the resampled matrix, labels.
         """
         raise NotImplementedError
-
-    @property
-    def default_param(self):
-        """Get the default parameters of the balance strategy.
-
-        Returns
-        -------
-        dict:
-            Dictionary with parameter: default_value
-        """
-        signature = inspect.signature(self.__init__)
-        return {
-            k: v.default
-            for k, v in signature.parameters.items()
-            if v.default is not inspect.Parameter.empty
-        }
-
-    def full_hyper_space(self):
-        return {}, {}
-
-    def hyper_space(self):
-        hyper_space, hyper_choices = self.full_hyper_space()
-        return hyper_space, hyper_choices

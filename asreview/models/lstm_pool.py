@@ -23,89 +23,11 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.models.lstm_base import _get_optimizer
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
 
-def _create_lstm_pool_model(embedding_matrix,
-                            backwards=True,
-                            dropout=0.4,
-                            optimizer='rmsprop',
-                            max_sequence_length=1000,
-                            lstm_out_width=20,
-                            lstm_pool_size=100,
-                            learn_rate=1.0,
-                            verbose=1):
-    """Return callable lstm model.
-    Returns
-    -------
-    callable:
-        A function that return the Keras Sklearn model when
-        called.
-
-    """
-    # The Sklearn API requires a callable as result.
-    # https://keras.io/scikit-learn-api/
-    def model_wrapper():
-        model = Sequential()
-
-        # add first embedding layer with pretrained wikipedia weights
-        model.add(
-            Embedding(
-                embedding_matrix.shape[0],
-                embedding_matrix.shape[1],
-                weights=[embedding_matrix],
-                input_length=max_sequence_length,
-                trainable=False
-            )
-        )
-
-        # add LSTM layer
-        model.add(
-            LSTM(
-                lstm_out_width,
-                input_shape=(max_sequence_length, ),
-                go_backwards=backwards,
-                dropout=dropout,
-                recurrent_dropout=dropout,
-                return_sequences=True,
-                kernel_constraint=MaxNorm(),
-            )
-        )
-
-        model.add(
-            MaxPooling1D(
-                pool_size=lstm_pool_size,
-            )
-        )
-        model.add(
-            Flatten()
-        )
-
-        # Add output layer
-        model.add(
-            Dense(
-                1,
-                activation='sigmoid'
-            )
-        )
-
-        optimizer_fn = _get_optimizer(optimizer, learn_rate)
-
-        # Compile model
-        model.compile(
-            loss='binary_crossentropy', optimizer=optimizer_fn,
-            metrics=['acc'])
-
-        if verbose >= 1:
-            model.summary()
-
-        return model
-
-    return model_wrapper
-
-
-class LSTMPoolModel(BaseModel):
+class LSTMPoolModel(BaseTrainModel):
     """ LSTM pool class.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
@@ -190,3 +112,81 @@ class LSTMPoolModel(BaseModel):
             "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
         }
         return hyper_space, hyper_choices
+
+
+def _create_lstm_pool_model(embedding_matrix,
+                            backwards=True,
+                            dropout=0.4,
+                            optimizer='rmsprop',
+                            max_sequence_length=1000,
+                            lstm_out_width=20,
+                            lstm_pool_size=100,
+                            learn_rate=1.0,
+                            verbose=1):
+    """Return callable lstm model.
+    Returns
+    -------
+    callable:
+        A function that return the Keras Sklearn model when
+        called.
+
+    """
+    # The Sklearn API requires a callable as result.
+    # https://keras.io/scikit-learn-api/
+    def model_wrapper():
+        model = Sequential()
+
+        # add first embedding layer with pretrained wikipedia weights
+        model.add(
+            Embedding(
+                embedding_matrix.shape[0],
+                embedding_matrix.shape[1],
+                weights=[embedding_matrix],
+                input_length=max_sequence_length,
+                trainable=False
+            )
+        )
+
+        # add LSTM layer
+        model.add(
+            LSTM(
+                lstm_out_width,
+                input_shape=(max_sequence_length, ),
+                go_backwards=backwards,
+                dropout=dropout,
+                recurrent_dropout=dropout,
+                return_sequences=True,
+                kernel_constraint=MaxNorm(),
+            )
+        )
+
+        model.add(
+            MaxPooling1D(
+                pool_size=lstm_pool_size,
+            )
+        )
+        model.add(
+            Flatten()
+        )
+
+        # Add output layer
+        model.add(
+            Dense(
+                1,
+                activation='sigmoid'
+            )
+        )
+
+        optimizer_fn = _get_optimizer(optimizer, learn_rate)
+
+        # Compile model
+        model.compile(
+            loss='binary_crossentropy', optimizer=optimizer_fn,
+            metrics=['acc'])
+
+        if verbose >= 1:
+            model.summary()
+
+        return model
+
+    return model_wrapper

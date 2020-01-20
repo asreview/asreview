@@ -101,6 +101,9 @@ def _get_X_from_dict(text_dicts, idf, embedding):
                 text_vec += cur_vec*cur_idf*cur_count
         if text_vec is None:
             text_vec = np.random.random(n_vec)
-        text_vec /= np.linalg.norm(text_vec)
+
+        text_norm = np.linalg.norm(text_vec)
+        if abs(text_norm) > 1e-7:
+            text_vec /= np.linalg.norm(text_vec)
         X[i] = text_vec
     return X

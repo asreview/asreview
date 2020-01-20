@@ -16,10 +16,10 @@ import logging
 
 from sklearn.naive_bayes import MultinomialNB
 
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 
 
-class NBModel(BaseModel):
+class NBModel(BaseTrainModel):
     "Naive Bayes SKLearn model."
     name = "nb"
 

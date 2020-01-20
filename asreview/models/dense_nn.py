@@ -19,11 +19,11 @@ from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras import regularizers
 
 from asreview.models.lstm_base import _get_optimizer
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
 
-class DenseNNModel(BaseModel):
+class DenseNNModel(BaseTrainModel):
     """Dense neural network model.
 
     Uses two dense layers of the same size.

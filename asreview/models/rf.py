@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 from sklearn.ensemble import RandomForestClassifier
 
 
-class RFModel(BaseModel):
+class RFModel(BaseTrainModel):
     "Random Forest SKLearn model."
     name = "rf"
 

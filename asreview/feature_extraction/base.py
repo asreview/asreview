@@ -1,13 +1,13 @@
-from abc import ABC, abstractmethod
-import inspect
+from abc import abstractmethod
 
 import numpy as np
 from scipy.sparse import issparse, hstack
+from asreview.base_model import BaseModel
 
 
-class BaseFeatureExtraction(ABC):
+class BaseFeatureExtraction(BaseModel):
     """Base class for feature extraction methods."""
-    name = "base"
+    name = "base-feature"
 
     def __init__(self, split_ta=0):
         self.split_ta = split_ta
@@ -70,39 +70,9 @@ class BaseFeatureExtraction(ABC):
         raise NotImplementedError
 
     def full_hyper_space(self):
-        return {}, {}
-
-    def hyper_space(self):
-        hyper_space, hyper_choices = self.full_hyper_space()
-        ex_hyper_space, ex_hyper_choices = self.extra_hyper_space()
-        hyper_space.update(ex_hyper_space)
-        hyper_choices.update(ex_hyper_choices)
-
-        return hyper_space, hyper_choices
-
-    def extra_hyper_space(self):
         from hyperopt import hp
         hyper_choices = {}
         hyper_space = {
             "fex_split_ta": hp.randint("fex_split_ta", 2),
         }
         return hyper_space, hyper_choices
-
-    def _full(self, par_name):
-        return "fex_" + par_name
-
-    @property
-    def default_param(self):
-        """Get the default parameters of the feature extraction.
-
-        Returns
-        -------
-        dict:
-            Dictionary with parameter: default_value
-        """
-        signature = inspect.signature(self.__init__)
-        return {
-            k: v.default
-            for k, v in signature.parameters.items()
-            if v.default is not inspect.Parameter.empty
-        }

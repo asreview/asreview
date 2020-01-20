@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
-import inspect
+from abc import abstractmethod
 
 import numpy as np
 from sklearn.exceptions import NotFittedError
+from asreview.base_model import BaseModel
 
 
-class BaseQueryStrategy(ABC):
+class BaseQueryStrategy(BaseModel):
     "Abstract class for query strategies."
-    name = "base"
+    name = "base-query"
 
     @abstractmethod
-    def query(self, X, classifier=None, pool_idx=None, n_instances=1, shared={}):
+    def query(self, X, classifier=None, pool_idx=None, n_instances=1,
+              shared={}):
         """Query new instances.
 
         Arguments
@@ -44,21 +45,6 @@ class BaseQueryStrategy(ABC):
             which index.
         """
         raise NotImplementedError
-
-    @property
-    def default_param(self):
-        signature = inspect.signature(self.__init__)
-        return {
-            k: v.default
-            for k, v in signature.parameters.items()
-            if v.default is not inspect.Parameter.empty
-        }
-
-    def full_hyper_space(self):
-        return {}, {}
-
-    def hyper_space(self):
-        return self.full_hyper_space()
 
 
 class ProbaQueryStrategy(BaseQueryStrategy):
@@ -110,4 +96,3 @@ class NotProbaQueryStrategy(BaseQueryStrategy):
     @abstractmethod
     def _query(self, X, pool_idx, n_instances, proba):
         raise NotImplementedError
-

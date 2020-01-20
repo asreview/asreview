@@ -35,7 +35,8 @@ class Tfidf(BaseFeatureExtraction):
     def full_hyper_space(self):
         from hyperopt import hp
 
-        hyper_space = {
+        hyper_space, hyper_choices = super(Tfidf, self).full_hyper_space()
+        hyper_space.update({
             "fex_ngram_max": 1 + hp.randint("fex_ngram_max", 2)
-        }
-        return hyper_space, {}
+        })
+        return hyper_space, hyper_choices

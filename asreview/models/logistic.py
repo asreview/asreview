@@ -16,10 +16,10 @@ import logging
 
 from sklearn.linear_model import LogisticRegression
 
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 
 
-class LogisticModel(BaseModel):
+class LogisticModel(BaseTrainModel):
     "Logistic Regression SKLearn model."
     name = "logistic"
 

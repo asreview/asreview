@@ -135,8 +135,9 @@ class Doc2Vec(BaseFeatureExtraction):
     def full_hyper_space(self):
         from hyperopt import hp
         eps = 1e-7
-        hyper_choices = {}
-        hyper_space = {
+
+        hyper_space, hyper_choices = super(Doc2Vec, self).full_hyper_space()
+        hyper_space.update({
             "fex_vector_size": hp.quniform(
                 "fex_vector_size", 31.5, 127.5-eps, 8),
             "fex_epochs": hp.quniform("fex_epochs", 20, 50, 1),
@@ -145,5 +146,6 @@ class Doc2Vec(BaseFeatureExtraction):
             "fex_dm_concat": hp.randint("fex_dm_concat", 2),
             "fex_dm": hp.randint("fex_dm", 3),
             "fex_dbow_words": hp.randint("fex_dbow_words", 2),
-        }
+        })
+
         return hyper_space, hyper_choices

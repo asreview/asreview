@@ -14,10 +14,10 @@
 
 from sklearn.svm import SVC
 
-from asreview.models.base import BaseModel
+from asreview.models.base import BaseTrainModel
 
 
-class SVMModel(BaseModel):
+class SVMModel(BaseTrainModel):
     "Support Vector Machine SKLearn model."
     name = "svm"
 

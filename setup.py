@@ -71,11 +71,12 @@ setup(
         'xlrd>=1.0.0',
     ],
     extras_require={
+        'sbert': ['sentence_transformers'],
         'doc2vec': ['gensim'],
         'dev': ['check-manifest'],
         'test': ['coverage'],
         'performance': ['python-Levenshtein'],
-        'all': ['gensim', 'python-Levenshtein'],
+        'all': ['gensim', 'python-Levenshtein', 'sentence_transformers'],
     },
     entry_points={
         'console_scripts': [
