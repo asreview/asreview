@@ -34,7 +34,7 @@ from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.models.utils import get_model, get_model_class
+from asreview.models.utils import get_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model

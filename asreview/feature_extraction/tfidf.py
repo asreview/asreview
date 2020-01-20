@@ -20,20 +20,22 @@ class Tfidf(BaseFeatureExtraction):
         """
         super(Tfidf, self).__init__(*args, **kwargs)
         self.ngram_max = ngram_max
-
-    def transform(self, texts):
-        text_clf = Pipeline([
-            ('vect', CountVectorizer(ngram_range=(1, self.ngram_max))),
+        self._model = Pipeline([
+            ('vect', CountVectorizer(ngram_range=(1, ngram_max))),
             ('tfidf', TfidfTransformer())]
         )
 
-        X = text_clf.fit_transform(texts).tocsr()
+    def fit(self, texts):
+        self._model.fit(texts)
+
+    def transform(self, texts):
+        X = self._model.transform(texts).tocsr()
         return X
 
     def full_hyper_space(self):
         from hyperopt import hp
 
         hyper_space = {
-            "usp_ngram_max": 1 + hp.randint("usp_ngram_max", 2)
+            "fex_ngram_max": 1 + hp.randint("fex_ngram_max", 2)
         }
         return hyper_space, {}

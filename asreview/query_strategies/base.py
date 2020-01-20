@@ -54,6 +54,12 @@ class BaseQueryStrategy(ABC):
             if v.default is not inspect.Parameter.empty
         }
 
+    def full_hyper_space(self):
+        return {}, {}
+
+    def hyper_space(self):
+        return self.full_hyper_space()
+
 
 class ProbaQueryStrategy(BaseQueryStrategy):
     name = "proba"

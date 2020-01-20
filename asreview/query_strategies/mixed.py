@@ -16,6 +16,8 @@ import logging
 from math import floor
 
 import numpy as np
+from scipy.sparse import issparse
+from scipy.sparse import vstack
 
 from asreview.query_strategies.base import BaseQueryStrategy
 from asreview.query_strategies.utils import get_query_model
@@ -100,20 +102,31 @@ class MixedQuery(BaseQueryStrategy):
         elif n_instances_2 == 0:
             X = X_1
         else:
-            X = np.concatenate((X_1, X_2), axis=0)
+            if issparse(X_1) and issparse(X_2):
+                X = vstack([X_1, X_2]).tocsr()
+            else:
+                X = np.concatenate((X_1, X_2), axis=0)
 
         return query_idx, X
 
-    def hyperopt_space(self):
-        space_1, _ = self.query_model1.hyperopt_space()
-        space_2, _ = self.query_model2.hyperopt_space()
+    def full_hyper_space(self):
+        from hyperopt import hp
+
+        space_1, choices_1 = self.query_model1.hyper_space()
+        space_2, choices_2 = self.query_model2.hyper_space()
         parameter_space = {}
+        hyper_choices = {}
         for key, value in space_1.items():
             new_key = "qry_" + self.strategy_1 + key[4:]
             parameter_space[new_key] = value
+            hyper_choices[new_key] = choices_1[key]
 
         for key, value in space_2.items():
             new_key = "qry_" + self.strategy_2 + key[4:]
             parameter_space[new_key] = value
+            hyper_choices[new_key] = choices_2[key]
 
-        return parameter_space, {}
+        parameter_space["qry_mix_ratio"] = hp.uniform(
+            "qry_mix_ratio", 0, 1)
+
+        return parameter_space, hyper_choices

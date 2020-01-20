@@ -74,6 +74,5 @@ def get_query_model(method, *args, **kwargs):
         mix = method.split("_")
         for i in range(2):
             kwargs.pop("strategy_" + str(i+1), None)
-        print(mix[0], mix[1])
         return query_class(mix[0], mix[1], *args, **kwargs)
     return query_class(*args, **kwargs)
