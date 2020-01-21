@@ -37,6 +37,16 @@ def get_long_description():
     return long_description
 
 
+DEPS = {
+    "sbert": ['sentence_transformers'],
+    "doc2vec": ['gensim'],
+    "dev": ['check-manifest'],
+    'test': ['coverage', 'pytest'],
+    'performance': ['python-Levenshtein'],
+}
+DEPS['all'] = DEPS['sbert'] + DEPS['doc2vec'] + DEPS['dev']
+DEPS['all'] += DEPS['performance']
+
 setup(
     name='asreview',
     version=versioneer.get_version(),
@@ -70,14 +80,7 @@ setup(
         'h5py',
         'xlrd>=1.0.0',
     ],
-    extras_require={
-        'sbert': ['sentence_transformers'],
-        'doc2vec': ['gensim'],
-        'dev': ['check-manifest'],
-        'test': ['coverage'],
-        'performance': ['python-Levenshtein'],
-        'all': ['gensim', 'python-Levenshtein', 'sentence_transformers'],
-    },
+    extras_require=DEPS,
     entry_points={
         'console_scripts': [
             'asreview=asreview.__main__:main',

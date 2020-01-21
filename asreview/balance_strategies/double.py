@@ -33,19 +33,19 @@ class DoubleBalance(BaseBalance):
 
         Arguments
         ---------
-        a: double
+        a: float
             Governs the weight of the 1's. Higher values mean linearly more 1's
             in your training sample.
-        alpha: double
+        alpha: float
             Governs the scaling the weight of the 1's, as a function of the
             ratio of ones to zeros. A positive value means that the lower the
             ratio of zeros to ones, the higher the weight of the ones.
-        b: double
+        b: float
             Governs how strongly we want to sample depending on the total
             number of samples. A value of 1 means no dependence on the total
             number of samples, while lower values mean increasingly stronger
             dependence on the number of samples.
-        beta: double
+        beta: float
             Governs the scaling of the weight of the zeros depending on the
             number of samples. Higher values means that larger samples are more
             strongly penalizing zeros.

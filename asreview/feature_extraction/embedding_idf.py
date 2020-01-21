@@ -15,7 +15,7 @@
 from math import log
 
 import numpy as np
-from keras_preprocessing.text import text_to_word_sequence
+from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.base import BaseFeatureExtraction

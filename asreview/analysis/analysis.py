@@ -15,6 +15,7 @@
 import itertools
 import json
 import os
+
 import numpy as np
 from scipy import stats
 from sklearn.cluster import KMeans

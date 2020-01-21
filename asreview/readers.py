@@ -207,7 +207,8 @@ class ASReviewData(object):
             return as_data
 
         for prior_fp in extra_dataset:
-            prior_as_data = cls.from_data_frame(_df_from_file(prior_fp), *args, **kwargs)
+            prior_as_data = cls.from_data_frame(
+                _df_from_file(prior_fp), *args, **kwargs)
             as_data.append(prior_as_data)
         return as_data
 
