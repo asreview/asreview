@@ -6,42 +6,46 @@ of the simulation/review some will work better than others.
 
 Parameters should be under the section ``[query_param]``.
 
-Random Sampling
----------------
-
-See :func:`asreview.query_strategies.random_sampling`
+random
+------
 
 As it says: randomly select samples with no regard to model assigned
 probabilities.
 
+See :class:`asreview.query_strategies.RandomQuery`
 
-Uncertainty Sampling
---------------------
 
-See :func:`asreview.query_strategies.uncertainty_sampling`
+uncertainty
+-----------
 
 Choose the most uncertain samples according to the model (i.e. closest
 to 0.5 probability). Probably doesn’t work very well in the case of
 LSTM’s, since the probabilities are rather arbitrary.
 
-Max Sampling
-------------
+See :class:`asreview.query_strategies.UncertaintyQuery`
 
-See :func:`asreview.query_strategies.max_sampling`
+max
+---
 
 Choose the most likely samples to be included according to the model.
 
-Random/Max Sampling
--------------------
+See :func:`asreview.query_strategies.MaxQuery`
 
-See :func:`asreview.query_strategies.rand_max_sampling`
+cluster
+-------
 
-Use a combination of random and max sampling. By default it does 5%
-random sampling and 95% max sampling. Works well in combination with the
-triple balance strategy. This parameter can be set in the configuration
-file:
+Use clustering after feature extraction on the dataset. Then the highest probabilities
+within random clusters are sampled.
 
-.. code:: ini
+See :class:`asreview.query_strategies.ClusterQuery`
 
-   # Set to 5% random, 95% max sampling.
-   rand_max_frac=0.05
+mixed
+-----
+
+A mix of two query strategies is used. For example mixing max and random sampling means
+with a mix ratio of 0.95 would mean that at each query 95% of the instances would be
+sampled with the max query strategy after which the remaining 5% would be sampled with
+the random query strategy. It would be called the `max_random` query strategy. Every
+combination is possible.
+
+See :class:`asreview.query_strategies.MixedQuery`

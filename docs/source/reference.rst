@@ -25,6 +25,7 @@ Models
 .. autoclass:: asreview.models.RFModel
 .. autoclass:: asreview.models.DenseNNModel
 .. autoclass:: asreview.models.SVMModel
+.. autoclass:: asreview.models.LogisticModel
 .. autoclass:: asreview.models.LSTMBaseModel
 .. autoclass:: asreview.models.LSTMPoolModel
 .. autofunction:: asreview.models.get_model
@@ -87,4 +88,10 @@ Analysis
 --------
 
 .. autoclass:: asreview.analysis.Analysis
+	:members:
+
+Extensions
+----------
+
+.. autoclass:: asreview.entry_points.BaseEntryPoint
 	:members:

@@ -33,6 +33,8 @@ The source code is freely available at
 
    faq
 
+   extensions
+
    cli
 
    api
