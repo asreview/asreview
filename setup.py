@@ -86,6 +86,10 @@ setup(
             'asreview=asreview.__main__:main',
             'asr=asreview.__main__:main_depr',
         ],
+        'asreview.entry_points': [
+            'simulate = asreview.entry_points:SimulateEntryPoint',
+            'oracle = asreview.entry_points:OracleEntryPoint',
+        ],
     },
     project_urls={
         'Bug Reports':
