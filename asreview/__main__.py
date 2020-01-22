@@ -42,25 +42,32 @@ def main_depr():
 
 
 def main():
-    # Find the available entry point.
-    entry_points = {}
-    for entry in pkg_resources.iter_entry_points('asreview.entry_points'):
-        try:
-            entry_points[entry.name] = entry.load()
-        except ModuleNotFoundError:
-            logging.warning(
-                f"Plugin with entry point {entry.name} could not be loaded.")
+    # Find the available entry points.
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points('asreview.entry_points')
+    }
 
-    # launch asr interactively
+    # Try to load the entry point if available.
     if len(sys.argv) > 1 and sys.argv[1] in entry_points:
-        entry_points[sys.argv[1]]().execute(sys.argv[2:])
+        try:
+            entry = entry_points[sys.argv[1]]
+            entry.load()().execute(sys.argv[2:])
+        except ModuleNotFoundError:
+            raise ValueError(
+                "Plugin with entry point {entry.name} could not be loaded.")
 
-    # no valid sub command
+    # Print help message if the entry point could not be found.
     else:
-        description_list = [
-            f"{key}\n    {entry().description}"
-            for key, entry in entry_points.items()
-        ]
+        description_list = []
+        for name, entry in entry_points.items():
+            try:
+                entry = entry.load()
+                description_list.append(f"{name}\n    {entry().description}")
+            except ModuleNotFoundError:
+                logging.warning(
+                    f"Plugin with entry point {name} could not be loaded.")
+
         description = "\n\n".join(description_list)
         parser = argparse.ArgumentParser(
             prog="asreview",
