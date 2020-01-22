@@ -43,10 +43,13 @@ def main_depr():
 
 def main():
     # Find the available entry point.
-    entry_points = {
-        entry.name: entry.load()
-        for entry in pkg_resources.iter_entry_points('asreview.entry_points')
-    }
+    entry_points = {}
+    for entry in pkg_resources.iter_entry_points('asreview.entry_points'):
+        try:
+            entry_points[entry.name] = entry.load()
+        except ModuleNotFoundError:
+            logging.warning(
+                f"Plugin with entry point {entry.name} could not be loaded.")
 
     # launch asr interactively
     if len(sys.argv) > 1 and sys.argv[1] in entry_points:
