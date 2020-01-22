@@ -12,17 +12,55 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.sklearn_models import SVCModel, NBModel
-from asreview.models.lstm_base import LSTMBaseModel
-from asreview.models.lstm_pool import LSTMPoolModel
 
+def get_model_class(method):
+    """Get class of model from string.
 
-def get_model_class(model):
-    "Get class of model from string."
+    Arguments
+    ---------
+    method: str
+        Name of the model, e.g. 'svm', 'nb' or 'lstm-pool'.
+
+    Returns
+    -------
+    BaseModel:
+        Class corresponding to the method.
+    """
+    from asreview.models.dense_nn import DenseNNModel
+    from asreview.models.svm import SVMModel
+    from asreview.models.nb import NBModel
+    from asreview.models.rf import RFModel
+    from asreview.models.logistic import LogisticModel
+    from asreview.models.lstm_base import LSTMBaseModel
+    from asreview.models.lstm_pool import LSTMPoolModel
+
     models = {
-        "svm": SVCModel,
+        "svm": SVMModel,
         "nb": NBModel,
-        "lstm_base": LSTMBaseModel,
-        "lstm_pool": LSTMPoolModel,
+        "rf": RFModel,
+        "nn-2-layer": DenseNNModel,
+        "lstm-base": LSTMBaseModel,
+        "lstm-pool": LSTMPoolModel,
+        "logistic": LogisticModel,
     }
-    return models.get(model, None)
+    try:
+        return models[method]
+    except KeyError:
+        raise ValueError(
+            f"Error: training method '{method}' is not implemented.")
+
+
+def get_model(method, *args, **kwargs):
+    """Get an instance of a model from a string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the model.
+    *args:
+        Arguments for the model.
+    **kwargs:
+        Keyword arguments for the model.
+    """
+    model_class = get_model_class(method)
+    return model_class(*args, **kwargs)

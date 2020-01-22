@@ -14,8 +14,13 @@
 
 import os
 from configparser import ConfigParser
+import logging
 
 from asreview.config import DEFAULT_N_INSTANCES
+from asreview.models.utils import get_model
+from asreview.balance_strategies.utils import get_balance_model
+from asreview.query_strategies.utils import get_query_model
+from asreview.feature_extraction.utils import get_feature_model
 
 
 SETTINGS_TYPE_DICT = {
@@ -23,6 +28,7 @@ SETTINGS_TYPE_DICT = {
     "model": str,
     "query_strategy": str,
     "balance_strategy": str,
+    "feature_extraction": str,
     "n_papers": int,
     "n_instances": int,
     "n_queries": int,
@@ -31,9 +37,26 @@ SETTINGS_TYPE_DICT = {
     "mode": str,
     "model_param": dict,
     "query_param": dict,
+    "feature_param": dict,
     "balance_param": dict,
     "abstract_only": bool,
 }
+
+
+def _convert_types(par_defaults, param):
+    for par in param:
+        try:
+            par_type = type(par_defaults[par])
+            if par_type == bool:
+                param[par] = param[par] in ["True", "true", "T", "t", True]
+            else:
+                try:
+                    param[par] = par_type(param[par])
+                except TypeError:
+                    raise(TypeError(
+                        f"Error converting key in config file: {par}"))
+        except KeyError:
+            logging.warning(f"Parameter {par} does not have a default.")
 
 
 class ASReviewSettings(object):
@@ -42,11 +65,12 @@ class ASReviewSettings(object):
         of its contents.
     """
     def __init__(self, mode, model, query_strategy, balance_strategy,
+                 feature_extraction,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
                  abstract_only=False,
                  data_fp=None, data_name=None, model_param={},
-                 query_param={}, balance_param={}, **kwargs
+                 query_param={}, balance_param={}, feature_param={}, **kwargs
                  ):
         all_args = locals().copy()
         del all_args["self"]
@@ -95,11 +119,21 @@ class ASReviewSettings(object):
                         print(f"Warning: value with key '{key}' is ignored "
                               "(spelling mistake, wrong type?).")
 
-            elif sect in ["model_param", "query_param", "balance_param"]:
+            elif sect in ["model_param", "query_param", "balance_param",
+                          "feature_param"]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
                 print (f"Warning: section [{sect}] is ignored in "
                        f"config file {config_file}")
+
+        model = get_model(self.model)
+        _convert_types(model.default_param, self.model_param)
+        balance_model = get_balance_model(self.balance_strategy)
+        _convert_types(balance_model.default_param, self.balance_param)
+        query_model = get_query_model(self.query_strategy)
+        _convert_types(query_model.default_param, self.query_param)
+        feature_model = get_feature_model(self.feature_extraction)
+        _convert_types(feature_model.default_param, self.query_param)
 
     def __str__(self):
         info_str = "----------------------------\n"

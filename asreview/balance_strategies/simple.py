@@ -12,32 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import abstractmethod
-from asreview.base_model import BaseModel
+from asreview.balance_strategies.base import BaseBalance
 
 
-class BaseBalance(BaseModel):
-    "Abstract class for balance strategies."
-    name = "base-balance"
+class SimpleBalance(BaseBalance):
+    name = "full sampling"
 
-    @abstractmethod
     def sample(self, X, y, train_idx, shared):
-        """Resample the training data.
+        """
+        Function that does not resample the training set.
 
         Arguments
         ---------
         X: np.array
-            Complete feature matrix.
+            Complete matrix of all samples.
         y: np.array
-            Labels for all papers.
-        train_idx: np.array
-            Training indices, that is all papers that have been reviewed.
-        shared: dict
-            Dictionary to share data between balancing models and other models.
+            Classified results of all samples.
+        extra_vars: dict:
+            Extra variables that can be passed around between functions.
 
         Returns
         -------
-        np.array, np.array:
-            X_train, y_train: the resampled matrix, labels.
+        np.array:
+            Training samples.
+        np.array:
+            Classification of training samples.
         """
-        raise NotImplementedError
+        return X[train_idx], y[train_idx]

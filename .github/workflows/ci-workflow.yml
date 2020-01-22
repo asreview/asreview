@@ -14,6 +14,6 @@ jobs:
       run: |
         pip install pytest
         pip install --upgrade setuptools>=41.0.0
-        pip install .
+        pip install .[all]
         pytest
      
