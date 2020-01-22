@@ -12,39 +12,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.balance_strategies.full_sampling import FullSampleTD
-from asreview.balance_strategies.triple_balance import TripleBalanceTD
-from asreview.balance_strategies.undersampling import UndersampleTD
-
-
-def get_balance_strategy(method, balance_param={},
-                         query_kwargs={"query_src": {}}):
-    if method == "simple":
-        td_obj = FullSampleTD(balance_param)
-    elif method == "triple_balance":
-        td_obj = TripleBalanceTD(balance_param, query_kwargs)
-    elif method in ["undersample", "undersampling"]:
-        td_obj = UndersampleTD(balance_param)
-    else:
-        raise ValueError(f"Training data method {method} not found")
-    return td_obj.func_kwargs_descr()
-
-
-def get_balance_with_settings(settings):
-    """ Function to get data rebalancing method. """
-
-    method = getattr(settings, "balance_strategy", "simple")
-    settings.balance_strategy = method
-
-    func, settings.balance_kwargs, td_string = get_balance_strategy(
-        method, settings.balance_param, settings.query_kwargs)
-    return func, td_string
+from asreview.balance_strategies.simple import SimpleBalance
+from asreview.balance_strategies.triple import TripleBalance
+from asreview.balance_strategies.undersample import UndersampleBalance
+from asreview.balance_strategies.double import DoubleBalance
 
 
 def get_balance_class(method):
-    if method in ["simple", "full"]:
-        return FullSampleTD
-    if method in ["triple", "triple_balance"]:
-        return TripleBalanceTD
-    if method in ["undersample", "undersampling"]:
-        return UndersampleTD
+    """Get class of balance model from string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the model, e.g. 'simple', 'double' or 'undersample'.
+
+    Returns
+    -------
+    BaseBalanceModel:
+        Class corresponding to the method.
+    """
+    balance_models = {
+        "simple": SimpleBalance,
+        "double": DoubleBalance,
+        "triple": TripleBalance,
+        "undersample": UndersampleBalance,
+    }
+    try:
+        return balance_models[method]
+    except KeyError:
+        raise ValueError(
+            f"Error: balance method '{method}' is not implemented.")
+
+
+def get_balance_model(method, *args, **kwargs):
+    """Get an instance of a balance model from a string.
+
+    Arguments
+    ---------
+    method: str
+        Name of the balance model.
+    *args:
+        Arguments for the balance model.
+    **kwargs:
+        Keyword arguments for the balance model.
+    """
+    balance_class = get_balance_class(method)
+    return balance_class(*args, **kwargs)

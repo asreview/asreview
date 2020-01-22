@@ -1,5 +1,7 @@
+from pytest import mark
 import numpy as np
-from asreview.balance_strategies.utils import get_balance_strategy
+
+from asreview.balance_strategies.utils import get_balance_model
 
 
 def generate_data(n_feature=20, n_sample=10):
@@ -27,8 +29,17 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
     assert np.all(y[partition_idx] == y_partition)
 
 
-def check_multiple(balance_fn, balance_kwargs, n_partition=100, n_feature=200,
-                   n_sample=100):
+@mark.parametrize(
+    "balance_strategy",
+    [
+        "undersample",
+        "simple",
+        "double",
+        "triple",
+    ])
+def test_balance(balance_strategy, n_partition=100, n_feature=200,
+                 n_sample=100):
+    model = get_balance_model(balance_strategy)
     X, y = generate_data(n_feature=n_feature, n_sample=n_sample)
     for _ in range(n_partition):
         n_train = np.random.randint(10, n_sample)
@@ -39,22 +50,6 @@ def check_multiple(balance_fn, balance_kwargs, n_partition=100, n_feature=200,
             num_one = np.count_nonzero(y[train_idx] == 1)
             if num_zero > 0 and num_one > 0:
                 break
-        X_train, y_train = balance_fn(X, y, train_idx, **balance_kwargs)
+        shared = {"query_src": {}, "current_queries": {}}
+        X_train, y_train = model.sample(X, y, train_idx, shared)
         check_partition(X, y, X_train, y_train, train_idx)
-
-
-def test_undersample():
-    check_balance("undersample")
-
-
-def test_simple():
-    check_balance("simple")
-
-
-def test_triple():
-    check_balance("triple_balance")
-
-
-def check_balance(balance_strategy):
-    func, kwargs, _ = get_balance_strategy(balance_strategy)
-    check_multiple(func, kwargs)

@@ -12,37 +12,87 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-'''
-Expose selection of query methods.
-'''
-from asreview.utils import _unsafe_dict_update
+import numpy as np
+from sklearn.exceptions import NotFittedError
+from asreview.base_model import BaseModel
 
 
-class BaseQueryStrategy(ABC):
+class BaseQueryStrategy(BaseModel):
     "Abstract class for query strategies."
-    def __init__(self, query_kwargs={}, *_, **__):
-        self.query_kwargs = self.default_kwargs()
-        self.query_kwargs = _unsafe_dict_update(self.query_kwargs,
-                                                query_kwargs)
+    name = "base-query"
 
-    def func_kwargs_descr(self):
-        return (self.__class__.function(), self.query_kwargs,
-                self.__class__.description())
-
-    def default_kwargs(self):
-        return {}
-
-    def hyperopt_space(self):
-        return {}
-
-    @staticmethod
     @abstractmethod
-    def function():
+    def query(self, X, classifier=None, pool_idx=None, n_instances=1,
+              shared={}):
+        """Query new instances.
+
+        Arguments
+        ---------
+        X: np.array
+            Feature matrix to choose samples from.
+        classifier: SKLearnModel
+            Trained classifier to compute probabilities if they are necessary.
+        pool_idx: np.array
+            Indices of samples that are still in the pool.
+        n_instances: int
+            Number of instances to query.
+        shared: dict
+            Dictionary for exchange between query strategies and others.
+            It is mainly used to store the current class probabilities,
+            and the source of the queries; which query strategy has produced
+            which index.
+        """
         raise NotImplementedError
 
-    @staticmethod
+
+class ProbaQueryStrategy(BaseQueryStrategy):
+    name = "proba"
+
+    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
+        """Query method for strategies which use class probabilities.
+        """
+        n_samples = X.shape[0]
+        if pool_idx is None:
+            pool_idx = np.arange(n_samples)
+
+        proba = shared.get('pred_proba', [])
+        if len(proba) != n_samples:
+            try:
+                proba = classifier.predict_proba(X)
+            except NotFittedError:
+                proba = np.ones(shape=(n_samples, ))
+            shared['pred_proba'] = proba
+        query_idx, X_query = self._query(X, pool_idx, n_instances, proba)
+
+        for idx in query_idx:
+            shared['current_queries'][idx] = self.name
+
+        return query_idx, X_query
+
     @abstractmethod
-    def description():
+    def _query(self, X, pool_idx, n_instances, proba):
+        raise NotImplementedError
+
+
+class NotProbaQueryStrategy(BaseQueryStrategy):
+    name = "not_proba"
+
+    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
+        """Query method for strategies which do not use class probabilities
+        """
+        n_samples = X.shape[0]
+        if pool_idx is None:
+            pool_idx = np.arange(n_samples)
+
+        query_idx, X_query = self._query(X, pool_idx, n_instances)
+
+        for idx in query_idx:
+            shared['current_queries'][idx] = self.name
+
+        return query_idx, X_query
+
+    @abstractmethod
+    def _query(self, X, pool_idx, n_instances, proba):
         raise NotImplementedError

@@ -23,7 +23,7 @@ from asreview.logging.dict import DictLogger
 
 class JSONLogger(DictLogger):
     """Class for logging a Systematic Review using JSON files."""
-    version = "2.0"
+    version = "2.1"
 
     def __init__(self, log_fp, read_only=False):
         super(JSONLogger, self).__init__(log_fp)

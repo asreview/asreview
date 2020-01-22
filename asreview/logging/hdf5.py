@@ -44,7 +44,7 @@ def _result_group(f, query_i):
 
 class HDF5Logger(BaseLogger):
     """Class for logging a Systematic Review with HDF5 storage."""
-    version = "1.0"
+    version = "1.1"
 
     def __init__(self, log_fp, read_only=False):
         super(HDF5Logger, self).__init__(log_fp, read_only=read_only)

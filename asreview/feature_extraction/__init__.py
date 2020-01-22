@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.balance_strategies.simple import SimpleBalance
-from asreview.balance_strategies.double import DoubleBalance
-from asreview.balance_strategies.triple import TripleBalance
-from asreview.balance_strategies.undersample import UndersampleBalance
-from asreview.balance_strategies.utils import get_balance_model
-from asreview.balance_strategies.utils import get_balance_class
+from asreview.feature_extraction.doc2vec import Doc2Vec
+from asreview.feature_extraction.tfidf import Tfidf
+from asreview.feature_extraction.embedding_idf import EmbeddingIdf
+from asreview.feature_extraction.sbert import SBERT
+from asreview.feature_extraction.utils import get_feature_model
+from asreview.feature_extraction.utils import get_feature_class

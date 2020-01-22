@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-'''
-Analysis of log files.
-'''
-
 import itertools
+import json
 import os
+
 import numpy as np
 from scipy import stats
+from sklearn.cluster import KMeans
 
 from asreview.logging.utils import loggers_from_dir
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
 from asreview.analysis.statistics import _get_last_proba_order
+from asreview.analysis.statistics import _random_ttd, _cluster_ttd, _max_ttd
 
 
 class Analysis():
@@ -330,6 +330,46 @@ class Analysis():
         for i_prob in range(len(prob_allow_miss)):
             results["limits"][i_prob] = np.array(
                 results["limits"][i_prob], np.int)
+        return results
+
+    def time_to_inclusion(self, X_fp):
+        with open(X_fp, "r") as fp:
+            X = np.array(json.load(fp))
+
+        n_clusters = int(len(self.labels)/150)
+        model = KMeans(n_clusters=n_clusters, n_init=1)
+        clusters = model.fit_predict(X, self.labels)
+        logger = self.loggers[self._first_file]
+        n_queries = logger.n_queries()
+
+        results = {
+            "x_range": [],
+            "ttd": {
+                "random": [],
+                "cluster": [],
+                "max": [],
+            }
+        }
+        n_train = 0
+        for query_i in range(n_queries):
+            new_random_ttd = _random_ttd(self.loggers, query_i, self.labels)
+            new_cluster_ttd = _cluster_ttd(self.loggers, query_i, self.labels,
+                                           clusters)
+            new_max_ttd = _max_ttd(self.loggers, query_i, self.labels)
+
+            results["ttd"]["random"].append(new_random_ttd)
+            results["ttd"]["cluster"].append(new_cluster_ttd)
+            results["ttd"]["max"].append(new_max_ttd)
+
+            try:
+                new_train_idx = logger.get("train_idx", query_i)
+            except KeyError:
+                new_train_idx = None
+
+            if new_train_idx is not None:
+                n_train = len(new_train_idx)
+            results["x_range"].append(n_train)
+
         return results
 
     def close(self):

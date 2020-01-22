@@ -12,9 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.balance_strategies.simple import SimpleBalance
-from asreview.balance_strategies.double import DoubleBalance
-from asreview.balance_strategies.triple import TripleBalance
-from asreview.balance_strategies.undersample import UndersampleBalance
-from asreview.balance_strategies.utils import get_balance_model
-from asreview.balance_strategies.utils import get_balance_class
+"""Random sampling strategy."""
+
+import numpy as np
+
+from asreview.query_strategies.base import NotProbaQueryStrategy
+
+
+class RandomQuery(NotProbaQueryStrategy):
+    "Random sampling query strategy."
+    name = "random"
+
+    def _query(self, X, pool_idx, n_instances=1):
+        n_samples = len(pool_idx)
+        query_idx = np.random.choice(
+            np.arange(n_samples),
+            n_instances,
+            replace=False
+        )
+        return pool_idx[query_idx], X[pool_idx[query_idx]]
