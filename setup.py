@@ -79,12 +79,17 @@ setup(
         'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
+        'setuptools',
     ],
     extras_require=DEPS,
     entry_points={
         'console_scripts': [
             'asreview=asreview.__main__:main',
             'asr=asreview.__main__:main_depr',
+        ],
+        'asreview.entry_points': [
+            'simulate = asreview.entry_points:SimulateEntryPoint',
+            'oracle = asreview.entry_points:OracleEntryPoint',
         ],
     },
     project_urls={
