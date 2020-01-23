@@ -79,6 +79,7 @@ setup(
         'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
+        'setuptools',
     ],
     extras_require=DEPS,
     entry_points={
