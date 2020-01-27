@@ -1,21 +1,35 @@
 Datasets
-========================
-To perform an automated systematic review, ASReview requires a dataset of papers.
-The dataset of papers usually results from an online library search for all studies related to the topic to review.
-All papers in the dataset need to be screened, with the goal to select all relevant papers. 
+========
+To perform an automated systematic review, ASReview requires a data set representing all papers obtained in a systematic search. To create such a dataset for a systematic review, typically an online library search is performed for all studies related to a particular topic.
+
+Each entry in the data set should hold metadata on a paper. 
+The most common metadata are ``id``, ``author``, ``date``, ``title``, ``keywords`` and ``abstract``. 
+All entries in the data set need to be screened, with the goal to select all relevant papers. 
 
 For testing and demonstrating ASReview, the software offers `three built-in datasets <#built-in-demonstration-datasets>`__
 It is also possible to perform an automated systematic review on `your own dataset <#using-your-own-data>`__.
-Every paper in the dataset carries metadata such as title, abstract, author, et cetera. 
+
+
+Using your own data
+-------------------
+    This instruction is currently under construction. 
+    
+To carry out an automated systematic review on your own dataset, your datafile needs to adhere to a certain format.
+
+ASReview accepts the following formats: 
+ - [Research Information Systems (RIS)](https://en.wikipedia.org/wiki/RIS_(file_format)). Extension ``.ris``. RIS files are used by digital libraries, like IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support the RIS format as well. 
+ - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of predetermined labels in line with the ones used in RIS files.  To indicate labelling decisions, one can use "included" or ``label_included``.
+
+
 
 Built-in demonstration datasets
----------------------
-The built-in datasets come from 'traditional' systematic reviews on various research topics. 
-All papers who were selected in the original systematic review are indicated.
-This information can be used to compare performance of ASReview with the original systematic review. 
+-------------------------------
+The built-in datasets come from PRISMA based reviews on various research topics. 
+All papers selected in the original systematic review are indicated.
+This information can be used to compare the performance of ASReview with the original systematic review. 
 
-Van de Schoot
-~~~~~~~~~~~~~~
+PTSD-data
+~~~~~~~~~~~~~
 A dataset of 11,395 papers on posttraumatic stress disorder. Of these papers, 34 were included in the systematic review.
 
     "We performed a systematic search to identify longitudinal studies that applied LGMM, latent growth curve analysis, or hierarchical cluster analysis on symptoms of posttraumatic stress assessed after trauma exposure."
@@ -29,8 +43,10 @@ Dataset publication: https://osf.io/h5k2q/
 Call: ``example_ptsd``
 
 Hall
-~~~~~~~~~~~~~~
-A dataset of 8911 papers on fault prediction performance in software engineering. Of these papers, 106 were included in the systematic review.
+~~~~
+A dataset of 8911 papers on fault prediction performance in software engineering. Of these papers, 106 were included in the systematic review. 
+
+The ``ACEInhibitors`` data set. 
 
 The dataset results from
 
@@ -48,7 +64,7 @@ Call: ``example_hall``
 
 
 Cohen
-~~~~~~~~~~~~~~
+~~~~~
 This is a standard dataset from the medical sciences to test the performance of automated review systems such as the ASReview project. 
 
 **Reducing Workload in Systematic Review Preparation Using Automated Citation Classification**
@@ -56,17 +72,4 @@ A.M. Cohen, MD, MS, W.R. Hersh, MD, K. Peterson, MS, and Po-Yin Yen, MS
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1447545/
 
 Call: ``example_cohen``
-
-
-Using your own data
----------------------
-    This instruction is currently under construction. 
-    
-To carry out an automated systematic review on your own dataset, your datafile needs to adhere to a certain format. 
-
-ASReview accepts the following formats: 
- - ``.ris``
- - ``.csv`` / ``.xlsx`` / ``.xls``
-
-Such a format can be obtained by exporting your papers from your reference manager, e.g. RefWorks, Mendeley, EndNote, ZoTero.
 
