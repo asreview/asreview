@@ -23,10 +23,10 @@ EMBEDDING_FILE with valid filenames):
 	from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 	
 	# load data
-	data, texts, _ = asreview.read_data(DATA_FILE)
+	as_data = asreview.ASReviewData.from_file(DATA_FILE)
 	
 	# create features and labels
-	X, word_index = asreview.text_to_features(texts)
+	X, word_index = asreview.text_to_features(as_data.texts)
 	
 	# Load embedding layer.
 	embedding = asreview.load_embedding(EMBEDDING_FILE, word_index=word_index)
@@ -63,10 +63,10 @@ An example of use the API for the simulation mode:
 	from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 	
 	# load data
-	_, texts, y = asreview.read_data(DATA_FILE)
+	as_data = asreview.ASReviewData.from_file(DATA_FILE)
 	
 	# create features and labels
-	X, word_index = asreview.text_to_features(texts)
+	X, word_index = asreview.text_to_features(as_data.texts)
 	
 	# Load embedding layer.
 	embedding = asreview.load_embedding(EMBEDDING_FILE, word_index=word_index)
@@ -81,7 +81,7 @@ An example of use the API for the simulation mode:
 	# start the review process.
 	reviewer = asreview.ReviewSimulate(
 	    X,
-	    y=y,
+	    y=as_data.labels,
 	    model=model,
 	    n_instances=10,
 	    prior_included=PRIOR_INC_LIST,  # List of some included papers

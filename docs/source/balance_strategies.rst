@@ -11,17 +11,16 @@ Parameters in the config file should be under the section
 
 We have currently implemented the following balance strategies:
 
-Full Sampling
--------------
+simple
+------
 
-See :func:`asreview.balance_strategies.full_sample`
+Use all training data.
 
-This just uses all the data.
+See :class:`asreview.balance_strategies.SimpleBalance`
 
-Undersampling
---------------
+undersample
+-----------
 
-See :func:`asreview.balance_strategies.undersample`
 
 This undersamples the data, leaving out excluded papers so that the
 included and excluded papers are in some particular ratio (closer to
@@ -32,10 +31,10 @@ one). Configuration options are as follows:
    # Set the ratio of included/excluded to 1
    ratio=1.0
 
-Triple Balance
---------------
+See :class:`asreview.balance_strategies.UndersampleBalance`
 
-See :func:`asreview.balance_strategies.triple_balance`
+triple
+------
 
 This divides the training data into three sets: included papers,
 excluded papers found with random sampling and papers found with max
@@ -54,3 +53,14 @@ parameters.
  	zero_max_c=0.835
  	zero_max_gamma=2.0
  	shuffle=True
+
+See :class:`asreview.balance_strategies.TripleBalance`
+
+double
+------
+
+Same as triple balance, except that it doesn't have a difference between max or random 
+sampling.
+
+See :class:`asreview.balance_strategies.DoubleBalance`
+
