@@ -21,6 +21,7 @@ from asreview.query_strategies.max import MaxQuery
 
 
 class ClusterQuery(ProbaQueryStrategy):
+    "Query strategy using clustering algorithms."
     name = "cluster"
 
     def __init__(self, texts, cluster_size=350, update_interval=200, **kwargs):

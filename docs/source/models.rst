@@ -7,29 +7,53 @@ at the moment the Naive Bayes algorithm.
 nb
 --
 
-See :func:`asreview.models.create_nb_model`
-
 SKLearn Naive Bayes model.
 
-svc
+See :class:`asreview.models.NBModel`
+
+svm
 ---
 
-See :func:`asreview.models.create_svc_model`
+See :class:`asreview.models.SVMModel`
 
 SKLearn Support Vector Machine algorithm.
 
-LSTM-base
----------
+rf
+--
 
-See :func:`asreview.models.create_lstm_base_model`
+SKLearn Random Forest model
+
+See :class:`asreview.models.RFModel`
+
+
+logistic
+--------
+
+SKLearn Logistic regression model
+
+See :class:`asreview.models.LogisticModel`
+
+
+nn-2-layer
+----------
+
+Neural network consisting of 2 equal size layers.
+
+See :class:`asreview.models.DenseNNModel`
+
+
+lstm-base
+---------
 
 LSTM model that consists of an embedding layer, LSTM layer with one
 output, dense layer, single sigmoid output node.
 
-LSTM-pool
----------
+See :class:`asreview.models.LSTMBaseModel`
 
-See :func:`asreview.models.create_lstm_pool_model`
+lstm-pool
+---------
 
 LSTM model that consists of an embedding layer, LSTM layer with many
 outputs, max pooling layer, single sigmoid output node.
+
+See :class:`asreview.models.LSTMPoolModel`
