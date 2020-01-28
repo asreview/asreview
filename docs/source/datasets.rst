@@ -17,8 +17,8 @@ Using your own data
     This instruction is currently under construction. 
     
 To carry out an automated systematic review on your own data set, your datafile needs to adhere to a certain format.
-
 ASReview accepts the following formats: 
+
  - `Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_. Extension ``.ris``. RIS files are used by digital libraries, like IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support the RIS format as well. 
  - **Tabular data sets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of predetermined labels in line with the ones used in RIS files. 
 
@@ -52,12 +52,13 @@ Of these papers, 104 were included in the systematic review.
 The data set results from
 
 **How to Read Less: Better Machine Assisted Reading Methods for Systematic Literature Reviews.**
-Yu, Zhe, Kraft, Nicholas, Menzies, Tim. (2016). https://www.researchgate.net/publication/311586326_How_to_Read_Less_Better_Machine_Assisted_Reading_Methods_for_Systematic_Literature_Reviews 
+Yu, Zhe, Kraft, Nicholas, Menzies, Tim. (2016).  `arXiv:1612.03224v1 <https://www.researchgate.net/publication/311586326_How_to_Read_Less_Better_Machine_Assisted_Reading_Methods_for_Systematic_Literature_Reviews>`_
 
 The original study can be be found here:
 
 **A systematic literature review on fault prediction performance in software engineering**
 T. Hall, S. Beecham, D. Bowes, D. Gray, S. Counsell, in IEEE Transactions on Software Engineering, vol. 38, no. 6, pp. 1276-1304, Nov.-Dec. 2012. https://doi.org/10.1109/TSE.2011.103
+
 
 Data set publication https://zenodo.org/record/1162952#.XiBgMi2ZNQK 
 
@@ -72,8 +73,7 @@ The data set implemented in ASReview is the ``ACEInhibitors`` data set.
 Of the 2544 entries in the data set, 41 were included in the systematic review. 
 
 **Reducing Workload in Systematic Review Preparation Using Automated Citation Classification**
-A.M. Cohen, MD, MS, W.R. Hersh, MD, K. Peterson, MS, and Po-Yin Yen, MS
-https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1447545/
+A.M. Cohen, MD, MS, W.R. Hersh, MD, K. Peterson, MS, and Po-Yin Yen, MS. https://doi.org/10.1197/jamia.M1929
 
 Call: ``example_cohen``
 
