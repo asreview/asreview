@@ -6,7 +6,7 @@ Extensions
 The extensibility of the framework is provided by the entrypoints of setuptools. You will need to
 create a package and install it (for example with pip). If you have no experience with creating
 packages, have a look at our 
-`visualization extension <https://github.com/msdslab/ASReview-visualization>`__ and modify it to suit
+`visualization extension <https://github.com/asreview/ASReview-visualization>`__ and modify it to suit
 your needs.
 
 
