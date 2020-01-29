@@ -12,42 +12,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.query_strategies.cluster_sampling import QueryCluster
-from asreview.query_strategies.max_sampling import QueryMax
-from asreview.query_strategies.rand_max import QueryRandMax
-from asreview.query_strategies.uncertainty_sampling import QueryUncertainty
-from asreview.query_strategies.random_sampling import QueryRandom
-
 
 def get_query_class(method):
-    if method in ['cluster', 'clusters', 'cluster_sampling']:
-        return QueryCluster
-
-    if method in ['max', 'max_sampling']:
-        return QueryMax
-
-    if method in ['rand_max', 'rand_max_sampling']:
-        return QueryRandMax
-
-    if method in ['lc', 'sm', 'uncertainty', 'uncertainty_sampling']:
-        return QueryUncertainty
-
-    if method == 'random':
-        return QueryRandom
-
-    raise ValueError(f"Query strategy '{method}' not found.")
+    """Get class of query strategy from its name.
 
 
-def get_query_strategy(method, *args, **kwargs):
-    """Function to get the query method"""
-    return get_query_class(method)(*args, **kwargs)
+    Arguments
+    ---------
+    method: str
+        Name of the query strategy, e.g. 'max', 'uncertainty', 'random.
+        A special mixed query strategy is als possible. The mix is denoted
+        by an underscore: 'max_random' or 'max_uncertainty'.
+
+    Returns
+    -------
+    BaseQueryModel:
+        Class corresponding to the method name.
+    """
+    from asreview.query_strategies.cluster import ClusterQuery
+    from asreview.query_strategies.max import MaxQuery
+    from asreview.query_strategies.uncertainty import UncertaintyQuery
+    from asreview.query_strategies.random import RandomQuery
+    from asreview.query_strategies.mixed import MixedQuery
+    query_models = {
+        "cluster": ClusterQuery,
+        "max": MaxQuery,
+        "uncertainty": UncertaintyQuery,
+        "random": RandomQuery,
+    }
+
+    # Try to split the query strategy if the string wasn't found.
+    try:
+        return query_models[method]
+    except KeyError:
+        mix = method.split("_")
+        if len(mix) == 2:
+            return MixedQuery
+        raise ValueError(f"Error: query method '{method}' is not implemented.")
 
 
-def get_query_with_settings(settings, *args, **kwargs):
-    """Function to get the query method"""
+def get_query_model(method, *args, **kwargs):
+    """Get an instance of the query strategy.
 
-    query_func, settings.query_kwargs, description = get_query_strategy(
-        settings.query_strategy, settings.query_param, *args, **kwargs
-    ).func_kwargs_descr()
+    Arguments
+    ---------
+    method: str
+        Name of the query strategy.
+    *args:
+        Arguments for the model.
+    **kwargs:
+        Keyword arguments for the model.
 
-    return query_func, description
+    Returns
+    -------
+    BaseQueryModel:
+        Initialized instance of query strategy.
+    """
+    from asreview.query_strategies.mixed import MixedQuery
+    query_class = get_query_class(method)
+    if query_class == MixedQuery:
+        mix = method.split("_")
+        for i in range(2):
+            kwargs.pop("strategy_" + str(i+1), None)
+        return query_class(mix[0], mix[1], *args, **kwargs)
+    return query_class(*args, **kwargs)

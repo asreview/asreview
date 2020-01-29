@@ -12,11 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.balance_strategies.full_sampling import full_sample
-from asreview.balance_strategies.full_sampling import FullSampleTD
-from asreview.balance_strategies.triple_balance import triple_balance
-from asreview.balance_strategies.triple_balance import TripleBalanceTD
-from asreview.balance_strategies.undersampling import undersample
-from asreview.balance_strategies.undersampling import UndersampleTD
-from asreview.balance_strategies.utils import get_balance_strategy
+from asreview.balance_strategies.simple import SimpleBalance
+from asreview.balance_strategies.double import DoubleBalance
+from asreview.balance_strategies.triple import TripleBalance
+from asreview.balance_strategies.undersample import UndersampleBalance
+from asreview.balance_strategies.utils import get_balance_model
 from asreview.balance_strategies.utils import get_balance_class

@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-'''
-Analysis of log files.
-'''
-
 import itertools
+import json
 import os
+
 import numpy as np
 from scipy import stats
+from sklearn.cluster import KMeans
 
 from asreview.logging.utils import loggers_from_dir
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
 from asreview.analysis.statistics import _get_last_proba_order
+from asreview.analysis.statistics import _random_ttd, _cluster_ttd, _max_ttd
 
 
 class Analysis():
@@ -233,7 +233,7 @@ class Analysis():
                         (0, y_return[i]))
         return (None, None, None)
 
-    def avg_time_to_discovery(self):
+    def avg_time_to_discovery(self, result_format="number"):
         """Get the best/last estimate on how long it takes to find a paper.
 
         Returns
@@ -270,14 +270,18 @@ class Analysis():
             trained_time = []
             for i_file, time in enumerate(time_results[label]):
                 if time >= n_initial[i_file]:
-                    trained_time.append(time)
+                    if result_format == "percentage":
+                        time_measure = 100*time/(len(labels)-n_initial[i_file])
+                    else:
+                        time_measure = time
+                    trained_time.append(time_measure)
             if len(trained_time) == 0:
                 results[label] = 0
             else:
                 results[label] = np.average(trained_time)
         return results
 
-    def limits(self, prob_allow_miss=[0.1]):
+    def limits(self, prob_allow_miss=[0.1], result_format="percentage"):
         """For each query, compute the number of papers for a criterium.
 
         A criterium is the average number of papers missed. For example,
@@ -309,6 +313,7 @@ class Analysis():
         }
 
         n_train = 0
+        _, n_initial = _get_labeled_order(logger)
         for query_i in range(n_queries):
             new_limits = _get_limits(self.loggers, query_i, self.labels,
                                      proba_allow_miss=prob_allow_miss)
@@ -322,14 +327,64 @@ class Analysis():
                 n_train = len(new_train_idx)
 
             if new_limits is not None:
-                results["x_range"].append(n_train)
+                if result_format == "percentage":
+                    normalizer = 100/(len(self.labels)-n_initial)
+                else:
+                    normalizer = 1
+                results["x_range"].append((n_train-n_initial)*normalizer)
                 for i_prob in range(len(prob_allow_miss)):
-                    results["limits"][i_prob].append(new_limits[i_prob])
+                    results["limits"][i_prob].append(
+                        (new_limits[i_prob]-n_initial)*normalizer)
 
-        results["x_range"] = np.array(results["x_range"], dtype=np.int)
+        if result_format == "percentage":
+            res_dtype = np.float
+        else:
+            res_dtype = np.int
+
+        results["x_range"] = np.array(results["x_range"], dtype=res_dtype)
         for i_prob in range(len(prob_allow_miss)):
             results["limits"][i_prob] = np.array(
-                results["limits"][i_prob], np.int)
+                results["limits"][i_prob], res_dtype)
+        return results
+
+    def time_to_inclusion(self, X_fp):
+        with open(X_fp, "r") as fp:
+            X = np.array(json.load(fp))
+
+        n_clusters = int(len(self.labels)/150)
+        model = KMeans(n_clusters=n_clusters, n_init=1)
+        clusters = model.fit_predict(X, self.labels)
+        logger = self.loggers[self._first_file]
+        n_queries = logger.n_queries()
+
+        results = {
+            "x_range": [],
+            "ttd": {
+                "random": [],
+                "cluster": [],
+                "max": [],
+            }
+        }
+        n_train = 0
+        for query_i in range(n_queries):
+            new_random_ttd = _random_ttd(self.loggers, query_i, self.labels)
+            new_cluster_ttd = _cluster_ttd(self.loggers, query_i, self.labels,
+                                           clusters)
+            new_max_ttd = _max_ttd(self.loggers, query_i, self.labels)
+
+            results["ttd"]["random"].append(new_random_ttd)
+            results["ttd"]["cluster"].append(new_cluster_ttd)
+            results["ttd"]["max"].append(new_max_ttd)
+
+            try:
+                new_train_idx = logger.get("train_idx", query_i)
+            except KeyError:
+                new_train_idx = None
+
+            if new_train_idx is not None:
+                n_train = len(new_train_idx)
+            results["x_range"].append(n_train)
+
         return results
 
     def close(self):

@@ -13,8 +13,9 @@
 # limitations under the License.
 
 from asreview.logging.utils import open_logger
-from asreview.models.embedding import load_embedding
-from asreview.models.embedding import sample_embedding
+from asreview.feature_extraction.embedding_lstm import load_embedding
+from asreview.feature_extraction.embedding_lstm import sample_embedding
+from asreview.feature_extraction.embedding_lstm import text_to_features
 from asreview.readers import ASReviewData
 from asreview.readers import read_csv
 from asreview.readers import read_data
@@ -28,7 +29,6 @@ from asreview.review import review_oracle
 from asreview.review import review_simulate
 from asreview.review import ReviewOracle
 from asreview.review import ReviewSimulate
-from asreview.utils import text_to_features
 
 from ._version import get_versions
 __version__ = get_versions()['version']

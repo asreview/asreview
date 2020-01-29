@@ -164,3 +164,4 @@ vignettes/*.pdf
 *.md~
 .Rproj.user
 
+.DS_Store

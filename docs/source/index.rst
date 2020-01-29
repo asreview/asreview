@@ -35,9 +35,9 @@ The source code is freely available at
 
    faq
 
-   cli
+   extensions
 
-   api
+   cli
 
 .. toctree::
    :maxdepth: 2
@@ -48,6 +48,14 @@ The source code is freely available at
    query_strategies
 
    balance_strategies
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Development
+
+   extensions_dev
+
+   api
 
    reference
 

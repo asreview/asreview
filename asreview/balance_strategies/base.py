@@ -12,35 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from asreview.base_model import BaseModel
 
-from asreview.utils import _unsafe_dict_update
 
+class BaseBalance(BaseModel):
+    "Abstract class for balance strategies."
+    name = "base-balance"
 
-class BaseTrainData(ABC):
-    " Abstract class for balance strategies. "
-    def __init__(self, balance_kwargs):
-        self.balance_kwargs = self.default_kwargs()
-        self.balance_kwargs = _unsafe_dict_update(self.balance_kwargs,
-                                                  balance_kwargs)
-
-    def func_kwargs_descr(self):
-        " Should give back the function and arguments for balancing. "
-        return (self.__class__.function(), self.balance_kwargs,
-                self.__class__.description())
-
-    def default_kwargs(self):
-        return {}
-
-    def hyperopt_space(self):
-        return {}
-
-    @staticmethod
     @abstractmethod
-    def function():
-        raise NotImplementedError
+    def sample(self, X, y, train_idx, shared):
+        """Resample the training data.
 
-    @staticmethod
-    @abstractmethod
-    def description():
+        Arguments
+        ---------
+        X: np.array
+            Complete feature matrix.
+        y: np.array
+            Labels for all papers.
+        train_idx: np.array
+            Training indices, that is all papers that have been reviewed.
+        shared: dict
+            Dictionary to share data between balancing models and other models.
+
+        Returns
+        -------
+        np.array, np.array:
+            X_train, y_train: the resampled matrix, labels.
+        """
         raise NotImplementedError

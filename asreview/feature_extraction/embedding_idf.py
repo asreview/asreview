@@ -1,0 +1,109 @@
+# Copyright 2019 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from math import log
+
+import numpy as np
+from tensorflow.keras.preprocessing.text import text_to_word_sequence
+
+from asreview.feature_extraction.embedding_lstm import load_embedding
+from asreview.feature_extraction.base import BaseFeatureExtraction
+
+
+class EmbeddingIdf(BaseFeatureExtraction):
+    """Class for Embedding-Idf model.
+
+    This model averages the weighted word vectors of all the words in the text,
+    in order to get a single feature vector for each text. The weights are
+    provided by the inverse document frequencies.
+    """
+    name = "embedding-idf"
+
+    def __init__(self, *args, embedding_fp=None, **kwargs):
+        """Initialize the Embedding-Idf model
+
+        Arguments
+        ---------
+        embedding_fp: str
+            Path to embedding.
+        """
+        super(EmbeddingIdf, self).__init__(*args, **kwargs)
+        self.embedding_fp = embedding_fp
+        self.embedding = None
+
+    def transform(self, texts):
+        if self.embedding is None:
+            if self.embedding_fp is None:
+                raise ValueError(
+                    "Error: need embedding to train Embeddingdf model.")
+            self.embedding = load_embedding(self.embedding_fp, n_jobs=-1)
+
+        text_counts = _get_freq_dict(texts)
+        idf = _get_idf(text_counts)
+        X = _get_X_from_dict(text_counts, idf, self.embedding)
+        return X
+
+
+def _get_freq_dict(all_text):
+    text_dicts = []
+    for text in all_text:
+        cur_dict = {}
+        word_sequence = text_to_word_sequence(text)
+        for word in word_sequence:
+            if word in cur_dict:
+                cur_dict[word] += 1
+            else:
+                cur_dict[word] = 1
+        text_dicts.append(cur_dict)
+    return text_dicts
+
+
+def _get_idf(text_dicts):
+    all_count = {}
+    for text in text_dicts:
+        for word in text:
+            if word in all_count:
+                all_count[word] += 1
+            else:
+                all_count[word] = 1
+
+    idf = {}
+    for word in all_count:
+        idf[word] = log(len(text_dicts)/all_count[word])
+    return idf
+
+
+def _get_X_from_dict(text_dicts, idf, embedding):
+    n_vec = len(embedding[list(embedding.keys())[0]])
+    X = np.zeros((len(text_dicts), n_vec))
+    for i, text in enumerate(text_dicts):
+        text_vec = None
+        for word in text:
+            cur_count = text[word]
+            cur_idf = idf[word]
+            cur_vec = embedding.get(word, None)
+            if cur_vec is None:
+                continue
+            if text_vec is None:
+                text_vec = cur_vec*cur_idf*cur_count
+            else:
+                text_vec += cur_vec*cur_idf*cur_count
+        if text_vec is None:
+            text_vec = np.random.random(n_vec)
+
+        text_norm = np.linalg.norm(text_vec)
+        if abs(text_norm) > 1e-7:
+            text_vec /= np.linalg.norm(text_vec)
+        X[i] = text_vec
+    return X

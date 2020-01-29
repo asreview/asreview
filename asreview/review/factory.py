@@ -17,10 +17,10 @@ import logging
 import os
 from os.path import splitext
 
-from asreview.balance_strategies.utils import get_balance_with_settings
 from asreview.config import AVAILABLE_CLI_MODI
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
@@ -29,13 +29,20 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.logging.utils import open_logger
-from asreview.models.utils import get_model_class
-from asreview.query_strategies.utils import get_query_with_settings
 from asreview.readers import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
+from asreview.models.utils import get_model
+from asreview.query_strategies.utils import get_query_model
+from asreview.balance_strategies.utils import get_balance_model
+from asreview.feature_extraction.utils import get_feature_model
+
+
+def _add_defaults(set_param, default_param):
+    set_param.update({key: value for key, value in default_param.items()
+                      if key not in set_param})
 
 
 def get_reviewer(dataset,
@@ -43,6 +50,7 @@ def get_reviewer(dataset,
                  model=DEFAULT_MODEL,
                  query_strategy=DEFAULT_QUERY_STRATEGY,
                  balance_strategy=DEFAULT_BALANCE_STRATEGY,
+                 feature_extraction=DEFAULT_FEATURE_EXTRACTION,
                  n_instances=DEFAULT_N_INSTANCES,
                  n_papers=None,
                  n_queries=None,
@@ -57,6 +65,7 @@ def get_reviewer(dataset,
                  model_param=None,
                  query_param=None,
                  balance_param=None,
+                 feature_param=None,
                  abstract_only=False,
                  extra_dataset=[],
                  **kwargs
@@ -73,7 +82,9 @@ def get_reviewer(dataset,
         model=model, n_instances=n_instances, n_queries=n_queries,
         n_papers=n_papers, n_prior_included=n_prior_included,
         n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
-        balance_strategy=balance_strategy, mode=mode, data_fp=dataset,
+        balance_strategy=balance_strategy,
+        feature_extraction=feature_extraction,
+        mode=mode, data_fp=dataset,
         abstract_only=abstract_only)
     cli_settings.from_file(config_file)
 
@@ -90,14 +101,15 @@ def get_reviewer(dataset,
         settings.n_queries = n_queries
     if n_papers is not None:
         settings.n_papers = n_papers
+
     if model_param is not None:
         settings.model_param = model_param
     if query_param is not None:
         settings.query_param = query_param
     if balance_param is not None:
         settings.balance_param = balance_param
-
-    model = settings.model
+    if feature_param is not None:
+        settings.feature_param = feature_param
 
     # Check if mode is valid
     if mode in AVAILABLE_REVIEW_CLASSES:
@@ -108,7 +120,9 @@ def get_reviewer(dataset,
 
     as_data = ASReviewData.from_file(dataset, extra_dataset=extra_dataset,
                                      abstract_only=settings.abstract_only)
-    _, texts, labels = as_data.get_data()
+    texts = as_data.texts
+    y = as_data.labels
+
     data_prior_included, data_prior_excluded = as_data.get_priors()
     if len(data_prior_included) != 0:
         if prior_included is None:
@@ -123,29 +137,35 @@ def get_reviewer(dataset,
         with open_logger(log_file) as logger:
             logger.set_final_labels(as_data.final_labels)
 
-    model_class = get_model_class(model)
-    model_inst = model_class(param=settings.model_param,
-                             embedding_fp=embedding_fp)
-    X, y = model_inst.get_Xy(texts, labels)
+    train_model = get_model(settings.model, **settings.model_param)
+    query_model = get_query_model(settings.query_strategy,
+                                  **settings.query_param)
+    balance_model = get_balance_model(settings.balance_strategy,
+                                      **settings.balance_param)
+    feature_model = get_feature_model(settings.feature_extraction,
+                                      **settings.feature_param)
 
-    model_fn = model_inst.model()
-    settings.fit_kwargs = model_inst.fit_kwargs()
+    X = feature_model.fit_transform(texts, as_data.title, as_data.abstract)
 
-    # Pick query strategy
-    query_fn, query_str = get_query_with_settings(
-        settings, texts, embedding_fp)
-    logging.info(f"Query strategy: {query_str}")
+    if train_model.name.startswith("lstm-"):
+        train_model.embedding_matrix = feature_model.get_embedding_matrix(
+            texts, embedding_fp)
 
-    train_data_fn, train_method = get_balance_with_settings(settings)
-    logging.info(f"Using {train_method} method to obtain training data.")
+    _add_defaults(settings.query_param, query_model.default_param)
+    _add_defaults(settings.model_param, train_model.default_param)
+    _add_defaults(settings.balance_param, balance_model.default_param)
+
+    if log_file is not None:
+        with open_logger(log_file) as logger:
+            logger.add_settings(settings)
 
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(
             X, y,
-            model=model_fn,
-            query_strategy=query_fn,
-            train_data_fn=train_data_fn,
+            model=train_model,
+            query_model=query_model,
+            balance_model=balance_model,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
@@ -154,45 +174,36 @@ def get_reviewer(dataset,
             prior_excluded=prior_excluded,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
-            fit_kwargs=settings.fit_kwargs,
-            balance_kwargs=settings.balance_kwargs,
-            query_kwargs=settings.query_kwargs,
             log_file=log_file,
             final_labels=as_data.final_labels,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
-            model=model_fn,
-            query_strategy=query_fn,
+            model=model,
+            query_model=query_model,
+            balance_model=balance_model,
             as_data=as_data,
-            train_data_fn=train_data_fn,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-            fit_kwargs=settings.fit_kwargs,
-            balance_kwargs=settings.balance_kwargs,
-            query_kwargs=settings.query_kwargs,
             log_file=log_file,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
             X,
-            model=model_fn,
-            query_strategy=query_fn,
-            train_data_fn=train_data_fn,
+            model=model,
+            query_model=query_model,
+            balance_mode=balance_model,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
-            fit_kwargs=settings.fit_kwargs,
-            balance_kwargs=settings.balance_kwargs,
-            query_kwargs=settings.query_kwargs,
             log_file=log_file,
             **kwargs)
     else:
