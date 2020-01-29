@@ -21,7 +21,7 @@ Available extensions
 - asreview-visualization: Plotting functionality for logging files produced by ASReview.
 
 If an extention is not on this list, or you make one and want it added to this list, make an issue
-on `github <https://github.com/msdslab/automated-systematic-review/issues>`__ or send us an email.
+on `github <https://github.com/asreview/asreview/issues>`__ or send us an email.
 
 
 How to make an extension

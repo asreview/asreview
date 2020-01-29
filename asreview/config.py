@@ -37,5 +37,5 @@ DEFAULT_N_INSTANCES = 1
 DEFAULT_N_PRIOR_INCLUDED = 10
 DEFAULT_N_PRIOR_EXCLUDED = 10
 
-GITHUB_PAGE = "https://github.com/msdslab/automated-systematic-review"
+GITHUB_PAGE = "https://github.com/asreview/asreview"
 EMAIL_ADDRESS = "asreview@uu.nl"
