@@ -28,8 +28,10 @@ def _get_logger_class(fp):
     log_ext = os.path.splitext(fp)[1]
     if log_ext in ['.h5', '.hdf5', '.he5']:
         logger_class = HDF5Logger
-    else:
+    elif log_ext in ['.json']:
         logger_class = JSONLogger
+    else:
+        logger_class = None
     return logger_class
 
 
@@ -89,6 +91,8 @@ def loggers_from_dir(data_dir, prefix="result"):
 
         log_fp = os.path.join(data_dir, log_file)
         logger_class = _get_logger_class(log_fp)
+        if logger_class is None:
+            continue
         loggers[log_file] = logger_class(log_fp=log_fp, read_only=True)
 
     return loggers
