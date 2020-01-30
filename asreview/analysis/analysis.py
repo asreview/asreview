@@ -69,10 +69,10 @@ class Analysis():
         self.inc_found = {}
 
     @classmethod
-    def from_dir(cls, data_dir):
+    def from_dir(cls, data_dir, prefix="result"):
         """Create an Analysis object from a directory."""
         key = os.path.basename(os.path.normpath(data_dir))
-        loggers = loggers_from_dir(data_dir)
+        loggers = loggers_from_dir(data_dir, prefix=prefix)
         analysis_inst = Analysis(loggers, key=key)
         if analysis_inst.empty:
             return None

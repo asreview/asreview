@@ -39,3 +39,5 @@ DEFAULT_N_PRIOR_EXCLUDED = 10
 
 GITHUB_PAGE = "https://github.com/msdslab/automated-systematic-review"
 EMAIL_ADDRESS = "asreview@uu.nl"
+
+LOGGER_EXTENSIONS = ['.h5', '.hdf5', '.he5', '.json']
