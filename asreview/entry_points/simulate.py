@@ -40,8 +40,8 @@ papers you could have potentially skipped during the systematic
 review."""
 
 
-def _simulate_parser():
-    parser = _oracle_parser(prog="simulate", description=DESCRIPTION_SIMULATE)
+def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
+    parser = _oracle_parser(prog=prog, description=description)
     # Initial data (prior knowledge)
     parser.add_argument(
         "--n_prior_included",
