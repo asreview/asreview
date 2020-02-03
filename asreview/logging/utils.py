@@ -15,6 +15,8 @@
 import os
 from contextlib import contextmanager
 
+from asreview.config import LOGGER_EXTENSIONS
+
 
 def _get_logger_class(fp):
     "Get logging class from file extension."
@@ -56,6 +58,9 @@ def open_logger(fp, *args, read_only=False, **kwargs):
         - Anything else -> JSONLogger.
     """
     logger_class = _get_logger_class(fp)
+    if logger_class is None:
+        raise ValueError("Bad log file extension, choose one of the"
+                         f" following:\n   {', '.join(LOGGER_EXTENSIONS)}")
     try:
         logger = logger_class(log_fp=fp, *args, read_only=read_only, **kwargs)
         yield logger
