@@ -48,11 +48,11 @@ class ReviewOracle(BaseReview):
 
     def _papers_from_finder(self, logger):
         "Find papers using a fuzzy finder in the available records."
-        try:
-            keywords = questionary.text(
-                'Find papers using keywords/authors/title:'
-            ).ask()
-        except KeyboardInterrupt:
+        keywords = questionary.text(
+            'Find papers using keywords/authors/title:'
+        ).ask()
+
+        if keywords is None:
             return
 
         paper_idx = self.as_data.fuzzy_find(keywords, exclude=self.train_idx)
@@ -70,7 +70,7 @@ class ReviewOracle(BaseReview):
                 choices=choices,
             ).ask()
 
-            if new_choice == "Return":
+            if new_choice == "Return" or new_choice is None:
                 return
             choice_idx = choices.index(new_choice)
             idx = paper_idx[choice_idx]
@@ -95,10 +95,11 @@ class ReviewOracle(BaseReview):
             'Which papers do you want to exclude?\n'
             'Separate paper indices by spaces:'
         )
-        try:
-            included = include_question.ask()
-            excluded = exclude_question.ask()
-        except KeyError:
+        included = include_question.ask()
+        if included is None:
+            return
+        excluded = exclude_question.ask()
+        if excluded is None:
             return
 
         new_included = convert_list_type(included.split(), int)
@@ -127,20 +128,19 @@ class ReviewOracle(BaseReview):
                 ]
             ).ask()
 
-            if action.endswith("by keywords"):
+            if action is None or action.startswith("Stop"):
+                stop = questionary.confirm(
+                    "Are you sure you want to stop?",
+                    default=False
+                ).ask()
+                if stop:
+                    raise KeyboardInterrupt
+            elif action.endswith("by keywords"):
                 self._papers_from_finder(logger)
             elif action.endswith("by ID"):
                 self._papers_from_id(logger)
             elif action.startswith("Export"):
                 self._export()
-            elif action.startswith("Stop"):
-                stop = questionary.confirm(
-                    "Are you sure you want to stop?",
-                    default=False
-                ).ask()
-
-                if stop:
-                    raise KeyboardInterrupt
             elif action.startswith("Continue review"):
                 try:
                     self._do_review(logger, *args, **kwargs)
@@ -186,11 +186,11 @@ class ReviewOracle(BaseReview):
                 'Back to main menu'
             ],
             default='Exclude',
-        ).ask().lower()
+        ).ask()
 
-        if action == "include":
+        if action == "Include":
             label = 1
-        elif action == "exclude":
+        elif action == "Exclude":
             label = 0
         else:
             label = None
@@ -209,6 +209,9 @@ class ReviewOracle(BaseReview):
             'Type file name for export ending with .csv or .ris',
             validate=lambda val: val.endswith((".csv", ".ris")),
         ).ask()
+
+        if file_name is None:
+            return
 
         pred_proba = self.shared.get('pred_proba', None)
         pool_idx = np.delete(np.arange(len(self.y)), self.train_idx)
