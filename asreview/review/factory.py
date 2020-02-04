@@ -17,6 +17,8 @@ import logging
 import os
 from os.path import splitext
 
+import questionary
+
 from asreview.config import AVAILABLE_CLI_MODI
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -180,7 +182,7 @@ def get_reviewer(dataset,
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
-            model=model,
+            model=train_model,
             query_model=query_model,
             balance_model=balance_model,
             as_data=as_data,
@@ -234,45 +236,35 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
 
 def review_oracle(dataset, *args, log_file=None, **kwargs):
     """CLI to the interactive mode."""
-    from PyInquirer import prompt, Separator
     if log_file is None:
         while True:
-            question = [{
-                'type': 'input',
-                'name': 'log_file',
-                'message': 'Please provide a file to store '
+            log_file = questionary.text(
+                'Please provide a file to store '
                 'the results of your review:'
-            }]
-            log_file = prompt(question).get("log_file", "")
+            ).ask()
             if len(log_file) == 0:
-                question = [{
-                    'type': 'confirm',
-                    'message': 'Are you sure you want to continue without'
-                    ' saving?',
-                    'name': 'force_continue',
-                    'default': 'False',
-                }]
-                force_continue = prompt(question).get('force_continue', False)
+                force_continue = questionary.confirm(
+                    'Are you sure you want to continue without saving?',
+                    default=False
+                ).ask()
                 if force_continue:
                     log_file = None
                     break
             else:
                 if os.path.isfile(log_file):
-                    question = [{
-                        'type': 'list',
-                        'name': 'action',
-                        'message': f'File {log_file} exists, what do you want'
+                    action = questionary.select(
+                        f'File {log_file} exists, what do you want'
                         ' to do?',
-                        'choices': [
+                        default='Exit',
+                        choices=[
                             f'Continue review from {log_file}',
                             f'Delete review in {log_file} and start a new'
                             ' review',
                             f'Choose another file name.',
-                            Separator(),
+                            questionary.Separator(),
                             f'Exit'
                         ]
-                    }]
-                    action = prompt(question).get('action', 'Exit')
+                    ).ask()
                     if action == "Exit":
                         return
                     if action.startswith("Continue"):
@@ -280,14 +272,11 @@ def review_oracle(dataset, *args, log_file=None, **kwargs):
                     if action.startswith("Choose another"):
                         continue
                     if action.startswith("Delete"):
-                        question = [{
-                            'type': 'confirm',
-                            'message': f'Are you sure you want to delete '
+                        delete = questionary.confirm(
+                            f'Are you sure you want to delete '
                             f'{log_file}?',
-                            'name': 'delete',
-                            'default': 'False',
-                        }]
-                        delete = prompt(question).get("delete", False)
+                            default=False,
+                        ).ask()
                         if delete:
                             os.remove(log_file)
                             break
