@@ -19,7 +19,7 @@ from os.path import splitext
 
 import questionary
 
-from asreview.config import AVAILABLE_CLI_MODI
+from asreview.config import AVAILABLE_CLI_MODI, LOGGER_EXTENSIONS
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
@@ -240,8 +240,11 @@ def review_oracle(dataset, *args, log_file=None, **kwargs):
         while True:
             log_file = questionary.text(
                 'Please provide a file to store '
-                'the results of your review:'
+                'the results of your review:',
+                validate=lambda val: splitext(val)[1] in LOGGER_EXTENSIONS,
             ).ask()
+            if log_file is None:
+                return
             if len(log_file) == 0:
                 force_continue = questionary.confirm(
                     'Are you sure you want to continue without saving?',
@@ -265,7 +268,7 @@ def review_oracle(dataset, *args, log_file=None, **kwargs):
                             f'Exit'
                         ]
                     ).ask()
-                    if action == "Exit":
+                    if action == "Exit" or action is None:
                         return
                     if action.startswith("Continue"):
                         break
