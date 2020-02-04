@@ -75,7 +75,7 @@ setup(
         'modAL',
         'RISparser',
         'dill',
-        'PyInquirer',
+        'questionary',
         'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
