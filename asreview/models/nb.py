@@ -32,6 +32,7 @@ class NBModel(BaseTrainModel):
             Parameter to set the regularization strength of the model.
         """
         super(NBModel, self).__init__()
+        self.alpha = alpha
         self._model = MultinomialNB(alpha=alpha)
         logging.debug(self._model)
 

@@ -64,6 +64,9 @@ class MixedQuery(BaseQueryStrategy):
                 logging.warn(f"Key {key} is being ignored for the mixed "
                              "({strategy_1}, {strategy_2}) query strategy.")
 
+        self.strategy_1 = strategy_1
+        self.strategy_2 = strategy_2
+
         self.query_model1 = get_query_model(strategy_1)
         self.query_model2 = get_query_model(strategy_2)
         self.mix_ratio = mix_ratio

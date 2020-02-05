@@ -58,4 +58,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Sample n prior excluded papers. "
              "Only used when --prior_excluded is not given. "
              f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
+    parser.add_argument(
+        "--abstract_only",
+        default=False,
+        action='store_true',
+        help="Use after abstract screening as the inclusions/exclusions."
+    )
     return parser
