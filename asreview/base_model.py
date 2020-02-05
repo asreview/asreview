@@ -37,6 +37,13 @@ class BaseModel(ABC):
             if v.default is not inspect.Parameter.empty
         }
 
+    @property
+    def param(self):
+        parameters = self.default_param
+        for par in parameters:
+            parameters[par] = getattr(self, par)
+        return parameters
+
     def full_hyper_space(self):
         return {}, {}
 
