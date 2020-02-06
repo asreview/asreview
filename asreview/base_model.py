@@ -16,6 +16,14 @@ from abc import ABC
 import inspect
 
 
+def sig_to_param(signature):
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
+
+
 class BaseModel(ABC):
     """Abstract class for balance strategies."""
 
@@ -30,12 +38,14 @@ class BaseModel(ABC):
         dict:
             Dictionary with parameter: default_value
         """
-        signature = inspect.signature(self.__init__)
-        return {
-            k: v.default
-            for k, v in signature.parameters.items()
-            if v.default is not inspect.Parameter.empty
-        }
+        cur_class = self.__class__
+        default_parameters = sig_to_param(inspect.signature(self.__init__))
+        while cur_class != BaseModel:
+            signature = inspect.signature(super(cur_class, self).__init__)
+            new_parameters = sig_to_param(signature)
+            default_parameters.update(new_parameters)
+            cur_class = cur_class.__bases__[0]
+        return default_parameters
 
     @property
     def param(self):
