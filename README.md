@@ -1,8 +1,8 @@
-[![ASReview bot](images/RepoCardGithub-1280x640px.png)](https://github.com/msdslab/automated-systematic-review)
+[![ASReview bot](images/RepoCardGithub-1280x640px.png)](https://github.com/asreview/asreview)
 
 ## ASReview: Active learning for systematic reviews
 
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fmsdslab%2Fautomated-systematic-review%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/msdslab/automated-systematic-review/goto?ref=master)[![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master)[![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
 
 :wrench: *This project is work in progress and not production ready.*
 
@@ -23,7 +23,7 @@ ASReview offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
-[![Active Learning for reviewing papers](https://github.com/msdslab/automated-systematic-review/blob/master/images/deepreview.png?raw=true)](https://github.com/msdslab/automated-systematic-review)
+[![Active Learning for reviewing papers](https://github.com/asreview/asreview/blob/master/images/deepreview.png?raw=true)](https://github.com/asreview/asreview)
 
 Our ASReview software implements two different modes:
 
@@ -48,7 +48,7 @@ Or, install the development version of the Automated Systematic Review project d
 from this Github page.
 
 ``` bash
-pip install git+https://github.com/msdslab/automated-systematic-review.git
+pip install git+https://github.com/asreview/asreview.git
 ```
 
 ## Quick start
@@ -61,7 +61,7 @@ Start an interactive systematic review (Oracle mode) with the following line in 
 asreview oracle YOUR_DATA.csv --log_file results.json
 ```
 
-![ASReview Command Line Interface](https://github.com/msdslab/automated-systematic-review/raw/master/docs/gifs/asreview-intro.gif)
+![ASReview Command Line Interface](https://github.com/asreview/asreview/raw/master/docs/gifs/asreview-intro.gif)
 
 This command (`asreview oracle`) runs the software in oracle mode on the 
 `YOUR_DATA.csv` dataset. 
@@ -84,8 +84,8 @@ asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_
 
 - The full documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
 - [10 Minutes into ASReview](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) An introduction into ASReview for new users. 
-- [automated-systematic-review-datasets](https://github.com/msdslab/automated-systematic-review-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
-- [automated-systematic-review-simulations](https://github.com/msdslab/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
+- [automated-systematic-review-datasets](https://github.com/asreview/asreview-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
+- [automated-systematic-review-simulations](https://github.com/asreview/asreview-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 
 ## License
@@ -105,7 +105,7 @@ asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_
 A research paper is coming up for this project. In the mean time, it can be cited with (fill in x and y for the version number):
 
 ```
-ASReview Core Development Team (2019). ASReview: Software for automated systematic reviews [version 0.x.y]. Utrecht University, Utrecht, The Netherlands. Available at https://github.com/msdslab/automated-systematic-review.
+ASReview Core Development Team (2019). ASReview: Software for automated systematic reviews [version 0.x.y]. Utrecht University, Utrecht, The Netherlands. Available at https://github.com/asreview/asreview.
 ```
 
 BibTeX:
