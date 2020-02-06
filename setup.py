@@ -54,7 +54,7 @@ setup(
     description='Automated Systematic Review',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
-    url='https://github.com/msdslab/automated-systematic-review',
+    url='https://github.com/asreview/asreview',
     author='ASReview Core Development Team',
     author_email='asreview@uu.nl',
     classifiers=[
@@ -94,7 +94,7 @@ setup(
     },
     project_urls={
         'Bug Reports':
-            'https://github.com/msdslab/automated-systematic-review/issues',
-        'Source': 'https://github.com/msdslab/automated-systematic-review/',
+            'https://github.com/asreview/asreview/issues',
+        'Source': 'https://github.com/asreview/asreview/',
     },
 )
