@@ -16,6 +16,8 @@ import os
 from contextlib import contextmanager
 
 from asreview.config import LOGGER_EXTENSIONS
+from os.path import isfile
+from hyperopt.utils import _get_logger
 
 
 def _get_logger_class(fp):
@@ -101,3 +103,31 @@ def loggers_from_dir(data_dir, prefix="result"):
         loggers[log_file] = logger_class(log_fp=log_fp, read_only=True)
 
     return loggers
+
+
+def logger_from_file(data_fp):
+    """Obtain a list of loggers from a directory.
+
+    Arguments
+    ---------
+    data_dir: str
+        Directory where to search for logging files.
+    prefix: str
+        Files starting with the prefix are assumed to be logging files.
+        The rest is ignored.
+
+    Returns
+    -------
+    dict:
+        A dictionary of opened loggers, with their (base) filenames as keys.
+    """
+    if not isfile(data_fp):
+        print(f"Error: file {data_fp} does not exist, cannot create logger.")
+        return None
+
+    if not os.path.splitext(data_fp)[1] in LOGGER_EXTENSIONS:
+        print(f"Error: file {data_fp} does not end with {LOGGER_EXTENSIONS}.")
+        return None
+    logger = {os.path.basename(os.path.normpath(data_fp)):
+              _get_logger_class(data_fp)(log_fp=data_fp, read_only=True)}
+    return logger

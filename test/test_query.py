@@ -32,6 +32,7 @@ def test_query(query_strategy, n_features=50, n_sample=100,
         query_model = get_query_model(
             query_strategy, texts=texts, update_interval=None,
             cluster_size=int(n_sample/3))
+        assert isinstance(query_model.param, dict)
     else:
         query_model = get_query_model(query_strategy)
     X = np.random.rand(n_sample, n_features)

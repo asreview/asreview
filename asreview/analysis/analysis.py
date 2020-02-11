@@ -20,7 +20,7 @@ import numpy as np
 from scipy import stats
 from sklearn.cluster import KMeans
 
-from asreview.logging.utils import loggers_from_dir
+from asreview.logging.utils import loggers_from_dir, logger_from_file
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
@@ -74,7 +74,10 @@ class Analysis():
     def from_dir(cls, data_dir, prefix="result"):
         """Create an Analysis object from a directory."""
         key = os.path.basename(os.path.normpath(data_dir))
-        loggers = loggers_from_dir(data_dir, prefix=prefix)
+        if os.path.isfile(data_dir):
+            loggers = logger_from_file(data_dir)
+        else:
+            loggers = loggers_from_dir(data_dir, prefix=prefix)
         analysis_inst = Analysis(loggers, key=key)
         if analysis_inst.empty:
             return None
