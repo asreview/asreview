@@ -13,11 +13,10 @@
 # limitations under the License.
 
 import os
+from os.path import isfile
 from contextlib import contextmanager
 
 from asreview.config import LOGGER_EXTENSIONS
-from os.path import isfile
-from hyperopt.utils import _get_logger
 
 
 def _get_logger_class(fp):
