@@ -34,13 +34,6 @@ Automated Systematic Review (ASReview).
 """
 
 
-def main_depr():
-    warnings.warn("'asr' has been renamed to "
-                  "'asreview', it will be removed in the future.\n",
-                  np.VisibleDeprecationWarning)
-    main()
-
-
 def main():
     # Find the available entry points.
     entry_points = {
