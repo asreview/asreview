@@ -187,7 +187,7 @@ class BaseReview(ABC):
                           logger, method="initial")
         if self.prior_excluded is not None and len(self.prior_excluded) > 0:
             self.classify(self.prior_excluded,
-                          np.zeros(len(self.prior_included)),
+                          np.zeros(len(self.prior_excluded)),
                           logger, method="initial")
 
     @property

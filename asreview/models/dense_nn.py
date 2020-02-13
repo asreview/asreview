@@ -62,10 +62,10 @@ class DenseNNModel(BaseTrainModel):
         self.learn_rate = learn_rate
         self.regularization = regularization
         self.verbose = verbose
-        self.epochs = epochs
-        self.batch_size = batch_size
+        self.epochs = int(epochs)
+        self.batch_size = int(batch_size)
         self.shuffle = shuffle
-        self.class_weight = _set_class_weight(class_weight)
+        self.class_weight = class_weight
 
         self._model = None
         self.input_dim = None
@@ -81,7 +81,8 @@ class DenseNNModel(BaseTrainModel):
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
         self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
-                        shuffle=self.shuffle, verbose=self.verbose)
+                        shuffle=self.shuffle, verbose=self.verbose,
+                        class_weight=_set_class_weight(self.class_weight))
 
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
@@ -94,13 +95,12 @@ class DenseNNModel(BaseTrainModel):
             "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
         }
         hyper_space = {
-            "mdl_vector_size": hp.quniform("mdl_vector_size", 16, 128, 16),
             "mdl_dense_width": hp.quniform("mdl_dense_width", 2, 100, 1),
             "mdl_epochs": hp.quniform("mdl_epochs", 20, 60, 1),
             "mdl_optimizer": hp.choice("mdl_optimizer",
                                        hyper_choices["mdl_optimizer"]),
-            "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1),
-            "mdl_class_weight_inc": hp.lognormal("mdl_class_weight_inc", 3, 1),
+            "mdl_learn_rate": hp.lognormal("mdl_learn_rate", 0, 1),
+            "mdl_class_weight": hp.lognormal("mdl_class_weight", 3, 1),
             "mdl_regularization": hp.lognormal("mdl_regularization", -4, 2),
         }
         return hyper_space, hyper_choices
