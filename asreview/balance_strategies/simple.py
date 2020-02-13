@@ -16,7 +16,7 @@ from asreview.balance_strategies.base import BaseBalance
 
 
 class SimpleBalance(BaseBalance):
-    name = "full sampling"
+    name = "full-sampling"
 
     def sample(self, X, y, train_idx, shared):
         """
