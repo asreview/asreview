@@ -17,7 +17,7 @@ from asreview.base_model import BaseModel
 
 
 class BaseBalance(BaseModel):
-    "Abstract class for balance strategies."
+    """Abstract class for balance strategies."""
     name = "base-balance"
 
     @abstractmethod

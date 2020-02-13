@@ -17,7 +17,8 @@ import inspect
 
 
 class BaseModel(ABC):
-    "Abstract class for balance strategies."
+    """Abstract class for balance strategies."""
+
     name = "base"
 
     @property

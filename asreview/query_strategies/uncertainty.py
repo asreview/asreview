@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-'''
-Uncertainty sampling while saving probabilities.
-'''
+"""Uncertainty sampling while saving probabilities."""
 
 # from typing import Tuple
 
@@ -27,7 +25,8 @@ from asreview.query_strategies.base import ProbaQueryStrategy
 
 
 class UncertaintyQuery(ProbaQueryStrategy):
-    "Maximum uncertainty query strategy."
+    """Maximum uncertainty query strategy."""
+
     name = "uncertainty"
 
     def __init__(self, random_tie_break=False):

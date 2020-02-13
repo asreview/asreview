@@ -18,7 +18,7 @@ from asreview.review.base import _merge_prior_knowledge
 
 
 class ReviewSimulate(BaseReview):
-    """ Automated Systematic Review in simulation mode. """
+    """Automated Systematic Review in simulation mode."""
 
     def __init__(self,
                  X,
@@ -33,8 +33,8 @@ class ReviewSimulate(BaseReview):
             X, y, *args, **kwargs)
 
     def _prior_knowledge(self, logger):
-        """ Get the prior knowledge, either from specific paper IDs,
-            and if they're not given from the number of in/exclusions. """
+        """Get the prior knowledge, either from specific paper IDs,
+            and if they're not given from the number of in/exclusions."""
         if self.prior_included is not None or self.prior_excluded is not None:
             prior_indices, prior_labels = _merge_prior_knowledge(
                 self.prior_included,
@@ -52,7 +52,7 @@ class ReviewSimulate(BaseReview):
         self.classify(prior_indices, prior_labels, logger, method="initial")
 
     def _get_labels(self, ind):
-        """ Get the labels directly from memory.
+        """Get the labels directly from memory.
 
         Arguments
         ---------

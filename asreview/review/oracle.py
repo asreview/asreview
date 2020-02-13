@@ -33,7 +33,7 @@ def update_stats(stats, label):
 
 
 class ReviewOracle(BaseReview):
-    """ Review class for Oracle mode on the command line. """
+    """Review class for Oracle mode on the command line."""
 
     def __init__(self, X, as_data, *args, use_cli_colors=True,
                  **kwargs):

@@ -33,8 +33,14 @@ class TripleBalance(BaseBalance):
     """
     name = "triple-balance"
 
-    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0, c=0.835,
-                 gamma=2.0, shuffle=True):
+    def __init__(self,
+                 a=2.155,
+                 alpha=0.94,
+                 b=0.789,
+                 beta=1.0,
+                 c=0.835,
+                 gamma=2.0,
+                 shuffle=True):
         """Initialize the triple balance strategy.
 
         Arguments
@@ -154,32 +160,30 @@ def _zero_max_weight(fraction_read, c, gamma):
     float:
         Weight ratio between 1's and 0's
     """
-    weight = 1 - (1-c)*(1-fraction_read)**gamma
+    weight = 1 - (1 - c) * (1 - fraction_read)**gamma
     return weight
 
 
-def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train,
-                     one_a, one_alpha,
-                     zero_b, zero_beta,
-                     zero_max_c, zero_max_gamma):
+def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train, one_a,
+                     one_alpha, zero_b, zero_beta, zero_max_c, zero_max_gamma):
     " Get the number of 1's, random 0's and max 0's in each mini epoch. "
     n_zero = n_zero_rand + n_zero_max
     n_read = n_one + n_zero
     one_weight = _one_weight(n_one, n_zero, one_a, one_alpha)
     zero_weight = _zero_weight(n_read, zero_b, zero_beta)
-    zero_max_weight = _zero_max_weight(
-        n_read/n_samples, zero_max_c, zero_max_gamma)
+    zero_max_weight = _zero_max_weight(n_read / n_samples, zero_max_c,
+                                       zero_max_gamma)
 
     tot_zo_weight = one_weight * n_one + zero_weight * n_zero
 
-    n_one_train = random_round(one_weight*n_one*n_train/tot_zo_weight)
-    n_one_train = max(1, min(n_train-2, n_one_train))
-    n_zero_train = n_train-n_one_train
+    n_one_train = random_round(one_weight * n_one * n_train / tot_zo_weight)
+    n_one_train = max(1, min(n_train - 2, n_one_train))
+    n_zero_train = n_train - n_one_train
 
-    tot_rm_weight = 1*n_zero_rand + zero_max_weight*n_zero_max
+    tot_rm_weight = 1 * n_zero_rand + zero_max_weight * n_zero_max
     n_zero_rand_train = random_round(
-        n_zero_train * 1*n_zero_rand/tot_rm_weight)
-    n_zero_rand_train = max(1, min(n_zero_rand-1, n_zero_rand_train))
+        n_zero_train * 1 * n_zero_rand / tot_rm_weight)
+    n_zero_rand_train = max(1, min(n_zero_rand - 1, n_zero_rand_train))
     n_zero_max_train = n_zero_train - n_zero_rand_train
 
     return n_one_train, n_zero_rand_train, n_zero_max_train

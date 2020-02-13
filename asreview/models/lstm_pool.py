@@ -28,7 +28,7 @@ from asreview.utils import _set_class_weight
 
 
 class LSTMPoolModel(BaseTrainModel):
-    """ LSTM pool class.
+    """LSTM pool class.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     max pooling layer.

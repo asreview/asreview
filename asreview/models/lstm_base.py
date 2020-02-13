@@ -24,7 +24,7 @@ from asreview.utils import _set_class_weight
 
 
 class LSTMBaseModel(BaseTrainModel):
-    """ LSTM base class.
+    """LSTM base class.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     dense layer.
