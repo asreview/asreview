@@ -44,12 +44,12 @@ class UndersampleBalance(BaseBalance):
         n_zero = len(zero_ind)
 
         # If we don't have an excess of 0's, give back all training_samples.
-        if n_one/n_zero >= self.ratio:
+        if n_one / n_zero >= self.ratio:
             shuf_ind = np.append(one_ind, zero_ind)
         else:
-            n_zero_epoch = ceil(n_one/self.ratio)
-            zero_under = np.random.choice(np.arange(n_zero), n_zero_epoch,
-                                          replace=False)
+            n_zero_epoch = ceil(n_one / self.ratio)
+            zero_under = np.random.choice(
+                np.arange(n_zero), n_zero_epoch, replace=False)
             shuf_ind = np.append(one_ind, zero_ind[zero_under])
 
         np.random.shuffle(shuf_ind)
