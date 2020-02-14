@@ -84,8 +84,7 @@ setup(
     extras_require=DEPS,
     entry_points={
         'console_scripts': [
-            'asreview=asreview.__main__:main',
-            'asr=asreview.__main__:main_depr',
+            'asreview=asreview.__main__:main'
         ],
         'asreview.entry_points': [
             'simulate = asreview.entry_points:SimulateEntryPoint',
