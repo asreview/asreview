@@ -47,7 +47,7 @@ class DoubleBalance(BaseBalance):
         strongly penalizing zeros.
     """
 
-    name = "double-balance"
+    name = "double"
 
     def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0):
 

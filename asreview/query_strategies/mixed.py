@@ -29,7 +29,6 @@ class MixedQuery(BaseQueryStrategy):
     The idea is to use two different query strategies at the same time with a
     ratio of one to the other.
     """
-    name = "mixed"
 
     def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
                  **kwargs):
@@ -133,3 +132,7 @@ class MixedQuery(BaseQueryStrategy):
             "qry_mix_ratio", 0, 1)
 
         return parameter_space, hyper_choices
+
+    @property
+    def name(self):
+        return "_".join(self.strategy_1, self.strategy_2)

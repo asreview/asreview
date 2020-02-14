@@ -7,7 +7,7 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 
 class Tfidf(BaseFeatureExtraction):
     """Class to apply SKLearn Tf-idf to texts."""
-    name = "tf-idf"
+    name = "tfidf"
 
     def __init__(self, *args, ngram_max=1, **kwargs):
         """Initialize tfidf class.
