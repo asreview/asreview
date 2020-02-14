@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-from os.path import isfile
 from contextlib import contextmanager
+import logging
+import os
+from pathlib import Path
 
 from asreview.config import LOGGER_EXTENSIONS
 
@@ -28,7 +29,7 @@ def _get_logger_class(fp):
     if fp is None:
         return DictLogger
 
-    log_ext = os.path.splitext(fp)[1]
+    log_ext = Path(fp).suffix
     if log_ext in ['.h5', '.hdf5', '.he5']:
         logger_class = HDF5Logger
     elif log_ext in ['.json']:
@@ -70,7 +71,7 @@ def open_logger(fp, *args, read_only=False, **kwargs):
 
 
 def loggers_from_dir(data_dir, prefix="result"):
-    """Obtain a list of loggers from a directory.
+    """Obtain a dictionary of loggers from a directory.
 
     Arguments
     ---------
@@ -88,7 +89,7 @@ def loggers_from_dir(data_dir, prefix="result"):
     loggers = {}
     files = os.listdir(data_dir)
     if not files:
-        print(f"Error: {data_dir} is empty")
+        logging.error(f"{data_dir} is empty.")
         return None
 
     for log_file in files:
@@ -105,27 +106,24 @@ def loggers_from_dir(data_dir, prefix="result"):
 
 
 def logger_from_file(data_fp):
-    """Obtain a list of loggers from a directory.
+    """Obtain a single logger from a file.
 
     Arguments
     ---------
-    data_dir: str
-        Directory where to search for logging files.
-    prefix: str
-        Files starting with the prefix are assumed to be logging files.
-        The rest is ignored.
+    data_fp: str
+        Path to logging file.
 
     Returns
     -------
     dict:
-        A dictionary of opened loggers, with their (base) filenames as keys.
+        A dictionary of a single opened logger, with its filename as key.
     """
-    if not isfile(data_fp):
-        print(f"Error: file {data_fp} does not exist, cannot create logger.")
+    if not Path(data_fp).is_file():
+        logging.error(f"File {data_fp} does not exist, cannot create logger.")
         return None
 
-    if not os.path.splitext(data_fp)[1] in LOGGER_EXTENSIONS:
-        print(f"Error: file {data_fp} does not end with {LOGGER_EXTENSIONS}.")
+    if not Path(data_fp).suffix in LOGGER_EXTENSIONS:
+        logging.error(f"file {data_fp} does not end with {LOGGER_EXTENSIONS}.")
         return None
     logger = {os.path.basename(os.path.normpath(data_fp)):
               _get_logger_class(data_fp)(log_fp=data_fp, read_only=True)}

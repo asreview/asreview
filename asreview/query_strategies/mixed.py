@@ -135,4 +135,4 @@ class MixedQuery(BaseQueryStrategy):
 
     @property
     def name(self):
-        return "_".join(self.strategy_1, self.strategy_2)
+        return "_".join([self.strategy_1, self.strategy_2])
