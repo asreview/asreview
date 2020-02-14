@@ -25,18 +25,18 @@ def sig_to_param(signature):
 
 
 class BaseModel(ABC):
-    """Abstract class for balance strategies."""
+    """Abstract class for any kind of model."""
 
     name = "base"
 
     @property
     def default_param(self):
-        """Get the default parameters of the balance strategy.
+        """Get the default parameters of the model.
 
         Returns
         -------
         dict:
-            Dictionary with parameter: default_value
+            Dictionary with parameter: default value
         """
         cur_class = self.__class__
         default_parameters = sig_to_param(inspect.signature(self.__init__))
@@ -49,6 +49,13 @@ class BaseModel(ABC):
 
     @property
     def param(self):
+        """Get the (assigned) parameters of the model.
+
+        Returns
+        -------
+        dict:
+            Dictionary with parameter: current value.
+        """
         parameters = self.default_param
         for par in parameters:
             parameters[par] = getattr(self, par)

@@ -179,6 +179,7 @@ def get_reviewer(dataset,
             n_prior_excluded=settings.n_prior_excluded,
             log_file=log_file,
             final_labels=as_data.final_labels,
+            data_fp=dataset,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
@@ -195,6 +196,7 @@ def get_reviewer(dataset,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             log_file=log_file,
+            data_fp=dataset,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
@@ -210,6 +212,7 @@ def get_reviewer(dataset,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             log_file=log_file,
+            data_fp=dataset,
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")

@@ -47,6 +47,9 @@ def test_query(query_strategy, n_features=50, n_sample=100,
 
     classifier.fit(X, y)
 
+    assert isinstance(query_model.param, dict)
+    assert query_model.name == query_strategy
+
     for n_instances in n_instances_list:
         for n_train in n_train_idx:
             shared = {"query_src": {}, "current_queries": {}}
