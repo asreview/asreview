@@ -76,7 +76,7 @@ class BaseReview(ABC):
                  log_file=None,
                  final_labels=None,
                  verbose=1,
-                 data_fp="unknown_data"
+                 data_fp=None,
                  ):
         """ Initialize base class for systematic reviews.
 
