@@ -216,7 +216,7 @@ def get_reviewer(dataset,
 
 def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
            **kwargs):
-    """ Perform a review from arguments. Compatible with the CLI interface. """
+    """Perform a review from arguments. Compatible with the CLI interface"""
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
 

@@ -46,7 +46,6 @@ def sample_prior_knowledge(
         An array with n_included and n_excluded indices.
 
     """
-
     # set random state
     r = np.random.RandomState(random_state)
 

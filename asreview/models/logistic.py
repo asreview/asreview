@@ -20,7 +20,7 @@ from asreview.models.base import BaseTrainModel
 
 
 class LogisticModel(BaseTrainModel):
-    "Logistic Regression SKLearn model."
+    """Logistic Regression SKLearn model."""
     name = "logistic"
 
     def __init__(self, C=1.0, class_weight=None, n_jobs=1):
