@@ -15,6 +15,8 @@
 from abc import ABC
 import inspect
 
+import numpy as np
+
 
 def sig_to_param(signature):
     return {
@@ -59,6 +61,9 @@ class BaseModel(ABC):
         parameters = self.default_param
         for par in parameters:
             parameters[par] = getattr(self, par)
+            if isinstance(parameters[par], np.int):
+                parameters[par] = int(parameters[par])
+
         return parameters
 
     def full_hyper_space(self):
