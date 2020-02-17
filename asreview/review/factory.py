@@ -153,14 +153,6 @@ def get_reviewer(dataset,
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
-    _add_defaults(settings.query_param, query_model.default_param)
-    _add_defaults(settings.model_param, train_model.default_param)
-    _add_defaults(settings.balance_param, balance_model.default_param)
-
-    if log_file is not None:
-        with open_logger(log_file) as logger:
-            logger.add_settings(settings)
-
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(

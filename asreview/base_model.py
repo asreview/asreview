@@ -61,7 +61,7 @@ class BaseModel(ABC):
         parameters = self.default_param
         for par in parameters:
             parameters[par] = getattr(self, par)
-            if isinstance(parameters[par], np.int):
+            if isinstance(parameters[par], np.integer):
                 parameters[par] = int(parameters[par])
 
         return parameters
