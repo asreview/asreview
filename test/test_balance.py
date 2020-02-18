@@ -40,6 +40,8 @@ def check_partition(X, y, X_partition, y_partition, train_idx):
 def test_balance(balance_strategy, n_partition=100, n_feature=200,
                  n_sample=100):
     model = get_balance_model(balance_strategy)
+    assert isinstance(model.param, dict)
+    assert model.name == balance_strategy
     X, y = generate_data(n_feature=n_feature, n_sample=n_sample)
     for _ in range(n_partition):
         n_train = np.random.randint(10, n_sample)

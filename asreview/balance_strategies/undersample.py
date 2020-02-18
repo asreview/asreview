@@ -22,7 +22,7 @@ from asreview.balance_strategies.base import BaseBalance
 class UndersampleBalance(BaseBalance):
     """Balancing class that undersamples the data with a given ratio.
     """
-    name = "undersampling"
+    name = "undersample"
 
     def __init__(self, ratio=1.0):
         """Initialize the undersampling balance strategy.

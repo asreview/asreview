@@ -7,7 +7,7 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 
 class Tfidf(BaseFeatureExtraction):
     """Class to apply SKLearn Tf-idf to texts."""
-    name = "tf-idf"
+    name = "tfidf"
 
     def __init__(self, *args, ngram_max=1, **kwargs):
         """Initialize tfidf class.
@@ -37,6 +37,6 @@ class Tfidf(BaseFeatureExtraction):
 
         hyper_space, hyper_choices = super(Tfidf, self).full_hyper_space()
         hyper_space.update({
-            "fex_ngram_max": 1 + hp.randint("fex_ngram_max", 2)
+            "fex_ngram_max": hp.uniformint("fex_ngram_max", 1, 3)
         })
         return hyper_space, hyper_choices

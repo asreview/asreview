@@ -31,7 +31,7 @@ class TripleBalance(BaseBalance):
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
     """
-    name = "triple-balance"
+    name = "triple"
 
     def __init__(self,
                  a=2.155,

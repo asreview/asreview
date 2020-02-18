@@ -153,14 +153,6 @@ def get_reviewer(dataset,
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
-    _add_defaults(settings.query_param, query_model.default_param)
-    _add_defaults(settings.model_param, train_model.default_param)
-    _add_defaults(settings.balance_param, balance_model.default_param)
-
-    if log_file is not None:
-        with open_logger(log_file) as logger:
-            logger.add_settings(settings)
-
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(
@@ -168,6 +160,7 @@ def get_reviewer(dataset,
             model=train_model,
             query_model=query_model,
             balance_model=balance_model,
+            feature_model=feature_model,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
@@ -178,6 +171,7 @@ def get_reviewer(dataset,
             n_prior_excluded=settings.n_prior_excluded,
             log_file=log_file,
             final_labels=as_data.final_labels,
+            data_fp=dataset,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
@@ -185,6 +179,7 @@ def get_reviewer(dataset,
             model=train_model,
             query_model=query_model,
             balance_model=balance_model,
+            feature_model=feature_model,
             as_data=as_data,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
@@ -193,13 +188,15 @@ def get_reviewer(dataset,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             log_file=log_file,
+            data_fp=dataset,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
             X,
             model=model,
             query_model=query_model,
-            balance_mode=balance_model,
+            balance_model=balance_model,
+            feature_model=feature_model,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
@@ -207,6 +204,7 @@ def get_reviewer(dataset,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             log_file=log_file,
+            data_fp=dataset,
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
