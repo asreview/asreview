@@ -28,6 +28,7 @@ from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
 from asreview.balance_strategies.simple import SimpleBalance
 from asreview.query_strategies.random import RandomQuery
+from asreview.settings import ASReviewSettings
 
 
 def get_pool_idx(X, train_idx):
@@ -58,6 +59,7 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
 
 class BaseReview(ABC):
     """Base class for Systematic Review"""
+    name = "base"
 
     def __init__(self,
                  X,
@@ -65,6 +67,7 @@ class BaseReview(ABC):
                  model=None,
                  query_model=None,
                  balance_model=None,
+                 feature_model=None,
                  n_papers=None,
                  n_instances=DEFAULT_N_INSTANCES,
                  n_queries=None,
@@ -72,7 +75,9 @@ class BaseReview(ABC):
                  prior_excluded=[],
                  log_file=None,
                  final_labels=None,
-                 verbose=1):
+                 verbose=1,
+                 data_fp=None,
+                 ):
         """ Initialize base class for systematic reviews.
 
         Arguments
@@ -128,10 +133,13 @@ class BaseReview(ABC):
             query_model = MaxQuery()
         if balance_model is None:
             balance_model = SimpleBalance()
+        if feature_model is None:
+            raise ValueError("Supply feature model!")
 
         self.model = model
         self.balance_model = balance_model
         self.query_model = query_model
+        self.feature_model = feature_model
 
         self.shared = {"query_src": {}, "current_queries": {}}
         self.model.shared = self.shared
@@ -150,6 +158,7 @@ class BaseReview(ABC):
         self.query_i = 0
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
+        self.data_fp = data_fp
 
         with open_logger(log_file) as logger:
             if not logger.is_empty():
@@ -166,6 +175,7 @@ class BaseReview(ABC):
                 if final_labels is not None:
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
+                logger.add_settings(self.settings)
                 self._prior_knowledge(logger)
                 self.query_i = 0
 
@@ -177,8 +187,35 @@ class BaseReview(ABC):
                           logger, method="initial")
         if self.prior_excluded is not None and len(self.prior_excluded) > 0:
             self.classify(self.prior_excluded,
-                          np.zeros(len(self.prior_included)),
+                          np.zeros(len(self.prior_excluded)),
                           logger, method="initial")
+
+    @property
+    def settings(self):
+        if self.prior_included is not None:
+            n_prior_included = len(self.prior_included)
+        else:
+            n_prior_included = 0
+        if self.prior_excluded is not None:
+            n_prior_excluded = len(self.prior_excluded)
+        else:
+            n_prior_excluded = 0
+
+        return ASReviewSettings(
+            mode=self.name, model=self.model.name,
+            query_strategy=self.query_model.name,
+            balance_strategy=self.balance_model.name,
+            feature_extraction=self.feature_model.name,
+            n_instances=self.n_instances,
+            n_queries=self.n_queries,
+            n_papers=self.n_papers,
+            n_prior_included=n_prior_included,
+            n_prior_excluded=n_prior_excluded,
+            model_param=self.model.param,
+            query_param=self.query_model.param,
+            balance_param=self.balance_model.param,
+            feature_param=self.feature_model.param,
+            data_fp=self.data_fp)
 
     @abstractmethod
     def _get_labels(self, ind):

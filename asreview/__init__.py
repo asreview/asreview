@@ -22,13 +22,13 @@ from asreview.readers import read_data
 from asreview.readers import read_excel
 from asreview.readers import read_pubmed_xml
 from asreview.readers import read_ris
-from asreview.review import get_reviewer
-from asreview.review import MinimalReview
-from asreview.review import review
-from asreview.review import review_oracle
-from asreview.review import review_simulate
-from asreview.review import ReviewOracle
-from asreview.review import ReviewSimulate
+from asreview.review.factory import get_reviewer
+from asreview.review.factory import MinimalReview
+from asreview.review.factory import review
+from asreview.review.factory import review_oracle
+from asreview.review.factory import review_simulate
+from asreview.review.factory import ReviewOracle
+from asreview.review.factory import ReviewSimulate
 
 from ._version import get_versions
 __version__ = get_versions()['version']

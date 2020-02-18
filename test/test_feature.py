@@ -36,3 +36,5 @@ def test_features(feature_extraction, split_ta):
 
     assert X.shape[0] == len(as_data.title)
     assert X.shape[1] > 0
+    assert isinstance(model.param, dict)
+    assert model.name == feature_extraction

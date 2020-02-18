@@ -15,12 +15,13 @@
 import itertools
 import json
 import os
+from pathlib import Path
 
 import numpy as np
 from scipy import stats
 from sklearn.cluster import KMeans
 
-from asreview.logging.utils import loggers_from_dir
+from asreview.logging.utils import loggers_from_dir, logger_from_file
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
@@ -81,6 +82,25 @@ class Analysis():
 
         analysis_inst.data_dir = data_dir
         return analysis_inst
+
+    @classmethod
+    def from_file(cls, data_fp):
+        """Create an Analysis object from a file."""
+        key = os.path.basename(os.path.normpath(data_fp))
+        logger = logger_from_file(data_fp)
+        analysis_inst = cls(logger, key=key)
+        if analysis_inst.empty:
+            return None
+
+        analysis_inst.data_path = data_fp
+        return analysis_inst
+
+    @classmethod
+    def from_path(cls, data_path, prefix="result"):
+        """Create an Analysis object from either a file or a directory."""
+        if Path(data_path).is_file():
+            return cls.from_file(data_path)
+        return cls.from_dir(data_path, prefix)
 
     def inclusions_found(self,
                          result_format="fraction",

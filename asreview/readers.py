@@ -141,6 +141,9 @@ class ASReviewData(object):
         self.final_labels = merge_arrays(
             self.final_labels, as_data.final_labels, self.n_paper,
             as_data.n_paper, NOT_AVAILABLE, np.int)
+
+        self.raw_df = pd.concat([self.raw_df, as_data.raw_df], join='outer',
+                                sort=False, ignore_index=True)
         self.n_paper += as_data.n_paper
 
     @classmethod

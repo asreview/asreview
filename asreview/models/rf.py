@@ -36,6 +36,10 @@ class RFModel(BaseTrainModel):
             Set the random state of the RNG.
         """
         super(RFModel, self).__init__()
+        self.n_estimators = n_estimators
+        self.max_features = max_features
+        self.class_weight = class_weight
+        self.random_state = random_state
         if class_weight is not None:
             class_weight = {
                 0: 1,

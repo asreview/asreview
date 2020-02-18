@@ -113,6 +113,12 @@ class LSTMPoolModel(BaseTrainModel):
         }
         return hyper_space, hyper_choices
 
+    @property
+    def default_param(self):
+        defaults = super(LSTMPoolModel, self).default_param
+        defaults.pop("embedding_matrix")
+        return defaults
+
 
 def _create_lstm_pool_model(embedding_matrix,
                             backwards=True,

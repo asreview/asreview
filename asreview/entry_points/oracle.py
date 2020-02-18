@@ -4,7 +4,7 @@ import logging
 
 from asreview.ascii import welcome_message
 
-from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_N_INSTANCES
@@ -79,20 +79,29 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
         type=str,
         default=DEFAULT_MODEL,
         help=f"The prediction model for Active Learning. "
-             f"Default '{DEFAULT_MODEL}'.")  #noqa
+             f"Default: '{DEFAULT_MODEL}'.")  #noqa
     parser.add_argument(
         "-q", "--query_strategy",
         type=str,
         default=DEFAULT_QUERY_STRATEGY,
         help=f"The query strategy for Active Learning. "
-             f"Default '{DEFAULT_QUERY_STRATEGY}'.")  #noqa
+             f"Default: '{DEFAULT_QUERY_STRATEGY}'.")  #noqa
     parser.add_argument(
         "-b", "--balance_strategy",
         type=str,
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
              " imbalanced dataset with few inclusions and many exclusions. "
-             f"Default '{DEFAULT_BALANCE_STRATEGY}'")
+             f"Default: '{DEFAULT_BALANCE_STRATEGY}'")
+    parser.add_argument(
+        "-e", "--feature_extraction",
+        type=str,
+        default=DEFAULT_FEATURE_EXTRACTION,
+        help="Feature extraction method. Some combinations of feature"
+             " extraction method and prediction model are impossible/ill"
+             " advised."
+             f"Default: '{DEFAULT_FEATURE_EXTRACTION}'"
+    )
     parser.add_argument(
         "--n_instances",
         default=DEFAULT_N_INSTANCES,
