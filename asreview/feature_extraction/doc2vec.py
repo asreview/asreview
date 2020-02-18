@@ -42,7 +42,7 @@ class Doc2Vec(BaseFeatureExtraction):
     name = "doc2vec"
 
     def __init__(self, *args, vector_size=40, epochs=33, min_count=1,
-                 workers=1, window=7, dm_concat=0, dm=2, dbow_words=0,
+                 n_jobs=1, window=7, dm_concat=0, dm=2, dbow_words=0,
                  **kwargs):
         """Initialize the doc2vec model.
 
@@ -55,7 +55,7 @@ class Doc2Vec(BaseFeatureExtraction):
         min_count: int
             Minimum number of occurences for a word in the corpus for it to
             be included in the model.
-        workers: int
+        n_jobs: int
             Number of threads to train the model with.
         window: int
             Maximum distance over which word vectors influence each other.
@@ -75,7 +75,7 @@ class Doc2Vec(BaseFeatureExtraction):
         self.vector_size = int(vector_size)
         self.epochs = int(epochs)
         self.min_count = int(min_count)
-        self.workers = int(workers)
+        self.n_jobs = int(n_jobs)
         self.window = int(window)
         self.dm_concat = int(dm_concat)
         self.dm = int(dm)
@@ -97,7 +97,7 @@ class Doc2Vec(BaseFeatureExtraction):
             "vector_size": self.vector_size,
             "epochs": self.epochs,
             "min_count": self.min_count,
-            "workers": self.workers,
+            "workers": self.n_jobs,
             "window": self.window,
             "dm_concat": self.dm_concat,
             "dbow_words": self.dbow_words,
