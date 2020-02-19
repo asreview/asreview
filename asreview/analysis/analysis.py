@@ -76,7 +76,7 @@ class Analysis():
         """Create an Analysis object from a directory."""
         key = os.path.basename(os.path.normpath(data_dir))
         loggers = loggers_from_dir(data_dir, prefix=prefix)
-        analysis_inst = Analysis(loggers, key=key)
+        analysis_inst = cls(loggers, key=key)
         if analysis_inst.empty:
             return None
 
