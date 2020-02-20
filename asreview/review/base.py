@@ -22,13 +22,13 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import NOT_AVAILABLE
 from asreview.logging import open_logger
 from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
 from asreview.balance_strategies.simple import SimpleBalance
 from asreview.query_strategies.random import RandomQuery
 from asreview.settings import ASReviewSettings
+from asreview.feature_extraction.tfidf import Tfidf
 
 
 def get_pool_idx(X, train_idx):
@@ -62,8 +62,7 @@ class BaseReview(ABC):
     name = "base"
 
     def __init__(self,
-                 X,
-                 y=None,
+                 as_data,
                  model=None,
                  query_model=None,
                  balance_model=None,
@@ -121,11 +120,6 @@ class BaseReview(ABC):
         """
         super(BaseReview, self).__init__()
 
-        self.X = X
-        self.y = y
-        if y is None:
-            self.y = np.full(X.shape[0], NOT_AVAILABLE)
-        self.y = np.array(self.y, dtype=np.int)
         # Default to Naive Bayes model
         if model is None:
             model = NBModel()
@@ -134,8 +128,11 @@ class BaseReview(ABC):
         if balance_model is None:
             balance_model = SimpleBalance()
         if feature_model is None:
-            raise ValueError("Supply feature model!")
+            feature_model = Tfidf()
 
+        self.X = feature_model.fit_transform(
+            as_data.texts, as_data.headings, as_data.bodies)
+        self.y = as_data.labels
         self.model = model
         self.balance_model = balance_model
         self.query_model = query_model
@@ -163,7 +160,7 @@ class BaseReview(ABC):
         with open_logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
-                if X.shape[0] != len(y):
+                if self.X.shape[0] != len(y):
                     raise ValueError("The log file does not correspond to the "
                                      "given data file, please use another log "
                                      "file or dataset.")

@@ -120,10 +120,8 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    as_data = ASReviewData.from_file(dataset, extra_dataset=extra_dataset,
-                                     abstract_only=settings.abstract_only)
+    as_data = ASReviewData.from_file(dataset)
     texts = as_data.texts
-    y = as_data.labels
 
     data_prior_included, data_prior_excluded = as_data.get_priors()
     if len(data_prior_included) != 0:
@@ -147,8 +145,6 @@ def get_reviewer(dataset,
     feature_model = get_feature_model(settings.feature_extraction,
                                       **settings.feature_param)
 
-    X = feature_model.fit_transform(texts, as_data.title, as_data.abstract)
-
     if train_model.name.startswith("lstm-"):
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
@@ -156,7 +152,7 @@ def get_reviewer(dataset,
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(
-            X, y,
+            as_data,
             model=train_model,
             query_model=query_model,
             balance_model=balance_model,
@@ -175,12 +171,11 @@ def get_reviewer(dataset,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
-            X,
+            as_data,
             model=train_model,
             query_model=query_model,
             balance_model=balance_model,
             feature_model=feature_model,
-            as_data=as_data,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
@@ -192,7 +187,7 @@ def get_reviewer(dataset,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
-            X,
+            as_data,
             model=model,
             query_model=query_model,
             balance_model=balance_model,
