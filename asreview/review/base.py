@@ -70,8 +70,7 @@ class BaseReview(ABC):
                  n_papers=None,
                  n_instances=DEFAULT_N_INSTANCES,
                  n_queries=None,
-                 prior_included=[],
-                 prior_excluded=[],
+                 start_idx=[],
                  log_file=None,
                  final_labels=None,
                  verbose=1,
@@ -149,9 +148,6 @@ class BaseReview(ABC):
         self.log_file = log_file
         self.verbose = verbose
 
-        self.prior_included = prior_included
-        self.prior_excluded = prior_excluded
-
         self.query_i = 0
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
@@ -164,8 +160,13 @@ class BaseReview(ABC):
                     raise ValueError("The log file does not correspond to the "
                                      "given data file, please use another log "
                                      "file or dataset.")
-                self.y = y
+                if not set(train_idx) >= set(start_idx):
+                    new_idx = list(set(start_idx)-set(train_idx))
+                    self.classify(new_idx, self.y[new_idx], logger,
+                                  method="initial")
+                    y, train_idx, query_src, query_i = logger.review_state()
                 self.train_idx = train_idx
+                self.y = y
                 self.shared["query_src"] = query_src
                 self.query_i = query_i
             else:
@@ -173,7 +174,8 @@ class BaseReview(ABC):
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
                 logger.add_settings(self.settings)
-                self._prior_knowledge(logger)
+                self.classify(start_idx, self.y[start_idx], logger,
+                              method="initial")
                 self.query_i = 0
 
     def _prior_knowledge(self, logger):
@@ -189,15 +191,6 @@ class BaseReview(ABC):
 
     @property
     def settings(self):
-        if self.prior_included is not None:
-            n_prior_included = len(self.prior_included)
-        else:
-            n_prior_included = 0
-        if self.prior_excluded is not None:
-            n_prior_excluded = len(self.prior_excluded)
-        else:
-            n_prior_excluded = 0
-
         return ASReviewSettings(
             mode=self.name, model=self.model.name,
             query_strategy=self.query_model.name,
@@ -206,13 +199,13 @@ class BaseReview(ABC):
             n_instances=self.n_instances,
             n_queries=self.n_queries,
             n_papers=self.n_papers,
-            n_prior_included=n_prior_included,
-            n_prior_excluded=n_prior_excluded,
+            n_prior_included=0,
+            n_prior_excluded=0,
             model_param=self.model.param,
             query_param=self.query_model.param,
             balance_param=self.balance_model.param,
             feature_param=self.feature_model.param,
-            data_fp=self.data_fp)
+            data_fp=None)
 
     @abstractmethod
     def _get_labels(self, ind):

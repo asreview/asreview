@@ -70,7 +70,7 @@ class ASReviewSettings(object):
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
                  abstract_only=False,
-                 data_fp=None, data_name=None, model_param={},
+                 as_data=None, model_param={},
                  query_param={}, balance_param={}, feature_param={}, **kwargs
                  ):
         all_args = locals().copy()

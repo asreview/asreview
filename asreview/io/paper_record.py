@@ -2,27 +2,33 @@ from asreview.config import LABEL_NA
 
 
 class PaperRecord():
-    def __init__(self, title, abstract, record_id, authors=None, keywords=None,
+    def __init__(self, record_id, title=None, abstract=None, authors=None,
+                 keywords=None,
                  label=LABEL_NA, **kwargs):
         self.title = title
         self.abstract = abstract
         self.authors = authors
         self.keywords = keywords
         self.record_id = record_id
-        self.label = label
         if label is None:
             self.label = LABEL_NA
+        else:
+            self.label = int(label)
         self.extra_fields = kwargs
 
     def preview(self, w_title=80, w_authors=40):
         "Return a preview string for record i."
         title_str = ""
         author_str = ""
-        if self.title is not None:
-            if len(self.title) > w_title:
-                title_str = self.title[:w_title - 2] + ".."
+        heading = self.title
+        if heading is None:
+            heading = self.abstract
+        if heading is not None:
+            if len(heading) > w_title:
+                title_str = heading[:w_title - 2] + ".."
             else:
-                title_str = self.title
+                title_str = heading
+
         if self.authors is not None:
             cur_authors = format_to_str(self.authors)
             if len(cur_authors) > w_authors:
@@ -61,7 +67,7 @@ class PaperRecord():
 
     def print(self, *args, **kwargs):
         "Print a record to the CLI."
-        print(self.format_record(*args, **kwargs))
+        print(self.format(*args, **kwargs))
 
     @property
     def text(self):

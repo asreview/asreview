@@ -12,44 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+
 from asreview.init_sampling import sample_prior_knowledge
 from asreview.review import BaseReview
-from asreview.review.base import _merge_prior_knowledge
+import logging
 
 
 class ReviewSimulate(BaseReview):
     """Automated Systematic Review in simulation mode."""
 
     def __init__(self,
-                 X,
-                 y,
+                 as_data,
                  *args,
-                 n_prior_included=None,
-                 n_prior_excluded=None,
+                 n_prior_included=0,
+                 n_prior_excluded=0,
                  **kwargs):
-        self.n_prior_included = n_prior_included
-        self.n_prior_excluded = n_prior_excluded
-        super(ReviewSimulate, self).__init__(
-            X, y, *args, **kwargs)
+        labels = as_data.labels
+        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
+        print(as_data.labels[labeled_idx])
+        if len(labeled_idx) != len(labels):
+            logging.warning("Simulating partial review, ignoring unlabeled "
+                            f"papers (n={len(labels)-len(labeled_idx)}.")
+            as_data.slice(labeled_idx)
+            labels = as_data.labels
+            print(labels)
 
-    def _prior_knowledge(self, logger):
-        """Get the prior knowledge, either from specific paper IDs,
-            and if they're not given from the number of in/exclusions."""
-        if self.prior_included is not None or self.prior_excluded is not None:
-            prior_indices, prior_labels = _merge_prior_knowledge(
-                self.prior_included,
-                self.prior_excluded
-            )
-        else:
-            # Create the prior knowledge
-            init_ind = sample_prior_knowledge(
-                self.y,
-                n_prior_included=self.n_prior_included,
-                n_prior_excluded=self.n_prior_excluded,
-                random_state=None  # TODO
-            )
-            prior_indices, prior_labels = init_ind, self.y[init_ind, ]
-        self.classify(prior_indices, prior_labels, logger, method="initial")
+        start_idx = as_data.prior_data_idx
+        if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
+            start_idx = sample_prior_knowledge(
+                labels, n_prior_included, n_prior_excluded)
+        super(ReviewSimulate, self).__init__(
+            as_data, *args, start_idx=start_idx, **kwargs)
 
     def _get_labels(self, ind):
         """Get the labels directly from memory.

@@ -41,9 +41,9 @@ LOGGER_EXTENSIONS = ['.h5', '.hdf5', '.he5', '.json']
 
 COLUMN_DEFINITIONS = [
     ["label", "label_included", "included_label", "included_final",
-     "included", "included_flag"],
+     "included", "included_flag", "include"],
     ['title', 'primary_title'],
     ['authors', 'author names', 'first_authors'],
-    ['abstract'],
+    ['abstract', 'abstract note'],
     ['keywords'],
 ]

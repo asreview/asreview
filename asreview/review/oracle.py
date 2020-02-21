@@ -18,6 +18,7 @@ import questionary as questionary
 from asreview.review import BaseReview
 from asreview.types import convert_list_type
 from asreview.logging.utils import open_logger
+from asreview.config import LABEL_NA
 
 
 def update_stats(stats, label):
@@ -35,10 +36,16 @@ class ReviewOracle(BaseReview):
     """Review class for Oracle mode on the command line."""
 
     def __init__(self, as_data, *args, use_cli_colors=True,
+                 new_review=False,
                  **kwargs):
         self.as_data = as_data
+        if not new_review:
+            start_idx = np.where(as_data.labels != LABEL_NA)[0]
+        else:
+            as_data.labels = np.full_like(as_data.labels, LABEL_NA)
+            start_idx = []
         super(ReviewOracle, self).__init__(
-            as_data, *args, **kwargs)
+            as_data, *args, **kwargs, start_idx=start_idx)
 
         self.use_cli_colors = use_cli_colors
 

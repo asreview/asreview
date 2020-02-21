@@ -31,7 +31,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.logging.utils import open_logger
-from asreview.readers import ASReviewData
+from asreview.data import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
@@ -40,11 +40,42 @@ from asreview.models.utils import get_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model
+from pathlib import PurePath
 
 
 def _add_defaults(set_param, default_param):
     set_param.update({key: value for key, value in default_param.items()
                       if key not in set_param})
+
+
+def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
+                   prior_dataset=[]):
+    if isinstance(dataset, (str, PurePath)):
+        dataset = [dataset]
+
+    if isinstance(included_dataset, (str, PurePath)):
+        included_dataset = [included_dataset]
+
+    if isinstance(excluded_dataset, (str, PurePath)):
+        excluded_dataset = [excluded_dataset]
+
+    if isinstance(prior_dataset, (str, PurePath)):
+        prior_dataset = [prior_dataset]
+
+    as_data = ASReviewData()
+    # Find the URL of the datasets if the dataset is an example dataset.
+    for data in dataset:
+        if data in DEMO_DATASETS.keys():
+            data = DEMO_DATASETS[dataset]
+        as_data.append(ASReviewData.from_file(data))
+
+    for data in included_dataset:
+        as_data.append(ASReviewData.from_file(data, data_type="included"))
+    for data in excluded_dataset:
+        as_data.append(ASReviewData.from_file(data, data_type="excluded"))
+    for data in prior_dataset:
+        as_data.append(ASReviewData.from_file(data, data_type="prior"))
+    return as_data
 
 
 def get_reviewer(dataset,
@@ -69,16 +100,20 @@ def get_reviewer(dataset,
                  balance_param=None,
                  feature_param=None,
                  abstract_only=False,
-                 extra_dataset=[],
+                 included_dataset=[],
+                 excluded_dataset=[],
+                 prior_dataset=[],
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
         Of the arguments.
     """
+    as_data = create_as_data(dataset, included_dataset, excluded_dataset,
+                             prior_dataset)
 
-    # Find the URL of the datasets if the dataset is an example dataset.
-    if dataset in DEMO_DATASETS.keys():
-        dataset = DEMO_DATASETS[dataset]
+    if len(as_data.records) == 0:
+        raise ValueError("Supply at least one dataset"
+                         " with at least one record.")
 
     cli_settings = ASReviewSettings(
         model=model, n_instances=n_instances, n_queries=n_queries,
@@ -86,7 +121,7 @@ def get_reviewer(dataset,
         n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
         balance_strategy=balance_strategy,
         feature_extraction=feature_extraction,
-        mode=mode, data_fp=dataset,
+        mode=mode, data_fp=None,
         abstract_only=abstract_only)
     cli_settings.from_file(config_file)
 
@@ -120,19 +155,6 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    as_data = ASReviewData.from_file(dataset)
-    texts = as_data.texts
-
-    data_prior_included, data_prior_excluded = as_data.get_priors()
-    if len(data_prior_included) != 0:
-        if prior_included is None:
-            prior_included = []
-        prior_included.extend(data_prior_included.tolist())
-    if len(data_prior_excluded) != 0:
-        if prior_excluded is None:
-            prior_excluded = []
-        prior_excluded.extend(data_prior_excluded.tolist())
-
     if as_data.final_labels is not None:
         with open_logger(log_file) as logger:
             logger.set_final_labels(as_data.final_labels)
@@ -146,6 +168,7 @@ def get_reviewer(dataset,
                                       **settings.feature_param)
 
     if train_model.name.startswith("lstm-"):
+        texts = as_data.texts
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
@@ -161,8 +184,8 @@ def get_reviewer(dataset,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
-            prior_included=prior_included,
-            prior_excluded=prior_excluded,
+#             prior_included=prior_included,
+#             prior_excluded=prior_excluded,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
             log_file=log_file,
@@ -180,8 +203,8 @@ def get_reviewer(dataset,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
-            prior_included=prior_included,
-            prior_excluded=prior_excluded,
+#             prior_included=prior_included,
+#             prior_excluded=prior_excluded,
             log_file=log_file,
             data_fp=dataset,
             **kwargs)
@@ -196,8 +219,8 @@ def get_reviewer(dataset,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
-            prior_included=prior_included,
-            prior_excluded=prior_excluded,
+#             prior_included=prior_included,
+#             prior_excluded=prior_excluded,
             log_file=log_file,
             data_fp=dataset,
             **kwargs)
