@@ -18,7 +18,7 @@ def record_from_row(row, conversion_table, record_id):
     kwargs = {}
     for column, dest_key in conversion_table.items():
         value = row[column]
-        if pd.isnull(value):
+        if not isinstance(value, list) and pd.isnull(value):
             value = None
 
         if dest_key is None:

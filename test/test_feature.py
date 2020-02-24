@@ -3,7 +3,7 @@ import os
 from pytest import mark
 
 from asreview.feature_extraction.utils import get_feature_model
-from asreview.readers import ASReviewData
+from asreview import ASReviewData
 
 
 @mark.parametrize(

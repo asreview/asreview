@@ -27,21 +27,26 @@ class ReviewSimulate(BaseReview):
                  *args,
                  n_prior_included=0,
                  n_prior_excluded=0,
+                 prior_idx=None,
                  **kwargs):
-        labels = as_data.labels
-        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
-        print(as_data.labels[labeled_idx])
-        if len(labeled_idx) != len(labels):
-            logging.warning("Simulating partial review, ignoring unlabeled "
-                            f"papers (n={len(labels)-len(labeled_idx)}.")
-            as_data.slice(labeled_idx)
+        if prior_idx is not None:
+            start_idx = prior_idx
+        else:
             labels = as_data.labels
-            print(labels)
+            labeled_idx = np.where((labels == 0) | (labels == 1))[0]
 
-        start_idx = as_data.prior_data_idx
-        if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
-            start_idx = sample_prior_knowledge(
-                labels, n_prior_included, n_prior_excluded)
+            if len(labeled_idx) != len(labels):
+                logging.warning("Simulating partial review, ignoring unlabeled"
+                                f" papers (n={len(labels)-len(labeled_idx)}.")
+                as_data.slice(labeled_idx)
+                labels = as_data.labels
+                print(labels)
+
+            start_idx = as_data.prior_data_idx
+            if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
+                start_idx = sample_prior_knowledge(
+                    labels, n_prior_included, n_prior_excluded)
+
         super(ReviewSimulate, self).__init__(
             as_data, *args, start_idx=start_idx, **kwargs)
 

@@ -171,7 +171,7 @@ class ASReviewData(object):
         }
         best_suffix = None
         for suffix, entry in entry_points.items():
-            if fp.endswith(suffix):
+            if str(Path(fp).resolve()).endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
 
@@ -305,7 +305,7 @@ class ASReviewData(object):
                 f"from file {fp}")
 
     def to_dataframe(self, labels=None, df_order=None):
-        if df_order is not None:
+        if df_order is None:
             df_order = np.arange(len(self.records))
 
         df_dict = {}
