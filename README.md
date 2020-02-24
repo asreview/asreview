@@ -87,6 +87,8 @@ asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_
 - [automated-systematic-review-datasets](https://github.com/asreview/asreview-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
 - [automated-systematic-review-simulations](https://github.com/asreview/asreview-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
+## Contributing
+Got ideas for improvement? There are many ways to contribute to ASReview! Get started [here :arrow_left:](contributing)
 
 ## License
 [LICENSE](LICENSE)
@@ -121,12 +123,10 @@ BibTeX:
     url = {https://doi.org/10.5281/zenodo.3345592}
 }
 ```
-## Contributing
-Got ideas for improvement? There are many ways to contribute to ASReview! Get started [here :arrow_left:](contributing)
 
 ## Contact
-This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator, [@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
+This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) [@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ()[@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
 Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
-University, The Netherlands. Source code is maintained by [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165)) and Raoul Schram ([@qubixes](https://github.com/qubixes)).
+University, The Netherlands. Maintainers are [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165)) and Raoul Schram ([@qubixes](https://github.com/qubixes)).
 
 For any questions or remarks, please send an email to asreview@uu.nl.
