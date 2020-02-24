@@ -24,7 +24,7 @@ from asreview.utils import _set_class_weight
 
 
 class LSTMBaseModel(BaseTrainModel):
-    """ LSTM base class.
+    """LSTM base class.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     dense layer.
@@ -77,7 +77,7 @@ class LSTMBaseModel(BaseTrainModel):
         self.batch_size = batch_size
         self.epochs = epochs
         self.shuffle = shuffle
-        self.class_weight = _set_class_weight(class_weight)
+        self.class_weight = class_weight
         self._model = None
         self.sequence_length = None
 
@@ -97,7 +97,8 @@ class LSTMBaseModel(BaseTrainModel):
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
         self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
-                        shuffle=self.shuffle, class_weight=self.class_weight,
+                        shuffle=self.shuffle,
+                        class_weight=_set_class_weight(self.class_weight),
                         verbose=self.verbose)
 
     def full_hyper_space(self):
@@ -110,6 +111,12 @@ class LSTMBaseModel(BaseTrainModel):
             "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
         }
         return hyper_space, hyper_choices
+
+    @property
+    def default_param(self):
+        defaults = super(LSTMBaseModel, self).default_param
+        defaults.pop("embedding_matrix")
+        return defaults
 
 
 def _create_lstm_base_model(embedding_matrix,

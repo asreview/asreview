@@ -15,12 +15,13 @@
 import itertools
 import json
 import os
+from pathlib import Path
 
 import numpy as np
 from scipy import stats
 from sklearn.cluster import KMeans
 
-from asreview.logging.utils import loggers_from_dir
+from asreview.logging.utils import loggers_from_dir, logger_from_file
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
@@ -29,9 +30,11 @@ from asreview.analysis.statistics import _random_ttd, _cluster_ttd, _max_ttd
 
 
 class Analysis():
-    """ Analysis object to do statistical analysis on log files. """
+    """Analysis object to do statistical analysis on log files."""
+
     def __init__(self, loggers, key=None):
-        """
+        """Class to analyse log files.
+
         Arguments
         ---------
         loggers: list, BaseLogger
@@ -69,18 +72,39 @@ class Analysis():
         self.inc_found = {}
 
     @classmethod
-    def from_dir(cls, data_dir):
+    def from_dir(cls, data_dir, prefix="result"):
         """Create an Analysis object from a directory."""
         key = os.path.basename(os.path.normpath(data_dir))
-        loggers = loggers_from_dir(data_dir)
-        analysis_inst = Analysis(loggers, key=key)
+        loggers = loggers_from_dir(data_dir, prefix=prefix)
+        analysis_inst = cls(loggers, key=key)
         if analysis_inst.empty:
             return None
 
         analysis_inst.data_dir = data_dir
         return analysis_inst
 
-    def inclusions_found(self, result_format="fraction", final_labels=False,
+    @classmethod
+    def from_file(cls, data_fp):
+        """Create an Analysis object from a file."""
+        key = os.path.basename(os.path.normpath(data_fp))
+        logger = logger_from_file(data_fp)
+        analysis_inst = cls(logger, key=key)
+        if analysis_inst.empty:
+            return None
+
+        analysis_inst.data_path = data_fp
+        return analysis_inst
+
+    @classmethod
+    def from_path(cls, data_path, prefix="result"):
+        """Create an Analysis object from either a file or a directory."""
+        if Path(data_path).is_file():
+            return cls.from_file(data_path)
+        return cls.from_dir(data_path, prefix)
+
+    def inclusions_found(self,
+                         result_format="fraction",
+                         final_labels=False,
                          **kwargs):
         """Get the number of inclusions at each point in time.
 
@@ -107,14 +131,16 @@ class Analysis():
         if fl not in self.inc_found:
             # Compute the comclusions if not found in cache.
             self.inc_found[fl] = {}
-            avg, err, iai, ninit = self._get_inc_found(**kwargs, labels=labels)
+            avg, err, iai, ninit = self._get_inc_found(
+                labels=labels, **kwargs
+            )
             self.inc_found[fl]["avg"] = avg
             self.inc_found[fl]["err"] = err
             self.inc_found[fl]["inc_after_init"] = iai
             self.inc_found[fl]["n_initial"] = ninit
         dx = 0
         dy = 0
-        x_norm = len(labels)-self.inc_found[fl]["n_initial"]
+        x_norm = len(labels) - self.inc_found[fl]["n_initial"]
         y_norm = self.inc_found[fl]["inc_after_init"]
 
         if result_format == "percentage":
@@ -124,9 +150,9 @@ class Analysis():
             x_norm /= len(labels)
             y_norm /= self.inc_found[fl]["inc_after_init"]
 
-        norm_xr = (np.arange(len(self.inc_found[fl]["avg"]))-dx)/x_norm
-        norm_yr = (np.array(self.inc_found[fl]["avg"])-dy)/y_norm
-        norm_y_err = np.array(self.inc_found[fl]["err"])/y_norm
+        norm_xr = (np.arange(len(self.inc_found[fl]["avg"])) - dx) / x_norm
+        norm_yr = (np.array(self.inc_found[fl]["avg"]) - dy) / y_norm
+        norm_y_err = np.array(self.inc_found[fl]["err"]) / y_norm
 
         return norm_xr, norm_yr, norm_y_err
 
@@ -185,8 +211,8 @@ class Analysis():
             x_return, y_result, _ = self.inclusions_found(
                 result_format="number", **kwargs)
             y_max = self.inc_found[False]["inc_after_init"]
-            y_coef = y_max/(len(self.labels) -
-                            self.inc_found[False]["n_initial"])
+            y_coef = y_max / (
+                len(self.labels) - self.inc_found[False]["n_initial"])
         else:
             x_return = norm_xr
             y_result = norm_yr
@@ -195,9 +221,8 @@ class Analysis():
 
         for i in range(len(norm_yr)):
             if norm_yr[i] >= val - 1e-6:
-                return (norm_yr[i] - norm_xr[i],
-                        (x_return[i], x_return[i]),
-                        (x_return[i]*y_coef, y_result[i]))
+                return (norm_yr[i] - norm_xr[i], (x_return[i], x_return[i]),
+                        (x_return[i] * y_coef, y_result[i]))
         return (None, None, None)
 
     def rrf(self, val=10, x_format="percentage", **kwargs):
@@ -228,9 +253,8 @@ class Analysis():
 
         for i in range(len(norm_yr)):
             if norm_xr[i] >= val - 1e-6:
-                return (norm_yr[i],
-                        (x_return[i], x_return[i]),
-                        (0, y_return[i]))
+                return (norm_yr[i], (x_return[i], x_return[i]), (0,
+                                                                 y_return[i]))
         return (None, None, None)
 
     def avg_time_to_discovery(self, result_format="number"):
@@ -271,7 +295,8 @@ class Analysis():
             for i_file, time in enumerate(time_results[label]):
                 if time >= n_initial[i_file]:
                     if result_format == "percentage":
-                        time_measure = 100*time/(len(labels)-n_initial[i_file])
+                        time_measure = 100 * time / (
+                            len(labels) - n_initial[i_file])
                     else:
                         time_measure = time
                     trained_time.append(time_measure)
@@ -315,8 +340,11 @@ class Analysis():
         n_train = 0
         _, n_initial = _get_labeled_order(logger)
         for query_i in range(n_queries):
-            new_limits = _get_limits(self.loggers, query_i, self.labels,
-                                     proba_allow_miss=prob_allow_miss)
+            new_limits = _get_limits(
+                self.loggers,
+                query_i,
+                self.labels,
+                proba_allow_miss=prob_allow_miss)
 
             try:
                 new_train_idx = logger.get("train_idx", query_i)
@@ -328,13 +356,13 @@ class Analysis():
 
             if new_limits is not None:
                 if result_format == "percentage":
-                    normalizer = 100/(len(self.labels)-n_initial)
+                    normalizer = 100 / (len(self.labels) - n_initial)
                 else:
                     normalizer = 1
-                results["x_range"].append((n_train-n_initial)*normalizer)
+                results["x_range"].append((n_train - n_initial) * normalizer)
                 for i_prob in range(len(prob_allow_miss)):
                     results["limits"][i_prob].append(
-                        (new_limits[i_prob]-n_initial)*normalizer)
+                        (new_limits[i_prob] - n_initial) * normalizer)
 
         if result_format == "percentage":
             res_dtype = np.float
@@ -343,15 +371,15 @@ class Analysis():
 
         results["x_range"] = np.array(results["x_range"], dtype=res_dtype)
         for i_prob in range(len(prob_allow_miss)):
-            results["limits"][i_prob] = np.array(
-                results["limits"][i_prob], res_dtype)
+            results["limits"][i_prob] = np.array(results["limits"][i_prob],
+                                                 res_dtype)
         return results
 
     def time_to_inclusion(self, X_fp):
         with open(X_fp, "r") as fp:
             X = np.array(json.load(fp))
 
-        n_clusters = int(len(self.labels)/150)
+        n_clusters = int(len(self.labels) / 150)
         model = KMeans(n_clusters=n_clusters, n_init=1)
         clusters = model.fit_predict(X, self.labels)
         logger = self.loggers[self._first_file]
@@ -388,6 +416,6 @@ class Analysis():
         return results
 
     def close(self):
-        "Close loggers."
+        """Close loggers."""
         for logger in self.loggers.values():
             logger.close()

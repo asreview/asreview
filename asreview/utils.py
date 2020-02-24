@@ -127,7 +127,7 @@ def get_data_home(data_home=None):
 
 
 def _set_class_weight(weight1):
-    """ Used in RNN's to have quicker learning. """
+    """Used in RNN's to have quicker learning"""
     weight0 = 1.0
     cw_class = {
         0: weight0,

@@ -28,7 +28,7 @@ from asreview.utils import _set_class_weight
 
 
 class LSTMPoolModel(BaseTrainModel):
-    """ LSTM pool class.
+    """LSTM pool class.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     max pooling layer.
@@ -112,6 +112,12 @@ class LSTMPoolModel(BaseTrainModel):
             "mdl_learn_rate_mult": hp.lognormal("mdl_learn_rate_mult", 0, 1)
         }
         return hyper_space, hyper_choices
+
+    @property
+    def default_param(self):
+        defaults = super(LSTMPoolModel, self).default_param
+        defaults.pop("embedding_matrix")
+        return defaults
 
 
 def _create_lstm_pool_model(embedding_matrix,

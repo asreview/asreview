@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import numpy as np
-from PyInquirer import prompt, Separator
+import questionary as questionary
 
 from asreview.config import NOT_AVAILABLE
 from asreview.review import BaseReview
@@ -33,7 +33,7 @@ def update_stats(stats, label):
 
 
 class ReviewOracle(BaseReview):
-    """ Review class for Oracle mode on the command line. """
+    """Review class for Oracle mode on the command line."""
 
     def __init__(self, X, as_data, *args, use_cli_colors=True,
                  **kwargs):
@@ -48,16 +48,11 @@ class ReviewOracle(BaseReview):
 
     def _papers_from_finder(self, logger):
         "Find papers using a fuzzy finder in the available records."
-        question = [
-            {
-                'type': 'input',
-                'name': 'keywords',
-                'message': 'Find papers using keywords/authors/title:',
-            }
-        ]
-        try:
-            keywords = prompt(question)['keywords']
-        except KeyError:
+        keywords = questionary.text(
+            'Find papers using keywords/authors/title:'
+        ).ask()
+
+        if keywords is None:
             return
 
         paper_idx = self.as_data.fuzzy_find(keywords, exclude=self.train_idx)
@@ -66,54 +61,45 @@ class ReviewOracle(BaseReview):
         choices = []
         for idx in paper_idx:
             choices.append(self.as_data.preview_record(idx))
-        choices.extend([Separator(), "return"])
+        choices.extend([questionary.Separator(), "Return"])
 
         # Stay in the same menu until no more options are left
         while len(choices) > 2:
-            question = [
-                {
-                    'type': 'list',
-                    'name': 'paper',
-                    'message': 'Choose a paper to review:',
-                    'choices': choices
-                }
-            ]
-            new_choice = prompt(question).get('paper', "return")
-            if new_choice == "return":
+            new_choice = questionary.select(
+                'Choose a paper to review:',
+                choices=choices,
+            ).ask()
+
+            if new_choice == "Return" or new_choice is None:
                 return
             choice_idx = choices.index(new_choice)
             idx = paper_idx[choice_idx]
 
             # Get the label for the selected paper.
             label = self._get_labels_paper(idx, ask_stop=False)
-            self.classify([idx], [label], logger, method="initial")
+            if label is not None:
+                self.classify([idx], [label], logger, method="initial")
 
-            # Remove the selected choice from the list.
-            del choices[choice_idx]
-            del paper_idx[choice_idx]
+                # Remove the selected choice from the list.
+                del choices[choice_idx]
+                del paper_idx[choice_idx]
         return
 
     def _papers_from_id(self, logger):
         "Get papers by a list of IDs."
-        question = [
-            {
-                'type': 'input',
-                'name': 'included',
-                'message': 'Which papers do you want to include?\n'
-                'Separate paper indices by spaces:',
-            },
-            {
-                'type': 'input',
-                'name': 'excluded',
-                'message': 'Which papers do you want to exclude?\n'
-                'Separate paper indices by spaces:',
-            }
-        ]
-        answer = prompt(question)
-        try:
-            included = answer["included"]
-            excluded = answer["excluded"]
-        except KeyError:
+        include_question = questionary.text(
+            'Which papers do you want to include?\n'
+            'Separate paper indices by spaces:'
+        )
+        exclude_question = questionary.text(
+            'Which papers do you want to exclude?\n'
+            'Separate paper indices by spaces:'
+        )
+        included = include_question.ask()
+        if included is None:
+            return
+        excluded = exclude_question.ask()
+        if excluded is None:
             return
 
         new_included = convert_list_type(included.split(), int)
@@ -128,39 +114,33 @@ class ReviewOracle(BaseReview):
         while True:
             n_included = np.sum(self.y[self.train_idx] == 1)
             n_excluded = np.sum(self.y[self.train_idx] == 0)
-            question = [{
-                'type': 'list',
-                'name': 'action',
-                'message': 'What do you want to do next?',
-                'choices': [
+            action = questionary.select(
+                'What do you want to do next?',
+                choices=[
                     "Find papers by keywords",
                     "Find papers by ID",
-                    Separator(),
+                    questionary.Separator(),
                     f"Continue review ({n_included} included, "
                     f"{n_excluded} excluded)",
                     "Export",
-                    Separator(),
+                    questionary.Separator(),
                     "Stop"
                 ]
-            }]
-            action = prompt(question).get("action", "Stop")
+            ).ask()
 
-            if action.endswith("by keywords"):
+            if action is None or action.startswith("Stop"):
+                stop = questionary.confirm(
+                    "Are you sure you want to stop?",
+                    default=False
+                ).ask()
+                if stop:
+                    raise KeyboardInterrupt
+            elif action.endswith("by keywords"):
                 self._papers_from_finder(logger)
             elif action.endswith("by ID"):
                 self._papers_from_id(logger)
             elif action.startswith("Export"):
                 self._export()
-            elif action.startswith("Stop"):
-                question = [{
-                    'type': 'confirm',
-                    'message': "Are you sure you want to stop?",
-                    'name': 'stop',
-                    'default': 'false',
-                }]
-                stop = prompt(question).get('stop', True)
-                if stop:
-                    raise KeyboardInterrupt
             elif action.startswith("Continue review"):
                 try:
                     self._do_review(logger, *args, **kwargs)
@@ -199,27 +179,18 @@ class ReviewOracle(BaseReview):
         if stat_str is not None:
             print(stat_str + "\n")
 
-        def _interact():
-            question = [
-                {
-                    'type': 'list',
-                    'name': 'action',
-                    'message': 'Include or Exclude?',
-                    'default': 'Exclude',
-                    'choices': [
-                        'Exclude', 'Include', Separator(), 'Back to main menu'
-                    ],
-                    'filter': lambda val: val.lower()
-                }
-            ]
-            action = prompt(question).get("action", 'Back to main menu')
-            return action
+        action = questionary.select(
+            'Include or Exclude?',
+            choices=[
+                'Exclude', 'Include', questionary.Separator(),
+                'Back to main menu'
+            ],
+            default='Exclude',
+        ).ask()
 
-        action = _interact()
-
-        if action == "include":
+        if action == "Include":
             label = 1
-        elif action == "exclude":
+        elif action == "Exclude":
             label = 0
         else:
             label = None
@@ -234,19 +205,15 @@ class ReviewOracle(BaseReview):
 
         Order of records is: [included, not reviewed (by proba), excluded]
         """
-        question = [
-            {
-                'type': 'input',
-                'name': 'file_name',
-                'validate': lambda val: val.endswith((".csv", ".ris")),
-                'message': 'Type file name for export ending with .csv or .ris'
-            }
-        ]
-        try:
-            file_name = prompt(question)["file_name"]
-        except KeyError:
+        file_name = questionary.text(
+            'Type file name for export ending with .csv or .ris',
+            validate=lambda val: val.endswith((".csv", ".ris")),
+        ).ask()
+
+        if file_name is None:
             return
-        pred_proba = self.query_kwargs.get('pred_proba', None)
+
+        pred_proba = self.shared.get('pred_proba', None)
         pool_idx = np.delete(np.arange(len(self.y)), self.train_idx)
         if pred_proba is not None:
             proba_order = np.argsort(-pred_proba[pool_idx, 1])

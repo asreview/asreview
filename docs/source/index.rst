@@ -19,7 +19,7 @@ simulation mode.
   papers you could have potentially skipped during the systematic review.
 
 The source code is freely available at 
-`GitHub <https://github.com/msdslab/automated-systematic-review>`_.
+`GitHub <https://github.com/asreview/asreview>`_.
 
 .. toctree::
    :maxdepth: 2
@@ -92,7 +92,7 @@ cited with (fill in x and y for the version number):
 
 ASReview Core Development Team (2019). ASReview: Software for automated systematic 
 reviews [version 0.x.y]. Utrecht University, Utrecht, The Netherlands. Available at
-https://github.com/msdslab/automated-systematic-review.
+https://github.com/asreview/asreview.
 
 .. code-block:: text
 

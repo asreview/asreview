@@ -40,6 +40,10 @@ class SVMModel(BaseTrainModel):
         """
         super(SVMModel, self).__init__()
         self.gamma = gamma
+        self.class_weight = class_weight
+        self.C = C
+        self.kernel = kernel
+        self.random_state = random_state
         if class_weight is not None:
             class_weight = {
                 0: 1,

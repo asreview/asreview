@@ -54,7 +54,7 @@ setup(
     description='Automated Systematic Review',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
-    url='https://github.com/msdslab/automated-systematic-review',
+    url='https://github.com/asreview/asreview',
     author='ASReview Core Development Team',
     author_email='asreview@uu.nl',
     classifiers=[
@@ -75,7 +75,7 @@ setup(
         'modAL',
         'RISparser',
         'dill',
-        'PyInquirer',
+        'questionary',
         'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
@@ -84,8 +84,7 @@ setup(
     extras_require=DEPS,
     entry_points={
         'console_scripts': [
-            'asreview=asreview.__main__:main',
-            'asr=asreview.__main__:main_depr',
+            'asreview=asreview.__main__:main'
         ],
         'asreview.entry_points': [
             'simulate = asreview.entry_points:SimulateEntryPoint',
@@ -94,7 +93,7 @@ setup(
     },
     project_urls={
         'Bug Reports':
-            'https://github.com/msdslab/automated-systematic-review/issues',
-        'Source': 'https://github.com/msdslab/automated-systematic-review/',
+            'https://github.com/asreview/asreview/issues',
+        'Source': 'https://github.com/asreview/asreview/',
     },
 )

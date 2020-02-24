@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-'''
-Max sampling while saving prediction probabilities.
-'''
+"""Max sampling while saving prediction probabilities."""
 
 from modAL.utils.selection import multi_argmax
 from modAL.utils.selection import shuffled_argmax
@@ -23,7 +21,8 @@ from asreview.query_strategies.base import ProbaQueryStrategy
 
 
 class MaxQuery(ProbaQueryStrategy):
-    "Maximum sampling query strategy."
+    """Maximum sampling query strategy."""
+
     name = "max"
 
     def __init__(self, random_tie_break=False):

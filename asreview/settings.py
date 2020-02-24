@@ -56,7 +56,8 @@ def _convert_types(par_defaults, param):
                     raise(TypeError(
                         f"Error converting key in config file: {par}"))
         except KeyError:
-            logging.warning(f"Parameter {par} does not have a default.")
+            logging.warning(f"Parameter {par} does not have a default.\n"
+                            f"Defaults: {par_defaults}.")
 
 
 class ASReviewSettings(object):
@@ -133,7 +134,7 @@ class ASReviewSettings(object):
         query_model = get_query_model(self.query_strategy)
         _convert_types(query_model.default_param, self.query_param)
         feature_model = get_feature_model(self.feature_extraction)
-        _convert_types(feature_model.default_param, self.query_param)
+        _convert_types(feature_model.default_param, self.feature_param)
 
     def __str__(self):
         info_str = "----------------------------\n"

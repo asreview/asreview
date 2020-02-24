@@ -17,7 +17,9 @@ import logging
 import os
 from os.path import splitext
 
-from asreview.config import AVAILABLE_CLI_MODI
+import questionary
+
+from asreview.config import AVAILABLE_CLI_MODI, LOGGER_EXTENSIONS
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
@@ -151,14 +153,6 @@ def get_reviewer(dataset,
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
-    _add_defaults(settings.query_param, query_model.default_param)
-    _add_defaults(settings.model_param, train_model.default_param)
-    _add_defaults(settings.balance_param, balance_model.default_param)
-
-    if log_file is not None:
-        with open_logger(log_file) as logger:
-            logger.add_settings(settings)
-
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(
@@ -166,6 +160,7 @@ def get_reviewer(dataset,
             model=train_model,
             query_model=query_model,
             balance_model=balance_model,
+            feature_model=feature_model,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
@@ -176,13 +171,15 @@ def get_reviewer(dataset,
             n_prior_excluded=settings.n_prior_excluded,
             log_file=log_file,
             final_labels=as_data.final_labels,
+            data_fp=dataset,
             **kwargs)
     elif mode == "oracle":
         reviewer = ReviewOracle(
             X,
-            model=model,
+            model=train_model,
             query_model=query_model,
             balance_model=balance_model,
+            feature_model=feature_model,
             as_data=as_data,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
@@ -191,13 +188,15 @@ def get_reviewer(dataset,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             log_file=log_file,
+            data_fp=dataset,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
             X,
             model=model,
             query_model=query_model,
-            balance_mode=balance_model,
+            balance_model=balance_model,
+            feature_model=feature_model,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
@@ -205,6 +204,7 @@ def get_reviewer(dataset,
             prior_included=prior_included,
             prior_excluded=prior_excluded,
             log_file=log_file,
+            data_fp=dataset,
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
@@ -214,7 +214,7 @@ def get_reviewer(dataset,
 
 def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
            **kwargs):
-    """ Perform a review from arguments. Compatible with the CLI interface. """
+    """Perform a review from arguments. Compatible with the CLI interface"""
     if mode not in AVAILABLE_CLI_MODI:
         raise ValueError(f"Unknown mode '{mode}'.")
 
@@ -234,60 +234,50 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
 
 def review_oracle(dataset, *args, log_file=None, **kwargs):
     """CLI to the interactive mode."""
-    from PyInquirer import prompt, Separator
     if log_file is None:
         while True:
-            question = [{
-                'type': 'input',
-                'name': 'log_file',
-                'message': 'Please provide a file to store '
-                'the results of your review:'
-            }]
-            log_file = prompt(question).get("log_file", "")
+            log_file = questionary.text(
+                'Please provide a file to store '
+                'the results of your review:',
+                validate=lambda val: splitext(val)[1] in LOGGER_EXTENSIONS,
+            ).ask()
+            if log_file is None:
+                return
             if len(log_file) == 0:
-                question = [{
-                    'type': 'confirm',
-                    'message': 'Are you sure you want to continue without'
-                    ' saving?',
-                    'name': 'force_continue',
-                    'default': 'False',
-                }]
-                force_continue = prompt(question).get('force_continue', False)
+                force_continue = questionary.confirm(
+                    'Are you sure you want to continue without saving?',
+                    default=False
+                ).ask()
                 if force_continue:
                     log_file = None
                     break
             else:
                 if os.path.isfile(log_file):
-                    question = [{
-                        'type': 'list',
-                        'name': 'action',
-                        'message': f'File {log_file} exists, what do you want'
+                    action = questionary.select(
+                        f'File {log_file} exists, what do you want'
                         ' to do?',
-                        'choices': [
+                        default='Exit',
+                        choices=[
                             f'Continue review from {log_file}',
                             f'Delete review in {log_file} and start a new'
                             ' review',
                             f'Choose another file name.',
-                            Separator(),
+                            questionary.Separator(),
                             f'Exit'
                         ]
-                    }]
-                    action = prompt(question).get('action', 'Exit')
-                    if action == "Exit":
+                    ).ask()
+                    if action == "Exit" or action is None:
                         return
                     if action.startswith("Continue"):
                         break
                     if action.startswith("Choose another"):
                         continue
                     if action.startswith("Delete"):
-                        question = [{
-                            'type': 'confirm',
-                            'message': f'Are you sure you want to delete '
+                        delete = questionary.confirm(
+                            f'Are you sure you want to delete '
                             f'{log_file}?',
-                            'name': 'delete',
-                            'default': 'False',
-                        }]
-                        delete = prompt(question).get("delete", False)
+                            default=False,
+                        ).ask()
                         if delete:
                             os.remove(log_file)
                             break

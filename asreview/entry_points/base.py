@@ -1,9 +1,10 @@
 from abc import ABC, abstractclassmethod
 
+from asreview import __version__
 
 class BaseEntryPoint(ABC):
     """Base class for defining entry points."""
-    from asreview.__init__ import __version__
+    
     description = "Base Entry point."
     extension_name = "asreview"
     version = __version__

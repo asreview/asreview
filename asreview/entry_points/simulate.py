@@ -40,8 +40,8 @@ papers you could have potentially skipped during the systematic
 review."""
 
 
-def _simulate_parser():
-    parser = _oracle_parser(prog="simulate", description=DESCRIPTION_SIMULATE)
+def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
+    parser = _oracle_parser(prog=prog, description=description)
     # Initial data (prior knowledge)
     parser.add_argument(
         "--n_prior_included",
@@ -58,4 +58,10 @@ def _simulate_parser():
         help="Sample n prior excluded papers. "
              "Only used when --prior_excluded is not given. "
              f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
+    parser.add_argument(
+        "--abstract_only",
+        default=False,
+        action='store_true',
+        help="Use after abstract screening as the inclusions/exclusions."
+    )
     return parser

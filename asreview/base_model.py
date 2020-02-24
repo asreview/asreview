@@ -15,26 +15,56 @@
 from abc import ABC
 import inspect
 
+import numpy as np
+
+
+def sig_to_param(signature):
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
+
 
 class BaseModel(ABC):
-    "Abstract class for balance strategies."
+    """Abstract class for any kind of model."""
+
     name = "base"
 
     @property
     def default_param(self):
-        """Get the default parameters of the balance strategy.
+        """Get the default parameters of the model.
 
         Returns
         -------
         dict:
-            Dictionary with parameter: default_value
+            Dictionary with parameter: default value
         """
-        signature = inspect.signature(self.__init__)
-        return {
-            k: v.default
-            for k, v in signature.parameters.items()
-            if v.default is not inspect.Parameter.empty
-        }
+        cur_class = self.__class__
+        default_parameters = sig_to_param(inspect.signature(self.__init__))
+        while cur_class != BaseModel:
+            signature = inspect.signature(super(cur_class, self).__init__)
+            new_parameters = sig_to_param(signature)
+            default_parameters.update(new_parameters)
+            cur_class = cur_class.__bases__[0]
+        return default_parameters
+
+    @property
+    def param(self):
+        """Get the (assigned) parameters of the model.
+
+        Returns
+        -------
+        dict:
+            Dictionary with parameter: current value.
+        """
+        parameters = self.default_param
+        for par in parameters:
+            parameters[par] = getattr(self, par)
+            if isinstance(parameters[par], np.integer):
+                parameters[par] = int(parameters[par])
+
+        return parameters
 
     def full_hyper_space(self):
         return {}, {}

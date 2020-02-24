@@ -17,7 +17,6 @@ from pathlib import Path
 import warnings
 import xml.etree.ElementTree as ET
 
-
 import numpy as np
 import pandas as pd
 from RISparser import readris
@@ -33,10 +32,7 @@ with warnings.catch_warnings():
 RIS_KEY_LABEL_INCLUDED = "LI"
 NAME_LABEL_INCLUDED = "label_included"
 LABEL_INCLUDED_VALUES = [
-    "label_included",
-    "included_label",
-    "included_final",
-    "included",
+    "label_included", "included_label", "included_final", "included",
     "included_flag"
 ]
 
@@ -70,7 +66,8 @@ def get_fuzzy_ranking(keywords, str_list):
     return rank_list
 
 
-def merge_arrays(array_a, array_b, n_paper_a, n_paper_b, fill="", type_=object):
+def merge_arrays(array_a, array_b, n_paper_a, n_paper_b, fill="",
+                 type_=object):
     if array_a is None and array_b is not None:
         array_a = np.full(n_paper_a, fill).astype(type_)
     if array_a is not None and array_b is None:
@@ -83,10 +80,18 @@ def merge_arrays(array_a, array_b, n_paper_a, n_paper_b, fill="", type_=object):
 class ASReviewData(object):
     """Data object to store csv/ris file.
 
-    Extracts relevant properties of papers. """
-    def __init__(self, raw_df, labels=None, title=None, abstract=None,
-                 keywords=None, article_id=None, authors=None,
-                 label_col=LABEL_INCLUDED_VALUES[0], final_labels=None):
+    Extracts relevant properties of papers."""
+
+    def __init__(self,
+                 raw_df,
+                 labels=None,
+                 title=None,
+                 abstract=None,
+                 keywords=None,
+                 article_id=None,
+                 authors=None,
+                 label_col=LABEL_INCLUDED_VALUES[0],
+                 final_labels=None):
         self.raw_df = raw_df
         self.labels = labels
         self.title = title
@@ -127,22 +132,27 @@ class ASReviewData(object):
 
         self.title = np.append(self.title, as_data.title)
         self.abstract = np.append(self.abstract, as_data.abstract)
-        self.article_id = np.append(self.article_id, as_data.article_id + self.n_paper)
-        self.keywords = merge_arrays(self.keywords, as_data.keywords, self.n_paper,
-                                     as_data.n_paper, "", object)
-        self.authors = merge_arrays(self.authors, as_data.authors, self.n_paper,
-                                    as_data.n_paper, "", object)
-        self.final_labels = merge_arrays(self.final_labels, as_data.final_labels,
-                                         self.n_paper, as_data.n_paper, NOT_AVAILABLE,
-                                         np.int)
+        self.article_id = np.append(self.article_id,
+                                    as_data.article_id + self.n_paper)
+        self.keywords = merge_arrays(self.keywords, as_data.keywords,
+                                     self.n_paper, as_data.n_paper, "", object)
+        self.authors = merge_arrays(self.authors, as_data.authors,
+                                    self.n_paper, as_data.n_paper, "", object)
+        self.final_labels = merge_arrays(
+            self.final_labels, as_data.final_labels, self.n_paper,
+            as_data.n_paper, NOT_AVAILABLE, np.int)
+
+        self.raw_df = pd.concat([self.raw_df, as_data.raw_df], join='outer',
+                                sort=False, ignore_index=True)
         self.n_paper += as_data.n_paper
 
     @classmethod
     def from_data_frame(cls, raw_df, abstract_only=False):
-        """ Get a review data object from a pandas dataframe. """
+        """Get a review data object from a pandas dataframe."""
         # extract the label column
-        column_labels = [label for label in list(raw_df)
-                         if label in LABEL_INCLUDED_VALUES]
+        column_labels = [
+            label for label in list(raw_df) if label in LABEL_INCLUDED_VALUES
+        ]
 
         if len(column_labels) > 1:
             print('\x1b[0;30;41m Warning multiple valid label inclusion '
@@ -153,8 +163,9 @@ class ASReviewData(object):
         data_kwargs = {"raw_df": raw_df}
 
         if len(column_labels) > 0:
-            data_kwargs['labels'] = np.array(raw_df[column_labels[0]].fillna(
-                NOT_AVAILABLE).values, dtype=np.int)
+            data_kwargs['labels'] = np.array(
+                raw_df[column_labels[0]].fillna(NOT_AVAILABLE).values,
+                dtype=np.int)
             data_kwargs['label_col'] = column_labels[0]
         else:
             data_kwargs['label_col'] = LABEL_INCLUDED_VALUES[0]
@@ -170,17 +181,20 @@ class ASReviewData(object):
             if not isinstance(keys, list):
                 keys = [keys]
             dst_key = keys[0]
-            df_columns = {str(col_name).lower(): col_name
-                          for col_name in list(raw_df)}
+            df_columns = {
+                str(col_name).lower(): col_name
+                for col_name in list(raw_df)
+            }
             for key in keys:
                 try:
-                    dst_dict[dst_key] = raw_df[df_columns[key]].fillna('').values
+                    dst_dict[dst_key] = raw_df[df_columns[key]].fillna(
+                        '').values
                 except KeyError:
                     pass
 
         for key in [['title', 'primary_title'],
-                    ['authors', 'author names', 'first_authors'],
-                    'abstract', 'keywords']:
+                    ['authors', 'author names', 'first_authors'], 'abstract',
+                    'keywords']:
             fill_column(data_kwargs, key)
 
         return cls(**data_kwargs)
@@ -218,13 +232,13 @@ class ASReviewData(object):
         author_str = ""
         if self.title is not None:
             if len(self.title[i]) > w_title:
-                title_str = self.title[i][:w_title-2] + ".."
+                title_str = self.title[i][:w_title - 2] + ".."
             else:
                 title_str = self.title[i]
         if self.authors is not None:
             cur_authors = format_to_str(self.authors[i])
             if len(cur_authors) > w_authors:
-                author_str = cur_authors[:w_authors-2] + ".."
+                author_str = cur_authors[:w_authors - 2] + ".."
             else:
                 author_str = cur_authors
         format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
@@ -261,8 +275,7 @@ class ASReviewData(object):
         "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
 
-    def fuzzy_find(self, keywords, threshold=50, max_return=10,
-                   exclude=None):
+    def fuzzy_find(self, keywords, threshold=50, max_return=10, exclude=None):
         """Find a record using keywords.
 
         It looks for keywords in the title/authors/keywords
@@ -314,8 +327,10 @@ class ASReviewData(object):
 
     @property
     def texts(self):
-        return [self.title[i] + " " + self.abstract[i]
-                for i in range(len(self.title))]
+        return [
+            self.title[i] + " " + self.abstract[i]
+            for i in range(len(self.title))
+        ]
 
     def get_priors(self):
         "Get prior_included, prior_excluded from dataset."
@@ -445,8 +460,9 @@ def read_data(fp):
     texts = (df['title'].fillna('') + ' ' + df['abstract'].fillna(''))
 
     # extract the label column
-    column_labels = [label for label in list(df)
-                     if label in LABEL_INCLUDED_VALUES]
+    column_labels = [
+        label for label in list(df) if label in LABEL_INCLUDED_VALUES
+    ]
 
     if len(column_labels) > 1:
         print('\x1b[0;30;41m Warning multiple valid label inclusion '
@@ -505,7 +521,8 @@ def read_excel(fp):
     sheet_obj_val = -1
     wanted_columns = [
         'title', 'primary_title', 'authors', 'author names', 'first_authors',
-        'abstract', 'keywords']
+        'abstract', 'keywords'
+    ]
     wanted_columns.extend(LABEL_INCLUDED_VALUES)
     for sheet_name in dfs:
         col_names = set([col.lower() for col in list(dfs[sheet_name])])
