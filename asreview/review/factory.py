@@ -16,6 +16,7 @@ import json
 import logging
 import os
 from os.path import splitext
+from pathlib import PurePath
 
 import questionary
 
@@ -40,7 +41,6 @@ from asreview.models.utils import get_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model
-from pathlib import PurePath
 
 
 def _add_defaults(set_param, default_param):
@@ -66,8 +66,8 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
     # Find the URL of the datasets if the dataset is an example dataset.
     for data in dataset:
         if data in DEMO_DATASETS.keys():
-            data = DEMO_DATASETS[dataset]
-        as_data.append(ASReviewData.from_file(data))
+            data_link = DEMO_DATASETS[data]
+        as_data.append(ASReviewData.from_file(data_link))
 
     for data in included_dataset:
         as_data.append(ASReviewData.from_file(data, data_type="included"))
