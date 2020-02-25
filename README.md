@@ -84,8 +84,8 @@ asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_
 
 - The full documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
 - [10 Minutes into ASReview](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) An introduction into ASReview for new users. 
-- [automated-systematic-review-datasets](https://github.com/asreview/asreview-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
-- [automated-systematic-review-simulations](https://github.com/asreview/asreview-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
+- [automated-systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project for collection, preprocessing and publication of systematic review datasets. The project describes the  data storage format used by the software.
+- [automated-systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 
 ## License
