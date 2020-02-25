@@ -11,7 +11,7 @@ From contributing to source code to improving readability of the documentation, 
 
 There are multiple ways to contribute:
 - [Reporting bugs](#reporting-bugs) :bug: :ant: :beetle:
-- [Suggesting enhancements](#Suggesting-enhancements)
+- [Suggesting enhancements](#feature-request)
 - [Contribute code](#contribute-code)
 
 ##  Reporting Bugs
@@ -30,8 +30,10 @@ You can submit your changes to ASReview [by creating a pull request](https://git
 
 #### Unsure where to begin? Here are a few examples:  
 - Improve our [documentation](https://asreview.readthedocs.io/en/latest/). :memo:
-- Propose a fix to an existing issue :warning:. See the [issue list here](https://github.com/asreview/asreview/issues).
-- Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/pull/11) ([example pull request](https://github.com/asreview/systematic-review-datasets/pull/11))
+- Propose a fix to an existing issue. :warning:
+  - See the [issue list here](https://github.com/asreview/asreview/issues).
+- Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/pull/11)
+  - See this [pull request](https://github.com/asreview/systematic-review-datasets/pull/11)) for an example.
 
 ## First timer?
 Do you have little experience with contributing to open-source project and working with GitHub? :octocat: No worries! There are some amazing tutorials out there:
@@ -42,7 +44,7 @@ Do you have little experience with contributing to open-source project and worki
 - [Mastering Issues](https://guides.github.com/features/issues/) by GitHub.
 - [About Pull Requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) by GitHub.
 
-### Life after the pull request
+## Life after the pull request
 Our maintainers will carefully review your pull request.
 We get back at you as soon as possible, and hope and integrating your suggestions into our project.
 We are looking forward to integrating your contributions into ASReview!

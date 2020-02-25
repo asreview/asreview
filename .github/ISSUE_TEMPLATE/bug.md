@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: "Bug report \U0001F41B" 
 about: "If something isn't working as expected \U0001F914."
 title: ''
 labels: bug
@@ -17,7 +17,7 @@ Steps to reproduce the problem:
 2.
 3.
 
-**Input Code**
+
 ```
 your input code here
 ```

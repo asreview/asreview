@@ -21,4 +21,3 @@ A clear and concise description of any alternative solutions or features you've 
 **Teachability, Documentation, Adoption, Migration Strategy**
 If you can, explain how users will be able to use this and possibly write out a version the docs.
 Maybe a screenshot or design?
-ß
