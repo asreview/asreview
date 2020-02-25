@@ -66,8 +66,8 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
     # Find the URL of the datasets if the dataset is an example dataset.
     for data in dataset:
         if data in DEMO_DATASETS.keys():
-            data_link = DEMO_DATASETS[data]
-        as_data.append(ASReviewData.from_file(data_link))
+            data = DEMO_DATASETS[data]
+        as_data.append(ASReviewData.from_file(data))
 
     for data in included_dataset:
         as_data.append(ASReviewData.from_file(data, data_type="included"))
