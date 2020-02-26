@@ -36,6 +36,7 @@ class LogisticModel(BaseTrainModel):
         self.C = C
         self.class_weight = class_weight
         self.n_jobs = n_jobs
+
         self._model = LogisticRegression(
             solver="liblinear", C=C,
             class_weight=_set_class_weight(class_weight),

@@ -57,7 +57,7 @@ class DenseNNModel(BaseTrainModel):
             Class weights for inclusions (1's).
         """
         super(DenseNNModel, self).__init__()
-        self.dense_width = dense_width
+        self.dense_width = int(dense_width)
         self.optimizer = optimizer
         self.learn_rate = learn_rate
         self.regularization = regularization
