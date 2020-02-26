@@ -33,15 +33,12 @@ def record_from_row(row, conversion_table, record_id):
 
 
 def paper_frame_reader(df):
-#     conversion_table = {}
     col_names = list(df)
     for column_name in col_names:
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)
         if data_type is not None:
             df.rename(columns={column_name: data_type}, inplace=True)
-#         conversion_table[column_name] = data_type
 
-#     fields = conversion_table.values()
     col_names = list(df)
     if "abstract" not in col_names and "title" not in col_names:
         raise BadFileFormatError("File supplied without 'abstract' or 'title'"
@@ -65,7 +62,3 @@ def paper_frame_reader(df):
 
     df.set_index('record_id')
     return df
-#     record_id = 0
-#     for _, row in df.iterrows():
-#         yield record_from_row(row, conversion_table, record_id)
-#         record_id += 1
