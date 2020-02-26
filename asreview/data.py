@@ -49,61 +49,50 @@ def get_fuzzy_ranking(keywords, str_list):
     return rank_list
 
 
-def record_list_hash(records):
-    texts = " ".join([record.heading for record in records])
-    if len(texts) < 1000:
-        texts = " ".join([record.body for record in records])
-    return hashlib.sha1(" ".join(texts).encode(
-        encoding='UTF-8', errors='ignore'))
+# def record_list_hash(records):
+#     texts = " ".join([record.heading for record in records])
+#     if len(texts) < 1000:
+#         texts = " ".join([record.body for record in records])
+#     return hashlib.sha1(" ".join(texts).encode(
+#         encoding='UTF-8', errors='ignore'))
 
 
-class ASReviewData(object):
+class ASReviewData():
     """Data object to store csv/ris file.
 
     Extracts relevant properties of papers."""
 
-    def __init__(self, records=[], data_name="empty", data_type="standard"):
-        self.records = records
+    def __init__(self, df=None, data_name="empty", data_type="standard"):
+        self.df = df
         self.data_name = data_name
-        if len(records) == 0:
-            self.record_sources = {}
+        self.prior_idx = []
+        if df is None:
             return
 
-        self.data_name = data_name
-        self.record_sources = {
-            data_name: {
-                "start": 0,
-                "end": len(records),
-                "data_type": data_type,
-                "hash": record_list_hash(self.records),
-            }
-        }
         if data_type == "included":
             for record in self.records:
                 record.label = 1
         if data_type == "excluded":
             for record in self.records:
                 record.label = 0
+        if data_type == "prior":
+            self.prior_idx = df.index.values
+
+        self.max_idx = max(df.index.values)
+
+    def hash(self):
+        if len(self.df.index) < 1000:
+            texts = " ".join(self.bodies)
+        else:
+            texts = " ".join(self.texts)
+        return hashlib.sha1(" ".join(texts).encode(
+            encoding='UTF-8', errors='ignore'))
 
     def slice(self, idx):
-        new_rec_src = {}
-        new_records = []
-        for data_name, source in self.record_sources.items():
-            cur_idx = idx[np.where((idx >= source["start"])
-                                   & (idx < source["end"]))[0]]
-            sub_records = [self.records[idx] for idx in cur_idx]
-            if len(cur_idx) > 0:
-                new_rec_src[data_name] = {
-                    "start": len(new_records),
-                    "end": len(new_records) + len(cur_idx),
-                    "data_type": source["data_type"],
-                    "hash": record_list_hash(sub_records)
-                }
-                new_records.extend(sub_records)
-                for record in new_records:
-                    print(record.label)
-        self.records = new_records
-        self.record_sources = new_rec_src
+        if self.df is None:
+            raise ValueError("Cannot slice empty ASReviewData object.")
+
+        return ASReviewData(self.df[idx], data_name="sliced")
 
     def append(self, as_data):
         """Append another ASReviewData object.
@@ -115,44 +104,22 @@ class ASReviewData(object):
         as_data: ASReviewData
             Dataset to append.
         """
-        if len(as_data.records) == 0:
+        if self.df is None:
             return
         if len(self.records) == 0:
-            self.records = as_data.records
+            self.df = as_data.df
             self.data_name = as_data.data_name
-            self.record_sources = as_data.record_sources
             return
 
-        all_sources = {name: dict(**source, self=True)
-                       for name, source in self.record_sources.items()}
-        for ext_data_name, source in as_data.record_sources.items():
-            while ext_data_name in self.record_sources:
-                ext_data_name += "_"
-            all_sources[ext_data_name] = dict(**source, self=False)
+        reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
+        new_index = np.append(self.df.index.values,
+                              as_data.df.index.values + reindex_val)
+        new_priors = np.append(self.prior_idx, as_data.prior_idx + reindex_val)
+        new_df = self.df.append(as_data.df)
+        new_df.index = new_index
 
-        data_order = sorted(all_sources,
-                            key=lambda key: all_sources[key]["hash"])
-
-        new_records = []
-        new_sources = {}
-        for data_name in data_order:
-            record_source = all_sources[data_name]
-            from_self = record_source.pop("self")
-            record_start = len(new_records)
-            if from_self:
-                new_records.append(
-                    self.records[record_source["start"]:record_source["end"]])
-            else:
-                new_records.append(
-                    as_data.records[
-                        record_source["start"]:record_source["end"]])
-            new_sources[data_name] = {
-                "start": record_start,
-                "end": len(new_records),
-                "hash": record_source["hash"]
-            }
-        self.records = new_records
-        self.record_sources = new_sources
+        self.df = new_df
+        self.prior_idx = new_priors
         self.data_name += "_" + as_data.data_name
 
     @classmethod
@@ -239,43 +206,39 @@ class ASReviewData(object):
 
     @property
     def texts(self):
-        return [record.text for record in self.records]
+        return np.char.join(" ", self.heading, self.bodies)
 
     @property
     def headings(self):
-        return [record.heading for record in self.records]
+        return self.title
 
     @property
     def title(self):
-        return self.headings
+        return self.df["title"].values
 
     @property
     def bodies(self):
-        return [record.body for record in self.records]
+        return self.abstract
 
     @property
     def abstract(self):
-        return self.bodies
+        return self.df["abstract"].values
 
     @property
     def prior_data_idx(self):
         "Get prior_included, prior_excluded from dataset."
-        prior_idx = []
-        for rec_source in self.record_sources.values():
-            if rec_source["data_type"] == "prior":
-                prior_idx.extend(
-                    list(range(rec_source["start"], rec_source["end"])))
-        return prior_idx
+        convert_array = np.full(999999999, self.max_idx)
+        convert_array[self.df.index.values] = np.arange(len(self.df.index))
+        return convert_array[self.prior_idx]
 
     @property
     def labels(self):
-        return np.array([record.label for record in self.records], dtype=int)
+        return np.array(self.df["labels"], dtype=int)
 
     @labels.setter
     def labels(self, labels):
         print("Set labels")
-        for i, record in enumerate(labels):
-            record[i].label = labels[i]
+        self.df["labels"] = labels
 
     @property
     def final_labels(self):
@@ -305,22 +268,26 @@ class ASReviewData(object):
                 f"from file {fp}")
 
     def to_dataframe(self, labels=None, df_order=None):
-        if df_order is None:
-            df_order = np.arange(len(self.records))
-
-        df_dict = {}
-        for i in df_order:
-            record = self.records[i]
-            add_dict = record.todict()
-            if labels is not None and labels[i] != LABEL_NA:
-                add_dict["label"] = labels[i]
-            if len(df_dict) > 0:
-                for key, value in add_dict.items():
-                    df_dict[key].append(value)
-            else:
-                for key, value in add_dict.items():
-                    df_dict[key] = [value]
-        return pd.DataFrame(df_dict)
+        if labels is not None:
+            self.df["labels"] = labels
+        return self.df
+#         self.labels = la
+#         if df_order is None:
+#             df_order = np.arange(len(self.records))
+#
+#         df_dict = {}
+#         for i in df_order:
+#             record = self.records[i]
+#             add_dict = record.todict()
+#             if labels is not None and labels[i] != LABEL_NA:
+#                 add_dict["label"] = labels[i]
+#             if len(df_dict) > 0:
+#                 for key, value in add_dict.items():
+#                     df_dict[key].append(value)
+#             else:
+#                 for key, value in add_dict.items():
+#                     df_dict[key] = [value]
+#         return pd.DataFrame(df_dict)
 
     def to_csv(self, fp, labels=None, df_order=None):
         self.to_dataframe(labels=labels, df_order=df_order).to_csv(fp)

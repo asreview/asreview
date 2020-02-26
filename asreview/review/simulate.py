@@ -38,7 +38,7 @@ class ReviewSimulate(BaseReview):
             if len(labeled_idx) != len(labels):
                 logging.warning("Simulating partial review, ignoring unlabeled"
                                 f" papers (n={len(labels)-len(labeled_idx)}.")
-                as_data.slice(labeled_idx)
+                as_data = as_data.slice(labeled_idx)
                 labels = as_data.labels
                 print(labels)
 
