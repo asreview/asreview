@@ -110,7 +110,7 @@ def get_reviewer(dataset,
     as_data = create_as_data(dataset, included_dataset, excluded_dataset,
                              prior_dataset)
 
-    if len(as_data.records) == 0:
+    if len(as_data) == 0:
         raise ValueError("Supply at least one dataset"
                          " with at least one record.")
 

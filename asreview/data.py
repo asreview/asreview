@@ -24,6 +24,8 @@ import pandas as pd
 from asreview.exceptions import BadFileFormatError
 from asreview.io.ris_reader import write_ris
 from asreview.config import LABEL_NA
+from asreview.io.paper_record import PaperRecord
+from asreview.io.utils import record_from_row
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -70,11 +72,9 @@ class ASReviewData():
             return
 
         if data_type == "included":
-            for record in self.records:
-                record.label = 1
+            self.labels = np.ones(len(self))
         if data_type == "excluded":
-            for record in self.records:
-                record.label = 0
+            self.labels = np.zeros(len(self))
         if data_type == "prior":
             self.prior_idx = df.index.values
 
@@ -104,11 +104,13 @@ class ASReviewData():
         as_data: ASReviewData
             Dataset to append.
         """
-        if self.df is None:
+        print(self.data_name, as_data.data_name)
+        if as_data.df is None:
             return
-        if len(self.records) == 0:
+        if len(self) == 0:
             self.df = as_data.df
             self.data_name = as_data.data_name
+            self.prior_idx = as_data.prior_idx
             return
 
         reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
@@ -129,7 +131,7 @@ class ASReviewData():
             data_name = Path(fp).stem
 
         if read_fn is not None:
-            return cls([x for x in read_fn(fp)], data_name=data_name,
+            return cls(read_fn(fp), data_name=data_name,
                        data_type=data_type)
 
         entry_points = {
@@ -147,16 +149,19 @@ class ASReviewData():
                              "reading such a file.")
 
         read_fn = entry_points[best_suffix].load()
-        return cls([x for x in read_fn(fp)], data_name=data_name,
+        return cls(read_fn(fp), data_name=data_name,
                    data_type=data_type)
+
+    def record(self, i):
+        return PaperRecord(**record_from_row(self.df.iloc[i]))
 
     def preview_record(self, i, *args, **kwargs):
         "Return a preview string for record i."
-        return self.records[i].preview(*args, **kwargs)
+        return self.record(i).preview(*args, **kwargs)
 
     def format_record(self, i, *args, **kwargs):
         " Format one record for displaying in the CLI. "
-        return self.records[i].format(*args, **kwargs)
+        return self.record(i).format(*args, **kwargs)
 
     def print_record(self, *args, **kwargs):
         "Print a record to the CLI."
@@ -183,12 +188,12 @@ class ASReviewData():
         list:
             Sorted list of indexes that match best the keywords.
         """
-        match_str = np.full(len(self.records), "x", dtype=object)
+        match_str = np.full(len(self), "x", dtype=object)
 
-        for i, record in enumerate(self.records):
-            authors = format_to_str(record.authors)
-            title = format_to_str(record.title)
-            rec_keywords = format_to_str(record.keywords)
+        for i in range(len(self)):
+            authors = format_to_str(self.df.iloc[i]["authors"])
+            title = format_to_str(self.df.iloc[i]["title"])
+            rec_keywords = format_to_str(self.df.iloc[i]["keywords"])
             match_str[i, ] = " ".join([title, authors, rec_keywords])
 
         new_ranking = get_fuzzy_ranking(keywords, match_str)
@@ -206,7 +211,13 @@ class ASReviewData():
 
     @property
     def texts(self):
-        return np.char.join(" ", self.heading, self.bodies)
+        cur_texts = np.array([self.headings[i] + " " + self.bodies[i]
+                              for i in range(len(self.headings))
+                              ], dtype=object)
+#         cur_texts = self.headings
+#         cur_texts = np.char.add(cur_texts, np.full(" ", self.headings.shape, dtype=object))
+#         cur_texts = np.char.add(cur_texts, self.bodies)
+        return cur_texts
 
     @property
     def headings(self):
@@ -233,12 +244,17 @@ class ASReviewData():
 
     @property
     def labels(self):
-        return np.array(self.df["labels"], dtype=int)
+        print(list(self.df))
+        return np.array(self.df["label"].values, dtype=int)
 
     @labels.setter
     def labels(self, labels):
-        print("Set labels")
-        self.df["labels"] = labels
+        self.df["label"] = labels
+
+    def __len__(self):
+        if self.df is None:
+            return 0
+        return len(self.df.index)
 
     @property
     def final_labels(self):

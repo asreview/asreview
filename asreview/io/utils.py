@@ -37,7 +37,8 @@ def paper_frame_reader(df):
     col_names = list(df)
     for column_name in col_names:
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)
-        df.rename(columns={data_type: column_name})
+        if data_type is not None:
+            df.rename(columns={column_name: data_type}, inplace=True)
 #         conversion_table[column_name] = data_type
 
 #     fields = conversion_table.values()
@@ -52,7 +53,7 @@ def paper_frame_reader(df):
 
     for col in ["title", "abstract", "authors", "keywords"]:
         try:
-            df[col].fillna("")
+            df[col].fillna("", inplace=True)
         except KeyError:
             pass
 
