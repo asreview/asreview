@@ -93,13 +93,13 @@ class ASReviewData():
         as_data: ASReviewData
             Dataset to append.
         """
-        print(self.data_name, as_data.data_name)
         if as_data.df is None:
             return
         if len(self) == 0:
             self.df = as_data.df
             self.data_name = as_data.data_name
             self.prior_idx = as_data.prior_idx
+            self.max_idx = as_data.max_idx
             return
 
         reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
@@ -109,6 +109,7 @@ class ASReviewData():
         new_df = self.df.append(as_data.df)
         new_df.index = new_index
 
+        self.max_idx = max(self.max_idx, as_data.max_idx, max(new_index))
         self.df = new_df
         self.prior_idx = new_priors
         self.data_name += "_" + as_data.data_name
