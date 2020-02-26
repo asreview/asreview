@@ -21,6 +21,7 @@ import logging
 
 class ReviewSimulate(BaseReview):
     """Automated Systematic Review in simulation mode."""
+    name = "simulate"
 
     def __init__(self,
                  as_data,

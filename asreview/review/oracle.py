@@ -34,6 +34,7 @@ def update_stats(stats, label):
 
 class ReviewOracle(BaseReview):
     """Review class for Oracle mode on the command line."""
+    name = "oracle"
 
     def __init__(self, as_data, *args, use_cli_colors=True,
                  new_review=False,
