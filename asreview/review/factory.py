@@ -18,9 +18,10 @@ import os
 from os.path import splitext
 from pathlib import PurePath
 
+import numpy as np
 import questionary
 
-from asreview.config import AVAILABLE_CLI_MODI, LOGGER_EXTENSIONS
+from asreview.config import AVAILABLE_CLI_MODI, LOGGER_EXTENSIONS, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
@@ -49,7 +50,7 @@ def _add_defaults(set_param, default_param):
 
 
 def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
-                   prior_dataset=[]):
+                   prior_dataset=[], new=False):
     if isinstance(dataset, (str, PurePath)):
         dataset = [dataset]
 
@@ -69,6 +70,8 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
             data = DEMO_DATASETS[data]
         as_data.append(ASReviewData.from_file(data))
 
+    if new:
+        as_data.labels = np.full((len(as_data),), LABEL_NA, dtype=int)
     for data in included_dataset:
         as_data.append(ASReviewData.from_file(data, data_type="included"))
     for data in excluded_dataset:
@@ -102,13 +105,14 @@ def get_reviewer(dataset,
                  included_dataset=[],
                  excluded_dataset=[],
                  prior_dataset=[],
+                 new=False,
                  **kwargs
                  ):
     """ Get a review object from arguments. See __main__.py for a description
         Of the arguments.
     """
     as_data = create_as_data(dataset, included_dataset, excluded_dataset,
-                             prior_dataset)
+                             prior_dataset, new=new)
 
     if len(as_data) == 0:
         raise ValueError("Supply at least one dataset"

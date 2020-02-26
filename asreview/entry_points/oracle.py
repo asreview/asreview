@@ -17,6 +17,12 @@ class OracleEntryPoint(BaseEntryPoint):
 
     def execute(self, argv):
         parser = _oracle_parser()
+        parser.add_argument(
+            "--new",
+            default=False,
+            action="store_true",
+            help="Start review from scratch."
+        )
         args = parser.parse_args(argv)
 
         args_dict = vars(args)
