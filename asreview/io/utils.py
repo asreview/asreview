@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from asreview.io.paper_record import PaperRecord
-from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
 from asreview.exceptions import BadFileFormatError
 
 
@@ -56,6 +56,9 @@ def paper_frame_reader(df):
             df[col].fillna("", inplace=True)
         except KeyError:
             pass
+
+    if "label" in col_names:
+        df[col].fillna(LABEL_NA, inplace=True)
 
     if "record_id" not in df:
         df["record_id"] = np.arange(len(df.index))

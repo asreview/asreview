@@ -10,7 +10,7 @@ from asreview import ASReviewData
 @mark.parametrize(
     "test_file,n_lines,labels,ignore_col",
     [
-        ("embase.csv", 6, None, []),
+        ("embase.csv", 6, None, ["keywords"]),
         ("embase.ris", 6, None, []),
         ("generic.csv", 2, None, []),
         ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0], []),
@@ -36,7 +36,7 @@ def test_reader(test_file, n_lines, labels, ignore_col):
             assert as_data.labels[i] == labels[i]
 
     for col in cols:
-        values = [getattr(record, col) for record in as_data.records]
+        values = as_data.get(col)
         print(col)
         assert len(values) == n_lines
 

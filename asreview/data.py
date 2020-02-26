@@ -15,15 +15,12 @@
 from pathlib import Path
 import warnings
 import pkg_resources
-import os
 import hashlib
 
 import numpy as np
-import pandas as pd
 
 from asreview.exceptions import BadFileFormatError
 from asreview.io.ris_reader import write_ris
-from asreview.config import LABEL_NA
 from asreview.io.paper_record import PaperRecord
 from asreview.io.utils import record_from_row
 
@@ -49,14 +46,6 @@ def get_fuzzy_ranking(keywords, str_list):
     for i, my_str in enumerate(str_list):
         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
     return rank_list
-
-
-# def record_list_hash(records):
-#     texts = " ".join([record.heading for record in records])
-#     if len(texts) < 1000:
-#         texts = " ".join([record.body for record in records])
-#     return hashlib.sha1(" ".join(texts).encode(
-#         encoding='UTF-8', errors='ignore'))
 
 
 class ASReviewData():
@@ -214,9 +203,6 @@ class ASReviewData():
         cur_texts = np.array([self.headings[i] + " " + self.bodies[i]
                               for i in range(len(self.headings))
                               ], dtype=object)
-#         cur_texts = self.headings
-#         cur_texts = np.char.add(cur_texts, np.full(" ", self.headings.shape, dtype=object))
-#         cur_texts = np.char.add(cur_texts, self.bodies)
         return cur_texts
 
     @property
@@ -235,6 +221,9 @@ class ASReviewData():
     def abstract(self):
         return self.df["abstract"].values
 
+    def get(self, name):
+        return self.df[name].values
+
     @property
     def prior_data_idx(self):
         "Get prior_included, prior_excluded from dataset."
@@ -244,7 +233,6 @@ class ASReviewData():
 
     @property
     def labels(self):
-        print(list(self.df))
         return np.array(self.df["label"].values, dtype=int)
 
     @labels.setter
@@ -287,23 +275,6 @@ class ASReviewData():
         if labels is not None:
             self.df["labels"] = labels
         return self.df
-#         self.labels = la
-#         if df_order is None:
-#             df_order = np.arange(len(self.records))
-#
-#         df_dict = {}
-#         for i in df_order:
-#             record = self.records[i]
-#             add_dict = record.todict()
-#             if labels is not None and labels[i] != LABEL_NA:
-#                 add_dict["label"] = labels[i]
-#             if len(df_dict) > 0:
-#                 for key, value in add_dict.items():
-#                     df_dict[key].append(value)
-#             else:
-#                 for key, value in add_dict.items():
-#                     df_dict[key] = [value]
-#         return pd.DataFrame(df_dict)
 
     def to_csv(self, fp, labels=None, df_order=None):
         self.to_dataframe(labels=labels, df_order=df_order).to_csv(fp)
