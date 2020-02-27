@@ -129,11 +129,12 @@ def get_reviewer(dataset,
     cli_settings.from_file(config_file)
 
     if log_file is not None:
-        with open_logger(log_file, read_only=True) as logger:
+        with open_logger(log_file) as logger:
+            if logger.is_empty():
+                logger.add_settings(cli_settings)
             settings = logger.settings
     else:
         settings = cli_settings
-        logger = None
 
     if n_queries is not None:
         settings.n_queries = n_queries
