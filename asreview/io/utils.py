@@ -55,10 +55,12 @@ def paper_frame_reader(df):
             pass
 
     if "label" in col_names:
-        df[col].fillna(LABEL_NA, inplace=True)
+        df["label"].fillna(LABEL_NA, inplace=True)
 
-    if "record_id" not in df:
+    if "record_id" in list(df):
+        df.set_index('record_id', inplace=True)
+    if df.index.name != "record_id":
         df["record_id"] = np.arange(len(df.index))
-
-    df.set_index('record_id')
+        df.set_index('record_id', inplace=True)
+    df.sort_index(inplace=True)
     return df

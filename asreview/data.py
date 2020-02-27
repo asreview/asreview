@@ -18,11 +18,12 @@ import pkg_resources
 import hashlib
 
 import numpy as np
+import pandas as pd
 
 from asreview.exceptions import BadFileFormatError
 from asreview.io.ris_reader import write_ris
 from asreview.io.paper_record import PaperRecord
-from asreview.io.utils import record_from_row
+from asreview.config import LABEL_NA
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -143,7 +144,8 @@ class ASReviewData():
                    data_type=data_type)
 
     def record(self, i):
-        return PaperRecord(**record_from_row(self.df.iloc[i]))
+        return PaperRecord(**self.df.iloc[i],
+                           record_id=self.df.index.values[i])
 
     def preview_record(self, i, *args, **kwargs):
         "Return a preview string for record i."
@@ -273,12 +275,21 @@ class ASReviewData():
                 f"from file {fp}")
 
     def to_dataframe(self, labels=None, df_order=None):
+        new_df = pd.DataFrame.copy(self.df)
         if labels is not None:
-            self.df["labels"] = labels
-        return self.df
+            new_df["label"] = labels
+        if df_order is not None:
+            return new_df.iloc[df_order]
+        convert_array = np.full(999999999, self.max_idx)
+        convert_array[self.df.index.values] = np.arange(len(self.df.index))
+
+        no_label = np.where(new_df["label"] == LABEL_NA)[0]
+        new_df["label"].iloc[no_label] = np.nan
+        return new_df
 
     def to_csv(self, fp, labels=None, df_order=None):
-        self.to_dataframe(labels=labels, df_order=df_order).to_csv(fp)
+        self.to_dataframe(labels=labels, df_order=df_order).to_csv(
+            fp, index=True)
 
     def to_ris(self, ris_fp, labels=None, df_order=None):
         df = self.to_dataframe(labels=labels, df_order=df_order)
