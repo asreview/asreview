@@ -236,7 +236,9 @@ class ASReviewData():
 
     @property
     def labels(self):
-        return np.array(self.df["label"].values, dtype=int)
+        if "label" in list(self.df):
+            return self.df["label"].values
+        return None
 
     @labels.setter
     def labels(self, labels):
@@ -280,11 +282,9 @@ class ASReviewData():
             new_df["label"] = labels
         if df_order is not None:
             return new_df.iloc[df_order]
-        convert_array = np.full(999999999, self.max_idx)
-        convert_array[self.df.index.values] = np.arange(len(self.df.index))
 
-        no_label = np.where(new_df["label"] == LABEL_NA)[0]
-        new_df["label"].iloc[no_label] = np.nan
+        if "label" in list(new_df):
+            new_df.loc[new_df["label"] == LABEL_NA, "label"] = np.nan
         return new_df
 
     def to_csv(self, fp, labels=None, df_order=None):

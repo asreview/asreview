@@ -54,8 +54,10 @@ def paper_frame_reader(df):
         except KeyError:
             pass
 
+    print(col_names)
     if "label" in col_names:
         df["label"].fillna(LABEL_NA, inplace=True)
+        df["label"] = pd.to_numeric(df["label"])
 
     if "record_id" in list(df):
         df.set_index('record_id', inplace=True)

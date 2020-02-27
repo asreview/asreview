@@ -2,8 +2,8 @@
 from pathlib import Path
 
 from pytest import mark
+import numpy as np
 
-import asreview as asr
 from asreview import ASReviewData
 
 
@@ -25,19 +25,19 @@ from asreview import ASReviewData
     ])
 def test_reader(test_file, n_lines, labels, ignore_col):
     fp = Path("test", "demo_data", test_file)
-    as_data = asr.ASReviewData.from_file(fp)
+    as_data = ASReviewData.from_file(fp)
     assert as_data.to_dataframe().shape[0] == n_lines
 
-    cols = ['title', 'abstract', 'authors', 'keywords', 'record_id']
+    cols = ['title', 'abstract', 'authors', 'keywords']
     cols = [col for col in cols if col not in ignore_col]
     if labels is not None:
         cols.append('label')
-        for i in range(n_lines):
-            assert as_data.labels[i] == labels[i]
+        print(as_data.labels, labels)
+        print(as_data.df["label"])
+        assert np.array_equal(as_data.labels, labels)
 
     for col in cols:
         values = as_data.get(col)
-        print(col)
         assert len(values) == n_lines
 
 
