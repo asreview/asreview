@@ -178,17 +178,6 @@ class BaseReview(ABC):
                               method="initial")
                 self.query_i = 0
 
-    def _prior_knowledge(self, logger):
-        """Create prior knowledge from arguments."""
-        if self.prior_included is not None and len(self.prior_included) > 0:
-            self.classify(self.prior_included,
-                          np.ones(len(self.prior_included)),
-                          logger, method="initial")
-        if self.prior_excluded is not None and len(self.prior_excluded) > 0:
-            self.classify(self.prior_excluded,
-                          np.zeros(len(self.prior_excluded)),
-                          logger, method="initial")
-
     @property
     def settings(self):
         return ASReviewSettings(
