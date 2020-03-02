@@ -108,8 +108,9 @@ def get_reviewer(dataset,
                  new=False,
                  **kwargs
                  ):
-    """ Get a review object from arguments. See __main__.py for a description
-        Of the arguments.
+    """Get a review object from arguments.
+
+    See __main__.py for a description of the arguments.
     """
     as_data = create_as_data(dataset, included_dataset, excluded_dataset,
                              prior_dataset, new=new)

@@ -19,6 +19,10 @@ Available extensions
 --------------------
 
 - asreview-visualization: Plotting functionality for logging files produced by ASReview.
+- asreview-statistics: Tool to give some basic properties of a dataset, such as number of
+  papers, number of inclusions.
+- asreview-simulate: Run batches of simulations.
+- asreview-hyperopt: Optimize the hyperparameters of the models in ASReview.
 
 If an extention is not on this list, or you make one and want it added to this list, make an issue
 on `github <https://github.com/asreview/asreview/issues>`__ or send us an email.

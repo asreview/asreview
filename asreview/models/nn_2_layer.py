@@ -23,7 +23,7 @@ from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
 
-class DenseNNModel(BaseTrainModel):
+class NN2LayerModel(BaseTrainModel):
     """Dense neural network model.
 
     Uses two dense layers of the same size.
@@ -56,7 +56,7 @@ class DenseNNModel(BaseTrainModel):
         class_weight: float
             Class weights for inclusions (1's).
         """
-        super(DenseNNModel, self).__init__()
+        super(NN2LayerModel, self).__init__()
         self.dense_width = int(dense_width)
         self.optimizer = optimizer
         self.learn_rate = learn_rate
@@ -87,7 +87,7 @@ class DenseNNModel(BaseTrainModel):
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
             X = X.toarray()
-        return super(DenseNNModel, self).predict_proba(X)
+        return super(NN2LayerModel, self).predict_proba(X)
 
     def full_hyper_space(self):
         from hyperopt import hp

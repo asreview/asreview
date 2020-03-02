@@ -230,7 +230,7 @@ class BaseReview(ABC):
         return self.X.shape[0] - len(self.train_idx)
 
     def _next_n_instances(self):  # Could be merged with _stop_iter someday.
-        """ Get the batch size for the next query. """
+        """Get the batch size for the next query."""
         n_instances = self.n_instances
         n_pool = self.n_pool()
 
@@ -431,13 +431,13 @@ class BaseReview(ABC):
         return stats
 
     def save(self, pickle_fp):
-        """
-        Dump the self object to a pickle fill (using dill). Keras models
-        Cannot be dumped, so they are written to a separate h5 file. The
-        model is briefly popped out of the object to allow the rest to be
-        written to a file. Do not rely on this method for long term storage
-        of the class, since library changes could easily break it. In those
-        cases, use the log + h5 file instead.
+        """Dump the self object to a pickle fill (using dill).
+
+        Keras models cannot be dumped, so they are written to a separate
+        h5 file. The model is briefly popped out of the object to allow the
+        rest to be written to a file. Do not rely on this method for long term
+        storage of the class, since library changes could easily break it.
+        In those cases, use the log + h5 file instead.
         """
         if isinstance(self.model, KerasClassifier) and self.model_trained:
             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
@@ -452,7 +452,7 @@ class BaseReview(ABC):
     @classmethod
     def load(cls, pickle_fp):
         """
-        Create a BaseReview object from a pickle file, and optiona h5 file.
+        Create a BaseReview object from a pickle file.
         """
         with open(pickle_fp, "rb") as fp:
             my_instance = dill.load(fp)

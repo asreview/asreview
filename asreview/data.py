@@ -230,7 +230,7 @@ class ASReviewData():
     @property
     def prior_data_idx(self):
         "Get prior_included, prior_excluded from dataset."
-        convert_array = np.full(999999999, self.max_idx)
+        convert_array = np.full(self.max_idx, 999999999)
         convert_array[self.df.index.values] = np.arange(len(self.df.index))
         return convert_array[self.prior_idx]
 

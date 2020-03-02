@@ -13,11 +13,10 @@ Installing the ASReview software
 Before installing the ASReview software, you have to set up the Command
 Line Interface and Python.
 
-The ASReview can be run through the Command Line Interface (CLI), also
-known as the bash shell. Command Line Interface allows you to interact
-with your computer directly. The CLI is operated by text inputs
-(commands), rather than by a graphical interface with clickable buttons.
-If this is the first time you’re working in the CLI, don’t worry, as
+The ASReview can be run through the Command Line Interface (CLI).
+The CLI is operated by text inputs (commands),
+rather than by a graphical interface with clickable buttons.
+Don't worry if this is the first time you’re working in the CLI;
 this tutorial will guide you through all the steps.
 
 First, open the CLI on your computer:
@@ -27,7 +26,7 @@ First, open the CLI on your computer:
    folder.
 -  In **Windows**, the CLI is called the ``Command Prompt``. However,
    before you can operate the CLI, you have to install ``git bash``.
-   Instructions can be found `here on
+   Instructions can be found `on
    OpenHash <https://openhatch.org/missions/windows-setup/install-git-bash>`__.
 -  In **Ubuntu**, you can open the CLI (called
    ``Terminal shell prompt``) by pressing ``CTRL`` ``ALT`` ``T``.
@@ -43,7 +42,7 @@ return button:
 
     python --version
 
-This call to the CLI returns the version of the Python installation on
+This returns the version of the Python installation on
 your computer. For example:
 
 .. code:: bash
@@ -64,17 +63,17 @@ To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Besides Anaconda,
 there are other ways to install Python. For example, it is possible to
 install Python through the CLI. However, this approach requires more
-effort and is prone to error in novice CLI users, which is why we focus
-on Anaconda in this tutorial.
+expertise. We recommend following the instructions
+in this tutorial, which takes the Anaconda route.
 
 The Anaconda distribution is available for Windows, macOS and Linux, and
 can be downloaded `here <https://www.anaconda.com/distribution/>`__.
 Users on a SolisLaptop can download the distribution from the Software
 Center. Two versions of the distribution are available, 2.x and 3.x.
-Make sure to download the 3.x distribution, this one is required for the
+Make sure to download the 3.x distribution, which is the one is required for the
 ASReview software.
 
-After downloading the distribution, install Anaconda by following on of
+After downloading the distribution, install Anaconda by following one of
 the manuals below:
 
 -  For Windows users, `click
@@ -84,12 +83,11 @@ the manuals below:
 -  For Linux users, `click
    here <https://docs.anaconda.com/anaconda/install/linux/>`__
 
-As you did before, you can now call ``python --version`` in the CLI, to
-re-check the version of the Python installation on your computer.
-This should correspond to the 3.x version of Anaconda you installed
+Re-check the version of the Python installation by typing ``python --version``
+in the CLI. This should correspond to the 3.x version of Anaconda you installed
 earlier.
 
-Example: I installed Anaconda 3.7. Calling ``python --version`` in the
+Example: I installed Anaconda 3.7 and calling ``python --version`` in the
 CLI returns:
 
 .. code:: bash
@@ -122,18 +120,20 @@ You are now ready to start your first Automated Systematic Review!
 In case you do not get this output, please consult
 `the FAQ <faq.html>`__ to solve the issue.
 
-Running Oracle mode with the PTSD dataset
+Performing a review with the PTSD dataset
 -----------------------------------------
 
 As an example, we use the PTSD dataset. This dataset contains titles
-and abstract of papers on post-traumatic stress disorder. From this dataset, we want to select papers
-relevant to our systematic review, without reading all the abstracts. To
-start this process, run:
+and abstracts of papers on post-traumatic stress disorder. From this dataset,
+we aim to find all papers relevant to our systematic review, without reading
+all abstracts. To start this process, run:
 
 .. code:: bash
 
-    asreview oracle example_ptsd --log_file myreview.h5
+    asreview oracle example_ptsd --log_file myreview.h5 --new
 
+The ``--new`` flag is only used because the PTSD dataset has already been labeled.
+Ommitting this flag would start the review with an already finished review.
 If you have a .ris or .csv file ready for review, you would replace ``example_ptsd`` with this file
 instead:
 
@@ -156,7 +156,7 @@ The following will show on your screen:
 
 
 After starting ASReview, you will be presented with a small menu with two options to
-indicate which papers you know should be included or excluded beforehand. The first is
+indicate which papers you know should be included or excluded beforehand. The first option is
 to use the built-in paper finder, the second is to include papers by the order in which
 they occur in your data file.
 
@@ -170,11 +170,10 @@ The easiest way to find papers to include is by using the built-in paper finder.
 Select the option ``Find papers by keywords``. You can now search your data set by authors,
 keywords and title, or a combination thereof. You don't have to type in an exact match.
 For example, if you are looking for a paper by Schoot with Bayesian in the title, you can
-type ``schoot bayesian``, and the finder will try to find that paper in the dataset.
+type ``schoot bayesian``, and the finder will search for papers matching that description.
 
 After putting in your search words, you will be presented with a list of relevant papers to
-your search criteria (minimum 1, maximum 10). Select the paper(s) you were looking for to review
-them, and return to the base menu.
+your search criteria (minimum 1, maximum 10). Select and review paper(s), and return to the base menu.
 
 Including and excluding papers by identifiers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -183,7 +182,7 @@ Another method of indication inclusions and exclusions before the main review pr
 giving the paper identifiers directly to the ASReview software. These identifiers are simply the
 order of the papers in your dataset, starting from zero.
 
-The software will first ask you to indicate papers you definitely want
+The software will first ask you to indicate papers you want
 to **include** in your systematic review.
 
 .. code:: bash
@@ -210,23 +209,15 @@ systematic review.
 Here, type for example ``31 90 892 3898 3989 4390``, to indicate the
 papers that you want to be excluded from your systematic review.
 
-Instead of setting up the ASReview software step by step, it is possible
-to run the software and indicate papers you want to in- and exclude all
-in one command:
-
-.. code:: bash
-
-    asreview oracle example_ptsd --prior_included 29 181 379 2001 3928 3929 4547 --prior_excluded 31 90 892 3898 3989 4390 --log_file myreview.h5
-
 The systematic review process
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The software will attempt to classify the papers in the dataset into two
 categories: papers to be included in, and papers to be excluded from the
-systematic review. To improve its decisions, it will ask for your input
-iteratively.
+systematic review. ASReview continuously improves its understanding
+of your decisions, while you are doing your systematic review.
 
-ASReview will continuously present you with abstracts to review. After reviewing
+ASReview will present you with abstracts to review. After reviewing
 a certain number of abstracts (by default 1), it will update the model.
 You have to to let the software know whether you want
 to include or exclude the presented abstract in your systematic review.
@@ -248,97 +239,106 @@ Indicate your decision using the arrow keys.
 	> Exclude
 	  Include
 	  -----------
-	  Export
-	  -----------
 	  Stop
 
-If you want to export the results of your review, use the ``Export`` option, and when
-prompted, provide a filename with either a ``.csv`` or ``.ris`` file extension.
+If you want to export the results of your review, go back to the main menu
+and use the ``Export`` option. When prompted, provide a filename with either
+a ``.csv`` or ``.ris`` file extension.
 
-You can stop the review by using the ``Stop`` option. You can later continue the review by calling the same log file (``myreview.h5``)
+You can stop the review by using the ``Stop`` option. You can later continue the
+review by providing the same log file (``myreview.h5``)
 
 Under the hood
 ~~~~~~~~~~~~~~
 
-At every iteration, ASReview orders each paper by their likeliness of inclusion,
+At every iteration, ASReview ranks each paper by their likeliness of inclusion,
 with the most likely papers presented first for reading. ASReview bases its
-decisions on the papers you indicated prior to running the analysis, and the subsequent
-decisions you make on the abstracts you get presented with during the
-analysis. The higher the number of included/excluded papers, the quicker
-the software recognises your choices for inclusion.
+decisions on the titles and abstract of papers that you have either included or excluded
+from the review so far. The higher the number of included/excluded papers, the better
+the software understands your review choices.
 
-The underlying technique in the software can be adapted by the user.
+ASReview is modular and there is a plethora of models and techniques available for the expert user.
+However, for the majority of users, the default settings should suffice.
 More specifically, you can choose different
 `models <https://asreview.readthedocs.io/en/latest/models.html>`__,
-`query
-strategies <https://asreview.readthedocs.io/en/latest/query_strategies.html>`__,
-and `rebalancing
-strategies <https://asreview.readthedocs.io/en/latest/balance_strategies.html>`__
+`query strategies <https://asreview.readthedocs.io/en/latest/query_strategies.html>`__,
+`feature extraction methods <https://asreview.readthedocs.io/en/latest/feature_extraction.html>`__,
+and `rebalancing strategies <https://asreview.readthedocs.io/en/latest/balance_strategies.html>`__
 in the ASReview software.
 
-The options you want the software to use have to be specified in the
-``asreview oracle`` command. If no options are specified, the ASReview
-software will use its defaults. Run ``asreview oracle --help`` to view
-the options and the defaults.
+You can supply options in the ``asreview oracle`` command. If no options are specified, the ASReview
+software will use the default options. Run ``asreview oracle --help`` to view
+the options and defaults.
 
 .. code:: bash
 
-    usage: asreview oracle [-h] [-m MODEL] [-q QUERY_STRATEGY]
-                           [-b BALANCE_STRATEGY] [--n_instances N_INSTANCES]
-                           [--n_queries N_QUERIES] [--embedding EMBEDDING_FP]
-                           [--config_file CONFIG_FILE] [-s SRC_LOG_FP]
-                           [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
-                           [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
-                           [--log_file LOG_FILE] [--save_model SAVE_MODEL_FP]
-                           [--verbose VERBOSE]
-                           X
-
-    Automated Systematic Review (ASReview) with interaction with oracle.
-
-    The oracle modus is used to perform a systematic review with
-    interaction by the reviewer (the ‘oracle’ in literature on active
-    learning). The software presents papers to the reviewer, whereafter
-    the reviewer classifies them.
-
-    positional arguments:
-      X                     File path to the dataset or one of the built-in datasets.
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -m MODEL, --model MODEL
-                            The prediction model for Active Learning. Default 'nb'.
-      -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
-                            The query strategy for Active Learning. Default 'rand_max'.
-      -b BALANCE_STRATEGY, --balance_strategy BALANCE_STRATEGY
-                            Data rebalancing strategy mainly for RNN methods. Helps against imbalanced dataset with few inclusions and many exclusions. Default 'triple_balance'
-      --n_instances N_INSTANCES
-                            Number of papers queried each query. Default 1.
-      --n_queries N_QUERIES
-                            The number of queries. By default, the programstops after all documents are reviewed or is interrupted by the user.
-      --embedding EMBEDDING_FP
-                            File path of embedding matrix. Required for LSTM models.
-      --config_file CONFIG_FILE
-                            Configuration file with model parameters
-      --prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]
-                            A list of included papers.
-      --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
-                            A list of excluded papers. Optional.
-      --log_file LOG_FILE, -l LOG_FILE
-                            Location to store the log results.
-      --save_model SAVE_MODEL_FP
-                            Location to store the model and weights. Only works for Keras/RNN models. End file extension with '.json'.
-      --verbose VERBOSE, -v VERBOSE
-                            Verbosity
+	usage: oracle [-h] [-m MODEL] [-q QUERY_STRATEGY] [-b BALANCE_STRATEGY]
+	              [-e FEATURE_EXTRACTION] [--n_instances N_INSTANCES]
+	              [--n_queries N_QUERIES] [-n N_PAPERS] [--embedding EMBEDDING_FP]
+	              [--config_file CONFIG_FILE]
+	              [--included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]]
+	              [--excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]]
+	              [--prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]]
+	              [--log_file LOG_FILE] [--save_model SAVE_MODEL_FP]
+	              [--verbose VERBOSE] [--new]
+	              [dataset [dataset ...]]
+	
+	Automated Systematic Review (ASReview) with interaction with oracle.
+	
+	The oracle modus is used to perform a systematic review with
+	interaction by the reviewer (the ‘oracle’ in literature on active
+	learning). The software presents papers to the reviewer, whereafter
+	the reviewer classifies them.
+	
+	positional arguments:
+	  dataset               File path to the dataset or one of the built-in datasets.
+	
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -m MODEL, --model MODEL
+	                        The prediction model for Active Learning. Default: 'nb'.
+	  -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
+	                        The query strategy for Active Learning. Default: 'max_random'.
+	  -b BALANCE_STRATEGY, --balance_strategy BALANCE_STRATEGY
+	                        Data rebalancing strategy mainly for RNN methods. Helps against imbalanced dataset with few inclusions and many exclusions. Default: 'triple'
+	  -e FEATURE_EXTRACTION, --feature_extraction FEATURE_EXTRACTION
+	                        Feature extraction method. Some combinations of feature extraction method and prediction model are impossible/ill advised.Default: 'tfidf'
+	  --n_instances N_INSTANCES
+	                        Number of papers queried each query.Default 1.
+	  --n_queries N_QUERIES
+	                        The number of queries. By default, the program stops after all documents are reviewed or is interrupted by the user.
+	  -n N_PAPERS, --n_papers N_PAPERS
+	                        The number of papers to be reviewed. By default, the program stops after all documents are reviewed or is interrupted by the user.
+	  --embedding EMBEDDING_FP
+	                        File path of embedding matrix. Required for LSTM models.
+	  --config_file CONFIG_FILE
+	                        Configuration file with model parameters
+	  --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
+	                        A dataset with papers that should be includedCan be used multiple times.
+	  --excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]
+	                        A dataset with papers that should be excludedCan be used multiple times.
+	  --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
+	                        A dataset with papers from prior studies.
+	  --log_file LOG_FILE, -l LOG_FILE
+	                        Location to store the log results.
+	  --save_model SAVE_MODEL_FP
+	                        Location to store the model and weights. Only works for Keras/RNN models. End file extension with '.json'.
+	  --verbose VERBOSE, -v VERBOSE
+	                        Verbosity
+	  --new                 Start review from scratch.
 
 Wrapping up the Automated Systematic Review
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ASReview software will keep presenting abstracts.
+The ASReview software continuously presents abstracts either until the user decides to stop,
+or until there are no abstracts left.
 The longer you continue reading, the better the model will
-understand your review requirements, and the less likely any important papers
-are left not reviewed. You can stop reading abstracts at any time, by using the ``Stop`` option.
+understand your review requirements. You can stop reading abstracts at any time, by using the ``Stop`` option.
+The decision of when to stop reviewing is made by the reviewer. Suggested stopping criteria could be stopping after
+the last X presented abstracts were rejected.
 
-You can view the results of your automated systematic review by using the `` Export`` option. The export file you created earlier (for example ``myresults.csv``) can be viewed by running ``open myresults.csv``.
+You can view the results of your automated systematic review by using the `` Export`` option. This will create a CSV file
+, which can be read by your favorite spreadsheet software (such as Microsoft Excel).
 
 In the exported file, papers are ordered as follows: 1) the manually included papers, 2) the unlabeled papers by decreasing
-likeliness of inclusions, 3) the manually excluded papers.
+likeliness of inclusion, 3) the manually excluded papers.

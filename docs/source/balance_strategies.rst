@@ -38,7 +38,7 @@ triple
 
 This divides the training data into three sets: included papers,
 excluded papers found with random sampling and papers found with max
-sampling. They are balanced according to forumla’s depending on the
+sampling. They are balanced according to formulas depending on the
 percentage of papers read in the dataset, the number of papers with
 random/max sampling etc. Works best for stochastic training algorithms.
 Reduces to both full sampling and undersampling with corresponding
@@ -46,12 +46,12 @@ parameters.
 
 .. code:: ini
 
- 	one_a=2.155
- 	one_alpha=0.94
- 	zero_b=0.789
- 	zero_beta=1.0
- 	zero_max_c=0.835
- 	zero_max_gamma=2.0
+ 	a=2.155
+ 	alpha=0.94
+ 	b=0.789
+ 	beta=1.0
+ 	max_c=0.835
+ 	max_gamma=2.0
  	shuffle=True
 
 See :class:`asreview.balance_strategies.TripleBalance`
@@ -59,8 +59,15 @@ See :class:`asreview.balance_strategies.TripleBalance`
 double
 ------
 
-Same as triple balance, except that it doesn't have a difference between max or random 
+Same as triple balance, except that it distinguish between max or random 
 sampling.
+
+.. code:: ini
+
+	a=2.155
+	alpha=0.94
+	b=0.789
+	beta=1.0
 
 See :class:`asreview.balance_strategies.DoubleBalance`
 

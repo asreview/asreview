@@ -35,5 +35,6 @@ First check whether the package is correctly installed. Do this with the command
 How do I work with the Command Line?
 ------------------------------------
 
-MacOS and Linux users can learn about bash on the website programminghistorian.org.
+MacOS and Linux users can learn about bash on the website
+`programminghistorian.org <https://programminghistorian.org/en/lessons/intro-to-bash#opening-your-shell>`__.
 Windows users may also follow this tutorial, but might prefer a tutorial on cmd.exe.
