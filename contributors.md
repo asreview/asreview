@@ -22,5 +22,5 @@ This project is in collaboration with [Utrecht Applied Data Science](https://www
 - Maarten Meijer ([@mmeijer23](https://github.com/mmerijer23))
 - [Diederik Visser](https://nl.linkedin.com/in/diederikvisser)
 - Martijn Huijts ([@MartijnUX](https://github.com/MartijnUX))
-- Sybren Hindriks
-- Yongchao Terry Ma ([@terrymyc](https://github.com/terrymyc))
+- [Sybren Hindriks](https://www.linkedin.com/in/sybren-hindriks-054320135)
+- [Yongchao Terry Ma](https://www.linkedin.com/in/yongchao-ma/) ([@terrymyc](https://github.com/terrymyc))
