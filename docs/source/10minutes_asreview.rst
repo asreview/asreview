@@ -341,4 +341,6 @@ You can view the results of your automated systematic review by using the `` Exp
 , which can be read by your favorite spreadsheet software (such as Microsoft Excel).
 
 In the exported file, papers are ordered as follows: 1) the manually included papers, 2) the unlabeled papers by decreasing
-likeliness of inclusion, 3) the manually excluded papers.
+likeliness of inclusion, 3) the manually excluded papers. There should be a column called "label",
+which represents this by a "1" for included papers, "0" for excluded papers and empty for
+unlabeled papers.
