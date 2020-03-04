@@ -321,7 +321,7 @@ class BaseReview(ABC):
         except KeyError:
             self.shared["current_queries"] = {}
 
-    def query(self, n_instances):
+    def query(self, n_instances, query_model=None):
         """Query new results.
 
         Arguments
@@ -340,20 +340,23 @@ class BaseReview(ABC):
         n_instances = min(n_instances, len(pool_idx))
 
         # If the model is not trained, choose random papers.
+        if not self.model_trained and query_model is None:
+            query_model = RandomQuery()
         if not self.model_trained:
-            query_idx, _ = RandomQuery().query(
-                self.X, None, pool_idx, n_instances=n_instances,
-                shared=self.shared)
-
+            classifier = None
         else:
-            # Make a query from the pool.
-            query_idx, _ = self.query_model.query(
-                X=self.X,
-                classifier=self.model,
-                pool_idx=pool_idx,
-                n_instances=n_instances,
-                shared=self.shared,
-            )
+            classifier = self.model
+        if query_model is None:
+            query_model = self.query_model
+
+        # Make a query from the pool.
+        query_idx, _ = query_model.query(
+            X=self.X,
+            classifier=classifier,
+            pool_idx=pool_idx,
+            n_instances=n_instances,
+            shared=self.shared,
+        )
         return query_idx
 
     def classify(self, query_idx, inclusions, logger, method=None):
