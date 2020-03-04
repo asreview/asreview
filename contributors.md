@@ -20,7 +20,7 @@ This project is in collaboration with [Utrecht Applied Data Science](https://www
 - Joukje Willemsen ([@JoukjeWillemsen](https://github.com/JoukjeWillemsen))
 - Maarten Hoogerwerf
 - Maarten Meijer ([@mmeijer23](https://github.com/mmerijer23))
-- D W J Visser
+- [Diederik Visser](https://nl.linkedin.com/in/diederikvisser)
 - Martijn Huijts ([@MartijnUX](https://github.com/MartijnUX))
 - Sybren Hindriks
 - Yongchao Terry Ma ([@terrymyc]([@MartijnUX](https://github.com/terrymyc))

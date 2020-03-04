@@ -39,7 +39,7 @@ You can submit your changes to ASReview [by creating a pull request](https://git
 Do you have little experience with contributing to open-source project and working with GitHub? :octocat: No worries! There are some amazing tutorials out there:
 
 - [First timers only](https://www.firsttimersonly.com)
-  - See the [firstcontributions repo](https://github.com/firstcontributions/first-contributions) for a tutorial on how to contribute code.
+  - See the [first-contributions repo](https://github.com/firstcontributions/first-contributions) for a tutorial on how to contribute code.
 - [How To Contribute To An Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 - [Mastering Issues](https://guides.github.com/features/issues/) by GitHub.
 - [About Pull Requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) by GitHub.
