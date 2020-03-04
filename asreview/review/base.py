@@ -181,6 +181,7 @@ class BaseReview(ABC):
                 raise ValueError("The log file does not correspond to the "
                                  "given data file, please use another log "
                                  "file or dataset.")
+            self.load_current_query(logger)
 
     @property
     def settings(self):
@@ -259,6 +260,7 @@ class BaseReview(ABC):
             query_idx = self.query(
                 n_instances=self._next_n_instances()
             )
+            self.log_current_query(logger)
 
             # STEP 2: Classify the queried papers.
             if instant_save:
@@ -309,6 +311,15 @@ class BaseReview(ABC):
 
         proba_1 = np.array([x[1] for x in pred_proba])
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
+
+    def log_current_query(self, logger):
+        logger.set_current_queries(self.shared["current_queries"])
+
+    def load_current_query(self, logger):
+        try:
+            self.shared["current_queries"] = logger.get_current_queries()
+        except KeyError:
+            self.shared["current_queries"] = {}
 
     def query(self, n_instances):
         """Query new results.

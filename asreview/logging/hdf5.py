@@ -63,6 +63,16 @@ class HDF5Logger(BaseLogger):
         else:
             self.f["final_labels"][...] = y
 
+    def set_current_queries(self, current_queries):
+        str_queries = {str(key): value for key, value in current_queries.items()}
+        data = np.string_(json.dumps(str_queries))
+        self.f.attrs.pop("current_queries", None)
+        self.f.attrs["current_queries"] = data
+
+    def get_current_queries(self):
+        str_queries = json.loads(self.f.attrs["current_queries"])
+        return {int(key): value for key, value in str_queries.items()}
+
     def add_classification(self, idx, labels, methods, query_i):
         g = _result_group(self.f, query_i)
         if "new_labels" not in g:
