@@ -129,8 +129,6 @@ class BaseReview(ABC):
         if feature_model is None:
             feature_model = Tfidf()
 
-        self.X = feature_model.fit_transform(
-            as_data.texts, as_data.headings, as_data.bodies)
         self.y = as_data.labels
         self.model = model
         self.balance_model = balance_model
@@ -156,10 +154,6 @@ class BaseReview(ABC):
         with open_logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
-                if self.X.shape[0] != len(y):
-                    raise ValueError("The log file does not correspond to the "
-                                     "given data file, please use another log "
-                                     "file or dataset.")
                 if not set(train_idx) >= set(start_idx):
                     new_idx = list(set(start_idx)-set(train_idx))
                     self.classify(new_idx, self.y[new_idx], logger,
@@ -177,6 +171,16 @@ class BaseReview(ABC):
                 self.classify(start_idx, self.y[start_idx], logger,
                               method="initial")
                 self.query_i = 0
+            try:
+                self.X = logger.get_feature_matrix(as_data.hash())
+            except KeyError:
+                self.X = feature_model.fit_transform(
+                    as_data.texts, as_data.headings, as_data.bodies)
+                logger._add_as_data(as_data, feature_matrix=self.X)
+            if self.X.shape[0] != len(self.y):
+                raise ValueError("The log file does not correspond to the "
+                                 "given data file, please use another log "
+                                 "file or dataset.")
 
     @property
     def settings(self):

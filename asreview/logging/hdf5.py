@@ -21,6 +21,7 @@ import numpy as np
 
 from asreview.settings import ASReviewSettings
 from asreview.logging.base import BaseLogger
+from scipy.sparse.csr import csr_matrix
 
 
 def _append_to_dataset(name, values, g, dtype):
@@ -91,6 +92,54 @@ class HDF5Logger(BaseLogger):
     def save(self):
         self.f['end_time'] = str(datetime.now())
         self.f.flush()
+
+    def _add_as_data(self, as_data, feature_matrix=None):
+        record_table = as_data.record_ids
+        data_hash = as_data.hash()
+        try:
+            data_group = self.f["/data_properties"]
+        except KeyError:
+            data_group = self.f.create_group("/data_properties")
+
+        try:
+            as_data_group = data_group[data_hash]
+        except KeyError:
+            as_data_group = data_group.create_group(data_hash)
+
+        if "record_table" not in as_data_group:
+            as_data_group.create_dataset("record_table", data=record_table)
+
+        if feature_matrix is None:
+            return
+        if isinstance(feature_matrix, np.ndarray):
+            if "feature_matrix" in as_data_group:
+                return
+            as_data_group.create_dataset("feature_matrix", data=feature_matrix)
+            as_data_group.attrs['matrix_type'] = np.string_("ndarray")
+        elif isinstance(feature_matrix, csr_matrix):
+            if "indptr" in as_data_group:
+                return
+            as_data_group.create_dataset("indptr", data=feature_matrix.indptr)
+            as_data_group.create_dataset("indices", data=feature_matrix.indices)
+            as_data_group.create_dataset("shape", data=feature_matrix.shape, dtype=int)
+            as_data_group.create_dataset("data", data=feature_matrix.data)
+            as_data_group.attrs["matrix_type"] = np.string_("csr_matrix")
+        else:
+            as_data_group.create_dataset("feature_matrix", data=feature_matrix)
+            as_data_group.attrs["matrix_type"] = np.string_("unknown")
+
+    def get_feature_matrix(self, data_hash):
+        as_data_group = self.f[f"/data_properties/{data_hash}"]
+
+        matrix_type = as_data_group.attrs["matrix_type"].decode("ascii")
+        if matrix_type == "ndarray":
+            return np.array(as_data_group["feature_matrix"])
+        elif matrix_type == "csr_matrix":
+            feature_matrix = csr_matrix((
+                as_data_group["data"], as_data_group["indices"],
+                as_data_group["indexptr"]), shape=as_data_group["shape"])
+            return feature_matrix
+        return as_data_group["feature_matrix"]
 
     def get(self, variable, query_i=None, idx=None):
         if query_i is not None:

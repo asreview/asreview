@@ -35,8 +35,7 @@ def format_to_str(obj):
         return ""
     res = ""
     if isinstance(obj, list):
-        for sub in obj:
-            res += str(sub) + " "
+        " ".join(obj)
     else:
         res = obj
     return res
@@ -47,6 +46,16 @@ def get_fuzzy_ranking(keywords, str_list):
     for i, my_str in enumerate(str_list):
         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
     return rank_list
+
+
+def is_iterable(i):
+    try:
+        iter(i)
+        if isinstance(i, str):
+            return False
+        return True
+    except TypeError:
+        return False
 
 
 class ASReviewData():
@@ -76,7 +85,7 @@ class ASReviewData():
         else:
             texts = " ".join(self.texts)
         return hashlib.sha1(" ".join(texts).encode(
-            encoding='UTF-8', errors='ignore'))
+            encoding='UTF-8', errors='ignore')).hexdigest()
 
     def slice(self, idx):
         if self.df is None:
@@ -143,23 +152,38 @@ class ASReviewData():
         return cls(read_fn(fp), data_name=data_name,
                    data_type=data_type)
 
-    def record(self, i):
-        return PaperRecord(**self.df.iloc[i],
-                           record_id=self.df.index.values[i])
+    def record(self, i, by_index=True):
+        if not is_iterable(i):
+            index_list = [i]
+        else:
+            index_list = i
 
-    def preview_record(self, i, *args, **kwargs):
+        if not by_index:
+            records = [PaperRecord(**self.df.loc[j, :], record_id=j)
+                       for j in index_list]
+        else:
+            records = [PaperRecord(**self.df.iloc[j],
+                                   record_id=self.df.index.values[j])
+                       for j in index_list]
+
+        if is_iterable(i):
+            return records
+        return records[0]
+
+    def preview_record(self, i, by_index=True, *args, **kwargs):
         "Return a preview string for record i."
-        return self.record(i).preview(*args, **kwargs)
+        return self.record(i, by_index=by_index).preview(*args, **kwargs)
 
-    def format_record(self, i, *args, **kwargs):
+    def format_record(self, i, by_index=True, *args, **kwargs):
         " Format one record for displaying in the CLI. "
-        return self.record(i).format(*args, **kwargs)
+        return self.record(i, by_index=by_index).format(*args, **kwargs)
 
     def print_record(self, *args, **kwargs):
         "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
 
-    def fuzzy_find(self, keywords, threshold=50, max_return=10, exclude=None):
+    def fuzzy_find(self, keywords, threshold=50, max_return=10, exclude=None,
+                   by_index=True):
         """Find a record using keywords.
 
         It looks for keywords in the title/authors/keywords
@@ -182,10 +206,13 @@ class ASReviewData():
         """
         match_str = np.full(len(self), "x", dtype=object)
 
+        all_titles = self.title
+        all_authors = self.df["authors"].values
+        all_keywords = self.df["keywords"].values
         for i in range(len(self)):
-            authors = format_to_str(self.df.iloc[i]["authors"])
-            title = format_to_str(self.df.iloc[i]["title"])
-            rec_keywords = format_to_str(self.df.iloc[i]["keywords"])
+            authors = format_to_str(all_authors[i])
+            title = all_titles[i]
+            rec_keywords = format_to_str(all_keywords[i])
             match_str[i, ] = " ".join([title, authors, rec_keywords])
 
         new_ranking = get_fuzzy_ranking(keywords, match_str)
@@ -199,7 +226,14 @@ class ASReviewData():
             if len(best_idx) > 0 and new_ranking[idx] < threshold:
                 break
             best_idx.append(idx)
-        return np.array(best_idx, dtype=np.int).tolist()
+        fuzz_idx = np.array(best_idx, dtype=np.int)
+        if not by_index:
+            fuzz_idx = self.df.index.values[fuzz_idx]
+        return fuzz_idx.tolist()
+
+    @property
+    def record_ids(self):
+        return self.df.index.values
 
     @property
     def texts(self):
@@ -239,6 +273,14 @@ class ASReviewData():
         if "label" in list(self.df):
             return self.df["label"].values
         return None
+
+    def prior_labels(self, logger, by_index=True):
+        _, _, query_src, _ = logger.review_state()
+        if "initial" not in query_src:
+            return np.array([], dtype=int)
+        if by_index:
+            return np.array(query_src["initial"], dtype=int)
+        return self.df.index.values[query_src["initial"]]
 
     @labels.setter
     def labels(self, labels):

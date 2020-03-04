@@ -1,3 +1,5 @@
+import os
+
 from asreview.config import LABEL_NA
 
 
@@ -16,8 +18,14 @@ class PaperRecord():
             self.label = int(label)
         self.extra_fields = kwargs
 
-    def preview(self, w_title=80, w_authors=40):
+    def preview(self, w_title=80, w_authors=40, automatic_width=False):
         "Return a preview string for record i."
+
+        if automatic_width:
+            term_width = os.get_terminal_size().columns
+            width_available = term_width-7
+            w_title = round((2/3)*width_available)
+            w_authors = width_available - w_title
         title_str = ""
         author_str = ""
         heading = self.title

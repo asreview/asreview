@@ -20,6 +20,10 @@ import numpy as np
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_last_proba_order
 from asreview.logging.base import BaseLogger
+from scipy.sparse.csr import csr_matrix
+from base64 import b64encode, b64decode
+from io import BytesIO
+from scipy.sparse import save_npz, load_npz
 
 
 def get_serial_list(array, dtype=None):
@@ -87,6 +91,45 @@ class DictLogger(BaseLogger):
                 results[i][key].extend(new_dict[key])
             else:
                 results[i][key] = new_dict[key]
+
+    def _add_as_data(self, as_data, feature_matrix=None):
+        record_table = as_data.record_ids
+        data_hash = as_data.hash()
+
+        if "data_properties" not in self._log_dict:
+            self._log_dict["data_properties"] = {}
+
+        data_properties = self._log_dict["data_properties"]
+        if data_hash not in data_properties:
+            data_properties[data_hash] = {}
+        data_properties[data_hash]["record_table"] = record_table.tolist()
+        if feature_matrix is None:
+            return
+        if isinstance(feature_matrix, np.ndarray):
+            encoded_X = feature_matrix.tolist()
+            matrix_type = "ndarray"
+        elif isinstance(feature_matrix, csr_matrix):
+            with BytesIO() as f:
+                save_npz(f, feature_matrix)
+                f.seek(0)
+                encoded_X = b64encode(f.read()).decode('ascii')
+            matrix_type = "csr_matrix"
+        else:
+            encoded_X = feature_matrix
+            matrix_type = "unknown"
+        data_properties[data_hash]["feature_matrix"] = encoded_X
+        data_properties[data_hash]["matrix_type"] = matrix_type
+
+    def get_feature_matrix(self, data_hash):
+        my_data = self._log_dict["data_properties"][data_hash]
+        encoded_X = my_data["feature_matrix"]
+        matrix_type = my_data["matrix_type"]
+        if matrix_type == "ndarray":
+            return np.array(encoded_X)
+        elif matrix_type == "csr_matrix":
+            with BytesIO(b64decode(encoded_X)) as f:
+                return load_npz(f)
+        return encoded_X
 
     def is_empty(self):
         return len(self._log_dict["results"]) == 0

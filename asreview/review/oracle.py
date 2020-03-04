@@ -66,7 +66,8 @@ class ReviewOracle(BaseReview):
         # Get the (possibly) relevant papers.
         choices = []
         for idx in paper_idx:
-            choices.append(self.as_data.preview_record(idx))
+            choices.append(self.as_data.preview_record(idx,
+                                                       automatic_width=True))
         choices.extend([questionary.Separator(), "Return"])
 
         # Stay in the same menu until no more options are left
