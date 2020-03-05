@@ -7,7 +7,7 @@ For example, it is possible to define a new model or sampling strategy and use i
 The easiest way to start a review using the API is to use the factory, see 
 :func:`asreview.review.get_reviewer`.
 
-There are two modes: oracle (review) and simulation (benchmark).
+There are two modes: oracle (review) and simulation mode.
 
 Oracle mode
 -----------
@@ -18,34 +18,32 @@ EMBEDDING_FILE with valid filenames):
 .. code-block:: python
 
 	import asreview
-	from asreview.models import create_lstm_pool_model
+	from asreview.models import LSTMBaseModel
+	from asreview.query_strategies import MaxQueryModel
+	from asreview.balance_strategies import SimpleBalanceModel
+	from asreview.feature_extraction import EmbeddingLSTM
 
-	from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
-	
+
 	# load data
 	as_data = asreview.ASReviewData.from_file(DATA_FILE)
-	
-	# create features and labels
-	X, word_index = asreview.text_to_features(as_data.texts)
-	
-	# Load embedding layer.
-	embedding = asreview.load_embedding(EMBEDDING_FILE, word_index=word_index)
-	embedding_matrix = asreview.sample_embedding(embedding, word_index)
-	
-	# create the model
-	model = KerasClassifier(
-	    create_lstm_pool_model(embedding_matrix=embedding_matrix),
-	    verbose=1,
-	)
-	
+
+	train_model = LSTMBaseModel()
+	query_model = MaxQueryModel()
+	balance_model = SimpleBalanceModel()
+	feature_model = EmbeddingLSTM()
+
+	# Load the embedding matrix, only necessary for lstm models.
+	train_model.embedding_matrix = feature_model.get_embedding_matrix(
+		as_data.texts, EMBEDDING_FILE)
+		
 	# start the review process.
 	reviewer = asreview.ReviewOracle(
-	    X,
-	    data=data,
-	    model=model,
+	    as_data,
+	    model=train_model,
+	    query_model=query_model,
+	    balance_model=balance_model,
+	    feature_model=feature_model,
 	    n_instances=10,
-	    prior_included=PRIOR_INC_LIST,  # List of some included papers
-	    prior_excluded=PRIOR_EXC_LIST,  # List of some excluded papers
 	)
 	reviewer.review()
 
@@ -58,33 +56,31 @@ An example of use the API for the simulation mode:
 .. code-block:: python
 
 	import asreview
-	from asreview.models import create_lstm_pool_model
-	
-	from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
-	
+	from asreview.models import LSTMBaseModel
+	from asreview.query_strategies import MaxQueryModel
+	from asreview.balance_strategies import SimpleBalanceModel
+	from asreview.feature_extraction import EmbeddingLSTM
+
+
 	# load data
 	as_data = asreview.ASReviewData.from_file(DATA_FILE)
-	
-	# create features and labels
-	X, word_index = asreview.text_to_features(as_data.texts)
-	
-	# Load embedding layer.
-	embedding = asreview.load_embedding(EMBEDDING_FILE, word_index=word_index)
-	embedding_matrix = asreview.sample_embedding(embedding, word_index)
-	
-	# create the model
-	model = KerasClassifier(
-	    create_lstm_pool_model(embedding_matrix=embedding_matrix),
-	    verbose=1,
-	)
-	
+
+	train_model = LSTMBaseModel()
+	query_model = MaxQueryModel()
+	balance_model = SimpleBalanceModel()
+	feature_model = EmbeddingLSTM()
+
+	# Load the embedding matrix, only necessary for lstm models.
+	train_model.embedding_matrix = feature_model.get_embedding_matrix(
+		as_data.texts, EMBEDDING_FILE)
+		
 	# start the review process.
 	reviewer = asreview.ReviewSimulate(
-	    X,
-	    y=as_data.labels,
-	    model=model,
+	    as_data,
+	    model=train_model,
+	    query_model=query_model,
+	    balance_model=balance_model,
+	    feature_model=feature_model,
 	    n_instances=10,
-	    prior_included=PRIOR_INC_LIST,  # List of some included papers
-	    prior_excluded=PRIOR_EXC_LIST,  # List of some excluded papers
 	)
 	reviewer.review()

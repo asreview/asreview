@@ -67,6 +67,12 @@ Feature Extraction
 
 
 
+Data
+----
+
+.. autoclass:: asreview.ASReviewData
+	:members:
+
 Utils
 -----
 
