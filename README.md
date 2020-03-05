@@ -14,7 +14,7 @@ Systematic Reviews are “top of the bill” in research. The number of systemat
 reviews published by researchers increases year after year. But performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
 software is designed to accelerate the step of screening abstracts and titles
-with a minimum of papers to be read by a human with no or very few false negatives. 
+with a minimum of papers to be read by a human with no or very few false negatives.
 
 The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the
 researcher. This way of interactive training is known as
@@ -37,14 +37,14 @@ Our ASReview software implements two different modes:
 
 ## Installation
 
-The ASReview software requires Python 3.6+. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the 
+The ASReview software requires Python 3.6+. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
 project with:
 
-```bash 
+```bash
 pip install asreview
 ```
 
-Or, install the development version of the Automated Systematic Review project directly 
+Or, install the development version of the Automated Systematic Review project directly
 from this Github page.
 
 ``` bash
@@ -54,7 +54,7 @@ pip install git+https://github.com/asreview/asreview.git
 ## Quick start
 
 The quickest way to start using the Automated Systematic Review (ASR) software is
-the Command Line Interface (CLI). 
+the Command Line Interface (CLI).
 Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
 ``` sh
@@ -63,8 +63,8 @@ asreview oracle YOUR_DATA.csv --log_file results.json
 
 ![ASReview Command Line Interface](https://github.com/asreview/asreview/raw/master/docs/gifs/asreview-intro.gif)
 
-This command (`asreview oracle`) runs the software in oracle mode on the 
-`YOUR_DATA.csv` dataset. 
+This command (`asreview oracle`) runs the software in oracle mode on the
+`YOUR_DATA.csv` dataset.
 
 The higher the number of papers that you manually include in ASReview,
 the quicker the ASReview software will understand your choices for inclusion.
@@ -80,12 +80,25 @@ mode:
 asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_file results.h5
 ```
 
-## Resources 
+## Resources
 
 - The full documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
 - [10 Minutes into ASReview](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) An introduction into ASReview for new users. 
 - [automated-systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
 - [automated-systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
+
+
+## Contributing
+Got ideas for improvement? We would love to hear about your suggestions! Get started [here :arrow_left:](contributing.md)
+
+See who have contributed to ASReview [here](contributors.md)
+
+## Contact
+This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
+Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
+University, The Netherlands. Maintainers are [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165)) and Raoul Schram ([@qubixes](https://github.com/qubixes)).
+
+For any questions or remarks, please send an email to asreview@uu.nl.
 
 
 ## License
@@ -119,39 +132,5 @@ BibTeX:
     year = 2019,
     doi = {10.5281/zenodo.3345592},
     url = {https://doi.org/10.5281/zenodo.3345592}
-} 
+}
 ```
-
-## Contact and contributors
-
-This project is part of the research work conducted by the [Department of
-Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
-University, The Netherlands in collaboration with [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science), 
-[Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its), and [Utrecht University Library](https://www.uu.nl/en/university-library).
-
-For any questions or remarks, please send an email to asreview@uu.nl.
-
-**Coordination**
-- [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
-- [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob))
-
-**Engineers** 
-- [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165))
-- [Parisa Zahedi](https://www.linkedin.com/in/parisa-zahedi-28b17148/) ([@parisa-zahedi](https://github.com/parisa-zahedi))
-- Raoul Schram ([@qubixes](https://github.com/qubixes))
-- [Kees van Eijden](https://www.uu.nl/staff/CJvanEijden) ([@KvEijden](https://github.com/KvEijden))
-
-**Librarians**
-- [Jan de Boer](https://www.uu.nl/staff/JdeBoer) 
-- [Edu Hackenitz](https://www.uu.nl/staff/EJMHackenitz)
-- [Felix Weijdema](https://www.uu.nl/staff/FPWeijdema)
-- [Bianca Kramer](https://www.uu.nl/staff/BMRKramer) 
-
-**Affiliated Researchers**
-- [Pim Huijnen](https://www.uu.nl/staff/PHuijnen) (Digital Cultural History at the Department of History and Art History)
-- [Lars Tummers](https://www.uu.nl/staff/LGTummers) (Public Management and Behavior at Utrecht University, School of Governance)
-
-**Students**
-- [Gerbrich Ferdinands](https://www.linkedin.com/in/gerbrich-ferdinands-a21838b8) ([@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
-- [Qixiang Fang](https://www.uu.nl/staff/QFang) ([@fqixiang](https://github.com/fqixiang))
-- Albert Harkema ([@sasafrass](https://github.com/sasafrass))

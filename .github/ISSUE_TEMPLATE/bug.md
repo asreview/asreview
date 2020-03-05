@@ -1,30 +1,24 @@
 ---
-name: User interface
-about: Issues related to the User Interface of ASReview
+name: "Bug report \U0001F41B"
+about: "If something isn't working as expected \U0001F914."
 title: ''
-labels: front-end
-assignees: J535D165, mmeijer23
+labels: bug
+assignees: J535D165, qubixes
 
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug with the front-end is.
+A clear and concise description of what the bug is.
 *What happened? And what did you expect to happen?*
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
+Steps to reproduce the problem:
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
 **Version information**
  - OS: [e.g. Windows]
- - Browser [e.g. chrome, safari]
  - ASReview version [e.g. 0.6.2]
 
 **Additional context**
