@@ -19,5 +19,5 @@ A clear and concise description of what you want to happen. Add any considered d
 A clear and concise description of any alternative solutions or features you've considered.
 
 **Teachability, Documentation, Adoption, Migration Strategy**
-If you can, explain how users will be able to use this and possibly write out a version the docs.
-Maybe a screenshot or design?
+A clear explanation of how your new feature can be used by users.
+Maybe with screenshot or design?
