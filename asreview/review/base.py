@@ -307,7 +307,7 @@ class BaseReview(ABC):
         pred_proba = self.shared.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
             pred_proba = self.model.predict_proba(self.X)
-            self.shared['perd_proba'] = pred_proba
+            self.shared['pred_proba'] = pred_proba
 
         proba_1 = np.array([x[1] for x in pred_proba])
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)

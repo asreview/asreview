@@ -131,6 +131,13 @@ class DictLogger(BaseLogger):
                 return load_npz(f)
         return encoded_X
 
+    def get_current_queries(self):
+        str_queries = self._log_dict["current_queries"]
+        return {int(key): value for key, value in str_queries.items()}
+
+    def set_current_queries(self, current_queries):
+        self._log_dict["current_queries"] = current_queries
+
     def is_empty(self):
         return len(self._log_dict["results"]) == 0
 
