@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 **Version information**
  - OS: [e.g. Windows]
  - Browser [e.g. chrome, safari]
- - ASReview version [e.g. 22]
+ - ASReview version [e.g. 0.6.2]
 
 **Additional context**
 Add any other context about the problem here.
