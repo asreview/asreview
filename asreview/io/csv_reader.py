@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import pandas as pd
-from asreview.io.utils import paper_frame_reader
+from asreview.io.utils import standardize_dataframe
 
 
 def read_csv(data_fp):
@@ -22,4 +22,4 @@ def read_csv(data_fp):
         df = pd.read_csv(data_fp)
     except UnicodeDecodeError:
         df = pd.read_csv(data_fp, encoding="ISO-8859-1")
-    return paper_frame_reader(df)
+    return standardize_dataframe(df)

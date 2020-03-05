@@ -1,9 +1,30 @@
 import os
 
 from asreview.config import LABEL_NA
+from asreview.utils import format_to_str
 
 
 class PaperRecord():
+    """A single record from a paper in a systematic review.
+
+    Arguments
+    ---------
+    record_id: int
+        Some identifier for this record.
+    title: str
+        Paper title.
+    abstract: str
+        Paper abstract.
+    authors: str, list
+        Authors of the paper.
+    keywords: str, list
+        Keywords of the paper.
+    label: int
+        Current label of the paper. No label is indicated by
+        asreview.config.LABEL_NA (== -1).
+    kwargs: dict
+        Any extra keyword arguments will be put in self.extra_fields.
+    """
     def __init__(self, record_id, title=None, abstract=None, authors=None,
                  keywords=None,
                  label=LABEL_NA, **kwargs):
@@ -19,7 +40,22 @@ class PaperRecord():
         self.extra_fields = kwargs
 
     def preview(self, w_title=80, w_authors=40, automatic_width=False):
-        "Return a preview string for record i."
+        """Return a single line preview string for record i.
+
+        Arguments
+        ---------
+        w_title: int
+            Width to be allocated for the title of the paper.
+        w_authors: int
+            Width to be allocated for the authors of the paper.
+        automatic_width: bool
+            If true, compute w_title, w_authors from the console width.
+
+        Returns
+        -------
+        str:
+            A string that previews a paper record.
+        """
 
         if automatic_width:
             term_width = os.get_terminal_size().columns
@@ -49,7 +85,18 @@ class PaperRecord():
         return prev_str
 
     def format(self, use_cli_colors=True):
-        " Format one record for displaying in the CLI. "
+        """Format one record for displaying in the CLI.
+
+        Arguments
+        ---------
+        use_cli_colors: bool
+            Some terminals support colors, set to True to use them.
+
+        Returns
+        -------
+        str:
+            A string including title, abstracts and authors.
+        """
         if self.title is not None:
             title = self.title
             if use_cli_colors:
@@ -74,11 +121,18 @@ class PaperRecord():
                 "----------------------------------\n\n")
 
     def print(self, *args, **kwargs):
-        "Print a record to the CLI."
+        "Print a record to the console."
         print(self.format(*args, **kwargs))
 
     @property
     def text(self):
+        """Create a single string from title + abstract.
+
+        Returns
+        -------
+        str:
+            Concatenated string from title + abstract.
+        """
         title = self.title
         abstract = self.abstract
         if title is None:
@@ -89,17 +143,20 @@ class PaperRecord():
 
     @property
     def heading(self):
+        """Return the title of the paper."""
         if self.title is None:
             return ""
         return self.title
 
     @property
     def body(self):
+        """Return the abstract of the paper."""
         if self.abstract is None:
             return ""
         return self.abstract
 
     def todict(self):
+        """Create dictionary from the record."""
         label = self.label
         if self.label is LABEL_NA:
             label = None
@@ -113,13 +170,3 @@ class PaperRecord():
         }
         paper_dict.update(self.extra_fields)
         return paper_dict
-
-
-def format_to_str(obj):
-    res = ""
-    if isinstance(obj, list):
-        for sub in obj:
-            res += str(sub) + " "
-    else:
-        res = obj
-    return res

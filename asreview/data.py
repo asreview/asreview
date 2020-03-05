@@ -24,24 +24,28 @@ from asreview.exceptions import BadFileFormatError
 from asreview.io.ris_reader import write_ris
 from asreview.io.paper_record import PaperRecord
 from asreview.config import LABEL_NA
+from asreview.utils import format_to_str
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
     from fuzzywuzzy import fuzz
 
 
-def format_to_str(obj):
-    if obj is None:
-        return ""
-    res = ""
-    if isinstance(obj, list):
-        " ".join(obj)
-    else:
-        res = obj
-    return res
+def get_fuzzy_scores(keywords, str_list):
+    """Rank a list of strings, depending on a set of keywords.
 
+    Arguments
+    ---------
+    keywords: str
+        Keywords that we are trying to find in the string list.
+    str_list: list
+        List of strings that should be scored according to the keywords.
 
-def get_fuzzy_ranking(keywords, str_list):
+    Returns
+    -------
+    np.ndarray:
+        Array of scores ordered in the same way as the str_list input.
+    """
     rank_list = np.zeros(len(str_list), dtype=np.float)
     for i, my_str in enumerate(str_list):
         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
@@ -49,6 +53,7 @@ def get_fuzzy_ranking(keywords, str_list):
 
 
 def is_iterable(i):
+    """Check if a variable is iterable, but not a string."""
     try:
         iter(i)
         if isinstance(i, str):
@@ -61,7 +66,17 @@ def is_iterable(i):
 class ASReviewData():
     """Data object to store csv/ris file.
 
-    Extracts relevant properties of papers."""
+    Extracts relevant properties of papers.
+
+    Arguments
+    ---------
+    df: pd.DataFrame
+        Dataframe containing the data for the ASReview data object.
+    data_name: str
+        Give a name to the data object.
+    data_type: str
+        What kind of data the dataframe contains.
+    """
 
     def __init__(self, df=None, data_name="empty", data_type="standard"):
         self.df = df
@@ -80,6 +95,13 @@ class ASReviewData():
         self.max_idx = max(df.index.values)
 
     def hash(self):
+        """Compute a hash from the dataset.
+
+        Returns
+        -------
+        str:
+            SHA1 hash, computed from the titles/abstracts of the dataframe.
+        """
         if len(self.df.index) < 1000:
             texts = " ".join(self.bodies)
         else:
@@ -88,6 +110,20 @@ class ASReviewData():
             encoding='UTF-8', errors='ignore')).hexdigest()
 
     def slice(self, idx):
+        """Create a slice from itself.
+
+        Useful if some parts should be kept/thrown away.
+
+        Arguments
+        ---------
+        idx: list, np.ndarray
+            Record ids that should be kept.
+
+        Returns
+        -------
+        ASReviewData:
+            Slice of itself.
+        """
         if self.df is None:
             raise ValueError("Cannot slice empty ASReviewData object.")
 
@@ -125,8 +161,26 @@ class ASReviewData():
         self.data_name += "_" + as_data.data_name
 
     @classmethod
-    def from_file(cls, fp, data_name=None, read_fn=None, data_type=None):
-        "Create instance from csv/ris/excel file."
+    def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
+        """Create instance from csv/ris/excel file.
+
+        It works in two ways; either manual control where the conversion
+        functions are supplied or automatic, where it searches in the entry
+        points for the right conversion functions.
+
+        Arguments
+        ---------
+        fp: str, Path
+            Read the data from this file.
+        read_fn: function
+            Function to read the file. It should return a standardized
+            dataframe.
+        data_name: str
+            Name of the data.
+        data_type: str
+            What kind of data it is. Special names: 'included', 'excluded',
+            'prior'.
+        """
         if data_name is None:
             data_name = Path(fp).stem
 
@@ -153,6 +207,22 @@ class ASReviewData():
                    data_type=data_type)
 
     def record(self, i, by_index=True):
+        """Create a record from an index.
+
+        Arguments
+        ---------
+        i: int, iterable
+            Index of the record, or list of indices.
+        by_index: bool
+            If True, take the i-th value as used internally by the review.
+            If False, take the record with record_id==i.
+
+        Returns
+        -------
+        PaperRecord:
+            The corresponding record if i was an integer, or a list of records
+            if i was an iterable.
+        """
         if not is_iterable(i):
             index_list = [i]
         else:
@@ -175,7 +245,7 @@ class ASReviewData():
         return self.record(i, by_index=by_index).preview(*args, **kwargs)
 
     def format_record(self, i, by_index=True, *args, **kwargs):
-        " Format one record for displaying in the CLI. "
+        "Format one record for displaying in the CLI."
         return self.record(i, by_index=by_index).format(*args, **kwargs)
 
     def print_record(self, *args, **kwargs):
@@ -198,7 +268,12 @@ class ASReviewData():
             Don't return records below this threshold.
         max_return: int
             Maximum number of records to return.
-
+        exclude: list, np.ndarray
+            List of indices that should be excluded in the search. You would
+            put papers that were already labeled here for example.
+        by_index: bool
+            If True, use internal indexing.
+            If False, use record ids for indexing.
         Returns
         -------
         list:
@@ -215,11 +290,14 @@ class ASReviewData():
             rec_keywords = format_to_str(all_keywords[i])
             match_str[i, ] = " ".join([title, authors, rec_keywords])
 
-        new_ranking = get_fuzzy_ranking(keywords, match_str)
+        new_ranking = get_fuzzy_scores(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
         best_idx = []
+        if exclude is None:
+            exclude = np.array([], dtype=int)
         for idx in sorted_idx:
-            if idx in exclude:
+            if ((not by_index and self.df.index.values[idx] in exclude)
+                    or by_index and idx in exclude):
                 continue
             if len(best_idx) >= max_return:
                 break
@@ -259,6 +337,7 @@ class ASReviewData():
         return self.df["abstract"].values
 
     def get(self, name):
+        "Get column with name."
         return self.df[name].values
 
     @property
@@ -274,17 +353,30 @@ class ASReviewData():
             return self.df["label"].values
         return None
 
+    @labels.setter
+    def labels(self, labels):
+        self.df["label"] = labels
+
     def prior_labels(self, logger, by_index=True):
+        """Get the labels that are marked as 'initial'.
+
+        logger: BaseLogger
+            Open logger that contains the label information.
+        by_index: bool
+            If True, return internal indexing.
+            If False, return record_ids for indexing.
+
+        Returns
+        -------
+        np.array:
+            Array of indices that have the 'initial' property.
+        """
         _, _, query_src, _ = logger.review_state()
         if "initial" not in query_src:
             return np.array([], dtype=int)
         if by_index:
             return np.array(query_src["initial"], dtype=int)
         return self.df.index.values[query_src["initial"]]
-
-    @labels.setter
-    def labels(self, labels):
-        self.df["label"] = labels
 
     def __len__(self):
         if self.df is None:
@@ -296,8 +388,8 @@ class ASReviewData():
         return None
 
     def to_file(self, fp, labels=None, df_order=None):
-        """
-        Export data object to file.
+        """Export data object to file.
+
         Both RIS and CSV are supported file formats at the moment.
 
         Arguments
@@ -319,6 +411,22 @@ class ASReviewData():
                 f"from file {fp}")
 
     def to_dataframe(self, labels=None, df_order=None):
+        """Create new dataframe with updated label (order).
+
+        Arguments
+        ---------
+        labels: list, np.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        df_order: list
+            Reorder the dataframe according to these (internal) indices.
+            Deafault ordering if df_order is None.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe of all available record data.
+        """
         new_df = pd.DataFrame.copy(self.df)
         if labels is not None:
             new_df["label"] = labels

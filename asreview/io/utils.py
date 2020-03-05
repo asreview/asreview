@@ -3,36 +3,35 @@ import logging
 import pandas as pd
 import numpy as np
 
-from asreview.io.paper_record import PaperRecord
 from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
 from asreview.exceptions import BadFileFormatError
 
 
 def type_from_column(col_name, col_definitions):
+    """Transform a column name to its standardized form."""
     for definition in col_definitions:
         if col_name.lower() in definition:
             return definition[0]
     return None
 
 
-def record_from_row(row, conversion_table, record_id):
-    kwargs = {}
-    for column, dest_key in conversion_table.items():
-        value = row[column]
-        if not isinstance(value, list) and pd.isnull(value):
-            value = None
+def standardize_dataframe(df):
+    """Creates a ASReview readable dataframe.
 
-        if dest_key is None:
-            kwargs[column] = value
-        else:
-            kwargs[dest_key] = value
+    The main purpose is to rename columns with slightly different names;
+    'authors' vs 'first_authors', etc. This greatly widens the compatibility
+    with different datasets.
 
-    if "record_id" not in kwargs:
-        kwargs["record_id"] = record_id
-    return PaperRecord(**kwargs)
+    Arguments
+    ---------
+    df: pd.DataFrame
+        Unclean dataframe to be cleaned up.
 
-
-def paper_frame_reader(df):
+    Returns
+    -------
+    pd.DataFrame:
+        Cleaned dataframe with proper column names.
+    """
     col_names = list(df)
     for column_name in col_names:
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)

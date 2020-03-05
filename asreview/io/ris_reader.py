@@ -4,15 +4,13 @@ import pandas as pd
 from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
 
-from asreview.io.utils import paper_frame_reader
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.io.utils import standardize_dataframe
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"
-NAME_LABEL_INCLUDED = "label_included"
-LABEL_INCLUDED_VALUES = [
-    "label_included", "included_label", "included_final", "included",
-    "included_flag"
-]
+LABEL_INCLUDED_VALUES = COLUMN_DEFINITIONS[0]
+NAME_LABEL_INCLUDED = LABEL_INCLUDED_VALUES[0]
 
 
 def _tag_key_mapping(reverse=False):
@@ -57,7 +55,7 @@ def read_ris(fp):
 
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
-    return paper_frame_reader(pd.DataFrame(entries))
+    return standardize_dataframe(pd.DataFrame(entries))
 
 
 def write_ris(df, ris_fp):

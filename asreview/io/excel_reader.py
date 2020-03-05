@@ -1,4 +1,4 @@
-from asreview.io.utils import paper_frame_reader
+from asreview.io.utils import standardize_dataframe
 
 import pandas as pd
 from asreview.config import COLUMN_DEFINITIONS
@@ -36,4 +36,4 @@ def read_excel(fp):
             sheet_obj_val = obj_val
             best_sheet = sheet_name
 
-    return paper_frame_reader(dfs[best_sheet])
+    return standardize_dataframe(dfs[best_sheet])

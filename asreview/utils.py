@@ -137,3 +137,15 @@ def _set_class_weight(weight1):
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
+
+
+def format_to_str(obj):
+    """Create string from object, concatenate if list."""
+    if obj is None:
+        return ""
+    res = ""
+    if isinstance(obj, list):
+        " ".join(obj)
+    else:
+        res = obj
+    return res
