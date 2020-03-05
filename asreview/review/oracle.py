@@ -45,8 +45,6 @@ class ReviewOracle(BaseReview):
         else:
             as_data.labels = np.full_like(as_data.labels, LABEL_NA)
             start_idx = []
-#         print(np.where(as_data.labels == 1))
-#         print(start_idx, as_data.labels[start_idx])
         super(ReviewOracle, self).__init__(
             as_data, *args, **kwargs, start_idx=start_idx)
 

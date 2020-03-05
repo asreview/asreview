@@ -26,7 +26,7 @@ from asreview import ASReviewData
 def test_reader(test_file, n_lines, labels, ignore_col):
     fp = Path("test", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)
-    assert as_data.to_dataframe().shape[0] == n_lines
+    assert len(as_data) == n_lines
 
     cols = ['title', 'abstract', 'authors', 'keywords']
     cols = [col for col in cols if col not in ignore_col]

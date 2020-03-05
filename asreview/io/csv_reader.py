@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import pandas as pd
 from asreview.io.utils import standardize_dataframe
 

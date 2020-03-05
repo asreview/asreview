@@ -18,10 +18,10 @@ from pathlib import Path
 
 import h5py
 import numpy as np
+from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
 from asreview.logging.base import BaseLogger
-from scipy.sparse.csr import csr_matrix
 
 
 def _append_to_dataset(name, values, g, dtype):

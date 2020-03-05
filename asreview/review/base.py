@@ -129,6 +129,7 @@ class BaseReview(ABC):
         if feature_model is None:
             feature_model = Tfidf()
 
+        self.as_data = as_data
         self.y = as_data.labels
         self.model = model
         self.balance_model = balance_model
@@ -185,6 +186,11 @@ class BaseReview(ABC):
 
     @property
     def settings(self):
+        extra_kwargs = {}
+        if hasattr(self, 'n_prior_included'):
+            extra_kwargs['n_prior_included'] = self.n_prior_included
+        if hasattr(self, 'n_prior_excluded'):
+            extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
         return ASReviewSettings(
             mode=self.name, model=self.model.name,
             query_strategy=self.query_model.name,
@@ -193,13 +199,12 @@ class BaseReview(ABC):
             n_instances=self.n_instances,
             n_queries=self.n_queries,
             n_papers=self.n_papers,
-            n_prior_included=0,
-            n_prior_excluded=0,
             model_param=self.model.param,
             query_param=self.query_model.param,
             balance_param=self.balance_model.param,
             feature_param=self.feature_model.param,
-            data_fp=None)
+            data_name=self.as_data.data_name,
+            **extra_kwargs)
 
     @abstractmethod
     def _get_labels(self, ind):
@@ -296,8 +301,8 @@ class BaseReview(ABC):
             self._do_review(logger, *args, **kwargs)
 
     def log_probabilities(self, logger):
-        """ Store the modeling probabilities of the training indices and
-            pool indices. """
+        """Store the modeling probabilities of the training indices and
+           pool indices."""
         if not self.model_trained:
             return
 
@@ -328,6 +333,9 @@ class BaseReview(ABC):
         ---------
         n_instances: int
             Batch size of the queries, i.e. number of papers to be queried.
+        query_model: BaseQueryModel
+            Query strategy model to use. If None, the query model of the
+            reviewer is used.
 
         Returns
         -------
@@ -401,7 +409,7 @@ class BaseReview(ABC):
         logger.set_labels(self.y)
 
     def train(self):
-        """ Train the model. """
+        """Train the model."""
 
         num_zero = np.count_nonzero(self.y[self.train_idx] == 0)
         num_one = np.count_nonzero(self.y[self.train_idx] == 1)

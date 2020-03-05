@@ -60,10 +60,11 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         self.padding = padding
         self.truncating = truncating
         self.n_jobs = n_jobs
-        if loop_sequence == 0:
-            self.loop_sequence = False
-        else:
-            self.loop_sequence = True
+        self.loop_sequence = loop_sequence
+#         if loop_sequence == 0:
+#             self.loop_sequence = False
+#         else:
+#             self.loop_sequence = True
 
     def transform(self, texts):
         self.X, self.word_index = text_to_features(
@@ -134,7 +135,7 @@ def loop_sequences(X, max_sequence_length=1000):
     return X
 
 
-def text_to_features(sequences, loop_sequence=True, num_words=20000,
+def text_to_features(sequences, loop_sequence=1, num_words=20000,
                      max_sequence_length=1000,
                      padding='post', truncating='post'):
     """Convert text data into features.
@@ -170,7 +171,7 @@ def text_to_features(sequences, loop_sequence=True, num_words=20000,
         truncating=truncating
     )
 
-    if loop_sequence:
+    if loop_sequence == 1:
         x = loop_sequences(x, max_sequence_length)
     # word index hack. see issue
     # https://github.com/keras-team/keras/issues/8092

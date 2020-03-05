@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.base import BaseTrainModel
 from sklearn.ensemble import RandomForestClassifier
+
+from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
 

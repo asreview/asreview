@@ -144,21 +144,6 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
         default=None,
         help="Configuration file with model parameters"
     )
-#     # Initial data (prior knowledge)
-#     parser.add_argument(
-#         "--prior_included",
-#         default=None,
-#         type=int,
-#         nargs="*",
-#         help="A list of included papers.")
-#
-#     parser.add_argument(
-#         "--prior_excluded",
-#         default=None,
-#         type=int,
-#         nargs="*",
-#         help="A list of excluded papers. Optional.")
-
     parser.add_argument(
         "--included_dataset",
         default=[],
