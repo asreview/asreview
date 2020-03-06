@@ -132,7 +132,7 @@ def get_reviewer(dataset,
     if log_file is not None:
         with open_logger(log_file) as logger:
             if logger.is_empty():
-                logger.add_settings(cli_settings)
+                logger.settings = cli_settings
             settings = logger.settings
     else:
         settings = cli_settings

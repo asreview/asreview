@@ -168,7 +168,7 @@ class BaseReview(ABC):
                 if final_labels is not None:
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
-                logger.add_settings(self.settings)
+                logger.settings = self.settings
                 self.classify(start_idx, self.y[start_idx], logger,
                               method="initial")
                 self.query_i = 0
