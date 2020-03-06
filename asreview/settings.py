@@ -21,6 +21,7 @@ from asreview.models.utils import get_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.feature_extraction.utils import get_feature_model
+from asreview.utils import pretty_format
 
 
 SETTINGS_TYPE_DICT = {
@@ -137,9 +138,9 @@ class ASReviewSettings(object):
         _convert_types(feature_model.default_param, self.feature_param)
 
     def __str__(self):
-        info_str=""
+        info_dict = {}
         for attrib in SETTINGS_TYPE_DICT:
             value = getattr(self, attrib, None)
             if value is not None:
-                info_str += attrib + ": " + str(value) + "\n"
-        return info_str
+                info_dict[attrib] = str(value)
+        return pretty_format(info_dict)
