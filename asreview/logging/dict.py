@@ -24,6 +24,7 @@ from scipy.sparse import save_npz, load_npz
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_last_proba_order
 from asreview.logging.base import BaseLogger
+from asreview.settings import ASReviewSettings
 
 
 def get_serial_list(array, dtype=None):
@@ -147,8 +148,15 @@ class DictLogger(BaseLogger):
     def set_final_labels(self, y):
         self._log_dict["final_labels"] = y.tolist()
 
-    def add_settings(self, settings):
-        self.settings = settings
+    @property
+    def settings(self):
+        settings = self._log_dict.get("settings", None)
+        if settings is None:
+            return None
+        return ASReviewSettings(**settings)
+
+    @settings.setter
+    def settings(self, settings):
         self._log_dict["settings"] = vars(settings)
 
     def add_classification(self, idx, labels, methods, query_i):

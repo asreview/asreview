@@ -91,8 +91,16 @@ class HDF5Logger(BaseLogger):
         g.create_dataset("train_idx", data=train_idx, dtype=np.int)
         g.create_dataset("proba", data=proba, dtype=np.float)
 
-    def add_settings(self, settings):
-        self.settings = settings
+    @property
+    def settings(self):
+        settings = self.f.attrs.get('settings', None)
+        if settings is None:
+            return None
+        settings_dict = json.loads(settings)
+        return ASReviewSettings(**settings_dict)
+
+    @settings.setter
+    def settings(self, settings):
         self.f.attrs.pop('settings', None)
         self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
 
@@ -195,9 +203,6 @@ class HDF5Logger(BaseLogger):
                 raise ValueError(
                     f"Log cannot be read: logger version {self.version}, "
                     f"logfile version {log_version}.")
-            settings_dict = json.loads(self.f.attrs['settings'])
-            if "mode" in settings_dict:
-                self.settings = ASReviewSettings(**settings_dict)
         except KeyError:
             self.initialize_structure()
 

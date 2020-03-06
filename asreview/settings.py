@@ -137,10 +137,9 @@ class ASReviewSettings(object):
         _convert_types(feature_model.default_param, self.feature_param)
 
     def __str__(self):
-        info_str = "----------------------------\n"
+        info_str=""
         for attrib in SETTINGS_TYPE_DICT:
             value = getattr(self, attrib, None)
             if value is not None:
                 info_str += attrib + ": " + str(value) + "\n"
-        info_str += "----------------------------\n"
         return info_str

@@ -21,7 +21,6 @@ class BaseLogger(ABC):
     def __init__(self, log_fp, read_only=False):
         self.log_fp = log_fp
         self.read_only = read_only
-        self.settings = None
         self.restore(log_fp)
 
     def __enter__(self):
@@ -113,14 +112,10 @@ class BaseLogger(ABC):
         """
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def add_settings(self, settings):
-        """Add settings to the logger.
-
-        Arguments
-        ---------
-        settings: ASReviewSettings
-            Settings object to add to the logger.
+    def settings(self):
+        """Get settings from logger
         """
         raise NotImplementedError
 
