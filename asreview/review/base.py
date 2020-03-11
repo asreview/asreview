@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 from abc import ABC
 from abc import abstractmethod
+import os
+import warnings
 
 import dill
 import numpy as np
@@ -22,7 +23,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.logging import open_logger
+from asreview.state.utils import open_state
 from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
 from asreview.balance_strategies.simple import SimpleBalance
@@ -71,6 +72,7 @@ class BaseReview(ABC):
                  n_instances=DEFAULT_N_INSTANCES,
                  n_queries=None,
                  start_idx=[],
+                 state_file=None,
                  log_file=None,
                  final_labels=None,
                  verbose=1,
@@ -109,8 +111,8 @@ class BaseReview(ABC):
             List of papers (ids) that are included a priori.
         prior_excluded: list
             List of papers (ids) that are excluded a priori.
-        log_file: str
-            Path to log file.
+        state_file: str
+            Path to state file. Replaces log_file argument.
         final_labels: np.array
             Final labels if we're using a two step inclusion process.
             For example, if at one step a paper is considered after reading the
@@ -144,7 +146,13 @@ class BaseReview(ABC):
         self.n_papers = n_papers
         self.n_instances = n_instances
         self.n_queries = n_queries
-        self.log_file = log_file
+
+        if log_file is not None:
+            warnings.warn("The log_file argument for BaseReview will be"
+                          " replaced by state_file.", category=FutureWarning)
+            self.state_file = log_file
+        else:
+            self.state_file = state_file
         self.verbose = verbose
 
         self.query_i = 0
@@ -152,37 +160,37 @@ class BaseReview(ABC):
         self.model_trained = False
         self.data_fp = data_fp
 
-        with open_logger(log_file) as logger:
-            if not logger.is_empty():
-                y, train_idx, query_src, query_i = logger.review_state()
+        with open_state(self.state_file) as state:
+            if not state.is_empty():
+                y, train_idx, query_src, query_i = state.review_state()
                 if not set(train_idx) >= set(start_idx):
                     new_idx = list(set(start_idx)-set(train_idx))
-                    self.classify(new_idx, self.y[new_idx], logger,
+                    self.classify(new_idx, self.y[new_idx], state,
                                   method="initial")
-                    y, train_idx, query_src, query_i = logger.review_state()
+                    y, train_idx, query_src, query_i = state.review_state()
                 self.train_idx = train_idx
                 self.y = y
                 self.shared["query_src"] = query_src
                 self.query_i = query_i
             else:
                 if final_labels is not None:
-                    logger.set_final_labels(final_labels)
-                logger.set_labels(self.y)
-                logger.settings = self.settings
-                self.classify(start_idx, self.y[start_idx], logger,
+                    state.set_final_labels(final_labels)
+                state.set_labels(self.y)
+                state.settings = self.settings
+                self.classify(start_idx, self.y[start_idx], state,
                               method="initial")
                 self.query_i = 0
             try:
-                self.X = logger.get_feature_matrix(as_data.hash())
+                self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
                 self.X = feature_model.fit_transform(
                     as_data.texts, as_data.headings, as_data.bodies)
-                logger._add_as_data(as_data, feature_matrix=self.X)
+                state._add_as_data(as_data, feature_matrix=self.X)
             if self.X.shape[0] != len(self.y):
-                raise ValueError("The log file does not correspond to the "
-                                 "given data file, please use another log "
+                raise ValueError("The state file does not correspond to the "
+                                 "given data file, please use another state "
                                  "file or dataset.")
-            self.load_current_query(logger)
+            self.load_current_query(state)
 
     @property
     def settings(self):
@@ -250,13 +258,13 @@ class BaseReview(ABC):
             n_instances = min(n_instances, papers_left)
         return n_instances
 
-    def _do_review(self, logger, stop_after_class=True, instant_save=False):
+    def _do_review(self, state, stop_after_class=True, instant_save=False):
         if self._stop_iter(self.query_i, self.n_pool()):
             return
 
         # train the algorithm with prior knowledge
         self.train()
-        self.log_probabilities(logger)
+        self.log_probabilities(state)
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
@@ -265,16 +273,16 @@ class BaseReview(ABC):
             query_idx = self.query(
                 n_instances=self._next_n_instances()
             )
-            self.log_current_query(logger)
+            self.log_current_query(state)
 
             # STEP 2: Classify the queried papers.
             if instant_save:
                 for idx in query_idx:
                     idx_array = np.array([idx], dtype=np.int)
                     self.classify(idx_array, self._get_labels(idx_array),
-                                  logger)
+                                  state)
             else:
-                self.classify(query_idx, self._get_labels(query_idx), logger)
+                self.classify(query_idx, self._get_labels(query_idx), state)
 
             # Option to stop after the classification set instead of training.
             if (stop_after_class and
@@ -284,10 +292,10 @@ class BaseReview(ABC):
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
-            self.log_probabilities(logger)
+            self.log_probabilities(state)
 
     def review(self, *args, **kwargs):
-        """Do the systematic review, writing the results to the log file.
+        """Do the systematic review, writing the results to the state file.
 
         Arguments
         ---------
@@ -297,10 +305,10 @@ class BaseReview(ABC):
         instant_save: bool
             If True, save results after each single classification.
         """
-        with open_logger(self.log_file) as logger:
-            self._do_review(logger, *args, **kwargs)
+        with open_state(self.state_file) as state:
+            self._do_review(state, *args, **kwargs)
 
-    def log_probabilities(self, logger):
+    def log_probabilities(self, state):
         """Store the modeling probabilities of the training indices and
            pool indices."""
         if not self.model_trained:
@@ -315,14 +323,14 @@ class BaseReview(ABC):
             self.shared['pred_proba'] = pred_proba
 
         proba_1 = np.array([x[1] for x in pred_proba])
-        logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
+        state.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
-    def log_current_query(self, logger):
-        logger.set_current_queries(self.shared["current_queries"])
+    def log_current_query(self, state):
+        state.set_current_queries(self.shared["current_queries"])
 
-    def load_current_query(self, logger):
+    def load_current_query(self, state):
         try:
-            self.shared["current_queries"] = logger.get_current_queries()
+            self.shared["current_queries"] = state.get_current_queries()
         except KeyError:
             self.shared["current_queries"] = {}
 
@@ -367,10 +375,10 @@ class BaseReview(ABC):
         )
         return query_idx
 
-    def classify(self, query_idx, inclusions, logger, method=None):
+    def classify(self, query_idx, inclusions, state, method=None):
         """ Classify new papers and update the training indices.
 
-        It automaticaly updates the logger.
+        It automaticaly updates the state.
 
         Arguments
         ---------
@@ -378,7 +386,7 @@ class BaseReview(ABC):
             Indices to classify.
         inclusions: list, np.array
             Labels of the query_idx.
-        logger: BaseLogger
+        state: BaseLogger
             Logger to store the classification in.
         """
         query_idx = np.array(query_idx, dtype=np.int)
@@ -404,9 +412,9 @@ class BaseReview(ABC):
             else:
                 self.shared["query_src"][method] = query_idx.tolist()
 
-        logger.add_classification(query_idx, inclusions, methods=methods,
-                                  query_i=self.query_i)
-        logger.set_labels(self.y)
+        state.add_classification(query_idx, inclusions, methods=methods,
+                                 query_i=self.query_i)
+        state.set_labels(self.y)
 
     def train(self):
         """Train the model."""
@@ -463,7 +471,7 @@ class BaseReview(ABC):
         h5 file. The model is briefly popped out of the object to allow the
         rest to be written to a file. Do not rely on this method for long term
         storage of the class, since library changes could easily break it.
-        In those cases, use the log + h5 file instead.
+        In those cases, use the state + h5 file instead.
         """
         if isinstance(self.model, KerasClassifier) and self.model_trained:
             model_fp = os.path.splitext(pickle_fp)[0]+".h5"

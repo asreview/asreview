@@ -17,7 +17,7 @@ import questionary as questionary
 
 from asreview.review import BaseReview
 from asreview.types import convert_list_type
-from asreview.logging.utils import open_logger
+from asreview.state.utils import open_state
 from asreview.config import LABEL_NA
 
 
@@ -50,7 +50,7 @@ class ReviewOracle(BaseReview):
 
         self.use_cli_colors = use_cli_colors
 
-    def _papers_from_finder(self, logger):
+    def _papers_from_finder(self, state):
         "Find papers using a fuzzy finder in the available records."
         keywords = questionary.text(
             'Find papers using keywords/authors/title:'
@@ -83,14 +83,14 @@ class ReviewOracle(BaseReview):
             # Get the label for the selected paper.
             label = self._get_labels_paper(idx, ask_stop=False)
             if label is not None:
-                self.classify([idx], [label], logger, method="initial")
+                self.classify([idx], [label], state, method="initial")
 
                 # Remove the selected choice from the list.
                 del choices[choice_idx]
                 del paper_idx[choice_idx]
         return
 
-    def _papers_from_id(self, logger):
+    def _papers_from_id(self, state):
         "Get papers by a list of IDs."
         include_question = questionary.text(
             'Which papers do you want to include?\n'
@@ -110,11 +110,11 @@ class ReviewOracle(BaseReview):
         new_included = convert_list_type(included.split(), int)
         new_excluded = convert_list_type(excluded.split(), int)
         self.classify(new_included, np.ones(len(new_included)),
-                      logger, method="initial")
+                      state, method="initial")
         self.classify(new_excluded, np.zeros(len(new_excluded)),
-                      logger, method="initial")
+                      state, method="initial")
 
-    def main_menu(self, logger, *args, **kwargs):
+    def main_menu(self, state, *args, **kwargs):
         "Get initial papers for modelling."
         while True:
             n_included = np.sum(self.y[self.train_idx] == 1)
@@ -141,20 +141,20 @@ class ReviewOracle(BaseReview):
                 if stop:
                     raise KeyboardInterrupt
             elif action.endswith("by keywords"):
-                self._papers_from_finder(logger)
+                self._papers_from_finder(state)
             elif action.endswith("by ID"):
-                self._papers_from_id(logger)
+                self._papers_from_id(state)
             elif action.startswith("Export"):
                 self._export()
             elif action.startswith("Continue review"):
                 try:
-                    self._do_review(logger, *args, **kwargs)
+                    self._do_review(state, *args, **kwargs)
                 except KeyboardInterrupt:
                     pass
 
     def review(self, *args, instant_save=True, **kwargs):
-        with open_logger(self.log_file) as logger:
-            self.main_menu(logger, *args, instant_save=instant_save, **kwargs)
+        with open_state(self.state_file) as state:
+            self.main_menu(state, *args, instant_save=instant_save, **kwargs)
 
     def _format_paper(self,
                       title=None,

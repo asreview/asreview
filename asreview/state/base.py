@@ -17,11 +17,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-class BaseLogger(ABC):
-    def __init__(self, log_fp, read_only=False):
-        self.log_fp = log_fp
+class BaseState(ABC):
+    def __init__(self, state_fp, read_only=False):
+        self.state_fp = state_fp
         self.read_only = read_only
-        self.restore(log_fp)
+        self.restore(state_fp)
 
     def __enter__(self):
         return self
@@ -34,9 +34,9 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def set_labels(self, y):
-        """Add/set labels to logger
+        """Add/set labels to state
 
-        If the labels do not exist, add it to the logger.
+        If the labels do not exist, add it to the state.
 
         Arguments
         ---------
@@ -47,7 +47,7 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def set_final_labels(self, y):
-        """Add/set final labels to logger.
+        """Add/set final labels to state.
 
         If final_labels does not exist yet, add it.
 
@@ -60,7 +60,7 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def _add_as_data(self, as_data, feature_matrix=None):
-        """Add properties from as_data to the logger.
+        """Add properties from as_data to the state.
 
         Arguments
         ---------
@@ -73,7 +73,7 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def get_feature_matrix(self, data_hash):
-        """Get feature matrix out of the logger.
+        """Get feature matrix out of the state.
 
         Arguments
         ---------
@@ -97,7 +97,7 @@ class BaseLogger(ABC):
         Returns
         -------
         dict:
-            The last known queries according to the log file.
+            The last known queries according to the state file.
         """
         raise NotImplementedError
 
@@ -115,7 +115,7 @@ class BaseLogger(ABC):
     @property
     @abstractmethod
     def settings(self):
-        """Get settings from logger
+        """Get settings from state
         """
         raise NotImplementedError
 
@@ -150,7 +150,7 @@ class BaseLogger(ABC):
         raise NotImplementedError
 
     def is_empty(self):
-        """Check if logger has no results.
+        """Check if state has no results.
 
         Returns
         -------
@@ -161,7 +161,7 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def n_queries(self):
-        """Number of queries saved in the logger.
+        """Number of queries saved in the state.
 
         Returns
         -------
@@ -172,12 +172,12 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def get(self, variable, query_i=None, idx=None):
-        """Get data from the logger object.
+        """Get data from the state object.
 
-        This is universal accessor method of the Logger classes. It can be used
+        This is universal accessor method of the State classes. It can be used
         to get a variable from one specific query. In theory, it should get the
         whole data set if query_i=None, but this is not currently implemented
-        in any of the Loggers.
+        in any of the States.
 
         Arguments
         ---------
@@ -194,7 +194,7 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def delete_last_query(self):
-        """Delete the last query from the logger object."""
+        """Delete the last query from the state object."""
         raise NotImplementedError
 
     def review_state(self):
@@ -246,12 +246,12 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def initialize_structure(self):
-        """Create empty internal structure for logger"""
+        """Create empty internal structure for state"""
         raise NotImplementedError
 
     @abstractmethod
     def close(self):
-        """Close the files opened by the logger.
+        """Close the files opened by the state.
 
         Also sets the end time if not in read-only mode.
         """
@@ -259,7 +259,7 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def save(self):
-        """Save logs to file.
+        """Save state to file.
 
         Arguments
         ---------
@@ -271,9 +271,9 @@ class BaseLogger(ABC):
 
     @abstractmethod
     def restore(self, fp):
-        """Restore or create logger from a log file.
+        """Restore or create state from a state file.
 
-        If the log file doesn't exist, creates and empty state that is ready
+        If the state file doesn't exist, creates and empty state that is ready
         for storage.
 
         Arguments
@@ -284,33 +284,33 @@ class BaseLogger(ABC):
         raise NotImplementedError
 
     def to_dict(self):
-        """Convert logger to dictionary.
+        """Convert state to dictionary.
 
         Returns
         -------
         dict:
             Dictionary with all relevant variables.
         """
-        log_dict = {}
-        log_dict["settings"] = vars(self.settings)
+        state_dict = {}
+        state_dict["settings"] = vars(self.settings)
 
         global_datasets = ["labels", "final_labels"]
         for dataset in global_datasets:
             try:
-                log_dict[dataset] = self.get(dataset).tolist()
+                state_dict[dataset] = self.get(dataset).tolist()
             except KeyError:
                 pass
 
         query_datasets = [
             "label_methods", "label_idx", "inclusions", "proba", "pool_idx",
             "train_idx"]
-        log_dict["results"] = []
+        state_dict["results"] = []
         for query_i in range(self.n_queries()):
-            log_dict["results"].append({})
+            state_dict["results"].append({})
             for dataset in query_datasets:
                 try:
-                    log_dict["results"][query_i][dataset] = self.get(
+                    state_dict["results"][query_i][dataset] = self.get(
                         dataset, query_i).tolist()
                 except (KeyError, IndexError):
                     pass
-        return log_dict
+        return state_dict
