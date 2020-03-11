@@ -15,10 +15,10 @@
 import numpy as np
 import questionary as questionary
 
-from asreview.config import NOT_AVAILABLE
 from asreview.review import BaseReview
 from asreview.types import convert_list_type
 from asreview.logging.utils import open_logger
+from asreview.config import LABEL_NA
 
 
 def update_stats(stats, label):
@@ -34,15 +34,19 @@ def update_stats(stats, label):
 
 class ReviewOracle(BaseReview):
     """Review class for Oracle mode on the command line."""
+    name = "oracle"
 
-    def __init__(self, X, as_data, *args, use_cli_colors=True,
+    def __init__(self, as_data, *args, use_cli_colors=True,
+                 new_review=False,
                  **kwargs):
         self.as_data = as_data
+        if not new_review:
+            start_idx = np.where(as_data.labels != LABEL_NA)[0]
+        else:
+            as_data.labels = np.full_like(as_data.labels, LABEL_NA)
+            start_idx = []
         super(ReviewOracle, self).__init__(
-            X,
-            y=np.tile([NOT_AVAILABLE], X.shape[0]),
-            *args,
-            **kwargs)
+            as_data, *args, **kwargs, start_idx=start_idx)
 
         self.use_cli_colors = use_cli_colors
 
@@ -60,7 +64,8 @@ class ReviewOracle(BaseReview):
         # Get the (possibly) relevant papers.
         choices = []
         for idx in paper_idx:
-            choices.append(self.as_data.preview_record(idx))
+            choices.append(self.as_data.preview_record(idx,
+                                                       automatic_width=True))
         choices.extend([questionary.Separator(), "Return"])
 
         # Stay in the same menu until no more options are left

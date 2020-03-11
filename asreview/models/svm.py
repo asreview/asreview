@@ -15,6 +15,7 @@
 from sklearn.svm import SVC
 
 from asreview.models.base import BaseTrainModel
+from asreview.utils import _set_class_weight
 
 
 class SVMModel(BaseTrainModel):
@@ -44,12 +45,9 @@ class SVMModel(BaseTrainModel):
         self.C = C
         self.kernel = kernel
         self.random_state = random_state
-        if class_weight is not None:
-            class_weight = {
-                0: 1,
-                1: class_weight,
-            }
-        self._model = SVC(kernel=kernel, C=C, class_weight=class_weight,
+
+        self._model = SVC(kernel=kernel, C=C,
+                          class_weight=_set_class_weight(class_weight),
                           random_state=random_state, gamma=gamma,
                           probability=True)
 

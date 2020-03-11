@@ -23,7 +23,7 @@ Models
 
 .. autoclass:: asreview.models.NBModel
 .. autoclass:: asreview.models.RFModel
-.. autoclass:: asreview.models.DenseNNModel
+.. autoclass:: asreview.models.NN2LayerModel
 .. autoclass:: asreview.models.SVMModel
 .. autoclass:: asreview.models.LogisticModel
 .. autoclass:: asreview.models.LSTMBaseModel
@@ -67,10 +67,15 @@ Feature Extraction
 
 
 
+Data
+----
+
+.. autoclass:: asreview.ASReviewData
+	:members:
+
 Utils
 -----
 
-.. autofunction:: asreview.read_data
 .. autofunction:: asreview.load_embedding
 .. autofunction:: asreview.sample_embedding
 

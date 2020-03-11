@@ -12,14 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from base64 import b64encode, b64decode
 from collections import OrderedDict
 from datetime import datetime
+from io import BytesIO
 
 import numpy as np
+from scipy.sparse.csr import csr_matrix
+from scipy.sparse import save_npz, load_npz
 
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_last_proba_order
 from asreview.logging.base import BaseLogger
+from asreview.settings import ASReviewSettings
 
 
 def get_serial_list(array, dtype=None):
@@ -88,6 +93,52 @@ class DictLogger(BaseLogger):
             else:
                 results[i][key] = new_dict[key]
 
+    def _add_as_data(self, as_data, feature_matrix=None):
+        record_table = as_data.record_ids
+        data_hash = as_data.hash()
+
+        if "data_properties" not in self._log_dict:
+            self._log_dict["data_properties"] = {}
+
+        data_properties = self._log_dict["data_properties"]
+        if data_hash not in data_properties:
+            data_properties[data_hash] = {}
+        data_properties[data_hash]["record_table"] = record_table.tolist()
+        if feature_matrix is None:
+            return
+        if isinstance(feature_matrix, np.ndarray):
+            encoded_X = feature_matrix.tolist()
+            matrix_type = "ndarray"
+        elif isinstance(feature_matrix, csr_matrix):
+            with BytesIO() as f:
+                save_npz(f, feature_matrix)
+                f.seek(0)
+                encoded_X = b64encode(f.read()).decode('ascii')
+            matrix_type = "csr_matrix"
+        else:
+            encoded_X = feature_matrix
+            matrix_type = "unknown"
+        data_properties[data_hash]["feature_matrix"] = encoded_X
+        data_properties[data_hash]["matrix_type"] = matrix_type
+
+    def get_feature_matrix(self, data_hash):
+        my_data = self._log_dict["data_properties"][data_hash]
+        encoded_X = my_data["feature_matrix"]
+        matrix_type = my_data["matrix_type"]
+        if matrix_type == "ndarray":
+            return np.array(encoded_X)
+        elif matrix_type == "csr_matrix":
+            with BytesIO(b64decode(encoded_X)) as f:
+                return load_npz(f)
+        return encoded_X
+
+    def get_current_queries(self):
+        str_queries = self._log_dict["current_queries"]
+        return {int(key): value for key, value in str_queries.items()}
+
+    def set_current_queries(self, current_queries):
+        self._log_dict["current_queries"] = current_queries
+
     def is_empty(self):
         return len(self._log_dict["results"]) == 0
 
@@ -97,8 +148,15 @@ class DictLogger(BaseLogger):
     def set_final_labels(self, y):
         self._log_dict["final_labels"] = y.tolist()
 
-    def add_settings(self, settings):
-        self.settings = settings
+    @property
+    def settings(self):
+        settings = self._log_dict.get("settings", None)
+        if settings is None:
+            return None
+        return ASReviewSettings(**settings)
+
+    @settings.setter
+    def settings(self, settings):
         self._log_dict["settings"] = vars(settings)
 
     def add_classification(self, idx, labels, methods, query_i):

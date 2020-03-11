@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.base import BaseTrainModel
 from sklearn.ensemble import RandomForestClassifier
+
+from asreview.models.base import BaseTrainModel
+from asreview.utils import _set_class_weight
 
 
 class RFModel(BaseTrainModel):
@@ -36,19 +38,15 @@ class RFModel(BaseTrainModel):
             Set the random state of the RNG.
         """
         super(RFModel, self).__init__()
-        self.n_estimators = n_estimators
-        self.max_features = max_features
+        self.n_estimators = int(n_estimators)
+        self.max_features = int(max_features)
         self.class_weight = class_weight
         self.random_state = random_state
-        if class_weight is not None:
-            class_weight = {
-                0: 1,
-                1: class_weight,
-            }
 
         self._model = RandomForestClassifier(
-            n_estimators=int(n_estimators), max_features=int(max_features),
-            class_weight=class_weight, random_state=random_state)
+            n_estimators=n_estimators, max_features=max_features,
+            class_weight=_set_class_weight(class_weight),
+            random_state=random_state)
 
     def full_hyper_space(self):
         from hyperopt import hp

@@ -22,13 +22,13 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.config import NOT_AVAILABLE
 from asreview.logging import open_logger
 from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
 from asreview.balance_strategies.simple import SimpleBalance
 from asreview.query_strategies.random import RandomQuery
 from asreview.settings import ASReviewSettings
+from asreview.feature_extraction.tfidf import Tfidf
 
 
 def get_pool_idx(X, train_idx):
@@ -62,8 +62,7 @@ class BaseReview(ABC):
     name = "base"
 
     def __init__(self,
-                 X,
-                 y=None,
+                 as_data,
                  model=None,
                  query_model=None,
                  balance_model=None,
@@ -71,8 +70,7 @@ class BaseReview(ABC):
                  n_papers=None,
                  n_instances=DEFAULT_N_INSTANCES,
                  n_queries=None,
-                 prior_included=[],
-                 prior_excluded=[],
+                 start_idx=[],
                  log_file=None,
                  final_labels=None,
                  verbose=1,
@@ -121,11 +119,6 @@ class BaseReview(ABC):
         """
         super(BaseReview, self).__init__()
 
-        self.X = X
-        self.y = y
-        if y is None:
-            self.y = np.full(X.shape[0], NOT_AVAILABLE)
-        self.y = np.array(self.y, dtype=np.int)
         # Default to Naive Bayes model
         if model is None:
             model = NBModel()
@@ -134,8 +127,10 @@ class BaseReview(ABC):
         if balance_model is None:
             balance_model = SimpleBalance()
         if feature_model is None:
-            raise ValueError("Supply feature model!")
+            feature_model = Tfidf()
 
+        self.as_data = as_data
+        self.y = as_data.labels
         self.model = model
         self.balance_model = balance_model
         self.query_model = query_model
@@ -152,9 +147,6 @@ class BaseReview(ABC):
         self.log_file = log_file
         self.verbose = verbose
 
-        self.prior_included = prior_included
-        self.prior_excluded = prior_excluded
-
         self.query_i = 0
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
@@ -163,44 +155,42 @@ class BaseReview(ABC):
         with open_logger(log_file) as logger:
             if not logger.is_empty():
                 y, train_idx, query_src, query_i = logger.review_state()
-                if X.shape[0] != len(y):
-                    raise ValueError("The log file does not correspond to the "
-                                     "given data file, please use another log "
-                                     "file or dataset.")
-                self.y = y
+                if not set(train_idx) >= set(start_idx):
+                    new_idx = list(set(start_idx)-set(train_idx))
+                    self.classify(new_idx, self.y[new_idx], logger,
+                                  method="initial")
+                    y, train_idx, query_src, query_i = logger.review_state()
                 self.train_idx = train_idx
+                self.y = y
                 self.shared["query_src"] = query_src
                 self.query_i = query_i
             else:
                 if final_labels is not None:
                     logger.set_final_labels(final_labels)
                 logger.set_labels(self.y)
-                logger.add_settings(self.settings)
-                self._prior_knowledge(logger)
+                logger.settings = self.settings
+                self.classify(start_idx, self.y[start_idx], logger,
+                              method="initial")
                 self.query_i = 0
-
-    def _prior_knowledge(self, logger):
-        """Create prior knowledge from arguments."""
-        if self.prior_included is not None and len(self.prior_included) > 0:
-            self.classify(self.prior_included,
-                          np.ones(len(self.prior_included)),
-                          logger, method="initial")
-        if self.prior_excluded is not None and len(self.prior_excluded) > 0:
-            self.classify(self.prior_excluded,
-                          np.zeros(len(self.prior_excluded)),
-                          logger, method="initial")
+            try:
+                self.X = logger.get_feature_matrix(as_data.hash())
+            except KeyError:
+                self.X = feature_model.fit_transform(
+                    as_data.texts, as_data.headings, as_data.bodies)
+                logger._add_as_data(as_data, feature_matrix=self.X)
+            if self.X.shape[0] != len(self.y):
+                raise ValueError("The log file does not correspond to the "
+                                 "given data file, please use another log "
+                                 "file or dataset.")
+            self.load_current_query(logger)
 
     @property
     def settings(self):
-        if self.prior_included is not None:
-            n_prior_included = len(self.prior_included)
-        else:
-            n_prior_included = 0
-        if self.prior_excluded is not None:
-            n_prior_excluded = len(self.prior_excluded)
-        else:
-            n_prior_excluded = 0
-
+        extra_kwargs = {}
+        if hasattr(self, 'n_prior_included'):
+            extra_kwargs['n_prior_included'] = self.n_prior_included
+        if hasattr(self, 'n_prior_excluded'):
+            extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
         return ASReviewSettings(
             mode=self.name, model=self.model.name,
             query_strategy=self.query_model.name,
@@ -209,13 +199,12 @@ class BaseReview(ABC):
             n_instances=self.n_instances,
             n_queries=self.n_queries,
             n_papers=self.n_papers,
-            n_prior_included=n_prior_included,
-            n_prior_excluded=n_prior_excluded,
             model_param=self.model.param,
             query_param=self.query_model.param,
             balance_param=self.balance_model.param,
             feature_param=self.feature_model.param,
-            data_fp=self.data_fp)
+            data_name=self.as_data.data_name,
+            **extra_kwargs)
 
     @abstractmethod
     def _get_labels(self, ind):
@@ -251,7 +240,7 @@ class BaseReview(ABC):
         return self.X.shape[0] - len(self.train_idx)
 
     def _next_n_instances(self):  # Could be merged with _stop_iter someday.
-        """ Get the batch size for the next query. """
+        """Get the batch size for the next query."""
         n_instances = self.n_instances
         n_pool = self.n_pool()
 
@@ -276,6 +265,7 @@ class BaseReview(ABC):
             query_idx = self.query(
                 n_instances=self._next_n_instances()
             )
+            self.log_current_query(logger)
 
             # STEP 2: Classify the queried papers.
             if instant_save:
@@ -311,8 +301,8 @@ class BaseReview(ABC):
             self._do_review(logger, *args, **kwargs)
 
     def log_probabilities(self, logger):
-        """ Store the modeling probabilities of the training indices and
-            pool indices. """
+        """Store the modeling probabilities of the training indices and
+           pool indices."""
         if not self.model_trained:
             return
 
@@ -322,18 +312,30 @@ class BaseReview(ABC):
         pred_proba = self.shared.get('pred_proba', np.array([]))
         if len(pred_proba) == 0:
             pred_proba = self.model.predict_proba(self.X)
-            self.shared['perd_proba'] = pred_proba
+            self.shared['pred_proba'] = pred_proba
 
         proba_1 = np.array([x[1] for x in pred_proba])
         logger.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
-    def query(self, n_instances):
+    def log_current_query(self, logger):
+        logger.set_current_queries(self.shared["current_queries"])
+
+    def load_current_query(self, logger):
+        try:
+            self.shared["current_queries"] = logger.get_current_queries()
+        except KeyError:
+            self.shared["current_queries"] = {}
+
+    def query(self, n_instances, query_model=None):
         """Query new results.
 
         Arguments
         ---------
         n_instances: int
             Batch size of the queries, i.e. number of papers to be queried.
+        query_model: BaseQueryModel
+            Query strategy model to use. If None, the query model of the
+            reviewer is used.
 
         Returns
         -------
@@ -346,20 +348,23 @@ class BaseReview(ABC):
         n_instances = min(n_instances, len(pool_idx))
 
         # If the model is not trained, choose random papers.
+        if not self.model_trained and query_model is None:
+            query_model = RandomQuery()
         if not self.model_trained:
-            query_idx, _ = RandomQuery().query(
-                self.X, None, pool_idx, n_instances=n_instances,
-                shared=self.shared)
-
+            classifier = None
         else:
-            # Make a query from the pool.
-            query_idx, _ = self.query_model.query(
-                X=self.X,
-                classifier=self.model,
-                pool_idx=pool_idx,
-                n_instances=n_instances,
-                shared=self.shared,
-            )
+            classifier = self.model
+        if query_model is None:
+            query_model = self.query_model
+
+        # Make a query from the pool.
+        query_idx, _ = query_model.query(
+            X=self.X,
+            classifier=classifier,
+            pool_idx=pool_idx,
+            n_instances=n_instances,
+            shared=self.shared,
+        )
         return query_idx
 
     def classify(self, query_idx, inclusions, logger, method=None):
@@ -404,7 +409,7 @@ class BaseReview(ABC):
         logger.set_labels(self.y)
 
     def train(self):
-        """ Train the model. """
+        """Train the model."""
 
         num_zero = np.count_nonzero(self.y[self.train_idx] == 0)
         num_one = np.count_nonzero(self.y[self.train_idx] == 1)
@@ -452,13 +457,13 @@ class BaseReview(ABC):
         return stats
 
     def save(self, pickle_fp):
-        """
-        Dump the self object to a pickle fill (using dill). Keras models
-        Cannot be dumped, so they are written to a separate h5 file. The
-        model is briefly popped out of the object to allow the rest to be
-        written to a file. Do not rely on this method for long term storage
-        of the class, since library changes could easily break it. In those
-        cases, use the log + h5 file instead.
+        """Dump the self object to a pickle fill (using dill).
+
+        Keras models cannot be dumped, so they are written to a separate
+        h5 file. The model is briefly popped out of the object to allow the
+        rest to be written to a file. Do not rely on this method for long term
+        storage of the class, since library changes could easily break it.
+        In those cases, use the log + h5 file instead.
         """
         if isinstance(self.model, KerasClassifier) and self.model_trained:
             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
@@ -473,7 +478,7 @@ class BaseReview(ABC):
     @classmethod
     def load(cls, pickle_fp):
         """
-        Create a BaseReview object from a pickle file, and optiona h5 file.
+        Create a BaseReview object from a pickle file.
         """
         with open(pickle_fp, "rb") as fp:
             my_instance = dill.load(fp)

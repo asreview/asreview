@@ -21,7 +21,6 @@ class BaseLogger(ABC):
     def __init__(self, log_fp, read_only=False):
         self.log_fp = log_fp
         self.read_only = read_only
-        self.settings = None
         self.restore(log_fp)
 
     def __enter__(self):
@@ -60,13 +59,63 @@ class BaseLogger(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_settings(self, settings):
-        """Add settings to the logger.
+    def _add_as_data(self, as_data, feature_matrix=None):
+        """Add properties from as_data to the logger.
 
         Arguments
         ---------
-        settings: ASReviewSettings
-            Settings object to add to the logger.
+        as_data: ASReviewData
+            Data file from which the review is run.
+        feature_matrix: np.ndarray, sklearn.sparse.csr_matrix
+            Feature matrix computed by the feature extraction model.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_feature_matrix(self, data_hash):
+        """Get feature matrix out of the logger.
+
+        Arguments
+        ---------
+        data_hash: str
+            Hash of as_data object from which the matrix is derived.
+
+        Returns
+        -------
+        np.ndarray or sklearn.sparse.csr_matrix:
+            Feature matrix as computed by the feature extraction model.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_current_queries(self):
+        """Get the current queries made by the model.
+
+        This is useful to get back exactly to the state it was in before
+        shutting down a review.
+
+        Returns
+        -------
+        dict:
+            The last known queries according to the log file.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def set_current_queries(self, current_queries):
+        """Set the current queries made by the model.
+
+        Arguments
+        ---------
+        current_queries: dict
+            The last known queries, with {query_idx: query_method}.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def settings(self):
+        """Get settings from logger
         """
         raise NotImplementedError
 

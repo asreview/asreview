@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
-
 AVAILABLE_CLI_MODI = ["oracle", "simulate"]
 AVAILABLE_REVIEW_CLASSES = ["oracle", "simulate", "minimal"]
 
@@ -23,8 +21,7 @@ DEMO_DATASETS = {
     "example_cohen": "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/datasets/Cohen_EBM/output/ACEInhibitors.csv",  # noqa
 }
 
-
-NOT_AVAILABLE = np.nan
+LABEL_NA = -1
 
 KERAS_MODELS = ["lstm_base", "lstm_pool"]
 
@@ -41,3 +38,12 @@ GITHUB_PAGE = "https://github.com/asreview/asreview"
 EMAIL_ADDRESS = "asreview@uu.nl"
 
 LOGGER_EXTENSIONS = ['.h5', '.hdf5', '.he5', '.json']
+
+COLUMN_DEFINITIONS = [
+    ["label", "label_included", "included_label", "included_final",
+     "included", "included_flag", "include"],
+    ['title', 'primary_title'],
+    ['authors', 'author names', 'first_authors'],
+    ['abstract', 'abstract note'],
+    ['keywords'],
+]

@@ -26,7 +26,7 @@ def get_model_class(method):
     BaseModel:
         Class corresponding to the method.
     """
-    from asreview.models.dense_nn import DenseNNModel
+    from asreview.models.nn_2_layer import NN2LayerModel
     from asreview.models.svm import SVMModel
     from asreview.models.nb import NBModel
     from asreview.models.rf import RFModel
@@ -38,7 +38,7 @@ def get_model_class(method):
         "svm": SVMModel,
         "nb": NBModel,
         "rf": RFModel,
-        "nn-2-layer": DenseNNModel,
+        "nn-2-layer": NN2LayerModel,
         "lstm-base": LSTMBaseModel,
         "lstm-pool": LSTMPoolModel,
         "logistic": LogisticModel,
