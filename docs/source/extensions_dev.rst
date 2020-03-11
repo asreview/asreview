@@ -35,7 +35,7 @@ single member function:
 		pass  # Implement your functionality here.
 
 The argument ``argv`` are the arguments left after removing asreview and the entry point. In the 
-case of our visualization extension example above, ``argv`` would be equal to ``DIR_WITH_LOG_FILES``.
+case of our visualization extension example above, ``argv`` would be equal to ``DIR_WITH_STATE_FILES``.
 
 It is also strongly recommended to define the following attributes:
 

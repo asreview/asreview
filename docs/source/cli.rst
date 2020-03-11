@@ -25,7 +25,7 @@ The available parameters are shown with the command ``asreview oracle --help``:
 	                       [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE]
 	                       [--prior_included [PRIOR_INCLUDED [PRIOR_INCLUDED ...]]]
 	                       [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
-	                       [--log_file LOG_FILE] [--save_model SAVE_MODEL_FP]
+	                       [--state_file STATE_FILE] [--save_model SAVE_MODEL_FP]
 	                       [--verbose VERBOSE]
 	                       X
 	
@@ -61,8 +61,8 @@ The available parameters are shown with the command ``asreview oracle --help``:
 	                        A list of included papers.
 	  --prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]
 	                        A list of excluded papers. Optional.
-	  --log_file LOG_FILE, -l LOG_FILE
-	                        Location to store the log results.
+	  --state_file STATE_FILE, -s STATE_FILE
+	                        Location to store the state of the review.
 	  --save_model SAVE_MODEL_FP
 	                        Location to store the model and weights. Only works for Keras/RNN models. End file extension with '.json'.
 	  --verbose VERBOSE, -v VERBOSE
@@ -92,7 +92,7 @@ The available parameters are:
 	                         [--prior_excluded [PRIOR_EXCLUDED [PRIOR_EXCLUDED ...]]]
 	                         [--n_prior_included N_PRIOR_INCLUDED]
 	                         [--n_prior_excluded N_PRIOR_EXCLUDED]
-	                         [--log_file LOG_FILE] [--save_model SAVE_MODEL_FP]
+	                         [--state_file STATE_FILE] [--save_model SAVE_MODEL_FP]
 	                         [--verbose VERBOSE]
 	                         X
 	
@@ -132,8 +132,8 @@ The available parameters are:
 	                        Sample n prior included papers. Only used when --prior_included is not given. Default 10
 	  --n_prior_excluded N_PRIOR_EXCLUDED
 	                        Sample n prior excluded papers. Only used when --prior_excluded is not given. Default 10
-	  --log_file LOG_FILE, -l LOG_FILE
-	                        Location to store the log results.
+	  --state_file STATE_FILE, -s STATE_FILE
+	                        Location to store the state of the review.
 	  --save_model SAVE_MODEL_FP
 	                        Location to store the model and weights. Only works for Keras/RNN models. End file extension with '.json'.
 	  --verbose VERBOSE, -v VERBOSE

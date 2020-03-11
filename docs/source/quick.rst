@@ -15,7 +15,7 @@ Start an interactive systematic review (Oracle mode) with the following line in 
 
 .. code-block:: bash
 
-	asreview oracle YOUR_DATA.csv --log_file myreview.h5
+	asreview oracle YOUR_DATA.csv --state_file myreview.h5
 
 
 Example output:
@@ -30,4 +30,4 @@ mode.
 
 .. code-block:: bash
 
-	asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_file myreview.h5
+	asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --state_file myreview.h5
