@@ -169,10 +169,10 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
     )
     # logging and verbosity
     parser.add_argument(
-        "--log_file", "-l",
+        "--state_file", "-s", "--log_file", "-l",
         default=None,
         type=str,
-        help="Location to store the log results."
+        help="Location to store the state of the simulation."
     )
     parser.add_argument(
         "--save_model",

@@ -37,7 +37,8 @@ DEFAULT_N_PRIOR_EXCLUDED = 10
 GITHUB_PAGE = "https://github.com/asreview/asreview"
 EMAIL_ADDRESS = "asreview@uu.nl"
 
-LOGGER_EXTENSIONS = ['.h5', '.hdf5', '.he5', '.json']
+STATE_EXTENSIONS = ['.h5', '.hdf5', '.he5', '.json']
+LOGGER_EXTENSIONS = STATE_EXTENSIONS
 
 COLUMN_DEFINITIONS = [
     ["label", "label_included", "included_label", "included_final",

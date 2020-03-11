@@ -12,37 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import warnings
-
 from asreview.state.base import BaseState
 from asreview.state.dict import DictState
 from asreview.state.hdf5 import HDF5State
 from asreview.state.json import JSONState
 from asreview.state.utils import open_state
-
-
-class BaseLogger(BaseState):
-    warnings.warn("BaseLogger will be replaced by BaseState.",
-                  category=DeprecationWarning)
-
-
-class DictLogger(DictState):
-    warnings.warn("DictLogger will be replaced by DictState.",
-                  category=DeprecationWarning)
-
-
-class HDF5Logger(HDF5State):
-    warnings.warn("HDF5Logger will be replaced by HDF5State.",
-                  category=DeprecationWarning)
-
-
-class JSONLogger(JSONState):
-    warnings.warn("JSONLogger will be replaced by JSONState.",
-                  category=DeprecationWarning)
-
-
-def open_logger(*args, **kwargs):
-    warnings.warn("open_logger will be replaced by open_state.",
-                  category=FutureWarning)
-    return open_state(*args, **kwargs)

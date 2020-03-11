@@ -357,11 +357,11 @@ class ASReviewData():
     def labels(self, labels):
         self.df["label"] = labels
 
-    def prior_labels(self, logger, by_index=True):
+    def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'initial'.
 
-        logger: BaseLogger
-            Open logger that contains the label information.
+        state: BaseState
+            Open state that contains the label information.
         by_index: bool
             If True, return internal indexing.
             If False, return record_ids for indexing.
@@ -371,7 +371,7 @@ class ASReviewData():
         np.array:
             Array of indices that have the 'initial' property.
         """
-        _, _, query_src, _ = logger.review_state()
+        _, _, query_src, _ = state.review_state()
         if "initial" not in query_src:
             return np.array([], dtype=int)
         if by_index:

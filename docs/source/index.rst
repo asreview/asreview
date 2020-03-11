@@ -73,7 +73,7 @@ The source code is freely available at
 .. automodule:: asreview.balance_strategies
    :members:
 
-.. automodule:: asreview.logging
+.. automodule:: asreview.state
    :members:
 
 

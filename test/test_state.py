@@ -3,47 +3,47 @@ from pathlib import Path
 
 import numpy as np
 
-from asreview.logging import JSONLogger, HDF5Logger, DictLogger
-from asreview import open_logger
+from asreview.state import JSONState, HDF5State, DictState
+from asreview.state import open_state
 from asreview.settings import ASReviewSettings
 
 
-def test_read_json_logger():
+def test_read_json_state():
 
-    log_fp = Path("test", "log_files", "test_1_inst.json")
+    state_fp = Path("test", "state_files", "test_1_inst.json")
 
-    with open_logger(str(log_fp)) as logger:
-        assert isinstance(logger, JSONLogger)
-
-
-def test_read_hdf5_logger():
-    log_fp = Path("test", "log_files", "test_1_inst.h5")
-    with open_logger(str(log_fp)) as logger:
-        assert isinstance(logger, HDF5Logger)
+    with open_state(str(state_fp)) as state:
+        assert isinstance(state, JSONState)
 
 
-def test_read_dict_logger():
-    with open_logger(None) as logger:
-        assert isinstance(logger, DictLogger)
+def test_read_hdf5_state():
+    state_fp = Path("test", "state_files", "test_1_inst.h5")
+    with open_state(str(state_fp)) as state:
+        assert isinstance(state, HDF5State)
 
 
-def test_write_json_logger(tmpdir):
-    check_write_logger(tmpdir, 'test.json')
+def test_read_dict_state():
+    with open_state(None) as state:
+        assert isinstance(state, DictState)
 
 
-def test_write_hdf5_logger(tmpdir):
-    check_write_logger(tmpdir, 'test.h5')
+def test_write_json_state(tmpdir):
+    check_write_state(tmpdir, 'test.json')
 
 
-def test_write_dict_logger(tmpdir):
-    check_write_logger(tmpdir, None)
+def test_write_hdf5_state(tmpdir):
+    check_write_state(tmpdir, 'test.h5')
 
 
-def check_write_logger(tmpdir, log_file):
-    if log_file is not None:
-        log_fp = os.path.join(tmpdir, log_file)
+def test_write_dict_state(tmpdir):
+    check_write_state(tmpdir, None)
+
+
+def check_write_state(tmpdir, state_file):
+    if state_file is not None:
+        state_fp = os.path.join(tmpdir, state_file)
     else:
-        log_fp = None
+        state_fp = None
 
     settings = ASReviewSettings(mode="simulate", model="nb",
                                 query_strategy="rand_max",
@@ -59,35 +59,35 @@ def check_write_logger(tmpdir, log_file):
     methods[2::] = np.full((int(n_records-2)), "random")
     methods[2::2] = np.full((int((n_records-2)/2)), "max")
 
-    with open_logger(log_fp) as logger:
-        logger.settings = settings
-        logger.set_labels(start_labels)
+    with open_state(state_fp) as state:
+        state.settings = settings
+        state.set_labels(start_labels)
         current_labels = np.copy(start_labels)
         for i in range(n_records):
             query_i = int(i/2)
             proba = None
             if i >= 2 and (i % 2) == 0:
                 proba = np.random.rand(n_records)
-            logger.add_classification([i], [labels[i]], [methods[i]], query_i)
+            state.add_classification([i], [labels[i]], [methods[i]], query_i)
             if proba is not None:
-                logger.add_proba(np.arange(i+1, n_records), np.arange(i+1),
-                                 proba, query_i)
+                state.add_proba(np.arange(i+1, n_records), np.arange(i+1),
+                                proba, query_i)
             current_labels[i] = labels[i]
-            logger.set_labels(current_labels)
-            check_logger(logger, i, query_i, labels, methods, proba)
+            state.set_labels(current_labels)
+            check_state(state, i, query_i, labels, methods, proba)
 
 
-def check_logger(logger, label_i, query_i, labels, methods, proba):
+def check_state(state, label_i, query_i, labels, methods, proba):
     n_records = len(labels)
 
-    log_labels = logger.get("labels")
-    assert len(log_labels) == len(labels)
+    state_labels = state.get("labels")
+    assert len(state_labels) == len(labels)
     for i in range(label_i+1):
-        assert log_labels[i] == labels[i]
+        assert state_labels[i] == labels[i]
     for i in range(label_i+1, n_records):
-        assert log_labels[i] == np.full(1, np.nan, dtype=np.int)[0]
+        assert state_labels[i] == np.full(1, np.nan, dtype=np.int)[0]
 
-    result_dict = logger.to_dict()
+    result_dict = state.to_dict()
     cur_i = 0
     for qi in range(query_i+1):
         res = result_dict["results"][qi]
