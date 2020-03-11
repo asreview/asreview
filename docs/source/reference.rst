@@ -79,15 +79,15 @@ Utils
 .. autofunction:: asreview.load_embedding
 .. autofunction:: asreview.sample_embedding
 
-Loggers
+State
 -------
 
-.. autofunction:: asreview.logging.open_logger 
-.. autoclass:: asreview.logging.BaseLogger
+.. autofunction:: asreview.state.open_state 
+.. autoclass:: asreview.state.BaseState
 	:members:
-.. autoclass:: asreview.logging.HDF5Logger
-.. autoclass:: asreview.logging.JSONLogger
-.. autoclass:: asreview.logging.DictLogger
+.. autoclass:: asreview.state.HDF5State
+.. autoclass:: asreview.state.JSONState
+.. autoclass:: asreview.state.DictState
 
 Analysis
 --------

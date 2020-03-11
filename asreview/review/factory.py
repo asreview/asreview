@@ -32,7 +32,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
-from asreview.logging.utils import open_logger
+from asreview.state.utils import open_state
 from asreview.data import ASReviewData
 from asreview.review.minimal import MinimalReview
 from asreview.review.oracle import ReviewOracle
@@ -96,7 +96,7 @@ def get_reviewer(dataset,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  config_file=None,
-                 log_file=None,
+                 state_file=None,
                  model_param=None,
                  query_param=None,
                  balance_param=None,
@@ -129,11 +129,11 @@ def get_reviewer(dataset,
         abstract_only=abstract_only)
     cli_settings.from_file(config_file)
 
-    if log_file is not None:
-        with open_logger(log_file) as logger:
-            if logger.is_empty():
-                logger.settings = cli_settings
-            settings = logger.settings
+    if state_file is not None:
+        with open_state(state_file) as state:
+            if state.is_empty():
+                state.settings = cli_settings
+            settings = state.settings
     else:
         settings = cli_settings
 
@@ -159,8 +159,8 @@ def get_reviewer(dataset,
     logging.debug(settings)
 
     if as_data.final_labels is not None:
-        with open_logger(log_file) as logger:
-            logger.set_final_labels(as_data.final_labels)
+        with open_state(state_file) as state:
+            state.set_final_labels(as_data.final_labels)
 
     train_model = get_model(settings.model, **settings.model_param)
     query_model = get_query_model(settings.query_strategy,
@@ -190,7 +190,7 @@ def get_reviewer(dataset,
             prior_idx=prior_idx,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
-            log_file=log_file,
+            state_file=state_file,
             final_labels=as_data.final_labels,
             data_fp=dataset,
             **kwargs)
@@ -205,7 +205,7 @@ def get_reviewer(dataset,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
-            log_file=log_file,
+            state_file=state_file,
             data_fp=dataset,
             **kwargs)
     elif mode == "minimal":
@@ -219,7 +219,7 @@ def get_reviewer(dataset,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
             verbose=verbose,
-            log_file=log_file,
+            state_file=state_file,
             data_fp=dataset,
             **kwargs)
     else:
@@ -248,34 +248,34 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
         model.model.save_weights(save_model_h5_fp, overwrite=True)
 
 
-def review_oracle(dataset, *args, log_file=None, **kwargs):
+def review_oracle(dataset, *args, state_file=None, **kwargs):
     """CLI to the interactive mode."""
-    if log_file is None:
+    if state_file is None:
         while True:
-            log_file = questionary.text(
+            state_file = questionary.text(
                 'Please provide a file to store '
                 'the results of your review:',
                 validate=lambda val: splitext(val)[1] in LOGGER_EXTENSIONS,
             ).ask()
-            if log_file is None:
+            if state_file is None:
                 return
-            if len(log_file) == 0:
+            if len(state_file) == 0:
                 force_continue = questionary.confirm(
                     'Are you sure you want to continue without saving?',
                     default=False
                 ).ask()
                 if force_continue:
-                    log_file = None
+                    state_file = None
                     break
             else:
-                if os.path.isfile(log_file):
+                if os.path.isfile(state_file):
                     action = questionary.select(
-                        f'File {log_file} exists, what do you want'
+                        f'File {state_file} exists, what do you want'
                         ' to do?',
                         default='Exit',
                         choices=[
-                            f'Continue review from {log_file}',
-                            f'Delete review in {log_file} and start a new'
+                            f'Continue review from {state_file}',
+                            f'Delete review in {state_file} and start a new'
                             ' review',
                             f'Choose another file name.',
                             questionary.Separator(),
@@ -291,18 +291,18 @@ def review_oracle(dataset, *args, log_file=None, **kwargs):
                     if action.startswith("Delete"):
                         delete = questionary.confirm(
                             f'Are you sure you want to delete '
-                            f'{log_file}?',
+                            f'{state_file}?',
                             default=False,
                         ).ask()
                         if delete:
-                            os.remove(log_file)
+                            os.remove(state_file)
                             break
                         else:
                             continue
 
                 break
     try:
-        review(dataset, *args, mode='oracle', log_file=log_file, **kwargs)
+        review(dataset, *args, mode='oracle', state_file=state_file, **kwargs)
     except KeyboardInterrupt:
         print('\nClosing down the automated systematic review.')
 

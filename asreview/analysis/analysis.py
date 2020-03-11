@@ -21,7 +21,7 @@ import numpy as np
 from scipy import stats
 from sklearn.cluster import KMeans
 
-from asreview.logging.utils import loggers_from_dir, logger_from_file
+from asreview.state.utils import states_from_dir, state_from_file
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
@@ -30,41 +30,41 @@ from asreview.analysis.statistics import _random_ttd, _cluster_ttd, _max_ttd
 
 
 class Analysis():
-    """Analysis object to do statistical analysis on log files."""
+    """Analysis object to do statistical analysis on state files."""
 
-    def __init__(self, loggers, key=None):
-        """Class to analyse log files.
+    def __init__(self, states, key=None):
+        """Class to analyse state files.
 
         Arguments
         ---------
-        loggers: list, BaseLogger
-            Either a list of loggers (opened files) or a single logger.
+        states: list, BaseLogger
+            Either a list of states (opened files) or a single state.
         key: str
             Give a name to the analysis.
         """
-        if isinstance(loggers, list):
-            loggers = {i: logger for i, logger in enumerate(loggers)}
+        if isinstance(states, list):
+            states = {i: state for i, state in enumerate(states)}
 
-        # Sometimes an extra dataset is present in the log_file(s).
+        # Sometimes an extra dataset is present in the state_file(s).
         # These signify not the labels on which the model was trained, but the
         # ones that were included in the end (or some other intermediate step.
         self.final_labels = None
         self.labels = None
         self.empty = True
 
-        if loggers is None:
+        if states is None:
             return
 
         self.key = key
-        self.loggers = loggers
-        self.num_runs = len(self.loggers)
+        self.states = states
+        self.num_runs = len(self.states)
         if self.num_runs == 0:
             return
 
-        self._first_file = list(self.loggers.keys())[0]
-        self.labels = self.loggers[self._first_file].get('labels')
+        self._first_file = list(self.states.keys())[0]
+        self.labels = self.states[self._first_file].get('labels')
         try:
-            self.final_labels = self.loggers[self._first_file].get(
+            self.final_labels = self.states[self._first_file].get(
                 'final_labels')
         except KeyError:
             pass
@@ -75,8 +75,8 @@ class Analysis():
     def from_dir(cls, data_dir, prefix="result"):
         """Create an Analysis object from a directory."""
         key = os.path.basename(os.path.normpath(data_dir))
-        loggers = loggers_from_dir(data_dir, prefix=prefix)
-        analysis_inst = cls(loggers, key=key)
+        states = states_from_dir(data_dir, prefix=prefix)
+        analysis_inst = cls(states, key=key)
         if analysis_inst.empty:
             return None
 
@@ -87,8 +87,8 @@ class Analysis():
     def from_file(cls, data_fp):
         """Create an Analysis object from a file."""
         key = os.path.basename(os.path.normpath(data_fp))
-        logger = logger_from_file(data_fp)
-        analysis_inst = cls(logger, key=key)
+        state = state_from_file(data_fp)
+        analysis_inst = cls(state, key=key)
         if analysis_inst.empty:
             return None
 
@@ -160,9 +160,9 @@ class Analysis():
         """Get the number of inclusions (without formatting)."""
         inclusions_found = []
 
-        for logger in self.loggers.values():
+        for state in self.states.values():
             inclusions, inc_after_init, n_initial = _find_inclusions(
-                logger, labels)
+                state, labels)
             inclusions_found.append(inclusions)
 
         inc_found_avg = []
@@ -271,9 +271,9 @@ class Analysis():
         time_results = {label: [] for label in one_labels}
         n_initial = []
 
-        for i_file, logger in enumerate(self.loggers.values()):
-            label_order, n = _get_labeled_order(logger)
-            proba_order = _get_last_proba_order(logger)
+        for i_file, state in enumerate(self.states.values()):
+            label_order, n = _get_labeled_order(state)
+            proba_order = _get_last_proba_order(state)
             n_initial.append(n)
 
             for i_time, idx in enumerate(label_order):
@@ -330,24 +330,24 @@ class Analysis():
         """
         if not isinstance(prob_allow_miss, list):
             prob_allow_miss = [prob_allow_miss]
-        logger = self.loggers[self._first_file]
-        n_queries = logger.n_queries()
+        state = self.states[self._first_file]
+        n_queries = state.n_queries()
         results = {
             "x_range": [],
             "limits": [[] for _ in range(len(prob_allow_miss))],
         }
 
         n_train = 0
-        _, n_initial = _get_labeled_order(logger)
+        _, n_initial = _get_labeled_order(state)
         for query_i in range(n_queries):
             new_limits = _get_limits(
-                self.loggers,
+                self.states,
                 query_i,
                 self.labels,
                 proba_allow_miss=prob_allow_miss)
 
             try:
-                new_train_idx = logger.get("train_idx", query_i)
+                new_train_idx = state.get("train_idx", query_i)
             except KeyError:
                 new_train_idx = None
 
@@ -382,8 +382,8 @@ class Analysis():
         n_clusters = int(len(self.labels) / 150)
         model = KMeans(n_clusters=n_clusters, n_init=1)
         clusters = model.fit_predict(X, self.labels)
-        logger = self.loggers[self._first_file]
-        n_queries = logger.n_queries()
+        state = self.states[self._first_file]
+        n_queries = state.n_queries()
 
         results = {
             "x_range": [],
@@ -395,17 +395,17 @@ class Analysis():
         }
         n_train = 0
         for query_i in range(n_queries):
-            new_random_ttd = _random_ttd(self.loggers, query_i, self.labels)
-            new_cluster_ttd = _cluster_ttd(self.loggers, query_i, self.labels,
+            new_random_ttd = _random_ttd(self.states, query_i, self.labels)
+            new_cluster_ttd = _cluster_ttd(self.states, query_i, self.labels,
                                            clusters)
-            new_max_ttd = _max_ttd(self.loggers, query_i, self.labels)
+            new_max_ttd = _max_ttd(self.states, query_i, self.labels)
 
             results["ttd"]["random"].append(new_random_ttd)
             results["ttd"]["cluster"].append(new_cluster_ttd)
             results["ttd"]["max"].append(new_max_ttd)
 
             try:
-                new_train_idx = logger.get("train_idx", query_i)
+                new_train_idx = state.get("train_idx", query_i)
             except KeyError:
                 new_train_idx = None
 
@@ -416,6 +416,6 @@ class Analysis():
         return results
 
     def close(self):
-        """Close loggers."""
-        for logger in self.loggers.values():
-            logger.close()
+        """Close states."""
+        for state in self.states.values():
+            state.close()

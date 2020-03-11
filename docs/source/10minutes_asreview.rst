@@ -130,7 +130,7 @@ all abstracts. To start this process, run:
 
 .. code:: bash
 
-    asreview oracle example_ptsd --log_file myreview.h5 --new
+    asreview oracle example_ptsd --state_file myreview.h5 --new
 
 The ``--new`` flag is only used because the PTSD dataset has already been labeled.
 Ommitting this flag would start the review with an already finished review.
@@ -140,11 +140,11 @@ instead:
 
 .. code:: bash
 
-	asreview oracle example_file.csv --log_file myreview.h5
+	asreview oracle example_file.csv --state_file myreview.h5
 
 
-The log file ``myreview.h5`` stores the details of your systematic review;
-your review choices, model parameters, model predictions and more.
+The state of the review is stored in the file ``myreview.h5``. This includes your review choices,
+model parameters, model predictions and more.
 
 In case this command returns ` Unknown command “asreview” on command line or terminal`, please consult
 `the FAQ <faq.html>`__ to solve the issue.
@@ -246,7 +246,7 @@ and use the ``Export`` option. When prompted, provide a filename with either
 a ``.csv`` or ``.ris`` file extension.
 
 You can stop the review by using the ``Stop`` option. You can later continue the
-review by providing the same log file (``myreview.h5``)
+review by providing the same state file (``myreview.h5``)
 
 Under the hood
 ~~~~~~~~~~~~~~
@@ -279,7 +279,7 @@ the options and defaults.
 	              [--included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]]
 	              [--excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]]
 	              [--prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]]
-	              [--log_file LOG_FILE] [--save_model SAVE_MODEL_FP]
+	              [--state_file STATE_FILE] [--save_model SAVE_MODEL_FP]
 	              [--verbose VERBOSE] [--new]
 	              [dataset [dataset ...]]
 	
@@ -319,8 +319,8 @@ the options and defaults.
 	                        A dataset with papers that should be excludedCan be used multiple times.
 	  --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
 	                        A dataset with papers from prior studies.
-	  --log_file LOG_FILE, -l LOG_FILE
-	                        Location to store the log results.
+	  --state_file STATE_FILE, -s STATE_FILE
+	                        Location to store the state of the review.
 	  --save_model SAVE_MODEL_FP
 	                        Location to store the model and weights. Only works for Keras/RNN models. End file extension with '.json'.
 	  --verbose VERBOSE, -v VERBOSE

@@ -21,7 +21,7 @@ import numpy as np
 from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
-from asreview.logging.base import BaseLogger
+from asreview.state.base import BaseState
 
 
 def _append_to_dataset(name, values, g, dtype):
@@ -43,12 +43,12 @@ def _result_group(f, query_i):
     return g
 
 
-class HDF5Logger(BaseLogger):
-    """Class for logging a Systematic Review with HDF5 storage."""
+class HDF5State(BaseState):
+    """Class for storing the review state with HDF5 storage."""
     version = "1.1"
 
-    def __init__(self, log_fp, read_only=False):
-        super(HDF5Logger, self).__init__(log_fp, read_only=read_only)
+    def __init__(self, state_fp, read_only=False):
+        super(HDF5State, self).__init__(state_fp, read_only=read_only)
 
     def set_labels(self, y):
         if "labels" not in self.f:
@@ -198,11 +198,11 @@ class HDF5Logger(BaseLogger):
         Path(fp).parent.mkdir(parents=True, exist_ok=True)
         self.f = h5py.File(fp, mode)
         try:
-            log_version = self.f.attrs['version'].decode("ascii")
-            if log_version != self.version:
+            state_version = self.f.attrs['version'].decode("ascii")
+            if state_version != self.version:
                 raise ValueError(
-                    f"Log cannot be read: logger version {self.version}, "
-                    f"logfile version {log_version}.")
+                    f"State cannot be read: state version {self.version}, "
+                    f"state file version {state_version}.")
         except KeyError:
             self.initialize_structure()
 

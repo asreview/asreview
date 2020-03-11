@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.logging.utils import open_logger
+from asreview.state.utils import open_state
 from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.embedding_lstm import sample_embedding
 from asreview.feature_extraction.embedding_lstm import text_to_features
