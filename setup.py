@@ -90,6 +90,13 @@ setup(
             'simulate = asreview.entry_points:SimulateEntryPoint',
             'oracle = asreview.entry_points:OracleEntryPoint',
         ],
+        'asreview.readers': [
+            '.csv = asreview.io.csv_reader:read_csv',
+            '.ris = asreview.io.ris_reader:read_ris',
+            '.txt = asreview.io.ris_reader:read_ris',
+            '.xlsx = asreview.io.excel_reader:read_excel',
+            '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
+        ]
     },
     project_urls={
         'Bug Reports':

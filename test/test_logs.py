@@ -60,7 +60,7 @@ def check_write_logger(tmpdir, log_file):
     methods[2::2] = np.full((int((n_records-2)/2)), "max")
 
     with open_logger(log_fp) as logger:
-        logger.add_settings(settings)
+        logger.settings = settings
         logger.set_labels(start_labels)
         current_labels = np.copy(start_labels)
         for i in range(n_records):

@@ -128,6 +128,8 @@ def get_data_home(data_home=None):
 
 def _set_class_weight(weight1):
     """Used in RNN's to have quicker learning"""
+    if weight1 is None:
+        return None
     weight0 = 1.0
     cw_class = {
         0: weight0,
@@ -135,3 +137,24 @@ def _set_class_weight(weight1):
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
+
+
+def format_to_str(obj):
+    """Create string from object, concatenate if list."""
+    if obj is None:
+        return ""
+    res = ""
+    if isinstance(obj, list):
+        " ".join(obj)
+    else:
+        res = obj
+    return res
+
+
+def pretty_format(result):
+    longest_key = max([len(key) for key in result])
+    result_str = ""
+    for key, value in result.items():
+        temp_str = "{{key: <{n}}}: {{value}}\n".format(n=longest_key)
+        result_str += temp_str.format(key=key, value=value)
+    return result_str

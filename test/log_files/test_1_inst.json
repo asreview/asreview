@@ -1,7 +1,7 @@
 {
   "time": {
     "start_time": "2020-01-09 16:10:26.263195",
-    "end_time": "2020-02-14 11:46:57.844611"
+    "end_time": "2020-03-06 13:11:06.235730"
   },
   "version": "2.1",
   "software_version": "0.3.1+14.gd39b057.dirty",
@@ -24,8 +24,7 @@
     "model_param": {
       "alpha": 3.822
     },
-    "data_name": "generic_labels.csv",
-    "data_fp": "test/demo_data/generic_labels.csv",
+    "as_data": null,
     "abstract_only": false,
     "n_prior_excluded": 10,
     "n_prior_included": 10,
@@ -36,7 +35,9 @@
     "balance_strategy": "triple",
     "query_strategy": "max_random",
     "model": "nb",
-    "mode": "simulate"
+    "mode": "simulate",
+    "data_name": "generic_labels.csv",
+    "data_fp": "test/demo_data/generic_labels.csv"
   },
   "results": [
     {

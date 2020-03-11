@@ -4,7 +4,7 @@ import os
 
 from asreview.query_strategies.utils import get_query_model
 from asreview.models.utils import get_model
-from asreview.readers import ASReviewData
+from asreview import ASReviewData
 
 
 @mark.parametrize(

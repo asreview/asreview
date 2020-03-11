@@ -19,7 +19,7 @@ def test_log_continue_json():
     if not os.path.isfile(inter_file):
         reviewer = get_reviewer(
             data_fp, mode="simulate", model="nb", embedding_fp=embedding_fp,
-            prior_included=[1, 3], prior_excluded=[2, 4], log_file=inter_file,
+            prior_idx=[1, 2, 3, 4], log_file=inter_file,
             n_instances=1, n_queries=1)
         reviewer.review()
 
@@ -33,7 +33,7 @@ def test_log_continue_h5():
     if not os.path.isfile(inter_file):
         reviewer = get_reviewer(
             data_fp, mode="simulate", model="nb", embedding_fp=embedding_fp,
-            prior_included=[1, 3], prior_excluded=[2, 4], log_file=inter_file,
+            prior_idx=[1, 2, 3, 4], log_file=inter_file,
             n_instances=1, n_queries=1)
         reviewer.review()
     copyfile(inter_file, h5_log_file)
@@ -129,7 +129,7 @@ def check_model(monkeypatch=None, use_granular=False, log_file=h5_log_file,
         monkeypatch.setattr('builtins.input', lambda _: "0")
     # start the review process.
     reviewer = get_reviewer(data_fp, mode=mode, embedding_fp=embedding_fp,
-                            prior_included=[1, 3], prior_excluded=[2, 4],
+                            prior_idx=[1, 2, 3, 4],
                             log_file=log_file,
                             **kwargs)
     if use_granular:

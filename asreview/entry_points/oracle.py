@@ -17,6 +17,12 @@ class OracleEntryPoint(BaseEntryPoint):
 
     def execute(self, argv):
         parser = _oracle_parser()
+        parser.add_argument(
+            "--new",
+            default=False,
+            action="store_true",
+            help="Start review from scratch."
+        )
         args = parser.parse_args(argv)
 
         args_dict = vars(args)
@@ -70,7 +76,7 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
     parser.add_argument(
         "dataset",
         type=str,
-        metavar="X",
+        nargs="*",
         help="File path to the dataset or one of the built-in datasets."
     )
     # Active learning parameters
@@ -138,29 +144,29 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
         default=None,
         help="Configuration file with model parameters"
     )
-    # Initial data (prior knowledge)
     parser.add_argument(
-        "--prior_included",
-        default=None,
-        type=int,
-        nargs="*",
-        help="A list of included papers.")
-
-    parser.add_argument(
-        "--prior_excluded",
-        default=None,
-        type=int,
-        nargs="*",
-        help="A list of excluded papers. Optional.")
-
-    parser.add_argument(
-        "--extra_dataset",
+        "--included_dataset",
         default=[],
-        action='append',
-        help="A dataset with labels to improve training. Can be used multiple"
-             " times."
+        nargs="*",
+        type=str,
+        help="A dataset with papers that should be included"
+             "Can be used multiple times."
     )
-
+    parser.add_argument(
+        "--excluded_dataset",
+        default=[],
+        nargs="*",
+        type=str,
+        help="A dataset with papers that should be excluded"
+             "Can be used multiple times."
+    )
+    parser.add_argument(
+        "--prior_dataset",
+        default=[],
+        nargs="*",
+        type=str,
+        help="A dataset with papers from prior studies."
+    )
     # logging and verbosity
     parser.add_argument(
         "--log_file", "-l",

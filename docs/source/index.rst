@@ -48,6 +48,8 @@ The source code is freely available at
    query_strategies
 
    balance_strategies
+  
+   feature_extraction
 
 .. toctree::
    :maxdepth: 2

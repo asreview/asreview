@@ -18,6 +18,7 @@ from pathlib import Path
 
 import h5py
 import numpy as np
+from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
 from asreview.logging.base import BaseLogger
@@ -62,6 +63,16 @@ class HDF5Logger(BaseLogger):
         else:
             self.f["final_labels"][...] = y
 
+    def set_current_queries(self, current_queries):
+        str_queries = {str(key): value for key, value in current_queries.items()}
+        data = np.string_(json.dumps(str_queries))
+        self.f.attrs.pop("current_queries", None)
+        self.f.attrs["current_queries"] = data
+
+    def get_current_queries(self):
+        str_queries = json.loads(self.f.attrs["current_queries"])
+        return {int(key): value for key, value in str_queries.items()}
+
     def add_classification(self, idx, labels, methods, query_i):
         g = _result_group(self.f, query_i)
         if "new_labels" not in g:
@@ -80,8 +91,16 @@ class HDF5Logger(BaseLogger):
         g.create_dataset("train_idx", data=train_idx, dtype=np.int)
         g.create_dataset("proba", data=proba, dtype=np.float)
 
-    def add_settings(self, settings):
-        self.settings = settings
+    @property
+    def settings(self):
+        settings = self.f.attrs.get('settings', None)
+        if settings is None:
+            return None
+        settings_dict = json.loads(settings)
+        return ASReviewSettings(**settings_dict)
+
+    @settings.setter
+    def settings(self, settings):
         self.f.attrs.pop('settings', None)
         self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
 
@@ -91,6 +110,54 @@ class HDF5Logger(BaseLogger):
     def save(self):
         self.f['end_time'] = str(datetime.now())
         self.f.flush()
+
+    def _add_as_data(self, as_data, feature_matrix=None):
+        record_table = as_data.record_ids
+        data_hash = as_data.hash()
+        try:
+            data_group = self.f["/data_properties"]
+        except KeyError:
+            data_group = self.f.create_group("/data_properties")
+
+        try:
+            as_data_group = data_group[data_hash]
+        except KeyError:
+            as_data_group = data_group.create_group(data_hash)
+
+        if "record_table" not in as_data_group:
+            as_data_group.create_dataset("record_table", data=record_table)
+
+        if feature_matrix is None:
+            return
+        if isinstance(feature_matrix, np.ndarray):
+            if "feature_matrix" in as_data_group:
+                return
+            as_data_group.create_dataset("feature_matrix", data=feature_matrix)
+            as_data_group.attrs['matrix_type'] = np.string_("ndarray")
+        elif isinstance(feature_matrix, csr_matrix):
+            if "indptr" in as_data_group:
+                return
+            as_data_group.create_dataset("indptr", data=feature_matrix.indptr)
+            as_data_group.create_dataset("indices", data=feature_matrix.indices)
+            as_data_group.create_dataset("shape", data=feature_matrix.shape, dtype=int)
+            as_data_group.create_dataset("data", data=feature_matrix.data)
+            as_data_group.attrs["matrix_type"] = np.string_("csr_matrix")
+        else:
+            as_data_group.create_dataset("feature_matrix", data=feature_matrix)
+            as_data_group.attrs["matrix_type"] = np.string_("unknown")
+
+    def get_feature_matrix(self, data_hash):
+        as_data_group = self.f[f"/data_properties/{data_hash}"]
+
+        matrix_type = as_data_group.attrs["matrix_type"].decode("ascii")
+        if matrix_type == "ndarray":
+            return np.array(as_data_group["feature_matrix"])
+        elif matrix_type == "csr_matrix":
+            feature_matrix = csr_matrix((
+                as_data_group["data"], as_data_group["indices"],
+                as_data_group["indexptr"]), shape=as_data_group["shape"])
+            return feature_matrix
+        return as_data_group["feature_matrix"]
 
     def get(self, variable, query_i=None, idx=None):
         if query_i is not None:
@@ -136,9 +203,6 @@ class HDF5Logger(BaseLogger):
                 raise ValueError(
                     f"Log cannot be read: logger version {self.version}, "
                     f"logfile version {log_version}.")
-            settings_dict = json.loads(self.f.attrs['settings'])
-            if "mode" in settings_dict:
-                self.settings = ASReviewSettings(**settings_dict)
         except KeyError:
             self.initialize_structure()
 
