@@ -9,7 +9,7 @@ class BaseFeatureExtraction(BaseModel):
     """Base class for feature extraction methods."""
     name = "base-feature"
 
-    def __init__(self, split_ta=0, use_keywords=1):
+    def __init__(self, split_ta=0, use_keywords=0):
         self.split_ta = split_ta
         self.use_keywords = use_keywords
 
