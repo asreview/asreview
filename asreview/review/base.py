@@ -184,7 +184,8 @@ class BaseReview(ABC):
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
                 self.X = feature_model.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies)
+                    as_data.texts, as_data.headings, as_data.bodies,
+                    as_data.keywords)
                 state._add_as_data(as_data, feature_matrix=self.X)
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "

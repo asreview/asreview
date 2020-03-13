@@ -9,10 +9,11 @@ class BaseFeatureExtraction(BaseModel):
     """Base class for feature extraction methods."""
     name = "base-feature"
 
-    def __init__(self, split_ta=0):
+    def __init__(self, split_ta=0, use_keywords=1):
         self.split_ta = split_ta
+        self.use_keywords = use_keywords
 
-    def fit_transform(self, texts, titles=None, abstracts=None):
+    def fit_transform(self, texts, titles=None, abstracts=None, keywords=None):
         """Fit and transform a list of texts.
 
         Arguments
@@ -33,11 +34,21 @@ class BaseFeatureExtraction(BaseModel):
             X_titles = self.transform(titles)
             X_abstracts = self.transform(abstracts)
             if issparse(X_titles) and issparse(X_abstracts):
-                X_merge = hstack([X_titles, X_abstracts]).tocsr()
+                X = hstack([X_titles, X_abstracts]).tocsr()
             else:
-                X_merge = np.concatenate((X_titles, X_abstracts), axis=1)
-            return X_merge
-        return self.transform(texts)
+                X = np.concatenate((X_titles, X_abstracts), axis=1)
+        else:
+            X = self.transform(texts)
+
+        if self.use_keywords and keywords is not None:
+            join_keys = np.array([" ".join(key) for key in keywords])
+            X_keywords = self.transform(join_keys)
+            if issparse(X_keywords):
+                X = hstack([X, X_keywords]).tocsr()
+            else:
+                X = np.concatenate((X, X_keywords), axis=1)
+
+        return X
 
     def fit(self, texts):
         """Fit the model to the texts.
@@ -74,5 +85,6 @@ class BaseFeatureExtraction(BaseModel):
         hyper_choices = {}
         hyper_space = {
             "fex_split_ta": hp.randint("fex_split_ta", 2),
+            "fex_use_keywords": hp.randint("fex_use_keywords", 2),
         }
         return hyper_space, hyper_choices
