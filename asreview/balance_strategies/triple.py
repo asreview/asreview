@@ -134,11 +134,11 @@ class TripleBalance(BaseBalance):
     def full_hyper_space(self):
         from hyperopt import hp
         parameter_space = {
-            "bal_one_a": hp.lognormal("bal_one_a", 0, 1),
-            "bal_one_alpha": hp.uniform("bal_one_alpha", 0, 2),
-            "bal_zero_b": hp.uniform("bal_zero_b", 0, 1),
+            "bal_a": hp.lognormal("bal_a", 0, 1),
+            "bal_alpha": hp.uniform("bal_alpha", 0, 2),
+            "bal_b": hp.uniform("bal_b", 0, 1),
             # "bal_zero_beta": hp.uniform("bal_zero_beta", 0, 2),
-            "bal_zero_max_c": hp.uniform("bal_zero_max_c", 0, 1),
+            "bal_c": hp.uniform("bal_c", 0, 1),
             # "bal_zero_max_gamma": hp.uniform("bal_zero_max_gamma", 0.01, 2)
         }
         return parameter_space, {}
