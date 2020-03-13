@@ -15,6 +15,18 @@ def type_from_column(col_name, col_definitions):
     return None
 
 
+def convert_keywords(keywords):
+    if not isinstance(keywords, str):
+        return keywords
+
+    current_best = [keywords]
+    for splitter in [", ", "; ", ": ", ";", ":"]:
+        new_split = keywords.split(splitter)
+        if len(new_split) > len(current_best):
+            current_best = new_split
+    return current_best
+
+
 def standardize_dataframe(df):
     """Creates a ASReview readable dataframe.
 
@@ -56,6 +68,9 @@ def standardize_dataframe(df):
     if "label" in col_names:
         df["label"].fillna(LABEL_NA, inplace=True)
         df["label"] = pd.to_numeric(df["label"])
+
+    if "keywords" in col_names:
+        df["keywords"] = df["keywords"].apply(convert_keywords)
 
     if "record_id" in list(df):
         df.set_index('record_id', inplace=True)

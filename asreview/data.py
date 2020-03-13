@@ -282,13 +282,16 @@ class ASReviewData():
         match_str = np.full(len(self), "x", dtype=object)
 
         all_titles = self.title
-        all_authors = self.df["authors"].values
-        all_keywords = self.df["keywords"].values
+        all_authors = self.authors
+        all_keywords = self.keywords
         for i in range(len(self)):
-            authors = format_to_str(all_authors[i])
-            title = all_titles[i]
-            rec_keywords = format_to_str(all_keywords[i])
-            match_str[i, ] = " ".join([title, authors, rec_keywords])
+            match_list = []
+            if all_authors is not None:
+                match_list.append(format_to_str(all_authors[i]))
+            match_list.append(all_titles[i])
+            if all_keywords is None:
+                match_list.append(format_to_str(all_keywords[i]))
+            match_str[i, ] = " ".join(match_list)
 
         new_ranking = get_fuzzy_scores(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
@@ -335,6 +338,20 @@ class ASReviewData():
     @property
     def abstract(self):
         return self.df["abstract"].values
+
+    @property
+    def keywords(self):
+        try:
+            return self.df["keywords"].values
+        except KeyError:
+            return None
+
+    @property
+    def authors(self):
+        try:
+            return self.df["authors"].values
+        except KeyError:
+            return None
 
     def get(self, name):
         "Get column with name."
