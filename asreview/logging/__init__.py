@@ -24,22 +24,22 @@ from asreview.state.utils import open_state
 
 class BaseLogger(BaseState):
     warnings.warn("BaseLogger will be replaced by BaseState.",
-                  category=DeprecationWarning)
+                  category=FutureWarning)
 
 
 class DictLogger(DictState):
     warnings.warn("DictLogger will be replaced by DictState.",
-                  category=DeprecationWarning)
+                  category=FutureWarning)
 
 
 class HDF5Logger(HDF5State):
     warnings.warn("HDF5Logger will be replaced by HDF5State.",
-                  category=DeprecationWarning)
+                  category=FutureWarning)
 
 
 class JSONLogger(JSONState):
     warnings.warn("JSONLogger will be replaced by JSONState.",
-                  category=DeprecationWarning)
+                  category=FutureWarning)
 
 
 def open_logger(*args, **kwargs):

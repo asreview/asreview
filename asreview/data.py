@@ -92,7 +92,7 @@ class ASReviewData():
         if data_type == "prior":
             self.prior_idx = df.index.values
 
-        self.max_idx = max(df.index.values)
+        self.max_idx = max(df.index.values) + 1
 
     def hash(self):
         """Compute a hash from the dataset.
