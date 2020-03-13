@@ -23,8 +23,9 @@ import pandas as pd
 from asreview.exceptions import BadFileFormatError
 from asreview.io.ris_reader import write_ris
 from asreview.io.paper_record import PaperRecord
-from asreview.config import LABEL_NA
+from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
 from asreview.utils import format_to_str
+from asreview.io.utils import type_from_column
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -78,11 +79,13 @@ class ASReviewData():
         What kind of data the dataframe contains.
     """
 
-    def __init__(self, df=None, data_name="empty", data_type="standard"):
+    def __init__(self, df=None, data_name="empty", data_type="standard",
+                 column_spec=None):
         self.df = df
         self.data_name = data_name
         self.prior_idx = []
         if df is None:
+            self.column_spec = {}
             return
 
         if data_type == "included":
@@ -93,6 +96,19 @@ class ASReviewData():
             self.prior_idx = df.index.values
 
         self.max_idx = max(df.index.values) + 1
+
+        if column_spec is None:
+            self.column_spec = {}
+            for col_name in list(df):
+                data_type = type_from_column(col_name, COLUMN_DEFINITIONS)
+                if data_type is not None:
+                    self.column_spec[data_type] = col_name
+#             self.column_spec = {data_type: 
+#                                 for col_type in COLUMN_DEFINITIONS
+#                                 if not set(col_type).disjoint(list(df))}
+        else:
+            self.column_spec = column_spec
+        print(column_spec, self.column_spec)
 
     def hash(self):
         """Compute a hash from the dataset.
@@ -146,6 +162,7 @@ class ASReviewData():
             self.data_name = as_data.data_name
             self.prior_idx = as_data.prior_idx
             self.max_idx = as_data.max_idx
+            self.column_spec = as_data.column_spec
             return
 
         reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
@@ -159,6 +176,14 @@ class ASReviewData():
         self.df = new_df
         self.prior_idx = new_priors
         self.data_name += "_" + as_data.data_name
+        for data_type, col in as_data.column_spec.items():
+            if data_type in self.column_spec:
+                if self.column_spec[data_type] != col:
+                    raise ValueError(
+                        "Error merging dataframes: column specifications "
+                        f"differ: {self.column_spec} vs {as_data.column_spec}")
+            else:
+                self.column_spec[data_type] = col
 
     @classmethod
     def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
@@ -365,14 +390,28 @@ class ASReviewData():
         return convert_array[self.prior_idx]
 
     @property
+    def final_included(self):
+        return self.labels
+
+    @final_included.setter
+    def final_included(self, labels):
+        self.labels = labels
+
+    @property
     def labels(self):
-        if "label" in list(self.df):
-            return self.df["label"].values
-        return None
+        try:
+            column = self.column_spec["final_included"]
+            return self.df[column].values
+        except KeyError:
+            return None
 
     @labels.setter
     def labels(self, labels):
-        self.df["label"] = labels
+        try:
+            column = self.column_spec["final_included"]
+            self.df[column] = labels
+        except KeyError:
+            self.df["final_included"] = labels
 
     def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'initial'.
@@ -400,9 +439,9 @@ class ASReviewData():
             return 0
         return len(self.df.index)
 
-    @property
-    def final_labels(self):
-        return None
+#     @property
+#     def final_labels(self):
+#         return None
 
     def to_file(self, fp, labels=None, df_order=None):
         """Export data object to file.

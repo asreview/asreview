@@ -27,7 +27,14 @@ def convert_keywords(keywords):
     return current_best
 
 
-def standardize_dataframe(df):
+def type_from_column_spec(col_name, column_spec):
+    for data_type, column_spec_name in column_spec.items():
+        if col_name.lower() == column_spec_name.lower():
+            return data_type
+    return None
+
+
+def standardize_dataframe(df, column_spec={}):
     """Creates a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;
@@ -44,13 +51,19 @@ def standardize_dataframe(df):
     pd.DataFrame:
         Cleaned dataframe with proper column names.
     """
+    all_column_spec = {}
     col_names = list(df)
     for column_name in col_names:
+        data_type = type_from_column_spec(column_name, column_spec)
+        if data_type is not None:
+            all_column_spec[data_type] = column_name
+            continue
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)
         if data_type is not None:
-            df.rename(columns={column_name: data_type}, inplace=True)
+            all_column_spec[data_type] = column_name
+#             df.rename(columns={column_name: data_type}, inplace=True)
 
-    col_names = list(df)
+    col_names = list(all_column_spec)
     if "abstract" not in col_names and "title" not in col_names:
         raise BadFileFormatError("File supplied without 'abstract' or 'title'"
                                  " fields.")
@@ -61,16 +74,21 @@ def standardize_dataframe(df):
 
     for col in ["title", "abstract", "authors", "keywords"]:
         try:
-            df[col].fillna("", inplace=True)
+            df[all_column_spec[col]].fillna("", inplace=True)
         except KeyError:
             pass
 
-    if "label" in col_names:
-        df["label"].fillna(LABEL_NA, inplace=True)
-        df["label"] = pd.to_numeric(df["label"])
+    if "final_included" in col_names:
+        try:
+            col = all_column_spec["final_included"]
+            df[col].fillna(LABEL_NA, inplace=True)
+            df[col] = pd.to_numeric(df[col])
+        except KeyError:
+            pass
 
     if "keywords" in col_names:
-        df["keywords"] = df["keywords"].apply(convert_keywords)
+        col = all_column_spec["keywords"]
+        df[col] = df[col].apply(convert_keywords)
 
     if "record_id" in list(df):
         df.set_index('record_id', inplace=True)
