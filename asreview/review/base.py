@@ -74,7 +74,7 @@ class BaseReview(ABC):
                  start_idx=[],
                  state_file=None,
                  log_file=None,
-                 final_labels=None,
+#                  final_labels=None,
                  verbose=1,
                  data_fp=None,
                  ):
@@ -173,8 +173,8 @@ class BaseReview(ABC):
                 self.shared["query_src"] = query_src
                 self.query_i = query_i
             else:
-                if final_labels is not None:
-                    state.set_final_labels(final_labels)
+#                 if final_labels is not None:
+#                     state.set_final_labels(final_labels)
                 state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx, self.y[start_idx], state,

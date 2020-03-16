@@ -158,9 +158,9 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    if as_data.final_labels is not None:
-        with open_state(state_file) as state:
-            state.set_final_labels(as_data.final_labels)
+#     if as_data.final_labels is not None:
+#         with open_state(state_file) as state:
+#             state.set_final_labels(as_data.final_labels)
 
     train_model = get_model(settings.model, **settings.model_param)
     query_model = get_query_model(settings.query_strategy,
@@ -191,7 +191,7 @@ def get_reviewer(dataset,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
             state_file=state_file,
-            final_labels=as_data.final_labels,
+#             final_labels=as_data.final_labels,
             data_fp=dataset,
             **kwargs)
     elif mode == "oracle":

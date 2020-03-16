@@ -61,7 +61,6 @@ def standardize_dataframe(df, column_spec={}):
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)
         if data_type is not None:
             all_column_spec[data_type] = column_name
-#             df.rename(columns={column_name: data_type}, inplace=True)
 
     col_names = list(all_column_spec)
     if "abstract" not in col_names and "title" not in col_names:
@@ -96,4 +95,4 @@ def standardize_dataframe(df, column_spec={}):
         df["record_id"] = np.arange(len(df.index))
         df.set_index('record_id', inplace=True)
     df.sort_index(inplace=True)
-    return df
+    return df, all_column_spec

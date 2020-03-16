@@ -103,9 +103,6 @@ class ASReviewData():
                 data_type = type_from_column(col_name, COLUMN_DEFINITIONS)
                 if data_type is not None:
                     self.column_spec[data_type] = col_name
-#             self.column_spec = {data_type: 
-#                                 for col_type in COLUMN_DEFINITIONS
-#                                 if not set(col_type).disjoint(list(df))}
         else:
             self.column_spec = column_spec
         print(column_spec, self.column_spec)
@@ -228,7 +225,8 @@ class ASReviewData():
                              "reading such a file.")
 
         read_fn = entry_points[best_suffix].load()
-        return cls(read_fn(fp), data_name=data_name,
+        df, column_spec = read_fn(fp)
+        return cls(df, column_spec=column_spec, data_name=data_name,
                    data_type=data_type)
 
     def record(self, i, by_index=True):
@@ -354,7 +352,7 @@ class ASReviewData():
 
     @property
     def title(self):
-        return self.df["title"].values
+        return self.df[self.column_spec["title"]].values
 
     @property
     def bodies(self):
@@ -362,25 +360,28 @@ class ASReviewData():
 
     @property
     def abstract(self):
-        return self.df["abstract"].values
+        return self.df[self.column_spec["abstract"]].values
 
     @property
     def keywords(self):
         try:
-            return self.df["keywords"].values
+            return self.df[self.column_spec["keywords"]].values
         except KeyError:
             return None
 
     @property
     def authors(self):
         try:
-            return self.df["authors"].values
+            return self.df[self.column_spec["authors"]].values
         except KeyError:
             return None
 
     def get(self, name):
         "Get column with name."
-        return self.df[name].values
+        try:
+            return self.df[self.column_spec[name]].values
+        except KeyError:
+            return self.df[name].values
 
     @property
     def prior_data_idx(self):
@@ -412,6 +413,18 @@ class ASReviewData():
             self.df[column] = labels
         except KeyError:
             self.df["final_included"] = labels
+
+    @property
+    def abstract_included(self):
+        return self.get("abstract_included")
+
+    @abstract_included.setter
+    def abstract_included(self, abstract_included):
+        try:
+            column = self.column_spec["abstract_included"]
+            self.df[column] = abstract_included
+        except KeyError:
+            self.df["abstract_included"] = abstract_included
 
     def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'initial'.
@@ -485,12 +498,13 @@ class ASReviewData():
         """
         new_df = pd.DataFrame.copy(self.df)
         if labels is not None:
-            new_df["label"] = labels
+            new_df[self.column_spec["final_included"]] = labels
         if df_order is not None:
             return new_df.iloc[df_order]
 
-        if "label" in list(new_df):
-            new_df.loc[new_df["label"] == LABEL_NA, "label"] = np.nan
+        col = self.column_spec["final_included"]
+        if col in list(new_df):
+            new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
         return new_df
 
     def to_csv(self, fp, labels=None, df_order=None):
