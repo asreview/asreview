@@ -26,6 +26,8 @@ from asreview.io.paper_record import PaperRecord
 from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
 from asreview.utils import format_to_str
 from asreview.io.utils import type_from_column
+from asreview.utils import is_iterable
+
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -51,17 +53,6 @@ def get_fuzzy_scores(keywords, str_list):
     for i, my_str in enumerate(str_list):
         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
     return rank_list
-
-
-def is_iterable(i):
-    """Check if a variable is iterable, but not a string."""
-    try:
-        iter(i)
-        if isinstance(i, str):
-            return False
-        return True
-    except TypeError:
-        return False
 
 
 class ASReviewData():

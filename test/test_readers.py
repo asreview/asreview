@@ -32,8 +32,6 @@ def test_reader(test_file, n_lines, labels, ignore_col):
     cols = [col for col in cols if col not in ignore_col]
     if labels is not None:
         cols.append('final_included')
-#         print(as_data.labels, labels)
-#         print(as_data.df["label"])
         assert np.array_equal(as_data.labels, labels)
 
     for col in cols:

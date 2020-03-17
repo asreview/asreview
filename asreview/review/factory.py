@@ -42,6 +42,7 @@ from asreview.models.utils import get_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model
+from asreview.datasets import find_data
 
 
 def _add_defaults(set_param, default_param):
@@ -66,18 +67,19 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
     as_data = ASReviewData()
     # Find the URL of the datasets if the dataset is an example dataset.
     for data in dataset:
-        if data in DEMO_DATASETS.keys():
-            data = DEMO_DATASETS[data]
-        as_data.append(ASReviewData.from_file(data))
+        as_data.append(ASReviewData.from_file(find_data(data)))
 
     if new:
         as_data.labels = np.full((len(as_data),), LABEL_NA, dtype=int)
     for data in included_dataset:
-        as_data.append(ASReviewData.from_file(data, data_type="included"))
+        as_data.append(ASReviewData.from_file(
+            find_data(data), data_type="included"))
     for data in excluded_dataset:
-        as_data.append(ASReviewData.from_file(data, data_type="excluded"))
+        as_data.append(ASReviewData.from_file(
+            find_data(data), data_type="excluded"))
     for data in prior_dataset:
-        as_data.append(ASReviewData.from_file(data, data_type="prior"))
+        as_data.append(ASReviewData.from_file(
+            find_data(data), data_type="prior"))
     return as_data
 
 

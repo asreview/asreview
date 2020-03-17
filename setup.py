@@ -96,6 +96,9 @@ setup(
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
             '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
+        ],
+        'asreview.datasets': [
+            'builtin = asreview.datasets:ExampleDataSetGroup',
         ]
     },
     project_urls={
