@@ -74,22 +74,31 @@ class HallDataSet(BaseDataSet):
     topic = "Software Fault Prediction"
 
 
-class ExampleDataSetGroup():
-    data_sets = [
-        PTSDDataSet(),
-        AceDataSet(),
-        HallDataSet(),
-    ]
+class BaseDataGroup():
+    def __init__(self, *args):
+        self._data_sets = [a for a in args]
 
     def to_dict(self):
-        return {data.name: data for data in self.data_sets}
+        return {data.name: data for data in self._data_sets}
 
     def __str__(self):
         return "".join([
             f"*******  {str(data.name)}  *******\n"
             f"{str(data)}\n\n"
-            for data in self.data_sets.values()
+            for data in self._data_sets
         ])
+
+    def append(self, dataset):
+        self._data_sets.append(dataset)
+
+
+class BuiltinDataGroup(BaseDataGroup):
+    def __init__(self):
+        super(BuiltinDataGroup, self).__init__(
+            PTSDDataSet(),
+            AceDataSet(),
+            HallDataSet(),
+        )
 
 
 def get_available_datasets():
