@@ -1,5 +1,7 @@
 from pathlib import Path
 import pkg_resources
+import json
+import inspect
 
 from asreview.utils import pretty_format
 from asreview.utils import is_iterable
@@ -21,7 +23,13 @@ class BaseDataSet():
 
     def to_dict(self):
         mydict = {}
-        for attr in ["url", "fp", "authors", "topic", "link", "license"]:
+        for attr in dir(self):
+            try:
+                is_callable = callable(getattr(BaseDataSet, attr))
+            except AttributeError:
+                is_callable = False
+            if attr.startswith("__") or is_callable:
+                continue
             try:
                 val = getattr(self, attr)
                 mydict[attr] = val
@@ -80,6 +88,27 @@ class BaseDataGroup():
 
     def to_dict(self):
         return {data.name: data for data in self._data_sets}
+
+    @classmethod
+    def from_config(cls, fp):
+        with open(fp, "r") as f:
+            config_dict = json.load(f)
+        last_update = config_dict.pop("last_update", None)
+        name = config_dict.pop("name", None)
+        new_datasets = []
+        for dataset in config_dict["datasets"]:
+            data_instance = BaseDataSet()
+            for attr in config_dict:
+                if attr == "datasets":
+                    continue
+                setattr(data_instance, attr, config_dict[attr])
+            for attr in dataset:
+                setattr(data_instance, attr, dataset[attr])
+            new_datasets.append(data_instance)
+        group_instance = cls(*new_datasets)
+        group_instance.name = name
+        group_instance.last_update = last_update
+        return group_instance
 
     def __str__(self):
         return "".join([
