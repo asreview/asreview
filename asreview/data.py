@@ -96,7 +96,6 @@ class ASReviewData():
                     self.column_spec[data_type] = col_name
         else:
             self.column_spec = column_spec
-        print(column_spec, self.column_spec)
 
     def hash(self):
         """Compute a hash from the dataset.
@@ -303,7 +302,7 @@ class ASReviewData():
             if all_authors is not None:
                 match_list.append(format_to_str(all_authors[i]))
             match_list.append(all_titles[i])
-            if all_keywords is None:
+            if all_keywords is not None:
                 match_list.append(format_to_str(all_keywords[i]))
             match_str[i, ] = " ".join(match_list)
 

@@ -22,7 +22,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
 from asreview.state.utils import open_state
 from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
@@ -133,6 +133,8 @@ class BaseReview(ABC):
 
         self.as_data = as_data
         self.y = as_data.labels
+        if self.y is None:
+            self.y = np.full(len(as_data), LABEL_NA)
         self.model = model
         self.balance_model = balance_model
         self.query_model = query_model
