@@ -30,7 +30,6 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.state.utils import open_state
 from asreview.data import ASReviewData

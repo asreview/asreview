@@ -15,6 +15,13 @@
 from math import log
 
 import numpy as np
+import logging
+import tensorflow as tf
+
+try:
+    tf.logging.set_verbosity(tf.logging.ERROR)
+except AttributeError:
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from asreview.feature_extraction.embedding_lstm import load_embedding

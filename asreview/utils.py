@@ -15,6 +15,7 @@
 import logging
 import os
 from pathlib import Path
+import pkg_resources
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -169,3 +170,21 @@ def is_iterable(i):
         return True
     except TypeError:
         return False
+
+
+def model_class_from_entry_point(method, entry_name="asreview.models"):
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points(entry_name)
+    }
+    try:
+        return entry_points[method].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: method '{method}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{method}' model ({entry_name}) "
+            f"with the following error:\n{e}")
+

@@ -61,10 +61,6 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         self.truncating = truncating
         self.n_jobs = n_jobs
         self.loop_sequence = loop_sequence
-#         if loop_sequence == 0:
-#             self.loop_sequence = False
-#         else:
-#             self.loop_sequence = True
 
     def transform(self, texts):
         self.X, self.word_index = text_to_features(

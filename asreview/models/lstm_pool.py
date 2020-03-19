@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+import tensorflow as tf
+try:
+    tf.logging.set_verbosity(tf.logging.ERROR)
+except AttributeError:
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras.layers import Dense
