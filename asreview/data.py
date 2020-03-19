@@ -206,7 +206,7 @@ class ASReviewData():
         }
         best_suffix = None
         for suffix, entry in entry_points.items():
-            if str(Path(fp).resolve()).endswith(suffix):
+            if Path(fp).suffix == suffix:
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
 
