@@ -16,7 +16,12 @@ from math import log
 
 import numpy as np
 import logging
-import tensorflow as tf
+
+try:
+    import tensorflow as tf
+except ImportError:
+    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
+                      " to use 'embedding-idf' model.")
 
 try:
     tf.logging.set_verbosity(tf.logging.ERROR)
