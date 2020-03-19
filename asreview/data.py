@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
-import warnings
-import pkg_resources
 import hashlib
+from pathlib import Path
+import pkg_resources
+from urllib.parse import urlparse
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -27,7 +28,7 @@ from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
 from asreview.utils import format_to_str
 from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable
-
+from asreview.utils import is_url
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -193,8 +194,15 @@ class ASReviewData():
             What kind of data it is. Special names: 'included', 'excluded',
             'prior'.
         """
+        if is_url(fp):
+            path = urlparse(fp).path
+            new_data_name = Path(path.split("/")[-1]).stem
+        else:
+            path = str(Path(fp).resolve())
+            new_data_name = Path(fp).stem
+
         if data_name is None:
-            data_name = Path(fp).stem
+            data_name = new_data_name
 
         if read_fn is not None:
             return cls(read_fn(fp), data_name=data_name,
@@ -206,7 +214,7 @@ class ASReviewData():
         }
         best_suffix = None
         for suffix, entry in entry_points.items():
-            if Path(fp).suffix == suffix:
+            if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
 

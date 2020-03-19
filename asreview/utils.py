@@ -16,6 +16,7 @@ import logging
 import os
 from pathlib import Path
 import pkg_resources
+from urllib.parse import urlparse
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -188,3 +189,11 @@ def model_class_from_entry_point(method, entry_name="asreview.models"):
             f"Failed to import '{method}' model ({entry_name}) "
             f"with the following error:\n{e}")
 
+
+def is_url(url):
+    try:
+        result = urlparse(url)
+        return all(getattr(result, x) != ""
+                   for x in ["scheme", "netloc", "path"])
+    except:
+        return False
