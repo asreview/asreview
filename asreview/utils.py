@@ -147,7 +147,7 @@ def format_to_str(obj):
         return ""
     res = ""
     if isinstance(obj, list):
-        " ".join(obj)
+        res = " ".join(obj)
     else:
         res = obj
     return res

@@ -85,10 +85,6 @@ def standardize_dataframe(df, column_spec={}):
         except KeyError:
             pass
 
-    if "keywords" in col_names:
-        col = all_column_spec["keywords"]
-        df[col] = df[col].apply(convert_keywords)
-
     if "record_id" in list(df):
         df.set_index('record_id', inplace=True)
     if df.index.name != "record_id":

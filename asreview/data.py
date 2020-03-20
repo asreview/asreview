@@ -26,7 +26,7 @@ from asreview.io.ris_reader import write_ris
 from asreview.io.paper_record import PaperRecord
 from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
 from asreview.utils import format_to_str
-from asreview.io.utils import type_from_column
+from asreview.io.utils import type_from_column, convert_keywords
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -97,6 +97,8 @@ class ASReviewData():
                     self.column_spec[data_type] = col_name
         else:
             self.column_spec = column_spec
+        if "final_included" not in self.column_spec:
+            self.column_spec["final_included"] = "final_included"
 
     def hash(self):
         """Compute a hash from the dataset.
@@ -363,7 +365,8 @@ class ASReviewData():
     @property
     def keywords(self):
         try:
-            return self.df[self.column_spec["keywords"]].values
+            return self.df[self.column_spec["keywords"]].apply(
+                convert_keywords).values
         except KeyError:
             return None
 
@@ -449,10 +452,6 @@ class ASReviewData():
         if self.df is None:
             return 0
         return len(self.df.index)
-
-#     @property
-#     def final_labels(self):
-#         return None
 
     def to_file(self, fp, labels=None, df_order=None):
         """Export data object to file.
