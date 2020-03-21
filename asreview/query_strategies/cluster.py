@@ -16,8 +16,8 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 from asreview.query_strategies.base import ProbaQueryStrategy
-from asreview.feature_extraction.doc2vec import Doc2Vec
 from asreview.query_strategies.max import MaxQuery
+from asreview.feature_extraction.utils import get_feature_class
 
 
 class ClusterQuery(ProbaQueryStrategy):
@@ -42,7 +42,7 @@ class ClusterQuery(ProbaQueryStrategy):
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
         self.update_interval = update_interval
-        feature_model = Doc2Vec(**kwargs)
+        feature_model = get_feature_class("doc2vec")(**kwargs)
         self.cluster_X = feature_model.fit_transform(texts)
         self.last_update = None
         self.fallback_model = MaxQuery()

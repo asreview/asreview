@@ -15,6 +15,8 @@
 import logging
 import os
 from pathlib import Path
+import pkg_resources
+from urllib.parse import urlparse
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -145,7 +147,7 @@ def format_to_str(obj):
         return ""
     res = ""
     if isinstance(obj, list):
-        " ".join(obj)
+        res = " ".join(obj)
     else:
         res = obj
     return res
@@ -158,3 +160,40 @@ def pretty_format(result):
         temp_str = "{{key: <{n}}}: {{value}}\n".format(n=longest_key)
         result_str += temp_str.format(key=key, value=value)
     return result_str
+
+
+def is_iterable(i):
+    """Check if a variable is iterable, but not a string."""
+    try:
+        iter(i)
+        if isinstance(i, str):
+            return False
+        return True
+    except TypeError:
+        return False
+
+
+def model_class_from_entry_point(method, entry_name="asreview.models"):
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points(entry_name)
+    }
+    try:
+        return entry_points[method].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: method '{method}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{method}' model ({entry_name}) "
+            f"with the following error:\n{e}")
+
+
+def is_url(url):
+    try:
+        result = urlparse(url)
+        return all(getattr(result, x) != ""
+                   for x in ["scheme", "netloc", "path"])
+    except:
+        return False

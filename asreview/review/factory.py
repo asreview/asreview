@@ -30,7 +30,6 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEMO_DATASETS
 from asreview.config import KERAS_MODELS
 from asreview.state.utils import open_state
 from asreview.data import ASReviewData
@@ -42,6 +41,7 @@ from asreview.models.utils import get_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model
+from asreview.datasets import find_data
 
 
 def _add_defaults(set_param, default_param):
@@ -66,18 +66,19 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
     as_data = ASReviewData()
     # Find the URL of the datasets if the dataset is an example dataset.
     for data in dataset:
-        if data in DEMO_DATASETS.keys():
-            data = DEMO_DATASETS[data]
-        as_data.append(ASReviewData.from_file(data))
+        as_data.append(ASReviewData.from_file(find_data(data)))
 
     if new:
         as_data.labels = np.full((len(as_data),), LABEL_NA, dtype=int)
     for data in included_dataset:
-        as_data.append(ASReviewData.from_file(data, data_type="included"))
+        as_data.append(ASReviewData.from_file(
+            find_data(data), data_type="included"))
     for data in excluded_dataset:
-        as_data.append(ASReviewData.from_file(data, data_type="excluded"))
+        as_data.append(ASReviewData.from_file(
+            find_data(data), data_type="excluded"))
     for data in prior_dataset:
-        as_data.append(ASReviewData.from_file(data, data_type="prior"))
+        as_data.append(ASReviewData.from_file(
+            find_data(data), data_type="prior"))
     return as_data
 
 
@@ -158,9 +159,9 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    if as_data.final_labels is not None:
-        with open_state(state_file) as state:
-            state.set_final_labels(as_data.final_labels)
+#     if as_data.final_labels is not None:
+#         with open_state(state_file) as state:
+#             state.set_final_labels(as_data.final_labels)
 
     train_model = get_model(settings.model, **settings.model_param)
     query_model = get_query_model(settings.query_strategy,
@@ -191,7 +192,6 @@ def get_reviewer(dataset,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
             state_file=state_file,
-            final_labels=as_data.final_labels,
             data_fp=dataset,
             **kwargs)
     elif mode == "oracle":
@@ -211,7 +211,7 @@ def get_reviewer(dataset,
     elif mode == "minimal":
         reviewer = MinimalReview(
             as_data,
-            model=model,
+            model=train_model,
             query_model=query_model,
             balance_model=balance_model,
             feature_model=feature_model,

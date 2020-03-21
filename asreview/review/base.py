@@ -14,15 +14,11 @@
 
 from abc import ABC
 from abc import abstractmethod
-import os
 import warnings
 
-import dill
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
-from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
 from asreview.state.utils import open_state
 from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
@@ -74,7 +70,7 @@ class BaseReview(ABC):
                  start_idx=[],
                  state_file=None,
                  log_file=None,
-                 final_labels=None,
+#                  final_labels=None,
                  verbose=1,
                  data_fp=None,
                  ):
@@ -133,6 +129,8 @@ class BaseReview(ABC):
 
         self.as_data = as_data
         self.y = as_data.labels
+        if self.y is None:
+            self.y = np.full(len(as_data), LABEL_NA)
         self.model = model
         self.balance_model = balance_model
         self.query_model = query_model
@@ -173,8 +171,8 @@ class BaseReview(ABC):
                 self.shared["query_src"] = query_src
                 self.query_i = query_i
             else:
-                if final_labels is not None:
-                    state.set_final_labels(final_labels)
+#                 if final_labels is not None:
+#                     state.set_final_labels(final_labels)
                 state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx, self.y[start_idx], state,
@@ -184,7 +182,8 @@ class BaseReview(ABC):
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
                 self.X = feature_model.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies)
+                    as_data.texts, as_data.headings, as_data.bodies,
+                    as_data.keywords)
                 state._add_as_data(as_data, feature_matrix=self.X)
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "
@@ -464,36 +463,36 @@ class BaseReview(ABC):
         }
         return stats
 
-    def save(self, pickle_fp):
-        """Dump the self object to a pickle fill (using dill).
-
-        Keras models cannot be dumped, so they are written to a separate
-        h5 file. The model is briefly popped out of the object to allow the
-        rest to be written to a file. Do not rely on this method for long term
-        storage of the class, since library changes could easily break it.
-        In those cases, use the state + h5 file instead.
-        """
-        if isinstance(self.model, KerasClassifier) and self.model_trained:
-            model_fp = os.path.splitext(pickle_fp)[0]+".h5"
-            self.model.model.save(model_fp)
-            current_model = self.model.__dict__.pop("model", None)
-            with open(pickle_fp, "wb") as fp:
-                dill.dump(self, fp)
-            setattr(self.model, "model", current_model)
-        else:
-            dill.dump(self, fp)
-
-    @classmethod
-    def load(cls, pickle_fp):
-        """
-        Create a BaseReview object from a pickle file.
-        """
-        with open(pickle_fp, "rb") as fp:
-            my_instance = dill.load(fp)
-        try:
-            model_fp = os.path.splitext(pickle_fp)[0]+".h5"
-            current_model = load_model(model_fp)
-            setattr(my_instance.model, "model", current_model)
-        except Exception:
-            pass
-        return my_instance
+#     def save(self, pickle_fp):
+#         """Dump the self object to a pickle fill (using dill).
+# 
+#         Keras models cannot be dumped, so they are written to a separate
+#         h5 file. The model is briefly popped out of the object to allow the
+#         rest to be written to a file. Do not rely on this method for long term
+#         storage of the class, since library changes could easily break it.
+#         In those cases, use the state + h5 file instead.
+#         """
+#         if isinstance(self.model, KerasClassifier) and self.model_trained:
+#             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
+#             self.model.model.save(model_fp)
+#             current_model = self.model.__dict__.pop("model", None)
+#             with open(pickle_fp, "wb") as fp:
+#                 dill.dump(self, fp)
+#             setattr(self.model, "model", current_model)
+#         else:
+#             dill.dump(self, fp)
+# 
+#     @classmethod
+#     def load(cls, pickle_fp):
+#         """
+#         Create a BaseReview object from a pickle file.
+#         """
+#         with open(pickle_fp, "rb") as fp:
+#             my_instance = dill.load(fp)
+#         try:
+#             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
+#             current_model = load_model(model_fp)
+#             setattr(my_instance.model, "model", current_model)
+#         except Exception:
+#             pass
+#         return my_instance
