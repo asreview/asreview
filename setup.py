@@ -16,9 +16,12 @@
 
 # Always prefer setuptools over distutils
 import re
-from setuptools import setup, find_packages
-from os import path
+import subprocess
 from io import open
+from os import path
+from setuptools import setup
+from setuptools import find_packages
+from setuptools import Command
 
 import versioneer
 
@@ -47,6 +50,31 @@ DEPS = {
 }
 DEPS['all'] = DEPS['sbert'] + DEPS['doc2vec'] + DEPS['dev']
 DEPS['all'] += DEPS['performance'] + DEPS['tensorflow']
+
+
+class CompileAssets(Command):
+    """
+    Compile and build the frontend assets using yarn and webpack.
+    Registered as cmdclass in setup() so it can be called with
+    ``python setup.py compile_assets``.
+    """
+
+    description = "Compile and build the frontend assets"
+    user_options = []
+
+    def initialize_options(self):
+        """Set default values for options."""
+
+    def finalize_options(self):
+        """Set final values for options."""
+
+    def run(self):
+        """Run a command to compile and build assets."""
+        subprocess.check_call(
+            'sh ./asreviewgui/webapp/compile_assets.sh',
+            shell=True
+        )
+
 
 setup(
     name='asreview',
@@ -80,11 +108,14 @@ setup(
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
+        'flask',
+        'flask_cors'
     ],
     extras_require=DEPS,
     entry_points={
         'console_scripts': [
-            'asreview=asreview.__main__:main'
+            'asreview=asreview.__main__:main',
+            'asreviewgui=asreview.webapp.start_flask:main'
         ],
         'asreview.entry_points': [
             'simulate = asreview.entry_points:SimulateEntryPoint',
