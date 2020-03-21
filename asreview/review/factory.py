@@ -192,7 +192,6 @@ def get_reviewer(dataset,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
             state_file=state_file,
-#             final_labels=as_data.final_labels,
             data_fp=dataset,
             **kwargs)
     elif mode == "oracle":
@@ -212,7 +211,7 @@ def get_reviewer(dataset,
     elif mode == "minimal":
         reviewer = MinimalReview(
             as_data,
-            model=model,
+            model=train_model,
             query_model=query_model,
             balance_model=balance_model,
             feature_model=feature_model,
