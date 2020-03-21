@@ -40,12 +40,13 @@ def get_long_description():
 DEPS = {
     "sbert": ['sentence_transformers'],
     "doc2vec": ['gensim'],
+    "tensorflow": ['tensorflow'],
     "dev": ['check-manifest'],
     'test': ['coverage', 'pytest'],
     'performance': ['python-Levenshtein'],
 }
 DEPS['all'] = DEPS['sbert'] + DEPS['doc2vec'] + DEPS['dev']
-DEPS['all'] += DEPS['performance']
+DEPS['all'] += DEPS['performance'] + DEPS['tensorflow']
 
 setup(
     name='asreview',
@@ -69,7 +70,6 @@ setup(
     python_requires='~=3.6',
     install_requires=[
         'numpy',
-        'tensorflow',
         'sklearn',
         'pandas',
         'modAL',
@@ -96,6 +96,25 @@ setup(
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
             '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
+        ],
+        'asreview.datasets': [
+            'builtin = asreview.datasets:BuiltinDataGroup',
+        ],
+        'asreview.models': [
+            'svm = asreview.models.svm:SVMModel',
+            'nb = asreview.models.nb:NBModel',
+            'rf = asreview.models.rf:RFModel',
+            'nn-2-layer = asreview.models.nn_2_layer:NN2LayerModel',
+            'logistic = asreview.models.logistic:LogisticModel',
+            'lstm-base = asreview.models.lstm_base:LSTMBaseModel',
+            'lstm-pool = asreview.models.lstm_pool:LSTMPoolModel',
+        ],
+        'asreview.feature_extraction': [
+            'doc2vec = asreview.feature_extraction.doc2vec:Doc2Vec',
+            'embedding-idf = asreview.feature_extraction.embedding_idf:EmbeddingIdf',  #noqa
+            'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  #noqa
+            'sbert = asreview.feature_extraction.sbert:SBERT',
+            'tfidf = asreview.feature_extraction.tfidf:Tfidf',
         ]
     },
     project_urls={

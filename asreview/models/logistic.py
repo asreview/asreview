@@ -24,7 +24,7 @@ class LogisticModel(BaseTrainModel):
     """Logistic Regression SKLearn model."""
     name = "logistic"
 
-    def __init__(self, C=1.0, class_weight=None, n_jobs=1):
+    def __init__(self, C=1.0, class_weight=1.0, n_jobs=1):
         """Initialize the SKLearn Naive Bayes model.
 
         Arguments:

@@ -25,18 +25,23 @@ class PaperRecord():
     kwargs: dict
         Any extra keyword arguments will be put in self.extra_fields.
     """
-    def __init__(self, record_id, title=None, abstract=None, authors=None,
-                 keywords=None,
-                 label=LABEL_NA, **kwargs):
-        self.title = title
-        self.abstract = abstract
-        self.authors = authors
-        self.keywords = keywords
+    def __init__(self, record_id, column_spec={}, **kwargs):
+
+        for attr in ["title", "abstract", "authors", "keywords",
+                     "final_included"]:
+            if attr in column_spec:
+                col = column_spec[attr]
+            elif attr in kwargs:
+                col = attr
+            else:
+                col = None
+            setattr(self, attr, kwargs.pop(col, None))
+
         self.record_id = record_id
-        if label is None:
-            self.label = LABEL_NA
+        if self.final_included is None:
+            self.final_included = LABEL_NA
         else:
-            self.label = int(label)
+            self.final_included = int(self.final_included)
         self.extra_fields = kwargs
 
     def preview(self, w_title=80, w_authors=40, automatic_width=False):
@@ -56,7 +61,6 @@ class PaperRecord():
         str:
             A string that previews a paper record.
         """
-
         if automatic_width:
             term_width = os.get_terminal_size().columns
             width_available = term_width-7

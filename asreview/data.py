@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
-import warnings
-import pkg_resources
 import hashlib
+from pathlib import Path
+import pkg_resources
+from urllib.parse import urlparse
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -23,8 +24,11 @@ import pandas as pd
 from asreview.exceptions import BadFileFormatError
 from asreview.io.ris_reader import write_ris
 from asreview.io.paper_record import PaperRecord
-from asreview.config import LABEL_NA
+from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
 from asreview.utils import format_to_str
+from asreview.io.utils import type_from_column, convert_keywords
+from asreview.utils import is_iterable
+from asreview.utils import is_url
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
@@ -52,17 +56,6 @@ def get_fuzzy_scores(keywords, str_list):
     return rank_list
 
 
-def is_iterable(i):
-    """Check if a variable is iterable, but not a string."""
-    try:
-        iter(i)
-        if isinstance(i, str):
-            return False
-        return True
-    except TypeError:
-        return False
-
-
 class ASReviewData():
     """Data object to store csv/ris file.
 
@@ -78,11 +71,13 @@ class ASReviewData():
         What kind of data the dataframe contains.
     """
 
-    def __init__(self, df=None, data_name="empty", data_type="standard"):
+    def __init__(self, df=None, data_name="empty", data_type="standard",
+                 column_spec=None):
         self.df = df
         self.data_name = data_name
         self.prior_idx = []
         if df is None:
+            self.column_spec = {}
             return
 
         if data_type == "included":
@@ -93,6 +88,17 @@ class ASReviewData():
             self.prior_idx = df.index.values
 
         self.max_idx = max(df.index.values) + 1
+
+        if column_spec is None:
+            self.column_spec = {}
+            for col_name in list(df):
+                data_type = type_from_column(col_name, COLUMN_DEFINITIONS)
+                if data_type is not None:
+                    self.column_spec[data_type] = col_name
+        else:
+            self.column_spec = column_spec
+        if "final_included" not in self.column_spec:
+            self.column_spec["final_included"] = "final_included"
 
     def hash(self):
         """Compute a hash from the dataset.
@@ -146,6 +152,7 @@ class ASReviewData():
             self.data_name = as_data.data_name
             self.prior_idx = as_data.prior_idx
             self.max_idx = as_data.max_idx
+            self.column_spec = as_data.column_spec
             return
 
         reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
@@ -159,6 +166,14 @@ class ASReviewData():
         self.df = new_df
         self.prior_idx = new_priors
         self.data_name += "_" + as_data.data_name
+        for data_type, col in as_data.column_spec.items():
+            if data_type in self.column_spec:
+                if self.column_spec[data_type] != col:
+                    raise ValueError(
+                        "Error merging dataframes: column specifications "
+                        f"differ: {self.column_spec} vs {as_data.column_spec}")
+            else:
+                self.column_spec[data_type] = col
 
     @classmethod
     def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
@@ -181,8 +196,15 @@ class ASReviewData():
             What kind of data it is. Special names: 'included', 'excluded',
             'prior'.
         """
+        if is_url(fp):
+            path = urlparse(fp).path
+            new_data_name = Path(path.split("/")[-1]).stem
+        else:
+            path = str(Path(fp).resolve())
+            new_data_name = Path(fp).stem
+
         if data_name is None:
-            data_name = Path(fp).stem
+            data_name = new_data_name
 
         if read_fn is not None:
             return cls(read_fn(fp), data_name=data_name,
@@ -194,7 +216,7 @@ class ASReviewData():
         }
         best_suffix = None
         for suffix, entry in entry_points.items():
-            if str(Path(fp).resolve()).endswith(suffix):
+            if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
 
@@ -203,7 +225,8 @@ class ASReviewData():
                              "reading such a file.")
 
         read_fn = entry_points[best_suffix].load()
-        return cls(read_fn(fp), data_name=data_name,
+        df, column_spec = read_fn(fp)
+        return cls(df, column_spec=column_spec, data_name=data_name,
                    data_type=data_type)
 
     def record(self, i, by_index=True):
@@ -282,13 +305,16 @@ class ASReviewData():
         match_str = np.full(len(self), "x", dtype=object)
 
         all_titles = self.title
-        all_authors = self.df["authors"].values
-        all_keywords = self.df["keywords"].values
+        all_authors = self.authors
+        all_keywords = self.keywords
         for i in range(len(self)):
-            authors = format_to_str(all_authors[i])
-            title = all_titles[i]
-            rec_keywords = format_to_str(all_keywords[i])
-            match_str[i, ] = " ".join([title, authors, rec_keywords])
+            match_list = []
+            if all_authors is not None:
+                match_list.append(format_to_str(all_authors[i]))
+            match_list.append(all_titles[i])
+            if all_keywords is not None:
+                match_list.append(format_to_str(all_keywords[i]))
+            match_str[i, ] = " ".join(match_list)
 
         new_ranking = get_fuzzy_scores(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
@@ -326,7 +352,7 @@ class ASReviewData():
 
     @property
     def title(self):
-        return self.df["title"].values
+        return self.df[self.column_spec["title"]].values
 
     @property
     def bodies(self):
@@ -334,11 +360,29 @@ class ASReviewData():
 
     @property
     def abstract(self):
-        return self.df["abstract"].values
+        return self.df[self.column_spec["abstract"]].values
+
+    @property
+    def keywords(self):
+        try:
+            return self.df[self.column_spec["keywords"]].apply(
+                convert_keywords).values
+        except KeyError:
+            return None
+
+    @property
+    def authors(self):
+        try:
+            return self.df[self.column_spec["authors"]].values
+        except KeyError:
+            return None
 
     def get(self, name):
         "Get column with name."
-        return self.df[name].values
+        try:
+            return self.df[self.column_spec[name]].values
+        except KeyError:
+            return self.df[name].values
 
     @property
     def prior_data_idx(self):
@@ -348,14 +392,40 @@ class ASReviewData():
         return convert_array[self.prior_idx]
 
     @property
+    def final_included(self):
+        return self.labels
+
+    @final_included.setter
+    def final_included(self, labels):
+        self.labels = labels
+
+    @property
     def labels(self):
-        if "label" in list(self.df):
-            return self.df["label"].values
-        return None
+        try:
+            column = self.column_spec["final_included"]
+            return self.df[column].values
+        except KeyError:
+            return None
 
     @labels.setter
     def labels(self, labels):
-        self.df["label"] = labels
+        try:
+            column = self.column_spec["final_included"]
+            self.df[column] = labels
+        except KeyError:
+            self.df["final_included"] = labels
+
+    @property
+    def abstract_included(self):
+        return self.get("abstract_included")
+
+    @abstract_included.setter
+    def abstract_included(self, abstract_included):
+        try:
+            column = self.column_spec["abstract_included"]
+            self.df[column] = abstract_included
+        except KeyError:
+            self.df["abstract_included"] = abstract_included
 
     def prior_labels(self, state, by_index=True):
         """Get the labels that are marked as 'initial'.
@@ -382,10 +452,6 @@ class ASReviewData():
         if self.df is None:
             return 0
         return len(self.df.index)
-
-    @property
-    def final_labels(self):
-        return None
 
     def to_file(self, fp, labels=None, df_order=None):
         """Export data object to file.
@@ -429,12 +495,13 @@ class ASReviewData():
         """
         new_df = pd.DataFrame.copy(self.df)
         if labels is not None:
-            new_df["label"] = labels
+            new_df[self.column_spec["final_included"]] = labels
         if df_order is not None:
             return new_df.iloc[df_order]
 
-        if "label" in list(new_df):
-            new_df.loc[new_df["label"] == LABEL_NA, "label"] = np.nan
+        col = self.column_spec["final_included"]
+        if col in list(new_df):
+            new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
         return new_df
 
     def to_csv(self, fp, labels=None, df_order=None):

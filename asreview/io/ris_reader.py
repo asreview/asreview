@@ -5,7 +5,7 @@ from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
 
 from asreview.config import COLUMN_DEFINITIONS
-from asreview.io.utils import standardize_dataframe
+from asreview.io.utils import standardize_dataframe, convert_keywords
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"
@@ -55,7 +55,18 @@ def read_ris(fp):
 
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
-    return standardize_dataframe(pd.DataFrame(entries))
+
+    df = pd.DataFrame(entries)
+    if "keywords" in df:
+
+        def converter(x):
+            try:
+                return ", ".join(x)
+            except TypeError:
+                return ""
+
+        df["keywords"] = df["keywords"].apply(converter)
+    return standardize_dataframe(df)
 
 
 def write_ris(df, ris_fp):

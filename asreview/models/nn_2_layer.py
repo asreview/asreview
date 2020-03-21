@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+try:
+    import tensorflow as tf
+except ImportError:
+    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
+                      " to use 'nn-2-layer' model.")
+try:
+    tf.logging.set_verbosity(tf.logging.ERROR)
+except AttributeError:
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
 import scipy
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
