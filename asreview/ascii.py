@@ -40,20 +40,6 @@ ASCII_LOGO = """
 """
 
 
-ASCII_MSG_ORACLE = """
----------------------------------------------------------------------------------
-|                                                                                |
-|  Welcome to the ASReview Automated Systematic Review software.                 |
-|  In this mode the computer will assist you in creating your systematic review. |
-|  After giving it a few papers that are either included or excluded,            |
-|  it will compute a model and show progressively more relevant papers.          |
-|                                                                                |
-|  GitHub page:        {0: <58}|
-|  Questions/remarks:  {1: <58}|
-|                                                                                |
----------------------------------------------------------------------------------
-""".format(GITHUB_PAGE, EMAIL_ADDRESS)
-
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
 |                                                                                |
@@ -69,8 +55,5 @@ ASCII_MSG_SIMULATE = """
 """.format(GITHUB_PAGE, EMAIL_ADDRESS)
 
 
-def welcome_message(mode="oracle"):
-    if mode == "oracle":
-        return ASCII_LOGO + ASCII_MSG_ORACLE
-    elif mode == "simulate":
-        return ASCII_LOGO + ASCII_MSG_SIMULATE
+def welcome_message():
+    return ASCII_LOGO + ASCII_MSG_SIMULATE

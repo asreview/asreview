@@ -14,14 +14,12 @@
 
 import json
 import logging
-import os
 from os.path import splitext
 from pathlib import PurePath
 
 import numpy as np
-import questionary
 
-from asreview.config import AVAILABLE_CLI_MODI, LOGGER_EXTENSIONS, LABEL_NA
+from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
@@ -34,7 +32,6 @@ from asreview.config import KERAS_MODELS
 from asreview.state.utils import open_state
 from asreview.data import ASReviewData
 from asreview.review.minimal import MinimalReview
-from asreview.review.oracle import ReviewOracle
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.models.utils import get_model
@@ -83,7 +80,7 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
 
 
 def get_reviewer(dataset,
-                 mode='oracle',
+                 mode="simulate",
                  model=DEFAULT_MODEL,
                  query_strategy=DEFAULT_QUERY_STRATEGY,
                  balance_strategy=DEFAULT_BALANCE_STRATEGY,
@@ -159,10 +156,6 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-#     if as_data.final_labels is not None:
-#         with open_state(state_file) as state:
-#             state.set_final_labels(as_data.final_labels)
-
     train_model = get_model(settings.model, **settings.model_param)
     query_model = get_query_model(settings.query_strategy,
                                   **settings.query_param)
@@ -191,20 +184,6 @@ def get_reviewer(dataset,
             prior_idx=prior_idx,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
-            state_file=state_file,
-            data_fp=dataset,
-            **kwargs)
-    elif mode == "oracle":
-        reviewer = ReviewOracle(
-            as_data,
-            model=train_model,
-            query_model=query_model,
-            balance_model=balance_model,
-            feature_model=feature_model,
-            n_papers=settings.n_papers,
-            n_instances=settings.n_instances,
-            n_queries=settings.n_queries,
-            verbose=verbose,
             state_file=state_file,
             data_fp=dataset,
             **kwargs)
@@ -248,66 +227,7 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
         model.model.save_weights(save_model_h5_fp, overwrite=True)
 
 
-def review_oracle(dataset, *args, state_file=None, **kwargs):
-    """CLI to the interactive mode."""
-    if state_file is None:
-        while True:
-            state_file = questionary.text(
-                'Please provide a file to store '
-                'the results of your review:',
-                validate=lambda val: splitext(val)[1] in LOGGER_EXTENSIONS,
-            ).ask()
-            if state_file is None:
-                return
-            if len(state_file) == 0:
-                force_continue = questionary.confirm(
-                    'Are you sure you want to continue without saving?',
-                    default=False
-                ).ask()
-                if force_continue:
-                    state_file = None
-                    break
-            else:
-                if os.path.isfile(state_file):
-                    action = questionary.select(
-                        f'File {state_file} exists, what do you want'
-                        ' to do?',
-                        default='Exit',
-                        choices=[
-                            f'Continue review from {state_file}',
-                            f'Delete review in {state_file} and start a new'
-                            ' review',
-                            f'Choose another file name.',
-                            questionary.Separator(),
-                            f'Exit'
-                        ]
-                    ).ask()
-                    if action == "Exit" or action is None:
-                        return
-                    if action.startswith("Continue"):
-                        break
-                    if action.startswith("Choose another"):
-                        continue
-                    if action.startswith("Delete"):
-                        delete = questionary.confirm(
-                            f'Are you sure you want to delete '
-                            f'{state_file}?',
-                            default=False,
-                        ).ask()
-                        if delete:
-                            os.remove(state_file)
-                            break
-                        else:
-                            continue
-
-                break
-    try:
-        review(dataset, *args, mode='oracle', state_file=state_file, **kwargs)
-    except KeyboardInterrupt:
-        print('\nClosing down the automated systematic review.')
-
-
 def review_simulate(dataset, *args, **kwargs):
-    """CLI to the oracle mode."""
+    """CLI simulate mode."""
 
     review(dataset, *args, mode='simulate', **kwargs)

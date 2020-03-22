@@ -8,7 +8,7 @@ from flask.templating import render_template
 from flask_cors import CORS
 
 from asreview.webapp import api
-from asreview.entry_points.oracle import _oracle_parser
+from asreview.entry_points.simulate import _base_parser
 
 
 def create_app(**kwargs):
@@ -50,7 +50,7 @@ def create_app(**kwargs):
 
 
 def main(argv):
-    parser = _oracle_parser(prog="oracle")
+    parser = _base_parser(prog="oracle")
     kwargs = vars(parser.parse_args(argv))
     print(kwargs)
     kwargs.pop("save_model_fp", None)
