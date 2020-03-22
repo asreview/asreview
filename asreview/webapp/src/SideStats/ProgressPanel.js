@@ -5,7 +5,6 @@ import {
     ListItem,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 const useStyles = makeStyles(theme => ({
@@ -19,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ProgressPanel = (props) => {
-    const classes = useStyles();
+    // const classes = useStyles();
 
     return (
  

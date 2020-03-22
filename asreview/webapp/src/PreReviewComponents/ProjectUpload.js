@@ -4,18 +4,14 @@ import { makeStyles } from '@material-ui/core/styles'
 import {useDropzone} from 'react-dropzone'
 
 import {
-  List,
   Box, 
-  Grid,
   Button,
   Typography,
   Toolbar,
-  TextField,
   Card,
   CardActionArea,
   CardMedia,
   CardContent,
-  CardActions,
 } from '@material-ui/core'
 
 import { connect } from "react-redux";
