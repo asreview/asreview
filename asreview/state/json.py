@@ -39,8 +39,20 @@ class JSONState(DictState):
         if fp.is_file:
             fp.parent.mkdir(parents=True, exist_ok=True)
 
+        try:
+            self._state_dict["current_queries"] = {
+                str(key): val for key, val in self._state_dict["current_queries"].items()}
+        except KeyError:
+            pass
+
         with fp.open('w') as outfile:
             json.dump(self._state_dict, outfile, indent=2)
+
+        try:
+            self._state_dict["current_queries"] = {
+                int(key): val for key, val in self._state_dict["current_queries"].items()}
+        except KeyError:
+            pass
 
     def restore(self, fp):
         try:
@@ -52,5 +64,10 @@ class JSONState(DictState):
                     f"State cannot be read: state version {self.version}, "
                     f"state file version {state_version}.")
             self.settings = ASReviewSettings(**self._state_dict["settings"])
+            try:
+                self._state_dict["current_queries"] = {
+                    int(key): val for key, val in self._state_dict["current_queries"].items()}
+            except KeyError:
+                pass
         except FileNotFoundError:
             self.initialize_structure()

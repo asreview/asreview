@@ -2,7 +2,6 @@
 
 import json
 import os
-from os.path import join
 from pathlib import Path
 import sys
 
@@ -16,8 +15,9 @@ from asreview.webapp.utils import get_active_path
 from asreview.webapp.utils import get_new_labels
 from asreview.webapp.utils import get_pool_path
 from asreview.webapp.utils import get_labeled_path
+from asreview.webapp.utils.paths import get_kwargs_path, get_data_file_path
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.logging.utils import open_logger
+from asreview.state.utils import open_state
 from asreview.review.factory import get_reviewer
 
 
@@ -64,8 +64,13 @@ def main():
     # pass the project_id the script
     project_id = sys.argv[1]
 
+    try:
+        label_method = "prior" if int(sys.argv[2]) else None
+    except IndexError:
+        label_method = None
+
     # get file locations
-    asr_kwargs_file = Path(project_id, "kwargs.json")
+    asr_kwargs_file = get_kwargs_path(project_id)
     lock_file = get_lock_path(project_id)
     active_file = get_active_path(project_id)
 
@@ -75,6 +80,7 @@ def main():
 
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
+            print("Cannot acquire lock, other instance running.")
             sys.exit(0)
 
         # Lock the current state. We want to have a consistent active state.
@@ -88,6 +94,7 @@ def main():
 
             # Get the new labels since last run. If no new labels, quit.
             labeled = get_new_labels(project_id, i_current_open)
+
             if len(labeled) == 0:
                 sys.exit(0)
 
@@ -108,16 +115,20 @@ def main():
 
         # copy the results to this folder
         state_file = train_dir / "result.json"
-        shutil.copy(
-            current_dir / "result.json",
-            train_dir / "result.json"
-        )
-
+        try:
+            shutil.copy(
+                current_dir / "result.json",
+                train_dir / "result.json"
+            )
+        except FileNotFoundError:
+            pass
         # collect command line arguments and pass them to the reviewer
         with open(asr_kwargs_file, "r") as fp:
             asr_kwargs = json.load(fp)
-        asr_kwargs['log_file'] = str(state_file)
-        reviewer = get_reviewer(mode="minimal", **asr_kwargs)
+        asr_kwargs['state_file'] = str(state_file)
+        reviewer = get_reviewer(dataset=str(get_data_file_path(project_id)),
+                                mode="minimal",
+                                **asr_kwargs)
 
         # Get the query indices and their inclusions.
         query_idx = []
@@ -128,31 +139,13 @@ def main():
         query_idx = np.array(query_idx, dtype=np.int)
         inclusions = np.array(inclusions, dtype=np.int)
 
-        # This is a bit of a hack (probably means core can use improvement).
-        # The problem is to remember the origin of the query.
-        try:
-            with open(join(current_dir, "current_query.json"), "r") as fp:
-                current_queries = json.load(fp)
-            current_queries = {
-                int(key): value for key, value in current_queries.items()}
-        except FileNotFoundError:
-            current_queries = {}
-
-        reviewer.query_kwargs["current_queries"] = current_queries
-
         # Classify the new labels, train and store the results.
-        with open_logger(state_file) as logger:
-            reviewer.classify(query_idx, inclusions, logger)
+        with open_state(state_file) as state:
+            reviewer.classify(query_idx, inclusions, state, method=label_method)
             reviewer.train()
-            reviewer.log_probabilities(logger)
-        new_query_idx = reviewer.query(reviewer.n_pool())
-        current_queries = reviewer.query_kwargs["current_queries"]
-        current_queries = {
-            str(key): str(value) for key, value in current_queries.items()}
-
-        # Write back the current queries, pool indices.
-        with open(Path(train_dir, "current_query.json"), "w") as fp:
-            json.dump(current_queries, fp)
+            reviewer.log_probabilities(state)
+            new_query_idx = reviewer.query(reviewer.n_pool())
+            reviewer.log_current_query(state)
 
         with open(Path(train_dir, "pool.json"), "w") as fp:
             json.dump(new_query_idx.tolist(), fp)
