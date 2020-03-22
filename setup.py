@@ -46,10 +46,9 @@ DEPS = {
     "tensorflow": ['tensorflow'],
     "dev": ['check-manifest'],
     'test': ['coverage', 'pytest'],
-    'performance': ['python-Levenshtein'],
 }
 DEPS['all'] = DEPS['sbert'] + DEPS['doc2vec'] + DEPS['dev']
-DEPS['all'] += DEPS['performance'] + DEPS['tensorflow']
+DEPS['all'] += DEPS['tensorflow']
 
 
 class CompileAssets(Command):
@@ -103,7 +102,6 @@ setup(
         'modAL',
         'RISparser',
         'dill',
-        'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
