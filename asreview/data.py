@@ -32,7 +32,7 @@ from asreview.utils import is_url
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore")
-    from fuzzywuzzy import fuzz
+    from rapidfuzz import fuzz
 
 
 def get_fuzzy_scores(keywords, str_list):
@@ -280,7 +280,7 @@ class ASReviewData():
         """Find a record using keywords.
 
         It looks for keywords in the title/authors/keywords
-        (for as much is available). Using the fuzzywuzzy package it creates
+        (for as much is available). Using the rapidfuzz package it creates
         a ranking based on token set matching.
 
         Arguments
