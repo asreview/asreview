@@ -117,7 +117,6 @@ setup(
         ],
         'asreview.entry_points': [
             'simulate=asreview.entry_points:SimulateEntryPoint',
-            'cli_oracle=asreview.entry_points:OracleEntryPoint',
             'oracle=asreview.entry_points:GUIEntryPoint',
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
         ],
