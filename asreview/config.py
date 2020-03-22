@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-AVAILABLE_CLI_MODI = ["oracle", "simulate"]
-AVAILABLE_REVIEW_CLASSES = ["oracle", "simulate", "minimal"]
+AVAILABLE_CLI_MODI = ["simulate"]
+AVAILABLE_REVIEW_CLASSES = ["simulate", "minimal"]
 
 DEMO_DATASETS = {
     "example_ptsd": "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/datasets/Van_de_Schoot_PTSD/output/PTSD_VandeSchoot_18.csv",  # noqa
@@ -31,8 +31,8 @@ DEFAULT_QUERY_STRATEGY = "max_random"
 DEFAULT_BALANCE_STRATEGY = "triple"
 DEFAULT_FEATURE_EXTRACTION = "tfidf"
 DEFAULT_N_INSTANCES = 1
-DEFAULT_N_PRIOR_INCLUDED = 10
-DEFAULT_N_PRIOR_EXCLUDED = 10
+DEFAULT_N_PRIOR_INCLUDED = 1
+DEFAULT_N_PRIOR_EXCLUDED = 1
 
 GITHUB_PAGE = "https://github.com/asreview/asreview"
 EMAIL_ADDRESS = "asreview@uu.nl"

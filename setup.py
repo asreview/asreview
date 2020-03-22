@@ -103,7 +103,6 @@ setup(
         'modAL',
         'RISparser',
         'dill',
-        'questionary',
         'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
@@ -120,7 +119,6 @@ setup(
             'simulate=asreview.entry_points:SimulateEntryPoint',
             'cli_oracle=asreview.entry_points:OracleEntryPoint',
             'oracle=asreview.entry_points:GUIEntryPoint',
-#             'gui = asreview.webapp.start_flask:main',
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
         ],
         'asreview.readers': [
