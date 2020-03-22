@@ -49,9 +49,9 @@ def create_app(**kwargs):
     return app
 
 
-def main():
+def main(argv):
     parser = _oracle_parser(prog="oracle")
-    kwargs = vars(parser.parse_args(sys.argv[1:]))
+    kwargs = vars(parser.parse_args(argv))
     print(kwargs)
     kwargs.pop("save_model_fp", None)
 #     webbrowser.open("http://127.0.0.1:5000/")
@@ -60,4 +60,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

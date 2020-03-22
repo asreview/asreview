@@ -284,6 +284,5 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     if retrain_model:
         # Update the model (if it isn't busy).
-        # TODO: check if this works with windows.
-        run_command = f"python asreview/webapp/run_model.py {get_project_path(project_id)}"
+        run_command = f"python -m asreview web_run_model '{project_id}'"
         subprocess.Popen(shlex.split(run_command))

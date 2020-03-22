@@ -52,7 +52,7 @@ def _wipe_old_states(project_id, current_open, remove_iterations=[7, 8]):
         delete_dir(state_to_delete)
 
 
-def main():
+def main(argv):
     """Add the new labels to the review and do the modeling.
 
     It uses a lock to ensure only one model is running at the same time.
@@ -62,10 +62,10 @@ def main():
     """
 
     # pass the project_id the script
-    project_id = sys.argv[1]
+    project_id = argv[0]
 
     try:
-        label_method = "prior" if int(sys.argv[2]) else None
+        label_method = "prior" if int(argv[1]) else None
     except IndexError:
         label_method = None
 
@@ -169,4 +169,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
