@@ -70,15 +70,21 @@ class CompileAssets(Command):
     def run(self):
         """Run a command to compile and build assets."""
         subprocess.check_call(
-            'sh ./asreviewgui/webapp/compile_assets.sh',
+            'sh ./asreview/webapp/compile_assets.sh',
             shell=True
         )
+
+
+def get_cmdclass():
+    cmdclass = versioneer.get_cmdclass()
+    cmdclass["compile_assets"] = CompileAssets
+    return cmdclass
 
 
 setup(
     name='asreview',
     version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=get_cmdclass(),
     description='Automated Systematic Review',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
@@ -94,6 +100,10 @@ setup(
     ],
     keywords='systematic review',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    package_data={'asreview': [
+        'webapp/build/*',
+        'webapp/build/static/*/*',
+    ]},
     python_requires='~=3.6',
     install_requires=[
         'numpy',
