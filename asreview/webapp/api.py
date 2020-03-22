@@ -113,7 +113,7 @@ def api_upload_data_project(project_id):  # noqa: F401
         fp_data = get_data_path(project_id) / filename
 
         # save the file
-        data_file.save(fp_data)
+        data_file.save(str(fp_data))
 
         add_dataset_to_project(project_id, filename)
 
