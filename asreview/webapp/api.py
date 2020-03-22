@@ -3,6 +3,8 @@ import re
 import json
 import logging
 from pathlib import Path
+import subprocess
+import shlex
 
 from flask.json import jsonify
 from flask_cors import CORS
@@ -11,7 +13,8 @@ from werkzeug.utils import secure_filename
 
 import numpy as np
 
-from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_pool_path
+from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_pool_path,\
+    get_project_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.project import get_paper_data
@@ -270,9 +273,9 @@ def api_random_prior_papers(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training the model
     """
-
-    # TODO{Raoul}
     # start training the model
+    run_command = f"python asreview/webapp/run_model.py {get_project_path(project_id)} 1"
+    subprocess.Popen(shlex.split(run_command))
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
