@@ -62,7 +62,7 @@ def main(argv):
     kwargs = vars(parser.parse_args(argv))
 
     # open webbrowser if not in flask development mode
-    if os.environ['FLASK_ENV'] != "development":
+    if os.environ.get('FLASK_ENV', "") != "development":
         Timer(1, _open_browser).start()
 
     print(
