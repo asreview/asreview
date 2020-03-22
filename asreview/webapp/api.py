@@ -9,7 +9,9 @@ from flask_cors import CORS
 from flask import request, Blueprint
 from werkzeug.utils import secure_filename
 
-from asreview.webapp.utils.paths import asreview_path, get_labeled_path
+import numpy as np
+
+from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_pool_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.project import get_paper_data
@@ -38,8 +40,8 @@ def api_get_projects():  # noqa: F401
     for proj in projects:
 
         try:
-            with open(proj / "project.json", "r") as fp:
-                res = json.load(fp)
+            with open(proj / "project.json", "r") as f:
+                res = json.load(f)
                 assert res["id"] is not None
                 project_info.append(res)
         except Exception as err:
@@ -188,13 +190,13 @@ def api_label_item(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/get_prior', methods=["GET"])
+@bp.route('/project/<project_id>/prior', methods=["GET"])
 def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
 
-    with open(get_labeled_path(project_id, 0), "r") as fp:
-        labeled = json.load(fp)
+    with open(get_labeled_path(project_id, 0), "r") as f:
+        labeled = json.load(f)
 
     indices, labels = zip(*labeled.items())
     indices = [int(i) for i in indices]
@@ -213,7 +215,51 @@ def api_get_prior(project_id):  # noqa: F401
             "included": int(labels[i])
         })
 
-    print(payload)
+    response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/prior_random', methods=["GET"])
+def api_random_prior_papers(project_id):  # noqa: F401
+    """Get a selection of random papers to find exclusions.
+
+    This set of papers is extracted from the pool, but without
+    the already labeled items.
+    """
+
+    with open(get_pool_path(project_id, 0), "r") as f_pool:
+        pool = json.load(f_pool)
+
+    with open(get_labeled_path(project_id, 0), "r") as f_label:
+        prior_labeled = json.load(f_label)
+
+    # excluded the already labeled items from our random selection.
+    prior_labeled_index = [int(label) for label in prior_labeled.keys()]
+    pool = [i for i in pool if i not in prior_labeled_index]
+
+    # sample from the pool (this is already done atm of initializing
+    # the pool. But doing it again because a double shuffle is always
+    # best)
+
+    try:
+        pool_random = np.random.choice(pool, 5, replace=False)
+    except Exception:
+        raise ValueError("Not enough random indices to sample from.")
+
+    records = read_data(project_id).record(pool_random)
+
+    payload = {"result": []}
+    for record in records:
+
+        payload["result"].append({
+            "id": int(record.record_id),
+            "title": record.title,
+            "abstract": record.abstract,
+            "authors": record.authors,
+            "keywords": record.keywords,
+            "included": None
+        })
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

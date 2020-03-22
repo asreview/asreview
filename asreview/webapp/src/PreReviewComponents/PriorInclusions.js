@@ -100,7 +100,7 @@ const PriorInclusions = (props) => {
 
   const getPriorIncluded = () => {
 
-    const url = api_url + `project/${props.project_id}/get_prior`;
+    const url = api_url + `project/${props.project_id}/prior`;
 
     axios.get(url)
     .then((result) => {
