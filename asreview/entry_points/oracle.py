@@ -73,6 +73,14 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
         formatter_class=RawTextHelpFormatter
     )
     # Active learning parameters
+    # File path to the data.
+    parser.add_argument(
+        "dataset",
+        type=str,
+        nargs="*",
+        help="File path to the dataset or one of the built-in datasets."
+    )
+
     parser.add_argument(
         "-m", "--model",
         type=str,
