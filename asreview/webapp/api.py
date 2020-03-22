@@ -183,7 +183,6 @@ def api_label_item(project_id):  # noqa: F401
         project_id,
         doc_id,
         label,
-        is_prior=is_prior,
         retrain_model=retrain_model
     )
 
@@ -201,7 +200,7 @@ def api_get_prior(project_id):  # noqa: F401
     with open(get_labeled_path(project_id, 0), "r") as f:
         labeled = json.load(f)
 
-    indices, labels = zip(*labeled.items())
+    indices, labels = zip(*labeled)
     indices = [int(i) for i in indices]
 
     records = read_data(project_id).record(indices)
@@ -234,12 +233,12 @@ def api_random_prior_papers(project_id):  # noqa: F401
     with open(get_pool_path(project_id, 0), "r") as f_pool:
         pool = json.load(f_pool)
 
-    with open(get_labeled_path(project_id, 0), "r") as f_label:
-        prior_labeled = json.load(f_label)
+#     with open(get_labeled_path(project_id, 0), "r") as f_label:
+#         prior_labeled = json.load(f_label)
 
     # excluded the already labeled items from our random selection.
-    prior_labeled_index = [int(label) for label in prior_labeled.keys()]
-    pool = [i for i in pool if i not in prior_labeled_index]
+#     prior_labeled_index = [int(label) for label in prior_labeled.keys()]
+#     pool = [i for i in pool if i not in prior_labeled_index]
 
     # sample from the pool (this is already done atm of initializing
     # the pool. But doing it again because a double shuffle is always

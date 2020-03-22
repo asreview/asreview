@@ -117,7 +117,7 @@ def add_dataset_to_project(project_id, file_name):
 
     # make a empty qeue for the items to label
     with open(get_labeled_path(project_id, 0), "w") as fp:
-        json.dump({}, fp)
+        json.dump([], fp)
 
 
 def read_data(project_id):
