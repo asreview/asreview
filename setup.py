@@ -115,11 +115,13 @@ setup(
     entry_points={
         'console_scripts': [
             'asreview=asreview.__main__:main',
-            'asreviewgui=asreview.webapp.start_flask:main'
         ],
         'asreview.entry_points': [
-            'simulate = asreview.entry_points:SimulateEntryPoint',
-            'oracle = asreview.entry_points:OracleEntryPoint',
+            'simulate=asreview.entry_points:SimulateEntryPoint',
+            'cli_oracle=asreview.entry_points:OracleEntryPoint',
+            'oracle=asreview.entry_points:GUIEntryPoint',
+#             'gui = asreview.webapp.start_flask:main',
+            'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',

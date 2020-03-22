@@ -274,7 +274,7 @@ def api_start(project_id):  # noqa: F401
     """Start training the model
     """
     # start training the model
-    run_command = f"python asreview/webapp/run_model.py {get_project_path(project_id)} 1"
+    run_command = f"python -m asreview web_run_model '{project_id}' 1"
     subprocess.Popen(shlex.split(run_command))
 
     response = jsonify({'success': True})
