@@ -10,6 +10,9 @@ import Typography from '@material-ui/core/Typography';
 
 import { connect } from "react-redux";
 
+import store from './redux/store'
+import { setProject } from './redux/actions'
+
 const useStyles = makeStyles({
   root: {
     maxWidth: "100%",
@@ -26,10 +29,12 @@ const mapStateToProps = state => {
 const ProjectCard = (props) => {
   const classes = useStyles();
 
-  console.log("project" + props.project_id)
-
   const openExistingProject = () => {
+
+    console.log("Opening existing project " + props.id)
+
     // set the state in the redux store
+    store.dispatch(setProject(props.id))
 
     // change to the review window
     props.setAppState("review")
@@ -57,6 +62,7 @@ const ProjectCard = (props) => {
           size="small"
           color="primary"
           onClick={openExistingProject}
+          key={props.id}
         >
           Open
         </Button>
