@@ -6,7 +6,7 @@ import sqlite3
 
 def get_db(db_file):
     db = sqlite3.connect(
-        db_file, detect_types=sqlite3.PARSE_DECLTYPES)
+        str(db_file), detect_types=sqlite3.PARSE_DECLTYPES)
     db.row_factory = sqlite3.Row
     return db
 
