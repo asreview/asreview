@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 from flask import current_app as app
 
-import asreview
+from asreview import __version__ as asreview_version
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.paths import *
 from asreview.data import ASReviewData
@@ -63,7 +63,7 @@ def init_project(
         # create a file with project info
         with open(project_dir / "project.json", "w") as fp:
             json.dump({
-                'version': asreview.__version__,  # todo: Fail without git?
+                'version': asreview_version,  # todo: Fail without git?
                 'id': project_id,
                 'name': project_name,
                 'description': project_description,

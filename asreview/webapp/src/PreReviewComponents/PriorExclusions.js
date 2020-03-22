@@ -25,11 +25,11 @@ import {
   DecisionBar,
 } from '../Components'
 
-import { api_url } from '../Components/globals.js';
-
 import axios from 'axios'
 
-const api = "http://localhost:5000/api/x/";
+import { api_url } from '../globals.js';
+
+import { connect } from "react-redux";
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -64,18 +64,23 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const mapStateToProps = state => {
+  return { project_id: state.project_id };
+};
+
 const PriorExclusions = (props) => {
   const classes = useStyles();
 
   const [records, setRecords] = useState([]);
 
   const getDocument = () => {
-    const url = api_url + "get_prior";
+    const url = api_url + `project/${props.project_id}/prior_random`;
+
     return axios.get(url)
     .then((result) => {
       console.log("get random document")
-      console.log(result.data['results']);
-      setRecords(result.data['results']);
+      console.log(result.data['result']);
+      setRecords(result.data['result']);
     })
     .catch((error) => {
       console.log(error);
@@ -143,4 +148,4 @@ const PriorExclusions = (props) => {
   )
 }
 
-export default PriorExclusions;
+export default connect(mapStateToProps)(PriorExclusions);
