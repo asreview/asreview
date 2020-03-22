@@ -1,18 +1,11 @@
 import React from 'react';
 import {
-  Tab,
-  Tabs,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Typography,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  Switch
 } from '@material-ui/core';
 
 import axios from 'axios'
