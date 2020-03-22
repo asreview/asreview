@@ -115,9 +115,11 @@ const Header = (props) => {
       <MenuDrawer
         state={state}
         setMenuDrawerState={setState}
+        appState={props.appState}
         setAppState={props.setAppState}
         toggleDrawer={toggleDrawer}
         toggleExit={props.toggleExit}
+        toggleExportResult={props.toggleExportResult}
       />
     </div>
   )

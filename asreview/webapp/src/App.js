@@ -14,6 +14,7 @@ import {
   ReviewZone,
   HistoryDialog,
   ExitDialog,
+  ExportDialog,
 }
 from './Components'
 import PreReviewZone from './PreReviewComponents/PreReviewZone'
@@ -57,6 +58,7 @@ const App = () => {
   const [appState, setAppState] = React.useState('projects'); // useful for debugging Default: boot
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
+  const [exportResult, setExportResult] = React.useState(false);
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false); 
 
@@ -98,6 +100,10 @@ const App = () => {
 
   const toggleExit = () => {
     setExit(a => (!a));
+  };  
+
+  const toggleExportResult = () => {
+    setExportResult(a => (!a));
   };  
 
   const [reviewDrawerState, setReviewDrawerState] = useState(false);
@@ -151,6 +157,7 @@ const App = () => {
         handleClickOpen={handleClickOpen}
         handleHistoryOpen={handleHistoryOpen}
         toggleExit={toggleExit}
+        toggleExportResult={toggleExportResult}
       />
       }
   
@@ -192,6 +199,10 @@ const App = () => {
       <ExitDialog
         toggleExit={toggleExit}
         exit={exit}
+      />
+      <ExportDialog
+        toggleExportResult={toggleExportResult}
+        exportResult={exportResult}
       />
     </MuiThemeProvider>
   );
