@@ -10,12 +10,14 @@ import {
   ChevronRight,
 } from '@material-ui/icons'
 import axios from 'axios';
-import { 
-  api_url,
-  reviewDrawerWidth 
-} from './globals.js';
-import ProjectPanel from './ProjectPanel';
-import ProgressPanel from './ProgressPanel';
+
+import {reviewDrawerWidth} from './globals.js';
+import {api_url} from '../globals.js';
+
+import {
+  ProgressPanel,
+  ProjectPanel,
+} from '../SideStats'
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -53,7 +55,7 @@ const ReviewDrawer = (props) => {
             <ChevronRight />
           </IconButton>
           <div className={classes.drawerTitle}>
-          <Typography variant='subtitle1'>This project</Typography>
+            <Typography variant='subtitle1'>Statistics</Typography>
           </div>
       </div>
       <Divider />
