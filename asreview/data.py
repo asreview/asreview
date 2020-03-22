@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from difflib import SequenceMatcher
 import hashlib
 from pathlib import Path
 import pkg_resources
 from urllib.parse import urlparse
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -30,9 +30,21 @@ from asreview.io.utils import type_from_column, convert_keywords
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore")
-    from fuzzywuzzy import fuzz
+
+def token_set_ratio(keywords, my_str):
+    key_list = keywords.split(" ")
+    match_list = my_str.split(" ")
+
+    ratios = []
+    for key in key_list:
+        s = SequenceMatcher()
+        s.set_seq2(key)
+        best = 0.0
+        for match in match_list:
+            s.set_seq1(match)
+            best = max(best, s.quick_ratio())
+        ratios.append(best)
+    return 100*np.average(ratios)
 
 
 def get_fuzzy_scores(keywords, str_list):
@@ -52,7 +64,8 @@ def get_fuzzy_scores(keywords, str_list):
     """
     rank_list = np.zeros(len(str_list), dtype=np.float)
     for i, my_str in enumerate(str_list):
-        rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
+        rank_list[i] = token_set_ratio(keywords, my_str)
+#         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
     return rank_list
 
 
@@ -280,7 +293,7 @@ class ASReviewData():
         """Find a record using keywords.
 
         It looks for keywords in the title/authors/keywords
-        (for as much is available). Using the fuzzywuzzy package it creates
+        (for as much is available). Using the diflib package it creates
         a ranking based on token set matching.
 
         Arguments

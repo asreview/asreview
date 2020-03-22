@@ -21,6 +21,7 @@ def create_app(**kwargs):
     )
 
     # Get the ASReview arguments.
+    kwargs.pop("dataset", None)
     app.config['asr_kwargs'] = kwargs
 
     # Ensure the instance folder exists.
