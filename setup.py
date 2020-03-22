@@ -139,8 +139,8 @@ setup(
         ],
         'asreview.feature_extraction': [
             'doc2vec = asreview.feature_extraction.doc2vec:Doc2Vec',
-            'embedding-idf = asreview.feature_extraction.embedding_idf:EmbeddingIdf',  #noqa
-            'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  #noqa
+            'embedding-idf = asreview.feature_extraction.embedding_idf:EmbeddingIdf',  # noqa
+            'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  # noqa
             'sbert = asreview.feature_extraction.sbert:SBERT',
             'tfidf = asreview.feature_extraction.tfidf:Tfidf',
         ]
