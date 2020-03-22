@@ -173,7 +173,7 @@ def api_label_item(project_id):  # noqa: F401
     label = request.form.get('label')
     is_prior = request.form.get('is_prior', default=False)
 
-    retrain_model = True if is_prior else False
+    retrain_model = False if is_prior == 1 else True
 
     # [TODO]project_id, paper_i, label, is_prior=None
     label_instance(
