@@ -101,75 +101,78 @@ const PaperCard = (props) => {
   console.log("Item is visible: " + props.id)
 
 
-  const item = (
-    <Card className={classes.root}>
-      {props.removeButton &&
-          <IconButton
-            edge="end"
-            aria-label="Include"
-            onClick={toggleButton}
-            className={classes.close}
-          >
-            <CloseIcon />
-          </IconButton>
-      }
-      <CardHeader
-        title={props.title}
-      />
+  const renderCard = () => {
 
-      {props.collapseAbstract ?
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
+    return (
+      <Card className={classes.root}>
+        {props.removeButton &&
+            <IconButton
+              edge="end"
+              aria-label="Include"
+              onClick={toggleButton}
+              className={classes.close}
+            >
+              <CloseIcon />
+            </IconButton>
+        }
+        <CardHeader
+          title={props.title}
+        />
+
+        {props.collapseAbstract ?
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                {props.abstract}
+              </Typography>
+            </CardContent>
+          </Collapse> 
+          :
           <CardContent>
             <Typography variant="body2" color="textSecondary" component="p">
               {props.abstract}
             </Typography>
           </CardContent>
-        </Collapse> 
-        :
-        <CardContent>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {props.abstract}
-          </Typography>
-        </CardContent>
-      }
-
-      <CardActions disableSpacing>
-          {props.classify &&
-            <div style={{ margin: "0 auto" }}>
-              <Button
-                variant={selected === 1 ? "outlined" : "contained"}
-                color="default"
-                className={classes.button}
-                startIcon={<FavoriteIcon />}
-              >
-                Relevant
-              </Button>
-              <Button
-                variant={selected === 0 ? "outlined" : "contained"}
-                color="default"
-                className={classes.button}
-                startIcon={<CloseIcon />}
-              >
-                Irrelevant
-              </Button>
-            </div>
-          }
-
-          {(props.collapseAbstract && props.abstract !== "") && 
-          <IconButton
-            className={clsx(classes.expand, {
-              [classes.expandOpen]: expanded,
-            })}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label="show more"
-          >
-            <ExpandMoreIcon />
-          </IconButton>
         }
-      </CardActions>
-    </Card>
-  );
+
+        <CardActions disableSpacing>
+            {props.classify &&
+              <div style={{ margin: "0 auto" }}>
+                <Button
+                  variant={selected === 1 ? "outlined" : "contained"}
+                  color="default"
+                  className={classes.button}
+                  startIcon={<FavoriteIcon />}
+                >
+                  Relevant
+                </Button>
+                <Button
+                  variant={selected === 0 ? "outlined" : "contained"}
+                  color="default"
+                  className={classes.button}
+                  startIcon={<CloseIcon />}
+                >
+                  Irrelevant
+                </Button>
+              </div>
+            }
+
+            {(props.collapseAbstract && props.abstract !== "") && 
+            <IconButton
+              className={clsx(classes.expand, {
+                [classes.expandOpen]: expanded,
+              })}
+              onClick={handleExpandClick}
+              aria-expanded={expanded}
+              aria-label="show more"
+            >
+              <ExpandMoreIcon />
+            </IconButton>
+          }
+        </CardActions>
+      </Card>
+    );
+  };
 
   if(props.removeResultOnRevert){
     return (
@@ -182,11 +185,11 @@ const PaperCard = (props) => {
           console.log("item removed from DOM");
         }}
         >
-      {item}
+      {renderCard()}
       </Collapse>
     )    
   } else {
-    return <Box>{item}</Box>
+    return <Box>{renderCard()}</Box>
   }
 
 }

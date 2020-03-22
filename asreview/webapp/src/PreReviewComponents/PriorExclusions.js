@@ -113,7 +113,7 @@ const PriorExclusions = (props) => {
                 id={index}
                 title={record.title}
                 abstract={record.abstract}
-                included={0}
+                included={null}
                 onInclude={() => {}}
                 onRevertInclude={() => {}}
                 removeButton={false}
