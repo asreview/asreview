@@ -1,29 +1,10 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
   Button,
-  Container,
-  CircularProgress,
   Typography,
-  FormControl,
-  FormHelperText,
-  OutlinedInput,
-  InputAdornment,
-  IconButton,
 } from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search';
-
-import {
-  SearchResult,
-  SearchResultDialog,
-  PaperCard,
-} from '../PreReviewComponents'
-
-import {
-  ArticlePanel,
-  DecisionBar,
-} from '../Components'
 
 import axios from 'axios'
 
@@ -41,8 +22,6 @@ const mapStateToProps = state => {
 
 const StartReview = (props) => {
   const classes = useStyles();
-
-  const [records, setRecords] = useState([]);
 
   const startTraining = () => {
     const url = api_url + `project/${props.project_id}/start`;

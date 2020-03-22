@@ -1,26 +1,11 @@
 import React from 'react';
-import {render} from 'react-dom'
 
 import {
   Box,
-  Button,
-  Divider,
-  Container,
-  Typography,
   Fade,
-  Paper,
-  Grid,
-  Tooltip,
-  Fab,
-  CircularProgress,
+  Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ElasIcon from './ElasIcon';
-import CoronaIcon from './icons/CoronaIcon';
-import AddIcon from '@material-ui/icons/Add';
-
-import Rotation from 'react-rotation'
 
 import './WelcomeScreen.css'
 

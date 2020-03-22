@@ -8,14 +8,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
-  ListSubheader,
-  Switch,
-  Typography
 } from '@material-ui/core';
 
 import {
