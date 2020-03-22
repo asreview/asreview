@@ -1,7 +1,8 @@
 import os
 import sys
 from pathlib import Path
-# import webbrowser
+import webbrowser
+from threading import Timer
 
 from flask import Flask, send_from_directory
 from flask.templating import render_template
@@ -9,6 +10,12 @@ from flask_cors import CORS
 
 from asreview.webapp import api
 from asreview.entry_points.simulate import _base_parser
+
+PORT_NUMBER = 5000
+
+
+def _open_browser():
+    webbrowser.open_new('http://127.0.0.1:{}/'.format(PORT_NUMBER))
 
 
 def create_app(**kwargs):
@@ -52,11 +59,17 @@ def create_app(**kwargs):
 def main(argv):
     parser = _base_parser(prog="oracle")
     kwargs = vars(parser.parse_args(argv))
-    print(kwargs)
-    kwargs.pop("save_model_fp", None)
-#     webbrowser.open("http://127.0.0.1:5000/")
+
+    # open webbrowser if not in flask development mode
+    if os.environ['FLASK_ENV'] != "development":
+        Timer(1, _open_browser).start()
+
+    print(
+        "\n\n\n\nIf your browser doesn't open. "
+        "Please navigate to 'http://127.0.0.1:{}/'\n\n\n\n".format(PORT_NUMBER)
+    )
     app = create_app(**kwargs)
-    app.run()
+    app.run(port=PORT_NUMBER)
 
 
 if __name__ == "__main__":
