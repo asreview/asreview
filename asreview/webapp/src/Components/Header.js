@@ -82,7 +82,7 @@ const Header = (props) => {
              ASReview
           </Typography>
 
-          {(props.appState === 'review' && !props.reviewDrawerState)?
+          {(props.appState === 'review') ?
             <IconButton
               aria-label="History"
               onClick={props.handleHistoryOpen}
