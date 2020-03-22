@@ -17,7 +17,7 @@ from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_poo
     get_project_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
-from asreview.webapp.utils.project import get_paper_data
+from asreview.webapp.utils.project import get_paper_data, get_statistics
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import init_project, read_data
@@ -295,7 +295,7 @@ def api_get_article_info(project_id, doc_id=None):  # noqa: F401
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress info on the article"""
-    response = jsonify({'total': None, 'total_pool': None})
+    response = jsonify(get_statistics(project_id))
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.

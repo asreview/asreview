@@ -19,6 +19,7 @@ from asreview.review.base import get_pool_idx
 from asreview.webapp.utils.paths import get_project_file_path, get_iteration_path, get_pool_path
 from asreview.webapp.utils.paths import get_result_path
 from asreview.webapp.utils.paths import get_labeled_path, get_active_path, asreview_path, get_data_file_path, get_lock_path
+from asreview.state.utils import open_state
 
 
 def get_active_iteration_index(project_id):
@@ -206,11 +207,48 @@ def get_new_labels(project_id, i):
         with open(get_labeled_path(project_id, i), "r") as fp:
             labeled = json.load(fp)
     except FileNotFoundError:
-        labeled = {}
+        labeled = []
     return labeled
 
 
-def label_instance(project_id, paper_i, label, is_prior=None, retrain_model=True):
+def get_statistics(project_id):
+    fp_lock = get_lock_path(project_id)
+
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+        # get the index of the active iteration
+        active_id = get_active_iteration_index(project_id)
+        state_fp = get_result_path(project_id, active_id)
+        inclusions = []
+        try:
+            with open_state(state_fp) as state:
+                for query_i in range(state.n_queries()):
+                    try:
+                        incs = state.get("inclusions", query_i).tolist()
+                        inclusions.extend(incs)
+                    except (KeyError, IndexError):
+                        pass
+        except FileNotFoundError:
+            pass
+        new_labels = get_new_labels(project_id, active_id)
+
+    inclusions.extend([x[1] for x in new_labels])
+    n_papers = len(state.get("labels"))
+    n_since_last_inclusion = 0
+    for i in reversed(range(len(inclusions))):
+        if inclusions[i]:
+            break
+        n_since_last_inclusion += 1
+    stats = {
+        "n_included": np.sum(inclusions),
+        "n_excluded": len(inclusions) - np.sum(inclusions),
+        "n_since_last_inclusion": n_since_last_inclusion,
+        "n_papers": n_papers,
+        "n_pool": n_papers - len(inclusions)
+    }
+    return stats
+
+
+def label_instance(project_id, paper_i, label, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
@@ -236,7 +274,11 @@ def label_instance(project_id, paper_i, label, is_prior=None, retrain_model=True
 
         # Add the paper to the reviewed papers.
         labeled = get_new_labels(project_id, i_current)
-        labeled[str(paper_i)] = label
+        label_dict = {l[0]: [l[1], i] for i, l in enumerate(labeled)}
+        if paper_i in label_dict:
+            labeled[label_dict[paper_i][1]] = [paper_i, label]
+        else:
+            labeled.append([paper_i, label])
         with open(get_labeled_path(project_id, i_current), "w") as fp:
             json.dump(labeled, fp)
 

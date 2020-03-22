@@ -133,7 +133,7 @@ def main():
         # Get the query indices and their inclusions.
         query_idx = []
         inclusions = []
-        for idx, included in labeled.items():
+        for idx, included in labeled:
             query_idx.append(idx)
             inclusions.append(included)
         query_idx = np.array(query_idx, dtype=np.int)
