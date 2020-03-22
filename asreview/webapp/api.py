@@ -173,7 +173,7 @@ def api_label_item(project_id):  # noqa: F401
     label = request.form.get('label')
     is_prior = request.form.get('is_prior', default=False)
 
-    retrain_model = False if is_prior == 1 else True
+    retrain_model = False if is_prior == "1" else True
 
     # [TODO]project_id, paper_i, label, is_prior=None
     label_instance(
@@ -262,6 +262,19 @@ def api_random_prior_papers(project_id):  # noqa: F401
         })
 
     response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/start', methods=["POST"])
+def api_start(project_id):  # noqa: F401
+    """Start training the model
+    """
+
+    # TODO{Raoul}
+    # start training the model
+
+    response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
