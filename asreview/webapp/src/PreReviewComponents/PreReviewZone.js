@@ -19,6 +19,7 @@ import {
   PriorExclusions,
   ProjectInit,
   ProjectUpload,
+  StartReview,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js' 
 
@@ -135,23 +136,9 @@ const PreReviewZone = (props) => {
         }
 
       {activeStep === 4 &&
-        <Box>
-          <Typography variant="h5">
-            Start your systematic review
-          </Typography>              
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              handleNext();
-              setAnimated(true);
-            }
-            }
-          >
-            Start
-          </Button>
-        </Box>
+        <StartReview
+          handleNext={handleNext}
+        />
       }
       </Container>
     }
