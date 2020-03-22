@@ -1,15 +1,19 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+
 import { makeStyles } from '@material-ui/core/styles'
+
+import {
+  Box,
+} from '@material-ui/core'
+
+import axios from 'axios';
+
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
 import DecisionFeedback from './DecisionFeedback'
-import {
-  Box,
-} from '@material-ui/core'
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { api_url } from './globals.js';
+
+import {api_url} from '../globals.js';
 
 const useStyles = makeStyles({
   box: {
@@ -53,48 +57,6 @@ const ReviewZone = (props) => {
     elas: false
   });
 
-  const [logArray, setLogArray] = useState([
-      { recId:  0, inc: true  },
-      { recId:  1, inc: true  },
-      { recId:  2, inc: false },
-      { recId:  3, inc: true  },
-      { recId:  4, inc: false },
-      { recId:  5, inc: true  },
-      { recId:  6, inc: true  },
-      { recId:  7, inc: true  },
-      { recId:  8, inc: false },
-      { recId:  9, inc: true  },
-      { recId: 10, inc: true  },
-      { recId: 11, inc: false },
-      { recId: 12, inc: false },
-      { recId: 13, inc: false },
-      { recId: 14, inc: true  },
-      { recId: 15, inc: true  },
-      { recId: 16, inc: false },
-      { recId: 17, inc: true  },
-      { recId: 18, inc: false },
-      { recId: 19, inc: true  },
-      { recId: 20, inc: false },
-      { recId: 21, inc: false },
-      { recId: 22, inc: true  },
-      { recId: 23, inc: true  },
-      { recId: 24, inc: false },
-      { recId: 25, inc: false },
-      { recId: 26, inc: true  },
-      { recId: 27, inc: true  },
-      { recId: 28, inc: false },
-      { recId: 29, inc: false },
-      { recId: 30, inc: false },
-      { recId: 31, inc: true  },
-      { recId: 32, inc: true  },
-      { recId: 33, inc: false },
-      { recId: 34, inc: false },
-      { recId: 35, inc: false },
-      { recId: 36, inc: true  },
-      { recId: 37, inc: false },
-  ]);
-  const [barchartData,setBarchartData] = useState();
-
   useEffect(() => {
     if (!loaded) {
       getProgressInfo();
@@ -103,28 +65,6 @@ const ReviewZone = (props) => {
     }
   },[loaded]);
 
-  useEffect(() => {
-    const chunkSize = (Math.floor(logArray.length / 100) + 1) * 10;
-    const nOfBars = Math.ceil(logArray.length / chunkSize);
-    console.log(`chunkSize = ${chunkSize}, nOfBars = ${nOfBars}`);
-    setBarchartData(() => {
-      /*
-      let arr = [];
-      for (let j=0;j<nOfBars;j++) {
-          arr[j]={label: (j+1)*chunkSize, included: logArray.splice(j*chunkSize,(j+1)*chunkSize-1).reduce((acc,val) => { return acc + (val.inc?1:0); } , 0)};
-      }
-      return arr;
-      */
-      return [
-        { label: 10, included: 7, },
-        { label: 20, included: 5, },
-        { label: 30, included: 4, },
-        { label: 38, included: 3, },
-      ];
-    });
-    console.log(barchartData);
-  },[logArray]);
-  
   /**
    * Get next article
    */ 
@@ -167,8 +107,6 @@ const ReviewZone = (props) => {
     })
     .then((response) => {
       console.log(`Article ${id} classified as ${label?"included":"excluded"}`);
-      setLogArray([...logArray,{recId: id, inc: label?true:false}]);
-      console.log(logArray);
       setLoaded(false);
     })
     .catch((error) => {
@@ -199,7 +137,10 @@ const ReviewZone = (props) => {
         onUndo={props.handleUndo}
         block={!slide.set}
       />
-      <ReviewDrawer state={props.reviewDrawerState} handle={props.handleReviewDrawer} barchartData={barchartData}/>
+      <ReviewDrawer
+        state={props.reviewDrawerState}
+        handle={props.handleReviewDrawer}
+      />
       <DecisionFeedback open={modalFeedback.open} text={modalFeedback.text} elas={modalFeedback.elas} />
     </Box>
   )
