@@ -70,7 +70,15 @@ const MenuDrawer = (props) => {
             <ListItemIcon><Folder /></ListItemIcon>
             <ListItemText primary="Projects" />
           </ListItem>
-          <ListItem button key="menu-button-export">
+          <ListItem
+            button
+            key="menu-button-export"
+            disabled={props.appState === "review" ? false : true}
+            onClick={() => {
+              props.toggleExportResult();
+              props.setMenuDrawerState({left: false});
+            }}
+          >
             <ListItemIcon><GetApp /></ListItemIcon>
             <ListItemText primary="Export" />
           </ListItem>
