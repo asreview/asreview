@@ -2,7 +2,6 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
-  List,
   Box, 
   Button,
   Typography,
@@ -12,10 +11,6 @@ import {
   IconButton,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close';
-
-import {
-  ListItemPaper,
-} from '../PreReviewComponents'
 
 import axios from 'axios'
 

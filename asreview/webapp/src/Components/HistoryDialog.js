@@ -1,17 +1,10 @@
 import React from 'react';
 import {
-  Tab,
-  Tabs,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  Switch
 } from '@material-ui/core';
 
 export default function SettingsDialog(props) {

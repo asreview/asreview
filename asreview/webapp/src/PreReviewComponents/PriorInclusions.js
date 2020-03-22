@@ -5,7 +5,6 @@ import {
   Button,
   Typography,
   FormControl,
-  FormHelperText,
   OutlinedInput,
   InputAdornment,
   Toolbar,
@@ -14,7 +13,6 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 
 import {
-  SearchResult,
   SearchResultDialog,
   PaperCard,
 } from '../PreReviewComponents'

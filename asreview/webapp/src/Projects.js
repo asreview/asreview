@@ -1,19 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Box,
-  Button,
-  Divider,
   Container,
-  Typography,
-  Fade,
-  Paper,
   Grid,
   Tooltip,
   Fab,
-  CircularProgress,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import AddIcon from '@material-ui/icons/Add';
 
 import ProjectCard from './ProjectCard'
