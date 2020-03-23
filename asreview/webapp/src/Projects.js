@@ -40,7 +40,7 @@ const Projects = (props) => {
 
         const result = await axios.get(url)
           .then((result) => {
-            setProjects(result.data['results']);
+            setProjects(result.data['result']);
           })
           .catch((error) => {
             console.log(error);
