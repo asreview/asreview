@@ -55,27 +55,20 @@ const PaperCard = (props) => {
 
   const classes = useStyles();
 
-  const [selected, setSelected] = React.useState(props.included);
+  // included label for card
+  const [animated, setAnimated] = React.useState(true);
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const toggleButton = () => {
+  const labelItem = (label) => {
     const url = api_url + `project/${props.project_id}/labelitem`;
-
-    var label_new;
-
-    if (!selected){
-      label_new = 1;
-    } else {
-      label_new = props.onNonSelectLabel;
-    }
 
     let body = new FormData();
     body.set('doc_id', props.id);
-    body.set('label', label_new);
+    body.set('label', label);
     body.set('is_prior', 1);
 
     axios.post(
@@ -87,7 +80,7 @@ const PaperCard = (props) => {
         }
       })
     .then((result) => {
-      setSelected(label_new);
+      setAnimated(false);
     })
     .catch((error) => {
       console.log(error);
@@ -95,18 +88,33 @@ const PaperCard = (props) => {
 
   }
 
-  console.log("Item is visible: " + props.id)
+  // include the item in the card
+  const includeItem = () => {
+    labelItem(1)
+  }
 
+  // exclude the item in the card
+  const excludeItem = () => {
+    labelItem(0)
+  }
+
+  // reset the item (for search and revert)
+  const resetItem = () => {
+    labelItem(null)
+  }
 
   const renderCard = () => {
 
     return (
-      <Card className={classes.root}>
+      <Card
+        className={classes.root}
+        key={props.id}
+      >
         {props.removeButton &&
             <IconButton
               edge="end"
               aria-label="Include"
-              onClick={toggleButton}
+              onClick={resetItem}
               className={classes.close}
             >
               <CloseIcon />
@@ -133,27 +141,32 @@ const PaperCard = (props) => {
         }
 
         <CardActions disableSpacing>
+
+          {/* Show the classification buttons if and only if classify is true */}
             {props.classify &&
               <div style={{ margin: "0 auto" }}>
                 <Button
-                  variant={selected === 1 ? "outlined" : "contained"}
+                  variant="contained"
                   color="default"
                   className={classes.button}
                   startIcon={<FavoriteIcon />}
+                  onClick={includeItem}
                 >
                   Relevant
                 </Button>
                 <Button
-                  variant={selected === 0 ? "outlined" : "contained"}
+                  variant="contained"
                   color="default"
                   className={classes.button}
                   startIcon={<CloseIcon />}
+                  onClick={excludeItem}
                 >
                   Irrelevant
                 </Button>
               </div>
             }
 
+          {/* Show the expansion panel if and only if there is abstract */}
             {(props.collapseAbstract && props.abstract !== "") && 
             <IconButton
               className={clsx(classes.expand, {
@@ -171,23 +184,16 @@ const PaperCard = (props) => {
     );
   };
 
-  if(props.removeResultOnRevert){
-    return (
-      <Collapse
-        in={selected === 1}
-        mountOnEnter
-        unmountOnExit
-        appear
-        onExited={() => {
-          console.log("item removed from DOM");
-        }}
-        >
-      {renderCard()}
-      </Collapse>
-    )    
-  } else {
-    return <Box>{renderCard()}</Box>
-  }
+  return (
+    <Collapse
+      in={animated}
+      mountOnEnter
+      unmountOnExit
+      appear
+      >
+    {renderCard()}
+    </Collapse>
+  )
 
 }
 

@@ -165,6 +165,8 @@ const PriorInclusions = (props) => {
 
           {included.map((value, index) => {
 
+            console.log("label value " + value.included)
+
             return (
                 <PaperCard
                   id={value.id}
@@ -177,7 +179,6 @@ const PriorInclusions = (props) => {
                   removeResultOnRevert={true}
                   removeButton={true}
 
-                  onNonSelectLabel={null}
                   collapseAbstract={true}
 
                   // this component needs a key as well
