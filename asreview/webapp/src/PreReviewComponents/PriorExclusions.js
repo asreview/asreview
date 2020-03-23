@@ -97,7 +97,7 @@ const PriorExclusions = (props) => {
         records.map((record, index) => {
             return (
               <PaperCard
-                id={index}
+                id={record.id}
                 title={record.title}
                 abstract={record.abstract}
                 included={null}
