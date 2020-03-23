@@ -171,15 +171,6 @@ def _base_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Location to store the state of the simulation."
     )
     parser.add_argument(
-        "--save_model",
-        default=None,
-        type=str,
-        dest='save_model_fp',
-        help="Location to store the model and weights. "
-             "Only works for Keras/RNN models. "
-             "End file extension with '.json'."
-    )
-    parser.add_argument(
         "--verbose", "-v",
         default=0,
         type=int,
