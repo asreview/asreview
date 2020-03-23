@@ -328,7 +328,6 @@ class ASReviewData():
             if all_keywords is not None:
                 match_list.append(format_to_str(all_keywords[i]))
             match_str[i, ] = " ".join(match_list)
-
         new_ranking = get_fuzzy_scores(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
         best_idx = []
@@ -466,7 +465,7 @@ class ASReviewData():
             return 0
         return len(self.df.index)
 
-    def to_file(self, fp, labels=None, df_order=None):
+    def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
 
         Both RIS and CSV are supported file formats at the moment.
@@ -477,13 +476,13 @@ class ASReviewData():
             Filepath to export to.
         labels: list, np.array
             Labels to be inserted into the dataframe before export.
-        df_order: list, np.array
+        ranking: list, np.array
             Optionally, dataframe rows can be reordered.
         """
         if Path(fp).suffix in [".csv", ".CSV"]:
-            self.to_csv(fp, labels=labels, df_order=df_order)
+            self.to_csv(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS"]:
-            self.to_ris(fp, labels=labels, df_order=df_order)
+            self.to_ris(fp, labels=labels, ranking=ranking)
         else:
             raise BadFileFormatError(
                 f"Unknown file extension: {Path(fp).suffix}.\n"
@@ -518,10 +517,10 @@ class ASReviewData():
             new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
         return new_df
 
-    def to_csv(self, fp, labels=None, df_order=None):
-        self.to_dataframe(labels=labels, df_order=df_order).to_csv(
+    def to_csv(self, fp, labels=None, ranking=None):
+        self.to_dataframe(labels=labels, ranking=ranking).to_csv(
             fp, index=True)
 
-    def to_ris(self, ris_fp, labels=None, df_order=None):
-        df = self.to_dataframe(labels=labels, df_order=df_order)
+    def to_ris(self, ris_fp, labels=None, ranking=None):
+        df = self.to_dataframe(labels=labels, ranking=ranking)
         write_ris(df, ris_fp)
