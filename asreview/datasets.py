@@ -1,19 +1,23 @@
 from pathlib import Path
 import pkg_resources
 import json
-import inspect
 
 from asreview.utils import pretty_format
 from asreview.utils import is_iterable
 
 
 class BaseDataSet():
-    name = "unknown"
+    id = "unknown"
 
     def __init__(self, fp=None):
         if fp is not None:
             self.fp = fp
             self.name = Path(fp).name
+
+        if getattr(self, "name", None) is None:
+            self.name = self.id
+
+        super(BaseDataSet, self).__init__()
 
     def get(self):
         try:
@@ -42,20 +46,31 @@ class BaseDataSet():
 
 
 class PTSDDataSet(BaseDataSet):
-    name = "ptsd"
+    id = "ptsd"
+    title = "PTSD - Schoot"
+    description = "Bayesian PTSD-Trajectory Analysis with Informed Priors"
     url = (
         "https://raw.githubusercontent.com/asreview/systematic-review-datasets"
         "/master/datasets/Van_de_Schoot_PTSD/output/PTSD_VandeSchoot_18.csv")
+    sha512 = ("e2b62c93e4e9ddebf786e2cc8a0effb7fd8bf2ada986d53e6e5133092e7de88"
+              "6b311286fa459144576ed3ac0dfff1bca1ba9c198d0235d8280a40b2533d0c0"
+              "a7")
     authors = ['Rens van de Schoot', 'Marit Sijbrandij', 'Sarah Depaoli',
                'Sonja D. Winter', 'Miranda Olff', 'Nancy E. van Loey']
     topic = "PTSD"
     license = "CC-BY Attribution 4.0 International"
     link = "https://osf.io/h5k2q/"
+    last_update = "2020-03-23"
     year = 2018
+    img_url = ("https://raw.githubusercontent.com/asreview/asreview/master/"
+               "images/ptsd.png")
+    date = "2018-01-11"
 
 
 class AceDataSet(BaseDataSet):
-    name = "ace"
+    id = "ace"
+    title = "ACEInhibitors - Cohen"
+    description = "Systematic Drug Class Review Gold Standard Data"
     url = (
         "https://raw.githubusercontent.com/asreview/systematic-review-datasets"
         "/master/datasets/Cohen_EBM/output/ACEInhibitors.csv")
@@ -65,10 +80,20 @@ class AceDataSet(BaseDataSet):
     year = 2006
     license = None
     topic = "ACEInhibitors"
+    sha512 = ("bde84809236e554abd982c724193777c1b904adb2326cb0a0ccb350b02d4246"
+              "e8db5e9b36d0cb4b23e9aab521441764cdb0e31d6cb90fdc9e6c907ae1650d6"
+              "1a")
+    img_url = ("https://raw.githubusercontent.com/asreview/asreview/master/"
+               "images/ace.png")
+    last_update = "2020-03-23"
+    date = "2006-03-01"
 
 
 class HallDataSet(BaseDataSet):
-    name = "hall"
+    id = "hall"
+    title = "Fault prediction - Hall"
+    description = ("A systematic literature review on fault prediction "
+                   "performance in software engineering")
     url = (
         "https://raw.githubusercontent.com/asreview/systematic-review-datasets"
         "/master/datasets/Four%20Software%20Engineer%20Data%20Sets/"
@@ -80,6 +105,13 @@ class HallDataSet(BaseDataSet):
     year = 2012
     license = "CC-BY Attribution 4.0 International"
     topic = "Software Fault Prediction"
+    sha512 = ("0d5cc86586d7e6f28e5c52c78cf4647556cdf41a73c9188b6424ca007f38ea9"
+              "55230e297d7c4a96a41ae46ec716a21c2d5dc432a77dd4d81886aa60ad9b771"
+              "00")
+    img_url = ("https://raw.githubusercontent.com/asreview/asreview/master/"
+               "images/softwareengineering.png")
+    last_update = "2020-03-23"
+    date = "2011-10-06"
 
 
 class BaseDataGroup():
