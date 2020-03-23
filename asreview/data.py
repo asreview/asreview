@@ -489,7 +489,7 @@ class ASReviewData():
                 f"Unknown file extension: {Path(fp).suffix}.\n"
                 f"from file {fp}")
 
-    def to_dataframe(self, labels=None, df_order=None):
+    def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).
 
         Arguments
@@ -509,8 +509,9 @@ class ASReviewData():
         new_df = pd.DataFrame.copy(self.df)
         if labels is not None:
             new_df[self.column_spec["final_included"]] = labels
-        if df_order is not None:
-            return new_df.iloc[df_order]
+        if ranking is not None:
+            new_df["asreview_ranking"] = ranking
+            new_df = new_df.iloc[ranking]
 
         col = self.column_spec["final_included"]
         if col in list(new_df):
