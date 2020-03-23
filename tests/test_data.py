@@ -35,3 +35,5 @@ def test_datasets():
     datasets = get_available_datasets()["builtin"]
     for data in datasets.values():
         assert exists(data.get())
+
+        assert set(list(datasets)) == set(["ptsd", "ace", "hall"])
