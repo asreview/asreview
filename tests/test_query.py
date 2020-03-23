@@ -22,7 +22,7 @@ def test_query(query_strategy, n_features=50, n_sample=100,
                n_instances_list=[0, 1, 5, 50], n_train_idx=[0, 1, 5, 50]):
     classifier = get_model("rf")
     if query_strategy == "cluster":
-        data_fp = os.path.join("test", "demo_data", "generic.csv")
+        data_fp = os.path.join("tests", "demo_data", "generic.csv")
         texts = ASReviewData.from_file(data_fp).texts
         while len(texts) < n_features:
             texts = np.append(texts, texts)

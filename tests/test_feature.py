@@ -21,8 +21,8 @@ from asreview import ASReviewData
         1,
     ])
 def test_features(feature_extraction, split_ta):
-    embedding_fp = os.path.join("test", "demo_data", "generic.vec")
-    data_fp = os.path.join("test", "demo_data", "generic.csv")
+    embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
+    data_fp = os.path.join("tests", "demo_data", "generic.csv")
 
     as_data = ASReviewData.from_file(data_fp)
     texts = as_data.texts

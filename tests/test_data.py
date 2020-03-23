@@ -1,8 +1,14 @@
 from pathlib import Path
+import urllib
 
 from pytest import mark
 
 from asreview import ASReviewData
+from asreview.datasets import get_available_datasets
+
+
+def exists(url):
+    return urllib.request.urlopen(url).getcode() == 200
 
 
 @mark.parametrize(
@@ -19,7 +25,13 @@ from asreview import ASReviewData
         ("Cancer case computer contrast pancreatomy Yamada", 2),
     ])
 def test_fuzzy_finder(keywords, paper_id):
-    fp = Path("test", "demo_data", "embase.csv")
+    fp = Path("tests", "demo_data", "embase.csv")
     as_data = ASReviewData.from_file(fp)
 
     assert as_data.fuzzy_find(keywords)[0] == paper_id
+
+
+def test_datasets():
+    datasets = get_available_datasets()["builtin"]
+    for data in datasets.values():
+        assert exists(data.get())
