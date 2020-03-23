@@ -10,14 +10,14 @@ from asreview.settings import ASReviewSettings
 
 def test_read_json_state():
 
-    state_fp = Path("test", "state_files", "test_1_inst.json")
+    state_fp = Path("tests", "state_files", "test_1_inst.json")
 
     with open_state(str(state_fp)) as state:
         assert isinstance(state, JSONState)
 
 
 def test_read_hdf5_state():
-    state_fp = Path("test", "state_files", "test_1_inst.h5")
+    state_fp = Path("tests", "state_files", "test_1_inst.h5")
     with open_state(str(state_fp)) as state:
         assert isinstance(state, HDF5State)
 

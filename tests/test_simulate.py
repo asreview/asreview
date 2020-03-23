@@ -6,10 +6,10 @@ import numpy as np
 from asreview.state import open_state
 from asreview.review.factory import get_reviewer
 
-data_fp = os.path.join("test", "demo_data", "generic_labels.csv")
-embedding_fp = os.path.join("test", "demo_data", "generic.vec")
-cfg_dir = os.path.join("test", "cfg_files")
-state_dir = os.path.join("test", "state_files")
+data_fp = os.path.join("tests", "demo_data", "generic_labels.csv")
+embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
+cfg_dir = os.path.join("tests", "cfg_files")
+state_dir = os.path.join("tests", "state_files")
 h5_state_file = os.path.join(state_dir, "test.h5")
 json_state_file = os.path.join(state_dir, "test.json")
 

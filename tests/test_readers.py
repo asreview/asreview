@@ -24,7 +24,7 @@ from asreview import ASReviewData
         ("pubmed.xml", 10, None, []),
     ])
 def test_reader(test_file, n_lines, labels, ignore_col):
-    fp = Path("test", "demo_data", test_file)
+    fp = Path("tests", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)
     assert len(as_data) == n_lines
 
@@ -40,7 +40,7 @@ def test_reader(test_file, n_lines, labels, ignore_col):
 
 
 def test_csv_write_data():
-    fp_in = Path("test", "demo_data", "generic_labels.csv")
-    fp_out = Path("test", "out_data", "generic_out.csv")
+    fp_in = Path("tests", "demo_data", "generic_labels.csv")
+    fp_out = Path("tests", "out_data", "generic_out.csv")
     asr_data = ASReviewData.from_file(fp_in)
     asr_data.to_csv(fp_out, labels=[0, 1, 0, 1, 0, 1])
