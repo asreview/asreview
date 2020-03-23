@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePath
 import pkg_resources
 import json
 
@@ -209,4 +209,6 @@ def get_dataset(name):
 
 
 def find_data(name):
+    if isinstance(name, PurePath):
+        return name
     return get_dataset(name).get()

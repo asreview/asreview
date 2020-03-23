@@ -365,7 +365,10 @@ class ASReviewData():
 
     @property
     def title(self):
-        return self.df[self.column_spec["title"]].values
+        try:
+            return self.df[self.column_spec["title"]].values
+        except KeyError:
+            return None
 
     @property
     def bodies(self):
@@ -373,7 +376,10 @@ class ASReviewData():
 
     @property
     def abstract(self):
-        return self.df[self.column_spec["abstract"]].values
+        try:
+            return self.df[self.column_spec["abstract"]].values
+        except KeyError:
+            return None
 
     @property
     def keywords(self):
