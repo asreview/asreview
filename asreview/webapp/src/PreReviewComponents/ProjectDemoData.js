@@ -74,13 +74,13 @@ const ProjectDemoData = (props) => {
         {datasets.map(dataset => (
           <Card
             className={classes.cardRoot}
-            key={dataset.name}
-            onClick={() => {props.onUploadHandler(dataset.name)}}
+            key={dataset.id}
+            onClick={() => {props.onUploadHandler(dataset.id)}}
           >
             <CardActionArea>
               <CardMedia
                 className={classes.media}
-                image={props.image_url}
+                image={dataset.img_url}
                 title={dataset.name}
               />
               <CardContent>
