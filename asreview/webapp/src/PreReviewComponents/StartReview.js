@@ -28,10 +28,28 @@ const StartReview = (props) => {
 
     return axios.post(url)
     .then((result) => {
-      
-      // callback function
-      props.handleNext();
+      checkModelIsFitted();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
 
+  const checkModelIsFitted = () => {
+
+    const url = api_url + `project/${props.project_id}/model/init_ready`;
+
+    return axios.get(url)
+    .then((result) => {
+
+
+      if (result.data["status"] === 1){
+        // model ready
+        props.setAppState('review');
+      } else {
+        // not ready yet
+        setTimeout(checkModelIsFitted, 2000);
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -54,5 +72,41 @@ const StartReview = (props) => {
     </Box>
   )
 }
+
+      // {activeStep === 5 && 
+      //   <Grid
+      //     container
+      //     spacing={0}
+      //     direction="column"
+      //     alignItems="center"
+      //     justify="center"
+      //     className={classes.grid}
+      //   >
+
+      //     {/* transition to search tool - (Inclusions) */}
+      //     <Grid item xs={12} sm={8}>
+      //       <Fade
+      //         in={activeStep === 5 && animated}
+      //         timeout={transitionSpeed}
+      //         mountOnEnter
+      //         unmountOnExit
+      //         onEnter={()=> {
+      //           setTimeout(()=> {
+      //             // console.log("exit")
+      //             setAnimated(false);
+      //           }, 4000)
+      //         }}
+      //         onExited={() => props.setAppState('review')}
+      //       >
+      //         <Box>
+      //           <Typography variant="h5">
+      //             Warming up the machines!
+      //           </Typography>              
+      //           <CircularProgress className={classes.loader}/>
+      //         </Box>
+      //       </Fade>
+      //     </Grid>
+      //   </Grid>
+      // }
 
 export default connect(mapStateToProps)(StartReview);

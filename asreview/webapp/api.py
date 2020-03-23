@@ -5,6 +5,9 @@ import logging
 from pathlib import Path
 import subprocess
 import shlex
+from urllib.request import urlretrieve
+import urllib.parse
+
 
 from flask.json import jsonify
 from flask_cors import CORS
@@ -13,8 +16,8 @@ from werkzeug.utils import secure_filename
 
 import numpy as np
 
-from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_pool_path,\
-    get_project_path
+from asreview.datasets import get_dataset
+from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics
@@ -147,33 +150,46 @@ def api_upload_data_project(project_id):  # noqa: F401
         response = jsonify(message="project-not-found")
         return response, 404
 
-    if 'file' not in request.files:
-        response = jsonify(message="no-file-found")
-        return response, 500
+    if request.form.get('demo_data', None):
+        # download file and save to folder
 
-    data_file = request.files['file']
+        demo_data = get_dataset(request.form['demo_data'])
 
-    # check the file is file is in a correct format
-    check_dataset(data_file)  # TODO{qubixes}: implement validation strategy
-    try:
+        url_parts = urllib.parse.urlparse(demo_data.url)
+        filename = url_parts.path.rsplit('/', 1)[-1]
 
-        filename = secure_filename(data_file.filename)
-        fp_data = get_data_path(project_id) / filename
-
-        # save the file
-        data_file.save(str(fp_data))
+        urlretrieve(
+            demo_data.url,
+            get_data_path(project_id) / filename
+        )
 
         add_dataset_to_project(project_id, filename)
 
-    except Exception as err:
+    elif 'file' in request.files:
 
-        logging.error(err)
+        data_file = request.files['file']
 
-        # reset the state of the project to the start
-        # TODO{qubixes} do this with a copy of the project as a backup?
+        # check the file is file is in a correct format
+        check_dataset(data_file)  # TODO{qubixes}: implement val strategy
+        try:
 
-        response = jsonify(message="project-upload-failure")
+            filename = secure_filename(data_file.filename)
+            fp_data = get_data_path(project_id) / filename
 
+            # save the file
+            data_file.save(str(fp_data))
+
+            add_dataset_to_project(project_id, filename)
+
+        except Exception as err:
+
+            logging.error(err)
+
+            response = jsonify(message="project-upload-failure")
+
+            return response, 500
+    else:
+        response = jsonify(message="no-file-found")
         return response, 500
 
     return jsonify({"success": True})
@@ -322,6 +338,25 @@ def api_start(project_id):  # noqa: F401
     subprocess.Popen(shlex.split(run_command))
 
     response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/model/init_ready', methods=["GET"])
+def api_init_model_ready(project_id):  # noqa: F401
+    """Check if trained model is available
+    """
+
+    if get_result_path(project_id, 2).exists():
+        logging.info("Model trained - go to review screen")
+        response = jsonify(
+            {'status': 1}
+        )
+    else:
+        response = jsonify(
+            {'status': 0}
+        )
+
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
