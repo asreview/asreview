@@ -32,6 +32,25 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
 
 
+@bp.route('/boot', methods=["GET"])
+def api_boot():  # noqa: F401
+    """Get the boot info"""
+
+    # #### ONE OF THESE:
+
+    # response = jsonify({"status": "asreview"})  # default
+    # response = jsonify({"status": "development"})  # development
+    response = jsonify({"status": "asreview-covid19"})  # covid19
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
+
+    # response = jsonify({"message": "connection-issue"})  # covid19
+    # response.headers.add('Access-Control-Allow-Origin', '*')
+
+    # return response, 500
+
+
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
