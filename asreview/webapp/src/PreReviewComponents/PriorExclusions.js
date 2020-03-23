@@ -105,7 +105,6 @@ const PriorExclusions = (props) => {
                 onRevertInclude={() => {}}
                 removeButton={false}
                 classify={true}
-                onNonSelectLabel={0}
 
                 key={index}
               />
