@@ -116,12 +116,17 @@ const ProjectUpload = (props) => {
     isDragReject
   ]);
 
-  const onUploadHandler = () => {
+  const onUploadHandler = (demo_data_id) => {
 
       const url = api_url + `project/${props.project_id}/upload`;
 
       const data = new FormData() 
-      data.append('file', file)
+
+      if(demo_data_id === undefined){
+        data.append('file', file)
+      } else {
+        data.append('demo_data', demo_data_id)
+      }
 
       axios({
         method: 'post',
@@ -171,7 +176,7 @@ const ProjectUpload = (props) => {
       - or select a dataset below -
     </Typography> 
     <ProjectDemoData
-
+      onUploadHandler={onUploadHandler}
     />
     <Toolbar className={classes.clear}/>
 
