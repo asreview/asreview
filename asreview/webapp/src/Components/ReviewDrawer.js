@@ -9,15 +9,20 @@ import {
 import { 
   ChevronRight,
 } from '@material-ui/icons'
-import axios from 'axios';
-
-import {reviewDrawerWidth} from './globals.js';
-import {api_url} from '../globals.js';
 
 import {
   ProgressPanel,
   ProjectPanel,
 } from '../SideStats'
+
+import {
+  api_url,
+  reviewDrawerWidth,
+} from '../globals.js';
+
+import axios from 'axios'
+
+import { connect } from "react-redux";
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -39,8 +44,33 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const mapStateToProps = state => {
+  return { project_id: state.project_id };
+};
+
 const ReviewDrawer = (props) => {
   const classes = useStyles();
+  // "n_included": null,
+  // "n_excluded": null,
+  // "n_since_last_inclusion": null,
+  // "n_papers": null,
+  // "n_pool": null,
+
+  // /**
+  //  * Get summary statistics (connect with reduc actions?)
+  //  */
+  // const getProgressInfo = () => {
+
+  //   const url = api_url + `project/${props.project_id}/progress`;
+
+  //   return axios.get(url)
+  //     .then((result) => {
+  //         console.log(result);
+  //     })
+  //     .catch((err) => {
+  //         console.log(err)
+  //     })
+  // }
 
   return (
     <Drawer
@@ -59,11 +89,19 @@ const ReviewDrawer = (props) => {
           </div>
       </div>
       <Divider />
-      <ProjectPanel drawerOpen={props.state}/>
+      <ProjectPanel
+        name={props.statistics.name}
+        authors={props.statistics.authors}
+        description={props.statistics.description}
+        n_papers={props.statistics.n_papers}
+      />
       <Divider />
-      <ProgressPanel barchartData={props.barchartData} />
+      <ProgressPanel
+        n_included={props.statistics.n_included}
+        n_excluded={props.statistics.n_excluded}
+      />
     </Drawer>
   );
 }
  
-export default ReviewDrawer;
+export default connect(mapStateToProps)(ReviewDrawer);

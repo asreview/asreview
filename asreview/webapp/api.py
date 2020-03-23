@@ -17,7 +17,7 @@ from werkzeug.utils import secure_filename
 import numpy as np
 
 from asreview.datasets import get_dataset
-from asreview.webapp.utils.paths import asreview_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
+from asreview.webapp.utils.paths import asreview_path, get_project_file_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics
@@ -125,6 +125,7 @@ def api_demo_data_project():  # noqa: F401
 
         result_datasets = []
         datasets = get_available_datasets()
+        print(datasets)
         for group_name, group in datasets.items():
             for dataset_key, dataset in group.items():
                 result_datasets.append(dataset.to_dict())
@@ -365,7 +366,7 @@ def api_init_model_ready(project_id):  # noqa: F401
 def api_get_article_info(project_id, doc_id=None):  # noqa: F401
     """Get info on the article"""
 
-    response = jsonify(get_paper_data(paper_id=doc_id))
+    response = jsonify(get_paper_data(project_id, paper_id=doc_id))
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
@@ -374,33 +375,42 @@ def api_get_article_info(project_id, doc_id=None):  # noqa: F401
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress info on the article"""
-    response = jsonify(get_statistics(project_id))
+
+    project_file_path = get_project_file_path(project_id)
+
+    # open the projects file
+    with open(project_file_path, "r") as f_read:
+        project_dict = json.load(f_read)
+
+    statistics = get_statistics(project_id)
+
+    response = jsonify({**project_dict, **statistics})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
     return response
 
 # I think we don't need this one
-# @bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
-# def api_classify_instance(project_id, doc_id):  # noqa: F401
-#     """Retrieve classification result.
+@bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
+def api_classify_instance(project_id, doc_id):  # noqa: F401
+    """Retrieve classification result.
 
-#     This request handles the document identifier and the corresponding label.
-#     The result is stored in a temp location. If this storage exceeds a certain
-#     amount of values, then the model is triggered. The values of the location
-#     are passed to the model and the storaged is cleared. This model will run
-#     in the background.
-#     """
-#     # return the combination of document_id and label.
-#     doc_id = request.form['doc_id']
-#     label = request.form['label']
+    This request handles the document identifier and the corresponding label.
+    The result is stored in a temp location. If this storage exceeds a certain
+    amount of values, then the model is triggered. The values of the location
+    are passed to the model and the storaged is cleared. This model will run
+    in the background.
+    """
+    # return the combination of document_id and label.
+    doc_id = request.form['doc_id']
+    label = request.form['label']
 
-#     label_instance(doc_id, label)
+    label_instance(project_id, doc_id, label, retrain_model=True)
 
-#     response = jsonify({'success': True})
-#     response.headers.add('Access-Control-Allow-Origin', '*')
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
 
-#     return response
+    return response
 
 
 @bp.route('/project/<project_id>/get_document', methods=["GET"])
@@ -415,10 +425,9 @@ def api_get_document(project_id):  # noqa: F401
     """
 
     new_instance = get_instance(project_id)
-    payload = get_paper_data(new_instance)
+    payload = get_paper_data(project_id, new_instance)
     payload["doc_id"] = new_instance
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
-

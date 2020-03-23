@@ -126,7 +126,8 @@ def read_data(project_id):
     return ASReviewData.from_file(dataset)
 
 
-def get_paper_data(paper_id,
+def get_paper_data(project_id,
+                   paper_id,
                    return_title=True,
                    return_authors=True,
                    return_abstract=True
@@ -141,7 +142,7 @@ def get_paper_data(paper_id,
         paper_data['authors'] = as_data.authors[paper_id]
     if return_abstract and as_data.abstract is not None:
         paper_data['abstract'] = as_data.abstract[paper_id]
-    paper_data['dataset'] = get_data_file_path(project_id)
+    # paper_data['dataset'] = get_data_file_path(project_id)
     return paper_data
 
 
@@ -184,7 +185,7 @@ def get_instance(project_id):
     with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
 
         # get the path the active pool
-        i_current = get_active_iteration_index()
+        i_current = get_active_iteration_index(project_id)
         pool_path = get_pool_path(project_id, i_current)
 
         # open the pool and load the indices
@@ -229,18 +230,23 @@ def get_statistics(project_id):
                         pass
         except FileNotFoundError:
             pass
+
+        # get the next labels to extend
         new_labels = get_new_labels(project_id, active_id)
 
-    inclusions.extend([x[1] for x in new_labels])
+    # append the new labels to the list of labels
+    inclusions.extend([int(x[1]) for x in new_labels])
     n_papers = len(state.get("labels"))
     n_since_last_inclusion = 0
     for i in reversed(range(len(inclusions))):
         if inclusions[i]:
             break
         n_since_last_inclusion += 1
+
+    n_included = int(np.sum(inclusions))
     stats = {
-        "n_included": np.sum(inclusions),
-        "n_excluded": len(inclusions) - np.sum(inclusions),
+        "n_included": n_included,
+        "n_excluded": len(inclusions) - n_included,
         "n_since_last_inclusion": n_since_last_inclusion,
         "n_papers": n_papers,
         "n_pool": n_papers - len(inclusions)

@@ -28,10 +28,10 @@ const ProgressPanel = (props) => {
           </ListSubheader> 
           {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
           <ListItem key="list-progress-inclusions">
-            Inclusions: <Typography color="secondary">{props.n_inclusions}</Typography>
+            Inclusions: {props.n_included}
           </ListItem>
           <ListItem key="list-progress-exclusions">
-            Exclusions: <Typography color="secondary">{props.n_exclusions}</Typography>
+            Exclusions: {props.n_excluded}
           </ListItem>
         </div>
 

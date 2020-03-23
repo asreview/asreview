@@ -2,6 +2,7 @@ import React from 'react';
 import {
     ListSubheader,
     ListItem,
+    Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -25,10 +26,13 @@ const ProjectPanel = (props) => {
           </ListSubheader> 
           {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
           <ListItem key="project-name">
-            Project name: {props.project_name} 
+            Project: {props.name}
           </ListItem>
           <ListItem key="project-authors">
-            Project authors: {props.project_authors} 
+            Authors: {props.authors}
+          </ListItem>
+          <ListItem key="project-n-papers">
+            Number of publications: {props.n_papers} 
           </ListItem>
         </div>
 

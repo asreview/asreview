@@ -7,15 +7,12 @@ from asreview.utils import is_iterable
 
 
 class BaseDataSet():
-    id = "unknown"
 
     def __init__(self, fp=None):
+
         if fp is not None:
             self.fp = fp
-            self.name = Path(fp).name
-
-        if getattr(self, "name", None) is None:
-            self.name = self.id
+            self.id = Path(fp).name
 
         super(BaseDataSet, self).__init__()
 
@@ -46,7 +43,7 @@ class BaseDataSet():
 
 
 class PTSDDataSet(BaseDataSet):
-    id = "ptsd"
+    dataset_id = "ptsd"
     title = "PTSD - Schoot"
     description = "Bayesian PTSD-Trajectory Analysis with Informed Priors"
     url = (
@@ -68,7 +65,7 @@ class PTSDDataSet(BaseDataSet):
 
 
 class AceDataSet(BaseDataSet):
-    id = "ace"
+    dataset_id = "ace"
     title = "ACEInhibitors - Cohen"
     description = "Systematic Drug Class Review Gold Standard Data"
     url = (
@@ -90,7 +87,7 @@ class AceDataSet(BaseDataSet):
 
 
 class HallDataSet(BaseDataSet):
-    id = "hall"
+    dataset_id = "hall"
     title = "Fault prediction - Hall"
     description = ("A systematic literature review on fault prediction "
                    "performance in software engineering")
@@ -119,32 +116,32 @@ class BaseDataGroup():
         self._data_sets = [a for a in args]
 
     def to_dict(self):
-        return {data.name: data for data in self._data_sets}
+        return {data.dataset_id: data for data in self._data_sets}
 
-    @classmethod
-    def from_config(cls, fp):
-        with open(fp, "r") as f:
-            config_dict = json.load(f)
-        last_update = config_dict.pop("last_update", None)
-        name = config_dict.pop("name", None)
-        new_datasets = []
-        for dataset in config_dict["datasets"]:
-            data_instance = BaseDataSet()
-            for attr in config_dict:
-                if attr == "datasets":
-                    continue
-                setattr(data_instance, attr, config_dict[attr])
-            for attr in dataset:
-                setattr(data_instance, attr, dataset[attr])
-            new_datasets.append(data_instance)
-        group_instance = cls(*new_datasets)
-        group_instance.name = name
-        group_instance.last_update = last_update
-        return group_instance
+    # @classmethod
+    # def from_config(cls, fp):
+    #     with open(fp, "r") as f:
+    #         config_dict = json.load(f)
+    #     last_update = config_dict.pop("last_update", None)
+    #     name = config_dict.pop("name", None)
+    #     new_datasets = []
+    #     for dataset in config_dict["datasets"]:
+    #         data_instance = BaseDataSet()
+    #         for attr in config_dict:
+    #             if attr == "datasets":
+    #                 continue
+    #             setattr(data_instance, attr, config_dict[attr])
+    #         for attr in dataset:
+    #             setattr(data_instance, attr, dataset[attr])
+    #         new_datasets.append(data_instance)
+    #     group_instance = cls(*new_datasets)
+    #     group_instance.name = name
+    #     group_instance.last_update = last_update
+    #     return group_instance
 
     def __str__(self):
         return "".join([
-            f"*******  {str(data.name)}  *******\n"
+            f"*******  {str(data.dataset_id)}  *******\n"
             f"{str(data)}\n\n"
             for data in self._data_sets
         ])
@@ -175,18 +172,18 @@ def get_available_datasets():
     return all_datasets
 
 
-def get_dataset(name):
-    if is_iterable(name):
-        return [get_dataset(data) for data in name]
+def get_dataset(dataset_id):
+    if is_iterable(dataset_id):
+        return [get_dataset(data) for data in dataset_id]
 
     all_datasets = get_available_datasets()
 
     data_group = None
     try:
-        split_name = name.split(":")
-        if len(split_name) == 2:
-            data_group = split_name[0]
-            name = split_name[1]
+        split_dataset_id = dataset_id.split(":")
+        if len(split_dataset_id) == 2:
+            data_group = split_dataset_id[0]
+            dataset_id = split_dataset_id[1]
     except TypeError:
         pass
 
@@ -195,8 +192,8 @@ def get_dataset(name):
     for group, cur_datasets in all_datasets.items():
         if data_group is not None and group != data_group:
             continue
-        if name in cur_datasets:
-            my_datasets[name] = cur_datasets[name]
+        if dataset_id in cur_datasets:
+            my_datasets[dataset_id] = cur_datasets[dataset_id]
 
     if len(my_datasets) == 1:
         return my_datasets[list(my_datasets)[0]]
@@ -205,7 +202,7 @@ def get_dataset(name):
                          "Use DATAGROUP:DATASET format to specify which one"
                          " you want.")
 
-    return BaseDataSet(name)
+    return BaseDataSet(dataset_id)
 
 
 def find_data(name):

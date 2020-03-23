@@ -67,6 +67,7 @@ const ProjectDemoData = (props) => {
 
     }, []);
 
+    console.log(datasets)
 
     return (
 
@@ -74,18 +75,18 @@ const ProjectDemoData = (props) => {
         {datasets.map(dataset => (
           <Card
             className={classes.cardRoot}
-            key={dataset.id}
-            onClick={() => {props.onUploadHandler(dataset.id)}}
+            key={dataset.dataset_id}
+            onClick={() => {props.onUploadHandler(dataset.dataset_id)}}
           >
             <CardActionArea>
               <CardMedia
                 className={classes.media}
                 image={dataset.img_url}
-                title={dataset.name}
+                title={dataset.title}
               />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="h2">
-                  {dataset.description}
+                  {dataset.title}
                 </Typography>
                 <Typography noWrap variant="body2" color="textSecondary" component="p">
                   {dataset.description}
