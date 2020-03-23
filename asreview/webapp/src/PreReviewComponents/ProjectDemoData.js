@@ -17,8 +17,6 @@ import { api_url } from '../globals.js';
 
 import axios from 'axios';
 
-import {cord19 } from './cord19.png'
-
 const useStyles = makeStyles(theme => ({
   root: {
     paddingTop: '24px',
@@ -29,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     right: theme.spacing(3),
   },
   cardRoot: {
-    width: 445,
+    width: 400,
     display: "inline-block",
     margin: theme.spacing(2),
     // align: "center",
@@ -77,19 +75,20 @@ const ProjectDemoData = (props) => {
           <Card
             className={classes.cardRoot}
             key={dataset.name}
+            onClick={() => {props.onUploadHandler(dataset.name)}}
           >
             <CardActionArea>
               <CardMedia
                 className={classes.media}
-                image={cord19}
-                title={dataset.title}
+                image={props.image_url}
+                title={dataset.name}
               />
               <CardContent>
                 <Typography gutterBottom variant="h5" component="h2">
-                  {dataset.name}
+                  {dataset.description}
                 </Typography>
                 <Typography noWrap variant="body2" color="textSecondary" component="p">
-                  {dataset.license}
+                  {dataset.description}
                 </Typography>
               </CardContent>
             </CardActionArea>

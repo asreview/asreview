@@ -135,47 +135,11 @@ const PreReviewZone = (props) => {
 
       {activeStep === 4 &&
         <StartReview
-          handleNext={handleNext}
+          setAppState={props.setAppState}
         />
       }
       </Container>
     }
-
-      {activeStep === 5 && 
-        <Grid
-          container
-          spacing={0}
-          direction="column"
-          alignItems="center"
-          justify="center"
-          className={classes.grid}
-        >
-
-          {/* transition to search tool - (Inclusions) */}
-          <Grid item xs={12} sm={8}>
-            <Fade
-              in={activeStep === 5 && animated}
-              timeout={transitionSpeed}
-              mountOnEnter
-              unmountOnExit
-              onEnter={()=> {
-                setTimeout(()=> {
-                  // console.log("exit")
-                  setAnimated(false);
-                }, 4000)
-              }}
-              onExited={() => props.setAppState('review')}
-            >
-              <Box>
-                <Typography variant="h5">
-                  Warming up the machines!
-                </Typography>              
-                <CircularProgress className={classes.loader}/>
-              </Box>
-            </Fade>
-          </Grid>
-        </Grid>
-      }
     </Box>
 
   )
