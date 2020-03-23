@@ -21,7 +21,7 @@ import PreReviewZone from './PreReviewComponents/PreReviewZone'
 import Projects from './Projects'
 import WelcomeScreen from './WelcomeScreen'
 
-import { api_url } from './Components/globals.js'
+import { api_url } from './globals.js'
 import 'typeface-roboto'
 
 import { connect } from "react-redux";

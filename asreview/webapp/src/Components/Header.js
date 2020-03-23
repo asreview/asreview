@@ -7,7 +7,7 @@ import {
   IconButton,
 } from '@material-ui/core'
 import MenuDrawer from './MenuDrawer'
-import { reviewDrawerWidth } from './globals.js'
+import { reviewDrawerWidth } from '../globals.js'
 
 import { 
   Menu, 

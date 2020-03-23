@@ -6,14 +6,16 @@ import {
   Box,
 } from '@material-ui/core'
 
-import axios from 'axios';
-
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
 import DecisionFeedback from './DecisionFeedback'
 
-import {api_url} from '../globals.js';
+
+import { connect } from "react-redux";
+
+import axios from 'axios'
+import { api_url } from '../globals.js';
 
 const useStyles = makeStyles({
   box: {
@@ -36,6 +38,10 @@ const useStyles = makeStyles({
   },
 });
 
+const mapStateToProps = state => {
+  return { project_id: state.project_id };
+};
+
 const ReviewZone = (props) => {
   const classes = useStyles();
   const [error, setError] = useState('');
@@ -47,6 +53,16 @@ const ReviewZone = (props) => {
       authors: ''
     }
   );
+  const [statistics, setStatistics] = useState({
+    "name": null,
+    "authors": null,
+    "decsription": null,
+    "n_included": null,
+    "n_excluded": null,
+    "n_since_last_inclusion": null,
+    "n_papers": null,
+    "n_pool": null,
+  });
   const [slide, setSlide] = useState({
     set: false,
     direction: 'left'
@@ -69,10 +85,12 @@ const ReviewZone = (props) => {
    * Get next article
    */ 
   const getDocument = () => {
-    const url = api_url + "get_document";
+
+    const url = api_url + `project/${props.project_id}/get_document`;
+
     return axios.get(url)
     .then((result) => {
-      console.log(result);
+
       setRecord(result.data);
       setLoaded(true);
       setModalFeedback({open: false, text: '', elas: false});
@@ -92,11 +110,15 @@ const ReviewZone = (props) => {
    * @param label  1=include, 0=exclude 
    */
   const classifyInstance = (label) => {
-    const id = record.doc_id;
-    const url = api_url + "record/" + id;
+
+    const url = api_url + `project/${props.project_id}/record/${record.doc_id}`;
+
+    // set up the form
     let body = new FormData();
-    body.set('doc_id', id);
+    body.set('doc_id', record.doc_id);
     body.set('label', label);
+
+    // animations
     setModalFeedback({open: true, text: label?'Included':'Excluded', elas: false});
     setSlide({set: false, direction: label?'left':'right'});  //fly out FROM right or left
     return axios({
@@ -106,7 +128,7 @@ const ReviewZone = (props) => {
       headers: { 'Content-Type': 'application/json' }
     })
     .then((response) => {
-      console.log(`Article ${id} classified as ${label?"included":"excluded"}`);
+      console.log(`Article ${record.doc_id} classified as ${label?"included":"excluded"}`);
       setLoaded(false);
     })
     .catch((error) => {
@@ -118,10 +140,12 @@ const ReviewZone = (props) => {
    * Get summary statistics
    */
   const getProgressInfo = () => {
-    const url = api_url + "progress";
+
+    const url = api_url + `project/${props.project_id}/progress`;
+
     return axios.get(url)
       .then((result) => {
-          console.log(result);
+          setStatistics(result.data)
       })
       .catch((err) => {
           console.log(err)
@@ -130,20 +154,32 @@ const ReviewZone = (props) => {
 
    return (
     <Box className={classes.box} height="100vh">
-      <ArticlePanel record={record} reviewDrawerState={props.reviewDrawerState} showAuthors={props.showAuthors} slide={slide} />
+
+      {/* Article panel */}
+      <ArticlePanel
+        record={record}
+        reviewDrawerState={props.reviewDrawerState}
+        showAuthors={props.showAuthors}
+        slide={slide}
+      />
+
+    {/* Decision bar */}
       <DecisionBar
         reviewDrawerState={props.reviewDrawerState}
         classify={classifyInstance}
         onUndo={props.handleUndo}
         block={!slide.set}
       />
+
+    {/* Statistics drawer */}
       <ReviewDrawer
         state={props.reviewDrawerState}
         handle={props.handleReviewDrawer}
+        statistics={statistics}
       />
       <DecisionFeedback open={modalFeedback.open} text={modalFeedback.text} elas={modalFeedback.elas} />
     </Box>
   )
 }
 
-export default ReviewZone;
+export default connect(mapStateToProps)(ReviewZone);

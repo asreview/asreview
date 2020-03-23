@@ -5,7 +5,7 @@ import {
   Slide,
   Typography,
 } from '@material-ui/core'
-import { reviewDrawerWidth } from './globals'
+import { reviewDrawerWidth } from '../globals.js'
 
 const useStyles = makeStyles({
   boxFullWidth: {

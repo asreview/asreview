@@ -4,7 +4,7 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles } from '@material-ui/core/styles'
-import { reviewDrawerWidth } from './globals'
+import { reviewDrawerWidth } from '../globals.js'
 
 const useStyles = makeStyles({
   barFullWidth: {
