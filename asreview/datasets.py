@@ -205,7 +205,7 @@ def get_dataset(dataset_id):
     return BaseDataSet(dataset_id)
 
 
-def find_data(name):
-    if isinstance(name, PurePath):
-        return name
-    return get_dataset(name).get()
+def find_data(project_id):
+    if isinstance(project_id, PurePath):
+        return project_id
+    return get_dataset(project_id).get()
