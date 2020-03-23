@@ -17,6 +17,7 @@ import hashlib
 from pathlib import Path
 import pkg_resources
 from urllib.parse import urlparse
+from re import sub
 
 import numpy as np
 import pandas as pd
@@ -32,19 +33,19 @@ from asreview.utils import is_url
 
 
 def token_set_ratio(keywords, my_str):
-    key_list = keywords.split(" ")
-    match_list = my_str.split(" ")
+    key_list = sub(",|;|:", "", keywords.lower()).split(" ")
+    match_list = sub(",|;|:", "", my_str.lower()).split(" ")
 
     ratios = []
     for key in key_list:
         s = SequenceMatcher()
-        s.set_seq2(key)
+        s.set_seq2(key.lower())
         best = 0.0
         for match in match_list:
-            s.set_seq1(match)
-            best = max(best, s.quick_ratio())
+            s.set_seq1(match.lower())
+            best = max(best, 99.999*s.quick_ratio())
         ratios.append(best)
-    return 100*np.average(ratios)
+    return np.average(ratios) + 0.001/max(1, len(my_str))
 
 
 def get_fuzzy_scores(keywords, str_list):
