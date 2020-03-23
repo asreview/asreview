@@ -70,7 +70,7 @@ def api_get_projects():  # noqa: F401
             logging.error(err)
 
     response = jsonify({
-        "results": project_info
+        "result": project_info
     })
     response.headers.add('Access-Control-Allow-Origin', '*')
 
@@ -81,7 +81,7 @@ def api_get_projects():  # noqa: F401
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
-    print("init project")
+    logging.info("init project")
 
     project_name = request.form['project_name']
     project_description = request.form['project_description']
@@ -110,6 +110,32 @@ def api_init_project():  # noqa: F401
 
         return response, 500
 
+    return response
+
+
+@bp.route('/demo_data', methods=["GET"])
+def api_demo_data_project():  # noqa: F401
+    """Get info on the article"""
+
+    try:
+        from asreview.datasets import get_available_datasets
+
+        result_datasets = []
+        datasets = get_available_datasets()
+        for group_name, group in datasets.items():
+            for dataset_key, dataset in group.items():
+                result_datasets.append(dataset.to_dict())
+
+        payload = {"result": result_datasets}
+
+    except Exception as err:
+        logging.error(err)
+        response = jsonify(message="demo-data-loading-failed")
+
+        return response, 500
+
+    response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 

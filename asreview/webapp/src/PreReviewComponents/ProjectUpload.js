@@ -8,18 +8,17 @@ import {
   Button,
   Typography,
   Toolbar,
-  Card,
-  CardActionArea,
-  CardMedia,
-  CardContent,
 } from '@material-ui/core'
+
+import {
+  ProjectDemoData,
+} from '../PreReviewComponents';
 
 import { connect } from "react-redux";
 
 import axios from 'axios'
 import { api_url } from '../globals.js';
 
-import cord19 from './cord19.png'
 
 const baseStyle = {
   flex: 1,
@@ -55,20 +54,6 @@ const useStyles = makeStyles(theme => ({
   divider: {
     textAlign: "center",
     margin: "20px 0px 20px 0px"
-  },
-  cardRoot: {
-    maxWidth: 345,
-    display: "inline-block",
-    margin: theme.spacing(2),
-    // align: "center",
-  },
-  cards: {
-    marginBottom: "20px",
-    textAlign: "center",
-    margin: 0,
-  },  
-  media: {
-    height: 140,
   },
   clear: {
     right: "clear"
@@ -185,61 +170,9 @@ const ProjectUpload = (props) => {
     <Typography className={classes.divider}>
       - or select a dataset below -
     </Typography> 
+    <ProjectDemoData
 
-    <div className={classes.cards}>
-        <Card className={classes.cardRoot}>
-        <CardActionArea>
-          <CardMedia
-            className={classes.media}
-            image={cord19}
-            title="Cord-19 Dataset"
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              CORD-19 Dataset
-            </Typography>
-            <Typography noWrap variant="body2" color="textSecondary" component="p">
-              A collection of all publications on COVID-19 made by AllenAI lab. Read more about this dataset on ...
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-        <Card className={classes.cardRoot}>
-        <CardActionArea>
-          <CardMedia
-            className={classes.media}
-            image={cord19}
-            title="Cord-19 Dataset"
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              COVID-19 Dataset
-            </Typography>
-            <Typography noWrap variant="body2" color="textSecondary" component="p">
-              A collection of all publications on COVID-19 made by AllenAI lab. 
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-
-        <Card className={classes.cardRoot}>
-        <CardActionArea>
-          <CardMedia
-            className={classes.media}
-            image={cord19}
-            title="Cord-19 Dataset"
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              CORD-19 Dataset
-            </Typography>
-            <Typography noWrap variant="body2" color="textSecondary" component="p">
-              A collection of all publications on CORD-19 made by AllenAI lab. 
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      </Card>
-    </div>
+    />
     <Toolbar className={classes.clear}/>
 
   </Box>
