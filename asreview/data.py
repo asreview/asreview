@@ -525,8 +525,8 @@ class ASReviewData():
         return new_df
 
     def to_csv(self, fp, labels=None, ranking=None):
-        self.to_dataframe(labels=labels, ranking=ranking).to_csv(
-            fp, index=True)
+        return self.to_dataframe(labels=labels, ranking=ranking).to_csv(
+            path_or_buf=fp, index=True)
 
     def to_ris(self, ris_fp, labels=None, ranking=None):
         df = self.to_dataframe(labels=labels, ranking=ranking)

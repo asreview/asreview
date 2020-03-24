@@ -20,6 +20,7 @@ from asreview.webapp.utils.paths import get_project_file_path, get_iteration_pat
 from asreview.webapp.utils.paths import get_result_path
 from asreview.webapp.utils.paths import get_labeled_path, get_active_path, asreview_path, get_data_file_path, get_lock_path
 from asreview.state.utils import open_state
+from asreview.config import LABEL_NA
 
 
 def get_active_iteration_index(project_id):
@@ -252,6 +253,42 @@ def get_statistics(project_id):
         "n_pool": n_papers - len(inclusions)
     }
     return stats
+
+
+def export_to_string(project_id):
+    fp_lock = get_lock_path(project_id)
+    as_data = read_data(project_id)
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+
+        # get the index of the active iteration
+        active_id = get_active_iteration_index(project_id)
+        state_fp = get_result_path(project_id, active_id)
+        new_labels = get_new_labels(project_id, active_id)
+        try:
+            with open_state(state_fp) as state:
+                labels, _, _, _ = state.review_state()
+                proba = state.proba
+        except FileNotFoundError:
+            state_fp = get_result_path(project_id, active_id-1)
+            new_labels += get_new_labels(project_id, active_id-1)
+            try:
+                with open_state(state_fp) as state:
+                    labels, _, _, _ = state.review_state()
+                    proba = state.proba
+            except FileNotFoundError:
+                labels = np.full(len(as_data), LABEL_NA)
+        if proba is None:
+            proba = np.flip(np.arange(len(as_data)))
+
+    for idx, inclusion in new_labels:
+        labels[idx] = inclusion
+    pool_idx = np.where(labels == LABEL_NA)[0]
+    one_idx = np.where(labels == 1)[0]
+    zero_idx = np.where(labels == 0)[0]
+    proba_order = np.argsort(-proba[pool_idx, 1])
+    ranking = np.concatenate(
+        (one_idx, pool_idx[proba_order], zero_idx), axis=None)
+    return as_data.to_file(fp=None, labels=labels, ranking=ranking)
 
 
 def label_instance(project_id, paper_i, label, retrain_model=True):
