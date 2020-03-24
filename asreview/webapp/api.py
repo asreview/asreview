@@ -11,13 +11,13 @@ import urllib.parse
 
 from flask.json import jsonify
 from flask_cors import CORS
-from flask import request, Blueprint
+from flask import request, Blueprint, Response
 from werkzeug.utils import secure_filename
 
 import numpy as np
 
 from asreview.datasets import get_dataset
-from asreview.webapp.utils.paths import asreview_path, get_project_file_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
+from asreview.webapp.utils.paths import asreview_path, get_data_file_path, get_project_file_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics
@@ -360,6 +360,24 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+
+@bp.route('/project/<project_id>/export', methods=["GET"])
+def export_results(project_id):
+
+    # TODO add ranking and labels
+    # RAOUL
+
+    asreview_data = read_data(project_id)
+    df = asreview_data.to_dataframe(labels=None, ranking=None)
+
+    dataset_str = df.to_csv()
+
+    return Response(
+        dataset_str,
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 f"attachment; filename=asreview_result_{project_id}.csv"})
 
 
 @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
