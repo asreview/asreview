@@ -24,7 +24,7 @@ class ClusterQuery(ProbaQueryStrategy):
     "Query strategy using clustering algorithms."
     name = "cluster"
 
-    def __init__(self, texts, cluster_size=350, update_interval=200, **kwargs):
+    def __init__(self, cluster_size=350, update_interval=200, **kwargs):
         """Initialize the clustering strategy.
 
         Arguments
@@ -42,8 +42,6 @@ class ClusterQuery(ProbaQueryStrategy):
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
         self.update_interval = update_interval
-        feature_model = get_feature_class("doc2vec")(**kwargs)
-        self.cluster_X = feature_model.fit_transform(texts)
         self.last_update = None
         self.fallback_model = MaxQuery()
 
@@ -57,12 +55,12 @@ class ClusterQuery(ProbaQueryStrategy):
                 last_update-len(pool_idx) >= self.update_interval):
             n_clusters = round(len(pool_idx)/self.cluster_size)
             if n_clusters <= 1:
-                return self.fallback_model()._query(
+                return self.fallback_model._query(
                     X, pool_idx=pool_idx,
                     n_instances=n_instances,
                     proba=proba)
             model = KMeans(n_clusters=n_clusters, n_init=1)
-            self.clusters = model.fit_predict(X)
+            self.clusters = model.fit_predict(self.X)
             self.last_update = len(pool_idx)
 
         clusters = {}
