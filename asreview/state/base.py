@@ -244,6 +244,17 @@ class BaseState(ABC):
         train_idx = np.array(train_idx, dtype=np.int)
         return labels, train_idx, query_src, query_i
 
+    @property
+    def pred_proba(self):
+        for query_i in reversed(range(self.n_queries())):
+            try:
+                proba = self.get("proba", query_i=query_i)
+                if proba is not None:
+                    return proba
+            except KeyError:
+                pass
+        return None
+
     @abstractmethod
     def initialize_structure(self):
         """Create empty internal structure for state"""
