@@ -4,6 +4,7 @@ import {
   Grid,
   Tooltip,
   Fab,
+  Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
@@ -54,19 +55,23 @@ const Projects = (props) => {
     return (
         <Container maxWidth='md' className={classes.root}>
           <Grid container spacing={3}>
-            {projects.map(project => (
-              <Grid item sm={4} key={project.id}>
-                <ProjectCard
-                  className={classes.paper}
-                  id={project.id}
-                  name={project.name}
-                  description={project.description}
-                  setAppState={props.setAppState}
-                />
-              </Grid>
-              )
-            )
-          }
+            {projects.length > 0 ?
+              projects.map(project => (
+                <Grid item sm={4} key={project.id}>
+                  <ProjectCard
+                    className={classes.paper}
+                    id={project.id}
+                    name={project.name}
+                    description={project.description}
+                    setAppState={props.setAppState}
+                  />
+                </Grid>
+                )
+              ) :
+              <Typography variant="h5">
+                No projects found
+              </Typography>
+            }
           </Grid>
 
           {/* Add button for new project */}
