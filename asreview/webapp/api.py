@@ -20,7 +20,8 @@ from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import asreview_path, get_data_file_path, get_project_file_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path
-from asreview.webapp.utils.project import get_paper_data, get_statistics
+from asreview.webapp.utils.project import get_paper_data, get_statistics,\
+    export_to_string
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import init_project, read_data
@@ -365,13 +366,7 @@ def api_init_model_ready(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
 
-    # TODO add ranking and labels
-    # RAOUL
-
-    asreview_data = read_data(project_id)
-    df = asreview_data.to_dataframe(labels=None, ranking=None)
-
-    dataset_str = df.to_csv()
+    dataset_str = export_to_string(project_id)
 
     return Response(
         dataset_str,
