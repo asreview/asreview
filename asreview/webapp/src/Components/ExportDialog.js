@@ -13,12 +13,13 @@ import axios from 'axios'
 import { api_url } from '../globals.js';
 
 import { connect } from "react-redux";
+import store from '../redux/store'
 
 const mapStateToProps = state => {
   return { project_id: state.project_id };
 };
 
-const ExitDialog = (props) => {
+const ExportDialog = (props) => {
 
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
@@ -29,6 +30,31 @@ const ExitDialog = (props) => {
       }
     }
   }, [props.exportResult]);
+
+  const downloadResult = () => {
+
+    const project_id = store.getState()["project_id"]
+
+    if (project_id !== null){
+
+      const url = api_url + `project/${project_id}/export`;
+
+      setTimeout(() => {
+        const response = {
+          file: url,
+        };
+        window.location.href = response.file;
+      }, 100);
+
+    } else{
+      // raise exception
+    }
+
+  }
+
+  // console.log("init-dialog")
+  // console.log(props.project_id)
+  // console.log(store.getState()["project_id"])
 
   return (
       <Dialog
@@ -42,7 +68,16 @@ const ExitDialog = (props) => {
       >
         <DialogTitle id="scroll-dialog-title">Export results {props.project_id}</DialogTitle>
           <DialogContent dividers={true}>
-            <Typography>We are working on this.</Typography>
+            <Typography>
+              Download the result or your review
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={downloadResult}
+            >
+              Export
+            </Button>
           </DialogContent> 
   
         <DialogActions>
@@ -54,4 +89,4 @@ const ExitDialog = (props) => {
   );
 }
 
-export default connect(mapStateToProps)(ExitDialog)
+export default connect(mapStateToProps)(ExportDialog)
