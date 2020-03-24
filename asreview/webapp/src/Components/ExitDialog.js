@@ -20,6 +20,8 @@ export default function ExitDialog(props) {
     }
   }, [props.exit]);
 
+  console.log(window.location.hostname);
+
   return (
       <Dialog
         open={props.exit}
@@ -31,18 +33,23 @@ export default function ExitDialog(props) {
         aria-describedby="scroll-dialog-description"
       >
         <DialogTitle id="scroll-dialog-title">Exit ASReview</DialogTitle>
-        {window.location.hostname === "localhost" &&
           <DialogContent dividers={true}>
-            <Typography>Close your browser window.</Typography>
-            <br/>
-            <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C).</Typography>
+            {(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") &&
+              <div>
+              <Typography>Close your browser window. Your work is saved.</Typography>
+              <br/>
+              <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C).</Typography>
+              </div>
+            }
+            {(window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") &&
+              <Typography>Just close the window</Typography> &
+              <div>
+                <Typography>Close your browser window. Your work is saved.</Typography>
+                <br/>
+                <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C).</Typography>
+              </div>
+            }          
           </DialogContent> 
-          }
-          {window.location.hostname !== "localhost" &&
-            <Typography>Just close the window</Typography>
-          }          
-          
-  
         <DialogActions>
           <Button onClick={props.toggleExit} color="primary">
             Close
