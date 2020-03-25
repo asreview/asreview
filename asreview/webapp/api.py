@@ -2,7 +2,6 @@
 import re
 import json
 import logging
-from pathlib import Path
 import subprocess
 import shlex
 from urllib.request import urlretrieve
@@ -17,10 +16,9 @@ from werkzeug.utils import secure_filename
 import numpy as np
 
 from asreview.datasets import get_dataset
-from asreview.webapp.utils.paths import asreview_path, get_data_file_path, get_project_file_path, get_labeled_path, get_pool_path, get_project_path, get_result_path,\
-    get_lock_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
-from asreview.webapp.utils.paths import get_data_path
+from asreview.webapp.utils.paths import get_data_path, get_project_file_path
+from asreview.webapp.utils.paths import get_lock_path, get_proba_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -352,7 +350,7 @@ def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
 
-    if get_result_path(project_id, 2).exists():
+    if get_proba_path(project_id).exists():
         logging.info("Model trained - go to review screen")
         response = jsonify(
             {'status': 1}

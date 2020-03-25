@@ -149,8 +149,8 @@ def get_statistics(project_id):
             break
         n_since_last_inclusion += 1
 
-    n_included = np.sum(np.where(current_labels == 1)[0])
-    n_excluded = np.sum(np.where(current_labels == 0)[0])
+    n_included = len(np.where(current_labels == 1)[0])
+    n_excluded = len(np.where(current_labels == 0)[0])
     n_papers = len(current_labels)
     stats = {
         "n_included": n_included,
@@ -199,12 +199,12 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         except (IndexError, ValueError):
             logging.warning(f"Failed to remove {paper_i} from the pool.")
 
-        write_pool(pool_idx)
+        write_pool(project_id, pool_idx)
 
         # Add the paper to the reviewed papers.
         labeled = read_label_history(project_id)
         labeled.append([paper_i, label])
-        write_label_history(labeled)
+        write_label_history(project_id, labeled)
 
     if retrain_model:
         # Update the model (if it isn't busy).
