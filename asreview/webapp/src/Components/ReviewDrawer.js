@@ -16,11 +16,8 @@ import {
 } from '../SideStats'
 
 import {
-  api_url,
   reviewDrawerWidth,
 } from '../globals.js';
-
-import axios from 'axios'
 
 import { connect } from "react-redux";
 
@@ -50,27 +47,7 @@ const mapStateToProps = state => {
 
 const ReviewDrawer = (props) => {
   const classes = useStyles();
-  // "n_included": null,
-  // "n_excluded": null,
-  // "n_since_last_inclusion": null,
-  // "n_papers": null,
-  // "n_pool": null,
 
-  // /**
-  //  * Get summary statistics (connect with reduc actions?)
-  //  */
-  // const getProgressInfo = () => {
-
-  //   const url = api_url + `project/${props.project_id}/progress`;
-
-  //   return axios.get(url)
-  //     .then((result) => {
-  //         console.log(result);
-  //     })
-  //     .catch((err) => {
-  //         console.log(err)
-  //     })
-  // }
 
   return (
     <Drawer

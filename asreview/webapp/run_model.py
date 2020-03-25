@@ -54,6 +54,7 @@ def main(argv):
 
     # pass the project_id the script
     project_id = argv[0]
+    print(f"Train a new model for project {project_id}")
 
     try:
         label_method = "prior" if int(argv[1]) else None

@@ -2,22 +2,21 @@ import React from 'react';
 import {
     ListSubheader,
     ListItem,
-    Typography,
 } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+// import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    width: '100%',
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: theme.typography.fontWeightRegular,
-  },
-}));
+// const useStyles = makeStyles(theme => ({
+//   root: {
+//     width: '100%',
+//   },
+//   heading: {
+//     fontSize: theme.typography.pxToRem(15),
+//     fontWeight: theme.typography.fontWeightRegular,
+//   },
+// }));
 
 const ProjectPanel = (props) => {
-    const classes = useStyles();
+    // const classes = useStyles();
 
     return (
         <div>

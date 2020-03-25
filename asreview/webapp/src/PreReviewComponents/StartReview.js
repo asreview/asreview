@@ -1,5 +1,4 @@
-import React, {useState} from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import React, {} from 'react'
 import {
   Box,
   Button,
@@ -12,16 +11,16 @@ import { api_url } from '../globals.js';
 
 import { connect } from "react-redux";
 
-const useStyles = makeStyles(theme => ({
+// const useStyles = makeStyles(theme => ({
 
-}));
+// }));
 
 const mapStateToProps = state => {
   return { project_id: state.project_id };
 };
 
 const StartReview = (props) => {
-  const classes = useStyles();
+  // const classes = useStyles();
 
   const startTraining = () => {
     const url = api_url + `project/${props.project_id}/start`;

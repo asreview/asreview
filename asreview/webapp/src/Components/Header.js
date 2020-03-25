@@ -56,11 +56,6 @@ const Header = (props) => {
     setState({ ...state, [side]: isOpen });
   };
 
-/*
-  useEffect(() => {
-    console.log('props.appState='+props.appState);
-  });
-*/
   return (
     <div className={classes.appBar}>
       <AppBar position='fixed' className={props.reviewDrawerState?classes.barWithReviewDrawer:classes.barFullWidth}>

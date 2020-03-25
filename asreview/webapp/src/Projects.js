@@ -39,7 +39,7 @@ const Projects = (props) => {
 
         const url = api_url + "projects";
 
-        const result = await axios.get(url)
+        await axios.get(url)
           .then((result) => {
             setProjects(result.data['result']);
           })

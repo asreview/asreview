@@ -4,10 +4,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
   Container,
-  Typography,
-  Fade,
-  Grid,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -22,9 +18,6 @@ import {
 // import ProjectUpload from './ProjectUpload.js' 
 
 import '../PreReviewComponents/PreReviewZone.css'
-
-// constants, settings and config
-const transitionSpeed = 500;
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -69,7 +62,6 @@ const PreReviewZone = (props) => {
   // );
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [animated, setAnimated] = React.useState(false);
 
   const handleNext = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1);

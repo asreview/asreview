@@ -1,9 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Container,
-  Grid,
-  Tooltip,
-  Fab,
   Card,
   CardActionArea,
   CardMedia,
@@ -11,7 +7,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
 
 import { api_url } from '../globals.js';
 
@@ -55,7 +50,7 @@ const ProjectDemoData = (props) => {
 
         const url = api_url + "demo_data";
 
-        const result = await axios.get(url)
+        await axios.get(url)
           .then((result) => {
             setDatasets(result.data['result']);
           })
@@ -66,8 +61,6 @@ const ProjectDemoData = (props) => {
       fetchData();
 
     }, []);
-
-    console.log(datasets)
 
     return (
 
