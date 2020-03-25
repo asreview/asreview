@@ -14,14 +14,15 @@ from asreview.webapp.utils.paths import get_kwargs_path, get_data_file_path
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.state.utils import open_state
 from asreview.review.factory import get_reviewer
-from asreview.config import LABEL_NA
-from asreview.data import ASReviewData
 from asreview.webapp.utils.project import read_data
 
 
-def get_new_history(old_history, new_history):
+def get_diff_history(new_history, old_history):
     for i in range(len(new_history)):
-        if old_history[i] != new_history[i]:
+        try:
+            if old_history[i] != new_history[i]:
+                return new_history[i:]
+        except IndexError:
             return new_history[i:]
     return []
 
@@ -29,7 +30,7 @@ def get_new_history(old_history, new_history):
 def get_label_train_history(state):
     label_idx = []
     inclusions = []
-    for query_i in state.n_queries():
+    for query_i in range(state.n_queries()):
         try:
             new_labels = state.get("label_idx", query_i=query_i)
             new_inclusions = state.get("inclusions", query_i=query_i)
@@ -77,13 +78,11 @@ def main(argv):
         # reading to the same files at the same time.
         with SQLiteLock(lock_file, blocking=True, lock_name="active") as lock:
             # Get the all labels since last run. If no new labels, quit.
-            all_labeled = get_label_train_history(project_id)
+            new_label_history = read_label_history(project_id)
 
         data_fp = str(get_data_file_path(project_id))
         as_data = read_data(project_id)
         state_file = get_state_path(project_id)
-        with open_state(state_file) as state:
-            old_history = read_label_history(state)
 
         # collect command line arguments and pass them to the reviewer
         with open(asr_kwargs_file, "r") as fp:
@@ -94,18 +93,16 @@ def main(argv):
                                 **asr_kwargs)
 
         with open_state(state_file) as state:
-            labels = as_data.labels
-            if labels is None:
-                labels = np.full(len(as_data), LABEL_NA, dtype=int)
+            old_label_history = get_label_train_history(state)
 
-        new_history = get_new_history(old_history, all_labeled)
+        diff_history = get_diff_history(new_label_history, old_label_history)
 
-        if len(new_history) == 0:
+        if len(diff_history) == 0:
             logging.info("No new labels since last run.")
             return
 
-        query_idx = np.array([x[0] for x in new_history], dtype=int)
-        inclusions = np.array([x[1] for x in new_history], dtype=int)
+        query_idx = np.array([x[0] for x in diff_history], dtype=int)
+        inclusions = np.array([x[1] for x in diff_history], dtype=int)
 
         # Classify the new labels, train and store the results.
         with open_state(state_file) as state:
@@ -114,7 +111,7 @@ def main(argv):
             reviewer.log_probabilities(state)
             new_query_idx = reviewer.query(reviewer.n_pool()).tolist()
             reviewer.log_current_query(state)
-            proba = state.proba.tolist()
+            proba = state.pred_proba.tolist()
 
         with SQLiteLock(lock_file, blocking=True, lock_name="active") as lock:
             current_pool = read_pool(project_id)
