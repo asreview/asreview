@@ -171,7 +171,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, variable, query_i=None, idx=None):
+    def get(self, variable, query_i=None, default=None, idx=None):
         """Get data from the state object.
 
         This is universal accessor method of the State classes. It can be used
