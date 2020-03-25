@@ -29,7 +29,9 @@ The source code is freely available at
 
    quick
 
-   10minutes_asreview
+   installation
+
+   quicktour
    
    datasets
 
