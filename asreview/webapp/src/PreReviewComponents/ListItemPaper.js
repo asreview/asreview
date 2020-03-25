@@ -36,7 +36,7 @@ const ListItemPaper = (props) => {
       props.onInclude(
         {id:props.id, title:props.title, abstract:props.abstract});
     } else {
-      body.set('label', null);
+      body.set('label', -1);
       props.onRevertInclude(
         {id:props.id, title:props.title, abstract:props.abstract});
     }
@@ -58,8 +58,6 @@ const ListItemPaper = (props) => {
     });
 
   }
-
-  console.log("Item is visible: " + props.id)
 
 
   const item  = (

@@ -303,29 +303,83 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         # get the index of the active iteration
         i_current = get_active_iteration_index(project_id)
 
-        # load the papers from the pool
-        with open(get_pool_path(project_id, i_current), "r") as fp:
-            pool_idx = [int(x) for x in json.load(fp)]
-
-        # Remove the paper from the pool.
-        try:
-            pool_idx.remove(int(paper_i))
-            with open(get_pool_path(project_id, i_current), "w") as fp:
-                json.dump(pool_idx, fp)
-        except (IndexError, ValueError):
-            logging.info(f"Failed to remove {paper_i} from the pool.")
-
-        # Add the paper to the reviewed papers.
-        labeled = get_new_labels(project_id, i_current)
-        label_dict = {l[0]: [l[1], i] for i, l in enumerate(labeled)}
-        if paper_i in label_dict:
-            labeled[label_dict[paper_i][1]] = [paper_i, label]
+        if int(label) in [0, 1]:
+            move_label_from_pool_to_labeled(
+                project_id, i_current, paper_i, label
+            )
         else:
-            labeled.append([paper_i, label])
-        with open(get_labeled_path(project_id, i_current), "w") as fp:
-            json.dump(labeled, fp)
+            move_label_from_labeled_to_pool(
+                project_id, i_current, paper_i, label
+            )
 
     if retrain_model:
         # Update the model (if it isn't busy).
         run_command = f"python -m asreview web_run_model '{project_id}'"
         subprocess.Popen(shlex.split(run_command))
+
+
+def move_label_from_pool_to_labeled(project_id, i_current, paper_i, label):
+
+    # load the papers from the pool
+    with open(get_pool_path(project_id, i_current), "r") as fp:
+        pool_idx = [int(x) for x in json.load(fp)]
+
+    # Remove the paper from the pool.
+    try:
+        pool_idx.remove(int(paper_i))
+        with open(get_pool_path(project_id, i_current), "w") as fp:
+            json.dump(pool_idx, fp)
+    except (IndexError, ValueError):
+        logging.info(f"Failed to remove {paper_i} from the pool.")
+
+    # Add the paper to the reviewed papers.
+    labeled = get_new_labels(project_id, i_current)
+    label_dict = {l[0]: [l[1], i] for i, l in enumerate(labeled)}
+    if paper_i in label_dict:
+        labeled[label_dict[paper_i][1]] = [paper_i, label]
+    else:
+        labeled.append([paper_i, label])
+
+    # write the papers to the label dataset
+    with open(get_labeled_path(project_id, i_current), "w") as fp:
+        json.dump(labeled, fp)
+
+    print("length pool: ", len(pool_idx))
+    print("length labeled: ", len(labeled))
+    print("labeled: ", labeled)
+
+
+def move_label_from_labeled_to_pool(project_id, i_current, paper_i, label):
+
+    # load the papers from the pool
+    with open(get_pool_path(project_id, i_current), "r") as fp:
+        pool_list = [int(x) for x in json.load(fp)]
+
+    print(get_labeled_path(project_id, i_current))
+    # load the papers to the label dataset
+    with open(get_labeled_path(project_id, i_current), "r") as fp:
+        labeled_list = json.load(fp)
+
+    labeled_list_new = []
+
+    for item_id, item_label in labeled_list:
+
+        item_id = int(item_id)
+        item_label = int(item_label)
+
+        if paper_i == item_id:
+            pool_list.append(item_id)
+        else:
+            labeled_list_new.append([item_id, item_label])
+
+    # write the papers to the label dataset
+    with open(get_labeled_path(project_id, i_current), "w") as fp:
+        json.dump(labeled_list_new, fp)
+
+    # load the papers from the pool
+    with open(get_pool_path(project_id, i_current), "w") as fp:
+        json.dump(pool_list, fp)
+
+    print("length pool: ", len(pool_list))
+    print("length labeled: ", len(labeled_list_new))
+    print("labeled: ", labeled_list_new)
