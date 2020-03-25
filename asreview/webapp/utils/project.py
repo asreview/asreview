@@ -188,6 +188,9 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     """
 
+    paper_i = int(paper_i)
+    label = int(label)
+
     fp_lock = get_lock_path(project_id)
 
     with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
@@ -210,6 +213,8 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
 def move_label_from_pool_to_labeled(project_id, paper_i, label):
 
+    print(f"Move {paper_i} from pool to labeled")
+
     # load the papers from the pool
     pool_idx = read_pool(project_id)
 
@@ -217,7 +222,7 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     try:
         pool_idx.remove(int(paper_i))
     except (IndexError, ValueError):
-        logging.warning(f"Failed to remove {paper_i} from the pool.")
+        print(f"Failed to remove {paper_i} from the pool.")
         return
 
     write_pool(project_id, pool_idx)
@@ -229,6 +234,8 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
 
 
 def move_label_from_labeled_to_pool(project_id, paper_i, label):
+
+    print(f"Move {paper_i} from labeled to pool")
 
     # load the papers from the pool
     pool_list = read_pool(project_id)
