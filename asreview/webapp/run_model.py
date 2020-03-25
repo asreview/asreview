@@ -1,55 +1,45 @@
 #!/usr/bin/env python
 
 import json
-import os
-from pathlib import Path
 import sys
+import logging
 
 import numpy as np
-import shutil
 
-from asreview.webapp.utils import get_active_iteration_index
-from asreview.webapp.utils import get_iteration_path
 from asreview.webapp.utils import get_lock_path
-from asreview.webapp.utils import get_active_path
-from asreview.webapp.utils import get_new_labels
-from asreview.webapp.utils import get_pool_path
-from asreview.webapp.utils import get_labeled_path
+from asreview.webapp.utils import get_state_path
+from asreview.webapp.utils.io import read_label_history
+from asreview.webapp.utils.io import read_pool, write_pool, write_proba
 from asreview.webapp.utils.paths import get_kwargs_path, get_data_file_path
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.state.utils import open_state
 from asreview.review.factory import get_reviewer
+from asreview.config import LABEL_NA
+from asreview.data import ASReviewData
+from asreview.webapp.utils.project import read_data
 
 
-def delete_dir(dir_):
-    """Safely delete a result sub directory.
+def get_new_history(old_history, new_history):
+    for i in range(len(new_history)):
+        if old_history[i] != new_history[i]:
+            return new_history[i:]
+    return []
 
-    First delete all expected files, then the directory.
-    If there are unexpected files, don't delete the directory.
 
-    Arguments
-    ---------
-    dir_: str, Path
-        Directory to delete.
-    """
-    files = ["labeled.json", "pool.json", "result.json", "current_query.json"]
-    for file in files:
+def get_label_train_history(state):
+    label_idx = []
+    inclusions = []
+    for query_i in state.n_queries():
         try:
-            os.remove(Path(dir_, file))
-        except FileNotFoundError:
-            pass
-    try:
-        os.rmdir(dir_)
-    except (FileNotFoundError, OSError):
-        pass
+            new_labels = state.get("label_idx", query_i=query_i)
+            new_inclusions = state.get("inclusions", query_i=query_i)
+        except KeyError:
+            new_labels = None
+        if new_labels is not None:
+            label_idx.extend(new_labels)
+            inclusions.extend(new_inclusions)
 
-
-def _wipe_old_states(project_id, current_open, remove_iterations=[7, 8]):
-
-    for i in remove_iterations:
-        # Delete some old directories.
-        state_to_delete = get_iteration_path(project_id, current_open - i)
-        delete_dir(state_to_delete)
+    return list(zip(label_idx, inclusions))
 
 
 def main(argv):
@@ -72,7 +62,6 @@ def main(argv):
     # get file locations
     asr_kwargs_file = get_kwargs_path(project_id)
     lock_file = get_lock_path(project_id)
-    active_file = get_active_path(project_id)
 
     # Lock so that only one training run is running at the same time.
     # It doesn't lock the flask server/client.
@@ -80,92 +69,61 @@ def main(argv):
 
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
-            print("Cannot acquire lock, other instance running.")
-            sys.exit(0)
+            logging.info("Cannot acquire lock, other instance running.")
+            return
 
         # Lock the current state. We want to have a consistent active state.
         # This does communicate with the flask backend; it prevents writing and
         # reading to the same files at the same time.
         with SQLiteLock(lock_file, blocking=True, lock_name="active") as lock:
+            # Get the all labels since last run. If no new labels, quit.
+            all_labeled = get_label_train_history(project_id)
 
-            # Get the directory that is currently active.
-            i_current_open = get_active_iteration_index(project_id)
-            current_dir = get_iteration_path(project_id, i_current_open)
+        data_fp = str(get_data_file_path(project_id))
+        as_data = read_data(project_id)
+        state_file = get_state_path(project_id)
+        with open_state(state_file) as state:
+            old_history = read_label_history(state)
 
-            # Get the new labels since last run. If no new labels, quit.
-            labeled = get_new_labels(project_id, i_current_open)
-
-            if len(labeled) == 0:
-                sys.exit(0)
-
-            # Make a new directory (current+1), and set it to active.
-            i_next_open = i_current_open + 1
-            get_iteration_path(project_id, i_next_open).mkdir(exist_ok=True)
-            shutil.copy(
-                get_pool_path(project_id, i_current_open),
-                get_pool_path(project_id, i_next_open)
-            )
-            with open(active_file, "w") as fp:
-                json.dump({"current_open": i_next_open}, fp)
-
-        # Make a training directory (current+2) for modeling.
-        i_train_open = i_next_open + 1
-        train_dir = get_iteration_path(project_id, i_train_open)
-        train_dir.mkdir(exist_ok=True)
-
-        # copy the results to this folder
-        state_file = train_dir / "result.json"
-        try:
-            shutil.copy(
-                current_dir / "result.json",
-                train_dir / "result.json"
-            )
-        except FileNotFoundError:
-            pass
         # collect command line arguments and pass them to the reviewer
         with open(asr_kwargs_file, "r") as fp:
             asr_kwargs = json.load(fp)
         asr_kwargs['state_file'] = str(state_file)
-        reviewer = get_reviewer(dataset=str(get_data_file_path(project_id)),
+        reviewer = get_reviewer(dataset=data_fp,
                                 mode="minimal",
                                 **asr_kwargs)
 
-        # Get the query indices and their inclusions.
-        query_idx = []
-        inclusions = []
-        for idx, included in labeled:
-            query_idx.append(idx)
-            inclusions.append(included)
-        query_idx = np.array(query_idx, dtype=np.int)
-        inclusions = np.array(inclusions, dtype=np.int)
+        with open_state(state_file) as state:
+            labels = as_data.labels
+            if labels is None:
+                labels = np.full(len(as_data), LABEL_NA, dtype=int)
+
+        new_history = get_new_history(old_history, all_labeled)
+
+        if len(new_history) == 0:
+            logging.info("No new labels since last run.")
+            return
+
+        query_idx = np.array([x[0] for x in new_history], dtype=int)
+        inclusions = np.array([x[1] for x in new_history], dtype=int)
 
         # Classify the new labels, train and store the results.
         with open_state(state_file) as state:
             reviewer.classify(query_idx, inclusions, state, method=label_method)
             reviewer.train()
             reviewer.log_probabilities(state)
-            new_query_idx = reviewer.query(reviewer.n_pool())
+            new_query_idx = reviewer.query(reviewer.n_pool()).tolist()
             reviewer.log_current_query(state)
-
-        with open(Path(train_dir, "pool.json"), "w") as fp:
-            json.dump(new_query_idx.tolist(), fp)
+            proba = state.proba.tolist()
 
         with SQLiteLock(lock_file, blocking=True, lock_name="active") as lock:
-            # If in the mean time more papers are labeled, copy them.
-            try:
-                shutil.copy(
-                    get_labeled_path(project_id, i_current_open),
-                    get_labeled_path(project_id, i_next_open)
-                )
-            except FileNotFoundError:
-                pass
-
-            # Change the active directory to the training dir.
-            with open(active_file, "w") as fp:
-                json.dump({"current_open": i_train_open}, fp)
-
-        # Delete some old directories.
-        _wipe_old_states(project_id, i_current_open)
+            current_pool = read_pool(project_id)
+            in_current_pool = np.zeros(len(as_data))
+            in_current_pool[current_pool] = 1
+            new_pool = [x for x in new_query_idx
+                        if in_current_pool[x]]
+            write_pool(project_id, new_pool)
+            write_proba(project_id, proba)
 
 
 if __name__ == "__main__":
