@@ -100,7 +100,7 @@ const PaperCard = (props) => {
 
   // reset the item (for search and revert)
   const resetItem = () => {
-    labelItem(null)
+    labelItem(-1)
   }
 
   const renderCard = () => {
