@@ -171,7 +171,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, variable, query_i=None, idx=None):
+    def get(self, variable, query_i=None, default=None, idx=None):
         """Get data from the state object.
 
         This is universal accessor method of the State classes. It can be used
@@ -197,7 +197,7 @@ class BaseState(ABC):
         """Delete the last query from the state object."""
         raise NotImplementedError
 
-    def review_state(self):
+    def startup_vals(self):
         """Get variables for reviewer to continue review.
 
         Returns
@@ -236,13 +236,25 @@ class BaseState(ABC):
             try:
                 last_inclusions = self.get("inclusions", n_queries-1)
             except KeyError:
-                last_inclusions = None
-            if last_inclusions is None or len(last_inclusions) == 0:
-                query_i -= 1
-                self.delete_last_query()
+                last_inclusions = []
+            if last_inclusions is None:
+                last_inclusions = []
+            query_i_classified = len(last_inclusions)
 
         train_idx = np.array(train_idx, dtype=np.int)
-        return labels, train_idx, query_src, query_i
+        startup_vals = {
+            "labels": labels,
+            "train_idx": np.unique(train_idx),
+            "query_src": query_src,
+            "query_i": query_i,
+            "query_i_classified": query_i_classified,
+        }
+        return startup_vals
+
+    def review_state(self):
+        startup = self.startup_vals()
+        return (startup["labals"], startup["train_idx"], startup["query_src"],
+                startup["query_i"])
 
     @property
     def pred_proba(self):

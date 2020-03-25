@@ -124,7 +124,7 @@ def get_lock_path(project_id):
     return Path(get_project_path(project_id), "lock.sqlite")
 
 
-def get_pool_path(project_id, i):
+def get_pool_path(project_id):
     """Get the pool file for the project and iteration.
 
     Arguments
@@ -133,10 +133,22 @@ def get_pool_path(project_id, i):
         The id of the current project.
     """
 
-    return Path(get_iteration_path(project_id, i), "pool.json")
+    return Path(get_project_path(project_id), "pool.json")
 
 
-def get_labeled_path(project_id, i):
+def get_proba_path(project_id):
+    """Get the proba file for the project and iteration.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+
+    return Path(get_project_path(project_id), "proba.json")
+
+
+def get_labeled_path(project_id):
     """Get the labeled file for the project and iteration.
 
     Arguments
@@ -145,10 +157,10 @@ def get_labeled_path(project_id, i):
         The id of the current project.
     """
 
-    return Path(get_iteration_path(project_id, i), "labeled.json")
+    return Path(get_project_path(project_id), "labeled.json")
 
 
-def get_result_path(project_id, i):
+def get_state_path(project_id):
     """Get the labeled file for the project and iteration.
 
     Arguments
@@ -157,23 +169,4 @@ def get_result_path(project_id, i):
         The id of the current project.
     """
 
-    return Path(get_iteration_path(project_id, i), "result.json")
-
-
-def get_active_iteration_path(project_id):
-    """Get the currently active directory.
-
-    Arguments
-    ---------
-    project_id: str
-        The id of the current project.
-    """
-
-    # get the most recent result
-    with open(get_active_path(project_id), "r") as fp:
-        result = json.load(fp)
-
-    return get_iteration_path(
-        project_id,
-        result.get("current_open")
-    )
+    return Path(get_project_path(project_id), "result.json")
