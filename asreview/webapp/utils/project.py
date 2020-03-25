@@ -218,12 +218,13 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
         pool_idx.remove(int(paper_i))
     except (IndexError, ValueError):
         logging.warning(f"Failed to remove {paper_i} from the pool.")
+        return
 
     write_pool(project_id, pool_idx)
 
     # Add the paper to the reviewed papers.
     labeled = read_label_history(project_id)
-    labeled.append([paper_i, label])
+    labeled.append([int(paper_i), int(label)])
     write_label_history(project_id, labeled)
 
 
