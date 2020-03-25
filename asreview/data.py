@@ -460,7 +460,7 @@ class ASReviewData():
         np.array:
             Array of indices that have the 'initial' property.
         """
-        _, _, query_src, _ = state.review_state()
+        query_src = state.startup_vals()["query_src"]
         if "initial" not in query_src:
             return np.array([], dtype=int)
         if by_index:
@@ -513,14 +513,15 @@ class ASReviewData():
             Dataframe of all available record data.
         """
         new_df = pd.DataFrame.copy(self.df)
+        col = self.column_spec["final_included"]
         if labels is not None:
-            new_df[self.column_spec["final_included"]] = labels
+            new_df[col] = labels
         if ranking is not None:
             new_df["asreview_ranking"] = ranking
             new_df = new_df.iloc[ranking]
 
-        col = self.column_spec["final_included"]
         if col in list(new_df):
+            new_df[col] = new_df[col].astype(object)
             new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
         return new_df
 

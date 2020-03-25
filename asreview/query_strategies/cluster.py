@@ -60,7 +60,7 @@ class ClusterQuery(ProbaQueryStrategy):
                     n_instances=n_instances,
                     proba=proba)
             model = KMeans(n_clusters=n_clusters, n_init=1)
-            self.clusters = model.fit_predict(self.X)
+            self.clusters = model.fit_predict(X)
             self.last_update = len(pool_idx)
 
         clusters = {}

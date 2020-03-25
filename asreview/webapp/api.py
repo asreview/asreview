@@ -2,7 +2,6 @@
 import re
 import json
 import logging
-from pathlib import Path
 import subprocess
 import shlex
 from urllib.request import urlretrieve
@@ -17,9 +16,9 @@ from werkzeug.utils import secure_filename
 import numpy as np
 
 from asreview.datasets import get_dataset
-from asreview.webapp.utils.paths import asreview_path, get_data_file_path, get_project_file_path, get_labeled_path, get_pool_path, get_project_path, get_result_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
-from asreview.webapp.utils.paths import get_data_path
+from asreview.webapp.utils.paths import get_data_path, get_project_file_path
+from asreview.webapp.utils.paths import get_lock_path, get_proba_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -30,6 +29,8 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.validation import check_dataset
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.datasets import search_data
+from asreview.webapp.sqlock import SQLiteLock
+from asreview.webapp.utils.io import read_pool, read_label_history
 
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -259,12 +260,11 @@ def api_label_item(project_id):  # noqa: F401
 def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+    lock_fp = get_lock_path(project_id)
+    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+        label_history = read_label_history(project_id)
 
-    with open(get_labeled_path(project_id, 0), "r") as f:
-        labeled = json.load(f)
-
-    indices, labels = zip(*labeled)
-    indices = [int(i) for i in indices]
+    indices = [x[0] for x in label_history]
 
     records = read_data(project_id).record(indices)
 
@@ -277,7 +277,7 @@ def api_get_prior(project_id):  # noqa: F401
             "abstract": record.abstract,
             "authors": record.authors,
             "keywords": record.keywords,
-            "included": int(labels[i])
+            "included": int(label_history[i][1])
         })
 
     response = jsonify(payload)
@@ -293,8 +293,9 @@ def api_random_prior_papers(project_id):  # noqa: F401
     the already labeled items.
     """
 
-    with open(get_pool_path(project_id, 0), "r") as f_pool:
-        pool = json.load(f_pool)
+    lock_fp = get_lock_path(project_id)
+    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+        pool = read_pool(project_id)
 
 #     with open(get_labeled_path(project_id, 0), "r") as f_label:
 #         prior_labeled = json.load(f_label)
@@ -349,7 +350,7 @@ def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
 
-    if get_result_path(project_id, 2).exists():
+    if get_proba_path(project_id).exists():
         logging.info("Model trained - go to review screen")
         response = jsonify(
             {'status': 1}
@@ -402,6 +403,7 @@ def api_get_progress_info(project_id):  # noqa: F401
 
     # return a success response to the client.
     return response
+
 
 # I think we don't need this one
 @bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
