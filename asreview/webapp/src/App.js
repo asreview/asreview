@@ -38,8 +38,7 @@ const App = () => {
   // we generate a MUI-theme from state's theme object
   const muiTheme = createMuiTheme(theme);
 
-  // const [appState, setAppState] = React.useState('review'); // useful for debugging
-  const [appState, setAppState] = React.useState('boot'); // useful for debugging Default: boot
+  const [appState, setAppState] = React.useState('boot');
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
