@@ -1,4 +1,5 @@
 
+import os
 import re
 import json
 import logging
@@ -41,19 +42,21 @@ CORS(bp, resources={r"*": {"origins": "*"}})
 def api_boot():  # noqa: F401
     """Get the boot info"""
 
-    # #### ONE OF THESE:
+    if os.environ.get("FLASK_ENV", None) == "development":
+        status = "development"
+    else:
+        status = "asreview"
 
-    # response = jsonify({"status": "asreview"})  # default
-    # response = jsonify({"status": "development"})  # development
-    response = jsonify({"status": "asreview-covid19"})  # covid19
+        try:
+            import asreviewcontrib.covid19  # noqa
+            status = "asreview-covid19"
+        except ImportError:
+            logging.debug("covid19 plugin not found")
+
+    response = jsonify({"status": status})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
-
-    # response = jsonify({"message": "connection-issue"})  # covid19
-    # response.headers.add('Access-Control-Allow-Origin', '*')
-
-    # return response, 500
 
 
 @bp.route('/projects', methods=["GET"])
