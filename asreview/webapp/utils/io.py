@@ -84,4 +84,4 @@ def read_current_labels(project_id, as_data=None, label_history=None):
     for idx, inclusion in label_history:
         labels[idx] = inclusion
 
-    return labels
+    return np.array(labels, dtype=int)

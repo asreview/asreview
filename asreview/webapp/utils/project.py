@@ -169,13 +169,15 @@ def export_to_string(project_id):
         proba = read_proba(project_id)
         if proba is None:
             proba = np.flip(np.arange(len(as_data)))
-
+        else:
+            proba = np.array(proba)
         labels = read_current_labels(project_id, as_data=as_data)
 
     pool_idx = np.where(labels == LABEL_NA)[0]
     one_idx = np.where(labels == 1)[0]
     zero_idx = np.where(labels == 0)[0]
-    proba_order = np.argsort(-proba[pool_idx, 1])
+
+    proba_order = np.argsort(-proba[pool_idx])
     ranking = np.concatenate(
         (one_idx, pool_idx[proba_order], zero_idx), axis=None)
     return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
