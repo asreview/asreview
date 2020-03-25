@@ -75,8 +75,6 @@ const ProjectUpload = (props) => {
 
   const classes = useStyles();
 
-  console.log("Project id: " + props.project_id)
-
   const [file, setFile] = React.useState(null);
 
   const onDrop = useCallback(acceptedFiles => {
@@ -89,7 +87,7 @@ const ProjectUpload = (props) => {
     // set the state such that we ca upload the file
     setFile(acceptedFiles[0])
 
-  }, [props])
+  }, [])
 
   const {
     getRootProps,
@@ -103,8 +101,6 @@ const ProjectUpload = (props) => {
     multiple: false,
     accept: '.txt,.csv,.ris'
   });
-
-  const files = acceptedFiles.map(file => <li key={file.path}>{file.path}</li>);
 
   const style = useMemo(() => ({
     ...baseStyle,

@@ -2,7 +2,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import {
-  Box,
   Button,
   Card,
   CardHeader,
@@ -90,16 +89,19 @@ const PaperCard = (props) => {
 
   // include the item in the card
   const includeItem = () => {
+    console.log(`${props.project_id} - add item ${props.id} to prior inclusions`);
     labelItem(1)
   }
 
   // exclude the item in the card
   const excludeItem = () => {
+    console.log(`${props.project_id} - add item ${props.id} to prior exclusions`);
     labelItem(0)
   }
 
   // reset the item (for search and revert)
   const resetItem = () => {
+    console.log(`${props.project_id} - remove item ${props.id} to prior knowledge`);
     labelItem(-1)
   }
 

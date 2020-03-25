@@ -100,7 +100,7 @@ const ReviewZone = (props) => {
       console.log(error);
       setLoaded(true);  // ?
       setModalFeedback({open: false, text: '', elas: false});
-      setError('some error');
+      setError('Not possible to collect new item');
     });
   }
 
@@ -128,7 +128,7 @@ const ReviewZone = (props) => {
       headers: { 'Content-Type': 'application/json' }
     })
     .then((response) => {
-      console.log(`Article ${record.doc_id} classified as ${label?"included":"excluded"}`);
+      console.log(`${props.project_id} - add item ${record.doc_id} to ${label?"inclusions":"exclusions"}`);
       setLoaded(false);
     })
     .catch((error) => {
@@ -167,7 +167,6 @@ const ReviewZone = (props) => {
       <DecisionBar
         reviewDrawerState={props.reviewDrawerState}
         classify={classifyInstance}
-        onUndo={props.handleUndo}
         block={!slide.set}
       />
 

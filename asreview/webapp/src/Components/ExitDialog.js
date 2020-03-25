@@ -20,8 +20,6 @@ export default function ExitDialog(props) {
     }
   }, [props.exit]);
 
-  console.log(window.location.hostname);
-
   return (
       <Dialog
         open={props.exit}

@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from '@material-ui/core';
 
@@ -88,13 +87,6 @@ const SearchResultDialog = (props) => {
       >
         <DialogTitle id="scroll-dialog-title">Search result: {props.searchQuery}</DialogTitle>
         <DialogContent dividers={true}>
-          {/* 
-          <DialogContentText
-            id="scroll-dialog-description"
-            ref={descriptionElementRef}
-            tabIndex={-1}
-          >
-          */}
           {searchResult === null && 
           <div className={classes.root}>
             <CircularProgress/>
@@ -107,10 +99,6 @@ const SearchResultDialog = (props) => {
               removeResultOnRevert={false}
 
             />}
-          
-          {/* 
-          </DialogContent></DialogContentText>
-          */}
         </DialogContent>
         <DialogActions>
           <Button onClick={props.closeSearchDialog} color="primary">

@@ -6,7 +6,7 @@ import {
   createMuiTheme 
 } from '@material-ui/core'
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import axios from 'axios'
+
 import brown from '@material-ui/core/colors/brown';
 import {
   Header,
@@ -21,33 +21,17 @@ import PreReviewZone from './PreReviewComponents/PreReviewZone'
 import Projects from './Projects'
 import WelcomeScreen from './WelcomeScreen'
 
-import { api_url } from './globals.js'
 import 'typeface-roboto'
 
-import { connect } from "react-redux";
 
 
 const App = () => {
-
-  console.log("render App")
 
   // We keep the theme in app state
   const [theme, setTheme] = useState({
     palette: {
       type: "light",
       primary: brown,
-      // {
-      //   // light: will be calculated from palette.primary.main,
-      //   main: '#ffc107',
-      //   // dark: will be calculated from palette.primary.main,
-      //   // contrastText: will be calculated to contrast with palette.primary.main
-      // },
-      // secondary: {
-      //   light: '#0066ff',
-      //   main: '#0044ff',
-      //   // dark: will be calculated from palette.secondary.main,
-      //   contrastText: '#ffcc00',
-      // },
     },
   });
 
@@ -78,23 +62,19 @@ const App = () => {
   };
 
   const handleClickOpen = () => {
-    console.log("Open settings");
     setSettingsOpen(true);
   };
 
   const handleClose = () => {
-    console.log("Close settings");
     setSettingsOpen(false);
   };
 
 
   const handleHistoryOpen = () => {
-    console.log("Open history");
     setHistoryOpen(true);
   };
 
   const handleHistoryClose = () => {
-    console.log("Close history");
     setHistoryOpen(false);
   };
 
@@ -111,30 +91,6 @@ const App = () => {
   const handleReviewDrawer = (show) => {
     //console.log('Set drawer to '+(show?'open':'closed'));
     setReviewDrawerState(show);
-  }
-  
-  /**
-   * Get article info on specific article
-   * 
-   * @param doc_id - the article's doc_id
-   */
-  const getArticleInfo = (doc_id) => {
-    const url = api_url + "document/" + doc_id + "/info";
-    return axios.get(url)
-    .then((result) => {
-      console.log(result);
-    })
-    .catch((err) => {
-      console.log(err)
-    })
-  }
-
-  const handleUndo = () => {
-    console.log('Function call: handleUndo()');
-  }
-
-  const handleExit = () => {
-    console.log('Function call: handleExit()');
   }
 
   console.log("Current step: " + appState)
@@ -178,8 +134,6 @@ const App = () => {
         reviewDrawerState={reviewDrawerState}
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
-        handleUndo={handleUndo}
-        handleExit={handleExit}
       />
       }
 

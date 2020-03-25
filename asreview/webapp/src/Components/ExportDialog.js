@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@material-ui/core';
 
-import axios from 'axios'
+// import axios from 'axios'
 
 import { api_url } from '../globals.js';
 
@@ -51,10 +51,6 @@ const ExportDialog = (props) => {
     }
 
   }
-
-  // console.log("init-dialog")
-  // console.log(props.project_id)
-  // console.log(store.getState()["project_id"])
 
   return (
       <Dialog

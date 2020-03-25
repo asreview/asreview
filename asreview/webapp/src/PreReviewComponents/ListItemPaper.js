@@ -23,8 +23,6 @@ const ListItemPaper = (props) => {
 
   const [selected, setSelected] = React.useState(props.included === 1);
 
-  console.log("Included label: " + props.included);
-
   const toggleButton = () => {
 
     const url = api_url + `project/${props.project_id}/labelitem`;
@@ -35,10 +33,12 @@ const ListItemPaper = (props) => {
       body.set('label', 1);
       props.onInclude(
         {id:props.id, title:props.title, abstract:props.abstract});
+        console.log(`${props.project_id} - add item ${props.id} to prior inclusions`);
     } else {
       body.set('label', -1);
       props.onRevertInclude(
         {id:props.id, title:props.title, abstract:props.abstract});
+        console.log(`${props.project_id} - remove item ${props.id} from prior knowledge`);
     }
     body.set('is_prior', 1);
 
