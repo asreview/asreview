@@ -460,7 +460,7 @@ class ASReviewData():
         np.array:
             Array of indices that have the 'initial' property.
         """
-        _, _, query_src, _ = state.review_state()
+        query_src = state.startup_vals()["query_src"]
         if "initial" not in query_src:
             return np.array([], dtype=int)
         if by_index:
