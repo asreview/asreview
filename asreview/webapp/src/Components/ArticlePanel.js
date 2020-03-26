@@ -40,7 +40,7 @@ const ArticlePanel = (props) => {
   const classes = useStyles();
 
   return (
-    <Slide direction={props.slide.direction} in={props.slide.set} timeout={{ enter: 700, exit: 700 }} mountOnEnter={true}>
+    <Slide direction={props.slide.direction} in={props.slide.set} timeout={{ enter: 0, exit: 0 }} mountOnEnter={true}>
       <Container maxWidth="md" className={props.reviewDrawerState?classes.boxWithDrawer:classes.boxFullWidth}>
         <Typography
             className={classes.title}
