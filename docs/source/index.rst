@@ -32,6 +32,8 @@ The source code is freely available at
    installation
 
    quicktour
+
+   covid-19
    
    datasets
 
@@ -52,6 +54,8 @@ The source code is freely available at
    balance_strategies
   
    feature_extraction
+
+   activelearning
 
 .. toctree::
    :maxdepth: 2
