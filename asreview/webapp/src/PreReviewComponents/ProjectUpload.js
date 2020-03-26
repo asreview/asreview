@@ -76,6 +76,7 @@ const ProjectUpload = (props) => {
   const classes = useStyles();
 
   const [file, setFile] = React.useState(null);
+  const [upload, setUpload] = React.useState(false);
 
   const onDrop = useCallback(acceptedFiles => {
 
@@ -114,6 +115,9 @@ const ProjectUpload = (props) => {
 
   const onUploadHandler = (demo_data_id) => {
 
+      // disable the buttons and show loader
+      setUpload(true)
+
       const url = api_url + `project/${props.project_id}/upload`;
 
       const data = new FormData() 
@@ -132,50 +136,58 @@ const ProjectUpload = (props) => {
       .then(function (res) {
         // go to the next step
         props.handleNext()
-
       })
       .catch(function (res) {
           //handle error
+          setUpload(false)
           console.log(res.statusText)
       });
   }
 
 
   return (
-
   <Box>
     <Typography variant="h5" className={classes.title}>
       Select a dataset
     </Typography>
 
-    <div>
-      <div {...getRootProps({style})}>
-        <input {...getInputProps()} />
-        <Typography>Drag 'n' drop a file here, or click to a file</Typography>
-      </div>
-      {acceptedFiles.length === 1 &&
-        <div>
-          <Typography>File '{acceptedFiles[0].path}' selected.</Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {onUploadHandler()}}
-            className={classes.button}
-          >
-            Next
-          </Button>
+    {/* Uploading dataset */}
+    {upload &&
+      <Typography>Uploading... </Typography>
+
+    }
+
+    {!upload &&
+    <Box>
+      <div>
+        <div {...getRootProps({style})}>
+          <input {...getInputProps()} />
+          <Typography>Drag 'n' drop a file here, or click to a file</Typography>
         </div>
-      }
-    </div>
+        {acceptedFiles.length === 1 &&
+          <div>
+            <Typography>File '{acceptedFiles[0].path}' selected.</Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {onUploadHandler()}}
+              className={classes.button}
+            >
+              Next
+            </Button>
+          </div>
+        }
+      </div>
 
-    <Typography className={classes.divider}>
-      - or select a dataset below -
-    </Typography> 
-    <ProjectDemoData
-      onUploadHandler={onUploadHandler}
-    />
-    <Toolbar className={classes.clear}/>
-
+      <Typography className={classes.divider}>
+        - or select a dataset below -
+      </Typography> 
+      <ProjectDemoData
+        onUploadHandler={onUploadHandler}
+      />
+      <Toolbar className={classes.clear}/>
+  </Box>
+  }
   </Box>
   );
 }
