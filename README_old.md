@@ -2,6 +2,14 @@
 
 ## ASReview: Active learning for systematic reviews
 
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master)[![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
+
+:wrench: *This project is work in progress and not production ready.*
+
+---
+
+:point_right: [Check out our new tutorial "10 minutes into ASReview"](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) :point_left:
+
 Systematic Reviews are “top of the bill” in research. The number of systematic
 reviews published by researchers increases year after year. But performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
@@ -15,7 +23,9 @@ ASReview offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
-ASReview software implements two different modes:
+[![Active Learning for reviewing papers](https://github.com/asreview/asreview/blob/master/images/deepreview.png?raw=true)](https://github.com/asreview/asreview)
+
+Our ASReview software implements two different modes:
 
 - **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
@@ -24,9 +34,6 @@ ASReview software implements two different modes:
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
-Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
-
-Old README for ASReview < 0.8 can be found [README_old.md](https://github.com/asreview/asreview/blob/master/README_old.md)
 
 ## Installation
 
@@ -37,36 +44,41 @@ project with:
 pip install asreview
 ```
 
-## NEW USER INTERFACE
+Or, install the development version of the Automated Systematic Review project directly
+from this Github page.
 
-The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes. We expect to release the interface in the upcoming weeks officially. See the installation instructions below the image.
-
-![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)
-
-Install the candidate release of ASReview with the command below. 
-
-```bash
-pip install --upgrade --pre asreview
+``` bash
+pip install git+https://github.com/asreview/asreview.git
 ```
 
-Start the interface with 
+## Quick start
 
-```
-asreview oracle
-```
+The quickest way to start using the Automated Systematic Review (ASR) software is
+the Command Line Interface (CLI).
+Start an interactive systematic review (Oracle mode) with the following line in CMD or shell:
 
-## Covid-19 plugin
-
-![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)
-
-The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature. The plugin makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. This dataset contains most of the scientific publications on the coronavirus outbreak. 
-
-The plugin requires the pre-release ASReview software (`pip install --upgrade --pre asreview`). Install the plugin with the command below.
-
-```
-pip install asreview-covid19
+``` sh
+asreview oracle YOUR_DATA.csv --log_file results.json
 ```
 
+![ASReview Command Line Interface](https://github.com/asreview/asreview/raw/master/docs/gifs/asreview-intro.gif)
+
+This command (`asreview oracle`) runs the software in oracle mode on the
+`YOUR_DATA.csv` dataset.
+
+The higher the number of papers that you manually include in ASReview,
+the quicker the ASReview software will understand your choices for inclusion.
+The IDs are the identifiers of papers, starting from
+0 for the first paper found in the dataset.
+
+To benchmark an already executed review, use the simulation modus (`asreview simulation`).
+The dataset then needs an additional column ("label_included") to signify their inclusion
+in the final review. The command for the simulation modus is similar to the oracle
+mode:
+
+``` sh
+asreview simulate YOUR_DATA.csv --n_prior_included 5 --n_prior_excluded 5 --log_file results.h5
+```
 
 ## Resources
 
@@ -77,12 +89,9 @@ pip install asreview-covid19
 
 
 ## Contributing
-Got ideas for improvement? We would love to hear about your suggestions! Get started [here :arrow_left:](https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md)
+Got ideas for improvement? We would love to hear about your suggestions! Get started [here :arrow_left:](contributing.md)
 
-See who have contributed to ASReview [here](https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md)
-
-
-[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master)[![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
+See who have contributed to ASReview [here](contributors.md)
 
 ## Contact
 This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
@@ -92,9 +101,19 @@ University, The Netherlands. Maintainers are [Jonathan de Bruin](https://www.uu.
 For any questions or remarks, please send an email to asreview@uu.nl.
 
 
-## License and Citation
+## License
+[LICENSE](LICENSE)
 
-The ASReview software has an Apache 2.0 [LICENSE](LICENSE).
+
+## Publications
+
+- Dutch newspaper NRC on this project ["Software vist de beste artikelen uit een bibliotheek van duizenden."](https://www.nrc.nl/nieuws/2019/01/14/software-vist-de-beste-artikelen-eruit-a3628952)
+- News site of Utrecht University: [ASReview: Smart source screening software for academia and beyond](https://www.uu.nl/en/news/asreview-smart-source-screening-software-for-academia-and-beyond)
+- News site of Utrecht University: ["A digital tracker dog for datasets"
+](https://www.dub.uu.nl/en/depth/digital-tracker-dog-datasets)
+
+
+## Citation
 
 A research paper is coming up for this project. In the mean time, it can be cited with (fill in x and y for the version number):
 
