@@ -26,6 +26,8 @@ ASReview software implements two different modes:
 
 Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
 
+Old README for ASReview < 0.8 can be found [README_old.md](here)
+
 ## Installation
 
 The ASReview software requires Python 3.6+. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
