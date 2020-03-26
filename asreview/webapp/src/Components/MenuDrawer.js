@@ -83,6 +83,10 @@ const MenuDrawer = (props) => {
             <ListItemText primary="Export" />
           </ListItem>
           <Divider />
+
+        {/* Documentation */}
+          
+          {/*
           <ListSubheader component="div" id="list-subheader-getting-started">
             Getting started
           </ListSubheader>
@@ -95,6 +99,9 @@ const MenuDrawer = (props) => {
             <ListItemText primary="How this works" />
           </ListItem>
           <Divider />
+          */}
+
+        {/* help and quit */}
           <ListSubheader component="div" id="list-subheader-help">
             Help & Quit
           </ListSubheader>
