@@ -118,6 +118,7 @@ const ProjectUpload = (props) => {
 
       const data = new FormData() 
 
+      console.log(demo_data_id)
       if(demo_data_id === undefined){
         data.append('file', file)
       } else {
@@ -159,7 +160,7 @@ const ProjectUpload = (props) => {
           <Button
             variant="contained"
             color="primary"
-            onClick={onUploadHandler}
+            onClick={() => {onUploadHandler()}}
             className={classes.button}
           >
             Next
