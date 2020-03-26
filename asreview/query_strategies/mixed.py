@@ -36,7 +36,6 @@ def interleave(n_samples, n_strat_1):
     insert_positions = np.sort(np.random.choice(
         np.arange(len(max_idx)), len(min_idx), replace=False))
 
-    print(insert_positions)
     new_positions = np.zeros(n_samples, dtype=int)
     i_strat_min = 0
     for i_strat_max in range(len(max_idx)):
