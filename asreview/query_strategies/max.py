@@ -14,8 +14,7 @@
 
 """Max sampling while saving prediction probabilities."""
 
-from modAL.utils.selection import multi_argmax
-from modAL.utils.selection import shuffled_argmax
+import numpy as np
 
 from asreview.query_strategies.base import ProbaQueryStrategy
 
@@ -25,7 +24,7 @@ class MaxQuery(ProbaQueryStrategy):
 
     name = "max"
 
-    def __init__(self, random_tie_break=False):
+    def __init__(self):
         """Initialize the max query strategy.
 
         Arguments:
@@ -34,13 +33,9 @@ class MaxQuery(ProbaQueryStrategy):
             If true randomly decide which ones to include by tie-break.
         """
         super(MaxQuery, self).__init__()
-        self.random_tie_break = random_tie_break
 
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         proba = proba[pool_idx]
-        if not self.random_tie_break:
-            query_idx = multi_argmax(proba[:, 1], n_instances=n_instances)
-        else:
-            query_idx = shuffled_argmax(proba[:, 1], n_instances=n_instances)
+        query_idx = np.argsort(proba[:, 0])[:n_instances]
 
         return pool_idx[query_idx], X[pool_idx[query_idx]]
