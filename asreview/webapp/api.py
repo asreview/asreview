@@ -130,7 +130,6 @@ def api_demo_data_project():  # noqa: F401
 
         result_datasets = []
         datasets = get_available_datasets()
-        print(datasets)
         for group_name, group in datasets.items():
             for dataset_key, dataset in group.items():
                 result_datasets.append(dataset.to_dict())
@@ -379,14 +378,20 @@ def export_results(project_id):
                  f"attachment; filename=asreview_result_{project_id}.csv"})
 
 
-@bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
-def api_get_article_info(project_id, doc_id=None):  # noqa: F401
-    """Get info on the article"""
+# @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
+# def api_get_article_info(project_id, doc_id=None):  # noqa: F401
+#     """Get info on the article"""
 
-    response = jsonify(get_paper_data(project_id, paper_id=doc_id))
-    response.headers.add('Access-Control-Allow-Origin', '*')
+#     data = get_paper_data(
+#         project_id,
+#         paper_id=doc_id,
+#         return_debug_label=True
+#     )
 
-    return response
+#     response = jsonify(data)
+#     response.headers.add('Access-Control-Allow-Origin', '*')
+
+#     return response
 
 
 @bp.route('/project/<project_id>/progress', methods=["GET"])
@@ -443,8 +448,13 @@ def api_get_document(project_id):  # noqa: F401
     """
 
     new_instance = get_instance(project_id)
-    payload = get_paper_data(project_id, new_instance)
+    payload = get_paper_data(
+        project_id,
+        new_instance,
+        return_debug_label=True
+    )
     payload["doc_id"] = new_instance
+    print(payload)
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

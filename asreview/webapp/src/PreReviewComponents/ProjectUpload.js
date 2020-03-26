@@ -118,7 +118,6 @@ const ProjectUpload = (props) => {
 
       const data = new FormData() 
 
-      console.log(demo_data_id)
       if(demo_data_id === undefined){
         data.append('file', file)
       } else {

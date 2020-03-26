@@ -102,7 +102,6 @@ const PriorInclusions = (props) => {
 
     axios.get(url)
     .then((result) => {
-      console.log(result.data['result']);
       setIncluded(result.data['result']);
     })
     .catch((error) => {
@@ -164,8 +163,6 @@ const PriorInclusions = (props) => {
           <Typography>The following publications have been included:</Typography>
 
           {included.map((value, index) => {
-
-            console.log("label value " + value.included)
 
             return (
                 <PaperCard
