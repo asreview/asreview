@@ -26,7 +26,7 @@ ASReview software implements two different modes:
 
 Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
 
-Old README for ASReview < 0.8 can be found [README_old.md](here)
+Old README for ASReview < 0.8 can be found [README_old.md](https://github.com/asreview/asreview/blob/master/README_old.md)
 
 ## Installation
 
