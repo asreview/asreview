@@ -22,7 +22,18 @@ const mapStateToProps = state => {
 const StartReview = (props) => {
   // const classes = useStyles();
 
+  const [state, setState] = React.useState({
+    "modelIsTraining": false
+  });
+
+
   const startTraining = () => {
+
+    // set the state to 'model training'
+    setState({
+      "modelIsTraining": true
+    })
+
     const url = api_url + `project/${props.project_id}/start`;
 
     return axios.post(url)
@@ -57,55 +68,24 @@ const StartReview = (props) => {
 
   return (
     <Box>
-      <Typography variant="h5">
-        Start your systematic review
-      </Typography>              
+      { !state["modelIsTraining"] ?
+        <Box> 
+          <Typography variant="h5">
+            Start your systematic review
+          </Typography>              
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={startTraining}
-      >
-        Start
-      </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={startTraining}
+          >
+            Start
+          </Button>
+        </Box> :
+        <Typography>Training model... (this can take some time)</Typography> 
+      }
     </Box>
   )
 }
-
-      // {activeStep === 5 && 
-      //   <Grid
-      //     container
-      //     spacing={0}
-      //     direction="column"
-      //     alignItems="center"
-      //     justify="center"
-      //     className={classes.grid}
-      //   >
-
-      //     {/* transition to search tool - (Inclusions) */}
-      //     <Grid item xs={12} sm={8}>
-      //       <Fade
-      //         in={activeStep === 5 && animated}
-      //         timeout={transitionSpeed}
-      //         mountOnEnter
-      //         unmountOnExit
-      //         onEnter={()=> {
-      //           setTimeout(()=> {
-      //             // console.log("exit")
-      //             setAnimated(false);
-      //           }, 4000)
-      //         }}
-      //         onExited={() => props.setAppState('review')}
-      //       >
-      //         <Box>
-      //           <Typography variant="h5">
-      //             Warming up the machines!
-      //           </Typography>              
-      //           <CircularProgress className={classes.loader}/>
-      //         </Box>
-      //       </Fade>
-      //     </Grid>
-      //   </Grid>
-      // }
 
 export default connect(mapStateToProps)(StartReview);
