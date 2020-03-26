@@ -23,6 +23,31 @@ from asreview.query_strategies.base import BaseQueryStrategy
 from asreview.query_strategies.utils import get_query_model
 
 
+def interleave(n_samples, n_strat_1):
+    n_strat_2 = n_samples - n_strat_1
+
+    if n_strat_1 >= n_strat_2:
+        max_idx = np.arange(n_strat_1)
+        min_idx = n_strat_1 + np.arange(n_strat_2)
+    else:
+        max_idx = n_strat_1 + np.arange(n_strat_2)
+        min_idx = np.arange(n_strat_1)
+
+    insert_positions = np.sort(np.random.choice(
+        np.arange(len(max_idx)), len(min_idx), replace=False))
+
+    print(insert_positions)
+    new_positions = np.zeros(n_samples, dtype=int)
+    i_strat_min = 0
+    for i_strat_max in range(len(max_idx)):
+        new_positions[i_strat_max+i_strat_min] = max_idx[i_strat_max]
+        if (i_strat_min < len(min_idx)
+                and insert_positions[i_strat_min] == i_strat_max):
+            new_positions[i_strat_min+i_strat_max+1] = min_idx[i_strat_min]
+            i_strat_min += 1
+    return new_positions
+
+
 class MixedQuery(BaseQueryStrategy):
     """Class for mixed query strategy.
 
@@ -109,7 +134,9 @@ class MixedQuery(BaseQueryStrategy):
             else:
                 X = np.concatenate((X_1, X_2), axis=0)
 
-        return query_idx, X
+        # Remix the two strategies without changing the order within.
+        new_order = interleave(len(query_idx), len(query_idx_1))
+        return query_idx[new_order], X[new_order]
 
     def full_hyper_space(self):
         from hyperopt import hp
