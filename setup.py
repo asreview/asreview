@@ -16,9 +16,12 @@
 
 # Always prefer setuptools over distutils
 import re
-from setuptools import setup, find_packages
-from os import path
+import subprocess
 from io import open
+from os import path
+from setuptools import setup
+from setuptools import find_packages
+from setuptools import Command
 
 import versioneer
 
@@ -43,15 +46,45 @@ DEPS = {
     "tensorflow": ['tensorflow'],
     "dev": ['check-manifest'],
     'test': ['coverage', 'pytest'],
-    'performance': ['python-Levenshtein'],
 }
 DEPS['all'] = DEPS['sbert'] + DEPS['doc2vec'] + DEPS['dev']
-DEPS['all'] += DEPS['performance'] + DEPS['tensorflow']
+DEPS['all'] += DEPS['tensorflow']
+
+
+class CompileAssets(Command):
+    """
+    Compile and build the frontend assets using yarn and webpack.
+    Registered as cmdclass in setup() so it can be called with
+    ``python setup.py compile_assets``.
+    """
+
+    description = "Compile and build the frontend assets"
+    user_options = []
+
+    def initialize_options(self):
+        """Set default values for options."""
+
+    def finalize_options(self):
+        """Set final values for options."""
+
+    def run(self):
+        """Run a command to compile and build assets."""
+        subprocess.check_call(
+            'sh ./asreview/webapp/compile_assets.sh',
+            shell=True
+        )
+
+
+def get_cmdclass():
+    cmdclass = versioneer.get_cmdclass()
+    cmdclass["compile_assets"] = CompileAssets
+    return cmdclass
+
 
 setup(
     name='asreview',
     version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    cmdclass=get_cmdclass(),
     description='Automated Systematic Review',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
@@ -67,28 +100,32 @@ setup(
     ],
     keywords='systematic review',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    package_data={'asreview': [
+        'webapp/build/*',
+        'webapp/build/static/*/*',
+    ]},
     python_requires='~=3.6',
     install_requires=[
         'numpy',
         'sklearn',
         'pandas',
-        'modAL',
         'RISparser',
         'dill',
-        'questionary',
-        'fuzzywuzzy',
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
+        'flask',
+        'flask_cors'
     ],
     extras_require=DEPS,
     entry_points={
         'console_scripts': [
-            'asreview=asreview.__main__:main'
+            'asreview=asreview.__main__:main',
         ],
         'asreview.entry_points': [
-            'simulate = asreview.entry_points:SimulateEntryPoint',
-            'oracle = asreview.entry_points:OracleEntryPoint',
+            'simulate=asreview.entry_points:SimulateEntryPoint',
+            'oracle=asreview.entry_points:GUIEntryPoint',
+            'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
@@ -111,8 +148,8 @@ setup(
         ],
         'asreview.feature_extraction': [
             'doc2vec = asreview.feature_extraction.doc2vec:Doc2Vec',
-            'embedding-idf = asreview.feature_extraction.embedding_idf:EmbeddingIdf',  #noqa
-            'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  #noqa
+            'embedding-idf = asreview.feature_extraction.embedding_idf:EmbeddingIdf',  # noqa
+            'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  # noqa
             'sbert = asreview.feature_extraction.sbert:SBERT',
             'tfidf = asreview.feature_extraction.tfidf:Tfidf',
         ]
