@@ -22,6 +22,3 @@ Ultimately, the active learning cycle has to stop at some point and finding a su
 [5] Settles, B. (2009). Active learning literature survey. University of Wisconsin-Madison Department of Computer Sciences.
 
 [6] Wallace, B. C., Trikalinos, T. A., Lau, J., Brodley, C., & Schmid, C. H. (2010). Semi-automated screening of biomedical citations for systematic reviews. BMC bioinformatics, 11(1), 55.
-
-
-
