@@ -27,13 +27,13 @@ The source code is freely available at
 
    ASReview <self>
 
-   quick
-
    installation
 
    quicktour
 
    covid-19
+
+   gerbrich.md
    
    datasets
 

@@ -73,7 +73,9 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'sphinx.ext.autosectionlabel'
+    'sphinx.ext.autosectionlabel',
+    'recommonmark',
+    #'m2r'
 ]
 autosectionlabel_prefix_document = True
 
