@@ -43,7 +43,6 @@ class PaperRecord():
         else:
             self.final_included = int(self.final_included)
 
-        print(kwargs)
         self.extra_fields = kwargs
 
     def preview(self, w_title=80, w_authors=40, automatic_width=False):
