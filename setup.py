@@ -109,7 +109,6 @@ setup(
         'numpy',
         'sklearn',
         'pandas',
-        'modAL',
         'RISparser',
         'dill',
         'h5py',
