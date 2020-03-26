@@ -90,9 +90,6 @@ const PriorExclusions = (props) => {
         "loaded": true,
       })
   }
-
-  console.log(state["records"])
-
   useEffect(() => {
       getDocument();
   }, []);
