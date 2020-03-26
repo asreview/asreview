@@ -37,7 +37,7 @@ pip install asreview
 
 ## NEW USER INTERFACE
 
-The ASReview team developed a user-friendly user interface for the systematic reviewing app. The interface is still under development but is already available for testing and training purposes. We expect to release the interface in the upcoming weeks officially. See the installation instructions below the image.
+The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes. We expect to release the interface in the upcoming weeks officially. See the installation instructions below the image.
 
 ![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)
 
@@ -47,7 +47,24 @@ Install the candidate release of ASReview with the command below.
 pip install --upgrade --pre asreview
 ```
 
-Start the interface with `asreview oracle`. 
+Start the interface with 
+
+```
+asreview oracle
+```
+
+## Covid-19 plugin
+
+![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)
+
+The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature. The plugin makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. This dataset contains most of the scientific publications on the coronavirus outbreak. 
+
+The plugin requires the pre-release ASReview software (`pip install --upgrade --pre asreview`). Install the plugin with the command below.
+
+```
+pip install asreview-covid19
+```
+
 
 ## Resources
 
