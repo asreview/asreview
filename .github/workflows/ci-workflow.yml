@@ -15,7 +15,7 @@ jobs:
         node-version: '10.x'
     - name: Install node_modules
       run: |
-        cd asreview/webapp  
+        cd asreview/webapp
         npm install
     - name: Compile assets
       run: |
