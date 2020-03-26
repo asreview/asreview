@@ -25,11 +25,14 @@ const ProgressPanel = (props) => {
             Progress
           </ListSubheader> 
           {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
+          <ListItem key="list-progress-total_labeled">
+            Total reviewed: {props.n_included + props.n_excluded}
+          </ListItem>
           <ListItem key="list-progress-inclusions">
-            Inclusions: {props.n_included}
+            Relevant: {props.n_included}
           </ListItem>
           <ListItem key="list-progress-exclusions">
-            Exclusions: {props.n_excluded}
+            Irrelevent: {props.n_excluded}
           </ListItem>
         </div>
 
