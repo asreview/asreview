@@ -127,7 +127,10 @@ const PaperCard = (props) => {
         />
 
         {props.collapseAbstract ?
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Collapse
+            in={expanded}
+            timeout="auto"
+          >
             <CardContent>
               <Typography variant="body2" color="textSecondary" component="p">
                 {props.abstract}
@@ -189,8 +192,7 @@ const PaperCard = (props) => {
   return (
     <Collapse
       in={animated}
-      mountOnEnter
-      unmountOnExit
+      onExited={() => {props.onRemove(props.id)}}
       appear
       >
     {renderCard()}

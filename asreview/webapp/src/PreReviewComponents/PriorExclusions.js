@@ -58,26 +58,44 @@ const mapStateToProps = state => {
 const PriorExclusions = (props) => {
   const classes = useStyles();
 
-  const [records, setRecords] = useState([]);
+  const [state, setState] = useState({
+    "records": [],
+    "loaded": false,
+  });
+
+  let n = 5;
 
   const getDocument = () => {
     const url = api_url + `project/${props.project_id}/prior_random`;
 
     return axios.get(url)
     .then((result) => {
-      setRecords(result.data['result']);
+      console.log("" + result.data['result'].length + " random items served for review")
+      setState({
+        "records": result.data['result'],
+        "loaded": true,
+      });
     })
     .catch((error) => {
       console.log(error);
     });
   }
 
-  useEffect(() => {
+  const onRemove = (id) => {
 
-    if (records.length === 0){
+    var rec = state["records"].filter(function(record, index, arr){ return record["id"] !== id;});
+
+    setState({
+        "records": rec,
+        "loaded": true,
+      })
+  }
+
+  console.log(state["records"])
+
+  useEffect(() => {
       getDocument();
-    }
-  });
+  }, []);
 
   return (
     <Box>
@@ -85,14 +103,13 @@ const PriorExclusions = (props) => {
         Are these 5 randomly selected publications relevant?
       </Typography>
 
-      {records.length === 0 ? 
-
-      <Box className={classes.loader}>
-        <CircularProgress
-          style={{margin: "0 auto"}}
-        />
-      </Box> : 
-        records.map((record, index) => {
+      {!state["loaded"] ? 
+        <Box className={classes.loader}>
+          <CircularProgress
+            style={{margin: "0 auto"}}
+          />
+        </Box> : 
+        state["records"].map((record, index) => {
             return (
               <PaperCard
                 id={record.id}
@@ -103,8 +120,8 @@ const PriorExclusions = (props) => {
                 onRevertInclude={() => {}}
                 removeButton={false}
                 classify={true}
-
-                key={index}
+                onRemove={onRemove}
+                key={record.id}
               />
             );
           } 
@@ -123,6 +140,7 @@ const PriorExclusions = (props) => {
       <Button
         variant="contained"
         color="primary"
+        disabled={state["records"].length !== 0 ? true : false }
         onClick={props.handleNext}
         className={classes.button}
       >
