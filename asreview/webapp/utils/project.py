@@ -101,18 +101,27 @@ def get_paper_data(project_id,
                    paper_id,
                    return_title=True,
                    return_authors=True,
-                   return_abstract=True
+                   return_abstract=True,
+                   return_debug_label=False
                    ):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
-    paper_id = int(paper_id)
+    record = as_data.record(int(paper_id))
+
     paper_data = {}
-    if return_title and as_data.title is not None:
-        paper_data['title'] = as_data.title[paper_id]
-    if return_authors and as_data.authors is not None:
-        paper_data['authors'] = as_data.authors[paper_id]
-    if return_abstract and as_data.abstract is not None:
-        paper_data['abstract'] = as_data.abstract[paper_id]
+    if return_title and record.title is not None:
+        paper_data['title'] = record.title
+    if return_authors and record.authors is not None:
+        paper_data['authors'] = record.authors
+    if return_abstract and record.abstract is not None:
+        paper_data['abstract'] = record.abstract
+
+    # return the debug label
+    if return_debug_label and \
+            record.extra_fields.get("debug_label", None) is not None:
+        paper_data['_debug_label'] = \
+            int(record.extra_fields.get("debug_label", None))
+
     return paper_data
 
 

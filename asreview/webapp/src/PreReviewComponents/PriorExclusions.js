@@ -65,8 +65,6 @@ const PriorExclusions = (props) => {
 
     return axios.get(url)
     .then((result) => {
-      console.log("get random document")
-      console.log(result.data['result']);
       setRecords(result.data['result']);
     })
     .catch((error) => {

@@ -45,7 +45,7 @@ const ArticlePanel = (props) => {
         <Typography
             className={classes.title}
             variant="h6"
-            color="textSecondary"
+            color={props.record._debug_label === 1 ? "error" : "textSecondary"}
             component="p"
             paragraph>
             {props.record.title}
@@ -53,7 +53,7 @@ const ArticlePanel = (props) => {
         <Typography
             className={classes.abstract}
             variant="body2"
-            color="textSecondary"
+            color={props.record._debug_label === 1 ? "error" : "textSecondary"}
             component="p"
             paragraph>
             {props.record.abstract}
