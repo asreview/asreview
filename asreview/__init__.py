@@ -24,9 +24,7 @@ from asreview.io.ris_reader import read_ris
 from asreview.review.factory import get_reviewer
 from asreview.review.factory import MinimalReview
 from asreview.review.factory import review
-from asreview.review.factory import review_oracle
 from asreview.review.factory import review_simulate
-from asreview.review.factory import ReviewOracle
 from asreview.review.factory import ReviewSimulate
 
 from ._version import get_versions

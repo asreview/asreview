@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from difflib import SequenceMatcher
 import hashlib
 from pathlib import Path
 import pkg_resources
 from urllib.parse import urlparse
-import warnings
+from re import sub
 
 import numpy as np
 import pandas as pd
@@ -30,9 +31,21 @@ from asreview.io.utils import type_from_column, convert_keywords
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
-with warnings.catch_warnings():
-    warnings.filterwarnings("ignore")
-    from fuzzywuzzy import fuzz
+
+def token_set_ratio(keywords, my_str):
+    key_list = sub(",|;|:", "", keywords.lower()).split(" ")
+    match_list = sub(",|;|:", "", my_str.lower()).split(" ")
+
+    ratios = []
+    for key in key_list:
+        s = SequenceMatcher()
+        s.set_seq2(key.lower())
+        best = 0.0
+        for match in match_list:
+            s.set_seq1(match.lower())
+            best = max(best, 99.999*s.quick_ratio())
+        ratios.append(best)
+    return np.average(ratios) + 0.001/max(1, len(my_str))
 
 
 def get_fuzzy_scores(keywords, str_list):
@@ -52,7 +65,8 @@ def get_fuzzy_scores(keywords, str_list):
     """
     rank_list = np.zeros(len(str_list), dtype=np.float)
     for i, my_str in enumerate(str_list):
-        rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
+        rank_list[i] = token_set_ratio(keywords, my_str)
+#         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
     return rank_list
 
 
@@ -280,7 +294,7 @@ class ASReviewData():
         """Find a record using keywords.
 
         It looks for keywords in the title/authors/keywords
-        (for as much is available). Using the fuzzywuzzy package it creates
+        (for as much is available). Using the diflib package it creates
         a ranking based on token set matching.
 
         Arguments
@@ -315,7 +329,6 @@ class ASReviewData():
             if all_keywords is not None:
                 match_list.append(format_to_str(all_keywords[i]))
             match_str[i, ] = " ".join(match_list)
-
         new_ranking = get_fuzzy_scores(keywords, match_str)
         sorted_idx = np.argsort(-new_ranking)
         best_idx = []
@@ -352,7 +365,10 @@ class ASReviewData():
 
     @property
     def title(self):
-        return self.df[self.column_spec["title"]].values
+        try:
+            return self.df[self.column_spec["title"]].values
+        except KeyError:
+            return None
 
     @property
     def bodies(self):
@@ -360,7 +376,10 @@ class ASReviewData():
 
     @property
     def abstract(self):
-        return self.df[self.column_spec["abstract"]].values
+        try:
+            return self.df[self.column_spec["abstract"]].values
+        except KeyError:
+            return None
 
     @property
     def keywords(self):
@@ -441,7 +460,7 @@ class ASReviewData():
         np.array:
             Array of indices that have the 'initial' property.
         """
-        _, _, query_src, _ = state.review_state()
+        query_src = state.startup_vals()["query_src"]
         if "initial" not in query_src:
             return np.array([], dtype=int)
         if by_index:
@@ -453,7 +472,7 @@ class ASReviewData():
             return 0
         return len(self.df.index)
 
-    def to_file(self, fp, labels=None, df_order=None):
+    def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
 
         Both RIS and CSV are supported file formats at the moment.
@@ -464,19 +483,19 @@ class ASReviewData():
             Filepath to export to.
         labels: list, np.array
             Labels to be inserted into the dataframe before export.
-        df_order: list, np.array
+        ranking: list, np.array
             Optionally, dataframe rows can be reordered.
         """
         if Path(fp).suffix in [".csv", ".CSV"]:
-            self.to_csv(fp, labels=labels, df_order=df_order)
+            self.to_csv(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS"]:
-            self.to_ris(fp, labels=labels, df_order=df_order)
+            self.to_ris(fp, labels=labels, ranking=ranking)
         else:
             raise BadFileFormatError(
                 f"Unknown file extension: {Path(fp).suffix}.\n"
                 f"from file {fp}")
 
-    def to_dataframe(self, labels=None, df_order=None):
+    def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).
 
         Arguments
@@ -494,20 +513,24 @@ class ASReviewData():
             Dataframe of all available record data.
         """
         new_df = pd.DataFrame.copy(self.df)
-        if labels is not None:
-            new_df[self.column_spec["final_included"]] = labels
-        if df_order is not None:
-            return new_df.iloc[df_order]
-
         col = self.column_spec["final_included"]
+        if labels is not None:
+            new_df[col] = labels
+        if ranking is not None:
+            # sort the datasets based on the ranking
+            new_df = new_df.iloc[ranking]
+            # append a column with 1 to n
+            new_df["asreview_ranking"] = np.arange(1, len(new_df) + 1)
+
         if col in list(new_df):
+            new_df[col] = new_df[col].astype(object)
             new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
         return new_df
 
-    def to_csv(self, fp, labels=None, df_order=None):
-        self.to_dataframe(labels=labels, df_order=df_order).to_csv(
-            fp, index=True)
+    def to_csv(self, fp, labels=None, ranking=None):
+        return self.to_dataframe(labels=labels, ranking=ranking).to_csv(
+            path_or_buf=fp, index=True)
 
-    def to_ris(self, ris_fp, labels=None, df_order=None):
-        df = self.to_dataframe(labels=labels, df_order=df_order)
+    def to_ris(self, ris_fp, labels=None, ranking=None):
+        df = self.to_dataframe(labels=labels, ranking=ranking)
         write_ris(df, ris_fp)

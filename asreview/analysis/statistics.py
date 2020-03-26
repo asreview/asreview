@@ -24,8 +24,11 @@ def _find_inclusions(state, labels, remove_initial=True):
     n_initial = 0
     n_queries = state.n_queries()
     for query_i in range(n_queries):
-        label_methods = state.get("label_methods", query_i)
-        label_idx = state.get("label_idx", query_i)
+        try:
+            label_methods = state.get("label_methods", query_i)
+            label_idx = state.get("label_idx", query_i)
+        except KeyError:
+            continue
         for i in range(len(label_idx)):
             if label_methods[i] == "initial" and remove_initial:
                 n_initial_inc += labels[label_idx[i]]

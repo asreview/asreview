@@ -27,9 +27,13 @@ The source code is freely available at
 
    ASReview <self>
 
-   quick
+   installation
 
-   10minutes_asreview
+   quicktour
+
+   covid-19
+
+   gerbrich.md
    
    datasets
 
@@ -50,6 +54,8 @@ The source code is freely available at
    balance_strategies
   
    feature_extraction
+
+   activelearning
 
 .. toctree::
    :maxdepth: 2

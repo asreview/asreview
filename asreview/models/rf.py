@@ -44,7 +44,7 @@ class RFModel(BaseTrainModel):
         self.random_state = random_state
 
         self._model = RandomForestClassifier(
-            n_estimators=n_estimators, max_features=max_features,
+            n_estimators=self.n_estimators, max_features=self.max_features,
             class_weight=_set_class_weight(class_weight),
             random_state=random_state)
 

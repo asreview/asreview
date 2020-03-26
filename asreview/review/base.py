@@ -154,30 +154,31 @@ class BaseReview(ABC):
         self.verbose = verbose
 
         self.query_i = 0
+        self.query_i_classified = 0
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
         self.data_fp = data_fp
 
         with open_state(self.state_file) as state:
             if not state.is_empty():
-                y, train_idx, query_src, query_i = state.review_state()
-                if not set(train_idx) >= set(start_idx):
-                    new_idx = list(set(start_idx)-set(train_idx))
+                startup = state.startup_vals()
+                if not set(startup["train_idx"]) >= set(start_idx):
+                    new_idx = list(set(start_idx)-set(startup["train_idx"]))
                     self.classify(new_idx, self.y[new_idx], state,
                                   method="initial")
-                    y, train_idx, query_src, query_i = state.review_state()
-                self.train_idx = train_idx
-                self.y = y
-                self.shared["query_src"] = query_src
-                self.query_i = query_i
+                    startup = state.startup_vals()
+                self.train_idx = startup["train_idx"]
+                self.y = startup["labels"]
+                self.shared["query_src"] = startup["query_src"]
+                self.query_i = startup["query_i"]
+                self.query_i_classified = startup["query_i_classified"]
             else:
-#                 if final_labels is not None:
-#                     state.set_final_labels(final_labels)
                 state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx, self.y[start_idx], state,
                               method="initial")
-                self.query_i = 0
+                self.query_i_classified = len(start_idx)
+
             try:
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
@@ -280,8 +281,10 @@ class BaseReview(ABC):
                     idx_array = np.array([idx], dtype=np.int)
                     self.classify(idx_array, self._get_labels(idx_array),
                                   state)
+                    self.query_i_classified += 1
             else:
                 self.classify(query_idx, self._get_labels(query_idx), state)
+                self.query_i_classified += len(query_idx)
 
             # Option to stop after the classification set instead of training.
             if (stop_after_class and
@@ -434,7 +437,9 @@ class BaseReview(ABC):
         )
         self.shared["pred_proba"] = self.model.predict_proba(self.X)
         self.model_trained = True
-        self.query_i += 1
+        if self.query_i_classified > 0:
+            self.query_i += 1
+            self.query_i_classified = 0
 
     def statistics(self):
         "Get a number of statistics about the current state of the review."

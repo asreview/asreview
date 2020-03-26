@@ -1,8 +1,6 @@
 Active Learning
 ~~~~~~~~~~~~~~~
 
-Introduction of Active Learning on (academic) literature.
-
 Active learning denotes the scenario in which the reviewer is labeling references that are presented by a machine learning model [3,4]. The machine learning model learns from the reviewers labeling decisions and uses this knowledge in selecting the reference that will be presented to the reviewer next. In this way, the annotated dataset starts out small and iteratively grows in size [4]. In the case of Automated Systematic Review, this process is necessary to provide some initial classifications to the model, because the reviewer starts with a dataset without annotations.
 
 However, in the general sense the key idea behind active learning is that, if we allow the model to decide for itself which data it wants to learn from, its performance and accuracy may improve and it requires fewer training instances to do so [5,6]. Moreover, we increase the dataset's informativeness by having the reviewer annotate those references that are more informative to the model. It has been found that active learning over a smaller dataset consisting of more informative data brings forth a model that is able to generalize even better than a model that takes the traditional approach of iterating randomly through a provided dataset with annotations [1]. For the full active learning cycle we refer to Figure 1 on our Github homepage.
@@ -24,5 +22,3 @@ Ultimately, the active learning cycle has to stop at some point and finding a su
 [5] Settles, B. (2009). Active learning literature survey. University of Wisconsin-Madison Department of Computer Sciences.
 
 [6] Wallace, B. C., Trikalinos, T. A., Lau, J., Brodley, C., & Schmid, C. H. (2010). Semi-automated screening of biomedical citations for systematic reviews. BMC bioinformatics, 11(1), 55.
-
-
