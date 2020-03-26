@@ -34,7 +34,7 @@ class SQLiteLock():
             self.init_db()
 
         cur_timeout = 0
-        while cur_timeout < timeout and not self.lock_acquired:
+        while True and not self.lock_acquired:
             db = get_db(self.db_file)
             try:
                 db.isolation_level = 'EXCLUSIVE'
@@ -47,9 +47,10 @@ class SQLiteLock():
                         'INSERT INTO locks (name) VALUES (?)',
                         (self.lock_name,))
                     self.lock_acquired = True
+                    print(f"Acquired lock {self.lock_name}")
                 db.commit()
-            except sqlite3.OperationalError:
-                pass
+            except sqlite3.OperationalError as e:
+                print(f"Encountering operational error {e}")
             db.close()
             if self.lock_acquired or not blocking:
                 break
@@ -74,10 +75,18 @@ class SQLiteLock():
     def release(self):
         if not self.locked():
             return
-        db = get_db(self.db_file)
-        db.execute(
-            'DELETE FROM locks WHERE name = ?',
-            (self.lock_name,))
-        db.commit()
-        db.close()
+        while True:
+            db = get_db(self.db_file)
+            try:
+                db.execute(
+                    'DELETE FROM locks WHERE name = ?',
+                    (self.lock_name,))
+                db.commit()
+                db.close()
+                break
+            except sqlite3.OperationalError:
+                pass
+            db.close()
+            sleep(0.4)
+        print(f"Released lock {self.lock_name}")
         self.lock_acquired = False
