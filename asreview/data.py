@@ -517,8 +517,10 @@ class ASReviewData():
         if labels is not None:
             new_df[col] = labels
         if ranking is not None:
-            new_df["asreview_ranking"] = ranking
+            # sort the datasets based on the ranking
             new_df = new_df.iloc[ranking]
+            # append a column with 1 to n
+            new_df["asreview_ranking"] = np.arange(1, len(new_df) + 1)
 
         if col in list(new_df):
             new_df[col] = new_df[col].astype(object)
