@@ -132,7 +132,7 @@ const WelcomeScreen = (props) => {
                   ASReview
                   {bootStatus === 'asreview-covid19' && (
                     <span>
-                      <span className={classes.title_small}> for</span> COVID-19
+                      <span className={classes.title_small}> against</span> COVID-19
                     </span>
                   )}
                 </Typography>
