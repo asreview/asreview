@@ -82,7 +82,7 @@ const PriorExclusions = (props) => {
   return (
     <Box>
       <Typography variant="h5">
-        Are these (randomly selected) publications relevant?
+        Are these 5 randomly selected publications relevant?
       </Typography>
 
       {records.length === 0 ? 

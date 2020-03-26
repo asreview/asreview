@@ -454,7 +454,6 @@ def api_get_document(project_id):  # noqa: F401
         return_debug_label=True
     )
     payload["doc_id"] = new_instance
-    print(payload)
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
