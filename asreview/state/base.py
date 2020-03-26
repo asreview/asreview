@@ -240,6 +240,8 @@ class BaseState(ABC):
             if last_inclusions is None:
                 last_inclusions = []
             query_i_classified = len(last_inclusions)
+        else:
+            query_i_classified = 0
 
         train_idx = np.array(train_idx, dtype=np.int)
         startup_vals = {
