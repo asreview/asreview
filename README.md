@@ -14,6 +14,9 @@ ASReview offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks. The following image
 gives an overview of the process.
 
+
+![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/Figure_ASReview_Pipeline.png?raw=true)
+
 ASReview software implements two different modes:
 
 - **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
