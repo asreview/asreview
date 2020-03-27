@@ -9,7 +9,7 @@ from flask.templating import render_template
 from flask_cors import CORS
 
 from asreview.webapp import api
-from asreview.entry_points.simulate import _base_parser
+from asreview.entry_points.gui import _oracle_parser
 
 PORT_NUMBER = 5000
 
@@ -58,7 +58,7 @@ def create_app(**kwargs):
 
 
 def main(argv):
-    parser = _base_parser(prog="oracle")
+    parser = _oracle_parser(prog="oracle")
     kwargs = vars(parser.parse_args(argv))
 
     # open webbrowser if not in flask development mode
