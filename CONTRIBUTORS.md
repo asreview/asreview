@@ -1,6 +1,6 @@
 # Contributors
-This project is in collaboration with [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science),
-[Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its), and [Utrecht University Library](https://www.uu.nl/en/university-library).
+This project is in collaboration with researchers from the focus area of [Utrecht Applied Data Science](https://www.uu.nl/en/research/applied-data-science), software engineers from the 
+[Information and Technology Services](https://www.uu.nl/en/organisation/information-and-technology-services-its) department, and systematic review specialists at the [Utrecht University Library](https://www.uu.nl/en/university-library). Moreover, many students helped us: Many thanks!!
 
 - [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
 - [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob)).
