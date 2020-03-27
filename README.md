@@ -17,14 +17,10 @@ ASReview software implements two different modes:
 
 - **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them.
+  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview App](asreview-app).
 - **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure the performance of our
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
-
-Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
-
-Old README for ASReview < 0.8 can be found [README_old.md](https://github.com/asreview/asreview/blob/master/README_old.md)
 
 ## Installation
 
@@ -35,29 +31,25 @@ project with (for windows users add `python -m`):
 pip install asreview
 ```
 
-## NEW USER INTERFACE
+Upgrade ASReview with the following command:
 
-The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes. We expect to release the interface in the upcoming weeks officially. See the installation instructions below the image.
+```bash
+pip install --upgrade asreview
+```
+
+
+## ASReview app
+
+The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes. 
 
 [![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview Quick Tour")
 
-Install the candidate release of ASReview with the command below. 
-
-```bash
-pip install --upgrade --pre asreview
-```
-
-Start the interface with 
-
-```
-asreview oracle
-```
 
 ## Covid-19 plugin
 
 [![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
 
-The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature on the Coronavirus. The plugin makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. We also constructed a second database with studies published after December 1st 2019 to search for relevant papers published during the Covid-19 crisis. 
+The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature on the Coronavirus. The [plugin](https://github.com/asreview/asreview-covid19) makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. We also constructed a second database with studies published after December 1st 2019 to search for relevant papers published during the Covid-19 crisis. 
 
 The plugin requires the pre-release ASReview software (`pip install --upgrade --pre asreview`). Install the plugin with the command below.
 
@@ -66,18 +58,15 @@ pip install asreview-covid19
 ```
 
 
-## Resources
+## Documentation
 
-- The full documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io)
-- [10 Minutes into ASReview](https://asreview.readthedocs.io/en/latest/10minutes_asreview.html) An introduction into ASReview for new users. 
+Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io). Please have a look at https://asreview.readthedocs.io/en/latest/quicktour.html for a quick tour through the user interface.
+
 - [automated-systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
 - [automated-systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 
 ## Contributing
-Got ideas for improvement? We would love to hear about your suggestions! Get started [here :arrow_left:](https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md)
-
-See who have contributed to ASReview [here](https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md)
 
 
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master)[![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592)
@@ -87,7 +76,7 @@ This project is coordinated by by [Rens van de Schoot](https://www.rensvandescho
 Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
 University, The Netherlands. Maintainers are [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165)) and Raoul Schram ([@qubixes](https://github.com/qubixes)).
 
-For any questions or remarks, please send an email to asreview@uu.nl.
+Got ideas for improvement? We would love to hear about your suggestions! Get started [here :arrow_left:](https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md). See who have contributed to ASReview [here](https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md). For any questions or remarks, please send an email to asreview@uu.nl.
 
 
 ## License and Citation
