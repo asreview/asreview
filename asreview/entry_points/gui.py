@@ -6,6 +6,9 @@ DESCRIPTION_ORACLE = """
 ASReview App - Interactive machine learning for systematic reviews.
 """
 
+HOST_NAME = "localhost"
+PORT_NUMBER = 5000
+
 
 class GUIEntryPoint(BaseEntryPoint):
     description = "Graphical user interface for ASReview."
@@ -23,13 +26,13 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
 
     parser.add_argument(
         "--ip",
-        default="localhost",
+        default=HOST_NAME,
         type=str,
         help="The IP address the server will listen on.")
 
     parser.add_argument(
         "--port",
-        default=8888,
+        default=PORT_NUMBER,
         type=int,
         help="The port the server will listen on")
 
