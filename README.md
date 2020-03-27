@@ -11,11 +11,7 @@ The Active learning for Systematic Reviews (ASReview) project implements learnin
 researcher. This way of interactive training is known as
 [Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
 ASReview offers support for classical learning algorithms and
-state-of-the-art learning algorithms like neural networks. The following image
-gives an overview of the process.
-
-
-![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/Figure_ASReview_Pipeline.png?raw=true)
+state-of-the-art learning algorithms like neural networks.
 
 ASReview software implements two different modes:
 
@@ -43,7 +39,7 @@ pip install asreview
 
 The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes. We expect to release the interface in the upcoming weeks officially. See the installation instructions below the image.
 
-![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)
+[![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview Quick Tour")
 
 Install the candidate release of ASReview with the command below. 
 
@@ -59,7 +55,7 @@ asreview oracle
 
 ## Covid-19 plugin
 
-![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)
+[![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
 
 The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature on the Coronavirus. The plugin makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. We also constructed a second database with studies published after December 1st 2019 to search for relevant papers published during the Covid-19 crisis. 
 
