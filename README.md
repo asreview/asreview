@@ -2,13 +2,12 @@
 
 ## ASReview: Active learning for systematic reviews
 
-Systematic Reviews are “top of the bill” in research. The number of systematic
-reviews published by researchers increases year after year. But performing a
+Systematic Reviews are “top of the bill” in research. The number of scientific studies is increasing exponentially in many scholarly fields. Performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false negatives.
 
-The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the
+The Active learning for Systematic Reviews (ASReview) project implements learning algorithms that interactively query the
 researcher. This way of interactive training is known as
 [Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
 ASReview offers support for classical learning algorithms and
@@ -31,7 +30,7 @@ Old README for ASReview < 0.8 can be found [README_old.md](https://github.com/as
 ## Installation
 
 The ASReview software requires Python 3.6+. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
-project with:
+project with (for windows users add `python -m`):
 
 ```bash
 pip install asreview
@@ -59,7 +58,7 @@ asreview oracle
 
 ![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)
 
-The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature. The plugin makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. This dataset contains most of the scientific publications on the coronavirus outbreak. 
+The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature on the Coronavirus. The plugin makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. We also constructed a second database with studies published after December 1st 2019 to search for relevant papers published during the Covid-19 crisis. 
 
 The plugin requires the pre-release ASReview software (`pip install --upgrade --pre asreview`). Install the plugin with the command below.
 
