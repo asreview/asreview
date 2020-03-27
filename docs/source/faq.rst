@@ -37,7 +37,7 @@ First check whether the package is correctly installed. Do this with the command
 
 .. code-block:: bash
 
-	python -m asreview oracle yourfile.csv
+	python -m asreview oracle
 
 
 How do I work with the Command Line?

@@ -16,18 +16,13 @@ Low level API
 
 .. autoclass:: asreview.ReviewSimulate
 
-.. autoclass:: asreview.ReviewOracle
-
 Models
 ------
 
 .. autoclass:: asreview.models.NBModel
 .. autoclass:: asreview.models.RFModel
-.. autoclass:: asreview.models.NN2LayerModel
 .. autoclass:: asreview.models.SVMModel
 .. autoclass:: asreview.models.LogisticModel
-.. autoclass:: asreview.models.LSTMBaseModel
-.. autoclass:: asreview.models.LSTMPoolModel
 .. autofunction:: asreview.models.get_model
 .. autofunction:: asreview.models.get_model_class
 
@@ -58,10 +53,7 @@ Balance Strategies
 Feature Extraction
 ------------------
 
-.. autoclass:: asreview.feature_extraction.Doc2Vec
 .. autoclass:: asreview.feature_extraction.Tfidf
-.. autoclass:: asreview.feature_extraction.EmbeddingIdf
-.. autoclass:: asreview.feature_extraction.SBERT
 .. autofunction:: asreview.feature_extraction.get_feature_model
 .. autofunction:: asreview.feature_extraction.get_feature_class
 
