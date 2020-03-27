@@ -1,5 +1,5 @@
 Installation
-========================
+============
 
 This tutorial will guide you in installing the ASReview software.
 For a tutorial on how to perform a systematic review after installation, please refer to the
@@ -104,14 +104,14 @@ To install the ASReview software, run the following in the Terminal:
 
 .. code:: bash
 
-    pip install --pre --upgrade asreview
+    pip install asreview
 
 If ASReview was installed succesfully, you will get output like:
 
 .. code:: bash
 
     Installing collected packages: asreview
-    Successfully installed asreview-0.8rc2
+    Successfully installed asreview-0.8
 
 You are now ready to start your first Automated Systematic Review!
 

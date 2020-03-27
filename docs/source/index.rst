@@ -29,23 +29,23 @@ The source code is freely available at
 
    installation
 
+   activelearning
+
    quicktour
 
    covid-19
-
-   gerbrich.md
    
    datasets
 
-   faq
-
    extensions
 
-   cli
+   faq
 
 .. toctree::
    :maxdepth: 2
    :caption: Advanced
+
+   cli
 
    models
 
@@ -55,7 +55,6 @@ The source code is freely available at
   
    feature_extraction
 
-   activelearning
 
 .. toctree::
    :maxdepth: 2
