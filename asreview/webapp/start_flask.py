@@ -67,9 +67,12 @@ def main(argv):
     host = kwargs.pop("ip")
     port = kwargs.pop("port")
 
+    def _internal_open_webbrowser():
+        _open_browser(host, port)
+
     # open webbrowser if not in flask development mode
     if os.environ.get('FLASK_ENV', "") != "development":
-        Timer(1, _open_browser).start()
+        Timer(1, _internal_open_webbrowser).start()
 
     print(
         "\n\n\n\nIf your browser doesn't open. "
