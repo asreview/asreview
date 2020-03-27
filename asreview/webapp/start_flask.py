@@ -9,13 +9,15 @@ from flask.templating import render_template
 from flask_cors import CORS
 
 from asreview.webapp import api
-from asreview.entry_points.simulate import _base_parser
-
-PORT_NUMBER = 5000
+from asreview.entry_points.gui import _oracle_parser
 
 
-def _open_browser():
-    webbrowser.open_new('http://127.0.0.1:{}/'.format(PORT_NUMBER))
+def _url(host, port):
+    return "http://{host}:{port}/".format(host=host, port=port)
+
+
+def _open_browser(host, port):
+    webbrowser.open_new(_url(host, port))
 
 
 def create_app(**kwargs):
@@ -58,20 +60,23 @@ def create_app(**kwargs):
 
 
 def main(argv):
-    parser = _base_parser(prog="oracle")
+
+    parser = _oracle_parser(prog="oracle")
     kwargs = vars(parser.parse_args(argv))
+
+    host = kwargs.pop("ip")
+    port = kwargs.pop("port")
+
+    def _internal_open_webbrowser():
+        _open_browser(host, port)
 
     # open webbrowser if not in flask development mode
     if os.environ.get('FLASK_ENV', "") != "development":
-        Timer(1, _open_browser).start()
+        Timer(1, _internal_open_webbrowser).start()
 
     print(
         "\n\n\n\nIf your browser doesn't open. "
-        "Please navigate to 'http://127.0.0.1:{}/'\n\n\n\n".format(PORT_NUMBER)
-    )
+        "Please navigate to '{url}'\n\n\n\n".format(url=_url(host, port)))
+
     app = create_app(**kwargs)
-    app.run(port=PORT_NUMBER)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+    app.run(host=host, port=port)
