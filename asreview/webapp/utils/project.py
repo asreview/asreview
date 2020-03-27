@@ -116,6 +116,11 @@ def get_paper_data(project_id,
     if return_abstract and record.abstract is not None:
         paper_data['abstract'] = record.abstract
 
+    # return the publication data if available
+    if record.extra_fields.get("publish_time", None) is not None:
+        paper_data['publish_time'] = \
+            record.extra_fields.get("publish_time", None)
+
     # return the debug label
     if return_debug_label and \
             record.extra_fields.get("debug_label", None) is not None:

@@ -36,6 +36,7 @@ const useStyles = makeStyles({
   },
 });
 
+
 const ArticlePanel = (props) => {
   const classes = useStyles();
 
@@ -49,7 +50,19 @@ const ArticlePanel = (props) => {
             component="p"
             paragraph>
             {props.record.title}
-            </Typography>
+        </Typography>
+
+        {/* Show the publication date if available */}
+        {props.record.publish_time !== null  &&
+          <Typography
+              className={classes.publish_time}
+              color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+              component="p"
+              fontStyle="italic"
+              paragraph>
+              {props.record.publish_time}
+          </Typography>
+        }
         <Typography
             className={classes.abstract}
             variant="body2"
