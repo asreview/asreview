@@ -120,3 +120,36 @@ In case you do not get this output, please consult
 
 Indicate your decision using the arrow keys.
 
+Server installation
+~~~~~~~~~~~~~~~~~~~
+
+Although ASReview should only be used in closed networks, it is possible to
+run on a server or custom domain. Use the command line arguments `ip` and
+`port` for configuration.
+
+.. code:: bash
+
+    asreview oracle --port 5555 --ip xxx.x.x.xx
+
+Python3 command
+~~~~~~~~~~~~~~~
+
+Some users have to call the `python3` binary instead of just `python`. At the
+moment, this will result is a freeze in Step 5 of the review. The model is not
+able to train. Solve this by making `python3` the default `python` executable
+on your device or make a virtual environment.
+
+.. code:: bash
+  
+    python3 -m venv asreview/env
+    source ~/asreview/env/bin/activate
+
+Install and run `asreview` in the virtual enviroment.
+
+.. code:: bash
+  
+    pip install asreview
+    asreview oracle
+
+For more details on creating a virtual environment, please have a look at
+https://docs.python.org/3/library/venv.html. 
