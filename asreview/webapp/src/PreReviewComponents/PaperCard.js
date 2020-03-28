@@ -101,7 +101,7 @@ const PaperCard = (props) => {
 
   // reset the item (for search and revert)
   const resetItem = () => {
-    console.log(`${props.project_id} - remove item ${props.id} to prior knowledge`);
+    console.log(`${props.project_id} - remove item ${props.id} from prior knowledge`);
     labelItem(-1)
   }
 
@@ -192,7 +192,6 @@ const PaperCard = (props) => {
   return (
     <Collapse
       in={animated}
-      onExited={() => {props.onRemove(props.id)}}
       appear
       >
     {renderCard()}

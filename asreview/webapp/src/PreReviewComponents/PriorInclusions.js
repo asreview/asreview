@@ -171,11 +171,7 @@ const PriorInclusions = (props) => {
                   abstract={value.abstract}
                   included={value.included}
 
-                  onInclude={addIncluded}
-                  onRevertInclude={removeIncluded2}
-                  removeResultOnRevert={true}
                   removeButton={true}
-
                   collapseAbstract={true}
 
                   // this component needs a key as well
@@ -192,7 +188,6 @@ const PriorInclusions = (props) => {
           searchQuery={searchDialog.query}
           closeSearchDialog={closeSearchDialog}
           onRevertInclude={removeIncluded}
-          onInclude={addIncluded}
         />
       }
       </Box>

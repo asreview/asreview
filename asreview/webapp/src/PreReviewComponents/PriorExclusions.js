@@ -113,7 +113,6 @@ const PriorExclusions = (props) => {
                 title={record.title}
                 abstract={record.abstract}
                 included={null}
-                onInclude={() => {}}
                 onRevertInclude={() => {}}
                 removeButton={false}
                 classify={true}
