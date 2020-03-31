@@ -5,9 +5,10 @@ import json
 import logging
 import subprocess
 import shlex
+import sqlite3
 from urllib.request import urlretrieve
 import urllib.parse
-
+from time import sleep
 
 from flask.json import jsonify
 from flask_cors import CORS
@@ -361,6 +362,35 @@ def api_init_model_ready(project_id):  # noqa: F401
         response = jsonify(
             {'status': 0}
         )
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/model/now_training', methods=["GET"])
+def api_now_training(project_id):
+    """Check if the model is currently being trained.
+
+    But no guarentees on timing.
+    """
+
+    from asreview.webapp.sqlock import get_db
+    lock_fp = get_lock_path(project_id)
+    while True:
+        db = get_db(lock_fp)
+        try:
+            lock_entry = db.execute(
+                'SELECT * FROM locks WHERE name = ?',
+                ("training",)).fetchone()
+            if lock_entry is None:
+                response = jsonify({"status": 0})
+            else:
+                response = jsonify({"status": 1})
+            break
+        except sqlite3.OperationalError as e:
+            print(f"Encountering operational error {e}")
+        db.close()
+        sleep(0.2)
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
