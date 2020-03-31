@@ -17,7 +17,7 @@ import hashlib
 from pathlib import Path
 import pkg_resources
 from urllib.parse import urlparse
-from re import sub
+import re
 
 import numpy as np
 import pandas as pd
@@ -32,20 +32,47 @@ from asreview.utils import is_iterable
 from asreview.utils import is_url
 
 
-def token_set_ratio(keywords, my_str):
-    key_list = sub(",|;|:", "", keywords.lower()).split(" ")
-    match_list = sub(",|;|:", "", my_str.lower()).split(" ")
+def create_inverted_index(match_strings):
+    index = {}
+    WORD = re.compile("['\w]+")
+    for i, match in enumerate(match_strings):
+        tokens = WORD.findall(match.lower())
+        for token in tokens:
+            if token in index:
+                if index[token][-1] != i:
+                    index[token].append(i)
+            else:
+                index[token] = [i]
+    return index
 
-    ratios = []
+
+def match_best(keywords, index, n_match, threshold=0.75):
+    WORD = re.compile("['\w]+")
+    key_list = WORD.findall(keywords.lower())
+
+    ratios = np.zeros(n_match)
     for key in key_list:
+        cur_ratios = {}
         s = SequenceMatcher()
-        s.set_seq2(key.lower())
-        best = 0.0
-        for match in match_list:
-            s.set_seq1(match.lower())
-            best = max(best, 99.999*s.quick_ratio())
-        ratios.append(best)
-    return np.average(ratios) + 0.001/max(1, len(my_str))
+        s.set_seq2(key)
+        for token in index:
+            s.set_seq1(token)
+            ratio = s.quick_ratio()
+            if ratio < threshold:
+                continue
+            for idx in index[token]:
+                if ratio > cur_ratios.get(idx, 0.0):
+                    cur_ratios[idx] = ratio
+
+        for idx, rat in cur_ratios.items():
+            ratios[idx] += rat
+
+    return (100*ratios)/len(key_list)
+
+
+def token_set_ratio(keywords, match_strings):
+    inv_index = create_inverted_index(match_strings)
+    return match_best(keywords, inv_index, n_match=len(inv_index))
 
 
 def get_fuzzy_scores(keywords, str_list):
@@ -63,11 +90,7 @@ def get_fuzzy_scores(keywords, str_list):
     np.ndarray:
         Array of scores ordered in the same way as the str_list input.
     """
-    rank_list = np.zeros(len(str_list), dtype=np.float)
-    for i, my_str in enumerate(str_list):
-        rank_list[i] = token_set_ratio(keywords, my_str)
-#         rank_list[i] = fuzz.token_set_ratio(keywords, my_str)
-    return rank_list
+    return token_set_ratio(keywords, str_list)
 
 
 class ASReviewData():
@@ -289,7 +312,7 @@ class ASReviewData():
         "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
 
-    def fuzzy_find(self, keywords, threshold=50, max_return=10, exclude=None,
+    def fuzzy_find(self, keywords, threshold=60, max_return=10, exclude=None,
                    by_index=True):
         """Find a record using keywords.
 
