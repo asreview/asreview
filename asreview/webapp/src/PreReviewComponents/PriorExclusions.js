@@ -85,7 +85,8 @@ const PriorExclusions = (props) => {
 
     var rec = state["records"].filter(function(record, index, arr){ return record["id"] !== id;});
 
-    console.log("Items to classify in step 4: " + state["records"].length - 1)
+    console.log("test")
+    console.log("Items to classify in step 4: " + state["records"].length)
 
     setState({
         "records": rec,

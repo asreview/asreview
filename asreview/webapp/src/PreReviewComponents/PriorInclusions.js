@@ -172,6 +172,7 @@ const PriorInclusions = (props) => {
                   included={value.included}
 
                   removeButton={true}
+                  getPriorIncluded={getPriorIncluded}
                   collapseAbstract={true}
 
                   // this component needs a key as well
@@ -196,6 +197,7 @@ const PriorInclusions = (props) => {
       <Button
         variant="contained"
         color="primary"
+        disabled={!(included.length > 0)}
         onClick={props.handleNext}
         className={classes.button}
       >
