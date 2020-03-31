@@ -85,6 +85,8 @@ const PriorExclusions = (props) => {
 
     var rec = state["records"].filter(function(record, index, arr){ return record["id"] !== id;});
 
+    console.log("Items to classify in step 4: " + state["records"].length - 1)
+
     setState({
         "records": rec,
         "loaded": true,
@@ -113,7 +115,6 @@ const PriorExclusions = (props) => {
                 title={record.title}
                 abstract={record.abstract}
                 included={null}
-                onInclude={() => {}}
                 onRevertInclude={() => {}}
                 removeButton={false}
                 classify={true}

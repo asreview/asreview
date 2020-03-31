@@ -20,7 +20,6 @@ const SearchResult = (props) => {
               title={value.title}
               authors={value.authors}
               included={value.included}
-              onInclude={props.onInclude}
               onRevertInclude={props.onRevertInclude}
               removeResultOnRevert={props.removeResultOnRevert}
 
