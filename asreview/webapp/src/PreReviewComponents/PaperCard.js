@@ -62,7 +62,7 @@ const PaperCard = (props) => {
     setExpanded(!expanded);
   };
 
-  const labelItem = (label) => {
+  const labelItem = (label, callbk=null) => {
     const url = api_url + `project/${props.project_id}/labelitem`;
 
     let body = new FormData();
@@ -80,6 +80,9 @@ const PaperCard = (props) => {
       })
     .then((result) => {
       setAnimated(false);
+      if (callbk !== null){
+        callbk();
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -90,13 +93,13 @@ const PaperCard = (props) => {
   // include the item in the card
   const includeItem = () => {
     console.log(`${props.project_id} - add item ${props.id} to prior inclusions`);
-    labelItem(1)
+    labelItem(1, () => props.onRemove(props.id))
   }
 
   // exclude the item in the card
   const excludeItem = () => {
     console.log(`${props.project_id} - add item ${props.id} to prior exclusions`);
-    labelItem(0)
+    labelItem(0, () => props.onRemove(props.id))
   }
 
   // reset the item (for search and revert)
