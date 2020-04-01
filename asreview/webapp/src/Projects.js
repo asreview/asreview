@@ -31,63 +31,77 @@ const Projects = (props) => {
 
     const classes = useStyles();
 
-    const [projects, setProjects] = useState([]);
+    const [projects, setProjects] = useState({
+      "projects": [],
+      "loaded": false,
+    });
+
 
     useEffect(() => {
 
-      const fetchData = async () => {
-
-        const url = api_url + "projects";
-
-        await axios.get(url)
-          .then((result) => {
-            setProjects(result.data['result']);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      };
-      fetchData();
+      refreshProjects();
 
     }, []);
+
+    const refreshProjects = () => {
+
+      const url = api_url + "projects";
+
+      axios.get(url)
+        .then((result) => {
+          setProjects({
+            "projects": result.data['result'],
+            "loaded": true,
+          })
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
 
 
     return (
         <Container maxWidth='md' className={classes.root}>
-          <Grid container spacing={3}>
-            {projects.length > 0 ?
-              projects.map(project => (
-                <Grid item sm={4} key={project.id}>
-                  <ProjectCard
-                    className={classes.paper}
-                    id={project.id}
-                    name={project.name}
-                    description={project.description}
-                    setAppState={props.setAppState}
-                  />
-                </Grid>
-                )
-              ) :
+
+        {/* Project loaded, but no projects found */}
+        {(projects['loaded'] && projects['projects'].length === 0) &&
               <Typography variant="h5">
                 No projects found
               </Typography>
-            }
+        }
+
+        {/* Project loaded and projects found */}
+        {(projects['loaded'] && projects['projects'].length !== 0) &&
+          <Grid container spacing={3}>
+              {projects['projects'].map(project => (
+                  <Grid item sm={4} key={project.id}>
+                    <ProjectCard
+                      className={classes.paper}
+                      id={project.id}
+                      name={project.name}
+                      description={project.description}
+                      setAppState={props.setAppState}
+                      refreshProjects={refreshProjects}
+                    />
+                </Grid>
+              ))}
           </Grid>
+        }
 
-          {/* Add button for new project */}
-          <Tooltip title="Add" aria-label="add">
-            <Fab
-                color="secondary"
-                className={classes.absolute}
-                onClick={() => { 
-                    props.setAppState('review-init'); 
+        {/* Add button for new project */}
+        <Tooltip title="Add" aria-label="add">
+          <Fab
+              color="secondary"
+              className={classes.absolute}
+              onClick={() => { 
+                  props.setAppState('review-init'); 
 
-                }}
-            >
-              <AddIcon/>
-            </Fab>
-          </Tooltip>
-        </Container>
+              }}
+          >
+            <AddIcon/>
+          </Fab>
+        </Tooltip>
+      </Container>
     );
 }
 

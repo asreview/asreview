@@ -7,10 +7,10 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
-import { connect } from "react-redux";
-
 import store from './redux/store'
 import { setProject } from './redux/actions'
+
+import ProjectSettings from './ProjectSettings.js'
 
 const useStyles = makeStyles({
   root: {
@@ -21,12 +21,10 @@ const useStyles = makeStyles({
   },
 });
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
-
 const ProjectCard = (props) => {
   const classes = useStyles();
+
+  const [settings, setSettings] = React.useState(false);
 
   const openExistingProject = () => {
 
@@ -38,6 +36,11 @@ const ProjectCard = (props) => {
     // change to the review window
     props.setAppState("review")
   }
+
+  const toggleProjectSettings = () => {
+    console.log("Open settings project " + props.id)
+    setSettings(a => (!a));
+  };  
 
   return (
     <Card className={classes.root}>
@@ -61,13 +64,25 @@ const ProjectCard = (props) => {
           size="small"
           color="primary"
           onClick={openExistingProject}
-          key={props.id}
         >
           Open
+        </Button>        
+        <Button
+          size="small"
+          color="primary"
+          onClick={toggleProjectSettings}
+        >
+          Settings
         </Button>
       </CardActions>
+      <ProjectSettings
+        id={props.id}
+        settings={settings}
+        toggleProjectSettings={toggleProjectSettings}
+        refreshProjects={props.refreshProjects}
+      />
     </Card>
   );
 }
 
-export default connect(mapStateToProps)(ProjectCard);
+export default ProjectCard;
