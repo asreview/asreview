@@ -1,4 +1,4 @@
-
+import shutil
 import os
 import re
 import json
@@ -20,6 +20,7 @@ from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path, get_project_file_path
 from asreview.webapp.utils.paths import get_lock_path, get_proba_path
+from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -463,3 +464,27 @@ def api_get_document(project_id):  # noqa: F401
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+
+@bp.route('/project/<project_id>/delete', methods=["DELETE"])
+def api_delete_project(project_id):  # noqa: F401
+    """Get info on the article"""
+
+    # some checks to check if there is a project to delete
+    if project_id == "" or project_id is None:
+        response = jsonify(message="project-delete-failure")
+        return response, 500
+
+    logging.info(f"delete project {project_id}")
+
+    project_path = get_project_path(project_id)
+
+    if project_path.exists() and project_path.is_dir():
+        shutil.rmtree(project_path)
+
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    response = jsonify(message="project-delete-failure")
+    return response, 500
