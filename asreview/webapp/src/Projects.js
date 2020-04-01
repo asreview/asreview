@@ -51,6 +51,10 @@ const Projects = (props) => {
 
     }, []);
 
+    const refreshProjects = () => {
+      console.log("refresh project [NOT IMPLEMENTED]")
+    }
+
 
     return (
         <Container maxWidth='md' className={classes.root}>
@@ -64,6 +68,7 @@ const Projects = (props) => {
                     name={project.name}
                     description={project.description}
                     setAppState={props.setAppState}
+                    refreshProjects={refreshProjects}
                   />
                 </Grid>
                 )
