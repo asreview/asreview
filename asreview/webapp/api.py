@@ -160,11 +160,16 @@ def api_upload_data_project(project_id):  # noqa: F401
 
         demo_data = get_dataset(request.form['demo_data'])
 
-        url_parts = urllib.parse.urlparse(demo_data.url)
+        if demo_data.dataset_id in ["hall", "ace", "ptsd"]:
+            download_url = demo_data.url_demo
+        else:
+            download_url = demo_data.url
+
+        url_parts = urllib.parse.urlparse(download_url)
         filename = url_parts.path.rsplit('/', 1)[-1]
 
         urlretrieve(
-            demo_data.url,
+            download_url,
             get_data_path(project_id) / filename
         )
 
