@@ -75,7 +75,7 @@ const Projects = (props) => {
           </Grid>
 
           {/* Add button for new project */}
-          <Tooltip title="Add" aria-label="add">
+          <Tooltip title="Add project" aria-label="add">
             <Fab
                 color="secondary"
                 className={classes.absolute}

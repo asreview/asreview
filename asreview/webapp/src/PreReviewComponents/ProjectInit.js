@@ -114,6 +114,7 @@ const ProjectInit = (props) => {
             id="project-author"
             label="Author(s)"
             onChange={onChange}
+            InputLabelProps={{ required: false }}
           />
         </div>
         <div className={classes.textfieldItem}> 
@@ -122,8 +123,9 @@ const ProjectInit = (props) => {
             required
             name="name"
             id="project-name"
-            label="Projectname"
+            label="Project name"
             onChange={onChange}
+            InputLabelProps={{ required: false }}
           />
         </div>
         <div className={classes.textfieldItem}> 
@@ -134,6 +136,7 @@ const ProjectInit = (props) => {
             id="project-description"
             label="Short description"
             onChange={onChange}
+            InputLabelProps={{ required: false }}
           />
         </div>
         <div className={classes.nextButton}>

@@ -130,7 +130,7 @@ const PriorInclusions = (props) => {
   return (
     <Box>
       <Typography variant="h5">
-        Do you have publications to include?
+        Would you like to include publications?
       </Typography>
       <Box>
       <form className={classes.root} noValidate autoComplete="off" onSubmit={openSearchDialog}>

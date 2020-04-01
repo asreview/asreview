@@ -162,7 +162,7 @@ const ProjectUpload = (props) => {
       <div>
         <div {...getRootProps({style})}>
           <input {...getInputProps()} />
-          <Typography>Drag 'n' drop a file here, or click to a file</Typography>
+          <Typography>Drag 'n' drop a file here, or browse to a file</Typography>
         </div>
         {acceptedFiles.length === 1 &&
           <div>
@@ -180,7 +180,7 @@ const ProjectUpload = (props) => {
       </div>
 
       <Typography className={classes.divider}>
-        - or select a dataset below -
+        or select a dataset below
       </Typography> 
       <ProjectDemoData
         onUploadHandler={onUploadHandler}
