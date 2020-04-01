@@ -1,11 +1,13 @@
 import React from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  DialogContentText,
+  // DialogContentText,
   Typography,
   TextField,
 } from '@material-ui/core';
@@ -13,10 +15,31 @@ import {
 import axios from 'axios'
 import { api_url } from './globals.js';
 
+const useStyles = makeStyles({
+  root: {
+    maxWidth: "100%",
+  },
+  deleteButton: {
+    margin: 5,
+  },
+  header :{
+    marginBottom: 10,
+  },
+  inputDelete:{
+    marginBottom: 10,
+    marginTop: 10,
+  }
+});
+
 export default function ProjectSettings(props) {
 
+  // set the styles
+  const classes = useStyles();
+
+  // state variables
   const [deleteInput, setDeleteInput] = React.useState("")
 
+  // useeffect
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
     if (props.settings) {
@@ -60,11 +83,15 @@ export default function ProjectSettings(props) {
       >
         <DialogTitle id="scroll-dialog-title">Project '{props.id}' settings</DialogTitle>
         <DialogContent dividers={true}>
-            <Typography variant="inherit">
+          <Typography variant="h4" className={classes.header}>
+            Delete project
+          </Typography>
+            <Typography>
               Delete your project by typing the project name '{props.id}' below.
             </Typography>
             <form noValidate autoComplete="off" onSubmit={deleteProject}>
               <TextField
+                className={classes.inputDelete}
                 fullWidth
                 required
                 name="project-name"
@@ -74,6 +101,7 @@ export default function ProjectSettings(props) {
               />
               <div>
                 <Button
+                  className={classes.deleteButton}
                   variant="contained"
                   color="primary"
                   disabled={deleteInput !== props.id}
