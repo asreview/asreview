@@ -56,7 +56,7 @@ const ArticlePanel = (props) => {
           {/* No title, inplace text */}
           {(props.record.title === "" || props.record.title === null) &&
             <Box fontStyle="italic">
-              This article doens't have an title.
+              This article doens't have a title.
             </Box>
           }
 
