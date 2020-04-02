@@ -1,6 +1,7 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import {
+  Box,
   Container,
   Slide,
   Typography,
@@ -43,13 +44,28 @@ const ArticlePanel = (props) => {
   return (
     <Slide direction={props.slide.direction} in={props.slide.set} timeout={{ enter: 0, exit: 0 }} mountOnEnter={true}>
       <Container maxWidth="md" className={props.reviewDrawerState?classes.boxWithDrawer:classes.boxFullWidth}>
+        
+        {/* Show the title */}
         <Typography
-            className={classes.title}
-            variant="h6"
-            color={props.record._debug_label === 1 ? "error" : "textSecondary"}
-            component="p"
-            paragraph>
-            {props.record.title}
+          className={classes.title}
+          variant="h6"
+          color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+          component="div"
+          paragraph>
+
+          {/* No title, inplace text */}
+          {(props.record.title === "" || props.record.title === null) &&
+            <Box fontStyle="italic">
+              This article doens't have an title.
+            </Box>
+          }
+
+          {/* No title, inplace text */}
+          {!(props.record.title === "" || props.record.title === null) &&
+            <Box>
+              {props.record.title}
+            </Box>
+          }
         </Typography>
 
         {/* Show the publication date if available */}
@@ -63,13 +79,28 @@ const ArticlePanel = (props) => {
               {props.record.publish_time}
           </Typography>
         }
+
+        {/* Show the abstract */}
         <Typography
             className={classes.abstract}
             variant="body2"
             color={props.record._debug_label === 1 ? "error" : "textSecondary"}
-            component="p"
+            component="div"
             paragraph>
-            {props.record.abstract}
+
+            {/* No abstract, inplace text */}
+            {(props.record.abstract === "" || props.record.abstract === null) &&
+              <Box fontStyle="italic">
+                This article doens't have an abstract.
+              </Box>
+            }
+
+            {/* No abstract, inplace text */}
+            {!(props.record.abstract === "" || props.record.abstract === null) &&
+              <Box>
+                {props.record.abstract}
+              </Box>
+            }
         </Typography>
       </Container>
     </Slide>
