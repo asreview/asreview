@@ -46,11 +46,8 @@ class PTSDDataSet(BaseDataSet):
     dataset_id = "ptsd"
     title = "PTSD - Schoot"
     description = "Bayesian PTSD-Trajectory Analysis with Informed Priors"
-    url = (
-        "https://raw.githubusercontent.com/asreview/systematic-review-datasets"
-        "/master/datasets/Van_de_Schoot_PTSD/output/PTSD_VandeSchoot_18.csv")
-    url_demo = ("https://raw.githubusercontent.com/asreview/asreview/master/"
-                "tests/test_datasets/PTSD_VandeSchoot_18_debug.csv")
+    url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/PTSD_VandeSchoot_18.csv"  # noqa
+    url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/PTSD_VandeSchoot_18_debug.csv"  # noqa
     sha512 = ("e2b62c93e4e9ddebf786e2cc8a0effb7fd8bf2ada986d53e6e5133092e7de88"
               "6b311286fa459144576ed3ac0dfff1bca1ba9c198d0235d8280a40b2533d0c0"
               "a7")
@@ -70,11 +67,8 @@ class AceDataSet(BaseDataSet):
     dataset_id = "ace"
     title = "ACEInhibitors - Cohen"
     description = "Systematic Drug Class Review Gold Standard Data"
-    url = (
-        "https://raw.githubusercontent.com/asreview/systematic-review-datasets"
-        "/master/datasets/Cohen_EBM/output/ACEInhibitors.csv")
-    url_demo = ("https://raw.githubusercontent.com/asreview/asreview/master"
-                "/tests/test_datasets/ACEInhibitors_debug.csv")
+    url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv"  # noqa
+    url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/ACEInhibitors_debug.csv"  # noqa
     link = ("https://dmice.ohsu.edu/cohenaa/"
             "systematic-drug-class-review-data.html")
     authors = ["A.M. Cohen", "W.R. Hersh", "K. Peterson", "Po-Yin Yen"]
@@ -95,13 +89,8 @@ class HallDataSet(BaseDataSet):
     title = "Fault prediction - Hall"
     description = ("A systematic literature review on fault prediction "
                    "performance in software engineering")
-    url = (
-        "https://raw.githubusercontent.com/asreview/systematic-review-datasets"
-        "/master/datasets/Four%20Software%20Engineer%20Data%20Sets/"
-        "Software%20Engineering%201%20Hall.csv"
-    )
-    url_demo = ("https://raw.githubusercontent.com/asreview/asreview/master"
-                "/tests/test_datasets/Software_Engineering_Hall_debug.csv")
+    url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/Software_Engineering_Hall.csv"  # noqa
+    url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/Software_Engineering_Hall_debug.csv"  # noqa
     link = "https://zenodo.org/record/1162952#.XIVBE_ZFyVR"
     authors = ["Tracy Hall", "Sarah Beecham", "David Bowes", "David Gray",
                "Steve Counsell"]
