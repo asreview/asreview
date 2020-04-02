@@ -46,7 +46,8 @@ def create_inverted_index(match_strings):
     return index
 
 
-def match_best(keywords, index, n_match, threshold=0.75):
+def match_best(keywords, index, match_strings, threshold=0.75):
+    n_match = len(match_strings)
     WORD = re.compile("['\w]+")
     key_list = WORD.findall(keywords.lower())
 
@@ -72,10 +73,10 @@ def match_best(keywords, index, n_match, threshold=0.75):
 
 def token_set_ratio(keywords, match_strings):
     inv_index = create_inverted_index(match_strings)
-    return match_best(keywords, inv_index, n_match=len(inv_index))
+    return match_best(keywords, inv_index, match_strings)
 
 
-def get_fuzzy_scores(keywords, str_list):
+def get_fuzzy_scores(keywords, match_strings):
     """Rank a list of strings, depending on a set of keywords.
 
     Arguments
@@ -90,7 +91,7 @@ def get_fuzzy_scores(keywords, str_list):
     np.ndarray:
         Array of scores ordered in the same way as the str_list input.
     """
-    return token_set_ratio(keywords, str_list)
+    return token_set_ratio(keywords, match_strings)
 
 
 class ASReviewData():
@@ -312,6 +313,23 @@ class ASReviewData():
         "Print a record to the CLI."
         print(self.format_record(*args, **kwargs))
 
+    @property
+    def match_string(self):
+        match_str = np.full(len(self), "x", dtype=object)
+
+        all_titles = self.title
+        all_authors = self.authors
+        all_keywords = self.keywords
+        for i in range(len(self)):
+            match_list = []
+            if all_authors is not None:
+                match_list.append(format_to_str(all_authors[i]))
+            match_list.append(all_titles[i])
+            if all_keywords is not None:
+                match_list.append(format_to_str(all_keywords[i]))
+            match_str[i, ] = " ".join(match_list)
+        return match_str
+
     def fuzzy_find(self, keywords, threshold=60, max_return=10, exclude=None,
                    by_index=True):
         """Find a record using keywords.
@@ -339,20 +357,7 @@ class ASReviewData():
         list:
             Sorted list of indexes that match best the keywords.
         """
-        match_str = np.full(len(self), "x", dtype=object)
-
-        all_titles = self.title
-        all_authors = self.authors
-        all_keywords = self.keywords
-        for i in range(len(self)):
-            match_list = []
-            if all_authors is not None:
-                match_list.append(format_to_str(all_authors[i]))
-            match_list.append(all_titles[i])
-            if all_keywords is not None:
-                match_list.append(format_to_str(all_keywords[i]))
-            match_str[i, ] = " ".join(match_list)
-        new_ranking = get_fuzzy_scores(keywords, match_str)
+        new_ranking = get_fuzzy_scores(keywords, self.match_string)
         sorted_idx = np.argsort(-new_ranking)
         best_idx = []
         if exclude is None:
