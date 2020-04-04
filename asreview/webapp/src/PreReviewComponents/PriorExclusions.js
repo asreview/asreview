@@ -11,6 +11,8 @@ import {
   PaperCard,
 } from '../PreReviewComponents'
 
+import HelpIcon from '@material-ui/icons/Help';
+
 
 import axios from 'axios'
 
@@ -49,6 +51,12 @@ const useStyles = makeStyles(theme => ({
   loader: {
     width: '100%',
   },
+  helptext : {
+    padding: "12px 0px",
+  },
+  clear : {
+    clear: "both",
+  }
 }));
 
 const mapStateToProps = state => {
@@ -62,6 +70,8 @@ const PriorExclusions = (props) => {
     "records": [],
     "loaded": false,
   });
+
+  const [showHelp, setShowHelp] = React.useState(false);
 
   let n = 5;
 
@@ -97,35 +107,54 @@ const PriorExclusions = (props) => {
       getDocument();
   }, []);
 
+  const toggleHelp = () => {
+    setShowHelp(a => (!a));
+  };
+
   return (
     <Box>
-      <Typography variant="h5">
-        Are these 5 randomly selected publications relevant?
-      </Typography>
+      <Box style={{clear: "both"}}>
+        <Typography style={{display: "inline"}} variant="h5" align="left">
+          Are these 5 randomly selected publications relevant?
+        </Typography>
+        <Typography style={{width: "25px",margin:"3px", float:"right", opacity: 0.5}}  align="right">
+        <HelpIcon onClick={toggleHelp}/>
+        </Typography>
 
-      {!state["loaded"] ? 
-        <Box className={classes.loader}>
-          <CircularProgress
-            style={{margin: "0 auto"}}
-          />
-        </Box> : 
-        state["records"].map((record, index) => {
-            return (
-              <PaperCard
-                id={record.id}
-                title={record.title}
-                abstract={record.abstract}
-                included={null}
-                onRevertInclude={() => {}}
-                removeButton={false}
-                classify={true}
-                onRemove={onRemove}
-                key={record.id}
-              />
-            );
-          } 
-        )    
-      }
+        {showHelp && 
+          <Typography className={classes.helptext}>
+            <Box fontStyle="italic">
+              The software requires 1-5 irrelevant papers.
+            </Box>
+          </Typography>
+        }
+      </Box>
+
+      <Box className={classes.clear}>
+        {!state["loaded"] ? 
+          <Box className={classes.loader}>
+            <CircularProgress
+              style={{margin: "0 auto"}}
+            />
+          </Box> : 
+          state["records"].map((record, index) => {
+              return (
+                <PaperCard
+                  id={record.id}
+                  title={record.title}
+                  abstract={record.abstract}
+                  included={null}
+                  onRevertInclude={() => {}}
+                  removeButton={false}
+                  classify={true}
+                  onRemove={onRemove}
+                  key={record.id}
+                />
+              );
+            } 
+          )    
+        }
+      </Box>
 
       {/*
       <ArticlePanel

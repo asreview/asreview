@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {
+  Box,
   Container,
   Grid,
   Tooltip,
@@ -24,6 +25,9 @@ const useStyles = makeStyles(theme => ({
     bottom: theme.spacing(2),
     right: theme.spacing(3),
   },
+  noProjects :{
+    opacity: 0.5,
+  }
 }));
 
 
@@ -65,9 +69,16 @@ const Projects = (props) => {
 
         {/* Project loaded, but no projects found */}
         {(projects['loaded'] && projects['projects'].length === 0) &&
-              <Typography variant="h5">
-                No projects found
-              </Typography>
+              <Box className={classes.noProjects}>
+                <Typography variant="h5" align="center">
+                  You don't have any projects yet.
+                </Typography>
+                <Box fontStyle="italic">
+                  <Typography align="center">
+                    Start a review by clicking on the red button in the bottom left corner.
+                  </Typography>
+                </Box>
+              </Box>
         }
 
         {/* Project loaded and projects found */}
@@ -89,7 +100,7 @@ const Projects = (props) => {
         }
 
         {/* Add button for new project */}
-        <Tooltip title="Add" aria-label="add">
+        <Tooltip title="Start new project" aria-label="add">
           <Fab
               color="secondary"
               className={classes.absolute}
