@@ -10,7 +10,9 @@ import {
   Toolbar,
   IconButton,
 } from '@material-ui/core'
+
 import SearchIcon from '@material-ui/icons/Search';
+import HelpIcon from '@material-ui/icons/Help';
 
 import {
   SearchResultDialog,
@@ -52,6 +54,12 @@ const useStyles = makeStyles(theme => ({
     height: 28,
     margin: 4,
   },
+  help :{
+    textAlign: "right",
+  },
+  helptext : {
+    padding: "12px 0px",
+  }
 }));
 
 const mapStateToProps = state => {
@@ -68,6 +76,8 @@ const PriorInclusions = (props) => {
     open : false,
     query : ""
   });
+
+  const [showHelp, setShowHelp] = React.useState(false);
 
   const onChangeSearch = (evt) => {
     setSearchDialog({
@@ -127,12 +137,27 @@ const PriorInclusions = (props) => {
     getPriorIncluded();
   }
 
+  const toggleHelp = () => {
+    setShowHelp(a => (!a));
+  };  
+
   return (
-    <Box>
-      <Typography variant="h5">
-        Do you have publications to include?
+    <Box style={{clear: "both"}}>
+      <Typography style={{display: "inline"}} variant="h5" align="left">
+        Do you have publications to include? 
       </Typography>
-      <Box>
+      <Typography style={{width: "25px",margin:"3px", float:"right", opacity: 0.5}}  align="right">
+      <HelpIcon onClick={toggleHelp}/>
+      </Typography>
+
+      {showHelp && 
+        <Typography className={classes.helptext}>
+          <Box fontStyle="italic">
+            Provide about 1 to 5 relevant publications based on prior knowledge.
+          </Box>
+        </Typography>
+      }
+    <Box>
       <form className={classes.root} noValidate autoComplete="off" onSubmit={openSearchDialog}>
         <FormControl
           fullWidth

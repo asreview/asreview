@@ -109,7 +109,6 @@ const ProjectInit = (props) => {
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
-            required
             name="authors"
             id="project-author"
             label="Author(s)"
@@ -119,7 +118,6 @@ const ProjectInit = (props) => {
         <div className={classes.textfieldItem}> 
           <TextField
             fullWidth
-            required
             name="name"
             id="project-name"
             label="Projectname"
@@ -129,7 +127,6 @@ const ProjectInit = (props) => {
         <div className={classes.textfieldItem}> 
           <TextField
             fullWidth
-            required
             name="description"
             id="project-description"
             label="Short description"
