@@ -8,6 +8,9 @@ import {
   Button,
   Typography,
   Toolbar,
+  Paper,
+  Tabs,
+  Tab,
 } from '@material-ui/core'
 
 import {
@@ -145,49 +148,74 @@ const ProjectUpload = (props) => {
   }
 
 
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
+
   return (
   <Box>
     <Typography variant="h5" className={classes.title}>
       Select a dataset
     </Typography>
 
-    {/* Uploading dataset */}
-    {upload &&
-      <Typography>Uploading... </Typography>
+    <Paper className={classes.root}>
+      <Tabs
+        value={value}
+        onChange={handleChange}
+        indicatorColor="primary"
+        textColor="primary"
+        centered
+      >
+        <Tab label="From file" />
+        <Tab label="From url" />
+        <Tab label="From datasets" />
+        <Tab label="Demo datasets" />
+      </Tabs>
 
+
+      {/* Uploading dataset */}
+      {upload &&
+        <Typography>Uploading... </Typography>
+
+      }
+
+      {value === 0 &&
+      <Box>
+        <div>
+
+          <div {...getRootProps({style})}>
+            <input {...getInputProps()} />
+            <Typography>Drag 'n' drop a file here, or click to a file</Typography>
+          </div>
+
+          {acceptedFiles.length === 1 &&
+            <div>
+              <Typography>File '{acceptedFiles[0].path}' selected.</Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {onUploadHandler()}}
+                className={classes.button}
+              >
+                Next
+              </Button>
+            </div>
+          }
+
+        </div>
+      </Box>
     }
 
-    {!upload &&
-    <Box>
-      <div>
-        <div {...getRootProps({style})}>
-          <input {...getInputProps()} />
-          <Typography>Drag 'n' drop a file here, or click to a file</Typography>
-        </div>
-        {acceptedFiles.length === 1 &&
-          <div>
-            <Typography>File '{acceptedFiles[0].path}' selected.</Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {onUploadHandler()}}
-              className={classes.button}
-            >
-              Next
-            </Button>
-          </div>
-        }
-      </div>
-
-      <Typography className={classes.divider}>
-        - or select a dataset below -
-      </Typography> 
+    {value === 2 &&
       <ProjectDemoData
         onUploadHandler={onUploadHandler}
       />
-      <Toolbar className={classes.clear}/>
-  </Box>
-  }
+    }
+
+    </Paper>
   </Box>
   );
 }
