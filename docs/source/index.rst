@@ -37,6 +37,8 @@ The source code is freely available at
    
    datasets
 
+   user_testing_algorithms
+
    extensions
 
    faq
