@@ -41,7 +41,6 @@ class FuzzyMatcher():
             if len(key) == 1 and key in self.index:
                 token_list = [key]
 
-#             print(token_list)
             s = SequenceMatcher()
             s.set_seq2(key)
             cur_matches = {}
@@ -58,7 +57,6 @@ class FuzzyMatcher():
                     continue
                 cur_matches[token] = (ratio, len(self.index[token]))
 
-#             print(cur_matches)
             if len(cur_matches) == 0:
                 continue
             best_value = max([x[0] for x in cur_matches.values()])
@@ -93,8 +91,6 @@ class FuzzyMatcher():
                     match_final_keys(current_matches, match_tokens[i_key:],
                                      self.match_str,
                                      weights[i_key:], in_place=True)
-#                     print("Doing faster matching")
-#                     print(current_matches, match_tokens, weights)
                     break
             new_matches = {}
             for token, val in match_tokens[i_key].items():
@@ -111,23 +107,11 @@ class FuzzyMatcher():
                     current_matches[idx] = ratio
                 else:
                     current_matches[idx] += ratio
-#                         if idx not in current_matches:
-#                             current_matches[idx] = ratio
-#                         else:
-#                             current_matches[idx] += ratio
 
         filter_current_matches(current_matches, max_match=max_match,
                                weight_left=0)
         return_matches = {key: value for key, value in current_matches.items()
                           if value >= self.match_threshold}
-#         if key_list == ["h", "emerging"]:
-#             print(current_matches)
-#             print(match_tokens)
-#             print(keywords)
-#             print(key_list)
-#             print(23 in self.index["h"], 23 in self.index["emerging"])
-#             print(weights)
-#         print(token_lists)
         if len(return_matches) == 0:
             return list(sorted(current_matches,
                                key=lambda x: -current_matches[x]))[0:max_match]
