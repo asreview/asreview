@@ -37,6 +37,7 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
+No Python installed yet? Follow our [python installation guide](https://asreview.readthedocs.io/en/latest/installation.html#install-python).
 
 ## ASReview app
 
