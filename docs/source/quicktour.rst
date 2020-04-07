@@ -11,7 +11,7 @@ this is not the case, please check out the
 `installation <installation.html>`__ page.
 
 Now, to launch the ASReview user interface, run the following in your
-shell:
+shell (open the CMD):
 
 ::
 
@@ -19,7 +19,7 @@ shell:
 
 In five steps you can start screening for relevant papers:
 
-
+--------------
 Step 1. Creating a New Project
 -------------------------
 
@@ -29,7 +29,7 @@ Upon launching ASReview you arrive at the Projects page. Start a new project by 
 .. figure:: ../images/0_projects_page.png
    :alt: 
 
---------------
+
 
 Next, provide information on your systematic review project:
 
@@ -79,7 +79,7 @@ engine.
    :alt: 
 
 Repeat this step until you've selected your 1-5 prior inclusions. Your
-prior inclusion(s) will be displayed below the search field.
+prior inclusion(s) will be displayed below the search field and click the Next button.
 
 .. figure:: ../images/3.3_include_publications.png
    :alt: 
@@ -89,16 +89,16 @@ prior inclusion(s) will be displayed below the search field.
 Step 4. Provide Prior Irrelevant Papers
 -------------------------
 
-Fourth, to train the model you also need to provide some irrelevant papers.  
-
-Given that the majority of publications in the data set is irrelevant to
-your systematic review, the publications presented here will most
-probable be excluded from your systematic review. This provides the
+Fourth, to train the machine learning model you also need to provide some irrelevant papers.  
+This provides the
 software with additional information on what kind of publications should
 be excluded from your systematic review.
 
+Given that the majority of publications in the data set is irrelevant, the publications presented here will most
+probable be irrelevant for your systematic review. 
+
 Indicate for each publication whether it is relevant
-or irrelevant to your systematic review.
+or irrelevant to your systematic review and click the Next button.
 
 
 .. figure:: ../images/4_label_random.png
@@ -111,7 +111,7 @@ or irrelevant to your systematic review.
 
 Step 5. Select Machine Learning Model
 ------------
-In the fnal step you will be allowed to choose a machine learning model. For now, we automatically selectly the default settings, but in due time you will allowed to select a model. 
+In the final step you will be allowed to choose a machine learning model. For now, we automatically selected the default settings, but in due time you will allowed to select a model yourself. 
 
 Based on the information you have provided in Steps 3 and 4, the software is now building
 a machine learning model that predicts the next abstract most likely to
@@ -120,10 +120,9 @@ be relevant.
 
 Start Reviewing
 ------------
-As soon as the machine learning model has comnverged, the software presents you with the publication of which ASReview is most
+As soon as the machine learning model has converged, the software presents you with the publication of which the machine learning model  is most
 confident that it should be included in your systematic review. You are
-asked to provide a label: should the publication be included or excluded
-from your systematic review?
+asked to provide a label: relevant or irrelevant for your systematic search?
 
 While you review the publications that the software presents you with,
 the software continuously improves its understanding of your decisions,
@@ -132,12 +131,7 @@ constantly updating the underlying model.
 .. figure:: ../images/5_reviewing.png
    :alt: 
 
-.. figure:: ../images/5_reviewing_2.png
-   :alt: 
-
---------------
-
-To view your progress, click the statistics symbol in the upper right corner.
+To view your progress, click the Statistics symbol in the upper right corner.
 The Statistics panel will open, showing information on the current
 project and labelling progress.
 
@@ -145,24 +139,24 @@ project and labelling progress.
    :alt: 
 
 The software keeps presenting you with the most relevant publication
- until there are no more publications left to review, or
-until you decide to stop reviewing.
+until there are no more publications left to review, or until you decide to stop reviewing.
 
+--------------
 When to stop reviewing
-~~~~~~~~~~~~~~~~~~~~~~
+------------
 
-As you keep reviewing publications, your set of relevant will increase
+As you keep reviewing abstracts, your set of relevant papers will increase
 while the number of unlabelled abstracts left in the data set will
 decline.
 
 Now, in a 'traditional' systematic review, you would continue reviewing
-until you have seen all publications in the data set. However, ASReview
+until you have seen all abstracts in the data set. However, ASReview
 orders the publications in such a way that you see the most relevant
-publications first. In other words, there is a point where you are
+publications first. In other words, there is a point where you can be
 confident that you have seen (almost) all publications you need, and you
 can stop reviewing. When to stop is left to the user. A stopping
 criterium could be stopping after the last X presented abstracts were
-labelled irrelevant.
+labelled irrelevant, or if your time is up.
 
 --------------
 
