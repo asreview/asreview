@@ -1,8 +1,6 @@
 .. figure:: https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true
    :alt: ASReview against COVID19
 
-Extension to add publications on COVID-19 to
-`ASReview <https://github.com/asreview/asreview>`__.
 
 ASReview against COVID-19
 =========================
