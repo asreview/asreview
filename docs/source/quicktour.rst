@@ -3,7 +3,7 @@ ASReview Quick Tour
 
 .. contents:: Table of Contents
 
-1. Launching ASReview
+Launching ASReview
 ---------------------
 
 This tutorial assumes you have already installed Python and ASReview. If
@@ -17,28 +17,32 @@ shell:
 
     asreview oracle
 
-2. Creating a New Project
+In five steps you can start screening for relevant papers:
+
+
+Step 1. Creating a New Project
 -------------------------
 
-Upon launching ASReview you arrive at the project page. Continue with an
-already existing systematic review project by clicking on it, or start a
-new project by clicking the red + sign in the bottom right corner:
+In Step 1, you need to create (or open) a project.
+Upon launching ASReview you arrive at the Projects page. Start a new project by clicking the red + sign in the bottom right corner, or continue with an already exisiting project by clicking the Open button:
 
 .. figure:: ../images/0_projects_page.png
    :alt: 
 
 --------------
 
-Creating a new project consists of five steps. First, provide
-information on your systematic review project:
+Next, provide information on your systematic review project:
 
 .. figure:: ../images/1_create_project.png
    :alt: 
 
 --------------
 
-Second, select the data set you want to review. Your data set should
-contain the titles and abstracts of all publications you want to screen.
+Step 2. Select a Data Set
+-------------------------
+
+In step 2, select the data set you want to review, which should
+contain at least the titles and abstracts of all publications you want to screen.
 You can either upload `your own data
 set <https://asreview.readthedocs.io/en/latest/datasets.html#using-your-own-data>`__
 or choose one of the built-in data sets:
@@ -48,23 +52,27 @@ or choose one of the built-in data sets:
 
 --------------
 
-At step 3 you are asked to select prior inclusions: the publications of
+
+Step 3. Provide Prior Relevant Papers
+-------------------------
+
+At step 3 you are asked to select some relevant papers: the publications of
 which you already know they are relevant for your systematic review. You
 can search your data set by authors, keywords and title, or a
 combination thereof.
 
 Providing the software with prior information gives the software a head
 start. Note that there are no restrictions on the number of publications
-you need to provide, ASReview also works with 0 prior inclusions.
-However, providing more than 10 prior inclusions is not necessary,
-preferably provide 1-5 prior inclusions. Enter your search terms (for
+you need to provide, but preferably provide 1-5 prior inclusions. 
+
+Enter your search terms (for
 example "bat") and confirm by clicking the magnifying glass icon.
 
 .. figure:: ../images/3_include_publications.png
    :alt: 
 
 From the obtained search result, select the publication(s) you had in
-mind by clicking the heart icon. Press return to go back to the search
+mind by clicking the heart icon. Click return to go back to the search
 engine.
 
 .. figure:: ../images/3.2_include_publications_bat.png
@@ -78,9 +86,10 @@ prior inclusion(s) will be displayed below the search field.
 
 --------------
 
-Fourth, you will be presented with five publications randomly sampled
-from the data set. Indicate for each publication whether it is relevant
-or irrelevant to your systematic review.
+Step 4. Provide Prior Irrelevant Papers
+-------------------------
+
+Fourth, to train the model you also need to provide some irrelevant papers.  
 
 Given that the majority of publications in the data set is irrelevant to
 your systematic review, the publications presented here will most
@@ -88,19 +97,30 @@ probable be excluded from your systematic review. This provides the
 software with additional information on what kind of publications should
 be excluded from your systematic review.
 
+Indicate for each publication whether it is relevant
+or irrelevant to your systematic review.
+
+
 .. figure:: ../images/4_label_random.png
    :alt: 
 
 --------------
 
-Based on the information you have provided, the software is now building
+
+
+
+Step 5. Select Machine Learning Model
+------------
+In the fnal step you will be allowed to choose a machine learning model. For now, we automatically selectly the default settings, but in due time you will allowed to select a model. 
+
+Based on the information you have provided in Steps 3 and 4, the software is now building
 a machine learning model that predicts the next abstract most likely to
 be relevant.
 
-3. Reviewing
-------------
 
-The software presents you with the publication of which ASReview is most
+Start Reviewing
+------------
+As soon as the machine learning model has comnverged, the software presents you with the publication of which ASReview is most
 confident that it should be included in your systematic review. You are
 asked to provide a label: should the publication be included or excluded
 from your systematic review?
@@ -117,7 +137,7 @@ constantly updating the underlying model.
 
 --------------
 
-To view your progress, click the bolt symbol in the upper right corner.
+To view your progress, click the statistics symbol in the upper right corner.
 The Statistics panel will open, showing information on the current
 project and labelling progress.
 
@@ -125,14 +145,14 @@ project and labelling progress.
    :alt: 
 
 The software keeps presenting you with the most relevant publication
-still unreviewed until there are no publications left to review, or
+ until there are no more publications left to review, or
 until you decide to stop reviewing.
 
 When to stop reviewing
 ~~~~~~~~~~~~~~~~~~~~~~
 
-As you keep reviewing publications, your set of inclusions will increase
-while the number of unlabelled inclusions left in the data set will
+As you keep reviewing publications, your set of relevant will increase
+while the number of unlabelled abstracts left in the data set will
 decline.
 
 Now, in a 'traditional' systematic review, you would continue reviewing
@@ -146,7 +166,7 @@ labelled irrelevant.
 
 --------------
 
-4. Wrapping up
+Export Results
 --------------
 
 Open the projects panel by clicking the 3-striped icon in the upper left
