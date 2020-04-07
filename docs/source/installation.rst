@@ -23,13 +23,13 @@ First check if Python is already installed on your computer. Open the program
 
 If the command returns `'python' is not recognized as an internal or external
 command`, then Python isn't installed. If your Python version is 3.6.x or
-higher, you can skip to 
+higher, you can proceed to 
 `section 'Installing ASReview' <#install-asreview>`__. 
 
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for Windows <https://docs.anaconda.com/anaconda/install/windows/>`__.
-Repeat the step above to check if Python is installed.
+Afterwards, repeat the step above to check if Python is installed.
 
 MacOS
 ~~~~~
@@ -42,13 +42,13 @@ First check if Python is already installed on your computer. Open the program
     python --version
 
 If the command returns `python: command not found`, then Python isn't
-installed. If your Python version is 3.6.x or higher, you can skip to
+installed. If your Python version is 3.6.x or higher, you can proceed to
 `section 'Installing ASReview' <#install-asreview>`__.
 
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
-Repeat the step above to check if Python is installed.
+Afterwards, the step above to check if Python is installed.
 
 
 Install ASReview
