@@ -68,12 +68,11 @@ If ASReview was installed succesfully, the last line should return
 `Successfully installed asreview-0.8`
 
 
-You are now ready to start your first Automated Systematic Review!
+You are now ready to start your first Automated Systematic Review! 
+Follow the the step in our Quick Tour.
 
 In case you do not get this output, please consult
 `the FAQ <faq.html>`__ to solve the issue.
-
-Indicate your decision using the arrow keys.
 
 
 Upgrade ASReview
