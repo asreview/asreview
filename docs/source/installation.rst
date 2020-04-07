@@ -29,6 +29,7 @@ higher, you can proceed to
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for Windows <https://docs.anaconda.com/anaconda/install/windows/>`__.
+Make sure to add Anaconda to your PATH environment variable when asked.
 Afterwards, repeat the step above to check if Python is installed.
 
 MacOS
@@ -48,6 +49,7 @@ installed. If your Python version is 3.6.x or higher, you can proceed to
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
+Make sure to add Anaconda to your PATH environment variable when asked.
 Afterwards, the step above to check if Python is installed.
 
 
