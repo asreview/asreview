@@ -32,7 +32,7 @@ const ProgressPanel = (props) => {
             Relevant: {props.n_included}
           </ListItem>
           <ListItem key="list-progress-exclusions">
-            Irrelevent: {props.n_excluded}
+            Irrelevant: {props.n_excluded}
           </ListItem>
         </div>
 
