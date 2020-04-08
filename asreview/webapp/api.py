@@ -30,7 +30,7 @@ from asreview.webapp.utils.project import init_project, read_data
 from asreview.webapp.types import is_project
 from asreview.webapp.utils.validation import check_dataset
 from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.datasets import search_data
+from asreview.webapp.utils.datasets import search_data, get_data_statistics
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_pool, read_label_history
 
@@ -122,26 +122,43 @@ def api_init_project():  # noqa: F401
     return response
 
 
-@bp.route('/demo_data', methods=["GET"])
+@bp.route('/datasets', methods=["GET"])
 def api_demo_data_project():  # noqa: F401
     """Get info on the article"""
 
-    try:
+    print(request.args)
+    subset = request.args.get('subset', None)
+
+    # clean this crappy code @TODO{Jonathan}
+    if subset == "plugin":
+
         from asreview.datasets import get_available_datasets
 
         result_datasets = []
         datasets = get_available_datasets()
         for group_name, group in datasets.items():
             for dataset_key, dataset in group.items():
-                result_datasets.append(dataset.to_dict())
+                if dataset.dataset_id not in ["hall", "ace", "ptsd"]:
+                    result_datasets.append(dataset.to_dict())
+
+        payload = {"result": result_datasets}
+    elif subset == "test":
+
+        from asreview.datasets import get_available_datasets
+
+        result_datasets = []
+        datasets = get_available_datasets()
+        for group_name, group in datasets.items():
+            for dataset_key, dataset in group.items():
+                if dataset.dataset_id in ["hall", "ace", "ptsd"]:
+                    result_datasets.append(dataset.to_dict())
 
         payload = {"result": result_datasets}
 
-    except Exception as err:
-        logging.error(err)
+    else:
         response = jsonify(message="demo-data-loading-failed")
 
-        return response, 500
+        return response, 400
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -153,7 +170,7 @@ def api_upload_data_project(project_id):  # noqa: F401
     """Get info on the article"""
 
     if not is_project(project_id):
-        response = jsonify(message="project-not-found")
+        response = jsonify(message="Project not found.")
         return response, 404
 
     if request.form.get('demo_data', None):
@@ -196,14 +213,29 @@ def api_upload_data_project(project_id):  # noqa: F401
 
             logging.error(err)
 
-            response = jsonify(message="project-upload-failure")
+            response = jsonify(
+                message=f"Failed to upload file '{filename}'. {err}"
+            )
 
-            return response, 500
+            return response, 400
     else:
-        response = jsonify(message="no-file-found")
-        return response, 500
+        response = jsonify(message="No file or dataset found to upload.")
+        return response, 400
 
-    return jsonify({"success": True})
+    # get statistics of the dataset
+    try:
+        statistics = get_data_statistics(project_id)
+    except Exception:
+        response = jsonify(
+            message=f"Failed to upload file '{filename}'. {err}"  # noqa
+        )
+        return response, 400
+
+    statistics["filename"] = filename
+
+    response = jsonify(statistics)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @bp.route('/project/<project_id>/search', methods=["GET"])
