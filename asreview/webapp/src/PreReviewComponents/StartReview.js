@@ -7,7 +7,6 @@ import {
   Paper,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Radio
 } from '@material-ui/core'
