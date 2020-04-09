@@ -70,4 +70,11 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
              "Only used when --prior_excluded is not given. "
              f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
+    parser.add_argument(
+        "--prior_idx",
+        default=[],
+        nargs="*",
+        type=int,
+        help="Prior indices by id."
+    )
     return parser
