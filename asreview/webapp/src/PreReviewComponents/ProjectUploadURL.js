@@ -1,14 +1,10 @@
 import React, {useState} from 'react';
 import {
   Button,
-  Typography,
   TextField,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { api_url } from '../globals.js';
-
-import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   root: {

@@ -93,7 +93,7 @@ const PriorInclusions = (props) => {
       open : true,
       query : searchDialog.query
     });
- 
+
   }
 
   const closeSearchDialog = () => {
@@ -120,37 +120,37 @@ const PriorInclusions = (props) => {
 
   }
 
-  const addIncluded = (item) => {
-    console.log('Add item to included: ' + item['id'])
-    // setIncluded([item].concat(included))
-    // console.log(included)
-  }
+  // const addIncluded = (item) => {
+  //   console.log('Add item to included: ' + item['id'])
+  //   // setIncluded([item].concat(included))
+  //   // console.log(included)
+  // }
 
   const removeIncluded = (item) => {
     console.log('Remove item to included: ' + item['id'])
   }
 
-  const removeIncluded2 = (item) => {
-    console.log('Remove item to included: ' + item['id'])
+  // const removeIncluded2 = (item) => {
+  //   console.log('Remove item to included: ' + item['id'])
 
-    // refresh the prior inclusions
-    getPriorIncluded();
-  }
+  //   // refresh the prior inclusions
+  //   getPriorIncluded();
+  // }
 
   const toggleHelp = () => {
     setShowHelp(a => (!a));
-  };  
+  };
 
   return (
     <Box style={{clear: "both"}}>
       <Typography style={{display: "inline"}} variant="h5" align="left">
-        Do you have publications to include? 
+        Do you have publications to include?
       </Typography>
       <Typography style={{width: "25px",margin:"3px", float:"right", opacity: 0.5}}  align="right">
       <HelpIcon onClick={toggleHelp}/>
       </Typography>
 
-      {showHelp && 
+      {showHelp &&
         <Typography className={classes.helptext}>
           <Box fontStyle="italic">
             Provide about 1 to 5 relevant publications based on prior knowledge.
@@ -183,7 +183,7 @@ const PriorInclusions = (props) => {
         </FormControl>
       </form>
 
-      {included.length > 0 && 
+      {included.length > 0 &&
         <Box>
           <Typography>The following publications have been included:</Typography>
 
@@ -209,7 +209,7 @@ const PriorInclusions = (props) => {
         </Box>
       }
 
-      {(searchDialog.open && searchDialog.query !== "") && 
+      {(searchDialog.open && searchDialog.query !== "") &&
         <SearchResultDialog
           searchQuery={searchDialog.query}
           closeSearchDialog={closeSearchDialog}
