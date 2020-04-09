@@ -4,18 +4,13 @@ import { makeStyles } from '@material-ui/core/styles'
 import {useDropzone} from 'react-dropzone'
 
 import {
-  Card,
-  CardContent,
-  AppBar,
   Box,
   Button,
   Typography,
-  Toolbar,
   Paper,
   Tabs,
   Tab,
   Link,
-  CircularProgress,
 } from '@material-ui/core'
 
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -130,7 +125,7 @@ const ProjectUpload = (props) => {
     isDragActive,
     isDragAccept,
     isDragReject,
-    acceptedFiles
+    // acceptedFiles
   } = useDropzone({
     onDrop: onDrop,
     multiple: false,
@@ -144,7 +139,8 @@ const ProjectUpload = (props) => {
     ...(isDragReject ? rejectStyle : {})
   }), [
     isDragActive,
-    isDragReject
+    isDragReject,
+    isDragAccept
   ]);
 
   const onUploadHandler = (data, callback) => {
@@ -374,13 +370,5 @@ const ProjectUpload = (props) => {
   </Box>
   );
 }
-
-      // <Card>
-      //   <CardContent>
-      //     <Typography component="h5" variant="h5">
-      //       {selection['n_rows']}
-      //     </Typography>
-      //   </CardContent>
-      // </Card>
 
 export default connect(mapStateToProps)(ProjectUpload);

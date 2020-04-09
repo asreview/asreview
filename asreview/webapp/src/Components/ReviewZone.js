@@ -44,7 +44,7 @@ const mapStateToProps = state => {
 
 const ReviewZone = (props) => {
   const classes = useStyles();
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [record, setRecord] = useState(
     { doc_id: null,
@@ -68,46 +68,15 @@ const ReviewZone = (props) => {
     direction: 'left'
   });
   const [modalFeedback, setModalFeedback] = useState({
-    open: false, 
+    open: false,
     text: '',
     elas: false
   });
 
-  useEffect(() => {
-    if (!loaded) {
-      getProgressInfo();
-      if (record.doc_id) setModalFeedback({open: true, text: 'Learning....', elas: true});
-      getDocument();
-    }
-  },[loaded]);
-
-  /**
-   * Get next article
-   */ 
-  const getDocument = () => {
-
-    const url = api_url + `project/${props.project_id}/get_document`;
-
-    return axios.get(url)
-    .then((result) => {
-
-      setRecord(result.data);
-      setLoaded(true);
-      setModalFeedback({open: false, text: '', elas: false});
-      setSlide({set: true, direction: 'up'});  //fly in TO the top
-    })
-    .catch((error) => {
-      console.log(error);
-      setLoaded(true);  // ?
-      setModalFeedback({open: false, text: '', elas: false});
-      setError('Not possible to collect new item');
-    });
-  }
-
   /**
    * Include (accept) or exclude (reject) current article
-   * 
-   * @param label  1=include, 0=exclude 
+   *
+   * @param label  1=include, 0=exclude
    */
   const classifyInstance = (label) => {
 
@@ -136,23 +105,58 @@ const ReviewZone = (props) => {
     });
   }
 
-  /**
-   * Get summary statistics
-   */
-  const getProgressInfo = () => {
 
-    const url = api_url + `project/${props.project_id}/progress`;
+  useEffect(() => {
 
-    return axios.get(url)
+    /**
+     * Get summary statistics
+     */
+    const getProgressInfo = () => {
+
+      const url = api_url + `project/${props.project_id}/progress`;
+
+      return axios.get(url)
+        .then((result) => {
+            setStatistics(result.data)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+    }
+
+    /**
+     * Get next article
+     */
+    const getDocument = () => {
+
+      const url = api_url + `project/${props.project_id}/get_document`;
+
+      return axios.get(url)
       .then((result) => {
-          setStatistics(result.data)
-      })
-      .catch((err) => {
-          console.log(err)
-      })
-  }
 
-   return (
+        setRecord(result.data);
+        setLoaded(true);
+        setModalFeedback({open: false, text: '', elas: false});
+        setSlide({set: true, direction: 'up'});  //fly in TO the top
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoaded(true);  // ?
+        setModalFeedback({open: false, text: '', elas: false});
+        // setError('Not possible to collect new item');
+      });
+    }
+
+    if (!loaded) {
+
+      getProgressInfo();
+
+      if (record.doc_id) setModalFeedback({open: true, text: 'Learning....', elas: true});
+      getDocument();
+    }
+  },[props.project_id, loaded, record.doc_id]);
+
+  return (
     <Box className={classes.box} height="100vh">
 
       {/* Article panel */}

@@ -73,24 +73,6 @@ const PriorExclusions = (props) => {
 
   const [showHelp, setShowHelp] = React.useState(false);
 
-  let n = 5;
-
-  const getDocument = () => {
-    const url = api_url + `project/${props.project_id}/prior_random`;
-
-    return axios.get(url)
-    .then((result) => {
-      console.log("" + result.data['result'].length + " random items served for review")
-      setState({
-        "records": result.data['result'],
-        "loaded": true,
-      });
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  }
-
   const onRemove = (id) => {
 
     var rec = state["records"].filter(function(record, index, arr){ return record["id"] !== id;});
@@ -104,8 +86,26 @@ const PriorExclusions = (props) => {
       })
   }
   useEffect(() => {
-      getDocument();
-  }, []);
+
+    const getDocument = () => {
+      const url = api_url + `project/${props.project_id}/prior_random`;
+
+      return axios.get(url)
+      .then((result) => {
+        console.log("" + result.data['result'].length + " random items served for review")
+        setState({
+          "records": result.data['result'],
+          "loaded": true,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
+
+    getDocument();
+
+  }, [props.project_id]);
 
   const toggleHelp = () => {
     setShowHelp(a => (!a));
@@ -121,7 +121,7 @@ const PriorExclusions = (props) => {
         <HelpIcon onClick={toggleHelp}/>
         </Typography>
 
-        {showHelp && 
+        {showHelp &&
           <Typography className={classes.helptext}>
             <Box fontStyle="italic">
               The software requires 1-5 irrelevant papers.
@@ -131,12 +131,12 @@ const PriorExclusions = (props) => {
       </Box>
 
       <Box className={classes.clear}>
-        {!state["loaded"] ? 
+        {!state["loaded"] ?
           <Box className={classes.loader}>
             <CircularProgress
               style={{margin: "0 auto"}}
             />
-          </Box> : 
+          </Box> :
           state["records"].map((record, index) => {
               return (
                 <PaperCard
@@ -151,8 +151,8 @@ const PriorExclusions = (props) => {
                   key={record.id}
                 />
               );
-            } 
-          )    
+            }
+          )
         }
       </Box>
 

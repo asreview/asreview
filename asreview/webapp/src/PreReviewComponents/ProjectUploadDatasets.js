@@ -131,7 +131,7 @@ const ProjectUploadDatasets = (props) => {
       };
       fetchData();
 
-    }, []);
+    }, [props.subset]);
 
     return (
 
