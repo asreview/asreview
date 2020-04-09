@@ -184,7 +184,22 @@ def api_upload_data_project(project_id):  # noqa: F401
             download_url = demo_data.url
 
         url_parts = urllib.parse.urlparse(download_url)
-        filename = url_parts.path.rsplit('/', 1)[-1]
+        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
+
+        urlretrieve(
+            download_url,
+            get_data_path(project_id) / filename
+        )
+
+        add_dataset_to_project(project_id, filename)
+
+    elif request.form.get('url', None):
+        # download file and save to folder
+
+        download_url = request.form['url']
+
+        url_parts = urllib.parse.urlparse(download_url)
+        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
         urlretrieve(
             download_url,

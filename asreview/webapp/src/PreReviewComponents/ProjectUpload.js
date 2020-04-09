@@ -87,7 +87,10 @@ const useStyles = makeStyles(theme => ({
   },
   datasets:{
     maxWidth: theme.spacing(2) * 4 + 390
-  }
+  },
+  uploadButton: {
+    marginTop: '26px',
+  },
 }));
 
 const mapStateToProps = state => {
@@ -144,7 +147,7 @@ const ProjectUpload = (props) => {
     isDragReject
   ]);
 
-  const onUploadHandler = (demo_data_id, callback) => {
+  const onUploadHandler = (data, callback) => {
 
       // disable the buttons and show loader
       setUpload(true)
@@ -156,14 +159,6 @@ const ProjectUpload = (props) => {
       setError(null)
 
       const url = api_url + `project/${props.project_id}/upload`;
-
-      const data = new FormData()
-
-      if(demo_data_id === undefined){
-        data.append('file', file)
-      } else {
-        data.append('demo_data', demo_data_id)
-      }
 
       axios({
         method: 'post',
@@ -214,6 +209,32 @@ const ProjectUpload = (props) => {
       });
   }
 
+  /* Upload file */
+  const onUploadHandlerFile = (callback) => {
+
+    const data = new FormData()
+    data.append('file', file)
+
+    return onUploadHandler(data, callback)
+  }
+
+  /* Upload demo dataset */
+  const onUploadHandlerDemoDataset = (demo_data_id, callback) => {
+
+    const data = new FormData()
+    data.append('demo_data', demo_data_id)
+
+    return onUploadHandler(data, callback)
+  }
+
+  /* Upload demo dataset */
+  const onUploadHandlerURL = (url, callback) => {
+
+    const data = new FormData()
+    data.append('url', url)
+
+    return onUploadHandler(data, callback)
+  }
 
   const [value, setValue] = React.useState(0);
 
@@ -271,7 +292,7 @@ const ProjectUpload = (props) => {
                   variant="contained"
                   color="primary"
                   disabled={upload}
-                  onClick={() => {onUploadHandler()}}
+                  onClick={() => onUploadHandlerFile()}
                   className={classes.uploadButton}
                 >
                   {upload ? "Uploading..." : "Upload"}
@@ -286,7 +307,7 @@ const ProjectUpload = (props) => {
         <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
         <ProjectUploadURL
           upload={upload}
-          onUploadHandler={onUploadHandler}
+          onUploadHandler={onUploadHandlerURL}
         />
       </div>
     }
@@ -294,7 +315,7 @@ const ProjectUpload = (props) => {
     {value === 2 &&
       <ProjectUploadDatasets
         subset={"plugin"}
-        onUploadHandler={onUploadHandler}
+        onUploadHandler={onUploadHandlerDemoDataset}
       />
     }
 
@@ -304,7 +325,7 @@ const ProjectUpload = (props) => {
         <Typography>Example datasets are useful for testing algorithms because they are fully labeled into relevant and irrelevant. Relevant articles will display up in red and irrelevant articles in black.</Typography>
         <ProjectUploadDatasets
           subset={"test"}
-          onUploadHandler={onUploadHandler}
+          onUploadHandler={onUploadHandlerDemoDataset}
         />
       </div>
     }

@@ -13,7 +13,10 @@ import axios from 'axios';
 const useStyles = makeStyles(theme => ({
   root: {
     paddingTop: '24px',
-  }
+  },
+  uploadButton: {
+    marginTop: '26px',
+  },
 }));
 
 const ProjectUploadURL = (props) => {
@@ -26,12 +29,11 @@ const ProjectUploadURL = (props) => {
       setURL(evt.target.value);
     }
 
-
     const submitForm = (evt) => {
       evt.preventDefault();
 
       // start the request
-      props.onUploadHandler();
+      props.onUploadHandler(url);
     }
 
     return (
