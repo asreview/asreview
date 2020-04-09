@@ -1,13 +1,10 @@
-import React, { PureComponent } from 'react';
+import React, { } from 'react';
 import {
-  Cell, PieChart, Pie, Legend, Tooltip,
+  Cell, PieChart, Pie, Tooltip,
 } from 'recharts';
 
 import {reviewDrawerWidth} from '../globals.js'
 
-const data = [
-  { name: 'Relevant', value: 20 }, { name: 'Irrelevant', value: 80 }
-];
 
 const ProgressPieChart = (props) => {
 
