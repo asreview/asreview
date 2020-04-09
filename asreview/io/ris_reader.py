@@ -6,6 +6,7 @@ from RISparser import TAG_KEY_MAPPING
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import standardize_dataframe, convert_keywords
+from RISparser.config import LIST_TYPE_TAGS
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"
@@ -57,15 +58,17 @@ def read_ris(fp):
         raise ValueError("Cannot find proper encoding for data file.")
 
     df = pd.DataFrame(entries)
-    if "keywords" in df:
 
-        def converter(x):
-            try:
-                return ", ".join(x)
-            except TypeError:
-                return ""
+    def converter(x):
+        try:
+            return ", ".join(x)
+        except TypeError:
+            return ""
 
-        df["keywords"] = df["keywords"].apply(converter)
+    for tag in LIST_TYPE_TAGS:
+        key = TAG_KEY_MAPPING[tag]
+        if key in df:
+            df[key] = df[key].apply(converter)
     return standardize_dataframe(df)
 
 
