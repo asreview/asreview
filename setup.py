@@ -108,6 +108,7 @@ setup(
     install_requires=[
         'numpy',
         'sklearn',
+        'scipy',
         'pandas',
         'RISparser',
         'dill',

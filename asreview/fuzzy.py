@@ -8,8 +8,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import normalize
 import scipy
 
-from asreview.data import create_inverted_index
-
 
 class FuzzyMatcher():
     def __init__(self, as_data, token_threshold=0.75, match_threshold=0.8):
@@ -26,7 +24,8 @@ class FuzzyMatcher():
         self.X = normalize(self.vectorizer.fit_transform(self.words))
         self.re_word = re.compile("['\w]+")
 
-    def match(self, keywords, max_match=10):
+    def match(self, keywords, max_match=10, exclude=[]):
+        exclude = set(exclude)
         n_match = len(self.match_str)
         key_list = self.re_word.findall(keywords.lower())
 
@@ -96,6 +95,8 @@ class FuzzyMatcher():
             for token, val in match_tokens[i_key].items():
                 ratio = val[0] * weights[i_key]
                 for idx in self.index[token]:
+                    if idx in exclude:
+                        continue
                     cur_val = current_matches.get(idx, 0)
                     if cur_val >= current_bar:
                         if idx in new_matches:
@@ -118,6 +119,20 @@ class FuzzyMatcher():
 
         return list(sorted(return_matches,
                            key=lambda x: -return_matches[x]))[:max_match]
+
+
+def create_inverted_index(match_strings):
+    index = {}
+    WORD = re.compile("['\w]+")
+    for i, match in enumerate(match_strings):
+        tokens = WORD.findall(match.lower())
+        for token in tokens:
+            if token in index:
+                if index[token][-1] != i:
+                    index[token].append(i)
+            else:
+                index[token] = [i]
+    return index
 
 
 def get_tokens(keyword, vectorizer, X, words):
