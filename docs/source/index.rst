@@ -1,20 +1,19 @@
 ****************************************************
-ASReview: Software for automating systematic reviews
+ASReview: Software for Active Systematic Reviews
 ****************************************************
 
-ASReview is software designed to accelerate the process of systematic reviews. 
+Active Systematic Review (ASReview) is software designed to accelerate the process of systematic reviews. 
 It is written in python, and uses deep learning to predict which papers should be
 most likely included in the review. Our software is designed to accelerate the step
 of screening abstracts and titles with a minimum of papers to be read by a 
 human with no or very few false negatives.
 
-Automated Systematic Review (ASReview) implements an oracle and a
-simulation mode.
+ASReview implements an oracle and a simulation mode.
 
 - **Oracle** The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them.
-- **Simulate** The simulation modus is used to measure the performance of our
+  The software presents papers to the reviewer, whereafter the reviewer classifies them as relevant or not.
+- **Simulation** The simulation modus is used to measure the performance of our
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
@@ -36,6 +35,8 @@ The source code is freely available at
    covid-19
    
    datasets
+
+   user_testing_algorithms
 
    extensions
 

@@ -23,13 +23,14 @@ First check if Python is already installed on your computer. Open the program
 
 If the command returns `'python' is not recognized as an internal or external
 command`, then Python isn't installed. If your Python version is 3.6.x or
-higher, you can skip to 
+higher, you can proceed to 
 `section 'Installing ASReview' <#install-asreview>`__. 
 
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for Windows <https://docs.anaconda.com/anaconda/install/windows/>`__.
-Repeat the step above to check if Python is installed.
+Make sure to add Anaconda to your PATH environment variable when asked.
+Afterwards, repeat the step above to check if Python is installed.
 
 MacOS
 ~~~~~
@@ -42,13 +43,14 @@ First check if Python is already installed on your computer. Open the program
     python --version
 
 If the command returns `python: command not found`, then Python isn't
-installed. If your Python version is 3.6.x or higher, you can skip to
+installed. If your Python version is 3.6.x or higher, you can proceed to
 `section 'Installing ASReview' <#install-asreview>`__.
 
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
-Repeat the step above to check if Python is installed.
+Make sure to add Anaconda to your PATH environment variable when asked.
+Afterwards, the step above to check if Python is installed.
 
 
 Install ASReview
@@ -68,12 +70,11 @@ If ASReview was installed succesfully, the last line should return
 `Successfully installed asreview-0.8`
 
 
-You are now ready to start your first Automated Systematic Review!
+You are now ready to start your first Automated Systematic Review! 
+Follow the the step in our Quick Tour.
 
 In case you do not get this output, please consult
 `the FAQ <faq.html>`__ to solve the issue.
-
-Indicate your decision using the arrow keys.
 
 
 Upgrade ASReview

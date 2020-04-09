@@ -10,7 +10,9 @@ import {
   Toolbar,
   IconButton,
 } from '@material-ui/core'
+
 import SearchIcon from '@material-ui/icons/Search';
+import HelpIcon from '@material-ui/icons/Help';
 
 import {
   SearchResultDialog,
@@ -52,6 +54,12 @@ const useStyles = makeStyles(theme => ({
     height: 28,
     margin: 4,
   },
+  help :{
+    textAlign: "right",
+  },
+  helptext : {
+    padding: "12px 0px",
+  }
 }));
 
 const mapStateToProps = state => {
@@ -69,6 +77,8 @@ const PriorInclusions = (props) => {
     query : ""
   });
 
+  const [showHelp, setShowHelp] = React.useState(false);
+
   const onChangeSearch = (evt) => {
     setSearchDialog({
       open : false,
@@ -83,7 +93,7 @@ const PriorInclusions = (props) => {
       open : true,
       query : searchDialog.query
     });
- 
+
   }
 
   const closeSearchDialog = () => {
@@ -110,29 +120,44 @@ const PriorInclusions = (props) => {
 
   }
 
-  const addIncluded = (item) => {
-    console.log('Add item to included: ' + item['id'])
-    // setIncluded([item].concat(included))
-    // console.log(included)
-  }
+  // const addIncluded = (item) => {
+  //   console.log('Add item to included: ' + item['id'])
+  //   // setIncluded([item].concat(included))
+  //   // console.log(included)
+  // }
 
   const removeIncluded = (item) => {
     console.log('Remove item to included: ' + item['id'])
   }
 
-  const removeIncluded2 = (item) => {
-    console.log('Remove item to included: ' + item['id'])
+  // const removeIncluded2 = (item) => {
+  //   console.log('Remove item to included: ' + item['id'])
 
-    // refresh the prior inclusions
-    getPriorIncluded();
-  }
+  //   // refresh the prior inclusions
+  //   getPriorIncluded();
+  // }
+
+  const toggleHelp = () => {
+    setShowHelp(a => (!a));
+  };
 
   return (
-    <Box>
-      <Typography variant="h5">
+    <Box style={{clear: "both"}}>
+      <Typography style={{display: "inline"}} variant="h5" align="left">
         Do you have publications to include?
       </Typography>
-      <Box>
+      <Typography style={{width: "25px",margin:"3px", float:"right", opacity: 0.5}}  align="right">
+      <HelpIcon onClick={toggleHelp}/>
+      </Typography>
+
+      {showHelp &&
+        <Typography className={classes.helptext}>
+          <Box fontStyle="italic">
+            Provide about 1 to 5 relevant publications based on prior knowledge.
+          </Box>
+        </Typography>
+      }
+    <Box>
       <form className={classes.root} noValidate autoComplete="off" onSubmit={openSearchDialog}>
         <FormControl
           fullWidth
@@ -158,7 +183,7 @@ const PriorInclusions = (props) => {
         </FormControl>
       </form>
 
-      {included.length > 0 && 
+      {included.length > 0 &&
         <Box>
           <Typography>The following publications have been included:</Typography>
 
@@ -184,7 +209,7 @@ const PriorInclusions = (props) => {
         </Box>
       }
 
-      {(searchDialog.open && searchDialog.query !== "") && 
+      {(searchDialog.open && searchDialog.query !== "") &&
         <SearchResultDialog
           searchQuery={searchDialog.query}
           closeSearchDialog={closeSearchDialog}

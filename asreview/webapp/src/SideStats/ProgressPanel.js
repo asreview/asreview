@@ -20,7 +20,6 @@ const ProgressPanel = (props) => {
     const classes = useStyles();
 
     return (
-
       <div>
         <ListSubheader component="div" id="list-subheader-progress">
           Progress
@@ -35,7 +34,6 @@ const ProgressPanel = (props) => {
           Total reviewed: {props.n_included + props.n_excluded} ({Math.round((props.n_included + props.n_excluded)/props.n_papers*10000)/100}%)
         </ListItem>
       </div>
-
     );
 }
 
