@@ -14,6 +14,7 @@ import {
   Paper,
   Tabs,
   Tab,
+  Link,
   CircularProgress,
 } from '@material-ui/core'
 
@@ -21,6 +22,7 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 
 import {
   ProjectUploadDatasets,
+  ProjectUploadURL,
 } from '../PreReviewComponents';
 
 import { connect } from "react-redux";
@@ -280,7 +282,13 @@ const ProjectUpload = (props) => {
         }
 
     {value === 1 &&
-      <Typography>Coming soon.</Typography>
+      <div>
+        <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
+        <ProjectUploadURL
+          upload={upload}
+          onUploadHandler={onUploadHandler}
+        />
+      </div>
     }
 
     {value === 2 &&

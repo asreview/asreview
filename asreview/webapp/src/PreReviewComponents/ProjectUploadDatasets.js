@@ -24,6 +24,7 @@ const useStyles = makeStyles(theme => ({
   },
   cardRoot: {
     width: 400,
+    height: 250,
     display: "inline-block",
     margin: theme.spacing(2),
     // align: "center",
