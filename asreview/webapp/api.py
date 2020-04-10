@@ -7,11 +7,12 @@ import subprocess
 import shlex
 from urllib.request import urlretrieve
 import urllib.parse
+from pathlib import Path
 
 
 from flask.json import jsonify
 from flask_cors import CORS
-from flask import request, Blueprint, Response
+from flask import request, Blueprint, Response, send_file
 from werkzeug.utils import secure_filename
 
 import numpy as np
@@ -20,7 +21,7 @@ from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path, get_project_file_path
 from asreview.webapp.utils.paths import get_lock_path, get_proba_path
-from asreview.webapp.utils.paths import get_project_path
+from asreview.webapp.utils.paths import get_project_path, get_tmp_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -422,13 +423,31 @@ def api_init_model_ready(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
 
-    dataset_str = export_to_string(project_id)
+    # get the export args
+    file_type = request.args.get('file_type', None)
+    logging.info(f"Start exporting results to '{file_type}'")
+    print(f"Start exporting results to '{file_type}'")
 
-    return Response(
-        dataset_str,
-        mimetype="text/csv",
-        headers={"Content-disposition":
-                 f"attachment; filename=asreview_result_{project_id}.csv"})
+    if file_type == "csv":
+        dataset_str = export_to_string(project_id, export_type="csv")
+
+        return Response(
+            dataset_str,
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                     f"attachment; filename=asreview_result_{project_id}.csv"})
+    else:  # excel
+
+        dataset_str = export_to_string(project_id, export_type="excel")
+        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+
+        return send_file(
+            fp_tmp_export,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+            as_attachment=True,
+            attachment_filename=f"asreview_result_{project_id}.xlsx",
+            cache_timeout=0
+        )
 
 
 # @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])

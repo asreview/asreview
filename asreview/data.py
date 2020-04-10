@@ -556,8 +556,48 @@ class ASReviewData():
         return new_df
 
     def to_csv(self, fp, labels=None, ranking=None):
-        return self.to_dataframe(labels=labels, ranking=ranking).to_csv(
-            path_or_buf=fp, index=True)
+        """Export to csv.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, np.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        df_order: list
+            Reorder the dataframe according to these (internal) indices.
+            Deafault ordering if df_order is None.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe of all available record data.
+        """
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+        return df.to_csv(fp, index=True)
+
+    def to_excel(self, fp, labels=None, ranking=None):
+        """Export to Excel xlsx file.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, np.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        df_order: list
+            Reorder the dataframe according to these (internal) indices.
+            Deafault ordering if df_order is None.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe of all available record data.
+        """
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+        return df.to_excel(fp, index=True)
 
     def to_ris(self, ris_fp, labels=None, ranking=None):
         df = self.to_dataframe(labels=labels, ranking=ranking)
