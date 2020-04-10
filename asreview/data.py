@@ -503,7 +503,7 @@ class ASReviewData():
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
 
-        Both RIS and CSV are supported file formats at the moment.
+        RIS, CSV and Excel are supported file formats at the moment.
 
         Arguments
         ---------
@@ -518,6 +518,8 @@ class ASReviewData():
             self.to_csv(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS"]:
             self.to_ris(fp, labels=labels, ranking=ranking)
+        elif Path(fp).suffix in [".xlsx", ".XLSX"]:
+            self.to_excel(fp, labels=labels, ranking=ranking)
         else:
             raise BadFileFormatError(
                 f"Unknown file extension: {Path(fp).suffix}.\n"
@@ -531,9 +533,9 @@ class ASReviewData():
         labels: list, np.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
-        df_order: list
+        ranking: list
             Reorder the dataframe according to these (internal) indices.
-            Deafault ordering if df_order is None.
+            Default ordering if ranking is None.
 
         Returns
         -------
@@ -565,9 +567,9 @@ class ASReviewData():
         labels: list, np.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
-        df_order: list
+        ranking: list
             Reorder the dataframe according to these (internal) indices.
-            Deafault ordering if df_order is None.
+            Default ordering if ranking is None.
 
         Returns
         -------
@@ -587,9 +589,9 @@ class ASReviewData():
         labels: list, np.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
-        df_order: list
+        ranking: list
             Reorder the dataframe according to these (internal) indices.
-            Deafault ordering if df_order is None.
+            Default ordering if ranking is None.
 
         Returns
         -------

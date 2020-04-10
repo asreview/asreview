@@ -92,7 +92,7 @@ const ExportDialog = (props) => {
         <DialogTitle id="scroll-dialog-title">Export results {props.project_id}</DialogTitle>
           <DialogContent dividers={true}>
             <Typography>
-              Download the result or your review to a Excel or CSV file.
+              Download the result of your review (Excel or CSV file).
             </Typography>
 
             <FormControl className={classes.formControl}>
