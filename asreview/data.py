@@ -503,7 +503,7 @@ class ASReviewData():
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
 
-        Both RIS and CSV are supported file formats at the moment.
+        RIS, CSV and Excel are supported file formats at the moment.
 
         Arguments
         ---------
@@ -518,6 +518,8 @@ class ASReviewData():
             self.to_csv(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS"]:
             self.to_ris(fp, labels=labels, ranking=ranking)
+        elif Path(fp).suffix in [".xlsx", ".XLSX"]:
+            self.to_excel(fp, labels=labels, ranking=ranking)
         else:
             raise BadFileFormatError(
                 f"Unknown file extension: {Path(fp).suffix}.\n"
@@ -531,9 +533,9 @@ class ASReviewData():
         labels: list, np.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
-        df_order: list
+        ranking: list
             Reorder the dataframe according to these (internal) indices.
-            Deafault ordering if df_order is None.
+            Default ordering if ranking is None.
 
         Returns
         -------
@@ -556,8 +558,48 @@ class ASReviewData():
         return new_df
 
     def to_csv(self, fp, labels=None, ranking=None):
-        return self.to_dataframe(labels=labels, ranking=ranking).to_csv(
-            path_or_buf=fp, index=True)
+        """Export to csv.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, np.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe of all available record data.
+        """
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+        return df.to_csv(fp, index=True)
+
+    def to_excel(self, fp, labels=None, ranking=None):
+        """Export to Excel xlsx file.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, np.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe of all available record data.
+        """
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+        return df.to_excel(fp, index=True)
 
     def to_ris(self, ris_fp, labels=None, ranking=None):
         df = self.to_dataframe(labels=labels, ranking=ranking)

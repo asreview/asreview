@@ -115,7 +115,8 @@ setup(
         'xlrd>=1.0.0',
         'setuptools',
         'flask',
-        'flask_cors'
+        'flask_cors',
+        'openpyxl',
     ],
     extras_require=DEPS,
     entry_points={

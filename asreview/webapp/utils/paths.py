@@ -55,6 +55,18 @@ def get_project_file_path(project_id):
     return Path(get_project_path(project_id), "project.json")
 
 
+def get_tmp_path(project_id):
+    """Get the tmp directory in the projecr.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+
+    return Path(get_project_path(project_id), "tmp")
+
+
 def get_data_path(project_id):
     """Get the path to the data folder.
 
