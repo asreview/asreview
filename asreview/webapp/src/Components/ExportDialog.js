@@ -1,4 +1,5 @@
 import React from 'react';
+import {makeStyles} from '@material-ui/core/styles';
 import {
   Button,
   Dialog,
@@ -6,6 +7,10 @@ import {
   DialogContent,
   DialogTitle,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@material-ui/core';
 
 // import axios from 'axios'
@@ -15,11 +20,29 @@ import { api_url } from '../globals.js';
 import { connect } from "react-redux";
 import store from '../redux/store'
 
+const useStyles = makeStyles((theme) => ({
+  formControl: {
+    margin: theme.spacing(1),
+    width: "100%",
+  },
+  button: {
+    marginTop: "16px",
+  }
+}));
+
 const mapStateToProps = state => {
   return { project_id: state.project_id };
 };
 
 const ExportDialog = (props) => {
+
+  const classes = useStyles();
+
+  const [exportFileType, setExportFileType] = React.useState('excel');
+
+  const handleExportFileTypeChange = (event) => {
+    setExportFileType(event.target.value);
+  };
 
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
@@ -37,11 +60,15 @@ const ExportDialog = (props) => {
 
     if (project_id !== null){
 
-      const url = api_url + `project/${project_id}/export`;
+      // download URL
+      let exportUrl
+
+      exportUrl = new URL(api_url + `project/${project_id}/export`)
+      exportUrl.searchParams.set('file_type', exportFileType)
 
       setTimeout(() => {
         const response = {
-          file: url,
+          file: exportUrl,
         };
         window.location.href = response.file;
       }, 100);
@@ -65,17 +92,32 @@ const ExportDialog = (props) => {
         <DialogTitle id="scroll-dialog-title">Export results {props.project_id}</DialogTitle>
           <DialogContent dividers={true}>
             <Typography>
-              Download the result or your review
+              Download the result of your review (Excel or CSV file).
             </Typography>
+
+            <FormControl className={classes.formControl}>
+              <InputLabel id="select-export-file-type-label">File type</InputLabel>
+              <Select
+                labelId="select-export-file-type-label"
+                id="select-export-file-type"
+                value={exportFileType}
+                onChange={handleExportFileTypeChange}
+              >
+                <MenuItem value={"excel"}>Excel</MenuItem>
+                <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
+              </Select>
+
+            </FormControl>
             <Button
+              className={classes.button}
               variant="contained"
               color="primary"
               onClick={downloadResult}
             >
               Export
             </Button>
-          </DialogContent> 
-  
+          </DialogContent>
+
         <DialogActions>
           <Button onClick={props.toggleExportResult} color="primary">
             Close

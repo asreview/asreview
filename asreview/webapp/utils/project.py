@@ -5,6 +5,7 @@ import logging
 import shlex
 import shutil
 import subprocess
+from pathlib import Path
 
 import numpy as np
 from flask import current_app as app
@@ -18,6 +19,7 @@ from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_labeled_path
+from asreview.webapp.utils.paths import get_tmp_path
 from asreview.config import LABEL_NA
 from asreview.webapp.utils.io import read_pool, write_pool, read_label_history
 from asreview.webapp.utils.io import write_label_history, read_proba, read_data
@@ -211,7 +213,7 @@ def get_statistics(project_id):
     return stats
 
 
-def export_to_string(project_id):
+def export_to_string(project_id, export_type="csv"):
     fp_lock = get_lock_path(project_id)
     as_data = read_data(project_id)
     with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
@@ -229,7 +231,19 @@ def export_to_string(project_id):
     proba_order = np.argsort(-proba[pool_idx])
     ranking = np.concatenate(
         (one_idx, pool_idx[proba_order], zero_idx), axis=None)
-    return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
+
+    if export_type == "csv":
+        return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
+    if export_type == "excel":
+        get_tmp_path(project_id).mkdir(exist_ok=True)
+        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+        return as_data.to_excel(
+            fp=fp_tmp_export,
+            labels=labels,
+            ranking=ranking
+        )
+    else:
+        raise ValueError("This export type isn't implemented.")
 
 
 def label_instance(project_id, paper_i, label, retrain_model=True):
