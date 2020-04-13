@@ -60,11 +60,8 @@ const ExportDialog = (props) => {
 
     if (project_id !== null){
 
-      // download URL
-      let exportUrl
-
-      exportUrl = new URL(api_url + `project/${project_id}/export`)
-      exportUrl.searchParams.set('file_type', exportFileType)
+      // download URL, example http://localhost:5000/api/project/myproject/export?file_type=excel
+      const exportUrl = api_url + `project/${project_id}/export?file_type=${exportFileType}`
 
       setTimeout(() => {
         const response = {
