@@ -88,7 +88,12 @@ def add_dataset_to_project(project_id, file_name):
             json.dump(project_dict, f_write)
 
         # fill the pool of the first iteration
-        pool_indices = read_data(project_id).record_ids
+        as_data = read_data(project_id)
+        if as_data.labels is not None:
+            unlabeled = np.where(as_data.labels == LABEL_NA)[0]
+            pool_indices = as_data.record_ids[unlabeled]
+        else:
+            pool_indices = as_data.record_ids
         np.random.shuffle(pool_indices)
 
         write_pool(project_id, pool_indices.tolist())
