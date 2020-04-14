@@ -23,7 +23,7 @@ from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path, get_project_file_path
 from asreview.webapp.utils.paths import get_lock_path, get_proba_path, get_kwargs_path
-from asreview.webapp.utils.paths import get_project_path, get_tmp_path
+from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -353,7 +353,7 @@ def api_start(project_id):  # noqa: F401
 
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.data.get("machine_learning_model", None)
+    ml_model = request.form.get("machine_learning_model", None)
     if ml_model and not ml_model == "cli":
         asr_kwargs["model"] = ml_model
 

@@ -36,7 +36,7 @@ const StartReview = (props) => {
     "modelIsTraining": false
   });
 
-  const [machineLearningModel, setmachineLearningModel] = React.useState('Naïve Bayes');
+  const [machineLearningModel, setmachineLearningModel] = React.useState('nb');
 
   const handleMachineLearningModelChange = (event) => {
     setmachineLearningModel(event.target.value);
@@ -54,7 +54,7 @@ const StartReview = (props) => {
 
     var bodyFormData = new FormData();
     bodyFormData.set('machine_learning_model', machineLearningModel);
-    
+
     return axios({
       method: 'post',
       url: url,
@@ -100,7 +100,7 @@ const StartReview = (props) => {
                 <Typography variant="h5">
                   Start the systematic review
                 </Typography>
-              </Grid>              
+              </Grid>
 
               <Grid item>
                 <Button
@@ -111,7 +111,7 @@ const StartReview = (props) => {
                   Start reviewing
                 </Button>
               </Grid>
-            </Grid> 
+            </Grid>
           </Grid>
 
           <Grid item xs={12}>
@@ -125,8 +125,8 @@ const StartReview = (props) => {
                   <List dense={true}>
                     <ListItem>
                       <Radio
-                        checked={machineLearningModel === 'Naïve Bayes'}
-                        value="Naïve Bayes"
+                        checked={machineLearningModel === 'nb'}
+                        value="nb"
                         color="default"
                         inputProps={{ 'aria-label': 'Naïve Bayes' }}
                         onChange={handleMachineLearningModelChange}
@@ -136,30 +136,18 @@ const StartReview = (props) => {
 
                     <ListItem>
                       <Radio
-                        checked={machineLearningModel === 'Support vector machine'}
-                        value="Support vector machine"
+                        checked={machineLearningModel === 'svm'}
+                        value="svm"
                         color="default"
-                        inputProps={{ 'aria-label': 'Support vector machine' }}
+                        inputProps={{ 'aria-label': 'Support Vector Machines' }}
                         onChange={handleMachineLearningModelChange}
                       />
-                      <ListItemText primary="Support vector machine" />
+                      <ListItemText primary="Support Vector Machines" />
                     </ListItem>
-
                     <ListItem>
                       <Radio
-                        checked={machineLearningModel === 'Neural Network'}
-                        value="Neural Network"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Neural Network' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Neural Network" />
-                    </ListItem>
-
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'Logistic Regression'}
-                        value="Logistic Regression"
+                        checked={machineLearningModel === 'logistic'}
+                        value="logistic"
                         color="default"
                         inputProps={{ 'aria-label': 'Logistic Regression' }}
                         onChange={handleMachineLearningModelChange}
@@ -169,13 +157,13 @@ const StartReview = (props) => {
 
                     <ListItem>
                       <Radio
-                        checked={machineLearningModel === 'LSTM-base'}
-                        value="LSTM-base"
+                        checked={machineLearningModel === 'rf'}
+                        value="rf"
                         color="default"
-                        inputProps={{ 'aria-label': 'LSTM-base' }}
+                        inputProps={{ 'aria-label': 'Random Forest' }}
                         onChange={handleMachineLearningModelChange}
                       />
-                      <ListItemText primary="LSTM-base" />
+                      <ListItemText primary="Random Forest" />
                     </ListItem>
                   </List>
                 </Grid>
@@ -185,7 +173,7 @@ const StartReview = (props) => {
           </Grid>
         </Grid>
         :
-        <Typography>Training model... (this can take some time)</Typography> 
+        <Typography>Training model... (this can take some time)</Typography>
       }
     </Box>
   )
