@@ -7,8 +7,11 @@ import subprocess
 import shlex
 from urllib.request import urlretrieve
 import urllib.parse
+from pathlib import Path
+from copy import deepcopy
 
 
+from flask import current_app as app
 from flask.json import jsonify
 from flask_cors import CORS
 from flask import request, Blueprint, Response
@@ -19,8 +22,8 @@ import numpy as np
 from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path, get_project_file_path
-from asreview.webapp.utils.paths import get_lock_path, get_proba_path
-from asreview.webapp.utils.paths import get_project_path
+from asreview.webapp.utils.paths import get_lock_path, get_proba_path, get_kwargs_path
+from asreview.webapp.utils.paths import get_project_path, get_tmp_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -344,6 +347,23 @@ def api_random_prior_papers(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training the model
     """
+
+    # get the CLI arguments
+    asr_kwargs = deepcopy(app.config['asr_kwargs'])
+
+    # add the machine learning model to the kwargs
+    # TODO@{Jonathan} validate model choice on server side
+    ml_model = request.data.get("machine_learning_model", None)
+    if ml_model and not ml_model == "cli":
+        asr_kwargs["model"] = ml_model
+
+    # write the kwargs to a file
+    with open(get_kwargs_path(project_id), "w") as fp:
+        json.dump(asr_kwargs, fp)
+
+    # make a copy of the arguments to the state file
+    # asr_kwargs['state_file'] = str(get_state_path(project_id))  # TODO@{Raoul} obsolete?
+
     # start training the model
     run_command = f"python -m asreview web_run_model '{project_id}' 1"
     subprocess.Popen(shlex.split(run_command))
