@@ -137,10 +137,13 @@ class ASReviewSettings(object):
         feature_model = get_feature_model(self.feature_extraction)
         _convert_types(feature_model.default_param, self.feature_param)
 
-    def __str__(self):
+    def to_dict(self):
         info_dict = {}
         for attrib in SETTINGS_TYPE_DICT:
             value = getattr(self, attrib, None)
             if value is not None:
-                info_dict[attrib] = str(value)
-        return pretty_format(info_dict)
+                info_dict[attrib] = value
+        return info_dict
+
+    def __str__(self):
+        return pretty_format(self.to_dict())
