@@ -72,9 +72,10 @@ class Analysis():
         self.inc_found = {}
 
     @classmethod
-    def from_dir(cls, data_dir, prefix="result"):
+    def from_dir(cls, data_dir, prefix="result", key=None):
         """Create an Analysis object from a directory."""
-        key = os.path.basename(os.path.normpath(data_dir))
+        if key is None:
+            key = os.path.basename(os.path.normpath(data_dir))
         states = states_from_dir(data_dir, prefix=prefix)
         analysis_inst = cls(states, key=key)
         if analysis_inst.empty:
@@ -84,9 +85,10 @@ class Analysis():
         return analysis_inst
 
     @classmethod
-    def from_file(cls, data_fp):
+    def from_file(cls, data_fp, key=None):
         """Create an Analysis object from a file."""
-        key = os.path.basename(os.path.normpath(data_fp))
+        if key is None:
+            key = os.path.basename(os.path.normpath(data_fp))
         state = state_from_file(data_fp)
         analysis_inst = cls(state, key=key)
         if analysis_inst.empty:
@@ -96,11 +98,11 @@ class Analysis():
         return analysis_inst
 
     @classmethod
-    def from_path(cls, data_path, prefix="result"):
+    def from_path(cls, data_path, prefix="result", key=None):
         """Create an Analysis object from either a file or a directory."""
         if Path(data_path).is_file():
-            return cls.from_file(data_path)
-        return cls.from_dir(data_path, prefix)
+            return cls.from_file(data_path, key=key)
+        return cls.from_dir(data_path, prefix, key=key)
 
     def inclusions_found(self,
                          result_format="fraction",
