@@ -1,4 +1,3 @@
-from copy import deepcopy
 import json
 import os
 import logging
@@ -8,12 +7,10 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
-from flask import current_app as app
 
 from asreview import __version__ as asreview_version
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils.paths import get_project_file_path, get_state_path
-from asreview.webapp.utils.paths import get_kwargs_path
+from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_data_file_path
@@ -59,13 +56,6 @@ def init_project(
                 'description': project_description,
                 'authors': project_authors
             }, fp)
-
-        asr_kwargs = deepcopy(app.config['asr_kwargs'])  # remove config
-        with open(get_kwargs_path(project_id), "w") as fp:
-            json.dump(asr_kwargs, fp)
-
-        # make a copy of the arguments to the state file
-        asr_kwargs['state_file'] = str(get_state_path(project_id))
 
     except Exception as err:
         # remove all generated folders and raise error
