@@ -1,42 +1,50 @@
-import shutil
-import os
-import re
 import json
 import logging
-import subprocess
+import os
+import re
 import shlex
-from urllib.request import urlretrieve
+import shutil
+import subprocess
 import urllib.parse
-from pathlib import Path
 from copy import deepcopy
-
-
-from flask import current_app as app
-from flask.json import jsonify
-from flask_cors import CORS
-from flask import request, Blueprint, Response, send_file
-from werkzeug.utils import secure_filename
+from pathlib import Path
+from urllib.request import urlretrieve
 
 import numpy as np
+from flask import Blueprint
+from flask import current_app as app
+from flask import request
+from flask import Response
+from flask import send_file
+from flask.json import jsonify
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
-from asreview.exceptions import BadFileFormatError
 from asreview.datasets import get_dataset
-from asreview.webapp.utils.paths import list_asreview_project_paths
-from asreview.webapp.utils.paths import get_data_path, get_project_file_path
-from asreview.webapp.utils.paths import get_lock_path, get_proba_path, get_kwargs_path
-from asreview.webapp.utils.paths import get_project_path, get_tmp_path
-from asreview.webapp.utils.project import get_paper_data, get_statistics,\
-    export_to_string
-from asreview.webapp.utils.project import label_instance
-from asreview.webapp.utils.project import get_instance
-from asreview.webapp.utils.project import init_project, read_data
-
-from asreview.webapp.types import is_project
-from asreview.webapp.utils.validation import check_dataset
-from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.datasets import search_data, get_data_statistics
+from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils.io import read_pool, read_label_history
+from asreview.webapp.types import is_project
+from asreview.webapp.utils.datasets import get_data_statistics
+from asreview.webapp.utils.datasets import search_data
+from asreview.webapp.utils.io import read_label_history
+from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.paths import get_data_path
+from asreview.webapp.utils.paths import get_kwargs_path
+from asreview.webapp.utils.paths import get_lock_path
+from asreview.webapp.utils.paths import get_proba_path
+from asreview.webapp.utils.paths import get_project_file_path
+from asreview.webapp.utils.paths import get_project_path
+from asreview.webapp.utils.paths import get_tmp_path
+from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.project import add_dataset_to_project
+from asreview.webapp.utils.project import export_to_string
+from asreview.webapp.utils.project import get_instance
+from asreview.webapp.utils.project import get_paper_data
+from asreview.webapp.utils.project import get_statistics
+from asreview.webapp.utils.project import init_project
+from asreview.webapp.utils.project import label_instance
+from asreview.webapp.utils.project import read_data
+from asreview.webapp.utils.validation import check_dataset
 
 
 bp = Blueprint('api', __name__, url_prefix='/api')

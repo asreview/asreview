@@ -1,19 +1,21 @@
 #!/usr/bin/env python
-
 import json
-import sys
 import logging
+import sys
 
 import numpy as np
 
+from asreview.review.factory import get_reviewer
+from asreview.state.utils import open_state
+from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils import get_lock_path
 from asreview.webapp.utils import get_state_path
 from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool, write_pool, write_proba
-from asreview.webapp.utils.paths import get_kwargs_path, get_data_file_path
-from asreview.webapp.sqlock import SQLiteLock
-from asreview.state.utils import open_state
-from asreview.review.factory import get_reviewer
+from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.io import write_pool
+from asreview.webapp.utils.io import write_proba
+from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.project import read_data
 
 

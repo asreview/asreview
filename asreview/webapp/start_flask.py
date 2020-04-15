@@ -1,15 +1,14 @@
 import os
-import sys
-from pathlib import Path
 import webbrowser
 from threading import Timer
 
-from flask import Flask, send_from_directory
+from flask import Flask
+from flask import send_from_directory
 from flask.templating import render_template
 from flask_cors import CORS
 
-from asreview.webapp import api
 from asreview.entry_points.gui import _oracle_parser
+from asreview.webapp import api
 
 
 def _url(host, port):

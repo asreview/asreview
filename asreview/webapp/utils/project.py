@@ -1,6 +1,6 @@
 import json
-import os
 import logging
+import os
 import shlex
 import shutil
 import subprocess
@@ -9,18 +9,22 @@ from pathlib import Path
 import numpy as np
 
 from asreview import __version__ as asreview_version
-from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils.paths import get_project_file_path
-from asreview.webapp.utils.paths import asreview_path
-from asreview.webapp.utils.paths import get_lock_path
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_pool_path
-from asreview.webapp.utils.paths import get_labeled_path
-from asreview.webapp.utils.paths import get_tmp_path
 from asreview.config import LABEL_NA
-from asreview.webapp.utils.io import read_pool, write_pool, read_label_history
-from asreview.webapp.utils.io import write_label_history, read_proba, read_data
+from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_current_labels
+from asreview.webapp.utils.io import read_data
+from asreview.webapp.utils.io import read_label_history
+from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.io import read_proba
+from asreview.webapp.utils.io import write_label_history
+from asreview.webapp.utils.io import write_pool
+from asreview.webapp.utils.paths import asreview_path
+from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_labeled_path
+from asreview.webapp.utils.paths import get_lock_path
+from asreview.webapp.utils.paths import get_pool_path
+from asreview.webapp.utils.paths import get_project_file_path
+from asreview.webapp.utils.paths import get_tmp_path
 
 
 def init_project(

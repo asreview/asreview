@@ -2,11 +2,12 @@ import json
 
 import numpy as np
 
-from asreview.webapp.utils.paths import get_pool_path, get_data_file_path
-from asreview.webapp.utils.paths import get_proba_path
-from asreview.webapp.utils.paths import get_labeled_path
 from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
+from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_labeled_path
+from asreview.webapp.utils.paths import get_pool_path
+from asreview.webapp.utils.paths import get_proba_path
 
 
 def read_data(project_id):

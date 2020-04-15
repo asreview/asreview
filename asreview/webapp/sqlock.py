@@ -1,7 +1,6 @@
 import os
-from time import sleep
-
 import sqlite3
+from time import sleep
 
 
 def get_db(db_file):
