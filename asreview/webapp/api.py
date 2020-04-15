@@ -401,7 +401,7 @@ def api_start(project_id):  # noqa: F401
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("machine_learning_model", None)
-    if ml_model":
+    if ml_model:
         asr_kwargs["model"] = ml_model
 
     # write the kwargs to a file
