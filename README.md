@@ -80,7 +80,7 @@ Got ideas for improvement? We would love to hear about your suggestions! Get sta
 
 ## License and Citation
 
-The ASReview software has an Apache 2.0 [LICENSE](LICENSE).
+The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team accepts no responsibility or liability for the use of the ASReview tool or any direct or indirect damages arising out of the application of the tool.
 
 A research paper is coming up for this project. In the mean time, it can be cited with (fill in x and y for the version number):
 
