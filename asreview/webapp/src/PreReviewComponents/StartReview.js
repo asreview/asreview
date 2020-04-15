@@ -33,9 +33,9 @@ const StartReview = (props) => {
   const classes = useStyles();
 
   const [state, setState] = React.useState({
-    "modelIsTraining": false
+    "status": null,
+    "message": null,
   });
-
   const [machineLearningModel, setmachineLearningModel] = React.useState('nb');
 
   const handleMachineLearningModelChange = (event) => {
@@ -47,7 +47,8 @@ const StartReview = (props) => {
 
     // set the state to 'model training'
     setState({
-      "modelIsTraining": true
+      "status": "training",
+      "message": null,
     })
 
     const url = api_url + `project/${props.project_id}/start`;
@@ -86,13 +87,16 @@ const StartReview = (props) => {
       }
     })
     .catch((error) => {
-      console.log(error);
+      setState({
+        "status": "error",
+        "message": "Failed to train the model.",
+      })
     });
   }
 
   return (
     <Box>
-      { !state["modelIsTraining"] ?
+      { state["status"] === null &&
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Grid container justify="space-between">
@@ -172,8 +176,14 @@ const StartReview = (props) => {
             </Paper>
           </Grid>
         </Grid>
-        :
+      }
+
+      { state["status"] === "training" &&
         <Typography>Training model... (this can take some time)</Typography>
+      }
+
+      { state["status"] === "error" &&
+        <Typography>An unknown error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.</Typography>
       }
     </Box>
   )

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import argparse
 import json
 import logging
 import sys
+from pathlib import Path
 
 import numpy as np
 
@@ -15,6 +17,7 @@ from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.io import write_proba
 from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.project import read_data
 
@@ -45,7 +48,7 @@ def get_label_train_history(state):
     return list(zip(label_idx, inclusions))
 
 
-def main(argv):
+def main(project_id, label_method=None):
     """Add the new labels to the review and do the modeling.
 
     It uses a lock to ensure only one model is running at the same time.
@@ -54,14 +57,7 @@ def main(argv):
     It has one argument on the CLI, which is the base project directory.
     """
 
-    # pass the project_id the script
-    project_id = argv[0]
     print(f"Train a new model for project {project_id}")
-
-    try:
-        label_method = "prior" if int(argv[1]) else None
-    except IndexError:
-        label_method = None
 
     # get file locations
     asr_kwargs_file = get_kwargs_path(project_id)
@@ -127,4 +123,33 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "project_id",
+        type=str,
+        help="Project id"
+    )
+    parser.add_argument(
+        "prior",
+        type=int,
+        default=None,
+        help="Project id"
+    )
+    args = parser.parse_args()
+
+    label_method = "prior" if args.prior == 1 else None
+
+    try:
+        main(args.project_id, label_method)
+    except Exception as err:
+        logging.error(err)
+
+        # write error to file is label method is prior (first iteration)
+        if label_method == "prior":
+            message = {"message": err}
+
+        fp = get_project_path(args.project_id) / "error.json"
+        with open(fp, 'w') as f:
+            json.dump(message, f)

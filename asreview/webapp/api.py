@@ -451,6 +451,13 @@ def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
 
+    error_path = get_project_path(project_id) / "error.json"
+    if error_path.exists():
+
+        with open(error_path, "r") as f:
+            error_message = json.load(f)
+        return jsonify(message=error_message), 400
+
     if get_proba_path(project_id).exists():
         logging.info("Model trained - go to review screen")
         response = jsonify(
