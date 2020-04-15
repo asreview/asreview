@@ -19,6 +19,7 @@ from werkzeug.utils import secure_filename
 
 import numpy as np
 
+from asreview.exceptions import BadFileFormatError
 from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path, get_project_file_path
@@ -194,22 +195,37 @@ def api_upload_data_project(project_id):  # noqa: F401
             get_data_path(project_id) / filename
         )
 
-        add_dataset_to_project(project_id, filename)
-
     elif request.form.get('url', None):
         # download file and save to folder
 
         download_url = request.form['url']
 
-        url_parts = urllib.parse.urlparse(download_url)
-        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
+        try:
+            url_parts = urllib.parse.urlparse(download_url)
+            filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-        urlretrieve(
-            download_url,
-            get_data_path(project_id) / filename
-        )
+            urlretrieve(
+                download_url,
+                get_data_path(project_id) / filename
+            )
 
-        add_dataset_to_project(project_id, filename)
+        except ValueError as err:
+
+            logging.error(err)
+            message = f"Invalid URL '{download_url}'."
+
+            if isinstance(download_url, str) \
+                    and not download_url.startswith("http"):
+                message += " Usually, the URL starts with 'http' or 'https'."
+
+            return jsonify(message=message), 400
+
+        except Exception as err:
+
+            logging.error(err)
+            message = f"Can't retrieve data from URL {download_url}."
+
+            return jsonify(message=message), 400
 
     elif 'file' in request.files:
 
@@ -225,8 +241,6 @@ def api_upload_data_project(project_id):  # noqa: F401
             # save the file
             data_file.save(str(fp_data))
 
-            add_dataset_to_project(project_id, filename)
-
         except Exception as err:
 
             logging.error(err)
@@ -240,16 +254,23 @@ def api_upload_data_project(project_id):  # noqa: F401
         response = jsonify(message="No file or dataset found to upload.")
         return response, 400
 
-    # get statistics of the dataset
     try:
-        statistics = get_data_statistics(project_id)
-    except Exception:
-        response = jsonify(
-            message=f"Failed to upload file '{filename}'. {err}"  # noqa
-        )
-        return response, 400
 
-    statistics["filename"] = filename
+        # add the file to the project
+        add_dataset_to_project(project_id, filename)
+
+        # get statistics of the dataset
+        statistics = get_data_statistics(project_id)
+        statistics["filename"] = filename
+
+    # Bad format. TODO{Jonathan} Return informative message with link.
+    except BadFileFormatError as err:
+        message = f"Failed to upload file '{filename}'. {err}"
+        return jsonify(message=message), 400
+
+    except Exception as err:
+        message = f"Failed to upload file '{filename}'. {err}"
+        return jsonify(message=message), 400
 
     response = jsonify(statistics)
     response.headers.add('Access-Control-Allow-Origin', '*')

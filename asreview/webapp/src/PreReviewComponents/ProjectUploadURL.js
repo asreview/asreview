@@ -22,7 +22,11 @@ const ProjectUploadURL = (props) => {
     const [url, setURL] = useState("");
 
     const onChangeURL = (evt) => {
-      setURL(evt.target.value);
+      if (evt.target.value.toLowerCase() === "aceinhibitors.csv"){
+        setURL("https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv");
+      } else {
+        setURL(evt.target.value);
+      }
     }
 
     const submitForm = (evt) => {
@@ -41,6 +45,7 @@ const ProjectUploadURL = (props) => {
               fullWidth
               id="url-dataset"
               label="Dataset URL"
+              value={url}
               onChange={onChangeURL}
             />
           </form>
