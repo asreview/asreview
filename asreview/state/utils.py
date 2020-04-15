@@ -20,23 +20,23 @@ from pathlib import Path
 from asreview.config import STATE_EXTENSIONS
 
 
-def _get_state_class(fp):
+def _get_state(fp, *args, **kwargs):
     "Get state class from file extension."
     from asreview.state.hdf5 import HDF5State
     from asreview.state.json import JSONState
     from asreview.state.dict import DictState
 
     if fp is None:
-        return DictState
+        return DictState.from_file(None)
 
     state_ext = Path(fp).suffix
     if state_ext in ['.h5', '.hdf5', '.he5']:
-        state_class = HDF5State
+        state = HDF5State.from_file(fp, *args, **kwargs)
     elif state_ext in ['.json']:
-        state_class = JSONState
+        state = JSONState.from_file(fp, *args, **kwargs)
     else:
-        state_class = None
-    return state_class
+        state = None
+    return state
 
 
 @contextmanager
@@ -59,18 +59,19 @@ def open_state(fp, *args, read_only=False, **kwargs):
         - None -> Dictstate (doesn't store anything permanently).
         - Anything else -> JSONstate.
     """
-    state_class = _get_state_class(fp)
-    if state_class is None:
-        raise ValueError("Bad state file extension, choose one of the"
-                         f" following:\n   {', '.join(STATE_EXTENSIONS)}")
+#     state_class = _get_state_class(fp)
     try:
-        state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs)
+        state = _get_state(fp=fp, *args, read_only=read_only, **kwargs)
+        if state is None:
+            raise ValueError("Bad state file extension, choose one of the"
+                             f" following:\n   {', '.join(STATE_EXTENSIONS)}")
         yield state
     finally:
-        state.close()
+        if state is not None:
+            state.close()
 
 
-def states_from_dir(data_dir, prefix="result"):
+def states_from_dir(data_dir, prefix="result", read_only=True):
     """Obtain a dictionary of states from a directory.
 
     Arguments
@@ -97,11 +98,8 @@ def states_from_dir(data_dir, prefix="result"):
             continue
 
         state_fp = os.path.join(data_dir, state_file)
-        state_class = _get_state_class(state_fp)
-        if state_class is None:
-            continue
-        states[state_file] = state_class(state_fp=state_fp, read_only=True)
-
+        state = _get_state(state_fp, read_only=read_only)
+        states[state_file] = state
     return states
 
 
@@ -126,5 +124,5 @@ def state_from_file(data_fp):
         logging.error(f"file {data_fp} does not end with {STATE_EXTENSIONS}.")
         return None
     state = {os.path.basename(os.path.normpath(data_fp)):
-             _get_state_class(data_fp)(state_fp=data_fp, read_only=True)}
+             _get_state(fp=data_fp, read_only=True)}
     return state

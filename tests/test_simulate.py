@@ -29,7 +29,7 @@ def test_state_continue_json():
 
 
 def test_state_continue_h5():
-    inter_file = os.path.join(state_dir, "test_1_inst.h5")
+    inter_file = os.path.join(state_dir, "test_1_inst_v1.h5")
     if not os.path.isfile(inter_file):
         reviewer = get_reviewer(
             data_fp, mode="simulate", model="nb", embedding_fp=embedding_fp,

@@ -339,3 +339,7 @@ class BaseState(ABC):
                 except (KeyError, IndexError):
                     pass
         return state_dict
+
+    @classmethod
+    def from_file(cls, *args, **kwargs):
+        return cls(*args, **kwargs)

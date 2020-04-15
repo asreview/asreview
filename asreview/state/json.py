@@ -71,3 +71,7 @@ class JSONState(DictState):
                 pass
         except FileNotFoundError:
             self.initialize_structure()
+
+    @classmethod
+    def from_file(cls, *args, **kwargs):
+        return cls(*args, **kwargs)
