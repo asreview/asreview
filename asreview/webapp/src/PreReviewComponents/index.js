@@ -7,5 +7,6 @@ export { default as SearchResultDialog } from '../PreReviewComponents/SearchResu
 export { default as PaperCard } from '../PreReviewComponents/PaperCard'
 export { default as ProjectInit } from '../PreReviewComponents/ProjectInit'
 export { default as ProjectUpload } from '../PreReviewComponents/ProjectUpload'
-export { default as ProjectDemoData } from '../PreReviewComponents/ProjectDemoData'
+export { default as ProjectUploadDatasets } from '../PreReviewComponents/ProjectUploadDatasets'
+export { default as ProjectUploadURL } from '../PreReviewComponents/ProjectUploadURL'
 export { default as StartReview } from '../PreReviewComponents/StartReview'

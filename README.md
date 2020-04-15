@@ -24,8 +24,8 @@ ASReview software implements two different modes:
 
 ## Installation
 
-The ASReview software requires Python 3.6+. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
-project with (for windows users add `python -m`):
+The ASReview software requires Python 3.6+ ([see Install Python](https://asreview.readthedocs.io/en/latest/installation.html#install-python)). The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
+project with (Windows users might have to use the prefix `python -m`):
 
 ```bash
 pip install asreview
@@ -36,7 +36,6 @@ Upgrade ASReview with the following command:
 ```bash
 pip install --upgrade asreview
 ```
-
 
 ## ASReview app
 

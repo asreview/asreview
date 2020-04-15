@@ -1,14 +1,14 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { 
-  Drawer, 
+import {
+  Drawer,
   Link,
-  List, 
+  List,
   ListSubheader,
-  ListItem, 
-  ListItemIcon, 
-  ListItemText, 
-  Divider 
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider
 } from '@material-ui/core'
 import {
   Add,
@@ -20,7 +20,7 @@ import {
 } from '@material-ui/icons'
 
 // local imports
-import ElasIcon from '../ElasIcon'
+// import ElasIcon from '../ElasIcon'
 
 const drawerWidth = 250;
 
@@ -85,7 +85,7 @@ const MenuDrawer = (props) => {
           <Divider />
 
         {/* Documentation */}
-          
+
           {/*
           <ListSubheader component="div" id="list-subheader-getting-started">
             Getting started

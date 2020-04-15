@@ -14,7 +14,7 @@ from copy import deepcopy
 from flask import current_app as app
 from flask.json import jsonify
 from flask_cors import CORS
-from flask import request, Blueprint, Response
+from flask import request, Blueprint, Response, send_file
 from werkzeug.utils import secure_filename
 
 import numpy as np
@@ -23,7 +23,7 @@ from asreview.datasets import get_dataset
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_path, get_project_file_path
 from asreview.webapp.utils.paths import get_lock_path, get_proba_path, get_kwargs_path
-from asreview.webapp.utils.paths import get_project_path
+from asreview.webapp.utils.paths import get_project_path, get_tmp_path
 from asreview.webapp.utils.project import get_paper_data, get_statistics,\
     export_to_string
 from asreview.webapp.utils.project import label_instance
@@ -33,7 +33,7 @@ from asreview.webapp.utils.project import init_project, read_data
 from asreview.webapp.types import is_project
 from asreview.webapp.utils.validation import check_dataset
 from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.datasets import search_data
+from asreview.webapp.utils.datasets import search_data, get_data_statistics
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_pool, read_label_history
 
@@ -125,26 +125,43 @@ def api_init_project():  # noqa: F401
     return response
 
 
-@bp.route('/demo_data', methods=["GET"])
+@bp.route('/datasets', methods=["GET"])
 def api_demo_data_project():  # noqa: F401
     """Get info on the article"""
 
-    try:
+    print(request.args)
+    subset = request.args.get('subset', None)
+
+    # clean this crappy code @TODO{Jonathan}
+    if subset == "plugin":
+
         from asreview.datasets import get_available_datasets
 
         result_datasets = []
         datasets = get_available_datasets()
         for group_name, group in datasets.items():
             for dataset_key, dataset in group.items():
-                result_datasets.append(dataset.to_dict())
+                if dataset.dataset_id not in ["hall", "ace", "ptsd"]:
+                    result_datasets.append(dataset.to_dict())
+
+        payload = {"result": result_datasets}
+    elif subset == "test":
+
+        from asreview.datasets import get_available_datasets
+
+        result_datasets = []
+        datasets = get_available_datasets()
+        for group_name, group in datasets.items():
+            for dataset_key, dataset in group.items():
+                if dataset.dataset_id in ["hall", "ace", "ptsd"]:
+                    result_datasets.append(dataset.to_dict())
 
         payload = {"result": result_datasets}
 
-    except Exception as err:
-        logging.error(err)
+    else:
         response = jsonify(message="demo-data-loading-failed")
 
-        return response, 500
+        return response, 400
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -156,7 +173,7 @@ def api_upload_data_project(project_id):  # noqa: F401
     """Get info on the article"""
 
     if not is_project(project_id):
-        response = jsonify(message="project-not-found")
+        response = jsonify(message="Project not found.")
         return response, 404
 
     if request.form.get('demo_data', None):
@@ -170,7 +187,22 @@ def api_upload_data_project(project_id):  # noqa: F401
             download_url = demo_data.url
 
         url_parts = urllib.parse.urlparse(download_url)
-        filename = url_parts.path.rsplit('/', 1)[-1]
+        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
+
+        urlretrieve(
+            download_url,
+            get_data_path(project_id) / filename
+        )
+
+        add_dataset_to_project(project_id, filename)
+
+    elif request.form.get('url', None):
+        # download file and save to folder
+
+        download_url = request.form['url']
+
+        url_parts = urllib.parse.urlparse(download_url)
+        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
         urlretrieve(
             download_url,
@@ -199,14 +231,29 @@ def api_upload_data_project(project_id):  # noqa: F401
 
             logging.error(err)
 
-            response = jsonify(message="project-upload-failure")
+            response = jsonify(
+                message=f"Failed to upload file '{filename}'. {err}"
+            )
 
-            return response, 500
+            return response, 400
     else:
-        response = jsonify(message="no-file-found")
-        return response, 500
+        response = jsonify(message="No file or dataset found to upload.")
+        return response, 400
 
-    return jsonify({"success": True})
+    # get statistics of the dataset
+    try:
+        statistics = get_data_statistics(project_id)
+    except Exception:
+        response = jsonify(
+            message=f"Failed to upload file '{filename}'. {err}"  # noqa
+        )
+        return response, 400
+
+    statistics["filename"] = filename
+
+    response = jsonify(statistics)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @bp.route('/project/<project_id>/search', methods=["GET"])
@@ -395,13 +442,31 @@ def api_init_model_ready(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
 
-    dataset_str = export_to_string(project_id)
+    # get the export args
+    file_type = request.args.get('file_type', None)
+    logging.info(f"Start exporting results to '{file_type}'")
+    print(f"Start exporting results to '{file_type}'")
 
-    return Response(
-        dataset_str,
-        mimetype="text/csv",
-        headers={"Content-disposition":
-                 f"attachment; filename=asreview_result_{project_id}.csv"})
+    if file_type == "csv":
+        dataset_str = export_to_string(project_id, export_type="csv")
+
+        return Response(
+            dataset_str,
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                     f"attachment; filename=asreview_result_{project_id}.csv"})
+    else:  # excel
+
+        dataset_str = export_to_string(project_id, export_type="excel")
+        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+
+        return send_file(
+            fp_tmp_export,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+            as_attachment=True,
+            attachment_filename=f"asreview_result_{project_id}.xlsx",
+            cache_timeout=0
+        )
 
 
 # @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])

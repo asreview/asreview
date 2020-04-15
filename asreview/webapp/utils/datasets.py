@@ -15,3 +15,18 @@ def search_data(project_id, q, n_max=100):
 
     # return full information on the records
     return as_data.record(paper_ids)
+
+
+def get_data_statistics(project_id):
+    """Get the title/authors/abstract for a paper."""
+
+    # read the dataset
+    as_data = read_data(project_id)
+
+    result = {
+        "n_rows": as_data.df.shape[0],
+        "n_cols": as_data.df.shape[1],
+    }
+
+    # return full information on the records
+    return result

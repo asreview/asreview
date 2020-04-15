@@ -1,8 +1,10 @@
 import json
+import os
 import logging
 import shlex
 import shutil
 import subprocess
+from pathlib import Path
 
 import numpy as np
 
@@ -11,6 +13,10 @@ from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_lock_path
+from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_pool_path
+from asreview.webapp.utils.paths import get_labeled_path
+from asreview.webapp.utils.paths import get_tmp_path
 from asreview.config import LABEL_NA
 from asreview.webapp.utils.io import read_pool, write_pool, read_label_history
 from asreview.webapp.utils.io import write_label_history, read_proba, read_data
@@ -78,13 +84,49 @@ def add_dataset_to_project(project_id, file_name):
             json.dump(project_dict, f_write)
 
         # fill the pool of the first iteration
-        pool_indices = read_data(project_id).record_ids
+        as_data = read_data(project_id)
+        if as_data.labels is not None:
+            unlabeled = np.where(as_data.labels == LABEL_NA)[0]
+            pool_indices = as_data.record_ids[unlabeled]
+        else:
+            pool_indices = as_data.record_ids
         np.random.shuffle(pool_indices)
 
         write_pool(project_id, pool_indices.tolist())
 
         # make a empty qeue for the items to label
         write_label_history(project_id, [])
+
+
+def remove_dataset_to_project(project_id, file_name):
+    """Remove dataset from project
+
+    """
+
+    project_file_path = get_project_file_path(project_id)
+    fp_lock = get_lock_path(project_id)
+
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+
+        # open the projects file
+        with open(project_file_path, "r") as f_read:
+            project_dict = json.load(f_read)
+
+        # remove the path from the project file
+        data_fn = project_dict["dataset_path"]
+        del project_dict["dataset_path"]
+
+        with open(project_file_path, "w") as f_write:
+            json.dump(project_dict, f_write)
+
+        # files to remove
+        data_path = get_data_file_path(project_id, data_fn)
+        pool_path = get_pool_path(project_id)
+        labeled_path = get_labeled_path(project_id)
+
+        os.remove(str(data_path))
+        os.remove(str(pool_path))
+        os.remove(str(labeled_path))
 
 
 def get_paper_data(project_id,
@@ -166,7 +208,7 @@ def get_statistics(project_id):
     return stats
 
 
-def export_to_string(project_id):
+def export_to_string(project_id, export_type="csv"):
     fp_lock = get_lock_path(project_id)
     as_data = read_data(project_id)
     with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
@@ -184,7 +226,19 @@ def export_to_string(project_id):
     proba_order = np.argsort(-proba[pool_idx])
     ranking = np.concatenate(
         (one_idx, pool_idx[proba_order], zero_idx), axis=None)
-    return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
+
+    if export_type == "csv":
+        return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
+    if export_type == "excel":
+        get_tmp_path(project_id).mkdir(exist_ok=True)
+        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+        return as_data.to_excel(
+            fp=fp_tmp_export,
+            labels=labels,
+            ranking=ranking
+        )
+    else:
+        raise ValueError("This export type isn't implemented.")
 
 
 def label_instance(project_id, paper_i, label, retrain_model=True):

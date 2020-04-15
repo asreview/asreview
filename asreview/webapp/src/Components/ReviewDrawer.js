@@ -76,7 +76,10 @@ const ReviewDrawer = (props) => {
       <ProgressPanel
         n_included={props.statistics.n_included}
         n_excluded={props.statistics.n_excluded}
+        n_papers={props.statistics.n_papers}
       />
+      <Divider />
+
     </Drawer>
   );
 }

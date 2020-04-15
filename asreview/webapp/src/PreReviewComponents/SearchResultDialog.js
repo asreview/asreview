@@ -41,24 +41,6 @@ const SearchResultDialog = (props) => {
 
   const [searchResult, setSearchResult] = React.useState(null);
 
-  const searchRequest = (searchQuery) => {
-
-      const url = api_url + `project/${props.project_id}/search`;
-
-      axios.get(
-        url,
-        {params: 
-          {q: searchQuery,
-           n_max: 10}})
-      .then((result) => {
-          setSearchResult(
-            result.data['result']
-          );
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
 
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
@@ -69,10 +51,28 @@ const SearchResultDialog = (props) => {
       }
     }
 
+    const searchRequest = (searchQuery) => {
+
+        const url = api_url + `project/${props.project_id}/search`;
+
+        axios.get(
+          url,
+          {params:
+            {q: searchQuery,
+             n_max: 10}})
+        .then((result) => {
+            setSearchResult(
+              result.data['result']
+            );
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
     // make search request
     searchRequest(props.searchQuery)
 
-  }, [true]);
+  }, [props.searchQuery, props.project_id]);
 
   return (
     <div>
@@ -87,12 +87,12 @@ const SearchResultDialog = (props) => {
       >
         <DialogTitle id="scroll-dialog-title">Search result: {props.searchQuery}</DialogTitle>
         <DialogContent dividers={true}>
-          {searchResult === null && 
+          {searchResult === null &&
           <div className={classes.root}>
             <CircularProgress/>
           </div>
           }
-          {searchResult !== null && 
+          {searchResult !== null &&
             <SearchResult searchResult={searchResult}
               onRevertInclude={props.onRevertInclude}
               removeResultOnRevert={false}
