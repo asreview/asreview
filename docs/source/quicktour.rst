@@ -77,7 +77,7 @@ From the obtained search result, select the publication(s) you had in
 mind by clicking the heart icon. Click return to go back to the search
 engine.
 
-.. figure:: ../images/3.2_include_publications_bat.png
+.. figure:: ../images/3.2_include_publications_social.png
    :alt:
 
 Repeat this step until you've selected your 1-5 prior inclusions. Your
@@ -102,13 +102,16 @@ Indicate for each publication whether it is relevant
 or irrelevant to your systematic review and click the Next button.
 
 
-.. figure:: ../images/4_label_random.png
+.. figure:: ../images/4_label_random_2.png
    :alt:
 
 
 Step 5. Select Machine Learning Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In the final step you will be allowed to choose a machine learning model. For now, we automatically selected the default settings, but in due time you will allowed to select a model yourself.
+
+.. figure:: ../images/5.1_start_reviewing.png
+   :alt:
 
 Based on the information you have provided in Steps 3 and 4, the software is now building
 a machine learning model that predicts the next abstract most likely to
@@ -125,7 +128,7 @@ While you review the publications that the software presents you with,
 the software continuously improves its understanding of your decisions,
 constantly updating the underlying model.
 
-.. figure:: ../images/5_reviewing.png
+.. figure:: ../images/5.2_reviewing.png
    :alt:
 
 To view your progress, click the Statistics symbol in the upper right corner.
@@ -160,9 +163,14 @@ Export Results
 ~~~~~~~~~~~~~~
 
 Open the projects panel by clicking the 3-striped icon in the upper left
-corner. You can export your results by clicking on the export button. A CSV
+corner. 
+
+.. figure:: ../images/7_exporting.png
+   :alt:
+
+You can export your results by clicking on the export button. A CSV
 file is downloaded with the results of your review.
 
-.. figure:: ../images/wrapping_up_panel.png
+.. figure:: ../images/7.1_exporting.png
    :alt:
 
