@@ -73,15 +73,19 @@ example "bat") and confirm by clicking the magnifying glass icon.
 .. figure:: ../images/3_include_publications.png
    :alt:
 
+
 From the obtained search result, select the publication(s) you had in
 mind by clicking the heart icon. Click return to go back to the search
 engine.
 
+
 .. figure:: ../images/3.2_include_publications_social.png
    :alt:
 
+
 Repeat this step until you've selected your 1-5 prior inclusions. Your
 prior inclusion(s) will be displayed below the search field and click the Next button.
+
 
 .. figure:: ../images/3.3_include_publications.png
    :alt:
@@ -108,14 +112,14 @@ or irrelevant to your systematic review and click the Next button.
 
 Step 5. Select Machine Learning Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In the final step you will be allowed to choose a machine learning model. For now, we automatically selected the default settings, but in due time you will allowed to select a model yourself.
-
-.. figure:: ../images/5.1_start_reviewing.png
-   :alt:
-
+In the final step you will be allowed to choose a machine learning model. For now, we automatically selected the default settings, but in due time you will allowed to select a model yourself. 
 Based on the information you have provided in Steps 3 and 4, the software is now building
 a machine learning model that predicts the next abstract most likely to
 be relevant.
+
+.. figure:: ../images/5_start_reviewing.png
+   :alt:
+
 
 
 Start Reviewing
@@ -128,15 +132,18 @@ While you review the publications that the software presents you with,
 the software continuously improves its understanding of your decisions,
 constantly updating the underlying model.
 
+.. figure:: ../images/5.1_start_reviewing.png
+   :alt:
+
+
+The Statistics panel shows information on the current project and labelling progress. 
+The panel can be opened and closed during labeling as you like. 
+To hide your progress, click the Statistics symbol in the upper right corner.
+
+
 .. figure:: ../images/5.2_reviewing.png
    :alt:
 
-To view your progress, click the Statistics symbol in the upper right corner.
-The Statistics panel will open, showing information on the current
-project and labelling progress.
-
-.. figure:: ../images/statistics_1.png
-   :alt:
 
 The software keeps presenting you with the most relevant publication
 until there are no more publications left to review, or until you decide to stop reviewing.
@@ -163,13 +170,13 @@ Export Results
 ~~~~~~~~~~~~~~
 
 Open the projects panel by clicking the 3-striped icon in the upper left
-corner. 
+corner. Click the export button.
 
 .. figure:: ../images/7_exporting.png
    :alt:
 
-You can export your results by clicking on the export button. A CSV
-file is downloaded with the results of your review.
+Choose from the menu whether you would like to export your results as a CSV or an Excel file and click `Export`.
+A file is downloaded with the results of your review.
 
 .. figure:: ../images/7.1_exporting.png
    :alt:
