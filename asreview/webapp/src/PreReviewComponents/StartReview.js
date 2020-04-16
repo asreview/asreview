@@ -87,9 +87,27 @@ const StartReview = (props) => {
       }
     })
     .catch((error) => {
+
+      let message = "Unknown error.";
+
+      if (error.response) {
+          if ('message' in error.response.data){
+              message = error.response.data["message"]
+          }
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+      } else if (error.request) {
+          console.log(error.request);
+      } else {
+          console.log('Error', error.message);
+      }
+      console.log(error.config);
+
+      console.log(message)
       setState({
         "status": "error",
-        "message": "Failed to train the model.",
+        "message": message,
       })
     });
   }
@@ -183,7 +201,17 @@ const StartReview = (props) => {
       }
 
       { state["status"] === "error" &&
-        <Typography>An unknown error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.</Typography>
+        <Box>
+          <Typography>
+            An error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.
+          </Typography>
+          <Typography variant="h4">
+            Error message
+          </Typography>
+          <Typography>
+            {state["message"]}
+          </Typography>
+        </Box>
       }
     </Box>
   )

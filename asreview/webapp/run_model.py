@@ -48,7 +48,7 @@ def get_label_train_history(state):
     return list(zip(label_idx, inclusions))
 
 
-def main(project_id, label_method=None):
+def train_model(project_id, label_method=None):
     """Add the new labels to the review and do the modeling.
 
     It uses a lock to ensure only one model is running at the same time.
@@ -122,7 +122,7 @@ def main(project_id, label_method=None):
             write_proba(project_id, proba)
 
 
-if __name__ == "__main__":
+def main(argv):
 
     # parse arguments
     parser = argparse.ArgumentParser()
@@ -132,24 +132,27 @@ if __name__ == "__main__":
         help="Project id"
     )
     parser.add_argument(
-        "prior",
-        type=int,
+        "--label_method",
+        type=str,
         default=None,
-        help="Project id"
+        help="Label method (for example 'prior')"
     )
-    args = parser.parse_args()
-
-    label_method = "prior" if args.prior == 1 else None
+    args = parser.parse_args(argv)
 
     try:
-        main(args.project_id, label_method)
+        train_model(args.project_id, args.label_method)
     except Exception as err:
         logging.error(err)
 
         # write error to file is label method is prior (first iteration)
-        if label_method == "prior":
-            message = {"message": err}
+        if args.label_method == "prior":
+            message = {"message": str(err)}
 
         fp = get_project_path(args.project_id) / "error.json"
         with open(fp, 'w') as f:
             json.dump(message, f)
+
+
+if __name__ == "__main__":
+
+    main(sys.argv)
