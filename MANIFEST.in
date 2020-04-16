@@ -1,2 +1,4 @@
 include versioneer.py
 include asreview/_version.py
+
+exclude .DS_Store

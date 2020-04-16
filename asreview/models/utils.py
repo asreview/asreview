@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.utils import model_class_from_entry_point
+
 
 def get_model_class(method):
     """Get class of model from string.
@@ -26,28 +28,7 @@ def get_model_class(method):
     BaseModel:
         Class corresponding to the method.
     """
-    from asreview.models.dense_nn import DenseNNModel
-    from asreview.models.svm import SVMModel
-    from asreview.models.nb import NBModel
-    from asreview.models.rf import RFModel
-    from asreview.models.logistic import LogisticModel
-    from asreview.models.lstm_base import LSTMBaseModel
-    from asreview.models.lstm_pool import LSTMPoolModel
-
-    models = {
-        "svm": SVMModel,
-        "nb": NBModel,
-        "rf": RFModel,
-        "nn-2-layer": DenseNNModel,
-        "lstm-base": LSTMBaseModel,
-        "lstm-pool": LSTMPoolModel,
-        "logistic": LogisticModel,
-    }
-    try:
-        return models[method]
-    except KeyError:
-        raise ValueError(
-            f"Error: training method '{method}' is not implemented.")
+    return model_class_from_entry_point(method, "asreview.models")
 
 
 def get_model(method, *args, **kwargs):

@@ -12,8 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.logging.base import BaseLogger
-from asreview.logging.dict import DictLogger
-from asreview.logging.hdf5 import HDF5Logger
-from asreview.logging.json import JSONLogger
-from asreview.logging.utils import open_logger
+
+import warnings
+
+from asreview.state.base import BaseState
+from asreview.state.dict import DictState
+from asreview.state.hdf5 import HDF5State
+from asreview.state.json import JSONState
+from asreview.state.utils import open_state
+
+
+class BaseLogger(BaseState):
+    warnings.warn("BaseLogger will be replaced by BaseState.",
+                  category=FutureWarning)
+
+
+class DictLogger(DictState):
+    warnings.warn("DictLogger will be replaced by DictState.",
+                  category=FutureWarning)
+
+
+class HDF5Logger(HDF5State):
+    warnings.warn("HDF5Logger will be replaced by HDF5State.",
+                  category=FutureWarning)
+
+
+class JSONLogger(JSONState):
+    warnings.warn("JSONLogger will be replaced by JSONState.",
+                  category=FutureWarning)
+
+
+def open_logger(*args, **kwargs):
+    warnings.warn("open_logger will be replaced by open_state.",
+                  category=FutureWarning)
+    return open_state(*args, **kwargs)

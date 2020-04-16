@@ -32,7 +32,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     """Class to create embedding matrices for LSTM models."""
     name = "embedding-lstm"
 
-    def __init__(self, *args, loop_sequence=True, num_words=20000,
+    def __init__(self, *args, loop_sequence=1, num_words=20000,
                  max_sequence_length=1000, padding='post', truncating='post',
                  n_jobs=1, **kwargs):
         """Initialize the embedding matrix feature extraction.
@@ -131,7 +131,7 @@ def loop_sequences(X, max_sequence_length=1000):
     return X
 
 
-def text_to_features(sequences, loop_sequence=True, num_words=20000,
+def text_to_features(sequences, loop_sequence=1, num_words=20000,
                      max_sequence_length=1000,
                      padding='post', truncating='post'):
     """Convert text data into features.
@@ -167,7 +167,7 @@ def text_to_features(sequences, loop_sequence=True, num_words=20000,
         truncating=truncating
     )
 
-    if loop_sequence:
+    if loop_sequence == 1:
         x = loop_sequences(x, max_sequence_length)
     # word index hack. see issue
     # https://github.com/keras-team/keras/issues/8092

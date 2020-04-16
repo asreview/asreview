@@ -50,17 +50,24 @@ def sample_prior_knowledge(
     r = np.random.RandomState(random_state)
 
     # retrieve the index of included and excluded papers
-    included_indexes = np.where(labels == 1)[0]
-    excluded_indexes = np.where(labels == 0)[0]
+    included_idx = np.where(labels == 1)[0]
+    excluded_idx = np.where(labels == 0)[0]
 
-    if len(included_indexes) < n_prior_included:
-        print(f"Found only {len(included_indexes)}, "
-              f"when I need {n_prior_included}.")
+    if len(included_idx) < n_prior_included:
+        raise ValueError(
+            f"Number of included priors requested ({n_prior_included})"
+            f" is bigger than number of included papers "
+            f"({len(included_idx)}).")
+    if len(excluded_idx) < n_prior_excluded:
+        raise ValueError(
+            f"Number of excluded priors requested ({n_prior_excluded})"
+            f" is bigger than number of excluded papers "
+            f"({len(excluded_idx)}).")
     # select randomly from included and excluded papers
     included_indexes_sample = r.choice(
-        included_indexes, n_prior_included, replace=False)
+        included_idx, n_prior_included, replace=False)
     excluded_indexes_sample = r.choice(
-        excluded_indexes, n_prior_excluded, replace=False)
+        excluded_idx, n_prior_excluded, replace=False)
 
     init = np.append(included_indexes_sample, excluded_indexes_sample)
 

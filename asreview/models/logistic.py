@@ -17,13 +17,14 @@ import logging
 from sklearn.linear_model import LogisticRegression
 
 from asreview.models.base import BaseTrainModel
+from asreview.utils import _set_class_weight
 
 
 class LogisticModel(BaseTrainModel):
     """Logistic Regression SKLearn model."""
     name = "logistic"
 
-    def __init__(self, C=1.0, class_weight=None, n_jobs=1):
+    def __init__(self, C=1.0, class_weight=1.0, n_jobs=1):
         """Initialize the SKLearn Naive Bayes model.
 
         Arguments:
@@ -32,17 +33,14 @@ class LogisticModel(BaseTrainModel):
             Parameter to set the regularization strength of the model.
         """
         super(LogisticModel, self).__init__()
-        if class_weight is not None:
-            class_weight = {
-                0: 1,
-                1: class_weight,
-            }
         self.C = C
         self.class_weight = class_weight
         self.n_jobs = n_jobs
-        self._model = LogisticRegression(solver="liblinear",
-                                         C=C, class_weight=class_weight,
-                                         n_jobs=n_jobs)
+
+        self._model = LogisticRegression(
+            solver="liblinear", C=C,
+            class_weight=_set_class_weight(class_weight),
+            n_jobs=n_jobs)
         logging.debug(self._model)
 
     def full_hyper_space(self):
