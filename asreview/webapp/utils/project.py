@@ -4,6 +4,7 @@ import os
 import shlex
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -269,7 +270,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     if retrain_model:
         # Update the model (if it isn't busy).
-        run_command = f"python -m asreview web_run_model '{project_id}'"
+        run_command = f"{sys.executable} -m asreview web_run_model '{project_id}'"  # noqa
         subprocess.Popen(shlex.split(run_command))
 
 
