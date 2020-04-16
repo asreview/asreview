@@ -202,13 +202,20 @@ const StartReview = (props) => {
 
       { state["status"] === "error" &&
         <Box>
-          <Typography>
+          <Typography
+            color="error"
+          >
             An error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.
           </Typography>
-          <Typography variant="h4">
+          <Typography
+            variant="h4"
+            color="error"
+          >
             Error message
           </Typography>
-          <Typography>
+          <Typography
+            color="error"
+          >
             {state["message"]}
           </Typography>
         </Box>
