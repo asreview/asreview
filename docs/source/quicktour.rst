@@ -46,9 +46,9 @@ Step 2. Select a Data Set
 
 In step 2, select the data set you want to review, which should
 contain at least the titles and abstracts of all publications you want to screen.
-You can either upload `your own data
-set <https://asreview.readthedocs.io/en/latest/datasets.html#using-your-own-data>`__
-or choose one of the built-in data sets:
+
+There are four ways to select a data set: 1) upload `your own data
+set <https://asreview.readthedocs.io/en/latest/datasets.html#using-your-own-data>`__, 2) import a data set from an URL, 3) select a plugged-in dataset (up until now offering the CORD-19 data), and 4) choose one of the built-in example data sets:
 
 .. figure:: ../images/2_select_dataset.png
    :alt:
