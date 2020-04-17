@@ -89,5 +89,5 @@ datasets, please see the license of the CORD-19 dataset
 https://pages.semanticscholar.org/coronavirus-research.
 
 
-.. |ASReview CORD19 datasets| image:: https://github.com/asreview/asreview/blob/master/images/asrewiew-plugin-cord19-dataset.png?raw=true
+.. |ASReview CORD19 datasets| image:: https://github.com/asreview/asreview/blob/master/images/asreview-covid19-screenshot.png?raw=true
    :target: https://github.com/asreview/asreview-covid19
