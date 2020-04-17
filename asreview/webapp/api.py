@@ -5,6 +5,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import urllib.parse
 from copy import deepcopy
 from pathlib import Path
@@ -438,7 +439,7 @@ def api_start(project_id):  # noqa: F401
         json.dump(asr_kwargs, fp)
 
     # start training the model
-    run_command = f"python -m asreview web_run_model '{project_id}' 1"
+    run_command = f"{sys.executable} -m asreview web_run_model '{project_id}' --label_method prior"  # noqa
     subprocess.Popen(shlex.split(run_command))
 
     response = jsonify({'success': True})
@@ -450,6 +451,13 @@ def api_start(project_id):  # noqa: F401
 def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
+
+    error_path = get_project_path(project_id) / "error.json"
+    if error_path.exists():
+
+        with open(error_path, "r") as f:
+            error_message = json.load(f)
+        return jsonify(error_message), 400
 
     if get_proba_path(project_id).exists():
         logging.info("Model trained - go to review screen")

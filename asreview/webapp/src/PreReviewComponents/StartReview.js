@@ -33,9 +33,9 @@ const StartReview = (props) => {
   const classes = useStyles();
 
   const [state, setState] = React.useState({
-    "modelIsTraining": false
+    "status": null,
+    "message": null,
   });
-
   const [machineLearningModel, setmachineLearningModel] = React.useState('nb');
 
   const handleMachineLearningModelChange = (event) => {
@@ -47,7 +47,8 @@ const StartReview = (props) => {
 
     // set the state to 'model training'
     setState({
-      "modelIsTraining": true
+      "status": "training",
+      "message": null,
     })
 
     const url = api_url + `project/${props.project_id}/start`;
@@ -86,13 +87,34 @@ const StartReview = (props) => {
       }
     })
     .catch((error) => {
-      console.log(error);
+
+      let message = "Unknown error.";
+
+      if (error.response) {
+          if ('message' in error.response.data){
+              message = error.response.data["message"]
+          }
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+      } else if (error.request) {
+          console.log(error.request);
+      } else {
+          console.log('Error', error.message);
+      }
+      console.log(error.config);
+
+      console.log(message)
+      setState({
+        "status": "error",
+        "message": message,
+      })
     });
   }
 
   return (
     <Box>
-      { !state["modelIsTraining"] ?
+      { state["status"] === null &&
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Grid container justify="space-between">
@@ -172,8 +194,31 @@ const StartReview = (props) => {
             </Paper>
           </Grid>
         </Grid>
-        :
+      }
+
+      { state["status"] === "training" &&
         <Typography>Training model... (this can take some time)</Typography>
+      }
+
+      { state["status"] === "error" &&
+        <Box>
+          <Typography
+            color="error"
+          >
+            An error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.
+          </Typography>
+          <Typography
+            variant="h4"
+            color="error"
+          >
+            Error message
+          </Typography>
+          <Typography
+            color="error"
+          >
+            {state["message"]}
+          </Typography>
+        </Box>
       }
     </Box>
   )
