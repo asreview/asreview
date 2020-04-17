@@ -157,7 +157,10 @@ const ReviewZone = (props) => {
   },[props.project_id, loaded, record.doc_id]);
 
   return (
-    <Box className={classes.box} height="100vh">
+    <Box
+      className={classes.box}
+      height="100vh"
+    >
 
       {/* Article panel */}
       <ArticlePanel
@@ -181,7 +184,14 @@ const ReviewZone = (props) => {
         handle={props.handleReviewDrawer}
         statistics={statistics}
       />
-      <DecisionFeedback open={modalFeedback.open} text={modalFeedback.text} elas={modalFeedback.elas} />
+
+      {/* Decision feedback */}
+      <DecisionFeedback
+        open={modalFeedback.open}
+        text={modalFeedback.text}
+        elas={modalFeedback.elas}
+      />
+
     </Box>
   )
 }

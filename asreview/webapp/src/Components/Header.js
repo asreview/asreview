@@ -1,17 +1,17 @@
 import React, { } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
+import {
+  AppBar,
+  Toolbar,
+  Typography,
   IconButton,
 } from '@material-ui/core'
 import MenuDrawer from './MenuDrawer'
 import { reviewDrawerWidth } from '../globals.js'
 
-import { 
-  Menu, 
-  BarChart, 
+import {
+  Menu,
+  BarChart,
 } from '@material-ui/icons'
 import HistoryIcon from '@material-ui/icons/History';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -58,7 +58,10 @@ const Header = (props) => {
 
   return (
     <div className={classes.appBar}>
-      <AppBar position='fixed' className={props.reviewDrawerState?classes.barWithReviewDrawer:classes.barFullWidth}>
+      <AppBar
+        position='fixed'
+        className={props.reviewDrawerState ? classes.barWithReviewDrawer : classes.barFullWidth}
+      >
         <Toolbar>
           <IconButton
             className={classes.menuButton}
@@ -98,7 +101,7 @@ const Header = (props) => {
           {(props.appState === 'review' && !props.reviewDrawerState)?<IconButton
             color="inherit"
             className={classes.barChart}
-            onClick={(e) => props.handleReviewDrawer(true)} 
+            onClick={(e) => props.handleReviewDrawer(true)}
           >
             <BarChart />
           </IconButton>
@@ -111,7 +114,7 @@ const Header = (props) => {
         state={state}
         setMenuDrawerState={setState}
         appState={props.appState}
-        setAppState={props.setAppState}
+        handleAppState={props.handleAppState}
         toggleDrawer={toggleDrawer}
         toggleExit={props.toggleExit}
         toggleExportResult={props.toggleExportResult}

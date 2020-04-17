@@ -127,7 +127,7 @@ const PreReviewZone = (props) => {
 
       {activeStep === 4 &&
         <StartReview
-          setAppState={props.setAppState}
+          handleAppState={props.handleAppState}
           handleReviewDrawer={props.handleReviewDrawer}
         />
       }
