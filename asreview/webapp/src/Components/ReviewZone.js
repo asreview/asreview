@@ -57,6 +57,7 @@ const ReviewZone = (props) => {
     "name": null,
     "authors": null,
     "decsription": null,
+    "model": null,
     "n_included": null,
     "n_excluded": null,
     "n_since_last_inclusion": null,

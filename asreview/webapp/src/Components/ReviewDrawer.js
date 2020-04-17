@@ -71,6 +71,7 @@ const ReviewDrawer = (props) => {
         authors={props.statistics.authors}
         description={props.statistics.description}
         n_papers={props.statistics.n_papers}
+        model={props.statistics.model}
       />
       <Divider />
       <ProgressPanel

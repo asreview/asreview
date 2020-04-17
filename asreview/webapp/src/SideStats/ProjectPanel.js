@@ -33,6 +33,9 @@ const ProjectPanel = (props) => {
           <ListItem key="project-n-papers">
             Number of publications: {props.n_papers} 
           </ListItem>
+          <ListItem key="project-model">
+            Model: {props.model}
+          </ListItem>          
         </div>
 
     );
