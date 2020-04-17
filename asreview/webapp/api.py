@@ -5,6 +5,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import urllib.parse
 from copy import deepcopy
 from pathlib import Path
