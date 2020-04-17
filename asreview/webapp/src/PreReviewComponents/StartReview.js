@@ -81,6 +81,7 @@ const StartReview = (props) => {
       if (result.data["status"] === 1){
         // model ready
         props.setAppState('review');
+        props.handleReviewDrawer(true);
       } else {
         // not ready yet
         setTimeout(checkModelIsFitted, 2000);
