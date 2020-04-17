@@ -120,7 +120,7 @@ class DatasetManager():
         if is_iterable(dataset_name):
             return [self.find(x) for x in dataset_name]
 
-        if Path(dataset_name).isfile():
+        if Path(dataset_name).is_file():
             return BaseDataSet(dataset_name)
 
         dataset_name = str(dataset_name)
@@ -133,7 +133,6 @@ class DatasetManager():
                 return self.all_datasets[data_group].find(split_dataset_name)
 
         all_results = {}
-        print(self.all_datasets)
         for group_name, dataset in self.all_datasets.items():
             result = dataset.find(dataset_name)
             if result is not None:
