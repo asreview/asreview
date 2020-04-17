@@ -2,7 +2,7 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
-  Box, 
+  Box,
   Button,
   Typography,
   Toolbar,
@@ -67,7 +67,7 @@ const ProjectInit = (props) => {
     bodyFormData.set('project_name', info.name);
     bodyFormData.set('project_authors', info.authors);
     bodyFormData.set('project_description', info.description);
-    
+
     axios({
       method: 'post',
       url: url,
@@ -115,16 +115,16 @@ const ProjectInit = (props) => {
             onChange={onChange}
           />
         </div>
-        <div className={classes.textfieldItem}> 
+        <div className={classes.textfieldItem}>
           <TextField
             fullWidth
             name="name"
             id="project-name"
-            label="Projectname"
+            label="Project name"
             onChange={onChange}
           />
         </div>
-        <div className={classes.textfieldItem}> 
+        <div className={classes.textfieldItem}>
           <TextField
             fullWidth
             name="description"
