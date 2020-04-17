@@ -32,9 +32,11 @@ Upon launching ASReview you arrive at the Projects page. Start a new project by 
 .. figure:: ../images/0_projects_page.png
    :alt:
 
-
+|
+|
 
 Next, provide information on your systematic review project:
+
 
 .. figure:: ../images/1_create_project.png
    :alt:
@@ -49,6 +51,7 @@ contain at least the titles and abstracts of all publications you want to screen
 
 There are four ways to select a data set: 1) upload `your own data
 set <https://asreview.readthedocs.io/en/latest/datasets.html#using-your-own-data>`__, 2) import a data set from an URL, 3) select a plugged-in dataset (up until now offering the CORD-19 data), and 4) choose one of the built-in example data sets:
+
 
 .. figure:: ../images/2_select_dataset.png
    :alt:
@@ -68,11 +71,14 @@ start. Note that there are no restrictions on the number of publications
 you need to provide, but preferably provide 1-5 prior inclusions.
 
 Enter your search terms (for
-example "bat") and confirm by clicking the magnifying glass icon.
+example "social") and confirm by clicking the magnifying glass icon.
+
 
 .. figure:: ../images/3_include_publications.png
    :alt:
 
+|
+|
 
 From the obtained search result, select the publication(s) you had in
 mind by clicking the heart icon. Click return to go back to the search
@@ -82,9 +88,12 @@ engine.
 .. figure:: ../images/3.2_include_publications_social.png
    :alt:
 
+|
+|
 
 Repeat this step until you've selected your 1-5 prior inclusions. Your
 prior inclusion(s) will be displayed below the search field and click the Next button.
+
 
 
 .. figure:: ../images/3.3_include_publications.png
@@ -110,6 +119,7 @@ or irrelevant to your systematic review and click the Next button.
    :alt:
 
 
+
 Step 5. Select Machine Learning Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In the final step you are allowed to choose a machine learning model.
@@ -118,6 +128,7 @@ After choosing your model, click `Start Reviewing`.
 Based on the information you have provided in Steps 3 and 4, the software is now building
 a machine learning model that predicts the next abstract most likely to
 be relevant.
+
 
 .. figure:: ../images/5_start_reviewing_2.png
    :alt:
@@ -137,6 +148,8 @@ constantly updating the underlying model.
 .. figure:: ../images/5.1_start_reviewing.png
    :alt:
 
+|
+|
 
 The Statistics panel shows information on the current project and labeling progress. 
 The panel can be opened and closed during labeling as you like. 
@@ -146,6 +159,8 @@ To hide your progress, click the closing arrow in the upper right corner.
 .. figure:: ../images/5.2_reviewing.png
    :alt:
 
+|
+|
 
 The software keeps presenting you with the most relevant publication
 until there are no more publications left to review, or until you decide to stop reviewing.
@@ -174,11 +189,17 @@ Export Results
 Open the projects panel by clicking the 3-striped icon in the upper left
 corner. Click the export button.
 
+
 .. figure:: ../images/7_exporting.png
    :alt:
 
+|
+|
+
 Choose from the menu whether you would like to export your results as a CSV or an Excel file and click `Export`.
 A file is downloaded with the results of your review.
+
+
 
 .. figure:: ../images/7.1_exporting.png
    :alt:
