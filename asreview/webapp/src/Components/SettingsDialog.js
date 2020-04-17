@@ -9,7 +9,10 @@ import {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
-  Switch
+  Switch,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@material-ui/core';
 
 export default function SettingsDialog(props) {
@@ -68,6 +71,24 @@ export default function SettingsDialog(props) {
                   checked={props.onDark.palette.type === "dark"}
                   inputProps={{ 'aria-labelledby': 'switch-list-label-dark' }}
                 />
+              </ListItemSecondaryAction>
+            </ListItem>
+            <ListItem>
+              <ListItemText id="change-text-size" primary="Text size" />
+              <ListItemSecondaryAction>
+                <FormControl>
+                  <Select
+                    id="change-text-size-select"
+                    value={props.textSize}
+                    onChange={props.handleTextSizeChange}
+                  >
+                    <MenuItem value='Smallest'>Smallest</MenuItem>
+                    <MenuItem value='Small'>Small</MenuItem>
+                    <MenuItem value='Normal'>Normal</MenuItem>
+                    <MenuItem value='Large'>Large</MenuItem>
+                    <MenuItem value='Largest'>Largest</MenuItem>
+                  </Select>
+                </FormControl>
               </ListItemSecondaryAction>
             </ListItem>
           </List>

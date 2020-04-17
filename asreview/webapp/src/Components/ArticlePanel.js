@@ -34,7 +34,7 @@ const useStyles = makeStyles({
     width: '100%',
     position: 'fixed',
     bottom: 0,
-  },
+  }
 });
 
 
@@ -47,7 +47,7 @@ const ArticlePanel = (props) => {
         
         {/* Show the title */}
         <Typography
-          className={classes.title}
+          className={classes.title + " textSize" + props.textSize}
           variant="h6"
           color={props.record._debug_label === 1 ? "error" : "textSecondary"}
           component="div"
@@ -71,7 +71,7 @@ const ArticlePanel = (props) => {
         {/* Show the publication date if available */}
         {props.record.publish_time !== null  &&
           <Typography
-              className={classes.publish_time}
+              className={classes.publish_time + " textSize" + props.textSize}
               color={props.record._debug_label === 1 ? "error" : "textSecondary"}
               component="p"
               fontStyle="italic"
@@ -82,7 +82,7 @@ const ArticlePanel = (props) => {
 
         {/* Show the abstract */}
         <Typography
-            className={classes.abstract}
+            className={classes.abstract + " textSize" + props.textSize}
             variant="body2"
             color={props.record._debug_label === 1 ? "error" : "textSecondary"}
             component="div"
