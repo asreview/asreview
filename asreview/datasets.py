@@ -89,6 +89,9 @@ class BaseVersionedDataSet():
 
         return None
 
+    def get(self, i_version=-1):
+        return self.datasets[i_version].get()
+
     def list(self, only_latest=True):
         if only_latest:
             return [self.datasets[-1]]
@@ -321,4 +324,4 @@ def get_dataset(dataset_id):
 
 
 def find_data(project_id):
-    return BaseDataGroup().find(project_id)
+    return DatasetManager().find(project_id).get()
