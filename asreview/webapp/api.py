@@ -21,11 +21,13 @@ from flask.json import jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+from asreview.datasets import DatasetManager
 from asreview.datasets import get_dataset
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
-from asreview.webapp.utils.datasets import get_data_statistics
+from asreview.webapp.utils.datasets import get_data_statistics,\
+    get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
@@ -142,37 +144,16 @@ def api_demo_data_project():  # noqa: F401
     print(request.args)
     subset = request.args.get('subset', None)
 
-    # clean this crappy code @TODO{Jonathan}
     if subset == "plugin":
-
-        from asreview.datasets import get_available_datasets
-
-        result_datasets = []
-        datasets = get_available_datasets()
-        for group_name, group in datasets.items():
-            for dataset_key, dataset in group.items():
-                if dataset.dataset_id not in ["hall", "ace", "ptsd"]:
-                    result_datasets.append(dataset.to_dict())
-
-        payload = {"result": result_datasets}
+        result_datasets = get_dataset_metadata(exclude="builtin")
     elif subset == "test":
-
-        from asreview.datasets import get_available_datasets
-
-        result_datasets = []
-        datasets = get_available_datasets()
-        for group_name, group in datasets.items():
-            for dataset_key, dataset in group.items():
-                if dataset.dataset_id in ["hall", "ace", "ptsd"]:
-                    result_datasets.append(dataset.to_dict())
-
-        payload = {"result": result_datasets}
-
+        result_datasets = get_dataset_metadata(include="builtin")
     else:
         response = jsonify(message="demo-data-loading-failed")
 
         return response, 400
 
+    payload = {"result": result_datasets}
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
