@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
   Container,
-  Slide,
   Typography,
 } from '@material-ui/core'
 import { reviewDrawerWidth } from '../globals.js'
@@ -42,8 +41,10 @@ const ArticlePanel = (props) => {
   const classes = useStyles();
 
   return (
-    <Slide direction={props.slide.direction} in={props.slide.set} timeout={{ enter: 0, exit: 0 }} mountOnEnter={true}>
-      <Container maxWidth="md" className={props.reviewDrawerState?classes.boxWithDrawer:classes.boxFullWidth}>
+      <Container
+        maxWidth="md"
+        className={props.reviewDrawerState?classes.boxWithDrawer:classes.boxFullWidth}
+      >
 
         {/* Show the title */}
         <Typography
@@ -108,7 +109,6 @@ const ArticlePanel = (props) => {
             }
         </Typography>
       </Container>
-    </Slide>
   );
 }
 

@@ -47,7 +47,6 @@ const App = () => {
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
   const [openHistory, setHistoryOpen] = React.useState(false);
-  const [reviewDrawerState, setReviewDrawerState] = useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [textSize, setTextSize] = React.useState('Normal');
 

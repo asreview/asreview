@@ -9,7 +9,6 @@ import {
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
-import DecisionFeedback from './DecisionFeedback'
 
 
 import { connect } from "react-redux";
@@ -44,15 +43,12 @@ const mapStateToProps = state => {
 
 const ReviewZone = (props) => {
   const classes = useStyles();
-  // const [error, setError] = useState('');
-  const [loaded, setLoaded] = useState(false);
-  const [record, setRecord] = useState(
-    { doc_id: null,
-      title: '',
-      abstract: '',
-      authors: ''
-    }
-  );
+
+  const [recordState, setRecordState] = useState({
+      'isloaded': false,
+      'record': null,
+    })
+
   const [statistics, setStatistics] = useState({
     "name": null,
     "authors": null,
@@ -63,15 +59,6 @@ const ReviewZone = (props) => {
     "n_papers": null,
     "n_pool": null,
   });
-  const [slide, setSlide] = useState({
-    set: false,
-    direction: 'left'
-  });
-  const [modalFeedback, setModalFeedback] = useState({
-    open: false,
-    text: '',
-    elas: false
-  });
 
   /**
    * Include (accept) or exclude (reject) current article
@@ -80,16 +67,13 @@ const ReviewZone = (props) => {
    */
   const classifyInstance = (label) => {
 
-    const url = api_url + `project/${props.project_id}/record/${record.doc_id}`;
+    const url = api_url + `project/${props.project_id}/record/${recordState['record'].doc_id}`;
 
     // set up the form
     let body = new FormData();
-    body.set('doc_id', record.doc_id);
+    body.set('doc_id', recordState['record'].doc_id);
     body.set('label', label);
 
-    // animations
-    setModalFeedback({open: true, text: label?'Included':'Excluded', elas: false});
-    setSlide({set: false, direction: label?'left':'right'});  //fly out FROM right or left
     return axios({
       method: 'post',
       url: url,
@@ -97,8 +81,11 @@ const ReviewZone = (props) => {
       headers: { 'Content-Type': 'application/json' }
     })
     .then((response) => {
-      console.log(`${props.project_id} - add item ${record.doc_id} to ${label?"inclusions":"exclusions"}`);
-      setLoaded(false);
+      console.log(`${props.project_id} - add item ${recordState['record'].doc_id} to ${label?"inclusions":"exclusions"}`);
+      setRecordState({
+        'isloaded': false,
+        'record': null,
+      });
     })
     .catch((error) => {
       console.log(error);
@@ -134,27 +121,23 @@ const ReviewZone = (props) => {
       return axios.get(url)
       .then((result) => {
 
-        setRecord(result.data);
-        setLoaded(true);
-        setModalFeedback({open: false, text: '', elas: false});
-        setSlide({set: true, direction: 'up'});  //fly in TO the top
+        setRecordState({
+          'record':result.data,
+          'isloaded': true
+        });
       })
       .catch((error) => {
         console.log(error);
-        setLoaded(true);  // ?
-        setModalFeedback({open: false, text: '', elas: false});
-        // setError('Not possible to collect new item');
       });
     }
 
-    if (!loaded) {
+    if (!recordState['isloaded']) {
 
       getProgressInfo();
 
-      if (record.doc_id) setModalFeedback({open: true, text: 'Learning....', elas: true});
       getDocument();
     }
-  },[props.project_id, loaded, record.doc_id]);
+  },[props.project_id, recordState]);
 
   return (
     <Box
@@ -163,19 +146,20 @@ const ReviewZone = (props) => {
     >
 
       {/* Article panel */}
-      <ArticlePanel
-        record={record}
-        reviewDrawerState={props.reviewDrawerState}
-        showAuthors={props.showAuthors}
-        textSize={props.textSize}
-        slide={slide}
-      />
+      {recordState['isloaded'] &&
+        <ArticlePanel
+          record={recordState['record']}
+          reviewDrawerState={props.reviewDrawerState}
+          showAuthors={props.showAuthors}
+          textSize={props.textSize}
+        />
+      }
 
     {/* Decision bar */}
       <DecisionBar
         reviewDrawerState={props.reviewDrawerState}
         classify={classifyInstance}
-        block={!slide.set}
+        block={!recordState['isloaded']}
       />
 
     {/* Statistics drawer */}
@@ -183,13 +167,6 @@ const ReviewZone = (props) => {
         state={props.reviewDrawerState}
         handle={props.handleReviewDrawer}
         statistics={statistics}
-      />
-
-      {/* Decision feedback */}
-      <DecisionFeedback
-        open={modalFeedback.open}
-        text={modalFeedback.text}
-        elas={modalFeedback.elas}
       />
 
     </Box>
