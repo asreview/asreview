@@ -47,7 +47,7 @@ const ArticlePanel = (props) => {
         
         {/* Show the title */}
         <Typography
-          className={classes.title + " textSize" + props.textSize}
+          className={classes.title}
           variant="h6"
           color={props.record._debug_label === 1 ? "error" : "textSecondary"}
           component="div"
