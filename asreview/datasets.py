@@ -4,7 +4,6 @@ import json
 
 from asreview.utils import pretty_format
 from asreview.utils import is_iterable
-from os.path import isfile
 
 
 class BaseDataSet():
@@ -121,7 +120,7 @@ class DatasetManager():
         if is_iterable(dataset_name):
             return [self.find(x) for x in dataset_name]
 
-        if isfile(str(dataset_name)):
+        if Path(dataset_name).isfile():
             return BaseDataSet(dataset_name)
 
         dataset_name = str(dataset_name)
