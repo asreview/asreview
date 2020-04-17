@@ -15,6 +15,6 @@ jobs:
         df -h
         pip install pytest
         pip install --upgrade setuptools>=41.0.0
-        pip install .[all]
+        pip install --no-cache-dir .[all]
         pytest
 
