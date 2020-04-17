@@ -74,7 +74,7 @@ const WelcomeScreen = (props) => {
 
             // skip the loader when you are in development mode
             if (result.data['status'] === 'development') {
-              props.setAppState("projects");
+              props.handleAppState("projects");
             }
           })
           .catch(err => {
@@ -108,7 +108,7 @@ const WelcomeScreen = (props) => {
                 }, 4000)
               }}
               onExited={() => {
-                props.setAppState("projects");
+                props.handleAppState("projects");
               }}
           >
             <Box className={classes.background}>

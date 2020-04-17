@@ -34,13 +34,13 @@ const ProjectCard = (props) => {
     store.dispatch(setProject(props.id))
 
     // change to the review window
-    props.setAppState("review")
+    props.handleAppState("review")
   }
 
   const toggleProjectSettings = () => {
     console.log("Open settings project " + props.id)
     setSettings(a => (!a));
-  };  
+  };
 
   return (
     <Card className={classes.root}>
@@ -66,7 +66,7 @@ const ProjectCard = (props) => {
           onClick={openExistingProject}
         >
           Open
-        </Button>        
+        </Button>
         <Button
           size="small"
           color="primary"

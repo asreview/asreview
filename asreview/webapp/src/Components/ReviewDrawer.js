@@ -1,12 +1,12 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { 
-  Drawer, 
+import {
+  Drawer,
   IconButton,
   Divider,
   Typography,
 } from '@material-ui/core'
-import { 
+import {
   ChevronRight,
 } from '@material-ui/icons'
 
@@ -83,5 +83,5 @@ const ReviewDrawer = (props) => {
     </Drawer>
   );
 }
- 
+
 export default connect(mapStateToProps)(ReviewDrawer);
