@@ -12,7 +12,7 @@ jobs:
         architecture: 'x64' # (x64 or x86)
     - name: Install packages and run tests
       run: |
-        ls  ~/.cache/pip/
+        df -h
         pip install pytest
         pip install --upgrade setuptools>=41.0.0
         pip install .[all]
