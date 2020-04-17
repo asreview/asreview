@@ -112,12 +112,14 @@ or irrelevant to your systematic review and click the Next button.
 
 Step 5. Select Machine Learning Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In the final step you will be allowed to choose a machine learning model. For now, we automatically selected the default settings, but in due time you will allowed to select a model yourself. 
+In the final step you are allowed to choose a machine learning model.
+The default model is Naive Bayes, but you can opt for a different model if you would like to. 
+After choosing your model, click `Start Reviewing`.
 Based on the information you have provided in Steps 3 and 4, the software is now building
 a machine learning model that predicts the next abstract most likely to
 be relevant.
 
-.. figure:: ../images/5_start_reviewing.png
+.. figure:: ../images/5_start_reviewing_2.png
    :alt:
 
 
@@ -136,9 +138,9 @@ constantly updating the underlying model.
    :alt:
 
 
-The Statistics panel shows information on the current project and labelling progress. 
+The Statistics panel shows information on the current project and labeling progress. 
 The panel can be opened and closed during labeling as you like. 
-To hide your progress, click the Statistics symbol in the upper right corner.
+To hide your progress, click the closing arrow in the upper right corner.
 
 
 .. figure:: ../images/5.2_reviewing.png
