@@ -1,4 +1,4 @@
-name: test-suite
+name: test-frontend-compilation
 on: [push, pull_request]
 jobs:
   test:
@@ -20,10 +20,3 @@ jobs:
     - name: Compile assets
       run: |
         python setup.py compile_assets
-    - name: Install packages and run tests  
-      run: |
-        pip install pytest
-        pip install --upgrade setuptools>=41.0.0
-        pip install .[all]
-        pytest
-     
