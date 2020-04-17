@@ -164,6 +164,7 @@ const ReviewZone = (props) => {
         record={record}
         reviewDrawerState={props.reviewDrawerState}
         showAuthors={props.showAuthors}
+        textSize={props.textSize}
         slide={slide}
       />
 

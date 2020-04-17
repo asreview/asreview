@@ -6,6 +6,7 @@ import {
   createMuiTheme 
 } from '@material-ui/core'
 import { MuiThemeProvider } from '@material-ui/core/styles';
+import './App.css';
 
 import brown from '@material-ui/core/colors/brown';
 import {
@@ -43,7 +44,8 @@ const App = () => {
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
   const [openHistory, setHistoryOpen] = React.useState(false);
-  const [authors, setAuthors] = React.useState(false); 
+  const [authors, setAuthors] = React.useState(false);
+  const [textSize, setTextSize] = React.useState('Normal');
 
   // we change the palette type of the theme in state
   const toggleDarkTheme = () => {
@@ -83,7 +85,7 @@ const App = () => {
 
   const toggleExportResult = () => {
     setExportResult(a => (!a));
-  };  
+  };
 
   const [reviewDrawerState, setReviewDrawerState] = useState(false);
   
@@ -91,6 +93,10 @@ const App = () => {
     //console.log('Set drawer to '+(show?'open':'closed'));
     setReviewDrawerState(show);
   }
+
+  const handleTextSizeChange = (event) => {
+    setTextSize(event.target.value);
+  };  
 
   console.log("Current step: " + appState)
 
@@ -111,6 +117,7 @@ const App = () => {
         toggleDarkTheme={toggleDarkTheme}
         handleClickOpen={handleClickOpen}
         handleHistoryOpen={handleHistoryOpen}
+        handleTextSizeChange={handleTextSizeChange}
         toggleExit={toggleExit}
         toggleExportResult={toggleExportResult}
       />
@@ -133,6 +140,7 @@ const App = () => {
         reviewDrawerState={reviewDrawerState}
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
+        textSize={textSize}
       />
       }
 
@@ -140,6 +148,8 @@ const App = () => {
       <SettingsDialog
         openSettings={openSettings}
         handleClose={handleClose}
+        handleTextSizeChange={handleTextSizeChange}
+        textSize={textSize}
         toggleDarkTheme={toggleDarkTheme}
         toggleAuthors={toggleAuthors}
         onDark={theme}
