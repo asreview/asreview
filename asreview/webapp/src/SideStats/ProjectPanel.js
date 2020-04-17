@@ -22,16 +22,16 @@ const ProjectPanel = (props) => {
         <div>
           <ListSubheader component="div" id="list-subheader-project">
             Project
-          </ListSubheader> 
+          </ListSubheader>
           {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
           <ListItem key="project-name">
-            Project: {props.name}
+            Name: {props.name}
           </ListItem>
           <ListItem key="project-authors">
             Authors: {props.authors}
           </ListItem>
           <ListItem key="project-n-papers">
-            Number of publications: {props.n_papers} 
+            Number of publications: {props.n_papers}
           </ListItem>
         </div>
 
