@@ -11,15 +11,15 @@ import './App.css';
 import brown from '@material-ui/core/colors/brown';
 import {
   Header,
-  SettingsDialog,
   ReviewZone,
   HistoryDialog,
-  ExitDialog,
   ExportDialog,
 }
 from './Components'
 import PreReviewZone from './PreReviewComponents/PreReviewZone'
 import Projects from './Projects'
+import SettingsDialog from './SettingsDialog'
+import ExitDialog from './ExitDialog'
 import WelcomeScreen from './WelcomeScreen'
 
 import 'typeface-roboto'
@@ -39,13 +39,33 @@ const App = () => {
   // we generate a MUI-theme from state's theme object
   const muiTheme = createMuiTheme(theme);
 
-  const [appState, setAppState] = React.useState('boot');
+  const [appState, setAppState] = React.useState({
+    'step': 'boot',
+    'reviewDrawerOpen': false,
+  });
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [textSize, setTextSize] = React.useState('Normal');
+
+  const handleAppState = (step) => {
+
+    setAppState(step)
+
+    if (step === 'review'){
+      setAppState({
+        'step': 'review',
+        'reviewDrawerOpen': true,
+      })
+    } else {
+      setAppState({
+        'step': step,
+        'reviewDrawerOpen': false,
+      })
+    }
+  }
 
   // we change the palette type of the theme in state
   const toggleDarkTheme = () => {
@@ -87,33 +107,38 @@ const App = () => {
     setExportResult(a => (!a));
   };
 
-  const [reviewDrawerState, setReviewDrawerState] = useState(false);
-
   const handleReviewDrawer = (show) => {
-    //console.log('Set drawer to '+(show?'open':'closed'));
-    setReviewDrawerState(show);
+    setAppState({
+      'step': appState['step'],
+      'reviewDrawerOpen': show,
+    })
   }
 
   const handleTextSizeChange = (event) => {
     setTextSize(event.target.value);
-  };  
+  };
 
-  console.log("Current step: " + appState)
+  console.log("Current step: " + appState['step'])
 
   return (
       <MuiThemeProvider theme={muiTheme}>
       <CssBaseline/>
-      {appState === 'boot' &&
+      {appState['step'] === 'boot' &&
       <WelcomeScreen
-        setAppState={setAppState}
+        handleAppState={handleAppState}
       />
       }
       {appState !== 'boot' &&
       <Header
-        appState={appState}
-        setAppState={setAppState}
-        reviewDrawerState={reviewDrawerState}
+
+        /* Handle the app state */
+        appState={appState['step']}
+        handleAppState={handleAppState}
+
+        /* Handle the app review drawer */
+        reviewDrawerState={appState['reviewDrawerOpen']}
         handleReviewDrawer={handleReviewDrawer}
+
         toggleDarkTheme={toggleDarkTheme}
         handleClickOpen={handleClickOpen}
         handleHistoryOpen={handleHistoryOpen}
@@ -123,22 +148,21 @@ const App = () => {
       />
       }
 
-      {appState === 'projects' &&
+      {appState['step'] === 'projects' &&
       <Projects
-        setAppState={setAppState}
+        handleAppState={handleAppState}
       />
       }
 
-      {appState === 'review-init' &&
+      {appState['step'] === 'review-init' &&
       <PreReviewZone
-        setAppState={setAppState}
-        handleReviewDrawer={handleReviewDrawer}
+        handleAppState={handleAppState}
       />
       }
 
-      {appState === 'review' &&
+      {appState['step'] === 'review' &&
       <ReviewZone
-        reviewDrawerState={reviewDrawerState}
+        reviewDrawerState={appState['reviewDrawerOpen']}
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
         textSize={textSize}

@@ -91,7 +91,7 @@ const Projects = (props) => {
                       id={project.id}
                       name={project.name}
                       description={project.description}
-                      setAppState={props.setAppState}
+                      handleAppState={props.handleAppState}
                       refreshProjects={refreshProjects}
                     />
                 </Grid>
@@ -104,8 +104,8 @@ const Projects = (props) => {
           <Fab
               color="secondary"
               className={classes.absolute}
-              onClick={() => { 
-                  props.setAppState('review-init'); 
+              onClick={() => {
+                  props.handleAppState('review-init');
 
               }}
           >

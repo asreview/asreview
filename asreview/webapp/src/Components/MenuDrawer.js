@@ -53,7 +53,7 @@ const MenuDrawer = (props) => {
             key="menu-button-new-projects"
             onClick={() => {
               props.setMenuDrawerState({left: false});
-              props.setAppState("review-init");
+              props.handleAppState("review-init");
             }}
           >
             <ListItemIcon><Add /></ListItemIcon>
@@ -64,7 +64,7 @@ const MenuDrawer = (props) => {
             key="menu-button-projects"
             onClick={() => {
               props.setMenuDrawerState({left: false});
-              props.setAppState("projects");
+              props.handleAppState("projects");
             }}
             >
             <ListItemIcon><Folder /></ListItemIcon>
