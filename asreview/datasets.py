@@ -61,7 +61,7 @@ class BaseDataSet():
             return self
         return None
 
-    def list(self, only_latest=True):
+    def list(self, latest_only=True):
         return [self]
 
 
@@ -79,8 +79,8 @@ class BaseVersionedDataSet():
         self.dataset_id = base_dataset_id
 
     def find(self, dataset_name):
-        if dataset_name == self.base_dataset_id:
-            return self.datasets[-1]
+        if dataset_name == self.dataset_id:
+            return self
 
         all_dataset_names = [(d, d.aliases) for d in self.datasets]
         for dataset, aliases in all_dataset_names:
@@ -92,8 +92,8 @@ class BaseVersionedDataSet():
     def get(self, i_version=-1):
         return self.datasets[i_version].get()
 
-    def list(self, only_latest=True):
-        if only_latest:
+    def list(self, latest_only=True):
+        if latest_only:
             return [self.datasets[-1]]
         return [self]
 
@@ -101,6 +101,9 @@ class BaseVersionedDataSet():
         dataset_dict = self.datasets[-1].to_dict()
         dataset_dict["versions_available"] = [d.dataset_id for d in self.datasets]
         return pretty_format(dataset_dict)
+
+    def __len__(self):
+        return len(self.datasets)
 
 
 class DatasetManager():
@@ -148,7 +151,7 @@ class DatasetManager():
 
         return None
 
-    def list(self, group_name=None, only_latest=True):
+    def list(self, group_name=None, latest_only=True):
         if group_name is None:
             group_names = list(self.all_datasets)
         elif not is_iterable(group_name):
@@ -156,7 +159,7 @@ class DatasetManager():
         else:
             group_names = group_name
 
-        dataset_list = {gn: self.all_datasets[gn].list(only_latest=only_latest)
+        dataset_list = {gn: self.all_datasets[gn].list(latest_only=latest_only)
                         for gn in group_names}
         return dataset_list
 
@@ -192,10 +195,10 @@ class BaseDataGroup():
             return results[0]
         return None
 
-    def list(self, only_latest=True):
+    def list(self, latest_only=True):
         return_list = []
         for d in self._data_sets:
-            return_list.extend(d.list(only_latest=only_latest))
+            return_list.extend(d.list(latest_only=latest_only))
         return return_list
 
 
