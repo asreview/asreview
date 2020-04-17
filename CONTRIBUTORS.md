@@ -11,7 +11,7 @@ This project is in collaboration with researchers from the focus area of [Utrech
 - [Jan de Boer](https://www.uu.nl/staff/JdeBoer)
 - [Edu Hackenitz](https://www.uu.nl/staff/EJMHackenitz)
 - [Felix Weijdema](https://www.uu.nl/staff/FPWeijdema)
-- [Bianca Kramer](https://www.uu.nl/staff/BMRKramer)
+- [Bianca Kramer](https://www.uu.nl/staff/BMRKramer) ([@bmkramer](https://github.com/bmkramer))
 - [Pim Huijnen](https://www.uu.nl/staff/PHuijnen) (Digital Cultural History at the Department of History and Art History)
 - [Lars Tummers](https://www.uu.nl/staff/LGTummers) (Public Management and Behavior at Utrecht University, School of Governance)
 - Gerbrich Ferdinands ([@GerbrichFerdinands](https://github.com/GerbrichFerdinands))
