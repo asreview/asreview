@@ -34,7 +34,7 @@ const useStyles = makeStyles({
     width: '100%',
     position: 'fixed',
     bottom: 0,
-  },
+  }
 });
 
 
@@ -44,25 +44,30 @@ const ArticlePanel = (props) => {
   return (
     <Slide direction={props.slide.direction} in={props.slide.set} timeout={{ enter: 0, exit: 0 }} mountOnEnter={true}>
       <Container maxWidth="md" className={props.reviewDrawerState?classes.boxWithDrawer:classes.boxFullWidth}>
-        
+
         {/* Show the title */}
         <Typography
           className={classes.title}
-          variant="h6"
+          variant="h5"
           color={props.record._debug_label === 1 ? "error" : "textSecondary"}
           component="div"
           paragraph>
 
           {/* No title, inplace text */}
           {(props.record.title === "" || props.record.title === null) &&
-            <Box fontStyle="italic">
+            <Box
+              className={"textSize" + props.textSize}
+              fontStyle="italic"
+            >
               This article doens't have a title.
             </Box>
           }
 
           {/* No title, inplace text */}
           {!(props.record.title === "" || props.record.title === null) &&
-            <Box>
+            <Box
+              className={"textSize" + props.textSize}
+            >
               {props.record.title}
             </Box>
           }
@@ -71,7 +76,7 @@ const ArticlePanel = (props) => {
         {/* Show the publication date if available */}
         {props.record.publish_time !== null  &&
           <Typography
-              className={classes.publish_time}
+              className={classes.publish_time + " textSize" + props.textSize}
               color={props.record._debug_label === 1 ? "error" : "textSecondary"}
               component="p"
               fontStyle="italic"
@@ -82,7 +87,7 @@ const ArticlePanel = (props) => {
 
         {/* Show the abstract */}
         <Typography
-            className={classes.abstract}
+            className={classes.abstract + " textSize" + props.textSize}
             variant="body2"
             color={props.record._debug_label === 1 ? "error" : "textSecondary"}
             component="div"
