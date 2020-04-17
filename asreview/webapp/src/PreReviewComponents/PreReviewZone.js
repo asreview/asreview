@@ -15,7 +15,7 @@ import {
   ProjectUpload,
   StartReview,
 } from '../PreReviewComponents'
-// import ProjectUpload from './ProjectUpload.js' 
+// import ProjectUpload from './ProjectUpload.js'
 
 import '../PreReviewComponents/PreReviewZone.css'
 
@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
 
   },
   grid: {
-    minHeight: '100vh', 
+    minHeight: '100vh',
     padding: 6,
 
   },
@@ -36,8 +36,8 @@ const useStyles = makeStyles(theme => ({
     // '& > * + *': {
     //   marginLeft: theme.spacing(2),
     // },
-    margin: '0 auto', 
-    display: 'block', 
+    margin: '0 auto',
+    display: 'block',
     marginTop: 12,
   },
   root: {
@@ -71,7 +71,7 @@ const PreReviewZone = (props) => {
 
 
     <Box className={classes.box}>
-    {activeStep !== 5 && 
+    {activeStep !== 5 &&
       <Container maxWidth='md'>
         <div className={classes.root}>
           <Stepper
@@ -97,21 +97,21 @@ const PreReviewZone = (props) => {
           </Stepper>
           </div>
 
-        {activeStep === 0 && 
+        {activeStep === 0 &&
           <Box>
             <ProjectInit
               handleNext={handleNext}
             />
           </Box>
         }
-        {activeStep === 1 && 
+        {activeStep === 1 &&
           <Box>
             <ProjectUpload
               handleNext={handleNext}
             />
           </Box>
         }
-        {activeStep === 2 && 
+        {activeStep === 2 &&
           <Box>
             <PriorInclusions
               handleNext={handleNext}
@@ -119,7 +119,7 @@ const PreReviewZone = (props) => {
           </Box>
         }
 
-        {activeStep === 3 && 
+        {activeStep === 3 &&
             <PriorExclusions
               handleNext={handleNext}
             />
@@ -128,6 +128,7 @@ const PreReviewZone = (props) => {
       {activeStep === 4 &&
         <StartReview
           setAppState={props.setAppState}
+          handleReviewDrawer={props.handleReviewDrawer}
         />
       }
       </Container>
