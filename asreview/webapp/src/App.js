@@ -3,7 +3,7 @@ import React, {
 } from 'react'
 import {
   CssBaseline,
-  createMuiTheme 
+  createMuiTheme
 } from '@material-ui/core'
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import './App.css';
@@ -81,14 +81,14 @@ const App = () => {
 
   const toggleExit = () => {
     setExit(a => (!a));
-  };  
+  };
 
   const toggleExportResult = () => {
     setExportResult(a => (!a));
   };
 
   const [reviewDrawerState, setReviewDrawerState] = useState(false);
-  
+
   const handleReviewDrawer = (show) => {
     //console.log('Set drawer to '+(show?'open':'closed'));
     setReviewDrawerState(show);
@@ -107,7 +107,7 @@ const App = () => {
       <WelcomeScreen
         setAppState={setAppState}
       />
-      }  
+      }
       {appState !== 'boot' &&
       <Header
         appState={appState}
@@ -122,18 +122,19 @@ const App = () => {
         toggleExportResult={toggleExportResult}
       />
       }
-  
+
       {appState === 'projects' &&
       <Projects
         setAppState={setAppState}
       />
-      }     
+      }
 
       {appState === 'review-init' &&
       <PreReviewZone
         setAppState={setAppState}
+        handleReviewDrawer={handleReviewDrawer}
       />
-      }      
+      }
 
       {appState === 'review' &&
       <ReviewZone
@@ -170,5 +171,5 @@ const App = () => {
     </MuiThemeProvider>
   );
 }
- 
+
 export default App;
