@@ -46,7 +46,6 @@ const Dataset = (props) => {
 
   const [state, setState] = useState(false)
 
-
   const uploadDataset = () => {
 
     // upload state
@@ -138,8 +137,8 @@ const ProjectUploadDatasets = (props) => {
       <div className={classes.cards}>
         {datasets.map(dataset => (
           <Dataset
-            key={dataset.dataset_id}
-            dataset={dataset}
+            key={dataset[0].dataset_id}
+            dataset={dataset[0]}
             onUploadHandler={props.onUploadHandler}
           />
           )

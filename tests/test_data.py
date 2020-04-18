@@ -4,7 +4,7 @@ import urllib
 from pytest import mark
 
 from asreview import ASReviewData
-from asreview.datasets import get_dataset
+from asreview.datasets import DatasetManager
 
 
 def exists(url):
@@ -40,5 +40,5 @@ def test_fuzzy_finder(keywords, paper_id):
     ]
 )
 def test_datasets(data_name):
-    data = get_dataset(data_name)
+    data = DatasetManager().find(data_name)
     assert exists(data.get())
