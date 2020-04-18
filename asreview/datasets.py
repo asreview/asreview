@@ -289,39 +289,6 @@ def get_available_datasets():
     return all_datasets
 
 
-def get_dataset(dataset_id):
-    if is_iterable(dataset_id):
-        return [get_dataset(data) for data in dataset_id]
-
-    all_datasets = get_available_datasets()
-
-    data_group = None
-    try:
-        split_dataset_id = dataset_id.split(":")
-        if len(split_dataset_id) == 2:
-            data_group = split_dataset_id[0]
-            dataset_id = split_dataset_id[1]
-    except TypeError:
-        pass
-
-    my_datasets = {}
-
-    for group, cur_datasets in all_datasets.items():
-        if data_group is not None and group != data_group:
-            continue
-        if dataset_id in cur_datasets:
-            my_datasets[dataset_id] = cur_datasets[dataset_id]
-
-    if len(my_datasets) == 1:
-        return my_datasets[list(my_datasets)[0]]
-    if len(my_datasets) > 1:
-        raise ValueError(f"Multiple datasets found: {list(my_datasets)}."
-                         "Use DATAGROUP:DATASET format to specify which one"
-                         " you want.")
-
-    return BaseDataSet(dataset_id)
-
-
 def dataset_from_url(url):
     index_file = url + "/index.json"
     with urlopen(index_file) as f:

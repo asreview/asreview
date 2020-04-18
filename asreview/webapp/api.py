@@ -22,7 +22,6 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from asreview.datasets import DatasetManager
-from asreview.datasets import get_dataset
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
@@ -170,7 +169,7 @@ def api_upload_data_project(project_id):  # noqa: F401
     if request.form.get('demo_data', None):
         # download file and save to folder
 
-        demo_data = get_dataset(request.form['demo_data'])
+        demo_data = DatasetManager().find(request.form['demo_data'])
 
         if demo_data.dataset_id in ["hall", "ace", "ptsd"]:
             download_url = demo_data.url_demo
