@@ -70,16 +70,9 @@ class BaseDataSet():
 
 
 class BaseVersionedDataSet():
-    def __init__(self, base_dataset_id, datasets=None, url=None):
-        if datasets is None and url is not None:
-            index_file = url+"/index.json"
-            with urlopen(index_file) as f:
-                file_list = json.loads(f.read().decode())
-            self.datasets = []
-            for config_file in [url+"/"+f for f in file_list]:
-                self.datasets.append(BaseDataSet.from_config(config_file))
-        else:
-            self.datasets = datasets
+    def __init__(self, base_dataset_id, datasets, title="Unknown title"):
+        self.datasets = datasets
+        self.title = title
         self.dataset_id = base_dataset_id
 
     def find(self, dataset_name):
@@ -193,7 +186,7 @@ class BaseDataGroup():
         if len(results) > 1:
             raise ValueError(
                 f"Broken dataset group '{self.group_id}' containing multiple"
-                " datasets with the same name/alias.")
+                f" datasets with the same name/alias '{dataset_name}'.")
         elif len(results) == 1:
             return results[0]
         return None
@@ -327,6 +320,28 @@ def get_dataset(dataset_id):
                          " you want.")
 
     return BaseDataSet(dataset_id)
+
+
+def dataset_from_url(url):
+    index_file = url + "/index.json"
+    with urlopen(index_file) as f:
+        meta_data = json.loads(f.read().decode())
+    dataset_type = meta_data["type"]
+    if dataset_type == "versioned":
+        file_list = meta_data["filenames"]
+        base_dataset_id = meta_data["base_id"]
+        title = meta_data["title"]
+        if meta_data["type"] != "versioned":
+            raise ValueError("BaseVersionedDataSet: wrong datatype: "
+                             f"{meta_data['type']}")
+        datasets = []
+        for config_file in [url+"/"+f for f in file_list]:
+            datasets.append(BaseDataSet.from_config(config_file))
+        return BaseVersionedDataSet(base_dataset_id, datasets, title)
+    elif dataset_type == "base":
+        config_file = url + "/" + meta_data["filenames"][0]
+        return BaseDataSet.from_config(config_file)
+    raise ValueError(f"Dataset type {dataset_type} unknown.")
 
 
 def find_data(project_id):
