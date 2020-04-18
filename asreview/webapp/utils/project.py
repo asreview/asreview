@@ -28,6 +28,18 @@ from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_tmp_path
 
 
+def _get_executable():
+    """Get the Python executable"""
+
+    py_exe = sys.executable
+
+    # if the exe is an empty string or None, then fall badck on 'python'
+    if not py_exe:
+        py_exe = 'python'
+
+    return py_exe
+
+
 def init_project(
         project_id,
         project_name=None,
@@ -270,7 +282,9 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     if retrain_model:
         # Update the model (if it isn't busy).
-        run_command = f"{sys.executable} -m asreview web_run_model '{project_id}'"  # noqa
+
+        py_exe = _get_executable()
+        run_command = f"{py_exe} -m asreview web_run_model '{project_id}'"  # noqa
         subprocess.Popen(shlex.split(run_command))
 
 
