@@ -113,7 +113,7 @@ export default function ProjectSettings(props) {
             </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.toggleProjectSettings} color="primary">
+          <Button onClick={props.toggleProjectSettings}>
             Close
           </Button>
         </DialogActions>

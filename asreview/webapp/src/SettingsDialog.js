@@ -40,7 +40,7 @@ export default function SettingsDialog(props) {
       >
         <DialogTitle id="scroll-dialog-title">Settings</DialogTitle>
         <DialogContent dividers={true}>
-          {/* 
+          {/*
           <DialogContentText
             id="scroll-dialog-description"
             ref={descriptionElementRef}
@@ -95,7 +95,7 @@ export default function SettingsDialog(props) {
 
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.handleClose} color="primary">
+          <Button onClick={props.handleClose}>
             Close
           </Button>
         </DialogActions>

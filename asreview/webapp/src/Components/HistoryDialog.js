@@ -31,10 +31,10 @@ export default function SettingsDialog(props) {
       >
         <DialogTitle id="scroll-dialog-title">Decision History</DialogTitle>
         <DialogContent dividers={true}>
-          We are working on this. 
+          We are working on this.
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.handleHistoryClose} color="primary">
+          <Button onClick={props.handleHistoryClose}>
             Close
           </Button>
         </DialogActions>

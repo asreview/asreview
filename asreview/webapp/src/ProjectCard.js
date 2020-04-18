@@ -62,14 +62,12 @@ const ProjectCard = (props) => {
       <CardActions>
         <Button
           size="small"
-          color="primary"
           onClick={openExistingProject}
         >
           Open
         </Button>
         <Button
           size="small"
-          color="primary"
           onClick={toggleProjectSettings}
         >
           Settings
