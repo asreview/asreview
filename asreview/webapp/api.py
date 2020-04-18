@@ -5,7 +5,6 @@ import re
 import shlex
 import shutil
 import subprocess
-import sys
 import urllib.parse
 from copy import deepcopy
 from pathlib import Path
@@ -25,8 +24,8 @@ from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
-from asreview.webapp.utils.datasets import get_data_statistics,\
-    get_dataset_metadata
+from asreview.webapp.utils.datasets import get_data_statistics
+from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
@@ -38,6 +37,7 @@ from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
@@ -419,7 +419,8 @@ def api_start(project_id):  # noqa: F401
         json.dump(asr_kwargs, fp)
 
     # start training the model
-    run_command = f"{sys.executable} -m asreview web_run_model '{project_id}' --label_method prior"  # noqa
+    py_exe = _get_executable()
+    run_command = f"{py_exe} -m asreview web_run_model '{project_id}' --label_method prior"  # noqa
     subprocess.Popen(shlex.split(run_command))
 
     response = jsonify({'success': True})
