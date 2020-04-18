@@ -3,7 +3,8 @@ import pkg_resources
 import json
 
 from asreview.utils import pretty_format
-from asreview.utils import is_iterable
+from asreview.utils import is_iterable, is_url
+from urllib.request import urlopen
 
 
 class BaseDataSet():
@@ -18,8 +19,12 @@ class BaseDataSet():
 
     @classmethod
     def from_config(cls, config_file):
-        with open(config_file, "r") as f:
-            config = json.load(f)
+        if is_url(config_file):
+            with urlopen(config_file) as f:
+                config = json.loads(f.read().decode())
+        else:
+            with open(config_file, "r") as f:
+                config = json.load(f)
 
         dataset = cls()
         for attr, val in config.items():
@@ -68,8 +73,8 @@ class BaseVersionedDataSet():
     def __init__(self, base_dataset_id, datasets=None, url=None):
         if datasets is None and url is not None:
             index_file = url+"/index.json"
-            with open(index_file, "r") as f:
-                file_list = json.load(f)
+            with urlopen(index_file) as f:
+                file_list = json.loads(f.read().decode())
             self.datasets = []
             for config_file in [url+"/"+f for f in file_list]:
                 self.datasets.append(BaseDataSet.from_config(config_file))
