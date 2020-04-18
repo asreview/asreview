@@ -52,8 +52,6 @@ const App = () => {
 
   const handleAppState = (step) => {
 
-    setAppState(step)
-
     if (step === 'review'){
       setAppState({
         'step': 'review',
