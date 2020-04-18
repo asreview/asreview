@@ -100,7 +100,7 @@ const SearchResultDialog = (props) => {
             />}
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.closeSearchDialog} color="primary">
+          <Button onClick={props.closeSearchDialog}>
             Return
           </Button>
         </DialogActions>

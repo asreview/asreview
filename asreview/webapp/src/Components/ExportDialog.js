@@ -116,7 +116,9 @@ const ExportDialog = (props) => {
           </DialogContent>
 
         <DialogActions>
-          <Button onClick={props.toggleExportResult} color="primary">
+          <Button
+            onClick={props.toggleExportResult}
+          >
             Close
           </Button>
         </DialogActions>

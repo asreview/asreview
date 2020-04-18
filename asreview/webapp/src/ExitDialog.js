@@ -46,10 +46,10 @@ export default function ExitDialog(props) {
                 <br/>
                 <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C).</Typography>
               </div>
-            }          
-          </DialogContent> 
+            }
+          </DialogContent>
         <DialogActions>
-          <Button onClick={props.toggleExit} color="primary">
+          <Button onClick={props.toggleExit}>
             Close
           </Button>
         </DialogActions>
