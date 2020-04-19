@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import shlex
 import shutil
 import subprocess
 import sys
@@ -284,8 +283,13 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         # Update the model (if it isn't busy).
 
         py_exe = _get_executable()
-        run_command = f"{py_exe} -m asreview web_run_model '{project_id}'"  # noqa
-        subprocess.Popen(shlex.split(run_command))
+        run_command = [
+            py_exe,
+            "-m", "asreview",
+            "web_run_model",
+            project_id
+        ]
+        subprocess.Popen(run_command)
 
 
 def move_label_from_pool_to_labeled(project_id, paper_i, label):
