@@ -290,10 +290,12 @@ class ASReviewData():
             index_list = i
 
         if not by_index:
-            records = [PaperRecord(**self.df.loc[j, :], record_id=j)
+            records = [PaperRecord(**self.df.loc[j, :], record_id=j,
+                                   column_spec=self.column_spec)
                        for j in index_list]
         else:
             records = [PaperRecord(**self.df.iloc[j],
+                                   column_spec=self.column_spec,
                                    record_id=self.df.index.values[j])
                        for j in index_list]
 
