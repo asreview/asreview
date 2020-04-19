@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import re
-import shlex
 import shutil
 import subprocess
 import urllib.parse
@@ -419,9 +418,17 @@ def api_start(project_id):  # noqa: F401
         json.dump(asr_kwargs, fp)
 
     # start training the model
+
     py_exe = _get_executable()
-    run_command = f"{py_exe} -m asreview web_run_model '{project_id}' --label_method prior"  # noqa
-    subprocess.Popen(shlex.split(run_command))
+    run_command = [
+        py_exe,
+        "-m", "asreview",
+        "web_run_model",
+        project_id,
+        "--label_method",
+        "prior"
+    ]
+    subprocess.Popen(run_command)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
