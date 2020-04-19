@@ -126,7 +126,7 @@ const App = () => {
         handleAppState={handleAppState}
       />
       }
-      {appState !== 'boot' &&
+      {appState['step'] !== 'boot' &&
       <Header
 
         /* Handle the app state */
