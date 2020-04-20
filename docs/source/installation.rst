@@ -67,7 +67,7 @@ or `terminal` (MacOS):
     pip install asreview
 
 If ASReview was installed succesfully, the last line should return
-`Successfully installed asreview-0.8`
+`Successfully installed asreview-0.9'
 
 
 You are now ready to start your first Automated Systematic Review! 
