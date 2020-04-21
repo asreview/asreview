@@ -139,7 +139,6 @@ def api_init_project():  # noqa: F401
 def api_demo_data_project():  # noqa: F401
     """Get info on the article"""
 
-    print(request.args)
     subset = request.args.get('subset', None)
 
     if subset == "plugin":
@@ -442,7 +441,7 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     error_path = get_project_path(project_id) / "error.json"
     if error_path.exists():
-
+        print("error on training")
         with open(error_path, "r") as f:
             error_message = json.load(f)
         return jsonify(error_message), 400
@@ -561,14 +560,25 @@ def api_get_document(project_id):  # noqa: F401
     """
 
     new_instance = get_instance(project_id)
-    payload = get_paper_data(
-        project_id,
-        new_instance,
-        return_debug_label=True
-    )
-    payload["doc_id"] = new_instance
 
-    response = jsonify(payload)
+    if new_instance is None:  # don't use 'if not new_instance:'
+
+        item = None
+        pool_empty = True
+    else:
+
+        item = get_paper_data(
+            project_id,
+            new_instance,
+            return_debug_label=True
+        )
+        item["doc_id"] = new_instance
+        pool_empty = False
+
+    response = jsonify({
+        "result": item,
+        "pool_empty": pool_empty
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
