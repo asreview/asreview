@@ -17,6 +17,7 @@ import {
 }
 from './Components'
 import PreReviewZone from './PreReviewComponents/PreReviewZone'
+import ReviewZoneComplete from './PostReviewComponents/ReviewZoneComplete'
 import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
 import ExitDialog from './ExitDialog'
@@ -160,10 +161,18 @@ const App = () => {
 
       {appState['step'] === 'review' &&
       <ReviewZone
+        handleAppState={handleAppState}
         reviewDrawerState={appState['reviewDrawerOpen']}
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
         textSize={textSize}
+      />
+      }
+
+      {appState['step'] === 'review-complete' &&
+      <ReviewZoneComplete
+        handleAppState={handleAppState}
+        toggleExportResult={toggleExportResult}
       />
       }
 
