@@ -4,18 +4,12 @@ import { makeStyles } from '@material-ui/core/styles'
 import {
   Container,
   Button,
-  Typography,
-  Toolbar,
-  TextField,
-  Snackbar,
-  IconButton,
+  Typography
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close';
 
 import { connect } from "react-redux";
 
-import axios from 'axios'
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   root: {

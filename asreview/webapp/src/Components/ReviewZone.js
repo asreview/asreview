@@ -140,7 +140,7 @@ const ReviewZone = (props) => {
 
       getDocument();
     }
-  },[props.project_id, recordState]);
+  },[props.project_id, recordState, props]);
 
   return (
     <Box
