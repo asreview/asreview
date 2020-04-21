@@ -192,8 +192,13 @@ def get_instance(project_id):
     with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
         pool_idx = read_pool(project_id)
 
-    logging.info(f"Requesting {pool_idx[0]} from project {project_id}")
-    return pool_idx[0]
+    if len(pool_idx) > 0:
+        logging.info(f"Requesting {pool_idx[0]} from project {project_id}")
+        return pool_idx[0]
+    else:
+        # end of pool
+        logging.info(f"No more records for project {project_id}")
+        return None
 
 
 def get_statistics(project_id):

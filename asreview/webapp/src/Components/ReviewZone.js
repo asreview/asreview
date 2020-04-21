@@ -14,7 +14,7 @@ import DecisionBar from './DecisionBar'
 import { connect } from "react-redux";
 
 import axios from 'axios'
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles({
   box: {
@@ -36,10 +36,6 @@ const useStyles = makeStyles({
     bottom: 0,
   },
 });
-
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
 
 const ReviewZone = (props) => {
   const classes = useStyles();
@@ -121,10 +117,17 @@ const ReviewZone = (props) => {
       return axios.get(url)
       .then((result) => {
 
-        setRecordState({
-          'record':result.data,
-          'isloaded': true
-        });
+        /* Check for last paper */
+        if (result.data["pool_empty"]){
+          props.handleAppState('review-complete');
+        } else {
+          /* New article found and set */
+          setRecordState({
+            'record':result.data["result"],
+            'isloaded': true
+          });
+        }
+
       })
       .catch((error) => {
         console.log(error);
