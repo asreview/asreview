@@ -18,7 +18,8 @@ def test_init_seed():
         for seed in seeds:
             reviewer = get_reviewer(
                 data_fp, mode="simulate", model="nb", state_file=None,
-                init_seed=seed)
+                init_seed=seed, n_prior_excluded=1, n_prior_included=1)
+            assert len(reviewer.start_idx) == 2
             all_start_idx.append(reviewer.start_idx)
         if base_start_idx is None:
             base_start_idx = all_start_idx
@@ -35,7 +36,8 @@ def test_no_seed():
     for _ in range(n_test_max):
         reviewer = get_reviewer(
             data_fp, mode="simulate", model="nb", state_file=None,
-            init_seed=None)
+            init_seed=None, n_prior_excluded=1, n_prior_included=1)
+        assert len(reviewer.start_idx) == 2
         n_priored[reviewer.start_idx] += 1
         if np.all(n_priored > 0):
             return
