@@ -47,6 +47,8 @@ def sample_prior_knowledge(
 
     """
     # set random state
+    if random_state is not None:
+        random_state = random_state % (2**32)
     r = np.random.RandomState(random_state)
 
     # retrieve the index of included and excluded papers
