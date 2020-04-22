@@ -144,6 +144,7 @@ class BaseReview(ABC):
         self.n_papers = n_papers
         self.n_instances = n_instances
         self.n_queries = n_queries
+        self.start_idx = start_idx
 
         if log_file is not None:
             warnings.warn("The log_file argument for BaseReview will be"
