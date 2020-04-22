@@ -77,4 +77,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="Prior indices by id."
     )
+    parser.add_argument(
+        '--init_seed',
+        default=None,
+        type=int,
+        help="Seed for initializing the priors."
+    )
     return parser
