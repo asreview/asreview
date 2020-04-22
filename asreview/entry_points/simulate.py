@@ -81,6 +81,8 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         '--init_seed',
         default=None,
         type=int,
-        help="Seed for initializing the priors."
+        help="Seed for setting the prior indices if the --prior_idx option is "
+             "not used. If the option --prior_idx is used with one or more "
+             "index, this option is ignored."
     )
     return parser
