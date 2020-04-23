@@ -21,9 +21,10 @@ from scipy.sparse import vstack
 
 from asreview.query_strategies.base import BaseQueryStrategy
 from asreview.query_strategies.utils import get_query_model
+from asreview.utils import get_random_state
 
 
-def interleave(n_samples, n_strat_1):
+def interleave(n_samples, n_strat_1, random_state):
     n_strat_2 = n_samples - n_strat_1
 
     if n_strat_1 >= n_strat_2:
@@ -33,7 +34,7 @@ def interleave(n_samples, n_strat_1):
         max_idx = n_strat_1 + np.arange(n_strat_2)
         min_idx = np.arange(n_strat_1)
 
-    insert_positions = np.sort(np.random.choice(
+    insert_positions = np.sort(random_state.choice(
         np.arange(len(max_idx)), len(min_idx), replace=False))
 
     new_positions = np.zeros(n_samples, dtype=int)
@@ -55,7 +56,7 @@ class MixedQuery(BaseQueryStrategy):
     """
 
     def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
-                 **kwargs):
+                 random_state=None, **kwargs):
         """Initialize the Mixed query strategy
 
         Arguments
@@ -90,8 +91,18 @@ class MixedQuery(BaseQueryStrategy):
         self.strategy_1 = strategy_1
         self.strategy_2 = strategy_2
 
-        self.query_model1 = get_query_model(strategy_1)
-        self.query_model2 = get_query_model(strategy_2)
+        self.query_model1 = get_query_model(strategy_1, **kwargs_1)
+        self.query_model2 = get_query_model(strategy_2, **kwargs_2)
+
+        self._random_state = get_random_state(random_state)
+        if "random_state" in self.query_model1.default_param:
+            self.query_model1 = get_query_model(strategy_1, **kwargs_1,
+                                                random_state=self._random_state
+                                                )
+        if "random_state" in self.query_model2.default_param:
+            self.query_model2 = get_query_model(strategy_2, **kwargs_2,
+                                                random_state=self._random_state
+                                                )
         self.mix_ratio = mix_ratio
 
     def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
@@ -102,7 +113,7 @@ class MixedQuery(BaseQueryStrategy):
         # Split the number of instances for the query strategies.
         n_instances_1 = floor(n_instances*self.mix_ratio)
         leftovers = n_instances*self.mix_ratio-n_instances_1
-        if np.random.random_sample() < leftovers:
+        if self._random_state.random_sample() < leftovers:
             n_instances_1 += 1
         n_instances_2 = n_instances-n_instances_1
 
@@ -134,7 +145,8 @@ class MixedQuery(BaseQueryStrategy):
                 X = np.concatenate((X_1, X_2), axis=0)
 
         # Remix the two strategies without changing the order within.
-        new_order = interleave(len(query_idx), len(query_idx_1))
+        new_order = interleave(len(query_idx), len(query_idx_1),
+                               self._random_state)
         return query_idx[new_order], X[new_order]
 
     def full_hyper_space(self):

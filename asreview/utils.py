@@ -18,6 +18,8 @@ from pathlib import Path
 import pkg_resources
 from urllib.parse import urlparse
 
+import numpy as np
+
 
 def _unsafe_dict_update(default_dict, override_dict):
     """
@@ -197,3 +199,15 @@ def is_url(url):
                    for x in ["scheme", "netloc", "path"])
     except:
         return False
+
+
+def get_random_state(random_state):
+    if random_state is None:
+        return np.random.random.__self__
+    else:
+        if isinstance(random_state, np.random.RandomState):
+            return random_state
+        else:
+            return np.random.RandomState(
+                random_state % (2**32))
+

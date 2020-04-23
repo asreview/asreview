@@ -39,6 +39,7 @@ from asreview.query_strategies.utils import get_query_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.feature_extraction.utils import get_feature_model
 from asreview.datasets import find_data
+from asreview.utils import get_random_state
 
 
 def _add_defaults(set_param, default_param):
@@ -99,6 +100,7 @@ def get_reviewer(dataset,
                  query_param=None,
                  balance_param=None,
                  feature_param=None,
+                 seed=None,
                  abstract_only=False,
                  included_dataset=[],
                  excluded_dataset=[],
@@ -156,13 +158,18 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
-    train_model = get_model(settings.model, **settings.model_param)
+    random_state = get_random_state(seed)
+    train_model = get_model(settings.model, **settings.model_param,
+                            random_state=random_state)
     query_model = get_query_model(settings.query_strategy,
-                                  **settings.query_param)
+                                  **settings.query_param,
+                                  random_state=random_state)
     balance_model = get_balance_model(settings.balance_strategy,
-                                      **settings.balance_param)
+                                      **settings.balance_param,
+                                      random_state=random_state)
     feature_model = get_feature_model(settings.feature_extraction,
-                                      **settings.feature_param)
+                                      **settings.feature_param,
+                                      random_state=random_state)
 
     if train_model.name.startswith("lstm-"):
         texts = as_data.texts

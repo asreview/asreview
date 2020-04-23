@@ -59,8 +59,12 @@ class BaseModel(ABC):
             Dictionary with parameter: current value.
         """
         parameters = self.default_param
-        for par in parameters:
-            parameters[par] = getattr(self, par)
+        for par in list(parameters):
+            try:
+                parameters[par] = getattr(self, par)
+            except AttributeError:
+                del parameters[par]
+                continue
             if isinstance(parameters[par], np.integer):
                 parameters[par] = int(parameters[par])
 
