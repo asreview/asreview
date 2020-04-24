@@ -8,8 +8,8 @@ The following documentation will guide you in installing the ASReview software.
 
 Install Python 
 --------------
-The ASReview software runs with Python in the background.
-Installing ASReview requires having Python 3.6+ installed.
+The ASReview software runs with Python in the background. 
+Installing ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to rus ASReview, but if you want to know more you van look on their website `Python <https://www.python.org/about/>`__.
 
 Windows
 ~~~~~~~
