@@ -50,7 +50,7 @@ To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
 Make sure to add Anaconda to your PATH environment variable when asked.
-
+Afterwards, repeat the step above to check if Python is installed.
 
 
 
