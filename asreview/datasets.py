@@ -22,6 +22,8 @@ class BaseDataSet():
         if is_url(config_file):
             with urlopen(config_file) as f:
                 config = json.loads(f.read().decode())
+        elif isinstance(config_file, dict):
+            config = config_file
         else:
             with open(config_file, "r") as f:
                 config = json.load(f)
