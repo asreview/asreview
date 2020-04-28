@@ -50,7 +50,8 @@ def test_model_seed():
     last_train_idx = None
     for _ in range(n_test):
         reviewer = get_reviewer(
-            data_fp, mode="simulate", model="nb", state_file=None,
+            data_fp, mode="simulate", model="rf", query_strategy="random",
+            state_file=None,
             init_seed=seed, seed=seed, n_prior_excluded=1, n_prior_included=1)
         reviewer.review()
         if last_train_idx is None:
