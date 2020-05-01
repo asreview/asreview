@@ -11,26 +11,28 @@ python setup.py sdist bdist_wheel
 
 ## Development workflow
 
-Install both npm and Python. 
+Install both [npm](https://www.npmjs.com/get-npm) and Python. 
 
+Install the ASReview package (in a different terminal)
 
-Start the npm server for React development. Navigate to `asreview/webapp` and start npm.
+```
+pip install -e .
+```
+
+Start the Python API server
+
+```
+export FLASK_ENV=development
+asreview oracle
+```
+
+The user interface is written in [React](https://reactjs.org/). First, start a development server with npm. This serves is used for React development. Navigate to `asreview/webapp` and start npm.
 
 ```
 cd asreview/webapp
 npm start
 ```
 
-Install the package (in a different terminal)
 
-```
-pip install .
-```
 
-Start the server
-```
-export FLASK_ENV=development
-asreview oracle
-```
-
-Open the webbrowser at `localhost:3000`. Note, ignore `localhost:5000` for front-end development. 
+Open the webbrowser at `localhost:3000`. **Important**: ignore `localhost:5000` for front-end development. 
