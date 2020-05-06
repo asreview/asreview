@@ -8,8 +8,7 @@ The following documentation will guide you in installing the ASReview software.
 
 Install Python 
 --------------
-
-Installing ASReview requires having Python 3.6+ installed.
+The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview, but if you want to know more you can look on their `website <https://www.python.org/about/>`__.
 
 Windows
 ~~~~~~~
@@ -30,7 +29,7 @@ To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for Windows <https://docs.anaconda.com/anaconda/install/windows/>`__.
 Make sure to add Anaconda to your PATH environment variable when asked.
-Afterwards, repeat the step above to check if Python is installed.
+Afterwards, repeat the step above to check if Python is installed. 
 
 MacOS
 ~~~~~
@@ -50,7 +49,8 @@ To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from 
 the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
 Make sure to add Anaconda to your PATH environment variable when asked.
-Afterwards, the step above to check if Python is installed.
+Afterwards, repeat the step above to check if Python is installed.
+
 
 
 Install ASReview
@@ -67,7 +67,7 @@ or `terminal` (MacOS):
     pip install asreview
 
 If ASReview was installed succesfully, the last line should return
-`Successfully installed asreview-0.8`
+`Successfully installed asreview-0.9`
 
 
 You are now ready to start your first Automated Systematic Review! 
