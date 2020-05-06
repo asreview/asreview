@@ -42,3 +42,18 @@ def test_no_seed():
         if np.all(n_priored > 0):
             return
     raise ValueError(f"Error getting all priors in {n_test_max} iterations.")
+
+
+def test_model_seed():
+    n_test = 4
+    seed = 192874123
+    last_train_idx = None
+    for _ in range(n_test):
+        reviewer = get_reviewer(
+            data_fp, mode="simulate", model="rf", query_strategy="random",
+            state_file=None,
+            init_seed=seed, seed=seed, n_prior_excluded=1, n_prior_included=1)
+        reviewer.review()
+        if last_train_idx is None:
+            last_train_idx = reviewer.train_idx
+        assert np.all(last_train_idx == reviewer.train_idx)

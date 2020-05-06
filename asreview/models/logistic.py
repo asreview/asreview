@@ -24,7 +24,7 @@ class LogisticModel(BaseTrainModel):
     """Logistic Regression SKLearn model."""
     name = "logistic"
 
-    def __init__(self, C=1.0, class_weight=1.0, n_jobs=1):
+    def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
         """Initialize the SKLearn Naive Bayes model.
 
         Arguments:
@@ -40,7 +40,7 @@ class LogisticModel(BaseTrainModel):
         self._model = LogisticRegression(
             solver="liblinear", C=C,
             class_weight=_set_class_weight(class_weight),
-            n_jobs=n_jobs)
+            n_jobs=n_jobs, random_state=random_state)
         logging.debug(self._model)
 
     def full_hyper_space(self):

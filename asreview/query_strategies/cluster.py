@@ -17,14 +17,15 @@ from sklearn.cluster import KMeans
 
 from asreview.query_strategies.base import ProbaQueryStrategy
 from asreview.query_strategies.max import MaxQuery
-from asreview.feature_extraction.utils import get_feature_class
+from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
     "Query strategy using clustering algorithms."
     name = "cluster"
 
-    def __init__(self, cluster_size=350, update_interval=200, **kwargs):
+    def __init__(self, cluster_size=350, update_interval=200,
+                 random_state=None, **kwargs):
         """Initialize the clustering strategy.
 
         Arguments
@@ -44,6 +45,7 @@ class ClusterQuery(ProbaQueryStrategy):
         self.update_interval = update_interval
         self.last_update = None
         self.fallback_model = MaxQuery()
+        self._random_state = get_random_state(random_state)
 
     def _query(self, X, pool_idx, n_instances, proba):
         n_samples = X.shape[0]
@@ -59,7 +61,8 @@ class ClusterQuery(ProbaQueryStrategy):
                     X, pool_idx=pool_idx,
                     n_instances=n_instances,
                     proba=proba)
-            model = KMeans(n_clusters=n_clusters, n_init=1)
+            model = KMeans(n_clusters=n_clusters, n_init=1,
+                           random_state=self._random_state)
             self.clusters = model.fit_predict(X)
             self.last_update = len(pool_idx)
 
@@ -81,7 +84,7 @@ class ClusterQuery(ProbaQueryStrategy):
         clust_idx = []
         cluster_ids = list(clusters)
         for _ in range(n_instances):
-            cluster_id = np.random.choice(cluster_ids, 1)[0]
+            cluster_id = self._random_state.choice(cluster_ids, 1)[0]
             clust_idx.append(clusters[cluster_id].pop()[0])
             if len(clusters[cluster_id]) == 0:
                 del clusters[cluster_id]

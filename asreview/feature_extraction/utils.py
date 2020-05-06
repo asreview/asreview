@@ -31,7 +31,7 @@ def get_feature_class(method):
     return model_class_from_entry_point(method, "asreview.feature_extraction")
 
 
-def get_feature_model(method, *args, **kwargs):
+def get_feature_model(method, *args, random_state=None, **kwargs):
     """Get an instance of a feature extraction model from a string.
 
     Arguments
@@ -44,4 +44,7 @@ def get_feature_model(method, *args, **kwargs):
         Keyword arguments for thefeature extraction  model.
     """
     model_class = get_feature_class(method)
-    return model_class(*args, **kwargs)
+    try:
+        return model_class(*args, random_state=random_state, **kwargs)
+    except TypeError:
+        return model_class(*args, **kwargs)

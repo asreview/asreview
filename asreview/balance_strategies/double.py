@@ -18,6 +18,7 @@ import numpy as np
 
 from asreview.balance_strategies.base import BaseBalance
 from asreview.balance_strategies.simple import SimpleBalance
+from asreview.utils import get_random_state
 
 
 class DoubleBalance(BaseBalance):
@@ -49,7 +50,8 @@ class DoubleBalance(BaseBalance):
 
     name = "double"
 
-    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0):
+    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0,
+                 random_state=None):
 
         super(DoubleBalance, self).__init__()
         self.a = a
@@ -57,6 +59,7 @@ class DoubleBalance(BaseBalance):
         self.b = b
         self.beta = beta
         self.fallback_model = SimpleBalance()
+        self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
         one_idx = train_idx[np.where(y[train_idx] == 1)]
@@ -75,16 +78,17 @@ class DoubleBalance(BaseBalance):
         zero_weight = _zero_weight(n_one + n_zero, self.b, self.beta)
         tot_zo_weight = one_weight * n_one + zero_weight * n_zero
         n_one_train = random_round(
-            one_weight * n_one * n_train / tot_zo_weight)
+            one_weight * n_one * n_train / tot_zo_weight, self._random_state)
         n_one_train = max(1, min(n_train - 2, n_one_train))
         n_zero_train = n_train - n_one_train
 
         # Get random ones and zeros.
-        one_train_idx = fill_training(one_idx, n_one_train)
-        zero_train_idx = fill_training(zero_idx, n_zero_train)
+        one_train_idx = fill_training(one_idx, n_one_train, self._random_state)
+        zero_train_idx = fill_training(zero_idx, n_zero_train,
+                                       self._random_state)
 
         all_idx = np.concatenate([one_train_idx, zero_train_idx])
-        np.random.shuffle(all_idx)
+        self._random_state.shuffle(all_idx)
 
         return X[all_idx], y[all_idx]
 
@@ -111,19 +115,19 @@ def _zero_weight(n_read, b, beta):
     return weight
 
 
-def random_round(value):
+def random_round(value, random_state):
     """Round up or down, depending on how far the value is.
 
     For example: 8.1 would be rounded to 8, 90% of the time, and rounded
     to 9, 10% of the time.
     """
     base = int(floor(value))
-    if np.random.rand() < value - base:
+    if random_state.rand() < value - base:
         base += 1
     return base
 
 
-def fill_training(src_idx, n_train):
+def fill_training(src_idx, n_train, random_state):
     """Copy/sample until there are n_train indices sampled.
     """
     # Copy as many as we need, rounded down.
@@ -133,5 +137,5 @@ def fill_training(src_idx, n_train):
 
     # Add samples to finish up.
     dest_idx = np.append(dest_idx,
-                         np.random.choice(src_idx, n_sample, replace=False))
+                         random_state.choice(src_idx, n_sample, replace=False))
     return dest_idx
