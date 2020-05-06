@@ -152,7 +152,7 @@ class Analysis():
             x_norm /= len(labels)
             y_norm /= self.inc_found[fl]["inc_after_init"]
 
-        norm_xr = (np.arange(len(self.inc_found[fl]["avg"])) - dx) / x_norm
+        norm_xr = (np.arange(1, len(self.inc_found[fl]["avg"])+1) - dx) / x_norm
         norm_yr = (np.array(self.inc_found[fl]["avg"]) - dy) / y_norm
         norm_y_err = np.array(self.inc_found[fl]["err"]) / y_norm
 
@@ -271,41 +271,29 @@ class Analysis():
 
         one_labels = np.where(labels == 1)[0]
         time_results = {label: [] for label in one_labels}
-        n_initial = []
 
-        for i_file, state in enumerate(self.states.values()):
+        for state in self.states.values():
             label_order, n = _get_labeled_order(state)
             proba_order = _get_last_proba_order(state)
-            n_initial.append(n)
+            if result_format == "percentage":
+                time_mult = 100 * (len(labels) - n)
+            else:
+                time_mult = 1
 
-            for i_time, idx in enumerate(label_order):
+            for i_time, idx in enumerate(label_order[n:]):
                 if labels[idx] == 1:
-                    time_results[idx].append(i_time)
+                    time_results[idx].append(time_mult*(i_time+1))
 
             for i_time, idx in enumerate(proba_order):
-                if labels[idx] == 1 and len(time_results[idx]) <= i_file:
-                    time_results[idx].append(i_time + len(label_order))
-
-            for idx in time_results:
-                if len(time_results[idx]) <= i_file:
+                if labels[idx] == 1 and idx not in label_order[:n]:
                     time_results[idx].append(
-                        len(label_order) + len(proba_order))
+                        time_mult*(i_time + len(label_order)))
 
         results = {}
-        for label in time_results:
-            trained_time = []
-            for i_file, time in enumerate(time_results[label]):
-                if time >= n_initial[i_file]:
-                    if result_format == "percentage":
-                        time_measure = 100 * time / (
-                            len(labels) - n_initial[i_file])
-                    else:
-                        time_measure = time
-                    trained_time.append(time_measure)
-            if len(trained_time) == 0:
-                results[label] = 0
-            else:
+        for label, trained_time in time_results.items():
+            if len(trained_time) > 0:
                 results[label] = np.average(trained_time)
+
         return results
 
     def limits(self, prob_allow_miss=[0.1], result_format="percentage"):
