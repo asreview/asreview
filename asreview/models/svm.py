@@ -44,7 +44,7 @@ class SVMModel(BaseTrainModel):
         self.class_weight = class_weight
         self.C = C
         self.kernel = kernel
-        self.random_state = random_state
+        self._random_state = random_state
 
         self._model = SVC(kernel=kernel, C=C,
                           class_weight=_set_class_weight(class_weight),

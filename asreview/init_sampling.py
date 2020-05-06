@@ -17,6 +17,8 @@
 This module is used to draw an initial sample. This sample is the
 so-called 'pre-knowledge' of the researcher.
 """
+from asreview.utils import get_random_state
+
 import numpy as np
 
 
@@ -47,9 +49,7 @@ def sample_prior_knowledge(
 
     """
     # set random state
-    if random_state is not None:
-        random_state = random_state % (2**32)
-    r = np.random.RandomState(random_state)
+    r = get_random_state(random_state)
 
     # retrieve the index of included and excluded papers
     included_idx = np.where(labels == 1)[0]

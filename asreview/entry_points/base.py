@@ -164,6 +164,12 @@ def _base_parser(prog=None, description=None):
         help="Location to store the state of the simulation."
     )
     parser.add_argument(
+        "--seed",
+        default=None,
+        type=int,
+        help="Seed for models. Use integer between 0 and 2^32 - 1."
+    )
+    parser.add_argument(
         "--abstract_only",
         default=False,
         action='store_true',

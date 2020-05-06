@@ -22,6 +22,7 @@ from asreview.balance_strategies.double import DoubleBalance
 from asreview.balance_strategies.double import _zero_weight
 from asreview.balance_strategies.double import fill_training
 from asreview.balance_strategies.double import random_round
+from asreview.utils import get_random_state
 
 
 class TripleBalance(BaseBalance):
@@ -40,7 +41,8 @@ class TripleBalance(BaseBalance):
                  beta=1.0,
                  c=0.835,
                  gamma=2.0,
-                 shuffle=True):
+                 shuffle=True,
+                 random_state=None):
         """Initialize the triple balance strategy.
 
         Arguments
@@ -76,7 +78,9 @@ class TripleBalance(BaseBalance):
         self.c = c
         self.gamma = gamma
         self.shuffle = shuffle
-        self.fallback_model = DoubleBalance(a=a, alpha=alpha, b=b, beta=beta)
+        self.fallback_model = DoubleBalance(a=a, alpha=alpha, b=b, beta=beta,
+                                            random_state=random_state)
+        self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
         max_idx = np.array(shared["query_src"].get("max", []), dtype=np.int)
@@ -88,8 +92,8 @@ class TripleBalance(BaseBalance):
         rand_idx = rand_idx.astype(int)
         # Write them back for next round.
         if self.shuffle:
-            np.random.shuffle(rand_idx)
-            np.random.shuffle(max_idx)
+            self._random_state.shuffle(rand_idx)
+            self._random_state.shuffle(max_idx)
 
         if len(rand_idx) == 0 or len(max_idx) == 0:
             logging.debug("Warning: trying to use triple balance, but unable"
@@ -117,17 +121,20 @@ class TripleBalance(BaseBalance):
         # Get the distribution of 1's, and random 0's and max 0's.
         n_one_train, n_zero_rand_train, n_zero_max_train = _get_triple_dist(
             n_one, n_zero_rand, n_zero_max, n_samples, n_train, self.a,
-            self.alpha, self.b, self.beta, self.c, self.gamma)
+            self.alpha, self.b, self.beta, self.c, self.gamma,
+            self._random_state)
         logging.debug(f"(1, 0_rand, 0_max) = ({n_one_train}, "
                       f"{n_zero_rand_train}, {n_zero_max_train})")
 
-        one_train_idx = fill_training(one_idx, n_one_train)
-        zero_rand_train_idx = fill_training(zero_rand_idx, n_zero_rand_train)
-        zero_max_train_idx = fill_training(zero_max_idx, n_zero_max_train)
+        one_train_idx = fill_training(one_idx, n_one_train, self._random_state)
+        zero_rand_train_idx = fill_training(zero_rand_idx, n_zero_rand_train,
+                                            self._random_state)
+        zero_max_train_idx = fill_training(zero_max_idx, n_zero_max_train,
+                                           self._random_state)
 
         all_idx = np.concatenate(
             [one_train_idx, zero_rand_train_idx, zero_max_train_idx])
-        np.random.shuffle(all_idx)
+        self._random_state.shuffle(all_idx)
 
         return X[all_idx], y[all_idx]
 
@@ -165,7 +172,8 @@ def _zero_max_weight(fraction_read, c, gamma):
 
 
 def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train, one_a,
-                     one_alpha, zero_b, zero_beta, zero_max_c, zero_max_gamma):
+                     one_alpha, zero_b, zero_beta, zero_max_c, zero_max_gamma,
+                     random_state):
     " Get the number of 1's, random 0's and max 0's in each mini epoch. "
     n_zero = n_zero_rand + n_zero_max
     n_read = n_one + n_zero
@@ -176,13 +184,14 @@ def _get_triple_dist(n_one, n_zero_rand, n_zero_max, n_samples, n_train, one_a,
 
     tot_zo_weight = one_weight * n_one + zero_weight * n_zero
 
-    n_one_train = random_round(one_weight * n_one * n_train / tot_zo_weight)
+    n_one_train = random_round(one_weight * n_one * n_train / tot_zo_weight,
+                               random_state)
     n_one_train = max(1, min(n_train - 2, n_one_train))
     n_zero_train = n_train - n_one_train
 
     tot_rm_weight = 1 * n_zero_rand + zero_max_weight * n_zero_max
     n_zero_rand_train = random_round(
-        n_zero_train * 1 * n_zero_rand / tot_rm_weight)
+        n_zero_train * 1 * n_zero_rand / tot_rm_weight, random_state)
     n_zero_rand_train = max(1, min(n_zero_rand - 1, n_zero_rand_train))
     n_zero_max_train = n_zero_train - n_zero_rand_train
 

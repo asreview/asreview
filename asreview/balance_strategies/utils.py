@@ -44,7 +44,7 @@ def get_balance_class(method):
             f"Error: balance method '{method}' is not implemented.")
 
 
-def get_balance_model(method, *args, **kwargs):
+def get_balance_model(method, *args, random_state=None, **kwargs):
     """Get an instance of a balance model from a string.
 
     Arguments
@@ -57,4 +57,7 @@ def get_balance_model(method, *args, **kwargs):
         Keyword arguments for the balance model.
     """
     balance_class = get_balance_class(method)
-    return balance_class(*args, **kwargs)
+    try:
+        return balance_class(*args, random_state=random_state, **kwargs)
+    except TypeError:
+        return balance_class(*args, **kwargs)

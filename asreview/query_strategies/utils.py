@@ -51,7 +51,7 @@ def get_query_class(method):
         raise ValueError(f"Error: query method '{method}' is not implemented.")
 
 
-def get_query_model(method, *args, **kwargs):
+def get_query_model(method, *args, random_state=None, **kwargs):
     """Get an instance of the query strategy.
 
     Arguments
@@ -74,5 +74,12 @@ def get_query_model(method, *args, **kwargs):
         mix = method.split("_")
         for i in range(2):
             kwargs.pop("strategy_" + str(i+1), None)
-        return query_class(mix[0], mix[1], *args, **kwargs)
-    return query_class(*args, **kwargs)
+        try:
+            return query_class(mix[0], mix[1], *args,
+                               random_state=random_state, **kwargs)
+        except TypeError:
+            return query_class(mix[0], mix[1], *args, **kwargs)
+    try:
+        return query_class(*args, random_state=random_state, **kwargs)
+    except TypeError:
+        return query_class(*args, **kwargs)

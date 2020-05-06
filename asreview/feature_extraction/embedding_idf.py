@@ -31,6 +31,7 @@ from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.base import BaseFeatureExtraction
+from asreview.utils import get_random_state
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
@@ -42,7 +43,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
     """
     name = "embedding-idf"
 
-    def __init__(self, *args, embedding_fp=None, **kwargs):
+    def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
         """Initialize the Embedding-Idf model
 
         Arguments
@@ -53,6 +54,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
         super(EmbeddingIdf, self).__init__(*args, **kwargs)
         self.embedding_fp = embedding_fp
         self.embedding = None
+        self._random_state = get_random_state(random_state)
 
     def transform(self, texts):
         if self.embedding is None:
@@ -63,7 +65,8 @@ class EmbeddingIdf(BaseFeatureExtraction):
 
         text_counts = _get_freq_dict(texts)
         idf = _get_idf(text_counts)
-        X = _get_X_from_dict(text_counts, idf, self.embedding)
+        X = _get_X_from_dict(text_counts, idf, self.embedding,
+                             self._random_state)
         return X
 
 
@@ -96,7 +99,7 @@ def _get_idf(text_dicts):
     return idf
 
 
-def _get_X_from_dict(text_dicts, idf, embedding):
+def _get_X_from_dict(text_dicts, idf, embedding, random_state):
     n_vec = len(embedding[list(embedding.keys())[0]])
     X = np.zeros((len(text_dicts), n_vec))
     for i, text in enumerate(text_dicts):
@@ -112,7 +115,7 @@ def _get_X_from_dict(text_dicts, idf, embedding):
             else:
                 text_vec += cur_vec*cur_idf*cur_count
         if text_vec is None:
-            text_vec = np.random.random(n_vec)
+            text_vec = random_state.random(n_vec)
 
         text_norm = np.linalg.norm(text_vec)
         if abs(text_norm) > 1e-7:
