@@ -1,11 +1,8 @@
 import React from 'react'
 import {
-  Box,
-  Collapse,
   ListItem,
   ListItemText,
   ListItemIcon,
-  IconButton
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
