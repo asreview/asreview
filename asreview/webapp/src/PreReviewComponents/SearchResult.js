@@ -14,11 +14,14 @@ const SearchResult = (props) => {
 
       {props.searchResult.map((value, index) => {
 
+        console.log(value)
+
         return (
             <ListItemPaper
               id={value.id}
               title={value.title}
               authors={value.authors}
+              abstract={value.abstract}
               included={value.included}
               onRevertInclude={props.onRevertInclude}
 

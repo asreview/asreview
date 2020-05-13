@@ -1,8 +1,16 @@
 import React from 'react'
 import {
+
+  Box,
   ListItem,
   ListItemText,
   ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
@@ -19,6 +27,15 @@ const mapStateToProps = state => {
 const ListItemPaper = (props) => {
 
   const [selected, setSelected] = React.useState(props.included === 1);
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const toggleButton = () => {
 
@@ -45,6 +62,7 @@ const ListItemPaper = (props) => {
       })
     .then((result) => {
       setSelected(!selected);
+      handleClose();
     })
     .catch((error) => {
       console.log(error);
@@ -55,9 +73,10 @@ const ListItemPaper = (props) => {
 
   return (
       // {props.removeResultOnRevert && <Collapse in={!selected}>}
+    <Box>
       <ListItem
         key={`result-item-${props.id}`}
-         button onClick={toggleButton}
+         button onClick={handleClickOpen}
       >
         <ListItemIcon>
             <FavoriteIcon color={selected ? "secondary": "default"}/>
@@ -67,6 +86,30 @@ const ListItemPaper = (props) => {
           secondary={props.authors}
         />
       </ListItem>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="draggable-dialog-title"
+      >
+        <DialogTitle>
+          {props.title}
+        </DialogTitle>
+        <DialogContent dividers={true}>
+          <DialogContentText>
+            {props.authors}
+          </DialogContentText>
+          <DialogContentText>
+            {props.abstract}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={toggleButton} color="primary">
+            {selected ? "Remove from ": "Add to "} prior
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
 
 }
