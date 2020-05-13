@@ -1,11 +1,8 @@
 import React from 'react'
 import {
-  Box,
-  Collapse,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
-  IconButton
+  ListItemIcon,
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
@@ -56,48 +53,21 @@ const ListItemPaper = (props) => {
   }
 
 
-  const item  = (
+  return (
       // {props.removeResultOnRevert && <Collapse in={!selected}>}
       <ListItem
         key={`result-item-${props.id}`}
+         button onClick={toggleButton}
       >
+        <ListItemIcon>
+            <FavoriteIcon color={selected ? "secondary": "default"}/>
+        </ListItemIcon>
         <ListItemText
           primary={props.title}
           secondary={props.authors}
         />
-        <ListItemSecondaryAction>
-          <IconButton
-            edge="end"
-            aria-label="Include"
-            color={selected ? "secondary": "default"}
-            // className={classes.primary}
-            selected={selected}
-            onClick={toggleButton}
-          >
-            <FavoriteIcon />
-          </IconButton>
-        </ListItemSecondaryAction>
-
       </ListItem>
   )
-
-  if(props.removeResultOnRevert){
-    return (
-      <Collapse
-        in={selected}
-        mountOnEnter
-        unmountOnExit
-        appear
-        onExited={() => {
-          console.log("item removed from DOM");
-        }}
-        >
-      {item}
-      </Collapse>
-    )    
-  } else {
-    return <Box>{item}</Box>
-  }
 
 }
 
