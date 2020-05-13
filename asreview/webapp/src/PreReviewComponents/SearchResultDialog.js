@@ -95,8 +95,6 @@ const SearchResultDialog = (props) => {
           {searchResult !== null &&
             <SearchResult searchResult={searchResult}
               onRevertInclude={props.onRevertInclude}
-              removeResultOnRevert={false}
-
             />}
         </DialogContent>
         <DialogActions>
