@@ -276,7 +276,9 @@ class Analysis():
             label_order, n = _get_labeled_order(state)
             proba_order = _get_last_proba_order(state)
             if result_format == "percentage":
-                time_mult = 100 * (len(labels) - n)
+                time_mult = 100 / (len(labels) - n)
+            elif result_format == "fraction":
+                time_mult = 1/(len(labels) - n)
             else:
                 time_mult = 1
 
