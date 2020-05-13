@@ -21,7 +21,6 @@ const SearchResult = (props) => {
               authors={value.authors}
               included={value.included}
               onRevertInclude={props.onRevertInclude}
-              removeResultOnRevert={props.removeResultOnRevert}
 
               // this component needs a key as well
               key={`container-result-item-${value.id}`}
