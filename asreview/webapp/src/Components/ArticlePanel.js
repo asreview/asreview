@@ -4,6 +4,7 @@ import {
   Box,
   Container,
   Typography,
+  Link,
 } from '@material-ui/core'
 import { reviewDrawerWidth } from '../globals.js'
 
@@ -25,6 +26,12 @@ const useStyles = makeStyles({
     lineHeight: 1.2
   },
   abstract: {
+  },
+  doi: {
+
+  },
+  link: {
+    marginLeft: "6px",
   },
   authors: {
     fontWeight: "bolder"
@@ -75,7 +82,7 @@ const ArticlePanel = (props) => {
         </Typography>
 
         {/* Show the publication date if available */}
-        {props.record.publish_time !== null  &&
+        {!(props.record.publish_time === undefined || props.record.publish_time === null)  &&
           <Typography
               className={classes.publish_time + " textSize" + props.textSize}
               color={props.record._debug_label === 1 ? "error" : "textSecondary"}
@@ -83,6 +90,26 @@ const ArticlePanel = (props) => {
               fontStyle="italic"
               paragraph>
               {props.record.publish_time}
+          </Typography>
+        }
+
+        {/* Show the publication date if available */}
+        {!(props.record.doi === undefined || props.record.doi === null)  &&
+          <Typography
+              className={classes.doi + " textSize" + props.textSize}
+              color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+              component="p"
+              fontStyle="italic"
+              paragraph>
+                DOI:
+                <Link
+                  href={"https://doi.org/" + props.record.doi}
+                  className={classes.link}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {props.record.doi}
+                </Link>
           </Typography>
         }
 

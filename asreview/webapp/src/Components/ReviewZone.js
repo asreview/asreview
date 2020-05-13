@@ -121,6 +121,7 @@ const ReviewZone = (props) => {
         if (result.data["pool_empty"]){
           props.handleAppState('review-complete');
         } else {
+
           /* New article found and set */
           setRecordState({
             'record':result.data["result"],
