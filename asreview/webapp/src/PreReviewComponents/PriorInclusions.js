@@ -9,6 +9,7 @@ import {
   InputAdornment,
   Toolbar,
   IconButton,
+  Paper,
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
@@ -26,6 +27,13 @@ import { api_url } from '../globals.js';
 import { connect } from "react-redux";
 
 const useStyles = makeStyles(theme => ({
+  paperRoot: {
+    flexGrow: 1,
+    width: '100%',
+    backgroundColor: theme.palette.background.paper,
+    marginBottom: "32px",
+    minHeight: "200px",
+  },
   button: {
     margin: '36px 0px 24px 12px',
     float: 'right',
@@ -157,7 +165,10 @@ const PriorInclusions = (props) => {
           </Box>
         </Typography>
       }
+
     <Box>
+    <Paper className={classes.paperRoot}>
+
       <form className={classes.root} noValidate autoComplete="off" onSubmit={openSearchDialog}>
         <FormControl
           fullWidth
@@ -213,11 +224,13 @@ const PriorInclusions = (props) => {
         <SearchResultDialog
           searchQuery={searchDialog.query}
           closeSearchDialog={closeSearchDialog}
+          getPriorIncluded={getPriorIncluded}
           onRevertInclude={removeIncluded}
         />
       }
+        </Paper>
+        <Toolbar className={classes.clear}/>
       </Box>
-      <Toolbar className={classes.clear}/>
 
       <Button
         variant="contained"

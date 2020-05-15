@@ -3,14 +3,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import {
   Button,
   CircularProgress,
-  Dialog,
+  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
+  List,
 } from '@material-ui/core';
 
 import {
-  SearchResult
+  SearchResult,
+  ListItemPaper,
 } from '../PreReviewComponents'
 
 import axios from 'axios'
@@ -76,33 +78,37 @@ const SearchResultDialog = (props) => {
 
   return (
     <div>
-      <Dialog
-        open={true}
-        onClose={props.closeSearchDialog}
-        scroll="paper"
-        fullWidth={true}
-        maxWidth={"sm"}
-        aria-labelledby="scroll-dialog-title"
-        aria-describedby="scroll-dialog-description"
-      >
-        <DialogTitle id="scroll-dialog-title">Search result: {props.searchQuery}</DialogTitle>
-        <DialogContent dividers={true}>
+        <Typography>Search result: {props.searchQuery}</Typography>
           {searchResult === null &&
           <div className={classes.root}>
             <CircularProgress/>
           </div>
           }
           {searchResult !== null &&
-            <SearchResult searchResult={searchResult}
-              onRevertInclude={props.onRevertInclude}
-            />}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.closeSearchDialog}>
-            Return
-          </Button>
-        </DialogActions>
-      </Dialog>
+          <List dense={true}>
+
+            {searchResult.map((value, index) => {
+
+              console.log(value)
+
+              return (
+                  <ListItemPaper
+                    id={value.id}
+                    title={value.title}
+                    authors={value.authors}
+                    abstract={value.abstract}
+                    included={value.included}
+                    onRevertInclude={props.onRevertInclude}
+                    getPriorIncluded={props.getPriorIncluded}
+
+                    // this component needs a key as well
+                    key={`container-result-item-${value.id}`}
+                  />
+              );
+            })}
+
+        </List>
+          }
     </div>
   );
 }

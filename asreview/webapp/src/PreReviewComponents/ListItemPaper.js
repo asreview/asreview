@@ -11,6 +11,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Typography,
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
@@ -62,6 +63,7 @@ const ListItemPaper = (props) => {
       })
     .then((result) => {
       setSelected(!selected);
+      props.getPriorIncluded();
       handleClose();
     })
     .catch((error) => {
@@ -79,25 +81,27 @@ const ListItemPaper = (props) => {
          button onClick={handleClickOpen}
       >
         <ListItemIcon>
-            <FavoriteIcon color={selected ? "secondary": "default"}/>
+            <FavoriteIcon color={selected ? "secondary": "inherit"}/>
         </ListItemIcon>
         <ListItemText
           primary={props.title}
           secondary={props.authors}
+          secondaryTypographyProps={{noWrap:true}}
         />
       </ListItem>
 
       <Dialog
         open={open}
         onClose={handleClose}
-        aria-labelledby="draggable-dialog-title"
       >
         <DialogTitle>
           {props.title}
         </DialogTitle>
         <DialogContent dividers={true}>
           <DialogContentText>
-            {props.authors}
+            <Typography noWrap={true}>
+              {props.authors}
+            </Typography>
           </DialogContentText>
           <DialogContentText>
             {props.abstract}
