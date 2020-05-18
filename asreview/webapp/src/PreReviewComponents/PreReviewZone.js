@@ -9,8 +9,7 @@ import {
   StepLabel,
 } from '@material-ui/core';
 import {
-  PriorInclusions,
-  PriorExclusions,
+  PriorKnowledge,
   ProjectInit,
   ProjectUpload,
   StartReview,
@@ -113,19 +112,13 @@ const PreReviewZone = (props) => {
         }
         {activeStep === 2 &&
           <Box>
-            <PriorInclusions
+            <PriorKnowledge
               handleNext={handleNext}
             />
           </Box>
         }
 
-        {activeStep === 3 &&
-            <PriorExclusions
-              handleNext={handleNext}
-            />
-        }
-
-      {activeStep === 4 &&
+      {activeStep === 3 &&
         <StartReview
           handleAppState={props.handleAppState}
           handleReviewDrawer={props.handleReviewDrawer}

@@ -375,23 +375,22 @@ def api_random_prior_papers(project_id):  # noqa: F401
     # best)
 
     try:
-        pool_random = np.random.choice(pool, 5, replace=False)
+        pool_random = np.random.choice(pool, 1, replace=False)[0]
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    records = read_data(project_id).record(pool_random)
+    record = read_data(project_id).record(pool_random)
 
     payload = {"result": []}
-    for record in records:
 
-        payload["result"].append({
-            "id": int(record.record_id),
-            "title": record.title,
-            "abstract": record.abstract,
-            "authors": record.authors,
-            "keywords": record.keywords,
-            "included": None
-        })
+    payload["result"].append({
+        "id": int(record.record_id),
+        "title": record.title,
+        "abstract": record.abstract,
+        "authors": record.authors,
+        "keywords": record.keywords,
+        "included": None
+    })
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

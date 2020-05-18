@@ -73,17 +73,10 @@ const PriorExclusions = (props) => {
 
   const [showHelp, setShowHelp] = React.useState(false);
 
-  const onRemove = (id) => {
+  const toggleHelp = () => {
+    setShowHelp(a => (!a));
+  };
 
-    var rec = state["records"].filter(function(record, index, arr){ return record["id"] !== id;});
-
-    console.log("Items to classify in step 4: " + state["records"].length)
-
-    setState({
-        "records": rec,
-        "loaded": true,
-      })
-  }
   useEffect(() => {
 
     const getDocument = () => {
@@ -104,11 +97,7 @@ const PriorExclusions = (props) => {
 
     getDocument();
 
-  }, [props.project_id]);
-
-  const toggleHelp = () => {
-    setShowHelp(a => (!a));
-  };
+  }, [props.project_id, state.loaded]);
 
   return (
     <Box>
@@ -146,23 +135,15 @@ const PriorExclusions = (props) => {
                   onRevertInclude={() => {}}
                   removeButton={false}
                   classify={true}
-                  onRemove={onRemove}
                   key={record.id}
+                  includeItem={props.includeItem}
+                  excludeItem={props.excludeItem}
                 />
               );
             }
           )
         }
       </Box>
-
-      {/*
-      <ArticlePanel
-        record={record}
-        reviewDrawerState={false}
-        showAuthors={false}
-        slide={true}
-      />
-      */}
 
       <Button
         variant="contained"

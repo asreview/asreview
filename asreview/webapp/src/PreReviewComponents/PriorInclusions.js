@@ -16,7 +16,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import HelpIcon from '@material-ui/icons/Help';
 
 import {
-  SearchResultDialog,
+  SearchResult,
   PaperCard,
 } from '../PreReviewComponents'
 
@@ -75,6 +75,34 @@ const mapStateToProps = state => {
 };
 
 
+const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
+  const url = api_url + `project/${project_id}/labelitem`;
+
+  let body = new FormData();
+  body.set('doc_id', doc_id);
+  body.set('label', label);
+  body.set('is_prior', 1);
+
+  axios.post(
+    url,
+    body,
+    {
+      headers: {
+        'Content-type': 'application/x-www-form-urlencoded',
+      }
+    })
+  .then((result) => {
+    if (callbk !== null){
+      callbk();
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+
+}
+
+
 const PriorInclusions = (props) => {
   const classes = useStyles();
 
@@ -94,38 +122,13 @@ const PriorInclusions = (props) => {
     })
   }
 
-  const openSearchDialog = (evt) => {
+  const showSearchResult = (evt) => {
     evt.preventDefault();
 
     setSearchDialog({
       open : true,
       query : searchDialog.query
     });
-
-  }
-
-  const closeSearchDialog = () => {
-    setSearchDialog({
-      open : false,
-      query : ""
-    });
-
-    // refresh the prior inclusions
-    getPriorIncluded();
-  }
-
-  const getPriorIncluded = () => {
-
-    const url = api_url + `project/${props.project_id}/prior`;
-
-    axios.get(url)
-    .then((result) => {
-      setIncluded(result.data['result']);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-
   }
 
   // const addIncluded = (item) => {
@@ -149,6 +152,7 @@ const PriorInclusions = (props) => {
     setShowHelp(a => (!a));
   };
 
+
   return (
     <Box style={{clear: "both"}}>
       <Typography style={{display: "inline"}} variant="h5" align="left">
@@ -169,7 +173,7 @@ const PriorInclusions = (props) => {
     <Box>
     <Paper className={classes.paperRoot}>
 
-      <form className={classes.root} noValidate autoComplete="off" onSubmit={openSearchDialog}>
+      <form className={classes.root} noValidate autoComplete="off" onSubmit={showSearchResult}>
         <FormControl
           fullWidth
           className={classes.margin}
@@ -194,38 +198,13 @@ const PriorInclusions = (props) => {
         </FormControl>
       </form>
 
-      {included.length > 0 &&
-        <Box>
-          <Typography>The following publications have been included:</Typography>
-
-          {included.map((value, index) => {
-
-            return (
-                <PaperCard
-                  id={value.id}
-                  title={value.title}
-                  abstract={value.abstract}
-                  included={value.included}
-
-                  removeButton={true}
-                  getPriorIncluded={getPriorIncluded}
-                  collapseAbstract={true}
-
-                  // this component needs a key as well
-                  key={`container-result-item-${value.id}`}
-                />
-            );
-          })}
-
-        </Box>
-      }
-
       {(searchDialog.open && searchDialog.query !== "") &&
-        <SearchResultDialog
+        <SearchResult
           searchQuery={searchDialog.query}
-          closeSearchDialog={closeSearchDialog}
-          getPriorIncluded={getPriorIncluded}
-          onRevertInclude={removeIncluded}
+          getPriorIncluded={props.getPriorIncluded}
+          onRevertInclude={props.removeIncluded}
+          includeItem={props.includeItem}
+          resetItem={props.resetItem}
         />
       }
         </Paper>

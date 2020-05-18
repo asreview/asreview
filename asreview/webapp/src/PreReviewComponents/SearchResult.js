@@ -11,7 +11,6 @@ import {
 } from '@material-ui/core';
 
 import {
-  SearchResult,
   ListItemPaper,
 } from '../PreReviewComponents'
 
@@ -100,6 +99,8 @@ const SearchResultDialog = (props) => {
                     included={value.included}
                     onRevertInclude={props.onRevertInclude}
                     getPriorIncluded={props.getPriorIncluded}
+                    includeItem={props.includeItem}
+                    resetItem={props.resetItem}
 
                     // this component needs a key as well
                     key={`container-result-item-${value.id}`}

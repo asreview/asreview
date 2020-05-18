@@ -27,49 +27,39 @@ const mapStateToProps = state => {
 
 const ListItemPaper = (props) => {
 
-  const [selected, setSelected] = React.useState(props.included === 1);
+  // dialog open
   const [open, setOpen] = React.useState(false);
 
+  // state of the item
+  const [selected, setSelected] = React.useState(props.included === 1);
+
+  /**
+   * Open the Dialog with search item
+   */
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  /**
+   * Close the Dialog with search item
+   */
   const handleClose = () => {
     setOpen(false);
   };
 
+
   const toggleButton = () => {
 
-    const url = api_url + `project/${props.project_id}/labelitem`;
-
-    let body = new FormData();
-    body.set('doc_id', props.id);
+    let label = null;
     if (!selected){
-      body.set('label', 1);
-      console.log(`${props.project_id} - add item ${props.id} to prior inclusions`);
+      props.includeItem(props.id)
+
     } else {
-      body.set('label', -1);
-      console.log(`${props.project_id} - remove item ${props.id} from prior knowledge`);
+      props.resetItem(props.id)
     }
-    body.set('is_prior', 1);
-
-    axios.post(
-      url,
-      body,
-      {
-        headers: {
-          'Content-type': 'application/x-www-form-urlencoded',
-        }
-      })
-    .then((result) => {
-      setSelected(!selected);
-      props.getPriorIncluded();
-      handleClose();
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-
+    setSelected(!selected);
+    props.getPriorIncluded();
+    handleClose();
   }
 
 
