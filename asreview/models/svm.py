@@ -30,13 +30,13 @@ class SVMModel(BaseTrainModel):
         ---------
         gamma: str
             Gamma parameter of the SVM model.
-        class_weight:
+        class_weight: float
             class_weight of the inclusions.
-        C:
+        C: float
             C parameter of the SVM model.
-        kernel:
+        kernel: str
             SVM kernel type.
-        random_state:
+        random_state: int, RandomState
             State of the RNG.
         """
         super(SVMModel, self).__init__()

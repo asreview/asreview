@@ -24,16 +24,6 @@ class MaxQuery(ProbaQueryStrategy):
 
     name = "max"
 
-    def __init__(self):
-        """Initialize the max query strategy.
-
-        Arguments:
-        ----------
-        random_tie_break: bool
-            If true randomly decide which ones to include by tie-break.
-        """
-        super(MaxQuery, self).__init__()
-
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         proba = proba[pool_idx]
         query_idx = np.argsort(proba[:, 0])[:n_instances]

@@ -103,6 +103,8 @@ class Doc2Vec(BaseFeatureExtraction):
         corpus = [TaggedDocument(simple_preprocess(text), [i])
                   for i, text in enumerate(texts)]
 
+        # If self.dm is 2, train both models and concatenate the feature
+        # vectors later. Resulting vector size should be the same.
         if self.dm == 2:
             model_param["vector_size"] = int(model_param["vector_size"]/2)
             self.model_dm = _train_model(corpus, **model_param, dm=1)

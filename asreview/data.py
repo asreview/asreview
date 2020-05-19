@@ -22,12 +22,12 @@ import re
 import numpy as np
 import pandas as pd
 
-from asreview.exceptions import BadFileFormatError
-from asreview.io.ris_reader import write_ris
-from asreview.io.paper_record import PaperRecord
 from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
-from asreview.utils import format_to_str
+from asreview.exceptions import BadFileFormatError
+from asreview.io.paper_record import PaperRecord
+from asreview.io.ris_reader import write_ris
 from asreview.io.utils import type_from_column, convert_keywords
+from asreview.utils import format_to_str
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -95,9 +95,7 @@ def get_fuzzy_scores(keywords, match_strings):
 
 
 class ASReviewData():
-    """Data object to store csv/ris file.
-
-    Extracts relevant properties of papers.
+    """Data object to the dataset with texts, labels, DOIs etc.
 
     Arguments
     ---------
@@ -107,6 +105,10 @@ class ASReviewData():
         Give a name to the data object.
     data_type: str
         What kind of data the dataframe contains.
+    column_spec: dict
+        Specification for which column corresponds to which standard
+        specification. Key is the standard specification, key is which column
+        it is actually in.
     """
 
     def __init__(self, df=None, data_name="empty", data_type="standard",
@@ -127,6 +129,7 @@ class ASReviewData():
 
         self.max_idx = max(df.index.values) + 1
 
+        # Infer column specifications if it is not given.
         if column_spec is None:
             self.column_spec = {}
             for col_name in list(df):

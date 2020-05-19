@@ -175,10 +175,4 @@ def _base_parser(prog=None, description=None):
         action='store_true',
         help="Use after abstract screening as the inclusions/exclusions."
     )
-    parser.add_argument(
-        "--verbose", "-v",
-        default=0,
-        type=int,
-        help="Verbosity")
-
     return parser

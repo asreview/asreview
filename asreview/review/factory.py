@@ -19,6 +19,7 @@ from pathlib import PurePath
 
 import numpy as np
 
+from asreview.balance_strategies.utils import get_balance_model
 from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -29,16 +30,15 @@ from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import KERAS_MODELS
-from asreview.state.utils import open_state
 from asreview.data import ASReviewData
+from asreview.datasets import find_data
+from asreview.feature_extraction.utils import get_feature_model
+from asreview.models.utils import get_model
+from asreview.query_strategies.utils import get_query_model
 from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.models.utils import get_model
-from asreview.query_strategies.utils import get_query_model
-from asreview.balance_strategies.utils import get_balance_model
-from asreview.feature_extraction.utils import get_feature_model
-from asreview.datasets import find_data
+from asreview.state.utils import open_state
 from asreview.utils import get_random_state
 
 
@@ -49,6 +49,7 @@ def _add_defaults(set_param, default_param):
 
 def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
                    prior_dataset=[], new=False):
+    """Create ASReviewData object from multiple datasets."""
     if isinstance(dataset, (str, PurePath)):
         dataset = [dataset]
 
@@ -158,6 +159,7 @@ def get_reviewer(dataset,
         raise ValueError(f"Unknown mode '{mode}'.")
     logging.debug(settings)
 
+    # Initialize models.
     random_state = get_random_state(seed)
     train_model = get_model(settings.model, **settings.model_param,
                             random_state=random_state)
@@ -171,6 +173,7 @@ def get_reviewer(dataset,
                                       **settings.feature_param,
                                       random_state=random_state)
 
+    # LSTM models need embedding matrices.
     if train_model.name.startswith("lstm-"):
         texts = as_data.texts
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
@@ -187,12 +190,10 @@ def get_reviewer(dataset,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
-            verbose=verbose,
             prior_idx=prior_idx,
             n_prior_included=settings.n_prior_included,
             n_prior_excluded=settings.n_prior_excluded,
             state_file=state_file,
-            data_fp=dataset,
             **kwargs)
     elif mode == "minimal":
         reviewer = MinimalReview(
@@ -204,9 +205,7 @@ def get_reviewer(dataset,
             n_papers=settings.n_papers,
             n_instances=settings.n_instances,
             n_queries=settings.n_queries,
-            verbose=verbose,
             state_file=state_file,
-            data_fp=dataset,
             **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
