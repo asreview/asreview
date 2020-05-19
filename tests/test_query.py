@@ -21,20 +21,8 @@ from asreview import ASReviewData
 def test_query(query_strategy, n_features=50, n_sample=100,
                n_instances_list=[0, 1, 5, 50], n_train_idx=[0, 1, 5, 50]):
     classifier = get_model("rf")
-    if query_strategy == "cluster":
-        data_fp = os.path.join("tests", "demo_data", "generic.csv")
-        texts = ASReviewData.from_file(data_fp).texts
-        while len(texts) < n_features:
-            texts = np.append(texts, texts)
-            print(len(texts))
-#             texts.extend(texts)
-        texts = texts[:n_features]
-        query_model = get_query_model(
-            query_strategy, texts=texts, update_interval=None,
-            cluster_size=int(n_sample/3))
-        assert isinstance(query_model.param, dict)
-    else:
-        query_model = get_query_model(query_strategy)
+
+    query_model = get_query_model(query_strategy)
     X = np.random.rand(n_sample, n_features)
 
     y = np.concatenate((np.zeros(n_sample//2), np.ones(n_sample//2)), axis=0)
