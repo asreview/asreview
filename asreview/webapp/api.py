@@ -1,3 +1,4 @@
+from collections import Counter
 import json
 import logging
 import os
@@ -347,6 +348,25 @@ def api_get_prior(project_id):  # noqa: F401
         })
 
     response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/prior_stats', methods=["GET"])
+def api_get_prior_stats(project_id):  # noqa: F401
+    """Get all papers classified as prior documents
+    """
+    lock_fp = get_lock_path(project_id)
+    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+        label_history = read_label_history(project_id)
+
+    counter_prior = Counter([x[1] for x in label_history])
+
+    response = jsonify({
+        "n_prior": len(label_history),
+        "n_inclusions": counter_prior[1],
+        "n_exclusions": counter_prior[0]
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 

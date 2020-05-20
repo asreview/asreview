@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
@@ -108,20 +108,25 @@ const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 const PriorKnowledge = (props) => {
   const classes = useStyles();
 
-  const [included, setIncluded] = React.useState([])
+  const [priorStats, setPriorStats] = React.useState({
+    "n_exclusions": null,
+    "n_inclusions": null,
+    "n_prior": null
+  })
 
   const [showHelp, setShowHelp] = React.useState(false);
 
   const getPriorIncluded = () => {
 
-    const url = api_url + `project/${props.project_id}/prior`;
+    const url = api_url + `project/${props.project_id}/prior_stats`;
 
     axios.get(url)
     .then((result) => {
-      setIncluded(result.data['result']);
+      console.log(result.data)
+      setPriorStats(result.data);
     })
     .catch((error) => {
-      console.log(error);
+      console.log("Failed to  load prior information");
     });
 
   }
@@ -149,29 +154,57 @@ const PriorKnowledge = (props) => {
     getPriorIncluded();
   }
 
+  const goNext = () => {
+
+    if (priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0){
+      return true
+    } else {
+      return false
+    }
+  }
+
+
+  useEffect(() => {
+
+    getPriorIncluded()
+
+  }, []);
+
+  console.log(goNext())
 
   return (
     <Box style={{clear: "both"}}>
       <Typography style={{display: "inline"}} variant="h5" align="left">
         Select prior knowledge
       </Typography>
-      {included.length > 0 &&
+
+      {/* Display the prior info once loaded */}
+      {priorStats.n_prior !== null &&
         <Box>
-          <Typography>Included: {included.length}</Typography>
+          <Typography>Included: {priorStats["n_inclusions"]}</Typography>
+          <Typography>Excluded: {priorStats["n_exclusions"]}</Typography>
         </Box>
       }
       <PriorInclusions
         getPriorIncluded={getPriorIncluded}
         includeItem={includeItem}
         resetItem={resetItem}
-        handleNext={props.handleNext}
       />
        <PriorExclusions
-        handleNext={props.handleNext}
         getPriorIncluded={getPriorIncluded}
         includeItem={includeItem}
         excludeItem={excludeItem}
       />
+
+      <Button
+        variant="contained"
+        color="primary"
+        disabled={!goNext()}
+        onClick={props.handleNext}
+        className={classes.button}
+      >
+        Next
+      </Button>
     </Box>
   )
 }

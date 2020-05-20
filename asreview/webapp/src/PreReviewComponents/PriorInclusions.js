@@ -211,16 +211,6 @@ const PriorInclusions = (props) => {
         <Toolbar className={classes.clear}/>
       </Box>
 
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={!(included.length > 0)}
-        onClick={props.handleNext}
-        className={classes.button}
-      >
-        Next
-      </Button>
-
     </Box>
   )
 }

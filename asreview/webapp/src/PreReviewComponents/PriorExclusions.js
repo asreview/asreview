@@ -67,7 +67,7 @@ const PriorExclusions = (props) => {
   const classes = useStyles();
 
   const [state, setState] = useState({
-    "records": [],
+    "records": null,
     "loaded": false,
   });
 
@@ -76,6 +76,28 @@ const PriorExclusions = (props) => {
   const toggleHelp = () => {
     setShowHelp(a => (!a));
   };
+
+  const includeRandomDocument = () => {
+    props.includeItem(state["records"].id);
+
+    setState({
+      "records": null,
+      "loaded": false,
+    });
+
+    props.getPriorIncluded();
+  }
+
+  const excludeRandomDocument = () => {
+    props.excludeItem(state["records"].id);
+
+    setState({
+      "records": null,
+      "loaded": false,
+    });
+
+    props.getPriorIncluded();
+  }
 
   useEffect(() => {
 
@@ -86,7 +108,7 @@ const PriorExclusions = (props) => {
       .then((result) => {
         console.log("" + result.data['result'].length + " random items served for review")
         setState({
-          "records": result.data['result'],
+          "records": result.data['result'][0],
           "loaded": true,
         });
       })
@@ -95,8 +117,9 @@ const PriorExclusions = (props) => {
       });
     }
 
-    getDocument();
-
+    if(!state.loaded){
+      getDocument();
+    }
   }, [props.project_id, state.loaded]);
 
   return (
@@ -125,35 +148,20 @@ const PriorExclusions = (props) => {
               style={{margin: "0 auto"}}
             />
           </Box> :
-          state["records"].map((record, index) => {
-              return (
-                <PaperCard
-                  id={record.id}
-                  title={record.title}
-                  abstract={record.abstract}
-                  included={null}
-                  onRevertInclude={() => {}}
-                  removeButton={false}
-                  classify={true}
-                  key={record.id}
-                  includeItem={props.includeItem}
-                  excludeItem={props.excludeItem}
-                />
-              );
-            }
-          )
+            <PaperCard
+              id={state["records"].id}
+              title={state["records"].title}
+              abstract={state["records"].abstract}
+              included={null}
+              onRevertInclude={() => {}}
+              removeButton={false}
+              classify={true}
+              key={state["records"].id}
+              includeItem={includeRandomDocument}
+              excludeItem={excludeRandomDocument}
+            />
         }
       </Box>
-
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={state["records"].length !== 0 ? true : false }
-        onClick={props.handleNext}
-        className={classes.button}
-      >
-        Next
-      </Button>
     </Box>
   )
 }

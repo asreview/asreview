@@ -88,8 +88,6 @@ const SearchResultDialog = (props) => {
 
             {searchResult.map((value, index) => {
 
-              console.log(value)
-
               return (
                   <ListItemPaper
                     id={value.id}
