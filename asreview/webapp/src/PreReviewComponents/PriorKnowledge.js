@@ -108,6 +108,8 @@ const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 const PriorKnowledge = (props) => {
   const classes = useStyles();
 
+  const [state, setState] = React.useState(null)
+
   const [priorStats, setPriorStats] = React.useState({
     "n_exclusions": null,
     "n_inclusions": null,
@@ -163,14 +165,17 @@ const PriorKnowledge = (props) => {
     }
   }
 
+  /* Skeleton to extend later on */
+  const changeMethod = (method) => {
+    setState(method);
+  }
+
 
   useEffect(() => {
 
     getPriorIncluded()
 
   }, []);
-
-  console.log(goNext())
 
   return (
     <Box style={{clear: "both"}}>
@@ -180,21 +185,54 @@ const PriorKnowledge = (props) => {
 
       {/* Display the prior info once loaded */}
       {priorStats.n_prior !== null &&
-        <Box>
+        <Paper>
           <Typography>Included: {priorStats["n_inclusions"]}</Typography>
           <Typography>Excluded: {priorStats["n_exclusions"]}</Typography>
-        </Box>
+
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={state === "search"}
+            onClick={() => {changeMethod("search")}}
+          >
+            Search
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={state === "random"}
+            onClick={() => {changeMethod("random")}}
+          >
+            Random
+          </Button>
+
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={state === "file"}
+            onClick={() => {changeMethod("file")}}
+          >
+            From file
+          </Button>
+        </Paper>
       }
-      <PriorInclusions
-        getPriorIncluded={getPriorIncluded}
-        includeItem={includeItem}
-        resetItem={resetItem}
-      />
-       <PriorExclusions
-        getPriorIncluded={getPriorIncluded}
-        includeItem={includeItem}
-        excludeItem={excludeItem}
-      />
+
+      { state === "search" &&
+        <PriorInclusions
+          getPriorIncluded={getPriorIncluded}
+          includeItem={includeItem}
+          resetItem={resetItem}
+        />
+      }
+
+      { state === "random" &&
+         <PriorExclusions
+          getPriorIncluded={getPriorIncluded}
+          includeItem={includeItem}
+          excludeItem={excludeItem}
+        />
+      }
 
       <Button
         variant="contained"
