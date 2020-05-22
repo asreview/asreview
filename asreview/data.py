@@ -115,17 +115,10 @@ class ASReviewData():
                  column_spec=None):
         self.df = df
         self.data_name = data_name
-        self.prior_idx = []
+        self.prior_idx = np.array([], dtype=int)
         if df is None:
             self.column_spec = {}
             return
-
-        if data_type == "included":
-            self.labels = np.ones(len(self))
-        if data_type == "excluded":
-            self.labels = np.zeros(len(self))
-        if data_type == "prior":
-            self.prior_idx = df.index.values
 
         self.max_idx = max(df.index.values) + 1
 
@@ -138,8 +131,16 @@ class ASReviewData():
                     self.column_spec[data_type] = col_name
         else:
             self.column_spec = column_spec
+
         if "final_included" not in self.column_spec:
             self.column_spec["final_included"] = "final_included"
+
+        if data_type == "included":
+            self.labels = np.ones(len(self))
+        if data_type == "excluded":
+            self.labels = np.zeros(len(self))
+        if data_type == "prior":
+            self.prior_idx = df.index.values
 
     def hash(self):
         """Compute a hash from the dataset.
