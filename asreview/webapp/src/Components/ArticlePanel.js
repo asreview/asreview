@@ -67,7 +67,7 @@ const ArticlePanel = (props) => {
               className={"textSize" + props.textSize}
               fontStyle="italic"
             >
-              This article doens't have a title.
+              This article doesn't have a title.
             </Box>
           }
 
@@ -124,7 +124,7 @@ const ArticlePanel = (props) => {
             {/* No abstract, inplace text */}
             {(props.record.abstract === "" || props.record.abstract === null) &&
               <Box fontStyle="italic">
-                This article doens't have an abstract.
+                This article doesn't have an abstract.
               </Box>
             }
 
