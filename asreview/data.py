@@ -136,9 +136,9 @@ class ASReviewData():
             self.column_spec["final_included"] = "final_included"
 
         if data_type == "included":
-            self.labels = np.ones(len(self))
+            self.labels = np.ones(len(self), dtype=int)
         if data_type == "excluded":
-            self.labels = np.zeros(len(self))
+            self.labels = np.zeros(len(self), dtype=int)
         if data_type == "prior":
             self.prior_idx = df.index.values
 
