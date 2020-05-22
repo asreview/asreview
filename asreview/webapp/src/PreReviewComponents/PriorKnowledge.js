@@ -186,8 +186,15 @@ const PriorKnowledge = (props) => {
       {/* Display the prior info once loaded */}
       {priorStats.n_prior !== null &&
         <Paper>
-          <Typography>Included: {priorStats["n_inclusions"]}</Typography>
-          <Typography>Excluded: {priorStats["n_exclusions"]}</Typography>
+
+          <Box>
+            <Typography variant="h1">{priorStats["n_inclusions"]}</Typography>
+            <Typography variant="subtitle1">Relevant articles</Typography>
+          </Box>
+          <Box>
+            <Typography variant="h1">{priorStats["n_exclusions"]}</Typography>
+            <Typography variant="subtitle1">Irrelevant articles</Typography>
+          </Box>
 
           <Button
             variant="contained"
@@ -215,6 +222,19 @@ const PriorKnowledge = (props) => {
           >
             From file
           </Button>
+
+          <Typography align="right">
+            <HelpIcon onClick={toggleHelp}/>
+          </Typography>
+
+          {showHelp &&
+            <Typography className={classes.helptext}>
+              <Box fontStyle="italic">
+                In this step, prior knowledge about the dataset is added to the project. Prior knowledge is required to provide the model a starting point for learning. It is required to add at least one relevant item and one irrelevant item.
+              </Box>
+            </Typography>
+          }
+
         </Paper>
       }
 

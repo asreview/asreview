@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
@@ -8,18 +8,25 @@ import {
   Toolbar,
   TextField,
   Snackbar,
+  Paper,
   IconButton,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close';
+import EditIcon from '@material-ui/icons/Edit';
 
 import axios from 'axios'
 
 import store from '../redux/store'
 import { setProject } from '../redux/actions'
 
-import { api_url } from '../globals.js';
+import { connect } from "react-redux";
+import { api_url, mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    backgroundColor: theme.palette.background.paper,
+    padding: "24px",
+  },
   title: {
     marginBottom: "20px",
   },
@@ -35,7 +42,10 @@ const useStyles = makeStyles(theme => ({
     marginBottom: 40,
   },
   clear: {
-    clear: "right",
+    overflow: "auto",
+  },
+  editButton: {
+    float: "right",
   }
 }));
 
@@ -44,6 +54,10 @@ const ProjectInit = (props) => {
 
   const classes = useStyles();
 
+  // the state of the app (new, edit or lock)
+  const [state, setState] = React.useState(props.project_id !== null ? "lock" : "new")
+
+  // the state of the form data
   const [info, setInfo] = React.useState({
     authors: "",
     name: "",
@@ -77,10 +91,13 @@ const ProjectInit = (props) => {
     .then(function (response) {
 
       // set the project_id in the redux store
-      store.dispatch(setProject(response.data["project_id"]))
+      store.dispatch(setProject(response.data["project_id"]));
+
+      // set the card state to lock
+      setState("submit");
 
       // go to the next step
-      props.handleNext()
+      props.handleNext();
 
     })
     .catch(function (response) {
@@ -97,6 +114,42 @@ const ProjectInit = (props) => {
     setError(false);
   };
 
+  const editInfo = () => {
+    setState("edit")
+  }
+
+
+  useEffect(() => {
+
+    const fetchProjectInfo = async () => {
+
+      // contruct URL
+      const url = api_url + "project/" + props.project_id + "/info";
+
+      axios.get(url)
+        .then((result) => {
+          setInfo({
+            authors: result.data["authors"],
+            name: result.data["name"],
+            description: result.data["description"],
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    // run if the state is "lock"
+    if (state === "lock"){
+        fetchProjectInfo();
+    }
+
+  }, [state]);
+
+  console.log(props.project_id)
+  console.log(state)
+  console.log(info)
+
   return (
     <Box>
 
@@ -104,67 +157,89 @@ const ProjectInit = (props) => {
         Create a project
       </Typography>
 
-    {/* The actual form */}
-      <form className={classes.root} noValidate autoComplete="off" onSubmit={submitForm}>
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
-            name="authors"
-            id="project-author"
-            label="Author(s)"
-            onChange={onChange}
-          />
-        </div>
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
-            name="name"
-            id="project-name"
-            label="Project name"
-            onChange={onChange}
-          />
-        </div>
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
-            name="description"
-            id="project-description"
-            label="Short description"
-            onChange={onChange}
-          />
-        </div>
-        <div className={classes.nextButton}>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={info.name.length < 3 || info.authors === "" || info.description === ""}
-            type="submit"
-            className={classes.button}
+    <Paper className={classes.root}>
+      {/* The actual form */}
+        <form noValidate autoComplete="off">
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              disabled={state === "lock" || state === "submit"}
+              required
+              name="authors"
+              id="project-author"
+              label="Author(s)"
+              onChange={onChange}
+              value={info.authors}
+            />
+          </div>
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              disabled={state === "lock" || state === "submit"}
+              required
+              name="name"
+              id="project-name"
+              label="Project name"
+              onChange={onChange}
+              value={info.name}
+            />
+          </div>
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              disabled={state === "lock" || state === "submit"}
+              name="description"
+              id="project-description"
+              label="Short description"
+              onChange={onChange}
+              value={info.description}
+            />
+          </div>
+        </form>
+
+      {state === "lock" &&
+        <Box className={classes.clear}>
+          <IconButton
+            className={classes.editButton}
+            aria-label="edit"
+            onClick={editInfo}
           >
-            Next
-          </Button>
-        </div>
-      </form>
-     <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        open={error}
-        autoHideDuration={6000}
-        onClose={handleErrorClose}
-        message="Error: Project name incorrect"
-        action={
-          <React.Fragment>
-            <IconButton size="small" aria-label="close" color="inherit" onClick={handleErrorClose}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </React.Fragment>
-        }
-      />
-      <Toolbar className={classes.clear}/>
+            <EditIcon />
+          </IconButton>
+        </Box>
+      }
+      </Paper>
+
+       <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          open={error}
+          autoHideDuration={6000}
+          onClose={handleErrorClose}
+          message="Error: Project name incorrect"
+          action={
+            <React.Fragment>
+              <IconButton size="small" aria-label="close" color="inherit" onClick={handleErrorClose}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </React.Fragment>
+          }
+        />
+      <div className={classes.nextButton}>
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={info.name.length < 3 || info.authors === ""}
+          className={classes.button}
+          onClick={submitForm}
+        >
+          Next
+        </Button>
+      </div>
     </Box>
   )
 }
 
-export default ProjectInit;
+export default connect(mapStateToProps)(ProjectInit);

@@ -136,6 +136,34 @@ def api_init_project():  # noqa: F401
     return response
 
 
+@bp.route('/project/<project_id>/info', methods=["GET"])
+def api_get_project_info(project_id):  # noqa: F401
+    """Get info on the article"""
+
+    logging.info("get project info")
+
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+            response = jsonify(project_info)
+
+    except FileNotFoundError as err:
+        logging.error(err)
+        response = jsonify(message="Project not found.")
+
+        return response, 400
+
+    except Exception as err:
+        logging.error(err)
+        response = jsonify(message="Internal Server Error.")
+
+        return response, 500
+
+    return response
+
+
 @bp.route('/datasets', methods=["GET"])
 def api_demo_data_project():  # noqa: F401
     """Get info on the article"""

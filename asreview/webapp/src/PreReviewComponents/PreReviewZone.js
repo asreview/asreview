@@ -7,6 +7,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  StepButton,
 } from '@material-ui/core';
 import {
   PriorKnowledge,
@@ -66,6 +67,10 @@ const PreReviewZone = (props) => {
     setActiveStep(prevActiveStep => prevActiveStep + 1);
   };
 
+  const handleStep = (index) => {
+    setActiveStep(index);
+  }
+
   return (
 
 
@@ -79,8 +84,16 @@ const PreReviewZone = (props) => {
             style={{ backgroundColor: "transparent" }}
           >
             <Step key="create-project">
+            {(activeStep === 1) &&
+              <StepButton onClick={() => {handleStep(0)}} key="create-project">
+                <StepLabel>Project info</StepLabel>
+              </StepButton>
+            }
+            {(activeStep !== 1) &&
               <StepLabel>Project info</StepLabel>
+            }
             </Step>
+
             <Step key="select-dataset">
               <StepLabel>Select dataset</StepLabel>
             </Step>
