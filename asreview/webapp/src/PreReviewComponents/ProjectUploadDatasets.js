@@ -57,7 +57,7 @@ const Dataset = (props) => {
   }
 
   const resetState = () => {
-    setState(false);
+    // setState(false);
   }
 
   return (

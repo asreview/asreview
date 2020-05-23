@@ -75,7 +75,12 @@ const ProjectInit = (props) => {
   const submitForm = (evt) => {
     evt.preventDefault();
 
-    const url = api_url + "project/new";
+    let url;
+    if (state === "edit"){
+      url = api_url + "project/" + props.project_id + "/info/update";
+    }  else {
+      url = api_url + "project/new";
+    }
 
     var bodyFormData = new FormData();
     bodyFormData.set('project_name', info.name);
@@ -89,6 +94,8 @@ const ProjectInit = (props) => {
       headers: {'Content-Type': 'multipart/form-data' }
     })
     .then(function (response) {
+
+      console.log(response.data)
 
       // set the project_id in the redux store
       store.dispatch(setProject(response.data["project_id"]));
@@ -128,11 +135,17 @@ const ProjectInit = (props) => {
 
       axios.get(url)
         .then((result) => {
+
+          // set the project info
           setInfo({
-            authors: result.data["authors"],
-            name: result.data["name"],
-            description: result.data["description"],
+            authors: result.data["project_name"],
+            name: result.data["project_authors"],
+            description: result.data["project_description"],
           });
+
+          // set the project_id in the redux store
+          store.dispatch(setProject(result.data["project_id"]));
+
         })
         .catch((error) => {
           console.log(error);
@@ -145,10 +158,6 @@ const ProjectInit = (props) => {
     }
 
   }, [state]);
-
-  console.log(props.project_id)
-  console.log(state)
-  console.log(info)
 
   return (
     <Box>
@@ -163,6 +172,7 @@ const ProjectInit = (props) => {
           <div className={classes.textfieldItem}>
             <TextField
               fullWidth
+              autoFocus={true}
               disabled={state === "lock" || state === "submit"}
               required
               name="authors"

@@ -98,9 +98,9 @@ const ProjectUpload = (props) => {
 
   const EndRef = useRef(null)
 
+  const [state, setState] = React.useState(null);
   const [file, setFile] = React.useState(null);
   const [upload, setUpload] = React.useState(false);
-  const [selection, setSelection] = React.useState(null);
   const [error, setError] = React.useState(null);
 
   const scrollToBottom = () => {
@@ -149,7 +149,7 @@ const ProjectUpload = (props) => {
       setUpload(true)
 
       // remove selection
-      setSelection(null);
+      setState(null);
 
       // set error to state
       setError(null)
@@ -170,7 +170,7 @@ const ProjectUpload = (props) => {
         setFile(null);
 
         // get statistics
-        setSelection(res.data);
+        setState(res.data);
 
         // scroll to bottom
         scrollToBottom();
@@ -190,7 +190,7 @@ const ProjectUpload = (props) => {
           setFile(null);
 
           // remove selection
-          setSelection(null);
+          setState(null);
 
           // set error to state
           setError(error.response.data["message"])
@@ -240,7 +240,7 @@ const ProjectUpload = (props) => {
 
   const removeDataset = () => {
     // no actual removing at the moment. TODO{Jonathan}
-    setSelection(null);
+    setState(null);
   }
 
   const nextStep = () => {
@@ -250,6 +250,7 @@ const ProjectUpload = (props) => {
     props.handleNext()
   };
 
+  console.log(state)
 
   return (
   <Box>
@@ -258,109 +259,111 @@ const ProjectUpload = (props) => {
     </Typography>
 
     <Paper className={classes.root}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
-        >
-          <Tab label="From file" />
-          <Tab label="From url" />
-          <Tab label="From plugin" />
-          <Tab label="Example datasets" />
-        </Tabs>
+        {state === null &&
 
-      <Box className={classes.rootPaper}>
-        {value === 0 &&
+          <Box>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              indicatorColor="primary"
+              textColor="primary"
+              variant="scrollable"
+              scrollButtons="auto"
+            >
+              <Tab label="From file" />
+              <Tab label="From url" />
+              <Tab label="From plugin" />
+              <Tab label="Example datasets" />
+            </Tabs>
 
-          <div>
-            <div className={classes.upload} {...getRootProps({style})}>
-              <input {...getInputProps()} />
-              <Typography>Drag 'n' drop a file here, or click to a file</Typography>
-            </div>
+          <Box className={classes.rootPaper}>
+            {value === 0 &&
 
-            {file !== null &&
               <div>
-                <Typography>File '{file.path}' selected.</Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  disabled={upload}
-                  onClick={() => onUploadHandlerFile()}
-                  className={classes.uploadButton}
-                >
-                  {upload ? "Uploading..." : "Upload"}
-                </Button>
+                <div className={classes.upload} {...getRootProps({style})}>
+                  <input {...getInputProps()} />
+                  <Typography>Drag 'n' drop a file here, or click to a file</Typography>
+                </div>
+
+                {file !== null &&
+                  <div>
+                    <Typography>File '{file.path}' selected.</Typography>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={upload}
+                      onClick={() => onUploadHandlerFile()}
+                      className={classes.uploadButton}
+                    >
+                      {upload ? "Uploading..." : "Upload"}
+                    </Button>
+                  </div>
+                }
               </div>
             }
-          </div>
-        }
 
-    {value === 1 &&
-      <div>
-        <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
-        <ProjectUploadURL
-          upload={upload}
-          onUploadHandler={onUploadHandlerURL}
-        />
-      </div>
+            {value === 1 &&
+              <div>
+                <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
+                <ProjectUploadURL
+                  upload={upload}
+                  onUploadHandler={onUploadHandlerURL}
+                />
+              </div>
+            }
+
+            {value === 2 &&
+              <ProjectUploadDatasets
+                subset={"plugin"}
+                onUploadHandler={onUploadHandlerDemoDataset}
+              />
+            }
+
+            {value === 3 &&
+
+              <div>
+                <Typography>Example datasets are useful for testing algorithms because they are fully labeled into relevant and irrelevant. Relevant articles will display up in red and irrelevant articles in black.</Typography>
+                <ProjectUploadDatasets
+                  subset={"test"}
+                  onUploadHandler={onUploadHandlerDemoDataset}
+                />
+              </div>
+            }
+          </Box>
+      </Box>
+
     }
-
-    {value === 2 &&
-      <ProjectUploadDatasets
-        subset={"plugin"}
-        onUploadHandler={onUploadHandlerDemoDataset}
-      />
-    }
-
-    {value === 3 &&
-
-      <div>
-        <Typography>Example datasets are useful for testing algorithms because they are fully labeled into relevant and irrelevant. Relevant articles will display up in red and irrelevant articles in black.</Typography>
-        <ProjectUploadDatasets
-          subset={"test"}
-          onUploadHandler={onUploadHandlerDemoDataset}
-        />
-      </div>
-    }
-    </Box>
-
-    </Paper>
 
     {/* The Card with the selected dataset */}
-    {selection !== null &&
-      <Alert
-        severity="success"
-        action={
-          <Button color="inherit" size="small" onClick={removeDataset}>
-            Remove
-          </Button>
-        }
-      >
-        <AlertTitle>Success</AlertTitle>
-        Successfully uploaded dataset '{selection['filename']}' with {selection['n_rows']} publications.
-      </Alert>
+    {state !== null &&
+      <Box>
+        <Typography variant="h2">Success</Typography>
+        <Typography variant="subtitle1">Successfully uploaded dataset '{state['filename']}' with {state['n_rows']} publications.</Typography>
+        <Button color="inherit" size="small" onClick={removeDataset}>
+          Remove
+        </Button>
+      </Box>
+
     }
 
     {/* The Card with the selected dataset */}
     {error !== null &&
-      <Alert
-        severity="error"
-        onClose={() => {setError(null)}}
-      >
-        <AlertTitle>Error</AlertTitle>
-        {error}
-      </Alert>
+      <Box>
+        <Typography variant="h2">Error</Typography>
+        <Typography variant="subtitle1">{error}</Typography>
 
+        <Button color="inherit" size="small" onClick={() => {setError(null)}}>
+          Close
+        </Button>
+      </Box>
     }
+    </Paper>
 
     {/* Go to the next step if upload was successfull */}
     <Button
       variant="contained"
       color="primary"
-      disabled={selection === null}
+      disabled={state === null}
       onClick={nextStep}
       className={classes.nextButton}
     >

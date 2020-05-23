@@ -29,6 +29,7 @@ from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.paths import get_lock_path
@@ -147,7 +148,12 @@ def api_get_project_info(project_id):  # noqa: F401
         # read the file with project info
         with open(get_project_file_path(project_id), "r") as fp:
             project_info = json.load(fp)
-            response = jsonify(project_info)
+            response = jsonify({
+                "project_id": project_info["id"],
+                "project_name": project_info["name"],
+                "project_description": project_info["description"],
+                "project_authors": project_info["authors"]
+            })
 
     except FileNotFoundError as err:
         logging.error(err)
@@ -162,6 +168,41 @@ def api_get_project_info(project_id):  # noqa: F401
         return response, 500
 
     return response
+
+
+@bp.route('/project/<project_id>/info/update', methods=["POST"])
+def api_update_project_info(project_id):  # noqa: F401
+    """Get info on the article"""
+
+    logging.info("Update project info")
+
+    project_name = request.form['project_name']
+    project_description = request.form['project_description']
+    project_authors = request.form['project_authors']
+
+    project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+
+    try:
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            project_info = json.dump({
+                'id': project_id_new,
+                'name': project_name,
+                'description': project_description,
+                'authors': project_authors
+            }, fp)
+
+        # rename the folder
+        get_project_path(project_id) \
+            .rename(Path(asreview_path(), project_id_new))
+
+    except Exception as err:
+        logging.error(err)
+        response = jsonify(message="project-update-failure")
+
+        return response, 500
+
+    return api_get_project_info(project_id_new)
 
 
 @bp.route('/datasets', methods=["GET"])
