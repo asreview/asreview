@@ -143,7 +143,6 @@ const ProjectInit = (props) => {
     setState("edit")
   }
 
-
   useEffect(() => {
 
     const fetchProjectInfo = async () => {
@@ -226,18 +225,6 @@ const ProjectInit = (props) => {
               autoFocus={true}
               disabled={state === "lock" || state === "submit"}
               required
-              name="authors"
-              id="project-author"
-              label="Author(s)"
-              onChange={onChange}
-              value={info.authors}
-            />
-          </div>
-          <div className={classes.textfieldItem}>
-            <TextField
-              fullWidth
-              disabled={state === "lock" || state === "submit"}
-              required
               name="name"
               id="project-name"
               label="Project name"
@@ -245,6 +232,18 @@ const ProjectInit = (props) => {
               value={info.name}
             />
           </div>
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              disabled={state === "lock" || state === "submit"}
+              name="authors"
+              id="project-author"
+              label="Author(s)"
+              onChange={onChange}
+              value={info.authors}
+            />
+          </div>
+
           <div className={classes.textfieldItem}>
             <TextField
               fullWidth
@@ -283,7 +282,7 @@ const ProjectInit = (props) => {
         <Button
           variant="contained"
           color="primary"
-          disabled={info.name.length < 3 || info.authors === ""}
+          disabled={info.name.length < 3}
           className={classes.button}
           onClick={submitForm}
         >

@@ -38,6 +38,7 @@ from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
@@ -226,8 +227,8 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/upload', methods=["POST"])
-def api_upload_data_project(project_id):  # noqa: F401
+@bp.route('/project/<project_id>/data', methods=["POST"])
+def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
 
     if not is_project(project_id):
@@ -316,17 +317,35 @@ def api_upload_data_project(project_id):  # noqa: F401
         # add the file to the project
         add_dataset_to_project(project_id, filename)
 
-        # get statistics of the dataset
-        statistics = get_data_statistics(project_id)
-        statistics["filename"] = filename
-
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
         message = f"Failed to upload file '{filename}'. {err}"
         return jsonify(message=message), 400
 
+    return api_get_project_data(project_id)
+
+
+@bp.route('/project/<project_id>/data', methods=["GET"])
+def api_get_project_data(project_id):  # noqa: F401
+    """Get info on the article"""
+
+    if not is_project(project_id):
+        response = jsonify(message="Project not found.")
+        return response, 404
+
+    try:
+
+        filename = get_data_file_path(project_id).stem
+
+        # get statistics of the dataset
+        statistics = get_data_statistics(project_id)
+        statistics["filename"] = filename
+
+    except FileNotFoundError as err:
+        statistics = {"filename": None}
+
     except Exception as err:
-        message = f"Failed to upload file '{filename}'. {err}"
+        message = f"Failed to get file. {err}"
         return jsonify(message=message), 400
 
     response = jsonify(statistics)

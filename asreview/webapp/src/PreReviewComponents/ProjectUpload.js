@@ -174,7 +174,7 @@ const ProjectUpload = (props) => {
       // set error to state
       setError(null)
 
-      const url = api_url + `project/${props.project_id}/upload`;
+      const url = api_url + `project/${props.project_id}/data`;
 
       axios({
         method: 'post',
