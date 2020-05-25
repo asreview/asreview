@@ -6,13 +6,27 @@ import {
   Button,
   Typography,
   Toolbar,
+  Tooltip,
   TextField,
   Snackbar,
   Paper,
   IconButton,
+  CardHeader,
+  Avatar,
+  CardContent,
 } from '@material-ui/core'
+
+import { deepOrange } from '@material-ui/core/colors';
+
 import CloseIcon from '@material-ui/icons/Close';
+import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+
+import {
+  Help,
+  useHelp,
+} from '../PreReviewComponents'
 
 import axios from 'axios'
 
@@ -25,7 +39,6 @@ import { api_url, mapStateToProps } from '../globals.js';
 const useStyles = makeStyles(theme => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    padding: "24px",
   },
   title: {
     marginBottom: "20px",
@@ -46,9 +59,12 @@ const useStyles = makeStyles(theme => ({
   },
   editButton: {
     float: "right",
+  },
+  avatar: {
+    color: theme.palette.getContrastText(deepOrange[500]),
+    backgroundColor: deepOrange[500],
   }
 }));
-
 
 const ProjectInit = (props) => {
 
@@ -56,6 +72,8 @@ const ProjectInit = (props) => {
 
   // the state of the app (new, edit or lock)
   const [state, setState] = React.useState(props.project_id !== null ? "lock" : "new")
+
+  const [help, openHelp, closeHelp] = useHelp()
 
   // the state of the form data
   const [info, setInfo] = React.useState({
@@ -162,11 +180,44 @@ const ProjectInit = (props) => {
   return (
     <Box>
 
-      <Typography variant="h5" className={classes.title}>
-        Create a project
-      </Typography>
-
     <Paper className={classes.root}>
+
+      <CardHeader
+        avatar={
+          <Avatar aria-label="recipe" className={classes.avatar}>
+            <AssignmentIcon />
+          </Avatar>
+        }
+        action={
+          <Box>
+          {state === "lock" &&
+            <Tooltip title="Edit">
+
+              <IconButton
+                aria-label="project-info-edit"
+                onClick={editInfo}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+          }
+
+          <Tooltip title="Help">
+
+          <IconButton
+            onClick={openHelp}
+            aria-label="project-info-help"
+          >
+            <HelpIcon />
+          </IconButton>
+          </Tooltip>
+          </Box>
+        }
+        title="Create a project"
+      />
+
+
+      <CardContent>
       {/* The actual form */}
         <form noValidate autoComplete="off">
           <div className={classes.textfieldItem}>
@@ -207,17 +258,8 @@ const ProjectInit = (props) => {
           </div>
         </form>
 
-      {state === "lock" &&
-        <Box className={classes.clear}>
-          <IconButton
-            className={classes.editButton}
-            aria-label="edit"
-            onClick={editInfo}
-          >
-            <EditIcon />
-          </IconButton>
-        </Box>
-      }
+        </CardContent>
+
       </Paper>
 
        <Snackbar
@@ -248,6 +290,19 @@ const ProjectInit = (props) => {
           Next
         </Button>
       </div>
+
+    <Help
+      open={help}
+      onClose={closeHelp}
+      title="Project settings"
+      message={
+        <Box>
+        <Typography>Provide the project name and the authors. This information is used to create a project. All information is stored locally, no information is send to external servers.</Typography>
+        <Typography>The project is stored in the folder ~/.asreview/ followed by the project name.</Typography>
+        </Box>
+      }
+    />
+
     </Box>
   )
 }

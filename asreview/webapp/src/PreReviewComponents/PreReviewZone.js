@@ -14,10 +14,9 @@ import {
   ProjectInit,
   ProjectUpload,
   StartReview,
+  HelpDialog,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
-
-import '../PreReviewComponents/PreReviewZone.css'
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -97,11 +96,8 @@ const PreReviewZone = (props) => {
             <Step key="select-dataset">
               <StepLabel>Select dataset</StepLabel>
             </Step>
-            <Step key="select-inclusions">
-              <StepLabel>Select inclusions</StepLabel>
-            </Step>
-            <Step key="label-random">
-              <StepLabel>Label random</StepLabel>
+            <Step key="select-prior-knowledge">
+              <StepLabel>Prior Knowledge</StepLabel>
             </Step>
             <Step key="start-review">
               <StepLabel>Start reviewing</StepLabel>
@@ -139,6 +135,7 @@ const PreReviewZone = (props) => {
       }
       </Container>
     }
+
     </Box>
 
   )

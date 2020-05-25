@@ -11,19 +11,33 @@ import {
   Tabs,
   Tab,
   Link,
+  CardHeader,
+  Avatar,
+  Tooltip,
+  IconButton,
+  CardContent,
 } from '@material-ui/core'
 
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { blue } from '@material-ui/core/colors';
+
+import CloseIcon from '@material-ui/icons/Close';
+import HelpIcon from '@material-ui/icons/Help';
+import EditIcon from '@material-ui/icons/Edit';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 import {
   ProjectUploadDatasets,
   ProjectUploadURL,
+  Help,
+  useHelp,
 } from '../PreReviewComponents';
 
 import { connect } from "react-redux";
 
 import axios from 'axios'
 import { api_url } from '../globals.js';
+
+import './ReviewZone.css';
 
 
 const baseStyle = {
@@ -86,6 +100,10 @@ const useStyles = makeStyles(theme => ({
   uploadButton: {
     marginTop: '26px',
   },
+  avatar: {
+    color: theme.palette.getContrastText(blue[500]),
+    backgroundColor: blue[500],
+  }
 }));
 
 const mapStateToProps = state => {
@@ -102,6 +120,8 @@ const ProjectUpload = (props) => {
   const [file, setFile] = React.useState(null);
   const [upload, setUpload] = React.useState(false);
   const [error, setError] = React.useState(null);
+
+  const [help, openHelp, closeHelp] = useHelp()
 
   const scrollToBottom = () => {
     EndRef.current.scrollIntoView({ behavior: "smooth" })
@@ -250,15 +270,47 @@ const ProjectUpload = (props) => {
     props.handleNext()
   };
 
-  console.log(state)
-
   return (
   <Box>
-    <Typography variant="h5" className={classes.title}>
-      Select a dataset
-    </Typography>
 
     <Paper className={classes.root}>
+
+      <CardHeader
+        avatar={
+          <Avatar aria-label="recipe" className={classes.avatar}>
+            <AssignmentIcon />
+          </Avatar>
+        }
+        action={
+          <Box>
+          {state !== null &&
+            <Tooltip title="Edit">
+
+              <IconButton
+                aria-label="project-info-edit"
+                onClick={removeDataset}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+          }
+
+          <Tooltip title="Help">
+
+          <IconButton
+            onClick={openHelp}
+            aria-label="project-dataset-help"
+          >
+            <HelpIcon />
+          </IconButton>
+          </Tooltip>
+          </Box>
+        }
+        title="Select a dataset"
+      />
+
+
+
         {state === null &&
 
           <Box>
@@ -276,7 +328,7 @@ const ProjectUpload = (props) => {
               <Tab label="Example datasets" />
             </Tabs>
 
-          <Box className={classes.rootPaper}>
+          <CardContent>
             {value === 0 &&
 
               <div>
@@ -329,20 +381,17 @@ const ProjectUpload = (props) => {
                 />
               </div>
             }
-          </Box>
+          </CardContent>
       </Box>
 
     }
 
     {/* The Card with the selected dataset */}
     {state !== null &&
-      <Box>
-        <Typography variant="h2">Success</Typography>
+      <CardContent className="cardHighlight">
+        <Typography variant="h2">{state['filename']}</Typography>
         <Typography variant="subtitle1">Successfully uploaded dataset '{state['filename']}' with {state['n_rows']} publications.</Typography>
-        <Button color="inherit" size="small" onClick={removeDataset}>
-          Remove
-        </Button>
-      </Box>
+      </CardContent>
 
     }
 
@@ -358,6 +407,20 @@ const ProjectUpload = (props) => {
       </Box>
     }
     </Paper>
+
+
+    <Help
+      open={help}
+      onClose={closeHelp}
+      title="Select Dataset"
+      message={
+        <Box>
+        <Typography>Select a dataset from your computer, from a URL, a plugin or a demo dataset.</Typography>
+        <Typography>ASReview software accepts CSV files, RIS files, and Excel files.</Typography>
+        </Box>
+      }
+    />
+
 
     {/* Go to the next step if upload was successfull */}
     <Button

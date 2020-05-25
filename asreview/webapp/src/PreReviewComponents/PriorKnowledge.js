@@ -116,8 +116,6 @@ const PriorKnowledge = (props) => {
     "n_prior": null
   })
 
-  const [showHelp, setShowHelp] = React.useState(false);
-
   const getPriorIncluded = () => {
 
     const url = api_url + `project/${props.project_id}/prior_stats`;
@@ -132,10 +130,6 @@ const PriorKnowledge = (props) => {
     });
 
   }
-
-  const toggleHelp = () => {
-    setShowHelp(a => (!a));
-  };
 
   // include the item in the card
   const includeItem = (doc_id) => {
@@ -169,7 +163,6 @@ const PriorKnowledge = (props) => {
   const changeMethod = (method) => {
     setState(method);
   }
-
 
   useEffect(() => {
 
@@ -223,18 +216,6 @@ const PriorKnowledge = (props) => {
             From file
           </Button>
 
-          <Typography align="right">
-            <HelpIcon onClick={toggleHelp}/>
-          </Typography>
-
-          {showHelp &&
-            <Typography className={classes.helptext}>
-              <Box fontStyle="italic">
-                In this step, prior knowledge about the dataset is added to the project. Prior knowledge is required to provide the model a starting point for learning. It is required to add at least one relevant item and one irrelevant item.
-              </Box>
-            </Typography>
-          }
-
         </Paper>
       }
 
@@ -253,6 +234,8 @@ const PriorKnowledge = (props) => {
           excludeItem={excludeItem}
         />
       }
+
+      />
 
       <Button
         variant="contained"
