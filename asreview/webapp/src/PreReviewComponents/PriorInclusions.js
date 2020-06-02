@@ -13,7 +13,6 @@ import {
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
-import HelpIcon from '@material-ui/icons/Help';
 
 import {
   SearchResult,
@@ -41,9 +40,6 @@ const useStyles = makeStyles(theme => ({
   margin: {
     marginTop: 20
   },
-  helpertext: {
-    color: "#FF0000"
-  },
   root: {
     padding: '2px 4px',
     marginBottom: '14px',
@@ -62,12 +58,7 @@ const useStyles = makeStyles(theme => ({
     height: 28,
     margin: 4,
   },
-  help :{
-    textAlign: "right",
-  },
-  helptext : {
-    padding: "12px 0px",
-  }
+
 }));
 
 const mapStateToProps = state => {
@@ -113,8 +104,6 @@ const PriorInclusions = (props) => {
     query : ""
   });
 
-  const [showHelp, setShowHelp] = React.useState(false);
-
   const onChangeSearch = (evt) => {
     setSearchDialog({
       open : false,
@@ -141,34 +130,12 @@ const PriorInclusions = (props) => {
     console.log('Remove item to included: ' + item['id'])
   }
 
-  // const removeIncluded2 = (item) => {
-  //   console.log('Remove item to included: ' + item['id'])
-
-  //   // refresh the prior inclusions
-  //   getPriorIncluded();
-  // }
-
-  const toggleHelp = () => {
-    setShowHelp(a => (!a));
-  };
-
 
   return (
     <Box style={{clear: "both"}}>
       <Typography style={{display: "inline"}} variant="h5" align="left">
         Do you have publications to include?
       </Typography>
-      <Typography style={{width: "25px",margin:"3px", float:"right", opacity: 0.5}}  align="right">
-      <HelpIcon onClick={toggleHelp}/>
-      </Typography>
-
-      {showHelp &&
-        <Typography className={classes.helptext}>
-          <Box fontStyle="italic">
-            Provide about 1 to 5 relevant publications based on prior knowledge.
-          </Box>
-        </Typography>
-      }
 
     <Box>
     <Paper className={classes.paperRoot}>

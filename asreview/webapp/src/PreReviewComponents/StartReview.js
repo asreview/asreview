@@ -1,4 +1,4 @@
-import React, {} from 'react'
+import React, {useEffect} from 'react'
 import {
   Box,
   Button,
@@ -8,8 +8,21 @@ import {
   List,
   ListItem,
   ListItemText,
-  Radio
+  Radio,
+  CardHeader,
+  Avatar,
+  Tooltip,
+  IconButton,
 } from '@material-ui/core'
+
+import HelpIcon from '@material-ui/icons/Help';
+import EditIcon from '@material-ui/icons/Edit';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+
+import {
+  Help,
+  useHelp,
+} from '../PreReviewComponents'
 
 import axios from 'axios'
 
@@ -18,6 +31,9 @@ import { api_url } from '../globals.js';
 import { connect } from "react-redux";
 
 import { makeStyles } from '@material-ui/core/styles';
+
+import './ReviewZone.css';
+
 
 const useStyles = makeStyles(theme => ({
   listTitle: {
@@ -36,6 +52,9 @@ const StartReview = (props) => {
     "status": null,
     "message": null,
   });
+
+  const [help, openHelp, closeHelp] = useHelp();
+
   const [machineLearningModel, setmachineLearningModel] = React.useState('nb');
 
   const handleMachineLearningModelChange = (event) => {
@@ -112,89 +131,17 @@ const StartReview = (props) => {
     });
   }
 
+
+  useEffect(() => {
+
+    if (state['status'] === null){
+      startTraining()
+    }
+
+  }, []);
+
   return (
     <Box>
-      { state["status"] === null &&
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Grid container justify="space-between">
-              <Grid item>
-                <Typography variant="h5">
-                  Start the systematic review
-                </Typography>
-              </Grid>
-
-              <Grid item>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={startTraining}
-                >
-                  Start reviewing
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Paper elevation={0}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={3}>
-                  <Typography variant="body2" className={classes.listTitle}>
-                      Machine learning models
-                  </Typography>
-
-                  <List dense={true}>
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'nb'}
-                        value="nb"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Naïve Bayes' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Naïve Bayes" />
-                    </ListItem>
-
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'svm'}
-                        value="svm"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Support Vector Machines' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Support Vector Machines" />
-                    </ListItem>
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'logistic'}
-                        value="logistic"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Logistic Regression' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Logistic Regression" />
-                    </ListItem>
-
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'rf'}
-                        value="rf"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Random Forest' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Random Forest" />
-                    </ListItem>
-                  </List>
-                </Grid>
-
-              </Grid>
-            </Paper>
-          </Grid>
-        </Grid>
-      }
 
       { state["status"] === "training" &&
         <Typography>Training model... (this can take some time)</Typography>

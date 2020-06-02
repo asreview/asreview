@@ -36,10 +36,10 @@ import { setProject } from '../redux/actions'
 import { connect } from "react-redux";
 import { api_url, mapStateToProps } from '../globals.js';
 
+import './ReviewZone.css';
+
+
 const useStyles = makeStyles(theme => ({
-  root: {
-    backgroundColor: theme.palette.background.paper,
-  },
   title: {
     marginBottom: "20px",
   },
@@ -116,10 +116,12 @@ const ProjectInit = (props) => {
       console.log(response.data)
 
       // set the project_id in the redux store
-      store.dispatch(setProject(response.data["project_id"]));
+      store.dispatch(
+        setProject(response.data["project_id"])
+      );
 
       // set the card state to lock
-      setState("submit");
+      setState("lock");
 
       // go to the next step
       props.handleNext();
@@ -155,8 +157,8 @@ const ProjectInit = (props) => {
 
           // set the project info
           setInfo({
-            authors: result.data["project_name"],
-            name: result.data["project_authors"],
+            authors: result.data["project_authors"],
+            name: result.data["project_name"],
             description: result.data["project_description"],
           });
 
@@ -171,7 +173,7 @@ const ProjectInit = (props) => {
 
     // run if the state is "lock"
     if (state === "lock"){
-        fetchProjectInfo();
+        // fetchProjectInfo();
     }
 
   }, [state]);
@@ -179,7 +181,7 @@ const ProjectInit = (props) => {
   return (
     <Box>
 
-    <Paper className={classes.root}>
+    <Paper className="Card">
 
       <CardHeader
         avatar={
@@ -256,7 +258,14 @@ const ProjectInit = (props) => {
             />
           </div>
         </form>
-
+        {state !== "lock" &&
+          <Button
+            disabled={info.name.length < 3}
+            onClick={submitForm}
+          >
+            Save
+          </Button>
+        }
         </CardContent>
 
       </Paper>
@@ -278,17 +287,7 @@ const ProjectInit = (props) => {
             </React.Fragment>
           }
         />
-      <div className={classes.nextButton}>
-        <Button
-          variant="contained"
-          color="primary"
-          disabled={info.name.length < 3}
-          className={classes.button}
-          onClick={submitForm}
-        >
-          Next
-        </Button>
-      </div>
+
 
     <Help
       open={help}

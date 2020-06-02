@@ -8,12 +8,19 @@ import {
   OutlinedInput,
   InputAdornment,
   Toolbar,
-  IconButton,
   Paper,
+  CardHeader,
+  CardContent,
+  Divider,
+  Avatar,
+  Tooltip,
+  IconButton,
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
 import HelpIcon from '@material-ui/icons/Help';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import EditIcon from '@material-ui/icons/Edit';
 
 import {
   SearchResult,
@@ -22,11 +29,19 @@ import {
   PriorExclusions,
 } from '../PreReviewComponents'
 
+import {
+  Help,
+  useHelp,
+} from '../PreReviewComponents'
+
 import axios from 'axios'
 
 import { api_url } from '../globals.js';
 
 import { connect } from "react-redux";
+
+import './ReviewZone.css';
+
 
 const useStyles = makeStyles(theme => ({
   paperRoot: {
@@ -110,6 +125,8 @@ const PriorKnowledge = (props) => {
 
   const [state, setState] = React.useState(null)
 
+  const [help, openHelp, closeHelp] = useHelp()
+
   const [priorStats, setPriorStats] = React.useState({
     "n_exclusions": null,
     "n_inclusions": null,
@@ -122,8 +139,9 @@ const PriorKnowledge = (props) => {
 
     axios.get(url)
     .then((result) => {
-      console.log(result.data)
+
       setPriorStats(result.data);
+
     })
     .catch((error) => {
       console.log("Failed to  load prior information");
@@ -170,16 +188,64 @@ const PriorKnowledge = (props) => {
 
   }, []);
 
+
+  useEffect(() => {
+
+    // scroll to bottom
+    props.scrollToBottom()
+
+    // enable next button
+    if (goNext()){
+      props.isReady()
+    }
+
+  }, [priorStats]);
+
   return (
     <Box style={{clear: "both"}}>
-      <Typography style={{display: "inline"}} variant="h5" align="left">
-        Select prior knowledge
-      </Typography>
 
       {/* Display the prior info once loaded */}
       {priorStats.n_prior !== null &&
-        <Paper>
 
+        <Paper className="Card">
+
+
+        <CardHeader
+          avatar={
+            <Avatar aria-label="recipe" className={classes.avatar}>
+              <AssignmentIcon />
+            </Avatar>
+          }
+          action={
+            <Box>
+            {state === "lock" &&
+              <Tooltip title="Edit">
+
+                <IconButton
+                  aria-label="project-info-edit"
+                  onClick={() => {}}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+            }
+
+            <Tooltip title="Help">
+
+            <IconButton
+              onClick={openHelp}
+              aria-label="project-info-help"
+            >
+              <HelpIcon />
+            </IconButton>
+            </Tooltip>
+            </Box>
+          }
+          title="Select prior knowledge"
+        />
+
+
+        <CardContent>
           <Box>
             <Typography variant="h1">{priorStats["n_inclusions"]}</Typography>
             <Typography variant="subtitle1">Relevant articles</Typography>
@@ -188,7 +254,9 @@ const PriorKnowledge = (props) => {
             <Typography variant="h1">{priorStats["n_exclusions"]}</Typography>
             <Typography variant="subtitle1">Irrelevant articles</Typography>
           </Box>
+        </CardContent>
 
+        <CardContent>
           <Button
             variant="contained"
             color="primary"
@@ -215,9 +283,9 @@ const PriorKnowledge = (props) => {
           >
             From file
           </Button>
+        </CardContent>
+        <Divider/>
 
-        </Paper>
-      }
 
       { state === "search" &&
         <PriorInclusions
@@ -235,17 +303,20 @@ const PriorKnowledge = (props) => {
         />
       }
 
-      />
+    </Paper>
 
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={!goNext()}
-        onClick={props.handleNext}
-        className={classes.button}
-      >
-        Next
-      </Button>
+      }
+
+      <Help
+        open={help}
+        onClose={closeHelp}
+        title="Prior Knowledge"
+        message={
+          <Box>
+          <Typography>Every active learning model likes a warm start. Prior knowledge is very important. </Typography>
+          </Box>
+        }
+      />
     </Box>
   )
 }

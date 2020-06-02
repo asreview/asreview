@@ -1,8 +1,9 @@
-import React from 'react'
+import React, {useRef}  from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
   Box,
+  Button,
   Container,
   Stepper,
   Step,
@@ -13,6 +14,7 @@ import {
   PriorKnowledge,
   ProjectInit,
   ProjectUpload,
+  ProjectAlgorithms,
   StartReview,
   HelpDialog,
 } from '../PreReviewComponents'
@@ -50,45 +52,75 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
-
+  nextButton: {
+    margin: '36px 0px 24px 12px',
+    float: 'right',
+  },
 }));
 
 const PreReviewZone = (props) => {
   const classes = useStyles();
 
-  // const [activeStep, setActiveStep] = React.useState(
-  //   {'step': 0, 'animation': true}
-  // );
+  const EndRef = useRef(null)
 
-  const [activeStep, setActiveStep] = React.useState(0);
+
+  const [state, setState] = React.useState({
+    step: 0,
+    ready: false
+  });
 
   const handleNext = () => {
-    setActiveStep(prevActiveStep => prevActiveStep + 1);
+
+    setState({
+      step: state.step + 1,
+      ready: false,
+    });
+
+    // scrollToBottom();
   };
 
-  const handleStep = (index) => {
-    setActiveStep(index);
+  const isReady = () => {
+
+    setState({
+      step: state.step,
+      ready: true,
+    });
   }
+
+  const handleStep = (index) => {
+    setState({
+      step: index,
+      ready: state.ready,
+    });
+
+    // scrollToBottom();
+  }
+
+  const scrollToBottom = () => {
+    EndRef.current.scrollIntoView({ behavior: "smooth" })
+  }
+
+  console.log(state)
 
   return (
 
 
     <Box className={classes.box}>
-    {activeStep !== 5 &&
+    {state.step !== 5 &&
       <Container maxWidth='md'>
         <div className={classes.root}>
           <Stepper
-            activeStep={activeStep}
+            step={state.step}
             alternativeLabel
             style={{ backgroundColor: "transparent" }}
           >
             <Step key="create-project">
-            {(activeStep === 1) &&
+            {(state.step === 1) &&
               <StepButton onClick={() => {handleStep(0)}} key="create-project">
                 <StepLabel>Project info</StepLabel>
               </StepButton>
             }
-            {(activeStep !== 1) &&
+            {(state.step !== 1) &&
               <StepLabel>Project info</StepLabel>
             }
             </Step>
@@ -100,41 +132,87 @@ const PreReviewZone = (props) => {
               <StepLabel>Prior Knowledge</StepLabel>
             </Step>
             <Step key="start-review">
-              <StepLabel>Start reviewing</StepLabel>
+              <StepLabel>Select algorithms</StepLabel>
             </Step>
           </Stepper>
           </div>
 
-        {activeStep === 0 &&
+        {(state.step >= 0 && state.step < 4) &&
           <Box>
             <ProjectInit
               handleNext={handleNext}
+              isReady={isReady}
             />
           </Box>
         }
-        {activeStep === 1 &&
+        {(state.step >= 1 && state.step < 4) &&
           <Box>
             <ProjectUpload
               handleNext={handleNext}
+              isReady={isReady}
+              scrollToBottom={scrollToBottom}
             />
+            <div ref={EndRef} />
           </Box>
         }
-        {activeStep === 2 &&
+        {(state.step >= 2 && state.step < 4) &&
           <Box>
             <PriorKnowledge
               handleNext={handleNext}
+              isReady={isReady}
+              scrollToBottom={scrollToBottom}
             />
+            <div ref={EndRef} />
           </Box>
         }
 
-      {activeStep === 3 &&
-        <StartReview
-          handleAppState={props.handleAppState}
-          handleReviewDrawer={props.handleReviewDrawer}
-        />
+      {(state.step >= 3 && state.step < 4) &&
+          <Box>
+            <ProjectAlgorithms
+              scrollToBottom={scrollToBottom}
+              handleAppState={props.handleAppState}
+              handleReviewDrawer={props.handleReviewDrawer}
+            />
+            <div ref={EndRef} />
+          </Box>
+      }
+
+      {/* Go to the next step if upload was successfull */}
+      {(state.step >= 1 && state.step <3) &&
+
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={!state.ready}
+          onClick={handleNext}
+          className={classes.nextButton}
+        >
+          Next
+        </Button>
+
+      }
+      {state.step === 3 &&
+
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={false}
+          onClick={handleNext}
+          className={classes.nextButton}
+        >
+          Finish
+        </Button>
+
       }
       </Container>
     }
+
+    {state.step === 4 &&
+
+      <StartReview/>
+
+    }
+
 
     </Box>
 

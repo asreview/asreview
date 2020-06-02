@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef} from 'react'
+import React, {useCallback, useMemo, useRef, useEffect} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {useDropzone} from 'react-dropzone'
@@ -123,10 +123,6 @@ const ProjectUpload = (props) => {
 
   const [help, openHelp, closeHelp] = useHelp()
 
-  const scrollToBottom = () => {
-    EndRef.current.scrollIntoView({ behavior: "smooth" })
-  }
-
   const onDrop = useCallback(acceptedFiles => {
 
     if (acceptedFiles.length !== 1){
@@ -192,8 +188,8 @@ const ProjectUpload = (props) => {
         // get statistics
         setState(res.data);
 
-        // scroll to bottom
-        scrollToBottom();
+        // set next button ready
+        props.isReady();
 
         // callback
         if (callback !== undefined){
@@ -214,9 +210,6 @@ const ProjectUpload = (props) => {
 
           // set error to state
           setError(error.response.data["message"])
-
-          // scroll to bottom
-          scrollToBottom();
 
           // callback
           if (callback !== undefined){
@@ -263,12 +256,9 @@ const ProjectUpload = (props) => {
     setState(null);
   }
 
-  const nextStep = () => {
-    // check if everything is ready to go to the next step
-
-    // go to the next step
-    props.handleNext()
-  };
+  useEffect(() => {
+    props.scrollToBottom()
+  }, []);
 
   return (
   <Box>
@@ -421,18 +411,6 @@ const ProjectUpload = (props) => {
       }
     />
 
-
-    {/* Go to the next step if upload was successfull */}
-    <Button
-      variant="contained"
-      color="primary"
-      disabled={state === null}
-      onClick={nextStep}
-      className={classes.nextButton}
-    >
-      Next
-    </Button>
-    <div ref={EndRef} />
   </Box>
   );
 }

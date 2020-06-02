@@ -11,8 +11,6 @@ import {
   PaperCard,
 } from '../PreReviewComponents'
 
-import HelpIcon from '@material-ui/icons/Help';
-
 
 import axios from 'axios'
 
@@ -27,9 +25,6 @@ const useStyles = makeStyles(theme => ({
   },
   margin: {
     marginTop: 20
-  },
-  helpertext: {
-    color: "#FF0000"
   },
   root: {
     padding: '2px 4px',
@@ -51,9 +46,6 @@ const useStyles = makeStyles(theme => ({
   loader: {
     width: '100%',
   },
-  helptext : {
-    padding: "12px 0px",
-  },
   clear : {
     clear: "both",
   }
@@ -70,12 +62,6 @@ const PriorExclusions = (props) => {
     "records": null,
     "loaded": false,
   });
-
-  const [showHelp, setShowHelp] = React.useState(false);
-
-  const toggleHelp = () => {
-    setShowHelp(a => (!a));
-  };
 
   const includeRandomDocument = () => {
     props.includeItem(state["records"].id);
@@ -128,17 +114,6 @@ const PriorExclusions = (props) => {
         <Typography style={{display: "inline"}} variant="h5" align="left">
           Are these 5 randomly selected publications relevant?
         </Typography>
-        <Typography style={{width: "25px",margin:"3px", float:"right", opacity: 0.5}}  align="right">
-        <HelpIcon onClick={toggleHelp}/>
-        </Typography>
-
-        {showHelp &&
-          <Typography className={classes.helptext}>
-            <Box fontStyle="italic">
-              The software requires 1-5 irrelevant papers.
-            </Box>
-          </Typography>
-        }
       </Box>
 
       <Box className={classes.clear}>
