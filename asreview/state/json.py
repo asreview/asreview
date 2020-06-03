@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 from collections import OrderedDict
 from datetime import datetime
+import json
 from pathlib import Path
 
 from asreview.settings import ASReviewSettings
@@ -41,7 +41,8 @@ class JSONState(DictState):
 
         try:
             self._state_dict["current_queries"] = {
-                str(key): val for key, val in self._state_dict["current_queries"].items()}
+                str(key): val
+                for key, val in self._state_dict["current_queries"].items()}
         except KeyError:
             pass
 
@@ -50,7 +51,8 @@ class JSONState(DictState):
 
         try:
             self._state_dict["current_queries"] = {
-                int(key): val for key, val in self._state_dict["current_queries"].items()}
+                int(key): val
+                for key, val in self._state_dict["current_queries"].items()}
         except KeyError:
             pass
 
@@ -66,7 +68,8 @@ class JSONState(DictState):
             self.settings = ASReviewSettings(**self._state_dict["settings"])
             try:
                 self._state_dict["current_queries"] = {
-                    int(key): val for key, val in self._state_dict["current_queries"].items()}
+                    int(key): val
+                    for key, val in self._state_dict["current_queries"].items()}
             except KeyError:
                 pass
         except FileNotFoundError:

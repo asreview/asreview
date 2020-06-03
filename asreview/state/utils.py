@@ -70,7 +70,7 @@ def open_state(fp, *args, read_only=False, **kwargs):
         state.close()
 
 
-def states_from_dir(data_dir, prefix="result"):
+def states_from_dir(data_dir, prefix=""):
     """Obtain a dictionary of states from a directory.
 
     Arguments

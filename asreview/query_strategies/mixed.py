@@ -25,8 +25,30 @@ from asreview.utils import get_random_state
 
 
 def interleave(n_samples, n_strat_1, random_state):
+    """Interleave the order of the samples of two different strategies.
+
+    While the decisions of which indices to sample are made one after
+    the other, it is nicer if the order of the actual samples is mixed up.
+    Instead of mixing it the easy way, I decided it should be as nice as
+    possible.
+
+    Parameters
+    ----------
+    n_samples: int
+        Total number of samples to mix.
+    n_strat_1: int
+        Number of samples of the first strategy.
+    random_state: int, numpy.RandomState
+        RNG.
+
+    Returns
+    -------
+    numpy.array:
+        Order of samples, [0, n_samples).
+    """
     n_strat_2 = n_samples - n_strat_1
 
+    # Determine which of the strategies has more samples.
     if n_strat_1 >= n_strat_2:
         max_idx = np.arange(n_strat_1)
         min_idx = n_strat_1 + np.arange(n_strat_2)
@@ -34,9 +56,11 @@ def interleave(n_samples, n_strat_1, random_state):
         max_idx = n_strat_1 + np.arange(n_strat_2)
         min_idx = np.arange(n_strat_1)
 
+    # Insert the strategy with less samples at these positions.
     insert_positions = np.sort(random_state.choice(
         np.arange(len(max_idx)), len(min_idx), replace=False))
 
+    # Actually do the inserts.
     new_positions = np.zeros(n_samples, dtype=int)
     i_strat_min = 0
     for i_strat_max in range(len(max_idx)):

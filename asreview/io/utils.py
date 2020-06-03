@@ -16,6 +16,7 @@ def type_from_column(col_name, col_definitions):
 
 
 def convert_keywords(keywords):
+    """Split keywords separated by commas etc to lists."""
     if not isinstance(keywords, str):
         return keywords
 
@@ -28,6 +29,20 @@ def convert_keywords(keywords):
 
 
 def type_from_column_spec(col_name, column_spec):
+    """Retrieve the standardized name of a column.
+
+    Arguments
+    ---------
+    col_name: str
+        Name of the column in the dataframe.
+    column_spec: dict
+        Dictionary of {possible name}:{standardized_name}.
+
+    Returns
+    -------
+    str:
+        The standardized name. If it wasn't found, return None.
+    """
     for data_type, column_spec_name in column_spec.items():
         if col_name.lower() == column_spec_name.lower():
             return data_type
@@ -54,14 +69,17 @@ def standardize_dataframe(df, column_spec={}):
     all_column_spec = {}
     col_names = list(df)
     for column_name in col_names:
+        # First try the supplied column specifications if supplied.
         data_type = type_from_column_spec(column_name, column_spec)
         if data_type is not None:
             all_column_spec[data_type] = column_name
             continue
+        # Then try the standard specifications in ASReview.
         data_type = type_from_column(column_name, COLUMN_DEFINITIONS)
         if data_type is not None:
             all_column_spec[data_type] = column_name
 
+    # Check if we either have abstracts or titles.
     col_names = list(all_column_spec)
     if "abstract" not in col_names and "title" not in col_names:
         raise BadFileFormatError("File supplied without 'abstract' or 'title'"
@@ -71,12 +89,14 @@ def standardize_dataframe(df, column_spec={}):
     if "title" not in col_names:
         logging.warning("Unable to detect titles in dataset.")
 
+    # Replace NA values with empty strings.
     for col in ["title", "abstract", "authors", "keywords"]:
         try:
             df[all_column_spec[col]].fillna("", inplace=True)
         except KeyError:
             pass
 
+    # Convert labels to integers.
     if "final_included" in col_names:
         try:
             col = all_column_spec["final_included"]
@@ -85,6 +105,7 @@ def standardize_dataframe(df, column_spec={}):
         except KeyError:
             pass
 
+    # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):
         df.set_index('record_id', inplace=True)
     if df.index.name != "record_id":
