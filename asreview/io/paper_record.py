@@ -1,5 +1,7 @@
 import os
 
+import pandas as pd
+
 from asreview.config import LABEL_NA
 from asreview.utils import format_to_str
 
@@ -44,6 +46,10 @@ class PaperRecord():
             self.final_included = int(self.final_included)
 
         self.extra_fields = kwargs
+
+        for attr, val in self.extra_fields.items():
+            if pd.isna(val):
+                self.extra_fields[attr] = None
 
     def preview(self, w_title=80, w_authors=40, automatic_width=False):
         """Return a single line preview string for record i.

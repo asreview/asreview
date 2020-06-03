@@ -8,8 +8,14 @@ from urllib.request import urlopen
 
 
 class BaseDataSet():
-
     def __init__(self, fp=None):
+        """Initialize BaseDataSet which contains metadata.
+
+        Parameters
+        ----------
+        fp: str
+            Path to file, if None, either an url/fp has to be set manually.
+        """
 
         if fp is not None:
             self.fp = fp
@@ -19,6 +25,14 @@ class BaseDataSet():
 
     @classmethod
     def from_config(cls, config_file):
+        """Create DataSet from a JSON configuration file.
+
+        Parameters
+        ----------
+        config_file: str, dict
+            Can be a link to a config file or one on the disk.
+            Another option is to supply a dictionary with the metadata.
+        """
         if is_url(config_file):
             with urlopen(config_file) as f:
                 config = json.loads(f.read().decode())
@@ -28,6 +42,7 @@ class BaseDataSet():
             with open(config_file, "r") as f:
                 config = json.load(f)
 
+        # Set the attributes of the dataset.
         dataset = cls()
         for attr, val in config.items():
             setattr(dataset, attr, val)
@@ -35,15 +50,18 @@ class BaseDataSet():
 
     @property
     def aliases(self):
+        "Can be overriden by setting it manually."
         return [self.dataset_id]
 
     def get(self):
+        "Get the url/fp for the dataset."
         try:
             return self.url
         except AttributeError:
             return self.fp
 
     def to_dict(self):
+        """Convert self to a python dictionary."""
         mydict = {}
         for attr in dir(self):
             try:
@@ -63,16 +81,28 @@ class BaseDataSet():
         return pretty_format(self.to_dict())
 
     def find(self, data_name):
+        "Return self if the name is one of our aliases."
         if data_name in self.aliases:
             return self
         return None
 
     def list(self, latest_only=True):
+        "Return a list of itself."
         return [self]
 
 
 class BaseVersionedDataSet():
     def __init__(self, base_dataset_id, datasets, title="Unknown title"):
+        """Initialize a BaseVersionedDataDet instance.
+
+        Parameters
+        ----------
+        base_dataset_id: str
+            This is the identification given to the versioned dataset as a
+            whole. Each individual version has their own dataset_id.
+        datasets: list
+            List of BaseDataSet's containing all the different versions.
+        """
         self.datasets = datasets
         self.title = title
         self.dataset_id = base_dataset_id
@@ -98,7 +128,8 @@ class BaseVersionedDataSet():
 
     def __str__(self):
         dataset_dict = self.datasets[-1].to_dict()
-        dataset_dict["versions_available"] = [d.dataset_id for d in self.datasets]
+        dataset_dict["versions_available"] = [
+            d.dataset_id for d in self.datasets]
         return pretty_format(dataset_dict)
 
     def __len__(self):
@@ -106,7 +137,9 @@ class BaseVersionedDataSet():
 
 
 class DatasetManager():
+    """Manager to search for datasets from the ones currently available."""
     def __init__(self):
+        """Look through the entry points to create a database of datasets."""
         entry_points = {
             entry.name: entry
             for entry in pkg_resources.iter_entry_points('asreview.datasets')
@@ -117,14 +150,36 @@ class DatasetManager():
             self.all_datasets[group] = entry.load()()
 
     def find(self, dataset_name):
+        """Find a dataset.
+
+        Parameters
+        ----------
+        dataset_name: str, iterable
+            Look for this term in aliases within any dataset. A group can
+            be specified by setting dataset_name to 'group_id:dataset_id'.
+            This can be helpful if the dataset_id is not unique.
+            The dataset_name can also be a non-string iterable, in which case
+            a list will be returned with all terms.
+            Dataset_ids should not contain semicolons (:).
+            Return None if the dataset could not be found.
+
+        Returns
+        -------
+        BaseDataSet, VersionedDataSet:
+            If the dataset with that name is found, return it
+            (or a list there of).
+        """
+        # If dataset_name is a non-string iterable, return a list.
         if is_iterable(dataset_name):
             return [self.find(x) for x in dataset_name]
 
+        # If dataset_name is a valid path, create a dataset from it.
         if Path(dataset_name).is_file():
             return BaseDataSet(dataset_name)
 
         dataset_name = str(dataset_name)
 
+        # Split into group/dataset if possible.
         split_dataset_id = dataset_name.split(":")
         if len(split_dataset_id) == 2:
             data_group = split_dataset_id[0]
@@ -132,12 +187,14 @@ class DatasetManager():
             if data_group in self.all_datasets:
                 return self.all_datasets[data_group].find(split_dataset_name)
 
+        # Look through all available/installed groups for the name.
         all_results = {}
         for group_name, dataset in self.all_datasets.items():
             result = dataset.find(dataset_name)
             if result is not None:
                 all_results[group_name] = result
 
+        # If we have multiple results, throw an error.
         if len(all_results) > 1:
             raise ValueError(
                 f"Multiple datasets found: {list(all_results)}."
@@ -147,9 +204,26 @@ class DatasetManager():
         if len(all_results) == 1:
             return list(all_results.values())[0]
 
+        # Could not find dataset, return None.
         return None
 
     def list(self, group_name=None, latest_only=True):
+        """List the available datasets.
+
+        Parameters
+        ----------
+        group_name: str, iterable
+            List only datasets in the group(s) with that name. Lists all
+            groups if group_name is None.
+        latest_only: bool
+            Only include the latest version of the dataset.
+
+        Returns
+        -------
+        dict:
+            Dictionary with group names as keys and lists of datasets as
+            values.
+        """
         if group_name is None:
             group_names = list(self.all_datasets)
         elif not is_iterable(group_name):
@@ -163,6 +237,7 @@ class DatasetManager():
 
 
 class BaseDataGroup():
+    """A grouping of datasets."""
     def __init__(self, *args):
         self._data_sets = [a for a in args]
 
@@ -279,6 +354,7 @@ class BuiltinDataGroup(BaseDataGroup):
 
 
 def get_available_datasets():
+    """Deprecated, use DatasetManager instead"""
     entry_points = {
         entry.name: entry
         for entry in pkg_resources.iter_entry_points('asreview.datasets')
@@ -292,6 +368,7 @@ def get_available_datasets():
 
 
 def dataset_from_url(url):
+    """Helper function to create a dataset from an url"""
     index_file = url + "/index.json"
     with urlopen(index_file) as f:
         meta_data = json.loads(f.read().decode())

@@ -30,11 +30,10 @@ def sample_prior_knowledge(
     Arguments
     ---------
     labels: np.ndarray
-        Labels in a 2d numpy array (the result of
-        keras.utils.to_categorical).
-    n_included: int
+        Array of labels, with 1 -> included, 0 -> excluded.
+    n_prior_included: int
         The number of positive labels.
-    n_excluded: int
+    n_prior_excluded: int
         The number of negative labels.
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;

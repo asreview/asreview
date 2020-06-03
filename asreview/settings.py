@@ -45,6 +45,7 @@ SETTINGS_TYPE_DICT = {
 
 
 def _convert_types(par_defaults, param):
+    """Convert strings from the config file to the appropriate type."""
     for par in param:
         try:
             par_type = type(par_defaults[par])

@@ -1,11 +1,6 @@
 import logging
 
 from asreview.ascii import welcome_message
-
-from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.entry_points.base import BaseEntryPoint, _base_parser
@@ -85,4 +80,11 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
              "not used. If the option --prior_idx is used with one or more "
              "index, this option is ignored."
     )
+    parser.add_argument(
+        "--verbose", "-v",
+        default=0,
+        type=int,
+        help="Verbosity"
+    )
+
     return parser
