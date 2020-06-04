@@ -2,6 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import {
+  Box,
   Button,
   Card,
   CardHeader,
@@ -62,34 +63,13 @@ const PaperCard = (props) => {
   };
 
     return (
-      <Card
-        className={classes.root}
-        key={props.id}
-      >
-        <CardHeader
-          title={props.title}
-        />
-
-        {props.collapseAbstract ?
-          <Collapse
-            in={expanded}
-            timeout="auto"
-          >
-            <CardContent>
-              <Typography variant="body2" color="textSecondary" component="p">
-                {props.abstract}
-              </Typography>
-            </CardContent>
-          </Collapse>
-          :
-          <CardContent>
-            <Typography variant="body2" color="textSecondary" component="p">
-              {props.abstract}
-            </Typography>
-          </CardContent>
-        }
-
-        <CardActions disableSpacing>
+      <Box>
+        <Typography variant="title">
+          {props.title}
+        </Typography>
+        <Typography>
+          {props.abstract}
+        </Typography>
 
           {/* Show the classification buttons if and only if classify is true */}
             {props.classify &&
@@ -115,21 +95,7 @@ const PaperCard = (props) => {
               </div>
             }
 
-          {/* Show the expansion panel if and only if there is abstract */}
-            {(props.collapseAbstract && props.abstract !== "") &&
-            <IconButton
-              className={clsx(classes.expand, {
-                [classes.expandOpen]: expanded,
-              })}
-              onClick={handleExpandClick}
-              aria-expanded={expanded}
-              aria-label="show more"
-            >
-              <ExpandMoreIcon />
-            </IconButton>
-          }
-        </CardActions>
-      </Card>
+      </Box>
     );
 
 }

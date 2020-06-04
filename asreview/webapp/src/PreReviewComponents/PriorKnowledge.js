@@ -21,12 +21,16 @@ import SearchIcon from '@material-ui/icons/Search';
 import HelpIcon from '@material-ui/icons/Help';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import EditIcon from '@material-ui/icons/Edit';
+import CheckIcon from '@material-ui/icons/Check';
+
+import { blue, green, orange } from '@material-ui/core/colors';
 
 import {
   SearchResult,
   PaperCard,
-  PriorInclusions,
-  PriorExclusions,
+  PriorKnowledgeSearch,
+  PriorKnowledgeRandom,
+  ResultDialog,
 } from '../PreReviewComponents'
 
 import {
@@ -36,7 +40,10 @@ import {
 
 import axios from 'axios'
 
-import { api_url } from '../globals.js';
+import {
+  api_url,
+  mapStateToProps
+} from '../globals.js';
 
 import { connect } from "react-redux";
 
@@ -87,12 +94,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
-
-
-const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
+export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
   const url = api_url + `project/${project_id}/labelitem`;
 
   let body = new FormData();
@@ -125,15 +127,16 @@ const PriorKnowledge = (props) => {
 
   const [state, setState] = React.useState(null)
 
-  const [help, openHelp, closeHelp] = useHelp()
+  const [priorDialog, setPriorDialog] = React.useState(false)
 
   const [priorStats, setPriorStats] = React.useState({
     "n_exclusions": null,
     "n_inclusions": null,
     "n_prior": null
   })
+  const [help, openHelp, closeHelp] = useHelp()
 
-  const getPriorIncluded = () => {
+  const updatePriorStats = () => {
 
     const url = api_url + `project/${props.project_id}/prior_stats`;
 
@@ -147,6 +150,17 @@ const PriorKnowledge = (props) => {
       console.log("Failed to  load prior information");
     });
 
+  }
+
+  const openPriorKnowledge = () => {
+    // open resultdialog
+    setPriorDialog(true);
+  }
+
+
+  const closePriorKnowledge = () => {
+    // open resultdialog
+    setPriorDialog(false);
   }
 
   // include the item in the card
@@ -165,7 +179,7 @@ const PriorKnowledge = (props) => {
   const resetItem = (doc_id) => {
     console.log(`${props.project_id} - remove item ${doc_id} from prior knowledge`);
     labelPriorItem(props.project_id, doc_id, -1);
-    getPriorIncluded();
+    updatePriorStats();
   }
 
   const goNext = () => {
@@ -184,7 +198,7 @@ const PriorKnowledge = (props) => {
 
   useEffect(() => {
 
-    getPriorIncluded()
+    updatePriorStats()
 
   }, []);
 
@@ -244,21 +258,67 @@ const PriorKnowledge = (props) => {
           title="Select prior knowledge"
         />
 
+        <CardContent className="cardHighlight">
+          <Typography
+            variant="h4"
+            noWrap={true}
+          >
+            {priorStats["n_inclusions"]} relevant documents
+          </Typography>
+          <Typography
+            variant="h4"
+            noWrap={true}
+          >
+            {priorStats["n_exclusions"]} irrelevant documents
+          </Typography>
+          <Box>
 
-        <CardContent>
-          <Box>
-            <Typography variant="h1">{priorStats["n_inclusions"]}</Typography>
-            <Typography variant="subtitle1">Relevant articles</Typography>
-          </Box>
-          <Box>
-            <Typography variant="h1">{priorStats["n_exclusions"]}</Typography>
-            <Typography variant="subtitle1">Irrelevant articles</Typography>
+
+            {/* nothing */}
+            {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] === 0) &&
+              <Typography>
+                You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers. Wondering why we need this?
+              </Typography>
+            }
+
+            {/* only inclusions, no exclusions */}
+            {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] === 0) &&
+              <Typography>
+                Find yourself irrelevant items. Tip: label some random items. Random items are usually exclusions because the relevant items are rare.
+              </Typography>
+            }
+
+            {/* only exclusions, no inclusions */}
+            {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] > 0) &&
+              <Typography>
+                Find yourself relevant items. Tip: use the search function and find some relevant items you know of.
+              </Typography>
+            }
+
+
+            {/* bare minimum was met */}
+            {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0 && (priorStats['n_exclusions'] < 3 || priorStats['n_inclusions'] < 3)) &&
+              <Typography style={{ color: orange[500] }} >
+                <CheckIcon/>
+                Enough prior knowledge, however a bit more would help!
+              </Typography>
+            }
+
+            {/* ready */}
+            {(priorStats['n_inclusions'] >= 3 && priorStats['n_exclusions'] >= 3) &&
+              <Typography style={{ color: green[500] }} >
+                <CheckIcon/>
+                Enough prior knowledge, feel free to go to the next step.
+              </Typography>
+            }
+
+
           </Box>
         </CardContent>
 
-        <CardContent>
+        <CardContent className="cardHighlight">
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             disabled={state === "search"}
             onClick={() => {changeMethod("search")}}
@@ -267,7 +327,7 @@ const PriorKnowledge = (props) => {
           </Button>
 
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             disabled={state === "random"}
             onClick={() => {changeMethod("random")}}
@@ -276,7 +336,7 @@ const PriorKnowledge = (props) => {
           </Button>
 
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
             disabled={state === "file"}
             onClick={() => {changeMethod("file")}}
@@ -288,16 +348,17 @@ const PriorKnowledge = (props) => {
 
 
       { state === "search" &&
-        <PriorInclusions
-          getPriorIncluded={getPriorIncluded}
+        <PriorKnowledgeSearch
+          updatePriorStats={updatePriorStats}
           includeItem={includeItem}
           resetItem={resetItem}
         />
       }
 
       { state === "random" &&
-         <PriorExclusions
-          getPriorIncluded={getPriorIncluded}
+         <PriorKnowledgeRandom
+          open={true}
+          updatePriorStats={updatePriorStats}
           includeItem={includeItem}
           excludeItem={excludeItem}
         />

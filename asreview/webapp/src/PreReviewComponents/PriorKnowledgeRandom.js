@@ -5,6 +5,10 @@ import {
   Button,
   CircularProgress,
   Typography,
+  Dialog,
+DialogTitle,
+DialogContent,
+DialogActions,
 } from '@material-ui/core'
 
 import {
@@ -14,7 +18,7 @@ import {
 
 import axios from 'axios'
 
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 import { connect } from "react-redux";
 
@@ -51,11 +55,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
-
-const PriorExclusions = (props) => {
+const PriorKnowledgeRandom = (props) => {
   const classes = useStyles();
 
   const [state, setState] = useState({
@@ -71,7 +71,7 @@ const PriorExclusions = (props) => {
       "loaded": false,
     });
 
-    props.getPriorIncluded();
+    props.updatePriorStats();
   }
 
   const excludeRandomDocument = () => {
@@ -82,7 +82,7 @@ const PriorExclusions = (props) => {
       "loaded": false,
     });
 
-    props.getPriorIncluded();
+    props.updatePriorStats();
   }
 
   useEffect(() => {
@@ -109,36 +109,43 @@ const PriorExclusions = (props) => {
   }, [props.project_id, state.loaded]);
 
   return (
-    <Box>
-      <Box style={{clear: "both"}}>
-        <Typography style={{display: "inline"}} variant="h5" align="left">
-          Are these 5 randomly selected publications relevant?
-        </Typography>
-      </Box>
+      <Dialog
+        open={props.open}
+        onClose={props.handleClose}
+      >
+        <DialogTitle>
+          Make a decision of this article
+        </DialogTitle>
+        <DialogContent dividers={true}>
 
-      <Box className={classes.clear}>
-        {!state["loaded"] ?
-          <Box className={classes.loader}>
-            <CircularProgress
-              style={{margin: "0 auto"}}
-            />
-          </Box> :
-            <PaperCard
-              id={state["records"].id}
-              title={state["records"].title}
-              abstract={state["records"].abstract}
-              included={null}
-              onRevertInclude={() => {}}
-              removeButton={false}
-              classify={true}
-              key={state["records"].id}
-              includeItem={includeRandomDocument}
-              excludeItem={excludeRandomDocument}
-            />
-        }
-      </Box>
-    </Box>
+          {!state["loaded"] ?
+            <Box className={classes.loader}>
+              <CircularProgress
+                style={{margin: "0 auto"}}
+              />
+            </Box> :
+              <PaperCard
+                id={state["records"].id}
+                title={state["records"].title}
+                abstract={state["records"].abstract}
+                included={null}
+                onRevertInclude={() => {}}
+                removeButton={false}
+                classify={true}
+                key={state["records"].id}
+                includeItem={includeRandomDocument}
+                excludeItem={excludeRandomDocument}
+              />
+          }
+
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={()=>{}} color="primary">
+            Relevant
+          </Button>
+        </DialogActions>
+      </Dialog>
   )
 }
 
-export default connect(mapStateToProps)(PriorExclusions);
+export default connect(mapStateToProps)(PriorKnowledgeRandom);

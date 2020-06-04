@@ -26,7 +26,7 @@ import {
 
 import axios from 'axios'
 
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 import { connect } from "react-redux";
 
@@ -40,10 +40,6 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: "18px",
   },
 }));
-
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
 
 const ProjectAlgorithms = (props) => {
   const classes = useStyles();

@@ -18,12 +18,13 @@ import {
   CardContent,
 } from '@material-ui/core'
 
-import { blue } from '@material-ui/core/colors';
+import { blue, green } from '@material-ui/core/colors';
 
-import CloseIcon from '@material-ui/icons/Close';
-import HelpIcon from '@material-ui/icons/Help';
-import EditIcon from '@material-ui/icons/Edit';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import CheckIcon from '@material-ui/icons/Check';
+import CloseIcon from '@material-ui/icons/Close';
+import EditIcon from '@material-ui/icons/Edit';
+import HelpIcon from '@material-ui/icons/Help';
 
 import {
   ProjectUploadDatasets,
@@ -35,7 +36,7 @@ import {
 import { connect } from "react-redux";
 
 import axios from 'axios'
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -106,9 +107,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
 
 const ProjectUpload = (props) => {
 
@@ -379,8 +377,16 @@ const ProjectUpload = (props) => {
     {/* The Card with the selected dataset */}
     {state !== null &&
       <CardContent className="cardHighlight">
-        <Typography variant="h2">{state['filename']}</Typography>
-        <Typography variant="subtitle1">Successfully uploaded dataset '{state['filename']}' with {state['n_rows']} publications.</Typography>
+        <Typography
+          variant="h4"
+          noWrap={true}
+        >
+        {state['filename']}
+        </Typography>
+        <Box>
+          <Typography style={{ color: green[500] }} ><CheckIcon/> Successfull upload</Typography>
+        </Box>
+        <Typography variant="subtitle1">{state['n_rows']} publications</Typography>
       </CardContent>
 
     }

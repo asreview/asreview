@@ -50,7 +50,7 @@ def write_proba(project_id, proba):
         json.dump(proba, f)
 
 
-def read_label_history(project_id):
+def read_label_history(project_id, subset=None):
     """Get all the newly labeled papers from the file.
 
     Make sure to lock the "active" lock.
@@ -59,9 +59,26 @@ def read_label_history(project_id):
     try:
         with open(get_labeled_path(project_id), "r") as fp:
             labeled = json.load(fp)
-        labeled = [[int(idx), int(label)] for idx, label in labeled]
+
+        if subset is None:
+            labeled = [[int(idx), int(label)] for idx, label in labeled]
+        elif subset in ["included", "relevant"]:
+            labeled = [
+                [int(idx), int(label)]
+                for idx, label in labeled if int(label) == 1
+            ]
+        elif subset in ["excluded", "irrelevant"]:
+            labeled = [
+                [int(idx), int(label)]
+                for idx, label in labeled if int(label) == 0
+            ]
+        else:
+            raise ValueError(f"Subset value '{subset}' not found.")
+
     except FileNotFoundError:
+        # file not found implies that there is no file written yet
         labeled = []
+
     return labeled
 
 

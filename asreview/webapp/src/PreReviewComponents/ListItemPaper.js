@@ -17,13 +17,10 @@ import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import axios from 'axios'
 
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 import { connect } from "react-redux";
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
 
 const ListItemPaper = (props) => {
 
@@ -58,7 +55,7 @@ const ListItemPaper = (props) => {
       props.resetItem(props.id)
     }
     setSelected(!selected);
-    props.getPriorIncluded();
+    props.updatePriorStats();
     handleClose();
   }
 

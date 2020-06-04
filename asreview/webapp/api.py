@@ -415,9 +415,17 @@ def api_label_item(project_id):  # noqa: F401
 def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+
+    subset = request.args.get('subset', default=None, type=str)
+
+    # check if the subset exists
+    if subset is not None and subset not in ["included", "excluded"]:
+        message = "Unkown subset parameter"
+        return jsonify(message=message), 400
+
     lock_fp = get_lock_path(project_id)
     with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        label_history = read_label_history(project_id)
+        label_history = read_label_history(project_id, subset=subset)
 
     indices = [x[0] for x in label_history]
 

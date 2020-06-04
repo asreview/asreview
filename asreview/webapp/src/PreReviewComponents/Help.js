@@ -53,9 +53,7 @@ const Help = (props) => {
         Help: {props.title}
       </DialogTitle>
       <DialogContent dividers={true}>
-        <DialogContentText>
-          {props.message}
-        </DialogContentText>
+        {props.message}
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onClose} color="primary">

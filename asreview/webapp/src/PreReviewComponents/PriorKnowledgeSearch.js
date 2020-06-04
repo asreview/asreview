@@ -94,7 +94,7 @@ const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 }
 
 
-const PriorInclusions = (props) => {
+const PriorKnowledgeSearch = (props) => {
   const classes = useStyles();
 
   const [included, setIncluded] = React.useState([])
@@ -133,13 +133,6 @@ const PriorInclusions = (props) => {
 
   return (
     <Box style={{clear: "both"}}>
-      <Typography style={{display: "inline"}} variant="h5" align="left">
-        Do you have publications to include?
-      </Typography>
-
-    <Box>
-    <Paper className={classes.paperRoot}>
-
       <form className={classes.root} noValidate autoComplete="off" onSubmit={showSearchResult}>
         <FormControl
           fullWidth
@@ -168,18 +161,15 @@ const PriorInclusions = (props) => {
       {(searchDialog.open && searchDialog.query !== "") &&
         <SearchResult
           searchQuery={searchDialog.query}
-          getPriorIncluded={props.getPriorIncluded}
+          updatePriorStats={props.updatePriorStats}
           onRevertInclude={props.removeIncluded}
           includeItem={props.includeItem}
           resetItem={props.resetItem}
         />
       }
-        </Paper>
-        <Toolbar className={classes.clear}/>
-      </Box>
 
     </Box>
   )
 }
 
-export default connect(mapStateToProps)(PriorInclusions);
+export default connect(mapStateToProps)(PriorKnowledgeSearch);
