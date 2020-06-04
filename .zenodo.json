@@ -42,6 +42,11 @@
 			"orcid": "0000-0002-8353-0853"
 		},
 		{
+			"name": "Hoogerwerf, Maarten",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0003-1498-2052"
+		},
+		{
 			"name": "Ferdinands, Gerbrich",
 			"affiliation": "Utrecht University",
 			"orcid": "0000-0002-4998-3293"
@@ -52,9 +57,24 @@
 			"orcid": "0000-0002-7091-1147"
 		},
 		{
+			"name": "Willemsen, Joukje",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-7260-0828"
+		},
+		{
+			"name": "Ma, Yongchao",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0003-4100-5468"
+		},
+		{
 			"name": "Fang, Qixiang",
 			"affiliation": "Utrecht University",
 			"orcid": "0000-0003-2689-6653"
+		},
+		{
+			"name": "Tummers, Lars",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0001-9940-9874"
 		},
 		{
 			"name": "Oberski, Daniel",
@@ -68,7 +88,9 @@
 		"active learning",
 		"statistics",
 		"machine learning",
-		"text data"
+		"text data",
+		"natural language processing",
+		"human-in-the-loop"
 	],
 	"license": "Apache-2.0",
 	"upload_type": "software"
