@@ -226,8 +226,6 @@ class ASReviewData():
             else:
                 self.column_spec[data_type] = col
 
-#         if self.
-
     @classmethod
     def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
         """Create instance from csv/ris/excel file.
