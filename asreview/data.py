@@ -201,11 +201,20 @@ class ASReviewData():
         new_index = np.append(self.df.index.values,
                               as_data.df.index.values + reindex_val)
         new_priors = np.append(self.prior_idx, as_data.prior_idx + reindex_val)
-        new_df = self.df.append(as_data.df)
+        new_df = self.df.append(as_data.df, sort=False)
         new_df.index = new_index
 
+        new_labels = None
+        if self.labels is None and as_data.labels is not None:
+            new_labels = np.append(np.full(len(self), LABEL_NA, dtype=int),
+                                   as_data.labels)
+        elif self.labels is not None and as_data.labels is None:
+            new_labels = np.append(self.labels,
+                                   np.full(len(as_data), LABEL_NA, dtype=int))
         self.max_idx = max(self.max_idx, as_data.max_idx, max(new_index))
         self.df = new_df
+        if new_labels is not None:
+            self.labels = new_labels
         self.prior_idx = new_priors
         self.data_name += "_" + as_data.data_name
         for data_type, col in as_data.column_spec.items():
@@ -216,6 +225,8 @@ class ASReviewData():
                         f"differ: {self.column_spec} vs {as_data.column_spec}")
             else:
                 self.column_spec[data_type] = col
+
+#         if self.
 
     @classmethod
     def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
