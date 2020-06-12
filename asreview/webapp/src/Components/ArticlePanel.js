@@ -47,6 +47,10 @@ const useStyles = makeStyles({
 const ArticlePanel = (props) => {
   const classes = useStyles();
 
+  const isDebugInclusion =  ()  => {
+    return (props.record._debug_label === 1)
+  }
+
   return (
       <Container
         maxWidth="md"
@@ -57,7 +61,7 @@ const ArticlePanel = (props) => {
         <Typography
           className={classes.title}
           variant="h5"
-          color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+          color={isDebugInclusion() ? "error" : "textSecondary"}
           component="div"
           paragraph>
 
@@ -85,7 +89,7 @@ const ArticlePanel = (props) => {
         {!(props.record.publish_time === undefined || props.record.publish_time === null)  &&
           <Typography
               className={classes.publish_time + " textSize" + props.textSize}
-              color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+              color={isDebugInclusion() ? "error" : "textSecondary"}
               component="p"
               fontStyle="italic"
               paragraph>
@@ -97,7 +101,7 @@ const ArticlePanel = (props) => {
         {!(props.record.doi === undefined || props.record.doi === null)  &&
           <Typography
               className={classes.doi + " textSize" + props.textSize}
-              color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+              color={isDebugInclusion() ? "error" : "textSecondary"}
               component="p"
               fontStyle="italic"
               paragraph>
@@ -117,7 +121,7 @@ const ArticlePanel = (props) => {
         <Typography
             className={classes.abstract + " textSize" + props.textSize}
             variant="body2"
-            color={props.record._debug_label === 1 ? "error" : "textSecondary"}
+            color={isDebugInclusion() ? "error" : "textSecondary"}
             component="div"
             paragraph>
 
