@@ -28,6 +28,7 @@ from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.paths import get_lock_path
@@ -488,6 +489,26 @@ def export_results(project_id):
             attachment_filename=f"asreview_result_{project_id}.xlsx",
             cache_timeout=0
         )
+
+
+@bp.route('/project/<project_id>/export_project', methods=["GET"])
+def export_project(project_id):
+    """Export a zipped project file"""
+
+    Path(asreview_path(), "tmp").mkdir(exist_ok=True)
+    shutil.make_archive(
+        Path(asreview_path(), f"tmp/export_{project_id}"),
+        "zip", 
+        get_project_path(project_id)
+    )
+    fp_tmp_export = Path(asreview_path(), f"tmp/export_{project_id}.zip")
+
+    return send_file(
+        fp_tmp_export,
+        as_attachment=True,
+        attachment_filename=f"{project_id}.asreview.zip",
+        cache_timeout=0
+    )
 
 
 # @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
