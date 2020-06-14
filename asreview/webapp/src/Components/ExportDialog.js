@@ -76,6 +76,28 @@ const ExportDialog = (props) => {
 
   }
 
+  const downloadProject = () => {
+
+    const project_id = store.getState()["project_id"]
+
+    if (project_id !== null){
+
+      // download URL, example http://localhost:5000/api/project/myproject/export_project
+      const exportUrl = api_url + `project/${project_id}/export_project`
+
+      setTimeout(() => {
+        const response = {
+          file: exportUrl,
+        };
+        window.location.href = response.file;
+      }, 100);
+
+    } else{
+      // raise exception
+    }
+
+  }
+
   return (
       <Dialog
         open={props.exportResult}
@@ -86,7 +108,7 @@ const ExportDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Export results {props.project_id}</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Export results/project {props.project_id}</DialogTitle>
           <DialogContent dividers={true}>
             <Typography>
               Download the result of your review (Excel or CSV file).
@@ -110,6 +132,21 @@ const ExportDialog = (props) => {
               variant="contained"
               color="primary"
               onClick={downloadResult}
+            >
+              Export
+            </Button>
+          </DialogContent>
+
+          <DialogContent dividers={true}>
+            <Typography>
+              Download your project (ZIP file).
+            </Typography>
+
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              onClick={downloadProject}
             >
               Export
             </Button>
