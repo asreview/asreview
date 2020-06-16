@@ -37,11 +37,39 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
+
 ## ASReview app
 
 The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes.
 
 [![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview Quick Tour")
+
+### Quickstart using Docker
+
+For a quickstart of ASReview app using Docker and without the need to install anything else,
+the latest version of the asreview app can be started as well via Docker like this:
+
+ ```
+ docker run -p 5000:5000 xxxxx/asreview
+ ```
+
+This will start the asreview app eb server on port 5000 with default command line options and make it accessible to the host at http://localhost:5000
+More advanced command line options can be given afterwards, like this:
+
+
+ ```
+ docker run -p 9000:9000 xxxxx/asreview  --port 9000
+ ```
+
+In order to run other asreview commands (like "simulation") the Docker container can be entered via a bash shell:
+
+```
+docker run -ti --entrypoint /bin/bash xxxx/asreview
+```
+
+Then inside the container all normal asreview CLI commands can be executed. This requires very likely to mount a path from the host into Docker
+in order to exchange data files between host and container. This gets done by adding the "-v" parameter accordingly to the docker run command.
+
 
 
 ## Covid-19 plugin
