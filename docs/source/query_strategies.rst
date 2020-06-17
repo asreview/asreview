@@ -1,8 +1,7 @@
 Query Strategies
 ================
 
-There are a few query strategies available, and depending on the needs
-of the simulation/review some will work better than others.
+There are several query strategies available.
 
 Parameters should be under the section ``[query_param]``.
 
@@ -10,7 +9,8 @@ random
 ------
 
 As it says: randomly select samples with no regard to model assigned
-probabilities.
+probabilities. Warning: selecting this option means your review is not going to be
+accelerated by ASReview.
 
 See :class:`asreview.query_strategies.RandomQuery`
 
@@ -19,7 +19,7 @@ uncertainty
 -----------
 
 Choose the most uncertain samples according to the model (i.e. closest
-to 0.5 probability). Probably doesn’t work very well in the case of
+to 0.5 probability). Doesn’t work very well in the case of
 LSTM’s, since the probabilities are rather arbitrary.
 
 See :class:`asreview.query_strategies.UncertaintyQuery`
@@ -42,10 +42,10 @@ See :class:`asreview.query_strategies.ClusterQuery`
 mixed
 -----
 
-A mix of two query strategies is used. For example mixing max and random sampling means
+A mix of two query strategies is used. For example mixing max and random sampling
 with a mix ratio of 0.95 would mean that at each query 95% of the instances would be
 sampled with the max query strategy after which the remaining 5% would be sampled with
 the random query strategy. It would be called the `max_random` query strategy. Every
-combination is possible.
+combination of primitive query strategy is possible.
 
 See :class:`asreview.query_strategies.MixedQuery`

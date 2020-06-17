@@ -13,58 +13,55 @@
 # limitations under the License.
 
 import itertools
-import json
 import os
 from pathlib import Path
 
 import numpy as np
 from scipy import stats
-from sklearn.cluster import KMeans
 
-from asreview.logging.utils import loggers_from_dir, logger_from_file
+from asreview.state.utils import states_from_dir, state_from_file
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
 from asreview.analysis.statistics import _get_last_proba_order
-from asreview.analysis.statistics import _random_ttd, _cluster_ttd, _max_ttd
 
 
 class Analysis():
-    """Analysis object to do statistical analysis on log files."""
+    """Analysis object to do statistical analysis on state files."""
 
-    def __init__(self, loggers, key=None):
-        """Class to analyse log files.
+    def __init__(self, states, key=None):
+        """Class to analyse state files.
 
         Arguments
         ---------
-        loggers: list, BaseLogger
-            Either a list of loggers (opened files) or a single logger.
+        states: list, BaseLogger
+            Either a list of states (opened files) or a single state.
         key: str
             Give a name to the analysis.
         """
-        if isinstance(loggers, list):
-            loggers = {i: logger for i, logger in enumerate(loggers)}
+        if isinstance(states, list):
+            states = {i: state for i, state in enumerate(states)}
 
-        # Sometimes an extra dataset is present in the log_file(s).
+        # Sometimes an extra dataset is present in the state_file(s).
         # These signify not the labels on which the model was trained, but the
         # ones that were included in the end (or some other intermediate step.
         self.final_labels = None
         self.labels = None
         self.empty = True
 
-        if loggers is None:
+        if states is None:
             return
 
         self.key = key
-        self.loggers = loggers
-        self.num_runs = len(self.loggers)
+        self.states = states
+        self.num_runs = len(self.states)
         if self.num_runs == 0:
             return
 
-        self._first_file = list(self.loggers.keys())[0]
-        self.labels = self.loggers[self._first_file].get('labels')
+        self._first_file = list(self.states.keys())[0]
+        self.labels = self.states[self._first_file].get('labels')
         try:
-            self.final_labels = self.loggers[self._first_file].get(
+            self.final_labels = self.states[self._first_file].get(
                 'final_labels')
         except KeyError:
             pass
@@ -72,11 +69,23 @@ class Analysis():
         self.inc_found = {}
 
     @classmethod
-    def from_dir(cls, data_dir, prefix="result"):
-        """Create an Analysis object from a directory."""
-        key = os.path.basename(os.path.normpath(data_dir))
-        loggers = loggers_from_dir(data_dir, prefix=prefix)
-        analysis_inst = cls(loggers, key=key)
+    def from_dir(cls, data_dir, prefix="", key=None):
+        """Create an Analysis object from a directory.
+
+        Arguments
+        ---------
+        data_dir: str
+            Directory to read the state files from.
+        prefix: str
+            Only assume files starting with this prefix are state files.
+            Ignore all other files.
+        key: str
+            Name for the analysis object.
+        """
+        if key is None:
+            key = os.path.basename(os.path.normpath(data_dir))
+        states = states_from_dir(data_dir, prefix=prefix)
+        analysis_inst = cls(states, key=key)
         if analysis_inst.empty:
             return None
 
@@ -84,11 +93,20 @@ class Analysis():
         return analysis_inst
 
     @classmethod
-    def from_file(cls, data_fp):
-        """Create an Analysis object from a file."""
-        key = os.path.basename(os.path.normpath(data_fp))
-        logger = logger_from_file(data_fp)
-        analysis_inst = cls(logger, key=key)
+    def from_file(cls, data_fp, key=None):
+        """Create an Analysis object from a file.
+
+        Arguments
+        ---------
+        data_fp: str
+            Path to state file to analyse.
+        key: str
+            Name for analysis object.
+        """
+        if key is None:
+            key = os.path.basename(os.path.normpath(data_fp))
+        state = state_from_file(data_fp)
+        analysis_inst = cls(state, key=key)
         if analysis_inst.empty:
             return None
 
@@ -96,11 +114,11 @@ class Analysis():
         return analysis_inst
 
     @classmethod
-    def from_path(cls, data_path, prefix="result"):
+    def from_path(cls, data_path, prefix="", key=None):
         """Create an Analysis object from either a file or a directory."""
         if Path(data_path).is_file():
-            return cls.from_file(data_path)
-        return cls.from_dir(data_path, prefix)
+            return cls.from_file(data_path, key=key)
+        return cls.from_dir(data_path, prefix, key=key)
 
     def inclusions_found(self,
                          result_format="fraction",
@@ -150,7 +168,7 @@ class Analysis():
             x_norm /= len(labels)
             y_norm /= self.inc_found[fl]["inc_after_init"]
 
-        norm_xr = (np.arange(len(self.inc_found[fl]["avg"])) - dx) / x_norm
+        norm_xr = (np.arange(1, len(self.inc_found[fl]["avg"])+1) - dx) / x_norm
         norm_yr = (np.array(self.inc_found[fl]["avg"]) - dy) / y_norm
         norm_y_err = np.array(self.inc_found[fl]["err"]) / y_norm
 
@@ -160,9 +178,9 @@ class Analysis():
         """Get the number of inclusions (without formatting)."""
         inclusions_found = []
 
-        for logger in self.loggers.values():
+        for state in self.states.values():
             inclusions, inc_after_init, n_initial = _find_inclusions(
-                logger, labels)
+                state, labels)
             inclusions_found.append(inclusions)
 
         inc_found_avg = []
@@ -269,41 +287,31 @@ class Analysis():
 
         one_labels = np.where(labels == 1)[0]
         time_results = {label: [] for label in one_labels}
-        n_initial = []
 
-        for i_file, logger in enumerate(self.loggers.values()):
-            label_order, n = _get_labeled_order(logger)
-            proba_order = _get_last_proba_order(logger)
-            n_initial.append(n)
+        for state in self.states.values():
+            label_order, n = _get_labeled_order(state)
+            proba_order = _get_last_proba_order(state)
+            if result_format == "percentage":
+                time_mult = 100 / (len(labels) - n)
+            elif result_format == "fraction":
+                time_mult = 1/(len(labels) - n)
+            else:
+                time_mult = 1
 
-            for i_time, idx in enumerate(label_order):
+            for i_time, idx in enumerate(label_order[n:]):
                 if labels[idx] == 1:
-                    time_results[idx].append(i_time)
+                    time_results[idx].append(time_mult*(i_time+1))
 
             for i_time, idx in enumerate(proba_order):
-                if labels[idx] == 1 and len(time_results[idx]) <= i_file:
-                    time_results[idx].append(i_time + len(label_order))
-
-            for idx in time_results:
-                if len(time_results[idx]) <= i_file:
+                if labels[idx] == 1 and idx not in label_order[:n]:
                     time_results[idx].append(
-                        len(label_order) + len(proba_order))
+                        time_mult*(i_time + len(label_order)))
 
         results = {}
-        for label in time_results:
-            trained_time = []
-            for i_file, time in enumerate(time_results[label]):
-                if time >= n_initial[i_file]:
-                    if result_format == "percentage":
-                        time_measure = 100 * time / (
-                            len(labels) - n_initial[i_file])
-                    else:
-                        time_measure = time
-                    trained_time.append(time_measure)
-            if len(trained_time) == 0:
-                results[label] = 0
-            else:
+        for label, trained_time in time_results.items():
+            if len(trained_time) > 0:
                 results[label] = np.average(trained_time)
+
         return results
 
     def limits(self, prob_allow_miss=[0.1], result_format="percentage"):
@@ -330,24 +338,24 @@ class Analysis():
         """
         if not isinstance(prob_allow_miss, list):
             prob_allow_miss = [prob_allow_miss]
-        logger = self.loggers[self._first_file]
-        n_queries = logger.n_queries()
+        state = self.states[self._first_file]
+        n_queries = state.n_queries()
         results = {
             "x_range": [],
             "limits": [[] for _ in range(len(prob_allow_miss))],
         }
 
         n_train = 0
-        _, n_initial = _get_labeled_order(logger)
+        _, n_initial = _get_labeled_order(state)
         for query_i in range(n_queries):
             new_limits = _get_limits(
-                self.loggers,
+                self.states,
                 query_i,
                 self.labels,
                 proba_allow_miss=prob_allow_miss)
 
             try:
-                new_train_idx = logger.get("train_idx", query_i)
+                new_train_idx = state.get("train_idx", query_i)
             except KeyError:
                 new_train_idx = None
 
@@ -375,47 +383,7 @@ class Analysis():
                                                  res_dtype)
         return results
 
-    def time_to_inclusion(self, X_fp):
-        with open(X_fp, "r") as fp:
-            X = np.array(json.load(fp))
-
-        n_clusters = int(len(self.labels) / 150)
-        model = KMeans(n_clusters=n_clusters, n_init=1)
-        clusters = model.fit_predict(X, self.labels)
-        logger = self.loggers[self._first_file]
-        n_queries = logger.n_queries()
-
-        results = {
-            "x_range": [],
-            "ttd": {
-                "random": [],
-                "cluster": [],
-                "max": [],
-            }
-        }
-        n_train = 0
-        for query_i in range(n_queries):
-            new_random_ttd = _random_ttd(self.loggers, query_i, self.labels)
-            new_cluster_ttd = _cluster_ttd(self.loggers, query_i, self.labels,
-                                           clusters)
-            new_max_ttd = _max_ttd(self.loggers, query_i, self.labels)
-
-            results["ttd"]["random"].append(new_random_ttd)
-            results["ttd"]["cluster"].append(new_cluster_ttd)
-            results["ttd"]["max"].append(new_max_ttd)
-
-            try:
-                new_train_idx = logger.get("train_idx", query_i)
-            except KeyError:
-                new_train_idx = None
-
-            if new_train_idx is not None:
-                n_train = len(new_train_idx)
-            results["x_range"].append(n_train)
-
-        return results
-
     def close(self):
-        """Close loggers."""
-        for logger in self.loggers.values():
-            logger.close()
+        """Close states."""
+        for state in self.states.values():
+            state.close()

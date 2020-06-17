@@ -16,36 +16,34 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 from asreview.query_strategies.base import ProbaQueryStrategy
-from asreview.feature_extraction.doc2vec import Doc2Vec
 from asreview.query_strategies.max import MaxQuery
+from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
     "Query strategy using clustering algorithms."
     name = "cluster"
 
-    def __init__(self, texts, cluster_size=350, update_interval=200, **kwargs):
+    def __init__(self, cluster_size=350, update_interval=200,
+                 random_state=None):
         """Initialize the clustering strategy.
 
         Arguments
         ---------
-        texts: list
-            List of sequences to create feature matrix.
         cluster_size: int
             Size of the clusters to be made. If the size of the clusters is
             smaller than the size of the pool, fall back to max sampling.
-        update_cluster: int
+        update_interval: int
             Update the clustering every x instances.
-        **kwargs: dict
-            Keyword arguments for the doc2vec feature model.
+        random_state: int, RandomState
+            State/seed of the RNG.
         """
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
         self.update_interval = update_interval
-        feature_model = Doc2Vec(**kwargs)
-        self.cluster_X = feature_model.fit_transform(texts)
         self.last_update = None
         self.fallback_model = MaxQuery()
+        self._random_state = get_random_state(random_state)
 
     def _query(self, X, pool_idx, n_instances, proba):
         n_samples = X.shape[0]
@@ -57,11 +55,12 @@ class ClusterQuery(ProbaQueryStrategy):
                 last_update-len(pool_idx) >= self.update_interval):
             n_clusters = round(len(pool_idx)/self.cluster_size)
             if n_clusters <= 1:
-                return self.fallback_model()._query(
+                return self.fallback_model._query(
                     X, pool_idx=pool_idx,
                     n_instances=n_instances,
                     proba=proba)
-            model = KMeans(n_clusters=n_clusters, n_init=1)
+            model = KMeans(n_clusters=n_clusters, n_init=1,
+                           random_state=self._random_state)
             self.clusters = model.fit_predict(X)
             self.last_update = len(pool_idx)
 
@@ -83,7 +82,7 @@ class ClusterQuery(ProbaQueryStrategy):
         clust_idx = []
         cluster_ids = list(clusters)
         for _ in range(n_instances):
-            cluster_id = np.random.choice(cluster_ids, 1)[0]
+            cluster_id = self._random_state.choice(cluster_ids, 1)[0]
             clust_idx.append(clusters[cluster_id].pop()[0])
             if len(clusters[cluster_id]) == 0:
                 del clusters[cluster_id]

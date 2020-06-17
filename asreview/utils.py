@@ -15,6 +15,10 @@
 import logging
 import os
 from pathlib import Path
+import pkg_resources
+from urllib.parse import urlparse
+
+import numpy as np
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -128,6 +132,8 @@ def get_data_home(data_home=None):
 
 def _set_class_weight(weight1):
     """Used in RNN's to have quicker learning"""
+    if weight1 is None:
+        return None
     weight0 = 1.0
     cw_class = {
         0: weight0,
@@ -135,3 +141,82 @@ def _set_class_weight(weight1):
     }
     logging.debug(f"Using class weights: 0 <- {weight0}, 1 <- {weight1}")
     return cw_class
+
+
+def format_to_str(obj):
+    """Create string from object, concatenate if list."""
+    if obj is None:
+        return ""
+    res = ""
+    if isinstance(obj, list):
+        res = " ".join(obj)
+    else:
+        res = obj
+    return res
+
+
+def pretty_format(result):
+    longest_key = max([len(key) for key in result])
+    result_str = ""
+    for key, value in result.items():
+        temp_str = "{{key: <{n}}}: {{value}}\n".format(n=longest_key)
+        result_str += temp_str.format(key=key, value=value)
+    return result_str
+
+
+def is_iterable(i):
+    """Check if a variable is iterable, but not a string."""
+    try:
+        iter(i)
+        if isinstance(i, str):
+            return False
+        return True
+    except TypeError:
+        return False
+
+
+def model_class_from_entry_point(method, entry_name="asreview.models"):
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points(entry_name)
+    }
+    try:
+        return entry_points[method].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: method '{method}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{method}' model ({entry_name}) "
+            f"with the following error:\n{e}")
+
+
+def is_url(url):
+    """Check if object is a valid url."""
+    try:
+        result = urlparse(url)
+        return all(getattr(result, x) != ""
+                   for x in ["scheme", "netloc", "path"])
+    except:
+        return False
+
+
+def get_random_state(random_state):
+    """Create a RandomState instance.
+
+    Parameters
+    ----------
+    random_state: int, numpy.RandomState
+        If it is an integer, seed a new random state.
+        If it is a RandomState, return it (nop).
+        If it is None, return the random state of numpy.
+    """
+    if random_state is None:
+        return np.random.random.__self__
+    else:
+        if isinstance(random_state, np.random.RandomState):
+            return random_state
+        else:
+            return np.random.RandomState(
+                random_state % (2**32))

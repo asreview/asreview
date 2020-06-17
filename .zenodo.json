@@ -1,0 +1,97 @@
+{
+	"description": "The Automated Systematic Review (ASReview) project implements learning algorithms that interactively query the researcher. This way of interactive training is known as Active Learning. ASReview offers support for classical learning algorithms and state-of-the-art learning algorithms like neural networks. The software ships with an user interface as well as a simulation mode.",
+	"title": "ASReview: Active learning for systematic reviews",
+	"creators": [{
+			"name": "Van de Schoot, Rens",
+			"affiliation": "Department of Psychology, Utrecht University",
+			"orcid": "0000-0001-7736-2091"
+		},
+		{
+			"name": "De Bruin, Jonathan",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-4297-0502"
+		},
+		{
+			"name": "Schram, Raoul",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0001-6616-230X"
+		},
+		{
+			"name": "Zahedi, Parisa",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-1610-3149"
+		},
+		{
+			"name": "De Boer, Jan",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-0531-3888"
+		},
+		{
+			"name": "Weijdema, Felix",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0001-5150-1102"
+		},
+		{
+			"name": "Kramer, Bianca",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-5965-6560"
+		},
+		{
+			"name": "Huijts, Martijn",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-8353-0853"
+		},
+		{
+			"name": "Hoogerwerf, Maarten",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0003-1498-2052"
+		},
+		{
+			"name": "Ferdinands, Gerbrich",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-4998-3293"
+		},
+		{
+			"name": "Harkema, Albert",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-7091-1147"
+		},
+		{
+			"name": "Willemsen, Joukje",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0002-7260-0828"
+		},
+		{
+			"name": "Ma, Yongchao",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0003-4100-5468"
+		},
+		{
+			"name": "Fang, Qixiang",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0003-2689-6653"
+		},
+		{
+			"name": "Tummers, Lars",
+			"affiliation": "Utrecht University",
+			"orcid": "0000-0001-9940-9874"
+		},
+		{
+			"name": "Oberski, Daniel",
+			"affiliation": "Department of Psychology, Utrecht University",
+			"orcid": "0000-0001-7736-2091"
+		}
+	],
+	"keywords": [
+		"systematic review",
+		"prisma",
+		"active learning",
+		"statistics",
+		"machine learning",
+		"text data",
+		"natural language processing",
+		"human-in-the-loop"
+	],
+	"license": "Apache-2.0",
+	"upload_type": "software"
+}

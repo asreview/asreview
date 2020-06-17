@@ -17,15 +17,20 @@
 import numpy as np
 
 from asreview.query_strategies.base import NotProbaQueryStrategy
+from asreview.utils import get_random_state
 
 
 class RandomQuery(NotProbaQueryStrategy):
     "Random sampling query strategy."
     name = "random"
 
+    def __init__(self, random_state=None):
+        super(RandomQuery, self).__init__()
+        self._random_state = get_random_state(random_state)
+
     def _query(self, X, pool_idx, n_instances=1):
         n_samples = len(pool_idx)
-        query_idx = np.random.choice(
+        query_idx = self._random_state.choice(
             np.arange(n_samples),
             n_instances,
             replace=False

@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
-
 import numpy as np
+try:
+    from gensim.utils import simple_preprocess
+    from gensim.models.doc2vec import TaggedDocument
+except ImportError:
+    raise ImportError("Install gensim package (`pip install gensim`) to use"
+                      " 'doc2vec' model.")
 
 from asreview.feature_extraction.base import BaseFeatureExtraction
 
@@ -85,13 +89,6 @@ class Doc2Vec(BaseFeatureExtraction):
         self._model_dbow = None
 
     def fit(self, texts):
-        try:
-            from gensim.utils import simple_preprocess
-            from gensim.models.doc2vec import TaggedDocument
-        except ImportError:
-            print("Error: install gensim package (`pip install gensim`) to use"
-                  " doc2vec.")
-            sys.exit(192)
 
         model_param = {
             "vector_size": self.vector_size,
@@ -106,6 +103,8 @@ class Doc2Vec(BaseFeatureExtraction):
         corpus = [TaggedDocument(simple_preprocess(text), [i])
                   for i, text in enumerate(texts)]
 
+        # If self.dm is 2, train both models and concatenate the feature
+        # vectors later. Resulting vector size should be the same.
         if self.dm == 2:
             model_param["vector_size"] = int(model_param["vector_size"]/2)
             self.model_dm = _train_model(corpus, **model_param, dm=1)
@@ -114,13 +113,6 @@ class Doc2Vec(BaseFeatureExtraction):
             self.model = _train_model(corpus, **model_param, dm=self.dm)
 
     def transform(self, texts):
-        try:
-            from gensim.utils import simple_preprocess
-            from gensim.models.doc2vec import TaggedDocument
-        except ImportError:
-            print("Error: install gensim package (`pip install gensim`) to use"
-                  " doc2vec.")
-            sys.exit(192)
         corpus = [TaggedDocument(simple_preprocess(text), [i])
                   for i, text in enumerate(texts)]
 

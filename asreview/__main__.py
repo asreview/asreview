@@ -15,16 +15,8 @@
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
 import logging
-import sys
-import warnings
 import pkg_resources
-
-import numpy as np
-import tensorflow as tf
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
+import sys
 
 from asreview import __version__
 

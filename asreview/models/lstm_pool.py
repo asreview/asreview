@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+try:
+    import tensorflow as tf
+except ImportError:
+    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
+                      " to use 'lstm-pool' model.")
+try:
+    tf.logging.set_verbosity(tf.logging.ERROR)
+except AttributeError:
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from tensorflow.keras.constraints import MaxNorm
 from tensorflow.keras.layers import Dense

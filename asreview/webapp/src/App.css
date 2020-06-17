@@ -1,0 +1,35 @@
+.App {
+  text-align: left;
+}
+
+.navBar {
+  background-color:#ffcc00
+}
+.btnGrey {
+  background-color:#bcbcbb
+}
+.btnBlue { 
+  background-color:#00a6e1
+}
+.btnGreen {
+  background-color:#5dd41b
+}
+.btnRed {
+  background-color:#df462e
+}
+
+.textSizeSmallest {
+	font-size: 80%!important;
+}
+.textSizeSmall {
+	font-size: 90%!important;
+}
+.textSizeNormal {
+	font-size: 100%!important;
+}
+.textSizeLarge {
+	font-size: 120%!important;
+}
+.textSizeLargest {
+	font-size: 140%!important;
+}

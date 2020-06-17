@@ -16,16 +16,19 @@
 import numpy as np
 
 
-def _find_inclusions(logger, labels, remove_initial=True):
+def _find_inclusions(state, labels, remove_initial=True):
     """Find the number of inclusions found at each step."""
     inclusions = []
     n_initial_inc = 0
     cur_inclusions = 0
     n_initial = 0
-    n_queries = logger.n_queries()
+    n_queries = state.n_queries()
     for query_i in range(n_queries):
-        label_methods = logger.get("label_methods", query_i)
-        label_idx = logger.get("label_idx", query_i)
+        try:
+            label_methods = state.get("label_methods", query_i)
+            label_idx = state.get("label_idx", query_i)
+        except KeyError:
+            continue
         for i in range(len(label_idx)):
             if label_methods[i] == "initial" and remove_initial:
                 n_initial_inc += labels[label_idx[i]]
@@ -40,17 +43,17 @@ def _find_inclusions(logger, labels, remove_initial=True):
     return inclusions, inclusions_after_init, n_initial
 
 
-def _get_labeled_order(logger):
+def _get_labeled_order(state):
     """Get the order in which papers were labeled."""
     label_order = []
     n_initial = 0
-    n_queries = logger.n_queries()
+    n_queries = state.n_queries()
     for query_i in range(n_queries):
         try:
-            label_methods = logger.get("label_methods", query_i)
+            label_methods = state.get("label_methods", query_i)
         except KeyError:
             continue
-        label_idx = logger.get("label_idx", query_i)
+        label_idx = state.get("label_idx", query_i)
         for i in range(len(label_idx)):
             if label_methods[i] == "initial":
                 n_initial += 1
@@ -58,17 +61,17 @@ def _get_labeled_order(logger):
     return label_order, n_initial
 
 
-def _get_last_proba_order(logger):
+def _get_last_proba_order(state):
     """Get the ranking of papers in the last query."""
-    n_queries = logger.n_queries()
+    n_queries = state.n_queries()
     pool_idx = None
     for query_i in reversed(range(n_queries)):
         try:
-            pool_idx = logger.get("pool_idx", query_i)
+            pool_idx = state.get("pool_idx", query_i)
         except KeyError:
             continue
         if pool_idx is not None:
-            proba = logger.get("proba", query_i)
+            proba = state.get("proba", query_i)
             break
 
     if pool_idx is None:
@@ -76,23 +79,23 @@ def _get_last_proba_order(logger):
     return pool_idx[np.argsort(-proba[pool_idx])]
 
 
-def _get_proba_order(logger, query_i):
+def _get_proba_order(state, query_i):
     """Get the ranking of papers in query_i."""
     try:
-        pool_idx = logger.get("pool_idx", query_i)
+        pool_idx = state.get("pool_idx", query_i)
     except KeyError:
         pool_idx = None
 
     if pool_idx is None:
         return None
 
-    proba = logger.get("proba", query_i)[pool_idx]
+    proba = state.get("proba", query_i)[pool_idx]
     return pool_idx[np.argsort(proba)]
 
 
-def _n_false_neg(logger, query_i, labels):
+def _n_false_neg(state, query_i, labels):
     """Find the number of false negatives after reading x papers."""
-    proba_order = _get_proba_order(logger, query_i)
+    proba_order = _get_proba_order(state, query_i)
     if proba_order is None:
         return None
     res = np.zeros(len(proba_order))
@@ -105,12 +108,12 @@ def _n_false_neg(logger, query_i, labels):
     return np.array(list(reversed(res)))
 
 
-def _get_limits(loggers, query_i, labels, proba_allow_miss=[]):
+def _get_limits(states, query_i, labels, proba_allow_miss=[]):
     """Get the number of papers to be read, with a criterium."""
     num_left = None
 
-    for logger in loggers.values():
-        new_num_left = _n_false_neg(logger, query_i, labels)
+    for state in states.values():
+        new_num_left = _n_false_neg(state, query_i, labels)
         if new_num_left is None:
             return None
 
@@ -118,7 +121,7 @@ def _get_limits(loggers, query_i, labels, proba_allow_miss=[]):
             num_left = new_num_left
         else:
             num_left += new_num_left
-    num_left /= len(loggers)
+    num_left /= len(states)
     limits = [len(num_left)] * len(proba_allow_miss)
     allow_miss = {i: proba for i, proba in enumerate(proba_allow_miss)}
     for i in range(len(num_left)):
@@ -129,116 +132,3 @@ def _get_limits(loggers, query_i, labels, proba_allow_miss=[]):
         if len(allow_miss) == 0:
             break
     return limits
-
-
-def _random_ttd(loggers, query_i, labels):
-    all_ttd = []
-    for logger in loggers.values():
-        try:
-            pool_idx = logger.get("pool_idx", query_i)
-        except KeyError:
-            continue
-
-        pool_labels = labels[pool_idx]
-        n_included = np.sum(pool_labels)
-
-        if n_included == 0:
-            continue
-        ttd = 0
-        p_only_zero = 1
-        for i in range(len(pool_labels) - n_included):
-            p_first = n_included / (len(pool_labels) - i)
-            ttd += p_only_zero * p_first * i
-            p_only_zero *= (1 - p_first)
-        all_ttd.append(ttd)
-
-    if len(all_ttd) == 0:
-        ttd_avg = 0
-    else:
-        ttd_avg = np.average(all_ttd)
-    return ttd_avg
-
-
-def _max_ttd(loggers, query_i, labels):
-    all_ttd = []
-    for logger in loggers.values():
-        proba_order = _get_proba_order(logger, query_i)
-        if proba_order is None:
-            all_ttd.append(0)
-            continue
-        if len(proba_order) == 0:
-            continue
-
-        x = np.where(labels[proba_order] == 1)[0]
-        if len(x) == 0:
-            ttd = 0
-        else:
-            ttd = (len(proba_order) - 1) - x[-1]
-        all_ttd.append(ttd)
-
-    if len(all_ttd) == 0:
-        ttd_avg = 0
-    else:
-        ttd_avg = np.average(all_ttd)
-    return ttd_avg
-
-
-def _cluster_order(all_dict, power=0):
-    scores = []
-    for clust_id in all_dict:
-        for i in range(all_dict[clust_id]):
-            new_score = (i + 1) * pow(all_dict[clust_id], -power)
-            scores.append((clust_id, new_score))
-    scores = sorted(scores, key=lambda x: x[1])
-    return [x[0] for x in scores]
-
-
-def _get_clustering(all_prediction, pool_idx, labels):
-    pool_prediction = all_prediction[pool_idx]
-    one_idx = np.where(labels[pool_idx] == 1)[0]
-    unique, counts = np.unique(pool_prediction, return_counts=True)
-    all_dict = {unique[i]: counts[i] for i in range(len(unique))}
-    all_counts = [all_dict.get(i, 0) for i in range(np.max(unique) + 1)]
-
-    prediction = pool_prediction[one_idx, ]
-    unique, counts = np.unique(prediction, return_counts=True)
-    one_dict = {unique[i]: counts[i] for i in range(len(unique))}
-    one_counts = [one_dict.get(i, 0) for i in range(len(all_counts))]
-    return all_dict, all_counts, one_dict, one_counts
-
-
-def _cluster_ttd(loggers, query_i, labels, all_prediction):
-    all_ttd = []
-    for logger in loggers.values():
-        try:
-            pool_idx = logger.get("pool_idx", query_i)
-        except KeyError:
-            all_ttd.append(0)
-            continue
-
-        all_dict, all_counts, _one_dict, one_counts = _get_clustering(
-            all_prediction, pool_idx, labels)
-        cluster_order = _cluster_order(all_dict)
-
-        p_only_zero = 1
-        ttd = 0
-        if np.sum(one_counts) == 0:
-            continue
-        for i, i_clust in enumerate(cluster_order):
-            try:
-                p_first = one_counts[i_clust] / all_counts[i_clust]
-            except IndexError:
-                print(i_clust, list(all_dict), len(all_counts),
-                      len(one_counts))
-            ttd += p_only_zero * p_first * i
-            p_only_zero *= 1 - p_first
-            all_counts[i_clust] -= 1
-            if p_only_zero < 1e-6:
-                break
-        all_ttd.append(ttd)
-
-    if len(all_ttd) == 0:
-        ttd_avg = 0
-    else:
-        ttd_avg = np.average(all_ttd)
-    return ttd_avg

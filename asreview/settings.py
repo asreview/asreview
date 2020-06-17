@@ -21,6 +21,7 @@ from asreview.models.utils import get_model
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.query_strategies.utils import get_query_model
 from asreview.feature_extraction.utils import get_feature_model
+from asreview.utils import pretty_format
 
 
 SETTINGS_TYPE_DICT = {
@@ -44,6 +45,7 @@ SETTINGS_TYPE_DICT = {
 
 
 def _convert_types(par_defaults, param):
+    """Convert strings from the config file to the appropriate type."""
     for par in param:
         try:
             par_type = type(par_defaults[par])
@@ -70,7 +72,7 @@ class ASReviewSettings(object):
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
                  abstract_only=False,
-                 data_fp=None, data_name=None, model_param={},
+                 as_data=None, model_param={},
                  query_param={}, balance_param={}, feature_param={}, **kwargs
                  ):
         all_args = locals().copy()
@@ -136,11 +138,13 @@ class ASReviewSettings(object):
         feature_model = get_feature_model(self.feature_extraction)
         _convert_types(feature_model.default_param, self.feature_param)
 
-    def __str__(self):
-        info_str = "----------------------------\n"
+    def to_dict(self):
+        info_dict = {}
         for attrib in SETTINGS_TYPE_DICT:
             value = getattr(self, attrib, None)
             if value is not None:
-                info_str += attrib + ": " + str(value) + "\n"
-        info_str += "----------------------------\n"
-        return info_str
+                info_dict[attrib] = value
+        return info_dict
+
+    def __str__(self):
+        return pretty_format(self.to_dict())

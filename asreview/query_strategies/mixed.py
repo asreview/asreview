@@ -21,6 +21,55 @@ from scipy.sparse import vstack
 
 from asreview.query_strategies.base import BaseQueryStrategy
 from asreview.query_strategies.utils import get_query_model
+from asreview.utils import get_random_state
+
+
+def interleave(n_samples, n_strat_1, random_state):
+    """Interleave the order of the samples of two different strategies.
+
+    While the decisions of which indices to sample are made one after
+    the other, it is nicer if the order of the actual samples is mixed up.
+    Instead of mixing it the easy way, I decided it should be as nice as
+    possible.
+
+    Parameters
+    ----------
+    n_samples: int
+        Total number of samples to mix.
+    n_strat_1: int
+        Number of samples of the first strategy.
+    random_state: int, numpy.RandomState
+        RNG.
+
+    Returns
+    -------
+    numpy.array:
+        Order of samples, [0, n_samples).
+    """
+    n_strat_2 = n_samples - n_strat_1
+
+    # Determine which of the strategies has more samples.
+    if n_strat_1 >= n_strat_2:
+        max_idx = np.arange(n_strat_1)
+        min_idx = n_strat_1 + np.arange(n_strat_2)
+    else:
+        max_idx = n_strat_1 + np.arange(n_strat_2)
+        min_idx = np.arange(n_strat_1)
+
+    # Insert the strategy with less samples at these positions.
+    insert_positions = np.sort(random_state.choice(
+        np.arange(len(max_idx)), len(min_idx), replace=False))
+
+    # Actually do the inserts.
+    new_positions = np.zeros(n_samples, dtype=int)
+    i_strat_min = 0
+    for i_strat_max in range(len(max_idx)):
+        new_positions[i_strat_max+i_strat_min] = max_idx[i_strat_max]
+        if (i_strat_min < len(min_idx)
+                and insert_positions[i_strat_min] == i_strat_max):
+            new_positions[i_strat_min+i_strat_max+1] = min_idx[i_strat_min]
+            i_strat_min += 1
+    return new_positions
 
 
 class MixedQuery(BaseQueryStrategy):
@@ -31,7 +80,7 @@ class MixedQuery(BaseQueryStrategy):
     """
 
     def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
-                 **kwargs):
+                 random_state=None, **kwargs):
         """Initialize the Mixed query strategy
 
         Arguments
@@ -66,8 +115,18 @@ class MixedQuery(BaseQueryStrategy):
         self.strategy_1 = strategy_1
         self.strategy_2 = strategy_2
 
-        self.query_model1 = get_query_model(strategy_1)
-        self.query_model2 = get_query_model(strategy_2)
+        self.query_model1 = get_query_model(strategy_1, **kwargs_1)
+        self.query_model2 = get_query_model(strategy_2, **kwargs_2)
+
+        self._random_state = get_random_state(random_state)
+        if "random_state" in self.query_model1.default_param:
+            self.query_model1 = get_query_model(strategy_1, **kwargs_1,
+                                                random_state=self._random_state
+                                                )
+        if "random_state" in self.query_model2.default_param:
+            self.query_model2 = get_query_model(strategy_2, **kwargs_2,
+                                                random_state=self._random_state
+                                                )
         self.mix_ratio = mix_ratio
 
     def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
@@ -78,7 +137,7 @@ class MixedQuery(BaseQueryStrategy):
         # Split the number of instances for the query strategies.
         n_instances_1 = floor(n_instances*self.mix_ratio)
         leftovers = n_instances*self.mix_ratio-n_instances_1
-        if np.random.random_sample() < leftovers:
+        if self._random_state.random_sample() < leftovers:
             n_instances_1 += 1
         n_instances_2 = n_instances-n_instances_1
 
@@ -109,7 +168,10 @@ class MixedQuery(BaseQueryStrategy):
             else:
                 X = np.concatenate((X_1, X_2), axis=0)
 
-        return query_idx, X
+        # Remix the two strategies without changing the order within.
+        new_order = interleave(len(query_idx), len(query_idx_1),
+                               self._random_state)
+        return query_idx[new_order], X[new_order]
 
     def full_hyper_space(self):
         from hyperopt import hp

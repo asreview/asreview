@@ -17,6 +17,7 @@ from math import ceil
 import numpy as np
 
 from asreview.balance_strategies.base import BaseBalance
+from asreview.utils import get_random_state
 
 
 class UndersampleBalance(BaseBalance):
@@ -24,7 +25,7 @@ class UndersampleBalance(BaseBalance):
     """
     name = "undersample"
 
-    def __init__(self, ratio=1.0):
+    def __init__(self, ratio=1.0, random_state=None):
         """Initialize the undersampling balance strategy.
 
         Arguments
@@ -35,6 +36,7 @@ class UndersampleBalance(BaseBalance):
         """
         super(UndersampleBalance, self).__init__()
         self.ratio = ratio
+        self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
         one_ind = train_idx[np.where(y[train_idx] == 1)]
@@ -48,11 +50,11 @@ class UndersampleBalance(BaseBalance):
             shuf_ind = np.append(one_ind, zero_ind)
         else:
             n_zero_epoch = ceil(n_one / self.ratio)
-            zero_under = np.random.choice(
+            zero_under = self._random_state.choice(
                 np.arange(n_zero), n_zero_epoch, replace=False)
             shuf_ind = np.append(one_ind, zero_ind[zero_under])
 
-        np.random.shuffle(shuf_ind)
+        self._random_state.shuffle(shuf_ind)
         return X[shuf_ind], y[shuf_ind]
 
     def full_hyper_space(self):

@@ -12,23 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.logging.utils import open_logger
+from asreview.data import ASReviewData
 from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.embedding_lstm import sample_embedding
 from asreview.feature_extraction.embedding_lstm import text_to_features
-from asreview.readers import ASReviewData
-from asreview.readers import read_csv
-from asreview.readers import read_data
-from asreview.readers import read_excel
-from asreview.readers import read_pubmed_xml
-from asreview.readers import read_ris
+from asreview.io.csv_reader import read_csv
+from asreview.io.excel_reader import read_excel
+from asreview.io.pubmed_xml_reader import read_pubmed_xml
+from asreview.io.ris_reader import read_ris
 from asreview.review.factory import get_reviewer
 from asreview.review.factory import MinimalReview
 from asreview.review.factory import review
-from asreview.review.factory import review_oracle
 from asreview.review.factory import review_simulate
-from asreview.review.factory import ReviewOracle
 from asreview.review.factory import ReviewSimulate
+from asreview.state.utils import open_state
 
 from ._version import get_versions
 __version__ = get_versions()['version']

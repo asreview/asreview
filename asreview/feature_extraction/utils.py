@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.feature_extraction.doc2vec import Doc2Vec
-from asreview.feature_extraction.tfidf import Tfidf
-from asreview.feature_extraction.sbert import SBERT
-from asreview.feature_extraction.embedding_idf import EmbeddingIdf
-from asreview.feature_extraction.embedding_lstm import EmbeddingLSTM
+from asreview.utils import model_class_from_entry_point
 
 
 def get_feature_class(method):
@@ -32,20 +28,10 @@ def get_feature_class(method):
     BaseFeatureExtraction:
         Class corresponding to the method.
     """
-    models = {
-        "doc2vec": Doc2Vec,
-        "tfidf": Tfidf,
-        "sbert": SBERT,
-        "embedding-idf": EmbeddingIdf,
-        "embedding-lstm": EmbeddingLSTM,
-    }
-    try:
-        return models[method]
-    except KeyError:
-        raise ValueError(f"Unsupervised method '{method}' does not exist.")
+    return model_class_from_entry_point(method, "asreview.feature_extraction")
 
 
-def get_feature_model(method, *args, **kwargs):
+def get_feature_model(method, *args, random_state=None, **kwargs):
     """Get an instance of a feature extraction model from a string.
 
     Arguments
@@ -58,4 +44,7 @@ def get_feature_model(method, *args, **kwargs):
         Keyword arguments for thefeature extraction  model.
     """
     model_class = get_feature_class(method)
-    return model_class(*args, **kwargs)
+    try:
+        return model_class(*args, random_state=random_state, **kwargs)
+    except TypeError:
+        return model_class(*args, **kwargs)

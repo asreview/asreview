@@ -9,6 +9,7 @@ assignees: J535D165, mmeijer23
 
 **Describe the bug**
 A clear and concise description of what the bug with the front-end is.
+*What happened? And what did you expect to happen?*
 
 **To Reproduce**
 Steps to reproduce the behavior:
@@ -17,16 +18,14 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Browser (please complete the following information):**
+**Version information**
  - OS: [e.g. Windows]
  - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - ASReview version [e.g. 0.6.2]
 
 **Additional context**
 Add any other context about the problem here.

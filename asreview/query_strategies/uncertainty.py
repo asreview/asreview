@@ -14,12 +14,7 @@
 
 """Uncertainty sampling while saving probabilities."""
 
-# from typing import Tuple
-
 import numpy as np
-from modAL.utils.selection import multi_argmax
-from modAL.utils.selection import shuffled_argmax
-
 
 from asreview.query_strategies.base import ProbaQueryStrategy
 
@@ -29,22 +24,7 @@ class UncertaintyQuery(ProbaQueryStrategy):
 
     name = "uncertainty"
 
-    def __init__(self, random_tie_break=False):
-        """Initialize the maximum uncertainty query strategy.
-
-        Arguments:
-        ----------
-        random_tie_break: bool
-            If true randomly decide which ones to include by tie-break.
-        """
-        super(UncertaintyQuery, self).__init__()
-        self.random_tie_break = random_tie_break
-
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         uncertainty = 1 - np.max(proba[pool_idx], axis=1)
-        if not self.random_tie_break:
-            query_idx = multi_argmax(uncertainty, n_instances=n_instances)
-        else:
-            query_idx = shuffled_argmax(uncertainty, n_instances=n_instances)
-
+        query_idx = np.argsort(-uncertainty)[:n_instances]
         return pool_idx[query_idx], X[pool_idx[query_idx]]
