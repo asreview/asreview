@@ -42,34 +42,7 @@ pip install --upgrade asreview
 
 The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes.
 
-[![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview Quick Tour")
-
-### Quickstart using Docker
-
-For a quickstart of ASReview app using Docker and without the need to install anything else,
-the latest version of the asreview app can be started as well via Docker like this:
-
- ```
- docker run -p 5000:5000 xxxxx/asreview
- ```
-
-This will start the asreview app eb server on port 5000 with default command line options and make it accessible to the host at http://localhost:5000
-More advanced command line options can be given afterwards, like this:
-
-
- ```
- docker run -p 9000:9000 xxxxx/asreview  --port 9000
- ```
-
-In order to run other asreview commands (like "simulation") the Docker container can be entered via a bash shell:
-
-```
-docker run -ti --entrypoint /bin/bash xxxx/asreview
-```
-
-Then inside the container all normal asreview CLI commands can be executed. This requires very likely to mount a path from the host into Docker
-in order to exchange data files between host and container. This gets done by adding the "-v" parameter accordingly to the docker run command.
-
+[![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview Quick Tour"
 
 
 ## Covid-19 plugin
@@ -85,6 +58,33 @@ pip install asreview-covid19
 ```
 
 
+### Quickstart using Docker
+
+For a quickstart of ASReview app using Docker and without the need to install anything else,
+the latest version of the asreview app can be started as well via Docker like this:
+
+ ```
+ docker run -p 5000:5000 UtrechtUniversity/asreview
+ ```
+
+This will start the asreview app eb server on port 5000 with default command line options and make it accessible to the host at http://localhost:5000
+More advanced command line options can be given afterwards, like this:
+
+
+ ```
+ docker run -p 9000:9000 UtrechtUniversity/asreview  --port 9000
+ ```
+
+In order to run other asreview commands (like "simulation") the Docker container can be entered via a bash shell:
+
+```
+docker run -ti --entrypoint /bin/bash UtrechtUniversity/asreview
+```
+
+Then inside the container all normal asreview CLI commands can be executed. This requires very likely to mount a path from the host into Docker
+in order to exchange data files between host and container. This gets done by adding the "-v" parameter accordingly to the docker run command.
+
+
 ## Documentation
 
 Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io). Please have a look at https://asreview.readthedocs.io/en/latest/quicktour.html for a quick tour through the user interface.
@@ -93,6 +93,7 @@ Check out the ASReview website, https://asreview.nl/, for more information and o
 
 - [automated-systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
 - [automated-systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
+
 
 ## Contact
 This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
