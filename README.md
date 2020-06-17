@@ -64,7 +64,7 @@ For a quickstart of ASReview app using Docker and without the need to install an
 the latest version of the asreview app can be started as well via Docker like this:
 
  ```
- docker run -p 5000:5000 UtrechtUniversity/asreview
+ docker run -p 5000:5000 UtrechtUniversity/asreview.app
  ```
 
 This will start the asreview app eb server on port 5000 with default command line options and make it accessible to the host at http://localhost:5000
@@ -72,18 +72,24 @@ More advanced command line options can be given afterwards, like this:
 
 
  ```
- docker run -p 9000:9000 UtrechtUniversity/asreview  --port 9000
+ docker run -p 9000:9000 UtrechtUniversity/asreview.app  --port 9000
  ```
 
-In order to run other asreview commands (like "simulation") the Docker container can be entered via a bash shell:
+
+
+
+### Running commandline interface from Docker
+
+ASReview has as well a docker image for the command line interface. It contains as well the other extensions: covid19, visualization,statistics,hyperopt
+
+The entrypoint of this container is "asreview", so other parameters need to be appended.
 
 ```
-docker run -ti --entrypoint /bin/bash UtrechtUniversity/asreview
+docker run -ti UtrechtUniversity/asreview.cli -h
 ```
 
 Then inside the container all normal asreview CLI commands can be executed. This requires very likely to mount a path from the host into Docker
 in order to exchange data files between host and container. This gets done by adding the "-v" parameter accordingly to the docker run command.
-
 
 ## Documentation
 
