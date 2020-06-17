@@ -41,9 +41,6 @@ const useStyles = makeStyles(theme => ({
   close: {
     margin: "8px",
     float: "right",
-  },
-  button: {
-    margin: "8px",
   }
 }));
 
@@ -70,30 +67,6 @@ const PaperCard = (props) => {
         <Typography>
           {props.abstract}
         </Typography>
-
-          {/* Show the classification buttons if and only if classify is true */}
-            {props.classify &&
-              <div style={{ margin: "0 auto" }}>
-                <Button
-                  variant="contained"
-                  color="default"
-                  className={classes.button}
-                  startIcon={<FavoriteIcon />}
-                  onClick={() => props.includeItem(props.id)}
-                >
-                  Relevant
-                </Button>
-                <Button
-                  variant="contained"
-                  color="default"
-                  className={classes.button}
-                  startIcon={<CloseIcon />}
-                  onClick={() => props.excludeItem(props.id)}
-                >
-                  Irrelevant
-                </Button>
-              </div>
-            }
 
       </Box>
     );

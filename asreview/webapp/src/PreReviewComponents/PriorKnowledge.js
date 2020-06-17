@@ -357,7 +357,7 @@ const PriorKnowledge = (props) => {
 
       { state === "random" &&
          <PriorKnowledgeRandom
-          open={true}
+          onClose={()=>{setState(null)}}
           updatePriorStats={updatePriorStats}
           includeItem={includeItem}
           excludeItem={excludeItem}
