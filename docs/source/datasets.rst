@@ -20,9 +20,8 @@ It is also possible to perform an automated systematic review on
 
 Using your own data
 -------------------
-    This instruction is currently under construction. 
-    
-To carry out an automated systematic review on your own data set, your datafile needs 
+
+To carry out an automated systematic review on your own data set, your data file needs 
 to adhere to a certain format. ASReview accepts the following formats: 
 
  - `Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_. 
@@ -33,7 +32,101 @@ to adhere to a certain format. ASReview accepts the following formats:
    be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of 
    predetermined labels in line with the ones used in RIS files. 
 
+Metadata
+~~~~~~~~
+Each entry in the data set should hold metadata on a paper. Mandatory metadata are title and abstract. Other metadata such as id, author, date, and keywords are optional. When using ASReview in simulation mode, an additional binary variable to indicate labeling decisions is required, called included or label_included. All entries in the data set need to be screened, with the goal to select all relevant papers.
 
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+| Name     | CSV names                                                                                               | Mandatory |
++==========+=========================================================================================================+===========+
+| title    | title, primary_title                                                                                    | yes       |
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+| abstract | abstract, abstract note                                                                                 | yes       |
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+| keywords | keywords                                                                                                | no        |
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+| authors  | authors, author names, first_authors                                                                    | no        |
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+| doi      | doi                                                                                                     | no        |
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+| included | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
++----------+---------------------------------------------------------------------------------------------------------+-----------+
+ 
+
+
+Citation manager export
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following table provides an overview of export files from citation managers  which are accepted by ASReview. 
+
++-----------------+---------------+----------------+--------------+--------------+
+|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    | 
++-----------------+---------------+----------------+--------------+--------------+
+| **Endnote**     | Supported     | Not supported  |              |              |
++-----------------+---------------+----------------+--------------+--------------+
+| **Mendeley**    | Supported     |                |              |              |
+|                 |               |                |              |              |
++-----------------+---------------+----------------+--------------+--------------+
+| **Refworks**    | Supported     | Not supported  |              |              |
+|                 |               |                |              |              |
++-----------------+---------------+----------------+--------------+--------------+
+| **Zotero**      | Supported     |                | Supported    |              |
+|                 |               |                |              |              |
++-----------------+---------------+----------------+--------------+--------------+
+        
+- Supported: The data can be exported from the citation manager and imported in ASReview using this extension.
+- Not supported: The exported format can not be imported in ASReview.
+- Empty: The data cannot be exported from the citation manager in this format.
+
+Search engines
+~~~~~~~~~~~~~~
+When using search engines, it is often possible to store the articles of interest in a list or folder within the search engine itself. Thereafter, you can choose from different ways to export the list/folder. When you have the option to select parts of the citation to be exported, choose the option which will provide the most information. 
+
+The export files of the following search engines have been tested for their acceptance in ASReview:
+
++-----------------+---------------+----------------+---------------+---------------+
+|                 | **.ris**      | **.tsv**       | **.csv**      | **.xlsx**     |
+|                 |               |                |               |               |
++-----------------+---------------+----------------+---------------+---------------+
+|**CINHAL**       | Not supported |                |Not supported  |               |
+|**(EBSCO)**      |               |                |               |               |
++-----------------+---------------+----------------+---------------+---------------+
+|**Cochrane**     | Supported     |                | Supported     |               |
++-----------------+---------------+----------------+---------------+---------------+
+| **Embase**      | Supported     |                | Supported     | Supported     |
++-----------------+---------------+----------------+---------------+---------------+
+|**Eric (Ovid)**  | Not supported |                |               |Not supported  |
++-----------------+---------------+----------------+---------------+---------------+
+|**Psychinfo**    | Not supported |                |               |Not supported  |
+|**(Ovid)**       |               |                |               |               |
++-----------------+---------------+----------------+---------------+---------------+
+| **Pubmed**      | Not supported |                |Not supported  |               |
++-----------------+---------------+----------------+---------------+---------------+
+| **Scopus**      | Supported     |                |Supported      |               |
++-----------------+---------------+----------------+---------------+---------------+
+|**Web of**       | Not supported |Not supported   |               |               |
+|**Science**      |               |                |               |               |
++-----------------+---------------+----------------+---------------+---------------+
+
+- Supported: The data can be exported from the search engine and imported in ASReview using this extension.
+- Not supported: The exported data can not be imported in ASReview using this extension.
+- Empty: The data cannot be exported from the search engine using this extension.
+
+
+If the export of your search engine is not accepted in ASReview, you can also try the following: import the search engine file first into one of the citation managers mentioned in the previous part, and export it again into a format that is accepted by ASReview.
+
+Systematic review software
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+It is also possible to import a data set from Rayyan. However, only the 
+``.csv`` extension is compatible with ASReview.
+ 
+
++-----------------+---------------+----------------+--------------+--------------+ 
+|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
+|                 |               |                |              |              |
++-----------------+---------------+----------------+--------------+--------------+
+| **Rayyan**      | Not supported |                | Supported    |              |
++-----------------+---------------+----------------+--------------+--------------+
 
 Built-in demonstration data sets
 --------------------------------
