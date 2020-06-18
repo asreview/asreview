@@ -150,7 +150,8 @@ class ASReviewData():
         str:
             SHA1 hash, computed from the titles/abstracts of the dataframe.
         """
-        if len(self.df.index) < 1000:
+        if ((len(self.df.index) < 1000 and self.bodies is not None)
+                or self.texts is None):
             texts = " ".join(self.bodies)
         else:
             texts = " ".join(self.texts)
@@ -397,8 +398,13 @@ class ASReviewData():
 
     @property
     def texts(self):
+        if self.headings is None:
+            return self.bodies
+        if self.bodies is None:
+            return self.headings
+
         cur_texts = np.array([self.headings[i] + " " + self.bodies[i]
-                              for i in range(len(self.headings))
+                              for i in range(len(self))
                               ], dtype=object)
         return cur_texts
 
