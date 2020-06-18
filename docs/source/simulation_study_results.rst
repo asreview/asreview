@@ -3,7 +3,8 @@ Simulation studies
 
 *This document is currently a work in progress. The results documented
 here originate from Gerbrich Ferdinands’ master’s thesis which can be
-found *\`here <https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf>`__\ *.*
+found `here <https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf>`_.*
+
 
 To provide insight in how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
