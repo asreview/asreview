@@ -213,30 +213,15 @@ References
 
 .. raw:: html
 
-   <div id="refs" class="references hanging-indent">
-
-.. raw:: html
-
-   <div id="ref-Appenzeller-Herzog2019">
-
-Appenzeller‐Herzog, Christian, Tim Mathes, Marlies L. S. Heeres, Karl
-Heinz Weiss, Roderick H. J. Houwen, and Hannah Ewald. 2019. “Comparative
-Effectiveness of Common Therapies for Wilson Disease: A Systematic
-Review and Meta-Analysis of Controlled Studies.” *Liver Int.* 39 (11):
-2136–52.
-`https://doi.org/10.1111/liv.14179 <https://doi.org/10.1111/liv.14179>`__.
-
-.. raw:: html
-
-   </div>
+   <div id="refs" class="references">
 
 .. raw:: html
 
    <div id="ref-Cohen2006">
 
-Cohen, A. M., W. R. Hersh, K. Peterson, and Po-Yin Yen. 2006. “Reducing
-Workload in Systematic Review Preparation Using Automated Citation
-Classification.” *J Am Med Inform Assoc* 13 (2): 206–19.
+[1] Cohen AM, Hersh WR, Peterson K, Yen P-Y. Reducing Workload in
+Systematic Review Preparation Using Automated Citation Classification. J
+Am Med Inform Assoc 2006;13:206–19.
 `https://doi.org/10.1197/jamia.M1929 <https://doi.org/10.1197/jamia.M1929>`__.
 
 .. raw:: html
@@ -245,15 +230,13 @@ Classification.” *J Am Med Inform Assoc* 13 (2): 206–19.
 
 .. raw:: html
 
-   <div id="ref-Cormack2014">
+   <div id="ref-Appenzeller-Herzog2019">
 
-Cormack, Gordon V., and Maura R. Grossman. 2014. “Evaluation of
-Machine-Learning Protocols for Technology-Assisted Review in Electronic
-Discovery.” In *Proceedings of the 37th International ACM SIGIR
-Conference on Research & Development in Information Retrieval*, 153–62.
-SIGIR ’14. Gold Coast, Queensland, Australia: Association for Computing
-Machinery.
-`https://doi.org/10.1145/2600428.2609601 <https://doi.org/10.1145/2600428.2609601>`__.
+[2] Appenzeller‐Herzog C, Mathes T, Heeres MLS, Weiss KH, Houwen RHJ,
+Ewald H. Comparative effectiveness of common therapies for Wilson
+disease: A systematic review and meta-analysis of controlled studies.
+Liver Int 2019;39:2136–52.
+`https://doi.org/10.1111/liv.14179 <https://doi.org/10.1111/liv.14179>`__.
 
 .. raw:: html
 
@@ -263,10 +246,21 @@ Machinery.
 
    <div id="ref-Kwok2020">
 
-Kwok, Kirsty T. T., David F. Nieuwenhuijse, My V. T. Phan, and Marion P.
-G. Koopmans. 2020. “Virus Metagenomics in Farm Animals: A Systematic
-Review.” *Viruses* 12 (1, 1): 107.
+[3] Kwok KTT, Nieuwenhuijse DF, Phan MVT, Koopmans MPG. Virus
+Metagenomics in Farm Animals: A Systematic Review. Viruses 2020;12:107.
 `https://doi.org/10.3390/v12010107 <https://doi.org/10.3390/v12010107>`__.
+
+.. raw:: html
+
+   </div>
+
+.. raw:: html
+
+   <div id="ref-Yu2018">
+
+[4] Yu Z, Kraft NA, Menzies T. Finding better active learners for faster
+literature reviews. Empir Softw Eng 2018;23:3161–86.
+`https://doi.org/10.1007/s10664-017-9587-0 <https://doi.org/10.1007/s10664-017-9587-0>`__.
 
 .. raw:: html
 
@@ -276,9 +270,9 @@ Review.” *Viruses* 12 (1, 1): 107.
 
    <div id="ref-Nagtegaal2019">
 
-Nagtegaal, Rosanna, Lars Tummers, Mirko Noordegraaf, and Victor Bekkers.
-2019. “Nudging Healthcare Professionals Towards Evidence-Based Medicine:
-A Systematic Scoping Review.” *J. Behav. Public Adm.* 2 (2).
+[5] Nagtegaal R, Tummers L, Noordegraaf M, Bekkers V. Nudging healthcare
+professionals towards evidence-based medicine: A systematic scoping
+review. J Behav Public Adm 2019;2.
 `https://doi.org/doi.org/10.30636/jbpa.22.71 <https://doi.org/doi.org/10.30636/jbpa.22.71>`__.
 
 .. raw:: html
@@ -289,10 +283,9 @@ A Systematic Scoping Review.” *J. Behav. Public Adm.* 2 (2).
 
    <div id="ref-vandeSchoot2017">
 
-Schoot, Rens van de, Marit Sijbrandij, Sonja D. Winter, Sarah Depaoli,
-and Jeroen K. Vermunt. 2017. “The GRoLTS-Checklist: Guidelines for
-Reporting on Latent Trajectory Studies.” *Struct. Equ. Model.
-Multidiscip. J.* 24 (3): 451–67.
+[6] van de Schoot R, Sijbrandij M, Winter SD, Depaoli S, Vermunt JK. The
+GRoLTS-Checklist: Guidelines for reporting on latent trajectory studies.
+Struct Equ Model Multidiscip J 2017;24:451–67.
 `https://doi.org/10/gdpcw9 <https://doi.org/10/gdpcw9>`__.
 
 .. raw:: html
@@ -301,12 +294,14 @@ Multidiscip. J.* 24 (3): 451–67.
 
 .. raw:: html
 
-   <div id="ref-Yu2018">
+   <div id="ref-Cormack2014">
 
-Yu, Zhe, Nicholas A. Kraft, and Tim Menzies. 2018. “Finding Better
-Active Learners for Faster Literature Reviews.” *Empir. Softw. Eng.* 23
-(6): 3161–86.
-`https://doi.org/10.1007/s10664-017-9587-0 <https://doi.org/10.1007/s10664-017-9587-0>`__.
+[7] Cormack GV, Grossman MR. Evaluation of machine-learning protocols
+for technology-assisted review in electronic discovery. In:. Proceedings
+of the 37th international ACM SIGIR conference on Research & development
+in information retrieval, Gold Coast, Queensland, Australia: Association
+for Computing Machinery; 2014, pp. 153–62.
+`https://doi.org/10.1145/2600428.2609601 <https://doi.org/10.1145/2600428.2609601>`__.
 
 .. raw:: html
 
