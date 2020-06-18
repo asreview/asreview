@@ -116,27 +116,27 @@ Recall curves
 
 **Nudging dataset**
 
-.. image:: ../images/simulation_study/inclusion_all_nudging.pdf
+.. image:: ../images/simulation_study/nudging_all.png
 
 **PTSD dataset**
 
-.. image:: ../images/simulation_study/nolegend_inclusion_all_ptsd.pdf
+.. image:: ../images/simulation_study/ptsd_all.png
 
 **Software dataset**
 
-.. image:: ../images/simulation_study/nolegend_inclusion_all_software.pdf
+.. image:: ../images/simulation_study/software_all_nl.png.pdf
 
 **Ace dataset**
 
-.. image:: ../images/simulation_study/nolegend_inclusion_all_ace.pdf
+.. image:: ../images/simulation_study/ace_all_nl.png
 
 **Virus dataset**
 
-.. image:: ../images/simulation_study/nolegend_inclusion_all_virus.pdf
+.. image:: ../images/simulation_study/virus_all_nl.png
 
 **Wilson dataset**
 
-.. image:: ../images/simulation_study/nolegend_inclusion_all_wilson.pdf
+.. image:: ../images/simulation_study/wilson_all_nl.png
 
 
 WSS and RRF
