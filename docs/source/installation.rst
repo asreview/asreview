@@ -1,20 +1,23 @@
 Installation
 ============
 
-The following documentation will guide you in installing the ASReview software.
--test-
 .. contents:: Table of Contents
 
++---------+---------+
+| 1       |  2      |
++---------+---------+
+
+`ASReview Installation Guide for Windows <#install-asreview-for-windows>`__            `ASReview Installation Guide for macOS <#install-asreview-for-macOS>`__
+
+Install ASReview for Windows users
+----------------------------------
 
 Install Python
---------------
+~~~~~~~~~~~~~~
 The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview, but if you want to know more you can look on their `website <https://www.python.org/about/>`__.
 
-Windows
-~~~~~~~
 
-First check if Python is already installed on your computer. Open the program
-`CMD.exe` on your computer. Type the following
+First check if Python is already installed on your computer. Open the Command Prompt (CMD.exe) on your computer. Type the following
 
 .. code:: bash
 
@@ -29,10 +32,17 @@ To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from
 the website `Anaconda for Windows <https://docs.anaconda.com/anaconda/install/windows/>`__.
 Make sure to add Anaconda to your PATH environment variable when asked.
+
+Close and open your Command prompt.
 Afterwards, repeat the step above to check if Python is installed.
 
-MacOS
-~~~~~
+
+Install ASReview for MacOS users
+--------------------------------
+
+Install Python
+~~~~~~~~~~~~~~
+The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview, but if you want to know more you can look on their `website <https://www.python.org/about/>`__.
 
 First check if Python is already installed on your computer. Open the program
 `terminal` on your computer. Type the following
