@@ -72,9 +72,7 @@ Evaluation
 ----------
 
 Model performance was assessed by two different measures, Work Saved
-over Sampling (WSS), and Relevant References Found (RRF).
-
-WSS indicates the reduction in publications needed to be screened, at a
+over Sampling (WSS), and Relevant References Found (RRF). WSS indicates the reduction in publications needed to be screened, at a
 given level of recall (Cohen et al. 2006). Typically measured at a
 recall level of 0.95 (Cohen et al. 2006), WSS95 yields an estimate of
 the amount of work that can be saved at the cost of failing to identify
@@ -104,12 +102,7 @@ average recall over 15 trials (\pm) the standard error of the mean.
 
 Results
 -------
-
-First of all, models showed much higher performance for some datasets
-than for others. While performance on the PTSD (Figure 2a) and the
-Software dataset (Figure 2b) was quite high, performance was much lower
-across models for the Nudging (Figure 1a) and Virus (Figure 2d)
-datasets.
+The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials $\pm$ the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF@10 values, the dashed vertical lines the WSS@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
 
 Recall curves
 ~~~~~~~~~~~~~
@@ -121,7 +114,7 @@ Recall curves
 
 **PTSD dataset**
 
-.. image:: ../images/simulation_study/ptsd_all.png
+.. image:: ../images/simulation_study/ptsd_all_nl.png
   :width: 200
 
 **Software dataset**
@@ -144,8 +137,10 @@ Recall curves
 .. image:: ../images/simulation_study/wilson_all_nl.png
   :width: 200
 
-WSS and RRF
-~~~~~~~~~~~
+
+
+WSS and RRF tables
+~~~~~~~~~~~~~~~~~~
 
 **Table 2 - WSS95 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
