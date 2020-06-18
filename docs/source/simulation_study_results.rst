@@ -3,7 +3,7 @@ Simulation studies
 
 *This document is currently a work in progress. The results documented
 here originate from Gerbrich Ferdinands’ master’s thesis which can be
-found*\ `here <https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf>`__\ *.*
+found *\ `here <https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf>`__\ *.*
 
 To provide insight in how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
@@ -102,7 +102,7 @@ average recall over 15 trials (\pm) the standard error of the mean.
 
 Results
 -------
-The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials $\pm$ the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF@10 values, the dashed vertical lines the WSS@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
+The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF10 values, the dashed vertical lines the WSS95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
 
 Recall curves
 ~~~~~~~~~~~~~
