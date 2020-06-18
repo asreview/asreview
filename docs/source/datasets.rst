@@ -52,10 +52,11 @@ Each entry in the data set should hold metadata on a paper. Mandatory metadata a
 | included | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
  
+Export tools
+------------
 
-
-Citation manager export
-~~~~~~~~~~~~~~~~~~~~~~~
+Citation managers
+~~~~~~~~~~~~~~~~~
 
 The following table provides an overview of export files from citation managers  which are accepted by ASReview. 
 
@@ -115,8 +116,8 @@ The export files of the following search engines have been tested for their acce
 
 If the export of your search engine is not accepted in ASReview, you can also try the following: import the search engine file first into one of the citation managers mentioned in the previous part, and export it again into a format that is accepted by ASReview.
 
-Systematic review software
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+About systematic review software
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It is also possible to import a data set from Rayyan. However, only the 
 ``.csv`` extension is compatible with ASReview.
  
