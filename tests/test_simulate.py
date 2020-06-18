@@ -7,6 +7,8 @@ from asreview.state import open_state
 from asreview.review.factory import get_reviewer
 
 data_fp = os.path.join("tests", "demo_data", "generic_labels.csv")
+data_fp_no_abs = os.path.join("tests", "demo_data", "generic_labels_no_abs.csv")
+data_fp_no_title = os.path.join("tests", "demo_data", "generic_labels_no_title.csv")
 embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
 cfg_dir = os.path.join("tests", "cfg_files")
 state_dir = os.path.join("tests", "state_files")
@@ -66,7 +68,8 @@ def test_svm():
                 model="svm",
                 state_file=json_state_file,
                 use_granular=False,
-                n_instances=1, n_queries=2)
+                n_instances=1, n_queries=2,
+                data_fp=data_fp_no_abs)
 
 
 def test_rf():
@@ -74,7 +77,8 @@ def test_rf():
                 model="rf",
                 state_file=json_state_file,
                 use_granular=False,
-                n_instances=1, n_queries=2)
+                n_instances=1, n_queries=2,
+                data_fp=data_fp_no_title)
 
 
 def test_nn_2_layer():
@@ -117,7 +121,8 @@ def check_state(state):
 
 
 def check_model(monkeypatch=None, use_granular=False, state_file=h5_state_file,
-                continue_from_state=False, mode="oracle", **kwargs):
+                continue_from_state=False, mode="oracle", data_fp=data_fp,
+                **kwargs):
     if not continue_from_state:
         try:
             if state_file is not None:
