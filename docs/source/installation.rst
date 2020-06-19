@@ -5,10 +5,10 @@ Installation
 
 This is a guide on how to install ASReview. Please start by selecting the correct user manual for your operating system:
 
-- **`Installation for Windows users <installation.html#install-asreview-for-windows-users>`__**
-- **`Installation for macOS/unix system users <installation.html#install-asreview-for-macos-users>`__**
+- `**Installation for Windows users** <installation.html#install-asreview-for-windows-users>`__
+- `**Installation for macOS/unix system users** <installation.html#install-asreview-for-macos-users>`__
 
-**IMPORTANT: If you run into any issues during the installation, please consult `the troubleshooting section <installation.html#troubleshooting>`__.**
+**IMPORTANT: If you run into any issues during the installation, please consult `the troubleshooting section <installation.html#troubleshooting>`__ .**
 
 Install ASReview for Windows users
 ----------------------------------
