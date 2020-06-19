@@ -5,18 +5,18 @@ Installation
 
 This is a guide on how to install ASReview.
 
-- __Installation for Windows users <#install-asreview-for-windows-users>`__ __      - __`Installation for for macOS/linux users <#install-asreview-for-macOS-users>`__ __
+- __`Installation for Windows users <#install-asreview-for-windows-users>`__
 
-If you run into any issues during the installation, please consult
-`the troubleshooting section <installation.html#troubleshooting>`__.
+- __`Installation for for macOS/linux users <#install-asreview-for-macOS-users>`__
+
+
 
 Install ASReview for Windows users
 ----------------------------------
 
-Step 1. Install Python
+1. Install Python
 ~~~~~~~~~~~~~~~~~~~~~~
-
-The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview.
+This section explains how to install Python on your computer. The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview.
 
 First, check if Python is already installed on your computer. To do this, open the Command Prompt (search for ``CMD.exe``). Within this prompt, execute the following:
 
@@ -24,15 +24,14 @@ First, check if Python is already installed on your computer. To do this, open t
 
     python --version
 
-.. figure:: ../images/installation/check_python_version.png
+Now, if the command returns your python version is 3.6 or higher, you can go to the next section. However, if the command returns something like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python.
+
+.. figure:: ../images/installation/check_python_version.PNG
    :alt:
 
-Now, if the command returns ``'python' is not recognized as an internal or external command``, you will need to install Python.
+To install Python, go to https://www.python.org/downloads/ to download the latest Python version for Windows and follow the default installation instructions. **IMPORTANT**: make sure to check the following box to add Python to your PATH environment variable:
 
-Go to https://www.python.org/downloads/ to download the latest Python version for Windows. You can follow the default installation instructions.
-__IMPORTANT__: make sure to check the following box to add Python to your PATH environment variable:
-
-.. figure:: ../images/installation/add_to_path.png
+.. figure:: ../images/installation/add_to_path.PNG
    :alt:
 
 After installing Python, make sure to close and reopen your Command prompt (``CMD.exe``), and again, within this prompt, execute:
@@ -43,15 +42,16 @@ After installing Python, make sure to close and reopen your Command prompt (``CM
 
 to check if Python has been properly installed:
 
-.. figure:: ../images/installation/check_python_version_again.png
+.. figure:: ../images/installation/check_python_version_again.PNG
    :alt:
 
 You can now proceed to the following section.
 
-Step 2. Install ASReview
+2. Install ASReview
 ~~~~~~~~~~~~~~~~~~~~~~~~
 If your Python version is 3.6+, you can start installing the ASReview
-software on your computer.
+software on your computer. **IMPORTANT**: If you run into any issues during the installation, please consult
+`the troubleshooting section <installation.html#troubleshooting>`__.
 
 To install the ASReview software, execute the following in the Command prompt (`CMD.exe`):
 
@@ -64,7 +64,7 @@ If ASReview was installed succesfully, the last line should return something lik
 .. code::
     Successfully installed asreview-0.9.6
 
-Step 3. Launch ASReview
+3. Launch ASReview
 ~~~~~~~~~~~~~~~~~~~~~~~
 You are now ready to start using ASReview!
 Launch ASReview by executing in the Command prompt:
@@ -73,7 +73,7 @@ Launch ASReview by executing in the Command prompt:
 
     asreview oracle
 
-A web browser will open. Please follow the step in our Quick Tour on how to carry out your first Automated Systematic Review! -add link!-
+A web browser will open the ASReview user interface. Please follow the step in our `Quick Tour <quick-tour.html>`__. Quick Tour on how to carry out your first Automated Systematic Review! -add link!-
 
 --------------------------------------------------------------------------------
 
@@ -82,9 +82,9 @@ Install ASReview for MacOS users
 
 1. Install Python
 ~~~~~~~~~~~~~~~~~
-The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview.
+This section explains how to install Python on your computer. The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview.
 
-First check if Python is already installed on your computer. Open the program
+First, check if Python is already installed on your computer. Open the program
 `Terminal` on your computer. Execute the following
 
 .. code::
@@ -121,11 +121,9 @@ In case you do not get this output, please consult
 
 --------------------------------------------------------------------------------
 
-Other
------
 
 Upgrade ASReview
-~~~~~~~~~~~~~~~~
+----------------
 
 Upgrade ASReview software with
 
