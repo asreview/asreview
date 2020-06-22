@@ -10,7 +10,7 @@ found `here
 To provide insight in how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
 systematic review datasets. In short, for all six datasets ASReview
-could have saved at least 60% of screening effort (e.g. wss/@95% was >
+could have saved at least 60% of screening effort (e.g. wss​@95% was >
 40%). For some datasets, ASReview was even able to detect 95% of
 relevant publications after screening only 5% of relevant publications.
 
@@ -76,7 +76,7 @@ Evaluation
 Model performance was assessed by two different measures, Work Saved
 over Sampling (WSS), and Relevant References Found (RRF). WSS indicates the reduction in publications needed to be screened, at a
 given level of recall (Cohen et al. 2006). Typically measured at a
-recall level of 0.95, wss/@95 yields an estimate of
+recall level of 0.95, wss​@95 yields an estimate of
 the amount of work that can be saved at the cost of failing to identify
 5% of relevant publications. In the current study, WSS is computed at
 0.95 recall. RRF statistics are computed at 10%, representing the
@@ -92,7 +92,7 @@ the proportion of publications that need to be screened (1-WSS) to achieve a cer
 relevant publications are identified after screening a certain
 proportion of all publications (RRF).
 
-For every simulation, the rrf/@10 and wss/@95, are reported as means over 15
+For every simulation, the rrf​@10 and wss​@95, are reported as means over 15
 trials. To indicate the spread of performance within simulations, the
 means are accompanied by an estimated standard error of the mean (\hat
 s). To compare overall performance across datasets, median performance
@@ -103,7 +103,7 @@ average recall over 15 trials (\pm) the standard error of the mean.
 
 Results
 -------
-The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the rrf/@10 values, the dashed vertical lines the wss/@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
+The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the rrf​@10 values, the dashed vertical lines the wss​@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
 
 Recall curves
 ~~~~~~~~~~~~~
@@ -143,69 +143,69 @@ Recall curves
 WSS and RRF tables
 ~~~~~~~~~~~~~~~~~~
 
-**Table 2 - wss/@95 values (mean, standard error) for all model-dataset
+**Table 2 - wss​@95 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
 +---------+---------+---------+----------+---------+---------+---------+
 |         | Nudging | PTSD    | Software | Ace     | Virus   | Wilson  |
 |         |         |         |          |         |         |         |
 +=========+=========+=========+==========+=========+=========+=========+
-| SVM +   | 66.2    | 91.0    | 92.0    | 75.8    | 69.7    | 79.9    |
-| TF-IDF  | (2.90)  | (0.41)  | (0.10)  | (1.95)  | (0.81)  | (2.09)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| NB +    | 71.7    | 91.7    | 92.3    | 82.9    | 71.2    | 83.4    |
-| TF-IDF  | (1.37)  | (0.27)  | (0.08)  | (0.99)  | (0.62)  | (0.89)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| RF +    | 64.9    | 84.5    | 90.5    | 71.3    | 63.9    | 81.6    |
-| TF-IDF  | (2.50)  | (3.38)  | (0.34)  | (4.03)  | (3.54)  | (3.35)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| LR +    | 66.9    | 91.7    | 92.0    | 81.1    | 70.3    | 80.5    |
-| TF-IDF  | (4.01)  | (0.18)  | (0.10)  | (1.31)  | (0.65)  | (0.65)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| SVM +   | 70.9    | 90.6    | 92.0    | 78.3    | 70.7    | 82.7    |
-| D2V     | (1.68)  | (0.73)  | (0.21)  | (1.92)  | (1.76)  | (1.44)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| RF +    | 66.3    | 88.2    | 91.0    | 68.6    | 67.2    | 77.9    |
-| D2V     | (3.25)  | (3.23)  | (0.55)  | (7.11)  | (3.44)  | (3.43)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| LR +    | 71.6    | 90.1    | 91.7    | 77.4    | 70.4    | 84.0    |
-| D2V     | (1.66)  | (0.63)  | (0.13)  | (1.03)  | (1.34)  | (0.77)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| median  | 66.9    | 90.6    | 92.0    | 77.4    | 70.3    | 81.6    |
-| (MAD)   | (3.05)  | (1.53)  | (0.47)  | (5.51)  | (0.90)  | (2.48)  |
-+---------+---------+---------+---------+---------+---------+---------+
+| SVM +   | 66.2    | 91.0    | 92.0     | 75.8    | 69.7    | 79.9    |
+| TF-IDF  | (2.90)  | (0.41)  | (0.10)   | (1.95)  | (0.81)  | (2.09)  |
++---------+---------+---------+----------+---------+---------+---------+
+| NB +    | 71.7    | 91.7    | 92.3     | 82.9    | 71.2    | 83.4    |
+| TF-IDF  | (1.37)  | (0.27)  | (0.08)   | (0.99)  | (0.62)  | (0.89)  |
++---------+---------+---------+----------+---------+---------+---------+
+| RF +    | 64.9    | 84.5    | 90.5     | 71.3    | 63.9    | 81.6    |
+| TF-IDF  | (2.50)  | (3.38)  | (0.34)   | (4.03)  | (3.54)  | (3.35)  |
++---------+---------+---------+----------+---------+---------+---------+
+| LR +    | 66.9    | 91.7    | 92.0     | 81.1    | 70.3    | 80.5    |
+| TF-IDF  | (4.01)  | (0.18)  | (0.10)   | (1.31)  | (0.65)  | (0.65)  |
++---------+---------+---------+----------+---------+---------+---------+
+| SVM +   | 70.9    | 90.6    | 92.0     | 78.3    | 70.7    | 82.7    |
+| D2V     | (1.68)  | (0.73)  | (0.21)   | (1.92)  | (1.76)  | (1.44)  |
++---------+---------+---------+----------+---------+---------+---------+
+| RF +    | 66.3    | 88.2    | 91.0     | 68.6    | 67.2    | 77.9    |
+| D2V     | (3.25)  | (3.23)  | (0.55)   | (7.11)  | (3.44)  | (3.43)  |
++---------+---------+---------+----------+---------+---------+---------+
+| LR +    | 71.6    | 90.1    | 91.7     | 77.4    | 70.4    | 84.0    |
+| D2V     | (1.66)  | (0.63)  | (0.13)   | (1.03)  | (1.34)  | (0.77)  |
++---------+---------+---------+----------+---------+---------+---------+
+| median  | 66.9    | 90.6    | 92.0     | 77.4    | 70.3    | 81.6    |
+| (MAD)   | (3.05)  | (1.53)  | (0.47)   | (5.51)  | (0.90)  | (2.48)  |
++---------+---------+---------+----------+---------+---------+---------+
 
-**Table 3 - rrf/@10 values (mean, standard error) for all model-dataset
+**Table 3 - rrf​@10 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
 +---------+---------+---------+----------+---------+---------+---------+
 |         | Nudging | PTSD    | Software | Ace     | Virus   | Wilson  |
 |         |         |         |          |         |         |         |
 +=========+=========+=========+==========+=========+=========+=========+
-| SVM +   | 60.2    | 98.6    | 99.0    | 86.2    | 73.4    | 90.6    |
-| TF-IDF  | (3.12)  | (1.40)  | (0.00)  | (5.25)  | (1.62)  | (1.17)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| NB +    | 65.3    | 99.6    | 98.2    | 90.5    | 73.9    | 87.3    |
-| TF-IDF  | (2.61)  | (0.95)  | (0.34)  | (1.40)  | (1.70)  | (2.55)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| RF +    | 53.6    | 94.8    | 99.0    | 82.3    | 62.1    | 86.7    |
-| TF-IDF  | (2.71)  | (1.60)  | (0.00)  | (2.75)  | (3.19)  | (5.82)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| LR +    | 62.1    | 99.8    | 99.0    | 88.5    | 73.7    | 89.1    |
-| TF-IDF  | (2.59)  | (0.70)  | (0.00)  | (5.16)  | (1.48)  | (2.30)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| SVM +   | 67.3    | 97.8    | 99.3    | 84.2    | 73.6    | 91.5    |
-| D2V     | (3.00)  | (1.12)  | (0.44)  | (2.78)  | (2.54)  | (4.16)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| RF +    | 62.6    | 97.1    | 99.2    | 80.8    | 67.3    | 75.5    |
-| D2V     | (5.47)  | (1.90)  | (0.34)  | (5.72)  | (3.19)  | (14.35) |
-+---------+---------+---------+---------+---------+---------+---------+
-| LR +    | 67.5    | 98.6    | 99.0    | 81.7    | 70.6    | 90.6    |
-| D2V     | (2.59)  | (1.40)  | (0.00)  | (1.81)  | (2.21)  | (5.00)  |
-+---------+---------+---------+---------+---------+---------+---------+
-| median  | 62.6    | 98.6    | 99.0    | 84.2    | 73.4    | 89.1    |
-| (MAD)   | (3.89)  | (1.60)  | (0.00)  | (3.71)  | (0.70)  | (2.70)  |
-+---------+---------+---------+---------+---------+---------+---------+
+| SVM +   | 60.2    | 98.6    | 99.0     | 86.2    | 73.4    | 90.6    |
+| TF-IDF  | (3.12)  | (1.40)  | (0.00)   | (5.25)  | (1.62)  | (1.17)  |
++---------+---------+---------+----------+---------+---------+---------+
+| NB +    | 65.3    | 99.6    | 98.2     | 90.5    | 73.9    | 87.3    |
+| TF-IDF  | (2.61)  | (0.95)  | (0.34)   | (1.40)  | (1.70)  | (2.55)  |
++---------+---------+---------+----------+---------+---------+---------+
+| RF +    | 53.6    | 94.8    | 99.0     | 82.3    | 62.1    | 86.7    |
+| TF-IDF  | (2.71)  | (1.60)  | (0.00)   | (2.75)  | (3.19)  | (5.82)  |
++---------+---------+---------+----------+---------+---------+---------+
+| LR +    | 62.1    | 99.8    | 99.0     | 88.5    | 73.7    | 89.1    |
+| TF-IDF  | (2.59)  | (0.70)  | (0.00)   | (5.16)  | (1.48)  | (2.30)  |
++---------+---------+---------+----------+---------+---------+---------+
+| SVM +   | 67.3    | 97.8    | 99.3     | 84.2    | 73.6    | 91.5    |
+| D2V     | (3.00)  | (1.12)  | (0.44)   | (2.78)  | (2.54)  | (4.16)  |
++---------+---------+---------+----------+---------+---------+---------+
+| RF +    | 62.6    | 97.1    | 99.2     | 80.8    | 67.3    | 75.5    |
+| D2V     | (5.47)  | (1.90)  | (0.34)   | (5.72)  | (3.19)  | (14.35) |
++---------+---------+---------+----------+---------+---------+---------+
+| LR +    | 67.5    | 98.6    | 99.0     | 81.7    | 70.6    | 90.6    |
+| D2V     | (2.59)  | (1.40)  | (0.00)   | (1.81)  | (2.21)  | (5.00)  |
++---------+---------+---------+----------+---------+---------+---------+
+| median  | 62.6    | 98.6    | 99.0     | 84.2    | 73.4    | 89.1    |
+| (MAD)   | (3.89)  | (1.60)  | (0.00)   | (3.71)  | (0.70)  | (2.70)  |
++---------+---------+---------+----------+---------+---------+---------+
 
 References
 ==========
