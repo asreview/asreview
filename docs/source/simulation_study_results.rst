@@ -7,7 +7,7 @@ found `here
 <https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf/>`_.
 
 
-To provide insight in how much screening effort ASReview could
+To provide insight into how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
 systematic review datasets. In short, for all six datasets ASReview
 could have saved at least 60% of screening effort (e.g. WSS​@95% was >
@@ -16,7 +16,7 @@ relevant publications after screening only 5% of relevant publications.
 
 Datasets
 --------
-To assess generalizability of the models across research
+To assess the generalizability of the models across research
 contexts, the models were simulated on data from varying research contexts. Data were collected from the fields of medicine (Cohen et al. 2006;
 Appenzeller‐Herzog et al. 2019), virology (Kwok et al. 2020), software
 engineering (Yu, Kraft, and Menzies 2018), behavioural public
@@ -25,18 +25,18 @@ al. 2017). Datasets are available in the `ASReview systematic review
 datasets
 repository <https://github.com/asreview/systematic-review-datasets>`__.
 
-The data were preprocessed from their original source into a dataset
+The data were preprocessed from their source into a dataset
 containing title and abstract of the publications obtained in the
 initial search. Candidate studies with missing abstracts and duplicate
-instances were removed from the data. All test datasets consisted of
-thousands of candidate studies, of which only only a fraction was deemed
+instances were removed from the data. All datasets consisted of
+thousands of candidate studies, of which only a fraction was deemed
 relevant to the systematic review. For the Virus and the Nudging
-dataset, the inclusion rate was about 5 percent. For the remaining six
-datasets, inclusion rates were centered around 1-2 percent.
+dataset, the inclusion rate was about 5 per cent. For the remaining six
+datasets, inclusion rates were centred around 1-2 per cent.
 
 .. raw:: html
 
-   <!-- Preprocessing scripts and resulting datasets can be found on the [GitHub repository for this thesis](https://github.com/GerbrichFerdinands/asreview-thesis). Test datasets were labelled to indicate which candidate studies were included in the systematic review, thereby indicating relevant publications.  -->
+   <!-- Preprocessing scripts and resulting datasets can be found on the [GitHub repository for this thesis](https://github.com/GerbrichFerdinands/asreview-thesis). Datasets were labelled to indicate which candidate studies were included in the systematic review, thereby indicating relevant publications.  -->
 
 **Table 1 - Statistics on the systematic review datasets**
 
@@ -59,7 +59,7 @@ datasets, inclusion rates were centered around 1-2 percent.
 Models
 ------
 
-To assess effect of different ASReview models, seven models were
+To assess the effect of different ASReview models, seven models were
 evaluated differing in terms of the classification technique (Naive
 Bayes, Linear Regression, Support Vector Machine, and Random Forest) and
 the feature extraction strategy they adopt (TF-IDF and Doc2vec). The
@@ -86,8 +86,8 @@ Furthermore, model performance was visualized by plotting recall curves.
 Plotting recall as a function of the proportion of screened publications
 offers insight in model performance throughout the entire screening
 process (Cormack and Grossman 2014; Yu, Kraft, and Menzies 2018). The
-curves give information in two directions. On the one hand they display
-the proportion of publications that need to be screened (1-WSS) to achieve a certain level of recall, but on the other hand they present how many
+curves give information in two directions. On the one hand, they display
+the proportion of publications that need to be screened (1-WSS) to achieve a certain level of recall, on the other hand, they present how many
 relevant publications are identified after screening a certain
 proportion of all publications (RRF).
 
@@ -102,7 +102,7 @@ average recall over 15 trials (\pm) the standard error of the mean.
 
 Results
 -------
-The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF​@10 values, the dashed vertical lines the WSS​@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
+The figures below show the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF​@10 values, the dashed vertical lines the WSS​@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in random order.
 
 Recall curves
 ~~~~~~~~~~~~~
@@ -129,11 +129,11 @@ LRTB: Nudging dataset, PTSD dataset, Software dataset, Ace dataset, Virus datase
 
 Between models comparison
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-For all datasets, the models were able to detect the relevant publications much faster compared to when screening publications at random order as the recall curves exceed the expected recall at screening at random order by far. While all models perform quite well, the NB + TF-IDF shows high performance on all measures across all datasets, whereas the RF + TF-IDF model never performed best on any of the measures across all datasets. Neither TF-IDF nor D2V feature extraction showed superior performance when simulated on certain datasets nor when combined with certain classification techniques.
+For all datasets, the models were able to detect the relevant publications much faster compared to when screening publications at random order as the recall curves exceed the expected recall when screening at random order by far. While all models perform quite well, the NB + TF-IDF shows high performance on all measures across all datasets, whereas the RF + TF-IDF model never performed best on any of the measures across all datasets. Neither TF-IDF nor D2V feature extraction showed superior performance when simulated on certain datasets nor when combined with certain classification techniques.
 
 Between datasets comparison
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Firstly, models showed much higher performance for some datasets than for others. While performance on the PTSD and the Software dataset was quite high, performance was much lower across models for the Nudging and Virus datasets. Secondly, variability of between-model performance differed across datasets. within the PTSD, Software and Virus datasets, model performance is less spread out than within the Nudging, Ace and Wilson dataset. Thirdly, the curves for the Ace (Figure 2c) and Wilson (Figure 2e) datasets show a larger standard error of the mean compared to other the other datasets. For these datasets, model performance seemed to be more dependent on the initial training dataset compared to others.
+Firstly, models showed much higher performance for some datasets than for others. While performance on the PTSD and the Software dataset was quite high, the performance was much lower across models for the Nudging and Virus datasets. Secondly, the performance variability between models differed across datasets. within the PTSD, Software and Virus datasets, model performance is less spread out than within the Nudging, Ace and Wilson dataset. Thirdly, the curves for the Ace (Figure 2c) and Wilson (Figure 2e) datasets show a larger standard error of the mean compared to other the other datasets. For these datasets, model performance seemed to be more dependent on the initial training dataset compared to others.
 
 
 WSS and RRF tables
@@ -205,7 +205,7 @@ combinations, and median (MAD) for all datasets**
 
 Conclusion
 ----------
-Overall, the findings confirm the great potential of active learning models in reducing workload for systematic reviewers. All models were able to detect 95% of the relevant publications after screening less than 40% of the total number of publications, indicating that active learning models can save more than half of the workload in the screening process. The results shed new light on the performance of different classification techniques, indicating that the Naive Bayes classification technique is superior to the widely used Support Vector Machine. As model performance differs vastly across datasets, this study raises the question what causes models to yield more workload savings for some systematic review datasets than for others. In order to facilitate the applicability of active learning models in systematic review practice, it is essential to identify how dataset characteristics relate to model performance.
+Overall, the findings confirm the great potential of active learning models in reducing workload for systematic reviewers. All models were able to detect 95% of the relevant publications after screening less than 40% of the total number of publications, indicating that active learning models can save more than half of the workload in the screening process. The results shed new light on the performance of different classification techniques, indicating that the Naive Bayes classification technique is superior to the widely used Support Vector Machine. As model performance differs vastly across datasets, this study raises the question of what causes models to yield more workload savings for some systematic review datasets than for others. To facilitate the applicability of active learning models in systematic review practice, it is essential to identify how dataset characteristics relate to model performance.
 
 References
 ==========
