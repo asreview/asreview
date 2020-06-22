@@ -41,7 +41,7 @@ datasets, inclusion rates were centered around 1-2 percent.
 **Table 1 - Statistics on the systematic review datasets**
 
 +----------+------------------------+-----------------------+--------------------+
-| dataset  | Candidate publications | Relevant publications | Inclusion rate (%) |
+| Dataset  | Candidate publications | Relevant publications | Inclusion rate (%) |
 +==========+========================+=======================+====================+
 | Nudging  | 1847                   | 100                   | 5.41               |
 +----------+------------------------+-----------------------+--------------------+
@@ -107,32 +107,22 @@ The figures below shows the recall curves of simulations for all model-dataset c
 Recall curves
 ~~~~~~~~~~~~~
 
-**Nudging dataset**
+LRTB: Nudging dataset, PTSD dataset, Software dataset, Ace dataset, Virus dataset, Wilson dataset.
 
 .. image:: ../images/simulation_study/nudging_all.png
-  :width: 200
-
-**PTSD dataset**
+  :width:  50%
 
 .. image:: ../images/simulation_study/ptsd_all_nl.png
-  :width: 200
-
-**Software dataset**
+  :width: 50%
 
 .. image:: ../images/simulation_study/software_all_nl.png
-  :width: 200
-
-**Ace dataset**
+  :width: 50%
 
 .. image:: ../images/simulation_study/ace_all_nl.png
-  :width: 200
-
-**Virus dataset**
+  :width: 50%
 
 .. image:: ../images/simulation_study/virus_all_nl.png
-  :width: 200
-
-**Wilson dataset**
+  :width: 50%
 
 .. image:: ../images/simulation_study/wilson_all_nl.png
   :width: 200
