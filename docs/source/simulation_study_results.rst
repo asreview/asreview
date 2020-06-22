@@ -110,7 +110,7 @@ Recall curves
 LRTB: Nudging dataset, PTSD dataset, Software dataset, Ace dataset, Virus dataset, Wilson dataset.
 
 .. image:: ../images/simulation_study/nudging_all.png
-  :width:  50%
+    :width:  50%
 
 .. image:: ../images/simulation_study/ptsd_all_nl.png
   :width: 50%
@@ -125,7 +125,7 @@ LRTB: Nudging dataset, PTSD dataset, Software dataset, Ace dataset, Virus datase
   :width: 50%
 
 .. image:: ../images/simulation_study/wilson_all_nl.png
-  :width: 200
+  :width: 50%
 
 Between models comparison
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
