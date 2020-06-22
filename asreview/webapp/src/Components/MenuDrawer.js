@@ -17,6 +17,7 @@ import {
   Feedback,
   ExitToApp,
   GetApp,
+  Publish
 } from '@material-ui/icons'
 
 // local imports
@@ -58,6 +59,17 @@ const MenuDrawer = (props) => {
           >
             <ListItemIcon><Add /></ListItemIcon>
             <ListItemText primary="New" />
+          </ListItem>
+          <ListItem
+            button
+            key="menu-button-import-projects"
+            onClick={() => {
+              props.toggleImportProject();
+              props.setMenuDrawerState({left: false});
+            }}
+            >
+            <ListItemIcon><Publish /></ListItemIcon>
+            <ListItemText primary="Import" />
           </ListItem>
           <ListItem
             button
