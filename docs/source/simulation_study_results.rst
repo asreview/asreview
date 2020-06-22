@@ -85,11 +85,7 @@ of all publications.
 Furthermore, model performance was visualized by plotting recall curves.
 Plotting recall as a function of the proportion of screened publications
 offers insight in model performance throughout the entire screening
-process (Cormack and Grossman 2014; Yu, Kraft, and Menzies 2018). The
-curves give information in two directions. On the one hand, they display
-the proportion of publications that need to be screened (1-WSS) to achieve a certain level of recall, on the other hand, they present how many
-relevant publications are identified after screening a certain
-proportion of all publications (RRF).
+process (Cormack and Grossman 2014; Yu, Kraft, and Menzies 2018). The x-axis represents the proportion of screened publications, the y-axis represents the proportion of relevant publications found. The curves give information in two directions. On the one hand, they display the proportion of relevant publications found for any point during the screening process (on the x-axis), RRF. On the other hand, they present the proportion of publications that need to be screened to achieve a certain level of recall (on the y-axis), 1-WSS. The quicker the curve reaches towards the top of the y-axis, the better the performance.
 
 For every simulation, the RRF​@10 and WSS​@95, are reported as means over 15
 trials. To indicate the spread of performance within simulations, the
