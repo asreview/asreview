@@ -57,9 +57,11 @@ The available parameters are:
 	  --config_file CONFIG_FILE
 	                        Configuration file with model parameters
 	  --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
-	                        A dataset with papers that should be includedCan be used multiple times.
+	                        A dataset with papers that should be included.
+	                        Can be used multiple times.
 	  --excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]
-	                        A dataset with papers that should be excludedCan be used multiple times.
+	                        A dataset with papers that should be excluded.
+	                        Can be used multiple times.
 	  --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
 	                        A dataset with papers from prior studies.
 	  --state_file STATE_FILE, -s STATE_FILE, --log_file STATE_FILE, -l STATE_FILE
