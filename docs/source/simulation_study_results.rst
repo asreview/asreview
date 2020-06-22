@@ -10,23 +10,23 @@ found `here
 To provide insight in how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
 systematic review datasets. In short, for all six datasets ASReview
-could have saved at least 60% of screening effort (e.g. WSS95% was <
+could have saved at least 60% of screening effort (e.g. wss/@95% was >
 40%). For some datasets, ASReview was even able to detect 95% of
 relevant publications after screening only 5% of relevant publications.
 
 Datasets
 --------
 
-Datasets were collected from the fields of medicine (Cohen et al. 2006;
+To assess generalizability of the models across research
+contexts, the models were simulated on data from varying research contexts. Data were collected from the fields of medicine (Cohen et al. 2006;
 Appenzeller‐Herzog et al. 2019), virology (Kwok et al. 2020), software
 engineering (Yu, Kraft, and Menzies 2018), behavioural public
 administration (Nagtegaal et al. 2019) and psychology (van de Schoot et
-al. 2017), to assess generalizability of the models across research
-contexts. Datasets are available in the `ASReview systematic review
+al. 2017). Datasets are available in the `ASReview systematic review
 datasets
 repository <https://github.com/asreview/systematic-review-datasets>`__.
 
-Data were preprocessed from their original source into a test dataset,
+The data were preprocessed from their original source into a dataset
 containing title and abstract of the publications obtained in the
 initial search. Candidate studies with missing abstracts and duplicate
 instances were removed from the data. All test datasets consisted of
@@ -76,7 +76,7 @@ Evaluation
 Model performance was assessed by two different measures, Work Saved
 over Sampling (WSS), and Relevant References Found (RRF). WSS indicates the reduction in publications needed to be screened, at a
 given level of recall (Cohen et al. 2006). Typically measured at a
-recall level of 0.95 (Cohen et al. 2006), WSS95 yields an estimate of
+recall level of 0.95, wss/@95 yields an estimate of
 the amount of work that can be saved at the cost of failing to identify
 5% of relevant publications. In the current study, WSS is computed at
 0.95 recall. RRF statistics are computed at 10%, representing the
@@ -88,12 +88,11 @@ Plotting recall as a function of the proportion of screened publications
 offers insight in model performance throughout the entire screening
 process (Cormack and Grossman 2014; Yu, Kraft, and Menzies 2018). The
 curves give information in two directions. On the one hand they display
-the number of publications that need to be screened to achieve a certain
-level of recall (1-WSS), but on the other hand they present how many
+the proportion of publications that need to be screened (1-WSS) to achieve a certain level of recall, but on the other hand they present how many
 relevant publications are identified after screening a certain
 proportion of all publications (RRF).
 
-For every simulation, the RRF10 and WSS95, are reported as means over 15
+For every simulation, the rrf/@10 and wss/@95, are reported as means over 15
 trials. To indicate the spread of performance within simulations, the
 means are accompanied by an estimated standard error of the mean (\hat
 s). To compare overall performance across datasets, median performance
@@ -104,7 +103,7 @@ average recall over 15 trials (\pm) the standard error of the mean.
 
 Results
 -------
-The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF10 values, the dashed vertical lines the WSS95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
+The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the rrf/@10 values, the dashed vertical lines the wss/@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
 
 Recall curves
 ~~~~~~~~~~~~~
@@ -144,13 +143,13 @@ Recall curves
 WSS and RRF tables
 ~~~~~~~~~~~~~~~~~~
 
-**Table 2 - WSS95 values (mean, standard error) for all model-dataset
+**Table 2 - wss/@95 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
-+---------+---------+---------+---------+---------+---------+---------+
-|         | Nudging | PTSD    | Softwar | Ace     | Virus   | Wilson  |
-|         |         |         | e       |         |         |         |
-+=========+=========+=========+=========+=========+=========+=========+
++---------+---------+---------+----------+---------+---------+---------+
+|         | Nudging | PTSD    | Software | Ace     | Virus   | Wilson  |
+|         |         |         |          |         |         |         |
++=========+=========+=========+==========+=========+=========+=========+
 | SVM +   | 66.2    | 91.0    | 92.0    | 75.8    | 69.7    | 79.9    |
 | TF-IDF  | (2.90)  | (0.41)  | (0.10)  | (1.95)  | (0.81)  | (2.09)  |
 +---------+---------+---------+---------+---------+---------+---------+
@@ -176,13 +175,13 @@ combinations, and median (MAD) for all datasets**
 | (MAD)   | (3.05)  | (1.53)  | (0.47)  | (5.51)  | (0.90)  | (2.48)  |
 +---------+---------+---------+---------+---------+---------+---------+
 
-**Table 3 - RRF10 values (mean, standard error) for all model-dataset
+**Table 3 - rrf/@10 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
-+---------+---------+---------+---------+---------+---------+---------+
-|         | Nudging | PTSD    | Softwar | Ace     | Virus   | Wilson  |
-|         |         |         | e       |         |         |         |
-+=========+=========+=========+=========+=========+=========+=========+
++---------+---------+---------+----------+---------+---------+---------+
+|         | Nudging | PTSD    | Software | Ace     | Virus   | Wilson  |
+|         |         |         |          |         |         |         |
++=========+=========+=========+==========+=========+=========+=========+
 | SVM +   | 60.2    | 98.6    | 99.0    | 86.2    | 73.4    | 90.6    |
 | TF-IDF  | (3.12)  | (1.40)  | (0.00)  | (5.25)  | (1.62)  | (1.17)  |
 +---------+---------+---------+---------+---------+---------+---------+
