@@ -10,13 +10,12 @@ found `here
 To provide insight in how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
 systematic review datasets. In short, for all six datasets ASReview
-could have saved at least 60% of screening effort (e.g. wss​@95% was >
+could have saved at least 60% of screening effort (e.g. WSS​@95% was >
 40%). For some datasets, ASReview was even able to detect 95% of
 relevant publications after screening only 5% of relevant publications.
 
 Datasets
 --------
-
 To assess generalizability of the models across research
 contexts, the models were simulated on data from varying research contexts. Data were collected from the fields of medicine (Cohen et al. 2006;
 Appenzeller‐Herzog et al. 2019), virology (Kwok et al. 2020), software
@@ -76,7 +75,7 @@ Evaluation
 Model performance was assessed by two different measures, Work Saved
 over Sampling (WSS), and Relevant References Found (RRF). WSS indicates the reduction in publications needed to be screened, at a
 given level of recall (Cohen et al. 2006). Typically measured at a
-recall level of 0.95, wss​@95 yields an estimate of
+recall level of 0.95, WSS​@95 yields an estimate of
 the amount of work that can be saved at the cost of failing to identify
 5% of relevant publications. In the current study, WSS is computed at
 0.95 recall. RRF statistics are computed at 10%, representing the
@@ -92,7 +91,7 @@ the proportion of publications that need to be screened (1-WSS) to achieve a cer
 relevant publications are identified after screening a certain
 proportion of all publications (RRF).
 
-For every simulation, the rrf​@10 and wss​@95, are reported as means over 15
+For every simulation, the RRF​@10 and WSS​@95, are reported as means over 15
 trials. To indicate the spread of performance within simulations, the
 means are accompanied by an estimated standard error of the mean (\hat
 s). To compare overall performance across datasets, median performance
@@ -103,7 +102,7 @@ average recall over 15 trials (\pm) the standard error of the mean.
 
 Results
 -------
-The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the rrf​@10 values, the dashed vertical lines the wss​@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
+The figures below shows the recall curves of simulations for all model-dataset combinations. These curves plot recall as a function of the proportion of publications screened. The curves represent the average recall over 15 trials where the error margin represents the standard error of the mean in the direction of the y-axis. The x-axis is cut off at 40% since all for simulations, the models reached 95% recall after screening 40% of the publications. The dashed horizontal lines indicate the RRF​@10 values, the dashed vertical lines the WSS​@95 values. The dashed grey diagonal line corresponds to the expected recall curve when publications are screened in a random order.
 
 Recall curves
 ~~~~~~~~~~~~~
@@ -138,12 +137,19 @@ Recall curves
 .. image:: ../images/simulation_study/wilson_all_nl.png
   :width: 200
 
+Between models comparison
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+For all datasets, the models were able to detect the relevant publications much faster compared to when screening publications at random order as the recall curves exceed the expected recall at screening at random order by far. While all models perform quite well, the NB + TF-IDF shows high performance on all measures across all datasets, whereas the RF + TF-IDF model never performed best on any of the measures across all datasets. Neither TF-IDF nor D2V feature extraction showed superior performance when simulated on certain datasets nor when combined with certain classification techniques.
+
+Between datasets comparison
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Firstly, models showed much higher performance for some datasets than for others. While performance on the PTSD and the Software dataset was quite high, performance was much lower across models for the Nudging and Virus datasets. Secondly, variability of between-model performance differed across datasets. within the PTSD, Software and Virus datasets, model performance is less spread out than within the Nudging, Ace and Wilson dataset. Thirdly, the curves for the Ace (Figure 2c) and Wilson (Figure 2e) datasets show a larger standard error of the mean compared to other the other datasets. For these datasets, model performance seemed to be more dependent on the initial training dataset compared to others.
 
 
 WSS and RRF tables
 ~~~~~~~~~~~~~~~~~~
 
-**Table 2 - wss​@95 values (mean, standard error) for all model-dataset
+**Table 2 - WSS​@95 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
 +---------+---------+---------+----------+---------+---------+---------+
@@ -175,7 +181,7 @@ combinations, and median (MAD) for all datasets**
 | (MAD)   | (3.05)  | (1.53)  | (0.47)   | (5.51)  | (0.90)  | (2.48)  |
 +---------+---------+---------+----------+---------+---------+---------+
 
-**Table 3 - rrf​@10 values (mean, standard error) for all model-dataset
+**Table 3 - RRF​@10 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
 +---------+---------+---------+----------+---------+---------+---------+
@@ -206,6 +212,10 @@ combinations, and median (MAD) for all datasets**
 | median  | 62.6    | 98.6    | 99.0     | 84.2    | 73.4    | 89.1    |
 | (MAD)   | (3.89)  | (1.60)  | (0.00)   | (3.71)  | (0.70)  | (2.70)  |
 +---------+---------+---------+----------+---------+---------+---------+
+
+Conclusion
+----------
+Overall, the findings confirm the great potential of active learning models in reducing workload for systematic reviewers. All models were able to detect 95% of the relevant publications after screening less than 40% of the total number of publications, indicating that active learning models can save more than half of the workload in the screening process. The results shed new light on the performance of different classification techniques, indicating that the Naive Bayes classification technique is superior to the widely used Support Vector Machine. As model performance differs vastly across datasets, this study raises the question what causes models to yield more workload savings for some systematic review datasets than for others. In order to facilitate the applicability of active learning models in systematic review practice, it is essential to identify how dataset characteristics relate to model performance.
 
 References
 ==========
