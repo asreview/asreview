@@ -44,7 +44,9 @@ The source code is freely available at
 
 .. toctree::
    :maxdepth: 2
-   :caption: Advanced
+   :caption: Simulation
+
+   sim_overview
 
    cli
 

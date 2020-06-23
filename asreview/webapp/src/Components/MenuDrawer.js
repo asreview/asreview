@@ -17,11 +17,14 @@ import {
   Feedback,
   ExitToApp,
   GetApp,
-  Publish
+  Publish,
+  Payment,
 } from '@material-ui/icons'
 
 // local imports
 // import ElasIcon from '../ElasIcon'
+
+import { donateURL } from '../globals.js';
 
 const drawerWidth = 250;
 
@@ -139,6 +142,21 @@ const MenuDrawer = (props) => {
             <ListItemIcon><Feedback/></ListItemIcon>
             <ListItemText primary="Feedback" />
           </ListItem>
+
+          {donateURL !== undefined &&
+            <ListItem
+              button
+              key="menu-button-donate"
+              component={Link}
+              color="inherit"
+              href={donateURL}
+              target="_blank"
+            >
+              <ListItemIcon><Payment/></ListItemIcon>
+              <ListItemText primary="Sponsor ASReview" />
+            </ListItem>
+          }
+
           <ListItem
             button
             key="menu-button-exit"

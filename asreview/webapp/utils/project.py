@@ -175,7 +175,7 @@ def get_paper_data(project_id,
 
     # return the debug label
     debug_label = record.extra_fields.get("debug_label", None)
-    paper_data['debug_label'] = \
+    paper_data['_debug_label'] = \
         int(debug_label) if pd.notnull(debug_label) else None
 
     return paper_data

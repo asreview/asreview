@@ -75,7 +75,7 @@ const Projects = (props) => {
                 </Typography>
                 <Box fontStyle="italic">
                   <Typography align="center">
-                    Start a review by clicking on the red button in the bottom left corner.
+                    Start a review by clicking on the red button in the bottom right corner.
                   </Typography>
                 </Box>
               </Box>
