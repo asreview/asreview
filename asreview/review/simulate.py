@@ -32,6 +32,9 @@ class ReviewSimulate(BaseReview):
                  prior_idx=None,
                  init_seed=None,
                  **kwargs):
+
+        self.n_prior_included = n_prior_included
+        self.n_prior_excluded = n_prior_excluded
         if prior_idx is not None and len(prior_idx) != 0:
             start_idx = prior_idx
         else:
