@@ -155,7 +155,6 @@ const ExportDialog = (props) => {
               Export
             </Button>
           </DialogContent>
-
           <DialogContent dividers={true}>
 
           {donateURL !== undefined &&
@@ -169,7 +168,6 @@ const ExportDialog = (props) => {
             </Typography>
           }
           </DialogContent>
-
         <DialogActions>
           <Button
             onClick={props.toggleExportResult}
