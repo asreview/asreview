@@ -17,7 +17,7 @@ ASReview software implements two different modes:
 
 - **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview App](asreview-app).
+  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview App](https://github.com/asreview/asreview#asreview-app).
 - **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure the performance of our
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
