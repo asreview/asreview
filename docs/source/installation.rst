@@ -23,12 +23,12 @@ First, check if Python is already installed on your computer. To do this, open t
 
     python --version
 
-Now, if the command returns you have a Python version is 3.6 or higher, you can go to the next section. However, if the command returns something like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python:
+Now, if the command returns you have a Python version is 3.6 or higher, you can go to the next section.
+
+However, if the command returns something like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python:
 
 .. figure:: ../images/installation/check_python_version.PNG
    :alt:
-
-To install Python, go to https://www.python.org/downloads/ to download the latest Python version for Windows and follow the default installation instructions. **IMPORTANT**: make sure to check the following box to add Python to your PATH environment variable:
 
 .. figure:: ../images/installation/add_to_path.PNG
    :alt:
@@ -36,6 +36,8 @@ To install Python, go to https://www.python.org/downloads/ to download the lates
 |
 |
 
+
+To install Python, go to https://www.python.org/downloads/ to download the latest Python version for Windows and follow the default installation instructions. **IMPORTANT**: make sure to check the following box to add Python to your PATH environment variable:
 After installing Python, make sure to close and reopen your Command prompt (``CMD.exe``), and again, within this prompt, again execute:
 
 .. code::
@@ -68,7 +70,7 @@ If ASReview was installed succesfully, this command should return a bunch of tex
 ~~~~~~~~~~~~~~~~~~~~~~~
 Congratulations! You are now ready to start using ASReview.
 Launch ASReview by executing in the Command prompt:
-
+ 
 .. code::
 
     asreview oracle
