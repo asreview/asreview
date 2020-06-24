@@ -124,18 +124,20 @@ LRTB: Nudging dataset, PTSD dataset, Software dataset, Ace dataset, Virus datase
   :width: 50%
 
 Between models comparison
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
 For all datasets, the models were able to detect the relevant publications much faster compared to when screening publications at random order as the recall curves exceed the expected recall when screening at random order by far. While all models perform quite well, the NB + TF-IDF shows high performance on all measures across all datasets, whereas the RF + TF-IDF model never performed best on any of the measures across all datasets. Neither TF-IDF nor D2V feature extraction showed superior performance when simulated on certain datasets nor when combined with certain classification techniques.
 
 Between datasets comparison
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Firstly, models showed much higher performance for some datasets than for others. While performance on the PTSD and the Software dataset was quite high, the performance was much lower across models for the Nudging and Virus datasets. Secondly, the performance variability between models differed across datasets. within the PTSD, Software and Virus datasets, model performance is less spread out than within the Nudging, Ace and Wilson dataset. Thirdly, the curves for the Ace (Figure 2c) and Wilson (Figure 2e) datasets show a larger standard error of the mean compared to other the other datasets. For these datasets, model performance seemed to be more dependent on the initial training dataset compared to others.
 
 
 WSS and RRF tables
 ~~~~~~~~~~~~~~~~~~
 
-**Table 2 - WSS​@95 values (mean, standard error) for all model-dataset
+**Table 2 - WSS@95 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
 +---------+---------+---------+----------+---------+---------+---------+
@@ -167,7 +169,7 @@ combinations, and median (MAD) for all datasets**
 | (MAD)   | (3.05)  | (1.53)  | (0.47)   | (5.51)  | (0.90)  | (2.48)  |
 +---------+---------+---------+----------+---------+---------+---------+
 
-**Table 3 - RRF​@10 values (mean, standard error) for all model-dataset
+**Table 3 - RRF@10 values (mean, standard error) for all model-dataset
 combinations, and median (MAD) for all datasets**
 
 +---------+---------+---------+----------+---------+---------+---------+
