@@ -5,12 +5,12 @@ Installation
 
 This is a guide on how to install ASReview. Please start by selecting the correct user manual for your operating system:
 
-- **For the installation guide for Windows users, see** :ref:`_Installation-for-windows-users`
-- `**For the installation guide for Unix systems, such as macOS or Linux users, see** :ref:`_Installation-for-unix-users`
+- **For the installation guide for Windows users, see** :ref:`windows-users`
+- `**For the installation guide for Unix systems, such as macOS or Linux users, see** :ref:`unix-users`
 
-**IMPORTANT: If you run into any issues during the installation, please consult :ref:`_the-Troubleshooting-section`.**
+**IMPORTANT: If you run into any issues during the installation, please consult :ref:`troubleshooting <the Troubleshooting section>`.**
 
-.. _Installation-for-windows-users:
+.. _windows-users:
 
 Install ASReview for Windows users
 ----------------------------------
@@ -32,11 +32,10 @@ Within this prompt, execute the following command:
     python --version
 
 
-
 .. figure:: ../images/installation/check_python_version.PNG
    :alt:
 
-Now, if the command returns you have a Python version is 3.6 or higher, you can go to the :ref:`next-section`.**
+Now, if the command returns you have a Python version is 3.6 or higher, you can go to the :ref:`next-section <next section>`.
 
 However, if the command returns something like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python.
 
@@ -80,7 +79,8 @@ If ASReview was installed succesfully, this command should return a bunch of tex
 
     Successfully installed asreview-0.9.6
 
-*Note: if you run into an error at this step, try executing `python -m pip install asreview` instead. If this doesn't fix your problems, please consult :ref:`_the Troubleshooting section`.*
+*Note: if you run into an error at this step, try executing `python -m pip install asreview` instead. If this doesn't fix your problems, please consult :ref:`_the Troubleshooting section <the Troubleshooting section>`.*
+
 
 If you want to use our `COVID-19 plugin <covid-19.html>`__, you can install it at this step by executing:
 
@@ -108,7 +108,8 @@ A web browser will open the ASReview user interface. Please follow the steps in 
 
 --------------------------------------------------------------------------------
 
-.. _Installation-for-unix-users:
+.. _unix-users:
+
 
 Install ASReview for Unix users
 --------------------------------
@@ -134,7 +135,10 @@ After installing Python, make sure to close and reopen your Terminal, and again 
 
     python --version
 
-to check if Python has been properly installed. If your Python version is 3.6.x or higher, you can proceed to the following section.
+to check if Python has been properly installed. If your Python version is 3.6.x or higher, you can proceed to :ref:`install-asr-unix <the next section>`.
+
+
+.. _install-asr-unix:
 
 2. Install ASReview (Unix)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,11 +151,11 @@ software on your computer. Execute the following in the Terminal:
 
 If ASReview was installed succesfully, this command should return a bunch of text of which the last line is something like:
 
-    .. code::
+.. code::
 
-        Successfully installed asreview-0.9.6
+    Successfully installed asreview-0.9.6
 
-*Note: if you run into an error at this step, try executing `python -m pip install asreview` instead. If this doesn't fix your problems, please consult :ref:`_the Troubleshooting section`.*
+*Note: if you run into an error at this step, try executing `python -m pip install asreview` instead. If this doesn't fix your problems, please consult :ref:`_the Troubleshooting section <the Troubleshooting section>`.*
 
 If you want to use our `COVID-19 plugin <covid-19.html>`__, you can install it at this step by executing:
 
@@ -170,7 +174,7 @@ Launch ASReview by executing in the Terminal:
 
     asreview oracle
 
-A web browser will open the ASReview user interface. Please follow the steps in our `Quick Tour <quick-tour.html>`__ on how to carry out your first Automated Systematic Review!
+A web browser will open the ASReview user interface. Please follow the steps in our |quicktour| on how to carry out your first Automated Systematic Review!
 
 --------------------------------------------------------------------------------
 
