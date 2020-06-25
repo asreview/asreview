@@ -99,7 +99,12 @@ Launch ASReview by executing in the Command prompt:
 
     asreview oracle
 
-A web browser will open the ASReview user interface. Please follow the steps in our `Quick Tour <quick-tour.html>`__ on how to carry out your first Automated Systematic Review!
+A web browser will open the ASReview user interface. Please follow the steps in our |quicktour| on how to carry out your first Automated Systematic Review!
+
+
+.. |quicktour| raw:: html
+
+    <a href="https://asreview.readthedocs.io/en/latest/quicktour.html" target="_blank">Quick Tour </a>
 
 --------------------------------------------------------------------------------
 
@@ -121,7 +126,7 @@ Within the terminal, execute the following:
 
     python --version
 
-Now, if the command returns something like ``python: command not found``, you will need to install Python. Go to |pylink| to download the latest Python version. You can follow the default installation instructions. 
+Now, if the command returns something like ``python: command not found``, you will need to install Python. Go to |pylink| to download the latest Python version. You can follow the default installation instructions.
 
 After installing Python, make sure to close and reopen your Terminal, and again execute:
 
