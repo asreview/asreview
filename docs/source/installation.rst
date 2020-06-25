@@ -127,7 +127,15 @@ Within the terminal, execute the following:
 
     python --version
 
-Now, if the command returns something like ``python: command not found``, you will need to install Python. Go to |pylink| to download the latest Python version. You can follow the default installation instructions.
+.. figure:: ../images/installation/check_python_version_macos.png
+    :alt:
+
+Now, if the command returns you have a Python version is 3.6 or higher, you can go to the :ref:`next-section <next section>`.
+
+However, if the command returns a Python version lower than 3.6, or a message like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python.
+
+
+Go to |pylink| to download the latest Python version. You can follow the default installation instructions.
 
 After installing Python, make sure to close and reopen your Terminal, and again execute:
 
@@ -139,6 +147,7 @@ to check if Python has been properly installed. If your Python version is 3.6.x 
 
 
 .. _install-asr-unix:
+
 
 2. Install ASReview (Unix)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
