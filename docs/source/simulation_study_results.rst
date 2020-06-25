@@ -1,15 +1,10 @@
-Simulation studies
+Simulation results
 ==================
-
-This document is currently a work in progress. The results documented
-here originate from Gerbrich Ferdinands’ master’s thesis which can be
-found `here
-<https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf/>`_.
-
 
 To provide insight into how much screening effort ASReview could
 potentially save, seven ASReview models were simulated on six existing
-systematic review datasets. In short, for all six datasets ASReview
+systematic review datasets `(Ferdinands, 2020)
+<https://github.com/GerbrichFerdinands/asreview-thesis/blob/master/manuscript/manuscript/Ferdinands%2C-G---MSBBSS.pdf/>`_. In short, for all six datasets ASReview
 could have saved at least 60% of screening effort (e.g. WSS​@95% was >
 40%). For some datasets, ASReview was even able to detect 95% of
 relevant publications after screening only 5% of relevant publications.
@@ -206,7 +201,7 @@ Conclusion
 Overall, the findings confirm the great potential of active learning models in reducing workload for systematic reviewers. All models were able to detect 95% of the relevant publications after screening less than 40% of the total number of publications, indicating that active learning models can save more than half of the workload in the screening process. The results shed new light on the performance of different classification techniques, indicating that the Naive Bayes classification technique is superior to the widely used Support Vector Machine. As model performance differs vastly across datasets, this study raises the question of what causes models to yield more workload savings for some systematic review datasets than for others. To facilitate the applicability of active learning models in systematic review practice, it is essential to identify how dataset characteristics relate to model performance.
 
 References
-==========
+----------
 
 .. raw:: html
 

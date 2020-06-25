@@ -1,10 +1,10 @@
-Application Programming Interface (API)
-=======================================
+Custom workflows
+================
 
 For more control over the workings of the ASReview software, a API is provided.
 For example, it is possible to define a new model or sampling strategy and use it with ASReview.
 
-The easiest way to start a review using the API is to use the factory, see 
+The easiest way to start a review using the API is to use the factory, see
 :func:`asreview.review.get_reviewer`.
 
 
@@ -33,7 +33,7 @@ An example of use the API for the simulation mode:
 	# Load the embedding matrix, only necessary for lstm models.
 	train_model.embedding_matrix = feature_model.get_embedding_matrix(
 		as_data.texts, EMBEDDING_FILE)
-		
+
 	# start the review process.
 	reviewer = asreview.ReviewSimulate(
 	    as_data,
