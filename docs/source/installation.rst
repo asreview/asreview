@@ -134,17 +134,18 @@ Now, if the command returns you have a Python version is 3.6 or higher, you can 
 
 However, if the command returns a Python version lower than 3.6, or a message like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python.
 
+To install a recent version of Python, we recommend to install Anaconda.
+Anaconda offers a user-friendly Python environment. Install Anaconda from
+the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__. Make sure to add Anaconda to your PATH environment variable when asked.
 
-Go to |pylink| to download the latest Python version. You can follow the default installation instructions.
 
-After installing Python, make sure to close and reopen your Terminal, and again execute:
+After installing Anaconda, make sure to close and reopen your Terminal, and again execute:
 
 .. code::
 
     python --version
 
-to check if Python has been properly installed. If your Python version is 3.6.x or higher, you can proceed to :ref:`install-asr-unix <the next section>`.
-
+to check if Python has been properly installed. If your Python version is now 3.6.x or higher, you can proceed to :ref:`install-asr-unix <the next section>`.
 
 .. _install-asr-unix:
 
