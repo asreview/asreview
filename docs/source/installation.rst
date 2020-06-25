@@ -136,8 +136,7 @@ However, if the command returns a Python version lower than 3.6, or a message li
 
 To install a recent version of Python, we recommend to install Anaconda.
 Anaconda offers a user-friendly Python environment. Install Anaconda from
-the website `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__. Make sure to add Anaconda to your PATH environment variable when asked.
-
+the `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__ website.
 
 After installing Anaconda, make sure to close and reopen your Terminal, and again execute:
 
