@@ -84,36 +84,11 @@ The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team ac
 
 ## Citation
 
-A research paper on the ASReview project is work in progress. In the mean time, please cite our software as a reference for both the project and software.
+The following preprint can be used to cite the project:
+
+```
+van de Schoot, Rens, et al. “ASReview: Open Source Software for Efficient and Transparent Active Learning for Systematic Reviews.” ArXiv:2006.12166 [Cs], June 2020. arXiv.org, http://arxiv.org/abs/2006.12166.
+```
 
 For citing the software, please refer to the specific release of the ASReview software on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592). The menu on the right can be used to find the citation format of prevalence.
 
-Example (bibtex):
-
-```
-@software{van_de_schoot_rens_2020_3828293,
-  author       = {Van de Schoot, Rens and
-                  De Bruin, Jonathan and
-                  Schram, Raoul and
-                  Zahedi, Parisa and
-                  De Boer, Jan and
-                  Weijdema, Felix and
-                  Kramer, Bianca and
-                  Huijts, Martijn and
-                  Hoogerwerf, Maarten and
-                  Ferdinands, Gerbrich and
-                  Harkema, Albert and
-                  Willemsen, Joukje and
-                  Ma, Yongchao and
-                  Fang, Qixiang and
-                  Tummers, Lars and
-                  Oberski, Daniel},
-  title        = {ASReview: Active learning for systematic reviews},
-  month        = may,
-  year         = 2020,
-  publisher    = {Zenodo},
-  version      = {v0.9.5},
-  doi          = {10.5281/zenodo.3828293},
-  url          = {https://doi.org/10.5281/zenodo.3828293}
-}
-```
