@@ -84,7 +84,7 @@ managers  which are accepted by ASReview.
         
 - Supported: The data can be exported from the citation manager and imported in ASReview using this extension.
 - Not supported: The exported format can not be imported in ASReview.
-- Empty: The data cannot be exported from the citation manager in this format.
+- (empty): The data cannot be exported from the citation manager in this format.
 
 Search engines
 ~~~~~~~~~~~~~~
@@ -124,7 +124,7 @@ acceptance in ASReview:
 
 - Supported: The data can be exported from the search engine and imported in ASReview using this extension.
 - Not supported: The exported data can not be imported in ASReview using this extension.
-- Empty: The data cannot be exported from the search engine using this extension.
+- (empty): The data cannot be exported from the search engine using this extension.
 
 
 If the export of your search engine is not accepted in ASReview, you can also
@@ -146,6 +146,10 @@ compatibility with ASReview.
 +-----------------+---------------+----------------+--------------+--------------+
 | **Rayyan**      | Not supported |                | Supported    |              |
 +-----------------+---------------+----------------+--------------+--------------+
+
+- Supported: The data can be exported from the search engine and imported in ASReview using this extension.
+- Not supported: The exported data can not be imported in ASReview using this extension.
+- (empty): The data cannot be exported from the search engine using this extension.
 
 Demonstration datasets
 ----------------------
