@@ -50,6 +50,7 @@ const App = () => {
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [textSize, setTextSize] = React.useState('Normal');
+  const [undoEnabled, setUndoEnabled] = React.useState(true);
 
   const handleAppState = (step) => {
 
@@ -76,6 +77,10 @@ const App = () => {
       }
     });
   };
+
+  const toggleUndoEnabled = () => {
+    setUndoEnabled(a => (!a))
+  }
 
   const toggleAuthors = () => {
     setAuthors(a => (!a));
@@ -166,6 +171,7 @@ const App = () => {
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
         textSize={textSize}
+        undoEnabled={undoEnabled}
       />
       }
 
@@ -186,6 +192,8 @@ const App = () => {
         toggleAuthors={toggleAuthors}
         onDark={theme}
         showAuthors={authors}
+        toggleUndoEnabled={toggleUndoEnabled}
+        undoEnabled={undoEnabled}
       />
       <HistoryDialog
         openHistory={openHistory}

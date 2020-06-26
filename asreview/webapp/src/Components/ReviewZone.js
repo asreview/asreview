@@ -9,7 +9,7 @@ import {
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
-
+import DecisionUndoBar from './DecisionUndoBar'
 
 import { connect } from "react-redux";
 
@@ -40,10 +40,21 @@ const useStyles = makeStyles({
 const ReviewZone = (props) => {
   const classes = useStyles();
 
+  const [undoState, setUndoState] = useState({
+    'open': false,
+    'message': null,
+  })
+
   const [recordState, setRecordState] = useState({
-      'isloaded': false,
+    'isloaded': false,
+    'record': null,
+    'selection': null,
+ })
+
+  const [previousRecordState, setPreviousRecordState] = useState({
       'record': null,
-    })
+      'decision': null,
+  })
 
   const [statistics, setStatistics] = useState({
     "name": null,
@@ -55,6 +66,49 @@ const ReviewZone = (props) => {
     "n_papers": null,
     "n_pool": null,
   });
+
+  const storeRecordState = (label) => {
+    setPreviousRecordState({
+      'record': recordState.record,
+      'decision': label,
+    })
+  }
+
+  const undoDecision = () => {
+      setUndoState({
+        'open': false,
+        'message': null,
+      })
+      setRecordState({
+        'isloaded': true,
+        'record': previousRecordState.record,
+        'selection': previousRecordState.decision,
+      });      
+  }
+
+  const makeDecision = (label) => {
+    showUndoBarIfNeeded(label);
+    storeRecordState(label)
+    classifyInstance(label);
+  }
+  
+  const showUndoBarIfNeeded = (label) => {
+    if (props.undoEnabled) {
+      const mark = label === 0 ? "irrelevant" : "relevant"
+      const message = `Paper marked as ${mark}`
+      setUndoState({
+        'open': true,
+        'message': message,
+      })
+    }  
+  }
+
+  const closeUndoBar = () => {
+    setUndoState({
+      'open': false,
+      'message': null,
+    })  
+  }  
 
   /**
    * Include (accept) or exclude (reject) current article
@@ -81,13 +135,13 @@ const ReviewZone = (props) => {
       setRecordState({
         'isloaded': false,
         'record': null,
+        'selection': null,
       });
     })
     .catch((error) => {
       console.log(error);
     });
   }
-
 
   useEffect(() => {
 
@@ -125,7 +179,8 @@ const ReviewZone = (props) => {
           /* New article found and set */
           setRecordState({
             'record':result.data["result"],
-            'isloaded': true
+            'isloaded': true,
+            'selection': null,
           });
         }
 
@@ -162,8 +217,16 @@ const ReviewZone = (props) => {
     {/* Decision bar */}
       <DecisionBar
         reviewDrawerState={props.reviewDrawerState}
-        classify={classifyInstance}
+        makeDecision={makeDecision}
         block={!recordState['isloaded']}
+        recordState={recordState}
+      />
+
+    {/* Decision undo bar */}
+    <DecisionUndoBar
+        state={undoState}
+        undo={undoDecision}
+        close={closeUndoBar}
       />
 
     {/* Statistics drawer */}
