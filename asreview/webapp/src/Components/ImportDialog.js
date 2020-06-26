@@ -131,7 +131,7 @@ const ImportDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Import project </DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Import projects </DialogTitle>
 
           <DialogContent 
             className={classes.dialog}
@@ -142,7 +142,7 @@ const ImportDialog = (props) => {
             </Typography>
 
             <div className={classes.input}>
-              <input type="file" name="fileToUpload" id="fileToUpload" onChange={onFileChange}/>
+              <input type="file" name="fileToUpload" id="fileToUpload" onChange={onFileChange} />
             </div>
 
             {/* Disabled import button while no file selected */}

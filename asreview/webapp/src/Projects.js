@@ -48,8 +48,8 @@ const Projects = (props) => {
     });
 
     const actions = [
-      { icon: <AddOutlined />, name: 'New', operation: "newProject"},
-      { icon: <PublishOutlined />, name: 'Import', operation: "importProject" },
+      {icon: <AddOutlined />, name: 'New', operation: "newProject"},
+      {icon: <PublishOutlined />, name: 'Add', operation: "importProject"},
     ];
 
     useEffect(() => {
