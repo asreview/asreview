@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
   },
   dialog: {
     width: '100%',
-    height: 175,
   },
   input: {
     marginTop: "16px",
@@ -112,26 +111,27 @@ const ImportDialog = (props) => {
     });
   };
 
-  const resetErrorAlert = () => {
+  const resetAlert = () => {
+    setSelection(null);
     setError(null);
-  };
-
-  const refreshPage = () => {
-    window.location.reload(false);
   };
 
 
   return (
       <Dialog
         open={props.importProject}
-        onClose={props.toggleImportProject}
-        scroll="paper"
+        onClose={() => {
+          resetAlert();
+          props.toggleImportProject();
+          props.handleAppState("projects");
+        }}
+        scroll="body"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Import project </DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Import projects </DialogTitle>
 
           <DialogContent 
             className={classes.dialog}
@@ -193,40 +193,17 @@ const ImportDialog = (props) => {
                 }
               </div>
           </DialogContent>
+
           <DialogActions>
-
-            {/* Close the dialog and reload the page while successfully uploaded a project */}
-              {selection !== null &&
-                <Button
-                  onClick={() => {
-                    props.toggleImportProject();
-                    refreshPage();
-                  }}
-                >
-                  Close
-                </Button>
-              }
-
-            {/* Close the dialog and reset the error while failed to upload a project */}
-              {error !== null &&
-                <Button
-                  onClick={() => {
-                    resetErrorAlert();
-                    props.toggleImportProject();
-                  }}
-                >
-                  Close
-                </Button>
-              }
-
-            {/* Close the dialog while nothing happened */}
-              {error === null && selection === null &&
-                <Button
-                  onClick={props.toggleImportProject}
-                >
-                  Close
-                </Button>
-              }
+            <Button
+              onClick={() => {
+                resetAlert();
+                props.toggleImportProject();
+                props.handleAppState("projects");
+              }}
+            >
+              Close
+            </Button>
           </DialogActions>
       </Dialog>
   );

@@ -67,8 +67,9 @@ const MenuDrawer = (props) => {
             button
             key="menu-button-import-projects"
             onClick={() => {
-              props.toggleImportProject();
               props.setMenuDrawerState({left: false});
+              props.handleAppState("review-import");
+              props.toggleImportProject();
             }}
             >
             <ListItemIcon><Publish /></ListItemIcon>

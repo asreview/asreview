@@ -157,12 +157,21 @@ const App = () => {
       {appState['step'] === 'projects' &&
       <Projects
         handleAppState={handleAppState}
+        toggleImportProject={toggleImportProject}
       />
       }
 
       {appState['step'] === 'review-init' &&
       <PreReviewZone
         handleAppState={handleAppState}
+      />
+      }
+
+      {appState['step'] === 'review-import' &&
+      <ImportDialog
+        handleAppState={handleAppState}
+        toggleImportProject={toggleImportProject}
+        importProject={importProject}
       />
       }
 
@@ -205,10 +214,6 @@ const App = () => {
       <ExportDialog
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
-      />
-      <ImportDialog
-        toggleImportProject={toggleImportProject}
-        importProject={importProject}
       />
     </MuiThemeProvider>
   );
