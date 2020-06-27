@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { 
+import {
   SpeedDial,
   SpeedDialIcon,
   SpeedDialAction,
@@ -27,14 +27,17 @@ const useStyles = makeStyles(theme => ({
   root: {
     paddingTop: '24px',
   },
-  absolute: {
-    position: 'absolute',
-    bottom: theme.spacing(2),
+  fab: {
+    position: 'fixed',
     right: theme.spacing(3),
+    bottom: theme.spacing(3),
   },
   noProjects: {
     opacity: 0.5,
   },
+  backdropZ: {
+    zIndex: 1000,
+  }
 }));
 
 const Projects = (props) => {
@@ -48,8 +51,8 @@ const Projects = (props) => {
     });
 
     const actions = [
-      {icon: <CreateNewFolderOutlined />, name: 'Add', operation: "importProject"},
-      {icon: <AddOutlined />, name: 'New', operation: "newProject"},
+      {icon: <CreateNewFolderOutlined />, name: 'Add\u00A0project', operation: "importProject"},
+      {icon: <AddOutlined />, name: 'New\u00A0project', operation: "newProject"},
     ];
 
     useEffect(() => {
@@ -94,64 +97,66 @@ const Projects = (props) => {
 
 
     return (
-        <Container maxWidth='md' className={classes.root}>
 
-        {/* Project loaded, but no projects found */}
-        {(projects['loaded'] && projects['projects'].length === 0) &&
-              <Box className={classes.noProjects}>
-                <Typography variant="h5" align="center">
-                  You don't have any projects yet.
-                </Typography>
-                <Box fontStyle="italic">
-                  <Typography align="center">
-                    Start a review by clicking on the red button in the bottom right corner.
+      <Box>
+          <Container maxWidth='md' className={classes.root}>
+
+          {/* Project loaded, but no projects found */}
+          {(projects['loaded'] && projects['projects'].length === 0) &&
+                <Box className={classes.noProjects}>
+                  <Typography variant="h5" align="center">
+                    You don't have any projects yet.
                   </Typography>
+                  <Box fontStyle="italic">
+                    <Typography align="center">
+                      Start a review by clicking on the red button in the bottom right corner.
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-        }
+          }
 
-        {/* Project loaded and projects found */}
-        {(projects['loaded'] && projects['projects'].length !== 0) &&
-          <Grid container spacing={3}>
-              {projects['projects'].map(project => (
-                  <Grid item sm={4} key={project.id}>
-                    <ProjectCard
-                      className={classes.paper}
-                      id={project.id}
-                      name={project.name}
-                      description={project.description}
-                      handleAppState={props.handleAppState}
-                      refreshProjects={refreshProjects}
-                    />
-                </Grid>
+          {/* Project loaded and projects found */}
+          {(projects['loaded'] && projects['projects'].length !== 0) &&
+            <Grid container spacing={3}>
+                {projects['projects'].map(project => (
+                    <Grid item sm={4} key={project.id}>
+                      <ProjectCard
+                        className={classes.paper}
+                        id={project.id}
+                        name={project.name}
+                        description={project.description}
+                        handleAppState={props.handleAppState}
+                        refreshProjects={refreshProjects}
+                      />
+                  </Grid>
+                ))}
+            </Grid>
+          }
+
+          </Container>
+
+          {/* Add button for new or importing project */}
+            <Backdrop open={open} className={classes.backdropZ}/>
+            <SpeedDial
+              ariaLabel="add"
+              className={classes.fab}
+              FabProps={{color: "secondary"}}
+              icon={<SpeedDialIcon />}
+              onClose={handleClose}
+              onOpen={handleOpen}
+              open={open}
+            >
+              {actions.map((action) => (
+                <SpeedDialAction
+                  key={action.name}
+                  icon={action.icon}
+                  tooltipTitle={action.name}
+                  tooltipOpen
+                  onClick={event => {handleClickAdd(event, action.operation)}}
+                />
               ))}
-          </Grid>
-        }
-
-        {/* Add button for new or importing project */}
-        <div>
-          <Backdrop open={open} />
-          <SpeedDial
-            ariaLabel="add"
-            className={classes.absolute}
-            FabProps={{color: "secondary"}}
-            icon={<SpeedDialIcon />}
-            onClose={handleClose}
-            onOpen={handleOpen}
-            open={open}
-          >
-            {actions.map((action) => (
-              <SpeedDialAction
-                key={action.name}
-                icon={action.icon}
-                tooltipTitle={action.name}
-                tooltipOpen
-                onClick={event => {handleClickAdd(event, action.operation)}}
-              />
-            ))}
-          </SpeedDial>
-        </div>
-        </Container>
+            </SpeedDial>
+      </Box>
     );
 }
 
