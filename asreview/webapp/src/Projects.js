@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { 
+import {
   SpeedDial,
   SpeedDialIcon,
   SpeedDialAction,
@@ -114,7 +114,7 @@ const Projects = (props) => {
         {(projects['loaded'] && projects['projects'].length !== 0) &&
           <Grid container spacing={3}>
               {projects['projects'].map(project => (
-                  <Grid item sm={4} key={project.id}>
+                  <Grid item xs={12} sm={6} key={project.id}>
                     <ProjectCard
                       className={classes.paper}
                       id={project.id}
