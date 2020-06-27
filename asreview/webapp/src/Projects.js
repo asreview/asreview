@@ -14,7 +14,7 @@ import {
 } from '@material-ui/lab';
 import {
   AddOutlined,
-  PublishOutlined,
+  CreateNewFolderOutlined,
 } from '@material-ui/icons';
 
 import ProjectCard from './ProjectCard';
@@ -48,8 +48,8 @@ const Projects = (props) => {
     });
 
     const actions = [
+      {icon: <CreateNewFolderOutlined />, name: 'Add', operation: "importProject"},
       {icon: <AddOutlined />, name: 'New', operation: "newProject"},
-      {icon: <PublishOutlined />, name: 'Add', operation: "importProject"},
     ];
 
     useEffect(() => {
