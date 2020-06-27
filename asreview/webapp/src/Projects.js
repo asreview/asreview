@@ -37,14 +37,6 @@ const useStyles = makeStyles(theme => ({
   },
   backdropZ: {
     zIndex: 1000,
-  },
-  speedDialLabel: {
-    whiteSpace: 'nowrap',
-    color: "red",
-  },
-  tooltip: {
-    fontSize: 30,
-    color: "red",
   }
 }));
 
