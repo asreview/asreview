@@ -158,14 +158,14 @@ def api_import_project():
                 FileNames = zipObj.namelist()
 
                 # check if the zip file contains a ASReview project
-                if sum([fn.endswith("/project.json") for fn in FileNames]) == 1:
+                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
 
                     # extract all files to a temporary folder
                     tmpdir = tempfile.TemporaryDirectory()
                     zipObj.extractall(path=tmpdir.name)
 
                     for fn in FileNames:
-                        if fn.endswith("/project.json"):
+                        if fn.endswith("project.json"):
                             fp = Path(tmpdir.name, fn)
                             with open(fp, "r+") as f:
                                 project = json.load(f)
@@ -182,7 +182,7 @@ def api_import_project():
                     return response, 404
             try:
                 # check if a copy of a project already exists
-                os.rename(fp.parent, asreview_path() / f"{project['id']}")
+                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
 
             except Exception as err:
                 logging.error(err)
@@ -561,13 +561,14 @@ def export_results(project_id):
 def export_project(project_id):
     """Export a zipped project file"""
 
-    Path(asreview_path(), "tmp").mkdir(exist_ok=True)
+    tmpdir = tempfile.TemporaryDirectory()
+
     shutil.make_archive(
-        Path(asreview_path(), f"tmp/export_{project_id}"),
+        Path(tmpdir.name, f"export_{project_id}"),
         "zip", 
         get_project_path(project_id)
     )
-    fp_tmp_export = Path(asreview_path(), f"tmp/export_{project_id}.zip")
+    fp_tmp_export = Path(tmpdir.name, f"export_{project_id}.zip")
 
     return send_file(
         fp_tmp_export,
