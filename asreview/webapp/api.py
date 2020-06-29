@@ -569,6 +569,13 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     return response
 
 
+@bp.route('/project/<project_id>/record/<doc_id>', methods=["PUT"])
+def api_update_classify_instance(project_id, doc_id):
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 @bp.route('/project/<project_id>/get_document', methods=["GET"])
 def api_get_document(project_id):  # noqa: F401
     """Retrieve documents in order of review.

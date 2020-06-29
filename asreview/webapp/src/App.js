@@ -5,10 +5,11 @@ import {
   CssBaseline,
   createMuiTheme
 } from '@material-ui/core'
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
 import './App.css';
 
 import brown from '@material-ui/core/colors/brown';
+import orange from '@material-ui/core/colors/orange';
 import {
   Header,
   ReviewZone,
@@ -26,7 +27,6 @@ import WelcomeScreen from './WelcomeScreen'
 import 'typeface-roboto'
 
 
-
 const App = () => {
 
   // We keep the theme in app state
@@ -34,6 +34,7 @@ const App = () => {
     palette: {
       type: "light",
       primary: brown,
+      info: orange
     },
   });
 
@@ -73,7 +74,8 @@ const App = () => {
     setTheme({
       palette: {
         type: newPaletteType,
-        primary: brown
+        primary: brown,
+        info: orange
       }
     });
   };
@@ -125,7 +127,7 @@ const App = () => {
   console.log("Current step: " + appState['step'])
 
   return (
-      <MuiThemeProvider theme={muiTheme}>
+      <ThemeProvider theme={muiTheme}>
       <CssBaseline/>
       {appState['step'] === 'boot' &&
       <WelcomeScreen
@@ -207,7 +209,7 @@ const App = () => {
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 }
 

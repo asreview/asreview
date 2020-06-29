@@ -74,34 +74,43 @@ const ReviewZone = (props) => {
     })
   }
 
-  const undoDecision = () => {
-      setUndoState({
-        'open': false,
-        'message': null,
-      })
-      setRecordState({
-        'isloaded': true,
-        'record': previousRecordState.record,
-        'selection': previousRecordState.decision,
-      });      
+  const resetPreviousRecordState = () => {
+    setPreviousRecordState({
+      'record': null,
+      'decision': null,
+    });
   }
 
-  const makeDecision = (label) => {
-    showUndoBarIfNeeded(label);
-    storeRecordState(label)
-    classifyInstance(label);
+  const loadPreviousRecordState = () => {
+    setRecordState({
+      'isloaded': true,
+      'record': previousRecordState.record,
+      'selection': previousRecordState.decision,
+    });      
+}
+
+  const startLoadingNewDocument = () => {
+    setRecordState({
+      'isloaded': false,
+      'record': null,
+      'selection': null,
+    });      
   }
   
-  const showUndoBarIfNeeded = (label) => {
+  const showUndoBarIfNeeded = (label, initial) => {
     if (props.undoEnabled) {
       const mark = label === 0 ? "irrelevant" : "relevant"
-      const message = `Paper marked as ${mark}`
-      setUndoState({
-        'open': true,
-        'message': message,
-      })
+      const message = `Paper ${initial ? 'marked as' : 'converted to'} ${mark}`
+      showUndoBar(message)
     }  
   }
+
+  const showUndoBar = (message) => {
+    setUndoState({
+      'open': true,
+      'message': message,
+    })  
+  }  
 
   const closeUndoBar = () => {
     setUndoState({
@@ -110,12 +119,44 @@ const ReviewZone = (props) => {
     })  
   }  
 
+  const isUndoModeActive = () => {
+    return recordState.record.doc_id === previousRecordState['record']?.doc_id
+  }
+
+  const needsClassification = (label) => {
+    if (!isUndoModeActive()) { 
+        return true
+    }
+    return label !== previousRecordState.decision
+  }
+
+  const skipClassification = () => {
+    resetPreviousRecordState()
+    startLoadingNewDocument()
+  }
+
+  const makeDecision = (label) => {
+    closeUndoBar() // hide potentially active undo bar
+    if (!needsClassification(label)) {
+      skipClassification()
+    } else {
+      classifyInstance(label, !isUndoModeActive());
+    }
+    storeRecordState(label) 
+  }
+  
+  const undoDecision = () => {
+    closeUndoBar()
+    loadPreviousRecordState()
+  }
+
   /**
    * Include (accept) or exclude (reject) current article
    *
    * @param label  1=include, 0=exclude
+   * @param initial   true=initial classification, false=update previous classification
    */
-  const classifyInstance = (label) => {
+  const classifyInstance = (label, initial) => {
 
     const url = api_url + `project/${props.project_id}/record/${recordState['record'].doc_id}`;
 
@@ -125,18 +166,15 @@ const ReviewZone = (props) => {
     body.set('label', label);
 
     return axios({
-      method: 'post',
+      method: initial ? 'post' : 'put',
       url: url,
       data: body,
       headers: { 'Content-Type': 'application/json' }
     })
     .then((response) => {
       console.log(`${props.project_id} - add item ${recordState['record'].doc_id} to ${label?"inclusions":"exclusions"}`);
-      setRecordState({
-        'isloaded': false,
-        'record': null,
-        'selection': null,
-      });
+      startLoadingNewDocument()
+      showUndoBarIfNeeded(label, initial);
     })
     .catch((error) => {
       console.log(error);

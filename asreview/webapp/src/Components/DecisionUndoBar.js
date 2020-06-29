@@ -1,17 +1,20 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
-      backgroundColor: "#FFF7DB",
-      color: "#232323"
-  },
-});
+      backgroundColor: theme.palette.info[50],
+      color: theme.palette.primary.main,
+      marginTop: 56,
+      marginBottom: 56,
+    },
+}));
 
 const DecisionUndoBar = (props) => {
-    const classes = useStyles();
+  const theme = useTheme();
+  const classes = useStyles(theme);
 
     const handleClose = (event, reason) => {
       props.close()
@@ -21,14 +24,17 @@ const DecisionUndoBar = (props) => {
        props.undo()
     };
 
+    const isBigScreen = window.innerWidth > theme.breakpoints.width('md')
+    let anchorOrigin = {
+      vertical: isBigScreen ? 'bottom' : 'top',
+      horizontal: isBigScreen ? 'left' : 'center',
+    }
+
     return (
       <Snackbar
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
+          anchorOrigin={anchorOrigin}
           open={props.state.open}
-          autoHideDuration={10000}
+          autoHideDuration={6000}
           onClose={handleClose}
           message={props.state.message}
           action={
