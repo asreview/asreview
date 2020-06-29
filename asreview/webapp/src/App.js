@@ -9,7 +9,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import './App.css';
 
 import brown from '@material-ui/core/colors/brown';
-import orange from '@material-ui/core/colors/orange';
+
 import {
   Header,
   ReviewZone,
@@ -34,7 +34,6 @@ const App = () => {
     palette: {
       type: "light",
       primary: brown,
-      info: orange
     },
   });
 
@@ -75,7 +74,6 @@ const App = () => {
       palette: {
         type: newPaletteType,
         primary: brown,
-        info: orange
       }
     });
   };
