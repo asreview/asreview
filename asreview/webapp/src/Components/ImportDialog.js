@@ -138,7 +138,7 @@ const ImportDialog = (props) => {
             dividers={true}
           >
             <Typography>
-              Upload your projects (ASReview file).
+              Upload your project (ASReview file).
             </Typography>
 
             <div className={classes.input}>
