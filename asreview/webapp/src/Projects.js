@@ -51,7 +51,7 @@ const Projects = (props) => {
     });
 
     const actions = [
-      {icon: <CreateNewFolderOutlined />, name: 'Add\u00A0project', operation: "importProject"},
+      {icon: <CreateNewFolderOutlined />, name: 'Import\u00A0project', operation: "importProject"},
       {icon: <AddOutlined />, name: 'New\u00A0project', operation: "newProject"},
     ];
 

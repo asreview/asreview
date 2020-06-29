@@ -112,10 +112,10 @@ const ExportDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Export results/project {props.project_id}</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Export results and project</DialogTitle>
           <DialogContent dividers={true}>
-            <Typography>
-              Download the result of your review (Excel or CSV file).
+            <Typography variant="h6">
+              Download the result of your review (Excel or CSV file)
             </Typography>
 
             <FormControl className={classes.formControl}>
@@ -142,6 +142,9 @@ const ExportDialog = (props) => {
           </DialogContent>
 
           <DialogContent dividers={true}>
+            <Typography variant="h6">
+              Download your project (ZIP file)
+            </Typography>
             <Typography>
               Download your project (ASReview file).
             </Typography>
@@ -158,7 +161,7 @@ const ExportDialog = (props) => {
           <DialogContent dividers={true}>
 
           {donateURL !== undefined &&
-            <Typography>Our software is made with love and freely available for everyone. Help the development of the ASReview with a donation.
+            <Typography>Our software is made with love and freely available for everyone. Help the development of the ASReview with a donation:
               <Link
                 className={classes.link}
                 href={donateURL}
