@@ -148,7 +148,7 @@ def api_import_project():
         filename = secure_filename(project_file.filename)
 
         # check the file format
-        if not os.path.splitext(filename)[1] == ".zip":
+        if not os.path.splitext(filename)[1] == ".asreview":
             response = jsonify(message="Incorrect file format.")
             return response, 400
 
@@ -573,7 +573,7 @@ def export_project(project_id):
     return send_file(
         fp_tmp_export,
         as_attachment=True,
-        attachment_filename=f"{project_id}.asreview.zip",
+        attachment_filename=f"{project_id}.asreview",
         cache_timeout=0
     )
 
