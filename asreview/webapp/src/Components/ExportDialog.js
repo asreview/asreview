@@ -143,7 +143,7 @@ const ExportDialog = (props) => {
 
           <DialogContent dividers={true}>
             <Typography>
-              Download your project (ZIP file).
+              Download your project (ASReview file).
             </Typography>
 
             <Button
