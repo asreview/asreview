@@ -5,7 +5,7 @@
 export const api_url = ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && window.location.port === "3000") ? "http://localhost:5000/api/" : "/api/";
 
 export const reviewDrawerWidth = 250;
-
+export const decisionUndoBarDuration = 6000;
 
 export const mapStateToProps = state => {
   return { project_id: state.project_id };

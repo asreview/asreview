@@ -2,6 +2,7 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { decisionUndoBarDuration } from '../globals.js'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,17 +25,16 @@ const DecisionUndoBar = (props) => {
        props.undo()
     };
 
-    const isBigScreen = window.innerWidth > theme.breakpoints.width('md')
     let anchorOrigin = {
-      vertical: isBigScreen ? 'bottom' : 'top',
-      horizontal: isBigScreen ? 'left' : 'center',
+      vertical: 'bottom',
+      horizontal: 'left',
     }
 
     return (
       <Snackbar
           anchorOrigin={anchorOrigin}
           open={props.state.open}
-          autoHideDuration={6000}
+          autoHideDuration={decisionUndoBarDuration}
           onClose={handleClose}
           message={props.state.message}
           action={
