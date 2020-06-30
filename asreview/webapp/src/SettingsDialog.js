@@ -67,7 +67,7 @@ export default function SettingsDialog(props) {
               <ListItemSecondaryAction>
                 <Switch
                   edge="end"
-                  onChange={props.toggleDarkTheme}
+                  onChange={props.toggleDarkMode}
                   checked={props.onDark.palette.type === "dark"}
                   inputProps={{ 'aria-labelledby': 'switch-list-label-dark' }}
                 />
