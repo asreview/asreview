@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
@@ -165,15 +166,17 @@ def get_paper_data(project_id,
         paper_data['abstract'] = record.abstract
 
     # return the publication data if available
-    if record.extra_fields.get("publish_time", None) is not None:
-        paper_data['publish_time'] = \
-            record.extra_fields.get("publish_time", None)
+    pub_time = record.extra_fields.get("publish_time", None)
+    paper_data['publish_time'] = pub_time if pd.notnull(pub_time) else None
+
+    # return the doi if available
+    doi = record.extra_fields.get("doi", None)
+    paper_data['doi'] = doi if pd.notnull(doi) else None
 
     # return the debug label
-    if return_debug_label and \
-            record.extra_fields.get("debug_label", None) is not None:
-        paper_data['_debug_label'] = \
-            int(record.extra_fields.get("debug_label", None))
+    debug_label = record.extra_fields.get("debug_label", None)
+    paper_data['_debug_label'] = \
+        int(debug_label) if pd.notnull(debug_label) else None
 
     return paper_data
 

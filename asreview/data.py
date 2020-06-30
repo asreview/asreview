@@ -22,12 +22,12 @@ import re
 import numpy as np
 import pandas as pd
 
-from asreview.exceptions import BadFileFormatError
-from asreview.io.ris_reader import write_ris
-from asreview.io.paper_record import PaperRecord
 from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
-from asreview.utils import format_to_str
+from asreview.exceptions import BadFileFormatError
+from asreview.io.paper_record import PaperRecord
+from asreview.io.ris_reader import write_ris
 from asreview.io.utils import type_from_column, convert_keywords
+from asreview.utils import format_to_str
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -95,9 +95,7 @@ def get_fuzzy_scores(keywords, match_strings):
 
 
 class ASReviewData():
-    """Data object to store csv/ris file.
-
-    Extracts relevant properties of papers.
+    """Data object to the dataset with texts, labels, DOIs etc.
 
     Arguments
     ---------
@@ -107,26 +105,24 @@ class ASReviewData():
         Give a name to the data object.
     data_type: str
         What kind of data the dataframe contains.
+    column_spec: dict
+        Specification for which column corresponds to which standard
+        specification. Key is the standard specification, key is which column
+        it is actually in.
     """
 
     def __init__(self, df=None, data_name="empty", data_type="standard",
                  column_spec=None):
         self.df = df
         self.data_name = data_name
-        self.prior_idx = []
+        self.prior_idx = np.array([], dtype=int)
         if df is None:
             self.column_spec = {}
             return
 
-        if data_type == "included":
-            self.labels = np.ones(len(self))
-        if data_type == "excluded":
-            self.labels = np.zeros(len(self))
-        if data_type == "prior":
-            self.prior_idx = df.index.values
-
         self.max_idx = max(df.index.values) + 1
 
+        # Infer column specifications if it is not given.
         if column_spec is None:
             self.column_spec = {}
             for col_name in list(df):
@@ -135,8 +131,16 @@ class ASReviewData():
                     self.column_spec[data_type] = col_name
         else:
             self.column_spec = column_spec
+
         if "final_included" not in self.column_spec:
             self.column_spec["final_included"] = "final_included"
+
+        if data_type == "included":
+            self.labels = np.ones(len(self), dtype=int)
+        if data_type == "excluded":
+            self.labels = np.zeros(len(self), dtype=int)
+        if data_type == "prior":
+            self.prior_idx = df.index.values
 
     def hash(self):
         """Compute a hash from the dataset.
@@ -146,7 +150,8 @@ class ASReviewData():
         str:
             SHA1 hash, computed from the titles/abstracts of the dataframe.
         """
-        if len(self.df.index) < 1000:
+        if ((len(self.df.index) < 1000 and self.bodies is not None)
+                or self.texts is None):
             texts = " ".join(self.bodies)
         else:
             texts = " ".join(self.texts)
@@ -197,11 +202,20 @@ class ASReviewData():
         new_index = np.append(self.df.index.values,
                               as_data.df.index.values + reindex_val)
         new_priors = np.append(self.prior_idx, as_data.prior_idx + reindex_val)
-        new_df = self.df.append(as_data.df)
+        new_df = self.df.append(as_data.df, sort=False)
         new_df.index = new_index
 
+        new_labels = None
+        if self.labels is None and as_data.labels is not None:
+            new_labels = np.append(np.full(len(self), LABEL_NA, dtype=int),
+                                   as_data.labels)
+        elif self.labels is not None and as_data.labels is None:
+            new_labels = np.append(self.labels,
+                                   np.full(len(as_data), LABEL_NA, dtype=int))
         self.max_idx = max(self.max_idx, as_data.max_idx, max(new_index))
         self.df = new_df
+        if new_labels is not None:
+            self.labels = new_labels
         self.prior_idx = new_priors
         self.data_name += "_" + as_data.data_name
         for data_type, col in as_data.column_spec.items():
@@ -384,8 +398,13 @@ class ASReviewData():
 
     @property
     def texts(self):
+        if self.headings is None:
+            return self.bodies
+        if self.bodies is None:
+            return self.headings
+
         cur_texts = np.array([self.headings[i] + " " + self.bodies[i]
-                              for i in range(len(self.headings))
+                              for i in range(len(self))
                               ], dtype=object)
         return cur_texts
 

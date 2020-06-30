@@ -16,6 +16,7 @@ from abc import abstractmethod
 
 import numpy as np
 from sklearn.exceptions import NotFittedError
+
 from asreview.base_model import BaseModel
 
 

@@ -16,8 +16,8 @@ const useStyles = makeStyles({
   root: {
     maxWidth: "100%",
   },
-  media: {
-    height: 140,
+  content: {
+    height: 120,
   },
 });
 
@@ -50,7 +50,9 @@ const ProjectCard = (props) => {
           image="/static/images/cards/contemplative-reptile.jpg"
           title="ASReview Project"
         />*/}
-        <CardContent>
+        <CardContent
+          className={classes.content}
+        >
           <Typography gutterBottom variant="h5" component="h2">
             {props.name}
           </Typography>

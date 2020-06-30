@@ -11,11 +11,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Link,
 } from '@material-ui/core';
 
 // import axios from 'axios'
 
-import { api_url } from '../globals.js';
+import { api_url, donateURL } from '../globals.js';
 
 import { connect } from "react-redux";
 import store from '../redux/store'
@@ -27,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: "16px",
+  },
+  link:{
+    paddingLeft: "3px",
   }
 }));
 
@@ -76,6 +80,28 @@ const ExportDialog = (props) => {
 
   }
 
+  const downloadProject = () => {
+
+    const project_id = store.getState()["project_id"]
+
+    if (project_id !== null){
+
+      // download URL, example http://localhost:5000/api/project/myproject/export_project
+      const exportUrl = api_url + `project/${project_id}/export_project`
+
+      setTimeout(() => {
+        const response = {
+          file: exportUrl,
+        };
+        window.location.href = response.file;
+      }, 100);
+
+    } else{
+      // raise exception
+    }
+
+  }
+
   return (
       <Dialog
         open={props.exportResult}
@@ -86,10 +112,10 @@ const ExportDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Export results {props.project_id}</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Export results and project</DialogTitle>
           <DialogContent dividers={true}>
-            <Typography>
-              Download the result of your review (Excel or CSV file).
+            <Typography variant="h6">
+              Download the result of your review (Excel or CSV file)
             </Typography>
 
             <FormControl className={classes.formControl}>
@@ -115,6 +141,36 @@ const ExportDialog = (props) => {
             </Button>
           </DialogContent>
 
+          <DialogContent dividers={true}>
+            <Typography variant="h6">
+              Download your project (ZIP file)
+            </Typography>
+            <Typography>
+              Download your project (ASReview file).
+            </Typography>
+
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              onClick={downloadProject}
+            >
+              Export
+            </Button>
+          </DialogContent>
+          <DialogContent dividers={true}>
+
+          {donateURL !== undefined &&
+            <Typography>Our software is made with love and freely available for everyone. Help the development of the ASReview with a donation:
+              <Link
+                className={classes.link}
+                href={donateURL}
+                target="_blank"
+              >asreview.nl/donate
+              </Link>
+            </Typography>
+          }
+          </DialogContent>
         <DialogActions>
           <Button
             onClick={props.toggleExportResult}

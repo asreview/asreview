@@ -29,8 +29,14 @@ class LogisticModel(BaseTrainModel):
 
         Arguments:
         ----------
-        alpha: float
-            Parameter to set the regularization strength of the model.
+        C: float
+            Parameter inverse to the regularization strength of the model.
+        class_weight: float
+            Class weight of the inclusions.
+        random_state: int, RandomState
+            Random state for the model.
+        n_jobs: int
+            Number of CPU cores used.
         """
         super(LogisticModel, self).__init__()
         self.C = C

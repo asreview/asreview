@@ -13,20 +13,17 @@
 # limitations under the License.
 
 import itertools
-import json
 import os
 from pathlib import Path
 
 import numpy as np
 from scipy import stats
-from sklearn.cluster import KMeans
 
 from asreview.state.utils import states_from_dir, state_from_file
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
 from asreview.analysis.statistics import _get_last_proba_order
-from asreview.analysis.statistics import _random_ttd, _cluster_ttd, _max_ttd
 
 
 class Analysis():
@@ -72,8 +69,19 @@ class Analysis():
         self.inc_found = {}
 
     @classmethod
-    def from_dir(cls, data_dir, prefix="result", key=None):
-        """Create an Analysis object from a directory."""
+    def from_dir(cls, data_dir, prefix="", key=None):
+        """Create an Analysis object from a directory.
+
+        Arguments
+        ---------
+        data_dir: str
+            Directory to read the state files from.
+        prefix: str
+            Only assume files starting with this prefix are state files.
+            Ignore all other files.
+        key: str
+            Name for the analysis object.
+        """
         if key is None:
             key = os.path.basename(os.path.normpath(data_dir))
         states = states_from_dir(data_dir, prefix=prefix)
@@ -86,7 +94,15 @@ class Analysis():
 
     @classmethod
     def from_file(cls, data_fp, key=None):
-        """Create an Analysis object from a file."""
+        """Create an Analysis object from a file.
+
+        Arguments
+        ---------
+        data_fp: str
+            Path to state file to analyse.
+        key: str
+            Name for analysis object.
+        """
         if key is None:
             key = os.path.basename(os.path.normpath(data_fp))
         state = state_from_file(data_fp)
@@ -98,7 +114,7 @@ class Analysis():
         return analysis_inst
 
     @classmethod
-    def from_path(cls, data_path, prefix="result", key=None):
+    def from_path(cls, data_path, prefix="", key=None):
         """Create an Analysis object from either a file or a directory."""
         if Path(data_path).is_file():
             return cls.from_file(data_path, key=key)
@@ -276,7 +292,9 @@ class Analysis():
             label_order, n = _get_labeled_order(state)
             proba_order = _get_last_proba_order(state)
             if result_format == "percentage":
-                time_mult = 100 * (len(labels) - n)
+                time_mult = 100 / (len(labels) - n)
+            elif result_format == "fraction":
+                time_mult = 1/(len(labels) - n)
             else:
                 time_mult = 1
 
@@ -363,46 +381,6 @@ class Analysis():
         for i_prob in range(len(prob_allow_miss)):
             results["limits"][i_prob] = np.array(results["limits"][i_prob],
                                                  res_dtype)
-        return results
-
-    def time_to_inclusion(self, X_fp):
-        with open(X_fp, "r") as fp:
-            X = np.array(json.load(fp))
-
-        n_clusters = int(len(self.labels) / 150)
-        model = KMeans(n_clusters=n_clusters, n_init=1)
-        clusters = model.fit_predict(X, self.labels)
-        state = self.states[self._first_file]
-        n_queries = state.n_queries()
-
-        results = {
-            "x_range": [],
-            "ttd": {
-                "random": [],
-                "cluster": [],
-                "max": [],
-            }
-        }
-        n_train = 0
-        for query_i in range(n_queries):
-            new_random_ttd = _random_ttd(self.states, query_i, self.labels)
-            new_cluster_ttd = _cluster_ttd(self.states, query_i, self.labels,
-                                           clusters)
-            new_max_ttd = _max_ttd(self.states, query_i, self.labels)
-
-            results["ttd"]["random"].append(new_random_ttd)
-            results["ttd"]["cluster"].append(new_cluster_ttd)
-            results["ttd"]["max"].append(new_max_ttd)
-
-            try:
-                new_train_idx = state.get("train_idx", query_i)
-            except KeyError:
-                new_train_idx = None
-
-            if new_train_idx is not None:
-                n_train = len(new_train_idx)
-            results["x_range"].append(n_train)
-
         return results
 
     def close(self):

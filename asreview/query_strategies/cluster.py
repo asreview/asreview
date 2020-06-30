@@ -25,20 +25,18 @@ class ClusterQuery(ProbaQueryStrategy):
     name = "cluster"
 
     def __init__(self, cluster_size=350, update_interval=200,
-                 random_state=None, **kwargs):
+                 random_state=None):
         """Initialize the clustering strategy.
 
         Arguments
         ---------
-        texts: list
-            List of sequences to create feature matrix.
         cluster_size: int
             Size of the clusters to be made. If the size of the clusters is
             smaller than the size of the pool, fall back to max sampling.
-        update_cluster: int
+        update_interval: int
             Update the clustering every x instances.
-        **kwargs: dict
-            Keyword arguments for the doc2vec feature model.
+        random_state: int, RandomState
+            State/seed of the RNG.
         """
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size

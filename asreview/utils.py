@@ -193,6 +193,7 @@ def model_class_from_entry_point(method, entry_name="asreview.models"):
 
 
 def is_url(url):
+    """Check if object is a valid url."""
     try:
         result = urlparse(url)
         return all(getattr(result, x) != ""
@@ -202,6 +203,15 @@ def is_url(url):
 
 
 def get_random_state(random_state):
+    """Create a RandomState instance.
+
+    Parameters
+    ----------
+    random_state: int, numpy.RandomState
+        If it is an integer, seed a new random state.
+        If it is a RandomState, return it (nop).
+        If it is None, return the random state of numpy.
+    """
     if random_state is None:
         return np.random.random.__self__
     else:
@@ -210,4 +220,3 @@ def get_random_state(random_state):
         else:
             return np.random.RandomState(
                 random_state % (2**32))
-

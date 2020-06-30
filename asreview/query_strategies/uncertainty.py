@@ -14,10 +14,7 @@
 
 """Uncertainty sampling while saving probabilities."""
 
-# from typing import Tuple
-
 import numpy as np
-
 
 from asreview.query_strategies.base import ProbaQueryStrategy
 
@@ -26,16 +23,6 @@ class UncertaintyQuery(ProbaQueryStrategy):
     """Maximum uncertainty query strategy."""
 
     name = "uncertainty"
-
-    def __init__(self):
-        """Initialize the maximum uncertainty query strategy.
-
-        Arguments:
-        ----------
-        random_tie_break: bool
-            If true randomly decide which ones to include by tie-break.
-        """
-        super(UncertaintyQuery, self).__init__()
 
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         uncertainty = 1 - np.max(proba[pool_idx], axis=1)

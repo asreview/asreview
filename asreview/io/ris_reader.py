@@ -3,10 +3,10 @@ import logging
 import pandas as pd
 from RISparser import readris
 from RISparser import TAG_KEY_MAPPING
+from RISparser.config import LIST_TYPE_TAGS
 
 from asreview.config import COLUMN_DEFINITIONS
-from asreview.io.utils import standardize_dataframe, convert_keywords
-from RISparser.config import LIST_TYPE_TAGS
+from asreview.io.utils import standardize_dataframe
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"

@@ -15,8 +15,8 @@
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
 import logging
-import sys
 import pkg_resources
+import sys
 
 from asreview import __version__
 

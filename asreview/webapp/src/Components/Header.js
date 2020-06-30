@@ -118,6 +118,7 @@ const Header = (props) => {
         toggleDrawer={toggleDrawer}
         toggleExit={props.toggleExit}
         toggleExportResult={props.toggleExportResult}
+        toggleImportProject={props.toggleImportProject}
       />
     </div>
   )

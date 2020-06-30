@@ -19,6 +19,13 @@ import numpy as np
 
 class BaseState(ABC):
     def __init__(self, state_fp, read_only=False):
+        """Initialize State instance.
+
+        state_fp: str
+            Path to state file.
+        read_only: bool
+            Whether to open file in read only mode.
+        """
         self.state_fp = state_fp
         self.read_only = read_only
         self.restore(state_fp)
@@ -260,6 +267,7 @@ class BaseState(ABC):
 
     @property
     def pred_proba(self):
+        """Get last predicted probabilities."""
         for query_i in reversed(range(self.n_queries())):
             try:
                 proba = self.get("proba", query_i=query_i)

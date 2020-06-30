@@ -18,22 +18,40 @@ import warnings
 
 import numpy as np
 
+from asreview.balance_strategies.simple import SimpleBalance
 from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
-from asreview.state.utils import open_state
+from asreview.feature_extraction.tfidf import Tfidf
 from asreview.models.nb import NBModel
 from asreview.query_strategies.max import MaxQuery
-from asreview.balance_strategies.simple import SimpleBalance
 from asreview.query_strategies.random import RandomQuery
 from asreview.settings import ASReviewSettings
-from asreview.feature_extraction.tfidf import Tfidf
+from asreview.state.utils import open_state
 
 
 def get_pool_idx(X, train_idx):
+    "Return pool indices from training indices."
     return np.delete(np.arange(X.shape[0]), train_idx, axis=0)
 
 
 def _merge_prior_knowledge(included, excluded, return_labels=True):
-    """Merge prior included and prior excluded."""
+    """Merge prior included and prior excluded.
+
+    Parameters
+    ----------
+    included: numpy.array
+        Array of indices which should be included.
+    excluded: numpy.array
+        Array of indices which should be excluded.
+    return_labels: bool
+        Return the labels of the merged priors.
+
+    Returns
+    -------
+    numpy.array:
+        Merged prior inclusions + exclusions.
+    numpy.array:
+        (Optional) labels of the merged priors.
+    """
 
     if included is None:
         included = []
@@ -70,19 +88,13 @@ class BaseReview(ABC):
                  start_idx=[],
                  state_file=None,
                  log_file=None,
-#                  final_labels=None,
-                 verbose=1,
-                 data_fp=None,
                  ):
         """ Initialize base class for systematic reviews.
 
         Arguments
         ---------
-        X: np.array
-            The feature matrix for the current dataset.
-        y: np.array
-            Labels of each paper, 1 for included, 0 for excluded.
-            Can be set to None, to indicate inclusion data is not available.
+        as_data: asreview.ASReviewData
+            The data object which contains the text, labels, etc.
         model: BaseModel
             Initialized model to fit the data during active learning.
             See asreview.models.utils.py for possible models.
@@ -94,6 +106,9 @@ class BaseReview(ABC):
             Initialized model to redistribute the training data during the
             active learning process. They might either resample or undersample
             specific papers.
+        feature_model: BaseFeatureModel
+            Feature extraction model that converts texts and keywords to
+            feature matrices.
         n_papers: int
             Number of papers to review during the active learning process,
             excluding the number of initial priors. To review all papers, set
@@ -103,17 +118,11 @@ class BaseReview(ABC):
             process.
         n_queries: int
             Number of steps/queries to perform. Set to None for no limit.
-        prior_included: list
-            List of papers (ids) that are included a priori.
-        prior_excluded: list
-            List of papers (ids) that are excluded a priori.
+        start_idx: numpy.array
+            Start the simulation/review with these indices. They are assumed to
+            be already labeled. Failing to do so might result bad behaviour.
         state_file: str
             Path to state file. Replaces log_file argument.
-        final_labels: np.array
-            Final labels if we're using a two step inclusion process.
-            For example, if at one step a paper is considered after reading the
-            abstract and then at the second step, a final decision is made on
-            the basis of the full text.
         """
         super(BaseReview, self).__init__()
 
@@ -152,17 +161,18 @@ class BaseReview(ABC):
             self.state_file = log_file
         else:
             self.state_file = state_file
-        self.verbose = verbose
 
         self.query_i = 0
         self.query_i_classified = 0
         self.train_idx = np.array([], dtype=np.int)
         self.model_trained = False
-        self.data_fp = data_fp
 
+        # Restore the state from a file or initialize said file.
         with open_state(self.state_file) as state:
+            # From file
             if not state.is_empty():
                 startup = state.startup_vals()
+                # If there are start indices not in the training add them.
                 if not set(startup["train_idx"]) >= set(start_idx):
                     new_idx = list(set(start_idx)-set(startup["train_idx"]))
                     self.classify(new_idx, self.y[new_idx], state,
@@ -173,6 +183,7 @@ class BaseReview(ABC):
                 self.shared["query_src"] = startup["query_src"]
                 self.query_i = startup["query_i"]
                 self.query_i_classified = startup["query_i_classified"]
+            # From scratch
             else:
                 state.set_labels(self.y)
                 state.settings = self.settings
@@ -180,6 +191,7 @@ class BaseReview(ABC):
                               method="initial")
                 self.query_i_classified = len(start_idx)
 
+            # Try to retrieve feature matrix from the state file.
             try:
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
@@ -195,6 +207,7 @@ class BaseReview(ABC):
 
     @property
     def settings(self):
+        """Get an ASReview settings object"""
         extra_kwargs = {}
         if hasattr(self, 'n_prior_included'):
             extra_kwargs['n_prior_included'] = self.n_prior_included
@@ -246,6 +259,7 @@ class BaseReview(ABC):
         return stop_iter
 
     def n_pool(self):
+        """Number of indices left in the pool"""
         return self.X.shape[0] - len(self.train_idx)
 
     def _next_n_instances(self):  # Could be merged with _stop_iter someday.
@@ -391,12 +405,15 @@ class BaseReview(ABC):
             Labels of the query_idx.
         state: BaseLogger
             Logger to store the classification in.
+        method: str
+            If not set to None, all inclusions have this query method.
         """
         query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
         query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
         self.train_idx = np.append(self.train_idx, query_idx)
         if method is None:
+            # Find query method in current queries.
             methods = []
             for idx in query_idx:
                 method = self.shared["current_queries"].pop(idx, None)
@@ -468,37 +485,3 @@ class BaseReview(ABC):
             "n_initial": n_initial,
         }
         return stats
-
-#     def save(self, pickle_fp):
-#         """Dump the self object to a pickle fill (using dill).
-# 
-#         Keras models cannot be dumped, so they are written to a separate
-#         h5 file. The model is briefly popped out of the object to allow the
-#         rest to be written to a file. Do not rely on this method for long term
-#         storage of the class, since library changes could easily break it.
-#         In those cases, use the state + h5 file instead.
-#         """
-#         if isinstance(self.model, KerasClassifier) and self.model_trained:
-#             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
-#             self.model.model.save(model_fp)
-#             current_model = self.model.__dict__.pop("model", None)
-#             with open(pickle_fp, "wb") as fp:
-#                 dill.dump(self, fp)
-#             setattr(self.model, "model", current_model)
-#         else:
-#             dill.dump(self, fp)
-# 
-#     @classmethod
-#     def load(cls, pickle_fp):
-#         """
-#         Create a BaseReview object from a pickle file.
-#         """
-#         with open(pickle_fp, "rb") as fp:
-#             my_instance = dill.load(fp)
-#         try:
-#             model_fp = os.path.splitext(pickle_fp)[0]+".h5"
-#             current_model = load_model(model_fp)
-#             setattr(my_instance.model, "model", current_model)
-#         except Exception:
-#             pass
-#         return my_instance

@@ -4,6 +4,8 @@ import logging
 import os
 import re
 import shutil
+import zipfile
+import tempfile
 import subprocess
 import urllib.parse
 from copy import deepcopy
@@ -135,6 +137,70 @@ def api_init_project():  # noqa: F401
 
         return response, 500
 
+    return response
+
+
+@bp.route('/project/import_project', methods=["POST"])
+def api_import_project():
+    """Import uploaded project"""
+
+    if 'file' in request.files:
+
+        project_file = request.files['file']
+        filename = secure_filename(project_file.filename)
+
+        # check the file format
+        if not os.path.splitext(filename)[1] == ".asreview":
+            response = jsonify(message="Incorrect file format.")
+            return response, 400
+
+        try:
+
+            with zipfile.ZipFile(project_file, "r") as zipObj:
+                FileNames = zipObj.namelist()
+
+                # check if the zip file contains a ASReview project
+                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
+
+                    # extract all files to a temporary folder
+                    tmpdir = tempfile.TemporaryDirectory()
+                    zipObj.extractall(path=tmpdir.name)
+
+                    for fn in FileNames:
+                        if fn.endswith("project.json"):
+                            fp = Path(tmpdir.name, fn)
+                            with open(fp, "r+") as f:
+                                project = json.load(f)
+
+                                # if the uploaded project already exists, then make a copy
+                                if is_project(project["id"]):
+                                    project["id"] += " copy"
+                                    project["name"] += " copy"
+                                    f.seek(0)
+                                    json.dump(project, f)
+                                    f.truncate()
+                else:
+                    response = jsonify(message="No project found within the chosen file.")
+                    return response, 404
+            try:
+                # check if a copy of a project already exists
+                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
+
+            except Exception as err:
+                logging.error(err)
+                response = jsonify(message=f"A copy of {project['id'][:-5]} already exists.")
+                return response, 400
+
+        except Exception as err:
+            logging.error(err)
+            response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
+            return response, 400
+    else:
+        response = jsonify(message="No file found to upload.")
+        return response, 400
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
@@ -603,6 +669,27 @@ def export_results(project_id):
             attachment_filename=f"asreview_result_{project_id}.xlsx",
             cache_timeout=0
         )
+
+
+@bp.route('/project/<project_id>/export_project', methods=["GET"])
+def export_project(project_id):
+    """Export a zipped project file"""
+
+    tmpdir = tempfile.TemporaryDirectory()
+
+    shutil.make_archive(
+        Path(tmpdir.name, f"export_{project_id}"),
+        "zip", 
+        get_project_path(project_id)
+    )
+    fp_tmp_export = Path(tmpdir.name, f"export_{project_id}.zip")
+
+    return send_file(
+        fp_tmp_export,
+        as_attachment=True,
+        attachment_filename=f"{project_id}.asreview",
+        cache_timeout=0
+    )
 
 
 # @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
