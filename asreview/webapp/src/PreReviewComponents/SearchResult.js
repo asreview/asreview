@@ -17,8 +17,6 @@ import {
 import axios from 'axios'
 import { api_url } from '../globals.js';
 
-import { connect } from "react-redux";
-
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
@@ -30,11 +28,6 @@ const useStyles = makeStyles(theme => ({
     },
   },
 }));
-
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
-
 
 const SearchResultDialog = (props) => {
 
@@ -112,4 +105,4 @@ const SearchResultDialog = (props) => {
   );
 }
 
-export default connect(mapStateToProps)(SearchResultDialog);
+export default SearchResultDialog;

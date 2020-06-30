@@ -23,7 +23,7 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
 
-import { blue, green, orange } from '@material-ui/core/colors';
+import { blue, green, orange, brown } from '@material-ui/core/colors';
 
 import {
   SearchResult,
@@ -91,6 +91,10 @@ const useStyles = makeStyles(theme => ({
   },
   helptext : {
     padding: "12px 0px",
+  },
+  avatar: {
+    color: theme.palette.getContrastText(brown[500]),
+    backgroundColor: brown[500],
   }
 }));
 
@@ -164,21 +168,21 @@ const PriorKnowledge = (props) => {
   }
 
   // include the item in the card
-  const includeItem = (doc_id) => {
+  const includeItem = (doc_id, callbk=null) => {
     console.log(`${props.project_id} - add item ${doc_id} to prior inclusions`);
-    labelPriorItem(props.project_id, doc_id, 1)
+    labelPriorItem(props.project_id, doc_id, 1, callbk)
   }
 
   // exclude the item in the card
-  const excludeItem = (doc_id) => {
+  const excludeItem = (doc_id, callbk=null) => {
     console.log(`${props.project_id} - add item ${doc_id} to prior exclusions`);
-    labelPriorItem(props.project_id, doc_id, 0)
+    labelPriorItem(props.project_id, doc_id, 0, callbk)
   }
 
   // reset the item (for search and revert)
-  const resetItem = (doc_id) => {
+  const resetItem = (doc_id, callbk=null) => {
     console.log(`${props.project_id} - remove item ${doc_id} from prior knowledge`);
-    labelPriorItem(props.project_id, doc_id, -1);
+    labelPriorItem(props.project_id, doc_id, -1, callbk);
     updatePriorStats();
   }
 
@@ -215,6 +219,8 @@ const PriorKnowledge = (props) => {
 
   }, [priorStats]);
 
+  console.log(props.project_id)
+
   return (
     <Box style={{clear: "both"}}>
 
@@ -227,7 +233,7 @@ const PriorKnowledge = (props) => {
         <CardHeader
           avatar={
             <Avatar aria-label="recipe" className={classes.avatar}>
-              <AssignmentIcon />
+              3
             </Avatar>
           }
           action={
@@ -346,9 +352,9 @@ const PriorKnowledge = (props) => {
         </CardContent>
         <Divider/>
 
-
       { state === "search" &&
         <PriorKnowledgeSearch
+          project_id={props.project_id}
           updatePriorStats={updatePriorStats}
           includeItem={includeItem}
           resetItem={resetItem}
@@ -357,6 +363,7 @@ const PriorKnowledge = (props) => {
 
       { state === "random" &&
          <PriorKnowledgeRandom
+          project_id={props.project_id}
           onClose={()=>{setState(null)}}
           updatePriorStats={updatePriorStats}
           includeItem={includeItem}
@@ -382,4 +389,4 @@ const PriorKnowledge = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(PriorKnowledge);
+export default PriorKnowledge;

@@ -41,10 +41,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
-
 const StartReview = (props) => {
   const classes = useStyles();
 
@@ -86,6 +82,10 @@ const StartReview = (props) => {
     })
     .catch((error) => {
       console.log(error);
+      setState({
+        "status": "error",
+        "message": error,
+      })
     });
   }
 
@@ -171,4 +171,4 @@ const StartReview = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(StartReview);
+export default StartReview;

@@ -23,8 +23,6 @@ import axios from 'axios'
 
 import { api_url } from '../globals.js';
 
-import { connect } from "react-redux";
-
 const useStyles = makeStyles(theme => ({
   paperRoot: {
     flexGrow: 1,
@@ -60,10 +58,6 @@ const useStyles = makeStyles(theme => ({
   },
 
 }));
-
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
 
 
 const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
@@ -160,6 +154,7 @@ const PriorKnowledgeSearch = (props) => {
 
       {(searchDialog.open && searchDialog.query !== "") &&
         <SearchResult
+          project_id={props.project_id}
           searchQuery={searchDialog.query}
           updatePriorStats={props.updatePriorStats}
           onRevertInclude={props.removeIncluded}
@@ -172,4 +167,4 @@ const PriorKnowledgeSearch = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(PriorKnowledgeSearch);
+export default PriorKnowledgeSearch;

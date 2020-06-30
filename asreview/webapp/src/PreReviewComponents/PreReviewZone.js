@@ -63,37 +63,43 @@ const PreReviewZone = (props) => {
 
   const EndRef = useRef(null)
 
-
   const [state, setState] = React.useState({
+    project_id: null,
     step: 0,
     ready: false
   });
 
-  const handleNext = () => {
+  const handleNext = (evt, project_id) => {
 
-    setState({
-      step: state.step + 1,
-      ready: false,
-    });
+    console.log(project_id)
 
-    // scrollToBottom();
+    handleStep(state.step + 1, project_id)
+
   };
 
   const isReady = () => {
 
     setState({
+      project_id: state.project_id,
       step: state.step,
       ready: true,
     });
   }
 
-  const handleStep = (index) => {
+  const handleStep = (index, project_id) => {
+
+    let project_id_update = state.project_id
+
+    if (project_id !== undefined){
+      project_id_update = project_id
+    }
+
     setState({
+      project_id: project_id_update,
       step: index,
       ready: state.ready,
     });
 
-    // scrollToBottom();
   }
 
   const scrollToBottom = () => {
@@ -108,39 +114,12 @@ const PreReviewZone = (props) => {
     <Box className={classes.box}>
     {state.step !== 5 &&
       <Container maxWidth='md'>
-        <div className={classes.root}>
-          <Stepper
-            step={state.step}
-            alternativeLabel
-            style={{ backgroundColor: "transparent" }}
-          >
-            <Step key="create-project">
-            {(state.step === 1) &&
-              <StepButton onClick={() => {handleStep(0)}} key="create-project">
-                <StepLabel>Project info</StepLabel>
-              </StepButton>
-            }
-            {(state.step !== 1) &&
-              <StepLabel>Project info</StepLabel>
-            }
-            </Step>
-
-            <Step key="select-dataset">
-              <StepLabel>Select dataset</StepLabel>
-            </Step>
-            <Step key="select-prior-knowledge">
-              <StepLabel>Prior Knowledge</StepLabel>
-            </Step>
-            <Step key="start-review">
-              <StepLabel>Select algorithms</StepLabel>
-            </Step>
-          </Stepper>
-          </div>
 
         {(state.step >= 0 && state.step < 4) &&
           <Box>
             <ProjectInit
-              handleNext={handleNext}
+              project_id={state.project_id}
+              handleStep={handleStep}
               isReady={isReady}
             />
           </Box>
@@ -148,7 +127,9 @@ const PreReviewZone = (props) => {
         {(state.step >= 1 && state.step < 4) &&
           <Box>
             <ProjectUpload
+              project_id={state.project_id}
               handleNext={handleNext}
+              handleStep={handleStep}
               isReady={isReady}
               scrollToBottom={scrollToBottom}
             />
@@ -158,6 +139,7 @@ const PreReviewZone = (props) => {
         {(state.step >= 2 && state.step < 4) &&
           <Box>
             <PriorKnowledge
+              project_id={state.project_id}
               handleNext={handleNext}
               isReady={isReady}
               scrollToBottom={scrollToBottom}
@@ -169,8 +151,8 @@ const PreReviewZone = (props) => {
       {(state.step >= 3 && state.step < 4) &&
           <Box>
             <ProjectAlgorithms
+              project_id={state.project_id}
               scrollToBottom={scrollToBottom}
-              handleAppState={props.handleAppState}
               handleReviewDrawer={props.handleReviewDrawer}
             />
             <div ref={EndRef} />
@@ -209,7 +191,10 @@ const PreReviewZone = (props) => {
 
     {state.step === 4 &&
 
-      <StartReview/>
+      <StartReview
+        project_id={state.project_id}
+        handleAppState={props.handleAppState}
+      />
 
     }
 

@@ -23,9 +23,7 @@ import {
 
 import axios from 'axios'
 
-import { api_url, mapStateToProps } from '../globals.js';
-
-import { connect } from "react-redux";
+import { api_url } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -77,29 +75,33 @@ const PriorKnowledgeRandom = (props) => {
   });
 
   const includeRandomDocument = () => {
-    props.includeItem(state["records"].id);
+    props.includeItem(state["records"].id, ()=>{
 
-    setState({
-      "count_inclusions": state["count_inclusions"] + 1,
-      "count_exclusions": state["count_exclusions"],
-      "records": null,
-      "loaded": false,
+      setState({
+        "count_inclusions": state["count_inclusions"] + 1,
+        "count_exclusions": state["count_exclusions"],
+        "records": null,
+        "loaded": false,
+      });
+
+      props.updatePriorStats();
     });
 
-    props.updatePriorStats();
   }
 
   const excludeRandomDocument = () => {
-    props.excludeItem(state["records"].id);
+    props.excludeItem(state["records"].id, ()=> {
 
-    setState({
-      "count_inclusions": state["count_inclusions"],
-      "count_exclusions": state["count_exclusions"] + 1,
-      "records": null,
-      "loaded": false,
+      setState({
+        "count_inclusions": state["count_inclusions"],
+        "count_exclusions": state["count_exclusions"] + 1,
+        "records": null,
+        "loaded": false,
+      });
+
+      props.updatePriorStats();
     });
 
-    props.updatePriorStats();
   }
 
   const resetCount = () => {
@@ -119,7 +121,10 @@ const PriorKnowledgeRandom = (props) => {
       return axios.get(url)
       .then((result) => {
         console.log("" + result.data['result'].length + " random items served for review")
+
         setState({
+          "count_inclusions": state.count_inclusions,
+          "count_exclusions": state.count_exclusions,
           "records": result.data['result'][0],
           "loaded": true,
         });
@@ -132,7 +137,9 @@ const PriorKnowledgeRandom = (props) => {
     if(!state.loaded){
       getDocument();
     }
-  }, [props.project_id, state.loaded]);
+  }, [props.project_id, state.loaded, state.count_inclusions, state.count_inclusions]);
+
+  console.log(state)
 
   return (
       <Dialog
@@ -147,6 +154,9 @@ const PriorKnowledgeRandom = (props) => {
             </IconButton>
           ) : null}
         </DialogTitle>
+
+
+
 
         {state["count_exclusions"] < 5 &&
           <DialogContent dividers={true}>
@@ -207,8 +217,10 @@ const PriorKnowledgeRandom = (props) => {
             </Button>
           </div>
         </DialogActions>
+
+
       </Dialog>
   )
 }
 
-export default connect(mapStateToProps)(PriorKnowledgeRandom);
+export default PriorKnowledgeRandom;

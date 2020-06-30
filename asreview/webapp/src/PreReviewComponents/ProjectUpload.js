@@ -6,6 +6,11 @@ import {useDropzone} from 'react-dropzone'
 import {
   Box,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
   Typography,
   Paper,
   Tabs,
@@ -18,7 +23,7 @@ import {
   CardContent,
 } from '@material-ui/core'
 
-import { blue, green } from '@material-ui/core/colors';
+import { blue, green, brown } from '@material-ui/core/colors';
 
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import CheckIcon from '@material-ui/icons/Check';
@@ -102,10 +107,35 @@ const useStyles = makeStyles(theme => ({
     marginTop: '26px',
   },
   avatar: {
-    color: theme.palette.getContrastText(blue[500]),
-    backgroundColor: blue[500],
+    color: theme.palette.getContrastText(brown[500]),
+    backgroundColor: brown[500],
   }
 }));
+
+
+// const EditWarningDialog = (props) => {
+//   <Dialog
+//     open={open}
+//     onClose={handleClose}
+//     aria-labelledby="alert-dialog-title"
+//     aria-describedby="alert-dialog-description"
+//   >
+//     <DialogTitle id="alert-dialog-title">{"Are you sure you want to pick a new dataset?"}</DialogTitle>
+//     <DialogContent>
+//       <DialogContentText id="alert-dialog-description">
+//         Going back to this step removes all prior knowledge.
+//       </DialogContentText>
+//     </DialogContent>
+//     <DialogActions>
+//       <Button onClick={handleClose} color="primary">
+//         Cancel
+//       </Button>
+//       <Button onClick={handleClose} color="primary" autoFocus>
+//         Oke
+//       </Button>
+//     </DialogActions>
+//   </Dialog>
+// }
 
 
 const ProjectUpload = (props) => {
@@ -114,10 +144,16 @@ const ProjectUpload = (props) => {
 
   const EndRef = useRef(null)
 
+  // set the state:
+  // - null
+  // - "edit"
+  // - "edit-warning"
   const [state, setState] = React.useState(null);
   const [file, setFile] = React.useState(null);
   const [upload, setUpload] = React.useState(false);
   const [error, setError] = React.useState(null);
+
+  const [openWarning, setOpenWarning] = React.useState(false);
 
   const [help, openHelp, closeHelp] = useHelp()
 
@@ -249,10 +285,28 @@ const ProjectUpload = (props) => {
     setValue(newValue);
   };
 
-  const removeDataset = () => {
-    // no actual removing at the moment. TODO{Jonathan}
-    setState(null);
+  const editDataset = () => {
+
+    // open the warnings dialog
+    setOpenWarning(true)
   }
+
+  const editDatasetOke = () => {
+
+    // remove all cards after the upload step
+    props.handleStep(1)
+
+    // set the state to null
+    setState(null);
+
+    // close the warnings dialog
+    setOpenWarning(false);
+  };
+
+  const handleCloseWarning = () => {
+    setOpenWarning(false);
+  };
+
 
   useEffect(() => {
     props.scrollToBottom()
@@ -266,7 +320,7 @@ const ProjectUpload = (props) => {
       <CardHeader
         avatar={
           <Avatar aria-label="recipe" className={classes.avatar}>
-            <AssignmentIcon />
+            2
           </Avatar>
         }
         action={
@@ -276,7 +330,7 @@ const ProjectUpload = (props) => {
 
               <IconButton
                 aria-label="project-info-edit"
-                onClick={removeDataset}
+                onClick={editDataset}
               >
                 <EditIcon />
               </IconButton>
@@ -297,6 +351,27 @@ const ProjectUpload = (props) => {
         title="Select a dataset"
       />
 
+      <Dialog
+        open={openWarning}
+        onClose={handleCloseWarning}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Are you sure you want to pick a new dataset?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Going back to this step removes all prior knowledge.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseWarning} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={editDatasetOke} color="primary" autoFocus>
+            Oke
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
         {state === null &&
@@ -421,4 +496,4 @@ const ProjectUpload = (props) => {
   );
 }
 
-export default connect(mapStateToProps)(ProjectUpload);
+export default ProjectUpload;

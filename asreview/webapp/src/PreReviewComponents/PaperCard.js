@@ -44,33 +44,24 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
-
 const PaperCard = (props) => {
 
   const classes = useStyles();
 
-  // included label for card
-  const [expanded, setExpanded] = React.useState(false);
+  console.log("test")
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
+  return (
+    <Box>
+      <Typography variant="title">
+        {props.title}
+      </Typography>
+      <Typography>
+        {props.abstract}
+      </Typography>
 
-    return (
-      <Box>
-        <Typography variant="title">
-          {props.title}
-        </Typography>
-        <Typography>
-          {props.abstract}
-        </Typography>
-
-      </Box>
-    );
+    </Box>
+  );
 
 }
 
-export default connect(mapStateToProps)(PaperCard);
+export default PaperCard;

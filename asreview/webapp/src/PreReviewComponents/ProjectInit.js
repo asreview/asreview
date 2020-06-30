@@ -16,7 +16,7 @@ import {
   CardContent,
 } from '@material-ui/core'
 
-import { deepOrange } from '@material-ui/core/colors';
+import { brown } from '@material-ui/core/colors';
 
 import CloseIcon from '@material-ui/icons/Close';
 import HelpIcon from '@material-ui/icons/Help';
@@ -61,14 +61,17 @@ const useStyles = makeStyles(theme => ({
     float: "right",
   },
   avatar: {
-    color: theme.palette.getContrastText(deepOrange[500]),
-    backgroundColor: deepOrange[500],
+    color: theme.palette.getContrastText(brown[500]),
+    backgroundColor: brown[500],
   }
 }));
 
 const ProjectInit = (props) => {
 
   const classes = useStyles();
+
+  // set project id
+  const [projectId, setProjectId] = React.useState(props.project_id)
 
   // the state of the app (new, edit or lock)
   const [state, setState] = React.useState(props.project_id !== null ? "lock" : "new")
@@ -113,18 +116,21 @@ const ProjectInit = (props) => {
     })
     .then(function (response) {
 
-      console.log(response.data)
+      console.log("Submit project: " + response.data["project_id"])
 
       // set the project_id in the redux store
       store.dispatch(
         setProject(response.data["project_id"])
       );
 
+      // // set project id
+      // setProjectId(response.data["project_id"]);
+
       // set the card state to lock
       setState("lock");
 
       // go to the next step
-      props.handleNext();
+      props.handleStep(1, response.data["project_id"]);
 
     })
     .catch(function (response) {
@@ -162,9 +168,6 @@ const ProjectInit = (props) => {
             description: result.data["project_description"],
           });
 
-          // set the project_id in the redux store
-          store.dispatch(setProject(result.data["project_id"]));
-
         })
         .catch((error) => {
           console.log(error);
@@ -186,7 +189,7 @@ const ProjectInit = (props) => {
       <CardHeader
         avatar={
           <Avatar aria-label="recipe" className={classes.avatar}>
-            <AssignmentIcon />
+            1
           </Avatar>
         }
         action={
@@ -305,4 +308,4 @@ const ProjectInit = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(ProjectInit);
+export default ProjectInit;

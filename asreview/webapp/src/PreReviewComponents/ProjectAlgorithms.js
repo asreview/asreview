@@ -15,6 +15,8 @@ import {
   IconButton,
 } from '@material-ui/core'
 
+import { blue, green, brown } from '@material-ui/core/colors';
+
 import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
 import AssignmentIcon from '@material-ui/icons/Assignment';
@@ -39,6 +41,10 @@ const useStyles = makeStyles(theme => ({
   listTitle: {
     paddingLeft: "18px",
   },
+  avatar: {
+    color: theme.palette.getContrastText(brown[500]),
+    backgroundColor: brown[500],
+  }
 }));
 
 const ProjectAlgorithms = (props) => {
@@ -67,7 +73,7 @@ const ProjectAlgorithms = (props) => {
           <CardHeader
             avatar={
               <Avatar aria-label="recipe" className={classes.avatar}>
-                <AssignmentIcon />
+                4
               </Avatar>
             }
             action={
@@ -170,4 +176,4 @@ const ProjectAlgorithms = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(ProjectAlgorithms);
+export default ProjectAlgorithms;

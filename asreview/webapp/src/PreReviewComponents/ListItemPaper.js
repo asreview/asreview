@@ -17,7 +17,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import axios from 'axios'
 
-import { api_url, mapStateToProps } from '../globals.js';
+import { api_url } from '../globals.js';
 
 import { connect } from "react-redux";
 
@@ -105,4 +105,4 @@ const ListItemPaper = (props) => {
 
 }
 
-export default connect(mapStateToProps)(ListItemPaper);
+export default ListItemPaper;
