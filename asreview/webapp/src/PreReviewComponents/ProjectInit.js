@@ -104,9 +104,9 @@ const ProjectInit = (props) => {
     }
 
     var bodyFormData = new FormData();
-    bodyFormData.set('project_name', info.name);
-    bodyFormData.set('project_authors', info.authors);
-    bodyFormData.set('project_description', info.description);
+    bodyFormData.set('name', info.name);
+    bodyFormData.set('authors', info.authors);
+    bodyFormData.set('description', info.description);
 
     axios({
       method: 'post',
@@ -116,21 +116,21 @@ const ProjectInit = (props) => {
     })
     .then(function (response) {
 
-      console.log("Submit project: " + response.data["project_id"])
+      console.log("Submit project: " + response.data["id"])
 
       // set the project_id in the redux store
       store.dispatch(
-        setProject(response.data["project_id"])
+        setProject(response.data["id"])
       );
 
       // // set project id
-      // setProjectId(response.data["project_id"]);
+      // setProjectId(response.data["id"]);
 
       // set the card state to lock
       setState("lock");
 
       // go to the next step
-      props.handleStep(1, response.data["project_id"]);
+      props.handleStep(1, response.data["id"]);
 
     })
     .catch(function (response) {
@@ -163,9 +163,9 @@ const ProjectInit = (props) => {
 
           // set the project info
           setInfo({
-            authors: result.data["project_authors"],
-            name: result.data["project_name"],
-            description: result.data["project_description"],
+            authors: result.data["authors"],
+            name: result.data["name"],
+            description: result.data["description"],
           });
 
         })

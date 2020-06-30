@@ -110,9 +110,9 @@ def api_init_project():  # noqa: F401
 
     logging.info("init project")
 
-    project_name = request.form['project_name']
-    project_description = request.form['project_description']
-    project_authors = request.form['project_authors']
+    project_name = request.form['name']
+    project_description = request.form['description']
+    project_authors = request.form['authors']
 
     project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
@@ -125,10 +125,10 @@ def api_init_project():  # noqa: F401
         )
 
         response = jsonify({
-            "project_id": project_id,
-            "project_name": project_name,
-            "project_description": project_description,
-            "project_authors": project_authors
+            "id": project_id,
+            "name": project_name,
+            "description": project_description,
+            "authors": project_authors
         })
 
     except Exception as err:
@@ -214,13 +214,7 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # read the file with project info
         with open(get_project_file_path(project_id), "r") as fp:
-            project_info = json.load(fp)
-            response = jsonify({
-                "project_id": project_info["id"],
-                "project_name": project_info["name"],
-                "project_description": project_info["description"],
-                "project_authors": project_info["authors"]
-            })
+            response = jsonify(json.load(fp))
 
     except FileNotFoundError as err:
         logging.error(err)
@@ -243,16 +237,16 @@ def api_update_project_info(project_id):  # noqa: F401
 
     logging.info("Update project info")
 
-    project_name = request.form['project_name']
-    project_description = request.form['project_description']
-    project_authors = request.form['project_authors']
+    project_name = request.form['name']
+    project_description = request.form['description']
+    project_authors = request.form['authors']
 
     project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
     try:
         # update the file with project info
         with open(get_project_file_path(project_id), "w") as fp:
-            project_info = json.dump({
+            json.dump({
                 'id': project_id_new,
                 'name': project_name,
                 'description': project_description,
@@ -679,7 +673,7 @@ def export_project(project_id):
 
     shutil.make_archive(
         Path(tmpdir.name, f"export_{project_id}"),
-        "zip", 
+        "zip",
         get_project_path(project_id)
     )
     fp_tmp_export = Path(tmpdir.name, f"export_{project_id}.zip")
