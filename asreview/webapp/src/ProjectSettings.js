@@ -19,9 +19,6 @@ const useStyles = makeStyles({
   root: {
     maxWidth: "100%",
   },
-  input: {
-    display: "none",
-  },
   deleteButton: {
     margin: 5,
   },
@@ -58,16 +55,18 @@ export default function ProjectSettings(props) {
 
     const url = api_url + `project/${props.id}/delete`;
 
-    axios.delete(url)
-      .then(function (res) {
-        props.refreshProjects();
-        props.toggleProjectSettings();
-      })
-      .catch(function (res) {
-          console.log("Failed to delete project")
+    if (deleteInput === props.id) {
+      axios.delete(url)
+        .then(function (res) {
           props.refreshProjects();
           props.toggleProjectSettings();
-      });
+        })
+        .catch(function (res) {
+            console.log("Failed to delete project")
+            props.refreshProjects();
+            props.toggleProjectSettings();
+        });
+    }
   }
 
   const onChange = (evt) => {
@@ -103,21 +102,15 @@ export default function ProjectSettings(props) {
                 onChange={onChange}
               />
               <div>
-                <input
-                  className={classes.input}
-                  id="contained-button-submit"
-                />
-                <label htmlFor="contained-button-submit">
-                  <Button
-                    className={classes.deleteButton}
-                    variant="contained"
-                    color="primary"
-                    disabled={deleteInput !== props.id}
-                    type="submit"
-                  >
-                    Delete
-                  </Button>
-                </label>
+                <Button
+                  className={classes.deleteButton}
+                  variant="contained"
+                  color="primary"
+                  disabled={deleteInput !== props.id}
+                  type="submit"
+                >
+                  Delete
+                </Button>
               </div>
             </form>
         </DialogContent>
