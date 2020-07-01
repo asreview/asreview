@@ -112,14 +112,14 @@ A web browser will open the ASReview user interface. Please follow the steps in 
 
 
 Install ASReview for Unix users
---------------------------------
+-------------------------------
+This guide provides installation steps for installing ASReview for macOS users. These steps should also suffice for users with other Unix-based systems, such as Linux.
 
 1. Install Python (Unix)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This section explains how to install Python on your computer. The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview.
+This section explains how to install Python on your computer. The ASReview software runs with Python in the background. MacOS comes with Python version 2.7 already installed. However, ASReview requires Python 3.6 or higher and therefore, a more recent version of Python should be installed. More knowledge about Python is not necessary to run ASReview.
 
-First, check if Python is already installed on your computer. Open the program `Terminal` on your computer.
-
+First, check which version of Python is currently installed on your computer. Open the program `Terminal` on your computer.
 
 Within the terminal, execute the following:
 
@@ -130,15 +130,22 @@ Within the terminal, execute the following:
 .. figure:: ../images/installation/check_python_version_macos.png
     :alt:
 
-Now, if the command returns you have a Python version is 3.6 or higher, you can go to the :ref:`next-section <next section>`.
 
-However, if the command returns a Python version lower than 3.6, or a message like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install Python.
+If the command returns you have a Python version is 3.6 or higher, you can go to the :ref:`next-section <next section>`.
 
-To install a recent version of Python, we recommend to install Anaconda.
-Anaconda offers a user-friendly Python environment. Install Anaconda from
-the `Anaconda for MacOS <https://docs.anaconda.com/anaconda/install/mac-os/>`__ website.
+However, if the command returns a Python version lower than 3.6, or a message like ``'python' is not recognized as an internal or external command, operable program or batch file.``, you will still have to install a more recent version of Python.
 
-After installing Anaconda, make sure to close and reopen your Terminal, and again execute:
+To install a recent version of Python, we recommend to install Miniconda. Miniconda offers a user-friendly Python environment.
+
+
+.. |miniconda| raw:: html
+
+   <a href="https://docs.conda.io/en/latest/miniconda.html#macosx-installers" target="_blank">the Miniconda website</a>
+
+.. figure:: ../images/installation/miniconda.png
+    :alt:
+
+Download the macOS version from |miniconda| and follow the default installation instructions. After installing Miniconda, make sure to close and reopen your Terminal, and again execute:
 
 .. code::
 
