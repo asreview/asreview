@@ -19,6 +19,9 @@ const useStyles = makeStyles({
   root: {
     maxWidth: "100%",
   },
+  input: {
+    display: "none",
+  },
   deleteButton: {
     margin: 5,
   },
@@ -100,15 +103,21 @@ export default function ProjectSettings(props) {
                 onChange={onChange}
               />
               <div>
-                <Button
-                  className={classes.deleteButton}
-                  variant="contained"
-                  color="primary"
-                  disabled={deleteInput !== props.id}
-                  type="submit"
-                >
-                  Delete
-                </Button>
+                <input
+                  className={classes.input}
+                  id="contained-button-submit"
+                />
+                <label htmlFor="contained-button-submit">
+                  <Button
+                    className={classes.deleteButton}
+                    variant="contained"
+                    color="primary"
+                    disabled={deleteInput !== props.id}
+                    type="submit"
+                  >
+                    Delete
+                  </Button>
+                </label>
               </div>
             </form>
         </DialogContent>
