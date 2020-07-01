@@ -143,9 +143,10 @@ To install a recent version of Python, we recommend to install Miniconda. Minico
    <a href="https://docs.conda.io/en/latest/miniconda.html#macosx-installers" target="_blank">the Miniconda website</a>
 
 .. figure:: ../images/installation/miniconda.png
-    :alt:
+   :alt:
 
-Download the macOS version from |miniconda| and follow the default installation instructions. After installing Miniconda, make sure to close and reopen your Terminal, and again execute:
+
+Download the 'Miniconda3 MacOSX 64-bit pkg' from |miniconda| and follow the default installation instructions. After installing Miniconda, make sure to close and reopen your Terminal, and again execute:
 
 .. code::
 
