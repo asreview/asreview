@@ -152,7 +152,12 @@ Download the 'Miniconda3 MacOSX 64-bit pkg' from |miniconda| and follow the defa
 
     python --version
 
-to check if Python has been properly installed. If your Python version is now 3.6.x or higher, you can proceed to :ref:`install-asr-unix <the next section>`.
+to check if Python has been properly installed.
+
+.. figure:: ../images/installation/check_python_version_again_macos.png
+   :alt:
+
+If your Python version is now 3.6.x or higher, you can proceed to :ref:`install-asr-unix <the next section>`.
 
 .. _install-asr-unix:
 
