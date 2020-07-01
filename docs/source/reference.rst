@@ -1,12 +1,12 @@
 
-Reference
-===============================
+API Reference
+=============
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-Low level API 
+Low level API
 -------------
 
 .. autofunction:: asreview.review.get_reviewer
@@ -74,7 +74,7 @@ Utils
 State
 -------
 
-.. autofunction:: asreview.state.open_state 
+.. autofunction:: asreview.state.open_state
 .. autoclass:: asreview.state.BaseState
 	:members:
 .. autoclass:: asreview.state.HDF5State

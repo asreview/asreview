@@ -2,10 +2,10 @@
 ASReview: Software for Active Systematic Reviews
 ****************************************************
 
-Active Systematic Review (ASReview) is software designed to accelerate the process of systematic reviews. 
+Active Systematic Review (ASReview) is software designed to accelerate the process of systematic reviews.
 It is written in python, and uses deep learning to predict which papers should be
 most likely included in the review. Our software is designed to accelerate the step
-of screening abstracts and titles with a minimum of papers to be read by a 
+of screening abstracts and titles with a minimum of papers to be read by a
 human with no or very few false negatives.
 
 ASReview implements an oracle and a simulation mode.
@@ -17,12 +17,12 @@ ASReview implements an oracle and a simulation mode.
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
-The source code is freely available at 
+The source code is freely available at
 `GitHub <https://github.com/asreview/asreview>`_.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Basics
+   :caption: Introduction
 
    ASReview <self>
 
@@ -30,30 +30,38 @@ The source code is freely available at
 
    activelearning
 
-   quicktour
-
    covid-19
-   
+
    datasets
 
-   user_testing_algorithms
-
    extensions
+
+.. toctree::
+   :maxdepth: 2
+   :caption: ASReview app
+
+   quicktour
+
+   user_testing_algorithms
 
    faq
 
 .. toctree::
    :maxdepth: 2
-   :caption: Advanced
+   :caption: Simulation
+
+   sim_overview
 
    cli
+
+   simulation_study_results
 
    models
 
    query_strategies
 
    balance_strategies
-  
+
    feature_extraction
 
 
@@ -95,10 +103,10 @@ Indices and tables
 Citation
 ========
 
-A research paper is upcoming for this project. In the mean time, it can be 
+A research paper is upcoming for this project. In the mean time, it can be
 cited with (fill in x and y for the version number):
 
-ASReview Core Development Team (2019). ASReview: Software for automated systematic 
+ASReview Core Development Team (2019). ASReview: Software for automated systematic
 reviews [version 0.x.y]. Utrecht University, Utrecht, The Netherlands. Available at
 https://github.com/asreview/asreview.
 
@@ -111,7 +119,7 @@ https://github.com/asreview/asreview.
 		address = {Utrecht, The Netherlands},
 		year = 2019,
 		url = {https://pypi.org/project/asreview/}
-	} 
+	}
 
 
 

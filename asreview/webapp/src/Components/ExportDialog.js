@@ -11,11 +11,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Link,
 } from '@material-ui/core';
 
 // import axios from 'axios'
 
-import { api_url } from '../globals.js';
+import { api_url, donateURL } from '../globals.js';
 
 import { connect } from "react-redux";
 import store from '../redux/store'
@@ -27,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: "16px",
+  },
+  link:{
+    paddingLeft: "3px",
   }
 }));
 
@@ -139,7 +143,7 @@ const ExportDialog = (props) => {
 
           <DialogContent dividers={true}>
             <Typography>
-              Download your project (ZIP file).
+              Download your project (ASReview file).
             </Typography>
 
             <Button
@@ -151,7 +155,19 @@ const ExportDialog = (props) => {
               Export
             </Button>
           </DialogContent>
+          <DialogContent dividers={true}>
 
+          {donateURL !== undefined &&
+            <Typography>Our software is made with love and freely available for everyone. Help the development of the ASReview with a donation.
+              <Link
+                className={classes.link}
+                href={donateURL}
+                target="_blank"
+              >asreview.nl/donate
+              </Link>
+            </Typography>
+          }
+          </DialogContent>
         <DialogActions>
           <Button
             onClick={props.toggleExportResult}

@@ -1,16 +1,23 @@
 import React, {useState, useEffect} from 'react';
 import {
+  Backdrop,
   Box,
   Container,
   Grid,
-  Tooltip,
-  Fab,
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import AddIcon from '@material-ui/icons/Add';
+import {
+  SpeedDial,
+  SpeedDialIcon,
+  SpeedDialAction,
+} from '@material-ui/lab';
+import {
+  AddOutlined,
+  CreateNewFolderOutlined,
+} from '@material-ui/icons';
 
-import ProjectCard from './ProjectCard'
+import ProjectCard from './ProjectCard';
 
 import { api_url } from './globals.js';
 
@@ -20,26 +27,33 @@ const useStyles = makeStyles(theme => ({
   root: {
     paddingTop: '24px',
   },
-  absolute: {
-    position: 'absolute',
-    bottom: theme.spacing(2),
+  fab: {
+    position: 'fixed',
     right: theme.spacing(3),
+    bottom: theme.spacing(3),
   },
-  noProjects :{
+  noProjects: {
     opacity: 0.5,
+  },
+  backdropZ: {
+    zIndex: 1000,
   }
 }));
-
 
 const Projects = (props) => {
 
     const classes = useStyles();
 
+    const [open, setOpen] = useState(false);
     const [projects, setProjects] = useState({
       "projects": [],
       "loaded": false,
     });
 
+    const actions = [
+      {icon: <CreateNewFolderOutlined />, name: 'Add\u00A0project', operation: "importProject"},
+      {icon: <AddOutlined />, name: 'New\u00A0project', operation: "newProject"},
+    ];
 
     useEffect(() => {
 
@@ -56,63 +70,93 @@ const Projects = (props) => {
           setProjects({
             "projects": result.data['result'],
             "loaded": true,
-          })
+          });
         })
         .catch((error) => {
           console.log(error);
         });
+    };
+
+    const handleOpen = () => {
+      setOpen(true);
+    };
+
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    const handleClickAdd = (event, operation) => {
+      event.preventDefault();
+      if (operation === "newProject") {
+        props.handleAppState("review-init");
+      } else if (operation === "importProject") {
+        props.handleAppState("review-import");
+        props.toggleImportProject();
+      };
     }
 
 
     return (
-        <Container maxWidth='md' className={classes.root}>
 
-        {/* Project loaded, but no projects found */}
-        {(projects['loaded'] && projects['projects'].length === 0) &&
-              <Box className={classes.noProjects}>
-                <Typography variant="h5" align="center">
-                  You don't have any projects yet.
-                </Typography>
-                <Box fontStyle="italic">
-                  <Typography align="center">
-                    Start a review by clicking on the red button in the bottom right corner.
+      <Box>
+          <Container maxWidth='md' className={classes.root}>
+
+          {/* Project loaded, but no projects found */}
+          {(projects['loaded'] && projects['projects'].length === 0) &&
+                <Box className={classes.noProjects}>
+                  <Typography variant="h5" align="center">
+                    You don't have any projects yet.
                   </Typography>
+                  <Box fontStyle="italic">
+                    <Typography align="center">
+                      Start a review by clicking on the red button in the bottom right corner.
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-        }
+          }
 
-        {/* Project loaded and projects found */}
-        {(projects['loaded'] && projects['projects'].length !== 0) &&
-          <Grid container spacing={3}>
-              {projects['projects'].map(project => (
-                  <Grid item sm={4} key={project.id}>
-                    <ProjectCard
-                      className={classes.paper}
-                      id={project.id}
-                      name={project.name}
-                      description={project.description}
-                      handleAppState={props.handleAppState}
-                      refreshProjects={refreshProjects}
-                    />
-                </Grid>
+          {/* Project loaded and projects found */}
+          {(projects['loaded'] && projects['projects'].length !== 0) &&
+            <Grid container spacing={3}>
+                {projects['projects'].map(project => (
+                    <Grid item xs={12} sm={6} key={project.id}>
+                      <ProjectCard
+                        className={classes.paper}
+                        id={project.id}
+                        name={project.name}
+                        description={project.description}
+                        handleAppState={props.handleAppState}
+                        refreshProjects={refreshProjects}
+                      />
+                  </Grid>
+                ))}
+            </Grid>
+          }
+
+          </Container>
+
+          {/* Add button for new or importing project */}
+            <Backdrop open={open} className={classes.backdropZ}/>
+            <SpeedDial
+              ariaLabel="add"
+              className={classes.fab}
+              FabProps={{color: "secondary"}}
+              icon={<SpeedDialIcon />}
+              onClose={handleClose}
+              onOpen={handleOpen}
+              open={open}
+            >
+              {actions.map((action) => (
+                <SpeedDialAction
+                  key={action.name}
+                  icon={action.icon}
+                  tooltipTitle={action.name}
+                  tooltipOpen
+                  onClick={event => {handleClickAdd(event, action.operation)}}
+                />
               ))}
-          </Grid>
-        }
-
-        {/* Add button for new project */}
-        <Tooltip title="Start new project" aria-label="add">
-          <Fab
-              color="secondary"
-              className={classes.absolute}
-              onClick={() => {
-                  props.handleAppState('review-init');
-
-              }}
-          >
-            <AddIcon/>
-          </Fab>
-        </Tooltip>
-      </Container>
+            </SpeedDial>
+      </Box>
     );
 }
 
