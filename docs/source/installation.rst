@@ -17,6 +17,7 @@ Install ASReview for Windows users
 
 1. Install Python (Windows)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 This section explains how to install Python on your computer. The ASReview software runs with Python in the background. Therefore, running ASReview requires having Python 3.6+ installed. More knowledge about Python is not necessary to run ASReview.
 
 First, check if Python is already installed on your computer. To do this, open the Command Prompt, by searching for ``CMD.exe``:
@@ -66,6 +67,7 @@ to check if Python (version 3.6 or higher) has been properly installed:
 
 2. Install ASReview (Windows)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If your Python version is 3.6 or higher, you can start installing the ASReview
 software on your computer. Execute the following in the Command prompt (`CMD.exe`):
 
@@ -92,6 +94,7 @@ The plugin will be available automatically upon launching ASReview.
 
 3. Launch ASReview (Windows)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Congratulations! You are now ready to start using ASReview.
 Launch ASReview by executing in the Command prompt:
 
@@ -113,10 +116,12 @@ A web browser will open the ASReview user interface. Please follow the steps in 
 
 Install ASReview for Unix users
 -------------------------------
+
 This guide provides installation steps for installing ASReview for macOS users. These steps should also suffice for users with other Unix-based systems, such as Linux.
 
 1. Install Python (Unix)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
+
 This section explains how to install Python on your computer. The ASReview software runs with Python in the background. MacOS comes with Python version 2.7 already installed. However, ASReview requires Python 3.6 or higher and therefore, a more recent version of Python should be installed. More knowledge about Python is not necessary to run ASReview.
 
 First, check which version of Python is currently installed on your computer. Open the program `Terminal` on your computer.
@@ -164,6 +169,7 @@ If your Python version is now 3.6.x or higher, you can proceed to :ref:`install-
 
 2. Install ASReview (Unix)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If your Python version is 3.6+, you can start installing the ASReview
 software on your computer. Execute the following in the Terminal:
 
@@ -189,6 +195,7 @@ The plugin will be available automatically upon launching ASReview.
 
 3. Launch ASReview (Unix)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Congratulations! You are now ready to start using ASReview.
 Launch ASReview by executing in the Terminal:
 
@@ -281,14 +288,7 @@ First check whether the package is correctly installed. Do this with the command
 
 No module named 'pip'
 ~~~~~~~~~~~~~~~~~~~~~
-When installing or upgrading ASReview, it can occur that you run into the following warning:
-
-.. code-block::
-
-    WARNING: You are using pip version 19.2.3, however version 20.1.1 is available.
-    You should consider upgrading via the 'python -m pip install --upgrade pip' command.
-
-Or even run into error ``No module named 'pip'``:
+When installing or upgrading ASReview, you might run into error ``No module named 'pip'``:
 
 .. figure:: ../images/installation/upgrade_error_no_pip_module.jpg
    :alt:
@@ -305,39 +305,16 @@ Followed by
 
   python -m pip install --upgrade pip
 
-Now you should be able to upgrade ASReview by executing:
+Now you should be able to install ASReview by executing:
 
 .. code-block::
 
-    pip install --upgrade asreview
+    pip instal asreview
 
 Or if the last command is not succesful, try:
 
 .. code-block::
 
-    python -m pip install --upgrade asreview
+    python -m pip install asreview
 
 instead.
-
-Python3 command
-~~~~~~~~~~~~~~~
-
-Some users have to call the `python3` binary instead of just `python`. At the
-moment, this will result is a freeze in Step 5 of the review. The model is not
-able to train. Solve this by making `python3` the default `python` executable
-on your device or make a virtual environment.
-
-.. code::
-
-    python3 -m venv asreview/env
-    source ~/asreview/env/bin/activate
-
-Install and run `asreview` in the virtual environment.
-
-.. code::
-
-    pip install asreview
-    asreview oracle
-
-For more details on creating a virtual environment, please have a look at
-https://docs.python.org/3/library/venv.html.
