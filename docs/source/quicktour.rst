@@ -121,7 +121,8 @@ or irrelevant to your systematic review and click the Next button.
 
 
 Step 5. Select a Machine Learning Model
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 In the final step you are allowed to choose a machine learning model.
 The default model is Naive Bayes, but you can opt for a different model if you would like to. 
 After choosing your model, click `Start Reviewing`.
