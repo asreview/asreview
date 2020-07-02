@@ -9,7 +9,7 @@ Install ASReview
 ASReview software requires having Python 3.6 or higher installed. Detailed
 step-by-step instructions to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/installation-guide-windows/>`__ and
-`MacOS <https://asreview.nl/installation-guide-macos/>`__ users.
+`MacOS <https://asreview.nl/installation-guide-mac/>`__ users.
 
 Install the ASReview software with Pip by running the following command in the
 `CMD.exe` (Windows) or `Terminal` (MacOS/Linux):
@@ -79,7 +79,7 @@ installed.
 Most likely, the enviroment variables aren't configured correctly. Follow
 our detailed step-by-step instructions to install Python correctly on
 `Windows <https://asreview.nl/installation-guide-windows/>`__
-and `MacOS <https://asreview.nl/installation-guide-macos/>`__.
+and `MacOS <https://asreview.nl/installation-guide-mac/>`__.
 
 However, there is a simple way to deal with correct environment variables
 by ading `python -m` in front of the command. For example:
