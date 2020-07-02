@@ -20,7 +20,10 @@ import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
 import ExitDialog from './ExitDialog'
 import WelcomeScreen from './WelcomeScreen'
-import useDarkMode from './useDarkMode'
+import {
+  useDarkMode,
+  useTextSize,
+} from './SettingsHooks'
 
 import 'typeface-roboto'
 
@@ -41,7 +44,7 @@ const App = () => {
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [importProject, setImportProject] = React.useState(false);
-  const [textSize, setTextSize] = React.useState('Normal');
+  const [textSize, handleTextSizeChange] = useTextSize()
 
   const handleAppState = (step) => {
 
@@ -97,10 +100,6 @@ const App = () => {
       'reviewDrawerOpen': show,
     })
   }
-
-  const handleTextSizeChange = (event) => {
-    setTextSize(event.target.value);
-  };
 
   console.log("Current step: " + appState['step'])
 
