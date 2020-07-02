@@ -26,8 +26,7 @@ ASReview software implements two different modes:
 
 The ASReview software requires Python 3.6+. Detailed
 step-by-step instructions to install Python and ASReview are available for
-`Windows <https://asreview.nl/installation-guide-windows/>`__ and
-`MacOS <https://asreview.nl/installation-guide-mac/>`__ users. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
+[Windows](https://asreview.nl/installation-guide-windows/) and[MacOS](https://asreview.nl/installation-guide-mac/>) users. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
 project with (Windows users might have to use the prefix `python -m`):
 
 ```bash
