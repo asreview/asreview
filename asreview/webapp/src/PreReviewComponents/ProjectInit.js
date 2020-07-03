@@ -14,6 +14,7 @@ import {
   CardHeader,
   Avatar,
   CardContent,
+  Grow,
 } from '@material-ui/core'
 
 import { brown } from '@material-ui/core/colors';
@@ -71,11 +72,14 @@ const ProjectInit = (props) => {
   const classes = useStyles();
 
   // set project id
-  const [projectId, setProjectId] = React.useState(props.project_id)
+  // const [projectId, setProjectId] = React.useState(props.project_id)
 
   // the state of the app (new, edit or lock)
-  const [state, setState] = React.useState(props.project_id !== null ? "lock" : "new")
+  const [state, setState] = React.useState(
+    props.project_id !== null ? "lock" : "new"
+  )
 
+  // help dialog
   const [help, openHelp, closeHelp] = useHelp()
 
   // the state of the form data
@@ -96,11 +100,14 @@ const ProjectInit = (props) => {
   const submitForm = (evt) => {
     evt.preventDefault();
 
+    let http_method;
     let url;
     if (state === "edit"){
-      url = api_url + "project/" + props.project_id + "/info/update";
+      url = api_url + "project/" + props.project_id + "/info"
+      http_method = "put"
     }  else {
-      url = api_url + "project/new";
+      url = api_url + "project/info"
+      http_method = "post"
     }
 
     var bodyFormData = new FormData();
@@ -109,7 +116,7 @@ const ProjectInit = (props) => {
     bodyFormData.set('description', info.description);
 
     axios({
-      method: 'post',
+      method: http_method,
       url: url,
       data: bodyFormData,
       headers: {'Content-Type': 'multipart/form-data' }
@@ -119,9 +126,10 @@ const ProjectInit = (props) => {
       console.log("Submit project: " + response.data["id"])
 
       // set the project_id in the redux store
-      store.dispatch(
-        setProject(response.data["id"])
-      );
+      // store.dispatch(
+      //   setProject(response.data["id"])
+      // );
+      props.setProjectId(response.data["id"])
 
       // // set project id
       // setProjectId(response.data["id"]);
@@ -129,8 +137,13 @@ const ProjectInit = (props) => {
       // set the card state to lock
       setState("lock");
 
-      // go to the next step
-      props.handleStep(1, response.data["id"]);
+      if (state === "edit"){
+        // do nothing with the steps but update the project_id
+        // props.setProjectId(response.data["id"])
+      }  else {
+        // go to the next step
+        props.handleStep(1)  //, response.data["id"]);
+      }
 
     })
     .catch(function (response) {
@@ -176,102 +189,120 @@ const ProjectInit = (props) => {
 
     // run if the state is "lock"
     if (state === "lock"){
-        // fetchProjectInfo();
+        fetchProjectInfo();
     }
 
   }, [state]);
 
+  console.log("Init_project_id: " + props.project_id)
+  console.log(store.getState()["project_id"])
+
   return (
     <Box>
 
-    <Paper className="Card">
+      <Grow in={true}>
+      <Paper className="Card">
 
-      <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            1
-          </Avatar>
-        }
-        action={
-          <Box>
-          {state === "lock" &&
-            <Tooltip title="Edit">
+        <CardHeader
+          avatar={
+            <Avatar aria-label="recipe" className={classes.avatar}>
+              1
+            </Avatar>
+          }
+          action={
+            <Box>
+            {state === "lock" &&
+              <Tooltip title="Edit">
 
-              <IconButton
-                aria-label="project-info-edit"
-                onClick={editInfo}
-              >
-                <EditIcon />
-              </IconButton>
+                <IconButton
+                  aria-label="project-info-edit"
+                  onClick={editInfo}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+            }
+
+            <Tooltip title="Help">
+
+            <IconButton
+              onClick={openHelp}
+              aria-label="project-info-help"
+            >
+              <HelpIcon />
+            </IconButton>
             </Tooltip>
+            </Box>
+          }
+          title="Create a project"
+        />
+
+        {(state !== "lock" && state !== "submit") &&
+          <CardContent>
+          {/* The actual form */}
+            <form noValidate autoComplete="off">
+              <div className={classes.textfieldItem}>
+                <TextField
+                  fullWidth
+                  autoFocus={true}
+                  required
+                  name="name"
+                  id="project-name"
+                  label="Project name"
+                  onChange={onChange}
+                  value={info.name}
+                />
+              </div>
+              <div className={classes.textfieldItem}>
+                <TextField
+                  fullWidth
+                  name="authors"
+                  id="project-author"
+                  label="Your name"
+                  onChange={onChange}
+                  value={info.authors}
+                />
+              </div>
+
+              <div className={classes.textfieldItem}>
+                <TextField
+                  fullWidth
+                  name="description"
+                  id="project-description"
+                  label="Short description"
+                  onChange={onChange}
+                  value={info.description}
+                />
+              </div>
+            </form>
+            {state !== "lock" &&
+              <Button
+                disabled={info.name.length < 3}
+                onClick={submitForm}
+              >
+                Save
+              </Button>
+            }
+            </CardContent>
           }
 
-          <Tooltip title="Help">
+          {(state === "lock" || state === "submit") &&
+            <CardContent className="cardHighlight">
+              <Typography
+                variant="h4"
+                noWrap={true}
+              >
+              {info.name}
+              </Typography>
+              <Typography variant="subtitle1">{info.authors}</Typography>
+              <Typography variant="subtitle1">{info.description}</Typography>
+            </CardContent>
 
-          <IconButton
-            onClick={openHelp}
-            aria-label="project-info-help"
-          >
-            <HelpIcon />
-          </IconButton>
-          </Tooltip>
-          </Box>
-        }
-        title="Create a project"
-      />
+          }
 
 
-      <CardContent>
-      {/* The actual form */}
-        <form noValidate autoComplete="off">
-          <div className={classes.textfieldItem}>
-            <TextField
-              fullWidth
-              autoFocus={true}
-              disabled={state === "lock" || state === "submit"}
-              required
-              name="name"
-              id="project-name"
-              label="Project name"
-              onChange={onChange}
-              value={info.name}
-            />
-          </div>
-          <div className={classes.textfieldItem}>
-            <TextField
-              fullWidth
-              disabled={state === "lock" || state === "submit"}
-              name="authors"
-              id="project-author"
-              label="Author(s)"
-              onChange={onChange}
-              value={info.authors}
-            />
-          </div>
-
-          <div className={classes.textfieldItem}>
-            <TextField
-              fullWidth
-              disabled={state === "lock" || state === "submit"}
-              name="description"
-              id="project-description"
-              label="Short description"
-              onChange={onChange}
-              value={info.description}
-            />
-          </div>
-        </form>
-        {state !== "lock" &&
-          <Button
-            disabled={info.name.length < 3}
-            onClick={submitForm}
-          >
-            Save
-          </Button>
-        }
-        </CardContent>
-
-      </Paper>
+        </Paper>
+      </Grow>
 
        <Snackbar
           anchorOrigin={{
@@ -308,4 +339,13 @@ const ProjectInit = (props) => {
   )
 }
 
-export default ProjectInit;
+function mapDispatchToProps(dispatch) {
+    return({
+        setProjectId: (project_id) => {dispatch(setProject(project_id))}
+    })
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ProjectInit);

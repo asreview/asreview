@@ -15,6 +15,7 @@ import {
   Avatar,
   Tooltip,
   IconButton,
+  Grow,
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
@@ -227,6 +228,9 @@ const PriorKnowledge = (props) => {
       {/* Display the prior info once loaded */}
       {priorStats.n_prior !== null &&
 
+      <Grow
+        in={true}
+      >
         <Paper className="Card">
 
 
@@ -372,6 +376,7 @@ const PriorKnowledge = (props) => {
       }
 
     </Paper>
+    </Grow>
 
       }
 

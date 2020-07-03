@@ -5,10 +5,15 @@ const initialState = {
 };
 
 function rootReducer(state = initialState, action) {
-  if (action.type === SET_PROJECT) {
-    state.project_id = action.payload;
+  switch (action.type) {
+    case SET_PROJECT:
+      return Object.assign({}, state, {
+        project_id: action.project_id
+      })
+    default:
+      return state
   }
-  return state;
+
 }
 
 export default rootReducer;

@@ -10,6 +10,7 @@ export const donateURL = "https://asreview.nl/donate";
 
 
 export const mapStateToProps = state => {
+	console.log("Map the state to props: " + state.project_id)
   return { project_id: state.project_id };
 };
 

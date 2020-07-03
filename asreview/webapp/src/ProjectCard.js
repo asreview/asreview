@@ -33,8 +33,6 @@ const ProjectCard = (props) => {
     // set the state in the redux store
     store.dispatch(setProject(props.id))
 
-    console.log(props.projectInitReady)
-
     if (props.projectInitReady){
       // change to the review window
       props.handleAppState("review")

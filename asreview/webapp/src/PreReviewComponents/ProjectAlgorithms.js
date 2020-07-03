@@ -13,6 +13,7 @@ import {
   Avatar,
   Tooltip,
   IconButton,
+  Grow,
 } from '@material-ui/core'
 
 import { blue, green, brown } from '@material-ui/core/colors';
@@ -67,100 +68,101 @@ const ProjectAlgorithms = (props) => {
   return (
     <Box>
 
-      <Paper className="Card">
+      <Grow in={true}>
+        <Paper className="Card">
 
-        <Box>
-          <CardHeader
-            avatar={
-              <Avatar aria-label="recipe" className={classes.avatar}>
-                4
-              </Avatar>
-            }
-            action={
-              <Box>
-              {state === "lock" &&
-                <Tooltip title="Edit">
-
-                  <IconButton
-                    aria-label="project-algorithms-edit"
-                    onClick={() => {}}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
+          <Box>
+            <CardHeader
+              avatar={
+                <Avatar aria-label="recipe" className={classes.avatar}>
+                  4
+                </Avatar>
               }
+              action={
+                <Box>
+                {state === "lock" &&
+                  <Tooltip title="Edit">
 
-              <Tooltip title="Help">
+                    <IconButton
+                      aria-label="project-algorithms-edit"
+                      onClick={() => {}}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                }
 
-              <IconButton
-                onClick={openHelp}
-                aria-label="project-algorithms-help"
-              >
-                <HelpIcon />
-              </IconButton>
-              </Tooltip>
-              </Box>
-            }
-            title="Select algorithms"
-          />
+                <Tooltip title="Help">
+
+                <IconButton
+                  onClick={openHelp}
+                  aria-label="project-algorithms-help"
+                >
+                  <HelpIcon />
+                </IconButton>
+                </Tooltip>
+                </Box>
+              }
+              title="Select algorithms"
+            />
 
 
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={3}>
-                  <Typography variant="body2" className={classes.listTitle}>
-                      Machine learning models
-                  </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" className={classes.listTitle}>
+                        Machine learning models
+                    </Typography>
 
-                  <List dense={true}>
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'nb'}
-                        value="nb"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Naïve Bayes' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Naïve Bayes" />
-                    </ListItem>
+                    <List dense={true}>
+                      <ListItem>
+                        <Radio
+                          checked={machineLearningModel === 'nb'}
+                          value="nb"
+                          color="default"
+                          inputProps={{ 'aria-label': 'Naïve Bayes' }}
+                          onChange={handleMachineLearningModelChange}
+                        />
+                        <ListItemText primary="Naïve Bayes" />
+                      </ListItem>
 
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'svm'}
-                        value="svm"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Support Vector Machines' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Support Vector Machines" />
-                    </ListItem>
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'logistic'}
-                        value="logistic"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Logistic Regression' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Logistic Regression" />
-                    </ListItem>
+                      <ListItem>
+                        <Radio
+                          checked={machineLearningModel === 'svm'}
+                          value="svm"
+                          color="default"
+                          inputProps={{ 'aria-label': 'Support Vector Machines' }}
+                          onChange={handleMachineLearningModelChange}
+                        />
+                        <ListItemText primary="Support Vector Machines" />
+                      </ListItem>
+                      <ListItem>
+                        <Radio
+                          checked={machineLearningModel === 'logistic'}
+                          value="logistic"
+                          color="default"
+                          inputProps={{ 'aria-label': 'Logistic Regression' }}
+                          onChange={handleMachineLearningModelChange}
+                        />
+                        <ListItemText primary="Logistic Regression" />
+                      </ListItem>
 
-                    <ListItem>
-                      <Radio
-                        checked={machineLearningModel === 'rf'}
-                        value="rf"
-                        color="default"
-                        inputProps={{ 'aria-label': 'Random Forest' }}
-                        onChange={handleMachineLearningModelChange}
-                      />
-                      <ListItemText primary="Random Forest" />
-                    </ListItem>
-                  </List>
+                      <ListItem>
+                        <Radio
+                          checked={machineLearningModel === 'rf'}
+                          value="rf"
+                          color="default"
+                          inputProps={{ 'aria-label': 'Random Forest' }}
+                          onChange={handleMachineLearningModelChange}
+                        />
+                        <ListItemText primary="Random Forest" />
+                      </ListItem>
+                    </List>
+                  </Grid>
+
                 </Grid>
-
-              </Grid>
-            </Box>
-      </Paper>
-
+              </Box>
+        </Paper>
+      </Grow>
 
       <Help
         open={help}

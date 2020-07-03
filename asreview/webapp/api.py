@@ -109,7 +109,7 @@ def api_get_projects():  # noqa: F401
     return response
 
 
-@bp.route('/project/new', methods=["POST"])
+@bp.route('/project/info', methods=["POST"])
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
@@ -174,7 +174,7 @@ def api_get_project_info(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/info/update', methods=["POST"])  # This should be PUT
+@bp.route('/project/<project_id>/info', methods=["PUT"])
 def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 

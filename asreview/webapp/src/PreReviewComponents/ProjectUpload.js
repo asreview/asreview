@@ -21,6 +21,7 @@ import {
   Tooltip,
   IconButton,
   CardContent,
+  Grow,
 } from '@material-ui/core'
 
 import { blue, green, brown } from '@material-ui/core/colors';
@@ -313,171 +314,175 @@ const ProjectUpload = (props) => {
   }, []);
 
   return (
-  <Box>
+  <Box minHeight={"100%"}>
 
-    <Paper className={classes.root}>
+    <Grow
+      in={true}
+    >
+      <Paper className={classes.root}>
 
-      <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            2
-          </Avatar>
-        }
-        action={
-          <Box>
-          {state !== null &&
-            <Tooltip title="Edit">
-
-              <IconButton
-                aria-label="project-info-edit"
-                onClick={editDataset}
-              >
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
+        <CardHeader
+          avatar={
+            <Avatar aria-label="recipe" className={classes.avatar}>
+              2
+            </Avatar>
           }
+          action={
+            <Box>
+            {state !== null &&
+              <Tooltip title="Edit">
 
-          <Tooltip title="Help">
+                <IconButton
+                  aria-label="project-info-edit"
+                  onClick={editDataset}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+            }
 
-          <IconButton
-            onClick={openHelp}
-            aria-label="project-dataset-help"
-          >
-            <HelpIcon />
-          </IconButton>
-          </Tooltip>
-          </Box>
-        }
-        title="Select a dataset"
-      />
+            <Tooltip title="Help">
 
-      <Dialog
-        open={openWarning}
-        onClose={handleCloseWarning}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Are you sure you want to pick a new dataset?"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Going back to this step removes all prior knowledge.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseWarning} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={editDatasetOke} color="primary" autoFocus>
-            Oke
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-
-        {state === null &&
-
-          <Box>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              indicatorColor="primary"
-              textColor="primary"
-              variant="scrollable"
-              scrollButtons="auto"
+            <IconButton
+              onClick={openHelp}
+              aria-label="project-dataset-help"
             >
-              <Tab label="From file" />
-              <Tab label="From url" />
-              <Tab label="From plugin" />
-              <Tab label="Example datasets" />
-            </Tabs>
+              <HelpIcon />
+            </IconButton>
+            </Tooltip>
+            </Box>
+          }
+          title="Select a dataset"
+        />
 
-          <CardContent>
-            {value === 0 &&
+        <Dialog
+          open={openWarning}
+          onClose={handleCloseWarning}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Are you sure you want to pick a new dataset?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Going back to this step removes all prior knowledge.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseWarning} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={editDatasetOke} color="primary" autoFocus>
+              Oke
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-              <div>
-                <div className={classes.upload} {...getRootProps({style})}>
-                  <input {...getInputProps()} />
-                  <Typography>Drag 'n' drop a file here, or click to a file</Typography>
-                </div>
 
-                {file !== null &&
-                  <div>
-                    <Typography>File '{file.path}' selected.</Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      disabled={upload}
-                      onClick={() => onUploadHandlerFile()}
-                      className={classes.uploadButton}
-                    >
-                      {upload ? "Uploading..." : "Upload"}
-                    </Button>
+          {state === null &&
+
+            <Box>
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                indicatorColor="primary"
+                textColor="primary"
+                variant="scrollable"
+                scrollButtons="auto"
+              >
+                <Tab label="From file" />
+                <Tab label="From url" />
+                <Tab label="From plugin" />
+                <Tab label="Example datasets" />
+              </Tabs>
+
+            <CardContent>
+              {value === 0 &&
+
+                <div>
+                  <div className={classes.upload} {...getRootProps({style})}>
+                    <input {...getInputProps()} />
+                    <Typography>Drag 'n' drop a file here, or click to a file</Typography>
                   </div>
-                }
-              </div>
-            }
 
-            {value === 1 &&
-              <div>
-                <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
-                <ProjectUploadURL
-                  upload={upload}
-                  onUploadHandler={onUploadHandlerURL}
-                />
-              </div>
-            }
+                  {file !== null &&
+                    <div>
+                      <Typography>File '{file.path}' selected.</Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={upload}
+                        onClick={() => onUploadHandlerFile()}
+                        className={classes.uploadButton}
+                      >
+                        {upload ? "Uploading..." : "Upload"}
+                      </Button>
+                    </div>
+                  }
+                </div>
+              }
 
-            {value === 2 &&
-              <ProjectUploadDatasets
-                subset={"plugin"}
-                onUploadHandler={onUploadHandlerDemoDataset}
-              />
-            }
+              {value === 1 &&
+                <div>
+                  <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
+                  <ProjectUploadURL
+                    upload={upload}
+                    onUploadHandler={onUploadHandlerURL}
+                  />
+                </div>
+              }
 
-            {value === 3 &&
-
-              <div>
-                <Typography>Example datasets are useful for testing algorithms because they are fully labeled into relevant and irrelevant. Relevant articles will display up in red and irrelevant articles in black.</Typography>
+              {value === 2 &&
                 <ProjectUploadDatasets
-                  subset={"test"}
+                  subset={"plugin"}
                   onUploadHandler={onUploadHandlerDemoDataset}
                 />
-              </div>
-            }
-          </CardContent>
-      </Box>
+              }
 
-    }
+              {value === 3 &&
 
-    {/* The Card with the selected dataset */}
-    {state !== null &&
-      <CardContent className="cardHighlight">
-        <Typography
-          variant="h4"
-          noWrap={true}
-        >
-        {state['filename']}
-        </Typography>
-        <Box>
-          <Typography style={{ color: green[500] }} ><CheckIcon/> Successfull upload</Typography>
+                <div>
+                  <Typography>Example datasets are useful for testing algorithms because they are fully labeled into relevant and irrelevant. Relevant articles will display up in red and irrelevant articles in black.</Typography>
+                  <ProjectUploadDatasets
+                    subset={"test"}
+                    onUploadHandler={onUploadHandlerDemoDataset}
+                  />
+                </div>
+              }
+            </CardContent>
         </Box>
-        <Typography variant="subtitle1">{state['n_rows']} publications</Typography>
-      </CardContent>
 
-    }
+      }
 
-    {/* The Card with the selected dataset */}
-    {error !== null &&
-      <Box>
-        <Typography variant="h2">Error</Typography>
-        <Typography variant="subtitle1">{error}</Typography>
+      {/* The Card with the selected dataset */}
+      {state !== null &&
+        <CardContent className="cardHighlight">
+          <Typography
+            variant="h4"
+            noWrap={true}
+          >
+          {state['filename']}
+          </Typography>
+          <Box>
+            <Typography style={{ color: green[500] }} ><CheckIcon/> Successfull upload</Typography>
+          </Box>
+          <Typography variant="subtitle1">{state['n_rows']} publications</Typography>
+        </CardContent>
 
-        <Button color="inherit" size="small" onClick={() => {setError(null)}}>
-          Close
-        </Button>
-      </Box>
-    }
-    </Paper>
+      }
+
+      {/* The Card with the selected dataset */}
+      {error !== null &&
+        <Box>
+          <Typography variant="h2">Error</Typography>
+          <Typography variant="subtitle1">{error}</Typography>
+
+          <Button color="inherit" size="small" onClick={() => {setError(null)}}>
+            Close
+          </Button>
+        </Box>
+      }
+      </Paper>
+    </Grow>
 
 
     <Help

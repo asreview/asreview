@@ -20,6 +20,11 @@ import {
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
 
+import { connect } from "react-redux";
+import store from '../redux/store'
+
+import { api_url, mapStateToProps } from '../globals.js';
+
 const useStyles = makeStyles(theme => ({
   box: {
     marginTop: 20,
@@ -64,14 +69,12 @@ const PreReviewZone = (props) => {
   const EndRef = useRef(null)
 
   const [state, setState] = React.useState({
-    project_id: null,
+    project_id: props.project_id,
     step: 0,
     ready: false
   });
 
   const handleNext = (evt, project_id) => {
-
-    console.log(project_id)
 
     handleStep(state.step + 1, project_id)
 
@@ -106,7 +109,9 @@ const PreReviewZone = (props) => {
     EndRef.current.scrollIntoView({ behavior: "smooth" })
   }
 
+  console.log("PreReviewZone updates and project_id: " + props.project_id)
   console.log(state)
+  console.log(store.getState()["project_id"])
 
   return (
 
@@ -204,4 +209,4 @@ const PreReviewZone = (props) => {
   )
 }
 
-export default PreReviewZone;
+export default connect(mapStateToProps)(PreReviewZone);
