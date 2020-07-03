@@ -64,15 +64,22 @@ def init_project(
         fp_data = project_dir / "data"
         fp_data.mkdir()
 
+        project_config = {
+            'version': asreview_version,  # todo: Fail without git?
+            'id': project_id,
+            'name': project_name,
+            'description': project_description,
+            'authors': project_authors,
+
+            # project related variables
+            'projectInitReady': False,
+        }
+
         # create a file with project info
         with open(get_project_file_path(project_id), "w") as fp:
-            json.dump({
-                'version': asreview_version,  # todo: Fail without git?
-                'id': project_id,
-                'name': project_name,
-                'description': project_description,
-                'authors': project_authors
-            }, fp)
+            json.dump(project_config, fp)
+
+        return project_config
 
     except Exception as err:
         # remove all generated folders and raise error

@@ -91,8 +91,13 @@ def api_get_projects():  # noqa: F401
         try:
             with open(proj / "project.json", "r") as f:
                 res = json.load(f)
-                assert res["id"] is not None
-                project_info.append(res)
+
+            # backwards support <0.10
+            if "projectInitReady" not in res:
+                res["projectInitReady"] = True
+
+            project_info.append(res)
+
         except Exception as err:
             logging.error(err)
 
@@ -117,19 +122,14 @@ def api_init_project():  # noqa: F401
     project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
     try:
-        init_project(
+        project_config = init_project(
             project_id,
             project_name=project_name,
             project_description=project_description,
             project_authors=project_authors
         )
 
-        response = jsonify({
-            "id": project_id,
-            "name": project_name,
-            "description": project_description,
-            "authors": project_authors
-        })
+        response = jsonify(project_config)
 
     except Exception as err:
         logging.error(err)
@@ -137,70 +137,6 @@ def api_init_project():  # noqa: F401
 
         return response, 500
 
-    return response
-
-
-@bp.route('/project/import_project', methods=["POST"])
-def api_import_project():
-    """Import uploaded project"""
-
-    if 'file' in request.files:
-
-        project_file = request.files['file']
-        filename = secure_filename(project_file.filename)
-
-        # check the file format
-        if not os.path.splitext(filename)[1] == ".asreview":
-            response = jsonify(message="Incorrect file format.")
-            return response, 400
-
-        try:
-
-            with zipfile.ZipFile(project_file, "r") as zipObj:
-                FileNames = zipObj.namelist()
-
-                # check if the zip file contains a ASReview project
-                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
-
-                    # extract all files to a temporary folder
-                    tmpdir = tempfile.TemporaryDirectory()
-                    zipObj.extractall(path=tmpdir.name)
-
-                    for fn in FileNames:
-                        if fn.endswith("project.json"):
-                            fp = Path(tmpdir.name, fn)
-                            with open(fp, "r+") as f:
-                                project = json.load(f)
-
-                                # if the uploaded project already exists, then make a copy
-                                if is_project(project["id"]):
-                                    project["id"] += " copy"
-                                    project["name"] += " copy"
-                                    f.seek(0)
-                                    json.dump(project, f)
-                                    f.truncate()
-                else:
-                    response = jsonify(message="No project found within the chosen file.")
-                    return response, 404
-            try:
-                # check if a copy of a project already exists
-                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
-
-            except Exception as err:
-                logging.error(err)
-                response = jsonify(message=f"A copy of {project['id'][:-5]} already exists.")
-                return response, 400
-
-        except Exception as err:
-            logging.error(err)
-            response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
-            return response, 400
-    else:
-        response = jsonify(message="No file found to upload.")
-        return response, 400
-
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
@@ -214,7 +150,14 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # read the file with project info
         with open(get_project_file_path(project_id), "r") as fp:
-            response = jsonify(json.load(fp))
+
+            project_info = json.load(fp)
+
+        # backwards support <0.10
+        if "projectInitReady" not in project_info:
+            project_info["projectInitReady"] = True
+
+        response = jsonify(project_info)
 
     except FileNotFoundError as err:
         logging.error(err)
@@ -231,7 +174,7 @@ def api_get_project_info(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/info/update', methods=["POST"])
+@bp.route('/project/<project_id>/info/update', methods=["POST"])  # This should be PUT
 def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
@@ -244,14 +187,23 @@ def api_update_project_info(project_id):  # noqa: F401
     project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
     try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+
+        project_info["id"] = project_id_new
+        project_info["name"] = project_name
+        project_info["authors"] = project_authors
+        project_info["description"] = project_description
+
+        # # backwards support <0.10
+        # if "projectInitReady" not in project_info:
+        #     project_info["projectInitReady"] = True
+
         # update the file with project info
         with open(get_project_file_path(project_id), "w") as fp:
-            json.dump({
-                'id': project_id_new,
-                'name': project_name,
-                'description': project_description,
-                'authors': project_authors
-            }, fp)
+            json.dump(project_info, fp)
 
         # rename the folder
         get_project_path(project_id) \
@@ -623,6 +575,17 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     if get_proba_path(project_id).exists():
         logging.info("Model trained - go to review screen")
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+
+        project_info["projectInitReady"] = True
+
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
+
         response = jsonify(
             {'status': 1}
         )
@@ -631,6 +594,70 @@ def api_init_model_ready(project_id):  # noqa: F401
             {'status': 0}
         )
 
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/import_project', methods=["POST"])
+def api_import_project():
+    """Import uploaded project"""
+
+    if 'file' in request.files:
+
+        project_file = request.files['file']
+        filename = secure_filename(project_file.filename)
+
+        # check the file format
+        if not os.path.splitext(filename)[1] == ".asreview":
+            response = jsonify(message="Incorrect file format.")
+            return response, 400
+
+        try:
+
+            with zipfile.ZipFile(project_file, "r") as zipObj:
+                FileNames = zipObj.namelist()
+
+                # check if the zip file contains a ASReview project
+                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
+
+                    # extract all files to a temporary folder
+                    tmpdir = tempfile.TemporaryDirectory()
+                    zipObj.extractall(path=tmpdir.name)
+
+                    for fn in FileNames:
+                        if fn.endswith("project.json"):
+                            fp = Path(tmpdir.name, fn)
+                            with open(fp, "r+") as f:
+                                project = json.load(f)
+
+                                # if the uploaded project already exists, then make a copy
+                                if is_project(project["id"]):
+                                    project["id"] += " copy"
+                                    project["name"] += " copy"
+                                    f.seek(0)
+                                    json.dump(project, f)
+                                    f.truncate()
+                else:
+                    response = jsonify(message="No project found within the chosen file.")
+                    return response, 404
+            try:
+                # check if a copy of a project already exists
+                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
+
+            except Exception as err:
+                logging.error(err)
+                response = jsonify(message=f"A copy of {project['id'][:-5]} already exists.")
+                return response, 400
+
+        except Exception as err:
+            logging.error(err)
+            response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
+            return response, 400
+    else:
+        response = jsonify(message="No file found to upload.")
+        return response, 400
+
+    response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 

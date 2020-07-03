@@ -33,8 +33,15 @@ const ProjectCard = (props) => {
     // set the state in the redux store
     store.dispatch(setProject(props.id))
 
-    // change to the review window
-    props.handleAppState("review")
+    console.log(props.projectInitReady)
+
+    if (props.projectInitReady){
+      // change to the review window
+      props.handleAppState("review")
+    } else {
+      props.handleAppState("review-init")
+    }
+
   }
 
   const toggleProjectSettings = () => {
