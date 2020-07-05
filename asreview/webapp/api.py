@@ -525,6 +525,52 @@ def api_random_prior_papers(project_id):  # noqa: F401
     return response
 
 
+@bp.route('/project/<project_id>/algorithms', methods=["GET"])
+def api_get_algorithms(project_id):  # noqa: F401
+
+    # check if there is a kwargs file
+    try:
+        # open the projects file
+        with open(get_kwargs_path(project_id), "r") as f_read:
+            kargs_dict = json.load(f_read)
+
+    except FileNotFoundError:
+        # set the kwargs dict to setup kwargs
+        kargs_dict = {}
+
+    response = jsonify(kargs_dict)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/algorithms', methods=["POST"])
+def api_set_algorithms(project_id):  # noqa: F401
+
+    # check if there is a kwargs file
+    try:
+        # open the projects file
+        with open(get_kwargs_path(project_id), "r") as f_read:
+            kargs_dict = json.load(f_read)
+
+    except FileNotFoundError:
+        # set the kwargs dict to setup kwargs
+        kargs_dict = deepcopy(app.config['asr_kwargs'])
+
+    # add the machine learning model to the kwargs
+    # TODO@{Jonathan} validate model choice on server side
+    ml_model = request.form.get("model", None)
+    if ml_model:
+        kargs_dict["model"] = ml_model
+
+    # write the kwargs to a file
+    with open(get_kwargs_path(project_id), "w") as f_write:
+        json.dump(kargs_dict, f_write)
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 @bp.route('/project/<project_id>/start', methods=["POST"])
 def api_start(project_id):  # noqa: F401
     """Start training the model
@@ -535,7 +581,7 @@ def api_start(project_id):  # noqa: F401
 
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("machine_learning_model", None)
+    ml_model = request.form.get("model", None)
     if ml_model:
         asr_kwargs["model"] = ml_model
 

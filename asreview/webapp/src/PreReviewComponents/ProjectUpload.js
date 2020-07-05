@@ -313,6 +313,34 @@ const ProjectUpload = (props) => {
     props.scrollToBottom()
   }, []);
 
+
+  useEffect(() => {
+
+    const fetchProjectInfo = async () => {
+
+      // contruct URL
+      const url = api_url + "project/" + props.project_id + "/data";
+
+      axios.get(url)
+        .then((result) => {
+
+          // set statistics
+          setState(result.data);
+
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    // run if the state is "lock"
+    if (state === null){
+        fetchProjectInfo();
+    }
+
+  }, [state]);
+
+
   return (
   <Box minHeight={"100%"}>
 

@@ -34,9 +34,10 @@ const ProjectCard = (props) => {
     store.dispatch(setProject(props.id))
 
     if (props.projectInitReady){
-      // change to the review window
+      // the project is fully initialized, go directly to the review screen
       props.handleAppState("review")
     } else {
+      // the project init isn't ready yet, go the project setup page.
       props.handleAppState("review-init")
     }
 

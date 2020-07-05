@@ -69,36 +69,30 @@ const PreReviewZone = (props) => {
   const EndRef = useRef(null)
 
   const [state, setState] = React.useState({
-    project_id: props.project_id,
-    step: 0,
+    new: (props.project_id === null),
+    step: (props.project_id === null) ? 0 : 3,
     ready: false
   });
 
-  const handleNext = (evt, project_id) => {
+  const handleNext = (evt) => {
 
-    handleStep(state.step + 1, project_id)
+    handleStep(state.step + 1)
 
   };
 
   const isReady = () => {
 
     setState({
-      project_id: state.project_id,
+      new: state.new,
       step: state.step,
       ready: true,
     });
   }
 
-  const handleStep = (index, project_id) => {
-
-    let project_id_update = state.project_id
-
-    if (project_id !== undefined){
-      project_id_update = project_id
-    }
+  const handleStep = (index) => {
 
     setState({
-      project_id: project_id_update,
+      new: state.new,
       step: index,
       ready: state.ready,
     });
@@ -109,9 +103,7 @@ const PreReviewZone = (props) => {
     EndRef.current.scrollIntoView({ behavior: "smooth" })
   }
 
-  console.log("PreReviewZone updates and project_id: " + props.project_id)
   console.log(state)
-  console.log(store.getState()["project_id"])
 
   return (
 
@@ -123,7 +115,7 @@ const PreReviewZone = (props) => {
         {(state.step >= 0 && state.step < 4) &&
           <Box>
             <ProjectInit
-              project_id={state.project_id}
+              project_id={props.project_id}
               handleStep={handleStep}
               isReady={isReady}
             />
@@ -132,7 +124,7 @@ const PreReviewZone = (props) => {
         {(state.step >= 1 && state.step < 4) &&
           <Box>
             <ProjectUpload
-              project_id={state.project_id}
+              project_id={props.project_id}
               handleNext={handleNext}
               handleStep={handleStep}
               isReady={isReady}
@@ -144,7 +136,7 @@ const PreReviewZone = (props) => {
         {(state.step >= 2 && state.step < 4) &&
           <Box>
             <PriorKnowledge
-              project_id={state.project_id}
+              project_id={props.project_id}
               handleNext={handleNext}
               isReady={isReady}
               scrollToBottom={scrollToBottom}
@@ -156,7 +148,9 @@ const PreReviewZone = (props) => {
       {(state.step >= 3 && state.step < 4) &&
           <Box>
             <ProjectAlgorithms
-              project_id={state.project_id}
+              project_id={props.project_id}
+              new={state.new}
+              edit={state.new}
               scrollToBottom={scrollToBottom}
               handleReviewDrawer={props.handleReviewDrawer}
             />
@@ -176,33 +170,23 @@ const PreReviewZone = (props) => {
         >
           Next
         </Button>
-
       }
+
       {state.step === 3 &&
 
         <Button
           variant="contained"
           color="primary"
           disabled={false}
-          onClick={handleNext}
+          onClick={() => props.handleAppState("train-first-model")}
           className={classes.nextButton}
         >
           Finish
         </Button>
-
       }
+
       </Container>
     }
-
-    {state.step === 4 &&
-
-      <StartReview
-        project_id={state.project_id}
-        handleAppState={props.handleAppState}
-      />
-
-    }
-
 
     </Box>
 

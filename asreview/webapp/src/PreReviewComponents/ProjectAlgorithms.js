@@ -48,22 +48,108 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const defaultModels = {
+  model: "nb"
+}
+
 const ProjectAlgorithms = (props) => {
   const classes = useStyles();
 
-  const [state, setState] = React.useState("edit")
+  // state 'edit' or 'lock'
+  const [state, setState] = React.useState({
+    // is this a new card? If undefined, it is assumed to be new
+    new: (props.new === undefined) ? true : props.new,
+    // open card in edit mode or not
+    edit: (props.edit === undefined) ? true : props.edit,
+  })
 
+  const [algorithms, setAlgorithms] = React.useState(
+    (props.new === undefined || props.new) ? defaultModels : null
+  );
+
+  // help button
   const [help, openHelp, closeHelp] = useHelp();
 
-  const [machineLearningModel, setmachineLearningModel] = React.useState('nb');
+  // algorithm change
+  const handleAlgorithmChange = (event) => {
 
-  const handleMachineLearningModelChange = (event) => {
-    setmachineLearningModel(event.target.value);
+    // set the algorithms state
+    setAlgorithms({
+      model: event.target.value
+    })
+
   };
 
+  // send an update to the server on a model change
   useEffect(() => {
+
+    if (algorithms !== null){
+        var bodyFormData = new FormData();
+        bodyFormData.set('model', algorithms.model);
+
+        axios({
+          method: "post",
+          url: api_url + "project/" + props.project_id + "/algorithms",
+          data: bodyFormData,
+          headers: {'Content-Type': 'multipart/form-data' }
+        })
+        .then(function (response) {
+          // nothing to do
+
+        })
+        .catch(function (response) {
+            //handle error
+            // setError(true);
+        });
+    }
+
+  }, [algorithms]);
+
+  // if the state is lock, then fetch the data
+  useEffect(() => {
+
+    // fetch algorithms info
+    const fetchAlgorithmsSettings = async () => {
+
+      // contruct URL
+      const url = api_url + "project/" + props.project_id + "/algorithms";
+
+      axios.get(url)
+        .then((result) => {
+
+          console.log("Get algorithms")
+          console.log(result.data)
+
+          if ("model" in result.data){
+            // set the project algorithms
+            setAlgorithms(result.data);
+          } else {
+            // set the state to new
+            setState({
+              new: true,
+              edit: state.edit,
+            })
+            setAlgorithms(defaultModels);
+          }
+
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    // scroll into view
     props.scrollToBottom()
-  }, []);
+
+    // get the values if locked
+    if (!state.new){
+        fetchAlgorithmsSettings();
+    }
+
+  }, [state.new]);
+
+  console.log(algorithms)
+  console.log(state)
 
   return (
     <Box>
@@ -80,7 +166,7 @@ const ProjectAlgorithms = (props) => {
               }
               action={
                 <Box>
-                {state === "lock" &&
+                {!state.edit &&
                   <Tooltip title="Edit">
 
                     <IconButton
@@ -106,53 +192,54 @@ const ProjectAlgorithms = (props) => {
               title="Select algorithms"
             />
 
-
+              {algorithms !== null &&
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={3}>
                     <Typography variant="body2" className={classes.listTitle}>
                         Machine learning models
                     </Typography>
 
+                    {}
                     <List dense={true}>
                       <ListItem>
                         <Radio
-                          checked={machineLearningModel === 'nb'}
+                          checked={algorithms["model"] === 'nb'}
                           value="nb"
                           color="default"
                           inputProps={{ 'aria-label': 'Naïve Bayes' }}
-                          onChange={handleMachineLearningModelChange}
+                          onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="Naïve Bayes" />
                       </ListItem>
 
                       <ListItem>
                         <Radio
-                          checked={machineLearningModel === 'svm'}
+                          checked={algorithms["model"] === 'svm'}
                           value="svm"
                           color="default"
                           inputProps={{ 'aria-label': 'Support Vector Machines' }}
-                          onChange={handleMachineLearningModelChange}
+                          onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="Support Vector Machines" />
                       </ListItem>
                       <ListItem>
                         <Radio
-                          checked={machineLearningModel === 'logistic'}
+                          checked={algorithms["model"] === 'logistic'}
                           value="logistic"
                           color="default"
                           inputProps={{ 'aria-label': 'Logistic Regression' }}
-                          onChange={handleMachineLearningModelChange}
+                          onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="Logistic Regression" />
                       </ListItem>
 
                       <ListItem>
                         <Radio
-                          checked={machineLearningModel === 'rf'}
+                          checked={algorithms["model"] === 'rf'}
                           value="rf"
                           color="default"
                           inputProps={{ 'aria-label': 'Random Forest' }}
-                          onChange={handleMachineLearningModelChange}
+                          onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="Random Forest" />
                       </ListItem>
@@ -160,6 +247,7 @@ const ProjectAlgorithms = (props) => {
                   </Grid>
 
                 </Grid>
+              }
               </Box>
         </Paper>
       </Grow>

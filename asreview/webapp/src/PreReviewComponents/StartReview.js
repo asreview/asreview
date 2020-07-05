@@ -26,13 +26,14 @@ import {
 
 import axios from 'axios'
 
-import { api_url } from '../globals.js';
-
-import { connect } from "react-redux";
-
 import { makeStyles } from '@material-ui/core/styles';
 
 import './ReviewZone.css';
+
+import { connect } from "react-redux";
+import store from '../redux/store'
+
+import { api_url, mapStateToProps } from '../globals.js';
 
 
 const useStyles = makeStyles(theme => ({
@@ -51,12 +52,6 @@ const StartReview = (props) => {
 
   const [help, openHelp, closeHelp] = useHelp();
 
-  const [machineLearningModel, setmachineLearningModel] = React.useState('nb');
-
-  const handleMachineLearningModelChange = (event) => {
-    setmachineLearningModel(event.target.value);
-  };
-
 
   const startTraining = () => {
 
@@ -68,13 +63,10 @@ const StartReview = (props) => {
 
     const url = api_url + `project/${props.project_id}/start`;
 
-    var bodyFormData = new FormData();
-    bodyFormData.set('machine_learning_model', machineLearningModel);
-
     return axios({
       method: 'post',
       url: url,
-      data: bodyFormData,
+      data: {},
       headers: {'Content-Type': 'multipart/form-data' }
     })
     .then((result) => {
@@ -171,4 +163,4 @@ const StartReview = (props) => {
   )
 }
 
-export default StartReview;
+export default connect(mapStateToProps)(StartReview);

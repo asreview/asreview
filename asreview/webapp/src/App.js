@@ -17,7 +17,10 @@ import {
   ImportDialog,
 }
 from './Components'
-import PreReviewZone from './PreReviewComponents/PreReviewZone'
+import {
+  PreReviewZone,
+  StartReview,
+} from './PreReviewComponents'
 import ReviewZoneComplete from './PostReviewComponents/ReviewZoneComplete'
 import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
@@ -26,7 +29,9 @@ import WelcomeScreen from './WelcomeScreen'
 
 import 'typeface-roboto'
 
-
+// redux config
+import store from './redux/store'
+import { setProject } from './redux/actions'
 
 const App = () => {
 
@@ -54,6 +59,13 @@ const App = () => {
   const [textSize, setTextSize] = React.useState('Normal');
 
   const handleAppState = (step) => {
+
+      console.log("Reset redux store, " + step)
+
+    // if (step === 'projects' || step === 'review-init'){
+    //   console.log("Reset redux store")
+    //   store.dispatch(setProject(null))
+    // }
 
     if (step === 'review'){
       setAppState({
@@ -163,6 +175,12 @@ const App = () => {
 
       {appState['step'] === 'review-init' &&
       <PreReviewZone
+        handleAppState={handleAppState}
+      />
+      }
+
+      {appState['step'] === 'train-first-model' &&
+      <StartReview
         handleAppState={handleAppState}
       />
       }

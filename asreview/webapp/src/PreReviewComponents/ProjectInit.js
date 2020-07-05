@@ -71,16 +71,10 @@ const ProjectInit = (props) => {
 
   const classes = useStyles();
 
-  // set project id
-  // const [projectId, setProjectId] = React.useState(props.project_id)
-
   // the state of the app (new, edit or lock)
   const [state, setState] = React.useState(
     props.project_id !== null ? "lock" : "new"
   )
-
-  // help dialog
-  const [help, openHelp, closeHelp] = useHelp()
 
   // the state of the form data
   const [info, setInfo] = React.useState({
@@ -89,6 +83,9 @@ const ProjectInit = (props) => {
     description: "",
   })
   const [error, setError] = React.useState(false)
+
+  // help dialog
+  const [help, openHelp, closeHelp] = useHelp()
 
   const onChange = (evt) => {
     setInfo({
@@ -142,7 +139,7 @@ const ProjectInit = (props) => {
         // props.setProjectId(response.data["id"])
       }  else {
         // go to the next step
-        props.handleStep(1)  //, response.data["id"]);
+        props.handleStep(1)
       }
 
     })
