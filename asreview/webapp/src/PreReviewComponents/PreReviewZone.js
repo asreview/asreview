@@ -115,6 +115,8 @@ const PreReviewZone = (props) => {
         {(state.step >= 0 && state.step < 4) &&
           <Box>
             <ProjectInit
+              new={state.new}
+              edit={state.new}
               project_id={props.project_id}
               handleStep={handleStep}
               isReady={isReady}

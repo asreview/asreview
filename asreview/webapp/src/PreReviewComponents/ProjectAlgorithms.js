@@ -55,7 +55,8 @@ const defaultModels = {
 const ProjectAlgorithms = (props) => {
   const classes = useStyles();
 
-  // state 'edit' or 'lock'
+  // the state contains new attribute to check for old  data
+  // or not as well as an edit attribute.
   const [state, setState] = React.useState({
     // is this a new card? If undefined, it is assumed to be new
     new: (props.new === undefined) ? true : props.new,

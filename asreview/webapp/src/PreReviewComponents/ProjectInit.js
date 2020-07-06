@@ -71,10 +71,21 @@ const ProjectInit = (props) => {
 
   const classes = useStyles();
 
-  // the state of the app (new, edit or lock)
-  const [state, setState] = React.useState(
-    props.project_id !== null ? "lock" : "new"
-  )
+  // the state contains new attribute to check for old  data
+  // or not as well as an edit attribute.
+  const [state, setState] = React.useState({
+    // is this a new card? If undefined, it is assumed to be new
+    new: (props.new === undefined) ? true : props.new,
+    // open card in edit mode or not
+    edit: (props.edit === undefined) ? true : props.edit,
+  })
+
+
+
+  // // the state of the app (new, edit or lock)
+  // const [state, setState] = React.useState(
+  //   props.project_id !== null ? "lock" : "new"
+  // )
 
   // the state of the form data
   const [info, setInfo] = React.useState({
@@ -99,7 +110,7 @@ const ProjectInit = (props) => {
 
     let http_method;
     let url;
-    if (state === "edit"){
+    if (!state.new){
       url = api_url + "project/" + props.project_id + "/info"
       http_method = "put"
     }  else {
@@ -123,24 +134,23 @@ const ProjectInit = (props) => {
       console.log("Submit project: " + response.data["id"])
 
       // set the project_id in the redux store
-      // store.dispatch(
-      //   setProject(response.data["id"])
-      // );
       props.setProjectId(response.data["id"])
 
-      // // set project id
-      // setProjectId(response.data["id"]);
-
       // set the card state to lock
-      setState("lock");
+      setState({
+        new: false,
+        edit: false,
+      });
 
-      if (state === "edit"){
-        // do nothing with the steps but update the project_id
-        // props.setProjectId(response.data["id"])
-      }  else {
-        // go to the next step
-        props.handleStep(1)
-      }
+      // go to the next step
+      props.handleStep(1)
+
+      // if (state.edit){
+      //   // do nothing with the steps but update the project_id
+      //   // props.setProjectId(response.data["id"])
+      // }  else {
+
+      // }
 
     })
     .catch(function (response) {
@@ -158,7 +168,10 @@ const ProjectInit = (props) => {
   };
 
   const editInfo = () => {
-    setState("edit")
+    setState({
+      new: state.new,
+      edit: true,
+    })
   }
 
   useEffect(() => {
@@ -185,13 +198,13 @@ const ProjectInit = (props) => {
     };
 
     // run if the state is "lock"
-    if (state === "lock"){
+    if (!state.new){
         fetchProjectInfo();
     }
 
-  }, [state]);
+  }, [state.new]);
 
-  console.log("Init_project_id: " + props.project_id)
+  console.log(state)
   console.log(store.getState()["project_id"])
 
   return (
@@ -208,7 +221,7 @@ const ProjectInit = (props) => {
           }
           action={
             <Box>
-            {state === "lock" &&
+            {!state.edit &&
               <Tooltip title="Edit">
 
                 <IconButton
@@ -234,7 +247,7 @@ const ProjectInit = (props) => {
           title="Create a project"
         />
 
-        {(state !== "lock" && state !== "submit") &&
+        {(state.edit) &&
           <CardContent>
           {/* The actual form */}
             <form noValidate autoComplete="off">
@@ -272,7 +285,7 @@ const ProjectInit = (props) => {
                 />
               </div>
             </form>
-            {state !== "lock" &&
+            {state.edit &&
               <Button
                 disabled={info.name.length < 3}
                 onClick={submitForm}
@@ -283,7 +296,7 @@ const ProjectInit = (props) => {
             </CardContent>
           }
 
-          {(state === "lock" || state === "submit") &&
+          {!state.edit &&
             <CardContent className="cardHighlight">
               <Typography
                 variant="h4"
