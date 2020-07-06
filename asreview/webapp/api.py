@@ -374,9 +374,11 @@ def api_get_project_data(project_id):  # noqa: F401
         statistics["filename"] = filename
 
     except FileNotFoundError as err:
+        print(err)
         statistics = {"filename": None}
 
     except Exception as err:
+        print(err)
         message = f"Failed to get file. {err}"
         return jsonify(message=message), 400
 

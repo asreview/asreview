@@ -164,7 +164,7 @@ const PreReviewZone = (props) => {
             <Box>
               <ProjectInit
                 new={state.new}
-                edit={state.new}
+                edit={state.step === 0}
                 project_id={props.project_id}
                 handleNext={handleNext}
                 isReady={isReady}
@@ -175,7 +175,7 @@ const PreReviewZone = (props) => {
             <Box>
               <ProjectUpload
                 new={state.new}
-                edit={state.new}
+                edit={state.step === 1}
                 project_id={props.project_id}
                 handleNext={handleNext}
                 handleStep={handleStep}
@@ -202,7 +202,7 @@ const PreReviewZone = (props) => {
               <ProjectAlgorithms
                 project_id={props.project_id}
                 new={state.new}
-                edit={state.new}
+                edit={state.step === 3}
                 scrollToBottom={scrollToBottom}
                 handleReviewDrawer={props.handleReviewDrawer}
               />
