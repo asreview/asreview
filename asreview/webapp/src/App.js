@@ -60,12 +60,17 @@ const App = () => {
 
   const handleAppState = (step) => {
 
-      console.log("Reset redux store, " + step)
+    console.log("Reset redux store, " + step)
 
-    // if (step === 'projects' || step === 'review-init'){
-    //   console.log("Reset redux store")
-    //   store.dispatch(setProject(null))
-    // }
+    console.log(appState)
+    console.log(appState !== 'projects')
+    console.log(step === 'review-init')
+
+
+    if (step === 'projects' || (step === 'review-init' && appState.step !== 'projects')){
+      console.log("Reset redux store")
+      store.dispatch(setProject(null))
+    }
 
     if (step === 'review'){
       setAppState({

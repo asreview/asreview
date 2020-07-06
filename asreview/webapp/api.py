@@ -153,6 +153,23 @@ def api_get_project_info(project_id):  # noqa: F401
 
             project_info = json.load(fp)
 
+        # check if there is a dataset
+        try:
+            get_data_file_path(project_id)
+            project_info["projectHasDataset"] = True
+        except Exception:
+            project_info["projectHasDataset"] = False
+
+        # check if there is a prior knowledge (check if there is a model set),
+        # if this is the case, the reviewer past the prior knowledge screen.
+        project_info["projectHasPriorKnowledge"] = \
+            get_kwargs_path(project_id).exists()
+
+        # check if there is a prior knowledge (check if there is a model set),
+        # if this is the case, the reviewer past the prior knowledge screen.
+        project_info["projectHasAlgorithms"] = \
+            get_kwargs_path(project_id).exists()
+
         # backwards support <0.10
         if "projectInitReady" not in project_info:
             project_info["projectInitReady"] = True
@@ -334,7 +351,10 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         message = f"Failed to upload file '{filename}'. {err}"
         return jsonify(message=message), 400
 
-    return api_get_project_data(project_id)
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
 
 
 @bp.route('/project/<project_id>/data', methods=["GET"])

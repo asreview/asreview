@@ -55,6 +55,7 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-new-projects"
+            disabled={props.appState === "review-init"}
             onClick={() => {
               props.setMenuDrawerState({left: false});
               props.handleAppState("review-init");

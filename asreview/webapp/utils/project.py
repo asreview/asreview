@@ -109,17 +109,25 @@ def add_dataset_to_project(project_id, file_name):
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
+
         if as_data.labels is not None:
             unlabeled = np.where(as_data.labels == LABEL_NA)[0]
             pool_indices = as_data.record_ids[unlabeled]
+
+            label_indices_included = \
+                [[int(x), 1] for x in np.where(as_data.labels == 1)[0]]
+            label_indices_excluded = \
+                [[int(x), 0] for x in np.where(as_data.labels == 0)[0]]
+            label_indices = label_indices_included + label_indices_excluded
         else:
             pool_indices = as_data.record_ids
-        np.random.shuffle(pool_indices)
+            label_indices = []
 
+        np.random.shuffle(pool_indices)
         write_pool(project_id, pool_indices.tolist())
 
         # make a empty qeue for the items to label
-        write_label_history(project_id, [])
+        write_label_history(project_id, label_indices)
 
 
 def remove_dataset_to_project(project_id, file_name):

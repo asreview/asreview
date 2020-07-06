@@ -71,7 +71,7 @@ const ProjectInit = (props) => {
 
   const classes = useStyles();
 
-  // the state contains new attribute to check for old  data
+  // the state contains new attribute to check for old data
   // or not as well as an edit attribute.
   const [state, setState] = React.useState({
     // is this a new card? If undefined, it is assumed to be new
@@ -79,13 +79,6 @@ const ProjectInit = (props) => {
     // open card in edit mode or not
     edit: (props.edit === undefined) ? true : props.edit,
   })
-
-
-
-  // // the state of the app (new, edit or lock)
-  // const [state, setState] = React.useState(
-  //   props.project_id !== null ? "lock" : "new"
-  // )
 
   // the state of the form data
   const [info, setInfo] = React.useState({
@@ -143,14 +136,7 @@ const ProjectInit = (props) => {
       });
 
       // go to the next step
-      props.handleStep(1)
-
-      // if (state.edit){
-      //   // do nothing with the steps but update the project_id
-      //   // props.setProjectId(response.data["id"])
-      // }  else {
-
-      // }
+      props.handleNext(0)
 
     })
     .catch(function (response) {

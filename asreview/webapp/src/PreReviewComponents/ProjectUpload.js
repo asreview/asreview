@@ -145,17 +145,31 @@ const ProjectUpload = (props) => {
 
   const EndRef = useRef(null)
 
-  // set the state:
-  // - null
-  // - "edit"
-  // - "edit-warning"
-  const [state, setState] = React.useState(null);
+  // the state contains new attribute to check for old data
+  // or not as well as an edit attribute.
+  // IMPORTANT: upload always implies edit mode
+  const [state, setState] = React.useState({
+    // is this a new card? If undefined, it is assumed to be new
+    new: (props.new === undefined) ? true : props.new,
+    // open card in edit mode or not
+    edit: (props.edit === undefined) ? true : props.edit,
+    // uploading
+    upload: false,
+  })
+
+  // dataset statistics
+  const [statistics, setStatistics] = React.useState(null);
+
+  // set the file
   const [file, setFile] = React.useState(null);
-  const [upload, setUpload] = React.useState(false);
+
+  // raise error (Maybe merge this state with other states)
   const [error, setError] = React.useState(null);
 
+  // open edit warning if there is prior knowledge
   const [openWarning, setOpenWarning] = React.useState(false);
 
+  // help dialog
   const [help, openHelp, closeHelp] = useHelp()
 
   const onDrop = useCallback(acceptedFiles => {
@@ -196,11 +210,15 @@ const ProjectUpload = (props) => {
 
   const onUploadHandler = (data, callback) => {
 
-      // disable the buttons and show loader
-      setUpload(true)
+      // // disable the buttons and show loader
+      // setUpload(true)
 
       // remove selection
-      setState(null);
+      setState({
+        new: state.new,
+        edit: false,
+        upload: true,
+      });
 
       // set error to state
       setError(null)
@@ -214,14 +232,15 @@ const ProjectUpload = (props) => {
       })
       .then(function (res) {
 
-        // reset button
-        setUpload(false);
-
         // remove accepted files
         setFile(null);
 
-        // get statistics
-        setState(res.data);
+        // set state to lock such that it triggers the fetch stats call
+        setState({
+          new: false,
+          edit: false,
+          upload: false,
+        });
 
         // set next button ready
         props.isReady();
@@ -234,14 +253,18 @@ const ProjectUpload = (props) => {
       })
       .catch(function (error) {
 
-          // set upload to false
-          setUpload(false);
+          // // set upload to false
+          // setUpload(false);
 
           // remove accepted files
           setFile(null);
 
-          // remove selection
-          setState(null);
+          // set state to lock such that it triggers the fetch stats call
+          setState({
+            new: state.new,
+            edit: true,
+            upload: false,
+          });
 
           // set error to state
           setError(error.response.data["message"])
@@ -297,8 +320,12 @@ const ProjectUpload = (props) => {
     // remove all cards after the upload step
     props.handleStep(1)
 
-    // set the state to null
-    setState(null);
+    // open the edit mode
+    setState({
+      new: state.new,
+      edit: true,
+      upload: false,
+    });
 
     // close the warnings dialog
     setOpenWarning(false);
@@ -313,10 +340,10 @@ const ProjectUpload = (props) => {
     props.scrollToBottom()
   }, []);
 
-
   useEffect(() => {
 
-    const fetchProjectInfo = async () => {
+    // fetch dataset info
+    const fetchDatasetInfo = async () => {
 
       // contruct URL
       const url = api_url + "project/" + props.project_id + "/data";
@@ -324,8 +351,10 @@ const ProjectUpload = (props) => {
       axios.get(url)
         .then((result) => {
 
+          console.log("Fetch dataset stats")
+
           // set statistics
-          setState(result.data);
+          setStatistics(result.data);
 
         })
         .catch((error) => {
@@ -334,12 +363,17 @@ const ProjectUpload = (props) => {
     };
 
     // run if the state is "lock"
-    if (state === null){
-        fetchProjectInfo();
+    if (!state.edit && !state.upload){
+        fetchDatasetInfo();
+    } else {
+      // set statistics
+      setStatistics(null);
     }
 
-  }, [state]);
+  }, [state.edit, state.upload]);
 
+  console.log(state);
+  console.log(statistics);
 
   return (
   <Box minHeight={"100%"}>
@@ -357,7 +391,7 @@ const ProjectUpload = (props) => {
           }
           action={
             <Box>
-            {state !== null &&
+            {!state.edit &&
               <Tooltip title="Edit">
 
                 <IconButton
@@ -406,7 +440,7 @@ const ProjectUpload = (props) => {
         </Dialog>
 
 
-          {state === null &&
+          {(state.edit || state.upload) &&
 
             <Box>
               <Tabs
@@ -438,11 +472,11 @@ const ProjectUpload = (props) => {
                       <Button
                         variant="contained"
                         color="primary"
-                        disabled={upload}
+                        disabled={state.upload}
                         onClick={() => onUploadHandlerFile()}
                         className={classes.uploadButton}
                       >
-                        {upload ? "Uploading..." : "Upload"}
+                        {state.upload ? "Uploading..." : "Upload"}
                       </Button>
                     </div>
                   }
@@ -453,7 +487,7 @@ const ProjectUpload = (props) => {
                 <div>
                   <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
                   <ProjectUploadURL
-                    upload={upload}
+                    upload={state.upload}
                     onUploadHandler={onUploadHandlerURL}
                   />
                 </div>
@@ -482,18 +516,18 @@ const ProjectUpload = (props) => {
       }
 
       {/* The Card with the selected dataset */}
-      {state !== null &&
+      {(!state.edit && !state.upload && statistics !== null) &&
         <CardContent className="cardHighlight">
           <Typography
             variant="h4"
             noWrap={true}
           >
-          {state['filename']}
+          {statistics['filename']}
           </Typography>
           <Box>
             <Typography style={{ color: green[500] }} ><CheckIcon/> Successfull upload</Typography>
           </Box>
-          <Typography variant="subtitle1">{state['n_rows']} publications</Typography>
+          <Typography variant="subtitle1">{statistics['n_rows']} publications</Typography>
         </CardContent>
 
       }
