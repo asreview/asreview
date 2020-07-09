@@ -6,6 +6,8 @@ export const api_url = ((window.location.hostname === "localhost" || window.loca
 
 export const reviewDrawerWidth = 250;
 
+export const donateURL = "https://asreview.nl/donate";
+
 
 export const mapStateToProps = state => {
   return { project_id: state.project_id };

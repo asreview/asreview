@@ -14,6 +14,7 @@ import {
   ReviewZone,
   HistoryDialog,
   ExportDialog,
+  ImportDialog,
 }
 from './Components'
 import PreReviewZone from './PreReviewComponents/PreReviewZone'
@@ -49,6 +50,7 @@ const App = () => {
   const [exportResult, setExportResult] = React.useState(false);
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
+  const [importProject, setImportProject] = React.useState(false);
   const [textSize, setTextSize] = React.useState('Normal');
 
   const handleAppState = (step) => {
@@ -106,6 +108,10 @@ const App = () => {
     setExportResult(a => (!a));
   };
 
+  const toggleImportProject = () => {
+    setImportProject(a => (!a));
+  };
+
   const handleReviewDrawer = (show) => {
     setAppState({
       'step': appState['step'],
@@ -144,18 +150,28 @@ const App = () => {
         handleTextSizeChange={handleTextSizeChange}
         toggleExit={toggleExit}
         toggleExportResult={toggleExportResult}
+        toggleImportProject={toggleImportProject}
       />
       }
 
       {appState['step'] === 'projects' &&
       <Projects
         handleAppState={handleAppState}
+        toggleImportProject={toggleImportProject}
       />
       }
 
       {appState['step'] === 'review-init' &&
       <PreReviewZone
         handleAppState={handleAppState}
+      />
+      }
+
+      {appState['step'] === 'review-import' &&
+      <ImportDialog
+        handleAppState={handleAppState}
+        toggleImportProject={toggleImportProject}
+        importProject={importProject}
       />
       }
 

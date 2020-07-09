@@ -55,16 +55,18 @@ export default function ProjectSettings(props) {
 
     const url = api_url + `project/${props.id}/delete`;
 
-    axios.delete(url)
-      .then(function (res) {
-        props.refreshProjects();
-        props.toggleProjectSettings();
-      })
-      .catch(function (res) {
-          console.log("Failed to delete project")
+    if (deleteInput === props.id) {
+      axios.delete(url)
+        .then(function (res) {
           props.refreshProjects();
           props.toggleProjectSettings();
-      });
+        })
+        .catch(function (res) {
+            console.log("Failed to delete project")
+            props.refreshProjects();
+            props.toggleProjectSettings();
+        });
+    }
   }
 
   const onChange = (evt) => {
