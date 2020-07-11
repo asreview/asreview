@@ -5,6 +5,12 @@ import {
   Container,
   Grid,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -18,6 +24,11 @@ import {
 } from '@material-ui/icons';
 
 import ProjectCard from './ProjectCard';
+
+
+import {
+  ProjectInit
+} from './PreReviewComponents'
 
 import { api_url } from './globals.js';
 
@@ -44,7 +55,11 @@ const Projects = (props) => {
 
     const classes = useStyles();
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState({
+      dial: false,
+      newProject: false,
+    });
+
     const [projects, setProjects] = useState({
       "projects": [],
       "loaded": false,
@@ -78,23 +93,45 @@ const Projects = (props) => {
     };
 
     const handleOpen = () => {
-      setOpen(true);
+      console.log("open dial")
+      setOpen({
+        dial: true,
+        newProject: open.newProject,
+      })
     };
 
     const handleClose = () => {
-      setOpen(false);
+      setOpen({
+        dial: false,
+        newProject: open.newProject,
+      })
+    };
+
+    const handleCloseNewProject = () => {
+      console.log("close project page")
+      setOpen({
+        dial: open.dial,
+        newProject: false,
+      })
     };
 
     const handleClickAdd = (event, operation) => {
+      console.log("hanlde click add")
+
       event.preventDefault();
       if (operation === "newProject") {
-        props.handleAppState("review-init");
+        setOpen({
+          dial: false,
+          newProject: true,
+        })
+        // props.handleAppState("review-init");
       } else if (operation === "importProject") {
         props.handleAppState("review-import");
         props.toggleImportProject();
       };
     }
 
+    console.log(open)
 
     return (
 
@@ -136,26 +173,40 @@ const Projects = (props) => {
 
           </Container>
 
+
+          {open.newProject &&
+            <ProjectInit
+              open={open.newProject}
+              onClose={handleCloseNewProject}
+            />
+          }
+
           {/* Add button for new or importing project */}
-            <Backdrop open={open} className={classes.backdropZ}/>
+            <Backdrop open={open.dial} className={classes.backdropZ}/>
             <SpeedDial
               ariaLabel="add"
               className={classes.fab}
               FabProps={{color: "secondary"}}
               icon={<SpeedDialIcon />}
               onClose={handleClose}
-              onOpen={handleOpen}
-              open={open}
+              onOpen={() => {console.log("Im calling you"); handleOpen()}}
+              open={open.dial}
             >
-              {actions.map((action) => (
-                <SpeedDialAction
-                  key={action.name}
-                  icon={action.icon}
-                  tooltipTitle={action.name}
-                  tooltipOpen
-                  onClick={event => {handleClickAdd(event, action.operation)}}
-                />
-              ))}
+
+            <SpeedDialAction
+              key={'Import\u00A0project'}
+              icon=<CreateNewFolderOutlined />
+              tooltipTitle={'Import\u00A0project'}
+              tooltipOpen
+              onClick={event => {handleClickAdd(event, "importProject")}}
+            />
+            <SpeedDialAction
+              key={'New\u00A0project'}
+              icon=<AddOutlined />
+              tooltipTitle={'New\u00A0project'}
+              tooltipOpen
+              onClick={event => {handleClickAdd(event, "newProject")}}
+            />
             </SpeedDial>
       </Box>
     );

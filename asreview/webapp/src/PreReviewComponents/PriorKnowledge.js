@@ -345,6 +345,7 @@ const PriorKnowledge = (props) => {
             Random
           </Button>
 
+          {/*
           <Button
             variant="outlined"
             color="primary"
@@ -353,6 +354,8 @@ const PriorKnowledge = (props) => {
           >
             From file
           </Button>
+          */}
+
         </CardContent>
         <Divider/>
 

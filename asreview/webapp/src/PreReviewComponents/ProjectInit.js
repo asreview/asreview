@@ -15,6 +15,10 @@ import {
   Avatar,
   CardContent,
   Grow,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Dialog,
 } from '@material-ui/core'
 
 import { brown } from '@material-ui/core/colors';
@@ -71,6 +75,8 @@ const ProjectInit = (props) => {
 
   const classes = useStyles();
 
+  // const [open, setOpen] = React.useState(props.open)
+
   // the state contains new attribute to check for old data
   // or not as well as an edit attribute.
   const [state, setState] = React.useState({
@@ -101,15 +107,17 @@ const ProjectInit = (props) => {
   const submitForm = (evt) => {
     evt.preventDefault();
 
-    let http_method;
-    let url;
-    if (!state.new){
-      url = api_url + "project/" + props.project_id + "/info"
-      http_method = "put"
-    }  else {
-      url = api_url + "project/info"
-      http_method = "post"
-    }
+    props.onClose()
+
+    // let http_method;
+    // let url;
+    // if (!state.new){
+    //   url = api_url + "project/" + props.project_id + "/info"
+    //   http_method = "put"
+    // }  else {
+    //   url = api_url + "project/info"
+    //   http_method = "post"
+    // }
 
     var bodyFormData = new FormData();
     bodyFormData.set('name', info.name);
@@ -117,8 +125,8 @@ const ProjectInit = (props) => {
     bodyFormData.set('description', info.description);
 
     axios({
-      method: http_method,
-      url: url,
+      method: "post",
+      url: api_url + "project/info",
       data: bodyFormData,
       headers: {'Content-Type': 'multipart/form-data' }
     })
@@ -129,14 +137,14 @@ const ProjectInit = (props) => {
       // set the project_id in the redux store
       props.setProjectId(response.data["id"])
 
-      // set the card state to lock
-      setState({
-        new: false,
-        edit: false,
-      });
+      // // set the card state to lock
+      // setState({
+      //   new: false,
+      //   edit: false,
+      // });
 
       // go to the next step
-      props.handleNext(0)
+      // props.handleNext(0)
 
     })
     .catch(function (response) {
@@ -194,144 +202,59 @@ const ProjectInit = (props) => {
   console.log(store.getState()["project_id"])
 
   return (
-    <Box>
+    <Dialog
+      open={props.open}
+      onClose={props.onClose}
+    >
+      <DialogTitle>
+        Create a new project
+      </DialogTitle>
+      <DialogContent dividers={true}>
+    {/* The actual form */}
+      <form noValidate autoComplete="off">
+        <div className={classes.textfieldItem}>
+          <TextField
+            fullWidth
+            autoFocus={true}
+            required
+            name="name"
+            id="project-name"
+            label="Project name"
+            onChange={onChange}
+            value={info.name}
+          />
+        </div>
+        <div className={classes.textfieldItem}>
+          <TextField
+            fullWidth
+            name="authors"
+            id="project-author"
+            label="Your name"
+            onChange={onChange}
+            value={info.authors}
+          />
+        </div>
 
-      <Grow in={true}>
-      <Paper className="Card">
-
-        <CardHeader
-          avatar={
-            <Avatar aria-label="recipe" className={classes.avatar}>
-              1
-            </Avatar>
-          }
-          action={
-            <Box>
-            {!state.edit &&
-              <Tooltip title="Edit">
-
-                <IconButton
-                  aria-label="project-info-edit"
-                  onClick={editInfo}
-                >
-                  <EditIcon />
-                </IconButton>
-              </Tooltip>
-            }
-
-            <Tooltip title="Help">
-
-            <IconButton
-              onClick={openHelp}
-              aria-label="project-info-help"
-            >
-              <HelpIcon />
-            </IconButton>
-            </Tooltip>
-            </Box>
-          }
-          title="Create a project"
-        />
-
-        {(state.edit) &&
-          <CardContent>
-          {/* The actual form */}
-            <form noValidate autoComplete="off">
-              <div className={classes.textfieldItem}>
-                <TextField
-                  fullWidth
-                  autoFocus={true}
-                  required
-                  name="name"
-                  id="project-name"
-                  label="Project name"
-                  onChange={onChange}
-                  value={info.name}
-                />
-              </div>
-              <div className={classes.textfieldItem}>
-                <TextField
-                  fullWidth
-                  name="authors"
-                  id="project-author"
-                  label="Your name"
-                  onChange={onChange}
-                  value={info.authors}
-                />
-              </div>
-
-              <div className={classes.textfieldItem}>
-                <TextField
-                  fullWidth
-                  name="description"
-                  id="project-description"
-                  label="Short description"
-                  onChange={onChange}
-                  value={info.description}
-                />
-              </div>
-            </form>
-            {state.edit &&
-              <Button
-                disabled={info.name.length < 3}
-                onClick={submitForm}
-              >
-                Save
-              </Button>
-            }
-            </CardContent>
-          }
-
-          {!state.edit &&
-            <CardContent className="cardHighlight">
-              <Typography
-                variant="h4"
-                noWrap={true}
-              >
-              {info.name}
-              </Typography>
-              <Typography variant="subtitle1">{info.authors}</Typography>
-              <Typography variant="subtitle1">{info.description}</Typography>
-            </CardContent>
-
-          }
-
-
-        </Paper>
-      </Grow>
-
-       <Snackbar
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          open={error}
-          autoHideDuration={6000}
-          onClose={handleErrorClose}
-          message="Error: Project name incorrect"
-          action={
-            <React.Fragment>
-              <IconButton size="small" aria-label="close" color="inherit" onClick={handleErrorClose}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </React.Fragment>
-          }
-        />
-
-
-    <Help
-      open={help}
-      onClose={closeHelp}
-      title="Project settings"
-      message={
-        <Box>
-        <Typography>Provide the project name and the authors. This information is used to create a project. All information is stored locally, no information is send to external servers.</Typography>
-        <Typography>The project is stored in the folder ~/.asreview/ followed by the project name.</Typography>
-        </Box>
-      }
-    />
-
-    </Box>
+        <div className={classes.textfieldItem}>
+          <TextField
+            fullWidth
+            multiline
+            rowsMax={4}
+            name="description"
+            id="project-description"
+            label="Short description"
+            onChange={onChange}
+            value={info.description}
+          />
+        </div>
+      </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={submitForm} color="primary">
+          Create Project
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
