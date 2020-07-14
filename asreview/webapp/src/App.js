@@ -23,6 +23,7 @@ import WelcomeScreen from './WelcomeScreen'
 import {
   useDarkMode,
   useTextSize,
+  useUndoEnabled,
 } from './SettingsHooks'
 
 import 'typeface-roboto'
@@ -43,8 +44,8 @@ const App = () => {
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [importProject, setImportProject] = React.useState(false);
-  const [textSize, handleTextSizeChange] = useTextSize()
-  const [undoEnabled, setUndoEnabled] = React.useState(true);
+  const [textSize, handleTextSizeChange] = useTextSize();
+  const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
 
   const handleAppState = (step) => {
 
@@ -61,10 +62,6 @@ const App = () => {
     }
   }
 
-  const toggleUndoEnabled = () => {
-    setUndoEnabled(a => (!a))
-  }
-
   const toggleAuthors = () => {
     setAuthors(a => (!a));
   };
@@ -76,7 +73,6 @@ const App = () => {
   const handleClose = () => {
     setSettingsOpen(false);
   };
-
 
   const handleHistoryOpen = () => {
     setHistoryOpen(true);
