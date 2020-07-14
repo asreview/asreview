@@ -176,6 +176,7 @@ const Projects = (props) => {
 
           {open.newProject &&
             <ProjectInit
+              handleAppState={props.handleAppState}
               open={open.newProject}
               onClose={handleCloseNewProject}
             />

@@ -13,3 +13,4 @@ export { default as ProjectAlgorithms } from '../PreReviewComponents/ProjectAlgo
 export { default as ProjectUploadURL } from '../PreReviewComponents/ProjectUploadURL'
 export { default as StartReview } from '../PreReviewComponents/StartReview'
 export { default as Help, useHelp } from '../PreReviewComponents/Help'
+export { default as ProjectPage } from '../PreReviewComponents/ProjectPage'

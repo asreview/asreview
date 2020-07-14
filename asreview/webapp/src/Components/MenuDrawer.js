@@ -26,6 +26,24 @@ import {
 
 import { donateURL } from '../globals.js';
 
+import { connect } from "react-redux";
+
+// redux config
+import store from '../redux/store'
+import { setAppState } from '../redux/actions'
+
+
+const mapStateToProps = state => {
+  return { app_state: state.app_state };
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
+
 const drawerWidth = 250;
 
 const useStyles = makeStyles({
@@ -55,10 +73,10 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-new-projects"
-            disabled={props.appState === "review-init"}
+            disabled={props.app_state === "review-init"}
             onClick={() => {
               props.setMenuDrawerState({left: false});
-              props.handleAppState("review-init");
+              props.setAppState("review-init");
             }}
           >
             <ListItemIcon><Add /></ListItemIcon>
@@ -69,7 +87,7 @@ const MenuDrawer = (props) => {
             key="menu-button-import-projects"
             onClick={() => {
               props.setMenuDrawerState({left: false});
-              props.handleAppState("review-import");
+              props.setAppState("review-import");
               props.toggleImportProject();
             }}
             >
@@ -81,7 +99,7 @@ const MenuDrawer = (props) => {
             key="menu-button-projects"
             onClick={() => {
               props.setMenuDrawerState({left: false});
-              props.handleAppState("projects");
+              props.setAppState("projects");
             }}
             >
             <ListItemIcon><Folder /></ListItemIcon>
@@ -90,7 +108,7 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-export"
-            disabled={props.appState === "review" ? false : true}
+            disabled={props.app_state === "review" ? false : true}
             onClick={() => {
               props.toggleExportResult();
               props.setMenuDrawerState({left: false});
@@ -178,4 +196,7 @@ const MenuDrawer = (props) => {
   )
 }
 
-export default MenuDrawer;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MenuDrawer);

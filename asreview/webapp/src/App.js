@@ -20,6 +20,7 @@ from './Components'
 import {
   PreReviewZone,
   StartReview,
+  ProjectPage,
 } from './PreReviewComponents'
 import ReviewZoneComplete from './PostReviewComponents/ReviewZoneComplete'
 import Projects from './Projects'
@@ -29,11 +30,29 @@ import WelcomeScreen from './WelcomeScreen'
 
 import 'typeface-roboto'
 
+import { connect } from "react-redux";
+
 // redux config
 import store from './redux/store'
-import { setProject } from './redux/actions'
+import { setAppState } from './redux/actions'
 
-const App = () => {
+
+const mapStateToProps = state => {
+  return {
+    app_state: state.app_state,
+    project_id: state.project_id,
+  };
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
+
+
+const App = (props) => {
 
   // We keep the theme in app state
   const [theme, setTheme] = useState({
@@ -59,18 +78,6 @@ const App = () => {
   const [textSize, setTextSize] = React.useState('Normal');
 
   const handleAppState = (step) => {
-
-    console.log("Reset redux store, " + step)
-
-    console.log(appState)
-    console.log(appState !== 'projects')
-    console.log(step === 'review-init')
-
-
-    if (step === 'projects' || (step === 'review-init' && appState.step !== 'projects')){
-      console.log("Reset redux store")
-      store.dispatch(setProject(null))
-    }
 
     if (step === 'review'){
       setAppState({
@@ -131,7 +138,7 @@ const App = () => {
 
   const handleReviewDrawer = (show) => {
     setAppState({
-      'step': appState['step'],
+      'step': props.app_state,
       'reviewDrawerOpen': show,
     })
   }
@@ -140,22 +147,16 @@ const App = () => {
     setTextSize(event.target.value);
   };
 
-  console.log("Current step: " + appState['step'])
+  console.log("Current step: " + props.app_state)
 
   return (
       <MuiThemeProvider theme={muiTheme}>
       <CssBaseline/>
-      {appState['step'] === 'boot' &&
-      <WelcomeScreen
-        handleAppState={handleAppState}
-      />
+      {props.app_state === 'boot' &&
+      <WelcomeScreen/>
       }
-      {appState['step'] !== 'boot' &&
+      {props.app_state !== 'boot' &&
       <Header
-
-        /* Handle the app state */
-        appState={appState['step']}
-        handleAppState={handleAppState}
 
         /* Handle the app review drawer */
         reviewDrawerState={appState['reviewDrawerOpen']}
@@ -171,36 +172,43 @@ const App = () => {
       />
       }
 
-      {appState['step'] === 'projects' &&
+      {props.app_state === 'projects' &&
       <Projects
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
         toggleImportProject={toggleImportProject}
       />
       }
 
-      {appState['step'] === 'review-init' &&
+      {props.app_state === 'project-page' &&
+      <ProjectPage
+        project_id={props.project_id}
+        handleAppState={props.setAppState}
+      />
+      }
+
+      {props.app_state === 'review-init' &&
       <PreReviewZone
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
       />
       }
 
-      {appState['step'] === 'train-first-model' &&
+      {props.app_state === 'train-first-model' &&
       <StartReview
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
       />
       }
 
-      {appState['step'] === 'review-import' &&
+      {props.app_state === 'review-import' &&
       <ImportDialog
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
         toggleImportProject={toggleImportProject}
         importProject={importProject}
       />
       }
 
-      {appState['step'] === 'review' &&
+      {props.app_state === 'review' &&
       <ReviewZone
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
         reviewDrawerState={appState['reviewDrawerOpen']}
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
@@ -208,9 +216,9 @@ const App = () => {
       />
       }
 
-      {appState['step'] === 'review-complete' &&
+      {props.app_state === 'review-complete' &&
       <ReviewZoneComplete
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
         toggleExportResult={toggleExportResult}
       />
       }
@@ -242,4 +250,7 @@ const App = () => {
   );
 }
 
-export default App;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

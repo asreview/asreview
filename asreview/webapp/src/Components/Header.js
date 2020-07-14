@@ -19,6 +19,14 @@ import SettingsIcon from '@material-ui/icons/Settings';
 // local imports
 import ElasIcon from '../ElasIcon'
 
+
+import { connect } from "react-redux";
+
+// redux config
+import store from '../redux/store'
+import { setAppState } from '../redux/actions'
+
+
 const useStyles = makeStyles({
   menuButton: {
     marginRight: 10
@@ -40,6 +48,17 @@ const useStyles = makeStyles({
     marginLeft: 15, marginTop: 15
   },
 });
+
+const mapStateToProps = state => {
+  return { app_state: state.app_state };
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
 
 const Header = (props) => {
   const classes = useStyles();
@@ -80,7 +99,7 @@ const Header = (props) => {
              ASReview
           </Typography>
 
-          {(props.appState === 'review') ?
+          {(props.app_state === 'review') ?
             <IconButton
               aria-label="History"
               onClick={props.handleHistoryOpen}
@@ -98,7 +117,7 @@ const Header = (props) => {
             <SettingsIcon />
           </IconButton>
 
-          {(props.appState === 'review' && !props.reviewDrawerState)?<IconButton
+          {(props.app_state === 'review' && !props.reviewDrawerState)?<IconButton
             color="inherit"
             className={classes.barChart}
             onClick={(e) => props.handleReviewDrawer(true)}
@@ -113,8 +132,7 @@ const Header = (props) => {
       <MenuDrawer
         state={state}
         setMenuDrawerState={setState}
-        appState={props.appState}
-        handleAppState={props.handleAppState}
+
         toggleDrawer={toggleDrawer}
         toggleExit={props.toggleExit}
         toggleExportResult={props.toggleExportResult}
@@ -124,4 +142,4 @@ const Header = (props) => {
   )
 }
 
-export default Header;
+export default connect(mapStateToProps)(Header);

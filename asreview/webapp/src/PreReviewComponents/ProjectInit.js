@@ -71,6 +71,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setProjectId: (project_id) => {dispatch(setProject(project_id))}
+    })
+}
+
 const ProjectInit = (props) => {
 
   const classes = useStyles();
@@ -107,7 +114,7 @@ const ProjectInit = (props) => {
   const submitForm = (evt) => {
     evt.preventDefault();
 
-    props.onClose()
+    // props.onClose()
 
     // let http_method;
     // let url;
@@ -146,8 +153,12 @@ const ProjectInit = (props) => {
       // go to the next step
       // props.handleNext(0)
 
+      props.handleAppState("project-page")
+
     })
     .catch(function (response) {
+
+        console.log("Project init failed")
         //handle error
         setError(true);
     });
@@ -168,38 +179,38 @@ const ProjectInit = (props) => {
     })
   }
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const fetchProjectInfo = async () => {
+  //   const fetchProjectInfo = async () => {
 
-      // contruct URL
-      const url = api_url + "project/" + props.project_id + "/info";
+  //     // contruct URL
+  //     const url = api_url + "project/" + props.project_id + "/info";
 
-      axios.get(url)
-        .then((result) => {
+  //     axios.get(url)
+  //       .then((result) => {
 
-          // set the project info
-          setInfo({
-            authors: result.data["authors"],
-            name: result.data["name"],
-            description: result.data["description"],
-          });
+  //         // set the project info
+  //         setInfo({
+  //           authors: result.data["authors"],
+  //           name: result.data["name"],
+  //           description: result.data["description"],
+  //         });
 
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //       });
+  //   };
 
-    // run if the state is "lock"
-    if (!state.new){
-        fetchProjectInfo();
-    }
+  //   // run if the state is "lock"
+  //   if (!state.new){
+  //       fetchProjectInfo();
+  //   }
 
-  }, [state.new]);
+  // }, [state.new]);
 
-  console.log(state)
-  console.log(store.getState()["project_id"])
+  // console.log(state)
+  // console.log(store.getState()["project_id"])
 
   return (
     <Dialog
@@ -215,6 +226,7 @@ const ProjectInit = (props) => {
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
+            error={error}
             autoFocus={true}
             required
             name="name"
@@ -222,6 +234,7 @@ const ProjectInit = (props) => {
             label="Project name"
             onChange={onChange}
             value={info.name}
+            helperText={error && "Project name already exists"}
           />
         </div>
         <div className={classes.textfieldItem}>
@@ -250,18 +263,16 @@ const ProjectInit = (props) => {
       </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={submitForm} color="primary">
+        <Button
+          onClick={submitForm}
+          color="primary"
+          disabled={info.name.length < 3}
+        >
           Create Project
         </Button>
       </DialogActions>
     </Dialog>
   )
-}
-
-function mapDispatchToProps(dispatch) {
-    return({
-        setProjectId: (project_id) => {dispatch(setProject(project_id))}
-    })
 }
 
 export default connect(

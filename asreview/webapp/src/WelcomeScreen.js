@@ -11,6 +11,19 @@ import './WelcomeScreen.css'
 import {api_url} from "./globals";
 import axios from "axios";
 
+import { connect } from "react-redux";
+
+// redux config
+import store from './redux/store'
+import { setAppState } from './redux/actions'
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
+
 
 const useStyles = makeStyles(theme => ({
   background: {
@@ -74,7 +87,7 @@ const WelcomeScreen = (props) => {
 
             // skip the loader when you are in development mode
             if (result.data['status'] === 'development') {
-              props.handleAppState("projects");
+              props.setAppState("projects");
             }
           })
           .catch(err => {
@@ -108,7 +121,7 @@ const WelcomeScreen = (props) => {
                 }, 4000)
               }}
               onExited={() => {
-                props.handleAppState("projects");
+                props.setAppState("projects");
               }}
           >
             <Box className={classes.background}>
@@ -146,4 +159,8 @@ const WelcomeScreen = (props) => {
   }
 }
 
-export default WelcomeScreen;
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(WelcomeScreen);
