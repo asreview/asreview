@@ -1,6 +1,6 @@
 [![ASReview bot](images/RepoCardGithub-1280x640px.png)](https://github.com/asreview/asreview)
 
-## ASReview: Active learning for systematic reviews
+## ASReview: Active learning for Systematic Reviews
 
 Systematic Reviews are “top of the bill” in research. The number of scientific studies is increasing exponentially in many scholarly fields. Performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
@@ -26,7 +26,7 @@ ASReview software implements two different modes:
 
 The ASReview software requires Python 3.6+. Detailed
 step-by-step instructions to install Python and ASReview are available for
-[Windows](https://asreview.nl/installation-guide-windows/) and[MacOS](https://asreview.nl/installation-guide-mac/>) users. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
+[Windows](https://asreview.nl/installation-guide-windows/) and [macOS](https://asreview.nl/installation-guide-mac/) users. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
 project with (Windows users might have to use the prefix `python -m`):
 
 ```bash
@@ -65,8 +65,8 @@ Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io). Plea
 
 Check out the ASReview website, https://asreview.nl/, for more information and our blog.
 
-- [automated-systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
-- [automated-systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
+- [systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
+- [systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 ## Contact
 This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
