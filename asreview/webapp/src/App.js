@@ -1,14 +1,10 @@
-import React, {
-  useState
-} from 'react'
+import React from 'react'
 import {
   CssBaseline,
   createMuiTheme
 } from '@material-ui/core'
 import { ThemeProvider } from '@material-ui/core/styles';
 import './App.css';
-
-import brown from '@material-ui/core/colors/brown';
 
 import {
   Header,
@@ -24,22 +20,18 @@ import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
 import ExitDialog from './ExitDialog'
 import WelcomeScreen from './WelcomeScreen'
+import {
+  useDarkMode,
+  useTextSize,
+} from './SettingsHooks'
 
 import 'typeface-roboto'
 
 
 const App = () => {
 
-  // We keep the theme in app state
-  const [theme, setTheme] = useState({
-    palette: {
-      type: "light",
-      primary: brown,
-    },
-  });
-
-  // we generate a MUI-theme from state's theme object
-  const muiTheme = createMuiTheme(theme);
+  const [theme, toggleDarkMode] = useDarkMode()
+  const muiTheme = createMuiTheme(theme)
 
   const [appState, setAppState] = React.useState({
     'step': 'boot',
@@ -51,7 +43,7 @@ const App = () => {
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [importProject, setImportProject] = React.useState(false);
-  const [textSize, setTextSize] = React.useState('Normal');
+  const [textSize, handleTextSizeChange] = useTextSize()
   const [undoEnabled, setUndoEnabled] = React.useState(true);
 
   const handleAppState = (step) => {
@@ -68,17 +60,6 @@ const App = () => {
       })
     }
   }
-
-  // we change the palette type of the theme in state
-  const toggleDarkTheme = () => {
-    let newPaletteType = theme.palette.type === "light" ? "dark" : "light";
-    setTheme({
-      palette: {
-        type: newPaletteType,
-        primary: brown,
-      }
-    });
-  };
 
   const toggleUndoEnabled = () => {
     setUndoEnabled(a => (!a))
@@ -124,10 +105,6 @@ const App = () => {
     })
   }
 
-  const handleTextSizeChange = (event) => {
-    setTextSize(event.target.value);
-  };
-
   console.log("Current step: " + appState['step'])
 
   return (
@@ -149,7 +126,7 @@ const App = () => {
         reviewDrawerState={appState['reviewDrawerOpen']}
         handleReviewDrawer={handleReviewDrawer}
 
-        toggleDarkTheme={toggleDarkTheme}
+        toggleDarkMode={toggleDarkMode}
         handleClickOpen={handleClickOpen}
         handleHistoryOpen={handleHistoryOpen}
         handleTextSizeChange={handleTextSizeChange}
@@ -204,7 +181,7 @@ const App = () => {
         handleClose={handleClose}
         handleTextSizeChange={handleTextSizeChange}
         textSize={textSize}
-        toggleDarkTheme={toggleDarkTheme}
+        toggleDarkMode={toggleDarkMode}
         toggleAuthors={toggleAuthors}
         onDark={theme}
         showAuthors={authors}
