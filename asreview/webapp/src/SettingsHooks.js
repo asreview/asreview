@@ -16,17 +16,17 @@ const useDarkMode = () => {
   const toggleDarkMode = () => {
 
     if (theme.palette.type === "light") {
-      window.localStorage.setItem("theme", "dark")
+      window.localStorage.setItem("themeType", "dark")
       setTheme({palette: {...defaultTheme.palette, type: "dark"}})
     } else {
-      window.localStorage.setItem("theme", "light")
+      window.localStorage.setItem("themeType", "light")
       setTheme(defaultTheme)
     }
   };
 
   useEffect(() => {
-    const localTheme = window.localStorage.getItem("theme");
-    if (theme.palette.type !== localTheme && localTheme !== "null") {
+    const localTheme = window.localStorage.getItem("themeType");
+    if (theme.palette.type !== localTheme && localTheme !== null) {
       setTheme({palette: {...defaultTheme.palette, type: "dark"}})
     }
   }, [defaultTheme.palette, theme.palette.type]);
@@ -37,7 +37,7 @@ const useDarkMode = () => {
 
 const useTextSize = () => {
 
-  const [textSize, setTextSize] = useState("Normal");
+  const [textSize, setTextSize] = useState("normal");
 
   const handleTextSizeChange = (event) => {
 
@@ -47,7 +47,7 @@ const useTextSize = () => {
 
   useEffect(() => {
     const localTextSize = window.localStorage.getItem("textSize");
-    if (textSize !== localTextSize && localTextSize !== "null") {
+    if (textSize !== localTextSize && localTextSize !== null) {
       setTextSize(localTextSize)
     }
   }, [textSize]);

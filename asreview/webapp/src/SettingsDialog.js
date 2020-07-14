@@ -82,11 +82,11 @@ export default function SettingsDialog(props) {
                     value={props.textSize}
                     onChange={props.handleTextSizeChange}
                   >
-                    <MenuItem value='Smallest'>Smallest</MenuItem>
-                    <MenuItem value='Small'>Small</MenuItem>
-                    <MenuItem value='Normal'>Normal</MenuItem>
-                    <MenuItem value='Large'>Large</MenuItem>
-                    <MenuItem value='Largest'>Largest</MenuItem>
+                    <MenuItem value='smallest'>Smallest</MenuItem>
+                    <MenuItem value='small'>Small</MenuItem>
+                    <MenuItem value='normal'>Normal</MenuItem>
+                    <MenuItem value='large'>Large</MenuItem>
+                    <MenuItem value='largest'>Largest</MenuItem>
                   </Select>
                 </FormControl>
               </ListItemSecondaryAction>
