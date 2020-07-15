@@ -19,7 +19,7 @@ const ProgressPieChart = (props) => {
   return (
     <PieChart
       width={reviewDrawerWidth}
-      height={(reviewDrawerWidth/2)-40}
+      height={(reviewDrawerWidth/2)-35}
     >
       <Pie
         isAnimationActive={false}
@@ -28,7 +28,7 @@ const ProgressPieChart = (props) => {
         endAngle={0}
         data={getData()}
         cx={reviewDrawerWidth/2}
-        cy={(reviewDrawerWidth/2)-40}
+        cy={(reviewDrawerWidth/2)-35}
         innerRadius={0}
         outerRadius={65}
         fill="#8884d8"
