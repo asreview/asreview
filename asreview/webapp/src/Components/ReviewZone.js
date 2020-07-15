@@ -18,7 +18,6 @@ import { api_url, mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles({
   box: {
-    paddingTop: 40,
     paddingBottom: 30,
     overflowY: 'auto',
     // height: '100%',
@@ -146,7 +145,6 @@ const ReviewZone = (props) => {
   return (
     <Box
       className={classes.box}
-      height="100vh"
     >
 
       {/* Article panel */}
