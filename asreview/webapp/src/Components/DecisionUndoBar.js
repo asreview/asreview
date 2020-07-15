@@ -2,15 +2,16 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import { makeStyles, useTheme } from '@material-ui/core/styles'
-import { decisionUndoBarDuration } from '../globals.js'
+import { decisionUndoBarDuration, decisionUndoBarMarginBottom } from '../globals.js'
 
 const useStyles = makeStyles(theme => ({
   root: {
       backgroundColor: theme.palette.background.paper,
       color: theme.palette.text.primary,
-      marginTop: 56,
-      marginBottom: 56,
     },
+  snackbar: {
+    marginBottom: decisionUndoBarMarginBottom,
+  },  
 }));
 
 const DecisionUndoBar = (props) => {
@@ -46,7 +47,8 @@ const DecisionUndoBar = (props) => {
           }
           ContentProps={{
             className: classes.root
-          }}          
+          }}     
+          className={classes.snackbar}               
         />
     )  
   }
