@@ -18,7 +18,7 @@ shell (open the CMD):
     asreview oracle
 
 
-Create a project
+Create a Project
 ----------------
 
 In five steps you can start screening for relevant papers:
@@ -120,8 +120,9 @@ or irrelevant to your systematic review and click the Next button.
 
 
 
-Step 5. Select Machine Learning Model
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 5. Select a Machine Learning Model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 In the final step you are allowed to choose a machine learning model.
 The default model is Naive Bayes, but you can opt for a different model if you would like to. 
 After choosing your model, click `Start Reviewing`.
@@ -135,10 +136,22 @@ be relevant.
 
 
 
+Import a Project
+----------------
+
+If you have ``.asreview`` project files, you can add them by clicking the red + sign in the bottom right corner.
+Choose the project file from your computer and click `Import`. 
+Close the dialog and open the project to continue reviewing.
+
+
+.. figure:: ../images/5.0_import_project.png
+   :alt:
+
+
+
 Start Reviewing
 ---------------
-As soon as the machine learning model has converged, the software presents you with the publication of which the machine learning model  is most
-confident that it should be included in your systematic review. You are
+As soon as the machine learning model has converged, the software presents you with the publication of which the machine learning model is most confident that it should be included in your systematic review. You are
 asked to provide a label: relevant or irrelevant for your systematic search?
 
 While you review the publications that the software presents you with,
@@ -166,7 +179,7 @@ The software keeps presenting you with the most relevant publication
 until there are no more publications left to review, or until you decide to stop reviewing.
 
 
-Stop reviewing
+Stop Reviewing
 --------------
 
 As you keep reviewing abstracts, your set of relevant papers will increase
@@ -183,11 +196,10 @@ criterium could be stopping after the last X presented abstracts were
 labelled irrelevant, or if your time is up.
 
 
-Export Results
-~~~~~~~~~~~~~~
+Export Results/Projects
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Open the projects panel by clicking the 3-striped icon in the upper left
-corner. Click the export button.
+Open the projects panel by clicking the 3-striped icon in the upper left corner. Click the export button.
 
 
 .. figure:: ../images/7_exporting.png
@@ -199,6 +211,8 @@ corner. Click the export button.
 Choose from the menu whether you would like to export your results as a CSV or an Excel file and click `Export`.
 A file is downloaded with the results of your review.
 
+You can export your project as a ``.asreview`` file by clicking `Export` below `Download your project`.
+A file is downloaded with your project.
 
 
 .. figure:: ../images/7.1_exporting.png

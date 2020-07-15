@@ -1,6 +1,6 @@
 [![ASReview bot](images/RepoCardGithub-1280x640px.png)](https://github.com/asreview/asreview)
 
-## ASReview: Active learning for systematic reviews
+## ASReview: Active learning for Systematic Reviews
 
 Systematic Reviews are “top of the bill” in research. The number of scientific studies is increasing exponentially in many scholarly fields. Performing a
 sound systematic review is a time-consuming and sometimes boring task. Our
@@ -17,14 +17,16 @@ ASReview software implements two different modes:
 
 - **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview App](asreview-app).
+  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview App](https://github.com/asreview/asreview#asreview-app).
 - **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure the performance of our
   software on existing systematic reviews. The software shows how many
   papers you could have potentially skipped during the systematic review.
 
 ## Installation
 
-The ASReview software requires Python 3.6+ ([see Install Python](https://asreview.readthedocs.io/en/latest/installation.html#install-python)). The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
+The ASReview software requires Python 3.6+. Detailed
+step-by-step instructions to install Python and ASReview are available for
+[Windows](https://asreview.nl/installation-guide-windows/) and [macOS](https://asreview.nl/installation-guide-mac/) users. The project is available on [Pypi](https://pypi.org/project/asreview/). Install the
 project with (Windows users might have to use the prefix `python -m`):
 
 ```bash
@@ -63,8 +65,8 @@ Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io). Plea
 
 Check out the ASReview website, https://asreview.nl/, for more information and our blog.
 
-- [automated-systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
-- [automated-systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
+- [systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
+- [systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 ## Contact
 This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
@@ -84,36 +86,11 @@ The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team ac
 
 ## Citation
 
-A research paper on the ASReview project is work in progress. In the mean time, please cite our software as a reference for both the project and software.
+The following preprint can be used to cite the project:
+
+```
+van de Schoot, Rens, et al. “ASReview: Open Source Software for Efficient and Transparent Active Learning for Systematic Reviews.” ArXiv:2006.12166 [Cs], June 2020. arXiv.org, http://arxiv.org/abs/2006.12166.
+```
 
 For citing the software, please refer to the specific release of the ASReview software on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592). The menu on the right can be used to find the citation format of prevalence.
 
-Example (bibtex):
-
-```
-@software{van_de_schoot_rens_2020_3828293,
-  author       = {Van de Schoot, Rens and
-                  De Bruin, Jonathan and
-                  Schram, Raoul and
-                  Zahedi, Parisa and
-                  De Boer, Jan and
-                  Weijdema, Felix and
-                  Kramer, Bianca and
-                  Huijts, Martijn and
-                  Hoogerwerf, Maarten and
-                  Ferdinands, Gerbrich and
-                  Harkema, Albert and
-                  Willemsen, Joukje and
-                  Ma, Yongchao and
-                  Fang, Qixiang and
-                  Tummers, Lars and
-                  Oberski, Daniel},
-  title        = {ASReview: Active learning for systematic reviews},
-  month        = may,
-  year         = 2020,
-  publisher    = {Zenodo},
-  version      = {v0.9.5},
-  doi          = {10.5281/zenodo.3828293},
-  url          = {https://doi.org/10.5281/zenodo.3828293}
-}
-```
