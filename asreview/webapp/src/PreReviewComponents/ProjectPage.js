@@ -18,7 +18,6 @@ import {
   ProjectAlgorithms,
   StartReview,
   HelpDialog,
-  ProcessStepper,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
 
@@ -107,9 +106,6 @@ const ProjectPage = (props) => {
               >Continue reviewing</Button>
             </Box>
           }
-
-          <ProcessStepper
-            project_id={props.project_id}/>
 
         </Container>
 
