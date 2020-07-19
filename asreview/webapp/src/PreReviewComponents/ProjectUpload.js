@@ -337,7 +337,9 @@ const ProjectUpload = (props) => {
 
 
   useEffect(() => {
-    props.scrollToBottom()
+    if (props.scrollToBottom !== undefined){
+      props.scrollToBottom()
+    }
   }, []);
 
   useEffect(() => {

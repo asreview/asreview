@@ -210,8 +210,10 @@ const PriorKnowledge = (props) => {
 
   useEffect(() => {
 
-    // scroll to bottom
-    props.scrollToBottom()
+    if (props.scrollToBottom !== undefined){
+      // scroll to bottom
+      props.scrollToBottom()
+    }
 
     // enable next button
     if (goNext()){
