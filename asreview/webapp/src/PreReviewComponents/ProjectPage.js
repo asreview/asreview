@@ -18,6 +18,7 @@ import {
   ProjectAlgorithms,
   StartReview,
   HelpDialog,
+  ProcessStepper,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
 
@@ -31,12 +32,15 @@ import { api_url, mapStateToProps } from '../globals.js';
 const useStyles = makeStyles(theme => ({
   header: {
     paddingTop: "128px",
-    paddingBottom: "128px",
+    paddingBottom: "84px",
     textAlign: "center",
   },
   title: {
     fontWeight: "300",
     letterSpacing: ".7rem",
+  },
+  continuButton: {
+    marginTop: "24px",
   },
 
 }));
@@ -96,11 +100,16 @@ const ProjectPage = (props) => {
                 color="primary"
                 variant="h5"
               >{state.data.description}</Typography>
-              <Button>Continu reviewing</Button>
+              <Button
+                className={classes.continuButton}
+                variant={"outlined"}
+                onClick={()=>props.handleAppState("review")}
+              >Continue reviewing</Button>
             </Box>
           }
 
-
+          <ProcessStepper
+            project_id={props.project_id}/>
 
         </Container>
 
