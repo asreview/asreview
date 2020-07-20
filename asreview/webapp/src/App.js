@@ -1,6 +1,4 @@
-import React, {
-  useState
-} from 'react'
+import React from 'react'
 import {
   CssBaseline,
   createMuiTheme
@@ -8,7 +6,6 @@ import {
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import './App.css';
 
-import brown from '@material-ui/core/colors/brown';
 import {
   Header,
   ReviewZone,
@@ -27,6 +24,10 @@ import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
 import ExitDialog from './ExitDialog'
 import WelcomeScreen from './WelcomeScreen'
+import {
+  useDarkMode,
+  useTextSize,
+} from './SettingsHooks'
 
 import 'typeface-roboto'
 
@@ -54,16 +55,8 @@ function mapDispatchToProps(dispatch) {
 
 const App = (props) => {
 
-  // We keep the theme in app state
-  const [theme, setTheme] = useState({
-    palette: {
-      type: "light",
-      primary: brown,
-    },
-  });
-
-  // we generate a MUI-theme from state's theme object
-  const muiTheme = createMuiTheme(theme);
+  const [theme, toggleDarkMode] = useDarkMode()
+  const muiTheme = createMuiTheme(theme)
 
   const [appState, setAppState] = React.useState({
     'step': 'boot',
@@ -75,7 +68,7 @@ const App = (props) => {
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [importProject, setImportProject] = React.useState(false);
-  const [textSize, setTextSize] = React.useState('Normal');
+  const [textSize, handleTextSizeChange] = useTextSize()
 
   const handleAppState = (step) => {
 
@@ -91,17 +84,6 @@ const App = (props) => {
       })
     }
   }
-
-  // we change the palette type of the theme in state
-  const toggleDarkTheme = () => {
-    let newPaletteType = theme.palette.type === "light" ? "dark" : "light";
-    setTheme({
-      palette: {
-        type: newPaletteType,
-        primary: brown
-      }
-    });
-  };
 
   const toggleAuthors = () => {
     setAuthors(a => (!a));
@@ -143,10 +125,6 @@ const App = (props) => {
     })
   }
 
-  const handleTextSizeChange = (event) => {
-    setTextSize(event.target.value);
-  };
-
   console.log("Current step: " + props.app_state)
 
   return (
@@ -162,7 +140,7 @@ const App = (props) => {
         reviewDrawerState={appState['reviewDrawerOpen']}
         handleReviewDrawer={handleReviewDrawer}
 
-        toggleDarkTheme={toggleDarkTheme}
+        toggleDarkMode={toggleDarkMode}
         handleClickOpen={handleClickOpen}
         handleHistoryOpen={handleHistoryOpen}
         handleTextSizeChange={handleTextSizeChange}
@@ -229,7 +207,7 @@ const App = (props) => {
         handleClose={handleClose}
         handleTextSizeChange={handleTextSizeChange}
         textSize={textSize}
-        toggleDarkTheme={toggleDarkTheme}
+        toggleDarkMode={toggleDarkMode}
         toggleAuthors={toggleAuthors}
         onDark={theme}
         showAuthors={authors}

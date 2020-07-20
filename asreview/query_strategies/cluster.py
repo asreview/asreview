@@ -96,8 +96,7 @@ class ClusterQuery(ProbaQueryStrategy):
         from hyperopt import hp
         parameter_space = {
             "qry_cluster_size": hp.quniform('qry_cluster_size', 50, 1000, 1),
-            "qry_update_cluster": hp.quniform(
-                'qry_update_cluster', 100, 300, 1),
-            "qry_max_frac": hp.uniform('qry_max_frac', 0, 1),
+            "qry_update_interval": hp.quniform(
+                'qry_update_interval', 100, 300, 1),
         }
         return parameter_space, {}
