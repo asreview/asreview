@@ -91,7 +91,8 @@ const StartReview = (props) => {
 
       if (result.data["status"] === 1){
         // model ready
-        props.handleAppState('review');
+        //props.handleAppState('review');
+        props.onReady();
       } else {
         // not ready yet
         setTimeout(checkModelIsFitted, 2000);
@@ -127,15 +128,17 @@ const StartReview = (props) => {
   useEffect(() => {
 
     if (state['status'] === null){
-      startTraining()
+      setTimeout(startTraining, 3000);
     }
 
   }, []);
 
+  console.log(state)
+
   return (
     <Box>
 
-      { state["status"] === "training" &&
+      { (state["status"] === null || state["status"] === "training") &&
         <Typography>Training model... (this can take some time)</Typography>
       }
 

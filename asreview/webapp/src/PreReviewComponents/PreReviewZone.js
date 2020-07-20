@@ -160,17 +160,6 @@ const PreReviewZone = (props) => {
       {state.step !== 5 &&
         <Container maxWidth='md'>
 
-          {(state.step >= 0 && state.step < 4) &&
-            <Box>
-              <ProjectInit
-                new={state.new}
-                edit={state.step === 0}
-                project_id={props.project_id}
-                handleNext={handleNext}
-                isReady={isReady}
-              />
-            </Box>
-          }
           {(state.step >= 1 && state.step < 4) &&
             <Box>
               <ProjectUpload
@@ -230,7 +219,7 @@ const PreReviewZone = (props) => {
             variant="contained"
             color="primary"
             disabled={false}
-            onClick={() => props.handleAppState("train-first-model")}
+            onClick={props.finishProjectSetup}
             className={classes.nextButton}
           >
             Finish
