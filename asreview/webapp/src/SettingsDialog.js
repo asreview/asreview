@@ -91,6 +91,17 @@ export default function SettingsDialog(props) {
                 </FormControl>
               </ListItemSecondaryAction>
             </ListItem>
+            <ListItem>
+              <ListItemText id="switch-list-label-undo" primary="Undo Enabled" />
+              <ListItemSecondaryAction>
+                <Switch
+                  edge="end"
+                  onChange={props.toggleUndoEnabled}
+                  checked={props.undoEnabled}
+                  inputProps={{ 'aria-labelledby': 'switch-list-label-undo' }}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
           </List>
 
         </DialogContent>
