@@ -11,6 +11,14 @@ import {
   StepButton,
   Typography,
   CircularProgress,
+  Paper,
+  List,
+  ListItemIcon,
+  Divider,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
 } from '@material-ui/core';
 import {
   PriorKnowledge,
@@ -21,9 +29,14 @@ import {
   HelpDialog,
   PreReviewZone,
 } from '../PreReviewComponents'
-// import ProjectUpload from './ProjectUpload.js'
+
+import DangerZone from '../DangerZone.js'
+
+import ProjectSettings from '../ProjectSettings.js'
+
 
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
+import InboxIcon from '@material-ui/icons/Inbox';
 
 
 import { connect } from "react-redux";
@@ -57,6 +70,12 @@ const useStyles = makeStyles(theme => ({
     marginTop: 0,
     marginLeft: -12,
   },
+  dangerZone : {
+    borderColor: "red",
+    borderWidth: "2px",
+    borderStyle: "solid",
+    boxShadow: "none",
+}
 }));
 
 const ProjectPage = (props) => {
@@ -73,6 +92,15 @@ const ProjectPage = (props) => {
     training: false,
 
   });
+
+  const [settings, setSettings] = React.useState(false);
+
+
+  const toggleProjectSettings = () => {
+    console.log("Open settings project " + props.id)
+    setSettings(a => (!a));
+  };
+
 
   const finishProjectSetup = () => {
     setState({
@@ -194,7 +222,10 @@ const ProjectPage = (props) => {
             </Box>
 
           {!state.setup &&
-            <Typography>Stats</Typography>
+            <DangerZone
+              project_id={props.project_id}
+            />
+
           }
 
           {state.setup &&

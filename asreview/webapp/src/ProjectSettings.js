@@ -59,12 +59,12 @@ export default function ProjectSettings(props) {
       axios.delete(url)
         .then(function (res) {
           props.refreshProjects();
-          props.toggleProjectSettings();
+          props.toggleProjectDelete();
         })
         .catch(function (res) {
             console.log("Failed to delete project")
             props.refreshProjects();
-            props.toggleProjectSettings();
+            props.toggleProjectDelete();
         });
     }
   }
@@ -76,18 +76,15 @@ export default function ProjectSettings(props) {
   return (
       <Dialog
         open={props.settings}
-        onClose={props.toggleProjectSettings}
+        onClose={props.toggleProjectDelete}
         scroll="paper"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Project '{props.id}' settings</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">Delete project '{props.id}' settings</DialogTitle>
         <DialogContent dividers={true}>
-          <Typography variant="h4" className={classes.header}>
-            Delete project
-          </Typography>
             <Typography>
               Delete your project by typing the project name '{props.id}' below.
             </Typography>
@@ -115,7 +112,7 @@ export default function ProjectSettings(props) {
             </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.toggleProjectSettings}>
+          <Button onClick={props.toggleProjectDelete}>
             Close
           </Button>
         </DialogActions>
