@@ -6,19 +6,23 @@ import {
   CircularProgress,
   Typography,
   Dialog,
-DialogTitle,
-DialogContent,
-DialogActions,
-IconButton,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from '@material-ui/core'
 
 import CloseIcon from '@material-ui/icons/Close';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 
-
 import {
   PaperCard,
 } from '../PreReviewComponents'
+
+
+import {
+  DialogTitleWithClose,
+} from '../Components'
 
 
 import axios from 'axios'
@@ -55,12 +59,6 @@ const useStyles = makeStyles(theme => ({
   },
   clear : {
     clear: "both",
-  },
-  closeButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500],
   },
 }));
 
@@ -145,18 +143,12 @@ const PriorKnowledgeRandom = (props) => {
       <Dialog
         open={true}
         onClose={props.onClose}
+        fullWidth={true}
       >
-        <DialogTitle>
-          Make a decision of this article
-          {props.onClose ? (
-            <IconButton aria-label="close" className={classes.closeButton} onClick={props.onClose}>
-              <CloseIcon />
-            </IconButton>
-          ) : null}
-        </DialogTitle>
-
-
-
+        <DialogTitleWithClose
+          title={"Is this article relevant?"}
+          onClose={props.onClose}
+        />
 
         {state["count_exclusions"] < 5 &&
           <DialogContent dividers={true}>
@@ -195,7 +187,7 @@ const PriorKnowledgeRandom = (props) => {
 
         <DialogActions>
 
-          {/* Show the classification buttons if and only if classify is true */}
+          {/* Show the classification buttons if and only if classify is true
           <div style={{ margin: "0 auto" }}>
             <Button
               variant="primary"
@@ -216,6 +208,19 @@ const PriorKnowledgeRandom = (props) => {
               Irrelevant
             </Button>
           </div>
+          */}
+          <Button
+            onClick={() => excludeRandomDocument(props.id)}
+            color="primary"
+          >
+            NO
+          </Button>
+          <Button
+            onClick={() => includeRandomDocument(props.id)}
+            color="primary"
+          >
+            YES
+          </Button>
         </DialogActions>
 
 

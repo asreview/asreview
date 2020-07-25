@@ -1,19 +1,12 @@
 import React from 'react'
 import {
-
-  Box,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  Typography,
 } from '@material-ui/core'
-import FavoriteIcon from '@material-ui/icons/Favorite'
+
+import {
+  DialogTitleWithClose,
+} from '../Components'
 
 import axios from 'axios'
 
@@ -49,17 +42,13 @@ const Help = (props) => {
       open={props.open}
       onClose={props.onClose}
     >
-      <DialogTitle>
-        Help: {props.title}
-      </DialogTitle>
+      <DialogTitleWithClose
+        title={"Help: " + props.title}
+        onClose={props.onClose}
+      />
       <DialogContent dividers={true}>
         {props.message}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={props.onClose} color="primary">
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 

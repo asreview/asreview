@@ -31,16 +31,14 @@ const useStyles = makeStyles(theme => ({
     marginBottom: "32px",
     minHeight: "200px",
   },
+  inputSearch: {
+    margin: '36px 0px',
+  },
   button: {
     margin: '36px 0px 24px 12px',
     float: 'right',
   },
-  margin: {
-    marginTop: 20
-  },
   root: {
-    padding: '2px 4px',
-    marginBottom: '14px',
     display: 'flex',
     alignItems: 'center',
     width: '100%',
@@ -126,11 +124,18 @@ const PriorKnowledgeSearch = (props) => {
 
 
   return (
-    <Box style={{clear: "both"}}>
-      <form className={classes.root} noValidate autoComplete="off" onSubmit={showSearchResult}>
+    <Box
+      style={{clear: "both"}}
+      className={classes.inputSearch}
+    >
+      <form
+        className={classes.root}
+        noValidate
+        autoComplete="off"
+        onSubmit={showSearchResult}
+      >
         <FormControl
           fullWidth
-          className={classes.margin}
           variant="outlined"
         >
           <OutlinedInput
@@ -159,6 +164,7 @@ const PriorKnowledgeSearch = (props) => {
           updatePriorStats={props.updatePriorStats}
           onRevertInclude={props.removeIncluded}
           includeItem={props.includeItem}
+          excludeItem={props.excludeItem}
           resetItem={props.resetItem}
         />
       }

@@ -96,6 +96,9 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
+  },
+  navButton: {
+    margin: "0px 12px"
   }
 }));
 
@@ -225,7 +228,9 @@ const PriorKnowledge = (props) => {
   console.log(props.project_id)
 
   return (
-    <Box style={{clear: "both"}}>
+    <Box
+      style={{clear: "both"}}
+    >
 
       {/* Display the prior info once loaded */}
       {priorStats.n_prior !== null &&
@@ -233,155 +238,162 @@ const PriorKnowledge = (props) => {
       <Grow
         in={true}
       >
-        <Paper className="Card">
+        <Paper
+          className="Card"
+        >
+          <CardHeader
 
+            /* Prior card */
+            title="Select prior knowledge"
 
-        <CardHeader
-          avatar={
-            <Avatar aria-label="recipe" className={classes.avatar}>
-              3
-            </Avatar>
-          }
-          action={
-            <Box>
-            {state === "lock" &&
-              <Tooltip title="Edit">
+            /* The edit and help options */
+            action={
+              <Box>
+                {state === "lock" &&
+                  <Tooltip title="Edit">
 
-                <IconButton
-                  aria-label="project-info-edit"
-                  onClick={() => {}}
-                >
-                  <EditIcon />
-                </IconButton>
-              </Tooltip>
+                    <IconButton
+                      aria-label="project-info-edit"
+                      onClick={() => {}}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                }
+                <Tooltip title="Help">
+                  <IconButton
+                    onClick={openHelp}
+                    aria-label="project-info-help"
+                  >
+                    <HelpIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             }
+          />
 
-            <Tooltip title="Help">
-
-            <IconButton
-              onClick={openHelp}
-              aria-label="project-info-help"
+          <CardContent
+            className="cardHighlight"
+          >
+            <Typography
+              variant="h4"
+              noWrap={true}
             >
-              <HelpIcon />
-            </IconButton>
-            </Tooltip>
+              {priorStats["n_inclusions"]} relevant documents
+            </Typography>
+            <Typography
+              variant="h4"
+              noWrap={true}
+            >
+              {priorStats["n_exclusions"]} irrelevant documents
+            </Typography>
+            <Box>
+
+
+              {/* nothing */}
+              {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] === 0) &&
+                <Typography>
+                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers. Wondering why we need this?
+                </Typography>
+              }
+
+              {/* only inclusions, no exclusions */}
+              {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] === 0) &&
+                <Typography>
+                  Find yourself irrelevant items. Tip: label some random items. Random items are usually exclusions because the relevant items are rare.
+                </Typography>
+              }
+
+              {/* only exclusions, no inclusions */}
+              {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] > 0) &&
+                <Typography>
+                  Find yourself relevant items. Tip: use the search function and find some relevant items you know of.
+                </Typography>
+              }
+
+
+              {/* bare minimum was met */}
+              {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0 && (priorStats['n_exclusions'] < 3 || priorStats['n_inclusions'] < 3)) &&
+                <Typography style={{ color: orange[500] }} >
+                  <CheckIcon/>
+                  Enough prior knowledge, however a bit more would help!
+                </Typography>
+              }
+
+              {/* ready */}
+              {(priorStats['n_inclusions'] >= 3 && priorStats['n_exclusions'] >= 3) &&
+                <Typography style={{ color: green[500] }} >
+                  <CheckIcon/>
+                  Enough prior knowledge, feel free to go to the next step.
+                </Typography>
+              }
+
+
+            </Box>
+          </CardContent>
+
+          <CardContent className="cardHighlight">
+            <Button
+              variant="outlined"
+              color="primary"
+              disabled={state === "search"}
+              onClick={() => {changeMethod("search")}}
+              className={classes.navButton}
+            >
+              Search
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="primary"
+              disabled={state === "random"}
+              onClick={() => {changeMethod("random")}}
+              className={classes.navButton}
+            >
+              Random
+            </Button>
+
+            {/*
+            <Button
+              variant="outlined"
+              color="primary"
+              disabled={state === "file"}
+              onClick={() => {changeMethod("file")}}
+              className={classes.navButton}
+            >
+              From file
+            </Button>
+            */}
+
+          </CardContent>
+
+          { state === "search" &&
+            <Box>
+              <Divider/>
+              <CardContent>
+                <PriorKnowledgeSearch
+                  project_id={props.project_id}
+                  updatePriorStats={updatePriorStats}
+                  includeItem={includeItem}
+                  excludeItem={excludeItem}
+                  resetItem={resetItem}
+                />
+              </CardContent>
             </Box>
           }
-          title="Select prior knowledge"
-        />
 
-        <CardContent className="cardHighlight">
-          <Typography
-            variant="h4"
-            noWrap={true}
-          >
-            {priorStats["n_inclusions"]} relevant documents
-          </Typography>
-          <Typography
-            variant="h4"
-            noWrap={true}
-          >
-            {priorStats["n_exclusions"]} irrelevant documents
-          </Typography>
-          <Box>
+          { state === "random" &&
+            <PriorKnowledgeRandom
+              project_id={props.project_id}
+              onClose={()=>{setState(null)}}
+              updatePriorStats={updatePriorStats}
+              includeItem={includeItem}
+              excludeItem={excludeItem}
+            />
+          }
 
-
-            {/* nothing */}
-            {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] === 0) &&
-              <Typography>
-                You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers. Wondering why we need this?
-              </Typography>
-            }
-
-            {/* only inclusions, no exclusions */}
-            {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] === 0) &&
-              <Typography>
-                Find yourself irrelevant items. Tip: label some random items. Random items are usually exclusions because the relevant items are rare.
-              </Typography>
-            }
-
-            {/* only exclusions, no inclusions */}
-            {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] > 0) &&
-              <Typography>
-                Find yourself relevant items. Tip: use the search function and find some relevant items you know of.
-              </Typography>
-            }
-
-
-            {/* bare minimum was met */}
-            {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0 && (priorStats['n_exclusions'] < 3 || priorStats['n_inclusions'] < 3)) &&
-              <Typography style={{ color: orange[500] }} >
-                <CheckIcon/>
-                Enough prior knowledge, however a bit more would help!
-              </Typography>
-            }
-
-            {/* ready */}
-            {(priorStats['n_inclusions'] >= 3 && priorStats['n_exclusions'] >= 3) &&
-              <Typography style={{ color: green[500] }} >
-                <CheckIcon/>
-                Enough prior knowledge, feel free to go to the next step.
-              </Typography>
-            }
-
-
-          </Box>
-        </CardContent>
-
-        <CardContent className="cardHighlight">
-          <Button
-            variant="outlined"
-            color="primary"
-            disabled={state === "search"}
-            onClick={() => {changeMethod("search")}}
-          >
-            Search
-          </Button>
-
-          <Button
-            variant="outlined"
-            color="primary"
-            disabled={state === "random"}
-            onClick={() => {changeMethod("random")}}
-          >
-            Random
-          </Button>
-
-          {/*
-          <Button
-            variant="outlined"
-            color="primary"
-            disabled={state === "file"}
-            onClick={() => {changeMethod("file")}}
-          >
-            From file
-          </Button>
-          */}
-
-        </CardContent>
-        <Divider/>
-
-      { state === "search" &&
-        <PriorKnowledgeSearch
-          project_id={props.project_id}
-          updatePriorStats={updatePriorStats}
-          includeItem={includeItem}
-          resetItem={resetItem}
-        />
-      }
-
-      { state === "random" &&
-         <PriorKnowledgeRandom
-          project_id={props.project_id}
-          onClose={()=>{setState(null)}}
-          updatePriorStats={updatePriorStats}
-          includeItem={includeItem}
-          excludeItem={excludeItem}
-        />
-      }
-
-    </Paper>
-    </Grow>
+        </Paper>
+      </Grow>
 
       }
 

@@ -154,17 +154,15 @@ const ProjectAlgorithms = (props) => {
 
   return (
     <Box>
-
       <Grow in={true}>
         <Paper className="Card">
-
           <Box>
             <CardHeader
-              avatar={
-                <Avatar aria-label="recipe" className={classes.avatar}>
-                  4
-                </Avatar>
-              }
+
+              /* Algorithms card */
+              title="Select models"
+
+              /* The edit and help options */
               action={
                 <Box>
                 {!state.edit &&
@@ -190,7 +188,6 @@ const ProjectAlgorithms = (props) => {
                 </Tooltip>
                 </Box>
               }
-              title="Select algorithms"
             />
 
               {algorithms !== null &&

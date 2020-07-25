@@ -82,20 +82,21 @@ const SearchResultDialog = (props) => {
             {searchResult.map((value, index) => {
 
               return (
-                  <ListItemPaper
-                    id={value.id}
-                    title={value.title}
-                    authors={value.authors}
-                    abstract={value.abstract}
-                    included={value.included}
-                    onRevertInclude={props.onRevertInclude}
-                    updatePriorStats={props.updatePriorStats}
-                    includeItem={props.includeItem}
-                    resetItem={props.resetItem}
+                <ListItemPaper
+                  id={value.id}
+                  title={value.title}
+                  authors={value.authors}
+                  abstract={value.abstract}
+                  included={value.included}
+                  onRevertInclude={props.onRevertInclude}
+                  updatePriorStats={props.updatePriorStats}
+                  includeItem={props.includeItem}
+                  excludeItem={props.excludeItem}
+                  resetItem={props.resetItem}
 
-                    // this component needs a key as well
-                    key={`container-result-item-${value.id}`}
-                  />
+                  // this component needs a key as well
+                  key={`container-result-item-${value.id}`}
+                />
               );
             })}
 

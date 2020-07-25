@@ -194,7 +194,7 @@ const ProjectPage = (props) => {
                   variant={"outlined"}
                   onClick={continueProjectSetup}
                 >
-                  Finish setup
+                  Start setup
                 </Button>
               }
 

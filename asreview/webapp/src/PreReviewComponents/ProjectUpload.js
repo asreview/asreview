@@ -374,9 +374,6 @@ const ProjectUpload = (props) => {
 
   }, [state.edit, state.upload]);
 
-  console.log(state);
-  console.log(statistics);
-
   return (
   <Box minHeight={"100%"}>
 
@@ -386,37 +383,35 @@ const ProjectUpload = (props) => {
       <Paper className={classes.root}>
 
         <CardHeader
-          avatar={
-            <Avatar aria-label="recipe" className={classes.avatar}>
-              2
-            </Avatar>
-          }
+
+          /* Dataset card */
+          title="Select dataset"
+
+          /* The edit and help options */
           action={
             <Box>
-            {!state.edit &&
-              <Tooltip title="Edit">
+              {!state.edit &&
+                <Tooltip title="Edit">
+                  <IconButton
+                    aria-label="project-info-edit"
+                    onClick={editDataset}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+              }
 
-                <IconButton
-                  aria-label="project-info-edit"
-                  onClick={editDataset}
-                >
-                  <EditIcon />
-                </IconButton>
+              <Tooltip title="Help">
+
+              <IconButton
+                onClick={openHelp}
+                aria-label="project-dataset-help"
+              >
+                <HelpIcon />
+              </IconButton>
               </Tooltip>
-            }
-
-            <Tooltip title="Help">
-
-            <IconButton
-              onClick={openHelp}
-              aria-label="project-dataset-help"
-            >
-              <HelpIcon />
-            </IconButton>
-            </Tooltip>
             </Box>
           }
-          title="Select a dataset"
         />
 
         <Dialog
@@ -436,7 +431,7 @@ const ProjectUpload = (props) => {
               Cancel
             </Button>
             <Button onClick={editDatasetOke} color="primary" autoFocus>
-              Oke
+              OK
             </Button>
           </DialogActions>
         </Dialog>

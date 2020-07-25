@@ -68,7 +68,13 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
-  }
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
 }));
 
 
@@ -216,6 +222,7 @@ const ProjectInit = (props) => {
     <Dialog
       open={props.open}
       onClose={props.onClose}
+      fullWidth={true}
     >
       <DialogTitle>
         Create a new project
@@ -223,6 +230,7 @@ const ProjectInit = (props) => {
       <DialogContent dividers={true}>
     {/* The actual form */}
       <form noValidate autoComplete="off">
+
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
@@ -237,6 +245,7 @@ const ProjectInit = (props) => {
             helperText={error && "Project name already exists"}
           />
         </div>
+
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
@@ -252,23 +261,31 @@ const ProjectInit = (props) => {
           <TextField
             fullWidth
             multiline
-            rowsMax={4}
+            rows={4}
+            rowsMax={6}
             name="description"
             id="project-description"
-            label="Short description"
+            label="Description"
             onChange={onChange}
             value={info.description}
           />
         </div>
+
       </form>
       </DialogContent>
       <DialogActions>
+        <Button
+          onClick={props.onClose}
+          color="primary"
+        >
+          Cancel
+        </Button>
         <Button
           onClick={submitForm}
           color="primary"
           disabled={info.name.length < 3}
         >
-          Create Project
+          Create
         </Button>
       </DialogActions>
     </Dialog>

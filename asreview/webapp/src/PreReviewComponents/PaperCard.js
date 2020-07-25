@@ -24,35 +24,16 @@ import { api_url } from '../globals.js';
 import { connect } from "react-redux";
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    // maxWidth: 345,
-    marginTop: 16,
-  },
-  expand: {
-    transform: 'rotate(0deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: 'rotate(180deg)',
-  },
-  close: {
-    margin: "8px",
-    float: "right",
-  }
+
 }));
 
 const PaperCard = (props) => {
 
   const classes = useStyles();
 
-  console.log("test")
-
   return (
     <Box>
-      <Typography variant="title">
+      <Typography variant="h6">
         {props.title}
       </Typography>
       <Typography>

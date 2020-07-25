@@ -15,6 +15,14 @@ import {
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
+import {
+  PaperCard,
+} from '../PreReviewComponents'
+
+import {
+  DialogTitleWithClose,
+} from '../Components'
+
 import axios from 'axios'
 
 import { api_url } from '../globals.js';
@@ -52,7 +60,7 @@ const ListItemPaper = (props) => {
       props.includeItem(props.id)
 
     } else {
-      props.resetItem(props.id)
+      props.excludeItem(props.id)
     }
     setSelected(!selected);
     props.updatePriorStats();
@@ -80,23 +88,38 @@ const ListItemPaper = (props) => {
       <Dialog
         open={open}
         onClose={handleClose}
+        fullWidth={true}
       >
-        <DialogTitle>
-          {props.title}
-        </DialogTitle>
+        <DialogTitleWithClose
+          title={"Is this article relevant?"}
+          onClose={handleClose}
+        />
         <DialogContent dividers={true}>
-          <DialogContentText>
-            <Typography noWrap={true}>
-              {props.authors}
-            </Typography>
-          </DialogContentText>
-          <DialogContentText>
-            {props.abstract}
-          </DialogContentText>
+          <PaperCard
+            id={props.id}
+            title={props.title}
+            abstract={props.abstract}
+          />
         </DialogContent>
         <DialogActions>
+
+          {/*
           <Button onClick={toggleButton} color="primary">
             {selected ? "Remove from ": "Add to "} prior
+          </Button>
+          */}
+
+          <Button
+            onClick={() => props.excludeItem(props.id)}
+            color="primary"
+          >
+            NO
+          </Button>
+          <Button
+            onClick={() => props.includeItem(props.id)}
+            color="primary"
+          >
+            YES
           </Button>
         </DialogActions>
       </Dialog>
