@@ -3,7 +3,7 @@ import {
   CssBaseline,
   createMuiTheme
 } from '@material-ui/core'
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
 import './App.css';
 
 import {
@@ -27,6 +27,7 @@ import WelcomeScreen from './WelcomeScreen'
 import {
   useDarkMode,
   useTextSize,
+  useUndoEnabled,
 } from './SettingsHooks'
 
 import 'typeface-roboto'
@@ -68,7 +69,8 @@ const App = (props) => {
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [importProject, setImportProject] = React.useState(false);
-  const [textSize, handleTextSizeChange] = useTextSize()
+  const [textSize, handleTextSizeChange] = useTextSize();
+  const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
 
   const handleAppState = (step) => {
 
@@ -96,7 +98,6 @@ const App = (props) => {
   const handleClose = () => {
     setSettingsOpen(false);
   };
-
 
   const handleHistoryOpen = () => {
     setHistoryOpen(true);
@@ -128,7 +129,7 @@ const App = (props) => {
   console.log("Current step: " + props.app_state)
 
   return (
-      <MuiThemeProvider theme={muiTheme}>
+      <ThemeProvider theme={muiTheme}>
       <CssBaseline/>
       {props.app_state === 'boot' &&
       <WelcomeScreen/>
@@ -191,6 +192,7 @@ const App = (props) => {
         handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
         textSize={textSize}
+        undoEnabled={undoEnabled}
       />
       }
 
@@ -211,6 +213,8 @@ const App = (props) => {
         toggleAuthors={toggleAuthors}
         onDark={theme}
         showAuthors={authors}
+        toggleUndoEnabled={toggleUndoEnabled}
+        undoEnabled={undoEnabled}
       />
       <HistoryDialog
         openHistory={openHistory}
@@ -224,7 +228,7 @@ const App = (props) => {
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 }
 

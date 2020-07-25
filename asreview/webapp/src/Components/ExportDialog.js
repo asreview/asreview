@@ -106,7 +106,7 @@ const ExportDialog = (props) => {
       <Dialog
         open={props.exportResult}
         onClose={props.toggleExportResult}
-        scroll="paper"
+        scroll="body"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-title"
@@ -143,10 +143,7 @@ const ExportDialog = (props) => {
 
           <DialogContent dividers={true}>
             <Typography variant="h6">
-              Download your project (ZIP file)
-            </Typography>
-            <Typography>
-              Download your project (ASReview file).
+              Download your project (ASReview file)
             </Typography>
 
             <Button
