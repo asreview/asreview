@@ -42,8 +42,8 @@ const useStyles = makeStyles(theme => ({
     textAlign: "center",
   },
   title: {
-    fontWeight: "300",
-    letterSpacing: ".7rem",
+    color: "red",
+    margin: "12px",
   },
   continuButton: {
     marginTop: "24px",
@@ -79,28 +79,40 @@ const DangerZone = (props) => {
   };
 
   return (
-    <Paper className={classes.dangerZone}>
-     <List className={classes.root}>
-        <ListItem alignItems="flex-start">
-          <ListItemText
-            primary="Archive this project"
-            secondary={'Mark this project as archived and read-only.'}
-          />
-        </ListItem>
-        <Divider component="li" />
-        <ListItem button onClick={toggleProjectDelete} alignItems="flex-start">
-          <ListItemText
-            primary="Delete this project"
-            secondary={'Once you delete a project, there is no going back. Please be certain.'}
-          />
-        </ListItem>
-      </List>
-    <ProjectSettings
-      id={props.project_id}
-      settings={settings}
-      toggleProjectDelete={toggleProjectDelete}
-    />
-    </Paper>
+    <Box>
+      <Typography
+        variant="h6"
+        className={classes.title}
+      >
+        Danger Zone
+      </Typography>
+
+      <Paper className={classes.dangerZone}>
+       <List className={classes.root}>
+          {/*
+          <ListItem alignItems="flex-start">
+            <ListItemText
+              primary="Archive this project"
+              secondary={'Mark this project as archived and read-only.'}
+            />
+          </ListItem>
+          <Divider component="li" />
+          */}
+          <ListItem button onClick={toggleProjectDelete} alignItems="flex-start">
+            <ListItemText
+              primary="Delete this project"
+              secondary={'Once you delete a project, there is no going back. Please be certain.'}
+            />
+          </ListItem>
+        </List>
+      <ProjectSettings
+        id={props.project_id}
+        settings={settings}
+        toggleProjectDelete={toggleProjectDelete}
+        handleAppState={props.handleAppState}
+      />
+      </Paper>
+    </Box>
   )
 }
 

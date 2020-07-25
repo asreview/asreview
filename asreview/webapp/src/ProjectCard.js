@@ -76,19 +76,7 @@ const ProjectCard = (props) => {
         >
           Open
         </Button>
-        <Button
-          size="small"
-          onClick={toggleProjectSettings}
-        >
-          Settings
-        </Button>
       </CardActions>
-      <ProjectSettings
-        id={props.id}
-        settings={settings}
-        toggleProjectSettings={toggleProjectSettings}
-        refreshProjects={props.refreshProjects}
-      />
     </Card>
   );
 }

@@ -25,6 +25,9 @@ import {
 
 import ProjectCard from './ProjectCard';
 
+import {
+  ImportDialog
+} from './Components'
 
 import {
   ProjectInit
@@ -58,17 +61,13 @@ const Projects = (props) => {
     const [open, setOpen] = useState({
       dial: false,
       newProject: false,
+      importProject: false
     });
 
     const [projects, setProjects] = useState({
       "projects": [],
       "loaded": false,
     });
-
-    const actions = [
-      {icon: <CreateNewFolderOutlined />, name: 'Import\u00A0project', operation: "importProject"},
-      {icon: <AddOutlined />, name: 'New\u00A0project', operation: "newProject"},
-    ];
 
     useEffect(() => {
 
@@ -93,41 +92,48 @@ const Projects = (props) => {
     };
 
     const handleOpen = () => {
-      console.log("open dial")
       setOpen({
-        dial: true,
-        newProject: open.newProject,
+        ...open,
+        dial: true
       })
     };
 
     const handleClose = () => {
       setOpen({
+        ...open,
         dial: false,
-        newProject: open.newProject,
       })
     };
 
     const handleCloseNewProject = () => {
-      console.log("close project page")
       setOpen({
-        dial: open.dial,
+        ...open,
         newProject: false,
       })
     };
 
+    const handleCloseImportProject = () => {
+      setOpen({
+        ...open,
+        importProject: false,
+      })
+    };
+
     const handleClickAdd = (event, operation) => {
-      console.log("hanlde click add")
 
       event.preventDefault();
       if (operation === "newProject") {
         setOpen({
+          ...open,
           dial: false,
           newProject: true,
         })
-        // props.handleAppState("review-init");
       } else if (operation === "importProject") {
-        props.handleAppState("review-import");
-        props.toggleImportProject();
+        setOpen({
+          ...open,
+          dial: false,
+          importProject: true,
+        })
       };
     }
 
@@ -179,6 +185,14 @@ const Projects = (props) => {
               handleAppState={props.handleAppState}
               open={open.newProject}
               onClose={handleCloseNewProject}
+            />
+          }
+
+          {open.importProject &&
+            <ImportDialog
+              handleAppState={props.handleAppState}
+              open={open.importProject}
+              onClose={handleCloseImportProject}
             />
           }
 

@@ -68,7 +68,6 @@ const App = (props) => {
   const [exportResult, setExportResult] = React.useState(false);
   const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
-  const [importProject, setImportProject] = React.useState(false);
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
 
@@ -115,10 +114,6 @@ const App = (props) => {
     setExportResult(a => (!a));
   };
 
-  const toggleImportProject = () => {
-    setImportProject(a => (!a));
-  };
-
   const handleReviewDrawer = (show) => {
     setAppState({
       'step': props.app_state,
@@ -147,20 +142,17 @@ const App = (props) => {
         handleTextSizeChange={handleTextSizeChange}
         toggleExit={toggleExit}
         toggleExportResult={toggleExportResult}
-        toggleImportProject={toggleImportProject}
       />
       }
 
       {props.app_state === 'projects' &&
       <Projects
         handleAppState={props.setAppState}
-        toggleImportProject={toggleImportProject}
       />
       }
 
       {props.app_state === 'project-page' &&
       <ProjectPage
-        project_id={props.project_id}
         handleAppState={props.setAppState}
       />
       }
@@ -174,14 +166,6 @@ const App = (props) => {
       {props.app_state === 'train-first-model' &&
       <StartReview
         handleAppState={props.setAppState}
-      />
-      }
-
-      {props.app_state === 'review-import' &&
-      <ImportDialog
-        handleAppState={props.setAppState}
-        toggleImportProject={toggleImportProject}
-        importProject={importProject}
       />
       }
 

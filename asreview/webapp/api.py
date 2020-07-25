@@ -671,6 +671,8 @@ def api_init_model_ready(project_id):  # noqa: F401
 def api_import_project():
     """Import uploaded project"""
 
+    import_project_id = None
+
     if 'file' in request.files:
 
         project_file = request.files['file']
@@ -699,7 +701,8 @@ def api_import_project():
                             with open(fp, "r+") as f:
                                 project = json.load(f)
 
-                                # if the uploaded project already exists, then make a copy
+                                # if the uploaded project already exists,
+                                # then make a copy
                                 if is_project(project["id"]):
                                     project["id"] += " copy"
                                     project["name"] += " copy"
@@ -707,28 +710,35 @@ def api_import_project():
                                     json.dump(project, f)
                                     f.truncate()
                 else:
-                    response = jsonify(message="No project found within the chosen file.")
+                    response = jsonify(
+                        message="No project found within the chosen file."
+                    )
                     return response, 404
             try:
                 # check if a copy of a project already exists
                 os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
 
+                import_project_id = project['id']
+
             except Exception as err:
                 logging.error(err)
-                response = jsonify(message=f"A copy of {project['id'][:-5]} already exists.")
+                response = jsonify(
+                    message=f"A copy of {project['id'][:-5]} already exists."
+                )
                 return response, 400
 
         except Exception as err:
             logging.error(err)
-            response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
+            response = jsonify(
+                message=f"Failed to upload file '{filename}'. {err}"
+            )
             return response, 400
     else:
         response = jsonify(message="No file found to upload.")
         return response, 400
 
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
+    # return the project info in the same format as project_info
+    return api_get_project_info(import_project_id)
 
 
 @bp.route('/project/<project_id>/export', methods=["GET"])

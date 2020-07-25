@@ -67,43 +67,27 @@ const MenuDrawer = (props) => {
         role="presentation"
       >
         <List>
-          <ListSubheader component="div" id="list-subheader-projects">
-            Projects
-          </ListSubheader>
           <ListItem
             button
-            key="menu-button-new-projects"
-            disabled={props.app_state === "review-init"}
-            onClick={() => {
-              props.setMenuDrawerState({left: false});
-              props.setAppState("review-init");
-            }}
-          >
-            <ListItemIcon><Add /></ListItemIcon>
-            <ListItemText primary="New" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-import-projects"
-            onClick={() => {
-              props.setMenuDrawerState({left: false});
-              props.setAppState("review-import");
-              props.toggleImportProject();
-            }}
-            >
-            <ListItemIcon><Publish /></ListItemIcon>
-            <ListItemText primary="Import" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-projects"
+            key="menu-button-home"
             onClick={() => {
               props.setMenuDrawerState({left: false});
               props.setAppState("projects");
             }}
             >
             <ListItemIcon><Folder /></ListItemIcon>
-            <ListItemText primary="Projects" />
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem
+            button
+            key="menu-button-projects"
+            onClick={() => {
+              props.setMenuDrawerState({left: false});
+              props.setAppState("project-page");
+            }}
+            >
+            <ListItemIcon><Folder /></ListItemIcon>
+            <ListItemText primary="Current Project" />
           </ListItem>
           <ListItem
             button
@@ -117,7 +101,6 @@ const MenuDrawer = (props) => {
             <ListItemIcon><GetApp /></ListItemIcon>
             <ListItemText primary="Export" />
           </ListItem>
-          <Divider />
 
         {/* Documentation */}
 
@@ -136,10 +119,6 @@ const MenuDrawer = (props) => {
           <Divider />
           */}
 
-        {/* help and quit */}
-          <ListSubheader component="div" id="list-subheader-help">
-            Help & Quit
-          </ListSubheader>
           <ListItem
             button
             key="menu-button-help"

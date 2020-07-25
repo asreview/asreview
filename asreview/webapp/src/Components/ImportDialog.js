@@ -12,7 +12,11 @@ import { Alert } from '@material-ui/lab';
 
 import axios from 'axios';
 
-import { api_url } from '../globals.js';
+import store from '../redux/store'
+import { setProject } from '../redux/actions'
+
+import { connect } from "react-redux";
+import { api_url, mapStateToProps } from '../globals.js';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -33,6 +37,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setProjectId: (project_id) => {dispatch(setProject(project_id))}
+    })
+}
+
 const ImportDialog = (props) => {
 
   const classes = useStyles();
@@ -45,13 +56,13 @@ const ImportDialog = (props) => {
 
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
-    if (props.importProject) {
+    if (props.open) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.importProject]);
+  }, [props.open]);
 
   const onFileChange = (event) => {
     setFile(event.target.files[0]);
@@ -59,7 +70,7 @@ const ImportDialog = (props) => {
   };
 
   const uploadProject = () => {
-    
+
     // show loader
     setUpload(true);
 
@@ -79,16 +90,13 @@ const ImportDialog = (props) => {
       url: importUrl,
       data: data
     })
-    .then(function () {
+    .then(function (response) {
 
-        // reset button
-        setUpload(false);
+        // set the project_id in the redux store
+        props.setProjectId(response.data["id"])
 
-        // remove accepted files
-        setFile(null);
-
-        // selected file uploaded
-        setSelection(true);
+        // navigate to project page
+        props.handleAppState("project-page")
 
     })
     .catch(function (error) {
@@ -116,98 +124,70 @@ const ImportDialog = (props) => {
     setError(null);
   };
 
-
   return (
       <Dialog
-        open={props.importProject}
-        onClose={() => {
-          resetAlert();
-          props.toggleImportProject();
-          props.handleAppState("projects");
-        }}
+        open={props.open}
+        onClose={props.onClose}
         scroll="body"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Import projects </DialogTitle>
+        <DialogTitle id="scroll-dialog-title">
+          Import ASReview project
+        </DialogTitle>
 
-          <DialogContent 
+          <DialogContent
             className={classes.dialog}
             dividers={true}
           >
             <Typography>
-              Upload your project (ASReview file).
+              Select an ASReview project file on your computer.
             </Typography>
 
             <div className={classes.input}>
-              <input type="file" name="fileToUpload" id="fileToUpload" onChange={onFileChange} />
+              <input
+                type="file"
+                name="fileToUpload"
+                id="fileToUpload"
+                onChange={onFileChange}
+              />
             </div>
 
-            {/* Disabled import button while no file selected */}
-              <div>
-                {file === null && selection === null && error === null &&
-                  <Button
-                    className={classes.uploadButton}
-                    variant="contained"
-                    color="primary"
-                    disabled
-                  >
-                    Import
-                  </Button>
-                }
-              </div>
-
-            {/* Enabled import button while file selected */}
-              <div>
-                {file !== null &&
-                  <Button
-                    className={classes.uploadButton}
-                    variant="contained"
-                    color="primary"
-                    onClick={uploadProject}
-                  >
-                  {upload ? "Importing..." : "Import"}
-                  </Button>
-                }
-              </div>
-            
-            {/* Alert after click on import button */}
-              <div className={classes.root}>
-                {file === null && selection !== null &&
-                  <Alert
-                    severity="success"
-                  >
-                    Successfully uploaded the project file "{filename}".
-                  </Alert>
-                }
-              </div>
-              <div className={classes.root}>
-                {file === null && error !== null &&
-                  <Alert
-                    severity="error"
-                  >
-                    {error}
-                  </Alert>
-                }
-              </div>
+            <div className={classes.root}>
+              {file === null && error !== null &&
+                <Alert
+                  severity="error"
+                >
+                  {error}
+                </Alert>
+              }
+            </div>
           </DialogContent>
 
           <DialogActions>
             <Button
-              onClick={() => {
-                resetAlert();
-                props.toggleImportProject();
-                props.handleAppState("projects");
-              }}
+              onClick={props.onClose}
+              color="primary"
             >
-              Close
+              Cancel
+            </Button>
+            <Button
+              onClick={uploadProject}
+              color="primary"
+              disabled={file === null && selection === null && error === null}
+            >
+              {upload ? "Importing..." : "Import"}
             </Button>
           </DialogActions>
+
       </Dialog>
   );
 };
 
 
-export default ImportDialog;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ImportDialog);

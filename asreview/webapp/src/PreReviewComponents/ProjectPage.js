@@ -32,8 +32,6 @@ import {
 
 import DangerZone from '../DangerZone.js'
 
-import ProjectSettings from '../ProjectSettings.js'
-
 
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
 import InboxIcon from '@material-ui/icons/Inbox';
@@ -224,6 +222,7 @@ const ProjectPage = (props) => {
           {!state.setup &&
             <DangerZone
               project_id={props.project_id}
+              handleAppState={props.handleAppState}
             />
 
           }
@@ -242,4 +241,4 @@ const ProjectPage = (props) => {
   )
 }
 
-export default ProjectPage;
+export default connect(mapStateToProps)(ProjectPage);
