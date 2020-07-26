@@ -9,7 +9,6 @@ import './App.css';
 import {
   Header,
   ReviewZone,
-  HistoryDialog,
   ExportDialog,
   ImportDialog,
 }
@@ -59,32 +58,12 @@ const App = (props) => {
   const [theme, toggleDarkMode] = useDarkMode()
   const muiTheme = createMuiTheme(theme)
 
-  const [appState, setAppState] = React.useState({
-    'step': 'boot',
-    'reviewDrawerOpen': false,
-  });
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
-  const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
-
-  const handleAppState = (step) => {
-
-    if (step === 'review'){
-      setAppState({
-        'step': 'review',
-        'reviewDrawerOpen': true,
-      })
-    } else {
-      setAppState({
-        'step': step,
-        'reviewDrawerOpen': false,
-      })
-    }
-  }
 
   const toggleAuthors = () => {
     setAuthors(a => (!a));
@@ -98,13 +77,6 @@ const App = (props) => {
     setSettingsOpen(false);
   };
 
-  const handleHistoryOpen = () => {
-    setHistoryOpen(true);
-  };
-
-  const handleHistoryClose = () => {
-    setHistoryOpen(false);
-  };
 
   const toggleExit = () => {
     setExit(a => (!a));
@@ -113,13 +85,6 @@ const App = (props) => {
   const toggleExportResult = () => {
     setExportResult(a => (!a));
   };
-
-  const handleReviewDrawer = (show) => {
-    setAppState({
-      'step': props.app_state,
-      'reviewDrawerOpen': show,
-    })
-  }
 
   console.log("Current step: " + props.app_state)
 
@@ -133,15 +98,11 @@ const App = (props) => {
       <Header
 
         /* Handle the app review drawer */
-        reviewDrawerState={appState['reviewDrawerOpen']}
-        handleReviewDrawer={handleReviewDrawer}
-
+        toggleExportResult={toggleExportResult}
         toggleDarkMode={toggleDarkMode}
         handleClickOpen={handleClickOpen}
-        handleHistoryOpen={handleHistoryOpen}
         handleTextSizeChange={handleTextSizeChange}
         toggleExit={toggleExit}
-        toggleExportResult={toggleExportResult}
       />
       }
 
@@ -154,6 +115,7 @@ const App = (props) => {
       {props.app_state === 'project-page' &&
       <ProjectPage
         handleAppState={props.setAppState}
+        toggleExportResult={toggleExportResult}
       />
       }
 
@@ -172,8 +134,6 @@ const App = (props) => {
       {props.app_state === 'review' &&
       <ReviewZone
         handleAppState={props.setAppState}
-        reviewDrawerState={appState['reviewDrawerOpen']}
-        handleReviewDrawer={handleReviewDrawer}
         showAuthors={authors}
         textSize={textSize}
         undoEnabled={undoEnabled}
@@ -199,10 +159,6 @@ const App = (props) => {
         showAuthors={authors}
         toggleUndoEnabled={toggleUndoEnabled}
         undoEnabled={undoEnabled}
-      />
-      <HistoryDialog
-        openHistory={openHistory}
-        handleHistoryClose={handleHistoryClose}
       />
       <ExitDialog
         toggleExit={toggleExit}

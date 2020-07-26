@@ -7,6 +7,7 @@ import {
   Container,
   Stepper,
   Step,
+  Grid,
   StepLabel,
   StepButton,
   Typography,
@@ -19,6 +20,8 @@ import {
   ListItemAvatar,
   Avatar,
   ListItemText,
+  IconButton,
+  Tooltip,
 } from '@material-ui/core';
 import {
   PriorKnowledge,
@@ -31,11 +34,14 @@ import {
 } from '../PreReviewComponents'
 
 import DangerZone from '../DangerZone.js'
-
+import PublicationZone from '../PublicationZone.js'
+import StatisticsZone from '../StatisticsZone.js'
 
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
 import InboxIcon from '@material-ui/icons/Inbox';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
+import FullyRead from '../images/FullyRead.png';
 
 import { connect } from "react-redux";
 import store from '../redux/store'
@@ -47,7 +53,7 @@ import { api_url, mapStateToProps } from '../globals.js';
 const useStyles = makeStyles(theme => ({
   header: {
     paddingTop: "128px",
-    paddingBottom: "84px",
+    paddingBottom: "48px",
     textAlign: "center",
   },
   title: {
@@ -55,6 +61,8 @@ const useStyles = makeStyles(theme => ({
     letterSpacing: ".7rem",
   },
   continuButton: {
+  },
+  quickStartButtons: {
     marginTop: "24px",
   },
   wrapper: {
@@ -73,7 +81,16 @@ const useStyles = makeStyles(theme => ({
     borderWidth: "2px",
     borderStyle: "solid",
     boxShadow: "none",
-}
+},
+  cardBox : {
+    paddingBottom: "24px",
+  },
+  stateElas : {
+    width: "100%",
+    maxWidth: "200px",
+    display: "block",
+    margin: "auto",
+  },
 }));
 
 const ProjectPage = (props) => {
@@ -151,91 +168,124 @@ const ProjectPage = (props) => {
 
   }, []);
 
-  console.log(state)
-
   return (
-
     <Box>
       {!state.infoLoading &&
         <Box className={classes.box}>
+          <Container maxWidth='md'>
 
-        <Container maxWidth='md'>
-            <Box className={classes.header}>
-              <Typography
-                variant="h3"
-                gutterBottom={true}
-                color="primary"
-                className={classes.title}
-              >
-                {state.info.name}
-              </Typography>
-              <Typography
-                color="primary"
-                variant="h5"
-              >{state.info.description}</Typography>
-
-              {/* Project is ready, show button */}
-              {(state.info.projectInitReady && !state.setup && !state.training) &&
-                <Button
-                  className={classes.continuButton}
-                  variant={"outlined"}
-                  onClick={()=>props.handleAppState("review")}
-                >
-                  Continue reviewing
-                </Button>
-              }
-
-              {/* Project is not ready, continue setup */}
-              {(!state.info.projectInitReady && !state.setup && !state.training) &&
-                <Button
-                  className={classes.continuButton}
-                  variant={"outlined"}
-                  onClick={continueProjectSetup}
-                >
-                  Start setup
-                </Button>
-              }
-
-              {(!state.info.projectInitReady && !state.setup && state.training) &&
-                <div className={classes.wrapper}>
-                  <Button
-                    variant={"outlined"}
-                    disabled
-                    className={classes.continuButton}
-                    startIcon={<KeyboardVoiceIcon />}
-                  >
-                    Training model
-                  </Button>
-                  <CircularProgress size={24} className={classes.buttonProgress} />
-                </div>
-
-              }
-
-              {/* Project is not ready, continue setup */}
-              {state.training &&
-                <StartReview
-                  onReady={finishProjectFirstTraining}
+            <Grid container spacing={3} className={classes.header}>
+              <Grid item xs={12} sm={3}>
+                <img
+                  src={FullyRead}
+                  alt="Logo"
+                  className={classes.stateElas}
                 />
-              }
-            </Box>
+              </Grid>
+              <Grid item xs={12} sm={9}>
+                <Typography
+                  variant="h3"
+                  gutterBottom={true}
+                  color="primary"
+                  className={classes.title}
+                >
+                  {state.info.name}
+                </Typography>
+                <Typography
+                  color="primary"
+                  variant="h5"
+                >
+                  {state.info.description}
+                </Typography>
+              {/*
+              </Grid>
+              <Grid item xs={12}>
+              */}
+                <Box className={classes.quickStartButtons}>
 
-          {!state.setup &&
-            <DangerZone
-              project_id={props.project_id}
-              handleAppState={props.handleAppState}
-            />
+                  {(state.info.projectInitReady && !state.setup && !state.training) &&
+                    <Tooltip title="Download results">
+                      <IconButton
+                        aria-label="Export"
+                        onClick={props.toggleExportResult}
+                        color="inherit"
+                      >
+                        <GetAppIcon />
+                      </IconButton>
+                    </Tooltip>
+                  }
 
-          }
+                  {/* Project is ready, show button */}
+                  {(state.info.projectInitReady && !state.setup && !state.training) &&
+                    <Button
+                      className={classes.continuButton}
+                      variant={"outlined"}
+                      onClick={()=>props.handleAppState("review")}
+                    >
+                      Continue reviewing
+                    </Button>
+                  }
 
-          {state.setup &&
-            <PreReviewZone
-              finishProjectSetup={finishProjectSetup}
-            />
-          }
+                  {/* Project is not ready, continue setup */}
+                  {(!state.info.projectInitReady && !state.setup && !state.training) &&
+                    <Button
+                      className={classes.continuButton}
+                      variant={"outlined"}
+                      onClick={continueProjectSetup}
+                    >
+                      Start setup
+                    </Button>
+                  }
 
-      </Container>
+                  {(!state.info.projectInitReady && !state.setup && state.training) &&
+                    <div className={classes.wrapper}>
+                      <Button
+                        variant={"outlined"}
+                        disabled
+                        className={classes.continuButton}
+                        startIcon={<KeyboardVoiceIcon />}
+                      >
+                        Training model
+                      </Button>
+                      <CircularProgress size={24} className={classes.buttonProgress} />
+                    </div>
 
-    </Box>
+                  }
+                </Box>
+
+                {/* Project is not ready, continue setup */}
+                {state.training &&
+                  <StartReview
+                    onReady={finishProjectFirstTraining}
+                  />
+                }
+              </Grid>
+            </Grid>
+
+            {/* Cards on the project board */}
+            {!state.setup &&
+              <Box className={classes.cardBox}>
+                <StatisticsZone
+                  project_id={props.project_id}
+                />
+                <PublicationZone
+                  project_id={props.project_id}
+                />
+                <DangerZone
+                  project_id={props.project_id}
+                  handleAppState={props.handleAppState}
+                />
+              </Box>
+            }
+
+            {/* Pre Review settings */}
+            {state.setup &&
+              <PreReviewZone
+                finishProjectSetup={finishProjectSetup}
+              />
+            }
+          </Container>
+        </Box>
       }
     </Box>
   )

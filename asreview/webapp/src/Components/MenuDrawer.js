@@ -80,26 +80,16 @@ const MenuDrawer = (props) => {
           </ListItem>
           <ListItem
             button
-            key="menu-button-projects"
+            selected={props.app_state === "project-page"}
+            disabled={props.app_state !== "review"}
+            key="menu-button-project"
             onClick={() => {
               props.setMenuDrawerState({left: false});
               props.setAppState("project-page");
             }}
-            >
+          >
             <ListItemIcon><Folder /></ListItemIcon>
             <ListItemText primary="Current Project" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-export"
-            disabled={props.app_state === "review" ? false : true}
-            onClick={() => {
-              props.toggleExportResult();
-              props.setMenuDrawerState({left: false});
-            }}
-          >
-            <ListItemIcon><GetApp /></ListItemIcon>
-            <ListItemText primary="Export" />
           </ListItem>
 
         {/* Documentation */}

@@ -5,6 +5,7 @@ import {
   Toolbar,
   Typography,
   IconButton,
+  Tooltip,
 } from '@material-ui/core'
 import MenuDrawer from './MenuDrawer'
 import { reviewDrawerWidth } from '../globals.js'
@@ -12,8 +13,8 @@ import { reviewDrawerWidth } from '../globals.js'
 import {
   Menu,
   BarChart,
+  GetApp,
 } from '@material-ui/icons'
-import HistoryIcon from '@material-ui/icons/History';
 import SettingsIcon from '@material-ui/icons/Settings';
 
 // local imports
@@ -23,8 +24,7 @@ import ElasIcon from '../ElasIcon'
 import { connect } from "react-redux";
 
 // redux config
-import store from '../redux/store'
-import { setAppState } from '../redux/actions'
+import { toggleReviewDrawer } from '../redux/actions'
 
 
 const useStyles = makeStyles({
@@ -50,13 +50,16 @@ const useStyles = makeStyles({
 });
 
 const mapStateToProps = state => {
-  return { app_state: state.app_state };
+  return {
+    app_state: state.app_state,
+    reviewDrawerOpen: state.reviewDrawerOpen,
+  };
 };
 
 
 function mapDispatchToProps(dispatch) {
     return({
-        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+        toggleReviewDrawer: () => {dispatch(toggleReviewDrawer())}
     })
 }
 
@@ -75,11 +78,17 @@ const Header = (props) => {
     setState({ ...state, [side]: isOpen });
   };
 
+  console.log(props.reviewDrawerOpen)
+
   return (
     <div className={classes.appBar}>
       <AppBar
         position='fixed'
-        className={props.reviewDrawerState ? classes.barWithReviewDrawer : classes.barFullWidth}
+        className={
+          (props.reviewDrawerOpen && props.app_state === "review") ?
+          classes.barWithReviewDrawer :
+          classes.barFullWidth
+        }
       >
         <Toolbar>
           <IconButton
@@ -99,15 +108,16 @@ const Header = (props) => {
              ASReview
           </Typography>
 
-          {(props.app_state === 'review') ?
-            <IconButton
-              aria-label="History"
-              onClick={props.handleHistoryOpen}
-              color="inherit"
-            >
-              <HistoryIcon />
-            </IconButton>
-          :''
+          {(props.app_state === 'review') &&
+            <Tooltip title="Download results">
+              <IconButton
+                aria-label="Export"
+                onClick={props.toggleExportResult}
+                color="inherit"
+              >
+                <GetApp />
+              </IconButton>
+            </Tooltip>
           }
           <IconButton
             aria-label="Settings"
@@ -117,10 +127,10 @@ const Header = (props) => {
             <SettingsIcon />
           </IconButton>
 
-          {(props.app_state === 'review' && !props.reviewDrawerState)?<IconButton
+          {(props.app_state === 'review' && !props.reviewDrawerOpen)?<IconButton
             color="inherit"
             className={classes.barChart}
-            onClick={(e) => props.handleReviewDrawer(true)}
+            onClick={props.toggleReviewDrawer}
           >
             <BarChart />
           </IconButton>
@@ -141,4 +151,4 @@ const Header = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(Header);
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

@@ -1,14 +1,18 @@
-import { SET_PROJECT, SET_APP_STATE } from "../../constants/action-types";
+import {
+  SET_PROJECT,
+  SET_APP_STATE,
+  TOGGLE_REVIEW_DRAWER
+} from "../../constants/action-types";
 
 const initialState = {
   app_state : "boot",
   project_id : null,
+  reviewDrawerOpen: true,
 };
 
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case SET_PROJECT:
-      console.log("Project id set: " + action.project_id)
       return Object.assign({}, state, {
         project_id: action.project_id
       })
@@ -24,6 +28,10 @@ function rootReducer(state = initialState, action) {
           app_state: action.app_state,
         })
       }
+    case TOGGLE_REVIEW_DRAWER:
+      return Object.assign({}, state, {
+        reviewDrawerOpen: !state.reviewDrawerOpen
+      })
 
     default:
       return state
