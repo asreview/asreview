@@ -322,7 +322,7 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     write_label_history(project_id, labeled)
 
 
-def move_label_from_labeled_to_pool(project_id, paper_i, label):
+def move_label_from_labeled_to_pool(project_id, paper_i):
 
     print(f"Move {paper_i} from labeled to pool")
 
@@ -338,6 +338,7 @@ def move_label_from_labeled_to_pool(project_id, paper_i, label):
 
         item_id = int(item_id)
         item_label = int(item_label)
+        paper_i = int(paper_i)
 
         if paper_i == item_id:
             pool_list.append(item_id)

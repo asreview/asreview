@@ -24,3 +24,4 @@ This project is in collaboration with researchers from the focus area of [Utrech
 - Martijn Huijts ([@MartijnUX](https://github.com/MartijnUX))
 - [Sybren Hindriks](https://www.linkedin.com/in/sybren-hindriks-054320135)
 - [Yongchao Terry Ma](https://www.linkedin.com/in/yongchao-ma/) ([@terrymyc](https://github.com/terrymyc))
+- [Emiel van der Veen](https://www.linkedin.com/in/emielvdveen/) (CTO @ EYRA)

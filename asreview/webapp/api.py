@@ -49,6 +49,7 @@ from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
+from asreview.webapp.utils.project import move_label_from_labeled_to_pool
 from asreview.webapp.utils.validation import check_dataset
 
 
@@ -665,6 +666,21 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
+    return response
+
+
+@bp.route('/project/<project_id>/record/<doc_id>', methods=["PUT"])
+def api_update_classify_instance(project_id, doc_id):
+    """Update classification result."""
+
+    doc_id = request.form['doc_id']
+    label = request.form['label']
+
+    move_label_from_labeled_to_pool(project_id, doc_id)
+    label_instance(project_id, doc_id, label, retrain_model=True)
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
