@@ -160,7 +160,8 @@ const ProjectAlgorithms = (props) => {
             <CardHeader
 
               /* Algorithms card */
-              title="Select models"
+              title="Select Active Learning model"
+              titleTypographyProps={{"color": "primary"}}
 
               /* The edit and help options */
               action={
@@ -192,9 +193,9 @@ const ProjectAlgorithms = (props) => {
 
               {algorithms !== null &&
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={12}>
                     <Typography variant="body2" className={classes.listTitle}>
-                        Machine learning models
+                        Select a classifier (skip for using the default)
                     </Typography>
 
                     {}

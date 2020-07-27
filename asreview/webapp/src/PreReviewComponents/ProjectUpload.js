@@ -386,6 +386,7 @@ const ProjectUpload = (props) => {
 
           /* Dataset card */
           title="Select dataset"
+          titleTypographyProps={{"color": "primary"}}
 
           /* The edit and help options */
           action={
