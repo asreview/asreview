@@ -22,6 +22,7 @@ from flask.json import jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+from asreview import __version__ as asreview_version
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
@@ -73,7 +74,12 @@ def api_boot():  # noqa: F401
         except ImportError:
             logging.debug("covid19 plugin not found")
 
-    response = jsonify({"status": status})
+    # get the asreview version
+
+    response = jsonify({
+        "status": status,
+        "version": asreview_version,
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response

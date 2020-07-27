@@ -15,11 +15,15 @@ import { connect } from "react-redux";
 
 // redux config
 import store from './redux/store'
-import { setAppState } from './redux/actions'
+import {
+  setAppState,
+  setASReviewVersion
+} from './redux/actions'
 
 
 function mapDispatchToProps(dispatch) {
     return({
+        setASReviewVersion: (asreview_version) => {dispatch(setASReviewVersion(asreview_version))},
         setAppState: (app_state) => {dispatch(setAppState(app_state))}
     })
 }
@@ -84,6 +88,9 @@ const WelcomeScreen = (props) => {
     const fetchData = async () => {
       await axios.get(api_url + "boot")
           .then(result => {
+
+            // set the version of asreview
+            props.setASReviewVersion(result.data['version'])
 
             // skip the loader when you are in development mode
             if (result.data['status'] === 'development') {

@@ -1,8 +1,14 @@
 import {
+	SET_ASREVIEW_VERSION,
 	SET_PROJECT,
 	SET_APP_STATE,
 	TOGGLE_REVIEW_DRAWER,
 } from "../../constants/action-types";
+
+export function setASReviewVersion(asreview_version) {
+	console.log(asreview_version)
+  return { type: SET_ASREVIEW_VERSION, asreview_version };
+}
 
 export function setProject(project_id) {
   return { type: SET_PROJECT, project_id };

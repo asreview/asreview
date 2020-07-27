@@ -34,7 +34,10 @@ import { setAppState } from '../redux/actions'
 
 
 const mapStateToProps = state => {
-  return { app_state: state.app_state };
+  return {
+    asreview_version: state.asreview_version,
+    app_state: state.app_state
+  };
 };
 
 
@@ -55,6 +58,8 @@ const useStyles = makeStyles({
 const MenuDrawer = (props) => {
   const classes = useStyles();
 
+  console.log(props.asreview_version)
+
   return (
     <Drawer
       anchor='left'
@@ -67,6 +72,19 @@ const MenuDrawer = (props) => {
         role="presentation"
       >
         <List>
+          <ListItem
+            button
+            key="menu-button-asreview"
+            onClick={() => {
+              props.setMenuDrawerState({left: false});
+              props.setAppState("projects");
+            }}
+            >
+            <ListItemText
+              primary="ASReview LAB"
+              secondary={props.asreview_version}
+            />
+          </ListItem>
           <ListItem
             button
             key="menu-button-home"
