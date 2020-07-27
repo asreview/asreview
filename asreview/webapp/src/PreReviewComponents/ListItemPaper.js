@@ -78,23 +78,6 @@ const ListItemPaper = (props) => {
 
   }
 
-
-  // const toggleButton = () => {
-
-  //   let label = null;
-  //   if (!selected){
-  //     props.includeItem(props.id)
-
-  //   } else {
-  //     props.excludeItem(props.id)
-  //   }
-  //   setSelected(!selected);
-  //   props.updatePriorStats();
-  //   handleClose();
-  // }
-
-  console.log(selected)
-
   return (
       // {props.removeResultOnRevert && <Collapse in={!selected}>}
     <Box>
@@ -137,16 +120,16 @@ const ListItemPaper = (props) => {
           */}
 
           <Button
-            onClick={includeAndClose}
-            color="primary"
-          >
-            NO
-          </Button>
-          <Button
             onClick={excludeAndClose}
             color="primary"
           >
-            YES
+            Irrelevant
+          </Button>
+          <Button
+            onClick={includeAndClose}
+            color="primary"
+          >
+            Relevant
           </Button>
         </DialogActions>
       </Dialog>

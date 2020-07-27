@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
     minHeight: "200px",
   },
   inputSearch: {
-    margin: '36px 0px',
+    margin: '20px 0px 0px 0px',
   },
   button: {
     margin: '36px 0px 24px 12px',
@@ -42,6 +42,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     width: '100%',
+    padding: '12px 0px 36px 0px',
   },
   input: {
     marginLeft: theme.spacing(1),
@@ -128,6 +129,9 @@ const PriorKnowledgeSearch = (props) => {
       style={{clear: "both"}}
       className={classes.inputSearch}
     >
+      <Typography>
+        Search for an publication of interest.
+      </Typography>
       <form
         className={classes.root}
         noValidate
