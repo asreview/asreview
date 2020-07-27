@@ -18,8 +18,8 @@ const ProgressPieChart = (props) => {
 
   return (
     <PieChart
-      width={reviewDrawerWidth}
-      height={(reviewDrawerWidth/2)-35}
+      width={props.width}
+      height={props.height}
     >
       <Pie
         isAnimationActive={false}
