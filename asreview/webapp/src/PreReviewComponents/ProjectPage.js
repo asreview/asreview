@@ -41,7 +41,8 @@ import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
 import InboxIcon from '@material-ui/icons/Inbox';
 import GetAppIcon from '@material-ui/icons/GetApp';
 
-import FullyRead from '../images/FullyRead.png';
+import InReview from '../images/InReview.svg';
+import SetUp from '../images/SetUp.svg';
 
 import { connect } from "react-redux";
 import store from '../redux/store'
@@ -142,6 +143,16 @@ const ProjectPage = (props) => {
     })
   }
 
+  const returnElasState = () => {
+    // setup
+    if (!state.info.projectInitReady || state.setup){
+      return SetUp
+    }
+
+    // review
+    return InReview
+  }
+
   useEffect(() => {
 
     const fetchProjectInfo = async () => {
@@ -180,8 +191,8 @@ const ProjectPage = (props) => {
             <Grid container spacing={3} className={classes.header}>
               <Grid item xs={12} sm={3}>
                 <img
-                  src={FullyRead}
-                  alt="Logo"
+                  src={returnElasState()}
+                  alt="ElasState"
                   className={classes.stateElas}
                 />
               </Grid>
