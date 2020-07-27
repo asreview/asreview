@@ -17,6 +17,13 @@ const useStyles = makeStyles({
   content: {
     height: 120,
   },
+  description: {
+    display: "block",
+    display: "-webkit-box",
+    "-webkit-line-clamp": 3,
+    "-webkit-box-orient": "vertical",
+    overflow: "hidden",
+  }
 });
 
 const ProjectCard = (props) => {
@@ -47,7 +54,12 @@ const ProjectCard = (props) => {
           <Typography gutterBottom variant="h5" component="h2">
             {props.name}
           </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p"
+            className={classes.description}
+          >
             {props.description}
           </Typography>
         </CardContent>
