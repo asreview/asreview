@@ -180,8 +180,6 @@ const ProjectPage = (props) => {
 
   }, []);
 
-  console.log(state.info);
-
   return (
     <Box>
       {!state.infoLoading &&

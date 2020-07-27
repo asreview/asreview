@@ -243,7 +243,7 @@ const ProjectUpload = (props) => {
         });
 
         // set next button ready
-        props.isReady();
+        props.setNext(true);
 
         // callback
         if (callback !== undefined){

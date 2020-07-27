@@ -299,7 +299,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
             )
         else:
             move_label_from_labeled_to_pool(
-                project_id, paper_i, label
+                project_id, paper_i
             )
 
     if retrain_model:

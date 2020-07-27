@@ -84,12 +84,12 @@ const PreReviewZone = (props) => {
     }
   };
 
-  const isReady = () => {
+  const setNext = (ready) => {
 
     setState({
       new: state.new,
       step: state.step,
-      ready: true,
+      ready: ready,
     });
   }
 
@@ -168,7 +168,7 @@ const PreReviewZone = (props) => {
                 project_id={props.project_id}
                 handleNext={handleNext}
                 handleStep={handleStep}
-                isReady={isReady}
+                setNext={setNext}
                 scrollToBottom={scrollToBottom}
               />
               <div ref={EndRef} />
@@ -179,7 +179,7 @@ const PreReviewZone = (props) => {
               <PriorKnowledge
                 project_id={props.project_id}
                 handleNext={handleNext}
-                isReady={isReady}
+                setNext={setNext}
                 scrollToBottom={scrollToBottom}
               />
               <div ref={EndRef} />
