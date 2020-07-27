@@ -120,18 +120,6 @@ const ProjectInit = (props) => {
   const submitForm = (evt) => {
     evt.preventDefault();
 
-    // props.onClose()
-
-    // let http_method;
-    // let url;
-    // if (!state.new){
-    //   url = api_url + "project/" + props.project_id + "/info"
-    //   http_method = "put"
-    // }  else {
-    //   url = api_url + "project/info"
-    //   http_method = "post"
-    // }
-
     var bodyFormData = new FormData();
     bodyFormData.set('name', info.name);
     bodyFormData.set('authors', info.authors);
@@ -149,15 +137,6 @@ const ProjectInit = (props) => {
 
       // set the project_id in the redux store
       props.setProjectId(response.data["id"])
-
-      // // set the card state to lock
-      // setState({
-      //   new: false,
-      //   edit: false,
-      // });
-
-      // go to the next step
-      // props.handleNext(0)
 
       props.handleAppState("project-page")
 

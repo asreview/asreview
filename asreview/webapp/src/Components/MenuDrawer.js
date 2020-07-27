@@ -22,7 +22,7 @@ import {
 } from '@material-ui/icons'
 
 // local imports
-// import ElasIcon from '../ElasIcon'
+import ElasIcon from '../ElasIcon'
 
 import { donateURL } from '../globals.js';
 
@@ -75,7 +75,7 @@ const MenuDrawer = (props) => {
               props.setAppState("projects");
             }}
             >
-            <ListItemIcon><Folder /></ListItemIcon>
+            <ListItemIcon><ElasIcon /></ListItemIcon>
             <ListItemText primary="Home" />
           </ListItem>
           <ListItem

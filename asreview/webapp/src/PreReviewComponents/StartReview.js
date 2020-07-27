@@ -139,7 +139,7 @@ const StartReview = (props) => {
     <Box>
 
       { (state["status"] === null || state["status"] === "training") &&
-        <Typography>(This can take some time.)</Typography>
+        <Typography>(This can take some time)</Typography>
       }
 
       { state["status"] === "error" &&

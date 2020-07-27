@@ -103,6 +103,7 @@ const ProjectPage = (props) => {
     info: null,
 
     // stage
+    setupFirstTime: (props.setupFirstTime ? props.setupFirstTime : false),
     setup: false,
     training: false,
 
@@ -168,6 +169,8 @@ const ProjectPage = (props) => {
 
   }, []);
 
+  console.log(state.info);
+
   return (
     <Box>
       {!state.infoLoading &&
@@ -203,6 +206,17 @@ const ProjectPage = (props) => {
               */}
                 <Box className={classes.quickStartButtons}>
 
+                  {/* Project is not ready, continue setup */}
+                  {(!state.info.projectInitReady && !state.setup && !state.training) &&
+                    <Button
+                      className={classes.continuButton}
+                      variant={"outlined"}
+                      onClick={continueProjectSetup}
+                    >
+                      {state.info.projectHasDataset ? "Finish" : "Start"} setup
+                    </Button>
+                  }
+
                   {(state.info.projectInitReady && !state.setup && !state.training) &&
                     <Tooltip title="Download results">
                       <IconButton
@@ -222,18 +236,7 @@ const ProjectPage = (props) => {
                       variant={"outlined"}
                       onClick={()=>props.handleAppState("review")}
                     >
-                      Continue reviewing
-                    </Button>
-                  }
-
-                  {/* Project is not ready, continue setup */}
-                  {(!state.info.projectInitReady && !state.setup && !state.training) &&
-                    <Button
-                      className={classes.continuButton}
-                      variant={"outlined"}
-                      onClick={continueProjectSetup}
-                    >
-                      Start setup
+                      Start reviewing
                     </Button>
                   }
 
