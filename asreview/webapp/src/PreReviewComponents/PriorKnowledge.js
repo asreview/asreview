@@ -257,6 +257,7 @@ const PriorKnowledge = (props) => {
 
             /* Prior card */
             title="Select prior knowledge"
+            titleTypographyProps={{"color": "primary"}}
 
             /* The edit and help options */
             action={
