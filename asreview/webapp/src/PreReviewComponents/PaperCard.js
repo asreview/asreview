@@ -36,13 +36,20 @@ const PaperCard = (props) => {
       <Typography variant="h6">
         {props.title}
       </Typography>
-      <Typography>
-        {props.abstract}
-      </Typography>
+      
+      {(props.abstract === "" || props.abstract === null) &&
+        <Box fontStyle="italic">
+          This article doesn't have an abstract.
+        </Box>
+      }
 
+      {!(props.abstract === "" || props.abstract === null) &&
+        <Typography>
+          {props.abstract}
+        </Typography>
+      }
     </Box>
   );
-
 }
 
 export default PaperCard;
