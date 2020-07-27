@@ -5,23 +5,15 @@ import {
   Box,
   Button,
   Container,
-  Stepper,
-  Step,
-  StepLabel,
-  StepButton,
 } from '@material-ui/core';
 import {
   PriorKnowledge,
-  ProjectInit,
   ProjectUpload,
   ProjectAlgorithms,
-  StartReview,
-  HelpDialog,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
 
 import { connect } from "react-redux";
-import store from '../redux/store'
 
 import axios from 'axios'
 

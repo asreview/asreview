@@ -1,12 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  Button,
   CircularProgress,
   Typography,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   List,
 } from '@material-ui/core';
 

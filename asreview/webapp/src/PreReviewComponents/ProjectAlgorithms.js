@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react'
 import {
   Box,
-  Button,
   Typography,
   Grid,
   Paper,
@@ -10,17 +9,15 @@ import {
   ListItemText,
   Radio,
   CardHeader,
-  Avatar,
   Tooltip,
   IconButton,
   Grow,
 } from '@material-ui/core'
 
-import { blue, green, brown } from '@material-ui/core/colors';
+import { brown } from '@material-ui/core/colors';
 
 import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 
 import {
   Help,
@@ -29,9 +26,7 @@ import {
 
 import axios from 'axios'
 
-import { api_url, mapStateToProps } from '../globals.js';
-
-import { connect } from "react-redux";
+import { api_url } from '../globals.js';
 
 import { makeStyles } from '@material-ui/core/styles';
 

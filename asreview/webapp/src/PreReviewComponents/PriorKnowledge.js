@@ -4,36 +4,26 @@ import {
   Box,
   Button,
   Typography,
-  FormControl,
-  OutlinedInput,
-  InputAdornment,
-  Toolbar,
   Paper,
   CardHeader,
   CardContent,
   Divider,
-  Avatar,
   Tooltip,
   IconButton,
   Grow,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
 import HelpIcon from '@material-ui/icons/Help';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
 
-import { blue, green, orange, brown } from '@material-ui/core/colors';
+import { green, brown } from '@material-ui/core/colors';
 
 import {
-  SearchResult,
-  PaperCard,
   PriorKnowledgeSearch,
   PriorKnowledgeRandom,
   ResultDialog,
@@ -52,11 +42,8 @@ import {
 import axios from 'axios'
 
 import {
-  api_url,
-  mapStateToProps
+  api_url
 } from '../globals.js';
-
-import { connect } from "react-redux";
 
 import './ReviewZone.css';
 

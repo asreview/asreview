@@ -10,8 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import store from './redux/store'
 import { setProject } from './redux/actions'
 
-import ProjectSettings from './ProjectSettings.js'
-
 const useStyles = makeStyles({
   root: {
     maxWidth: "100%",
@@ -24,8 +22,6 @@ const useStyles = makeStyles({
 const ProjectCard = (props) => {
   const classes = useStyles();
 
-  const [settings, setSettings] = React.useState(false);
-
   const openExistingProject = () => {
 
     console.log("Opening existing project " + props.id)
@@ -33,22 +29,9 @@ const ProjectCard = (props) => {
     // set the state in the redux store
     store.dispatch(setProject(props.id))
 
-    // if (props.projectInitReady){
-    //   // the project is fully initialized, go directly to the review screen
-    //   props.handleAppState("review")
-    // } else {
-    //   // the project init isn't ready yet, go the project setup page.
-    //   props.handleAppState("review-init")
-    // }
-
     props.handleAppState("project-page")
 
   }
-
-  const toggleProjectSettings = () => {
-    console.log("Open settings project " + props.id)
-    setSettings(a => (!a));
-  };
 
   return (
     <Card className={classes.root}>

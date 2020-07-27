@@ -1,14 +1,11 @@
 import React, {useEffect} from 'react'
 import {
   Box,
-  ListItemIcon,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
-  Typography,
   List,
   ListItem,
   ListItemText,
@@ -16,9 +13,7 @@ import {
   IconButton,
   Tab,
   Tabs,
-  TabPanel,
 } from '@material-ui/core'
-import FavoriteIcon from '@material-ui/icons/Favorite'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import axios from 'axios'

@@ -1,85 +1,25 @@
 import React, {useEffect} from 'react'
 import {
   Box,
-  Button,
   Typography,
-  Grid,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Radio,
-  CardHeader,
-  Avatar,
-  Tooltip,
-  IconButton,
 } from '@material-ui/core'
 
-import HelpIcon from '@material-ui/icons/Help';
-import EditIcon from '@material-ui/icons/Edit';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-
-import {
-  Help,
-  useHelp,
-} from '../PreReviewComponents'
-
 import axios from 'axios'
-
-import { makeStyles } from '@material-ui/core/styles';
 
 import './ReviewZone.css';
 
 import { connect } from "react-redux";
-import store from '../redux/store'
 
 import { api_url, mapStateToProps } from '../globals.js';
 
 
-const useStyles = makeStyles(theme => ({
-  listTitle: {
-    paddingLeft: "18px",
-  },
-}));
-
 const StartReview = (props) => {
-  const classes = useStyles();
 
   const [state, setState] = React.useState({
     "status": null,
     "message": null,
   });
 
-  const [help, openHelp, closeHelp] = useHelp();
-
-
-  const startTraining = () => {
-
-    // set the state to 'model training'
-    setState({
-      "status": "training",
-      "message": null,
-    })
-
-    const url = api_url + `project/${props.project_id}/start`;
-
-    return axios({
-      method: 'post',
-      url: url,
-      data: {},
-      headers: {'Content-Type': 'multipart/form-data' }
-    })
-    .then((result) => {
-      checkModelIsFitted();
-    })
-    .catch((error) => {
-      console.log(error);
-      setState({
-        "status": "error",
-        "message": error,
-      })
-    });
-  }
 
   const checkModelIsFitted = () => {
 
@@ -127,11 +67,38 @@ const StartReview = (props) => {
 
   useEffect(() => {
 
+    const startTraining = () => {
+
+      // set the state to 'model training'
+      setState({
+        "status": "training",
+        "message": null,
+      })
+
+      const url = api_url + `project/${props.project_id}/start`;
+
+      return axios({
+        method: 'post',
+        url: url,
+        data: {},
+        headers: {'Content-Type': 'multipart/form-data' }
+      })
+      .then((result) => {
+        checkModelIsFitted();
+      })
+      .catch((error) => {
+        console.log(error);
+        setState({
+          "status": "error",
+          "message": error,
+        })
+      });
+    }
     if (state['status'] === null){
       setTimeout(startTraining, 3000);
     }
 
-  }, []);
+  }, [state.status, props.project_id]);
 
   console.log(state)
 

@@ -6,14 +6,9 @@ import {
   CircularProgress,
   Typography,
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton,
 } from '@material-ui/core'
-
-import CloseIcon from '@material-ui/icons/Close';
-import FavoriteIcon from '@material-ui/icons/Favorite';
 
 import {
   PaperCard,

@@ -1,20 +1,9 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
-  Box,
   Button,
-  Typography,
-  Toolbar,
-  Tooltip,
   TextField,
-  Snackbar,
-  Paper,
-  IconButton,
-  CardHeader,
-  Avatar,
-  CardContent,
-  Grow,
   DialogTitle,
   DialogContent,
   DialogActions,
@@ -23,19 +12,12 @@ import {
 
 import { brown } from '@material-ui/core/colors';
 
-import CloseIcon from '@material-ui/icons/Close';
-import HelpIcon from '@material-ui/icons/Help';
-import EditIcon from '@material-ui/icons/Edit';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-
 import {
-  Help,
   useHelp,
 } from '../PreReviewComponents'
 
 import axios from 'axios'
 
-import store from '../redux/store'
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
@@ -107,9 +89,6 @@ const ProjectInit = (props) => {
   })
   const [error, setError] = React.useState(false)
 
-  // help dialog
-  const [help, openHelp, closeHelp] = useHelp()
-
   const onChange = (evt) => {
     setInfo({
       ...info,
@@ -148,54 +127,6 @@ const ProjectInit = (props) => {
         setError(true);
     });
   }
-
-  const handleErrorClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setError(false);
-  };
-
-  const editInfo = () => {
-    setState({
-      new: state.new,
-      edit: true,
-    })
-  }
-
-  // useEffect(() => {
-
-  //   const fetchProjectInfo = async () => {
-
-  //     // contruct URL
-  //     const url = api_url + "project/" + props.project_id + "/info";
-
-  //     axios.get(url)
-  //       .then((result) => {
-
-  //         // set the project info
-  //         setInfo({
-  //           authors: result.data["authors"],
-  //           name: result.data["name"],
-  //           description: result.data["description"],
-  //         });
-
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //       });
-  //   };
-
-  //   // run if the state is "lock"
-  //   if (!state.new){
-  //       fetchProjectInfo();
-  //   }
-
-  // }, [state.new]);
-
-  // console.log(state)
-  // console.log(store.getState()["project_id"])
 
   return (
     <Dialog

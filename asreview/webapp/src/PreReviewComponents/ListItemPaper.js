@@ -1,17 +1,13 @@
 import React from 'react'
 import {
-
   Box,
   ListItem,
   ListItemText,
   ListItemIcon,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
-  Typography,
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
@@ -22,12 +18,6 @@ import {
 import {
   DialogTitleWithClose,
 } from '../Components'
-
-import axios from 'axios'
-
-import { api_url } from '../globals.js';
-
-import { connect } from "react-redux";
 
 
 const ListItemPaper = (props) => {

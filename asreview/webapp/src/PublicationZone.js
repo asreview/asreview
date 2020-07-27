@@ -1,34 +1,17 @@
-import React, {useRef, useEffect}  from 'react'
+import React  from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
   Box,
-  Button,
-  Container,
-  Stepper,
-  Step,
-  StepLabel,
-  StepButton,
   Typography,
-  CircularProgress,
-  Paper,
   List,
-  ListItemIcon,
-  Divider,
   ListItem,
-  ListItemAvatar,
-  Avatar,
   ListItemText,
+  Divider,
+  Paper,
 } from '@material-ui/core';
 
-import ProjectSettings from './ProjectSettings.js'
-
-import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
-import InboxIcon from '@material-ui/icons/Inbox';
-
-import axios from 'axios'
-
-import { api_url, mapStateToProps } from './globals.js';
+import { api_url } from './globals.js';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -65,13 +48,6 @@ const useStyles = makeStyles(theme => ({
 const PublicationZone = (props) => {
 
   const classes = useStyles();
-
-  const [settings, setDelete] = React.useState(false);
-
-
-  const toggleProjectDelete = () => {
-    setDelete(a => (!a));
-  };
 
   /*
   Download the project file

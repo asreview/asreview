@@ -10,26 +10,11 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  Typography,
   Tabs,
   Tab,
   IconButton,
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
-
-import {
-  PaperCard,
-} from '../PreReviewComponents'
-
-import {
-  DialogTitleWithClose,
-} from '../Components'
 
 import axios from 'axios'
 

@@ -8,12 +8,6 @@ import {
   DialogTitleWithClose,
 } from '../Components'
 
-import axios from 'axios'
-
-import { api_url } from '../globals.js';
-
-import { connect } from "react-redux";
-
 /* Hook for the Help button
 
 */
