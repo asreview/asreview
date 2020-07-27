@@ -73,6 +73,8 @@ const ReviewZone = (props) => {
     "n_pool": null,
   });
 
+  const [history, setHistory] = useState([]);
+
   const storeRecordState = (label) => {
     setPreviousRecordState({
       'record': recordState.record,
@@ -205,6 +207,19 @@ const ReviewZone = (props) => {
         })
     }
 
+    const getProgressHistory = () => {
+
+      const url = api_url + `project/${props.project_id}/progress_history`;
+
+      return axios.get(url)
+        .then((result) => {
+          setHistory(result.data)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+
     /**
      * Get next article
      */
@@ -237,6 +252,8 @@ const ReviewZone = (props) => {
     if (!recordState['isloaded']) {
 
       getProgressInfo();
+
+      getProgressHistory();
 
       getDocument();
     }
@@ -277,6 +294,7 @@ const ReviewZone = (props) => {
         state={props.reviewDrawerOpen}
         handle={props.toggleReviewDrawer}
         statistics={statistics}
+        history={history}
       />
 
     </Box>

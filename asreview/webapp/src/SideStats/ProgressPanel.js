@@ -6,9 +6,12 @@ import {
 
 import {
   ProgressPieChart,
+  ProgressAreaChart,
 } from '../SideStats';
 
 import { makeStyles } from '@material-ui/core/styles';
+
+import {reviewDrawerWidth} from '../globals.js'
 
 const useStyles = makeStyles(theme => ({
   item: {
@@ -29,10 +32,20 @@ const ProgressPanel = (props) => {
         <ProgressPieChart
           n_included={props.n_included}
           n_excluded={props.n_excluded}
+          width={reviewDrawerWidth}
+          height={(reviewDrawerWidth/2)-30}
         />
+
         <ListItem className={classes.item} key="list-progress-total_labeled">
           Total reviewed: {props.n_included + props.n_excluded} ({Math.round((props.n_included + props.n_excluded)/props.n_papers*10000)/100}%)
         </ListItem>
+
+        <ProgressAreaChart
+          history={props.history}
+          width={reviewDrawerWidth-50}
+          height={reviewDrawerWidth-120}
+          margin={{left: 55}}
+        />
       </div>
     );
 }
