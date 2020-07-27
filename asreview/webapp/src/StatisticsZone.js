@@ -59,8 +59,12 @@ const useStyles = makeStyles(theme => ({
   },
   center : {
     margin: "auto",
-
-  }
+  },
+  notAvailable : {
+    paddingTop: "74px",
+    paddingBottom: "74px",
+    textAlign: "center",
+  },
 }));
 
 const StatisticsZone = (props) => {
@@ -87,11 +91,13 @@ const StatisticsZone = (props) => {
         })
     }
 
-    getProgressInfo();
+    if (props.projectInitReady && !props.training){
+        getProgressInfo();
+    }
+  }, [props.projectInitReady, props.training]);
 
-  }, []);
-
-  console.log(statistics)
+  console.log(props.projectInitReady)
+  console.log(props.training)
 
   return (
     <Box>
@@ -131,6 +137,21 @@ const StatisticsZone = (props) => {
             </Grid>
           </Grid>
         }
+        {(statistics === null && !(!props.projectInitReady || props.training)) &&
+          <Box className={classes.notAvailable}>
+            <CircularProgress/>
+          </Box>
+        }
+        {(!props.projectInitReady || props.training) &&
+          <Box
+            className={classes.notAvailable}
+          >
+            <Typography>
+              Statistics aren't available yet. Please finish the setup first.
+            </Typography>
+          </Box>
+        }
+
       </Paper>
     </Box>
   )

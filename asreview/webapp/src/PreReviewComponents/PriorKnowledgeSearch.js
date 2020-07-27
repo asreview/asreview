@@ -143,6 +143,7 @@ const PriorKnowledgeSearch = (props) => {
             placeholder="Search on keyword, author or title"
             value={searchDialog.query}
             onChange={onChangeSearch}
+            autoFocus
             endAdornment={
               <InputAdornment position="end">
                 <IconButton

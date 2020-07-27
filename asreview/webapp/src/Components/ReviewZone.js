@@ -24,19 +24,6 @@ const useStyles = makeStyles({
   box: {
     paddingBottom: 30,
     overflowY: 'auto',
-    // height: '100%',
-  },
-  title: {
-    lineHeight: 1.2
-  },
-  abstract: {
-  },
-  authors: {
-  },
-  stickToBottom: {
-    width: '100%',
-    position: 'fixed',
-    bottom: 0,
   },
 });
 

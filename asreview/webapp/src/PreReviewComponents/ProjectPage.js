@@ -267,6 +267,8 @@ const ProjectPage = (props) => {
               <Box className={classes.cardBox}>
                 <StatisticsZone
                   project_id={props.project_id}
+                  projectInitReady={state.info.projectInitReady}
+                  training={state.training}
                 />
                 <PublicationZone
                   project_id={props.project_id}

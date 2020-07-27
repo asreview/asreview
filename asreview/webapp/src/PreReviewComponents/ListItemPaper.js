@@ -53,20 +53,47 @@ const ListItemPaper = (props) => {
   };
 
 
-  const toggleButton = () => {
+  const includeAndClose = () => {
+    props.includeItem(props.id, ()=>{
 
-    let label = null;
-    if (!selected){
-      props.includeItem(props.id)
+      // select the item
+      setSelected(true);
 
-    } else {
-      props.excludeItem(props.id)
-    }
-    setSelected(!selected);
-    props.updatePriorStats();
-    handleClose();
+      // Close the Dialog
+      handleClose();
+
+      props.updatePriorStats();
+    });
+
   }
 
+  const excludeAndClose = () => {
+    props.excludeItem(props.id, ()=> {
+
+      // Close the Dialog
+      handleClose();
+
+      props.updatePriorStats();
+    });
+
+  }
+
+
+  // const toggleButton = () => {
+
+  //   let label = null;
+  //   if (!selected){
+  //     props.includeItem(props.id)
+
+  //   } else {
+  //     props.excludeItem(props.id)
+  //   }
+  //   setSelected(!selected);
+  //   props.updatePriorStats();
+  //   handleClose();
+  // }
+
+  console.log(selected)
 
   return (
       // {props.removeResultOnRevert && <Collapse in={!selected}>}
@@ -110,13 +137,13 @@ const ListItemPaper = (props) => {
           */}
 
           <Button
-            onClick={() => props.excludeItem(props.id)}
+            onClick={includeAndClose}
             color="primary"
           >
             NO
           </Button>
           <Button
-            onClick={() => props.includeItem(props.id)}
+            onClick={excludeAndClose}
             color="primary"
           >
             YES
