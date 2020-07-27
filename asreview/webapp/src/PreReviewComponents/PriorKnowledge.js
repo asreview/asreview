@@ -133,7 +133,10 @@ export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 const PriorKnowledge = (props) => {
   const classes = useStyles();
 
-  const [state, setState] = React.useState(null)
+  const [state, setState] = React.useState({
+    "method": null,
+    "loading": true,
+  })
 
   const [priorDialog, setPriorDialog] = React.useState(false)
 
@@ -145,19 +148,10 @@ const PriorKnowledge = (props) => {
   const [help, openHelp, closeHelp] = useHelp()
 
   const updatePriorStats = () => {
-
-    const url = api_url + `project/${props.project_id}/prior_stats`;
-
-    axios.get(url)
-    .then((result) => {
-
-      setPriorStats(result.data);
-
-    })
-    .catch((error) => {
-      console.log("Failed to  load prior information");
+    setState({
+      "method": state.method,
+      "loading": true,
     });
-
   }
 
   const openPriorKnowledge = () => {
@@ -201,22 +195,42 @@ const PriorKnowledge = (props) => {
 
   /* Skeleton to extend later on */
   const changeMethod = (method) => {
-    setState(method);
+    setState({
+      "method": method,
+      "loading": state.loading,
+    });
   }
 
   useEffect(() => {
 
-    updatePriorStats()
+    if (state.loading){
+      const url = api_url + `project/${props.project_id}/prior_stats`;
 
-  }, []);
+      axios.get(url)
+      .then((result) => {
+
+        setState({
+          ...state,
+          "loading": false,
+        })
+
+        setPriorStats(result.data);
+
+      })
+      .catch((error) => {
+        console.log("Failed to load prior information");
+      });
+    }
+
+  }, [state.loading]);
 
 
   useEffect(() => {
 
-    if (props.scrollToBottom !== undefined){
-      // scroll to bottom
-      props.scrollToBottom()
-    }
+    // if (props.scrollToBottom !== undefined){
+    //   // scroll to bottom
+    //   props.scrollToBottom()
+    // }
 
     // enable next button
     if (goNext()){
@@ -224,8 +238,6 @@ const PriorKnowledge = (props) => {
     }
 
   }, [priorStats]);
-
-  console.log(props.project_id)
 
   return (
     <Box
@@ -249,7 +261,7 @@ const PriorKnowledge = (props) => {
             /* The edit and help options */
             action={
               <Box>
-                {state === "lock" &&
+                {state.method === "lock" &&
                   <Tooltip title="Edit">
 
                     <IconButton
@@ -336,7 +348,7 @@ const PriorKnowledge = (props) => {
             <Button
               variant="outlined"
               color="primary"
-              disabled={state === "search"}
+              disabled={state.method === "search"}
               onClick={() => {changeMethod("search")}}
               className={classes.navButton}
             >
@@ -346,7 +358,7 @@ const PriorKnowledge = (props) => {
             <Button
               variant="outlined"
               color="primary"
-              disabled={state === "random"}
+              disabled={state.method === "random"}
               onClick={() => {changeMethod("random")}}
               className={classes.navButton}
             >
@@ -357,7 +369,7 @@ const PriorKnowledge = (props) => {
             <Button
               variant="outlined"
               color="primary"
-              disabled={state === "file"}
+              disabled={state.method === "file"}
               onClick={() => {changeMethod("file")}}
               className={classes.navButton}
             >
@@ -367,7 +379,7 @@ const PriorKnowledge = (props) => {
 
           </CardContent>
 
-          { state === "search" &&
+          { state.method === "search" &&
             <Box>
               <Divider/>
               <CardContent>
@@ -382,10 +394,10 @@ const PriorKnowledge = (props) => {
             </Box>
           }
 
-          { state === "random" &&
+          { state.method === "random" &&
             <PriorKnowledgeRandom
               project_id={props.project_id}
-              onClose={()=>{setState(null)}}
+              onClose={()=>{changeMethod(null)}}
               updatePriorStats={updatePriorStats}
               includeItem={includeItem}
               excludeItem={excludeItem}

@@ -62,6 +62,8 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const n_items = 5;
+
 const PriorKnowledgeRandom = (props) => {
   const classes = useStyles();
 
@@ -145,84 +147,75 @@ const PriorKnowledgeRandom = (props) => {
         onClose={props.onClose}
         fullWidth={true}
       >
-        <DialogTitleWithClose
-          title={"Is this article relevant?"}
-          onClose={props.onClose}
-        />
 
-        {state["count_exclusions"] < 5 &&
-          <DialogContent dividers={true}>
+        {state["count_exclusions"] < n_items &&
+            <DialogTitleWithClose
+              title={"Is this article relevant?"}
+              onClose={props.onClose}
+            />
+          }
+          {state["count_exclusions"] < n_items &&
+            <DialogContent dividers={true}>
 
-            {!state["loaded"] ?
-              <Box className={classes.loader}>
-                <CircularProgress
-                  style={{margin: "0 auto"}}
-                />
-              </Box> :
-                <PaperCard
-                  id={state["records"].id}
-                  title={state["records"].title}
-                  abstract={state["records"].abstract}
-                />
-            }
-          </DialogContent>
+              {!state["loaded"] ?
+                <Box className={classes.loader}>
+                  <CircularProgress
+                    style={{margin: "0 auto"}}
+                  />
+                </Box> :
+                  <PaperCard
+                    id={state["records"].id}
+                    title={state["records"].title}
+                    abstract={state["records"].abstract}
+                  />
+              }
+            </DialogContent>
+          }
+          {state["count_exclusions"] < n_items &&
+            <DialogActions>
+              <Button
+                onClick={() => excludeRandomDocument(props.id)}
+                color="primary"
+              >
+                Irrelevant
+              </Button>
+              <Button
+                onClick={() => includeRandomDocument(props.id)}
+                color="primary"
+              >
+                Relevant
+              </Button>
+            </DialogActions>
         }
 
-        {state["count_exclusions"] >= 5 &&
-          <DialogContent dividers={true}>
-            <Typography>
-              We think you are done, but feel free to continue.
-            </Typography>
-            <Button
-              variant="primary"
-              color="default"
-              className={classes.button}
-              startIcon={<CloseIcon />}
-              onClick={resetCount}
-            >
-              Show more
-            </Button>
-          </DialogContent>
+        {state["count_exclusions"] >= n_items &&
+          <Box>
+            <DialogTitleWithClose
+              title={"Enough irrelevant items found, do you want to stop?"}
+              onClose={props.onClose}
+            />
+            <DialogContent dividers={true}>
+              <Typography>
+                A total of {n_items} articles were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant items as well).
+              </Typography>
+            </DialogContent>
+
+            <DialogActions>
+              <Button
+                onClick={resetCount}
+                color="primary"
+              >
+                Show more
+              </Button>
+              <Button
+                onClick={props.onClose}
+                color="primary"
+              >
+                Stop
+              </Button>
+            </DialogActions>
+          </Box>
         }
-
-        <DialogActions>
-
-          {/* Show the classification buttons if and only if classify is true
-          <div style={{ margin: "0 auto" }}>
-            <Button
-              variant="primary"
-              color="default"
-              className={classes.button}
-              startIcon={<FavoriteIcon />}
-              onClick={() => includeRandomDocument(props.id)}
-            >
-              Relevant
-            </Button>
-            <Button
-              variant="primary"
-              color="default"
-              className={classes.button}
-              startIcon={<CloseIcon />}
-              onClick={() => excludeRandomDocument(props.id)}
-            >
-              Irrelevant
-            </Button>
-          </div>
-          */}
-          <Button
-            onClick={() => excludeRandomDocument(props.id)}
-            color="primary"
-          >
-            NO
-          </Button>
-          <Button
-            onClick={() => includeRandomDocument(props.id)}
-            color="primary"
-          >
-            YES
-          </Button>
-        </DialogActions>
-
 
       </Dialog>
   )
