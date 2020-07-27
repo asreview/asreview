@@ -23,6 +23,7 @@ import {
 
 // local imports
 import ElasIcon from '../ElasIcon'
+import ASReviewLogo from '../images/Wordmark_LAB_colour.svg'
 
 import { donateURL } from '../globals.js';
 
@@ -53,6 +54,12 @@ const useStyles = makeStyles({
   list: {
     width: drawerWidth
   },
+  logo: {
+    width: 180,
+  },
+  centerListItem: {
+    textAlign: "center",
+  }
 });
 
 const MenuDrawer = (props) => {
@@ -81,10 +88,16 @@ const MenuDrawer = (props) => {
             }}
             >
             <ListItemText
-              primary="ASReview LAB"
+              className={classes.centerListItem}
+              primary={<img
+                src={ASReviewLogo}
+                alt="ASReview"
+                className={classes.logo}
+              />}
               secondary={props.asreview_version}
             />
           </ListItem>
+          <Divider />
           <ListItem
             button
             key="menu-button-home"

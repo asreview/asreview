@@ -17,10 +17,6 @@ import {
 } from '@material-ui/icons'
 import SettingsIcon from '@material-ui/icons/Settings';
 
-// local imports
-import ElasIcon from '../ElasIcon'
-
-
 import { connect } from "react-redux";
 
 // redux config
@@ -99,6 +95,8 @@ const Header = (props) => {
           >
             <Menu />
           </IconButton>
+
+        {/*
           <ElasIcon/>
           <Typography
             variant="h5"
@@ -107,6 +105,21 @@ const Header = (props) => {
           >
              ASReview
           </Typography>
+        */}
+
+
+            <Typography
+              variant="h5"
+              color="inherit"
+              className={classes.appTitle}
+            >
+              {(props.app_state === 'review') &&
+                "Review"
+              }
+              {(props.app_state === 'project-page') &&
+                "Project"
+              }
+            </Typography>
 
           {(props.app_state === 'review') &&
             <Tooltip title="Download results">
