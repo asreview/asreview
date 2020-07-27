@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   Typography,
-  FormControl,
   InputLabel,
   Select,
   MenuItem,

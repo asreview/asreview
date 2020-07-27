@@ -4,20 +4,17 @@ import {
   Drawer,
   Link,
   List,
-  ListSubheader,
+  // ListSubheader,
   ListItem,
   ListItemIcon,
   ListItemText,
   Divider
 } from '@material-ui/core'
 import {
-  Add,
   Folder,
   Help,
   Feedback,
   ExitToApp,
-  GetApp,
-  Publish,
   Payment,
 } from '@material-ui/icons'
 
@@ -30,7 +27,6 @@ import { donateURL } from '../globals.js';
 import { connect } from "react-redux";
 
 // redux config
-import store from '../redux/store'
 import { setAppState } from '../redux/actions'
 
 
