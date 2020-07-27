@@ -12,7 +12,6 @@ import { Alert } from '@material-ui/lab';
 
 import axios from 'axios';
 
-import store from '../redux/store'
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
@@ -49,7 +48,6 @@ const ImportDialog = (props) => {
   const classes = useStyles();
 
   const [file, setFile] = React.useState(null);
-  const [filename, setFilename] = React.useState(null);
   const [upload, setUpload] = React.useState(false);
   const [selection, setSelection] = React.useState(null);
   const [error, setError] = React.useState(null);
@@ -66,7 +64,6 @@ const ImportDialog = (props) => {
 
   const onFileChange = (event) => {
     setFile(event.target.files[0]);
-    setFilename(event.target.files[0].name);
   };
 
   const uploadProject = () => {
@@ -92,37 +89,30 @@ const ImportDialog = (props) => {
     })
     .then(function (response) {
 
-        // set the project_id in the redux store
-        props.setProjectId(response.data["id"])
+      // set the project_id in the redux store
+      props.setProjectId(response.data["id"])
 
-        // navigate to project page
-        props.handleAppState("project-page")
+      // navigate to project page
+      props.handleAppState("project-page")
 
     })
     .catch(function (error) {
 
-          // set upload to false
-          setUpload(false);
+      // set upload to false
+      setUpload(false);
 
-          // remove accepted files
-          setFile(null);
+      // remove accepted files
+      setFile(null);
 
-          // remove file name
-          setFilename(null);
+      // remove selection
+      setSelection(null);
 
-          // remove selection
-          setSelection(null);
-
-          // set error to state
-          setError(error.response.data["message"]);
+      // set error to state
+      setError(error.response.data["message"]);
 
     });
   };
 
-  const resetAlert = () => {
-    setSelection(null);
-    setError(null);
-  };
 
   return (
       <Dialog
@@ -149,6 +139,7 @@ const ImportDialog = (props) => {
             <div className={classes.input}>
               <input
                 type="file"
+                accept=".asreview"
                 name="fileToUpload"
                 id="fileToUpload"
                 onChange={onFileChange}
@@ -176,7 +167,7 @@ const ImportDialog = (props) => {
             <Button
               onClick={uploadProject}
               color="primary"
-              disabled={file === null && selection === null && error === null}
+              disabled={file === null && selection === null}
             >
               {upload ? "Importing..." : "Import"}
             </Button>

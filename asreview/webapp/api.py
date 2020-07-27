@@ -685,11 +685,6 @@ def api_import_project():
         project_file = request.files['file']
         filename = secure_filename(project_file.filename)
 
-        # check the file format
-        if not os.path.splitext(filename)[1] == ".asreview":
-            response = jsonify(message="Incorrect file format.")
-            return response, 400
-
         try:
 
             with zipfile.ZipFile(project_file, "r") as zipObj:
@@ -737,7 +732,7 @@ def api_import_project():
         except Exception as err:
             logging.error(err)
             response = jsonify(
-                message=f"Failed to upload file '{filename}'. {err}"
+                message=f"Failed to upload file '{filename}'."
             )
             return response, 400
     else:
