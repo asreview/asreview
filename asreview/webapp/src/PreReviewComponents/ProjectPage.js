@@ -286,6 +286,8 @@ const ProjectPage = (props) => {
                 />
                 <PublicationZone
                   project_id={props.project_id}
+                  showExportResult={state.info.projectInitReady && !state.setup && !state.training}
+                  toggleExportResult={props.toggleExportResult}
                 />
                 <DangerZone
                   project_id={props.project_id}

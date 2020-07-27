@@ -100,11 +100,25 @@ const PublicationZone = (props) => {
       </Typography>
 
       <Paper className={classes.mediumDangerZone}>
-       <List className={classes.root}>
+        <List className={classes.root}>
+          <ListItem
+            button
+            onClick={props.toggleExportResult}
+            alignItems="flex-start"
+            disabled={!props.showExportResult}
+            key="download-result"
+          >
+            <ListItemText
+              primary="Download results"
+              secondary={'Download a file with all decisions. Various download formats are available.'}
+            />
+          </ListItem>
+          <Divider component="li" />
           <ListItem
             button
             onClick={downloadProject}
             alignItems="flex-start"
+            key="download-project"
           >
             <ListItemText
               primary="Export this project"
