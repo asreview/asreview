@@ -437,7 +437,14 @@ const PriorKnowledge = (props) => {
         title="Prior Knowledge"
         message={
           <Box>
-          <Typography>Every active learning model likes a warm start. Prior knowledge is very important. </Typography>
+            <Typography variant="body2" gutterBottom>
+              Providing the prior knowledge gives the active learning model a head start. 
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+              Select at least 1 relevant and 1 irrelevant records.
+              Relevant records can be found by searching for keywords, authors or titles.
+              Irrelevant records can be drawn randomly from the dataset.
+            </Typography>
           </Box>
         }
       />
