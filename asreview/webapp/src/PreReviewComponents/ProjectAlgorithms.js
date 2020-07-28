@@ -4,6 +4,7 @@ import {
   Typography,
   Grid,
   Paper,
+  Link,
   List,
   ListItem,
   ListItemText,
@@ -40,7 +41,10 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
-  }
+  },
+  link: {
+    paddingLeft: "3px",
+  },
 }));
 
 const defaultModels = {
@@ -252,7 +256,18 @@ const ProjectAlgorithms = (props) => {
         title="Algorithms"
         message={
           <Box>
-          <Typography>Every active learning model likes a warm start. Prior knowledge is very important. </Typography>
+            <Typography variant="body2" gutterBottom>
+              Several active learning models are available. The default is the Naïve Bayes which overall has the best performance.
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+              Model performance differs across datasets. Doing 
+              <Link 
+                className={classes.link}
+                href="https://asreview.readthedocs.io/en/latest/sim_overview.html#doing-the-simulation"
+                target="_blank"
+              >simulations
+              </Link> can be a great way to assess how well a model performs for your particular needs.
+            </Typography>
           </Box>
         }
       />
