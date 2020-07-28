@@ -110,7 +110,10 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
-  }
+  },
+  link: {
+    paddingLeft: "3px",
+  },
 }));
 
 
@@ -483,7 +486,6 @@ const ProjectUpload = (props) => {
 
               {value === 1 &&
                 <div>
-                  <Typography>Upload a dataset from the internet with a link. For example: <Link target="_blank" rel="noreferrer" href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv">ACEInhibitors.csv</Link></Typography>
                   <ProjectUploadURL
                     upload={state.upload}
                     onUploadHandler={onUploadHandlerURL}
@@ -501,7 +503,6 @@ const ProjectUpload = (props) => {
               {value === 3 &&
 
                 <div>
-                  <Typography>Example datasets are useful for testing algorithms because they are fully labeled into relevant and irrelevant. Relevant articles will display up in red and irrelevant articles in black.</Typography>
                   <ProjectUploadDatasets
                     subset={"test"}
                     onUploadHandler={onUploadHandlerDemoDataset}
@@ -551,8 +552,51 @@ const ProjectUpload = (props) => {
       title="Select Dataset"
       message={
         <Box>
-        <Typography>Select a dataset from your computer, from a URL, a plugin or a demo dataset.</Typography>
-        <Typography>ASReview software accepts CSV files, RIS files, and Excel files.</Typography>
+          <Typography variant="subtitle2" >
+            From file/URL: 
+            <Typography variant="body2" gutterBottom>
+              Select a file from your computer or fill in a link to a file from the Internet. 
+              The accepted file formats are CSV, Excel, and RIS. 
+              The selected dataset should contain the title and/or abstract of each record.
+              For example: 
+              <Link 
+                className={classes.link}
+                target="_blank" 
+                rel="noreferrer" 
+                href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv"
+              >ACEInhibitors.csv
+              </Link>
+            </Typography>
+          </Typography>
+
+          <Typography variant="subtitle2" >
+            From plugin: 
+            <Typography variant="body2" gutterBottom>
+              Select a dataset from a dataset extension (collection of latest scientific datasets on a specific topic). 
+              For example: 
+              <Link
+                className={classes.link}
+                href="https://asreview.readthedocs.io/en/latest/covid-19.html"
+                target="_blank"
+              >COVID-19
+              </Link>
+            </Typography>
+          </Typography>
+         
+          <Typography variant="subtitle2" >
+            Example datasets: 
+            <Typography variant="body2" gutterBottom>
+              Select an example dataset for testing machine learning models. 
+              The datasets are fully labeled into relevant and irrelevant. 
+              The relevant records are displayed in red during the review process. Read more about 
+              <Link
+                className={classes.link}
+                href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html"
+                target="_blank"
+              >end-user testing
+              </Link>
+            </Typography>
+          </Typography>
         </Box>
       }
     />
