@@ -25,7 +25,6 @@ import { green, brown } from '@material-ui/core/colors';
 import {
   PriorKnowledgeSearch,
   PriorKnowledgeRandom,
-  ResultDialog,
   LabeledItems,
 } from '../PreReviewComponents'
 
@@ -205,9 +204,10 @@ const PriorKnowledge = (props) => {
       axios.get(url)
       .then((result) => {
 
-        setState({
-          ...state,
-          "loading": false,
+        setState(s => {return({
+            ...s,
+            "loading": false,
+          })
         })
 
         setPriorStats(result.data);
@@ -218,7 +218,7 @@ const PriorKnowledge = (props) => {
       });
     }
 
-  }, [state.loading]);
+  }, [state.loading, props.project_id]);
 
 
   useEffect(() => {
@@ -235,7 +235,7 @@ const PriorKnowledge = (props) => {
       props.setNext(false)
     }
 
-  }, [priorStats]);
+  }, [priorStats, goNext]);
 
   return (
     <Box
@@ -438,7 +438,7 @@ const PriorKnowledge = (props) => {
         message={
           <Box>
             <Typography variant="body2" gutterBottom>
-              Providing the prior knowledge gives the active learning model a head start. 
+              Providing the prior knowledge gives the active learning model a head start.
             </Typography>
             <Typography variant="body2" gutterBottom>
               Select at least 1 relevant and 1 irrelevant records.

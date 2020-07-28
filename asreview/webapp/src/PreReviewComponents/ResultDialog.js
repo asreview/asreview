@@ -57,7 +57,7 @@ const ResultDialogTabPanel =  (props) => {
     }
     getPriorInfo()
 
-  }, []);
+  }, [props.project_id, props.subset]);
 
   return (
     <Box>

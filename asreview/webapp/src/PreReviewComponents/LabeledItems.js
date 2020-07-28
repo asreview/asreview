@@ -92,11 +92,11 @@ const LabeledItems = (props) => {
       axios.get(url)
       .then((result) => {
 
-        setState({
-          ...state,
+        setState(s => {return({
+          ...s,
           "data": result.data["result"],
           "loading": false,
-        })
+        })});
 
       })
       .catch((error) => {
@@ -104,9 +104,7 @@ const LabeledItems = (props) => {
       });
     }
 
-  }, [state.loading]);
-
-  console.log(state)
+  }, [props.project_id, state.loading]);
 
   return (
     <Box>
@@ -126,29 +124,30 @@ const LabeledItems = (props) => {
         <TabPanel value={state.tab} index={0}>
 
           <List>
-            {state["data"].map((value, index) => {
+            {state["data"].map((value, index) =>
+              {
 
-              if (value.included === 1){
-                return (
-                  <ListItem
-                    key={`result-item-${value.id}`}
-                  >
-                    <ListItemText
-                      primary={value.title}
-                    />
-                    <ListItemIcon
-                      className={classes.deleteIcon}
+                if (value.included === 1){
+                  return (
+                    <ListItem
+                      key={`result-item-${value.id}`}
                     >
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => {props.resetItem(value.id, reloadItems)}}
+                      <ListItemText
+                        primary={value.title}
+                      />
+                      <ListItemIcon
+                        className={classes.deleteIcon}
                       >
-                        <DeleteIcon/>
-                      </IconButton>
-                    </ListItemIcon>
-                  </ListItem>
-                );
-              }
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => {props.resetItem(value.id, reloadItems)}}
+                        >
+                          <DeleteIcon/>
+                        </IconButton>
+                      </ListItemIcon>
+                    </ListItem>
+                  );
+                }
 
             })}
           </List>

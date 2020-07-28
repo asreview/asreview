@@ -104,11 +104,11 @@ const WelcomeScreen = (props) => {
             }
           })
           .catch(err => {
-            setState({
-              ...state,
+            setState(s => {return({
+              ...s,
               "loading": true,
               "error": true
-            });
+            })});
           })
     }
     if (state.loading){
