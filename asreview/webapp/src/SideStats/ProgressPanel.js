@@ -32,8 +32,6 @@ const ProgressPanel = (props) => {
         <ProgressPieChart
           n_included={props.n_included}
           n_excluded={props.n_excluded}
-          width={reviewDrawerWidth}
-          height={(reviewDrawerWidth/2)-30}
         />
 
         <ListItem className={classes.item} key="list-progress-total_labeled">
@@ -42,9 +40,7 @@ const ProgressPanel = (props) => {
 
         <ProgressAreaChart
           history={props.history}
-          width={reviewDrawerWidth-50}
-          height={reviewDrawerWidth-120}
-          margin={{left: 55}}
+          margin={{left: 55, right: 55}}
         />
       </div>
     );

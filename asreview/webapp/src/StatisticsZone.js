@@ -26,6 +26,7 @@ import ProjectSettings from './ProjectSettings.js'
 
 import {
   ProgressPieChart,
+  ProgressAreaChart,
 } from './SideStats'
 
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
@@ -54,13 +55,23 @@ const useStyles = makeStyles(theme => ({
     marginTop: 0,
     marginLeft: -12,
   },
-  paper : {
+  paper: {
 
   },
-  center : {
-    margin: "auto",
+  center: {
+    marginTop: -24,
+    textAlign: "center",
   },
-  notAvailable : {
+  pieChart: {
+    paddingTop: "12px",
+    paddingLeft: "90px",
+  },
+  areaChart: {
+    paddingTop: "12px",
+    paddingRight: "64px",
+    paddingLeft: "64px",
+  },
+  notAvailable: {
     paddingTop: "74px",
     paddingBottom: "74px",
     textAlign: "center",
@@ -72,6 +83,7 @@ const StatisticsZone = (props) => {
   const classes = useStyles();
 
   const [statistics, setStatistics] = useState(null);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
 
@@ -91,8 +103,22 @@ const StatisticsZone = (props) => {
         })
     }
 
+    const getProgressHistory = () => {
+
+      const url = api_url + `project/${props.project_id}/progress_history`;
+
+      return axios.get(url)
+        .then((result) => {
+          setHistory(result.data)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+
     if (props.projectInitReady && !props.training){
         getProgressInfo();
+        getProgressHistory();
     }
   }, [props.projectInitReady, props.training]);
 
@@ -112,24 +138,22 @@ const StatisticsZone = (props) => {
         {statistics !== null &&
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <Box className={classes.center}>
+              <Box className={classes.pieChart}>
                 <ProgressPieChart
                   n_included={statistics.n_included}
                   n_excluded={statistics.n_excluded}
-                  n_papers={statistics.n_papers}
                 />
-                <Typography>
-                  Total reviewed: {statistics.n_included + statistics.n_excluded} ({Math.round((statistics.n_included + statistics.n_excluded)/statistics.n_papers*10000)/100}%)
-                </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Box className={classes.center}>
-                <ProgressPieChart
-                  n_included={statistics.n_included}
-                  n_excluded={statistics.n_excluded}
-                  n_papers={statistics.n_papers}
+              <Box className={classes.areaChart}>
+                <ProgressAreaChart
+                  history={history}
                 />
+              </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <Box className={classes.center}>
                 <Typography>
                   Total reviewed: {statistics.n_included + statistics.n_excluded} ({Math.round((statistics.n_included + statistics.n_excluded)/statistics.n_papers*10000)/100}%)
                 </Typography>
