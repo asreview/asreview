@@ -16,7 +16,6 @@ import {
   DialogActions,
 } from '@material-ui/core'
 
-import SearchIcon from '@material-ui/icons/Search';
 import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';

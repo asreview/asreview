@@ -109,8 +109,6 @@ const PreReviewZone = (props) => {
       axios.get(url)
         .then((result) => {
 
-          console.log(result.data);
-
           let set_step = 1;
           if (result.data["projectHasDataset"]){
             set_step = 2;
@@ -118,8 +116,6 @@ const PreReviewZone = (props) => {
           if (result.data["projectHasPriorKnowledge"]){
             set_step = 3;
           }
-
-          console.log(set_step)
 
           // set the project step
           setState({
@@ -139,9 +135,7 @@ const PreReviewZone = (props) => {
         fetchProjectInfo();
     }
 
-  }, [state.new]);
-
-  console.log(state)
+  }, [state.new, state.ready, props.project_id]);
 
   return (
 

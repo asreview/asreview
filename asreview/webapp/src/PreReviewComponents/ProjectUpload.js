@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useEffect} from 'react'
+import React, {useCallback, useMemo, useEffect} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {useDropzone} from 'react-dropzone'
@@ -368,7 +368,7 @@ const ProjectUpload = (props) => {
       setStatistics(null);
     }
 
-  }, [state.edit, state.upload]);
+  }, [props.project_id, state.edit, state.upload]);
 
   return (
   <Box minHeight={"100%"}>
@@ -546,16 +546,16 @@ const ProjectUpload = (props) => {
       message={
         <Box>
           <Typography variant="subtitle2" >
-            From file/URL: 
+            From file/URL:
             <Typography variant="body2" gutterBottom>
-              Select a file from your computer or fill in a link to a file from the Internet. 
-              The accepted file formats are CSV, Excel, and RIS. 
+              Select a file from your computer or fill in a link to a file from the Internet.
+              The accepted file formats are CSV, Excel, and RIS.
               The selected dataset should contain the title and/or abstract of each record.
-              For example: 
-              <Link 
+              For example:
+              <Link
                 className={classes.link}
-                target="_blank" 
-                rel="noreferrer" 
+                target="_blank"
+                rel="noreferrer"
                 href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv"
               >ACEInhibitors.csv
               </Link>
@@ -563,10 +563,10 @@ const ProjectUpload = (props) => {
           </Typography>
 
           <Typography variant="subtitle2" >
-            From plugin: 
+            From plugin:
             <Typography variant="body2" gutterBottom>
-              Select a dataset from a dataset extension (collection of latest scientific datasets on a specific topic). 
-              For example: 
+              Select a dataset from a dataset extension (collection of latest scientific datasets on a specific topic).
+              For example:
               <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/covid-19.html"
@@ -575,13 +575,13 @@ const ProjectUpload = (props) => {
               </Link>
             </Typography>
           </Typography>
-         
+
           <Typography variant="subtitle2" >
-            Example datasets: 
+            Example datasets:
             <Typography variant="body2" gutterBottom>
-              Select an example dataset for testing machine learning models. 
-              The datasets are fully labeled into relevant and irrelevant. 
-              The relevant records are displayed in red during the review process. Read more about 
+              Select an example dataset for testing machine learning models.
+              The datasets are fully labeled into relevant and irrelevant.
+              The relevant records are displayed in red during the review process. Read more about
               <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html"

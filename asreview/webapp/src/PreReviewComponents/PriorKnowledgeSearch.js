@@ -15,10 +15,6 @@ import {
   SearchResult,
 } from '../PreReviewComponents'
 
-import axios from 'axios'
-
-import { api_url } from '../globals.js';
-
 const useStyles = makeStyles(theme => ({
   paperRoot: {
     flexGrow: 1,

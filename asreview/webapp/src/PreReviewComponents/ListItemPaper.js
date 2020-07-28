@@ -3,13 +3,11 @@ import {
   Box,
   ListItem,
   ListItemText,
-  ListItemIcon,
   Dialog,
   DialogContent,
   DialogActions,
   Button,
 } from '@material-ui/core'
-import FavoriteIcon from '@material-ui/icons/Favorite'
 
 import {
   PaperCard,
@@ -24,9 +22,6 @@ const ListItemPaper = (props) => {
 
   // dialog open
   const [open, setOpen] = React.useState(false);
-
-  // state of the item
-  const [selected, setSelected] = React.useState(props.included === 1);
 
   /**
    * Open the Dialog with search item
@@ -45,9 +40,6 @@ const ListItemPaper = (props) => {
 
   const includeAndClose = () => {
     props.includeItem(props.id, ()=>{
-
-      // select the item
-      setSelected(true);
 
       // Close the Dialog
       handleClose();
@@ -75,7 +67,6 @@ const ListItemPaper = (props) => {
   }
 
   return (
-      // {props.removeResultOnRevert && <Collapse in={!selected}>}
     <Box>
       <ListItem
         key={`result-item-${props.id}`}
@@ -105,13 +96,6 @@ const ListItemPaper = (props) => {
           />
         </DialogContent>
         <DialogActions>
-
-          {/*
-          <Button onClick={toggleButton} color="primary">
-            {selected ? "Remove from ": "Add to "} prior
-          </Button>
-          */}
-
           <Button
             onClick={excludeAndClose}
             color="primary"

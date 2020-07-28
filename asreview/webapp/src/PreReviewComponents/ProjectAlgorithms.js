@@ -99,7 +99,7 @@ const ProjectAlgorithms = (props) => {
         });
     }
 
-  }, [algorithms]);
+  }, [algorithms, props.project_id]);
 
   // if the state is lock, then fetch the data
   useEffect(() => {

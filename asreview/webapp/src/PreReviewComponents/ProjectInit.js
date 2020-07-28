@@ -12,10 +12,6 @@ import {
 
 import { brown } from '@material-ui/core/colors';
 
-import {
-  useHelp,
-} from '../PreReviewComponents'
-
 import axios from 'axios'
 
 import { setProject } from '../redux/actions'
@@ -71,15 +67,6 @@ const ProjectInit = (props) => {
   const classes = useStyles();
 
   // const [open, setOpen] = React.useState(props.open)
-
-  // the state contains new attribute to check for old data
-  // or not as well as an edit attribute.
-  const [state, setState] = React.useState({
-    // is this a new card? If undefined, it is assumed to be new
-    new: (props.new === undefined) ? true : props.new,
-    // open card in edit mode or not
-    edit: (props.edit === undefined) ? true : props.edit,
-  })
 
   // the state of the form data
   const [info, setInfo] = React.useState({

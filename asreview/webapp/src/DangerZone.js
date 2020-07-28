@@ -1,71 +1,28 @@
-import React, {useRef, useEffect}  from 'react'
+import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
   Box,
-  Button,
-  Container,
-  Stepper,
-  Step,
-  StepLabel,
-  StepButton,
   Typography,
-  CircularProgress,
   Paper,
   List,
-  ListItemIcon,
-  Divider,
   ListItem,
-  ListItemAvatar,
-  Avatar,
   ListItemText,
 } from '@material-ui/core';
 
 import ProjectSettings from './ProjectSettings.js'
 
-
-import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
-import InboxIcon from '@material-ui/icons/Inbox';
-
-
-import { connect } from "react-redux";
-import store from './redux/store'
-
-import axios from 'axios'
-
-import { api_url, mapStateToProps } from './globals.js';
-
 const useStyles = makeStyles(theme => ({
-  header: {
-    paddingTop: "128px",
-    paddingBottom: "84px",
-    textAlign: "center",
-  },
   title: {
     color: "red",
     margin: "32px 12px 12px 12px",
-  },
-  continuButton: {
-    marginTop: "24px",
   },
   wrapper: {
     margin: theme.spacing(1),
     position: 'relative',
   },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: 0,
-    marginLeft: -12,
-  },
   dangerZone : {
     color: "red",
-
-    // borderColor: "red",
-    // borderWidth: "2px",
-    // borderStyle: "solid",
-    // boxShadow: "none",
 }
 }));
 

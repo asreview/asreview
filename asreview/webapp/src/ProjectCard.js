@@ -18,7 +18,6 @@ const useStyles = makeStyles({
     height: 120,
   },
   description: {
-    display: "block",
     display: "-webkit-box",
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": "vertical",
