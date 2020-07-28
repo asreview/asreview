@@ -305,7 +305,7 @@ const PriorKnowledge = (props) => {
               {/* nothing */}
               {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] === 0) &&
                 <Typography>
-                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers. Wondering why we need this?
+                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers.
                 </Typography>
               }
 

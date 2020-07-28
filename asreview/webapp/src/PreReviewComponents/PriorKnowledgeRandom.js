@@ -191,7 +191,7 @@ const PriorKnowledgeRandom = (props) => {
             />
             <DialogContent dividers={true}>
               <Typography>
-                A total of {n_items} articles were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant items as well).
+                A total of {n_items} random articles were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant items as well).
               </Typography>
             </DialogContent>
 

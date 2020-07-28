@@ -117,7 +117,7 @@ const Header = (props) => {
                 "Review"
               }
               {(props.app_state === 'project-page') &&
-                "Project"
+                "Project Dashboard"
               }
             </Typography>
 

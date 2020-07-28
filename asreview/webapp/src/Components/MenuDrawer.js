@@ -116,7 +116,7 @@ const MenuDrawer = (props) => {
             }}
           >
             <ListItemIcon><Folder /></ListItemIcon>
-            <ListItemText primary="Current Project" />
+            <ListItemText primary="Project Dashboard" />
           </ListItem>
 
         {/* Documentation */}
