@@ -89,6 +89,7 @@ const SearchResultDialog = (props) => {
                   includeItem={props.includeItem}
                   excludeItem={props.excludeItem}
                   resetItem={props.resetItem}
+                  closeSearchResult={props.closeSearchResult}
 
                   // this component needs a key as well
                   key={`container-result-item-${value.id}`}

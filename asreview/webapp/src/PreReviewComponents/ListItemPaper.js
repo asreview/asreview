@@ -52,6 +52,9 @@ const ListItemPaper = (props) => {
       // Close the Dialog
       handleClose();
 
+      // Close the search results
+      props.closeSearchResult()
+
       props.updatePriorStats();
     });
 
@@ -62,6 +65,9 @@ const ListItemPaper = (props) => {
 
       // Close the Dialog
       handleClose();
+
+      // Close the search results
+      props.closeSearchResult()
 
       props.updatePriorStats();
     });
@@ -75,9 +81,6 @@ const ListItemPaper = (props) => {
         key={`result-item-${props.id}`}
          button onClick={handleClickOpen}
       >
-        <ListItemIcon>
-            <FavoriteIcon color={selected ? "secondary": "inherit"}/>
-        </ListItemIcon>
         <ListItemText
           primary={props.title}
           secondary={props.authors}

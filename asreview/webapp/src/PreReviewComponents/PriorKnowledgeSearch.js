@@ -63,6 +63,13 @@ const PriorKnowledgeSearch = (props) => {
     query : ""
   });
 
+  const closeSearchResult = () => {
+    setSearchDialog({
+      ...searchDialog,
+      open : false,
+    })
+  }
+
   const onChangeSearch = (evt) => {
     setSearchDialog({
       open : false,
@@ -126,6 +133,7 @@ const PriorKnowledgeSearch = (props) => {
           includeItem={props.includeItem}
           excludeItem={props.excludeItem}
           resetItem={props.resetItem}
+          closeSearchResult={closeSearchResult}
         />
       }
 
