@@ -516,7 +516,7 @@ const ProjectUpload = (props) => {
           {statistics['filename']}
           </Typography>
           <Box>
-            <Typography style={{ color: green[500] }} ><CheckIcon/> Successfull upload</Typography>
+            <Typography style={{ color: green[500] }} ><CheckIcon/> Successful upload</Typography>
           </Box>
           <Typography variant="subtitle1">{statistics['n_rows']} publications</Typography>
         </CardContent>
