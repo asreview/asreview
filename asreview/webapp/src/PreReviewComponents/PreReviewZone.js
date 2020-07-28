@@ -5,23 +5,15 @@ import {
   Box,
   Button,
   Container,
-  Stepper,
-  Step,
-  StepLabel,
-  StepButton,
 } from '@material-ui/core';
 import {
   PriorKnowledge,
-  ProjectInit,
   ProjectUpload,
   ProjectAlgorithms,
-  StartReview,
-  HelpDialog,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
 
 import { connect } from "react-redux";
-import store from '../redux/store'
 
 import axios from 'axios'
 
@@ -84,12 +76,12 @@ const PreReviewZone = (props) => {
     }
   };
 
-  const isReady = () => {
+  const setNext = (ready) => {
 
     setState({
       new: state.new,
       step: state.step,
-      ready: true,
+      ready: ready,
     });
   }
 
@@ -168,7 +160,7 @@ const PreReviewZone = (props) => {
                 project_id={props.project_id}
                 handleNext={handleNext}
                 handleStep={handleStep}
-                isReady={isReady}
+                setNext={setNext}
                 scrollToBottom={scrollToBottom}
               />
               <div ref={EndRef} />
@@ -179,7 +171,7 @@ const PreReviewZone = (props) => {
               <PriorKnowledge
                 project_id={props.project_id}
                 handleNext={handleNext}
-                isReady={isReady}
+                setNext={setNext}
                 scrollToBottom={scrollToBottom}
               />
               <div ref={EndRef} />

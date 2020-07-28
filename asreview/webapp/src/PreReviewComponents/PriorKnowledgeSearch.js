@@ -2,21 +2,17 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
-  Button,
   Typography,
   FormControl,
   OutlinedInput,
   InputAdornment,
-  Toolbar,
   IconButton,
-  Paper,
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
 
 import {
   SearchResult,
-  PaperCard,
 } from '../PreReviewComponents'
 
 import axios from 'axios'
@@ -59,43 +55,20 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
-  const url = api_url + `project/${project_id}/labelitem`;
-
-  let body = new FormData();
-  body.set('doc_id', doc_id);
-  body.set('label', label);
-  body.set('is_prior', 1);
-
-  axios.post(
-    url,
-    body,
-    {
-      headers: {
-        'Content-type': 'application/x-www-form-urlencoded',
-      }
-    })
-  .then((result) => {
-    if (callbk !== null){
-      callbk();
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-
-}
-
-
 const PriorKnowledgeSearch = (props) => {
   const classes = useStyles();
-
-  const [included, setIncluded] = React.useState([])
 
   const [searchDialog, setSearchDialog] = React.useState({
     open : false,
     query : ""
   });
+
+  const closeSearchResult = () => {
+    setSearchDialog({
+      ...searchDialog,
+      open : false,
+    })
+  }
 
   const onChangeSearch = (evt) => {
     setSearchDialog({
@@ -112,17 +85,6 @@ const PriorKnowledgeSearch = (props) => {
       query : searchDialog.query
     });
   }
-
-  // const addIncluded = (item) => {
-  //   console.log('Add item to included: ' + item['id'])
-  //   // setIncluded([item].concat(included))
-  //   // console.log(included)
-  // }
-
-  const removeIncluded = (item) => {
-    console.log('Remove item to included: ' + item['id'])
-  }
-
 
   return (
     <Box
@@ -171,6 +133,7 @@ const PriorKnowledgeSearch = (props) => {
           includeItem={props.includeItem}
           excludeItem={props.excludeItem}
           resetItem={props.resetItem}
+          closeSearchResult={closeSearchResult}
         />
       }
 

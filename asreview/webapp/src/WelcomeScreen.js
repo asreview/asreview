@@ -14,7 +14,6 @@ import axios from "axios";
 import { connect } from "react-redux";
 
 // redux config
-import store from './redux/store'
 import {
   setAppState,
   setASReviewVersion

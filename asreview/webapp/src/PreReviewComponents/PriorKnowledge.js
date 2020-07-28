@@ -4,35 +4,35 @@ import {
   Box,
   Button,
   Typography,
-  FormControl,
-  OutlinedInput,
-  InputAdornment,
-  Toolbar,
   Paper,
   CardHeader,
   CardContent,
   Divider,
-  Avatar,
   Tooltip,
   IconButton,
   Grow,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from '@material-ui/core'
 
 import SearchIcon from '@material-ui/icons/Search';
 import HelpIcon from '@material-ui/icons/Help';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
 
-import { blue, green, orange, brown } from '@material-ui/core/colors';
+import { green, brown } from '@material-ui/core/colors';
 
 import {
-  SearchResult,
-  PaperCard,
   PriorKnowledgeSearch,
   PriorKnowledgeRandom,
   ResultDialog,
+  LabeledItems,
 } from '../PreReviewComponents'
+
+import {
+  DialogTitleWithClose,
+} from '../Components'
 
 import {
   Help,
@@ -42,11 +42,8 @@ import {
 import axios from 'axios'
 
 import {
-  api_url,
-  mapStateToProps
+  api_url
 } from '../globals.js';
-
-import { connect } from "react-redux";
 
 import './ReviewZone.css';
 
@@ -234,7 +231,9 @@ const PriorKnowledge = (props) => {
 
     // enable next button
     if (goNext()){
-      props.isReady()
+      props.setNext(true)
+    } else {
+      props.setNext(false)
     }
 
   }, [priorStats]);
@@ -262,12 +261,12 @@ const PriorKnowledge = (props) => {
             /* The edit and help options */
             action={
               <Box>
-                {state.method === "lock" &&
+                {priorStats['n_prior'] > 0 &&
                   <Tooltip title="Edit">
 
                     <IconButton
-                      aria-label="project-info-edit"
-                      onClick={() => {}}
+                      aria-label="project-prior-edit"
+                      onClick={openPriorKnowledge}
                     >
                       <EditIcon />
                     </IconButton>
@@ -276,7 +275,7 @@ const PriorKnowledge = (props) => {
                 <Tooltip title="Help">
                   <IconButton
                     onClick={openHelp}
-                    aria-label="project-info-help"
+                    aria-label="project-prior-help"
                   >
                     <HelpIcon />
                   </IconButton>
@@ -306,7 +305,7 @@ const PriorKnowledge = (props) => {
               {/* nothing */}
               {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] === 0) &&
                 <Typography>
-                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers. Wondering why we need this?
+                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers.
                 </Typography>
               }
 
@@ -327,7 +326,7 @@ const PriorKnowledge = (props) => {
 
               {/* bare minimum was met */}
               {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0 && (priorStats['n_exclusions'] < 3 || priorStats['n_inclusions'] < 3)) &&
-                <Typography style={{ color: orange[500] }} >
+                <Typography>
                   <CheckIcon/>
                   Enough prior knowledge, however a bit more would help!
                 </Typography>
@@ -340,8 +339,6 @@ const PriorKnowledge = (props) => {
                   Enough prior knowledge, feel free to go to the next step.
                 </Typography>
               }
-
-
             </Box>
           </CardContent>
 
@@ -410,6 +407,31 @@ const PriorKnowledge = (props) => {
 
       }
 
+      {/* Prior dialog */}
+      <Dialog
+        open={priorDialog}
+        onClose={closePriorKnowledge}
+        fullWidth={true}
+      >
+        <DialogTitleWithClose
+          title={"Prior Knowledge"}
+          onClose={closePriorKnowledge}
+        />
+        <DialogContent dividers={true}>
+          <LabeledItems
+            resetItem={resetItem}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={closePriorKnowledge}
+            color="primary"
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Help
         open={help}
         onClose={closeHelp}
@@ -420,6 +442,7 @@ const PriorKnowledge = (props) => {
           </Box>
         }
       />
+
     </Box>
   )
 }

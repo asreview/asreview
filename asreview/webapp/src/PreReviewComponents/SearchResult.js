@@ -1,12 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
-  Button,
   CircularProgress,
   Typography,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   List,
 } from '@material-ui/core';
 
@@ -93,6 +89,7 @@ const SearchResultDialog = (props) => {
                   includeItem={props.includeItem}
                   excludeItem={props.excludeItem}
                   resetItem={props.resetItem}
+                  closeSearchResult={props.closeSearchResult}
 
                   // this component needs a key as well
                   key={`container-result-item-${value.id}`}

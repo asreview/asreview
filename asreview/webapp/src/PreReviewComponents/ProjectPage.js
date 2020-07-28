@@ -5,31 +5,14 @@ import {
   Box,
   Button,
   Container,
-  Stepper,
-  Step,
   Grid,
-  StepLabel,
-  StepButton,
   Typography,
   CircularProgress,
-  Paper,
-  List,
-  ListItemIcon,
-  Divider,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
   IconButton,
   Tooltip,
 } from '@material-ui/core';
 import {
-  PriorKnowledge,
-  ProjectInit,
-  ProjectUpload,
-  ProjectAlgorithms,
   StartReview,
-  HelpDialog,
   PreReviewZone,
 } from '../PreReviewComponents'
 
@@ -38,14 +21,12 @@ import PublicationZone from '../PublicationZone.js'
 import StatisticsZone from '../StatisticsZone.js'
 
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
-import InboxIcon from '@material-ui/icons/Inbox';
 import GetAppIcon from '@material-ui/icons/GetApp';
 
 import InReview from '../images/InReview.svg';
 import SetUp from '../images/SetUp.svg';
 
 import { connect } from "react-redux";
-import store from '../redux/store'
 
 import axios from 'axios'
 
@@ -110,15 +91,6 @@ const ProjectPage = (props) => {
 
   });
 
-  const [settings, setSettings] = React.useState(false);
-
-
-  const toggleProjectSettings = () => {
-    console.log("Open settings project " + props.id)
-    setSettings(a => (!a));
-  };
-
-
   const finishProjectSetup = () => {
     setState({
       ...state,
@@ -177,10 +149,7 @@ const ProjectPage = (props) => {
 
     fetchProjectInfo();
 
-
   }, []);
-
-  console.log(state.info);
 
   return (
     <Box>

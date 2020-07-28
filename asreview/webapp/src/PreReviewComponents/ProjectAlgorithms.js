@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react'
 import {
   Box,
-  Button,
   Typography,
   Grid,
   Paper,
@@ -10,17 +9,15 @@ import {
   ListItemText,
   Radio,
   CardHeader,
-  Avatar,
   Tooltip,
   IconButton,
   Grow,
 } from '@material-ui/core'
 
-import { blue, green, brown } from '@material-ui/core/colors';
+import { brown } from '@material-ui/core/colors';
 
 import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 
 import {
   Help,
@@ -29,9 +26,7 @@ import {
 
 import axios from 'axios'
 
-import { api_url, mapStateToProps } from '../globals.js';
-
-import { connect } from "react-redux";
+import { api_url } from '../globals.js';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -205,10 +200,10 @@ const ProjectAlgorithms = (props) => {
                           checked={algorithms["model"] === 'nb'}
                           value="nb"
                           color="default"
-                          inputProps={{ 'aria-label': 'Naïve Bayes' }}
+                          inputProps={{ 'aria-label': 'naïve bayes' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="Naïve Bayes" />
+                        <ListItemText primary="naïve bayes" />
                       </ListItem>
 
                       <ListItem>
@@ -216,20 +211,20 @@ const ProjectAlgorithms = (props) => {
                           checked={algorithms["model"] === 'svm'}
                           value="svm"
                           color="default"
-                          inputProps={{ 'aria-label': 'Support Vector Machines' }}
+                          inputProps={{ 'aria-label': 'support vector machines' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="Support Vector Machines" />
+                        <ListItemText primary="support vector machines" />
                       </ListItem>
                       <ListItem>
                         <Radio
                           checked={algorithms["model"] === 'logistic'}
                           value="logistic"
                           color="default"
-                          inputProps={{ 'aria-label': 'Logistic Regression' }}
+                          inputProps={{ 'aria-label': 'logistic regression' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="Logistic Regression" />
+                        <ListItemText primary="logistic regression" />
                       </ListItem>
 
                       <ListItem>
@@ -237,10 +232,10 @@ const ProjectAlgorithms = (props) => {
                           checked={algorithms["model"] === 'rf'}
                           value="rf"
                           color="default"
-                          inputProps={{ 'aria-label': 'Random Forest' }}
+                          inputProps={{ 'aria-label': 'random forest' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="Random Forest" />
+                        <ListItemText primary="random forest" />
                       </ListItem>
                     </List>
                   </Grid>

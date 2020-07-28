@@ -14,3 +14,4 @@ export { default as ProjectUploadURL } from '../PreReviewComponents/ProjectUploa
 export { default as StartReview } from '../PreReviewComponents/StartReview'
 export { default as Help, useHelp } from '../PreReviewComponents/Help'
 export { default as ProjectPage } from '../PreReviewComponents/ProjectPage'
+export { default as LabeledItems } from '../PreReviewComponents/LabeledItems'

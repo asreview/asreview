@@ -10,7 +10,6 @@ import {
   Header,
   ReviewZone,
   ExportDialog,
-  ImportDialog,
 }
 from './Components'
 import {
@@ -34,7 +33,6 @@ import 'typeface-roboto'
 import { connect } from "react-redux";
 
 // redux config
-import store from './redux/store'
 import { setAppState } from './redux/actions'
 
 

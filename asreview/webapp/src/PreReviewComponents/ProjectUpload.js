@@ -17,18 +17,15 @@ import {
   Tab,
   Link,
   CardHeader,
-  Avatar,
   Tooltip,
   IconButton,
   CardContent,
   Grow,
 } from '@material-ui/core'
 
-import { blue, green, brown } from '@material-ui/core/colors';
+import { green, brown } from '@material-ui/core/colors';
 
-import AssignmentIcon from '@material-ui/icons/Assignment';
 import CheckIcon from '@material-ui/icons/Check';
-import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
 import HelpIcon from '@material-ui/icons/Help';
 
@@ -39,10 +36,8 @@ import {
   useHelp,
 } from '../PreReviewComponents';
 
-import { connect } from "react-redux";
-
 import axios from 'axios'
-import { api_url, mapStateToProps } from '../globals.js';
+import { api_url } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -146,8 +141,6 @@ const ProjectUpload = (props) => {
 
   const classes = useStyles();
 
-  const EndRef = useRef(null)
-
   // the state contains new attribute to check for old data
   // or not as well as an edit attribute.
   // IMPORTANT: upload always implies edit mode
@@ -246,7 +239,7 @@ const ProjectUpload = (props) => {
         });
 
         // set next button ready
-        props.isReady();
+        props.setNext(true);
 
         // callback
         if (callback !== undefined){
@@ -524,7 +517,7 @@ const ProjectUpload = (props) => {
           {statistics['filename']}
           </Typography>
           <Box>
-            <Typography style={{ color: green[500] }} ><CheckIcon/> Successfull upload</Typography>
+            <Typography style={{ color: green[500] }} ><CheckIcon/> Successful upload</Typography>
           </Box>
           <Typography variant="subtitle1">{statistics['n_rows']} publications</Typography>
         </CardContent>

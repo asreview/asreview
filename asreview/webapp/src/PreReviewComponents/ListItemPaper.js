@@ -1,17 +1,13 @@
 import React from 'react'
 import {
-
   Box,
   ListItem,
   ListItemText,
   ListItemIcon,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
-  Typography,
 } from '@material-ui/core'
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
@@ -22,12 +18,6 @@ import {
 import {
   DialogTitleWithClose,
 } from '../Components'
-
-import axios from 'axios'
-
-import { api_url } from '../globals.js';
-
-import { connect } from "react-redux";
 
 
 const ListItemPaper = (props) => {
@@ -62,6 +52,9 @@ const ListItemPaper = (props) => {
       // Close the Dialog
       handleClose();
 
+      // Close the search results
+      props.closeSearchResult()
+
       props.updatePriorStats();
     });
 
@@ -72,6 +65,9 @@ const ListItemPaper = (props) => {
 
       // Close the Dialog
       handleClose();
+
+      // Close the search results
+      props.closeSearchResult()
 
       props.updatePriorStats();
     });
@@ -85,9 +81,6 @@ const ListItemPaper = (props) => {
         key={`result-item-${props.id}`}
          button onClick={handleClickOpen}
       >
-        <ListItemIcon>
-            <FavoriteIcon color={selected ? "secondary": "inherit"}/>
-        </ListItemIcon>
         <ListItemText
           primary={props.title}
           secondary={props.authors}
