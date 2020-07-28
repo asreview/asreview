@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
     position: 'absolute',
     top: '50%',
     left: '50%',
-    marginTop: 0,
+    marginTop: -12,
     marginLeft: -12,
   },
   dangerZone : {
@@ -79,6 +79,8 @@ const ProjectPage = (props) => {
 
   const classes = useStyles();
 
+  const EndRef = useRef(null)
+
   const [state, setState] = React.useState({
     // info-header
     infoLoading: true,
@@ -92,11 +94,13 @@ const ProjectPage = (props) => {
   });
 
   const finishProjectSetup = () => {
+
     setState({
       ...state,
       setup : false,
       training : true,
     })
+
   }
 
   const finishProjectFirstTraining = () => {
@@ -124,6 +128,19 @@ const ProjectPage = (props) => {
     // review
     return InReview
   }
+
+  const scrollToTop = () => {
+    EndRef.current.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+
+    if (!state.infoLoading && EndRef.current !== undefined){
+      scrollToTop()
+    }
+
+  }, [state.setup, state.infoLoading]);
+
 
   useEffect(() => {
 
@@ -155,6 +172,7 @@ const ProjectPage = (props) => {
     <Box>
       {!state.infoLoading &&
         <Box className={classes.box}>
+          <div ref={EndRef} />
           <Container maxWidth='md'>
 
             <Grid container spacing={3} className={classes.header}>
@@ -269,6 +287,7 @@ const ProjectPage = (props) => {
             {state.setup &&
               <PreReviewZone
                 finishProjectSetup={finishProjectSetup}
+                scrollToTop={scrollToTop}
               />
             }
           </Container>
