@@ -550,15 +550,14 @@ const ProjectUpload = (props) => {
             <Typography variant="body2" gutterBottom>
               Select a file from your computer or fill in a link to a file from the Internet. 
               The accepted file formats are CSV, Excel, and RIS. 
-              The selected dataset should contain the title and/or abstract of each record.
-              For example: 
+              The selected dataset should contain the title and abstract of each record.
+              Read more about 
               <Link 
                 className={classes.link}
+                href="https://asreview.readthedocs.io/en/latest/datasets.html"
                 target="_blank" 
-                rel="noreferrer" 
-                href="https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv"
-              >ACEInhibitors.csv
-              </Link>
+              >dataset requirements
+              </Link>.
             </Typography>
           </Typography>
 
@@ -572,14 +571,14 @@ const ProjectUpload = (props) => {
                 href="https://asreview.readthedocs.io/en/latest/covid-19.html"
                 target="_blank"
               >COVID-19
-              </Link>
+              </Link>.
             </Typography>
           </Typography>
          
           <Typography variant="subtitle2" >
             Example datasets: 
             <Typography variant="body2" gutterBottom>
-              Select an example dataset for testing machine learning models. 
+              Select an example dataset for testing active learning models. 
               The datasets are fully labeled into relevant and irrelevant. 
               The relevant records are displayed in red during the review process. Read more about 
               <Link
@@ -587,7 +586,7 @@ const ProjectUpload = (props) => {
                 href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html"
                 target="_blank"
               >end-user testing
-              </Link>
+              </Link>.
             </Typography>
           </Typography>
         </Box>
