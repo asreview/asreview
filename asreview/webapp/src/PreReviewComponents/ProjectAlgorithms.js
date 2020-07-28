@@ -113,9 +113,6 @@ const ProjectAlgorithms = (props) => {
       axios.get(url)
         .then((result) => {
 
-          console.log("Get algorithms")
-          console.log(result.data)
-
           if ("model" in result.data){
             // set the project algorithms
             setAlgorithms(result.data);
@@ -142,10 +139,7 @@ const ProjectAlgorithms = (props) => {
         fetchAlgorithmsSettings();
     }
 
-  }, [state.new]);
-
-  console.log(algorithms)
-  console.log(state)
+  }, [state.new, state.edit, props.project_id, props.scrollToBottom]);
 
   return (
     <Box>

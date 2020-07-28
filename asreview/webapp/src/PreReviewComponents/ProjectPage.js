@@ -152,10 +152,13 @@ const ProjectPage = (props) => {
       axios.get(url)
         .then((result) => {
 
-          setState({
-            ...state,
-            infoLoading: false,
-            info: result.data,
+          // update the state with the fetched data
+          setState(s => {
+            return({
+              ...s,
+              infoLoading: false,
+              info: result.data,
+            })
           })
 
         })
@@ -166,7 +169,7 @@ const ProjectPage = (props) => {
 
     fetchProjectInfo();
 
-  }, []);
+  }, [props.project_id]);
 
   return (
     <Box>

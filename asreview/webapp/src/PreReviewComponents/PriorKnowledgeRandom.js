@@ -132,7 +132,7 @@ const PriorKnowledgeRandom = (props) => {
     if(!state.loaded){
       getDocument();
     }
-  }, [props.project_id, state.loaded, state.count_inclusions, state.count_inclusions]);
+  }, [props.project_id, state.loaded, state.count_inclusions, state.count_exclusions]);
 
   console.log(state)
 

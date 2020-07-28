@@ -20,52 +20,48 @@ const StartReview = (props) => {
     "message": null,
   });
 
-
-  const checkModelIsFitted = () => {
-
-    const url = api_url + `project/${props.project_id}/model/init_ready`;
-
-    return axios.get(url)
-    .then((result) => {
-
-
-      if (result.data["status"] === 1){
-        // model ready
-        //props.handleAppState('review');
-        props.onReady();
-      } else {
-        // not ready yet
-        setTimeout(checkModelIsFitted, 2000);
-      }
-    })
-    .catch((error) => {
-
-      let message = "Unknown error.";
-
-      if (error.response) {
-          if ('message' in error.response.data){
-              message = error.response.data["message"]
-          }
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-      } else if (error.request) {
-          console.log(error.request);
-      } else {
-          console.log('Error', error.message);
-      }
-      console.log(error.config);
-
-      console.log(message)
-      setState({
-        "status": "error",
-        "message": message,
-      })
-    });
-  }
-
-
   useEffect(() => {
+
+    const checkModelIsFitted = () => {
+
+      const url = api_url + `project/${props.project_id}/model/init_ready`;
+
+      return axios.get(url)
+      .then((result) => {
+
+
+        if (result.data["status"] === 1){
+          // model ready
+          //props.handleAppState('review');
+          props.onReady();
+        } else {
+          // not ready yet
+          setTimeout(checkModelIsFitted, 2000);
+        }
+      })
+      .catch((error) => {
+
+        let message = "Unknown error.";
+
+        if (error.response) {
+            if ('message' in error.response.data){
+                message = error.response.data["message"]
+            }
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            console.log(error.request);
+        } else {
+            console.log('Error', error.message);
+        }
+
+        setState({
+          "status": "error",
+          "message": message,
+        })
+      });
+    }
 
     const startTraining = () => {
 
@@ -94,13 +90,11 @@ const StartReview = (props) => {
         })
       });
     }
-    if (state['status'] === null){
+    if (state.status === null){
       setTimeout(startTraining, 3000);
     }
 
-  }, [state.status, props.project_id]);
-
-  console.log(state)
+  }, [state.status, props.project_id, props.onReady]);
 
   return (
     <Box>
