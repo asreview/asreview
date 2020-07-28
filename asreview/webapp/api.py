@@ -180,7 +180,10 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # backwards support <0.10
         if "projectInitReady" not in project_info:
-            project_info["projectInitReady"] = True
+            if project_info["projectHasPriorKnowledge"]:
+                project_info["projectInitReady"] = True
+            else:
+                project_info["projectInitReady"] = False
 
         response = jsonify(project_info)
 
@@ -842,7 +845,7 @@ def api_get_progress_history(project_id):
     # create a dataset with the rolling mean of every 10 papers
     df = pd.DataFrame(data, columns=["Relevant"]).rolling(10, min_periods=1).mean()
     df["Total"] = df.index + 1
-    
+
     # transform mean(percentage) to number
     for i in range(0, len(df)):
         if df.loc[i, "Total"] < 10:
@@ -856,7 +859,7 @@ def api_get_progress_history(project_id):
 
     response = jsonify(df)
     response.headers.add('Access-Control-Allow-Origin', '*')
-    
+
     return response
 
 
