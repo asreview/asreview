@@ -535,7 +535,7 @@ const ProjectUpload = ({
               The accepted file formats are CSV, Excel, and RIS.
               The selected dataset should contain the title and abstract of each record.
               Read more about
-              <Link
+              <Link 
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/datasets.html"
                 target="_blank"
