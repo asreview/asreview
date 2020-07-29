@@ -9,7 +9,6 @@ const ProgressBarChart = (props) => {
   return (
     <ResponsiveContainer minHeight={130}>
       <AreaChart
-        margin={props.margin}
         data={props.history}
       >
         <CartesianGrid strokeDasharray="3 3" />
