@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -51,20 +51,20 @@ const defaultModels = {
   model: "nb"
 }
 
-const ProjectAlgorithms = (props) => {
+const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
   const classes = useStyles();
 
   // the state contains new attribute to check for old  data
   // or not as well as an edit attribute.
   const [state, setState] = React.useState({
     // is this a new card? If undefined, it is assumed to be new
-    new: (props.new === undefined) ? true : props.new,
+    init: (init === undefined) ? true : init,
     // open card in edit mode or not
-    edit: (props.edit === undefined) ? true : props.edit,
+    edit: (edit === undefined) ? true : edit,
   })
 
   const [algorithms, setAlgorithms] = React.useState(
-    (props.new === undefined || props.new) ? defaultModels : null
+    (init === undefined || init) ? defaultModels : null
   );
 
   // help button
@@ -89,7 +89,7 @@ const ProjectAlgorithms = (props) => {
 
         axios({
           method: "post",
-          url: api_url + "project/" + props.project_id + "/algorithms",
+          url: api_url + "project/" + project_id + "/algorithms",
           data: bodyFormData,
           headers: {'Content-Type': 'multipart/form-data' }
         })
@@ -103,7 +103,7 @@ const ProjectAlgorithms = (props) => {
         });
     }
 
-  }, [algorithms, props.project_id]);
+  }, [algorithms, project_id]);
 
   // if the state is lock, then fetch the data
   useEffect(() => {
@@ -112,7 +112,7 @@ const ProjectAlgorithms = (props) => {
     const fetchAlgorithmsSettings = async () => {
 
       // contruct URL
-      const url = api_url + "project/" + props.project_id + "/algorithms";
+      const url = api_url + "project/" + project_id + "/algorithms";
 
       axios.get(url)
         .then((result) => {
@@ -123,7 +123,7 @@ const ProjectAlgorithms = (props) => {
           } else {
             // set the state to new
             setState({
-              new: true,
+              init: true,
               edit: state.edit,
             })
             setAlgorithms(defaultModels);
@@ -136,14 +136,14 @@ const ProjectAlgorithms = (props) => {
     };
 
     // scroll into view
-    props.scrollToBottom()
+    scrollToBottom()
 
     // get the values if locked
-    if (!state.new){
+    if (!state.init){
         fetchAlgorithmsSettings();
     }
 
-  }, [state.new, state.edit, props.project_id, props.scrollToBottom]);
+  }, [state.init, state.edit, project_id, scrollToBottom]);
 
   return (
     <Box>
@@ -254,8 +254,8 @@ const ProjectAlgorithms = (props) => {
               Several active learning models are available. The default is the Naïve Bayes which overall has the best performance.
             </Typography>
             <Typography variant="body2" gutterBottom>
-              Model performance differs across datasets. Doing 
-              <Link 
+              Model performance differs across datasets. Doing
+              <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/sim_overview.html#doing-the-simulation"
                 target="_blank"

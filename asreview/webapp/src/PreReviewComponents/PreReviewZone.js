@@ -1,4 +1,4 @@
-import React, {useRef, useEffect}  from 'react'
+import React, {useRef, useEffect, useCallback}  from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
@@ -76,14 +76,13 @@ const PreReviewZone = (props) => {
     }
   };
 
-  const setNext = (ready) => {
-
+  const setNext = useCallback(ready => {
     setState({
       new: state.new,
       step: state.step,
       ready: ready,
     });
-  }
+  }, [state.new, state.step])
 
   const handleStep = (index) => {
 
@@ -164,7 +163,6 @@ const PreReviewZone = (props) => {
             <Box>
               <PriorKnowledge
                 project_id={props.project_id}
-                handleNext={handleNext}
                 setNext={setNext}
                 scrollToBottom={scrollToBottom}
               />
@@ -176,7 +174,7 @@ const PreReviewZone = (props) => {
             <Box>
               <ProjectAlgorithms
                 project_id={props.project_id}
-                new={state.new}
+                init={state.new}
                 edit={state.step === 3}
                 scrollToBottom={scrollToBottom}
                 handleReviewDrawer={props.handleReviewDrawer}

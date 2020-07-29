@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import { api_url, mapStateToProps } from '../globals.js';
 
 
-const StartReview = (props) => {
+const StartReview = ({project_id, onReady}) => {
 
   const [state, setState] = React.useState({
     "status": null,
@@ -24,7 +24,7 @@ const StartReview = (props) => {
 
     const checkModelIsFitted = () => {
 
-      const url = api_url + `project/${props.project_id}/model/init_ready`;
+      const url = api_url + `project/${project_id}/model/init_ready`;
 
       return axios.get(url)
       .then((result) => {
@@ -32,8 +32,7 @@ const StartReview = (props) => {
 
         if (result.data["status"] === 1){
           // model ready
-          //props.handleAppState('review');
-          props.onReady();
+          onReady();
         } else {
           // not ready yet
           setTimeout(checkModelIsFitted, 2000);
@@ -71,7 +70,7 @@ const StartReview = (props) => {
         "message": null,
       })
 
-      const url = api_url + `project/${props.project_id}/start`;
+      const url = api_url + `project/${project_id}/start`;
 
       return axios({
         method: 'post',
@@ -94,7 +93,7 @@ const StartReview = (props) => {
       setTimeout(startTraining, 3000);
     }
 
-  }, [state.status, props.project_id, props.onReady]);
+  }, [state.status, project_id, onReady]);
 
   return (
     <Box>

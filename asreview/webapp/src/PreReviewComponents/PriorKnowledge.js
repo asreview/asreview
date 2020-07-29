@@ -125,7 +125,11 @@ export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 }
 
 
-const PriorKnowledge = (props) => {
+const PriorKnowledge = ({
+  project_id,
+  setNext,
+  scrollToBottom,
+}) => {
   const classes = useStyles();
 
   const [state, setState] = React.useState({
@@ -162,30 +166,21 @@ const PriorKnowledge = (props) => {
 
   // include the item in the card
   const includeItem = (doc_id, callbk=null) => {
-    console.log(`${props.project_id} - add item ${doc_id} to prior inclusions`);
-    labelPriorItem(props.project_id, doc_id, 1, callbk)
+    console.log(`${project_id} - add item ${doc_id} to prior inclusions`);
+    labelPriorItem(project_id, doc_id, 1, callbk)
   }
 
   // exclude the item in the card
   const excludeItem = (doc_id, callbk=null) => {
-    console.log(`${props.project_id} - add item ${doc_id} to prior exclusions`);
-    labelPriorItem(props.project_id, doc_id, 0, callbk)
+    console.log(`${project_id} - add item ${doc_id} to prior exclusions`);
+    labelPriorItem(project_id, doc_id, 0, callbk)
   }
 
   // reset the item (for search and revert)
   const resetItem = (doc_id, callbk=null) => {
-    console.log(`${props.project_id} - remove item ${doc_id} from prior knowledge`);
-    labelPriorItem(props.project_id, doc_id, -1, callbk);
+    console.log(`${project_id} - remove item ${doc_id} from prior knowledge`);
+    labelPriorItem(project_id, doc_id, -1, callbk);
     updatePriorStats();
-  }
-
-  const goNext = () => {
-
-    if (priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0){
-      return true
-    } else {
-      return false
-    }
   }
 
   /* Skeleton to extend later on */
@@ -196,10 +191,14 @@ const PriorKnowledge = (props) => {
     });
   }
 
+ // const goToAlgorithms = useCallback(v => {
+ //    setNext(v);
+ //  }, [setNext])
+
   useEffect(() => {
 
     if (state.loading){
-      const url = api_url + `project/${props.project_id}/prior_stats`;
+      const url = api_url + `project/${project_id}/prior_stats`;
 
       axios.get(url)
       .then((result) => {
@@ -218,24 +217,18 @@ const PriorKnowledge = (props) => {
       });
     }
 
-  }, [state.loading, props.project_id]);
+  }, [state.loading, project_id]);
 
-
+  // check if there is enough prior knowledge
   useEffect(() => {
 
-    // if (props.scrollToBottom !== undefined){
-    //   // scroll to bottom
-    //   props.scrollToBottom()
-    // }
-
-    // enable next button
-    if (goNext()){
-      props.setNext(true)
+    if (priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] > 0){
+      setNext(true)
     } else {
-      props.setNext(false)
+      setNext(false)
     }
 
-  }, [priorStats]);
+  }, [priorStats, setNext]);
 
   return (
     <Box
@@ -381,7 +374,7 @@ const PriorKnowledge = (props) => {
               <Divider/>
               <CardContent>
                 <PriorKnowledgeSearch
-                  project_id={props.project_id}
+                  project_id={project_id}
                   updatePriorStats={updatePriorStats}
                   includeItem={includeItem}
                   excludeItem={excludeItem}
@@ -393,7 +386,7 @@ const PriorKnowledge = (props) => {
 
           { state.method === "random" &&
             <PriorKnowledgeRandom
-              project_id={props.project_id}
+              project_id={project_id}
               onClose={()=>{changeMethod(null)}}
               updatePriorStats={updatePriorStats}
               includeItem={includeItem}

@@ -112,32 +112,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-// const EditWarningDialog = (props) => {
-//   <Dialog
-//     open={open}
-//     onClose={handleClose}
-//     aria-labelledby="alert-dialog-title"
-//     aria-describedby="alert-dialog-description"
-//   >
-//     <DialogTitle id="alert-dialog-title">{"Are you sure you want to pick a new dataset?"}</DialogTitle>
-//     <DialogContent>
-//       <DialogContentText id="alert-dialog-description">
-//         Going back to this step removes all prior knowledge.
-//       </DialogContentText>
-//     </DialogContent>
-//     <DialogActions>
-//       <Button onClick={handleClose} color="primary">
-//         Cancel
-//       </Button>
-//       <Button onClick={handleClose} color="primary" autoFocus>
-//         Oke
-//       </Button>
-//     </DialogActions>
-//   </Dialog>
-// }
-
-
-const ProjectUpload = (props) => {
+const ProjectUpload = ({
+  init,
+  edit,
+  project_id,
+  handleNext,
+  handleStep,
+  setNext,
+  scrollToBottom
+}) => {
 
   const classes = useStyles();
 
@@ -146,9 +129,9 @@ const ProjectUpload = (props) => {
   // IMPORTANT: upload always implies edit mode
   const [state, setState] = React.useState({
     // is this a new card? If undefined, it is assumed to be new
-    new: (props.new === undefined) ? true : props.new,
+    init: (init === undefined) ? true : init,
     // open card in edit mode or not
-    edit: (props.edit === undefined) ? true : props.edit,
+    edit: (edit === undefined) ? true : edit,
     // uploading
     upload: false,
   })
@@ -211,7 +194,7 @@ const ProjectUpload = (props) => {
 
       // remove selection
       setState({
-        new: state.new,
+        init: state.init,
         edit: false,
         upload: true,
       });
@@ -219,7 +202,7 @@ const ProjectUpload = (props) => {
       // set error to state
       setError(null)
 
-      const url = api_url + `project/${props.project_id}/data`;
+      const url = api_url + `project/${project_id}/data`;
 
       axios({
         method: 'post',
@@ -233,13 +216,13 @@ const ProjectUpload = (props) => {
 
         // set state to lock such that it triggers the fetch stats call
         setState({
-          new: false,
+          init: false,
           edit: false,
           upload: false,
         });
 
         // set next button ready
-        props.setNext(true);
+        setNext(true);
 
         // callback
         if (callback !== undefined){
@@ -257,7 +240,7 @@ const ProjectUpload = (props) => {
 
           // set state to lock such that it triggers the fetch stats call
           setState({
-            new: state.new,
+            init: state.init,
             edit: true,
             upload: false,
           });
@@ -314,11 +297,11 @@ const ProjectUpload = (props) => {
   const editDatasetOke = () => {
 
     // remove all cards after the upload step
-    props.handleStep(1)
+    handleStep(1)
 
     // open the edit mode
     setState({
-      new: state.new,
+      init: state.init,
       edit: true,
       upload: false,
     });
@@ -333,10 +316,10 @@ const ProjectUpload = (props) => {
 
 
   useEffect(() => {
-    if (props.scrollToBottom !== undefined){
-      props.scrollToBottom()
+    if (scrollToBottom !== undefined){
+      scrollToBottom()
     }
-  }, []);
+  }, [scrollToBottom]);
 
   useEffect(() => {
 
@@ -344,7 +327,7 @@ const ProjectUpload = (props) => {
     const fetchDatasetInfo = async () => {
 
       // contruct URL
-      const url = api_url + "project/" + props.project_id + "/data";
+      const url = api_url + "project/" + project_id + "/data";
 
       axios.get(url)
         .then((result) => {
@@ -368,7 +351,7 @@ const ProjectUpload = (props) => {
       setStatistics(null);
     }
 
-  }, [props.project_id, state.edit, state.upload]);
+  }, [project_id, state.edit, state.upload]);
 
   return (
   <Box minHeight={"100%"}>
@@ -548,14 +531,14 @@ const ProjectUpload = (props) => {
           <Typography variant="subtitle2" >
             From file/URL:
             <Typography variant="body2" gutterBottom>
-              Select a file from your computer or fill in a link to a file from the Internet. 
-              The accepted file formats are CSV, Excel, and RIS. 
+              Select a file from your computer or fill in a link to a file from the Internet.
+              The accepted file formats are CSV, Excel, and RIS.
               The selected dataset should contain the title and abstract of each record.
-              Read more about 
-              <Link 
+              Read more about
+              <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/datasets.html"
-                target="_blank" 
+                target="_blank"
               >dataset requirements
               </Link>.
             </Typography>
@@ -578,9 +561,9 @@ const ProjectUpload = (props) => {
           <Typography variant="subtitle2" >
             Example datasets:
             <Typography variant="body2" gutterBottom>
-              Select an example dataset for testing active learning models. 
-              The datasets are fully labeled into relevant and irrelevant. 
-              The relevant records are displayed in red during the review process. Read more about 
+              Select an example dataset for testing active learning models.
+              The datasets are fully labeled into relevant and irrelevant.
+              The relevant records are displayed in red during the review process. Read more about
               <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html"

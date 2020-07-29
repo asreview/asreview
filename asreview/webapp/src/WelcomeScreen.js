@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 
 import {
   Box,
@@ -73,7 +73,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const WelcomeScreen = (props) => {
+const WelcomeScreen = ({setASReviewVersion, setAppState}) => {
   const classes = useStyles();
 
   const [state, setState] = useState({
@@ -83,17 +83,25 @@ const WelcomeScreen = (props) => {
     "animation": false,
   })
 
+ const setAppStateToProjects = useCallback(() => {
+    setAppState("projects");
+  }, [setAppState])
+
+ const setVersion = useCallback(v => {
+    setASReviewVersion(v);
+  }, [setASReviewVersion])
+
   useEffect(() => {
     const fetchData = async () => {
       await axios.get(api_url + "boot")
           .then(result => {
 
             // set the version of asreview
-            props.setASReviewVersion(result.data['version'])
+            setVersion(result.data['version'])
 
             // skip the loader when you are in development mode
             if (result.data['status'] === 'development') {
-              props.setAppState("projects");
+              setAppStateToProjects();
             } else {
               setState({
                 "loading": false,
@@ -114,7 +122,7 @@ const WelcomeScreen = (props) => {
     if (state.loading){
         fetchData();
     }
-  }, [state.loading]);
+  }, [state.loading, setAppStateToProjects, setVersion]);
 
   if (state.loading) {
     return null
@@ -148,7 +156,7 @@ const WelcomeScreen = (props) => {
             }, 3000)
           }}
           onExited={() => {
-            props.setAppState("projects");
+            setAppState("projects");
           }}
       >
         <Box className={classes.background}>
