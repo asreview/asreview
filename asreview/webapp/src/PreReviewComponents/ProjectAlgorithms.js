@@ -198,7 +198,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           checked={algorithms["model"] === 'nb'}
                           value="nb"
                           color="default"
-                          inputProps={{ 'aria-label': 'naïve bayes' }}
+                          inputProps={{ 'aria-label': 'Naïve Bayes' }}
                           onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="naïve bayes" />
@@ -209,7 +209,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           checked={algorithms["model"] === 'svm'}
                           value="svm"
                           color="default"
-                          inputProps={{ 'aria-label': 'support vector machines' }}
+                          inputProps={{ 'aria-label': 'Support vector machines' }}
                           onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="support vector machines" />
@@ -219,7 +219,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           checked={algorithms["model"] === 'logistic'}
                           value="logistic"
                           color="default"
-                          inputProps={{ 'aria-label': 'logistic regression' }}
+                          inputProps={{ 'aria-label': 'Logistic regression' }}
                           onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="logistic regression" />
@@ -230,7 +230,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           checked={algorithms["model"] === 'rf'}
                           value="rf"
                           color="default"
-                          inputProps={{ 'aria-label': 'random forest' }}
+                          inputProps={{ 'aria-label': 'Random forest' }}
                           onChange={handleAlgorithmChange}
                         />
                         <ListItemText primary="random forest" />
