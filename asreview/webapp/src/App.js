@@ -84,8 +84,6 @@ const App = (props) => {
     setExportResult(a => (!a));
   };
 
-  console.log("Current step: " + props.app_state)
-
   return (
       <ThemeProvider theme={muiTheme}>
       <CssBaseline/>

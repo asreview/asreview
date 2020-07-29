@@ -61,8 +61,6 @@ const useStyles = makeStyles({
 const MenuDrawer = (props) => {
   const classes = useStyles();
 
-  console.log(props.asreview_version)
-
   return (
     <Drawer
       anchor='left'

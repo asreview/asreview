@@ -131,8 +131,6 @@ const Projects = (props) => {
       };
     }
 
-    console.log(open)
-
     return (
 
       <Box>
@@ -198,7 +196,7 @@ const Projects = (props) => {
               FabProps={{color: "secondary"}}
               icon={<SpeedDialIcon />}
               onClose={handleClose}
-              onOpen={() => {console.log("Im calling you"); handleOpen()}}
+              onOpen={handleOpen}
               open={open.dial}
             >
 

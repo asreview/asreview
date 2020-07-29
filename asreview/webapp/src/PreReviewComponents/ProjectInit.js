@@ -99,8 +99,6 @@ const ProjectInit = (props) => {
     })
     .then(function (response) {
 
-      console.log("Submit project: " + response.data["id"])
-
       // set the project_id in the redux store
       props.setProjectId(response.data["id"])
 
@@ -109,7 +107,6 @@ const ProjectInit = (props) => {
     })
     .catch(function (response) {
 
-        console.log("Project init failed")
         //handle error
         setError(true);
     });

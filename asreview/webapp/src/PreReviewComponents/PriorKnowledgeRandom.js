@@ -115,7 +115,6 @@ const PriorKnowledgeRandom = (props) => {
 
       return axios.get(url)
       .then((result) => {
-        console.log("" + result.data['result'].length + " random items served for review")
 
         setState({
           "count_inclusions": state.count_inclusions,
@@ -133,8 +132,6 @@ const PriorKnowledgeRandom = (props) => {
       getDocument();
     }
   }, [props.project_id, state.loaded, state.count_inclusions, state.count_exclusions]);
-
-  console.log(state)
 
   return (
       <Dialog

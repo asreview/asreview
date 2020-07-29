@@ -74,8 +74,6 @@ const Header = (props) => {
     setState({ ...state, [side]: isOpen });
   };
 
-  console.log(props.reviewDrawerOpen)
-
   return (
     <div className={classes.appBar}>
       <AppBar

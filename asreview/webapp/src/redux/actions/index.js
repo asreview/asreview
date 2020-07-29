@@ -6,7 +6,6 @@ import {
 } from "../../constants/action-types";
 
 export function setASReviewVersion(asreview_version) {
-	console.log(asreview_version)
   return { type: SET_ASREVIEW_VERSION, asreview_version };
 }
 
