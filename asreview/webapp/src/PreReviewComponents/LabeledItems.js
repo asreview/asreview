@@ -124,10 +124,45 @@ const LabeledItems = (props) => {
         <TabPanel value={state.tab} index={0}>
 
           <List>
-            {state["data"].map((value, index) =>
-              {
+            {
+              state["data"]
+                .filter(value => value.included === 1)
+                .map((value, index) =>
+                  {
+                    return (
+                      <ListItem
+                        key={`result-item-${value.id}`}
+                      >
+                        <ListItemText
+                          primary={value.title}
+                        />
+                        <ListItemIcon
+                          className={classes.deleteIcon}
+                        >
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => {props.resetItem(value.id, reloadItems)}}
+                          >
+                            <DeleteIcon/>
+                          </IconButton>
+                        </ListItemIcon>
+                      </ListItem>
+                    );
+                  }
+                )
+            }
+          </List>
+        </TabPanel>
+      }
+      {state["data"] !== null &&
+        <TabPanel value={state.tab} index={1}>
 
-                if (value.included === 1){
+          <List>
+            {
+              state["data"]
+                .filter(value => value.included !== 1)
+                .map((value, index) => {
+
                   return (
                     <ListItem
                       key={`result-item-${value.id}`}
@@ -147,41 +182,8 @@ const LabeledItems = (props) => {
                       </ListItemIcon>
                     </ListItem>
                   );
-                }
-
-            })}
-          </List>
-        </TabPanel>
-      }
-      {state["data"] !== null &&
-        <TabPanel value={state.tab} index={1}>
-
-          <List>
-            {state["data"].map((value, index) => {
-
-              if (value.included !== 1){
-                return (
-                  <ListItem
-                    key={`result-item-${value.id}`}
-                  >
-                    <ListItemText
-                      primary={value.title}
-                    />
-                    <ListItemIcon
-                      className={classes.deleteIcon}
-                    >
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => {props.resetItem(value.id, reloadItems)}}
-                      >
-                        <DeleteIcon/>
-                      </IconButton>
-                    </ListItemIcon>
-                  </ListItem>
-                );
+                })
               }
-
-            })}
           </List>
         </TabPanel>
       }
