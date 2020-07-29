@@ -1,36 +1,19 @@
-import React, {useRef, useEffect, useState}  from 'react'
+import React, {useEffect, useState}  from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
   Box,
-  Button,
-  Container,
-  Stepper,
-  Step,
-  StepLabel,
-  StepButton,
   Typography,
   CircularProgress,
   Paper,
-  List,
-  ListItemIcon,
-  Divider,
   Grid,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
 } from '@material-ui/core';
 
-import ProjectSettings from './ProjectSettings.js'
 
 import {
   ProgressPieChart,
   ProgressAreaChart,
 } from './SideStats'
-
-import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
-import InboxIcon from '@material-ui/icons/Inbox';
 
 import axios from 'axios'
 
@@ -120,10 +103,7 @@ const StatisticsZone = (props) => {
         getProgressInfo();
         getProgressHistory();
     }
-  }, [props.projectInitReady, props.training]);
-
-  console.log(props.projectInitReady)
-  console.log(props.training)
+  }, [props.projectInitReady, props.training, props.project_id]);
 
   return (
     <Box>
