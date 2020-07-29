@@ -8,13 +8,15 @@ const PaperCard = (props) => {
 
   return (
     <Box>
-      <Typography variant="h6">
+      <Typography variant="h6" gutterBottom>
         {props.title}
       </Typography>
 
       {(props.abstract === "" || props.abstract === null) &&
         <Box fontStyle="italic">
-          This article doesn't have an abstract.
+          <Typography gutterBottom>
+            This article doesn't have an abstract.
+          </Typography>
         </Box>
       }
 
