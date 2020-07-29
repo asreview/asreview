@@ -235,7 +235,7 @@ const PriorKnowledge = (props) => {
       props.setNext(false)
     }
 
-  }, [priorStats, goNext]);
+  }, [priorStats]);
 
   return (
     <Box
