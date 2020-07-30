@@ -108,7 +108,7 @@ const ReviewZone = (props) => {
   const showUndoBarIfNeeded = (label, initial) => {
     if (props.undoEnabled) {
       const mark = label === 0 ? "irrelevant" : "relevant"
-      const message = `Paper ${initial ? 'marked as' : 'converted to'} ${mark}`
+      const message = `${initial ? 'Marked as' : 'Converted to'} ${mark}`
       showUndoBar(message)
     }
   }

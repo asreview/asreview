@@ -188,7 +188,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={12}>
                     <Typography variant="body2" className={classes.listTitle}>
-                        Select a classifier (skip for using the default)
+                        Select a classifier (Naïve Bayes is a fast and excellent performing classifier)
                     </Typography>
 
                     {}
