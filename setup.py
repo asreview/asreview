@@ -85,7 +85,7 @@ setup(
     name='asreview',
     version=versioneer.get_version(),
     cmdclass=get_cmdclass(),
-    description='Automated Systematic Review',
+    description='Active learning for Systematic Reviews',
     long_description=get_long_description(),
     long_description_content_type='text/markdown',
     url='https://github.com/asreview/asreview',
