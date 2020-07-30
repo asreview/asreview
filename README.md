@@ -21,7 +21,7 @@ ASReview software implements two different modes:
 - **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure
   the performance of the active learning software on the results of fully labeled systematic
   reviews. To use the simulation mode, knowledge on programming and bash/Command Prompt
-  is highly recommanded. 
+  is highly recommanded.
 
 ## Installation
 
@@ -87,10 +87,12 @@ The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team ac
 
 ## Citation
 
-The following preprint can be used to cite the project:
+The preprint [ArXiv:2006.12166](http://arxiv.org/abs/2006.12166) can be used to cite this project.
 
 ```
-van de Schoot, Rens, et al. “ASReview: Open Source Software for Efficient and Transparent Active Learning for Systematic Reviews.” ArXiv:2006.12166 [Cs], June 2020. arXiv.org, http://arxiv.org/abs/2006.12166.
+van de Schoot, Rens, et al. “ASReview: Open Source Software for Efficient and
+Transparent Active Learning for Systematic Reviews.” ArXiv:2006.12166 [Cs],
+June 2020. arXiv.org, http://arxiv.org/abs/2006.12166.
 ```
 
 For citing the software, please refer to the specific release of the ASReview software on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592). The menu on the right can be used to find the citation format of prevalence.
