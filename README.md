@@ -7,20 +7,21 @@ sound systematic review is a time-consuming and sometimes boring task. Our
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false negatives.
 
-The Active learning for Systematic Reviews (ASReview) project implements learning algorithms that interactively query the
-researcher. This way of interactive training is known as
+The Active learning for Systematic Reviews (ASReview) project implements machine learning algorithms that interactively query the
+researcher. This way of interactive machine learning is known as
 [Active Learning](https://en.wikipedia.org/wiki/Active_learning_(machine_learning)).
 ASReview offers support for classical learning algorithms and
 state-of-the-art learning algorithms like neural networks.
 
 ASReview software implements two different modes:
 
-- **Oracle** :crystal_ball: The oracle modus is used to perform a systematic review with
+- **ASReview LAB** :crystal_ball: This modus is used to perform a systematic review with
   interaction by the reviewer (the 'oracle' in literature on active learning).
-  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview App](https://github.com/asreview/asreview#asreview-app).
-- **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure the performance of our
-  software on existing systematic reviews. The software shows how many
-  papers you could have potentially skipped during the systematic review.
+  The software presents papers to the reviewer, whereafter the reviewer classifies them. See [ASReview LAB](https://github.com/asreview/asreview#asreview-lab).
+- **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure
+  the performance of the active learning software on the results of fully labeled systematic
+  reviews. To use the simulation mode, knowledge on programming and bash/Command Prompt
+  is highly recommanded. 
 
 ## Installation
 
@@ -39,18 +40,18 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
-## ASReview app
+## ASReview LAB
 
-The ASReview team developed a user-friendly user interface to replace the old command line interface. The new interface is still under development but is already available for testing and training purposes.
+ASReview LAB is a user-friendly interface for screening documents and experimentation with AI-aided systematic reviews. Read more about using the software in the [Quick Tour](https://asreview.readthedocs.io/en/latest/quicktour.html).
 
-[![ASReview Command Line Interface](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview Quick Tour")
+[![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview LAB Quick Tour")
 
 
 ## Covid-19 plugin
 
 [![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
 
-The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature on the Coronavirus. The [plugin](https://github.com/asreview/asreview-covid19) makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. We also constructed a second database with studies published after December 1st 2019 to search for relevant papers published during the Covid-19 crisis.
+The ASReview team developed a plugin for researchers and doctors to facilitate the reading of literature on the Coronavirus. The [plugin](https://github.com/asreview/asreview-covid19) makes the [CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset available in the ASReview software. A second database with studies published after December 1st 2019 is available as well (this dataset is more specific for publications on COVID-19).
 
 Install the plugin with the command below.
 
@@ -69,7 +70,7 @@ Check out the ASReview website, https://asreview.nl/, for more information and o
 - [systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 ## Contact
-This project is coordinated by by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
+This project is coordinated by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of
 Methodology & Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics), Faculty of Social and Behavioral Sciences, Utrecht
 University, The Netherlands. Maintainers are [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165)) and Raoul Schram ([@qubixes](https://github.com/qubixes)).
 
