@@ -1,5 +1,5 @@
-Custom workflows
-================
+Programming interface (API)
+===========================
 
 For more control over the workings of the ASReview software, a API is provided.
 For example, it is possible to define a new model or sampling strategy and use it with ASReview.

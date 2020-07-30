@@ -4,27 +4,45 @@ import {
   Drawer,
   Link,
   List,
-  ListSubheader,
+  // ListSubheader,
   ListItem,
   ListItemIcon,
   ListItemText,
   Divider
 } from '@material-ui/core'
 import {
-  Add,
   Folder,
   Help,
   Feedback,
   ExitToApp,
-  GetApp,
-  Publish,
   Payment,
 } from '@material-ui/icons'
 
 // local imports
-// import ElasIcon from '../ElasIcon'
+import ElasIcon from '../ElasIcon'
+import ASReviewLogo from '../images/Wordmark_LAB_colour.svg'
 
 import { donateURL } from '../globals.js';
+
+import { connect } from "react-redux";
+
+// redux config
+import { setAppState } from '../redux/actions'
+
+
+const mapStateToProps = state => {
+  return {
+    asreview_version: state.asreview_version,
+    app_state: state.app_state
+  };
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
 
 const drawerWidth = 250;
 
@@ -32,6 +50,12 @@ const useStyles = makeStyles({
   list: {
     width: drawerWidth
   },
+  logo: {
+    width: 180,
+  },
+  centerListItem: {
+    textAlign: "center",
+  }
 });
 
 const MenuDrawer = (props) => {
@@ -49,56 +73,49 @@ const MenuDrawer = (props) => {
         role="presentation"
       >
         <List>
-          <ListSubheader component="div" id="list-subheader-projects">
-            Projects
-          </ListSubheader>
           <ListItem
             button
-            key="menu-button-new-projects"
+            key="menu-button-asreview"
             onClick={() => {
               props.setMenuDrawerState({left: false});
-              props.handleAppState("review-init");
-            }}
-          >
-            <ListItemIcon><Add /></ListItemIcon>
-            <ListItemText primary="New" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-import-projects"
-            onClick={() => {
-              props.setMenuDrawerState({left: false});
-              props.handleAppState("review-import");
-              props.toggleImportProject();
+              props.setAppState("projects");
             }}
             >
-            <ListItemIcon><Publish /></ListItemIcon>
-            <ListItemText primary="Import" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-projects"
-            onClick={() => {
-              props.setMenuDrawerState({left: false});
-              props.handleAppState("projects");
-            }}
-            >
-            <ListItemIcon><Folder /></ListItemIcon>
-            <ListItemText primary="Projects" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-export"
-            disabled={props.appState === "review" ? false : true}
-            onClick={() => {
-              props.toggleExportResult();
-              props.setMenuDrawerState({left: false});
-            }}
-          >
-            <ListItemIcon><GetApp /></ListItemIcon>
-            <ListItemText primary="Export" />
+            <ListItemText
+              className={classes.centerListItem}
+              primary={<img
+                src={ASReviewLogo}
+                alt="ASReview"
+                className={classes.logo}
+              />}
+              secondary={props.asreview_version}
+            />
           </ListItem>
           <Divider />
+          <ListItem
+            button
+            key="menu-button-home"
+            onClick={() => {
+              props.setMenuDrawerState({left: false});
+              props.setAppState("projects");
+            }}
+            >
+            <ListItemIcon><ElasIcon /></ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItem>
+          <ListItem
+            button
+            selected={props.app_state === "project-page"}
+            disabled={props.app_state !== "review"}
+            key="menu-button-project"
+            onClick={() => {
+              props.setMenuDrawerState({left: false});
+              props.setAppState("project-page");
+            }}
+          >
+            <ListItemIcon><Folder /></ListItemIcon>
+            <ListItemText primary="Project Dashboard" />
+          </ListItem>
 
         {/* Documentation */}
 
@@ -117,10 +134,6 @@ const MenuDrawer = (props) => {
           <Divider />
           */}
 
-        {/* help and quit */}
-          <ListSubheader component="div" id="list-subheader-help">
-            Help & Quit
-          </ListSubheader>
           <ListItem
             button
             key="menu-button-help"
@@ -177,4 +190,7 @@ const MenuDrawer = (props) => {
   )
 }
 
-export default MenuDrawer;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MenuDrawer);

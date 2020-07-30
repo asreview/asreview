@@ -9,12 +9,14 @@ import './App.css';
 import {
   Header,
   ReviewZone,
-  HistoryDialog,
   ExportDialog,
-  ImportDialog,
 }
 from './Components'
-import PreReviewZone from './PreReviewComponents/PreReviewZone'
+import {
+  PreReviewZone,
+  StartReview,
+  ProjectPage,
+} from './PreReviewComponents'
 import ReviewZoneComplete from './PostReviewComponents/ReviewZoneComplete'
 import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
@@ -28,39 +30,38 @@ import {
 
 import 'typeface-roboto'
 
+import { connect } from "react-redux";
 
-const App = () => {
+// redux config
+import { setAppState } from './redux/actions'
+
+
+const mapStateToProps = state => {
+  return {
+    app_state: state.app_state,
+    project_id: state.project_id,
+  };
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
+
+
+const App = (props) => {
 
   const [theme, toggleDarkMode] = useDarkMode()
   const muiTheme = createMuiTheme(theme)
 
-  const [appState, setAppState] = React.useState({
-    'step': 'boot',
-    'reviewDrawerOpen': false,
-  });
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
-  const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
-  const [importProject, setImportProject] = React.useState(false);
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
-
-  const handleAppState = (step) => {
-
-    if (step === 'review'){
-      setAppState({
-        'step': 'review',
-        'reviewDrawerOpen': true,
-      })
-    } else {
-      setAppState({
-        'step': step,
-        'reviewDrawerOpen': false,
-      })
-    }
-  }
 
   const toggleAuthors = () => {
     setAuthors(a => (!a));
@@ -74,13 +75,6 @@ const App = () => {
     setSettingsOpen(false);
   };
 
-  const handleHistoryOpen = () => {
-    setHistoryOpen(true);
-  };
-
-  const handleHistoryClose = () => {
-    setHistoryOpen(false);
-  };
 
   const toggleExit = () => {
     setExit(a => (!a));
@@ -90,83 +84,61 @@ const App = () => {
     setExportResult(a => (!a));
   };
 
-  const toggleImportProject = () => {
-    setImportProject(a => (!a));
-  };
-
-  const handleReviewDrawer = (show) => {
-    setAppState({
-      'step': appState['step'],
-      'reviewDrawerOpen': show,
-    })
-  }
-
-  console.log("Current step: " + appState['step'])
-
   return (
       <ThemeProvider theme={muiTheme}>
       <CssBaseline/>
-      {appState['step'] === 'boot' &&
-      <WelcomeScreen
-        handleAppState={handleAppState}
-      />
+      {props.app_state === 'boot' &&
+      <WelcomeScreen/>
       }
-      {appState['step'] !== 'boot' &&
+      {props.app_state !== 'boot' &&
       <Header
 
-        /* Handle the app state */
-        appState={appState['step']}
-        handleAppState={handleAppState}
-
         /* Handle the app review drawer */
-        reviewDrawerState={appState['reviewDrawerOpen']}
-        handleReviewDrawer={handleReviewDrawer}
-
+        toggleExportResult={toggleExportResult}
         toggleDarkMode={toggleDarkMode}
         handleClickOpen={handleClickOpen}
-        handleHistoryOpen={handleHistoryOpen}
         handleTextSizeChange={handleTextSizeChange}
         toggleExit={toggleExit}
-        toggleExportResult={toggleExportResult}
-        toggleImportProject={toggleImportProject}
       />
       }
 
-      {appState['step'] === 'projects' &&
+      {props.app_state === 'projects' &&
       <Projects
-        handleAppState={handleAppState}
-        toggleImportProject={toggleImportProject}
+        handleAppState={props.setAppState}
       />
       }
 
-      {appState['step'] === 'review-init' &&
+      {props.app_state === 'project-page' &&
+      <ProjectPage
+        handleAppState={props.setAppState}
+        toggleExportResult={toggleExportResult}
+      />
+      }
+
+      {props.app_state === 'review-init' &&
       <PreReviewZone
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
       />
       }
 
-      {appState['step'] === 'review-import' &&
-      <ImportDialog
-        handleAppState={handleAppState}
-        toggleImportProject={toggleImportProject}
-        importProject={importProject}
+      {props.app_state === 'train-first-model' &&
+      <StartReview
+        handleAppState={props.setAppState}
       />
       }
 
-      {appState['step'] === 'review' &&
+      {props.app_state === 'review' &&
       <ReviewZone
-        handleAppState={handleAppState}
-        reviewDrawerState={appState['reviewDrawerOpen']}
-        handleReviewDrawer={handleReviewDrawer}
+        handleAppState={props.setAppState}
         showAuthors={authors}
         textSize={textSize}
         undoEnabled={undoEnabled}
       />
       }
 
-      {appState['step'] === 'review-complete' &&
+      {props.app_state === 'review-complete' &&
       <ReviewZoneComplete
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
         toggleExportResult={toggleExportResult}
       />
       }
@@ -184,10 +156,6 @@ const App = () => {
         toggleUndoEnabled={toggleUndoEnabled}
         undoEnabled={undoEnabled}
       />
-      <HistoryDialog
-        openHistory={openHistory}
-        handleHistoryClose={handleHistoryClose}
-      />
       <ExitDialog
         toggleExit={toggleExit}
         exit={exit}
@@ -200,4 +168,7 @@ const App = () => {
   );
 }
 
-export default App;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

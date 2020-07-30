@@ -14,27 +14,34 @@ import DecisionUndoBar from './DecisionUndoBar'
 import { connect } from "react-redux";
 
 import axios from 'axios'
-import { api_url, mapStateToProps } from '../globals.js';
+import { api_url } from '../globals.js';
+
+// redux config
+import { toggleReviewDrawer } from '../redux/actions'
+
 
 const useStyles = makeStyles({
   box: {
     paddingBottom: 30,
     overflowY: 'auto',
-    // height: '100%',
-  },
-  title: {
-    lineHeight: 1.2
-  },
-  abstract: {
-  },
-  authors: {
-  },
-  stickToBottom: {
-    width: '100%',
-    position: 'fixed',
-    bottom: 0,
   },
 });
+
+
+const mapStateToProps = state => {
+  return {
+    project_id: state.project_id,
+    reviewDrawerOpen: state.reviewDrawerOpen,
+  };
+};
+
+
+function mapDispatchToProps(dispatch) {
+    return({
+        toggleReviewDrawer: () => {dispatch(toggleReviewDrawer())}
+    })
+}
+
 
 const ReviewZone = (props) => {
   const classes = useStyles();
@@ -87,7 +94,7 @@ const ReviewZone = (props) => {
       'isloaded': true,
       'record': previousRecordState.record,
       'selection': previousRecordState.decision,
-    });      
+    });
 }
 
   const startLoadingNewDocument = () => {
@@ -95,37 +102,37 @@ const ReviewZone = (props) => {
       'isloaded': false,
       'record': null,
       'selection': null,
-    });      
+    });
   }
-  
+
   const showUndoBarIfNeeded = (label, initial) => {
     if (props.undoEnabled) {
       const mark = label === 0 ? "irrelevant" : "relevant"
-      const message = `Paper ${initial ? 'marked as' : 'converted to'} ${mark}`
+      const message = `${initial ? 'Marked as' : 'Converted to'} ${mark}`
       showUndoBar(message)
-    }  
+    }
   }
 
   const showUndoBar = (message) => {
     setUndoState({
       'open': true,
       'message': message,
-    })  
-  }  
+    })
+  }
 
   const closeUndoBar = () => {
     setUndoState({
       'open': false,
       'message': null,
-    })  
-  }  
+    })
+  }
 
   const isUndoModeActive = () => {
     return recordState.record.doc_id === previousRecordState['record']?.doc_id
   }
 
   const needsClassification = (label) => {
-    if (!isUndoModeActive()) { 
+    if (!isUndoModeActive()) {
         return true
     }
     return label !== previousRecordState.decision
@@ -143,9 +150,9 @@ const ReviewZone = (props) => {
     } else {
       classifyInstance(label, !isUndoModeActive());
     }
-    storeRecordState(label) 
+    storeRecordState(label)
   }
-  
+
   const undoDecision = () => {
     closeUndoBar()
     loadPreviousRecordState()
@@ -261,7 +268,7 @@ const ReviewZone = (props) => {
       {recordState['isloaded'] &&
         <ArticlePanel
           record={recordState['record']}
-          reviewDrawerState={props.reviewDrawerState}
+          reviewDrawerState={props.reviewDrawerOpen}
           showAuthors={props.showAuthors}
           textSize={props.textSize}
         />
@@ -269,7 +276,7 @@ const ReviewZone = (props) => {
 
     {/* Decision bar */}
       <DecisionBar
-        reviewDrawerState={props.reviewDrawerState}
+        reviewDrawerState={props.reviewDrawerOpen}
         makeDecision={makeDecision}
         block={!recordState['isloaded']}
         recordState={recordState}
@@ -284,8 +291,8 @@ const ReviewZone = (props) => {
 
     {/* Statistics drawer */}
       <ReviewDrawer
-        state={props.reviewDrawerState}
-        handle={props.handleReviewDrawer}
+        state={props.reviewDrawerOpen}
+        handle={props.toggleReviewDrawer}
         statistics={statistics}
         history={history}
       />
@@ -294,4 +301,7 @@ const ReviewZone = (props) => {
   )
 }
 
-export default connect(mapStateToProps)(ReviewZone);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ReviewZone);
