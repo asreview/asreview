@@ -48,7 +48,6 @@ const mapStateToProps = state => {
 const ReviewDrawer = (props) => {
   const classes = useStyles();
 
-
   return (
     <Drawer
       className={classes.drawer}
@@ -77,6 +76,7 @@ const ReviewDrawer = (props) => {
         n_included={props.statistics.n_included}
         n_excluded={props.statistics.n_excluded}
         n_papers={props.statistics.n_papers}
+        n_since_last_inclusion={props.statistics.n_since_last_inclusion}
         history={props.history}
       />
       <Divider />

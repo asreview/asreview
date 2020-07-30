@@ -1,3 +1,4 @@
+from collections import Counter
 import json
 import logging
 import os
@@ -22,6 +23,7 @@ from flask.json import jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+from asreview import __version__ as asreview_version
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
@@ -40,6 +42,7 @@ from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
@@ -72,7 +75,12 @@ def api_boot():  # noqa: F401
         except ImportError:
             logging.debug("covid19 plugin not found")
 
-    response = jsonify({"status": status})
+    # get the asreview version
+
+    response = jsonify({
+        "status": status,
+        "version": asreview_version,
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
@@ -91,8 +99,13 @@ def api_get_projects():  # noqa: F401
         try:
             with open(proj / "project.json", "r") as f:
                 res = json.load(f)
-                assert res["id"] is not None
-                project_info.append(res)
+
+            # backwards support <0.10
+            if "projectInitReady" not in res:
+                res["projectInitReady"] = True
+
+            project_info.append(res)
+
         except Exception as err:
             logging.error(err)
 
@@ -104,32 +117,27 @@ def api_get_projects():  # noqa: F401
     return response
 
 
-@bp.route('/project/new', methods=["POST"])
+@bp.route('/project/info', methods=["POST"])
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
     logging.info("init project")
 
-    project_name = request.form['project_name']
-    project_description = request.form['project_description']
-    project_authors = request.form['project_authors']
+    project_name = request.form['name']
+    project_description = request.form['description']
+    project_authors = request.form['authors']
 
     project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
     try:
-        init_project(
+        project_config = init_project(
             project_id,
             project_name=project_name,
             project_description=project_description,
             project_authors=project_authors
         )
 
-        response = jsonify({
-            "project_id": project_id,
-            "project_name": project_name,
-            "project_description": project_description,
-            "project_authors": project_authors
-        })
+        response = jsonify(project_config)
 
     except Exception as err:
         logging.error(err)
@@ -140,68 +148,102 @@ def api_init_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/import_project', methods=["POST"])
-def api_import_project():
-    """Import uploaded project"""
+@bp.route('/project/<project_id>/info', methods=["GET"])
+def api_get_project_info(project_id):  # noqa: F401
+    """Get info on the article"""
 
-    if 'file' in request.files:
+    logging.info("get project info")
 
-        project_file = request.files['file']
-        filename = secure_filename(project_file.filename)
+    try:
 
-        # check the file format
-        if not os.path.splitext(filename)[1] == ".asreview":
-            response = jsonify(message="Incorrect file format.")
-            return response, 400
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
 
+            project_info = json.load(fp)
+
+        # check if there is a dataset
         try:
+            get_data_file_path(project_id)
+            project_info["projectHasDataset"] = True
+        except Exception:
+            project_info["projectHasDataset"] = False
 
-            with zipfile.ZipFile(project_file, "r") as zipObj:
-                FileNames = zipObj.namelist()
+        # check if there is a prior knowledge (check if there is a model set),
+        # if this is the case, the reviewer past the prior knowledge screen.
+        project_info["projectHasPriorKnowledge"] = \
+            get_kwargs_path(project_id).exists()
 
-                # check if the zip file contains a ASReview project
-                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
+        # check if there is a prior knowledge (check if there is a model set),
+        # if this is the case, the reviewer past the prior knowledge screen.
+        project_info["projectHasAlgorithms"] = \
+            get_kwargs_path(project_id).exists()
 
-                    # extract all files to a temporary folder
-                    tmpdir = tempfile.TemporaryDirectory()
-                    zipObj.extractall(path=tmpdir.name)
+        # backwards support <0.10
+        if "projectInitReady" not in project_info:
+            if project_info["projectHasPriorKnowledge"]:
+                project_info["projectInitReady"] = True
+            else:
+                project_info["projectInitReady"] = False
 
-                    for fn in FileNames:
-                        if fn.endswith("project.json"):
-                            fp = Path(tmpdir.name, fn)
-                            with open(fp, "r+") as f:
-                                project = json.load(f)
+        response = jsonify(project_info)
 
-                                # if the uploaded project already exists, then make a copy
-                                if is_project(project["id"]):
-                                    project["id"] += " copy"
-                                    project["name"] += " copy"
-                                    f.seek(0)
-                                    json.dump(project, f)
-                                    f.truncate()
-                else:
-                    response = jsonify(message="No project found within the chosen file.")
-                    return response, 404
-            try:
-                # check if a copy of a project already exists
-                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
+    except FileNotFoundError as err:
+        logging.error(err)
+        response = jsonify(message="Project not found.")
 
-            except Exception as err:
-                logging.error(err)
-                response = jsonify(message=f"A copy of {project['id'][:-5]} already exists.")
-                return response, 400
-
-        except Exception as err:
-            logging.error(err)
-            response = jsonify(message=f"Failed to upload file '{filename}'. {err}")
-            return response, 400
-    else:
-        response = jsonify(message="No file found to upload.")
         return response, 400
 
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    except Exception as err:
+        logging.error(err)
+        response = jsonify(message="Internal Server Error.")
+
+        return response, 500
+
     return response
+
+
+@bp.route('/project/<project_id>/info', methods=["PUT"])
+def api_update_project_info(project_id):  # noqa: F401
+    """Get info on the article"""
+
+    logging.info("Update project info")
+
+    project_name = request.form['name']
+    project_description = request.form['description']
+    project_authors = request.form['authors']
+
+    project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+
+        project_info["id"] = project_id_new
+        project_info["name"] = project_name
+        project_info["authors"] = project_authors
+        project_info["description"] = project_description
+
+        # # backwards support <0.10
+        # if "projectInitReady" not in project_info:
+        #     project_info["projectInitReady"] = True
+
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
+
+        # rename the folder
+        get_project_path(project_id) \
+            .rename(Path(asreview_path(), project_id_new))
+
+    except Exception as err:
+        logging.error(err)
+        response = jsonify(message="project-update-failure")
+
+        return response, 500
+
+    return api_get_project_info(project_id_new)
 
 
 @bp.route('/datasets', methods=["GET"])
@@ -225,8 +267,8 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/upload', methods=["POST"])
-def api_upload_data_project(project_id):  # noqa: F401
+@bp.route('/project/<project_id>/data', methods=["POST"])
+def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
 
     if not is_project(project_id):
@@ -315,17 +357,40 @@ def api_upload_data_project(project_id):  # noqa: F401
         # add the file to the project
         add_dataset_to_project(project_id, filename)
 
-        # get statistics of the dataset
-        statistics = get_data_statistics(project_id)
-        statistics["filename"] = filename
-
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
         message = f"Failed to upload file '{filename}'. {err}"
         return jsonify(message=message), 400
 
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
+
+
+@bp.route('/project/<project_id>/data', methods=["GET"])
+def api_get_project_data(project_id):  # noqa: F401
+    """Get info on the article"""
+
+    if not is_project(project_id):
+        response = jsonify(message="Project not found.")
+        return response, 404
+
+    try:
+
+        filename = get_data_file_path(project_id).stem
+
+        # get statistics of the dataset
+        statistics = get_data_statistics(project_id)
+        statistics["filename"] = filename
+
+    except FileNotFoundError as err:
+        print(err)
+        statistics = {"filename": None}
+
     except Exception as err:
-        message = f"Failed to upload file '{filename}'. {err}"
+        print(err)
+        message = f"Failed to get file. {err}"
         return jsonify(message=message), 400
 
     response = jsonify(statistics)
@@ -395,9 +460,17 @@ def api_label_item(project_id):  # noqa: F401
 def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+
+    subset = request.args.get('subset', default=None, type=str)
+
+    # check if the subset exists
+    if subset is not None and subset not in ["included", "excluded"]:
+        message = "Unkown subset parameter"
+        return jsonify(message=message), 400
+
     lock_fp = get_lock_path(project_id)
     with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        label_history = read_label_history(project_id)
+        label_history = read_label_history(project_id, subset=subset)
 
     indices = [x[0] for x in label_history]
 
@@ -416,6 +489,25 @@ def api_get_prior(project_id):  # noqa: F401
         })
 
     response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/prior_stats', methods=["GET"])
+def api_get_prior_stats(project_id):  # noqa: F401
+    """Get all papers classified as prior documents
+    """
+    lock_fp = get_lock_path(project_id)
+    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+        label_history = read_label_history(project_id)
+
+    counter_prior = Counter([x[1] for x in label_history])
+
+    response = jsonify({
+        "n_prior": len(label_history),
+        "n_inclusions": counter_prior[1],
+        "n_exclusions": counter_prior[0]
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -444,25 +536,70 @@ def api_random_prior_papers(project_id):  # noqa: F401
     # best)
 
     try:
-        pool_random = np.random.choice(pool, 5, replace=False)
+        pool_random = np.random.choice(pool, 1, replace=False)[0]
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    records = read_data(project_id).record(pool_random)
+    record = read_data(project_id).record(pool_random)
 
     payload = {"result": []}
-    for record in records:
 
-        payload["result"].append({
-            "id": int(record.record_id),
-            "title": record.title,
-            "abstract": record.abstract,
-            "authors": record.authors,
-            "keywords": record.keywords,
-            "included": None
-        })
+    payload["result"].append({
+        "id": int(record.record_id),
+        "title": record.title,
+        "abstract": record.abstract,
+        "authors": record.authors,
+        "keywords": record.keywords,
+        "included": None
+    })
 
     response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/algorithms', methods=["GET"])
+def api_get_algorithms(project_id):  # noqa: F401
+
+    # check if there is a kwargs file
+    try:
+        # open the projects file
+        with open(get_kwargs_path(project_id), "r") as f_read:
+            kargs_dict = json.load(f_read)
+
+    except FileNotFoundError:
+        # set the kwargs dict to setup kwargs
+        kargs_dict = {}
+
+    response = jsonify(kargs_dict)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/algorithms', methods=["POST"])
+def api_set_algorithms(project_id):  # noqa: F401
+
+    # check if there is a kwargs file
+    try:
+        # open the projects file
+        with open(get_kwargs_path(project_id), "r") as f_read:
+            kargs_dict = json.load(f_read)
+
+    except FileNotFoundError:
+        # set the kwargs dict to setup kwargs
+        kargs_dict = deepcopy(app.config['asr_kwargs'])
+
+    # add the machine learning model to the kwargs
+    # TODO@{Jonathan} validate model choice on server side
+    ml_model = request.form.get("model", None)
+    if ml_model:
+        kargs_dict["model"] = ml_model
+
+    # write the kwargs to a file
+    with open(get_kwargs_path(project_id), "w") as f_write:
+        json.dump(kargs_dict, f_write)
+
+    response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -477,7 +614,7 @@ def api_start(project_id):  # noqa: F401
 
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("machine_learning_model", None)
+    ml_model = request.form.get("model", None)
     if ml_model:
         asr_kwargs["model"] = ml_model
 
@@ -517,6 +654,17 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     if get_proba_path(project_id).exists():
         logging.info("Model trained - go to review screen")
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+
+        project_info["projectInitReady"] = True
+
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
+
         response = jsonify(
             {'status': 1}
         )
@@ -527,6 +675,75 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+
+@bp.route('/project/import_project', methods=["POST"])
+def api_import_project():
+    """Import uploaded project"""
+
+    import_project_id = None
+
+    if 'file' in request.files:
+
+        project_file = request.files['file']
+        filename = secure_filename(project_file.filename)
+
+        try:
+
+            with zipfile.ZipFile(project_file, "r") as zipObj:
+                FileNames = zipObj.namelist()
+
+                # check if the zip file contains a ASReview project
+                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
+
+                    # extract all files to a temporary folder
+                    tmpdir = tempfile.TemporaryDirectory()
+                    zipObj.extractall(path=tmpdir.name)
+
+                    for fn in FileNames:
+                        if fn.endswith("project.json"):
+                            fp = Path(tmpdir.name, fn)
+                            with open(fp, "r+") as f:
+                                project = json.load(f)
+
+                                # if the uploaded project already exists,
+                                # then make a copy
+                                if is_project(project["id"]):
+                                    project["id"] += " copy"
+                                    project["name"] += " copy"
+                                    f.seek(0)
+                                    json.dump(project, f)
+                                    f.truncate()
+                else:
+                    response = jsonify(
+                        message="No project found within the chosen file."
+                    )
+                    return response, 404
+            try:
+                # check if a copy of a project already exists
+                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
+
+                import_project_id = project['id']
+
+            except Exception as err:
+                logging.error(err)
+                response = jsonify(
+                    message=f"A copy of {project['id'][:-5]} already exists."
+                )
+                return response, 400
+
+        except Exception as err:
+            logging.error(err)
+            response = jsonify(
+                message=f"Failed to upload file '{filename}'."
+            )
+            return response, 400
+    else:
+        response = jsonify(message="No file found to upload.")
+        return response, 400
+
+    # return the project info in the same format as project_info
+    return api_get_project_info(import_project_id)
 
 
 @bp.route('/project/<project_id>/export', methods=["GET"])
@@ -567,7 +784,7 @@ def export_project(project_id):
 
     shutil.make_archive(
         Path(tmpdir.name, f"export_{project_id}"),
-        "zip", 
+        "zip",
         get_project_path(project_id)
     )
     fp_tmp_export = Path(tmpdir.name, f"export_{project_id}.zip")
@@ -628,7 +845,7 @@ def api_get_progress_history(project_id):
     # create a dataset with the rolling mean of every 10 papers
     df = pd.DataFrame(data, columns=["Relevant"]).rolling(10, min_periods=1).mean()
     df["Total"] = df.index + 1
-    
+
     # transform mean(percentage) to number
     for i in range(0, len(df)):
         if df.loc[i, "Total"] < 10:
@@ -642,7 +859,7 @@ def api_get_progress_history(project_id):
 
     response = jsonify(df)
     response.headers.add('Access-Control-Allow-Origin', '*')
-    
+
     return response
 
 

@@ -58,13 +58,10 @@ export default function ProjectSettings(props) {
     if (deleteInput === props.id) {
       axios.delete(url)
         .then(function (res) {
-          props.refreshProjects();
-          props.toggleProjectSettings();
+          props.handleAppState("projects");
         })
         .catch(function (res) {
             console.log("Failed to delete project")
-            props.refreshProjects();
-            props.toggleProjectSettings();
         });
     }
   }
@@ -76,47 +73,43 @@ export default function ProjectSettings(props) {
   return (
       <Dialog
         open={props.settings}
-        onClose={props.toggleProjectSettings}
+        onClose={props.toggleProjectDelete}
         scroll="paper"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">Project '{props.id}' settings</DialogTitle>
+        <DialogTitle
+          id="delete-project-title"
+        >
+          Delete project '{props.id}'?
+        </DialogTitle>
         <DialogContent dividers={true}>
-          <Typography variant="h4" className={classes.header}>
-            Delete project
-          </Typography>
             <Typography>
               Delete your project by typing the project name '{props.id}' below.
             </Typography>
-            <form noValidate autoComplete="off" onSubmit={deleteProject}>
-              <TextField
-                className={classes.inputDelete}
-                fullWidth
-                required
-                name="project-name"
-                id="project-name"
-                label="Project name"
-                onChange={onChange}
-              />
-              <div>
-                <Button
-                  className={classes.deleteButton}
-                  variant="contained"
-                  color="primary"
-                  disabled={deleteInput !== props.id}
-                  type="submit"
-                >
-                  Delete
-                </Button>
-              </div>
-            </form>
+            <TextField
+              className={classes.inputDelete}
+              fullWidth
+              required
+              name="project-name"
+              id="project-name"
+              label="Project name"
+              onChange={onChange}
+            />
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.toggleProjectSettings}>
-            Close
+          <Button
+            onClick={props.toggleProjectDelete}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={deleteProject}
+            disabled={deleteInput !== props.id}
+          >
+            Yes, Delete project
           </Button>
         </DialogActions>
       </Dialog>
