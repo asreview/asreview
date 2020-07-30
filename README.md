@@ -1,4 +1,4 @@
-[![ASReview bot](images/RepoCardGithub-1280x640px.png)](https://github.com/asreview/asreview)
+[![ASReview logo](https://github.com/asreview/asreview/blob/master/images/RepoCardGithub-1280x640px.png?raw=true)](https://github.com/asreview/asreview)
 
 ## ASReview: Active learning for Systematic Reviews
 
