@@ -201,7 +201,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           inputProps={{ 'aria-label': 'Naïve Bayes' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="naïve bayes" />
+                        <ListItemText primary="Naïve Bayes" />
                       </ListItem>
 
                       <ListItem>
@@ -212,7 +212,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           inputProps={{ 'aria-label': 'Support vector machines' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="support vector machines" />
+                        <ListItemText primary="Support vector machines" />
                       </ListItem>
                       <ListItem>
                         <Radio
@@ -222,7 +222,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           inputProps={{ 'aria-label': 'Logistic regression' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="logistic regression" />
+                        <ListItemText primary="Logistic regression" />
                       </ListItem>
 
                       <ListItem>
@@ -233,7 +233,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
                           inputProps={{ 'aria-label': 'Random forest' }}
                           onChange={handleAlgorithmChange}
                         />
-                        <ListItemText primary="random forest" />
+                        <ListItemText primary="Random forest" />
                       </ListItem>
                     </List>
                   </Grid>

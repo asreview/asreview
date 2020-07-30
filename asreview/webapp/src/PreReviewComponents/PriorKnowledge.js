@@ -297,21 +297,21 @@ const PriorKnowledge = ({
               {/* nothing */}
               {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] === 0) &&
                 <Typography>
-                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant papers and label some random papers.
+                  You don't have prior knowledge yet. Find yourself prior knowledge by searching relevant documents and label some random documents.
                 </Typography>
               }
 
               {/* only inclusions, no exclusions */}
               {(priorStats['n_inclusions'] > 0 && priorStats['n_exclusions'] === 0) &&
                 <Typography>
-                  Find yourself irrelevant items. Tip: label some random items. Random items are usually exclusions because the relevant items are rare.
+                  Find yourself irrelevant documents. Tip: label some random documents. Random documents are usually exclusions because the relevant documents are rare.
                 </Typography>
               }
 
               {/* only exclusions, no inclusions */}
               {(priorStats['n_inclusions'] === 0 && priorStats['n_exclusions'] > 0) &&
                 <Typography>
-                  Find yourself relevant items. Tip: use the search function and find some relevant items you know of.
+                  Find yourself relevant documents. Tip: use the search function and find some relevant documents you know of.
                 </Typography>
               }
 

@@ -142,7 +142,7 @@ const PriorKnowledgeRandom = (props) => {
 
         {state["count_exclusions"] < n_items &&
             <DialogTitleWithClose
-              title={"Is this article relevant?"}
+              title={"Is this document relevant?"}
               onClose={props.onClose}
             />
           }
@@ -183,12 +183,12 @@ const PriorKnowledgeRandom = (props) => {
         {state["count_exclusions"] >= n_items &&
           <Box>
             <DialogTitleWithClose
-              title={"Enough irrelevant items found, do you want to stop?"}
+              title={"Enough irrelevant documents found, do you want to stop?"}
               onClose={props.onClose}
             />
             <DialogContent dividers={true}>
               <Typography>
-                A total of {n_items} random articles were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant items as well).
+                {n_items} Random documents were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant documents as well).
               </Typography>
             </DialogContent>
 

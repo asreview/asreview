@@ -15,7 +15,7 @@ const PaperCard = (props) => {
       {(props.abstract === "" || props.abstract === null) &&
         <Box fontStyle="italic">
           <Typography gutterBottom>
-            This article doesn't have an abstract.
+            This document doesn't have an abstract.
           </Typography>
         </Box>
       }

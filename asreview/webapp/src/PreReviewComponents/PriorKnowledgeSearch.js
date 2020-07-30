@@ -88,7 +88,7 @@ const PriorKnowledgeSearch = (props) => {
       className={classes.inputSearch}
     >
       <Typography>
-        Search for an publication of interest.
+        Search for a document of interest.
       </Typography>
       <form
         className={classes.root}
