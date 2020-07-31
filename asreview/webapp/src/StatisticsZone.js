@@ -13,6 +13,7 @@ import {
 import {
   ProgressPieChart,
   ProgressAreaChart,
+  ProgressLineChart,
 } from './SideStats'
 
 import axios from 'axios'
@@ -45,14 +46,18 @@ const useStyles = makeStyles(theme => ({
     marginTop: -24,
     textAlign: "center",
   },
-  pieChart: {
+  middleChart: {
     paddingTop: "12px",
-    paddingLeft: "90px",
+    paddingLeft: "12px",
+    paddingRight: "12px",
   },
-  areaChart: {
+  leftChart: {
+    paddingTop: "12px",
+    paddingLeft: "64px",
+  },
+  rightChart: {
     paddingTop: "12px",
     paddingRight: "64px",
-    paddingLeft: "64px",
   },
   notAvailable: {
     paddingTop: "74px",
@@ -67,6 +72,7 @@ const StatisticsZone = (props) => {
 
   const [statistics, setStatistics] = useState(null);
   const [history, setHistory] = useState([]);
+  const [efficiency, setEfficiency] = useState([]);
 
   useEffect(() => {
 
@@ -99,9 +105,23 @@ const StatisticsZone = (props) => {
         })
     }
 
+    const getProgressEfficiency = () => {
+
+      const url = api_url + `project/${props.project_id}/progress_efficiency`;
+
+      return axios.get(url)
+        .then((result) => {
+          setEfficiency(result.data)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+
     if (props.projectInitReady && !props.training){
         getProgressInfo();
         getProgressHistory();
+        getProgressEfficiency();
     }
   }, [props.projectInitReady, props.training, props.project_id]);
 
@@ -117,18 +137,25 @@ const StatisticsZone = (props) => {
       <Paper className={classes.paper}>
         {statistics !== null &&
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Box className={classes.pieChart}>
+            <Grid item xs={12} sm={4}>
+              <Box className={classes.leftChart}>
+                <ProgressAreaChart
+                  history={history}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Box className={classes.middleChart}>
                 <ProgressPieChart
                   n_included={statistics.n_included}
                   n_excluded={statistics.n_excluded}
                 />
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box className={classes.areaChart}>
-                <ProgressAreaChart
-                  history={history}
+            <Grid item xs={12} sm={4}>
+              <Box className={classes.rightChart}>
+                <ProgressLineChart
+                  efficiency={efficiency}
                 />
               </Box>
             </Grid>

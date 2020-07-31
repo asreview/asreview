@@ -863,6 +863,29 @@ def api_get_progress_history(project_id):
     return response
 
 
+@bp.route('/project/<project_id>/progress_efficiency', methods=["GET"])
+def api_get_progress_efficiency(project_id):
+    """Get cumulative number of inclusions by ASReview/at random"""
+
+    # get label history
+    labeled = read_label_history(project_id)
+    data = []
+    for [key, value] in labeled:
+        data.append(value)
+
+    # create a dataset with the cumulative number of inclusions
+    df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+    df["Total"] = df.index + 1
+    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / df["Total"][-1:]).values).round()
+
+    df = df.round(1).to_dict(orient="records")
+
+    response = jsonify(df)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
+
+
 # I think we don't need this one
 @bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
 def api_classify_instance(project_id, doc_id):  # noqa: F401
