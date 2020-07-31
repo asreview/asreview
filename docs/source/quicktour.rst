@@ -143,20 +143,6 @@ and the model is trained for the first time.
    :alt:
 
 
-
-Select an Active Learning Model
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In the final step, you can pick a machine learning model. The default model is
-Naive Bayes, but you can opt for a different model. After choosing your model,
-click on `Finish`. You will return to the project page and see the model being
-trained.
-
-
-.. figure:: ../images/5_start_reviewing_2.png
-   :alt:
-
-
 Import a Project
 ----------------
 
