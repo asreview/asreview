@@ -9,7 +9,6 @@ import {
   Grid,
 } from '@material-ui/core';
 
-
 import {
   ProgressPieChart,
   ProgressAreaChart,
@@ -40,27 +39,22 @@ const useStyles = makeStyles(theme => ({
     marginLeft: -12,
   },
   paper: {
-
+    paddingTop: "24px",
+    paddingLeft: "40px",
+    paddingRight: "40px",
   },
   center: {
     marginTop: -24,
     textAlign: "center",
   },
-  middleChart: {
-    paddingTop: "12px",
-    paddingLeft: "12px",
-    paddingRight: "12px",
-  },
-  leftChart: {
-    paddingTop: "12px",
-    paddingLeft: "64px",
-  },
-  rightChart: {
-    paddingTop: "12px",
-    paddingRight: "64px",
+  pieChart: {
+    width: "100%",
+    maxWidth: "245px",
+    margin: "auto",
+    display: "block",
   },
   notAvailable: {
-    paddingTop: "74px",
+    paddingTop: "54px",
     paddingBottom: "74px",
     textAlign: "center",
   },
@@ -138,14 +132,7 @@ const StatisticsZone = (props) => {
         {statistics !== null &&
           <Grid container spacing={3}>
             <Grid item xs={12} sm={4}>
-              <Box className={classes.leftChart}>
-                <ProgressAreaChart
-                  history={history}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <Box className={classes.middleChart}>
+              <Box className={classes.pieChart}>
                 <ProgressPieChart
                   n_included={statistics.n_included}
                   n_excluded={statistics.n_excluded}
@@ -153,7 +140,14 @@ const StatisticsZone = (props) => {
               </Box>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <Box className={classes.rightChart}>
+              <Box>
+                <ProgressAreaChart
+                  history={history}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Box>
                 <ProgressLineChart
                   efficiency={efficiency}
                 />
