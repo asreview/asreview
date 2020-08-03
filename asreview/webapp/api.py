@@ -867,7 +867,7 @@ def api_get_progress_history(project_id):
 def api_get_progress_efficiency(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
-    # get label history
+    statistics = get_data_statistics(project_id)
     labeled = read_label_history(project_id)
     data = []
     for [key, value] in labeled:
@@ -876,7 +876,7 @@ def api_get_progress_efficiency(project_id):
     # create a dataset with the cumulative number of inclusions
     df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
     df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / df["Total"][-1:]).values).round()
+    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / statistics["n_rows"]).values).round()
 
     df = df.round(1).to_dict(orient="records")
 
