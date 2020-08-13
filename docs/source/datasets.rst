@@ -1,9 +1,9 @@
 Datasets
 ========
 
-To perform an automated systematic review, ASReview requires a dataset
-representing all papers obtained in a systematic search. To create such a
-dataset for a systematic review, typically an online library search is
+To perform an systematic review, ASReview LAB requires a dataset representing
+all documents or publications obtained in a systematic search. To create such
+a dataset for a systematic review, typically an online library search is
 performed for all studies related to a particular topic.
 
 Each entry in the dataset should hold metadata on a paper.  Mandatory metadata
@@ -22,16 +22,16 @@ It is also possible to perform an automated systematic review on
 Data format
 -----------
 
-To carry out an automated systematic review on your own dataset, your data file needs 
-to adhere to a certain format. ASReview accepts the following formats: 
+To carry out an automated systematic review on your own dataset, your data file needs
+to adhere to a certain format. ASReview accepts the following formats:
 
- - `Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_. 
-   Extension ``.ris``. RIS files are used by digital libraries, like IEEE Xplore, Scopus 
-   and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support 
-   the RIS format as well. 
- - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should 
-   be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of 
-   predetermined labels in line with the ones used in RIS files. 
+ - `Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_.
+   Extension ``.ris``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
+   and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support
+   the RIS format as well.
+ - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should
+   be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of
+   predetermined labels in line with the ones used in RIS files.
 
 Each entry in the dataset should hold metadata on a paper. Mandatory metadata
 are title and abstract. Other metadata such as id, author, date, and keywords
@@ -57,7 +57,7 @@ to select all relevant papers.
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
 
 \* Either a title or an abstract is mandatory.
- 
+
 Compatibility
 -------------
 
@@ -68,7 +68,7 @@ The following table provides an overview of export files from citation
 managers  which are accepted by ASReview.
 
 +-----------------+---------------+----------------+--------------+--------------+
-|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    | 
+|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
 +-----------------+---------------+----------------+--------------+--------------+
 | **Endnote**     | Supported     | Not supported  |              |              |
 +-----------------+---------------+----------------+--------------+--------------+
@@ -81,7 +81,7 @@ managers  which are accepted by ASReview.
 | **Zotero**      | Supported     |                | Supported    |              |
 |                 |               |                |              |              |
 +-----------------+---------------+----------------+--------------+--------------+
-        
+
 - Supported: The data can be exported from the citation manager and imported in ASReview using this extension.
 - Not supported: The exported format can not be imported in ASReview.
 - (empty): The data cannot be exported from the citation manager in this format.
@@ -136,28 +136,47 @@ Systematic review software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are several software packages available for systematic reviewing. Some
-of them use machine learning,  while other focus on screening and management.
+of them use machine learning, while other focus on screening and management.
 The overview below shows an overview of alternative software programs and the
 compatibility with ASReview.
 
-+-----------------+---------------+----------------+--------------+--------------+ 
++-----------------+---------------+----------------+--------------+--------------+
 |                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
 |                 |               |                |              |              |
 +-----------------+---------------+----------------+--------------+--------------+
+| **Abstrackr**   | Supported     |                | Supported    |              |
++-----------------+---------------+----------------+--------------+--------------+
+| **Covidence**\* | Supported     |                | Supported    |              |
++-----------------+---------------+----------------+--------------+--------------+
+| **Distiller**   |Not supported  |                | Supported\** | Supported\** |
++-----------------+---------------+----------------+--------------+--------------+
+|**EPPI-reviewer**| Supported     |                |              |Not supported |
++-----------------+---------------+----------------+--------------+--------------+
 | **Rayyan**      | Not supported |                | Supported    |              |
 +-----------------+---------------+----------------+--------------+--------------+
+|**Robotreviewer**|               |                |              |              |
+|\***		  |    		  |                |              |              |
++-----------------+---------------+----------------+--------------+--------------+
 
-- Supported: The data can be exported from the search engine and imported in ASReview using this extension.
+- Supported: The data can be exported from the software and imported in ASReview using this extension.
 - Not supported: The exported data can not be imported in ASReview using this extension.
-- (empty): The data cannot be exported from the search engine using this extension.
+- (empty): The data cannot be exported from the software using this extension.
+
+\* When using Covidence it is possible to export articles in .ris formats for different citation managers,
+such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
+
+\** When exporting from Distiller set the ``sort references by`` to ``Authors``. Then the data can be
+imported in ASReview.
+
+\*** Robotreviewer does not provide exports suitable for asreview, since it supports evidence synthesis.
 
 Demonstration datasets
 ----------------------
 
-The ASReview software contains 3 datasets that can be used to test the 
-software and algorithms. The built-in datasets are PRISMA based reviews on 
+The ASReview software contains 3 datasets that can be used to test the
+software and algorithms. The built-in datasets are PRISMA based reviews on
 various research topics. Each paper in this systematic review is labeled relevant or
-irrelevant. This information can be used to simulate the performance of ASReview. 
+irrelevant. This information can be used to simulate the performance of ASReview.
 The datasets are available in the front-end in step 2 and in the simulation mode.
 
 Van de Schoot (PTSD)
@@ -198,7 +217,7 @@ T. Hall, S. Beecham, D. Bowes, D. Gray, S. Counsell, in IEEE Transactions on Sof
 Engineering, vol. 38, no. 6, pp. 1276-1304, Nov.-Dec. 2012. https://doi.org/10.1109/TSE.2011.103
 
 
-Dataset publication https://zenodo.org/record/1162952#.XiBgMi2ZNQK 
+Dataset publication https://zenodo.org/record/1162952#.XiBgMi2ZNQK
 
 Name (for the simulation mode): ``example_hall``
 
@@ -207,9 +226,9 @@ Cohen (ACE Inhibitors)
 ~~~~~~~~~~~~~~~~~~~~~~
 
 dataset from a project set up to test the performance of automated review systems such as
-the ASReview project. The project includes several datasets from the medical sciences. 
-The dataset implemented in ASReview is the ``ACEInhibitors`` dataset. 
-Of the 2544 entries in the dataset, 41 were included in the systematic review. 
+the ASReview project. The project includes several datasets from the medical sciences.
+The dataset implemented in ASReview is the ``ACEInhibitors`` dataset.
+Of the 2544 entries in the dataset, 41 were included in the systematic review.
 
 **Reducing Workload in Systematic Review Preparation Using Automated Citation Classification**
 A.M. Cohen, MD, MS, W.R. Hersh, MD, K. Peterson, MS, and Po-Yin Yen, MS. https://doi.org/10.1197/jamia.M1929

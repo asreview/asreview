@@ -305,7 +305,7 @@ class Analysis():
             for i_time, idx in enumerate(proba_order):
                 if labels[idx] == 1 and idx not in label_order[:n]:
                     time_results[idx].append(
-                        time_mult*(i_time + len(label_order)))
+                        time_mult*(i_time + len(label_order)+1))
 
         results = {}
         for label, trained_time in time_results.items():
