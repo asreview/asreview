@@ -1,40 +1,46 @@
 import React from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import {
-  // Button,
   Dialog,
   MobileStepper,
   IconButton,
   Paper,
 } from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import SwipeableViews from 'react-swipeable-views';
 
-import Welcome from '../images/ElasWelcome.svg';
+import Welcome from '../images/QuickTour/1_Welcome.svg';
+import SetUp from '../images/QuickTour/2_SetUp.svg';
+import Start from '../images/QuickTour/3_StartReviewing.svg';
+import Benefit from '../images/QuickTour/4_BenefitFromAIAssisted.svg';
+import DontStress from '../images/QuickTour/5_DontStress.svg';
+import Done from '../images/QuickTour/6_DoneItsYourChoice.svg';
+import Publish from '../images/QuickTour/7_PublishYourWork.svg';
 
-import CloseIcon from '@material-ui/icons/Close';
 
 const quickTourSteps = [
   {
-    label: "Welcome",
-    imgPath: "../images/ElasWelcome.svg",
+    label: "Welcome", imgPath: Welcome
   },
   {
-    label: "SetUp",
-    imgPath: "../images/ElasWelcome.svg",
+    label: "SetUp", imgPath: SetUp,
   },
   {
-    label: "Review",
-    imgPath: "../images/ElasWelcome.svg",
+    label: "Start", imgPath: Start,
   },
   {
-    label: "Stop",
-    imgPath: "../images/ElasWelcome.svg",
+    label: "Benefit", imgPath: Benefit,
   },
   {
-    label: "Publish",
-    imgPath: "../images/ElasWelcome.svg",
+    label: "DontStress", imgPath: DontStress,
+  },
+  {
+    label: "Done", imgPath: Done,
+  },
+  {
+    label: "Publish", imgPath: Publish,
   },
 ];
 
@@ -56,7 +62,6 @@ const useStyles = makeStyles((theme) => ({
   img: {
     height: 400,
     display: 'block',
-    // maxWidth: 400,
     overflow: 'hidden',
     width: '100%',
   },
@@ -123,7 +128,7 @@ function QuickTourDialog(props) {
         {quickTourSteps.map((step, index) => (
           <div key={step.label}>
             {Math.abs(activeStep - index) <= 2 ? (
-              <img className={classes.img} src={Welcome} alt={step.label} />
+              <img className={classes.img} src={step.imgPath} alt={step.label} />
             ) : null}
           </div>
         ))}
@@ -135,14 +140,12 @@ function QuickTourDialog(props) {
         activeStep={activeStep}
         nextButton={
           <IconButton size="small" onClick={handleNext} disabled={activeStep === maxSteps - 1}>
-            
             {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
           </IconButton>
         }
         backButton={
           <IconButton size="small" onClick={handleBack} disabled={activeStep === 0}>
             {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-            
           </IconButton>
         }
       />
