@@ -26,7 +26,7 @@ class DoubleBalance(BaseBalance):
 
     Class to get the two way rebalancing function and arguments.
     It super samples ones depending on the number of 0's and total number
-    of samples in the training data.
+    of samples in the training data. We call this 'Dynamic Resampling'.
 
     Arguments
     ---------
@@ -52,7 +52,7 @@ class DoubleBalance(BaseBalance):
 
     def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0,
                  random_state=None):
-
+        # hyperparameters
         super(DoubleBalance, self).__init__()
         self.a = a
         self.alpha = alpha
@@ -62,10 +62,11 @@ class DoubleBalance(BaseBalance):
         self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
+        # record ids of already labeled publications, as inclusions (ones) or exclusions (zeroes)
         one_idx = train_idx[np.where(y[train_idx] == 1)]
         zero_idx = train_idx[np.where(y[train_idx] == 0)]
 
-        # Fall back to simple sampling if we have only ones or zeros.
+        # Fall back to simple sampling if we have only ones or zeroes.
         if len(one_idx) == 0 or len(zero_idx) == 0:
             self.fallback_model.sample(X, y, train_idx, shared)
 
@@ -73,23 +74,27 @@ class DoubleBalance(BaseBalance):
         n_zero = len(zero_idx)
         n_train = n_one + n_zero
 
-        # Compute the weights.
+        # Compute sampling weights.
         one_weight = _one_weight(n_one, n_zero, self.a, self.alpha)
         zero_weight = _zero_weight(n_one + n_zero, self.b, self.beta)
         tot_zo_weight = one_weight * n_one + zero_weight * n_zero
+        # number of ones to sample
         n_one_train = random_round(
             one_weight * n_one * n_train / tot_zo_weight, self._random_state)
+        # at least 1 one, and always leave two spots for zeroes
         n_one_train = max(1, min(n_train - 2, n_one_train))
+        # number of zeroes to sample
         n_zero_train = n_train - n_one_train
 
-        # Get random ones and zeros.
+        # sample record id's of ones and zeroes
         one_train_idx = fill_training(one_idx, n_one_train, self._random_state)
         zero_train_idx = fill_training(zero_idx, n_zero_train,
                                        self._random_state)
-
+        # record id's of rebalanced training sample
         all_idx = np.concatenate([one_train_idx, zero_train_idx])
         self._random_state.shuffle(all_idx)
 
+        # return feature matrix X and relevance (0/1) y of the rebalanced training sample
         return X[all_idx], y[all_idx]
 
     def full_hyper_space(self):
@@ -128,14 +133,18 @@ def random_round(value, random_state):
 
 
 def fill_training(src_idx, n_train, random_state):
+    # n_train = required size of rebalanced training sample
+    # src_idx = record id's
     """Copy/sample until there are n_train indices sampled.
     """
-    # Copy as many as we need, rounded down.
+    # number of copies needed, rounded down.
     n_copy = np.int(n_train / len(src_idx))
+    # for the remainder, draw a random sample
     n_sample = n_train - n_copy * len(src_idx)
-    dest_idx = np.tile(src_idx, n_copy).reshape(-1)
 
-    # Add samples to finish up.
+    # copy data
+    dest_idx = np.tile(src_idx, n_copy).reshape(-1)
+    # add samples together to finish up.
     dest_idx = np.append(dest_idx,
                          random_state.choice(src_idx, n_sample, replace=False))
     return dest_idx
