@@ -276,7 +276,7 @@ class Analysis():
         return (None, None, None)
 
     def avg_time_to_discovery(self, result_format="number"):
-        """Get the best/last estimate on how long it takes to find a paper.
+        """Get the best/last estimate on how long it takes to find a paper, the Time to Discovery (TD).
 
         Returns
         -------
@@ -285,12 +285,19 @@ class Analysis():
         """
         labels = self.labels
 
+        # inclusions (ones)
         one_labels = np.where(labels == 1)[0]
+        # store discovery time
         time_results = {label: [] for label in one_labels}
 
+        # for every state file
         for state in self.states.values():
+            # get the order in which records were labeled
             label_order, n = _get_labeled_order(state)
+            # get the ranking of all papers at the last query
             proba_order = _get_last_proba_order(state)
+
+            # get factor to account for total number of publications to label
             if result_format == "percentage":
                 time_mult = 100 / (len(labels) - n)
             elif result_format == "fraction":
@@ -298,16 +305,21 @@ class Analysis():
             else:
                 time_mult = 1
 
+
+            # get the time to discovery
             for i_time, idx in enumerate(label_order[n:]):
+                # for all inclusions that were found/labeled
                 if labels[idx] == 1:
                     time_results[idx].append(time_mult*(i_time+1))
-
             for i_time, idx in enumerate(proba_order):
+                # for all inclusions that weren't found/labeled
                 if labels[idx] == 1 and idx not in label_order[:n]:
                     time_results[idx].append(
                         time_mult*(i_time + len(label_order)+1))
 
         results = {}
+
+        # time to discovery averaged over all state files
         for label, trained_time in time_results.items():
             if len(trained_time) > 0:
                 results[label] = np.average(trained_time)
