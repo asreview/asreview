@@ -62,8 +62,10 @@ class DoubleBalance(BaseBalance):
         self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
-        # record ids of already labeled publications, as inclusions (ones) or exclusions (zeroes)
+        # record ids of already labeled publications
+        # labeled as inclusions (ones)
         one_idx = train_idx[np.where(y[train_idx] == 1)]
+        # labeled as exclusions (zeroes)
         zero_idx = train_idx[np.where(y[train_idx] == 0)]
 
         # Fall back to simple sampling if we have only ones or zeroes.

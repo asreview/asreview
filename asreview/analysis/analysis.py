@@ -276,7 +276,8 @@ class Analysis():
         return (None, None, None)
 
     def avg_time_to_discovery(self, result_format="number"):
-        """Get the best/last estimate on how long it takes to find a paper, the Time to Discovery (TD).
+        """Get the best/last estimate on how long it takes to find a paper,
+        the Time to Discovery (TD).
 
         Returns
         -------
