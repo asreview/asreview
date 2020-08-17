@@ -797,6 +797,29 @@ def export_project(project_id):
     )
 
 
+@bp.route('/project/<project_id>/finish', methods=["GET"])
+def api_finish_project(project_id):
+    """Mark a project as finished or not"""
+
+    # read the file with project info
+    with open(get_project_file_path(project_id), "r") as fp:
+        project_info = json.load(fp)
+
+    try:
+        project_info["projectFinished"] = not project_info["projectFinished"]
+    except KeyError:
+        # missing key in projects created in older versions
+        project_info["projectFinished"] = True
+
+    # update the file with project info
+    with open(get_project_file_path(project_id), "w") as fp:
+        json.dump(project_info, fp)
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 # @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
 # def api_get_article_info(project_id, doc_id=None):  # noqa: F401
 #     """Get info on the article"""

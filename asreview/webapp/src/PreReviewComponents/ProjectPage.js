@@ -23,6 +23,7 @@ import StatisticsZone from '../StatisticsZone.js'
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
 import GetAppIcon from '@material-ui/icons/GetApp';
 
+import Finished from '../images/Finished.svg';
 import InReview from '../images/InReview.svg';
 import SetUp from '../images/SetUp.svg';
 
@@ -90,6 +91,7 @@ const ProjectPage = (props) => {
     setupFirstTime: (props.setupFirstTime ? props.setupFirstTime : false),
     setup: false,
     training: false,
+    finished: null,
 
   });
 
@@ -119,6 +121,28 @@ const ProjectPage = (props) => {
     })
   }
 
+  const finishProject = () => {
+
+    const finishUrl = api_url + `project/${props.project_id}/finish`
+
+    axios.get(finishUrl)
+      .then((result) => {
+
+        setState(s => {
+          return({
+            ...s,
+            finished : !s.finished,
+          })
+        });
+
+      })
+      .catch((error) => {
+
+        console.log(error);
+
+      });
+  }
+
   const returnElasState = () => {
     // setup
     if (!state.info.projectInitReady || state.setup){
@@ -126,7 +150,14 @@ const ProjectPage = (props) => {
     }
 
     // review
-    return InReview
+    if (!state.finished){
+      return InReview
+    }
+
+    // finished
+    if (state.finished){
+      return Finished
+    }
   }
 
   const scrollToTop = () => {
@@ -139,7 +170,7 @@ const ProjectPage = (props) => {
       scrollToTop()
     }
 
-  }, [state.setup, state.infoLoading]);
+  }, [state.setup, state.finished, state.infoLoading]);
 
 
   useEffect(() => {
@@ -158,6 +189,7 @@ const ProjectPage = (props) => {
               ...s,
               infoLoading: false,
               info: result.data,
+              finished: result.data.projectFinished,
             })
           })
 
@@ -169,7 +201,7 @@ const ProjectPage = (props) => {
 
     fetchProjectInfo();
 
-  }, [props.project_id]);
+  }, [props.project_id, state.finished]);
 
   return (
     <Box>
@@ -236,6 +268,7 @@ const ProjectPage = (props) => {
                       className={classes.continuButton}
                       variant={"outlined"}
                       onClick={()=>props.handleAppState("review")}
+                      disabled={state.finished}
                     >
                       Start reviewing
                     </Button>
@@ -278,6 +311,8 @@ const ProjectPage = (props) => {
                   project_id={props.project_id}
                   showExportResult={state.info.projectInitReady && !state.setup && !state.training}
                   toggleExportResult={props.toggleExportResult}
+                  projectFinished={state.finished}
+                  finishProject={finishProject}
                 />
                 <DangerZone
                   project_id={props.project_id}
