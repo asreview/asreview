@@ -94,7 +94,7 @@ class DoubleBalance(BaseBalance):
         all_idx = np.concatenate([one_train_idx, zero_train_idx])
         self._random_state.shuffle(all_idx)
 
-        # return feature matrix X and relevance (0/1) y of the rebalanced training sample
+        # return feature matrix X and labels (0/1) y of the rebalanced training sample
         return X[all_idx], y[all_idx]
 
     def full_hyper_space(self):
