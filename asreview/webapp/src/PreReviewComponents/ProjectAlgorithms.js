@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -12,7 +12,7 @@ import {
   Grow,
   TextField,
   MenuItem,
-} from '@material-ui/core'
+} from '@material-ui/core';
 
 import { brown } from '@material-ui/core/colors';
 
@@ -22,9 +22,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import {
   Help,
   useHelp,
-} from '../PreReviewComponents'
+} from '../PreReviewComponents';
 
-import axios from 'axios'
+import axios from 'axios';
 
 import { api_url } from '../globals.js';
 
@@ -52,27 +52,17 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const defaultModels = {
-  model: "nb",
-  query_strategy: "max",
-  feature_extraction: "tfidf",
-}
-
-const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
+const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
   const classes = useStyles();
 
   // the state contains new attribute to check for old  data
   // or not as well as an edit attribute.
   const [state, setState] = React.useState({
-    // is this a new card? If undefined, it is assumed to be new
-    init: (init === undefined) ? true : init,
     // open card in edit mode or not
     edit: (edit === undefined) ? true : edit,
-  })
+  });
 
-  const [algorithms, setAlgorithms] = React.useState(
-    (init === undefined || init) ? defaultModels : null
-  );
+  const [algorithms, setAlgorithms] = React.useState(null);
 
   // help button
   const [help, openHelp, closeHelp] = useHelp();
@@ -84,7 +74,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
     setAlgorithms({
       ...algorithms,
       model: event.target.value,
-    })
+    });
 
   };
 
@@ -93,7 +83,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
     setAlgorithms({
       ...algorithms,
       query_strategy: event.target.value,
-    })
+    });
 
   };
 
@@ -102,7 +92,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
     setAlgorithms({
       ...algorithms,
       feature_extraction: event.target.value,
-    })
+    });
 
   };
 
@@ -112,8 +102,8 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
     if (algorithms !== null){
         var bodyFormData = new FormData();
         bodyFormData.set("model", algorithms.model);
-        bodyFormData.set("query_strategy", algorithms.query_strategy)
-        bodyFormData.set("feature_extraction", algorithms.feature_extraction)
+        bodyFormData.set("query_strategy", algorithms.query_strategy);
+        bodyFormData.set("feature_extraction", algorithms.feature_extraction);
 
         axios({
           method: "post",
@@ -144,19 +134,10 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
 
       axios.get(url)
         .then((result) => {
-
-          if ("model" in result.data){
-            // set the project algorithms
-            setAlgorithms(result.data);
-          } else {
-            // set the state to new
-            setState({
-              init: true,
-              edit: state.edit,
-            })
-            setAlgorithms(defaultModels);
-          }
-
+          setAlgorithms(result.data);
+          setState({
+            edit: state.edit,
+          });
         })
         .catch((error) => {
           console.log(error);
@@ -164,14 +145,11 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
     };
 
     // scroll into view
-    scrollToBottom()
+    scrollToBottom();
 
-    // get the values if locked
-    if (!state.init){
-        fetchAlgorithmsSettings();
-    }
+    fetchAlgorithmsSettings();
 
-  }, [state.init, state.edit, project_id, scrollToBottom]);
+  }, [state.edit, project_id, scrollToBottom]);
 
   return (
     <Box>

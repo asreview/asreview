@@ -569,7 +569,7 @@ def api_get_algorithms(project_id):  # noqa: F401
 
     except FileNotFoundError:
         # set the kwargs dict to setup kwargs
-        kargs_dict = {}
+        kargs_dict = deepcopy(app.config['asr_kwargs'])
 
     response = jsonify(kargs_dict)
     response.headers.add('Access-Control-Allow-Origin', '*')
