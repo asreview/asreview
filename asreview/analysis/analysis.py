@@ -276,7 +276,14 @@ class Analysis():
         return (None, None, None)
 
     def avg_time_to_discovery(self, result_format="number"):
-        """Get the best/last estimate on how long it takes to find a paper.
+        """Estimate the Time to Discovery (TD) for each paper.
+
+        Get the best/last estimate on how long it takes to find a paper.
+
+        Arguments
+        ---------
+        result_format: str
+            Desired output format: "number", "fraction" or "percentage".
 
         Returns
         -------
@@ -284,13 +291,17 @@ class Analysis():
             For each inclusion, key=paper_id, value=avg time.
         """
         labels = self.labels
-
         one_labels = np.where(labels == 1)[0]
         time_results = {label: [] for label in one_labels}
 
+        # Iterate over all state files
         for state in self.states.values():
+            # Get the order in which records were labeled
             label_order, n = _get_labeled_order(state)
+            # Get the ranking of all papers at the last query
             proba_order = _get_last_proba_order(state)
+
+            # Adjust factor, depending on the desired output format
             if result_format == "percentage":
                 time_mult = 100 / (len(labels) - n)
             elif result_format == "fraction":
@@ -298,16 +309,20 @@ class Analysis():
             else:
                 time_mult = 1
 
+            # Get the time to discovery
             for i_time, idx in enumerate(label_order[n:]):
+                # for all inclusions that were found/labeled
                 if labels[idx] == 1:
                     time_results[idx].append(time_mult*(i_time+1))
-
             for i_time, idx in enumerate(proba_order):
+                # for all inclusions that weren't found/labeled
                 if labels[idx] == 1 and idx not in label_order[:n]:
                     time_results[idx].append(
                         time_mult*(i_time + len(label_order)+1))
 
         results = {}
+
+        # Merge the results of all state files
         for label, trained_time in time_results.items():
             if len(trained_time) > 0:
                 results[label] = np.average(trained_time)
