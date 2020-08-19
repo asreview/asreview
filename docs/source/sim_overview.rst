@@ -6,26 +6,21 @@ Overview
 Why run a simulation?
 ---------------------
 
-Doing simulations can be a great way to assess how well ASReview performs for your particular purposes. The user can run simulations on previously labelled datasets to see how much time the user could have saved using ASReview, or how previous inclusion criteria could be improved in the future. The ASReview simulation mode works through the dataset exactly like an ASReview user would, using the inclusions and exclusions in the dataset to learn in the active learning cycle. In this way, the entire screening process is replicated.
-
+Doing simulations can be a great way to assess how well ASReview performs for your particular purposes. The user can run simulations on previously labelled datasets to see how much time the user could have saved using ASReview.
 
 Doing the simulation
 --------------------
 
-You can use the simulation mode that is provided with the ASReview package. It can
-be accessed directly from the command line, for example:
+The ASReview simulation mode works through the dataset exactly like an ASReview user would, using the inclusions and exclusions in the dataset to learn in the active learning cycle. In this way, the entire screening process is replicated.
+
+You can use the simulation mode that is provided with the ASReview package.
+It can be accessed directly from the command line, for example:
 
 .. code-block:: bash
 
 	asreview simulate MY_DATASET.csv --state_file myreview.h5
 
-This performs a simulation of a default active learning model, where ``MY_DATASET.csv`` is the path to the dataset you wish to simulate on and where ``myreview.h5`` is the file where the results will be stored:
-
-.. code-block::
-
-	├── my-simulation
-	|   ├── MY_DATASET.csv
-	|   ├── myreview.h5
+This performs a simulation of a default active learning model, where ``MY_DATASET.csv`` is the path to the dataset you wish to simulate on and where ``myreview.h5`` is the file where the results will be stored.
 
 
 More detail on specific model and simulation settings can be found in the Simulation options section. For how to prepare your data, see the `dataset <datasets.html>`__ page.
