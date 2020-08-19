@@ -26,6 +26,7 @@ import {
   useDarkMode,
   useTextSize,
   useUndoEnabled,
+  useKeyPressEnabled,
 } from './SettingsHooks'
 
 import 'typeface-roboto'
@@ -62,6 +63,7 @@ const App = (props) => {
   const [authors, setAuthors] = React.useState(false);
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
+  const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const toggleAuthors = () => {
     setAuthors(a => (!a));
@@ -133,6 +135,7 @@ const App = (props) => {
         showAuthors={authors}
         textSize={textSize}
         undoEnabled={undoEnabled}
+        keyPressEnabled={keyPressEnabled}
       />
       }
 
@@ -155,6 +158,8 @@ const App = (props) => {
         showAuthors={authors}
         toggleUndoEnabled={toggleUndoEnabled}
         undoEnabled={undoEnabled}
+        toggleKeyPressEnabled={toggleKeyPressEnabled}
+        keyPressEnabled={keyPressEnabled}
       />
       <ExitDialog
         toggleExit={toggleExit}

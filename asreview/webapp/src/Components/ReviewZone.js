@@ -10,6 +10,7 @@ import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
 import DecisionUndoBar from './DecisionUndoBar'
+import { useKeyPress } from '../SettingsHooks'
 
 import { connect } from "react-redux";
 
@@ -74,6 +75,10 @@ const ReviewZone = (props) => {
   });
 
   const [history, setHistory] = useState([]);
+
+  const relevantPress = useKeyPress("r");
+  const irrelevantPress = useKeyPress("i");
+  const undoPress = useKeyPress("u");
 
   const storeRecordState = (label) => {
     setPreviousRecordState({
@@ -258,6 +263,26 @@ const ReviewZone = (props) => {
       getDocument();
     }
   },[props.project_id, recordState, props]);
+
+  useEffect(() => {
+
+    /**
+     * Use keyboard shortcut
+     */
+    if (props.keyPressEnabled) {
+
+      if (relevantPress && recordState.isloaded) {
+        makeDecision(1);
+      }
+      if (irrelevantPress && recordState.isloaded) {
+        makeDecision(0);
+      }
+      if (undoPress && undoState.open && props.undoEnabled) {
+        undoDecision();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [relevantPress, irrelevantPress, undoPress]);
 
   return (
     <Box

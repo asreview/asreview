@@ -77,4 +77,58 @@ const useUndoEnabled = () => {
 };
 
 
-export { useDarkMode, useTextSize, useUndoEnabled };
+const useKeyPress = (targetKey) => {
+
+  const [keyPressed, setKeyPressed] = useState(false);
+  
+  useEffect(() => {
+
+    const downHandler = ({ key }) => {
+      if (key === targetKey) {
+        setKeyPressed(true);
+      }
+    };
+
+    const upHandler = ({ key }) => {
+      if (key === targetKey) {
+        setKeyPressed(false);
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('keydown', downHandler);
+    window.addEventListener('keyup', upHandler);
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener('keydown', downHandler);
+      window.removeEventListener('keyup', upHandler);
+    };
+
+  }, [targetKey]);
+
+  return keyPressed;
+};
+
+
+const useKeyPressEnabled = () => {
+
+  const [keyPressEnabled, setKeyPressEnabled] = useState(false);
+
+  const toggleKeyPressEnabled = () => {
+    window.localStorage.setItem("keyPressEnabled", !keyPressEnabled);
+    setKeyPressEnabled(a => (!a));
+  };
+
+  useEffect(() => {
+    const localKeyPressEnabled = window.localStorage.getItem("keyPressEnabled");
+    const localKeyPressEnabledIsTrue = localKeyPressEnabled === "true";
+    if (keyPressEnabled !== localKeyPressEnabledIsTrue && localKeyPressEnabled !== null) {
+      setKeyPressEnabled(localKeyPressEnabledIsTrue);
+    };
+  }, [keyPressEnabled]);
+
+  return [keyPressEnabled, toggleKeyPressEnabled]
+}
+
+
+export { useDarkMode, useTextSize, useUndoEnabled, useKeyPress, useKeyPressEnabled };
