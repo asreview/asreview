@@ -15,8 +15,9 @@ class Tfidf(BaseFeatureExtraction):
         ngram_max: int
             Can use up to ngrams up to ngram_max. For example in the case of
             ngram_max=2, monograms and bigrams could be used.
-        stop_words: int
-            Use *ENGLISH* stop words.
+        stop_words: str
+            When set to 'english', use stopwords. If set to None or 'none',
+            do not use stop words.
         """
         super(Tfidf, self).__init__(*args, **kwargs)
         self.ngram_max = ngram_max
