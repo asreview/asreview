@@ -284,6 +284,7 @@ class Analysis():
         ---------
         result_format: str
             Desired output format: "number", "fraction" or "percentage".
+
         Returns
         -------
         dict:
