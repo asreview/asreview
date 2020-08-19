@@ -84,13 +84,13 @@ const useKeyPress = (targetKey) => {
   useEffect(() => {
 
     const downHandler = ({ key }) => {
-      if (key === targetKey) {
+      if (key.toLowerCase() === targetKey) {
         setKeyPressed(true);
       }
     };
 
     const upHandler = ({ key }) => {
-      if (key === targetKey) {
+      if (key.toLowerCase() === targetKey) {
         setKeyPressed(false);
       }
     };
