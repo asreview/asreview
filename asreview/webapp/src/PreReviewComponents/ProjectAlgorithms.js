@@ -14,6 +14,8 @@ import {
   MenuItem,
 } from '@material-ui/core';
 
+import Alert from '@material-ui/lab/Alert';
+
 import { brown } from '@material-ui/core/colors';
 
 import HelpIcon from '@material-ui/icons/Help';
@@ -39,6 +41,11 @@ const useStyles = makeStyles(theme => ({
       margin: theme.spacing(1),
       width: "30ch",
     }
+  },
+  alert: {
+    // marginTop: theme.spacing(1),
+    marginLeft: theme.spacing(7),
+    marginRight: theme.spacing(7),
   },
   listTitle: {
     paddingLeft: "18px",
@@ -159,7 +166,7 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
             <CardHeader
 
               /* Algorithms card */
-              title="Select Active Learning model"
+              title="Select Active learning model"
               titleTypographyProps={{"color": "primary"}}
 
               /* The edit and help options */
@@ -189,12 +196,18 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
                 </Box>
               }
             />
-           <Typography variant="body2" className={classes.listTitle}>
-              Skip this step to use the default setup.
-           </Typography>
+            
+            {algorithms !== null && algorithms["feature_extraction"] === "doc2vec" &&
+            <div className={classes.alert}>
+              <Alert severity="info">
+                Doc2Vec requires the gensim package. Tap the help icon for more information.
+              </Alert>
+            </div>
+            }
 
             <CardContent className="cardHighlight">
               {algorithms !== null &&
+                <Grid container spacing={2}>
                   <Grid item xs={12} md={12}>
                     <form className={classes.root} noValidate autoComplete="off">
                       <div>
@@ -211,7 +224,7 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
                             color="default"
                             disabled={algorithms["feature_extraction"] === "doc2vec"}
                           >
-                            {"Naïve Bayes"}
+                            {"Naïve Bayes (default)"}
                           </MenuItem>
 
                           <MenuItem
@@ -250,7 +263,7 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
                             value="tfidf"
                             color="default"
                           >
-                            {"tf-idf"}
+                            {"tf-idf (default)"}
                           </MenuItem>
 
                           <MenuItem
@@ -275,7 +288,7 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
                             value="max"
                             color="default"
                           >
-                            {"Max"}
+                            {"Max (default)"}
                           </MenuItem>
 
                           <MenuItem
@@ -297,6 +310,7 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
                       </div>
                     </form>
                   </Grid>
+                </Grid>
               }
               </CardContent>
               </Box>
@@ -306,7 +320,7 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
       <Help
         open={help}
         onClose={closeHelp}
-        title="Algorithms"
+        title="Active learning model"
         message={
           <Box>
             <Typography variant="body2" gutterBottom>
@@ -320,13 +334,13 @@ const ProjectAlgorithms = ({project_id, edit, scrollToBottom}) => {
               The default setup (Naïve Bayes, tf-idf, Max) overall has fast and excellent performance.
             </Typography>
             <Typography variant="body2" gutterBottom>
-              The performance may differ across datasets. Doing
+              Note: Doc2Vec is provided by the gensim package which needs to be installed manually. Follow the 
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/sim_overview.html#doing-the-simulation"
+                href="https://asreview.readthedocs.io/en/latest/models.html#doc2vec"
                 target="_blank"
-              >simulations
-              </Link> can be a great way to assess how well a model performs for your particular needs.
+              >instruction
+              </Link> before using it.
             </Typography>
           </Box>
         }
