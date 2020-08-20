@@ -92,7 +92,7 @@ export default function SettingsDialog(props) {
               </ListItemSecondaryAction>
             </ListItem>
             <ListItem>
-              <ListItemText id="switch-list-label-undo" primary="Undo Enabled" />
+              <ListItemText id="switch-list-label-undo" primary="Undo" />
               <ListItemSecondaryAction>
                 <Switch
                   edge="end"
@@ -103,7 +103,7 @@ export default function SettingsDialog(props) {
               </ListItemSecondaryAction>
             </ListItem>
             <ListItem>
-              <ListItemText id="switch-list-label-key" primary="Keyboard shortcut" />
+              <ListItemText id="switch-list-label-key" primary="Keyboard shortcuts" />
               <ListItemSecondaryAction>
                 <Switch
                   edge="end"
