@@ -10,7 +10,7 @@ import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
 import DecisionUndoBar from './DecisionUndoBar'
-import { useKeyPress } from '../SettingsHooks'
+import { useKeyPress } from '../hooks/useKeyPress'
 
 import { connect } from "react-redux";
 

@@ -27,7 +27,7 @@ import {
   useTextSize,
   useUndoEnabled,
   useKeyPressEnabled,
-} from './SettingsHooks'
+} from './hooks/SettingsHooks'
 
 import 'typeface-roboto'
 

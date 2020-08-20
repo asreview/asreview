@@ -77,39 +77,6 @@ const useUndoEnabled = () => {
 };
 
 
-const useKeyPress = (targetKey) => {
-
-  const [keyPressed, setKeyPressed] = useState(false);
-  
-  useEffect(() => {
-
-    const downHandler = ({ key }) => {
-      if (key.toLowerCase() === targetKey) {
-        setKeyPressed(true);
-      }
-    };
-
-    const upHandler = ({ key }) => {
-      if (key.toLowerCase() === targetKey) {
-        setKeyPressed(false);
-      }
-    };
-
-    // Add event listeners
-    window.addEventListener('keydown', downHandler);
-    window.addEventListener('keyup', upHandler);
-    // Remove event listeners on cleanup
-    return () => {
-      window.removeEventListener('keydown', downHandler);
-      window.removeEventListener('keyup', upHandler);
-    };
-
-  }, [targetKey]);
-
-  return keyPressed;
-};
-
-
 const useKeyPressEnabled = () => {
 
   const [keyPressEnabled, setKeyPressEnabled] = useState(false);
@@ -131,4 +98,4 @@ const useKeyPressEnabled = () => {
 }
 
 
-export { useDarkMode, useTextSize, useUndoEnabled, useKeyPress, useKeyPressEnabled };
+export { useDarkMode, useTextSize, useUndoEnabled, useKeyPressEnabled };
