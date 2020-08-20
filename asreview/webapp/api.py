@@ -806,10 +806,10 @@ def api_finish_project(project_id):
         project_info = json.load(fp)
 
     try:
-        project_info["projectFinished"] = not project_info["projectFinished"]
+        project_info["reviewFinished"] = not project_info["reviewFinished"]
     except KeyError:
         # missing key in projects created in older versions
-        project_info["projectFinished"] = True
+        project_info["reviewFinished"] = True
 
     # update the file with project info
     with open(get_project_file_path(project_id), "w") as fp:

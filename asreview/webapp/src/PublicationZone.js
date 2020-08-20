@@ -110,8 +110,8 @@ const PublicationZone = (props) => {
             key="finish-project"
           >
             <ListItemText
-              primary={props.projectFinished ? "Mark as in review" : "Mark as finished"}
-              secondary={props.projectFinished ? 'Mark this project as ongoing and resume reviewing.' : 'Stop reviewing and mark this project as finished.'}
+              primary={props.reviewFinished ? "Mark screening as finished (undo)" : "Mark screening as finished"}
+              secondary={props.reviewFinished ? 'Mark the screening process as ongoing and resume reviewing.' : 'Stop reviewing and mark the screening process as finished.'}
             />
           </ListItem>
         </List>

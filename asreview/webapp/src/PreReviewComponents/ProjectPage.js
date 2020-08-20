@@ -189,7 +189,7 @@ const ProjectPage = (props) => {
               ...s,
               infoLoading: false,
               info: result.data,
-              finished: result.data.projectFinished,
+              finished: result.data.reviewFinished,
             })
           })
 
@@ -311,7 +311,7 @@ const ProjectPage = (props) => {
                   project_id={props.project_id}
                   showExportResult={state.info.projectInitReady && !state.setup && !state.training}
                   toggleExportResult={props.toggleExportResult}
-                  projectFinished={state.finished}
+                  reviewFinished={state.finished}
                   finishProject={finishProject}
                 />
                 <DangerZone
