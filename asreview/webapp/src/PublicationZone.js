@@ -101,6 +101,19 @@ const PublicationZone = (props) => {
               secondary={'Download a complete copy of this project. Ideal to share or import later on.'}
             />
           </ListItem>
+          <Divider component="li" />
+          <ListItem
+            button
+            onClick={props.finishProject}
+            alignItems="flex-start"
+            disabled={!props.showExportResult}
+            key="finish-project"
+          >
+            <ListItemText
+              primary={props.reviewFinished ? "Mark screening as finished (undo)" : "Mark screening as finished"}
+              secondary={props.reviewFinished ? 'Mark the screening process as ongoing and resume reviewing.' : 'Stop reviewing and mark the screening process as finished.'}
+            />
+          </ListItem>
         </List>
       </Paper>
     </Box>
