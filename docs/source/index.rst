@@ -38,6 +38,8 @@ The source code is freely available at
 
    datasets
 
+   features
+
    extensions
 
    user_testing_algorithms
