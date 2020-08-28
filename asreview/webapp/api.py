@@ -569,7 +569,7 @@ def api_get_algorithms(project_id):  # noqa: F401
 
     except FileNotFoundError:
         # set the kwargs dict to setup kwargs
-        kargs_dict = {}
+        kargs_dict = deepcopy(app.config['asr_kwargs'])
 
     response = jsonify(kargs_dict)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -592,8 +592,14 @@ def api_set_algorithms(project_id):  # noqa: F401
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
+    ml_query_strategy = request.form.get("query_strategy", None)
+    ml_feature_extraction = request.form.get("feature_extraction", None)
     if ml_model:
         kargs_dict["model"] = ml_model
+    if ml_query_strategy:
+        kargs_dict["query_strategy"] = ml_query_strategy
+    if ml_feature_extraction:
+        kargs_dict["feature_extraction"] = ml_feature_extraction
 
     # write the kwargs to a file
     with open(get_kwargs_path(project_id), "w") as f_write:
@@ -608,21 +614,6 @@ def api_set_algorithms(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training the model
     """
-
-    # get the CLI arguments
-    asr_kwargs = deepcopy(app.config['asr_kwargs'])
-
-    # add the machine learning model to the kwargs
-    # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("model", None)
-    if ml_model:
-        asr_kwargs["model"] = ml_model
-
-    # write the kwargs to a file
-    with open(get_kwargs_path(project_id), "w") as fp:
-        json.dump(asr_kwargs, fp)
-
-    # start training the model
 
     py_exe = _get_executable()
     run_command = [
