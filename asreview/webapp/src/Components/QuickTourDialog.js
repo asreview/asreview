@@ -5,6 +5,7 @@ import {
   MobileStepper,
   IconButton,
   Paper,
+  Typography,
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
@@ -21,26 +22,40 @@ import Publish from '../images/QuickTour/7_PublishYourWork.svg';
 
 
 const quickTourSteps = [
-  {
-    label: "Welcome", imgPath: Welcome
+  { 
+    imgPath: Welcome,
+    textTitle: "Introducing\nAI-assisted reviewing",
+    text: "Take a quick tour to\nlearn the basics!",
   },
   {
-    label: "SetUp", imgPath: SetUp,
+    imgPath: SetUp,
+    textTitle: "Set up",
+    text: "Create your project\nby supplying your\ndata set",
   },
   {
-    label: "Start", imgPath: Start,
+    imgPath: Start,
+    textTitle: "Start reviewing",
+    text: "Your decisions are used to\npresent the most relevant\npublications first",
   },
   {
-    label: "Benefit", imgPath: Benefit,
+    imgPath: Benefit,
+    textTitle: "Benefit from AI-assisted\nreviewing",
+    text: "After each decision the\npredicted ranking of publications is\nupdated. The ranking can be\naccessed at all times!",
   },
   {
-    label: "DontStress", imgPath: DontStress,
+    imgPath: DontStress,
+    textTitle: "Don't stress",
+    text: "Your projects are\nsaved (locally!)\nautomatically",
   },
   {
-    label: "Done", imgPath: Done,
+    imgPath: Done,
+    textTitle: "Done? It's your choice!",
+    text: "You decide when to\nfinish the reviewing\nprocess",
   },
   {
-    label: "Publish", imgPath: Publish,
+    imgPath: Publish,
+    textTitle: "Publish your work",
+    text: "To enhance transparency,\nshare the state-file which\ncontains all your decisions,\nas well as all the technical\ninformation",
   },
 ];
 
@@ -59,11 +74,23 @@ const useStyles = makeStyles((theme) => ({
     top: theme.spacing(1),
     color: theme.palette.grey[500],
   },
+  paper: {
+    height: 440,
+  },
   img: {
-    height: 400,
+    height: 270,
     display: 'block',
     overflow: 'hidden',
     width: '100%',
+  },
+  textTitleWrap: {
+    paddingBottom: 18,
+  },
+  text: {
+    display: 'flex',
+    textShadow: "0 0 0.5px",
+    justifyContent: 'center',
+    lineHeight: '18pt',
   },
 }));
 
@@ -119,20 +146,40 @@ function QuickTourDialog(props) {
           <CloseIcon />
         </IconButton>
       </Paper>
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={activeStep}
-        onChangeIndex={handleStepChange}
-        enableMouseEvents
-      >
-        {quickTourSteps.map((step, index) => (
-          <div key={step.label}>
-            {Math.abs(activeStep - index) <= 2 ? (
-              <img className={classes.img} src={step.imgPath} alt={step.label} />
-            ) : null}
-          </div>
-        ))}
-      </SwipeableViews>
+      
+      <div className={classes.paper}>
+        <SwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={activeStep}
+          onChangeIndex={handleStepChange}
+          enableMouseEvents
+        >
+          {quickTourSteps.map((step, index) => (
+            <div>
+              {Math.abs(activeStep - index) <= 2 ? (
+                <img className={classes.img} src={step.imgPath} alt={step.textTitle}/>
+              ) : null}
+              
+              <div className={classes.textTitleWrap}>
+                <Typography variant="h6">
+                  {step.textTitle.split("\n").map((i, key) => {
+                    return <div className={classes.text} key={key}>{i}</div>;
+                  })}
+                </Typography>
+              </div>
+              
+              <div>
+                <Typography variant="subtitle1">
+                  {step.text.split("\n").map((i, key) => {
+                    return <div className={classes.text} key={key}>{i}</div>;
+                  })}
+                </Typography>
+              </div>              
+            </div>
+          ))}
+        </SwipeableViews>
+      </div>
+
       <MobileStepper
         steps={maxSteps}
         position="static"
