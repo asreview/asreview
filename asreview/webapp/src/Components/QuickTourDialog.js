@@ -20,6 +20,13 @@ import DontStress from '../images/QuickTour/5_DontStress.svg';
 import Done from '../images/QuickTour/6_DoneItsYourChoice.svg';
 import Publish from '../images/QuickTour/7_PublishYourWork.svg';
 
+import { connect } from "react-redux";
+
+const mapStateToProps = state => {
+  return {
+    asreview_version: state.asreview_version,
+  };
+};
 
 const quickTourSteps = [
   { 
@@ -114,20 +121,39 @@ function QuickTourDialog(props) {
   const handleStepChange = (step) => {
     setActiveStep(step);
   };
+  
+  // get current version of asreview (pre-release excluded)
+  const asreviewVersion = parseFloat(props.asreview_version);
 
   const closeQuickTour = () => {
-    window.localStorage.setItem("quickTour", false);
+
+    // set current version of asreview to local storage
+    window.localStorage.setItem("version", asreviewVersion);
+    // close quick tour
     setQuickTour(false);
   };
 
   React.useEffect(() => {
-    const localQuickTour = window.localStorage.getItem("quickTour");
-    const localQuickTourIsNull = localQuickTour === null;
-    if (quickTour !== localQuickTourIsNull) {
-      setQuickTour(true)
-    };
-  }, [quickTour]);
 
+    // get version stored in local storage
+    const localVersion = window.localStorage.getItem("version");
+
+    if (!isNaN(asreviewVersion) && !localVersion === null) {
+      
+      let asreviewVersionDigit = asreviewVersion.toString().split(".").map(Number);
+      let localVersionDigit = localVersion.toString().split(".").map(Number);
+
+      // compare current version and version stored in local storage
+      // if current version (major/minor) is newer, show quick tour
+      if (asreviewVersionDigit[0] > localVersionDigit[0] | asreviewVersionDigit[1] > localVersionDigit[1]) {
+        setQuickTour(true);
+      };
+      // if no version stored in local storage, show quick tour
+    } else if (localVersion === null) {
+      setQuickTour(true);
+    };
+
+  }, [asreviewVersion]);
 
   return (
     <Dialog
@@ -155,7 +181,7 @@ function QuickTourDialog(props) {
           enableMouseEvents
         >
           {quickTourSteps.map((step, index) => (
-            <div>
+            <div key={step.textTitle}>
               {Math.abs(activeStep - index) <= 2 ? (
                 <img className={classes.img} src={step.imgPath} alt={step.textTitle}/>
               ) : null}
@@ -201,4 +227,4 @@ function QuickTourDialog(props) {
   );
 }
 
-export default QuickTourDialog;
+export default connect(mapStateToProps)(QuickTourDialog);
