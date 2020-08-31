@@ -609,21 +609,7 @@ def api_start(project_id):  # noqa: F401
     """Start training the model
     """
 
-    # get the CLI arguments
-    asr_kwargs = deepcopy(app.config['asr_kwargs'])
-
-    # add the machine learning model to the kwargs
-    # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("model", None)
-    if ml_model:
-        asr_kwargs["model"] = ml_model
-
-    # write the kwargs to a file
-    with open(get_kwargs_path(project_id), "w") as fp:
-        json.dump(asr_kwargs, fp)
-
     # start training the model
-
     py_exe = _get_executable()
     run_command = [
         py_exe,
