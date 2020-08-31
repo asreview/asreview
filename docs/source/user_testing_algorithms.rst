@@ -125,7 +125,8 @@ PTSD
 
 Hall
 ~~~~
-
+.. figure:: ../images/gifs/software_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the software dataset
 
 ACE
 ~~~
