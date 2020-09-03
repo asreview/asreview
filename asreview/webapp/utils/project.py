@@ -345,6 +345,20 @@ def remove_from_pool(project_id, paper_i, raise_on_missing=False):
     write_pool(project_id, pool_idx)
 
 
+def get_random_from_pool(project_id):
+
+    lock_fp = get_lock_path(project_id)
+    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+        pool = read_pool(project_id)
+
+    try:
+        pool_random = np.random.choice(pool, 1, replace=False)[0]
+    except Exception:
+        raise ValueError("Not enough random indices to sample from.")
+
+    return pool_random
+
+
 def add_to_labeled(project_id, paper_i, label):
 
     labeled = read_label_history(project_id)

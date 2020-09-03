@@ -48,6 +48,7 @@ from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
+from asreview.webapp.utils.project import get_random_from_pool
 from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
@@ -520,26 +521,7 @@ def api_random_prior_papers(project_id):  # noqa: F401
     the already labeled items.
     """
 
-    lock_fp = get_lock_path(project_id)
-    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        pool = read_pool(project_id)
-
-#     with open(get_labeled_path(project_id, 0), "r") as f_label:
-#         prior_labeled = json.load(f_label)
-
-    # excluded the already labeled items from our random selection.
-#     prior_labeled_index = [int(label) for label in prior_labeled.keys()]
-#     pool = [i for i in pool if i not in prior_labeled_index]
-
-    # sample from the pool (this is already done atm of initializing
-    # the pool. But doing it again because a double shuffle is always
-    # best)
-
-    try:
-        pool_random = np.random.choice(pool, 1, replace=False)[0]
-    except Exception:
-        raise ValueError("Not enough random indices to sample from.")
-
+    pool_random = get_random_from_pool(project_id)
     record = read_data(project_id).record(pool_random)
 
     payload = {"result": []}
