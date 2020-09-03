@@ -316,9 +316,19 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         subprocess.Popen(run_command)
 
 
-def move_label_from_pool_to_labeled(project_id, paper_i, label):
+def add_to_pool(project_id, paper_i):
 
-    print(f"Move {paper_i} from pool to labeled")
+    # load the papers from the pool
+    pool_list = read_pool(project_id)
+    pool_list.append(paper_i)
+
+    # write the papers to the label dataset
+    write_pool(project_id, pool_list)
+
+
+def remove_from_pool(project_id, paper_i, raise_on_missing=False):
+
+    logging.info(f"Remove {paper_i} from pool")
 
     # load the papers from the pool
     pool_idx = read_pool(project_id)
@@ -327,23 +337,24 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     try:
         pool_idx.remove(int(paper_i))
     except (IndexError, ValueError):
-        print(f"Failed to remove {paper_i} from the pool.")
+        logging.info(f"{paper_i} not found in pool")
+        if raise_on_missing:
+            raise IndexError(f"{paper_i} not found in pool")
         return
 
     write_pool(project_id, pool_idx)
 
-    # Add the paper to the reviewed papers.
+
+def add_to_labeled(project_id, paper_i, label):
+
     labeled = read_label_history(project_id)
     labeled.append([int(paper_i), int(label)])
     write_label_history(project_id, labeled)
 
 
-def move_label_from_labeled_to_pool(project_id, paper_i):
+def remove_from_labeled(project_id, paper_i):
 
-    print(f"Move {paper_i} from labeled to pool")
-
-    # load the papers from the pool
-    pool_list = read_pool(project_id)
+    logging.info(f"Remove {paper_i} from labeled")
 
     # Add the paper to the reviewed papers.
     labeled_list = read_label_history(project_id)
@@ -356,13 +367,22 @@ def move_label_from_labeled_to_pool(project_id, paper_i):
         item_label = int(item_label)
         paper_i = int(paper_i)
 
-        if paper_i == item_id:
-            pool_list.append(item_id)
-        else:
+        if paper_i != item_id:
             labeled_list_new.append([item_id, item_label])
-
-    # write the papers to the label dataset
-    write_pool(project_id, pool_list)
 
     # load the papers from the pool
     write_label_history(project_id, labeled_list_new)
+
+
+def move_label_from_pool_to_labeled(project_id, paper_i, label):
+
+    remove_from_labeled(project_id, paper_i)
+
+    add_to_labeled(project_id, paper_i, label)
+
+
+def move_label_from_labeled_to_pool(project_id, paper_i):
+
+    remove_from_labeled(project_id, paper_i)
+
+    add_to_pool(project_id, paper_i)
