@@ -411,7 +411,7 @@ def get_labeled_labels(project_id):
 
 def move_label_from_pool_to_labeled(project_id, paper_i, label):
 
-    remove_from_labeled(project_id, paper_i)
+    remove_from_pool(project_id, paper_i)
 
     add_to_labeled(project_id, paper_i, label)
 
