@@ -31,8 +31,6 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
-from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_kwargs_path
@@ -48,6 +46,8 @@ from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
+from asreview.webapp.utils.project import get_labeled
+from asreview.webapp.utils.project import get_labeled_labels
 from asreview.webapp.utils.project import get_random_from_pool
 from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import init_project
@@ -471,9 +471,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     lock_fp = get_lock_path(project_id)
     with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        label_history = read_label_history(project_id, subset=subset)
-
-    indices = [x[0] for x in label_history]
+        indices, labeled = get_labeled(project_id)
 
     records = read_data(project_id).record(indices)
 
@@ -486,7 +484,7 @@ def api_get_prior(project_id):  # noqa: F401
             "abstract": record.abstract,
             "authors": record.authors,
             "keywords": record.keywords,
-            "included": int(label_history[i][1])
+            "included": int(labeled[i])
         })
 
     response = jsonify(payload)
@@ -500,9 +498,9 @@ def api_get_prior_stats(project_id):  # noqa: F401
     """
     lock_fp = get_lock_path(project_id)
     with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        label_history = read_label_history(project_id)
+        label_history = get_labeled_labels(project_id)
 
-    counter_prior = Counter([x[1] for x in label_history])
+    counter_prior = Counter(label_history)
 
     response = jsonify({
         "n_prior": len(label_history),
@@ -833,10 +831,7 @@ def api_get_progress_history(project_id):
     """Get progress history on the article"""
 
     # get label history
-    labeled = read_label_history(project_id)
-    data = []
-    for [key, value] in labeled:
-        data.append(value)
+    data = get_labeled_labels(project_id)
 
     # create a dataset with the rolling mean of every 10 papers
     df = pd.DataFrame(data, columns=["Relevant"]).rolling(10, min_periods=1).mean()
@@ -864,10 +859,7 @@ def api_get_progress_efficiency(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
     statistics = get_data_statistics(project_id)
-    labeled = read_label_history(project_id)
-    data = []
-    for [key, value] in labeled:
-        data.append(value)
+    data = get_labeled_labels(project_id)
 
     # create a dataset with the cumulative number of inclusions
     df = pd.DataFrame(data, columns=["Relevant"]).cumsum()

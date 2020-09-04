@@ -388,6 +388,27 @@ def remove_from_labeled(project_id, paper_i):
     write_label_history(project_id, labeled_list_new)
 
 
+def get_labeled(project_id):
+
+    label_history = read_label_history(project_id)
+
+    return [x[0] for x in label_history], [x[1] for x in label_history]
+
+
+def get_labeled_indices(project_id, subset=None):
+
+    label_history = read_label_history(project_id, subset=subset)
+
+    return [x[0] for x in label_history]
+
+
+def get_labeled_labels(project_id):
+
+    label_history = read_label_history(project_id)
+
+    return [x[1] for x in label_history]
+
+
 def move_label_from_pool_to_labeled(project_id, paper_i, label):
 
     remove_from_labeled(project_id, paper_i)
