@@ -615,6 +615,7 @@ def api_start(project_id):  # noqa: F401
     """Start training the model
     """
 
+    # start training the model
     py_exe = _get_executable()
     run_command = [
         py_exe,
