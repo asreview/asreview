@@ -34,6 +34,6 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
         "--port",
         default=PORT_NUMBER,
         type=int,
-        help="The port the server will listen on")
+        help="The port the server will listen on.")
 
     return parser
