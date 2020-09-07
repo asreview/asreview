@@ -31,6 +31,10 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
+from asreview.webapp.utils.managers import get_labeled
+from asreview.webapp.utils.managers import get_labeled_labels
+from asreview.webapp.utils.managers import get_random_from_pool
+from asreview.webapp.utils.managers import move_label_from_labeled_to_pool
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_kwargs_path
@@ -46,14 +50,11 @@ from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
-from asreview.webapp.utils.project import get_labeled
-from asreview.webapp.utils.project import get_labeled_labels
-from asreview.webapp.utils.project import get_random_from_pool
+
 from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
-from asreview.webapp.utils.project import move_label_from_labeled_to_pool
 from asreview.webapp.utils.validation import check_dataset
 
 
@@ -519,7 +520,10 @@ def api_random_prior_papers(project_id):  # noqa: F401
     the already labeled items.
     """
 
-    pool_random = get_random_from_pool(project_id)
+    lock_fp = get_lock_path(project_id)
+    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+        pool_random = get_random_from_pool(project_id)
+
     record = read_data(project_id).record(pool_random)
 
     payload = {"result": []}

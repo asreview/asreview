@@ -50,6 +50,20 @@ def write_proba(project_id, proba):
         json.dump(proba, f)
 
 
+def _convert_labeled_raw(data):
+
+    # check for old API structure
+    if all(map(lambda x: isinstance(x, list) & (len(x) == 2), data)):
+        return [{"index": i, "label": l} for i, l in data]
+
+    return data
+
+
+def _validate_labeled_raw(data):
+    if not all(map(lambda x: x.keys() in ["index", "label"], data)):
+        raise ValueError("Unknown structure of labeled dataset")
+
+
 def read_label_history(project_id, subset=None):
     """Get all the newly labeled papers from the file.
 
@@ -59,51 +73,13 @@ def read_label_history(project_id, subset=None):
     try:
         with open(get_labeled_path(project_id), "r") as fp:
             labeled = json.load(fp)
-
+            labeled = _convert_labeled_raw(labeled)
         if subset is None:
-            labeled = [[int(idx), int(label)] for idx, label in labeled]
+            return labeled
         elif subset in ["included", "relevant"]:
-            labeled = [
-                [int(idx), int(label)]
-                for idx, label in labeled if int(label) == 1
-            ]
+            return filter(lambda x: int(x["label"]) == 1, labeled)
         elif subset in ["excluded", "irrelevant"]:
-            labeled = [
-                [int(idx), int(label)]
-                for idx, label in labeled if int(label) == 0
-            ]
-        else:
-            raise ValueError(f"Subset value '{subset}' not found.")
-
-    except FileNotFoundError:
-        # file not found implies that there is no file written yet
-        labeled = []
-
-    return labeled
-
-
-def read_label_history_new(project_id, subset=None):
-    """Get all the newly labeled papers from the file.
-
-    Make sure to lock the "active" lock.
-    """
-
-    try:
-        with open(get_labeled_path(project_id), "r") as fp:
-            labeled = json.load(fp)
-
-        if subset is None:
-            labeled = [[int(idx), int(label)] for idx, label in labeled]
-        elif subset in ["included", "relevant"]:
-            labeled = [
-                [int(idx), int(label)]
-                for idx, label in labeled if int(label) == 1
-            ]
-        elif subset in ["excluded", "irrelevant"]:
-            labeled = [
-                [int(idx), int(label)]
-                for idx, label in labeled if int(label) == 0
-            ]
+            return filter(lambda x: int(x["label"]) == 0, labeled)
         else:
             raise ValueError(f"Subset value '{subset}' not found.")
 
