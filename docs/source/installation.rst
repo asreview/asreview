@@ -60,7 +60,7 @@ started as well via Docker like this:
 
 .. code:: bash
 
-   docker run -p 5000:5000 UtrechtUniversity/asreview
+   docker run -p 5000:5000 asreview/asreview
 
 This will start the ASReview LAB server on port 5000 with default
 command line options and make it accessible to the host at
@@ -69,7 +69,7 @@ afterwards, like this:
 
 .. code:: bash
 
-   docker run -p 9000:9000 UtrechtUniversity/asreview  --port 9000
+   docker run -p 9000:9000 asreview/asreview  --port 9000
 
 For more information, see the `README in the docker folder <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
 
