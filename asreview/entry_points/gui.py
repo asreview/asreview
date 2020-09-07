@@ -3,7 +3,7 @@ from asreview.entry_points.base import _base_parser
 
 
 DESCRIPTION_ORACLE = """
-ASReview App - Interactive machine learning for systematic reviews.
+ASReview LAB - Active learning for Systematic Reviews.
 """
 
 HOST_NAME = "localhost"

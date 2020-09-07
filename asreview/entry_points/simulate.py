@@ -35,7 +35,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
 
 DESCRIPTION_SIMULATE = """
-Automated Systematic Review (ASReview) for simulation runs.
+ASReview for simulation.
 
 The simulation modus is used to measure the performance of our
 software on existing systematic reviews. The software shows how many
