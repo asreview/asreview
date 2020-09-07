@@ -21,8 +21,8 @@ KERAS_MODELS = ["lstm_base", "lstm_pool"]
 
 # CLI defaults
 DEFAULT_MODEL = "nb"
-DEFAULT_QUERY_STRATEGY = "max_random"
-DEFAULT_BALANCE_STRATEGY = "triple"
+DEFAULT_QUERY_STRATEGY = "max"
+DEFAULT_BALANCE_STRATEGY = "double"
 DEFAULT_FEATURE_EXTRACTION = "tfidf"
 DEFAULT_N_INSTANCES = 1
 DEFAULT_N_PRIOR_INCLUDED = 1
@@ -37,7 +37,7 @@ LOGGER_EXTENSIONS = STATE_EXTENSIONS
 COLUMN_DEFINITIONS = [
     ["final_included", "label", "label_included", "included_label",
      "included_final", "included", "included_flag", "include"],
-    ["abstract_included", "included_abstract", "included_after_abstract"],
+    ["abstract_included", "included_abstract", "included_after_abstract", "label_abstract_screening"],
     ['title', 'primary_title'],
     ['authors', 'author names', 'first_authors'],
     ['abstract', 'abstract note'],

@@ -34,17 +34,17 @@ export default function ExitDialog(props) {
           <DialogContent dividers={true}>
             {(window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") &&
               <div>
-              <Typography>Close your browser window. Your work is saved.</Typography>
+              <Typography>Close your browser window. </Typography>
               <br/>
-              <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C).</Typography>
+              <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C). Your work is automatically saved.</Typography>
               </div>
             }
             {(window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") &&
-              <Typography>Just close the window</Typography> &
+              <Typography>Just close the window. Your work is automatically saved. </Typography> &
               <div>
-                <Typography>Close your browser window. Your work is saved.</Typography>
+                <Typography>Close your browser window. </Typography>
                 <br/>
-                <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C).</Typography>
+                <Typography>For a complete shutdown, please close your terminal or CMD.exe as well (CTRL+C). Your work is automatically saved.</Typography>
               </div>
             }
           </DialogContent>

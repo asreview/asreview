@@ -1,81 +1,69 @@
-import React, {
-  useState
-} from 'react'
+import React from 'react'
 import {
   CssBaseline,
   createMuiTheme
 } from '@material-ui/core'
-import { MuiThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
 import './App.css';
 
-import brown from '@material-ui/core/colors/brown';
 import {
   Header,
   ReviewZone,
-  HistoryDialog,
   ExportDialog,
 }
 from './Components'
-import PreReviewZone from './PreReviewComponents/PreReviewZone'
+import {
+  PreReviewZone,
+  StartReview,
+  ProjectPage,
+} from './PreReviewComponents'
 import ReviewZoneComplete from './PostReviewComponents/ReviewZoneComplete'
 import Projects from './Projects'
 import SettingsDialog from './SettingsDialog'
 import ExitDialog from './ExitDialog'
 import WelcomeScreen from './WelcomeScreen'
+import {
+  useDarkMode,
+  useTextSize,
+  useUndoEnabled,
+  useKeyPressEnabled,
+} from './hooks/SettingsHooks'
 
 import 'typeface-roboto'
 
+import { connect } from "react-redux";
+
+// redux config
+import { setAppState } from './redux/actions'
 
 
-const App = () => {
+const mapStateToProps = state => {
+  return {
+    app_state: state.app_state,
+    project_id: state.project_id,
+  };
+};
 
-  // We keep the theme in app state
-  const [theme, setTheme] = useState({
-    palette: {
-      type: "light",
-      primary: brown,
-    },
-  });
 
-  // we generate a MUI-theme from state's theme object
-  const muiTheme = createMuiTheme(theme);
+function mapDispatchToProps(dispatch) {
+    return({
+        setAppState: (app_state) => {dispatch(setAppState(app_state))}
+    })
+}
 
-  const [appState, setAppState] = React.useState({
-    'step': 'boot',
-    'reviewDrawerOpen': false,
-  });
+
+const App = (props) => {
+
+  const [theme, toggleDarkMode] = useDarkMode()
+  const muiTheme = createMuiTheme(theme)
+
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
-  const [openHistory, setHistoryOpen] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
-  const [textSize, setTextSize] = React.useState('Normal');
-
-  const handleAppState = (step) => {
-
-    if (step === 'review'){
-      setAppState({
-        'step': 'review',
-        'reviewDrawerOpen': true,
-      })
-    } else {
-      setAppState({
-        'step': step,
-        'reviewDrawerOpen': false,
-      })
-    }
-  }
-
-  // we change the palette type of the theme in state
-  const toggleDarkTheme = () => {
-    let newPaletteType = theme.palette.type === "light" ? "dark" : "light";
-    setTheme({
-      palette: {
-        type: newPaletteType,
-        primary: brown
-      }
-    });
-  };
+  const [textSize, handleTextSizeChange] = useTextSize();
+  const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
+  const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const toggleAuthors = () => {
     setAuthors(a => (!a));
@@ -90,14 +78,6 @@ const App = () => {
   };
 
 
-  const handleHistoryOpen = () => {
-    setHistoryOpen(true);
-  };
-
-  const handleHistoryClose = () => {
-    setHistoryOpen(false);
-  };
-
   const toggleExit = () => {
     setExit(a => (!a));
   };
@@ -106,72 +86,62 @@ const App = () => {
     setExportResult(a => (!a));
   };
 
-  const handleReviewDrawer = (show) => {
-    setAppState({
-      'step': appState['step'],
-      'reviewDrawerOpen': show,
-    })
-  }
-
-  const handleTextSizeChange = (event) => {
-    setTextSize(event.target.value);
-  };
-
-  console.log("Current step: " + appState['step'])
-
   return (
-      <MuiThemeProvider theme={muiTheme}>
+      <ThemeProvider theme={muiTheme}>
       <CssBaseline/>
-      {appState['step'] === 'boot' &&
-      <WelcomeScreen
-        handleAppState={handleAppState}
-      />
+      {props.app_state === 'boot' &&
+      <WelcomeScreen/>
       }
-      {appState['step'] !== 'boot' &&
+      {props.app_state !== 'boot' &&
       <Header
 
-        /* Handle the app state */
-        appState={appState['step']}
-        handleAppState={handleAppState}
-
         /* Handle the app review drawer */
-        reviewDrawerState={appState['reviewDrawerOpen']}
-        handleReviewDrawer={handleReviewDrawer}
-
-        toggleDarkTheme={toggleDarkTheme}
+        toggleExportResult={toggleExportResult}
+        toggleDarkMode={toggleDarkMode}
         handleClickOpen={handleClickOpen}
-        handleHistoryOpen={handleHistoryOpen}
         handleTextSizeChange={handleTextSizeChange}
         toggleExit={toggleExit}
+      />
+      }
+
+      {props.app_state === 'projects' &&
+      <Projects
+        handleAppState={props.setAppState}
+      />
+      }
+
+      {props.app_state === 'project-page' &&
+      <ProjectPage
+        handleAppState={props.setAppState}
         toggleExportResult={toggleExportResult}
       />
       }
 
-      {appState['step'] === 'projects' &&
-      <Projects
-        handleAppState={handleAppState}
-      />
-      }
-
-      {appState['step'] === 'review-init' &&
+      {props.app_state === 'review-init' &&
       <PreReviewZone
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
       />
       }
 
-      {appState['step'] === 'review' &&
+      {props.app_state === 'train-first-model' &&
+      <StartReview
+        handleAppState={props.setAppState}
+      />
+      }
+
+      {props.app_state === 'review' &&
       <ReviewZone
-        handleAppState={handleAppState}
-        reviewDrawerState={appState['reviewDrawerOpen']}
-        handleReviewDrawer={handleReviewDrawer}
+        handleAppState={props.setAppState}
         showAuthors={authors}
         textSize={textSize}
+        undoEnabled={undoEnabled}
+        keyPressEnabled={keyPressEnabled}
       />
       }
 
-      {appState['step'] === 'review-complete' &&
+      {props.app_state === 'review-complete' &&
       <ReviewZoneComplete
-        handleAppState={handleAppState}
+        handleAppState={props.setAppState}
         toggleExportResult={toggleExportResult}
       />
       }
@@ -182,14 +152,14 @@ const App = () => {
         handleClose={handleClose}
         handleTextSizeChange={handleTextSizeChange}
         textSize={textSize}
-        toggleDarkTheme={toggleDarkTheme}
+        toggleDarkMode={toggleDarkMode}
         toggleAuthors={toggleAuthors}
         onDark={theme}
         showAuthors={authors}
-      />
-      <HistoryDialog
-        openHistory={openHistory}
-        handleHistoryClose={handleHistoryClose}
+        toggleUndoEnabled={toggleUndoEnabled}
+        undoEnabled={undoEnabled}
+        toggleKeyPressEnabled={toggleKeyPressEnabled}
+        keyPressEnabled={keyPressEnabled}
       />
       <ExitDialog
         toggleExit={toggleExit}
@@ -199,8 +169,11 @@ const App = () => {
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
       />
-    </MuiThemeProvider>
+    </ThemeProvider>
   );
 }
 
-export default App;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

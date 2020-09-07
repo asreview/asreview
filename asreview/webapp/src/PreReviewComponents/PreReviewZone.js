@@ -1,23 +1,23 @@
-import React from 'react'
+import React, {useRef, useEffect, useCallback}  from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
   Box,
+  Button,
   Container,
-  Stepper,
-  Step,
-  StepLabel,
 } from '@material-ui/core';
 import {
-  PriorInclusions,
-  PriorExclusions,
-  ProjectInit,
+  PriorKnowledge,
   ProjectUpload,
-  StartReview,
+  ProjectAlgorithms,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
 
-import '../PreReviewComponents/PreReviewZone.css'
+import { connect } from "react-redux";
+
+import axios from 'axios'
+
+import { api_url, mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -51,91 +51,169 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
-
+  nextButton: {
+    margin: '36px 0px 24px 12px',
+    float: 'right',
+  },
 }));
 
 const PreReviewZone = (props) => {
+
   const classes = useStyles();
 
-  // const [activeStep, setActiveStep] = React.useState(
-  //   {'step': 0, 'animation': true}
-  // );
+  const EndRef = useRef(null)
 
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [state, setState] = React.useState({
+    new: (props.project_id === null),
+    step: (props.project_id === null) ? 0 : null,
+    ready: false
+  });
 
-  const handleNext = () => {
-    setActiveStep(prevActiveStep => prevActiveStep + 1);
+  const handleNext = (step_i=state.step) => {
+
+    if (state.step <= step_i){
+      handleStep(state.step + 1)
+    }
   };
+
+  const setNext = useCallback(ready => {
+    setState({
+      new: state.new,
+      step: state.step,
+      ready: ready,
+    });
+  }, [state.new, state.step])
+
+  const handleStep = (index) => {
+
+    setState({
+      new: state.new,
+      step: index,
+      ready: state.ready,
+    });
+
+  }
+
+  const scrollToBottom = () => {
+    EndRef.current.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+
+    const fetchProjectInfo = async () => {
+
+      // contruct URL
+      const url = api_url + "project/" + props.project_id + "/info";
+
+      axios.get(url)
+        .then((result) => {
+
+          let set_step = 1;
+          if (result.data["projectHasDataset"]){
+            set_step = 2;
+          }
+          if (result.data["projectHasPriorKnowledge"]){
+            set_step = 3;
+          }
+
+          // set the project step
+          setState({
+            new: state.new,
+            step: set_step,
+            ready: state.ready
+          })
+
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    };
+
+    // run if the state is "lock"
+    if (!state.new){
+        fetchProjectInfo();
+    }
+
+  }, [state.new, state.ready, props.project_id]);
 
   return (
 
 
     <Box className={classes.box}>
-    {activeStep !== 5 &&
-      <Container maxWidth='md'>
-        <div className={classes.root}>
-          <Stepper
-            activeStep={activeStep}
-            alternativeLabel
-            style={{ backgroundColor: "transparent" }}
+
+
+      {state.step !== 5 &&
+        <Container maxWidth='md'>
+
+          {(state.step >= 1 && state.step < 4) &&
+            <Box>
+              <ProjectUpload
+                init={state.new}
+                edit={state.step === 1}
+                project_id={props.project_id}
+                handleNext={handleNext}
+                handleStep={handleStep}
+                setNext={setNext}
+                scrollToBottom={scrollToBottom}
+              />
+              <div ref={EndRef} />
+            </Box>
+          }
+          {(state.step >= 2 && state.step < 4) &&
+            <Box>
+              <PriorKnowledge
+                project_id={props.project_id}
+                setNext={setNext}
+                scrollToBottom={scrollToBottom}
+              />
+              <div ref={EndRef} />
+            </Box>
+          }
+
+        {(state.step >= 3 && state.step < 4) &&
+            <Box>
+              <ProjectAlgorithms
+                project_id={props.project_id}
+                scrollToBottom={scrollToBottom}
+                handleReviewDrawer={props.handleReviewDrawer}
+              />
+              <div ref={EndRef} />
+            </Box>
+        }
+
+        {/* Go to the next step if upload was successfull */}
+        {(state.step >= 1 && state.step <3) &&
+
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={!state.ready}
+            onClick={() => handleNext(state.step)}
+            className={classes.nextButton}
           >
-            <Step key="create-project">
-              <StepLabel>Project info</StepLabel>
-            </Step>
-            <Step key="select-dataset">
-              <StepLabel>Select dataset</StepLabel>
-            </Step>
-            <Step key="select-inclusions">
-              <StepLabel>Select inclusions</StepLabel>
-            </Step>
-            <Step key="label-random">
-              <StepLabel>Label random</StepLabel>
-            </Step>
-            <Step key="start-review">
-              <StepLabel>Start reviewing</StepLabel>
-            </Step>
-          </Stepper>
-          </div>
-
-        {activeStep === 0 &&
-          <Box>
-            <ProjectInit
-              handleNext={handleNext}
-            />
-          </Box>
-        }
-        {activeStep === 1 &&
-          <Box>
-            <ProjectUpload
-              handleNext={handleNext}
-            />
-          </Box>
-        }
-        {activeStep === 2 &&
-          <Box>
-            <PriorInclusions
-              handleNext={handleNext}
-            />
-          </Box>
+            Next
+          </Button>
         }
 
-        {activeStep === 3 &&
-            <PriorExclusions
-              handleNext={handleNext}
-            />
+        {state.step === 3 &&
+
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={false}
+            onClick={props.finishProjectSetup}
+            className={classes.nextButton}
+          >
+            Finish
+          </Button>
         }
 
-      {activeStep === 4 &&
-        <StartReview
-          handleAppState={props.handleAppState}
-          handleReviewDrawer={props.handleReviewDrawer}
-        />
+        </Container>
       }
-      </Container>
-    }
+
     </Box>
 
   )
 }
 
-export default PreReviewZone;
+export default connect(mapStateToProps)(PreReviewZone);

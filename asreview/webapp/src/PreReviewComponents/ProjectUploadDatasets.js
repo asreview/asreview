@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
     right: theme.spacing(3),
   },
   cardRoot: {
-    width: 400,
+    width: 360,
     height: 250,
     display: "inline-block",
     margin: theme.spacing(2),
@@ -57,7 +57,7 @@ const Dataset = (props) => {
   }
 
   const resetState = () => {
-    setState(false);
+    // setState(false);
   }
 
   return (

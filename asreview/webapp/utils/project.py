@@ -64,15 +64,23 @@ def init_project(
         fp_data = project_dir / "data"
         fp_data.mkdir()
 
+        project_config = {
+            'version': asreview_version,  # todo: Fail without git?
+            'id': project_id,
+            'name': project_name,
+            'description': project_description,
+            'authors': project_authors,
+
+            # project related variables
+            'projectInitReady': False,
+            'reviewFinished': False,
+        }
+
         # create a file with project info
         with open(get_project_file_path(project_id), "w") as fp:
-            json.dump({
-                'version': asreview_version,  # todo: Fail without git?
-                'id': project_id,
-                'name': project_name,
-                'description': project_description,
-                'authors': project_authors
-            }, fp)
+            json.dump(project_config, fp)
+
+        return project_config
 
     except Exception as err:
         # remove all generated folders and raise error
@@ -102,17 +110,25 @@ def add_dataset_to_project(project_id, file_name):
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
+
         if as_data.labels is not None:
             unlabeled = np.where(as_data.labels == LABEL_NA)[0]
             pool_indices = as_data.record_ids[unlabeled]
+
+            label_indices_included = \
+                [[int(x), 1] for x in np.where(as_data.labels == 1)[0]]
+            label_indices_excluded = \
+                [[int(x), 0] for x in np.where(as_data.labels == 0)[0]]
+            label_indices = label_indices_included + label_indices_excluded
         else:
             pool_indices = as_data.record_ids
-        np.random.shuffle(pool_indices)
+            label_indices = []
 
+        np.random.shuffle(pool_indices)
         write_pool(project_id, pool_indices.tolist())
 
         # make a empty qeue for the items to label
-        write_label_history(project_id, [])
+        write_label_history(project_id, label_indices)
 
 
 def remove_dataset_to_project(project_id, file_name):
@@ -284,7 +300,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
             )
         else:
             move_label_from_labeled_to_pool(
-                project_id, paper_i, label
+                project_id, paper_i
             )
 
     if retrain_model:
@@ -322,7 +338,7 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     write_label_history(project_id, labeled)
 
 
-def move_label_from_labeled_to_pool(project_id, paper_i, label):
+def move_label_from_labeled_to_pool(project_id, paper_i):
 
     print(f"Move {paper_i} from labeled to pool")
 
@@ -338,6 +354,7 @@ def move_label_from_labeled_to_pool(project_id, paper_i, label):
 
         item_id = int(item_id)
         item_label = int(item_label)
+        paper_i = int(paper_i)
 
         if paper_i == item_id:
             pool_list.append(item_id)
