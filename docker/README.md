@@ -28,3 +28,16 @@ docker run -ti asreview/asreview-cli -h
 
 Then inside the container all normal asreview CLI commands can be executed. This requires very likely to mount a path from the host into Docker
 in order to exchange data files between host and container. This gets done by adding the "-v" parameter accordingly to the docker run command.
+
+
+## Tags
+
+Use the tag `latest` for the latest released version and release-x.x.x for specific
+released version. For Docker images based on the latest commit on the master branch,
+use the tag `development`. 
+
+For example:
+
+```
+docker run -p 9000:9000 asreview/asreview:development --port 9000
+```
