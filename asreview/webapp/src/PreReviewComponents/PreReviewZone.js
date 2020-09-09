@@ -95,7 +95,9 @@ const PreReviewZone = (props) => {
   }
 
   const scrollToBottom = () => {
-    EndRef.current.scrollIntoView({ behavior: "smooth" })
+    if ((EndRef !== undefined) & (EndRef.current !== null)){
+      EndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
   }
 
   useEffect(() => {
@@ -148,7 +150,7 @@ const PreReviewZone = (props) => {
           {(state.step >= 1 && state.step < 4) &&
             <Box>
               <ProjectUpload
-                new={state.new}
+                init={state.new}
                 edit={state.step === 1}
                 project_id={props.project_id}
                 handleNext={handleNext}
@@ -174,8 +176,6 @@ const PreReviewZone = (props) => {
             <Box>
               <ProjectAlgorithms
                 project_id={props.project_id}
-                init={state.new}
-                edit={state.step === 3}
                 scrollToBottom={scrollToBottom}
                 handleReviewDrawer={props.handleReviewDrawer}
               />

@@ -46,7 +46,6 @@ ASReview LAB is a user-friendly interface for screening documents and experiment
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview LAB Quick Tour")
 
-
 ## Covid-19 plugin
 
 [![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
@@ -58,7 +57,6 @@ Install the plugin with the command below.
 ```
 pip install asreview-covid19
 ```
-
 
 ## Documentation
 

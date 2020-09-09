@@ -1,19 +1,20 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 import {
   Box,
   Typography,
   Grid,
   Paper,
   Link,
-  List,
-  ListItem,
-  ListItemText,
-  Radio,
   CardHeader,
+  CardContent,
   Tooltip,
   IconButton,
   Grow,
-} from '@material-ui/core'
+  TextField,
+  MenuItem,
+} from '@material-ui/core';
+
+import Alert from '@material-ui/lab/Alert';
 
 import { brown } from '@material-ui/core/colors';
 
@@ -23,9 +24,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import {
   Help,
   useHelp,
-} from '../PreReviewComponents'
+} from '../PreReviewComponents';
 
-import axios from 'axios'
+import axios from 'axios';
 
 import { api_url } from '../globals.js';
 
@@ -34,7 +35,36 @@ import { makeStyles } from '@material-ui/core/styles';
 import './ReviewZone.css';
 
 
+const algorithmsLabel = {
+  model: [
+    {"value": "nb", "label": "Naïve Bayes"}, 
+    {"value": "svm", "label": "Support vector machines"},
+    {"value": "logistic", "label": "Logistic regression"},
+    {"value": "rf", "label": "Random forest"},
+  ],
+  query_strategy: [
+    {"value": "max", "label": "Max"},
+    {"value": "random", "label": "Random"},
+    {"value": "max_random", "label": "Mixed"},
+  ],
+  feature_extraction: [
+    {"value": "tfidf", "label": "tf-idf"},
+    {"value": "doc2vec", "label": "Doc2Vec"},
+  ],
+};
+
 const useStyles = makeStyles(theme => ({
+  root: {
+    '& .MuiTextField-root': {
+      margin: theme.spacing(1),
+      width: "30ch",
+    }
+  },
+  alert: {
+    // marginTop: theme.spacing(1),
+    marginLeft: theme.spacing(7),
+    marginRight: theme.spacing(7),
+  },
   listTitle: {
     paddingLeft: "18px",
   },
@@ -47,36 +77,51 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const defaultModels = {
-  model: "nb"
-}
+const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
 
-const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
   const classes = useStyles();
 
-  // the state contains new attribute to check for old  data
-  // or not as well as an edit attribute.
   const [state, setState] = React.useState({
-    // is this a new card? If undefined, it is assumed to be new
-    init: (init === undefined) ? true : init,
-    // open card in edit mode or not
-    edit: (edit === undefined) ? true : edit,
-  })
+    edit: false,
+  });
 
-  const [algorithms, setAlgorithms] = React.useState(
-    (init === undefined || init) ? defaultModels : null
-  );
+  const [algorithms, setAlgorithms] = React.useState(null);
 
   // help button
   const [help, openHelp, closeHelp] = useHelp();
+
+  const editAlgorithms = () => {
+    setState({
+      edit: true,
+    });
+  }
 
   // algorithm change
   const handleAlgorithmChange = (event) => {
 
     // set the algorithms state
     setAlgorithms({
-      model: event.target.value
-    })
+      ...algorithms,
+      model: event.target.value,
+    });
+
+  };
+
+  const handleQueryStrategyChange = (event) => {
+
+    setAlgorithms({
+      ...algorithms,
+      query_strategy: event.target.value,
+    });
+
+  };
+
+  const handleFeatureExtractionChange = (event) => {
+
+    setAlgorithms({
+      ...algorithms,
+      feature_extraction: event.target.value,
+    });
 
   };
 
@@ -85,7 +130,9 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
 
     if (algorithms !== null){
         var bodyFormData = new FormData();
-        bodyFormData.set('model', algorithms.model);
+        bodyFormData.set("model", algorithms.model);
+        bodyFormData.set("query_strategy", algorithms.query_strategy);
+        bodyFormData.set("feature_extraction", algorithms.feature_extraction);
 
         axios({
           method: "post",
@@ -93,13 +140,11 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
           data: bodyFormData,
           headers: {'Content-Type': 'multipart/form-data' }
         })
-        .then(function (response) {
+        .then((result) => {
           // nothing to do
-
         })
-        .catch(function (response) {
-            //handle error
-            // setError(true);
+        .catch((error) => {
+          console.log(error);
         });
     }
 
@@ -116,19 +161,7 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
 
       axios.get(url)
         .then((result) => {
-
-          if ("model" in result.data){
-            // set the project algorithms
-            setAlgorithms(result.data);
-          } else {
-            // set the state to new
-            setState({
-              init: true,
-              edit: state.edit,
-            })
-            setAlgorithms(defaultModels);
-          }
-
+          setAlgorithms(result.data);
         })
         .catch((error) => {
           console.log(error);
@@ -136,131 +169,265 @@ const ProjectAlgorithms = ({project_id, init, edit, scrollToBottom}) => {
     };
 
     // scroll into view
-    scrollToBottom()
+    scrollToBottom();
 
-    // get the values if locked
-    if (!state.init){
-        fetchAlgorithmsSettings();
-    }
+    fetchAlgorithmsSettings();
 
-  }, [state.init, state.edit, project_id, scrollToBottom]);
+  }, [project_id, scrollToBottom]);
 
   return (
     <Box>
       <Grow in={true}>
         <Paper className="Card">
-          <Box>
-            <CardHeader
+          <CardHeader
 
-              /* Algorithms card */
-              title="Select Active Learning model"
-              titleTypographyProps={{"color": "primary"}}
+            /* Algorithms card */
+            title="Select Active learning model"
+            titleTypographyProps={{"color": "primary"}}
 
-              /* The edit and help options */
-              action={
-                <Box>
-                {!state.edit &&
-                  <Tooltip title="Edit">
-
-                    <IconButton
-                      aria-label="project-algorithms-edit"
-                      onClick={() => {}}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                }
+            /* The edit and help options */
+            action={
+              <Box>
+              {!state.edit &&
+                <Tooltip title="Edit">
+                  <IconButton
+                    aria-label="project-algorithms-edit"
+                    onClick={editAlgorithms}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+              }
 
                 <Tooltip title="Help">
-
-                <IconButton
-                  onClick={openHelp}
-                  aria-label="project-algorithms-help"
-                >
-                  <HelpIcon />
-                </IconButton>
+                  <IconButton
+                    onClick={openHelp}
+                    aria-label="project-algorithms-help"
+                  >
+                    <HelpIcon />
+                  </IconButton>
                 </Tooltip>
-                </Box>
-              }
-            />
+              </Box>
+            }
+          />
 
+          {state.edit && 
+          <Box>
+            
+            {algorithms !== null && algorithms["feature_extraction"] === "doc2vec" &&
+            <div className={classes.alert}>
+              <Alert severity="info">
+                Doc2Vec requires the gensim package. Tap the help icon for more information.
+              </Alert>
+            </div>
+            }
+
+            <CardContent className="cardHighlight">
               {algorithms !== null &&
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={12}>
-                    <Typography variant="body2" className={classes.listTitle}>
-                        Select a classifier (Naïve Bayes is a fast and excellent performing classifier)
-                    </Typography>
+                    <form className={classes.root} noValidate autoComplete="off">
+                      <div>
+                        <TextField
+                          id="select-classifier"
+                          select
+                          label="Classifier"
+                          value={algorithms.model}
+                          onChange={handleAlgorithmChange}
+                        >
+                          <MenuItem
+                            checked={algorithms["model"] === "nb"}
+                            value="nb"
+                            color="default"
+                            disabled={algorithms["feature_extraction"] === "doc2vec"}
+                          >
+                            {"Naïve Bayes (default)"}
+                          </MenuItem>
 
-                    {}
-                    <List dense={true}>
-                      <ListItem>
-                        <Radio
-                          checked={algorithms["model"] === 'nb'}
-                          value="nb"
-                          color="default"
-                          inputProps={{ 'aria-label': 'Naïve Bayes' }}
-                          onChange={handleAlgorithmChange}
-                        />
-                        <ListItemText primary="Naïve Bayes" />
-                      </ListItem>
+                          <MenuItem
+                            checked={algorithms["model"] === "svm"}
+                            value="svm"
+                            color="default"
+                          >
+                            {"Support vector machines"}
+                          </MenuItem>
 
-                      <ListItem>
-                        <Radio
-                          checked={algorithms["model"] === 'svm'}
-                          value="svm"
-                          color="default"
-                          inputProps={{ 'aria-label': 'Support vector machines' }}
-                          onChange={handleAlgorithmChange}
-                        />
-                        <ListItemText primary="Support vector machines" />
-                      </ListItem>
-                      <ListItem>
-                        <Radio
-                          checked={algorithms["model"] === 'logistic'}
-                          value="logistic"
-                          color="default"
-                          inputProps={{ 'aria-label': 'Logistic regression' }}
-                          onChange={handleAlgorithmChange}
-                        />
-                        <ListItemText primary="Logistic regression" />
-                      </ListItem>
+                          <MenuItem
+                            checked={algorithms["model"] === "logistic"}
+                            value="logistic"
+                            color="default"
+                          >
+                            {"Logistic regression"}
+                          </MenuItem>
 
-                      <ListItem>
-                        <Radio
-                          checked={algorithms["model"] === 'rf'}
-                          value="rf"
-                          color="default"
-                          inputProps={{ 'aria-label': 'Random forest' }}
-                          onChange={handleAlgorithmChange}
-                        />
-                        <ListItemText primary="Random forest" />
-                      </ListItem>
-                    </List>
+                          <MenuItem
+                            checked={algorithms["model"] === "rf"}
+                            value="rf"
+                            color="default"
+                          >
+                            {"Random forest"}
+                          </MenuItem>
+                        </TextField>
+
+                        <TextField
+                          id="select-query-strategy"
+                          select
+                          label="Query strategy"
+                          value={algorithms.query_strategy}
+                          onChange={handleQueryStrategyChange}
+                        >
+                          <MenuItem
+                            checked={algorithms["query_strategy"] === "max"}
+                            value="max"
+                            color="default"
+                          >
+                            {"Max (default)"}
+                          </MenuItem>
+
+                          <MenuItem
+                            checked={algorithms["query_strategy"] === "random"}
+                            value="random"
+                            color="default"
+                          >
+                            {"Random"}
+                          </MenuItem>
+
+                          <MenuItem
+                            checked={algorithms["query_strategy"] === "max_random"}
+                            value="max_random"
+                            color="default"
+                          >
+                            {"Mixed"}
+                          </MenuItem>
+                        </TextField>
+
+                        <TextField
+                          id="select-feature-extraction"
+                          select
+                          label="Feature extraction technique"
+                          value={algorithms.feature_extraction}
+                          onChange={handleFeatureExtractionChange}
+                        >
+                          <MenuItem
+                            checked={algorithms["feature_extraction"] === "tfidf"}
+                            value="tfidf"
+                            color="default"
+                          >
+                            {"tf-idf (default)"}
+                          </MenuItem>
+
+                          <MenuItem
+                            checked={algorithms["feature_extraction"] === "doc2vec"}
+                            value="doc2vec"
+                            color="default"
+                            disabled={algorithms["model"] === "nb"}
+                          >
+                            {"Doc2Vec"}
+                          </MenuItem>
+                        </TextField>                        
+                      </div>
+                    </form>
                   </Grid>
-
                 </Grid>
               }
-              </Box>
+            </CardContent>
+          </Box>
+          }
+
+          {(!state.edit && algorithms !== null) &&
+          <Box>  
+            <CardContent className="cardHighlight">
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h5"
+                    noWrap={true}
+                    align="right"
+                  >
+                    Classifier:
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h5"
+                    noWrap={true}
+                    align="left"
+                  >
+                    {algorithmsLabel.model.find(m => m.value === algorithms["model"]).label}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h5"
+                    noWrap={true}
+                    align="right"
+                  >
+                    Query strategy:
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h5"
+                    noWrap={true}
+                    align="left"
+                  >
+                    {algorithmsLabel.query_strategy.find(m => m.value === algorithms["query_strategy"]).label}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h5"
+                    noWrap={true}
+                    align="right"
+                  >
+                    Feature extraction:
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h5"
+                    noWrap={true}
+                    align="left"
+                  >
+                    {algorithmsLabel.feature_extraction.find(m => m.value === algorithms["feature_extraction"]).label}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Box>
+          }
         </Paper>
       </Grow>
 
       <Help
         open={help}
         onClose={closeHelp}
-        title="Algorithms"
+        title="Active learning model"
         message={
           <Box>
             <Typography variant="body2" gutterBottom>
-              Several active learning models are available. The default is the Naïve Bayes which overall has the best performance.
-            </Typography>
-            <Typography variant="body2" gutterBottom>
-              Model performance differs across datasets. Doing
+              An
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/sim_overview.html#doing-the-simulation"
+                href="https://asreview.readthedocs.io/en/latest/models.html#active-learning-algorithms"
                 target="_blank"
-              >simulations
-              </Link> can be a great way to assess how well a model performs for your particular needs.
+              >active learning model
+              </Link> consists of a classifier, a feature extraction technique, a query strategy, and a balance strategy.
+              The default setup (Naïve Bayes, tf-idf, Max) overall has fast and excellent performance.
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+              Note: Doc2Vec is provided by the gensim package which needs to be installed manually. Follow the 
+              <Link
+                className={classes.link}
+                href="https://asreview.readthedocs.io/en/latest/models.html#doc2vec"
+                target="_blank"
+              >instruction
+              </Link> before using it.
             </Typography>
           </Box>
         }

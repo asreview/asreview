@@ -569,7 +569,7 @@ def api_get_algorithms(project_id):  # noqa: F401
 
     except FileNotFoundError:
         # set the kwargs dict to setup kwargs
-        kargs_dict = {}
+        kargs_dict = deepcopy(app.config['asr_kwargs'])
 
     response = jsonify(kargs_dict)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -592,8 +592,14 @@ def api_set_algorithms(project_id):  # noqa: F401
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
     ml_model = request.form.get("model", None)
+    ml_query_strategy = request.form.get("query_strategy", None)
+    ml_feature_extraction = request.form.get("feature_extraction", None)
     if ml_model:
         kargs_dict["model"] = ml_model
+    if ml_query_strategy:
+        kargs_dict["query_strategy"] = ml_query_strategy
+    if ml_feature_extraction:
+        kargs_dict["feature_extraction"] = ml_feature_extraction
 
     # write the kwargs to a file
     with open(get_kwargs_path(project_id), "w") as f_write:
@@ -609,21 +615,7 @@ def api_start(project_id):  # noqa: F401
     """Start training the model
     """
 
-    # get the CLI arguments
-    asr_kwargs = deepcopy(app.config['asr_kwargs'])
-
-    # add the machine learning model to the kwargs
-    # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("model", None)
-    if ml_model:
-        asr_kwargs["model"] = ml_model
-
-    # write the kwargs to a file
-    with open(get_kwargs_path(project_id), "w") as fp:
-        json.dump(asr_kwargs, fp)
-
     # start training the model
-
     py_exe = _get_executable()
     run_command = [
         py_exe,
@@ -797,6 +789,29 @@ def export_project(project_id):
     )
 
 
+@bp.route('/project/<project_id>/finish', methods=["GET"])
+def api_finish_project(project_id):
+    """Mark a project as finished or not"""
+
+    # read the file with project info
+    with open(get_project_file_path(project_id), "r") as fp:
+        project_info = json.load(fp)
+
+    try:
+        project_info["reviewFinished"] = not project_info["reviewFinished"]
+    except KeyError:
+        # missing key in projects created in older versions
+        project_info["reviewFinished"] = True
+
+    # update the file with project info
+    with open(get_project_file_path(project_id), "w") as fp:
+        json.dump(project_info, fp)
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 # @bp.route('/project/<project_id>/document/<doc_id>/info', methods=["GET"])
 # def api_get_article_info(project_id, doc_id=None):  # noqa: F401
 #     """Get info on the article"""
@@ -854,6 +869,29 @@ def api_get_progress_history(project_id):
         else:
             df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
             df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
+
+    df = df.round(1).to_dict(orient="records")
+
+    response = jsonify(df)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
+
+
+@bp.route('/project/<project_id>/progress_efficiency', methods=["GET"])
+def api_get_progress_efficiency(project_id):
+    """Get cumulative number of inclusions by ASReview/at random"""
+
+    statistics = get_data_statistics(project_id)
+    labeled = read_label_history(project_id)
+    data = []
+    for [key, value] in labeled:
+        data.append(value)
+
+    # create a dataset with the cumulative number of inclusions
+    df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+    df["Total"] = df.index + 1
+    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / statistics["n_rows"]).values).round()
 
     df = df.round(1).to_dict(orient="records")
 

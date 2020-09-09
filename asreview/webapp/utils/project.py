@@ -73,6 +73,7 @@ def init_project(
 
             # project related variables
             'projectInitReady': False,
+            'reviewFinished': False,
         }
 
         # create a file with project info

@@ -9,10 +9,10 @@ import {
   Grid,
 } from '@material-ui/core';
 
-
 import {
   ProgressPieChart,
   ProgressAreaChart,
+  ProgressLineChart,
 } from './SideStats'
 
 import axios from 'axios'
@@ -39,23 +39,22 @@ const useStyles = makeStyles(theme => ({
     marginLeft: -12,
   },
   paper: {
-
+    paddingTop: "24px",
+    paddingLeft: "40px",
+    paddingRight: "40px",
   },
   center: {
     marginTop: -24,
     textAlign: "center",
   },
   pieChart: {
-    paddingTop: "12px",
-    paddingLeft: "90px",
-  },
-  areaChart: {
-    paddingTop: "12px",
-    paddingRight: "64px",
-    paddingLeft: "64px",
+    width: "100%",
+    maxWidth: "245px",
+    margin: "auto",
+    display: "block",
   },
   notAvailable: {
-    paddingTop: "74px",
+    paddingTop: "54px",
     paddingBottom: "74px",
     textAlign: "center",
   },
@@ -67,6 +66,7 @@ const StatisticsZone = (props) => {
 
   const [statistics, setStatistics] = useState(null);
   const [history, setHistory] = useState([]);
+  const [efficiency, setEfficiency] = useState([]);
 
   useEffect(() => {
 
@@ -99,9 +99,23 @@ const StatisticsZone = (props) => {
         })
     }
 
+    const getProgressEfficiency = () => {
+
+      const url = api_url + `project/${props.project_id}/progress_efficiency`;
+
+      return axios.get(url)
+        .then((result) => {
+          setEfficiency(result.data)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+
     if (props.projectInitReady && !props.training){
         getProgressInfo();
         getProgressHistory();
+        getProgressEfficiency();
     }
   }, [props.projectInitReady, props.training, props.project_id]);
 
@@ -117,7 +131,7 @@ const StatisticsZone = (props) => {
       <Paper className={classes.paper}>
         {statistics !== null &&
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={4}>
               <Box className={classes.pieChart}>
                 <ProgressPieChart
                   n_included={statistics.n_included}
@@ -125,10 +139,17 @@ const StatisticsZone = (props) => {
                 />
               </Box>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box className={classes.areaChart}>
+            <Grid item xs={12} sm={4}>
+              <Box>
                 <ProgressAreaChart
                   history={history}
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Box>
+                <ProgressLineChart
+                  efficiency={efficiency}
                 />
               </Box>
             </Grid>
