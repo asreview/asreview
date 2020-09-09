@@ -3,7 +3,7 @@ from asreview.entry_points.base import _base_parser
 
 
 DESCRIPTION_ORACLE = """
-ASReview App - Interactive machine learning for systematic reviews.
+ASReview LAB - Active learning for Systematic Reviews.
 """
 
 HOST_NAME = "localhost"
@@ -34,6 +34,6 @@ def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
         "--port",
         default=PORT_NUMBER,
         type=int,
-        help="The port the server will listen on")
+        help="The port the server will listen on.")
 
     return parser
