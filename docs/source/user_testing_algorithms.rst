@@ -113,22 +113,22 @@ iteration of the software – your exclusions.
 Results
 -------
 
-For all three datasets, the animated plots below show how fast you can find the relevant papers by
-using ASReview LAB compared to random screening papers one by one.
-These animated plots are all based on a single trial per dataset in which only
-one paper was added as relevant and one as irrelevant.
+For all three datasets, the animated plots below show how fast you can find
+the relevant papers by using ASReview LAB compared to random screening papers
+one by one. These animated plots are all based on a single trial per dataset
+in which only one paper was added as relevant and one as irrelevant.
 
-PTSD
-~~~~
+**PTSD (38 inclusions out of 5,782 papers)**
+
 .. figure:: ../images/gifs/ptsd_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the ptsd dataset
 
-Hall
-~~~~
+**Hall (104 inclusions out of 8,911 papers)**
+
 .. figure:: ../images/gifs/software_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the software dataset
 
-ACE
-~~~
+**ACE (41 inclusions out of 2,544 papers)**
+
 .. figure:: ../images/gifs/ace_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the ACE dataset
