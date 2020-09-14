@@ -29,7 +29,7 @@ const mapStateToProps = state => {
 };
 
 const quickTourSteps = [
-  { 
+  {
     imgPath: Welcome,
     textTitle: "Introducing\nAI-assisted reviewing",
     text: "Take a quick tour to\nlearn the basics!",
@@ -121,14 +121,14 @@ function QuickTourDialog(props) {
   const handleStepChange = (step) => {
     setActiveStep(step);
   };
-  
+
   // get current version of asreview (pre-release excluded)
   const asreviewVersion = parseFloat(props.asreview_version);
 
   const closeQuickTour = () => {
 
     // set current version of asreview to local storage
-    window.localStorage.setItem("version", asreviewVersion);
+    window.localStorage.setItem("quickTourLatestVersion", asreviewVersion);
     // close quick tour
     setQuickTour(false);
   };
@@ -136,10 +136,10 @@ function QuickTourDialog(props) {
   React.useEffect(() => {
 
     // get version stored in local storage
-    const localVersion = window.localStorage.getItem("version");
+    const localVersion = window.localStorage.getItem("quickTourLatestVersion");
 
     if (!isNaN(asreviewVersion) && !localVersion === null) {
-      
+
       let asreviewVersionDigit = asreviewVersion.toString().split(".").map(Number);
       let localVersionDigit = localVersion.toString().split(".").map(Number);
 
@@ -172,7 +172,7 @@ function QuickTourDialog(props) {
           <CloseIcon />
         </IconButton>
       </Paper>
-      
+
       <div className={classes.paper}>
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
@@ -185,7 +185,7 @@ function QuickTourDialog(props) {
               {Math.abs(activeStep - index) <= 2 ? (
                 <img className={classes.img} src={step.imgPath} alt={step.textTitle}/>
               ) : null}
-              
+
               <div className={classes.textTitleWrap}>
                 <Typography variant="h6">
                   {step.textTitle.split("\n").map((i, key) => {
@@ -193,14 +193,14 @@ function QuickTourDialog(props) {
                   })}
                 </Typography>
               </div>
-              
+
               <div>
                 <Typography variant="subtitle1">
                   {step.text.split("\n").map((i, key) => {
                     return <div className={classes.text} key={key}>{i}</div>;
                   })}
                 </Typography>
-              </div>              
+              </div>
             </div>
           ))}
         </SwipeableViews>
