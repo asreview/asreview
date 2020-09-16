@@ -55,6 +55,10 @@ from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
 from asreview.webapp.utils.validation import check_dataset
 
+from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
+from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_N_INSTANCES
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
@@ -565,13 +569,18 @@ def api_get_algorithms(project_id):  # noqa: F401
     try:
         # open the projects file
         with open(get_kwargs_path(project_id), "r") as f_read:
-            kargs_dict = json.load(f_read)
+            kwargs_dict = json.load(f_read)
 
     except FileNotFoundError:
         # set the kwargs dict to setup kwargs
-        kargs_dict = deepcopy(app.config['asr_kwargs'])
+        kwargs_dict = deepcopy(app.config['asr_kwargs'])
+        kwargs_dict["model"] = DEFAULT_MODEL
+        kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
+        kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
+        kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
+        kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
 
-    response = jsonify(kargs_dict)
+    response = jsonify(kwargs_dict)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -583,11 +592,17 @@ def api_set_algorithms(project_id):  # noqa: F401
     try:
         # open the projects file
         with open(get_kwargs_path(project_id), "r") as f_read:
-            kargs_dict = json.load(f_read)
+            kwargs_dict = json.load(f_read)
 
     except FileNotFoundError:
         # set the kwargs dict to setup kwargs
-        kargs_dict = deepcopy(app.config['asr_kwargs'])
+        kwargs_dict = deepcopy(app.config['asr_kwargs'])
+        kwargs_dict = deepcopy(app.config['asr_kwargs'])
+        kwargs_dict["model"] = DEFAULT_MODEL
+        kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
+        kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
+        kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
+        kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
 
     # add the machine learning model to the kwargs
     # TODO@{Jonathan} validate model choice on server side
@@ -595,15 +610,15 @@ def api_set_algorithms(project_id):  # noqa: F401
     ml_query_strategy = request.form.get("query_strategy", None)
     ml_feature_extraction = request.form.get("feature_extraction", None)
     if ml_model:
-        kargs_dict["model"] = ml_model
+        kwargs_dict["model"] = ml_model
     if ml_query_strategy:
-        kargs_dict["query_strategy"] = ml_query_strategy
+        kwargs_dict["query_strategy"] = ml_query_strategy
     if ml_feature_extraction:
-        kargs_dict["feature_extraction"] = ml_feature_extraction
+        kwargs_dict["feature_extraction"] = ml_feature_extraction
 
     # write the kwargs to a file
     with open(get_kwargs_path(project_id), "w") as f_write:
-        json.dump(kargs_dict, f_write)
+        json.dump(kwargs_dict, f_write)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
