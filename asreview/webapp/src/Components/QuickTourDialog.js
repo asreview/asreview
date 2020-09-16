@@ -1,8 +1,10 @@
 import React from 'react';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import {
+  Box,
   Dialog,
   MobileStepper,
+  Button,
   IconButton,
   Paper,
   Typography,
@@ -38,37 +40,37 @@ const quickTourSteps = [
   {
     imgPath: Welcome,
     textTitle: "Introducing\nAI-assisted reviewing",
-    text: "Take a quick tour to\nlearn the basics!",
+    text: "Take a quick tour to learn the basics of systematic reviewing with ASReview!",
   },
   {
     imgPath: SetUp,
-    textTitle: "Set up",
-    text: "Create your project\nby supplying your\ndata set",
+    textTitle: "Easy project setup",
+    text: "Supply a dataset, select prior knowledge, and choose a machine learning model (optional).",
   },
   {
     imgPath: Start,
-    textTitle: "Start reviewing",
-    text: "Your decisions are used to\npresent the most relevant\npublications first",
+    textTitle: "Screen for relevant publications",
+    text: "Read the displayed publication and decide whether it is relevant or not.",
   },
   {
     imgPath: Benefit,
-    textTitle: "Benefit from AI-assisted\nreviewing",
-    text: "After each decision the\npredicted ranking of publications is\nupdated. The ranking can be\naccessed at all times!",
+    textTitle: "Benefit from AI-assisted reviewing",
+    text: "After each decision, the predicted ranking of publications is updated. In this way, you will see the relevant articles first.",
   },
   {
     imgPath: DontStress,
-    textTitle: "Don't stress",
-    text: "Your projects are\nsaved (locally!)\nautomatically",
+    textTitle: "Your projects are autosaved and stored locally",
+    text: "Your screening decisions are automatically saved on your own device.",
   },
   {
     imgPath: Done,
-    textTitle: "Done? It's your choice!",
-    text: "You decide when to\nfinish the reviewing\nprocess",
+    textTitle: "Done screening? It's your choice!",
+    text: "You decide when to finish the reviewing process.",
   },
   {
     imgPath: Publish,
-    textTitle: "Publish your work",
-    text: "To enhance transparency,\nshare the state-file which\ncontains all your decisions,\nas well as all the technical\ninformation",
+    textTitle: "Share the ASReview project file to enhance transparency",
+    text: "It contains all your decisions, as well as the technical information.",
   },
 ];
 
@@ -96,6 +98,10 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     width: '100%',
   },
+  textTitle: {
+    textAlign: "center",
+    padding: "0px 18px",
+  },
   textTitleWrap: {
     paddingBottom: 18,
   },
@@ -104,6 +110,14 @@ const useStyles = makeStyles((theme) => ({
     textShadow: "0 0 0.5px",
     justifyContent: 'center',
     lineHeight: '18pt',
+  },
+  iconButtonBack: {
+    width: '94px',
+    textAlign: 'left',
+  },
+  iconButtonNext: {
+    width: '94px',
+    textAlign: 'right',
   },
 }));
 
@@ -131,10 +145,15 @@ function QuickTourDialog(props) {
   // get current version of asreview (pre-release excluded)
   const asreviewVersion = semverValid(semverCoerce(props.asreview_version));
 
-  const closeQuickTour = () => {
+  const closeQuickTour = (hard=false) => {
 
-    // set current version of asreview to local storage
-    window.localStorage.setItem("quickTourLatestVersion", asreviewVersion);
+    console.log(hard)
+
+    // hard or soft close (permanent or not)
+    if (hard){
+      // set current version of asreview to local storage
+      window.localStorage.setItem("quickTourLatestVersion", asreviewVersion);
+    }
     // close quick tour
     setQuickTour(false);
   };
@@ -178,13 +197,13 @@ function QuickTourDialog(props) {
 
       <div className={classes.paper}>
         <SwipeableViews
-          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          axis={'x'}
           index={activeStep}
           onChangeIndex={handleStepChange}
           enableMouseEvents
         >
           {quickTourSteps.map((step, index) => (
-            <div key={step.textTitle}>
+            <div key={step.textTitle} className={classes.textTitle}>
               {Math.abs(activeStep - index) <= 2 ? (
                 <img className={classes.img} src={step.imgPath} alt={step.textTitle}/>
               ) : null}
@@ -215,14 +234,33 @@ function QuickTourDialog(props) {
         variant="dots"
         activeStep={activeStep}
         nextButton={
-          <IconButton size="small" onClick={handleNext} disabled={activeStep === maxSteps - 1}>
-            {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-          </IconButton>
+          <Box className={classes.iconButtonNext}>
+            {activeStep === maxSteps - 1 &&
+              <Button size="small" onClick={() => {closeQuickTour(true)}} disabled={activeStep === 0}>
+                Let's start!
+              </Button>
+            }
+            {activeStep !== maxSteps - 1 &&
+              <IconButton size="small" onClick={handleNext}>
+                <KeyboardArrowRight />
+              </IconButton>
+            }
+
+          </Box>
         }
         backButton={
-          <IconButton size="small" onClick={handleBack} disabled={activeStep === 0}>
-            {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-          </IconButton>
+          <Box className={classes.iconButtonBack}>
+            {activeStep === 0 &&
+              <Button size="small" onClick={closeQuickTour}>
+                Skip
+              </Button>
+            }
+            {activeStep !== 0 &&
+              <IconButton size="small" onClick={handleBack} disabled={activeStep === 0}>
+                <KeyboardArrowLeft />
+              </IconButton>
+            }
+          </Box>
         }
       />
     </div>
