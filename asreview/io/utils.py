@@ -108,6 +108,7 @@ def standardize_dataframe(df, column_spec={}):
             logging.warning("Failed to parse label column name, no labels will"
                             " be present.")
             df.rename(columns={"label": "final_included"})
+            all_column_spec.pop("final_included")
 
     # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):
