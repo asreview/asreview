@@ -104,6 +104,10 @@ def standardize_dataframe(df, column_spec={}):
             df[col] = pd.to_numeric(df[col])
         except KeyError:
             pass
+        except ValueError:
+            logging.warning("Failed to parse label column name, no labels will"
+                            " be present.")
+            df.rename(columns={"label": "final_included"})
 
     # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):

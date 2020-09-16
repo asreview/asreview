@@ -51,8 +51,10 @@ def read_ris(fp):
                 mapping = _tag_key_mapping(reverse=False)
                 entries = list(readris(bibliography_file, mapping=mapping))
                 break
-        except (UnicodeDecodeError, IOError):
+        except UnicodeDecodeError:
             pass
+        except IOError as e:
+            logging.warning(e)
 
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
