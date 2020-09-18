@@ -19,6 +19,7 @@
     "react-swipeable-views": "^0.13.9",
     "react-transition-group": "^4.3.0",
     "recharts": "^1.8.5",
+    "semver": "^7.3.2",
     "typeface-roboto": "0.0.75",
     "typescript": "^3.9.7",
     "yargs-parser": "^18.1.3"

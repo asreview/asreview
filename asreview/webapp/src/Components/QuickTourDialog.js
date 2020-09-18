@@ -10,7 +10,13 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+
 import SwipeableViews from 'react-swipeable-views';
+
+import semverValid from 'semver/functions/valid';
+import semverCoerce from 'semver/functions/coerce';
+import semverMajor from 'semver/functions/major';
+import semverMinor from 'semver/functions/minor';
 
 import Welcome from '../images/QuickTour/1_Welcome.svg';
 import SetUp from '../images/QuickTour/2_SetUp.svg';
@@ -123,7 +129,7 @@ function QuickTourDialog(props) {
   };
 
   // get current version of asreview (pre-release excluded)
-  const asreviewVersion = parseFloat(props.asreview_version);
+  const asreviewVersion = semverValid(semverCoerce(props.asreview_version));
 
   const closeQuickTour = () => {
 
@@ -136,16 +142,13 @@ function QuickTourDialog(props) {
   React.useEffect(() => {
 
     // get version stored in local storage
-    const localVersion = window.localStorage.getItem("quickTourLatestVersion");
+    const localVersion = semverValid(window.localStorage.getItem("quickTourLatestVersion"));
 
-    if (!isNaN(asreviewVersion) && !localVersion === null) {
-
-      let asreviewVersionDigit = asreviewVersion.toString().split(".").map(Number);
-      let localVersionDigit = localVersion.toString().split(".").map(Number);
+    if (!asreviewVersion === null && !localVersion === null) {
 
       // compare current version and version stored in local storage
       // if current version (major/minor) is newer, show quick tour
-      if (asreviewVersionDigit[0] > localVersionDigit[0] | asreviewVersionDigit[1] > localVersionDigit[1]) {
+      if (semverMajor(asreviewVersion) > semverMajor(localVersion) | semverMinor(asreviewVersion) > semverMinor(localVersion)) {
         setQuickTour(true);
       };
       // if no version stored in local storage, show quick tour
