@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
-
 import {
   Box,
+  Link,
 } from '@material-ui/core'
+import { Alert, AlertTitle } from '@material-ui/lab'
 
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
@@ -15,7 +16,7 @@ import { useKeyPress } from '../hooks/useKeyPress'
 import { connect } from "react-redux";
 
 import axios from 'axios'
-import { api_url } from '../globals.js';
+import { api_url, reviewDrawerWidth } from '../globals.js';
 
 // redux config
 import { toggleReviewDrawer } from '../redux/actions'
@@ -25,6 +26,18 @@ const useStyles = makeStyles({
   box: {
     paddingBottom: 30,
     overflowY: 'auto',
+  },
+  alertFullWidth: {
+    width: '100%',
+    overflowY: 'auto',
+  },
+  alertWithDrawer: {
+    width: '100%',
+    overflowY: 'auto',
+    paddingRight: reviewDrawerWidth,
+  },
+  link: {
+    paddingLeft: "3px",
   },
 });
 
@@ -288,6 +301,25 @@ const ReviewZone = (props) => {
     <Box
       className={classes.box}
     >
+      
+      {/* Alert Exploration Mode */}
+      {recordState.record !== null && recordState.record._debug_label !== null  &&
+        <div className={props.reviewDrawerOpen ? classes.alertWithDrawer : classes.alertFullWidth}>
+          <Alert severity="warning">
+            <AlertTitle>You are screening through a manually pre-labeled dataset</AlertTitle>
+            <div>
+              Relevant documents are displayed in caribbean green. Read more about
+              <Link
+                className={classes.link}
+                href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#end-user-testing"
+                target="_blank"
+              >
+                <strong>Exploration Mode</strong>
+              </Link>.
+            </div>
+          </Alert>
+        </div>
+      }
 
       {/* Article panel */}
       {recordState['isloaded'] &&
