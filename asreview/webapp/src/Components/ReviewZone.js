@@ -308,7 +308,7 @@ const ReviewZone = (props) => {
           <Alert severity="warning">
             <AlertTitle>You are screening through a manually pre-labeled dataset</AlertTitle>
             <div>
-              Relevant documents are displayed in caribbean green. Read more about
+              Relevant documents are displayed in green. Read more about
               <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#end-user-testing"
