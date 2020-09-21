@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   Box,
   Dialog,
@@ -125,7 +125,6 @@ const useStyles = makeStyles((theme) => ({
 function QuickTourDialog(props) {
 
   const classes = useStyles();
-  const theme = useTheme();
   const [activeStep, setActiveStep] = React.useState(0);
   const [quickTour, setQuickTour] = React.useState(false);
   const maxSteps = quickTourSteps.length;
