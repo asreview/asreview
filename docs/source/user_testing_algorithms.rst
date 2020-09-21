@@ -1,10 +1,10 @@
-End-user testing
+Exploration Mode
 ================
 
 This tutorial shows how the active learning software and algorithms can be
 tested. Because it is not possible to test the software by reading everything
 yourself. Therefore, ASReview implements a mode in which the relevant articles
-are displayed in red. This make decision making straightforward.
+are displayed in green. This make decision making straightforward.
 
 This tutorial assumes you have already installed Python and ASReview. If
 this is not the case, please check out the
