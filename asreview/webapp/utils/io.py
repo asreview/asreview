@@ -1,4 +1,8 @@
 import json
+import os
+import pickle
+import logging
+from pathlib import Path
 
 import numpy as np
 
@@ -10,10 +14,45 @@ from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_proba_path
 
 
-def read_data(project_id):
-    """Get ASReviewData object of the dataset"""
-    dataset = get_data_file_path(project_id)
-    return ASReviewData.from_file(dataset)
+def read_data(project_id, save_tmp=True):
+    """Get ASReviewData object from file.
+
+    Parameters
+    ----------
+    project_id: str, iterable
+        The project identifier.
+
+    Returns
+    -------
+    ASReviewData:
+        The data object for internal use in ASReview.
+
+    """
+    fp_data = get_data_file_path(project_id)
+    fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
+
+    try:
+        # get the pickle data
+        with open(fp_data_pickle, 'rb') as f_pickle_read:
+            data_obj = pickle.load(f_pickle_read)
+        return data_obj
+    except FileNotFoundError:
+        # file not available
+        data_obj = ASReviewData.from_file(fp_data)
+    except pickle.PickleError:
+        # problem loading pickle file
+        # remove the pickle file
+        os.remove(fp_data_pickle)
+
+        data_obj = ASReviewData.from_file(fp_data)
+
+    # save a pickle version
+    if save_tmp:
+        print("Store copy of data in pickle file.")
+        with open(fp_data_pickle, 'wb') as f_pickle:
+            pickle.dump(data_obj, f_pickle)
+
+    return data_obj
 
 
 def read_pool(project_id):
