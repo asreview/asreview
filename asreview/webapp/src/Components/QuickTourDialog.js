@@ -17,8 +17,8 @@ import SwipeableViews from 'react-swipeable-views';
 
 import semverValid from 'semver/functions/valid';
 import semverCoerce from 'semver/functions/coerce';
-import semverMajor from 'semver/functions/major';
-import semverMinor from 'semver/functions/minor';
+// import semverMajor from 'semver/functions/major';
+// import semverMinor from 'semver/functions/minor';
 
 import Welcome from '../images/QuickTour/1_Welcome.svg';
 import SetUp from '../images/QuickTour/2_SetUp.svg';
@@ -146,8 +146,6 @@ function QuickTourDialog(props) {
 
   const closeQuickTour = (hard=false) => {
 
-    console.log(hard)
-
     // hard or soft close (permanent or not)
     if (hard){
       // set current version of asreview to local storage
@@ -162,15 +160,12 @@ function QuickTourDialog(props) {
     // get version stored in local storage
     const localVersion = semverValid(window.localStorage.getItem("quickTourLatestVersion"));
 
-    if (!asreviewVersion === null && !localVersion === null) {
-
+    if (asreviewVersion !== null && localVersion !== null) {
       // compare current version and version stored in local storage
-      // if current version (major/minor) is newer, show quick tour
-      if (semverMajor(asreviewVersion) > semverMajor(localVersion) | semverMinor(asreviewVersion) > semverMinor(localVersion)) {
-        setQuickTour(true);
-      };
-      // if no version stored in local storage, show quick tour
+      // see https://www.npmjs.com/package/semver#ranges
+
     } else if (localVersion === null) {
+      // if no version stored in local storage, show quick tour
       setQuickTour(true);
     };
 

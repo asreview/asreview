@@ -10,7 +10,6 @@ import {
   Header,
   ReviewZone,
   ExportDialog,
-  QuickTourDialog,
 }
 from './Components'
 import {
@@ -148,7 +147,6 @@ const App = (props) => {
       }
 
     {/* Dialogs */}
-      <QuickTourDialog/>
       <SettingsDialog
         openSettings={openSettings}
         handleClose={handleClose}
