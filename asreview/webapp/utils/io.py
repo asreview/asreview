@@ -21,6 +21,8 @@ def read_data(project_id, save_tmp=True):
     ----------
     project_id: str, iterable
         The project identifier.
+    save_tmp: bool
+        Save the file to a pickle file if not available.
 
     Returns
     -------
