@@ -127,6 +127,7 @@ setup(
             'simulate=asreview.entry_points:SimulateEntryPoint',
             'oracle=asreview.entry_points:GUIEntryPoint',
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
+            'batch = asreview.entry_points:BatchEntryPoint',
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
