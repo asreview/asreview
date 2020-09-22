@@ -1,11 +1,12 @@
 from copy import deepcopy
-from pathlib import Path
-
-import queue
-import numpy as np
 from multiprocessing import Queue
 from multiprocessing import cpu_count
 from multiprocessing import Process
+from pathlib import Path
+import queue
+
+import numpy as np
+
 from asreview.review.factory import review_simulate
 
 

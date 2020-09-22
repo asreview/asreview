@@ -1,6 +1,6 @@
+from asreview.batch import batch_simulate
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.simulate import _simulate_parser
-from asreview.batch import batch_simulate
 
 
 class BatchEntryPoint(BaseEntryPoint):
