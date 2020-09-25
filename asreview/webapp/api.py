@@ -753,17 +753,35 @@ def export_results(project_id):
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
 def export_project(project_id):
-    """Export a zipped project file"""
+    """Export the project file.
 
+    The ASReview project file is a file with .asreview extension.
+    The ASReview project file is a zipped file and contains
+    all information to continue working on the project as well
+    as the orginal dataset.
+    """
+
+    # create a temp folder to zip
     tmpdir = tempfile.TemporaryDirectory()
 
-    shutil.make_archive(
-        Path(tmpdir.name, f"export_{project_id}"), "zip",
-        get_project_path(project_id))
-    fp_tmp_export = Path(tmpdir.name, f"export_{project_id}.zip")
+    # copy the source tree, but ignore pickle files
+    shutil.copytree(
+        f"/Users/jonathan/.asreview/{project_id}",
+        Path(tmpdir.name, project_id),
+        ignore=shutil.ignore_patterns('*.pickle')
+    )
 
+    # create the archive
+    shutil.make_archive(
+        Path(tmpdir.name, project_id),
+        "zip",
+        root_dir=Path(tmpdir.name),
+        base_dir=project_id
+    )
+
+    # return the project file to the user
     return send_file(
-        fp_tmp_export,
+        str(Path(tmpdir.name, f"{project_id}.zip")),
         as_attachment=True,
         attachment_filename=f"{project_id}.asreview",
         cache_timeout=0)
