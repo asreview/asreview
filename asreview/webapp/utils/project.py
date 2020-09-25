@@ -96,7 +96,7 @@ def add_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active", project_id=project_id):
         # open the projects file
         with open(project_file_path, "r") as f_read:
             project_dict = json.load(f_read)
@@ -138,7 +138,7 @@ def remove_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
@@ -207,7 +207,7 @@ def get_instance(project_id):
 
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active", project_id=project_id):
         pool_idx = read_pool(project_id)
 
     if len(pool_idx) > 0:
@@ -220,7 +220,7 @@ def get_instance(project_id):
 def get_statistics(project_id):
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active", project_id=project_id):
         # get the index of the active iteration
         label_history = read_label_history(project_id)
         current_labels = read_current_labels(
@@ -248,7 +248,7 @@ def get_statistics(project_id):
 def export_to_string(project_id, export_type="csv"):
     fp_lock = get_lock_path(project_id)
     as_data = read_data(project_id)
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active", project_id=project_id):
         proba = read_proba(project_id)
         if proba is None:
             proba = np.flip(np.arange(len(as_data)))
@@ -288,7 +288,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
         # get the index of the active iteration
         if int(label) in [0, 1]:

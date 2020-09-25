@@ -95,7 +95,6 @@ def api_get_projects():  # noqa: F401
     """Get info on the article"""
 
     projects = list_asreview_project_paths()
-    logging.debug(list_asreview_project_paths)
 
     project_info = []
     for proj in projects:
@@ -108,14 +107,13 @@ def api_get_projects():  # noqa: F401
             if "projectInitReady" not in res:
                 res["projectInitReady"] = True
 
+            logging.info("Project found: {}".format(res["id"]))
             project_info.append(res)
 
         except Exception as err:
             logging.error(err)
 
-    response = jsonify({
-        "result": project_info
-    })
+    response = jsonify({"result": project_info})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
@@ -138,8 +136,7 @@ def api_init_project():  # noqa: F401
             project_id,
             project_name=project_name,
             project_description=project_description,
-            project_authors=project_authors
-        )
+            project_authors=project_authors)
 
         response = jsonify(project_config)
 
@@ -292,10 +289,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         url_parts = urllib.parse.urlparse(download_url)
         filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-        urlretrieve(
-            download_url,
-            get_data_path(project_id) / filename
-        )
+        urlretrieve(download_url, get_data_path(project_id) / filename)
 
     elif request.form.get('url', None):
         # download file and save to folder
@@ -306,10 +300,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
             url_parts = urllib.parse.urlparse(download_url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(
-                download_url,
-                get_data_path(project_id) / filename
-            )
+            urlretrieve(download_url, get_data_path(project_id) / filename)
 
         except ValueError as err:
 
@@ -348,8 +339,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
             logging.error(err)
 
             response = jsonify(
-                message=f"Failed to upload file '{filename}'. {err}"
-            )
+                message=f"Failed to upload file '{filename}'. {err}")
 
             return response, 400
     else:
@@ -447,12 +437,7 @@ def api_label_item(project_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
 
     # [TODO]project_id, paper_i, label, is_prior=None
-    label_instance(
-        project_id,
-        doc_id,
-        label,
-        retrain_model=retrain_model
-    )
+    label_instance(project_id, doc_id, label, retrain_model=retrain_model)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -473,7 +458,8 @@ def api_get_prior(project_id):  # noqa: F401
         return jsonify(message=message), 400
 
     lock_fp = get_lock_path(project_id)
-    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            lock_fp, blocking=True, lock_name="active", project_id=project_id):
         label_history = read_label_history(project_id, subset=subset)
 
     indices = [x[0] for x in label_history]
@@ -502,7 +488,8 @@ def api_get_prior_stats(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
     lock_fp = get_lock_path(project_id)
-    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            lock_fp, blocking=True, lock_name="active", project_id=project_id):
         label_history = read_label_history(project_id)
 
     counter_prior = Counter([x[1] for x in label_history])
@@ -525,15 +512,16 @@ def api_random_prior_papers(project_id):  # noqa: F401
     """
 
     lock_fp = get_lock_path(project_id)
-    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            lock_fp, blocking=True, lock_name="active", project_id=project_id):
         pool = read_pool(project_id)
 
-#     with open(get_labeled_path(project_id, 0), "r") as f_label:
-#         prior_labeled = json.load(f_label)
+    #     with open(get_labeled_path(project_id, 0), "r") as f_label:
+    #         prior_labeled = json.load(f_label)
 
     # excluded the already labeled items from our random selection.
-#     prior_labeled_index = [int(label) for label in prior_labeled.keys()]
-#     pool = [i for i in pool if i not in prior_labeled_index]
+    #     prior_labeled_index = [int(label) for label in prior_labeled.keys()]
+    #     pool = [i for i in pool if i not in prior_labeled_index]
 
     # sample from the pool (this is already done atm of initializing
     # the pool. But doing it again because a double shuffle is always
@@ -633,12 +621,8 @@ def api_start(project_id):  # noqa: F401
     # start training the model
     py_exe = _get_executable()
     run_command = [
-        py_exe,
-        "-m", "asreview",
-        "web_run_model",
-        project_id,
-        "--label_method",
-        "prior"
+        py_exe, "-m", "asreview", "web_run_model", project_id,
+        "--label_method", "prior"
     ]
     subprocess.Popen(run_command)
 
@@ -672,13 +656,9 @@ def api_init_model_ready(project_id):  # noqa: F401
         with open(get_project_file_path(project_id), "w") as fp:
             json.dump(project_info, fp)
 
-        response = jsonify(
-            {'status': 1}
-        )
+        response = jsonify({'status': 1})
     else:
-        response = jsonify(
-            {'status': 0}
-        )
+        response = jsonify({'status': 0})
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
@@ -723,8 +703,7 @@ def api_import_project():
                                     f.truncate()
                 else:
                     response = jsonify(
-                        message="No project found within the chosen file."
-                    )
+                        message="No project found within the chosen file.")
                     return response, 404
             try:
                 # check if a copy of a project already exists
@@ -735,15 +714,12 @@ def api_import_project():
             except Exception as err:
                 logging.error(err)
                 response = jsonify(
-                    message=f"A copy of {project['id'][:-5]} already exists."
-                )
+                    message=f"A copy of {project['id'][:-5]} already exists.")
                 return response, 400
 
         except Exception as err:
             logging.error(err)
-            response = jsonify(
-                message=f"Failed to upload file '{filename}'."
-            )
+            response = jsonify(message=f"Failed to upload file '{filename}'.")
             return response, 400
     else:
         response = jsonify(message="No file found to upload.")
@@ -766,8 +742,10 @@ def export_results(project_id):
         return Response(
             dataset_str,
             mimetype="text/csv",
-            headers={"Content-disposition":
-                     f"attachment; filename=asreview_result_{project_id}.csv"})
+            headers={
+                "Content-disposition":
+                f"attachment; filename=asreview_result_{project_id}.csv"
+            })
     else:  # excel
 
         dataset_str = export_to_string(project_id, export_type="excel")
@@ -778,8 +756,7 @@ def export_results(project_id):
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             attachment_filename=f"asreview_result_{project_id}.xlsx",
-            cache_timeout=0
-        )
+            cache_timeout=0)
 
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
@@ -789,18 +766,15 @@ def export_project(project_id):
     tmpdir = tempfile.TemporaryDirectory()
 
     shutil.make_archive(
-        Path(tmpdir.name, f"export_{project_id}"),
-        "zip",
-        get_project_path(project_id)
-    )
+        Path(tmpdir.name, f"export_{project_id}"), "zip",
+        get_project_path(project_id))
     fp_tmp_export = Path(tmpdir.name, f"export_{project_id}.zip")
 
     return send_file(
         fp_tmp_export,
         as_attachment=True,
         attachment_filename=f"{project_id}.asreview",
-        cache_timeout=0
-    )
+        cache_timeout=0)
 
 
 @bp.route('/project/<project_id>/finish', methods=["GET"])
@@ -872,14 +846,18 @@ def api_get_progress_history(project_id):
         data.append(value)
 
     # create a dataset with the rolling mean of every 10 papers
-    df = pd.DataFrame(data, columns=["Relevant"]).rolling(10, min_periods=1).mean()
+    df = pd.DataFrame(
+        data, columns=["Relevant"]).rolling(
+            10, min_periods=1).mean()
     df["Total"] = df.index + 1
 
     # transform mean(percentage) to number
     for i in range(0, len(df)):
         if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
-            df.loc[i, "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+            df.loc[i, "Irrelevant"] = (
+                1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
+            df.loc[i,
+                   "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
         else:
             df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
             df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
@@ -905,7 +883,8 @@ def api_get_progress_efficiency(project_id):
     # create a dataset with the cumulative number of inclusions
     df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
     df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (df["Relevant"][-1:] / statistics["n_rows"]).values).round()
+    df["Random"] = (df["Total"] * (
+        df["Relevant"][-1:] / statistics["n_rows"]).values).round()
 
     df = df.round(1).to_dict(orient="records")
 
@@ -973,17 +952,11 @@ def api_get_document(project_id):  # noqa: F401
     else:
 
         item = get_paper_data(
-            project_id,
-            new_instance,
-            return_debug_label=True
-        )
+            project_id, new_instance, return_debug_label=True)
         item["doc_id"] = new_instance
         pool_empty = False
 
-    response = jsonify({
-        "result": item,
-        "pool_empty": pool_empty
-    })
+    response = jsonify({"result": item, "pool_empty": pool_empty})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 

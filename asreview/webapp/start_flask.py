@@ -1,3 +1,4 @@
+import logging
 import os
 import webbrowser
 from threading import Timer
@@ -9,6 +10,9 @@ from flask_cors import CORS
 
 from asreview.entry_points.gui import _oracle_parser
 from asreview.webapp import api
+
+# set logging level to logging.INFO
+logging.basicConfig(level=logging.INFO)
 
 
 def _url(host, port):
