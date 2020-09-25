@@ -8,7 +8,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import './WelcomeScreen.css'
-import {api_url} from "./globals";
+import {base_url} from "./globals";
 import axios from "axios";
 
 import { connect } from "react-redux";
@@ -93,7 +93,7 @@ const WelcomeScreen = ({setASReviewVersion, setAppState}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await axios.get(api_url + "boot")
+      await axios.get(base_url + "boot")
           .then(result => {
 
             // set the version of asreview

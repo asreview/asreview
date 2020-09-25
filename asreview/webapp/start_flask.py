@@ -5,9 +5,11 @@ from threading import Timer
 
 from flask import Flask
 from flask import send_from_directory
+from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
 
+from asreview import __version__ as asreview_version
 from asreview.entry_points.gui import _oracle_parser
 from asreview.webapp import api
 
@@ -61,6 +63,31 @@ def create_app(**kwargs):
             'favicon.ico',
             mimetype='image/vnd.microsoft.icon'
         )
+
+    @app.route('/boot', methods=["GET"])
+    def api_boot():
+        """Get the boot info"""
+
+        if os.environ.get("FLASK_ENV", None) == "development":
+            status = "development"
+        else:
+            status = "asreview"
+
+            try:
+                import asreviewcontrib.covid19  # noqa
+                status = "asreview-covid19"
+            except ImportError:
+                logging.debug("covid19 plugin not found")
+
+        # get the asreview version
+
+        response = jsonify({
+            "status": status,
+            "version": asreview_version,
+        })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+
+        return response
 
     return app
 
