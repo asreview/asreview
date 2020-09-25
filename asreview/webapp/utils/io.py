@@ -50,7 +50,7 @@ def read_data(project_id, save_tmp=True):
 
     # save a pickle version
     if save_tmp:
-        print("Store copy of data in pickle file.")
+        logging.info("Store a copy of the data in a pickle file.")
         with open(fp_data_pickle, 'wb') as f_pickle:
             pickle.dump(data_obj, f_pickle)
 
