@@ -156,7 +156,7 @@ def api_init_project():  # noqa: F401
 def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
-    logging.info("get project info")
+    logging.info(f"Project {project_id} - get project info")
 
     try:
 
@@ -210,7 +210,7 @@ def api_get_project_info(project_id):  # noqa: F401
 def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
-    logging.info("Update project info")
+    logging.info(f"Project {project_id} - Update project info")
 
     project_name = request.form['name']
     project_description = request.form['description']
@@ -389,11 +389,11 @@ def api_get_project_data(project_id):  # noqa: F401
         statistics["filename"] = filename
 
     except FileNotFoundError as err:
-        print(err)
+        logging.info(err)
         statistics = {"filename": None}
 
     except Exception as err:
-        print(err)
+        logging.error(err)
         message = f"Failed to get file. {err}"
         return jsonify(message=message), 400
 
@@ -654,13 +654,13 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     error_path = get_project_path(project_id) / "error.json"
     if error_path.exists():
-        print("error on training")
+        logging.error("error on training")
         with open(error_path, "r") as f:
             error_message = json.load(f)
         return jsonify(error_message), 400
 
     if get_proba_path(project_id).exists():
-        logging.info("Model trained - go to review screen")
+        logging.info(f"Project {project_id} - Model trained")
 
         # read the file with project info
         with open(get_project_file_path(project_id), "r") as fp:
@@ -758,8 +758,7 @@ def export_results(project_id):
 
     # get the export args
     file_type = request.args.get('file_type', None)
-    logging.info(f"Start exporting results to '{file_type}'")
-    print(f"Start exporting results to '{file_type}'")
+    logging.info(f"Project {project_id} - Exporting results to '{file_type}'")
 
     if file_type == "csv":
         dataset_str = export_to_string(project_id, export_type="csv")
@@ -998,7 +997,7 @@ def api_delete_project(project_id):  # noqa: F401
         response = jsonify(message="project-delete-failure")
         return response, 500
 
-    logging.info(f"delete project {project_id}")
+    logging.info(f"Project {project_id} - delete project")
 
     project_path = get_project_path(project_id)
 
