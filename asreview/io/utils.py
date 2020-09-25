@@ -94,7 +94,6 @@ def standardize_dataframe(df, column_spec={}):
         try:
             df[all_column_spec[col]] = df[all_column_spec[col]].astype(str)
             df[all_column_spec[col]].fillna("", inplace=True)
-            df[all_column_spec[col]]
         except KeyError:
             pass
 
