@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import shutil
 import subprocess
@@ -212,11 +211,9 @@ def get_instance(project_id):
         pool_idx = read_pool(project_id)
 
     if len(pool_idx) > 0:
-        logging.info(f"Requesting {pool_idx[0]} from project {project_id}")
         return pool_idx[0]
     else:
         # end of pool
-        logging.info(f"No more records for project {project_id}")
         return None
 
 
@@ -318,8 +315,6 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
 def move_label_from_pool_to_labeled(project_id, paper_i, label):
 
-    print(f"Move {paper_i} from pool to labeled")
-
     # load the papers from the pool
     pool_idx = read_pool(project_id)
 
@@ -327,7 +322,6 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     try:
         pool_idx.remove(int(paper_i))
     except (IndexError, ValueError):
-        print(f"Failed to remove {paper_i} from the pool.")
         return
 
     write_pool(project_id, pool_idx)
@@ -339,8 +333,6 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
 
 
 def move_label_from_labeled_to_pool(project_id, paper_i):
-
-    print(f"Move {paper_i} from labeled to pool")
 
     # load the papers from the pool
     pool_list = read_pool(project_id)

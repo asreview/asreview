@@ -1,7 +1,4 @@
-import json
-import logging
-
-from asreview.datasets import DatasetManager, BaseVersionedDataSet
+from asreview.datasets import BaseVersionedDataSet, DatasetManager
 from asreview.utils import is_iterable
 from asreview.webapp.utils.io import read_data
 
