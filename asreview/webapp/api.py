@@ -64,32 +64,6 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
 
 
-@bp.route('/boot', methods=["GET"])
-def api_boot():  # noqa: F401
-    """Get the boot info"""
-
-    if os.environ.get("FLASK_ENV", None) == "development":
-        status = "development"
-    else:
-        status = "asreview"
-
-        try:
-            import asreviewcontrib.covid19  # noqa
-            status = "asreview-covid19"
-        except ImportError:
-            logging.debug("covid19 plugin not found")
-
-    # get the asreview version
-
-    response = jsonify({
-        "status": status,
-        "version": asreview_version,
-    })
-    response.headers.add('Access-Control-Allow-Origin', '*')
-
-    return response
-
-
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
