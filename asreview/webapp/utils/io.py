@@ -104,15 +104,11 @@ def read_label_history(project_id, subset=None):
         if subset is None:
             labeled = [[int(idx), int(label)] for idx, label in labeled]
         elif subset in ["included", "relevant"]:
-            labeled = [
-                [int(idx), int(label)]
-                for idx, label in labeled if int(label) == 1
-            ]
+            labeled = [[int(idx), int(label)] for idx, label in labeled
+                       if int(label) == 1]
         elif subset in ["excluded", "irrelevant"]:
-            labeled = [
-                [int(idx), int(label)]
-                for idx, label in labeled if int(label) == 0
-            ]
+            labeled = [[int(idx), int(label)] for idx, label in labeled
+                       if int(label) == 0]
         else:
             raise ValueError(f"Subset value '{subset}' not found.")
 
