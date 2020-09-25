@@ -92,7 +92,9 @@ def standardize_dataframe(df, column_spec={}):
     # Replace NA values with empty strings.
     for col in ["title", "abstract", "authors", "keywords"]:
         try:
+            df[all_column_spec[col]] = df[all_column_spec[col]].astype(str)
             df[all_column_spec[col]].fillna("", inplace=True)
+            df[all_column_spec[col]]
         except KeyError:
             pass
 
