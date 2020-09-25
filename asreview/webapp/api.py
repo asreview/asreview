@@ -123,8 +123,6 @@ def api_get_projects():  # noqa: F401
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
-    logging.info("init project")
-
     project_name = request.form['name']
     project_description = request.form['description']
     project_authors = request.form['authors']
@@ -152,8 +150,6 @@ def api_init_project():  # noqa: F401
 @bp.route('/project/<project_id>/info', methods=["GET"])
 def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
-
-    logging.info(f"Project {project_id} - get project info")
 
     try:
 
@@ -206,8 +202,6 @@ def api_get_project_info(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/info', methods=["PUT"])
 def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
-
-    logging.info(f"Project {project_id} - Update project info")
 
     project_name = request.form['name']
     project_description = request.form['description']
@@ -644,7 +638,6 @@ def api_init_model_ready(project_id):  # noqa: F401
         return jsonify(error_message), 400
 
     if get_proba_path(project_id).exists():
-        logging.info(f"Project {project_id} - Model trained")
 
         # read the file with project info
         with open(get_project_file_path(project_id), "r") as fp:
@@ -734,7 +727,6 @@ def export_results(project_id):
 
     # get the export args
     file_type = request.args.get('file_type', None)
-    logging.info(f"Project {project_id} - Exporting results to '{file_type}'")
 
     if file_type == "csv":
         dataset_str = export_to_string(project_id, export_type="csv")
@@ -969,8 +961,6 @@ def api_delete_project(project_id):  # noqa: F401
     if project_id == "" or project_id is None:
         response = jsonify(message="project-delete-failure")
         return response, 500
-
-    logging.info(f"Project {project_id} - delete project")
 
     project_path = get_project_path(project_id)
 

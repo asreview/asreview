@@ -62,12 +62,12 @@ class SQLiteLock():
                     db.execute('INSERT INTO locks (name) VALUES (?)',
                                (self.lock_name, ))
                     self.lock_acquired = True
-                    logging.info(
+                    logging.debug(
                         _log_msg(f"Acquired lock {self.lock_name}",
                                  self.project_id))
                 db.commit()
             except sqlite3.OperationalError as e:
-                logging.info(
+                logging.error(
                     _log_msg(f"Encountering operational error {e}",
                              self.project_id))
             db.close()
@@ -106,6 +106,6 @@ class SQLiteLock():
                 pass
             db.close()
             sleep(0.4)
-        logging.info(
+        logging.debug(
             _log_msg(f"Released lock {self.lock_name}", self.project_id))
         self.lock_acquired = False
