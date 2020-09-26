@@ -9,12 +9,12 @@ API Reference
 Low level API
 -------------
 
-.. autofunction:: asreview.review.get_reviewer
-
 .. autoclass:: asreview.review.BaseReview
    :members:
 
 .. autoclass:: asreview.ReviewSimulate
+   :members:
+   :inherited-members:
 
 Models
 ------

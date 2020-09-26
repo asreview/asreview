@@ -121,13 +121,19 @@ def get_reviewer(dataset,
                          " with at least one record.")
 
     cli_settings = ASReviewSettings(
-        model=model, n_instances=n_instances, n_queries=n_queries,
-        n_papers=n_papers, n_prior_included=n_prior_included,
-        n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
+        model=model,
+        n_instances=n_instances,
+        n_queries=n_queries,
+        n_papers=n_papers,
+        n_prior_included=n_prior_included,
+        n_prior_excluded=n_prior_excluded,
+        query_strategy=query_strategy,
         balance_strategy=balance_strategy,
         feature_extraction=feature_extraction,
-        mode=mode, data_fp=None,
-        abstract_only=abstract_only)
+        mode=mode,
+        data_fp=None,
+        abstract_only=abstract_only
+    )
     cli_settings.from_file(config_file)
 
     if state_file is not None:
