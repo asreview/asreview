@@ -20,6 +20,11 @@ from asreview.balance_strategies.base import BaseBalance
 from asreview.balance_strategies.simple import SimpleBalance
 from asreview.utils import get_random_state
 
+PARAM_A = 2.155
+PARAM_ALPHA = 0.94
+PARAM_B = 0.789
+PARAM_BETA = 1.0
+
 
 class DoubleBalance(BaseBalance):
     """Dynamic Resampling balance strategy.
@@ -50,7 +55,11 @@ class DoubleBalance(BaseBalance):
 
     name = "double"
 
-    def __init__(self, a=2.155, alpha=0.94, b=0.789, beta=1.0,
+    def __init__(self,
+                 a=PARAM_A,
+                 alpha=PARAM_ALPHA,
+                 b=PARAM_B,
+                 beta=PARAM_BETA,
                  random_state=None):
         super(DoubleBalance, self).__init__()
         self.a = a
@@ -61,6 +70,24 @@ class DoubleBalance(BaseBalance):
         self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
+        """Resample the training data.
+
+        Arguments
+        ---------
+        X: np.array
+            Complete feature matrix.
+        y: np.array
+            Labels for all papers.
+        train_idx: np.array
+            Training indices, that is all papers that have been reviewed.
+        shared: dict
+            Dictionary to share data between balancing models and other models.
+
+        Returns
+        -------
+        np.array, np.array:
+            X_train, y_train: the resampled matrix, labels.
+        """
         # Get inclusions and exclusions
         one_idx = train_idx[np.where(y[train_idx] == 1)]
         zero_idx = train_idx[np.where(y[train_idx] == 0)]

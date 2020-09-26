@@ -21,7 +21,8 @@ from asreview.base_model import BaseModel
 
 
 class BaseQueryStrategy(BaseModel):
-    "Abstract class for query strategies."
+    """Abstract class for query strategies."""
+
     name = "base-query"
 
     @abstractmethod

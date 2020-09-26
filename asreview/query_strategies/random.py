@@ -21,7 +21,7 @@ from asreview.utils import get_random_state
 
 
 class RandomQuery(NotProbaQueryStrategy):
-    "Random sampling query strategy."
+    """Random sampling query strategy."""
     name = "random"
 
     def __init__(self, random_state=None):

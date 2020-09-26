@@ -77,27 +77,26 @@ class MixedQuery(BaseQueryStrategy):
 
     The idea is to use two different query strategies at the same time with a
     ratio of one to the other.
+
+    Arguments
+    ---------
+    strategy_1: str
+        Name of the first query strategy.
+    strategy_2: str
+        Name of the second query strategy.
+    mix_ratio: float
+        Portion of queries done by the first strategy. So a mix_ratio of
+        0.95 means that 95% of the time query strategy 1 is used and 5% of
+        the time query strategy 2.
+    **kwargs: dict
+        Keyword arguments for the two strategy. To specify which of the
+        strategies the argument is for, prepend with the name of the query
+        strategy and an underscore, e.g. 'max' for maximal sampling.
     """
 
     def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
                  random_state=None, **kwargs):
-        """Initialize the Mixed query strategy
-
-        Arguments
-        ---------
-        strategy_1: str
-            Name of the first query strategy.
-        strategy_2: str
-            Name of the second query strategy.
-        mix_ratio: float
-            Portion of queries done by the first strategy. So a mix_ratio of
-            0.95 means that 95% of the time query strategy 1 is used and 5% of
-            the time query strategy 2.
-        **kwargs: dict
-            Keyword arguments for the two strategy. To specify which of the
-            strategies the argument is for, prepend with the name of the query
-            strategy and an underscore, e.g. 'max_' for maximal sampling.
-        """
+        """Initialize the Mixed query strategy."""
         super(MixedQuery, self).__init__()
         kwargs_1 = {}
         kwargs_2 = {}

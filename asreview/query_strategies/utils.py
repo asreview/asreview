@@ -16,7 +16,6 @@
 def get_query_class(method):
     """Get class of query strategy from its name.
 
-
     Arguments
     ---------
     method: str

@@ -21,7 +21,8 @@ from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
-    "Query strategy using clustering algorithms."
+    """Query strategy using clustering algorithms."""
+
     name = "cluster"
 
     def __init__(self, cluster_size=350, update_interval=200,
