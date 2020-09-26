@@ -23,6 +23,9 @@ Models
 .. autoclass:: asreview.models.RFModel
 .. autoclass:: asreview.models.SVMModel
 .. autoclass:: asreview.models.LogisticModel
+.. autoclass:: asreview.models.lstm_base.LSTMBaseModel
+.. autoclass:: asreview.models.lstm_pool.LSTMPoolModel
+.. autoclass:: asreview.models.nn_2_layer.NN2LayerModel
 .. autofunction:: asreview.models.get_model
 .. autofunction:: asreview.models.get_model_class
 

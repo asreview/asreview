@@ -38,47 +38,57 @@ from asreview.utils import _set_class_weight
 
 
 class LSTMPoolModel(BaseTrainModel):
-    """LSTM pool class.
+    """
+    LSTM pool classifier
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     max pooling layer.
+
+    Arguments
+    ---------
+    embedding_matrix: np.array
+        Embedding matrix to use with LSTM model.
+    backwards: bool
+        Whether to have a forward or backward LSTM.
+    dropout: float
+        Value in [0, 1.0) that gives the dropout and recurrent
+        dropout rate for the LSTM model.
+    optimizer: str
+        Optimizer to use.
+    lstm_out_width: int
+        Output width of the LSTM.
+    lstm_pool_size: int
+        Size of the pool, must be a divisor of max_sequence_length.
+    learn_rate: float
+        Learn rate multiplier of default learning rate.
+    verbose: int
+        Verbosity.
+    batch_size: int
+        Size of the batch size for the LSTM model.
+    epochs: int
+        Number of epochs to train the LSTM model.
+    shuffle: bool
+        Whether to shuffle the data before starting to train.
+    class_weight: float
+        Class weight for the included papers.
     """
+
     name = "lstm-pool"
 
-    def __init__(self, embedding_matrix=None, backwards=True, dropout=0.4,
-                 optimizer="rmsprop", lstm_out_width=20, lstm_pool_size=128,
-                 learn_rate=1.0, verbose=0, batch_size=32, epochs=35,
-                 shuffle=False, class_weight=30.0):
-        """Initialize the LSTM pool model.
-
-        Arguments
-        ---------
-        embedding_matrix: np.array
-            Embedding matrix to use with LSTM model.
-        backwards: bool
-            Whether to have a forward or backward LSTM.
-        dropout: float
-            Value in [0, 1.0) that gives the dropout and recurrent
-            dropout rate for the LSTM model.
-        optimizer: str
-            Optimizer to use.
-        lstm_out_width: int
-            Output width of the LSTM.
-        lstm_pool_size: int
-            Size of the pool, must be a divisor of max_sequence_length.
-        learn_rate: float
-            Learn rate multiplier of default learning rate.
-        verbose: int
-            Verbosity.
-        batch_size: int
-            Size of the batch size for the LSTM model.
-        epochs: int
-            Number of epochs to train the LSTM model.
-        shuffle: bool
-            Whether to shuffle the data before starting to train.
-        class_weight: float
-            Class weight for the included papers.
-        """
+    def __init__(self,
+                 embedding_matrix=None,
+                 backwards=True,
+                 dropout=0.4,
+                 optimizer="rmsprop",
+                 lstm_out_width=20,
+                 lstm_pool_size=128,
+                 learn_rate=1.0,
+                 verbose=0,
+                 batch_size=32,
+                 epochs=35,
+                 shuffle=False,
+                 class_weight=30.0):
+        """Initialize the LSTM pool model."""
         super(LSTMPoolModel, self).__init__()
         self.embedding_matrix = embedding_matrix
         self.backwards = backwards
@@ -102,14 +112,21 @@ class LSTMPoolModel(BaseTrainModel):
             keras_model = _create_lstm_pool_model(
                 embedding_matrix=self.embedding_matrix,
                 backwards=self.backwards,
-                dropout=self.dropout, optimizer=self.optimizer,
+                dropout=self.dropout,
+                optimizer=self.optimizer,
                 max_sequence_length=sequence_length,
                 lstm_out_width=self.lstm_out_width,
-                learn_rate=self.learn_rate, verbose=self.verbose)
+                learn_rate=self.learn_rate,
+                verbose=self.verbose)
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
-        self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
-                        shuffle=self.shuffle, class_weight=self.class_weight,
-                        verbose=self.verbose)
+        self._model.fit(
+            X,
+            y,
+            batch_size=self.batch_size,
+            epochs=self.epochs,
+            shuffle=self.shuffle,
+            class_weight=self.class_weight,
+            verbose=self.verbose)
 
     def full_hyper_space(self):
         from hyperopt import hp
@@ -147,6 +164,7 @@ def _create_lstm_pool_model(embedding_matrix,
         called.
 
     """
+
     # The Sklearn API requires a callable as result.
     # https://keras.io/scikit-learn-api/
     def model_wrapper():
@@ -159,9 +177,7 @@ def _create_lstm_pool_model(embedding_matrix,
                 embedding_matrix.shape[1],
                 weights=[embedding_matrix],
                 input_length=max_sequence_length,
-                trainable=False
-            )
-        )
+                trainable=False))
 
         # add LSTM layer
         model.add(
@@ -173,31 +189,20 @@ def _create_lstm_pool_model(embedding_matrix,
                 recurrent_dropout=dropout,
                 return_sequences=True,
                 kernel_constraint=MaxNorm(),
-            )
-        )
+            ))
 
-        model.add(
-            MaxPooling1D(
-                pool_size=lstm_pool_size,
-            )
-        )
-        model.add(
-            Flatten()
-        )
+        model.add(MaxPooling1D(pool_size=lstm_pool_size, ))
+        model.add(Flatten())
 
         # Add output layer
-        model.add(
-            Dense(
-                1,
-                activation='sigmoid'
-            )
-        )
+        model.add(Dense(1, activation='sigmoid'))
 
         optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
         # Compile model
         model.compile(
-            loss='binary_crossentropy', optimizer=optimizer_fn,
+            loss='binary_crossentropy',
+            optimizer=optimizer_fn,
             metrics=['acc'])
 
         if verbose >= 1:

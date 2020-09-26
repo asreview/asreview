@@ -16,7 +16,8 @@ from asreview.base_model import BaseModel
 
 
 class BaseTrainModel(BaseModel):
-    """Base model, abstract class to be implemented by derived ones.
+    """
+    Base model, abstract class to be implemented by derived ones.
 
     All the non-abstract methods are okay if they are not implemented.
     All functions dealing with hyperparameters can be ignore if you don't
@@ -26,6 +27,7 @@ class BaseTrainModel(BaseModel):
     process. Fit parameters can be distinct from fit_kwargs (which are passed
     to the fit function).
     """
+
     name = "base-train"
 
     def __init__(self):
