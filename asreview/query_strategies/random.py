@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Random sampling strategy."""
 
 import numpy as np
@@ -31,8 +30,5 @@ class RandomQuery(NotProbaQueryStrategy):
     def _query(self, X, pool_idx, n_instances=1):
         n_samples = len(pool_idx)
         query_idx = self._random_state.choice(
-            np.arange(n_samples),
-            n_instances,
-            replace=False
-        )
+            np.arange(n_samples), n_instances, replace=False)
         return pool_idx[query_idx], X[pool_idx[query_idx]]

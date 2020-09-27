@@ -72,10 +72,10 @@ def get_query_model(method, *args, random_state=None, **kwargs):
     if query_class == MixedQuery:
         mix = method.split("_")
         for i in range(2):
-            kwargs.pop("strategy_" + str(i+1), None)
+            kwargs.pop("strategy_" + str(i + 1), None)
         try:
-            return query_class(mix[0], mix[1], *args,
-                               random_state=random_state, **kwargs)
+            return query_class(
+                mix[0], mix[1], *args, random_state=random_state, **kwargs)
         except TypeError:
             return query_class(mix[0], mix[1], *args, **kwargs)
     try:

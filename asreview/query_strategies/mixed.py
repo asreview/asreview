@@ -57,17 +57,17 @@ def interleave(n_samples, n_strat_1, random_state):
         min_idx = np.arange(n_strat_1)
 
     # Insert the strategy with less samples at these positions.
-    insert_positions = np.sort(random_state.choice(
-        np.arange(len(max_idx)), len(min_idx), replace=False))
+    insert_positions = np.sort(
+        random_state.choice(
+            np.arange(len(max_idx)), len(min_idx), replace=False))
 
     # Actually do the inserts.
     new_positions = np.zeros(n_samples, dtype=int)
     i_strat_min = 0
     for i_strat_max in range(len(max_idx)):
-        new_positions[i_strat_max+i_strat_min] = max_idx[i_strat_max]
-        if (i_strat_min < len(min_idx)
-                and insert_positions[i_strat_min] == i_strat_max):
-            new_positions[i_strat_min+i_strat_max+1] = min_idx[i_strat_min]
+        new_positions[i_strat_max + i_strat_min] = max_idx[i_strat_max]
+        if (i_strat_min < len(min_idx) and insert_positions[i_strat_min] == i_strat_max):
+            new_positions[i_strat_min + i_strat_max + 1] = min_idx[i_strat_min]
             i_strat_min += 1
     return new_positions
 
@@ -94,18 +94,22 @@ class MixedQuery(BaseQueryStrategy):
         strategy and an underscore, e.g. 'max' for maximal sampling.
     """
 
-    def __init__(self, strategy_1="max", strategy_2="random", mix_ratio=0.95,
-                 random_state=None, **kwargs):
+    def __init__(self,
+                 strategy_1="max",
+                 strategy_2="random",
+                 mix_ratio=0.95,
+                 random_state=None,
+                 **kwargs):
         """Initialize the Mixed query strategy."""
         super(MixedQuery, self).__init__()
         kwargs_1 = {}
         kwargs_2 = {}
         for key, value in kwargs.items():
             if key.startswith(strategy_1):
-                new_key = key[len(strategy_1)+1:]
+                new_key = key[len(strategy_1) + 1:]
                 kwargs_1[new_key] = value
             elif key.starts_with(strategy_2):
-                new_key = key[len(strategy_2)+1:]
+                new_key = key[len(strategy_2) + 1:]
                 kwargs_2[new_key] = value
             else:
                 logging.warn(f"Key {key} is being ignored for the mixed "
@@ -119,13 +123,11 @@ class MixedQuery(BaseQueryStrategy):
 
         self._random_state = get_random_state(random_state)
         if "random_state" in self.query_model1.default_param:
-            self.query_model1 = get_query_model(strategy_1, **kwargs_1,
-                                                random_state=self._random_state
-                                                )
+            self.query_model1 = get_query_model(
+                strategy_1, **kwargs_1, random_state=self._random_state)
         if "random_state" in self.query_model2.default_param:
-            self.query_model2 = get_query_model(strategy_2, **kwargs_2,
-                                                random_state=self._random_state
-                                                )
+            self.query_model2 = get_query_model(
+                strategy_2, **kwargs_2, random_state=self._random_state)
         self.mix_ratio = mix_ratio
 
     def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
@@ -134,15 +136,18 @@ class MixedQuery(BaseQueryStrategy):
             pool_idx = np.arange(n_samples)
 
         # Split the number of instances for the query strategies.
-        n_instances_1 = floor(n_instances*self.mix_ratio)
-        leftovers = n_instances*self.mix_ratio-n_instances_1
+        n_instances_1 = floor(n_instances * self.mix_ratio)
+        leftovers = n_instances * self.mix_ratio - n_instances_1
         if self._random_state.random_sample() < leftovers:
             n_instances_1 += 1
-        n_instances_2 = n_instances-n_instances_1
+        n_instances_2 = n_instances - n_instances_1
 
         # Perform the query with strategy 1.
         query_idx_1, X_1 = self.query_model1.query(
-            X, classifier, pool_idx=pool_idx, n_instances=n_instances_1,
+            X,
+            classifier,
+            pool_idx=pool_idx,
+            n_instances=n_instances_1,
             shared=shared)
 
         # Remove the query indices from the pool.
@@ -152,7 +157,10 @@ class MixedQuery(BaseQueryStrategy):
 
         # Perform the query with strategy 2.
         query_idx_2, X_2 = self.query_model2.query(
-            X, classifier, pool_idx=new_pool_idx, n_instances=n_instances_2,
+            X,
+            classifier,
+            pool_idx=new_pool_idx,
+            n_instances=n_instances_2,
             shared=shared)
 
         query_idx = np.append(query_idx_1, query_idx_2)
@@ -168,8 +176,8 @@ class MixedQuery(BaseQueryStrategy):
                 X = np.concatenate((X_1, X_2), axis=0)
 
         # Remix the two strategies without changing the order within.
-        new_order = interleave(len(query_idx), len(query_idx_1),
-                               self._random_state)
+        new_order = interleave(
+            len(query_idx), len(query_idx_1), self._random_state)
         return query_idx[new_order], X[new_order]
 
     def full_hyper_space(self):
@@ -189,8 +197,7 @@ class MixedQuery(BaseQueryStrategy):
             parameter_space[new_key] = value
             hyper_choices[new_key] = choices_2[key]
 
-        parameter_space["qry_mix_ratio"] = hp.uniform(
-            "qry_mix_ratio", 0, 1)
+        parameter_space["qry_mix_ratio"] = hp.uniform("qry_mix_ratio", 0, 1)
 
         return parameter_space, hyper_choices
 
