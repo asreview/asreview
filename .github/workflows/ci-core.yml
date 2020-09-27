@@ -1,6 +1,21 @@
 name: test-core
 on: [push, pull_request]
 jobs:
+  lint-python:
+    name: lint-python
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+        architecture: 'x64'
+    - name: Install flake8
+      run: |
+        pip install flake8
+    - name: Lint python with flake8
+      run: |
+        flake8 . --max-complexity=10 --statistics
   test:
     name: pytest
     runs-on: ubuntu-latest
@@ -8,8 +23,8 @@ jobs:
     - uses: actions/checkout@master
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.6' # Version range or exact version of a Python version to use, using semvers version range syntax.
-        architecture: 'x64' # (x64 or x86)
+        python-version: '3.6'
+        architecture: 'x64'
     - name: Install packages and run tests
       run: |
         df -h
