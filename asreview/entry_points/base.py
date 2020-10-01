@@ -74,15 +74,15 @@ def _base_parser(prog=None, description=None):
         "--config_file",
         type=str,
         default=None,
-        help="""Configuration file with model parameters and 
-            hyperparameter values."""
+        help="Configuration file with model parameters and 
+            hyperparameter values."
     )
     parser.add_argument(
         "--seed",
         default=None,
         type=int,
-        help="""Seed for the model (classifiers, balance 
+        help="Seed for the model (classifiers, balance 
             strategies, feature extraction techniques, and query 
-            strategies). Use integer between 0 and 2^32 - 1."""
+            strategies). Use an integer between 0 and 2^32 - 1."
     )
     return parser
