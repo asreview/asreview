@@ -81,8 +81,8 @@ def _base_parser(prog=None, description=None):
         "--seed",
         default=None,
         type=int,
-        help="Seed for the model (classifiers, balance 
-            strategies, feature extraction techniques, and query 
-            strategies). Use an integer between 0 and 2^32 - 1."
+        help="Seed for the model (classifiers, balance "
+             "strategies, feature extraction techniques, and query "
+             "strategies). Use an integer between 0 and 2^32 - 1."
     )
     return parser
