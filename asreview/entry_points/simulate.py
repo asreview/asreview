@@ -75,7 +75,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=[],
         nargs="*",
         type=int,
-        help="Prior indices by id."
+        help="Prior indices by rownumber (0 is first rownumber)."
     )
     parser.add_argument(
         "--included_dataset",
