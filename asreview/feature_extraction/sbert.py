@@ -7,7 +7,6 @@ except ImportError:
         "Install sentence_transformers package (`pip install "
         "sentence_transformers`) to use 'sentence_transformers' model.")
 
-
 from asreview.feature_extraction.base import BaseFeatureExtraction
 
 

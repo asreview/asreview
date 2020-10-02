@@ -40,17 +40,18 @@ class EmbeddingIdf(BaseFeatureExtraction):
     This model averages the weighted word vectors of all the words in the text,
     in order to get a single feature vector for each text. The weights are
     provided by the inverse document frequencies.
+
+    Arguments
+    ---------
+    embedding_fp: str
+        Path to embedding.
+
     """
+
     name = "embedding-idf"
 
     def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
-        """Initialize the Embedding-Idf model
-
-        Arguments
-        ---------
-        embedding_fp: str
-            Path to embedding.
-        """
+        """Initialize the Embedding-Idf model."""
         super(EmbeddingIdf, self).__init__(*args, **kwargs)
         self.embedding_fp = embedding_fp
         self.embedding = None
@@ -95,7 +96,7 @@ def _get_idf(text_dicts):
 
     idf = {}
     for word in all_count:
-        idf[word] = log(len(text_dicts)/all_count[word])
+        idf[word] = log(len(text_dicts) / all_count[word])
     return idf
 
 
@@ -111,9 +112,9 @@ def _get_X_from_dict(text_dicts, idf, embedding, random_state):
             if cur_vec is None:
                 continue
             if text_vec is None:
-                text_vec = cur_vec*cur_idf*cur_count
+                text_vec = cur_vec * cur_idf * cur_count
             else:
-                text_vec += cur_vec*cur_idf*cur_count
+                text_vec += cur_vec * cur_idf * cur_count
         if text_vec is None:
             text_vec = random_state.random(n_vec)
 
