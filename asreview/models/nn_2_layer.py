@@ -38,6 +38,13 @@ from asreview.models.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
 
 
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
+
+
 class NN2LayerModel(BaseTrainModel):
     """
     Dense neural network classifier.
