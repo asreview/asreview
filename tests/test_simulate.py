@@ -81,7 +81,7 @@ def test_rf():
                 data_fp=data_fp_no_title)
 
 
-@pytest.mark.skipif(~ADVANCED_DEPS["tensorflow"], reason="requires tensorflow")
+@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"], raises=ImportError, reason="requires tensorflow")
 def test_nn_2_layer():
     check_model(mode="simulate",
                 model="nn-2-layer",
@@ -89,16 +89,7 @@ def test_nn_2_layer():
                 n_instances=1, n_queries=2)
 
 
-@pytest.mark.skipif(ADVANCED_DEPS["tensorflow"], reason="requires tensorflow")
-@pytest.mark.xfail(raises=ImportError)
-def test_nn_2_layer_without_tensorflow():
-    check_model(mode="simulate",
-                model="nn-2-layer",
-                state_file=json_state_file,
-                n_instances=1, n_queries=2)
-
-
-@pytest.mark.skipif(~ADVANCED_DEPS["tensorflow"], reason="requires tensorflow")
+@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"], raises=ImportError, reason="requires tensorflow")
 def test_lstm_base():
 
     check_model(mode="simulate",
@@ -106,26 +97,8 @@ def test_lstm_base():
                 state_file=h5_state_file)
 
 
-@pytest.mark.skipif(ADVANCED_DEPS["tensorflow"], reason="requires tensorflow")
-@pytest.mark.xfail(raises=ImportError)
-def test_lstm_base_without_tensorflow():
-
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_base.ini"),
-                state_file=h5_state_file)
-
-
-@pytest.mark.skipif(~ADVANCED_DEPS["tensorflow"], reason="requires tensorflow")
+@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"], raises=ImportError, reason="requires tensorflow")
 def test_lstm_pool():
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
-                state_file=json_state_file)
-
-
-@pytest.mark.skipif(ADVANCED_DEPS["tensorflow"], reason="requires tensorflow")
-@pytest.mark.xfail(raises=ImportError)
-def test_lstm_pool_without_tensorflow():
-
     check_model(mode="simulate",
                 config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
                 state_file=json_state_file)

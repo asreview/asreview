@@ -34,7 +34,7 @@ except ImportError:
     ])
 def test_features(feature_extraction, split_ta):
 
-    if feature_extraction in REQUIRES_EXTRA_DEPS and ~ADVANCED_DEPS["tensorflow"]:
+    if feature_extraction in REQUIRES_EXTRA_DEPS and not ADVANCED_DEPS["tensorflow"]:
         pytest.skip()
 
     embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
