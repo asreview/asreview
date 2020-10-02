@@ -13,30 +13,38 @@
 # limitations under the License.
 
 import logging
+
 try:
     import tensorflow as tf
+    from tensorflow.keras import optimizers
+    from tensorflow.keras.layers import Dense
+    from tensorflow.keras.layers import Embedding
+    from tensorflow.keras.layers import LSTM
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'lstm-base' model.")
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
-
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Embedding
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
 
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
+
+
 class LSTMBaseModel(BaseTrainModel):
     """
-    LSTM base classifier
+    LSTM base classifier.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     dense layer.
@@ -103,6 +111,10 @@ class LSTMBaseModel(BaseTrainModel):
         self.sequence_length = None
 
     def fit(self, X, y):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         sequence_length = X.shape[1]
         if self._model is None or sequence_length != self.sequence_length:
             self.sequence_length = sequence_length
@@ -163,6 +175,9 @@ def _create_lstm_base_model(embedding_matrix,
         called.
 
     """
+
+    # check is tensorflow is available
+    _check_tensorflow()
 
     def model_wrapper():
         model = Sequential()

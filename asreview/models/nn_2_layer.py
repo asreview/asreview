@@ -13,30 +13,34 @@
 # limitations under the License.
 
 import logging
+
+
 try:
     import tensorflow as tf
+    from tensorflow.keras.layers import Dense
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+    from tensorflow.keras import regularizers
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'nn-2-layer' model.")
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import scipy
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-from tensorflow.keras import regularizers
 
-from asreview.models.lstm_base import _get_optimizer
+
 from asreview.models.base import BaseTrainModel
+from asreview.models.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
 
 
 class NN2LayerModel(BaseTrainModel):
     """
-    Dense neural network classifier
+    Dense neural network classifier.
 
     Neural network with two hidden, dense layers
     of the same size.
@@ -62,6 +66,7 @@ class NN2LayerModel(BaseTrainModel):
     class_weight: float
         Class weights for inclusions (1's).
     """
+
     name = "nn-2-layer"
 
     def __init__(self,
@@ -90,6 +95,10 @@ class NN2LayerModel(BaseTrainModel):
         self.input_dim = None
 
     def fit(self, X, y):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         if scipy.sparse.issparse(X):
             X = X.toarray()
         if self._model is None or X.shape[1] != self.input_dim:
@@ -150,6 +159,9 @@ def _create_dense_nn_model(vector_size=40,
         called.
 
     """
+
+    # check is tensorflow is available
+    _check_tensorflow()
 
     def model_wrapper():
         model = Sequential()

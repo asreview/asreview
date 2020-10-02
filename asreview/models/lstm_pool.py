@@ -13,33 +13,41 @@
 # limitations under the License.
 
 import logging
+
 try:
     import tensorflow as tf
+    from tensorflow.keras.constraints import MaxNorm
+    from tensorflow.keras.layers import Dense
+    from tensorflow.keras.layers import Embedding
+    from tensorflow.keras.layers import Flatten
+    from tensorflow.keras.layers import LSTM
+    from tensorflow.keras.layers import MaxPooling1D
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'lstm-pool' model.")
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-from tensorflow.keras.constraints import MaxNorm
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Embedding
-from tensorflow.keras.layers import Flatten
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import MaxPooling1D
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-
-from asreview.models.lstm_base import _get_optimizer
 from asreview.models.base import BaseTrainModel
+from asreview.models.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
+
+
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
 
 
 class LSTMPoolModel(BaseTrainModel):
     """
-    LSTM pool classifier
+    LSTM pool classifier.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     max pooling layer.
@@ -106,6 +114,10 @@ class LSTMPoolModel(BaseTrainModel):
         self.sequence_length = None
 
     def fit(self, X, y):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         sequence_length = X.shape[1]
         if self._model is None or sequence_length != self.sequence_length:
             self.sequence_length = sequence_length
@@ -164,6 +176,9 @@ def _create_lstm_pool_model(embedding_matrix,
         called.
 
     """
+
+    # check is tensorflow is available
+    _check_tensorflow()
 
     # The Sklearn API requires a callable as result.
     # https://keras.io/scikit-learn-api/
