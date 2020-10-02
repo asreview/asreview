@@ -16,7 +16,7 @@ from asreview.utils import list_model_names
 from asreview.utils import _model_class_from_entry_point
 
 
-def list_classfiers():
+def list_classifiers():
     """List available classifiers.
 
     Returns
@@ -24,7 +24,7 @@ def list_classfiers():
     list:
         Names of available classifiers in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.classifiers")
+    return list_model_names(entry_name="asreview.models")
 
 
 def get_model_class(method):

@@ -21,4 +21,4 @@ from asreview.models.lstm_pool import LSTMPoolModel
 from asreview.models.nn_2_layer import NN2LayerModel
 from asreview.models.utils import get_model
 from asreview.models.utils import get_model_class
-from asreview.models.utils import list_classfiers
+from asreview.models.utils import list_classifiers

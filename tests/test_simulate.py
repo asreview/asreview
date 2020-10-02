@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 
+from asreview.models.utils import list_classifiers
 from asreview.state import open_state
 from asreview.review.factory import get_reviewer
 
@@ -109,6 +110,10 @@ def test_logistic():
                 model="logistic",
                 state_file=json_state_file,
                 n_instances=1, n_queries=2)
+
+
+def test_classifiers():
+    assert len(list_classifiers()) >= 7
 
 
 def check_label_methods(label_methods, n_labels, methods):
