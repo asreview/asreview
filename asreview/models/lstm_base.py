@@ -13,70 +13,87 @@
 # limitations under the License.
 
 import logging
+
 try:
     import tensorflow as tf
+    from tensorflow.keras import optimizers
+    from tensorflow.keras.layers import Dense
+    from tensorflow.keras.layers import Embedding
+    from tensorflow.keras.layers import LSTM
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'lstm-base' model.")
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
-
-
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Embedding
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
 
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
+
+
 class LSTMBaseModel(BaseTrainModel):
-    """LSTM base class.
+    """
+    LSTM base classifier.
 
     LSTM model consisting of an embedding layer, one LSTM layer, and one
     dense layer.
+
+    Arguments
+    ---------
+    embedding_matrix: np.array
+        Embedding matrix to use with LSTM model.
+    backwards: bool
+        Whether to have a forward or backward LSTM.
+    dropout: float
+        Value in [0, 1.0) that gives the dropout and recurrent
+        dropout rate for the LSTM model.
+    optimizer: str
+        Optimizer to use.
+    lstm_out_width: int
+        Output width of the LSTM.
+    learn_rate: float
+        Learn rate multiplier of default learning rate.
+    dense_width: int
+        Size of the dense layer of the model.
+    verbose: int
+        Verbosity.
+    batch_size: int
+        Size of the batch size for the LSTM model.
+    epochs: int
+        Number of epochs to train the LSTM model.
+    shuffle: bool
+        Whether to shuffle the data before starting to train.
+    class_weight: float
+        Class weight for the included papers.
     """
+
     name = "lstm-base"
 
-    def __init__(self, embedding_matrix=None, backwards=True, dropout=0.4,
-                 optimizer="rmsprop", lstm_out_width=20, learn_rate=1.0,
-                 dense_width=128, verbose=0, batch_size=32, epochs=35,
-                 shuffle=False, class_weight=30.0):
-        """Initialize the LSTM base model.
-
-        Arguments
-        ---------
-        embedding_matrix: np.array
-            Embedding matrix to use with LSTM model.
-        backwards: bool
-            Whether to have a forward or backward LSTM.
-        dropout: float
-            Value in [0, 1.0) that gives the dropout and recurrent
-            dropout rate for the LSTM model.
-        optimizer: str
-            Optimizer to use.
-        lstm_out_width: int
-            Output width of the LSTM.
-        learn_rate: float
-            Learn rate multiplier of default learning rate.
-        dense_width: int
-            Size of the dense layer of the model.
-        verbose: int
-            Verbosity.
-        batch_size: int
-            Size of the batch size for the LSTM model.
-        epochs: int
-            Number of epochs to train the LSTM model.
-        shuffle: bool
-            Whether to shuffle the data before starting to train.
-        class_weight: float
-            Class weight for the included papers.
-        """
+    def __init__(self,
+                 embedding_matrix=None,
+                 backwards=True,
+                 dropout=0.4,
+                 optimizer="rmsprop",
+                 lstm_out_width=20,
+                 learn_rate=1.0,
+                 dense_width=128,
+                 verbose=0,
+                 batch_size=32,
+                 epochs=35,
+                 shuffle=False,
+                 class_weight=30.0):
+        """Initialize the LSTM base model"""
         super(LSTMBaseModel, self).__init__()
         self.embedding_matrix = embedding_matrix
         self.backwards = backwards
@@ -94,24 +111,34 @@ class LSTMBaseModel(BaseTrainModel):
         self.sequence_length = None
 
     def fit(self, X, y):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         sequence_length = X.shape[1]
         if self._model is None or sequence_length != self.sequence_length:
             self.sequence_length = sequence_length
             keras_model = _create_lstm_base_model(
                 embedding_matrix=self.embedding_matrix,
-                backwards=self.backwards, dropout=self.dropout,
+                backwards=self.backwards,
+                dropout=self.dropout,
                 optimizer=self.optimizer,
                 max_sequence_length=self.sequence_length,
                 lstm_out_width=self.lstm_out_width,
                 dense_width=self.dense_width,
-                learn_rate=self.learn_rate, verbose=self.verbose)
+                learn_rate=self.learn_rate,
+                verbose=self.verbose)
             print(keras_model)
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
-        self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
-                        shuffle=self.shuffle,
-                        class_weight=_set_class_weight(self.class_weight),
-                        verbose=self.verbose)
+        self._model.fit(
+            X,
+            y,
+            batch_size=self.batch_size,
+            epochs=self.epochs,
+            shuffle=self.shuffle,
+            class_weight=_set_class_weight(self.class_weight),
+            verbose=self.verbose)
 
     def full_hyper_space(self):
         from hyperopt import hp
@@ -148,6 +175,10 @@ def _create_lstm_base_model(embedding_matrix,
         called.
 
     """
+
+    # check is tensorflow is available
+    _check_tensorflow()
+
     def model_wrapper():
         model = Sequential()
 
@@ -158,9 +189,7 @@ def _create_lstm_base_model(embedding_matrix,
                 embedding_matrix.shape[1],
                 weights=[embedding_matrix],
                 input_length=max_sequence_length,
-                trainable=False
-            )
-        )
+                trainable=False))
 
         # add LSTM layer
         model.add(
@@ -170,31 +199,24 @@ def _create_lstm_base_model(embedding_matrix,
                 go_backwards=backwards,
                 dropout=dropout,
                 recurrent_dropout=dropout,
-            )
-        )
+            ))
 
         # add Dense layer with relu activation
-        model.add(
-            Dense(
-                dense_width,
-                activation='relu',
-            )
-        )
+        model.add(Dense(
+            dense_width,
+            activation='relu',
+        ))
 
         # add Dense layer
-        model.add(
-            Dense(
-                1,
-                activation='sigmoid'
-            )
-        )
+        model.add(Dense(1, activation='sigmoid'))
 
         optimizer_fn = _get_optimizer(optimizer, learn_rate)
 
         # Compile model
         model.compile(
             loss='binary_crossentropy',
-            optimizer=optimizer_fn, metrics=['acc'])
+            optimizer=optimizer_fn,
+            metrics=['acc'])
 
         if verbose >= 1:
             model.summary(verbose=verbose)
@@ -207,13 +229,13 @@ def _create_lstm_base_model(embedding_matrix,
 def _get_optimizer(optimizer, lr_mult=1.0):
     "Get optimizer with correct learning rate."
     if optimizer == "sgd":
-        return optimizers.SGD(lr=0.01*lr_mult)
+        return optimizers.SGD(lr=0.01 * lr_mult)
     elif optimizer == "rmsprop":
-        return optimizers.RMSprop(lr=0.001*lr_mult)
+        return optimizers.RMSprop(lr=0.001 * lr_mult)
     elif optimizer == "adagrad":
-        return optimizers.Adagrad(lr=0.01*lr_mult)
+        return optimizers.Adagrad(lr=0.01 * lr_mult)
     elif optimizer == "adam":
-        return optimizers.Adam(lr=0.001*lr_mult)
+        return optimizers.Adam(lr=0.001 * lr_mult)
     elif optimizer == "nadam":
-        return optimizers.Nadam(lr=0.002*lr_mult)
+        return optimizers.Nadam(lr=0.002 * lr_mult)
     raise NotImplementedError

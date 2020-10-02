@@ -73,8 +73,8 @@ in order to use it. It is relatively slow.
 See :class:`asreview.feature_extraction.SBERT`
 
 
-Classiers
----------
+Classifiers
+-----------
 
 There are several machine learning classifiers implemented. At the moment of writing, one of the best performing classfiers is the Naive Bayes classifier.
 

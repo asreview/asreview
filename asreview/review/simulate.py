@@ -21,7 +21,52 @@ from asreview.review import BaseReview
 
 
 class ReviewSimulate(BaseReview):
-    """Automated Systematic Review in simulation mode."""
+    """ASReview Simulation mode class.
+
+    Arguments
+    ---------
+    as_data: asreview.ASReviewData
+        The data object which contains the text, labels, etc.
+    model: BaseModel
+        Initialized model to fit the data during active learning.
+        See asreview.models.utils.py for possible models.
+    query_model: BaseQueryModel
+        Initialized model to query new instances for review, such as random
+        sampling or max sampling.
+        See asreview.query_strategies.utils.py for query models.
+    balance_model: BaseBalanceModel
+        Initialized model to redistribute the training data during the
+        active learning process. They might either resample or undersample
+        specific papers.
+    feature_model: BaseFeatureModel
+        Feature extraction model that converts texts and keywords to
+        feature matrices.
+    n_prior_included: int
+        Sample n prior included papers.
+    n_prior_excluded: int
+        Sample n prior excluded papers.
+    prior_idx: int
+        Prior indices by id.
+    n_papers: int
+        Number of papers to review during the active learning process,
+        excluding the number of initial priors. To review all papers, set
+        n_papers to None.
+    n_instances: int
+        Number of papers to query at each step in the active learning
+        process.
+    n_queries: int
+        Number of steps/queries to perform. Set to None for no limit.
+    start_idx: numpy.array
+        Start the simulation/review with these indices. They are assumed to
+        be already labeled. Failing to do so might result bad behaviour.
+    init_seed: int
+        Seed for setting the prior indices if the --prior_idx option is
+        not used. If the option prior_idx is used with one or more
+        index, this option is ignored.
+    state_file: str
+        Path to state file. Replaces log_file argument.
+    """
+
     name = "simulate"
 
     def __init__(self,
