@@ -54,8 +54,8 @@ class ClusterQuery(ProbaQueryStrategy):
             pool_idx = np.arange(n_samples)
 
         last_update = self.last_update
-        if (last_update is None or self.update_interval is None
-                or last_update - len(pool_idx) >= self.update_interval):
+        if (last_update is None or self.update_interval is None or
+                last_update - len(pool_idx) >= self.update_interval):
             n_clusters = round(len(pool_idx) / self.cluster_size)
             if n_clusters <= 1:
                 return self.fallback_model._query(

@@ -21,9 +21,7 @@ import sys
 from asreview import __version__
 
 
-PROG_DESCRIPTION = f"""
-Automated Systematic Review (ASReview).
-"""
+PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
 
 
 def main():

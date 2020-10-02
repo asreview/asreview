@@ -203,7 +203,7 @@ def is_url(url):
         result = urlparse(url)
         return all(getattr(result, x) != ""
                    for x in ["scheme", "netloc", "path"])
-    except:
+    except Exception:
         return False
 
 
