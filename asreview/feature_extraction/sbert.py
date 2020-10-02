@@ -4,6 +4,8 @@ try:
     from sentence_transformers.SentenceTransformer import SentenceTransformer  # noqa
 except ImportError:
     ST_AVAILABLE = False
+else:
+    ST_AVAILABLE = True
 
 from asreview.feature_extraction.base import BaseFeatureExtraction
 

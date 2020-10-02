@@ -17,6 +17,7 @@ try:
     from gensim.utils import simple_preprocess
     from gensim.models.doc2vec import TaggedDocument
     from gensim.models.doc2vec import Doc2Vec as GenSimDoc2Vec
+    GENSIM_AVAILABLE = True
 except ImportError:
     GENSIM_AVAILABLE = False
 

@@ -33,6 +33,8 @@ try:
     from tensorflow.keras.preprocessing.sequence import pad_sequences
 except ImportError:
     TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
 
 
 def _check_tensorflow():

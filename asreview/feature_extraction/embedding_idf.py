@@ -23,6 +23,7 @@ try:
 except ImportError:
     TF_AVAILABLE = False
 else:
+    TF_AVAILABLE = True
     try:
         tf.logging.set_verbosity(tf.logging.ERROR)
     except AttributeError:
