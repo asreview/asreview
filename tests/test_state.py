@@ -45,32 +45,33 @@ def check_write_state(tmpdir, state_file):
     else:
         state_fp = None
 
-    settings = ASReviewSettings(mode="simulate", model="nb",
+    settings = ASReviewSettings(mode="simulate",
+                                model="nb",
                                 query_strategy="rand_max",
                                 balance_strategy="simple",
                                 feature_extraction="tfidf")
 
     n_records = 6
-    n_half = int(n_records/2)
+    n_half = int(n_records / 2)
     start_labels = np.full(n_records, np.nan, dtype=np.int)
     labels = np.zeros(n_records, dtype=np.int)
     labels[::2] = np.ones(n_half, dtype=np.int)
     methods = np.full((n_records), "initial")
-    methods[2::] = np.full((int(n_records-2)), "random")
-    methods[2::2] = np.full((int((n_records-2)/2)), "max")
+    methods[2::] = np.full((int(n_records - 2)), "random")
+    methods[2::2] = np.full((int((n_records - 2) / 2)), "max")
 
     with open_state(state_fp) as state:
         state.settings = settings
         state.set_labels(start_labels)
         current_labels = np.copy(start_labels)
         for i in range(n_records):
-            query_i = int(i/2)
+            query_i = int(i / 2)
             proba = None
             if i >= 2 and (i % 2) == 0:
                 proba = np.random.rand(n_records)
             state.add_classification([i], [labels[i]], [methods[i]], query_i)
             if proba is not None:
-                state.add_proba(np.arange(i+1, n_records), np.arange(i+1),
+                state.add_proba(np.arange(i + 1, n_records), np.arange(i + 1),
                                 proba, query_i)
             current_labels[i] = labels[i]
             state.set_labels(current_labels)
@@ -82,18 +83,18 @@ def check_state(state, label_i, query_i, labels, methods, proba):
 
     state_labels = state.get("labels")
     assert len(state_labels) == len(labels)
-    for i in range(label_i+1):
+    for i in range(label_i + 1):
         assert state_labels[i] == labels[i]
-    for i in range(label_i+1, n_records):
+    for i in range(label_i + 1, n_records):
         assert state_labels[i] == np.full(1, np.nan, dtype=np.int)[0]
 
     result_dict = state.to_dict()
     cur_i = 0
-    for qi in range(query_i+1):
+    for qi in range(query_i + 1):
         res = result_dict["results"][qi]
         max_i = cur_i + len(res["label_methods"])
         for j in range(len(res["label_methods"])):
-            assert res["label_methods"][j] == methods[j+cur_i]
+            assert res["label_methods"][j] == methods[j + cur_i]
         assert np.all(res["label_idx"] == np.arange(cur_i, max_i))
         assert np.all(res["inclusions"] == labels[cur_i:max_i])
         cur_i = max_i
@@ -101,5 +102,5 @@ def check_state(state, label_i, query_i, labels, methods, proba):
     if proba is not None:
         res = result_dict["results"][query_i]
         assert np.all(res["proba"] == proba)
-        assert np.all(res["pool_idx"] == list(range(label_i+1, n_records)))
-        assert np.all(res["train_idx"] == list(range(0, label_i+1)))
+        assert np.all(res["pool_idx"] == list(range(label_i + 1, n_records)))
+        assert np.all(res["train_idx"] == list(range(0, label_i + 1)))
