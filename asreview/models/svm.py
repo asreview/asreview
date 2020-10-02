@@ -17,10 +17,6 @@ from sklearn.svm import SVC
 from asreview.models.base import BaseTrainModel
 from asreview.utils import _set_class_weight
 
-# Parameter values
-CLASS_WEIGHT = 0.249
-C_PARAM = 15.4
-
 
 class SVMModel(BaseTrainModel):
     """
@@ -47,8 +43,8 @@ class SVMModel(BaseTrainModel):
 
     def __init__(self,
                  gamma="auto",
-                 class_weight=CLASS_WEIGHT,
-                 C=C_PARAM,
+                 class_weight=0.249,
+                 C=15.4,
                  kernel="linear",
                  random_state=None):
         super(SVMModel, self).__init__()

@@ -19,8 +19,6 @@ import numpy as np
 from asreview.balance_strategies.base import BaseBalance
 from asreview.utils import get_random_state
 
-PARAM_RATIO = 1.0
-
 
 class UndersampleBalance(BaseBalance):
     """Balancing class that undersamples the data with a given ratio.
@@ -34,7 +32,7 @@ class UndersampleBalance(BaseBalance):
 
     name = "undersample"
 
-    def __init__(self, ratio=PARAM_RATIO, random_state=None):
+    def __init__(self, ratio=1.0, random_state=None):
         """Initialize the undersampling balance strategy."""
         super(UndersampleBalance, self).__init__()
         self.ratio = ratio

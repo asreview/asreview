@@ -24,13 +24,6 @@ from asreview.balance_strategies.double import fill_training
 from asreview.balance_strategies.double import random_round
 from asreview.utils import get_random_state
 
-PARAM_A = 2.155
-PARAM_ALPHA = 0.94
-PARAM_B = 0.789
-PARAM_BETA = 1.0
-PARAM_C = 0.835
-PARAM_GAMMA = 2.0
-
 
 class TripleBalance(BaseBalance):
     """Triple balance strategy.
@@ -69,12 +62,12 @@ class TripleBalance(BaseBalance):
     name = "triple"
 
     def __init__(self,
-                 a=PARAM_A,
-                 alpha=PARAM_ALPHA,
-                 b=PARAM_B,
-                 beta=PARAM_BETA,
-                 c=PARAM_C,
-                 gamma=PARAM_GAMMA,
+                 a=2.155,
+                 alpha=0.94,
+                 b=0.789,
+                 beta=1.0,
+                 c=0.835,
+                 gamma=2.0,
                  shuffle=True,
                  random_state=None):
         """Initialize the triple balance strategy."""

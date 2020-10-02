@@ -20,11 +20,6 @@ from asreview.balance_strategies.base import BaseBalance
 from asreview.balance_strategies.simple import SimpleBalance
 from asreview.utils import get_random_state
 
-PARAM_A = 2.155
-PARAM_ALPHA = 0.94
-PARAM_B = 0.789
-PARAM_BETA = 1.0
-
 
 class DoubleBalance(BaseBalance):
     """Dynamic Resampling balance strategy.
@@ -56,10 +51,10 @@ class DoubleBalance(BaseBalance):
     name = "double"
 
     def __init__(self,
-                 a=PARAM_A,
-                 alpha=PARAM_ALPHA,
-                 b=PARAM_B,
-                 beta=PARAM_BETA,
+                 a=2.155,
+                 alpha=0.94,
+                 b=0.789,
+                 beta=1.0,
                  random_state=None):
         super(DoubleBalance, self).__init__()
         self.a = a

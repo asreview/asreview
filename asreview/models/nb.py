@@ -18,9 +18,6 @@ from sklearn.naive_bayes import MultinomialNB
 
 from asreview.models.base import BaseTrainModel
 
-# Parameter values
-ALPHA = 3.822
-
 
 class NBModel(BaseTrainModel):
     """
@@ -38,7 +35,7 @@ class NBModel(BaseTrainModel):
 
     name = "nb"
 
-    def __init__(self, alpha=ALPHA):
+    def __init__(self, alpha=3.822):
 
         super(NBModel, self).__init__()
         self.alpha = alpha
