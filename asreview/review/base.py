@@ -73,7 +73,42 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
 
 
 class BaseReview(ABC):
-    """Base class for Systematic Review"""
+    """Base class for Systematic Review.
+
+    Arguments
+    ---------
+    as_data: asreview.ASReviewData
+        The data object which contains the text, labels, etc.
+    model: BaseModel
+        Initialized model to fit the data during active learning.
+        See asreview.models.utils.py for possible models.
+    query_model: BaseQueryModel
+        Initialized model to query new instances for review, such as random
+        sampling or max sampling.
+        See asreview.query_strategies.utils.py for query models.
+    balance_model: BaseBalanceModel
+        Initialized model to redistribute the training data during the
+        active learning process. They might either resample or undersample
+        specific papers.
+    feature_model: BaseFeatureModel
+        Feature extraction model that converts texts and keywords to
+        feature matrices.
+    n_papers: int
+        Number of papers to review during the active learning process,
+        excluding the number of initial priors. To review all papers, set
+        n_papers to None.
+    n_instances: int
+        Number of papers to query at each step in the active learning
+        process.
+    n_queries: int
+        Number of steps/queries to perform. Set to None for no limit.
+    start_idx: numpy.array
+        Start the simulation/review with these indices. They are assumed to
+        be already labeled. Failing to do so might result bad behaviour.
+    state_file: str
+        Path to state file. Replaces log_file argument.
+    """
+
     name = "base"
 
     def __init__(self,
@@ -89,41 +124,7 @@ class BaseReview(ABC):
                  state_file=None,
                  log_file=None,
                  ):
-        """ Initialize base class for systematic reviews.
-
-        Arguments
-        ---------
-        as_data: asreview.ASReviewData
-            The data object which contains the text, labels, etc.
-        model: BaseModel
-            Initialized model to fit the data during active learning.
-            See asreview.models.utils.py for possible models.
-        query_model: BaseQueryModel
-            Initialized model to query new instances for review, such as random
-            sampling or max sampling.
-            See asreview.query_strategies.utils.py for query models.
-        balance_model: BaseBalanceModel
-            Initialized model to redistribute the training data during the
-            active learning process. They might either resample or undersample
-            specific papers.
-        feature_model: BaseFeatureModel
-            Feature extraction model that converts texts and keywords to
-            feature matrices.
-        n_papers: int
-            Number of papers to review during the active learning process,
-            excluding the number of initial priors. To review all papers, set
-            n_papers to None.
-        n_instances: int
-            Number of papers to query at each step in the active learning
-            process.
-        n_queries: int
-            Number of steps/queries to perform. Set to None for no limit.
-        start_idx: numpy.array
-            Start the simulation/review with these indices. They are assumed to
-            be already labeled. Failing to do so might result bad behaviour.
-        state_file: str
-            Path to state file. Replaces log_file argument.
-        """
+        """Initialize base class for systematic reviews."""
         super(BaseReview, self).__init__()
 
         # Default to Naive Bayes model
@@ -259,7 +260,13 @@ class BaseReview(ABC):
         return stop_iter
 
     def n_pool(self):
-        """Number of indices left in the pool"""
+        """Number of indices left in the pool.
+
+        Returns
+        -------
+        int:
+            Number of indices left in the pool.
+        """
         return self.X.shape[0] - len(self.train_idx)
 
     def _next_n_instances(self):  # Could be merged with _stop_iter someday.
@@ -352,12 +359,12 @@ class BaseReview(ABC):
             self.shared["current_queries"] = {}
 
     def query(self, n_instances, query_model=None):
-        """Query new results.
+        """Query records from pool.
 
         Arguments
         ---------
         n_instances: int
-            Batch size of the queries, i.e. number of papers to be queried.
+            Batch size of the queries, i.e. number of records to be queried.
         query_model: BaseQueryModel
             Query strategy model to use. If None, the query model of the
             reviewer is used.
@@ -365,7 +372,7 @@ class BaseReview(ABC):
         Returns
         -------
         np.array:
-            Indices of papers queried.
+            Indices of records queried.
         """
 
         pool_idx = get_pool_idx(self.X, self.train_idx)
@@ -393,7 +400,7 @@ class BaseReview(ABC):
         return query_idx
 
     def classify(self, query_idx, inclusions, state, method=None):
-        """ Classify new papers and update the training indices.
+        """Classify new papers and update the training indices.
 
         It automaticaly updates the state.
 
@@ -460,7 +467,14 @@ class BaseReview(ABC):
             self.query_i_classified = 0
 
     def statistics(self):
-        "Get a number of statistics about the current state of the review."
+        """Get statistics on the current state of the review.
+
+        Returns
+        -------
+        dict:
+            A dictonary with statistics like n_included and
+            last_inclusion.
+        """
         try:
             n_initial = len(self.shared['query_src']['initial'])
         except KeyError:

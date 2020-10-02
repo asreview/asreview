@@ -16,5 +16,9 @@ from asreview.models.nb import NBModel
 from asreview.models.rf import RFModel
 from asreview.models.svm import SVMModel
 from asreview.models.logistic import LogisticModel
+from asreview.models.lstm_base import LSTMBaseModel
+from asreview.models.lstm_pool import LSTMPoolModel
+from asreview.models.nn_2_layer import NN2LayerModel
 from asreview.models.utils import get_model
 from asreview.models.utils import get_model_class
+from asreview.models.utils import list_classifiers

@@ -1,8 +1,9 @@
 from pytest import mark
 import numpy as np
 
-from asreview.query_strategies.utils import get_query_model
 from asreview.models.utils import get_model
+from asreview.query_strategies.utils import get_query_model
+from asreview.query_strategies.utils import list_query_strategies
 
 
 @mark.parametrize(
@@ -61,3 +62,7 @@ def check_integrity(query_idx, X_query, X, pool_idx, shared,
     for idx, src in shared["current_queries"].items():
         assert src in sources
         assert idx in query_idx
+
+
+def test_query_general():
+    assert len(list_query_strategies()) >= 4

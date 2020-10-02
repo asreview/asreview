@@ -2,9 +2,23 @@ import os
 from shutil import copyfile
 
 import numpy as np
+import pytest
 
+
+from asreview.models.utils import list_classifiers
 from asreview.state import open_state
 from asreview.review.factory import get_reviewer
+
+ADVANCED_DEPS = {
+    "tensorflow": False
+}
+
+try:
+    import tensorflow  # noqa
+    ADVANCED_DEPS["tensorflow"] = True
+except ImportError:
+    pass
+
 
 data_fp = os.path.join("tests", "demo_data", "generic_labels.csv")
 data_fp_no_abs = os.path.join("tests", "demo_data", "generic_labels_no_abs.csv")
@@ -42,19 +56,6 @@ def test_state_continue_h5():
     check_model(mode="simulate", model="nb", state_file=h5_state_file,
                 continue_from_state=True, n_instances=1, n_queries=2)
 
-
-def test_lstm_base():
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_base.ini"),
-                state_file=h5_state_file)
-
-
-def test_lstm_pool():
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
-                state_file=json_state_file)
-
-
 def test_nb():
     check_model(mode="simulate",
                 model="nb",
@@ -81,6 +82,7 @@ def test_rf():
                 data_fp=data_fp_no_title)
 
 
+@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"], raises=ImportError, reason="requires tensorflow")
 def test_nn_2_layer():
     check_model(mode="simulate",
                 model="nn-2-layer",
@@ -88,11 +90,30 @@ def test_nn_2_layer():
                 n_instances=1, n_queries=2)
 
 
+@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"], raises=ImportError, reason="requires tensorflow")
+def test_lstm_base():
+
+    check_model(mode="simulate",
+                config_file=os.path.join(cfg_dir, "lstm_base.ini"),
+                state_file=h5_state_file)
+
+
+@pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"], raises=ImportError, reason="requires tensorflow")
+def test_lstm_pool():
+    check_model(mode="simulate",
+                config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+                state_file=json_state_file)
+
+
 def test_logistic():
     check_model(mode="simulate",
                 model="logistic",
                 state_file=json_state_file,
                 n_instances=1, n_queries=2)
+
+
+def test_classifiers():
+    assert len(list_classifiers()) >= 7
 
 
 def check_label_methods(label_methods, n_labels, methods):

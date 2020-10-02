@@ -21,11 +21,16 @@ from asreview.base_model import BaseModel
 
 
 class BaseQueryStrategy(BaseModel):
-    "Abstract class for query strategies."
+    """Abstract class for query strategies."""
+
     name = "base-query"
 
     @abstractmethod
-    def query(self, X, classifier=None, pool_idx=None, n_instances=1,
+    def query(self,
+              X,
+              classifier=None,
+              pool_idx=None,
+              n_instances=1,
               shared={}):
         """Query new instances.
 

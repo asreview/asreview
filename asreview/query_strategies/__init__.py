@@ -19,3 +19,4 @@ from asreview.query_strategies.random import RandomQuery
 from asreview.query_strategies.cluster import ClusterQuery
 from asreview.query_strategies.utils import get_query_model
 from asreview.query_strategies.utils import get_query_class
+from asreview.query_strategies.utils import list_query_strategies

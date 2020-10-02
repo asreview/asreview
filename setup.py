@@ -154,6 +154,18 @@ setup(
             'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  # noqa
             'sbert = asreview.feature_extraction.sbert:SBERT',
             'tfidf = asreview.feature_extraction.tfidf:Tfidf',
+        ],
+        'asreview.balance_strategy': [
+            "simple = asreview.balance_strategies.simple:SimpleBalance",
+            "double = asreview.balance_strategies.double:DoubleBalance",
+            "triple = asreview.balance_strategies.triple:TripleBalance",
+            "undersample = asreview.balance_strategies.undersample:UndersampleBalance",  #noqa
+        ],
+        'asreview.query_strategy': [
+            "max = asreview.query_strategies.max:MaxQuery",
+            "random = asreview.query_strategies.random:RandomQuery",
+            "uncertainty = asreview.query_strategies.uncertainty:UncertaintyQuery",  #noqa
+            "cluster = asreview.query_strategies.cluster:ClusterQuery",
         ]
     },
     project_urls={

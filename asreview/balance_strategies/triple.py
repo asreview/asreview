@@ -26,12 +26,39 @@ from asreview.utils import get_random_state
 
 
 class TripleBalance(BaseBalance):
-    """
+    """Triple balance strategy.
+
     Class to get the three way rebalancing function and arguments.
     It divides the data into three groups: 1's, 0's from random sampling,
     and 0's from max sampling. Thus it only makes sense to use this class in
     combination with the rand_max query strategy.
+
+    Arguments
+    ---------
+    a: float
+        Governs the weight of the 1's. Higher values mean linearly more 1's
+        in your training sample.
+    alpha: float
+        Governs the scaling the weight of the 1's, as a function of the
+        ratio of ones to zeros. A positive value means that the lower the
+        ratio of zeros to ones, the higher the weight of the ones.
+    b: float
+        Governs how strongly we want to sample depending on the total
+        number of samples. A value of 1 means no dependence on the total
+        number of samples, while lower values mean increasingly stronger
+        dependence on the number of samples.
+    beta: float
+        Governs the scaling of the weight of the zeros depending on the
+        number of samples. Higher values means that larger samples are more
+        strongly penalizing zeros.
+    c: float
+        Value between one and zero that governs the weight of samples done
+        with maximal sampling. Higher values mean higher weight.
+    gamma: float
+        Governs the scaling of the weight of the max samples as a function
+        of the % of papers read. Higher values mean stronger scaling.
     """
+
     name = "triple"
 
     def __init__(self,
@@ -43,33 +70,7 @@ class TripleBalance(BaseBalance):
                  gamma=2.0,
                  shuffle=True,
                  random_state=None):
-        """Initialize the triple balance strategy.
-
-        Arguments
-        ---------
-        a: float
-            Governs the weight of the 1's. Higher values mean linearly more 1's
-            in your training sample.
-        alpha: float
-            Governs the scaling the weight of the 1's, as a function of the
-            ratio of ones to zeros. A positive value means that the lower the
-            ratio of zeros to ones, the higher the weight of the ones.
-        b: float
-            Governs how strongly we want to sample depending on the total
-            number of samples. A value of 1 means no dependence on the total
-            number of samples, while lower values mean increasingly stronger
-            dependence on the number of samples.
-        beta: float
-            Governs the scaling of the weight of the zeros depending on the
-            number of samples. Higher values means that larger samples are more
-            strongly penalizing zeros.
-        c: float
-            Value between one and zero that governs the weight of samples done
-            with maximal sampling. Higher values mean higher weight.
-        gamma: float
-            Governs the scaling of the weight of the max samples as a function
-            of the % of papers read. Higher values mean stronger scaling.
-        """
+        """Initialize the triple balance strategy."""
         super(TripleBalance, self).__init__()
         self.a = a
         self.alpha = alpha
@@ -78,11 +79,29 @@ class TripleBalance(BaseBalance):
         self.c = c
         self.gamma = gamma
         self.shuffle = shuffle
-        self.fallback_model = DoubleBalance(a=a, alpha=alpha, b=b, beta=beta,
-                                            random_state=random_state)
+        self.fallback_model = DoubleBalance(
+            a=a, alpha=alpha, b=b, beta=beta, random_state=random_state)
         self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
+        """Resample the training data.
+
+        Arguments
+        ---------
+        X: np.array
+            Complete feature matrix.
+        y: np.array
+            Labels for all papers.
+        train_idx: np.array
+            Training indices, that is all papers that have been reviewed.
+        shared: dict
+            Dictionary to share data between balancing models and other models.
+
+        Returns
+        -------
+        np.array, np.array:
+            X_train, y_train: the resampled matrix, labels.
+        """
         max_idx = np.array(shared["query_src"].get("max", []), dtype=np.int)
         rand_idx = np.array([], dtype=np.int)
         for qtype in shared["query_src"]:
