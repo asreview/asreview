@@ -16,17 +16,23 @@ import numpy as np
 try:
     from gensim.utils import simple_preprocess
     from gensim.models.doc2vec import TaggedDocument
+    from gensim.models.doc2vec import Doc2Vec as GenSimDoc2Vec
 except ImportError:
-    raise ImportError("Install gensim package (`pip install gensim`) to use"
-                      " 'doc2vec' model.")
+    GENSIM_AVAILABLE = False
 
 from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
-def _train_model(corpus, *args, **kwargs):
-    import gensim
+def _check_gensim():
+    if not GENSIM_AVAILABLE:
+        raise ImportError(
+            "Install gensim package (`pip install gensim`) to use"
+            " 'Doc2Vec' model.")
 
-    model = gensim.models.doc2vec.Doc2Vec(*args, **kwargs)
+
+def _train_model(corpus, *args, **kwargs):
+
+    model = GenSimDoc2Vec(*args, **kwargs)
     model.build_vocab(corpus)
     model.train(corpus, total_examples=model.corpus_count, epochs=model.epochs)
     return model
@@ -42,6 +48,8 @@ def _transform_text(model, corpus):
 
 class Doc2Vec(BaseFeatureExtraction):
     """Base class for doc2vec feature extraction.
+
+    Requires 'gensim' installation.
 
     Arguments
     ---------
@@ -98,6 +106,9 @@ class Doc2Vec(BaseFeatureExtraction):
 
     def fit(self, texts):
 
+        # check is gensim is available
+        _check_gensim()
+
         model_param = {
             "vector_size": self.vector_size,
             "epochs": self.epochs,
@@ -123,6 +134,10 @@ class Doc2Vec(BaseFeatureExtraction):
             self.model = _train_model(corpus, **model_param, dm=self.dm)
 
     def transform(self, texts):
+
+        # check is gensim is available
+        _check_gensim()
+
         corpus = [
             TaggedDocument(simple_preprocess(text), [i])
             for i, text in enumerate(texts)

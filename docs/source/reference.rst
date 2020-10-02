@@ -31,13 +31,13 @@ Models
 .. autoclass:: asreview.models.LogisticModel
    :members:
    :inherited-members:
-.. autoclass:: asreview.models.lstm_base.LSTMBaseModel
+.. autoclass:: asreview.models.LSTMBaseModel
    :members:
    :inherited-members:
-.. autoclass:: asreview.models.lstm_pool.LSTMPoolModel
+.. autoclass:: asreview.models.LSTMPoolModel
    :members:
    :inherited-members:
-.. autoclass:: asreview.models.nn_2_layer.NN2LayerModel
+.. autoclass:: asreview.models.NN2LayerModel
    :members:
    :inherited-members:
 .. autofunction:: asreview.models.get_model

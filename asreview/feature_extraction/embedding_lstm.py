@@ -28,6 +28,20 @@ from asreview.utils import get_data_home
 from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
+try:
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+except ImportError:
+    TF_AVAILABLE = False
+
+
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingLSTM'.")
+
+
 class EmbeddingLSTM(BaseFeatureExtraction):
     """Class to create embedding matrices for LSTM models.
 
@@ -70,6 +84,9 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         self.loop_sequence = loop_sequence
 
     def transform(self, texts):
+
+        _check_tensorflow()
+
         self.X, self.word_index = text_to_features(
             texts,
             loop_sequence=self.loop_sequence,
@@ -80,6 +97,9 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         return self.X
 
     def get_embedding_matrix(self, texts, embedding_fp):
+
+        _check_tensorflow()
+
         self.fit_transform(texts)
         if embedding_fp is None:
             embedding_fp = Path(get_data_home(),
@@ -156,9 +176,6 @@ def text_to_features(sequences,
     np.ndarray, dict
         The array with features and the dictiory that maps words to values.
     """
-
-    from tensorflow.keras.preprocessing.text import Tokenizer
-    from tensorflow.keras.preprocessing.sequence import pad_sequences
 
     # fit on texts
     tokenizer = Tokenizer(num_words=num_words)

@@ -12,26 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from math import log
 
 import numpy as np
-import logging
 
 try:
     import tensorflow as tf
+    from tensorflow.keras.preprocessing.text import text_to_word_sequence
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'embedding-idf' model.")
+    TF_AVAILABLE = False
+else:
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
-from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.base import BaseFeatureExtraction
 from asreview.utils import get_random_state
+
+
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
@@ -58,6 +65,10 @@ class EmbeddingIdf(BaseFeatureExtraction):
         self._random_state = get_random_state(random_state)
 
     def transform(self, texts):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         if self.embedding is None:
             if self.embedding_fp is None:
                 raise ValueError(
