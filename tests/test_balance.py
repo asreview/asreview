@@ -2,6 +2,7 @@ from pytest import mark
 import numpy as np
 
 from asreview.balance_strategies.utils import get_balance_model
+from asreview.balance_strategies.utils import list_balance_strategies
 
 
 def generate_data(n_feature=20, n_sample=10):
@@ -55,3 +56,7 @@ def test_balance(balance_strategy, n_partition=100, n_feature=200,
         shared = {"query_src": {}, "current_queries": {}}
         X_train, y_train = model.sample(X, y, train_idx, shared)
         check_partition(X, y, X_train, y_train, train_idx)
+
+
+def test_balance_general():
+    assert len(list_balance_strategies()) >= 4

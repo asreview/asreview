@@ -18,3 +18,4 @@ from asreview.balance_strategies.triple import TripleBalance
 from asreview.balance_strategies.undersample import UndersampleBalance
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.balance_strategies.utils import get_balance_class
+from asreview.balance_strategies.utils import list_balance_strategies

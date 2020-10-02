@@ -20,3 +20,4 @@ from asreview.feature_extraction.sbert import SBERT
 
 from asreview.feature_extraction.utils import get_feature_model
 from asreview.feature_extraction.utils import get_feature_class
+from asreview.feature_extraction.utils import list_feature_extraction
