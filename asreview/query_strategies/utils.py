@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from asreview.utils import list_model_names
-from asreview.utils import model_class_from_entry_point
+from asreview.utils import _model_class_from_entry_point
 
 
 def list_query_strategies():
@@ -48,7 +48,7 @@ def get_query_class(method):
 
     # Try to split the query strategy if the string wasn't found.
     try:
-        return model_class_from_entry_point(
+        return _model_class_from_entry_point(
             method,
             entry_name="asreview.query_strategy")
     except ValueError:

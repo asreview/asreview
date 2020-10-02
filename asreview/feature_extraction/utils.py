@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from asreview.utils import list_model_names
-from asreview.utils import model_class_from_entry_point
+from asreview.utils import _model_class_from_entry_point
 
 
 def list_feature_extraction():
@@ -40,7 +40,7 @@ def get_feature_class(method):
     BaseFeatureExtraction:
         Class corresponding to the method.
     """
-    return model_class_from_entry_point(method, "asreview.feature_extraction")
+    return _model_class_from_entry_point(method, "asreview.feature_extraction")
 
 
 def get_feature_model(method, *args, random_state=None, **kwargs):

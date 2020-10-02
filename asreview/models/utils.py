@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from asreview.utils import list_model_names
-from asreview.utils import model_class_from_entry_point
+from asreview.utils import _model_class_from_entry_point
 
 
 def list_classfiers():
@@ -40,7 +40,7 @@ def get_model_class(method):
     BaseModel:
         Class corresponding to the method.
     """
-    return model_class_from_entry_point(method, "asreview.models")
+    return _model_class_from_entry_point(method, "asreview.models")
 
 
 def get_model(method, *args, random_state=None, **kwargs):

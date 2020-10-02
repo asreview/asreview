@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from asreview.utils import list_model_names
-from asreview.utils import model_class_from_entry_point
+from asreview.utils import _model_class_from_entry_point
 
 
 def list_balance_strategies():
@@ -40,8 +40,9 @@ def get_balance_class(method):
     BaseBalanceModel:
         Class corresponding to the method.
     """
-    return model_class_from_entry_point(method,
-                                        entry_name="asreview.balance_strategy")
+    return _model_class_from_entry_point(
+        method,
+        entry_name="asreview.balance_strategy")
 
 
 def get_balance_model(method, *args, random_state=None, **kwargs):
