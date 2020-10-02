@@ -12,6 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.utils import list_model_names
+from asreview.utils import model_class_from_entry_point
+
+
+def list_query_strategies():
+    """List available query strategies.
+
+    This excludes all possible mixed query strategies.
+
+    Returns
+    -------
+    list:
+        Names of available query strategies in alphabetical order.
+    """
+    return list_model_names(entry_name="asreview.query_strategy")
+
 
 def get_query_class(method):
     """Get class of query strategy from its name.
@@ -28,22 +44,14 @@ def get_query_class(method):
     BaseQueryModel:
         Class corresponding to the method name.
     """
-    from asreview.query_strategies.cluster import ClusterQuery
-    from asreview.query_strategies.max import MaxQuery
-    from asreview.query_strategies.uncertainty import UncertaintyQuery
-    from asreview.query_strategies.random import RandomQuery
     from asreview.query_strategies.mixed import MixedQuery
-    query_models = {
-        "cluster": ClusterQuery,
-        "max": MaxQuery,
-        "uncertainty": UncertaintyQuery,
-        "random": RandomQuery,
-    }
 
     # Try to split the query strategy if the string wasn't found.
     try:
-        return query_models[method]
-    except KeyError:
+        return model_class_from_entry_point(
+            method,
+            entry_name="asreview.query_strategy")
+    except ValueError:
         mix = method.split("_")
         if len(mix) == 2:
             return MixedQuery

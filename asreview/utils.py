@@ -175,6 +175,11 @@ def is_iterable(i):
         return False
 
 
+def list_model_names(entry_name="asreview.models"):
+    return [entry.name
+            for entry in pkg_resources.iter_entry_points(entry_name)]
+
+
 def model_class_from_entry_point(method, entry_name="asreview.models"):
     entry_points = {
         entry.name: entry

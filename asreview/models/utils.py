@@ -12,7 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.utils import list_model_names
 from asreview.utils import model_class_from_entry_point
+
+
+def list_classfiers():
+    """List available classifiers.
+
+    Returns
+    -------
+    list:
+        Names of available classifiers in alphabetical order.
+    """
+    return list_model_names(entry_name="asreview.classifiers")
 
 
 def get_model_class(method):

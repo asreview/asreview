@@ -12,10 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.balance_strategies.simple import SimpleBalance
-from asreview.balance_strategies.triple import TripleBalance
-from asreview.balance_strategies.undersample import UndersampleBalance
-from asreview.balance_strategies.double import DoubleBalance
+from asreview.utils import list_model_names
+from asreview.utils import model_class_from_entry_point
+
+
+def list_balance_strategies():
+    """List available balancing strategies.
+
+    Returns
+    -------
+    list:
+        Names of available balance strategies in alphabetical order.
+    """
+    return list_model_names(entry_name="asreview.balance_strategy")
 
 
 def get_balance_class(method):
@@ -31,17 +40,8 @@ def get_balance_class(method):
     BaseBalanceModel:
         Class corresponding to the method.
     """
-    balance_models = {
-        "simple": SimpleBalance,
-        "double": DoubleBalance,
-        "triple": TripleBalance,
-        "undersample": UndersampleBalance,
-    }
-    try:
-        return balance_models[method]
-    except KeyError:
-        raise ValueError(
-            f"Error: balance method '{method}' is not implemented.")
+    return model_class_from_entry_point(method,
+                                        entry_name="asreview.balance_strategy")
 
 
 def get_balance_model(method, *args, random_state=None, **kwargs):
