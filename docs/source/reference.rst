@@ -40,6 +40,7 @@ Models
 .. autoclass:: asreview.models.NN2LayerModel
    :members:
    :inherited-members:
+.. autofunction:: asreview.models.list_classifiers
 .. autofunction:: asreview.models.get_model
 .. autofunction:: asreview.models.get_model_class
 
@@ -62,6 +63,7 @@ Query strategies
 .. autoclass:: asreview.query_strategies.ClusterQuery
    :members:
    :inherited-members:
+.. autofunction:: asreview.query_strategies.list_query_strategies
 .. autofunction:: asreview.query_strategies.get_query_model
 .. autofunction:: asreview.query_strategies.get_query_class
 
@@ -81,6 +83,7 @@ Balance Strategies
 .. autoclass:: asreview.balance_strategies.UndersampleBalance
    :members:
    :inherited-members:
+.. autofunction:: asreview.balance_strategies.list_balance_strategies
 .. autofunction:: asreview.balance_strategies.get_balance_model
 .. autofunction:: asreview.balance_strategies.get_balance_class
 
@@ -103,6 +106,7 @@ Feature Extraction
 .. autoclass:: asreview.feature_extraction.SBERT
    :members:
    :inherited-members:
+.. autofunction:: asreview.feature_extraction.list_feature_extraction
 .. autofunction:: asreview.feature_extraction.get_feature_model
 .. autofunction:: asreview.feature_extraction.get_feature_class
 

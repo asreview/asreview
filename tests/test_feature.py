@@ -2,8 +2,9 @@ import os
 
 import pytest
 
-from asreview.feature_extraction.utils import get_feature_model
 from asreview import ASReviewData
+from asreview.feature_extraction.utils import get_feature_model
+from asreview.feature_extraction.utils import list_feature_extraction
 
 ADVANCED_DEPS = {
     "tensorflow": False
@@ -54,3 +55,7 @@ def test_features(feature_extraction, split_ta):
     assert X.shape[1] > 0
     assert isinstance(model.param, dict)
     assert model.name == feature_extraction
+
+
+def test_feature_general():
+    assert len(list_feature_extraction()) >= 5
