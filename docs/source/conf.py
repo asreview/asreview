@@ -43,7 +43,12 @@ autodoc_mock_imports = [
     "h5py",
     "fuzzywuzzy",
     "dill",
-    "PyInquirer"
+    "PyInquirer",
+    "gensim",
+    "gensim.utils"
+    "gensim.models.doc2vec",
+    "sentence_transformers",
+    "sentence_transformers.SentenceTransformer",
 ]
 
 

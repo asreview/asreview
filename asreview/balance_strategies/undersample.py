@@ -22,23 +22,41 @@ from asreview.utils import get_random_state
 
 class UndersampleBalance(BaseBalance):
     """Balancing class that undersamples the data with a given ratio.
+
+    Arguments
+    ---------
+    ratio: double
+        Undersampling ratio of the zero's. If for example we set a ratio of
+        0.25, we would sample only a quarter of the zeros and all the ones.
     """
+
     name = "undersample"
 
     def __init__(self, ratio=1.0, random_state=None):
-        """Initialize the undersampling balance strategy.
-
-        Arguments
-        ---------
-        ratio: double
-            Undersampling ratio of the zero's. If for example we set a ratio of
-            0.25, we would sample only a quarter of the zeros and all the ones.
-        """
+        """Initialize the undersampling balance strategy."""
         super(UndersampleBalance, self).__init__()
         self.ratio = ratio
         self._random_state = get_random_state(random_state)
 
     def sample(self, X, y, train_idx, shared):
+        """Resample the training data.
+
+        Arguments
+        ---------
+        X: np.array
+            Complete feature matrix.
+        y: np.array
+            Labels for all papers.
+        train_idx: np.array
+            Training indices, that is all papers that have been reviewed.
+        shared: dict
+            Dictionary to share data between balancing models and other models.
+
+        Returns
+        -------
+        np.array, np.array:
+            X_train, y_train: the resampled matrix, labels.
+        """
         one_ind = train_idx[np.where(y[train_idx] == 1)]
         zero_ind = train_idx[np.where(y[train_idx] == 0)]
 
