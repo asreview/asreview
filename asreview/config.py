@@ -35,9 +35,14 @@ STATE_EXTENSIONS = ['.h5', '.hdf5', '.he5', '.json']
 LOGGER_EXTENSIONS = STATE_EXTENSIONS
 
 COLUMN_DEFINITIONS = [
-    ["final_included", "label", "label_included", "included_label",
-     "included_final", "included", "included_flag", "include"],
-    ["abstract_included", "included_abstract", "included_after_abstract", "label_abstract_screening"],
+    [
+        "final_included", "label", "label_included", "included_label",
+        "included_final", "included", "included_flag", "include"
+    ],
+    [
+        "abstract_included", "included_abstract", "included_after_abstract",
+        "label_abstract_screening"
+    ],
     ['title', 'primary_title'],
     ['authors', 'author names', 'first_authors'],
     ['abstract', 'abstract note'],

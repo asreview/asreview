@@ -125,6 +125,8 @@ def state_from_file(data_fp):
     if not Path(data_fp).suffix in STATE_EXTENSIONS:
         logging.error(f"file {data_fp} does not end with {STATE_EXTENSIONS}.")
         return None
-    state = {os.path.basename(os.path.normpath(data_fp)):
-             _get_state_class(data_fp)(state_fp=data_fp, read_only=True)}
+    state = {
+        os.path.basename(os.path.normpath(data_fp)):
+        _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
+    }
     return state

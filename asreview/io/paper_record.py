@@ -29,8 +29,9 @@ class PaperRecord():
     """
     def __init__(self, record_id, column_spec={}, **kwargs):
 
-        for attr in ["title", "abstract", "authors", "keywords",
-                     "final_included"]:
+        for attr in [
+                "title", "abstract", "authors", "keywords", "final_included"
+        ]:
             if attr in column_spec:
                 col = column_spec[attr]
             elif attr in kwargs:
@@ -70,8 +71,8 @@ class PaperRecord():
         """
         if automatic_width:
             term_width = os.get_terminal_size().columns
-            width_available = term_width-7
-            w_title = round((2/3)*width_available)
+            width_available = term_width - 7
+            w_title = round((2 / 3) * width_available)
             w_authors = width_available - w_title
         title_str = ""
         author_str = ""

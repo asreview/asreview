@@ -129,7 +129,8 @@ class BaseVersionedDataSet():
     def __str__(self):
         dataset_dict = self.datasets[-1].to_dict()
         dataset_dict["versions_available"] = [
-            d.dataset_id for d in self.datasets]
+            d.dataset_id for d in self.datasets
+        ]
         return pretty_format(dataset_dict)
 
     def __len__(self):
@@ -231,8 +232,10 @@ class DatasetManager():
         else:
             group_names = group_name
 
-        dataset_list = {gn: self.all_datasets[gn].list(latest_only=latest_only)
-                        for gn in group_names}
+        dataset_list = {
+            gn: self.all_datasets[gn].list(latest_only=latest_only)
+            for gn in group_names
+        }
         return dataset_list
 
 
@@ -247,8 +250,7 @@ class BaseDataGroup():
     def __str__(self):
         return "".join([
             f"*******  {str(data.dataset_id)}  *******\n"
-            f"{str(data)}\n\n"
-            for data in self._data_sets
+            f"{str(data)}\n\n" for data in self._data_sets
         ])
 
     def append(self, dataset):
@@ -285,8 +287,10 @@ class PTSDDataSet(BaseDataSet):
     sha512 = ("e2b62c93e4e9ddebf786e2cc8a0effb7fd8bf2ada986d53e6e5133092e7de88"
               "6b311286fa459144576ed3ac0dfff1bca1ba9c198d0235d8280a40b2533d0c0"
               "a7")
-    authors = ['Rens van de Schoot', 'Marit Sijbrandij', 'Sarah Depaoli',
-               'Sonja D. Winter', 'Miranda Olff', 'Nancy E. van Loey']
+    authors = [
+        'Rens van de Schoot', 'Marit Sijbrandij', 'Sarah Depaoli',
+        'Sonja D. Winter', 'Miranda Olff', 'Nancy E. van Loey'
+    ]
     topic = "PTSD"
     license = "CC-BY Attribution 4.0 International"
     link = "https://osf.io/h5k2q/"
@@ -328,8 +332,10 @@ class HallDataSet(BaseDataSet):
     url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/Software_Engineering_Hall.csv"  # noqa
     url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/Software_Engineering_Hall_debug.csv"  # noqa
     link = "https://zenodo.org/record/1162952#.XIVBE_ZFyVR"
-    authors = ["Tracy Hall", "Sarah Beecham", "David Bowes", "David Gray",
-               "Steve Counsell"]
+    authors = [
+        "Tracy Hall", "Sarah Beecham", "David Bowes", "David Gray",
+        "Steve Counsell"
+    ]
     year = 2012
     license = "CC-BY Attribution 4.0 International"
     topic = "Software Fault Prediction"
@@ -381,7 +387,7 @@ def dataset_from_url(url):
             raise ValueError("BaseVersionedDataSet: wrong datatype: "
                              f"{meta_data['type']}")
         datasets = []
-        for config_file in [url+"/"+f for f in file_list]:
+        for config_file in [url + "/" + f for f in file_list]:
             datasets.append(BaseDataSet.from_config(config_file))
         return BaseVersionedDataSet(base_dataset_id, datasets, title)
     elif dataset_type == "base":

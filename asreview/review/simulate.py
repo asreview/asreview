@@ -95,12 +95,15 @@ class ReviewSimulate(BaseReview):
 
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
-                start_idx = sample_prior_knowledge(
-                    labels, n_prior_included, n_prior_excluded,
-                    random_state=init_seed)
+                start_idx = sample_prior_knowledge(labels,
+                                                   n_prior_included,
+                                                   n_prior_excluded,
+                                                   random_state=init_seed)
 
-        super(ReviewSimulate, self).__init__(
-            as_data, *args, start_idx=start_idx, **kwargs)
+        super(ReviewSimulate, self).__init__(as_data,
+                                             *args,
+                                             start_idx=start_idx,
+                                             **kwargs)
 
     def _get_labels(self, ind):
         """Get the labels directly from memory.
