@@ -26,12 +26,14 @@ from asreview.state.base import BaseState
 
 def _append_to_dataset(name, values, g, dtype):
     if name not in g:
-        g.create_dataset(name, (len(values),), dtype=dtype, maxshape=(None,),
+        g.create_dataset(name, (len(values), ),
+                         dtype=dtype,
+                         maxshape=(None, ),
                          chunks=True)
     else:
-        g[name].resize((len(g[name])+len(values),))
+        g[name].resize((len(g[name]) + len(values), ))
     dataset = g[name]
-    dataset[len(g[name])-len(values):] = values
+    dataset[len(g[name]) - len(values):] = values
 
 
 def _result_group(f, query_i):
@@ -58,13 +60,18 @@ class HDF5State(BaseState):
 
     def set_final_labels(self, y):
         if "final_labels" not in self.f:
-            self.f.create_dataset(
-                "final_labels", y.shape, dtype=np.int, data=y)
+            self.f.create_dataset("final_labels",
+                                  y.shape,
+                                  dtype=np.int,
+                                  data=y)
         else:
             self.f["final_labels"][...] = y
 
     def set_current_queries(self, current_queries):
-        str_queries = {str(key): value for key, value in current_queries.items()}
+        str_queries = {
+            str(key): value
+            for key, value in current_queries.items()
+        }
         data = np.string_(json.dumps(str_queries))
         self.f.attrs.pop("current_queries", None)
         self.f.attrs["current_queries"] = data
@@ -138,8 +145,11 @@ class HDF5State(BaseState):
             if "indptr" in as_data_group:
                 return
             as_data_group.create_dataset("indptr", data=feature_matrix.indptr)
-            as_data_group.create_dataset("indices", data=feature_matrix.indices)
-            as_data_group.create_dataset("shape", data=feature_matrix.shape, dtype=int)
+            as_data_group.create_dataset("indices",
+                                         data=feature_matrix.indices)
+            as_data_group.create_dataset("shape",
+                                         data=feature_matrix.shape,
+                                         dtype=int)
             as_data_group.create_dataset("data", data=feature_matrix.data)
             as_data_group.attrs["matrix_type"] = np.string_("csr_matrix")
         else:
@@ -153,9 +163,10 @@ class HDF5State(BaseState):
         if matrix_type == "ndarray":
             return np.array(as_data_group["feature_matrix"])
         elif matrix_type == "csr_matrix":
-            feature_matrix = csr_matrix((
-                as_data_group["data"], as_data_group["indices"],
-                as_data_group["indexptr"]), shape=as_data_group["shape"])
+            feature_matrix = csr_matrix(
+                (as_data_group["data"], as_data_group["indices"],
+                 as_data_group["indexptr"]),
+                shape=as_data_group["shape"])
             return feature_matrix
         return as_data_group["feature_matrix"]
 
@@ -186,7 +197,7 @@ class HDF5State(BaseState):
         return array
 
     def delete_last_query(self):
-        query_i_last = self.n_queries()-1
+        query_i_last = self.n_queries() - 1
         del self.f[f"/results/{query_i_last}"]
 
     def restore(self, fp):

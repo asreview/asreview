@@ -66,7 +66,8 @@ def interleave(n_samples, n_strat_1, random_state):
     i_strat_min = 0
     for i_strat_max in range(len(max_idx)):
         new_positions[i_strat_max + i_strat_min] = max_idx[i_strat_max]
-        if (i_strat_min < len(min_idx) and insert_positions[i_strat_min] == i_strat_max):
+        if (i_strat_min < len(min_idx) and
+                insert_positions[i_strat_min] == i_strat_max):
             new_positions[i_strat_min + i_strat_max + 1] = min_idx[i_strat_min]
             i_strat_min += 1
     return new_positions

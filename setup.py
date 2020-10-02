@@ -27,7 +27,7 @@ import versioneer
 
 
 def get_long_description():
-    """Get project description based on README"""
+    """Get project description based on README."""
     here = path.abspath(path.dirname(__file__))
 
     # Get the long description from the README file
@@ -53,7 +53,8 @@ DEPS['all'] += DEPS['tensorflow']
 
 class CompileAssets(Command):
     """
-    Compile and build the frontend assets using yarn and webpack.
+    Compile and build the frontend assets using npm and webpack.
+
     Registered as cmdclass in setup() so it can be called with
     ``python setup.py compile_assets``.
     """
@@ -69,10 +70,8 @@ class CompileAssets(Command):
 
     def run(self):
         """Run a command to compile and build assets."""
-        subprocess.check_call(
-            'sh ./asreview/webapp/compile_assets.sh',
-            shell=True
-        )
+        subprocess.check_call('sh ./asreview/webapp/compile_assets.sh',
+                              shell=True)
 
 
 def get_cmdclass():
@@ -159,18 +158,17 @@ setup(
             "simple = asreview.balance_strategies.simple:SimpleBalance",
             "double = asreview.balance_strategies.double:DoubleBalance",
             "triple = asreview.balance_strategies.triple:TripleBalance",
-            "undersample = asreview.balance_strategies.undersample:UndersampleBalance",  #noqa
+            "undersample = asreview.balance_strategies.undersample:UndersampleBalance",  # noqa
         ],
         'asreview.query_strategy': [
             "max = asreview.query_strategies.max:MaxQuery",
             "random = asreview.query_strategies.random:RandomQuery",
-            "uncertainty = asreview.query_strategies.uncertainty:UncertaintyQuery",  #noqa
+            "uncertainty = asreview.query_strategies.uncertainty:UncertaintyQuery",  # noqa
             "cluster = asreview.query_strategies.cluster:ClusterQuery",
         ]
     },
     project_urls={
-        'Bug Reports':
-            'https://github.com/asreview/asreview/issues',
+        'Bug Reports': 'https://github.com/asreview/asreview/issues',
         'Source': 'https://github.com/asreview/asreview/',
     },
 )

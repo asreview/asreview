@@ -28,7 +28,6 @@ from asreview.analysis.statistics import _get_last_proba_order
 
 class Analysis():
     """Analysis object to do statistical analysis on state files."""
-
     def __init__(self, states, key=None):
         """Class to analyse state files.
 
@@ -149,9 +148,7 @@ class Analysis():
         if fl not in self.inc_found:
             # Compute the comclusions if not found in cache.
             self.inc_found[fl] = {}
-            avg, err, iai, ninit = self._get_inc_found(
-                labels=labels, **kwargs
-            )
+            avg, err, iai, ninit = self._get_inc_found(labels=labels, **kwargs)
             self.inc_found[fl]["avg"] = avg
             self.inc_found[fl]["err"] = err
             self.inc_found[fl]["inc_after_init"] = iai
@@ -168,7 +165,8 @@ class Analysis():
             x_norm /= len(labels)
             y_norm /= self.inc_found[fl]["inc_after_init"]
 
-        norm_xr = (np.arange(1, len(self.inc_found[fl]["avg"])+1) - dx) / x_norm
+        norm_xr = (np.arange(1,
+                             len(self.inc_found[fl]["avg"]) + 1) - dx) / x_norm
         norm_yr = (np.array(self.inc_found[fl]["avg"]) - dy) / y_norm
         norm_y_err = np.array(self.inc_found[fl]["err"]) / y_norm
 
@@ -222,15 +220,15 @@ class Analysis():
         tuple:
             Tuple consisting of WSS value, x_positions, y_positions of WSS bar.
         """
-        norm_xr, norm_yr, _ = self.inclusions_found(
-            result_format="percentage", **kwargs)
+        norm_xr, norm_yr, _ = self.inclusions_found(result_format="percentage",
+                                                    **kwargs)
 
         if x_format == "number":
             x_return, y_result, _ = self.inclusions_found(
                 result_format="number", **kwargs)
             y_max = self.inc_found[False]["inc_after_init"]
-            y_coef = y_max / (
-                len(self.labels) - self.inc_found[False]["n_initial"])
+            y_coef = y_max / (len(self.labels) -
+                              self.inc_found[False]["n_initial"])
         else:
             x_return = norm_xr
             y_result = norm_yr
@@ -259,8 +257,8 @@ class Analysis():
             Tuple consisting of RRF value, x_positions, y_positions of RRF bar.
 
         """
-        norm_xr, norm_yr, _ = self.inclusions_found(
-            result_format="percentage", **kwargs)
+        norm_xr, norm_yr, _ = self.inclusions_found(result_format="percentage",
+                                                    **kwargs)
 
         if x_format == "number":
             x_return, y_return, _ = self.inclusions_found(
@@ -305,7 +303,7 @@ class Analysis():
             if result_format == "percentage":
                 time_mult = 100 / (len(labels) - n)
             elif result_format == "fraction":
-                time_mult = 1/(len(labels) - n)
+                time_mult = 1 / (len(labels) - n)
             else:
                 time_mult = 1
 
@@ -313,12 +311,12 @@ class Analysis():
             for i_time, idx in enumerate(label_order[n:]):
                 # for all inclusions that were found/labeled
                 if labels[idx] == 1:
-                    time_results[idx].append(time_mult*(i_time+1))
+                    time_results[idx].append(time_mult * (i_time + 1))
             for i_time, idx in enumerate(proba_order):
                 # for all inclusions that weren't found/labeled
                 if labels[idx] == 1 and idx not in label_order[:n]:
-                    time_results[idx].append(
-                        time_mult*(i_time + len(label_order)+1))
+                    time_results[idx].append(time_mult *
+                                             (i_time + len(label_order) + 1))
 
         results = {}
 
@@ -363,11 +361,10 @@ class Analysis():
         n_train = 0
         _, n_initial = _get_labeled_order(state)
         for query_i in range(n_queries):
-            new_limits = _get_limits(
-                self.states,
-                query_i,
-                self.labels,
-                proba_allow_miss=prob_allow_miss)
+            new_limits = _get_limits(self.states,
+                                     query_i,
+                                     self.labels,
+                                     proba_allow_miss=prob_allow_miss)
 
             try:
                 new_train_idx = state.get("train_idx", query_i)

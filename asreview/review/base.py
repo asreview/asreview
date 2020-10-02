@@ -61,13 +61,10 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
     prior_indices = np.array(np.append(included, excluded), dtype=np.int)
 
     if return_labels:
-        prior_included_labels = np.ones((len(included),), dtype=int)
-        prior_excluded_labels = np.zeros((len(excluded),), dtype=int)
+        prior_included_labels = np.ones((len(included), ), dtype=int)
+        prior_excluded_labels = np.zeros((len(excluded), ), dtype=int)
 
-        labels = np.concatenate([
-            prior_included_labels,
-            prior_excluded_labels
-        ])
+        labels = np.concatenate([prior_included_labels, prior_excluded_labels])
         return prior_indices, labels
     return prior_indices
 
@@ -111,19 +108,20 @@ class BaseReview(ABC):
 
     name = "base"
 
-    def __init__(self,
-                 as_data,
-                 model=None,
-                 query_model=None,
-                 balance_model=None,
-                 feature_model=None,
-                 n_papers=None,
-                 n_instances=DEFAULT_N_INSTANCES,
-                 n_queries=None,
-                 start_idx=[],
-                 state_file=None,
-                 log_file=None,
-                 ):
+    def __init__(
+        self,
+        as_data,
+        model=None,
+        query_model=None,
+        balance_model=None,
+        feature_model=None,
+        n_papers=None,
+        n_instances=DEFAULT_N_INSTANCES,
+        n_queries=None,
+        start_idx=[],
+        state_file=None,
+        log_file=None,
+    ):
         """Initialize base class for systematic reviews."""
         super(BaseReview, self).__init__()
 
@@ -157,8 +155,10 @@ class BaseReview(ABC):
         self.start_idx = start_idx
 
         if log_file is not None:
-            warnings.warn("The log_file argument for BaseReview will be"
-                          " replaced by state_file.", category=FutureWarning)
+            warnings.warn(
+                "The log_file argument for BaseReview will be"
+                " replaced by state_file.",
+                category=FutureWarning)
             self.state_file = log_file
         else:
             self.state_file = state_file
@@ -175,8 +175,10 @@ class BaseReview(ABC):
                 startup = state.startup_vals()
                 # If there are start indices not in the training add them.
                 if not set(startup["train_idx"]) >= set(start_idx):
-                    new_idx = list(set(start_idx)-set(startup["train_idx"]))
-                    self.classify(new_idx, self.y[new_idx], state,
+                    new_idx = list(set(start_idx) - set(startup["train_idx"]))
+                    self.classify(new_idx,
+                                  self.y[new_idx],
+                                  state,
                                   method="initial")
                     startup = state.startup_vals()
                 self.train_idx = startup["train_idx"]
@@ -188,7 +190,9 @@ class BaseReview(ABC):
             else:
                 state.set_labels(self.y)
                 state.settings = self.settings
-                self.classify(start_idx, self.y[start_idx], state,
+                self.classify(start_idx,
+                              self.y[start_idx],
+                              state,
                               method="initial")
                 self.query_i_classified = len(start_idx)
 
@@ -196,9 +200,10 @@ class BaseReview(ABC):
             try:
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
-                self.X = feature_model.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies,
-                    as_data.keywords)
+                self.X = feature_model.fit_transform(as_data.texts,
+                                                     as_data.headings,
+                                                     as_data.bodies,
+                                                     as_data.keywords)
                 state._add_as_data(as_data, feature_matrix=self.X)
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "
@@ -214,20 +219,20 @@ class BaseReview(ABC):
             extra_kwargs['n_prior_included'] = self.n_prior_included
         if hasattr(self, 'n_prior_excluded'):
             extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
-        return ASReviewSettings(
-            mode=self.name, model=self.model.name,
-            query_strategy=self.query_model.name,
-            balance_strategy=self.balance_model.name,
-            feature_extraction=self.feature_model.name,
-            n_instances=self.n_instances,
-            n_queries=self.n_queries,
-            n_papers=self.n_papers,
-            model_param=self.model.param,
-            query_param=self.query_model.param,
-            balance_param=self.balance_model.param,
-            feature_param=self.feature_model.param,
-            data_name=self.as_data.data_name,
-            **extra_kwargs)
+        return ASReviewSettings(mode=self.name,
+                                model=self.model.name,
+                                query_strategy=self.query_model.name,
+                                balance_strategy=self.balance_model.name,
+                                feature_extraction=self.feature_model.name,
+                                n_instances=self.n_instances,
+                                n_queries=self.n_queries,
+                                n_papers=self.n_papers,
+                                model_param=self.model.param,
+                                query_param=self.query_model.param,
+                                balance_param=self.balance_model.param,
+                                feature_param=self.feature_model.param,
+                                data_name=self.as_data.data_name,
+                                **extra_kwargs)
 
     @abstractmethod
     def _get_labels(self, ind):
@@ -290,11 +295,9 @@ class BaseReview(ABC):
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
-        while not self._stop_iter(self.query_i-1, n_pool):
+        while not self._stop_iter(self.query_i - 1, n_pool):
             # STEP 1: Make a new query
-            query_idx = self.query(
-                n_instances=self._next_n_instances()
-            )
+            query_idx = self.query(n_instances=self._next_n_instances())
             self.log_current_query(state)
 
             # STEP 2: Classify the queried papers.
@@ -434,12 +437,13 @@ class BaseReview(ABC):
         else:
             methods = np.full(len(query_idx), method)
             if method in self.shared["query_src"]:
-                self.shared["query_src"][method].extend(
-                    query_idx.tolist())
+                self.shared["query_src"][method].extend(query_idx.tolist())
             else:
                 self.shared["query_src"][method] = query_idx.tolist()
 
-        state.add_classification(query_idx, inclusions, methods=methods,
+        state.add_classification(query_idx,
+                                 inclusions,
+                                 methods=methods,
                                  query_i=self.query_i)
         state.set_labels(self.y)
 
@@ -452,8 +456,10 @@ class BaseReview(ABC):
             return
 
         # Get the training data.
-        X_train, y_train = self.balance_model.sample(
-            self.X, self.y, self.train_idx, shared=self.shared)
+        X_train, y_train = self.balance_model.sample(self.X,
+                                                     self.y,
+                                                     self.train_idx,
+                                                     shared=self.shared)
 
         # Train the model on the training data.
         self.model.fit(

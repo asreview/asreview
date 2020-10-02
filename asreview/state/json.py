@@ -42,7 +42,8 @@ class JSONState(DictState):
         try:
             self._state_dict["current_queries"] = {
                 str(key): val
-                for key, val in self._state_dict["current_queries"].items()}
+                for key, val in self._state_dict["current_queries"].items()
+            }
         except KeyError:
             pass
 
@@ -52,7 +53,8 @@ class JSONState(DictState):
         try:
             self._state_dict["current_queries"] = {
                 int(key): val
-                for key, val in self._state_dict["current_queries"].items()}
+                for key, val in self._state_dict["current_queries"].items()
+            }
         except KeyError:
             pass
 
@@ -69,7 +71,9 @@ class JSONState(DictState):
             try:
                 self._state_dict["current_queries"] = {
                     int(key): val
-                    for key, val in self._state_dict["current_queries"].items()}
+                    for key, val in
+                    self._state_dict["current_queries"].items()
+                }
             except KeyError:
                 pass
         except FileNotFoundError:
