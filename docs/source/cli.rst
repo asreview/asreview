@@ -1,5 +1,8 @@
-Command Line Interface (CLI)
-============================
+Command Line
+============
+
+Introduction
+------------
 
 Basic usage:
 
@@ -7,8 +10,10 @@ Basic usage:
 
 	asreview simulate YOUR_DATA.csv --state_file myreview.h5
 
+Arguments
+---------
 
-The available parameters are: 
+The available parameters are:
 
 .. code-block:: bash
 
@@ -25,17 +30,17 @@ The available parameters are:
 	                [--prior_idx [PRIOR_IDX [PRIOR_IDX ...]]]
 	                [--init_seed INIT_SEED] [--verbose VERBOSE]
 	                [dataset [dataset ...]]
-	
+
 	Automated Systematic Review (ASReview) for simulation runs.
-	
+
 	The simulation modus is used to measure the performance of our
 	software on existing systematic reviews. The software shows how many
 	papers you could have potentially skipped during the systematic
 	review.
-	
+
 	positional arguments:
 	  dataset               File path to the dataset or one of the built-in datasets.
-	
+
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  -m MODEL, --model MODEL
@@ -78,3 +83,85 @@ The available parameters are:
 	                        Seed for setting the prior indices if the --prior_idx option is not used. If the option --prior_idx is used with one or more index, this option is ignored.
 	  --verbose VERBOSE, -v VERBOSE
 	                        Verbosity
+
+Active Learning algorithms
+--------------------------
+
+Install the additional dependencies with `pip install asreview[all]` or
+install the specific package manually.
+
+Feature extraction
+~~~~~~~~~~~~~~~~~~
+
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
+| Name           | Reference                                          | Requires                                                                    | Remarks |
++================+====================================================+=============================================================================+=========+
+| tfidf          | :class:`asreview.feature_extraction.Tfidf`         |                                                                             |         |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
+| doc2vec        | :class:`asreview.feature_extraction.Doc2Vec`       | `gensim <https://radimrehurek.com/gensim/>`__                               | Slow    |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
+| embedding-idf  | :class:`asreview.feature_extraction.EmbeddingIdf`  |                                                                             |         |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
+| embedding-lstm | :class:`asreview.feature_extraction.EmbeddingLSTM` |                                                                             |         |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
+| sbert          | :class:`asreview.feature_extraction.SBERT`         | `sentence_transformers <https://github.com/UKPLab/sentence-transformers>`__ | Slow    |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
+
+
+Classifiers
+~~~~~~~~~~~
+
++-------------+---------------------------------------------------------+--------------+---------+
+| Name        | Reference                                               | Requires     | Remarks |
++=============+=========================================================+==============+=========+
+| nb          | :class:`asreview.models.NBModel`                        |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| svm         | :class:`asreview.models.SVMModel`                       |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| logistic    | :class:`asreview.models.LogisticModel`                  |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| rf          | :class:`asreview.models.RFModel`                        |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| nn-2-layer  | :class:`asreview.models.NN2LayerModel`                  |  tensorflow  |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| lstm-base   | :class:`asreview.models.LSTMBaseModel`                  |  tensorflow  |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| lstm-pool   | :class:`asreview.models.LSTMPoolModel`                  |  tensorflow  |         |
++-------------+---------------------------------------------------------+--------------+---------+
+
+
+Query strategies
+~~~~~~~~~~~~~~~~
+
++-------------+---------------------------------------------------------+--------------+---------+
+| Name        | Reference                                               | Requires     | Remarks |
++=============+=========================================================+==============+=========+
+| max         | :class:`asreview.query_strategies.MaxQuery`             |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| random      | :class:`asreview.query_strategies.RandomQuery`          |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| uncertainty | :class:`asreview.query_strategies.UncertaintyQuery`     |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+| cluster     | :class:`asreview.query_strategies.ClusterQuery`         |              |         |
++-------------+---------------------------------------------------------+--------------+---------+
+
+
+Balance strategies
+~~~~~~~~~~~~~~~~~~
+
++-------------+---------------------------------------------------------+----------+---------+
+| Name        | Reference                                               | Requires | Remarks |
++=============+=========================================================+==========+=========+
+| simple      | :class:`asreview.balance_strategies.SimpleBalance`      |          |         |
++-------------+---------------------------------------------------------+----------+---------+
+| double      | :class:`asreview.balance_strategies.DoubleBalance`      |          |         |
++-------------+---------------------------------------------------------+----------+---------+
+| triple      | :class:`asreview.balance_strategies.TripleBalance`      |          |         |
++-------------+---------------------------------------------------------+----------+---------+
+| undersample | :class:`asreview.balance_strategies.UndersampleBalance` |          |         |
++-------------+---------------------------------------------------------+----------+---------+
+
+
+
+
+
