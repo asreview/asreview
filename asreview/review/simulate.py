@@ -91,7 +91,6 @@ class ReviewSimulate(BaseReview):
                                 f" papers (n={len(labels)-len(labeled_idx)}.")
                 as_data = as_data.slice(labeled_idx)
                 labels = as_data.labels
-                print(labels)
 
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:

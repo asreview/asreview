@@ -161,7 +161,7 @@ class ASReviewData():
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
 
-    def slice(self, idx):
+    def slice(self, idx, by_index=True):
         """Create a slice from itself.
 
         Useful if some parts should be kept/thrown away.
@@ -179,7 +179,9 @@ class ASReviewData():
         if self.df is None:
             raise ValueError("Cannot slice empty ASReviewData object.")
 
-        return ASReviewData(self.df[idx], data_name="sliced")
+        if by_index:
+            return ASReviewData(self.df.iloc[idx], data_name="sliced")
+        return ASReviewData(self.df.loc[idx, :], data_name="sliced")
 
     def append(self, as_data):
         """Append another ASReviewData object.
