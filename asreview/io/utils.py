@@ -113,7 +113,11 @@ def standardize_dataframe(df, column_spec={}):
 
     # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):
-        df.set_index('record_id', inplace=True)
+        if len(np.unique(df["record_id"])) != len(df.index):
+            logging.warning("Column record_id found, but they are not unique. "
+                            "Continuing with new index.")
+        else:
+            df.set_index('record_id', inplace=True)
     if df.index.name != "record_id":
         df["record_id"] = np.arange(len(df.index))
         df.set_index('record_id', inplace=True)
