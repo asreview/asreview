@@ -21,6 +21,8 @@ data_fp_no_abs = os.path.join("tests", "demo_data",
                               "generic_labels_no_abs.csv")
 data_fp_no_title = os.path.join("tests", "demo_data",
                                 "generic_labels_no_title.csv")
+data_fp_partial = os.path.join("tests", "demo_data",
+                               "generic_partial_labels.csv")
 embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
 cfg_dir = os.path.join("tests", "cfg_files")
 state_dir = os.path.join("tests", "state_files")
@@ -142,6 +144,17 @@ def test_classifiers():
     assert len(list_classifiers()) >= 7
 
 
+def test_partial_simulation():
+    check_model(mode="simulate", data_fp=data_fp_partial,
+                n_prior_included=1, n_prior_excluded=1,
+                prior_idx=None, state_checker=check_partial_state)
+
+
+def test_partial_simulation_2():
+    check_model(mode="simulate", data_fp=data_fp_partial,
+                prior_idx=[0, 5], state_checker=check_partial_state)
+
+
 def check_label_methods(label_methods, n_labels, methods):
     assert len(label_methods) == n_labels
     for method in label_methods:
@@ -167,12 +180,32 @@ def check_state(state):
     assert len(state.get("labels")) == 6
 
 
+def check_partial_state(state):
+    check_label_methods(state.get("label_methods", 0), 2, ["initial"])
+    check_label_methods(state.get("label_methods", 1), 1, ["max", "random"])
+    check_label_methods(state.get("label_methods", 2), 1, ["max", "random"])
+
+    assert len(state.get("inclusions", 0)) == 2
+    assert len(state.get("inclusions", 1)) == 1
+    assert len(state.get("inclusions", 2)) == 1
+
+    assert len(state.get("train_idx", 1)) == 2
+    assert len(state.get("pool_idx", 1)) == 2
+
+    assert len(state.get("train_idx", 2)) == 3
+    assert len(state.get("pool_idx", 2)) == 1
+
+    assert len(state.get("labels")) == 4
+
+
 def check_model(monkeypatch=None,
                 use_granular=False,
                 state_file=h5_state_file,
                 continue_from_state=False,
                 mode="oracle",
                 data_fp=data_fp,
+                state_checker=check_state,
+                prior_idx=[1, 2, 3, 4],
                 **kwargs):
     if not continue_from_state:
         try:
@@ -187,7 +220,7 @@ def check_model(monkeypatch=None,
     reviewer = get_reviewer(data_fp,
                             mode=mode,
                             embedding_fp=embedding_fp,
-                            prior_idx=[1, 2, 3, 4],
+                            prior_idx=prior_idx,
                             state_file=state_file,
                             **kwargs)
     if use_granular:
@@ -223,4 +256,4 @@ def check_model(monkeypatch=None,
 
     if state_file is not None:
         with open_state(state_file, read_only=True) as state:
-            check_state(state)
+            state_checker(state)

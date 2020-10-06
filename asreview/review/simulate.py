@@ -80,25 +80,28 @@ class ReviewSimulate(BaseReview):
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
-        if prior_idx is not None and len(prior_idx) != 0:
-            start_idx = prior_idx
-        else:
+
+        labels = as_data.labels
+        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
+
+        if len(labeled_idx) != len(labels):
+            logging.warning("Simulating partial review, ignoring unlabeled"
+                            f" papers (n={len(labels)-len(labeled_idx)}.")
+            as_data = as_data.slice(labeled_idx)
             labels = as_data.labels
-            labeled_idx = np.where((labels == 0) | (labels == 1))[0]
 
-            if len(labeled_idx) != len(labels):
-                logging.warning("Simulating partial review, ignoring unlabeled"
-                                f" papers (n={len(labels)-len(labeled_idx)}.")
-                as_data = as_data.slice(labeled_idx)
-                labels = as_data.labels
-
+        if prior_idx is not None and len(prior_idx) != 0:
+            id_to_index = {as_data.df.index.values[i]: i
+                           for i in range(len(as_data))}
+            start_idx = np.array([id_to_index[idx] for idx in prior_idx],
+                                 dtype=int)
+        else:
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
                 start_idx = sample_prior_knowledge(labels,
                                                    n_prior_included,
                                                    n_prior_excluded,
                                                    random_state=init_seed)
-
         super(ReviewSimulate, self).__init__(as_data,
                                              *args,
                                              start_idx=start_idx,
