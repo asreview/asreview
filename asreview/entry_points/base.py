@@ -74,8 +74,8 @@ def _base_parser(prog=None, description=None):
         "--config_file",
         type=str,
         default=None,
-        help="Configuration file with model parameters and"
-             " hyperparameter values."
+        help="Configuration file with model model settings"
+             "and parameter values."
     )
     parser.add_argument(
         "--seed",
