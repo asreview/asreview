@@ -72,7 +72,7 @@ The datasets are immediately available after starting ASReview.
 
 .. code:: bash
 
-    asreview oracle
+    asreview lab
 
 The datasets are selectable in Step 2 of the project initialization. For
 more information on the usage of ASReview, please have a look at the

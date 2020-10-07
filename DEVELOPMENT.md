@@ -9,7 +9,7 @@ Build the project from source with the following code.
 
 ## Development workflow
 
-Install both [npm][1] and Python. 
+Install both [npm][1] and Python.
 
 Install the ASReview package (in a different terminal)
 
@@ -18,14 +18,14 @@ Install the ASReview package (in a different terminal)
 Start the Python API server
 
 	export FLASK_ENV=development
-	asreview oracle
+	asreview lab
 
 Navigate to `asreview/webapp` and install npm.
 
 	cd asreview/webapp
 	npm install
 
-The user interface is written in [React][2]. First, start a development server with npm. This serves is used for React development. 
+The user interface is written in [React][2]. First, start a development server with npm. This serves is used for React development.
 
 	npm start
 
