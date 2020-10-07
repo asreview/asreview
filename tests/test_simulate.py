@@ -44,8 +44,7 @@ def test_state_continue_json():
         reviewer.review()
 
     copyfile(inter_file, json_state_file)
-    check_model(mode="simulate",
-                model="nb",
+    check_model(model="nb",
                 state_file=json_state_file,
                 continue_from_state=True,
                 n_instances=1,
@@ -65,8 +64,7 @@ def test_state_continue_h5():
                                 n_queries=1)
         reviewer.review()
     copyfile(inter_file, h5_state_file)
-    check_model(mode="simulate",
-                model="nb",
+    check_model(model="nb",
                 state_file=h5_state_file,
                 continue_from_state=True,
                 n_instances=1,
@@ -74,8 +72,7 @@ def test_state_continue_h5():
 
 
 def test_nb():
-    check_model(mode="simulate",
-                model="nb",
+    check_model(model="nb",
                 state_file=None,
                 use_granular=True,
                 n_instances=1,
@@ -83,8 +80,7 @@ def test_nb():
 
 
 def test_svm():
-    check_model(mode="simulate",
-                model="svm",
+    check_model(model="svm",
                 state_file=json_state_file,
                 use_granular=False,
                 n_instances=1,
@@ -93,8 +89,7 @@ def test_svm():
 
 
 def test_rf():
-    check_model(mode="simulate",
-                model="rf",
+    check_model(model="rf",
                 state_file=json_state_file,
                 use_granular=False,
                 n_instances=1,
@@ -106,8 +101,7 @@ def test_rf():
                    raises=ImportError,
                    reason="requires tensorflow")
 def test_nn_2_layer():
-    check_model(mode="simulate",
-                model="nn-2-layer",
+    check_model(model="nn-2-layer",
                 state_file=json_state_file,
                 n_instances=1,
                 n_queries=2)
@@ -118,8 +112,7 @@ def test_nn_2_layer():
                    reason="requires tensorflow")
 def test_lstm_base():
 
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_base.ini"),
+    check_model(config_file=os.path.join(cfg_dir, "lstm_base.ini"),
                 state_file=h5_state_file)
 
 
@@ -127,14 +120,12 @@ def test_lstm_base():
                    raises=ImportError,
                    reason="requires tensorflow")
 def test_lstm_pool():
-    check_model(mode="simulate",
-                config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+    check_model(config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
                 state_file=json_state_file)
 
 
 def test_logistic():
-    check_model(mode="simulate",
-                model="logistic",
+    check_model(model="logistic",
                 state_file=json_state_file,
                 n_instances=1,
                 n_queries=2)
@@ -145,13 +136,13 @@ def test_classifiers():
 
 
 def test_partial_simulation():
-    check_model(mode="simulate", data_fp=data_fp_partial,
+    check_model(data_fp=data_fp_partial,
                 n_prior_included=1, n_prior_excluded=1,
                 prior_idx=None, state_checker=check_partial_state)
 
 
 def test_partial_simulation_2():
-    check_model(mode="simulate", data_fp=data_fp_partial,
+    check_model(data_fp=data_fp_partial,
                 prior_idx=[0, 5], state_checker=check_partial_state)
 
 
@@ -202,7 +193,7 @@ def check_model(monkeypatch=None,
                 use_granular=False,
                 state_file=h5_state_file,
                 continue_from_state=False,
-                mode="oracle",
+                mode="simulate",
                 data_fp=data_fp,
                 state_checker=check_state,
                 prior_idx=[1, 2, 3, 4],
