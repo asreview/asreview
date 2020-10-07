@@ -10,7 +10,7 @@ from flask.templating import render_template
 from flask_cors import CORS
 
 from asreview import __version__ as asreview_version
-from asreview.entry_points.gui import _oracle_parser
+from asreview.entry_points.gui import _lab_parser
 from asreview.webapp import api
 
 # set logging level
@@ -94,7 +94,7 @@ def create_app(**kwargs):
 
 def main(argv):
 
-    parser = _oracle_parser(prog="oracle")
+    parser = _lab_parser(prog="lab")
     kwargs = vars(parser.parse_args(argv))
 
     host = kwargs.pop("ip")

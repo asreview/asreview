@@ -123,8 +123,9 @@ setup(
             'asreview=asreview.__main__:main',
         ],
         'asreview.entry_points': [
+            'lab=asreview.entry_points:LABEntryPoint',
+            'oracle=asreview.entry_points:OracleEntryPoint',  # deprecated (use lab)
             'simulate=asreview.entry_points:SimulateEntryPoint',
-            'oracle=asreview.entry_points:GUIEntryPoint',
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
         ],
