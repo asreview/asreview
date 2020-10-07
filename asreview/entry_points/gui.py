@@ -4,7 +4,7 @@ from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
 
 
-DESCRIPTION_ORACLE = """
+DESCRIPTION_LAB = """
 ASReview LAB - Active learning for Systematic Reviews.
 """
 
@@ -35,7 +35,7 @@ class OracleEntryPoint(LABEntryPoint):
         logging.warning("Warning: subcommmand 'oracle' is replaced by 'lab'.")
 
 
-def _lab_parser(prog="lab", description=DESCRIPTION_ORACLE):
+def _lab_parser(prog="lab", description=DESCRIPTION_LAB):
     parser = _base_parser(prog=prog, description=description)
     # Active learning parameters
 
