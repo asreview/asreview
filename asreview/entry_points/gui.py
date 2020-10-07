@@ -15,9 +15,6 @@ PORT_NUMBER = 5000
 class LABEntryPoint(BaseEntryPoint):
     description = "Graphical user interface for ASReview."
 
-    def _pre_execute(self):
-        pass
-
     def execute(self, argv):
 
         from asreview.webapp.start_flask import main
