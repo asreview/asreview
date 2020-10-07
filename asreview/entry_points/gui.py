@@ -13,14 +13,12 @@ PORT_NUMBER = 5000
 
 
 class LABEntryPoint(BaseEntryPoint):
-    description = "Graphical user interface for ASReview. (Formerly 'oracle')"
+    description = "Graphical user interface for ASReview."
 
     def _pre_execute(self):
         pass
 
     def execute(self, argv):
-
-        self._pre_execute()
 
         from asreview.webapp.start_flask import main
 
@@ -31,8 +29,11 @@ class LABEntryPoint(BaseEntryPoint):
 class OracleEntryPoint(LABEntryPoint):
     description = "Graphical user interface for ASReview. (Deprecated)"
 
-    def _pre_execute(self):
+    def execute(self, argv):
+
         logging.warning("Warning: subcommmand 'oracle' is replaced by 'lab'.")
+
+        super(OracleEntryPoint, self).execute(argv)
 
 
 def _lab_parser(prog="lab", description=DESCRIPTION_LAB):
