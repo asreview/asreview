@@ -21,7 +21,7 @@ It has the same interface as the simulation modus, but adds an extra option
 
 
 def _batch_parser():
-    parser = _simulate_parser(prog="batch", description=DESCRIPTION_BATCH)
+    parser = _simulate_parser(prog="simulate-batch", description=DESCRIPTION_BATCH)
     parser.add_argument(
         "-r", "--n_run",
         default=10,

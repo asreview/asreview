@@ -1,3 +1,5 @@
+import logging
+
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
 
@@ -10,17 +12,30 @@ HOST_NAME = "localhost"
 PORT_NUMBER = 5000
 
 
-class GUIEntryPoint(BaseEntryPoint):
+class LABEntryPoint(BaseEntryPoint):
     description = "Graphical user interface for ASReview. (Formerly 'oracle')"
 
+    def _pre_execute(self):
+        pass
+
     def execute(self, argv):
+
+        self._pre_execute()
 
         from asreview.webapp.start_flask import main
 
         main(argv)
 
 
-def _oracle_parser(prog="oracle", description=DESCRIPTION_ORACLE):
+# deprecated oracle class
+class OracleEntryPoint(LABEntryPoint):
+    description = "Graphical user interface for ASReview. (Deprecated)"
+
+    def _pre_execute(self):
+        logging.warning("Warning: subcommmand 'oracle' is replaced by 'lab'.")
+
+
+def _lab_parser(prog="lab", description=DESCRIPTION_ORACLE):
     parser = _base_parser(prog=prog, description=description)
     # Active learning parameters
 

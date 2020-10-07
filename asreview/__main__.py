@@ -23,9 +23,10 @@ from asreview.utils import get_entry_points
 
 PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
 
-# Entry points for internal use. These entry points are not displayed in the
-# help page of the  user interface.
+# Internal or deprecated entry points. These entry points
+# are not displayed in the help page of the  user interface.
 INTERNAL_ENTRY_POINTS = ["web_run_model"]
+DEPRECATED_ENTRY_POINTS = ["oracle"]
 
 
 def _sort_entry_points(entry_points):
@@ -54,6 +55,10 @@ def _output_available_entry_points(entry_points):
         if name in INTERNAL_ENTRY_POINTS:
             continue
 
+        # don't display the deprecated entry points
+        if name in DEPRECATED_ENTRY_POINTS:
+            continue
+
         # try to load entry points, hide when failing on loading
         try:
             description_list.append(entry.load()().format(name))
@@ -68,18 +73,10 @@ def main():
     entry_points = get_entry_points("asreview.entry_points")
 
     # Try to load the entry point if available.
-    if len(sys.argv) > 1 and (sys.argv[1] in entry_points or sys.argv[1] == "oracle"):
-
-        # first argument is the subcommand
-        subcommand = sys.argv[1]
-
-        # replace 'oracle' by 'lab'
-        if subcommand == "oracle":
-            print("Warning: subcommmand 'oracle' is replaced by 'lab'.")
-            subcommand = "lab"
+    if len(sys.argv) > 1 and sys.argv[1] in entry_points:
 
         try:
-            entry = entry_points[subcommand]
+            entry = entry_points[sys.argv[1]]
             entry.load()().execute(sys.argv[2:])
         except ModuleNotFoundError:
             raise ValueError(
