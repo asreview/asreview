@@ -28,10 +28,27 @@ PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
 INTERNAL_ENTRY_POINTS = ["web_run_model"]
 
 
+def _sort_entry_points(entry_points):
+
+    entry_points_copy = entry_points.copy()
+
+    entry_points_sorted = {
+        "lab": entry_points_copy.pop("lab"),
+        "simulate": entry_points_copy.pop("simulate"),
+        "simulate-batch": entry_points_copy.pop("simulate-batch"),
+    }
+
+    entry_points_sorted.update(entry_points_copy)
+
+    return entry_points_sorted
+
+
 def _output_available_entry_points(entry_points):
 
+    entry_points_sorted = _sort_entry_points(entry_points)
+
     description_list = []
-    for name, entry in entry_points.items():
+    for name, entry in entry_points_sorted.items():
 
         # don't display the internal entry points
         if name in INTERNAL_ENTRY_POINTS:
@@ -58,7 +75,7 @@ def main():
 
         # replace 'oracle' by 'lab'
         if subcommand == "oracle":
-            print("Warning: subcommmand 'oracle' is now 'lab'.")
+            print("Warning: subcommmand 'oracle' is replaced by 'lab'.")
             subcommand = "lab"
 
         try:

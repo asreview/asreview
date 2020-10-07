@@ -11,7 +11,7 @@ PORT_NUMBER = 5000
 
 
 class GUIEntryPoint(BaseEntryPoint):
-    description = "Graphical user interface for ASReview."
+    description = "Graphical user interface for ASReview. (Formerly 'oracle')"
 
     def execute(self, argv):
 
