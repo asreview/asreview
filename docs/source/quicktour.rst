@@ -14,7 +14,7 @@ Launch ASReview LAB by running the following command in the command line (`CMD.e
 
 ::
 
-    asreview oracle
+    asreview lab
 
 
 Create a new project

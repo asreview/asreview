@@ -22,7 +22,7 @@ Start the application with the following command (in CMD.exe or Terminal):
 
 .. code:: bash
 
-    asreview oracle
+    asreview lab
 
 You are now ready to start your first Automated Systematic Review!
 
@@ -48,7 +48,7 @@ closed networks.
 
 .. code:: bash
 
-    asreview oracle --port 5555 --ip xxx.x.x.xx
+    asreview lab --port 5555 --ip xxx.x.x.xx
 
 
 Install with Docker
