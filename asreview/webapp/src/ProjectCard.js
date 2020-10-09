@@ -4,18 +4,24 @@ import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import Chip from '@material-ui/core/Chip';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import store from './redux/store'
 import { setProject } from './redux/actions'
+import { projectModes } from './globals.js';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   root: {
     maxWidth: "100%",
   },
   content: {
-    height: 120,
+    height: 140,
+  },
+  mode: {
+    marginBottom: 4,
+    backgroundColor: theme.palette.warning.light
   },
   description: {
     display: "-webkit-box",
@@ -23,7 +29,7 @@ const useStyles = makeStyles({
     "-webkit-box-orient": "vertical",
     overflow: "hidden",
   }
-});
+}));
 
 const ProjectCard = (props) => {
   const classes = useStyles();
@@ -50,6 +56,14 @@ const ProjectCard = (props) => {
         <CardContent
           className={classes.content}
         >
+          {props.mode && props.mode !== projectModes.ORACLE && (
+            <Chip
+              size="small"
+              label={props.mode}
+              className={classes.mode}
+            />
+          )}
+
           <Typography gutterBottom variant="h5" component="h2">
             {props.name}
           </Typography>

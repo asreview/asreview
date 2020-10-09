@@ -69,6 +69,11 @@ const PreReviewZone = (props) => {
     ready: false
   });
 
+  const [project, setProject] = React.useState({
+    "id": null,
+    "mode": null
+  })  
+
   const handleNext = (step_i=state.step) => {
 
     if (state.step <= step_i){
@@ -118,11 +123,18 @@ const PreReviewZone = (props) => {
             set_step = 3;
           }
 
+          let mode = result.data["mode"]
+
           // set the project step
           setState({
             new: state.new,
             step: set_step,
             ready: state.ready
+          })
+
+          setProject({
+            id: props.project_id,
+            mode: mode
           })
 
         })
@@ -152,7 +164,7 @@ const PreReviewZone = (props) => {
               <ProjectUpload
                 init={state.new}
                 edit={state.step === 1}
-                project_id={props.project_id}
+                project={project}
                 handleNext={handleNext}
                 handleStep={handleStep}
                 setNext={setNext}
@@ -164,7 +176,7 @@ const PreReviewZone = (props) => {
           {(state.step >= 2 && state.step < 4) &&
             <Box>
               <PriorKnowledge
-                project_id={props.project_id}
+                project={project}
                 setNext={setNext}
                 scrollToBottom={scrollToBottom}
               />

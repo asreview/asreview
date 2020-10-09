@@ -42,7 +42,8 @@ def _get_executable():
 def init_project(project_id,
                  project_name=None,
                  project_description=None,
-                 project_authors=None):
+                 project_authors=None,
+                 project_mode=None):
     """Initialize the necessary files specific to the web app."""
 
     if not project_id and not isinstance(project_id, str) \
@@ -67,6 +68,7 @@ def init_project(project_id,
             'name': project_name,
             'description': project_description,
             'authors': project_authors,
+            'mode': project_mode,
 
             # project related variables
             'projectInitReady': False,

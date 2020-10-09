@@ -82,6 +82,7 @@ def api_get_projects():  # noqa: F401
                 res["projectInitReady"] = True
 
             logging.info("Project found: {}".format(res["id"]))
+
             project_info.append(res)
 
         except Exception as err:
@@ -100,6 +101,9 @@ def api_init_project():  # noqa: F401
     project_name = request.form['name']
     project_description = request.form['description']
     project_authors = request.form['authors']
+    project_mode = request.form['mode']
+
+    logging.info("Project init mode: {}".format(request.form['mode']))
 
     project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
@@ -108,7 +112,8 @@ def api_init_project():  # noqa: F401
             project_id,
             project_name=project_name,
             project_description=project_description,
-            project_authors=project_authors)
+            project_authors=project_authors,
+            project_mode=project_mode)
 
         response = jsonify(project_config)
 
@@ -155,6 +160,10 @@ def api_get_project_info(project_id):  # noqa: F401
                 project_info["projectInitReady"] = True
             else:
                 project_info["projectInitReady"] = False
+
+        # backwards support <0.10
+        if "mode" not in project_info:
+            project_info["mode"] = "oracle"
 
         response = jsonify(project_info)
 

@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
   Button,
+  Chip,
   Container,
   Grid,
   Typography,
@@ -31,13 +32,17 @@ import { connect } from "react-redux";
 
 import axios from 'axios'
 
-import { api_url, mapStateToProps } from '../globals.js';
+import { api_url, mapStateToProps, projectModes } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   header: {
     paddingTop: "128px",
     paddingBottom: "48px",
     textAlign: "center",
+  },
+  mode: {
+    marginBottom: 20,
+    backgroundColor: theme.palette.warning.light
   },
   title: {
     fontWeight: "300",
@@ -219,6 +224,12 @@ const ProjectPage = (props) => {
                 />
               </Grid>
               <Grid item xs={12} sm={9}>
+                {state.info.mode !== projectModes.ORACLE && (
+                <Chip
+                  label={state.info.mode}
+                  className={classes.mode}
+                />
+              )}
                 <Typography
                   variant="h3"
                   gutterBottom={true}

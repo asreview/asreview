@@ -8,6 +8,11 @@ import {
   DialogContent,
   DialogActions,
   Dialog,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+  Switch,
 } from '@material-ui/core'
 
 import { brown } from '@material-ui/core/colors';
@@ -17,7 +22,7 @@ import axios from 'axios'
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
-import { api_url, mapStateToProps } from '../globals.js';
+import { api_url, mapStateToProps, projectModes } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -32,6 +37,9 @@ const useStyles = makeStyles(theme => ({
   },
   input: {
     display: 'none',
+  },
+  list: {
+    backgroundColor: theme.palette.warning.light
   },
   textfieldItem: {
     marginTop: 0,
@@ -73,10 +81,18 @@ const ProjectInit = (props) => {
     authors: "",
     name: "",
     description: "",
+    mode: projectModes.ORACLE,
   })
   const [error, setError] = React.useState(false)
 
-  const onChange = (evt) => {
+  const toggleMode = () => {
+    setInfo({
+      ...info,
+      mode: info.mode === projectModes.ORACLE ? projectModes.SIMULATION : projectModes.ORACLE
+    });
+  };
+
+  const onChange = (evt) => { 
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value
@@ -90,6 +106,7 @@ const ProjectInit = (props) => {
     bodyFormData.set('name', info.name);
     bodyFormData.set('authors', info.authors);
     bodyFormData.set('description', info.description);
+    bodyFormData.set('mode', info.mode);
 
     axios({
       method: "post",
@@ -164,6 +181,18 @@ const ProjectInit = (props) => {
             value={info.description}
           />
         </div>
+
+        <List className={classes.list}>
+            <ListItem>
+              <ListItemText id="switch-list-label-simulation" primary="Simulation" secondary="Some explanation about simulation mode.."/>
+              <ListItemSecondaryAction>
+                <Switch
+                  edge="end"
+                  onChange={toggleMode}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
+         </List>   
 
       </form>
       </DialogContent>

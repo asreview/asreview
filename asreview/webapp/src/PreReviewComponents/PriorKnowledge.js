@@ -19,6 +19,7 @@ import {
 import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
+import ListIcon from '@material-ui/icons/List';
 
 import { green, brown } from '@material-ui/core/colors';
 
@@ -40,7 +41,7 @@ import {
 import axios from 'axios'
 
 import {
-  api_url
+  api_url, projectModes
 } from '../globals.js';
 
 import './ReviewZone.css';
@@ -97,8 +98,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
-  const url = api_url + `project/${project_id}/labelitem`;
+export const labelPriorItem = (project, doc_id, label, callbk=null) => {
+  const url = api_url + `project/${project.id}/labelitem`;
 
   let body = new FormData();
   body.set('doc_id', doc_id);
@@ -126,15 +127,18 @@ export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 
 
 const PriorKnowledge = ({
-  project_id,
+  project,
   setNext,
   scrollToBottom,
 }) => {
+  const edit = project.node === projectModes.ORACLE
+
   const classes = useStyles();
 
   const [state, setState] = React.useState({
     "method": null,
     "loading": true,
+    "edit": edit
   })
 
   const [priorDialog, setPriorDialog] = React.useState(false)
@@ -150,6 +154,7 @@ const PriorKnowledge = ({
     setState({
       "method": state.method,
       "loading": true,
+      "edit": project.mode === projectModes.ORACLE
     });
   }
 
@@ -166,20 +171,20 @@ const PriorKnowledge = ({
 
   // include the item in the card
   const includeItem = (doc_id, callbk=null) => {
-    console.log(`${project_id} - add item ${doc_id} to prior inclusions`);
-    labelPriorItem(project_id, doc_id, 1, callbk)
+    console.log(`${project.id} - add item ${doc_id} to prior inclusions`);
+    labelPriorItem(project.id, doc_id, 1, callbk)
   }
 
   // exclude the item in the card
   const excludeItem = (doc_id, callbk=null) => {
-    console.log(`${project_id} - add item ${doc_id} to prior exclusions`);
-    labelPriorItem(project_id, doc_id, 0, callbk)
+    console.log(`${project.id} - add item ${doc_id} to prior exclusions`);
+    labelPriorItem(project.id, doc_id, 0, callbk)
   }
 
   // reset the item (for search and revert)
   const resetItem = (doc_id, callbk=null) => {
-    console.log(`${project_id} - remove item ${doc_id} from prior knowledge`);
-    labelPriorItem(project_id, doc_id, -1, callbk);
+    console.log(`${project.id} - remove item ${doc_id} from prior knowledge`);
+    labelPriorItem(project.id, doc_id, -1, callbk);
     updatePriorStats();
   }
 
@@ -188,6 +193,7 @@ const PriorKnowledge = ({
     setState({
       "method": method,
       "loading": state.loading,
+      "edit": state.edit
     });
   }
 
@@ -198,7 +204,7 @@ const PriorKnowledge = ({
   useEffect(() => {
 
     if (state.loading){
-      const url = api_url + `project/${project_id}/prior_stats`;
+      const url = api_url + `project/${project.id}/prior_stats`;
 
       axios.get(url)
       .then((result) => {
@@ -217,7 +223,7 @@ const PriorKnowledge = ({
       });
     }
 
-  }, [state.loading, project_id]);
+  }, [state.loading, project.id]);
 
   // check if there is enough prior knowledge
   useEffect(() => {
@@ -229,6 +235,13 @@ const PriorKnowledge = ({
     }
 
   }, [priorStats, setNext]);
+
+  const DetailsIcon = props => {
+    return state.edit ? <EditIcon /> : <ListIcon />
+  };
+
+  const cardHeaderTitle = state.edit ? "Select prior knowledge" : "Prior knowledge"
+  const detailsTooltipTitle = state.edit ? "Edit" : "List"
 
   return (
     <Box
@@ -247,20 +260,20 @@ const PriorKnowledge = ({
           <CardHeader
 
             /* Prior card */
-            title="Select prior knowledge"
+            title= {cardHeaderTitle}
             titleTypographyProps={{"color": "primary"}}
 
             /* The edit and help options */
             action={
               <Box>
                 {priorStats['n_prior'] > 0 &&
-                  <Tooltip title="Edit">
+                  <Tooltip title={detailsTooltipTitle} >
 
                     <IconButton
                       aria-label="project-prior-edit"
                       onClick={openPriorKnowledge}
                     >
-                      <EditIcon />
+                    <DetailsIcon/>
                     </IconButton>
                   </Tooltip>
                 }
@@ -334,6 +347,7 @@ const PriorKnowledge = ({
             </Box>
           </CardContent>
 
+          { state.edit &&
           <CardContent className="cardHighlight">
             <Button
               variant="outlined"
@@ -368,13 +382,14 @@ const PriorKnowledge = ({
             */}
 
           </CardContent>
-
+          }
+          
           { state.method === "search" &&
             <Box>
               <Divider/>
               <CardContent>
                 <PriorKnowledgeSearch
-                  project_id={project_id}
+                  project={project}
                   updatePriorStats={updatePriorStats}
                   includeItem={includeItem}
                   excludeItem={excludeItem}
@@ -386,7 +401,7 @@ const PriorKnowledge = ({
 
           { state.method === "random" &&
             <PriorKnowledgeRandom
-              project_id={project_id}
+              project={project}
               onClose={()=>{changeMethod(null)}}
               updatePriorStats={updatePriorStats}
               includeItem={includeItem}
@@ -411,6 +426,7 @@ const PriorKnowledge = ({
         />
         <DialogContent dividers={true}>
           <LabeledItems
+            edit={state.edit}
             resetItem={resetItem}
           />
         </DialogContent>

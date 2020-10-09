@@ -37,7 +37,7 @@ import {
 } from '../PreReviewComponents';
 
 import axios from 'axios'
-import { api_url } from '../globals.js';
+import { api_url, projectModes } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -115,7 +115,7 @@ const useStyles = makeStyles(theme => ({
 const ProjectUpload = ({
   init,
   edit,
-  project_id,
+  project,
   handleNext,
   handleStep,
   setNext,
@@ -202,7 +202,7 @@ const ProjectUpload = ({
       // set error to state
       setError(null)
 
-      const url = api_url + `project/${project_id}/data`;
+      const url = api_url + `project/${project.id}/data`;
 
       axios({
         method: 'post',
@@ -282,7 +282,7 @@ const ProjectUpload = ({
     return onUploadHandler(data, callback)
   }
 
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState("file");
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -327,7 +327,7 @@ const ProjectUpload = ({
     const fetchDatasetInfo = async () => {
 
       // contruct URL
-      const url = api_url + "project/" + project_id + "/data";
+      const url = api_url + "project/" + project.id + "/data";
 
       axios.get(url)
         .then((result) => {
@@ -349,7 +349,7 @@ const ProjectUpload = ({
       setStatistics(null);
     }
 
-  }, [project_id, state.edit, state.upload]);
+  }, [project, state.edit, state.upload]);
 
   return (
   <Box minHeight={"100%"}>
@@ -426,14 +426,16 @@ const ProjectUpload = ({
                 variant="scrollable"
                 scrollButtons="auto"
               >
-                <Tab label="From file" />
-                <Tab label="From url" />
-                <Tab label="From plugin" />
-                <Tab label="Example datasets" />
+                <Tab label="From file" value="file" />
+                <Tab label="From url" value="url"/>
+                <Tab label="From plugin" value="plugin"/>
+                {project.mode !== projectModes.SIMULATION &&
+                <Tab label="Example datasets" value="test" /> 
+                }
               </Tabs>
 
             <CardContent>
-              {value === 0 &&
+              {value === "file" &&
 
                 <div>
                   <div className={classes.upload} {...getRootProps({style})}>
@@ -458,7 +460,7 @@ const ProjectUpload = ({
                 </div>
               }
 
-              {value === 1 &&
+              {value === "url" &&
                 <div>
                   <ProjectUploadURL
                     upload={state.upload}
@@ -467,14 +469,14 @@ const ProjectUpload = ({
                 </div>
               }
 
-              {value === 2 &&
+              {value === "plugin" &&
                 <ProjectUploadDatasets
                   subset={"plugin"}
                   onUploadHandler={onUploadHandlerDemoDataset}
                 />
               }
 
-              {value === 3 &&
+              {value === "test" &&
 
                 <div>
                   <ProjectUploadDatasets
