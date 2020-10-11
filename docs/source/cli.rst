@@ -99,11 +99,11 @@ Example:
 
 .. option:: --n_prior_included N_PRIOR_INCLUDED
 
-    Sample n prior included papers. Only used when prior_included is not given. Default 1
+    The number of prior included papers. Only used when :code:`prior_idx` is not given. Default 1.
 
 .. option:: --n_prior_excluded N_PRIOR_EXCLUDED
 
-    Sample n prior excluded papers. Only used when prior_excluded is not given. Default 1
+    The number of prior excluded papers. Only used when :code:`prior_idx` is not given. Default 1.
 
 .. option:: --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
 
@@ -123,7 +123,10 @@ Example:
 
 .. option:: --state_file STATE_FILE, -s STATE_FILE
 
-    Location to store the state of the simulation.
+    Location to store the (active learning) state of the simulation. It is
+    possible to output the state to a JSON file (extension :code:`.json`) or
+    `HDF5 file <https://en.wikipedia.org/wiki/Hierarchical_Data_Format>`__
+    (extension :code:`.h5`).
 
 .. option:: --init_seed INIT_SEED
 
