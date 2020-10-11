@@ -43,11 +43,12 @@ def _check_tensorflow():
 
 
 class LSTMBaseModel(BaseTrainModel):
-    """
-    LSTM base classifier.
+    """LSTM base classifier.
 
-    LSTM model consisting of an embedding layer, one LSTM layer, and one
-    dense layer.
+    LSTM model that consists of an embedding layer, LSTM layer with one
+    output, dense layer, and a single sigmoid output node. Use the
+    :class:`asreview.feature_extraction.EmbeddingLSTM` feature extraction
+    method. Currently not so well optimized and slow.
 
     Arguments
     ---------

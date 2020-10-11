@@ -49,8 +49,10 @@ class LSTMPoolModel(BaseTrainModel):
     """
     LSTM pool classifier.
 
-    LSTM model consisting of an embedding layer, one LSTM layer, and one
-    max pooling layer.
+    LSTM model that consists of an embedding layer, LSTM layer with many
+    outputs, max pooling layer, and a single sigmoid output node. Use the
+    :class:`asreview.feature_extraction.EmbeddingLSTM` feature extraction
+    method. Currently not so well optimized and slow.
 
     Arguments
     ---------

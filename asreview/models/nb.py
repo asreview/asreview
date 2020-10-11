@@ -20,8 +20,12 @@ from asreview.models.base import BaseTrainModel
 
 
 class NBModel(BaseTrainModel):
-    """
-    Naive Bayes classifier
+    """Naive Bayes classifier
+
+    Naive Bayes classifier. Only works in combination with the
+    :class:`asreview.feature_extraction.Tfidf` feature extraction model.
+    Though relatively simplistic, seems to work quite well on a wide range of
+    datasets.
 
     The Naive Bayes classifier is an implementation based
     on the sklearn multinomial Naive Bayes classifier.

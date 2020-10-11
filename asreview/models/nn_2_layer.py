@@ -46,11 +46,16 @@ def _check_tensorflow():
 
 
 class NN2LayerModel(BaseTrainModel):
-    """
-    Dense neural network classifier.
+    """Dense neural network classifier.
 
-    Neural network with two hidden, dense layers
-    of the same size.
+    Neural network with two hidden, dense layers of the same size.
+
+    Recommended feature extraction model is
+    :class:`asreview.feature_extraction.Doc2Vec`.
+
+    .. warning::
+        Might crash on some systems with limited memory in
+        combination with :class:`asreview.feature_extraction.Tfidf`.
 
     Arguments
     ---------
