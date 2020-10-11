@@ -1,156 +1,264 @@
 Command Line
 ============
 
-Introduction
-------------
+ASReview provides a powerful command line interface for running tasks like
+simulations. For a list of available commands, type :code:`asreview --help`.
 
-Basic usage:
 
-.. code-block:: bash
+
+lab
+---
+
+:program:`asreview lab` launches the ASReview LAB software (the frontend).
+
+.. code:: bash
+
+	asreview lab [options]
+
+.. program:: asreview lab
+
+.. option:: --ip IP
+
+    The IP address the server will listen on.
+
+.. option:: --port PORT
+
+	The port the server will listen on.
+
+.. option:: --embedding EMBEDDING_FP
+
+    File path of embedding matrix. Required for LSTM models.
+
+.. option:: --seed SEED
+
+	Seed for the model (classifiers, balance strategies, feature extraction
+	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
+
+.. option:: -h, --help
+
+	Show help message and exit.
+
+simulate
+--------
+
+:program:`asreview simulate` measures the performance of the software on
+existing systematic reviews. The software shows how many papers you could have
+potentially skipped during the systematic review.
+
+.. code:: bash
+
+	asreview simulate [options] [dataset [dataset ...]]
+
+Example:
+
+.. code:: bash
 
 	asreview simulate YOUR_DATA.csv --state_file myreview.h5
 
-Arguments
----------
 
-The available parameters are:
+.. program:: asreview simulate
 
-.. code-block:: bash
+.. option:: dataset
 
-    $ asreview simulate -h
-    usage: simulate [-h] [--embedding EMBEDDING_FP] [--config_file CONFIG_FILE] [--seed SEED] [--n_prior_included N_PRIOR_INCLUDED]
-                    [--n_prior_excluded N_PRIOR_EXCLUDED] [--prior_idx [PRIOR_IDX [PRIOR_IDX ...]]] [--included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]]
-                    [--excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]] [--prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]] [--state_file STATE_FILE]
-                    [-m MODEL] [-q QUERY_STRATEGY] [-b BALANCE_STRATEGY] [-e FEATURE_EXTRACTION] [--init_seed INIT_SEED] [--n_instances N_INSTANCES]
-                    [--n_queries N_QUERIES] [-n N_PAPERS] [--abstract_only] [--verbose VERBOSE]
-                    [dataset [dataset ...]]
+    A dataset to simulate
 
-    ASReview for simulation.
+.. option:: -m, --model MODEL
 
-    The simulation modus is used to measure the performance of our
-    software on existing systematic reviews. The software shows how many
-    papers you could have potentially skipped during the systematic
-    review.
+    The prediction model for Active Learning. Default: :code:`nb`. (See available
+    options below: `Classifiers`_)
 
-    positional arguments:
-      dataset               File path to the dataset or one of the built-in datasets.
+.. option:: -q, --query_strategy QUERY_STRATEGY
 
-    optional arguments:
-      -h, --help            show this help message and exit
-      --embedding EMBEDDING_FP
-                            File path of embedding matrix. Required for LSTM models.
-      --config_file CONFIG_FILE
-                            Configuration file with model settingsand parameter values.
-      --seed SEED           Seed for the model (classifiers, balance strategies, feature extraction techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
-      --n_prior_included N_PRIOR_INCLUDED
-                            Sample n prior included papers. Only used when --prior_included is not given. Default 1
-      --n_prior_excluded N_PRIOR_EXCLUDED
-                            Sample n prior excluded papers. Only used when --prior_excluded is not given. Default 1
-      --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
-                            Prior indices by rownumber (0 is first rownumber).
-      --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
-                            A dataset with papers that should be includedCan be used multiple times.
-      --excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]
-                            A dataset with papers that should be excludedCan be used multiple times.
-      --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
-                            A dataset with papers from prior studies.
-      --state_file STATE_FILE, -s STATE_FILE, --log_file STATE_FILE, -l STATE_FILE
-                            Location to store the state of the simulation.
-      -m MODEL, --model MODEL
-                            The prediction model for Active Learning. Default: 'nb'.
-      -q QUERY_STRATEGY, --query_strategy QUERY_STRATEGY
-                            The query strategy for Active Learning. Default: 'max'.
-      -b BALANCE_STRATEGY, --balance_strategy BALANCE_STRATEGY
-                            Data rebalancing strategy mainly for RNN methods. Helps against imbalanced dataset with few inclusions and many exclusions. Default: 'double'
-      -e FEATURE_EXTRACTION, --feature_extraction FEATURE_EXTRACTION
-                            Feature extraction method. Some combinations of feature extraction method and prediction model are impossible/ill advised.Default: 'tfidf'
-      --init_seed INIT_SEED
-                            Seed for setting the prior indices if the --prior_idx option is not used. If the option --prior_idx is used with one or more index, this option is ignored.
-      --n_instances N_INSTANCES
-                            Number of papers queried each query.Default 1.
-      --n_queries N_QUERIES
-                            The number of queries. By default, the program stops after all documents are reviewed or is interrupted by the user.
-      -n N_PAPERS, --n_papers N_PAPERS
-                            The number of papers to be reviewed. By default, the program stops after all documents are reviewed or is interrupted by the user.
-      --abstract_only       Simulate using the labels of abstract screening. This is option is useful if there is both a column for abstract and final screening available in the dataset. Default False.
-      --verbose VERBOSE, -v VERBOSE
-                            Verbosity
+    The query strategy for Active Learning. Default: :code:`max`. (See
+    available options below: `Query strategies`_)
 
-Active Learning algorithms
---------------------------
+.. option:: -b, --balance_strategy BALANCE_STRATEGY
 
-Install the additional dependencies with `pip install asreview[all]` or
-install the specific package manually.
+    Data rebalancing strategy mainly for RNN methods. Helps against imbalanced
+    dataset with few inclusions and many exclusions. Default: :code:`double`.
+    (See available options below: `Balance strategies`_)
+
+.. option:: -e, --feature_extraction FEATURE_EXTRACTION
+
+	Feature extraction method. Some combinations of feature extraction method
+	and prediction model are not available. Default: :code:`tfidf`. (See
+	available options below: `Feature extraction`_)
+
+.. option:: --embedding EMBEDDING_FP
+
+    File path of embedding matrix. Required for LSTM models.
+
+.. option:: --config_file CONFIG_FILE
+
+    Configuration file with model settingsand parameter values.
+
+.. option:: --seed SEED
+
+	Seed for the model (classifiers, balance strategies, feature extraction
+	techniques, and query strategies). Use an integer between 0 and 2^32 - 1.
+
+.. option:: --n_prior_included N_PRIOR_INCLUDED
+
+    Sample n prior included papers. Only used when prior_included is not given. Default 1
+
+.. option:: --n_prior_excluded N_PRIOR_EXCLUDED
+
+    Sample n prior excluded papers. Only used when prior_excluded is not given. Default 1
+
+.. option:: --prior_idx [PRIOR_IDX [PRIOR_IDX ...]]
+
+    Prior indices by rownumber (0 is first rownumber).
+
+.. option:: --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
+
+    A dataset with papers that should be includedCan be used multiple times.
+
+.. option:: --excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]
+
+    A dataset with papers that should be excludedCan be used multiple times.
+
+.. option:: --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
+
+    A dataset with papers from prior studies.
+
+.. option:: --state_file STATE_FILE, -s STATE_FILE
+
+    Location to store the state of the simulation.
+
+.. option:: --init_seed INIT_SEED
+
+    Seed for setting the prior indices if the prior_idx option is not used. If the option
+    prior_idx is used with one or more index, this option is ignored.
+
+.. option:: --n_instances N_INSTANCES
+
+    Number of papers queried each query.Default 1.
+
+.. option:: --n_queries N_QUERIES
+
+    The number of queries. By default, the program stops after all documents are reviewed
+    or is interrupted by the user.
+
+.. option:: -n N_PAPERS, --n_papers N_PAPERS
+
+    The number of papers to be reviewed. By default, the program stops after
+    all documents  are reviewed or is interrupted by the user.
+
+.. option:: --abstract_only
+
+	Simulate using the labels of abstract screening. This is option is useful
+	if  there is both a column for abstract and final screening available in
+	the dataset. Default False.
+
+.. option:: --verbose VERBOSE, -v VERBOSE
+
+    Verbosity
+
+.. option:: -h, --help
+
+	Show help message and exit.
+
+
+.. note::
+
+	Some classifiers (models) and feature extraction algorithms require additional dependecies. Use :code:`pip install asreview[all]` to install all additional dependencies at once.
+
 
 Feature extraction
 ~~~~~~~~~~~~~~~~~~
 
-+----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
-| Name           | Reference                                          | Requires                                                                    | Remarks |
-+================+====================================================+=============================================================================+=========+
-| tfidf          | :class:`asreview.feature_extraction.Tfidf`         |                                                                             |         |
-+----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
-| doc2vec        | :class:`asreview.feature_extraction.Doc2Vec`       | `gensim <https://radimrehurek.com/gensim/>`__                               | Slow    |
-+----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
-| embedding-idf  | :class:`asreview.feature_extraction.EmbeddingIdf`  |                                                                             |         |
-+----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
-| embedding-lstm | :class:`asreview.feature_extraction.EmbeddingLSTM` |                                                                             |         |
-+----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
-| sbert          | :class:`asreview.feature_extraction.SBERT`         | `sentence_transformers <https://github.com/UKPLab/sentence-transformers>`__ | Slow    |
-+----------------+----------------------------------------------------+-----------------------------------------------------------------------------+---------+
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
+| Name           | Reference                                          | Requires                                                                    |
++================+====================================================+=============================================================================+
+| tfidf          | :class:`asreview.feature_extraction.Tfidf`         |                                                                             |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
+| doc2vec        | :class:`asreview.feature_extraction.Doc2Vec`       | `gensim <https://radimrehurek.com/gensim/>`__                               |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
+| embedding-idf  | :class:`asreview.feature_extraction.EmbeddingIdf`  |                                                                             |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
+| embedding-lstm | :class:`asreview.feature_extraction.EmbeddingLSTM` |                                                                             |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
+| sbert          | :class:`asreview.feature_extraction.SBERT`         | `sentence_transformers <https://github.com/UKPLab/sentence-transformers>`__ |
++----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
 
 
 Classifiers
 ~~~~~~~~~~~
 
-+-------------+---------------------------------------------------------+--------------+---------+
-| Name        | Reference                                               | Requires     | Remarks |
-+=============+=========================================================+==============+=========+
-| nb          | :class:`asreview.models.NBModel`                        |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| svm         | :class:`asreview.models.SVMModel`                       |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| logistic    | :class:`asreview.models.LogisticModel`                  |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| rf          | :class:`asreview.models.RFModel`                        |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| nn-2-layer  | :class:`asreview.models.NN2LayerModel`                  |  tensorflow  |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| lstm-base   | :class:`asreview.models.LSTMBaseModel`                  |  tensorflow  |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| lstm-pool   | :class:`asreview.models.LSTMPoolModel`                  |  tensorflow  |         |
-+-------------+---------------------------------------------------------+--------------+---------+
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| Name        | Reference                                               | Requires                                      |
++=============+=========================================================+===============================================+
+| nb          | :class:`asreview.models.NBModel`                        |                                               |
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| svm         | :class:`asreview.models.SVMModel`                       |                                               |
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| logistic    | :class:`asreview.models.LogisticModel`                  |                                               |
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| rf          | :class:`asreview.models.RFModel`                        |                                               |
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| nn-2-layer  | :class:`asreview.models.NN2LayerModel`                  |  `tensorflow <https://www.tensorflow.org/>`__ |
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| lstm-base   | :class:`asreview.models.LSTMBaseModel`                  |  `tensorflow <https://www.tensorflow.org/>`__ |
++-------------+---------------------------------------------------------+-----------------------------------------------+
+| lstm-pool   | :class:`asreview.models.LSTMPoolModel`                  |  `tensorflow <https://www.tensorflow.org/>`__ |
++-------------+---------------------------------------------------------+-----------------------------------------------+
 
 
 Query strategies
 ~~~~~~~~~~~~~~~~
 
-+-------------+---------------------------------------------------------+--------------+---------+
-| Name        | Reference                                               | Requires     | Remarks |
-+=============+=========================================================+==============+=========+
-| max         | :class:`asreview.query_strategies.MaxQuery`             |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| random      | :class:`asreview.query_strategies.RandomQuery`          |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| uncertainty | :class:`asreview.query_strategies.UncertaintyQuery`     |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
-| cluster     | :class:`asreview.query_strategies.ClusterQuery`         |              |         |
-+-------------+---------------------------------------------------------+--------------+---------+
++-------------+---------------------------------------------------------+--------------+
+| Name        | Reference                                               | Requires     |
++=============+=========================================================+==============+
+| max         | :class:`asreview.query_strategies.MaxQuery`             |              |
++-------------+---------------------------------------------------------+--------------+
+| random      | :class:`asreview.query_strategies.RandomQuery`          |              |
++-------------+---------------------------------------------------------+--------------+
+| uncertainty | :class:`asreview.query_strategies.UncertaintyQuery`     |              |
++-------------+---------------------------------------------------------+--------------+
+| cluster     | :class:`asreview.query_strategies.ClusterQuery`         |              |
++-------------+---------------------------------------------------------+--------------+
 
 
 Balance strategies
 ~~~~~~~~~~~~~~~~~~
 
-+-------------+---------------------------------------------------------+----------+---------+
-| Name        | Reference                                               | Requires | Remarks |
-+=============+=========================================================+==========+=========+
-| simple      | :class:`asreview.balance_strategies.SimpleBalance`      |          |         |
-+-------------+---------------------------------------------------------+----------+---------+
-| double      | :class:`asreview.balance_strategies.DoubleBalance`      |          |         |
-+-------------+---------------------------------------------------------+----------+---------+
-| triple      | :class:`asreview.balance_strategies.TripleBalance`      |          |         |
-+-------------+---------------------------------------------------------+----------+---------+
-| undersample | :class:`asreview.balance_strategies.UndersampleBalance` |          |         |
-+-------------+---------------------------------------------------------+----------+---------+
++-------------+---------------------------------------------------------+----------+
+| Name        | Reference                                               | Requires |
++=============+=========================================================+==========+
+| simple      | :class:`asreview.balance_strategies.SimpleBalance`      |          |
++-------------+---------------------------------------------------------+----------+
+| double      | :class:`asreview.balance_strategies.DoubleBalance`      |          |
++-------------+---------------------------------------------------------+----------+
+| triple      | :class:`asreview.balance_strategies.TripleBalance`      |          |
++-------------+---------------------------------------------------------+----------+
+| undersample | :class:`asreview.balance_strategies.UndersampleBalance` |          |
++-------------+---------------------------------------------------------+----------+
 
+
+simulate-batch
+--------------
+
+:program:`asreview simulate-batch` provides the same interface as the
+:program:`asreview simulate`, but adds an extra option (:code:`--n_runs`) to run a
+batch of simulation runs with the same configuration.
+
+.. code:: bash
+
+	asreview simulate-batch [options] [dataset [dataset ...]]
+
+.. warning::
+
+	The behavour of some arguments of :program:`asreview simulate-batch` will differ
+	slightly from :program:`asreview simulate`.
+
+.. program:: asreview simulate-batch
+
+.. option:: dataset
+
+    A dataset to simulate
+
+.. option:: --n_runs
+
+    Number of simulation runs.
 
