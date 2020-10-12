@@ -40,8 +40,6 @@ The source code is freely available at
 
    features
 
-   extensions
-
    user_testing_algorithms
 
    faq
