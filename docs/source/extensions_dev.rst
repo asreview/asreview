@@ -80,8 +80,8 @@ file. The following example shows how a plot is made of the file
     asreview plot example_run_1.h5
 
 
-Create new subcommand
----------------------
+Create subcommand
+-----------------
 
 Extensions in ASReview are Python packages. Extension packages can extend the
 subcommands of asreview (see ``asreview -h``) or add new algorithms.
@@ -147,8 +147,8 @@ If you are willing to share your work, the easiest way is to upload your
 package to GitHub and/or PyPi. Users can directly install the extension from
 these sources.
 
-Add new model
--------------
+Add model
+---------
 
 The easiest way to extend ASReview with a new classifier, qurey strategy,
 balance strategy, or feature extraction technique is by using the template
