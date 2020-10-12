@@ -7,8 +7,7 @@ from asreview.query_strategies import list_query_strategies
 
 def _format_algorithm(values, name, description):
 
-    s = f"  {name: <20}{description}"
-    s += f" Available {name}:\n\n"
+    s = f"  {name: <20}Available {description}:\n\n"
 
     result = []
 
@@ -26,34 +25,34 @@ class AlgorithmsEntryPoint(BaseEntryPoint):
 
     def execute(self, argv):
 
-        s = "Available algorithms for ASReview. \n\n"
+        s = "Available active learning algorithms for ASReview. \n\n"
 
         # classifiers
         s += _format_algorithm(
             values=list_classifiers(),
             name="classifiers",
-            description="Classification algorithms for ASReview."
+            description="classification algorithms"
         )
 
         # query_strategies
         s += _format_algorithm(
             values=list_query_strategies(),
             name="query_strategies",
-            description="Query strategies for ASReview."
+            description="query strategies"
         )
 
         # balance_strategies
         s += _format_algorithm(
             values=list_balance_strategies(),
             name="balance_strategies",
-            description="Balance strategies for ASReview."
+            description="balance strategies"
         )
 
         # feature_extraction
         s += _format_algorithm(
             values=list_feature_extraction(),
             name="feature_extraction",
-            description="Feature extraction algorithms for ASReview."
+            description="feature extraction algorithms"
         )
 
         print(s)
