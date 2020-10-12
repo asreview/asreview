@@ -50,7 +50,18 @@ def _transform_text(model, corpus):
 class Doc2Vec(BaseFeatureExtraction):
     """Base class for doc2vec feature extraction.
 
-    Requires 'gensim' installation.
+    Feature extraction method provided by the `gensim
+    <https://radimrehurek.com/gensim/>`__ package. It takes relatively long to
+    create a feature matrix with this method. However, this only has to be
+    done once per simulation/review. The upside of this method is the
+    dimension- reduction that generally takes place, which makes the modelling
+    quicker.
+
+    .. note::
+
+        This feature extraction algorithm requires ``gensim`` to be installed.
+        Use ``pip install gensim`` or install all optional ASReview
+        dependencies with ``pip install asreview[all]``
 
     Arguments
     ---------

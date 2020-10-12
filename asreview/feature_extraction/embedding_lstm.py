@@ -47,6 +47,15 @@ def _check_tensorflow():
 class EmbeddingLSTM(BaseFeatureExtraction):
     """Class to create embedding matrices for LSTM models.
 
+    Feature extraction method for :class:`asreview.models.LSTMBaseModel` and
+    :class:`asreview.models.LSTMPoolModel` models.
+
+    .. note::
+
+        This feature extraction algorithm requires ``tensorflow`` to be
+        installed. Use ``pip install tensorflow`` or install all optional
+        ASReview dependencies with ``pip install asreview[all]``
+
     Arguments
     ---------
     loop_sequence: bool

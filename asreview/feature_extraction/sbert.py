@@ -18,7 +18,20 @@ def _check_st():
 
 
 class SBERT(BaseFeatureExtraction):
-    """Sentence BERT class for feature extraction."""
+    """Sentence BERT class for feature extraction.
+
+    Feature extraction method based on Sentence BERT. Implementatin based on
+    the `sentence_transformers <https://github.com/UKPLab/sentence-
+    transformers>`__ package. It is relatively slow.
+
+    .. note::
+
+        This feature extraction algorithm requires ``sentence_transformers``
+        to be installed. Use ``pip install sentence_transformers`` or install
+        all optional ASReview dependencies with ``pip install asreview[all]``
+
+    """
+
     name = "sbert"
 
     def transform(self, texts):

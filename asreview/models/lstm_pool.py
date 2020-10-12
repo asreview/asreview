@@ -54,6 +54,12 @@ class LSTMPoolModel(BaseTrainModel):
     :class:`asreview.feature_extraction.EmbeddingLSTM` feature extraction
     method. Currently not so well optimized and slow.
 
+    .. note::
+
+        This model requires ``tensorflow`` to be installed. Use ``pip install
+        tensorflow`` or install all optional ASReview dependencies with ``pip
+        install asreview[all]``
+
     Arguments
     ---------
     embedding_matrix: np.array

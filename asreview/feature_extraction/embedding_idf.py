@@ -45,9 +45,15 @@ def _check_tensorflow():
 class EmbeddingIdf(BaseFeatureExtraction):
     """Class for Embedding-Idf model.
 
-    This model averages the weighted word vectors of all the words in the text,
-    in order to get a single feature vector for each text. The weights are
-    provided by the inverse document frequencies.
+    This model averages the weighted word vectors of all the words in the
+    text, in order to get a single feature vector for each text. The weights
+    are provided by the inverse document frequencies.
+
+    .. note::
+
+        This feature extraction algorithm requires ``tensorflow`` to be
+        installed. Use ``pip install tensorflow`` or install all optional
+        ASReview dependencies with ``pip install asreview[all]``
 
     Arguments
     ---------

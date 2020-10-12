@@ -53,7 +53,14 @@ class NN2LayerModel(BaseTrainModel):
     Recommended feature extraction model is
     :class:`asreview.feature_extraction.Doc2Vec`.
 
+    .. note::
+
+        This model requires ``tensorflow`` to be installed. Use ``pip install
+        tensorflow`` or install all optional ASReview dependencies with ``pip
+        install asreview[all]``
+
     .. warning::
+
         Might crash on some systems with limited memory in
         combination with :class:`asreview.feature_extraction.Tfidf`.
 
