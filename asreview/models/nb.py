@@ -27,8 +27,8 @@ class NBModel(BaseTrainModel):
     Though relatively simplistic, seems to work quite well on a wide range of
     datasets.
 
-    The Naive Bayes classifier is an implementation based
-    on the sklearn multinomial Naive Bayes classifier.
+    The naive Bayes classifier is an implementation based
+    on the sklearn multinomial naive Bayes classifier.
 
     Arguments
     ---------
