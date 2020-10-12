@@ -53,13 +53,13 @@ See ``asreview -h`` for this option.
     positional arguments:
       subcommand     The subcommand to launch. Available commands:
 
-                     lab [asreview-0.13+13.g40d7be0]
+                     lab [asreview-0.13]
                          Graphical user interface for ASReview.
 
-                     simulate [asreview-0.13+13.g40d7be0]
+                     simulate [asreview-0.13]
                          Simulate the performance of ASReview.
 
-                     simulate-batch [asreview-0.13+13.g40d7be0]
+                     simulate-batch [asreview-0.13]
                          Parallel simulation for ASReview.
 
                      plot [asreview-visualization-0.2.2]
