@@ -5,9 +5,9 @@ Extensions
 
 ASReview has support for extensions, which enable you to seemlessly integrate
 your own programs with the ASReview framework. These extensions can extend the
-software with new models, qurey strategies, balance strategies, and feature
-extraction techniques. It is also possible to extend ASReview with completely
-new subcommand (like ``lab`` of ``simulate``).
+software with new classifier, qurey strategies, balance strategies, and
+feature extraction techniques. It is also possible to extend ASReview with
+completely new subcommand (like ``lab`` of ``simulate``).
 
 The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with
@@ -30,9 +30,10 @@ list, make an issue on `github
 Usage
 -----
 
-The `asreview-visualization <https://github.com/asreview/ASReview-
-visualization>`__ extension extends ASReview to create basic plots from
-ASReview state files. This section shows how to use this extension.
+This section shows how to use a extension. In this example, the `asreview-
+visualization <https://github.com/asreview/ASReview-visualization>`__
+extension is used. The extension extends ASReview to create basic plots from
+ASReview state files.
 
 Install the extension with
 
@@ -149,5 +150,66 @@ these sources.
 Add new model
 -------------
 
-Work in progress
+The easiest way to extend ASReview with a new classifier, qurey strategy,
+balance strategy, or feature extraction technique is by using the template
+`Template for extending ASReview <https://github.com/asreview/template-
+extension-new-model>`__. Create a copy of the template and add the new
+algorithms. It is advised to use the following structure of the package:
+
+.. code:: bash
+
+    ├── README.md
+    ├── asreviewcontrib
+    │   ├── model
+    │   │   ├── __init__.py
+    │   │   └── example_model.py
+    │   ├── feature_extraction
+    │   │   ├── __init__.py
+    │   │   └── example_feature_extraction.py
+    │   ├── balance_strategies
+    │   │   ├── __init__.py
+    │   │   └── example_balance_strategies.py
+    │   └── query_strategies
+    │       ├── __init__.py
+    │       └── example_query_strategies.py
+    ├── setup.py
+    └── tests
+
+The next step is to add metadata to the `setup.py <https://github.com/asreview
+/template-extension-new-model/blob/main/setup.py>`__ file. Edit the ``name``
+of the package and point the ``entry_points`` to the models.
+
+.. code:: bash
+
+    entry_points={
+        'asreview.models': [
+            'example = asreviewcontrib.models.example_model:ExampleClassifier',
+        ],
+        'asreview.feature_extraction': [
+            # define feature_extraction algorithms
+        ],
+        'asreview.balance_strategy': [
+            # define balance_strategy algorithms
+        ],
+        'asreview.query_strategy': [
+            # define query_strategy algorithms
+        ]
+    },
+
+This code registers the model with name ``example``.
+
+Install the package with pip:
+
+.. code:: bash
+
+    pip install .
+
+The new classifier is now available and can be used, for example, in the
+simulate command line.
+
+.. code:: bash
+
+    asreview simulate example_data_file.csv -m example
+
+
 
