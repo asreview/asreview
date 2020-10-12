@@ -59,7 +59,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=DEFAULT_N_PRIOR_INCLUDED,
         type=int,
         help="Sample n prior included papers. "
-             "Only used when --prior_included is not given. "
+             "Only used when --prior_idx is not given. "
              f"Default {DEFAULT_N_PRIOR_INCLUDED}")
 
     parser.add_argument(
@@ -67,7 +67,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=DEFAULT_N_PRIOR_EXCLUDED,
         type=int,
         help="Sample n prior excluded papers. "
-             "Only used when --prior_excluded is not given. "
+             "Only used when --prior_idx is not given. "
              f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
     parser.add_argument(
