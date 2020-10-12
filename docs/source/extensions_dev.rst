@@ -40,7 +40,7 @@ Install the extension with
 
     pip install asreview-visualization
 
-After installation, the function ``plot`` is available in the command line.
+After installation, the subcommand ``plot`` is available in the command line.
 See ``asreview -h`` for this option.
 
 .. code:: bash
@@ -70,7 +70,9 @@ See ``asreview -h`` for this option.
       -V, --version  print the ASR version number and exit
 
 
-With this extension installed, a plot can be made with of an ASReview state file. The following example shows how a plot is made of the file ``example_run_1.h5``.
+With this extension installed, a plot can be made with of an ASReview state
+file. The following example shows how a plot is made of the file
+``example_run_1.h5``.
 
 .. code:: bash
 
@@ -111,7 +113,21 @@ removing asreview and the entry point.
 
 It is advised to place the newly defined class ``ExampleEntryPoints`` in the
 following package structure:
-``asreviewcontrib.{extension_name}.{your_modules}``. Create a ``setup.py`` in
+``asreviewcontrib.{extension_name}.{your_modules}``. For example:
+
+.. code:: bash
+
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── example
+    │       ├── __init__.py
+    │       ├── entrypoint.py
+    │       └── example_utils.py
+    ├── setup.py
+    └── tests
+
+
+Create a ``setup.py`` in
 the root of the package, and set the keyword argument `entry_points` of
 ``setup()`` under ``asreview.entry_points``, for example:
 
@@ -119,9 +135,12 @@ the root of the package, and set the keyword argument `entry_points` of
 
     entry_points={
         "asreview.entry_points": [
-            "plot = asreviewcontrib.example.entrypoint:ExampleEntryPoint",
+            "example = asreviewcontrib.example.entrypoint:ExampleEntryPoint",
         ]
     }
+
+After installing this package. ASReview is extended with the ``asreview
+example`` subcommand.
 
 If you are willing to share your work, the easiest way is to upload your
 package to GitHub and/or PyPi. Users can directly install the extension from
