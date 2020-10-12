@@ -4,8 +4,6 @@ Command Line
 ASReview provides a powerful command line interface for running tasks like
 simulations. For a list of available commands, type :code:`asreview --help`.
 
-
-
 lab
 ---
 
@@ -167,6 +165,8 @@ Example:
 	Some classifiers (models) and feature extraction algorithms require additional dependecies. Use :code:`pip install asreview[all]` to install all additional dependencies at once.
 
 
+.. _feature-extraction-table:
+
 Feature extraction
 ~~~~~~~~~~~~~~~~~~
 
@@ -184,6 +184,7 @@ Feature extraction
 | sbert          | :class:`asreview.feature_extraction.SBERT`         | `sentence_transformers <https://github.com/UKPLab/sentence-transformers>`__ |
 +----------------+----------------------------------------------------+-----------------------------------------------------------------------------+
 
+.. _classifiers-table:
 
 Classifiers
 ~~~~~~~~~~~
@@ -206,6 +207,7 @@ Classifiers
 | lstm-pool   | :class:`asreview.models.LSTMPoolModel`                  |  `tensorflow <https://www.tensorflow.org/>`__ |
 +-------------+---------------------------------------------------------+-----------------------------------------------+
 
+.. _query-strategies-table:
 
 Query strategies
 ~~~~~~~~~~~~~~~~
@@ -222,6 +224,7 @@ Query strategies
 | cluster     | :class:`asreview.query_strategies.ClusterQuery`         |              |
 +-------------+---------------------------------------------------------+--------------+
 
+.. _balance-strategies-table:
 
 Balance strategies
 ~~~~~~~~~~~~~~~~~~

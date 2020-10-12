@@ -64,13 +64,12 @@ By default, the model initializes with one relevant and one irrelevant record. Y
 
 The ``--n_instances`` argument controls the number of records that have to be labelled before the model is retrained again and is set at 1 by default. If you want to reduce the number of training iterations, for example to limit the size of your state file and the time to simulate, you can increase ``--n_instances``.
 
-You can select a classifier with the ``-m`` flag, which is set to be Naive Bayes by default. Names for implemented classifiers are listed on the `models <models.html>`__ page.
+You can select a classifier with the ``-m`` flag, which is set to be Naive Bayes by default. Names for implemented classifiers are listed on the :ref:`classifiers-table` table.
 
-Implemented query strategies are listed on the `query strategy <query_strategies.html>`__ page and
+Implemented query strategies are listed on the :ref:`query-strategies-table` table and
 can be set with the ``-q`` option.
 
-For feature extraction, supply the ``-e`` flag. Default is TF-IDF, more details are on the page for
-`feature extraction <feature_extraction.html>`__.
+For feature extraction, supply the ``-e`` flag. Default is TF-IDF, more details on the table for :ref:`feature-extraction-table`.
 
-The last element that can be changed is the `balance strategy <balance_strategies.html>`__, and is
+The last element that can be changed is the :ref:`balance-strategies-table`, and is
 changed with the ``-b`` flag. Default is double balance.
