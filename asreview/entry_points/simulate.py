@@ -166,15 +166,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
              "interrupted by the user."
     )
     parser.add_argument(
-        "--abstract_only",
-        default=False,
-        action='store_true',
-        help="Simulate using the labels of abstract screening. "
-             "This is option is useful if there is both a column for "
-             "abstract and final screening available in the dataset. "
-             "Default False."
-    )
-    parser.add_argument(
         "--verbose", "-v",
         default=0,
         type=int,

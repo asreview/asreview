@@ -107,7 +107,6 @@ def get_reviewer(dataset,
                  balance_param=None,
                  feature_param=None,
                  seed=None,
-                 abstract_only=False,
                  included_dataset=[],
                  excluded_dataset=[],
                  prior_dataset=[],
@@ -137,8 +136,7 @@ def get_reviewer(dataset,
                                     balance_strategy=balance_strategy,
                                     feature_extraction=feature_extraction,
                                     mode=mode,
-                                    data_fp=None,
-                                    abstract_only=abstract_only)
+                                    data_fp=None)
     cli_settings.from_file(config_file)
 
     if state_file is not None:

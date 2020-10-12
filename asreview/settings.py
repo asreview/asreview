@@ -40,7 +40,6 @@ SETTINGS_TYPE_DICT = {
     "query_param": dict,
     "feature_param": dict,
     "balance_param": dict,
-    "abstract_only": bool,
 }
 
 
@@ -71,7 +70,6 @@ class ASReviewSettings(object):
                  feature_extraction,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
                  n_papers=None, n_prior_included=None, n_prior_excluded=None,
-                 abstract_only=False,
                  as_data=None, model_param={},
                  query_param={}, balance_param={}, feature_param={}, **kwargs
                  ):
