@@ -20,7 +20,7 @@ def _check_st():
 class SBERT(BaseFeatureExtraction):
     """Sentence BERT class for feature extraction.
 
-    Feature extraction method based on Sentence BERT. Implementatin based on
+    Feature extraction method based on Sentence BERT. Implementation based on
     the `sentence_transformers <https://github.com/UKPLab/sentence-
     transformers>`__ package. It is relatively slow.
 
