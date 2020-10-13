@@ -49,7 +49,12 @@ closed networks.
 .. code:: bash
 
     asreview lab --port 5555 --ip xxx.x.x.xx
+    
+.. warning::
 
+    Don't use the development server in production. Read the Flask documentation 
+    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+	
 
 Install with Docker
 -------------------
