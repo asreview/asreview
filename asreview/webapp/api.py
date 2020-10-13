@@ -43,6 +43,7 @@ from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_simulation_ready_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import export_to_string
@@ -607,6 +608,32 @@ def api_start(project_id):  # noqa: F401
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+@bp.route('/project/<project_id>/simulate', methods=["POST"])
+def api_simulate(project_id):  # noqa: F401
+    """Start simulation
+    """
+
+    logging.info("Starting simulation")
+
+    try:
+        datafile = get_data_file_path(project_id)
+        completion_file = get_simulation_ready_path(project_id)
+
+        logging.info("Project data file found: {}".format(datafile))
+
+        # start simulation
+        py_exe = _get_executable()
+        run_command = [py_exe, "-m", "asreview", "simulate", datafile, "--completion_file", completion_file]
+        subprocess.Popen(run_command)
+
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    except Exception as err:
+        logging.error(err)
+        message = f"Failed to get data file. {err}"
+        return jsonify(message=message), 400
 
 @bp.route('/project/<project_id>/model/init_ready', methods=["GET"])
 def api_init_model_ready(project_id):  # noqa: F401
@@ -639,6 +666,19 @@ def api_init_model_ready(project_id):  # noqa: F401
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+@bp.route('/project/<project_id>/simulation_ready', methods=["GET"])
+def api_simulation_ready(project_id):  # noqa: F401
+    logging.info("checking if simulation is ready?")
+
+    if get_simulation_ready_path(project_id).exists():
+        logging.info("simulation ready")
+        response = jsonify({'status': 1})
+    else:
+        logging.info("simulation not ready")
+        response = jsonify({'status': 0})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 @bp.route('/project/import_project', methods=["POST"])
 def api_import_project():

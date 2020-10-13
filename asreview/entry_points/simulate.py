@@ -1,3 +1,4 @@
+import json
 import logging
 
 from asreview.ascii import welcome_message
@@ -10,7 +11,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.entry_points.base import BaseEntryPoint, _base_parser
 from asreview.review import review_simulate
-
+from pathlib import Path
 
 class SimulateEntryPoint(BaseEntryPoint):
     description = "Simulate the performance of ASReview."
@@ -20,7 +21,7 @@ class SimulateEntryPoint(BaseEntryPoint):
         args = parser.parse_args(argv)
 
         args_dict = vars(args)
-        path = args_dict.pop("dataset")
+        dataset_path = args_dict.pop("dataset")
 
         verbose = args_dict.get("verbose", 0)
         if verbose == 0:
@@ -31,8 +32,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             logging.getLogger().setLevel(logging.DEBUG)
 
         print(welcome_message())
-        review_simulate(path, **args_dict)
-
+        review_simulate(dataset_path, **args_dict)
 
 DESCRIPTION_SIMULATE = """
 ASReview for simulation.
@@ -61,7 +61,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Sample n prior included papers. "
              "Only used when --prior_included is not given. "
              f"Default {DEFAULT_N_PRIOR_INCLUDED}")
-
     parser.add_argument(
         "--n_prior_excluded",
         default=DEFAULT_N_PRIOR_EXCLUDED,
@@ -179,6 +178,12 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=0,
         type=int,
         help="Verbosity"
+    )
+    parser.add_argument(
+        "--completion_file",
+        default=None,
+        type=str,
+        help="A file that is created at the end of a simulation."
     )
 
     return parser

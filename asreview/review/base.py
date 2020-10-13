@@ -15,6 +15,8 @@
 from abc import ABC
 from abc import abstractmethod
 import warnings
+import logging
+import json
 
 import numpy as np
 
@@ -88,6 +90,7 @@ class BaseReview(ABC):
                  start_idx=[],
                  state_file=None,
                  log_file=None,
+                 completion_file=None,
                  ):
         """ Initialize base class for systematic reviews.
 
@@ -154,6 +157,7 @@ class BaseReview(ABC):
         self.n_instances = n_instances
         self.n_queries = n_queries
         self.start_idx = start_idx
+        self.completion_file = completion_file
 
         if log_file is not None:
             warnings.warn("The log_file argument for BaseReview will be"
@@ -310,6 +314,11 @@ class BaseReview(ABC):
             # Update the training data and pool afterwards
             self.train()
             self.log_probabilities(state)
+        
+        if self.completion_file is not None:
+            with open(self.completion_file, "w") as f:
+                f.write("")
+                f.close
 
     def review(self, *args, **kwargs):
         """Do the systematic review, writing the results to the state file.

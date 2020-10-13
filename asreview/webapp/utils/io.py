@@ -12,7 +12,7 @@ from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_proba_path
-
+from asreview.webapp.utils.paths import get_simulation_ready_path
 
 def read_data(project_id, save_tmp=True):
     """Get ASReviewData object from file.
@@ -72,7 +72,6 @@ def write_pool(project_id, pool):
     pool_fp = get_pool_path(project_id)
     with open(pool_fp, "w") as f:
         json.dump(pool, f)
-
 
 def read_proba(project_id):
     proba_fp = get_proba_path(project_id)

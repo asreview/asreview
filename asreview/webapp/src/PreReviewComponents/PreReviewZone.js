@@ -15,9 +15,8 @@ import {
 
 import { connect } from "react-redux";
 
-import axios from 'axios'
-
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
+import { ProjectAPI } from '../api';
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -107,40 +106,35 @@ const PreReviewZone = (props) => {
 
   useEffect(() => {
 
+    const updateStateWith = (fetchedData) => {
+      let set_step = 1;
+      if (fetchedData["projectHasDataset"]){
+        set_step = 2;
+      }
+      if (fetchedData["projectHasPriorKnowledge"]){
+        set_step = 3;
+      }
+
+      let mode = fetchedData["mode"]
+
+      // set the project step
+      setState({
+        new: state.new,
+        step: set_step,
+        ready: state.ready
+      })
+
+      setProject({
+        id: props.project_id,
+        mode: mode
+      })
+    }
+  
     const fetchProjectInfo = async () => {
-
-      // contruct URL
-      const url = api_url + "project/" + props.project_id + "/info";
-
-      axios.get(url)
-        .then((result) => {
-
-          let set_step = 1;
-          if (result.data["projectHasDataset"]){
-            set_step = 2;
-          }
-          if (result.data["projectHasPriorKnowledge"]){
-            set_step = 3;
-          }
-
-          let mode = result.data["mode"]
-
-          // set the project step
-          setState({
-            new: state.new,
-            step: set_step,
-            ready: state.ready
-          })
-
-          setProject({
-            id: props.project_id,
-            mode: mode
-          })
-
+      ProjectAPI.info(props.project_id)
+        .then((fetchedData) => {
+          updateStateWith(fetchedData)
         })
-        .catch((error) => {
-          console.log(error);
-        });
     };
 
     // run if the state is "lock"
@@ -151,11 +145,7 @@ const PreReviewZone = (props) => {
   }, [state.new, state.ready, props.project_id]);
 
   return (
-
-
     <Box className={classes.box}>
-
-
       {state.step !== 5 &&
         <Container maxWidth='md'>
 
@@ -224,9 +214,7 @@ const PreReviewZone = (props) => {
 
         </Container>
       }
-
     </Box>
-
   )
 }
 

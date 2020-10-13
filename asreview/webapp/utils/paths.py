@@ -182,3 +182,14 @@ def get_state_path(project_id):
     """
 
     return Path(get_project_path(project_id), "result.json")
+
+def get_simulation_ready_path(project_id):
+    """Get the simulation_ready file for the project and iteration.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+
+    return Path(get_project_path(project_id), "simulation_ready")

@@ -23,7 +23,8 @@ The available parameters are:
 	                [--n_prior_included N_PRIOR_INCLUDED]
 	                [--n_prior_excluded N_PRIOR_EXCLUDED]
 	                [--prior_idx [PRIOR_IDX [PRIOR_IDX ...]]]
-	                [--init_seed INIT_SEED] [--verbose VERBOSE]
+	                [--init_seed INIT_SEED] [--verbose VERBOSE] 
+					[--completion_file COMPLETION_FILE]
 	                [dataset [dataset ...]]
 	
 	Automated Systematic Review (ASReview) for simulation runs.
@@ -78,3 +79,5 @@ The available parameters are:
 	                        Seed for setting the prior indices if the --prior_idx option is not used. If the option --prior_idx is used with one or more index, this option is ignored.
 	  --verbose VERBOSE, -v VERBOSE
 	                        Verbosity
+	  --completion_file COMPLETION_FILE
+	  						A file that is created at the end of a simulation.
