@@ -268,3 +268,20 @@ batch of simulation runs with the same configuration.
 
     Number of simulation runs.
 
+
+algorithms
+----------
+
+:program:`asreview algorithms` provides an overview of all available active
+learning model elements (classifiers, query strategies, balance
+strategies, and feature extraction algorithms) in ASReview.
+
+.. code:: bash
+
+    asreview algorithms
+
+.. note::
+
+    :program:`asreview algorithms` lists models added via extensions as well.
+    See :ref:`develop-extensions` for more information on creating an model
+    extension.
