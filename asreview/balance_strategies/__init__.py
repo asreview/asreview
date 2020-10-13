@@ -19,3 +19,14 @@ from asreview.balance_strategies.undersample import UndersampleBalance
 from asreview.balance_strategies.utils import get_balance_model
 from asreview.balance_strategies.utils import get_balance_class
 from asreview.balance_strategies.utils import list_balance_strategies
+
+"""Balance strategies to rebalance and reorder the training data.
+
+There are several balance strategies that rebalance and reorder the
+training data. This is sometimes necessary, because the data is often
+very imbalanced: there are many more papers that should be excluded than
+included (otherwise, automation cannot help much anyway).
+
+There are several balance strategies available. In configuration
+files, parameters are found under the section ``[balance_param]``.
+"""
