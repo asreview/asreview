@@ -272,6 +272,8 @@ batch of simulation runs with the same configuration.
 algorithms
 ----------
 
+.. versionadded:: 0.14
+
 :program:`asreview algorithms` provides an overview of all available active
 learning model elements (classifiers, query strategies, balance
 strategies, and feature extraction algorithms) in ASReview.
