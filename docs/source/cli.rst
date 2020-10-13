@@ -72,8 +72,8 @@ Example:
 
 .. option:: -b, --balance_strategy BALANCE_STRATEGY
 
-    Data rebalancing strategy mainly for RNN methods. Helps against imbalanced
-    dataset with few inclusions and many exclusions. Default: :code:`double`.
+    Data rebalancing strategy. Helps against imbalanced
+    datasets with few inclusions and many exclusions. Default: :code:`double`.
     (See available options below: `Balance strategies`_)
 
 .. option:: -e, --feature_extraction FEATURE_EXTRACTION
