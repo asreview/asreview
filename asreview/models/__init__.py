@@ -22,3 +22,9 @@ from asreview.models.nn_2_layer import NN2LayerModel
 from asreview.models.utils import get_model
 from asreview.models.utils import get_model_class
 from asreview.models.utils import list_classifiers
+
+"""Machine learning classifiers to classify the documents.
+
+There are several machine learning classifiers available. In configuration
+files, parameters are found under the section ``[model_param]``.
+"""
