@@ -3,15 +3,15 @@
 Extensions
 ==========
 
-ASReview has support for extensions, which enable you to seemlessly integrate
-your own programs with the ASReview framework. These extensions can extend the
-software with new classifier, qurey strategies, balance strategies, and
-feature extraction techniques. It is also possible to extend ASReview with
+ASReview has support for extensions, which enable you to integrate your
+programs with the ASReview framework seamlessly. These extensions can extend
+the software with new classifiers, query strategies, balance strategies, and
+feature extraction techniques. It is also possible to extend ASReview with a
 completely new subcommand (like ``lab`` of ``simulate``).
 
 The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with
-pip). If you have no experience with creating packages, have a look at the
+pip). If you have no experience with creating packages, look at the
 `visualization extension <https://github.com/asreview/ASReview-
 visualization>`__ and modify it to suit your needs.
 
@@ -30,8 +30,8 @@ list, make an issue on `github
 Usage
 -----
 
-This section shows how to use a extension. In this example, the `asreview-
-visualization <https://github.com/asreview/ASReview-visualization>`__
+This section shows how to use an extension. In this example, the
+`asreview-visualization <https://github.com/asreview/ASReview-visualization>`__
 extension is used. The extension extends ASReview to create basic plots from
 ASReview state files.
 
@@ -71,7 +71,7 @@ See ``asreview -h`` for this option.
       -V, --version  print the ASR version number and exit
 
 
-With this extension installed, a plot can be made with of an ASReview state
+With this extension installed, a plot can be made with an ASReview state
 file. The following example shows how a plot is made of the file
 ``example_run_1.h5``.
 
@@ -150,11 +150,13 @@ these sources.
 Add model
 ---------
 
-The easiest way to extend ASReview with a new classifier, qurey strategy,
-balance strategy, or feature extraction technique is by using the template
-`Template for extending ASReview <https://github.com/asreview/template-
-extension-new-model>`__. Create a copy of the template and add the new
-algorithms. It is advised to use the following structure of the package:
+In the ASReview project, an active learning model consists of classifier,
+query strategy, balance strategy, or feature extraction technique. The easiest
+way to extend ASReview with a new classifier, query strategy, balance
+strategy, or feature extraction technique is by using the template `Template
+for extending ASReview <https://github.com/asreview/template- extension-new-
+model>`__. Create a copy of the template and add the new algorithms. It is
+advised to use the following structure of the package:
 
 .. code:: bash
 
