@@ -54,8 +54,6 @@ The source code is freely available at
 
    simulation_study_results
 
-   models
-
    cli
 
    api

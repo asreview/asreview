@@ -21,7 +21,21 @@ from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
-    """Query strategy using clustering algorithms."""
+    """Query strategy using clustering algorithms.
+
+    Use clustering after feature extraction on the dataset. Then the highest
+    probabilities within random clusters are sampled.
+
+    Arguments
+    ---------
+    cluster_size: int
+        Size of the clusters to be made. If the size of the clusters is
+        smaller than the size of the pool, fall back to max sampling.
+    update_interval: int
+        Update the clustering every x instances.
+    random_state: int, RandomState
+        State/seed of the RNG.
+    """
 
     name = "cluster"
 
@@ -31,15 +45,6 @@ class ClusterQuery(ProbaQueryStrategy):
                  random_state=None):
         """Initialize the clustering strategy.
 
-        Arguments
-        ---------
-        cluster_size: int
-            Size of the clusters to be made. If the size of the clusters is
-            smaller than the size of the pool, fall back to max sampling.
-        update_interval: int
-            Update the clustering every x instances.
-        random_state: int, RandomState
-            State/seed of the RNG.
         """
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
