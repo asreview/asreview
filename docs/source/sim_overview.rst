@@ -91,15 +91,15 @@ size of your state file and the time to simulate, you can increase
 ``--n_instances``.
 
 You can select a classifier with the ``-m`` flag, which is set to be Naive
-Bayes by default. Names for implemented classifiers are listed on the `models
-<models.html>`__ page.
+Bayes by default. Names for implemented classifiers are listed on the :ref
+:`classifiers-table` table.
 
-Implemented query strategies are listed on the `query strategy
-<query_strategies.html>`__ page and can be set with the ``-q`` option.
+Implemented query strategies are listed on the :ref:`query-strategies-table`
+table and can be set with the ``-q`` option.
 
 For feature extraction, supply the ``-e`` flag. Default is TF-IDF, more
-details are on the page for `feature extraction <feature_extraction.html>`__.
+details on the table for :ref:`feature-extraction-table`.
 
-The last element that can be changed is the `balance strategy
-<balance_strategies.html>`__, and is changed with the ``-b`` flag. Default is
-double balance.
+The last element that can be changed is the :ref:`balance-strategies-table`,
+and is changed with the ``-b`` flag. Default is double balance.
+

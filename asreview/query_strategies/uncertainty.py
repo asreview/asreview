@@ -19,7 +19,13 @@ from asreview.query_strategies.base import ProbaQueryStrategy
 
 
 class UncertaintyQuery(ProbaQueryStrategy):
-    """Maximum uncertainty query strategy."""
+    """Maximum uncertainty query strategy.
+
+    Choose the most uncertain samples according to the model (i.e. closest to
+    0.5 probability). Doesn’t work very well in the case of LSTM’s, since the
+    probabilities are rather arbitrary.
+
+    """
 
     name = "uncertainty"
 
