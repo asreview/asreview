@@ -125,9 +125,10 @@ setup(
         'asreview.entry_points': [
             'lab=asreview.entry_points:LABEntryPoint',
             'oracle=asreview.entry_points:OracleEntryPoint',  # deprecated (use lab)
-            'simulate=asreview.entry_points:SimulateEntryPoint',
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
+            'simulate=asreview.entry_points:SimulateEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
+            'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',

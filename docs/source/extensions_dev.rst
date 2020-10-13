@@ -1,4 +1,4 @@
-.. _Develop Extensions:
+.. _develop-extensions:
 
 Develop Extensions
 ==================
