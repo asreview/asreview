@@ -1,5 +1,8 @@
-ASReview LAB Quick Tour
-=======================
+Quick Tour
+==========
+
+This is a introduction in the ASReview LAB software. ASReview LAB is the user-
+friendly frontend for active learning in systematic reviews.
 
 .. contents:: Table of Contents
 
