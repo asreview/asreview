@@ -145,12 +145,6 @@ Example:
     The number of papers to be reviewed. By default, the program stops after
     all documents  are reviewed or is interrupted by the user.
 
-.. option:: --abstract_only
-
-	Simulate using the labels of abstract screening. This is option is useful
-	if  there is both a column for abstract and final screening available in
-	the dataset. Default False.
-
 .. option:: --verbose VERBOSE, -v VERBOSE
 
     Verbosity
