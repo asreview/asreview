@@ -45,6 +45,6 @@ COLUMN_DEFINITIONS = [
     ],
     ['title', 'primary_title'],
     ['authors', 'author names', 'first_authors'],
-    ['abstract', 'abstract note'],
+    ['abstract', 'abstract note', 'notes_abstract'],
     ['keywords'],
 ]
