@@ -20,7 +20,15 @@ from asreview.utils import get_random_state
 
 
 class RandomQuery(NotProbaQueryStrategy):
-    """Random sampling query strategy."""
+    """Random sampling query strategy.
+
+    Randomly select samples with no regard to model assigned probabilities.
+
+    .. warning::
+        Selecting this option means your review is not going to be
+        accelerated by ASReview.
+
+    """
     name = "random"
 
     def __init__(self, random_state=None):

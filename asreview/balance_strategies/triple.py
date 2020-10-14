@@ -28,10 +28,12 @@ from asreview.utils import get_random_state
 class TripleBalance(BaseBalance):
     """Triple balance strategy.
 
-    Class to get the three way rebalancing function and arguments.
-    It divides the data into three groups: 1's, 0's from random sampling,
-    and 0's from max sampling. Thus it only makes sense to use this class in
-    combination with the rand_max query strategy.
+    This divides the training data into three sets: included papers, excluded
+    papers found with random sampling and papers found with max sampling. They
+    are balanced according to formulas depending on the percentage of papers
+    read in the dataset, the number of papers with random/max sampling etc.
+    Works best for stochastic training algorithms. Reduces to both full
+    sampling and undersampling with corresponding parameters.
 
     Arguments
     ---------

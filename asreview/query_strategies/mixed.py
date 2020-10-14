@@ -77,7 +77,12 @@ class MixedQuery(BaseQueryStrategy):
     """Class for mixed query strategy.
 
     The idea is to use two different query strategies at the same time with a
-    ratio of one to the other.
+    ratio of one to the other. A mix of two query strategies is used. For
+    example mixing max and random sampling with a mix ratio of 0.95 would mean
+    that at each query 95% of the instances would be sampled with the max
+    query strategy after which the remaining 5% would be sampled with the
+    random query strategy. It would be called the `max_random` query strategy.
+    Every combination of primitive query strategy is possible.
 
     Arguments
     ---------

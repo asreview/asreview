@@ -19,7 +19,10 @@ from asreview.query_strategies.base import ProbaQueryStrategy
 
 
 class MaxQuery(ProbaQueryStrategy):
-    """Maximum sampling query strategy."""
+    """Maximum sampling query strategy.
+
+    Choose the most likely samples to be included according to the model.
+    """
 
     name = "max"
 
