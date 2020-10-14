@@ -9,9 +9,9 @@ from asreview.exceptions import BadFileFormatError
 
 def type_from_column(col_name, col_definitions):
     """Transform a column name to its standardized form."""
-    for definition in col_definitions:
+    for name, definition in col_definitions.items():
         if col_name.lower() in definition:
-            return definition[0]
+            return name
     return None
 
 

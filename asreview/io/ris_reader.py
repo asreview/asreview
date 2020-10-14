@@ -10,15 +10,13 @@ from asreview.io.utils import standardize_dataframe
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"
-LABEL_INCLUDED_VALUES = COLUMN_DEFINITIONS[0]
-NAME_LABEL_INCLUDED = LABEL_INCLUDED_VALUES[0]
 
 
 def _tag_key_mapping(reverse=False):
     # Add label_included into the specification and create reverse mapping.
-    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
+    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
     KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-    for label in LABEL_INCLUDED_VALUES:
+    for label in COLUMN_DEFINITIONS["included"]:
         KEY_TAG_MAPPING[label] = "LI"
     if reverse:
         return KEY_TAG_MAPPING
