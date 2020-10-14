@@ -214,7 +214,7 @@ We do not advise specific classifiers for specific jobs because we've not
 found enough evidence (yet) to make such recommendations.
 
 I already started labeling before I came across ASReview. How can I keep my former screening decisions when starting a new project in ASReview?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can keep your former labeling decisions by adding an extra column in
 your dataset called 'included' or 'label\_included'. In this column, you
@@ -222,13 +222,14 @@ can indicate previous screening decisions on records with 0s
 (irrelevant) and 1s (relevant). ASReview will use this information to
 train the model.
 
-**Related question: How can I add more publications while I are already started
-screening in ASReview?**
+Related question: How can I add more publications while I are already started screening in ASReview?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can export the results of ASReview you have so far and add your new
 publications to this file. Make sure that for your new publications the column
-`included` is empty. Then simply import this updated file to ASReview and
-you can continue the screening process.
+`included` is empty and rename or delete the column of `record_id`.
+This latter will save you from running into errors. Then simply import this
+updated file to ASReview and you can continue the screening process.
 
 Is it possible to get the inclusion likelihood for unlabelled papers?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
