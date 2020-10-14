@@ -40,6 +40,6 @@ COLUMN_DEFINITIONS = [
     ["abstract_included", "included_abstract", "included_after_abstract", "label_abstract_screening"],
     ['title', 'primary_title'],
     ['authors', 'author names', 'first_authors'],
-    ['abstract', 'abstract note'],
+    ['abstract', 'abstract note', 'notes_abstract'],
     ['keywords'],
 ]
