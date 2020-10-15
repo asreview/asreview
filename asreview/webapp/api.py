@@ -379,7 +379,7 @@ def api_search_data(project_id):  # noqa: F401
                 "abstract": paper.abstract,
                 "authors": paper.authors,
                 "keywords": paper.keywords,
-                "included": int(paper.final_included)
+                "included": int(paper.included)
             })
 
     response = jsonify(payload)

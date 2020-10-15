@@ -135,8 +135,8 @@ class ASReviewData():
         else:
             self.column_spec = column_spec
 
-        if "final_included" not in self.column_spec:
-            self.column_spec["final_included"] = "final_included"
+        if "included" not in self.column_spec:
+            self.column_spec["included"] = "included"
 
         if data_type == "included":
             self.labels = np.ones(len(self), dtype=int)
@@ -474,17 +474,25 @@ class ASReviewData():
         return convert_array[self.prior_idx]
 
     @property
+    def included(self):
+        return self.labels
+
+    @included.setter
+    def included(self, labels):
+        self.labels = labels
+
+    @property  # pending deprecation
     def final_included(self):
         return self.labels
 
-    @final_included.setter
+    @final_included.setter  # pending deprecation
     def final_included(self, labels):
         self.labels = labels
 
     @property
     def labels(self):
         try:
-            column = self.column_spec["final_included"]
+            column = self.column_spec["included"]
             return self.df[column].values
         except KeyError:
             return None
@@ -492,10 +500,10 @@ class ASReviewData():
     @labels.setter
     def labels(self, labels):
         try:
-            column = self.column_spec["final_included"]
+            column = self.column_spec["included"]
             self.df[column] = labels
         except KeyError:
-            self.df["final_included"] = labels
+            self.df["included"] = labels
 
     @property
     def abstract_included(self):
@@ -578,7 +586,7 @@ class ASReviewData():
             Dataframe of all available record data.
         """
         new_df = pd.DataFrame.copy(self.df)
-        col = self.column_spec["final_included"]
+        col = self.column_spec["included"]
         if labels is not None:
             new_df[col] = labels
         if ranking is not None:
