@@ -251,6 +251,18 @@ How do I remove duplicate publications?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ASReview LAB works best with deduplicated datasets. One can use software like
-EndNote to remove duplicates. See the following article for examples.
-`https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4915647/
-<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4915647/>`__
+EndNote to remove duplicates. See the following article for examples:
+
+Bramer, W. M., Giustini, D., de Jonge, G. B., Holland, L., & Bekhuis, T. (2016). 
+De-duplication of database search results for systematic reviews in EndNote. 
+Journal of the Medical Library Association : JMLA, 104(3), 240–243. 
+`https://doi.org/10.3163/1536-5050.104.3.014 
+<https://doi.org/10.3163/1536-5050.104.3.014>`__
+
+For deduplication manuals in Zotero Mendeley, and RefWorks, 
+you can consult the folder **4. Deduplication** here: 
+
+Staaks, J. (2020, October 15). Systematic Review Search Support.
+`https://doi.org/10.17605/OSF.IO/49T8X
+<https://osf.io/yh3xe/>`__
+
