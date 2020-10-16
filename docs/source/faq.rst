@@ -259,8 +259,8 @@ Journal of the Medical Library Association : JMLA, 104(3), 240–243.
 `https://doi.org/10.3163/1536-5050.104.3.014 
 <https://doi.org/10.3163/1536-5050.104.3.014>`__
 
-For deduplication manuals in Zotero Mendeley, and RefWorks, 
-you can consult the folder **4. Deduplication** here: 
+Third-party manuals for removing duplicates in Zotero, Mendeley, and RefWorks, 
+can found in the folder **4. Deduplication** by Staaks (2020). 
 
 Staaks, J. (2020, October 15). Systematic Review Search Support.
 `https://doi.org/10.17605/OSF.IO/49T8X
