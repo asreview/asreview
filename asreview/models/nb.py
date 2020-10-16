@@ -20,17 +20,27 @@ from asreview.models.base import BaseTrainModel
 
 
 class NBModel(BaseTrainModel):
-    "Naive Bayes SKLearn model."
+    """Naive Bayes classifier
+
+    Naive Bayes classifier. Only works in combination with the
+    :class:`asreview.feature_extraction.Tfidf` feature extraction model.
+    Though relatively simplistic, seems to work quite well on a wide range of
+    datasets.
+
+    The naive Bayes classifier is an implementation based
+    on the sklearn multinomial naive Bayes classifier.
+
+    Arguments
+    ---------
+    alpha : float, default=3.822
+        Additive (Laplace/Lidstone) smoothing parameter
+        (0 for no smoothing).
+    """
+
     name = "nb"
 
     def __init__(self, alpha=3.822):
-        """Initialize the SKLearn Naive Bayes model.
 
-        Arguments:
-        ----------
-        alpha: float
-            Parameter to set the regularization strength of the model.
-        """
         super(NBModel, self).__init__()
         self.alpha = alpha
         self._model = MultinomialNB(alpha=alpha)

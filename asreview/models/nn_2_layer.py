@@ -13,60 +13,92 @@
 # limitations under the License.
 
 import logging
+
+
 try:
     import tensorflow as tf
+    from tensorflow.keras.layers import Dense
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+    from tensorflow.keras import regularizers
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'nn-2-layer' model.")
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import scipy
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-from tensorflow.keras import regularizers
 
-from asreview.models.lstm_base import _get_optimizer
+
 from asreview.models.base import BaseTrainModel
+from asreview.models.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
 
 
-class NN2LayerModel(BaseTrainModel):
-    """Dense neural network model.
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
 
-    Uses two dense layers of the same size.
+
+class NN2LayerModel(BaseTrainModel):
+    """Dense neural network classifier.
+
+    Neural network with two hidden, dense layers of the same size.
+
+    Recommended feature extraction model is
+    :class:`asreview.feature_extraction.Doc2Vec`.
+
+    .. note::
+
+        This model requires ``tensorflow`` to be installed. Use ``pip install
+        tensorflow`` or install all optional ASReview dependencies with ``pip
+        install asreview[all]``
+
+    .. warning::
+
+        Might crash on some systems with limited memory in
+        combination with :class:`asreview.feature_extraction.Tfidf`.
+
+    Arguments
+    ---------
+    dense_width: int
+        Size of the dense layers.
+    optimizer: str
+        Name of the Keras optimizer.
+    learn_rate: float
+        Learning rate multiplier of the default learning rate.
+    regularization: float
+        Strength of the regularization on the weights and biases.
+    verbose: int
+        Verbosity of the model mirroring the values for Keras.
+    epochs: int
+        Number of epochs to train the neural network.
+    batch_size: int
+        Batch size used for the neural network.
+    shuffle: bool
+        Whether to shuffle the training data prior to training.
+    class_weight: float
+        Class weights for inclusions (1's).
     """
+
     name = "nn-2-layer"
 
-    def __init__(self, dense_width=128, optimizer='rmsprop',
-                 learn_rate=1.0, regularization=0.01, verbose=0,
-                 epochs=35, batch_size=32, shuffle=False, class_weight=30.0):
-        """Initialize the 2-layer neural network model.
-
-        Arguments
-        ---------
-        dense_width: int
-            Size of the dense layers.
-        optimizer: str
-            Name of the Keras optimizer.
-        learn_rate: float
-            Learning rate multiplier of the default learning rate.
-        regularization: float
-            Strength of the regularization on the weights and biases.
-        verbose: int
-            Verbosity of the model mirroring the values for Keras.
-        epochs: int
-            Number of epochs to train the neural network.
-        batch_size: int
-            Batch size used for the neural network.
-        shuffle: bool
-            Whether to shuffle the training data prior to training.
-        class_weight: float
-            Class weights for inclusions (1's).
-        """
+    def __init__(self,
+                 dense_width=128,
+                 optimizer='rmsprop',
+                 learn_rate=1.0,
+                 regularization=0.01,
+                 verbose=0,
+                 epochs=35,
+                 batch_size=32,
+                 shuffle=False,
+                 class_weight=30.0):
+        """Initialize the 2-layer neural network model."""
         super(NN2LayerModel, self).__init__()
         self.dense_width = int(dense_width)
         self.optimizer = optimizer
@@ -82,6 +114,10 @@ class NN2LayerModel(BaseTrainModel):
         self.input_dim = None
 
     def fit(self, X, y):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         if scipy.sparse.issparse(X):
             X = X.toarray()
         if self._model is None or X.shape[1] != self.input_dim:
@@ -91,9 +127,14 @@ class NN2LayerModel(BaseTrainModel):
                 self.learn_rate, self.regularization, self.verbose)
             self._model = KerasClassifier(keras_model, verbose=self.verbose)
 
-        self._model.fit(X, y, batch_size=self.batch_size, epochs=self.epochs,
-                        shuffle=self.shuffle, verbose=self.verbose,
-                        class_weight=_set_class_weight(self.class_weight))
+        self._model.fit(
+            X,
+            y,
+            batch_size=self.batch_size,
+            epochs=self.epochs,
+            shuffle=self.shuffle,
+            verbose=self.verbose,
+            class_weight=_set_class_weight(self.class_weight))
 
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
@@ -106,13 +147,18 @@ class NN2LayerModel(BaseTrainModel):
             "mdl_optimizer": ["sgd", "rmsprop", "adagrad", "adam", "nadam"]
         }
         hyper_space = {
-            "mdl_dense_width": hp.quniform("mdl_dense_width", 2, 100, 1),
-            "mdl_epochs": hp.quniform("mdl_epochs", 20, 60, 1),
-            "mdl_optimizer": hp.choice("mdl_optimizer",
-                                       hyper_choices["mdl_optimizer"]),
-            "mdl_learn_rate": hp.lognormal("mdl_learn_rate", 0, 1),
-            "mdl_class_weight": hp.lognormal("mdl_class_weight", 3, 1),
-            "mdl_regularization": hp.lognormal("mdl_regularization", -4, 2),
+            "mdl_dense_width":
+            hp.quniform("mdl_dense_width", 2, 100, 1),
+            "mdl_epochs":
+            hp.quniform("mdl_epochs", 20, 60, 1),
+            "mdl_optimizer":
+            hp.choice("mdl_optimizer", hyper_choices["mdl_optimizer"]),
+            "mdl_learn_rate":
+            hp.lognormal("mdl_learn_rate", 0, 1),
+            "mdl_class_weight":
+            hp.lognormal("mdl_class_weight", 3, 1),
+            "mdl_regularization":
+            hp.lognormal("mdl_regularization", -4, 2),
         }
         return hyper_space, hyper_choices
 
@@ -132,6 +178,10 @@ def _create_dense_nn_model(vector_size=40,
         called.
 
     """
+
+    # check is tensorflow is available
+    _check_tensorflow()
+
     def model_wrapper():
         model = Sequential()
 
@@ -142,8 +192,7 @@ def _create_dense_nn_model(vector_size=40,
                 kernel_regularizer=regularizers.l2(regularization),
                 activity_regularizer=regularizers.l1(regularization),
                 activation='relu',
-            )
-        )
+            ))
 
         # add Dense layer with relu activation
         model.add(
@@ -152,26 +201,22 @@ def _create_dense_nn_model(vector_size=40,
                 kernel_regularizer=regularizers.l2(regularization),
                 activity_regularizer=regularizers.l1(regularization),
                 activation='relu',
-            )
-        )
+            ))
 
         # add Dense layer
-        model.add(
-            Dense(
-                1,
-                activation='sigmoid'
-            )
-        )
+        model.add(Dense(1, activation='sigmoid'))
 
         optimizer_fn = _get_optimizer(optimizer, learn_rate_mult)
 
         # Compile model
         model.compile(
             loss='binary_crossentropy',
-            optimizer=optimizer_fn, metrics=['acc'])
+            optimizer=optimizer_fn,
+            metrics=['acc'])
 
         if verbose >= 1:
             model.summary()
 
         return model
+
     return model_wrapper

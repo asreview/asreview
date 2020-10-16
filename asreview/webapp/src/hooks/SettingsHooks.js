@@ -56,4 +56,46 @@ const useTextSize = () => {
 };
 
 
-export { useDarkMode, useTextSize };
+const useUndoEnabled = () => {
+
+  const [undoEnabled, setUndoEnabled] = useState(true);
+
+  const toggleUndoEnabled = () => {
+    window.localStorage.setItem("undoEnabled", !undoEnabled);
+    setUndoEnabled(a => (!a));
+  };
+
+  useEffect(() => {
+    const localUndoEnabled = window.localStorage.getItem("undoEnabled");
+    const localUndoEnabledIsTrue = localUndoEnabled === "true";
+    if (undoEnabled !== localUndoEnabledIsTrue && localUndoEnabled !== null) {
+      setUndoEnabled(localUndoEnabledIsTrue);
+    };
+  }, [undoEnabled]);
+
+  return [undoEnabled, toggleUndoEnabled]
+};
+
+
+const useKeyPressEnabled = () => {
+
+  const [keyPressEnabled, setKeyPressEnabled] = useState(false);
+
+  const toggleKeyPressEnabled = () => {
+    window.localStorage.setItem("keyPressEnabled", !keyPressEnabled);
+    setKeyPressEnabled(a => (!a));
+  };
+
+  useEffect(() => {
+    const localKeyPressEnabled = window.localStorage.getItem("keyPressEnabled");
+    const localKeyPressEnabledIsTrue = localKeyPressEnabled === "true";
+    if (keyPressEnabled !== localKeyPressEnabledIsTrue && localKeyPressEnabled !== null) {
+      setKeyPressEnabled(localKeyPressEnabledIsTrue);
+    };
+  }, [keyPressEnabled]);
+
+  return [keyPressEnabled, toggleKeyPressEnabled]
+}
+
+
+export { useDarkMode, useTextSize, useUndoEnabled, useKeyPressEnabled };

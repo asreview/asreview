@@ -91,6 +91,28 @@ export default function SettingsDialog(props) {
                 </FormControl>
               </ListItemSecondaryAction>
             </ListItem>
+            <ListItem>
+              <ListItemText id="switch-list-label-undo" primary="Undo" />
+              <ListItemSecondaryAction>
+                <Switch
+                  edge="end"
+                  onChange={props.toggleUndoEnabled}
+                  checked={props.undoEnabled}
+                  inputProps={{ 'aria-labelledby': 'switch-list-label-undo' }}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
+            <ListItem>
+              <ListItemText id="switch-list-label-key" primary="Keyboard shortcuts" />
+              <ListItemSecondaryAction>
+                <Switch
+                  edge="end"
+                  onChange={props.toggleKeyPressEnabled}
+                  checked={props.keyPressEnabled}
+                  inputProps={{ 'aria-labelledby': 'switch-list-label-key' }}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
           </List>
 
         </DialogContent>

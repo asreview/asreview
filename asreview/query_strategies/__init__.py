@@ -19,3 +19,10 @@ from asreview.query_strategies.random import RandomQuery
 from asreview.query_strategies.cluster import ClusterQuery
 from asreview.query_strategies.utils import get_query_model
 from asreview.query_strategies.utils import get_query_class
+from asreview.query_strategies.utils import list_query_strategies
+
+"""Query strategies query records to label by the user.
+
+There are several query strategies available. In configuration files,
+parameters are found under the section ``[query_param]``.
+"""

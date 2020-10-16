@@ -1,10 +1,10 @@
-End-user testing
+Exploration Mode
 ================
 
 This tutorial shows how the active learning software and algorithms can be
-tested. Because it is not possible to test the software by reading everything 
+tested. Because it is not possible to test the software by reading everything
 yourself. Therefore, ASReview implements a mode in which the relevant articles
-are displayed in red. This make decision making straightforward. 
+are displayed in green. This make decision making straightforward.
 
 This tutorial assumes you have already installed Python and ASReview. If
 this is not the case, please check out the
@@ -61,17 +61,17 @@ PTSD
 Hall
 ~~~~
 
-- Predicting Defect-Prone Software Modules at Different Logical Levels  
+- Predicting Defect-Prone Software Modules at Different Logical Levels
 - Quantitative analysis of faults and failures in a complex software system
 - A Comprehensive Empirical Study of Count Models for Software Fault Prediction
 - Predicting fault prone modules by the Dempster-Shafer belief networks
-- Robust prediction of fault-proneness by random forests      
+- Robust prediction of fault-proneness by random forests
 
 
 ACE
 ~~~
 
-- Quinapril in patients with congestive heart failure: controlled trial versus captopril.    
+- Quinapril in patients with congestive heart failure: controlled trial versus captopril.
 - Clinical effects of early angiotensin-converting enzyme inhibitor treatment for acute myocardial infarction are similar in the presence and absence of aspirin: systematic overview of individual data from 96,712 randomized patients. Angiotensin-converting Enzyme Inhibitor Myocardial Infarction Collaborative Group.
 - Efficacy of different drug classes used to initiate antihypertensive treatment in black subjects: results of a randomized trial in Johannesburg, South Africa.
 - Long-term mortality in patients with myocardial infarction: impact of early treatment with captopril for 4 weeks.
@@ -81,7 +81,7 @@ ACE
 Random papers
 -------------
 
-Mark all five papers in Step 4 as irrelevant. 
+Mark all five papers in Step 4 as irrelevant.
 
 START reviewing
 ---------------
@@ -109,3 +109,26 @@ Export the results (in the menu; top left) and open the file in excel.
 The papers are now presented starting with your inclusions – unseen
 papers papers ordered from most to least relevant according to the last
 iteration of the software – your exclusions.
+
+Results
+-------
+
+For all three datasets, the animated plots below show how fast you can find
+the relevant papers by using ASReview LAB compared to random screening papers
+one by one. These animated plots are all based on a single trial per dataset
+in which only one paper was added as relevant and one as irrelevant.
+
+**PTSD (38 inclusions out of 5,782 papers)**
+
+.. figure:: ../images/gifs/ptsd_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the ptsd dataset
+
+**Hall (104 inclusions out of 8,911 papers)**
+
+.. figure:: ../images/gifs/software_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the software dataset
+
+**ACE (41 inclusions out of 2,544 papers)**
+
+.. figure:: ../images/gifs/ace_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the ACE dataset

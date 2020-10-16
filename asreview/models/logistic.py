@@ -21,32 +21,39 @@ from asreview.utils import _set_class_weight
 
 
 class LogisticModel(BaseTrainModel):
-    """Logistic Regression SKLearn model."""
+    """
+    Logistic regressions classifier
+
+    The Logistic regressions classifier is an implementation based
+    on the sklearn Logistic regressions classifier.
+
+    Arguments
+    ---------
+    C: float
+        Parameter inverse to the regularization strength of the model.
+    class_weight: float
+        Class weight of the inclusions.
+    random_state: int, RandomState
+        Random state for the model.
+    n_jobs: int
+        Number of CPU cores used.
+    """
+
     name = "logistic"
 
     def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
-        """Initialize the SKLearn Naive Bayes model.
 
-        Arguments:
-        ----------
-        C: float
-            Parameter inverse to the regularization strength of the model.
-        class_weight: float
-            Class weight of the inclusions.
-        random_state: int, RandomState
-            Random state for the model.
-        n_jobs: int
-            Number of CPU cores used.
-        """
         super(LogisticModel, self).__init__()
         self.C = C
         self.class_weight = class_weight
         self.n_jobs = n_jobs
 
         self._model = LogisticRegression(
-            solver="liblinear", C=C,
+            solver="liblinear",
+            C=C,
             class_weight=_set_class_weight(class_weight),
-            n_jobs=n_jobs, random_state=random_state)
+            n_jobs=n_jobs,
+            random_state=random_state)
         logging.debug(self._model)
 
     def full_hyper_space(self):

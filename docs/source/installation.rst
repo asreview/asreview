@@ -22,7 +22,7 @@ Start the application with the following command (in CMD.exe or Terminal):
 
 .. code:: bash
 
-    asreview oracle
+    asreview lab
 
 You are now ready to start your first Automated Systematic Review!
 
@@ -48,7 +48,36 @@ closed networks.
 
 .. code:: bash
 
-    asreview oracle --port 5555 --ip xxx.x.x.xx
+    asreview lab --port 5555 --ip xxx.x.x.xx
+    
+.. warning::
+
+    Don't use the development server in production. Read the Flask documentation 
+    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+	
+
+Install with Docker
+-------------------
+
+For a quickstart of ASReview LAB using Docker and without the need to
+install anything else, the latest version of the ASReview LAB can be
+started as well via Docker like this:
+
+.. code:: bash
+
+   docker run -p 5000:5000 asreview/asreview
+
+This will start the ASReview LAB server on port 5000 with default
+command line options and make it accessible to the host at
+http://localhost:5000 More advanced command line options can be given
+afterwards, like this:
+
+.. code:: bash
+
+   docker run -p 9000:9000 asreview/asreview  --port 9000
+
+For more information, see the `README in the docker folder <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
+
 
 Troubleshooting
 ---------------
@@ -100,4 +129,3 @@ First check whether the package is correctly installed. Do this with the command
 .. code-block:: bash
 
   python -m asreview oracle
-

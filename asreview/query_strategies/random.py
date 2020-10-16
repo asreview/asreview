@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Random sampling strategy."""
 
 import numpy as np
@@ -21,7 +20,15 @@ from asreview.utils import get_random_state
 
 
 class RandomQuery(NotProbaQueryStrategy):
-    "Random sampling query strategy."
+    """Random sampling query strategy.
+
+    Randomly select samples with no regard to model assigned probabilities.
+
+    .. warning::
+        Selecting this option means your review is not going to be
+        accelerated by ASReview.
+
+    """
     name = "random"
 
     def __init__(self, random_state=None):
@@ -31,8 +38,5 @@ class RandomQuery(NotProbaQueryStrategy):
     def _query(self, X, pool_idx, n_instances=1):
         n_samples = len(pool_idx)
         query_idx = self._random_state.choice(
-            np.arange(n_samples),
-            n_instances,
-            replace=False
-        )
+            np.arange(n_samples), n_instances, replace=False)
         return pool_idx[query_idx], X[pool_idx[query_idx]]

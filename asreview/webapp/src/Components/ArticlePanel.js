@@ -25,10 +25,18 @@ const useStyles = makeStyles({
   title: {
     lineHeight: 1.2
   },
+  titleDebug: {
+    lineHeight: 1.2,
+    color: "#00C49F",
+  },
+  debug: {
+    color: "#00C49F",
+  },
   abstract: {
   },
   doi: {
-
+  },
+  publish_time: {
   },
   link: {
     marginLeft: "6px",
@@ -59,9 +67,9 @@ const ArticlePanel = (props) => {
 
         {/* Show the title */}
         <Typography
-          className={classes.title}
+          className={isDebugInclusion() ? classes.titleDebug : classes.title}
           variant="h5"
-          color={isDebugInclusion() ? "error" : "textSecondary"}
+          color="textSecondary"
           component="div"
           paragraph>
 
@@ -71,7 +79,7 @@ const ArticlePanel = (props) => {
               className={"textSize" + props.textSize}
               fontStyle="italic"
             >
-              This article doesn't have a title.
+              This document doesn't have a title.
             </Box>
           }
 
@@ -88,8 +96,8 @@ const ArticlePanel = (props) => {
         {/* Show the publication date if available */}
         {!(props.record.publish_time === undefined || props.record.publish_time === null)  &&
           <Typography
-              className={classes.publish_time + " textSize" + props.textSize}
-              color={isDebugInclusion() ? "error" : "textSecondary"}
+              className={(isDebugInclusion() ? classes.debug : classes.publish_time) + " textSize" + props.textSize}
+              color="textSecondary"
               component="p"
               fontStyle="italic"
               paragraph>
@@ -100,8 +108,8 @@ const ArticlePanel = (props) => {
         {/* Show the publication date if available */}
         {!(props.record.doi === undefined || props.record.doi === null)  &&
           <Typography
-              className={classes.doi + " textSize" + props.textSize}
-              color={isDebugInclusion() ? "error" : "textSecondary"}
+              className={(isDebugInclusion() ? classes.debug : classes.doi) + " textSize" + props.textSize}
+              color="textSecondary"
               component="p"
               fontStyle="italic"
               paragraph>
@@ -119,16 +127,16 @@ const ArticlePanel = (props) => {
 
         {/* Show the abstract */}
         <Typography
-            className={classes.abstract + " textSize" + props.textSize}
+            className={(isDebugInclusion() ? classes.debug : classes.abstract) + " textSize" + props.textSize}
             variant="body2"
-            color={isDebugInclusion() ? "error" : "textSecondary"}
+            color="textSecondary"
             component="div"
             paragraph>
 
             {/* No abstract, inplace text */}
             {(props.record.abstract === "" || props.record.abstract === null) &&
               <Box fontStyle="italic">
-                This article doesn't have an abstract.
+                This document doesn't have an abstract.
               </Box>
             }
 

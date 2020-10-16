@@ -13,5 +13,21 @@
 # limitations under the License.
 
 from asreview.feature_extraction.tfidf import Tfidf
+from asreview.feature_extraction.doc2vec import Doc2Vec
+from asreview.feature_extraction.embedding_idf import EmbeddingIdf
+from asreview.feature_extraction.embedding_lstm import EmbeddingLSTM
+from asreview.feature_extraction.sbert import SBERT
+
 from asreview.feature_extraction.utils import get_feature_model
 from asreview.feature_extraction.utils import get_feature_class
+from asreview.feature_extraction.utils import list_feature_extraction
+
+"""Feature extraction converts texts into features.
+
+Feature extraction is the process of converting a list of texts into some kind
+of feature matrix.
+
+There are several feature extraction algorithms available. In configuration
+files, parameters are found under the section ``[feature_param]``.
+
+"""

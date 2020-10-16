@@ -3,7 +3,6 @@ import argparse
 import json
 import logging
 import sys
-from pathlib import Path
 
 import numpy as np
 
@@ -57,7 +56,7 @@ def train_model(project_id, label_method=None):
     It has one argument on the CLI, which is the base project directory.
     """
 
-    print(f"Train a new model for project {project_id}")
+    logging.info(f"Project {project_id} - Train a new model for project")
 
     # get file locations
     asr_kwargs_file = get_kwargs_path(project_id)
@@ -65,17 +64,24 @@ def train_model(project_id, label_method=None):
 
     # Lock so that only one training run is running at the same time.
     # It doesn't lock the flask server/client.
-    with SQLiteLock(lock_file, blocking=False, lock_name="training") as lock:
+    with SQLiteLock(
+            lock_file, blocking=False, lock_name="training",
+            project_id=project_id) as lock:
 
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
-            logging.info("Cannot acquire lock, other instance running.")
+            logging.info("Project {project_id} - "
+                         "Cannot acquire lock, other instance running.")
             return
 
         # Lock the current state. We want to have a consistent active state.
         # This does communicate with the flask backend; it prevents writing and
         # reading to the same files at the same time.
-        with SQLiteLock(lock_file, blocking=True, lock_name="active") as lock:
+        with SQLiteLock(
+                lock_file,
+                blocking=True,
+                lock_name="active",
+                project_id=project_id) as lock:
             # Get the all labels since last run. If no new labels, quit.
             new_label_history = read_label_history(project_id)
 
@@ -87,9 +93,7 @@ def train_model(project_id, label_method=None):
         with open(asr_kwargs_file, "r") as fp:
             asr_kwargs = json.load(fp)
         asr_kwargs['state_file'] = str(state_file)
-        reviewer = get_reviewer(dataset=data_fp,
-                                mode="minimal",
-                                **asr_kwargs)
+        reviewer = get_reviewer(dataset=data_fp, mode="minimal", **asr_kwargs)
 
         with open_state(state_file) as state:
             old_label_history = get_label_train_history(state)
@@ -97,7 +101,8 @@ def train_model(project_id, label_method=None):
         diff_history = get_diff_history(new_label_history, old_label_history)
 
         if len(diff_history) == 0:
-            logging.info("No new labels since last run.")
+            logging.info(
+                "Project {project_id} - No new labels since last run.")
             return
 
         query_idx = np.array([x[0] for x in diff_history], dtype=int)
@@ -105,19 +110,23 @@ def train_model(project_id, label_method=None):
 
         # Classify the new labels, train and store the results.
         with open_state(state_file) as state:
-            reviewer.classify(query_idx, inclusions, state, method=label_method)
+            reviewer.classify(
+                query_idx, inclusions, state, method=label_method)
             reviewer.train()
             reviewer.log_probabilities(state)
             new_query_idx = reviewer.query(reviewer.n_pool()).tolist()
             reviewer.log_current_query(state)
             proba = state.pred_proba.tolist()
 
-        with SQLiteLock(lock_file, blocking=True, lock_name="active") as lock:
+        with SQLiteLock(
+                lock_file,
+                blocking=True,
+                lock_name="active",
+                project_id=project_id) as lock:
             current_pool = read_pool(project_id)
             in_current_pool = np.zeros(len(as_data))
             in_current_pool[current_pool] = 1
-            new_pool = [x for x in new_query_idx
-                        if in_current_pool[x]]
+            new_pool = [x for x in new_query_idx if in_current_pool[x]]
             write_pool(project_id, new_pool)
             write_proba(project_id, proba)
 
@@ -126,23 +135,18 @@ def main(argv):
 
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "project_id",
-        type=str,
-        help="Project id"
-    )
+    parser.add_argument("project_id", type=str, help="Project id")
     parser.add_argument(
         "--label_method",
         type=str,
         default=None,
-        help="Label method (for example 'prior')"
-    )
+        help="Label method (for example 'prior')")
     args = parser.parse_args(argv)
 
     try:
         train_model(args.project_id, args.label_method)
     except Exception as err:
-        logging.error(err)
+        logging.error(f"Project {args.project_id} - " + err)
 
         # write error to file is label method is prior (first iteration)
         if args.label_method == "prior":

@@ -21,22 +21,30 @@ from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
-    "Query strategy using clustering algorithms."
+    """Query strategy using clustering algorithms.
+
+    Use clustering after feature extraction on the dataset. Then the highest
+    probabilities within random clusters are sampled.
+
+    Arguments
+    ---------
+    cluster_size: int
+        Size of the clusters to be made. If the size of the clusters is
+        smaller than the size of the pool, fall back to max sampling.
+    update_interval: int
+        Update the clustering every x instances.
+    random_state: int, RandomState
+        State/seed of the RNG.
+    """
+
     name = "cluster"
 
-    def __init__(self, cluster_size=350, update_interval=200,
+    def __init__(self,
+                 cluster_size=350,
+                 update_interval=200,
                  random_state=None):
         """Initialize the clustering strategy.
 
-        Arguments
-        ---------
-        cluster_size: int
-            Size of the clusters to be made. If the size of the clusters is
-            smaller than the size of the pool, fall back to max sampling.
-        update_interval: int
-            Update the clustering every x instances.
-        random_state: int, RandomState
-            State/seed of the RNG.
         """
         super(ClusterQuery, self).__init__()
         self.cluster_size = cluster_size
@@ -52,15 +60,15 @@ class ClusterQuery(ProbaQueryStrategy):
 
         last_update = self.last_update
         if (last_update is None or self.update_interval is None or
-                last_update-len(pool_idx) >= self.update_interval):
-            n_clusters = round(len(pool_idx)/self.cluster_size)
+                last_update - len(pool_idx) >= self.update_interval):
+            n_clusters = round(len(pool_idx) / self.cluster_size)
             if n_clusters <= 1:
                 return self.fallback_model._query(
-                    X, pool_idx=pool_idx,
-                    n_instances=n_instances,
-                    proba=proba)
-            model = KMeans(n_clusters=n_clusters, n_init=1,
-                           random_state=self._random_state)
+                    X, pool_idx=pool_idx, n_instances=n_instances, proba=proba)
+            model = KMeans(
+                n_clusters=n_clusters,
+                n_init=1,
+                random_state=self._random_state)
             self.clusters = model.fit_predict(X)
             self.last_update = len(pool_idx)
 
@@ -96,7 +104,7 @@ class ClusterQuery(ProbaQueryStrategy):
         from hyperopt import hp
         parameter_space = {
             "qry_cluster_size": hp.quniform('qry_cluster_size', 50, 1000, 1),
-            "qry_update_interval": hp.quniform(
-                'qry_update_interval', 100, 300, 1),
+            "qry_update_interval": hp.quniform('qry_update_interval', 100, 300,
+                                               1),
         }
         return parameter_space, {}

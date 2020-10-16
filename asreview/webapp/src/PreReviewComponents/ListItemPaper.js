@@ -1,74 +1,118 @@
 import React from 'react'
 import {
+  Box,
   ListItem,
   ListItemText,
-  ListItemIcon,
+  Dialog,
+  DialogContent,
+  DialogActions,
+  Button,
 } from '@material-ui/core'
-import FavoriteIcon from '@material-ui/icons/Favorite'
 
-import axios from 'axios'
+import {
+  PaperCard,
+} from '../PreReviewComponents'
 
-import { api_url } from '../globals.js';
+import {
+  DialogTitleWithClose,
+} from '../Components'
 
-import { connect } from "react-redux";
-
-const mapStateToProps = state => {
-  return { project_id: state.project_id };
-};
 
 const ListItemPaper = (props) => {
 
-  const [selected, setSelected] = React.useState(props.included === 1);
+  // dialog open
+  const [open, setOpen] = React.useState(false);
 
-  const toggleButton = () => {
+  /**
+   * Open the Dialog with search item
+   */
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
 
-    const url = api_url + `project/${props.project_id}/labelitem`;
+  /**
+   * Close the Dialog with search item
+   */
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-    let body = new FormData();
-    body.set('doc_id', props.id);
-    if (!selected){
-      body.set('label', 1);
-      console.log(`${props.project_id} - add item ${props.id} to prior inclusions`);
-    } else {
-      body.set('label', -1);
-      console.log(`${props.project_id} - remove item ${props.id} from prior knowledge`);
-    }
-    body.set('is_prior', 1);
 
-    axios.post(
-      url,
-      body,
-      {
-        headers: {
-          'Content-type': 'application/x-www-form-urlencoded',
-        }
-      })
-    .then((result) => {
-      setSelected(!selected);
-    })
-    .catch((error) => {
-      console.log(error);
+  const includeAndClose = () => {
+    props.includeItem(props.id, ()=>{
+
+      // Close the Dialog
+      handleClose();
+
+      // Close the search results
+      props.closeSearchResult()
+
+      props.updatePriorStats();
     });
 
   }
 
+  const excludeAndClose = () => {
+    props.excludeItem(props.id, ()=> {
+
+      // Close the Dialog
+      handleClose();
+
+      // Close the search results
+      props.closeSearchResult()
+
+      props.updatePriorStats();
+    });
+
+  }
 
   return (
-      // {props.removeResultOnRevert && <Collapse in={!selected}>}
+    <Box>
       <ListItem
         key={`result-item-${props.id}`}
-         button onClick={toggleButton}
+         button onClick={handleClickOpen}
       >
-        <ListItemIcon>
-            <FavoriteIcon color={selected ? "secondary": "default"}/>
-        </ListItemIcon>
         <ListItemText
           primary={props.title}
           secondary={props.authors}
+          secondaryTypographyProps={{noWrap:true}}
         />
       </ListItem>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullWidth={true}
+      >
+        <DialogTitleWithClose
+          title={"Is this article relevant?"}
+          onClose={handleClose}
+        />
+        <DialogContent dividers={true}>
+          <PaperCard
+            id={props.id}
+            title={props.title}
+            abstract={props.abstract}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={excludeAndClose}
+            color="primary"
+          >
+            Irrelevant
+          </Button>
+          <Button
+            onClick={includeAndClose}
+            color="primary"
+          >
+            Relevant
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
 
 }
 
-export default connect(mapStateToProps)(ListItemPaper);
+export default ListItemPaper;

@@ -4,20 +4,28 @@ from asreview.feature_extraction.base import BaseFeatureExtraction
 
 
 class Tfidf(BaseFeatureExtraction):
-    """Class to apply SKLearn Tf-idf to texts."""
+    """Class to apply TF-IDF to texts.
+
+    Use the standard TF-IDF (Term Frequency-Inverse Document Frequency)
+    feature extraction from `SKLearn <https://scikit-learn.org/stable/modules/
+    generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`__. Gives
+    a sparse matrix as output. Works well in combination with
+    :class:`asreview.models.NBModel` and other fast training models (given
+    that the features vectors are relatively wide).
+
+    Arguments
+    ---------
+    ngram_max: int
+        Can use up to ngrams up to ngram_max. For example in the case of
+        ngram_max=2, monograms and bigrams could be used.
+    stop_words: str
+        When set to 'english', use stopwords. If set to None or 'none',
+        do not use stop words.
+    """
     name = "tfidf"
 
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
         """Initialize tfidf class.
-
-        Arguments
-        ---------
-        ngram_max: int
-            Can use up to ngrams up to ngram_max. For example in the case of
-            ngram_max=2, monograms and bigrams could be used.
-        stop_words: str
-            When set to 'english', use stopwords. If set to None or 'none',
-            do not use stop words.
         """
         super(Tfidf, self).__init__(*args, **kwargs)
         self.ngram_max = ngram_max

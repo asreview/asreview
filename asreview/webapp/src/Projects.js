@@ -19,6 +19,15 @@ import {
 
 import ProjectCard from './ProjectCard';
 
+import {
+  ImportDialog,
+  QuickTourDialog,
+} from './Components'
+
+import {
+  ProjectInit
+} from './PreReviewComponents'
+
 import { api_url } from './globals.js';
 
 import axios from 'axios';
@@ -44,16 +53,16 @@ const Projects = (props) => {
 
     const classes = useStyles();
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState({
+      dial: false,
+      newProject: false,
+      importProject: false
+    });
+
     const [projects, setProjects] = useState({
       "projects": [],
       "loaded": false,
     });
-
-    const actions = [
-      {icon: <CreateNewFolderOutlined />, name: 'Import\u00A0project', operation: "importProject"},
-      {icon: <AddOutlined />, name: 'New\u00A0project', operation: "newProject"},
-    ];
 
     useEffect(() => {
 
@@ -78,23 +87,50 @@ const Projects = (props) => {
     };
 
     const handleOpen = () => {
-      setOpen(true);
+      setOpen({
+        ...open,
+        dial: true
+      })
     };
 
     const handleClose = () => {
-      setOpen(false);
+      setOpen({
+        ...open,
+        dial: false,
+      })
+    };
+
+    const handleCloseNewProject = () => {
+      setOpen({
+        ...open,
+        newProject: false,
+      })
+    };
+
+    const handleCloseImportProject = () => {
+      setOpen({
+        ...open,
+        importProject: false,
+      })
     };
 
     const handleClickAdd = (event, operation) => {
+
       event.preventDefault();
       if (operation === "newProject") {
-        props.handleAppState("review-init");
+        setOpen({
+          ...open,
+          dial: false,
+          newProject: true,
+        })
       } else if (operation === "importProject") {
-        props.handleAppState("review-import");
-        props.toggleImportProject();
+        setOpen({
+          ...open,
+          dial: false,
+          importProject: true,
+        })
       };
     }
-
 
     return (
 
@@ -125,6 +161,7 @@ const Projects = (props) => {
                         id={project.id}
                         name={project.name}
                         description={project.description}
+                        projectInitReady={project.projectInitReady}
                         handleAppState={props.handleAppState}
                         refreshProjects={refreshProjects}
                       />
@@ -135,8 +172,25 @@ const Projects = (props) => {
 
           </Container>
 
+
+          {open.newProject &&
+            <ProjectInit
+              handleAppState={props.handleAppState}
+              open={open.newProject}
+              onClose={handleCloseNewProject}
+            />
+          }
+
+          {open.importProject &&
+            <ImportDialog
+              handleAppState={props.handleAppState}
+              open={open.importProject}
+              onClose={handleCloseImportProject}
+            />
+          }
+
           {/* Add button for new or importing project */}
-            <Backdrop open={open} className={classes.backdropZ}/>
+            <Backdrop open={open.dial} className={classes.backdropZ}/>
             <SpeedDial
               ariaLabel="add"
               className={classes.fab}
@@ -144,18 +198,26 @@ const Projects = (props) => {
               icon={<SpeedDialIcon />}
               onClose={handleClose}
               onOpen={handleOpen}
-              open={open}
+              open={open.dial}
             >
-              {actions.map((action) => (
-                <SpeedDialAction
-                  key={action.name}
-                  icon={action.icon}
-                  tooltipTitle={action.name}
-                  tooltipOpen
-                  onClick={event => {handleClickAdd(event, action.operation)}}
-                />
-              ))}
+
+            <SpeedDialAction
+              key={'Import\u00A0project'}
+              icon=<CreateNewFolderOutlined />
+              tooltipTitle={'Import\u00A0project'}
+              tooltipOpen
+              onClick={event => {handleClickAdd(event, "importProject")}}
+            />
+            <SpeedDialAction
+              key={'New\u00A0project'}
+              icon=<AddOutlined />
+              tooltipTitle={'New\u00A0project'}
+              tooltipOpen
+              onClick={event => {handleClickAdd(event, "newProject")}}
+            />
             </SpeedDial>
+
+        <QuickTourDialog/>
       </Box>
     );
 }

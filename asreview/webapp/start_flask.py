@@ -1,14 +1,23 @@
+import logging
 import os
 import webbrowser
 from threading import Timer
 
 from flask import Flask
 from flask import send_from_directory
+from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
 
-from asreview.entry_points.gui import _oracle_parser
+from asreview import __version__ as asreview_version
+from asreview.entry_points.gui import _lab_parser
 from asreview.webapp import api
+
+# set logging level
+if os.environ.get('FLASK_ENV', "") == "development":
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
 
 
 def _url(host, port):
@@ -55,12 +64,37 @@ def create_app(**kwargs):
             mimetype='image/vnd.microsoft.icon'
         )
 
+    @app.route('/boot', methods=["GET"])
+    def api_boot():
+        """Get the boot info"""
+
+        if os.environ.get("FLASK_ENV", None) == "development":
+            status = "development"
+        else:
+            status = "asreview"
+
+            try:
+                import asreviewcontrib.covid19  # noqa
+                status = "asreview-covid19"
+            except ImportError:
+                logging.debug("covid19 plugin not found")
+
+        # get the asreview version
+
+        response = jsonify({
+            "status": status,
+            "version": asreview_version,
+        })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+
+        return response
+
     return app
 
 
 def main(argv):
 
-    parser = _oracle_parser(prog="oracle")
+    parser = _lab_parser(prog="lab")
     kwargs = vars(parser.parse_args(argv))
 
     host = kwargs.pop("ip")

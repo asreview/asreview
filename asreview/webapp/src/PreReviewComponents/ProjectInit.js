@@ -2,22 +2,25 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
-  Box,
   Button,
-  Typography,
-  Toolbar,
   TextField,
-  Snackbar,
-  IconButton,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Dialog,
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close';
+
+import { brown } from '@material-ui/core/colors';
 
 import axios from 'axios'
 
-import store from '../redux/store'
 import { setProject } from '../redux/actions'
 
-import { api_url } from '../globals.js';
+import { connect } from "react-redux";
+import { api_url, mapStateToProps } from '../globals.js';
+
+import './ReviewZone.css';
+
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -35,15 +38,37 @@ const useStyles = makeStyles(theme => ({
     marginBottom: 40,
   },
   clear: {
-    clear: "right",
-  }
+    overflow: "auto",
+  },
+  editButton: {
+    float: "right",
+  },
+  avatar: {
+    color: theme.palette.getContrastText(brown[500]),
+    backgroundColor: brown[500],
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
 }));
 
+
+function mapDispatchToProps(dispatch) {
+    return({
+        setProjectId: (project_id) => {dispatch(setProject(project_id))}
+    })
+}
 
 const ProjectInit = (props) => {
 
   const classes = useStyles();
 
+  // const [open, setOpen] = React.useState(props.open)
+
+  // the state of the form data
   const [info, setInfo] = React.useState({
     authors: "",
     name: "",
@@ -61,110 +86,107 @@ const ProjectInit = (props) => {
   const submitForm = (evt) => {
     evt.preventDefault();
 
-    const url = api_url + "project/new";
-
     var bodyFormData = new FormData();
-    bodyFormData.set('project_name', info.name);
-    bodyFormData.set('project_authors', info.authors);
-    bodyFormData.set('project_description', info.description);
+    bodyFormData.set('name', info.name);
+    bodyFormData.set('authors', info.authors);
+    bodyFormData.set('description', info.description);
 
     axios({
-      method: 'post',
-      url: url,
+      method: "post",
+      url: api_url + "project/info",
       data: bodyFormData,
       headers: {'Content-Type': 'multipart/form-data' }
     })
     .then(function (response) {
 
       // set the project_id in the redux store
-      store.dispatch(setProject(response.data["project_id"]))
+      props.setProjectId(response.data["id"])
 
-      // go to the next step
-      props.handleNext()
+      props.handleAppState("project-page")
 
     })
     .catch(function (response) {
+
         //handle error
         setError(true);
     });
   }
 
-  const handleErrorClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setError(false);
-  };
-
   return (
-    <Box>
-
-      <Typography variant="h5" className={classes.title}>
-        Create a project
-      </Typography>
-
+    <Dialog
+      open={props.open}
+      onClose={props.onClose}
+      fullWidth={true}
+    >
+      <DialogTitle>
+        Create a new project
+      </DialogTitle>
+      <DialogContent dividers={true}>
     {/* The actual form */}
-      <form className={classes.root} noValidate autoComplete="off" onSubmit={submitForm}>
+      <form noValidate autoComplete="off">
+
+        <div className={classes.textfieldItem}>
+          <TextField
+            fullWidth
+            error={error}
+            autoFocus={true}
+            required
+            name="name"
+            id="project-name"
+            label="Project name"
+            onChange={onChange}
+            value={info.name}
+            helperText={error && "Project name already exists"}
+          />
+        </div>
+
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
             name="authors"
             id="project-author"
-            label="Author(s)"
+            label="Your name"
             onChange={onChange}
+            value={info.authors}
           />
         </div>
+
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
-            name="name"
-            id="project-name"
-            label="Project name"
-            onChange={onChange}
-          />
-        </div>
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
+            multiline
+            rows={4}
+            rowsMax={6}
             name="description"
             id="project-description"
-            label="Short description"
+            label="Description"
             onChange={onChange}
+            value={info.description}
           />
         </div>
-        <div className={classes.nextButton}>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={info.name.length < 3 || info.authors === "" || info.description === ""}
-            type="submit"
-            className={classes.button}
-          >
-            Next
-          </Button>
-        </div>
+
       </form>
-     <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        open={error}
-        autoHideDuration={6000}
-        onClose={handleErrorClose}
-        message="Error: Project name incorrect"
-        action={
-          <React.Fragment>
-            <IconButton size="small" aria-label="close" color="inherit" onClick={handleErrorClose}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </React.Fragment>
-        }
-      />
-      <Toolbar className={classes.clear}/>
-    </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={props.onClose}
+          color="primary"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={submitForm}
+          color="primary"
+          disabled={info.name.length < 3}
+        >
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
-export default ProjectInit;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ProjectInit);

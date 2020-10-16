@@ -11,7 +11,7 @@ def asreview_path():
     """
 
     if os.environ.get("ASREVIEW_PATH", None):
-        asreview_path = os.environ["ASREVIEW_PATH"]
+        asreview_path = Path(os.environ["ASREVIEW_PATH"])
     else:
         asreview_path = Path("~", ".asreview").expanduser()
 

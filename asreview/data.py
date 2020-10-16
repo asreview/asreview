@@ -34,9 +34,9 @@ from asreview.utils import is_url
 
 def create_inverted_index(match_strings):
     index = {}
-    WORD = re.compile("['\w]+")
+    word = re.compile(r"['\w]+")
     for i, match in enumerate(match_strings):
-        tokens = WORD.findall(match.lower())
+        tokens = word.findall(match.lower())
         for token in tokens:
             if token in index:
                 if index[token][-1] != i:
@@ -48,8 +48,8 @@ def create_inverted_index(match_strings):
 
 def match_best(keywords, index, match_strings, threshold=0.75):
     n_match = len(match_strings)
-    WORD = re.compile("['\w]+")
-    key_list = WORD.findall(keywords.lower())
+    word = re.compile(r"['\w]+")
+    key_list = word.findall(keywords.lower())
 
     ratios = np.zeros(n_match)
     for key in key_list:
@@ -68,7 +68,7 @@ def match_best(keywords, index, match_strings, threshold=0.75):
         for idx, rat in cur_ratios.items():
             ratios[idx] += rat
 
-    return (100*ratios)/len(key_list)
+    return (100 * ratios) / len(key_list)
 
 
 def token_set_ratio(keywords, match_strings):
@@ -111,7 +111,10 @@ class ASReviewData():
         it is actually in.
     """
 
-    def __init__(self, df=None, data_name="empty", data_type="standard",
+    def __init__(self,
+                 df=None,
+                 data_name="empty",
+                 data_type="standard",
                  column_spec=None):
         self.df = df
         self.data_name = data_name
@@ -150,15 +153,15 @@ class ASReviewData():
         str:
             SHA1 hash, computed from the titles/abstracts of the dataframe.
         """
-        if ((len(self.df.index) < 1000 and self.bodies is not None)
-                or self.texts is None):
+        if ((len(self.df.index) < 1000 and self.bodies is not None) or
+                self.texts is None):
             texts = " ".join(self.bodies)
         else:
             texts = " ".join(self.texts)
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
 
-    def slice(self, idx):
+    def slice(self, idx, by_index=True):
         """Create a slice from itself.
 
         Useful if some parts should be kept/thrown away.
@@ -176,7 +179,9 @@ class ASReviewData():
         if self.df is None:
             raise ValueError("Cannot slice empty ASReviewData object.")
 
-        return ASReviewData(self.df[idx], data_name="sliced")
+        if by_index:
+            return ASReviewData(self.df.iloc[idx], data_name="sliced")
+        return ASReviewData(self.df.loc[idx, :], data_name="sliced")
 
     def append(self, as_data):
         """Append another ASReviewData object.
@@ -259,8 +264,7 @@ class ASReviewData():
             data_name = new_data_name
 
         if read_fn is not None:
-            return cls(read_fn(fp), data_name=data_name,
-                       data_type=data_type)
+            return cls(read_fn(fp), data_name=data_name, data_type=data_type)
 
         entry_points = {
             entry.name: entry
@@ -278,7 +282,9 @@ class ASReviewData():
 
         read_fn = entry_points[best_suffix].load()
         df, column_spec = read_fn(fp)
-        return cls(df, column_spec=column_spec, data_name=data_name,
+        return cls(df,
+                   column_spec=column_spec,
+                   data_name=data_name,
                    data_type=data_type)
 
     def record(self, i, by_index=True):
@@ -304,14 +310,18 @@ class ASReviewData():
             index_list = i
 
         if not by_index:
-            records = [PaperRecord(**self.df.loc[j, :], record_id=j,
-                                   column_spec=self.column_spec)
-                       for j in index_list]
+            records = [
+                PaperRecord(**self.df.loc[j, :],
+                            record_id=j,
+                            column_spec=self.column_spec) for j in index_list
+            ]
         else:
-            records = [PaperRecord(**self.df.iloc[j],
-                                   column_spec=self.column_spec,
-                                   record_id=self.df.index.values[j])
-                       for j in index_list]
+            records = [
+                PaperRecord(**self.df.iloc[j],
+                            column_spec=self.column_spec,
+                            record_id=self.df.index.values[j])
+                for j in index_list
+            ]
 
         if is_iterable(i):
             return records
@@ -346,7 +356,11 @@ class ASReviewData():
             match_str[i, ] = " ".join(match_list)
         return match_str
 
-    def fuzzy_find(self, keywords, threshold=60, max_return=10, exclude=None,
+    def fuzzy_find(self,
+                   keywords,
+                   threshold=60,
+                   max_return=10,
+                   exclude=None,
                    by_index=True):
         """Find a record using keywords.
 
@@ -379,8 +393,8 @@ class ASReviewData():
         if exclude is None:
             exclude = np.array([], dtype=int)
         for idx in sorted_idx:
-            if ((not by_index and self.df.index.values[idx] in exclude)
-                    or by_index and idx in exclude):
+            if ((not by_index and self.df.index.values[idx] in exclude) or
+                    by_index and idx in exclude):
                 continue
             if len(best_idx) >= max_return:
                 break
@@ -403,9 +417,9 @@ class ASReviewData():
         if self.bodies is None:
             return self.headings
 
-        cur_texts = np.array([self.headings[i] + " " + self.bodies[i]
-                              for i in range(len(self))
-                              ], dtype=object)
+        cur_texts = np.array([
+            self.headings[i] + " " + self.bodies[i] for i in range(len(self))
+        ], dtype=object)
         return cur_texts
 
     @property

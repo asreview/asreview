@@ -10,8 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import store from './redux/store'
 import { setProject } from './redux/actions'
 
-import ProjectSettings from './ProjectSettings.js'
-
 const useStyles = makeStyles({
   root: {
     maxWidth: "100%",
@@ -19,12 +17,16 @@ const useStyles = makeStyles({
   content: {
     height: 120,
   },
+  description: {
+    display: "-webkit-box",
+    "-webkit-line-clamp": 3,
+    "-webkit-box-orient": "vertical",
+    overflow: "hidden",
+  }
 });
 
 const ProjectCard = (props) => {
   const classes = useStyles();
-
-  const [settings, setSettings] = React.useState(false);
 
   const openExistingProject = () => {
 
@@ -33,14 +35,9 @@ const ProjectCard = (props) => {
     // set the state in the redux store
     store.dispatch(setProject(props.id))
 
-    // change to the review window
-    props.handleAppState("review")
-  }
+    props.handleAppState("project-page")
 
-  const toggleProjectSettings = () => {
-    console.log("Open settings project " + props.id)
-    setSettings(a => (!a));
-  };
+  }
 
   return (
     <Card className={classes.root}>
@@ -56,7 +53,12 @@ const ProjectCard = (props) => {
           <Typography gutterBottom variant="h5" component="h2">
             {props.name}
           </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            component="p"
+            className={classes.description}
+          >
             {props.description}
           </Typography>
         </CardContent>
@@ -68,19 +70,7 @@ const ProjectCard = (props) => {
         >
           Open
         </Button>
-        <Button
-          size="small"
-          onClick={toggleProjectSettings}
-        >
-          Settings
-        </Button>
       </CardActions>
-      <ProjectSettings
-        id={props.id}
-        settings={settings}
-        toggleProjectSettings={toggleProjectSettings}
-        refreshProjects={props.refreshProjects}
-      />
     </Card>
   );
 }

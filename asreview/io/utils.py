@@ -92,6 +92,7 @@ def standardize_dataframe(df, column_spec={}):
     # Replace NA values with empty strings.
     for col in ["title", "abstract", "authors", "keywords"]:
         try:
+            df[all_column_spec[col]] = df[all_column_spec[col]].astype(str)
             df[all_column_spec[col]].fillna("", inplace=True)
         except KeyError:
             pass
@@ -104,10 +105,27 @@ def standardize_dataframe(df, column_spec={}):
             df[col] = pd.to_numeric(df[col])
         except KeyError:
             pass
+        except ValueError:
+            logging.warning("Failed to parse label column name, no labels will"
+                            " be present.")
+            df.rename(columns={"label": "final_included"})
+            all_column_spec.pop("final_included")
 
     # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):
-        df.set_index('record_id', inplace=True)
+        if len(np.unique(df["record_id"])) != len(df.index):
+            logging.warning(
+                "Column 'record_id' found, but they are not unique. "
+                "Continuing with new index.")
+        else:
+            try:
+                df['record_id'] = pd.to_numeric(df['record_id'])
+                df.set_index('record_id', inplace=True)
+            except ValueError:
+                logging.warning("Column 'record_id' has non-integer values. "
+                                "Continuing with new index.")
+
+    # Create a new index if we haven't found it in the data.
     if df.index.name != "record_id":
         df["record_id"] = np.arange(len(df.index))
         df.set_index('record_id', inplace=True)

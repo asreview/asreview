@@ -1,13 +1,10 @@
-import React, { } from 'react';
+import React from 'react';
 import {
-  Cell, PieChart, Pie, Tooltip,
+  ResponsiveContainer, Cell, PieChart, Pie, Tooltip,
 } from 'recharts';
-
-import {reviewDrawerWidth} from '../globals.js'
 
 
 const ProgressPieChart = (props) => {
-
 
   const getData = () => {
     return([
@@ -17,28 +14,29 @@ const ProgressPieChart = (props) => {
 
 
   return (
-    <PieChart
-      width={reviewDrawerWidth}
-      height={(reviewDrawerWidth/2)-40}
+    <ResponsiveContainer 
+      minHeight={90}
+      width="100%"
     >
-      <Pie
-        isAnimationActive={false}
-        dataKey="value"
-        startAngle={180}
-        endAngle={0}
-        data={getData()}
-        cx={reviewDrawerWidth/2}
-        cy={(reviewDrawerWidth/2)-40}
-        innerRadius={0}
-        outerRadius={65}
-        fill="#8884d8"
-        label
-      >
-      <Cell fill={'#00C49F'}/>
-      <Cell fill={'#FF8042'}/>
-      </Pie>
-      <Tooltip />
-    </PieChart>
+      <PieChart>
+        <Pie
+          isAnimationActive={false}
+          dataKey="value"
+          startAngle={180}
+          endAngle={0}
+          data={getData()}
+          cy={90}
+          innerRadius={0}
+          outerRadius={65}
+          fill="#8884d8"
+          label
+        >
+        <Cell fill={'#00C49F'}/>
+        <Cell fill={'#FF8042'}/>
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
   );
 }
 

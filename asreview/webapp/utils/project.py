@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import shutil
 import subprocess
@@ -40,12 +39,10 @@ def _get_executable():
     return py_exe
 
 
-def init_project(
-        project_id,
-        project_name=None,
-        project_description=None,
-        project_authors=None
-):
+def init_project(project_id,
+                 project_name=None,
+                 project_description=None,
+                 project_authors=None):
     """Initialize the necessary files specific to the web app."""
 
     if not project_id and not isinstance(project_id, str) \
@@ -64,15 +61,23 @@ def init_project(
         fp_data = project_dir / "data"
         fp_data.mkdir()
 
+        project_config = {
+            'version': asreview_version,  # todo: Fail without git?
+            'id': project_id,
+            'name': project_name,
+            'description': project_description,
+            'authors': project_authors,
+
+            # project related variables
+            'projectInitReady': False,
+            'reviewFinished': False,
+        }
+
         # create a file with project info
         with open(get_project_file_path(project_id), "w") as fp:
-            json.dump({
-                'version': asreview_version,  # todo: Fail without git?
-                'id': project_id,
-                'name': project_name,
-                'description': project_description,
-                'authors': project_authors
-            }, fp)
+            json.dump(project_config, fp)
+
+        return project_config
 
     except Exception as err:
         # remove all generated folders and raise error
@@ -89,7 +94,8 @@ def add_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         # open the projects file
         with open(project_file_path, "r") as f_read:
             project_dict = json.load(f_read)
@@ -102,17 +108,25 @@ def add_dataset_to_project(project_id, file_name):
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
+
         if as_data.labels is not None:
             unlabeled = np.where(as_data.labels == LABEL_NA)[0]
             pool_indices = as_data.record_ids[unlabeled]
+
+            label_indices_included = \
+                [[int(x), 1] for x in np.where(as_data.labels == 1)[0]]
+            label_indices_excluded = \
+                [[int(x), 0] for x in np.where(as_data.labels == 0)[0]]
+            label_indices = label_indices_included + label_indices_excluded
         else:
             pool_indices = as_data.record_ids
-        np.random.shuffle(pool_indices)
+            label_indices = []
 
+        np.random.shuffle(pool_indices)
         write_pool(project_id, pool_indices.tolist())
 
         # make a empty qeue for the items to label
-        write_label_history(project_id, [])
+        write_label_history(project_id, label_indices)
 
 
 def remove_dataset_to_project(project_id, file_name):
@@ -123,7 +137,8 @@ def remove_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
@@ -151,8 +166,7 @@ def get_paper_data(project_id,
                    return_title=True,
                    return_authors=True,
                    return_abstract=True,
-                   return_debug_label=False
-                   ):
+                   return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
     record = as_data.record(int(paper_id))
@@ -192,22 +206,22 @@ def get_instance(project_id):
 
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         pool_idx = read_pool(project_id)
 
     if len(pool_idx) > 0:
-        logging.info(f"Requesting {pool_idx[0]} from project {project_id}")
         return pool_idx[0]
     else:
         # end of pool
-        logging.info(f"No more records for project {project_id}")
         return None
 
 
 def get_statistics(project_id):
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         # get the index of the active iteration
         label_history = read_label_history(project_id)
         current_labels = read_current_labels(
@@ -235,7 +249,8 @@ def get_statistics(project_id):
 def export_to_string(project_id, export_type="csv"):
     fp_lock = get_lock_path(project_id)
     as_data = read_data(project_id)
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         proba = read_proba(project_id)
         if proba is None:
             proba = np.flip(np.arange(len(as_data)))
@@ -248,8 +263,8 @@ def export_to_string(project_id, export_type="csv"):
     zero_idx = np.where(labels == 0)[0]
 
     proba_order = np.argsort(-proba[pool_idx])
-    ranking = np.concatenate(
-        (one_idx, pool_idx[proba_order], zero_idx), axis=None)
+    ranking = np.concatenate((one_idx, pool_idx[proba_order], zero_idx),
+                             axis=None)
 
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
@@ -257,10 +272,7 @@ def export_to_string(project_id, export_type="csv"):
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
         return as_data.to_excel(
-            fp=fp_tmp_export,
-            labels=labels,
-            ranking=ranking
-        )
+            fp=fp_tmp_export, labels=labels, ranking=ranking)
     else:
         raise ValueError("This export type isn't implemented.")
 
@@ -275,34 +287,24 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
         # get the index of the active iteration
         if int(label) in [0, 1]:
-            move_label_from_pool_to_labeled(
-                project_id, paper_i, label
-            )
+            move_label_from_pool_to_labeled(project_id, paper_i, label)
         else:
-            move_label_from_labeled_to_pool(
-                project_id, paper_i, label
-            )
+            move_label_from_labeled_to_pool(project_id, paper_i)
 
     if retrain_model:
         # Update the model (if it isn't busy).
 
         py_exe = _get_executable()
-        run_command = [
-            py_exe,
-            "-m", "asreview",
-            "web_run_model",
-            project_id
-        ]
+        run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
         subprocess.Popen(run_command)
 
 
 def move_label_from_pool_to_labeled(project_id, paper_i, label):
-
-    print(f"Move {paper_i} from pool to labeled")
 
     # load the papers from the pool
     pool_idx = read_pool(project_id)
@@ -311,7 +313,6 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     try:
         pool_idx.remove(int(paper_i))
     except (IndexError, ValueError):
-        print(f"Failed to remove {paper_i} from the pool.")
         return
 
     write_pool(project_id, pool_idx)
@@ -322,9 +323,7 @@ def move_label_from_pool_to_labeled(project_id, paper_i, label):
     write_label_history(project_id, labeled)
 
 
-def move_label_from_labeled_to_pool(project_id, paper_i, label):
-
-    print(f"Move {paper_i} from labeled to pool")
+def move_label_from_labeled_to_pool(project_id, paper_i):
 
     # load the papers from the pool
     pool_list = read_pool(project_id)
@@ -338,6 +337,7 @@ def move_label_from_labeled_to_pool(project_id, paper_i, label):
 
         item_id = int(item_id)
         item_label = int(item_label)
+        paper_i = int(paper_i)
 
         if paper_i == item_id:
             pool_list.append(item_id)

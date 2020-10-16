@@ -1,9 +1,6 @@
-import json
-import logging
-
-from asreview.datasets import DatasetManager, BaseVersionedDataSet
+from asreview.datasets import BaseVersionedDataSet, DatasetManager
 from asreview.utils import is_iterable
-from asreview.webapp.utils.project import read_data
+from asreview.webapp.utils.io import read_data
 
 
 def search_data(project_id, q, n_max=100):

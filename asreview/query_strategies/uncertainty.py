@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Uncertainty sampling while saving probabilities."""
 
 import numpy as np
@@ -20,7 +19,13 @@ from asreview.query_strategies.base import ProbaQueryStrategy
 
 
 class UncertaintyQuery(ProbaQueryStrategy):
-    """Maximum uncertainty query strategy."""
+    """Maximum uncertainty query strategy.
+
+    Choose the most uncertain samples according to the model (i.e. closest to
+    0.5 probability). Doesn’t work very well in the case of LSTM’s, since the
+    probabilities are rather arbitrary.
+
+    """
 
     name = "uncertainty"
 

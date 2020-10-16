@@ -175,11 +175,32 @@ def is_iterable(i):
         return False
 
 
-def model_class_from_entry_point(method, entry_name="asreview.models"):
-    entry_points = {
+def list_model_names(entry_name="asreview.models"):
+    return [*get_entry_points(entry_name)]
+
+
+def get_entry_points(entry_name="asreview.entry_points"):
+    """Get the entry points for asreview.
+
+    Parameters
+    ----------
+    entry_name: str
+        Name of the submodule. Default "asreview.entry_points".
+
+    Returns
+    -------
+    dict:
+        Dictionary with the name of the entry point as key
+        and the entry point as value.
+    """
+    return {
         entry.name: entry
         for entry in pkg_resources.iter_entry_points(entry_name)
     }
+
+
+def _model_class_from_entry_point(method, entry_name="asreview.models"):
+    entry_points = get_entry_points(entry_name)
     try:
         return entry_points[method].load()
     except KeyError:
@@ -198,7 +219,7 @@ def is_url(url):
         result = urlparse(url)
         return all(getattr(result, x) != ""
                    for x in ["scheme", "netloc", "path"])
-    except:
+    except Exception:
         return False
 
 
