@@ -10,7 +10,7 @@ from flask.templating import render_template
 from flask_cors import CORS
 
 from asreview import __version__ as asreview_version
-from asreview.entry_points.gui import _lab_parser
+from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
 
 # set logging level
