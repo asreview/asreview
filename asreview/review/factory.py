@@ -29,6 +29,8 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import EMAIL_ADDRESS
+from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.datasets import find_data
@@ -40,6 +42,30 @@ from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.state.utils import open_state
 from asreview.utils import get_random_state
+
+
+ASCII_LOGO = """
+            _____ _____            _
+     /\    / ____|  __ \          (_)
+    /  \  | (___ | |__) |_____   ___  _____      __
+   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
+  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
+ /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
+"""  # noqa
+
+ASCII_MSG_SIMULATE = """
+---------------------------------------------------------------------------------
+|                                                                                |
+|  Welcome to the ASReview Automated Systematic Review software.                 |
+|  In this mode the computer will simulate how well the ASReview software        |
+|  could have accelerate the systematic review of your dataset.                  |
+|  You can sit back and relax while the computer runs this simulation.           |
+|                                                                                |
+|  GitHub page:        {0: <58}|
+|  Questions/remarks:  {1: <58}|
+|                                                                                |
+---------------------------------------------------------------------------------
+""".format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
 
 
 def _add_defaults(set_param, default_param):
@@ -246,5 +272,7 @@ def review(*args,
 
 def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
+
+    print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
     review(dataset, *args, mode='simulate', **kwargs)
