@@ -34,7 +34,7 @@ import scipy
 
 
 from asreview.models.classifiers.base import BaseTrainModel
-from asreview.models.lstm_base import _get_optimizer
+from asreview.models.classifiers.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
 
 

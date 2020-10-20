@@ -19,8 +19,8 @@ from asreview.models.classifiers.logistic import LogisticModel
 from asreview.models.classifiers.lstm_base import LSTMBaseModel
 from asreview.models.classifiers.lstm_pool import LSTMPoolModel
 from asreview.models.classifiers.nn_2_layer import NN2LayerModel
-from asreview.models.classifiers.utils import get_model
-from asreview.models.classifiers.utils import get_model_class
+from asreview.models.classifiers.utils import get_classifier
+from asreview.models.classifiers.utils import get_classifier_class
 from asreview.models.classifiers.utils import list_classifiers
 
 """Machine learning classifiers to classify the documents.

@@ -21,7 +21,7 @@ import numpy as np
 from asreview.models.balance.simple import SimpleBalance
 from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
 from asreview.models.feature_extraction.tfidf import Tfidf
-from asreview.models.nb import NBModel
+from asreview.models.classifiers import NBModel
 from asreview.models.query.max import MaxQuery
 from asreview.models.query.random import RandomQuery
 from asreview.settings import ASReviewSettings

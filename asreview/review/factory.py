@@ -34,9 +34,9 @@ from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.datasets import find_data
-from asreview.models.feature_extraction.utils import get_feature_model
-from asreview.models.utils import get_model
-from asreview.models.query.utils import get_query_model
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.query import get_query_model
 from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
@@ -196,9 +196,9 @@ def get_reviewer(dataset,
 
     # Initialize models.
     random_state = get_random_state(seed)
-    train_model = get_model(settings.model,
-                            **settings.model_param,
-                            random_state=random_state)
+    train_model = get_classifier(settings.model,
+                                 **settings.model_param,
+                                 random_state=random_state)
     query_model = get_query_model(settings.query_strategy,
                                   **settings.query_param,
                                   random_state=random_state)
