@@ -24,7 +24,9 @@ from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_project_file_path
+from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
+from asreview.webapp.utils.paths import list_asreview_project_paths
 
 
 def _get_executable():
@@ -159,6 +161,34 @@ def remove_dataset_to_project(project_id, file_name):
         os.remove(str(data_path))
         os.remove(str(pool_path))
         os.remove(str(labeled_path))
+
+
+def clean_project_tmp_files(project_id):
+    """Clean temporary files in a project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+    project_path = get_project_path(project_id)
+
+    # clean pickle files
+    for f_pickle in project_path.rglob("*.pickle"):
+        try:
+            os.remove(f_pickle)
+        except OSError as e:
+            print(f"Error: {f_pickle} : {e.strerror}")
+
+    # clean tmp export files
+    # TODO
+
+
+def clean_all_project_tmp_files():
+    """Clean temporary files in all projects.
+    """
+    for project_path in list_asreview_project_paths():
+        clean_project_tmp_files(project_path)
 
 
 def get_paper_data(project_id,

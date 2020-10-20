@@ -16,6 +16,17 @@ def _lab_parser(prog="lab"):
     )
 
     parser.add_argument(
+        "--clean_project",
+        default=None,
+        type=str,
+        help="Safe cleanup of temporary files in project.")
+
+    parser.add_argument(
+        "--clean_all_projects",
+        action='store_true',
+        help="Safe cleanup of temporary files in all projects.")
+
+    parser.add_argument(
         "--ip",
         default=HOST_NAME,
         type=str,

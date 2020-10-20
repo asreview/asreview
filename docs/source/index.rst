@@ -41,6 +41,8 @@ The source code is freely available at
 
    faq
 
+   troubleshooting
+
 .. toctree::
    :maxdepth: 2
    :caption: API
