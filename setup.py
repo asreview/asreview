@@ -141,32 +141,32 @@ setup(
             'builtin = asreview.datasets:BuiltinDataGroup',
         ],
         'asreview.models': [
-            'svm = asreview.models.svm:SVMModel',
-            'nb = asreview.models.nb:NBModel',
-            'rf = asreview.models.rf:RFModel',
-            'nn-2-layer = asreview.models.nn_2_layer:NN2LayerModel',
-            'logistic = asreview.models.logistic:LogisticModel',
-            'lstm-base = asreview.models.lstm_base:LSTMBaseModel',
-            'lstm-pool = asreview.models.lstm_pool:LSTMPoolModel',
+            'svm = asreview.models.classifiers:SVMModel',
+            'nb = asreview.models.classifiers:NBModel',
+            'rf = asreview.models.classifiers:RFModel',
+            'nn-2-layer = asreview.models.classifiers:NN2LayerModel',
+            'logistic = asreview.models.classifiers:LogisticModel',
+            'lstm-base = asreview.models.classifiers:LSTMBaseModel',
+            'lstm-pool = asreview.models.classifiers:LSTMPoolModel',
         ],
         'asreview.feature_extraction': [
-            'doc2vec = asreview.feature_extraction.doc2vec:Doc2Vec',
-            'embedding-idf = asreview.feature_extraction.embedding_idf:EmbeddingIdf',  # noqa
-            'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  # noqa
-            'sbert = asreview.feature_extraction.sbert:SBERT',
-            'tfidf = asreview.feature_extraction.tfidf:Tfidf',
+            'doc2vec = asreview.models.feature_extraction:Doc2Vec',
+            'embedding-idf = asreview.models.feature_extraction:EmbeddingIdf',  # noqa
+            'embedding-lstm = asreview.models.feature_extraction:EmbeddingLSTM',  # noqa
+            'sbert = asreview.models.feature_extraction:SBERT',
+            'tfidf = asreview.models.feature_extraction:Tfidf',
         ],
         'asreview.balance_strategy': [
-            "simple = asreview.balance_strategies.simple:SimpleBalance",
-            "double = asreview.balance_strategies.double:DoubleBalance",
-            "triple = asreview.balance_strategies.triple:TripleBalance",
-            "undersample = asreview.balance_strategies.undersample:UndersampleBalance",  # noqa
+            "simple = asreview.models.balance:SimpleBalance",
+            "double = asreview.models.balance:DoubleBalance",
+            "triple = asreview.models.balance:TripleBalance",
+            "undersample = asreview.models.balance:UndersampleBalance",  # noqa
         ],
         'asreview.query_strategy': [
-            "max = asreview.query_strategies.max:MaxQuery",
-            "random = asreview.query_strategies.random:RandomQuery",
-            "uncertainty = asreview.query_strategies.uncertainty:UncertaintyQuery",  # noqa
-            "cluster = asreview.query_strategies.cluster:ClusterQuery",
+            "max = asreview.models.query.max:MaxQuery",
+            "random = asreview.models.query.random:RandomQuery",
+            "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",  # noqa
+            "cluster = asreview.models.query.cluster:ClusterQuery",
         ]
     },
     project_urls={

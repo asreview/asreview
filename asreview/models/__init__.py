@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.nb import NBModel
-from asreview.models.rf import RFModel
-from asreview.models.svm import SVMModel
-from asreview.models.logistic import LogisticModel
-from asreview.models.lstm_base import LSTMBaseModel
-from asreview.models.lstm_pool import LSTMPoolModel
-from asreview.models.nn_2_layer import NN2LayerModel
-from asreview.models.utils import get_model
-from asreview.models.utils import get_model_class
-from asreview.models.utils import list_classifiers
+# import deprecated models for backwards compatibility
+from asreview.models.deprecated import NBModel
+from asreview.models.deprecated import RFModel
+from asreview.models.deprecated import SVMModel
+from asreview.models.deprecated import LogisticModel
+from asreview.models.deprecated import LSTMBaseModel
+from asreview.models.deprecated import LSTMPoolModel
+from asreview.models.deprecated import NN2LayerModel
+from asreview.models.deprecated import get_model
+from asreview.models.deprecated import get_model_class
+from asreview.models.deprecated import list_classifiers
 
-"""Machine learning classifiers to classify the documents.
+"""Active learning model components.
 
-There are several machine learning classifiers available. In configuration
-files, parameters are found under the section ``[model_param]``.
-"""
+Components like classifiers, query strategies, balance strategies, and
+feature_extraction techniques."""

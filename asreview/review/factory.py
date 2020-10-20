@@ -19,7 +19,7 @@ from pathlib import PurePath
 
 import numpy as np
 
-from asreview.balance_strategies.utils import get_balance_model
+from asreview.models.balance.utils import get_balance_model
 from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -34,9 +34,9 @@ from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.datasets import find_data
-from asreview.feature_extraction.utils import get_feature_model
+from asreview.models.feature_extraction.utils import get_feature_model
 from asreview.models.utils import get_model
-from asreview.query_strategies.utils import get_query_model
+from asreview.models.query.utils import get_query_model
 from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings

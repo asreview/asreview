@@ -18,9 +18,9 @@ import logging
 
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.models.utils import get_model
-from asreview.balance_strategies.utils import get_balance_model
-from asreview.query_strategies.utils import get_query_model
-from asreview.feature_extraction.utils import get_feature_model
+from asreview.models.balance.utils import get_balance_model
+from asreview.models.query.utils import get_query_model
+from asreview.models.feature_extraction.utils import get_feature_model
 from asreview.utils import pretty_format
 
 
