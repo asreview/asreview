@@ -1,7 +1,7 @@
 Troubleshooting
 ===============
 
-ASReview LAB is a complex machine learning software. In some situations, you
+ASReview LAB is advanced machine learning software. In some situations, you
 might run into unexpected behavior. Please see below for solutions to
 problems.
 
