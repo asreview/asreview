@@ -749,8 +749,7 @@ def export_project(project_id):
     shutil.make_archive(
         Path(tmpdir.name, project_id),
         "zip",
-        root_dir=Path(tmpdir.name),
-        base_dir=project_id
+        root_dir=Path(tmpdir.name, project_id)
     )
 
     # return the project file to the user
