@@ -740,7 +740,7 @@ def export_project(project_id):
 
     # copy the source tree, but ignore pickle files
     shutil.copytree(
-        f"/Users/jonathan/.asreview/{project_id}",
+        get_project_path(project_id),
         Path(tmpdir.name, project_id),
         ignore=shutil.ignore_patterns('*.pickle')
     )
@@ -749,8 +749,7 @@ def export_project(project_id):
     shutil.make_archive(
         Path(tmpdir.name, project_id),
         "zip",
-        root_dir=Path(tmpdir.name),
-        base_dir=project_id
+        root_dir=Path(tmpdir.name, project_id)
     )
 
     # return the project file to the user
