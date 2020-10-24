@@ -1,7 +1,7 @@
 name: test-frontend-compilation
 on: [push, pull_request]
 jobs:
-  test:
+  test-compilation:
     name: pytest
     runs-on: ubuntu-latest
     steps:
@@ -20,3 +20,10 @@ jobs:
     - name: Compile assets
       run: |
         python setup.py compile_assets
+    - name: Install pytest and package
+      run: |
+        pip install pytest
+        pip install --no-cache-dir .
+    - name: Test flask app
+      run: |
+        pytest asreview/webapp/tests

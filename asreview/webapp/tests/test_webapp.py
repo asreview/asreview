@@ -1,6 +1,10 @@
 
 def test_landing(client):
-    """Test if index.html is available."""
+    """Test if index.html is available.
+
+    This test will fail if build is missing. Please run
+    `python setup.py compile_assets` first.
+    """
     response = client.get("/")
     html = response.data.decode()
 
