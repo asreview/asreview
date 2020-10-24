@@ -29,7 +29,7 @@ jobs:
       run: |
         pip install pytest
         pip install --no-cache-dir .
-        pytest
+        pytest tests/
   test-full-deps:
     name: test-full-deps
     runs-on: ubuntu-latest
@@ -51,4 +51,4 @@ jobs:
         pip install --no-cache-dir .[test]
         df -h
         pip install --no-cache-dir .
-        pytest
+        pytest tests/
