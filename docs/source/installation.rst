@@ -140,18 +140,11 @@ The command line returns the following message:
 
   "Installing build dependencies ... error"
 
-Some of the dependencies of ASReview are not compatible with your Python 
-installation. This error typically happens when the version of your Python 
-installation is either too old or too new. Then, the dependencies do not support 
-your version anymore, or yet.
-
-If the version of your Python installation has been released very recently, the 
-best thing to do is to install the second most recent version of Python
-instead. If your Python installation is outdated, you should install a Python 
-version that is 3.6 or higher. 
-
-Detailed step-by-step instructions to install 
-Python (and ASReview) are available for
+This error typically happens when the version of your Python installation has been 
+released very recently. Because of this, of the dependencies of ASReview are not 
+compatible with your Python installation yet. The  best thing to do is to install 
+the second most recent version of Python instead. Detailed step-by-step instructions 
+to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/installation-guide-windows/>`__ and
 `MacOS <https://asreview.nl/installation-guide-mac/>`__ users.
 
