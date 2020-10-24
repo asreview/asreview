@@ -1,7 +1,8 @@
-def test_boot(client):
-    """Test if version number is available on boot."""
-    response = client.get("/boot")
+
+def test_get_projects(client):
+    """Test get projects."""
+    response = client.get("/api/projects")
     json_data = response.get_json()
 
-    assert "version" in json_data
-    assert "status" in json_data
+    assert "result" in json_data
+    assert isinstance(json_data["result"], list)
