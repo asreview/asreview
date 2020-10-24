@@ -1,8 +1,7 @@
-name: test-frontend-compilation
+name: test-frontend
 on: [push, pull_request]
 jobs:
-  test-compilation:
-    name: pytest
+  compile-and-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
