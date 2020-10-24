@@ -141,8 +141,8 @@ The command line returns the following message:
   "Installing build dependencies ... error"
 
 This error typically happens when the version of your Python installation has been 
-released very recently. Because of this, of the dependencies of ASReview are not 
-compatible with your Python installation yet. The  best thing to do is to install 
+released very recently. Because of this, the dependencies of ASReview are not 
+compatible with your Python installation yet. It is advised to install 
 the second most recent version of Python instead. Detailed step-by-step instructions 
 to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/installation-guide-windows/>`__ and
