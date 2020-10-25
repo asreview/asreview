@@ -19,9 +19,13 @@ const useStyles = makeStyles(theme => ({
   content: {
     height: 140,
   },
-  mode: {
+  modeSimulation: {
     marginBottom: 4,
     backgroundColor: theme.palette.warning.light
+  },
+  modeOracle: {
+    marginBottom: 4,
+    backgroundColor: theme.palette.grey.light,
   },
   description: {
     display: "-webkit-box",
@@ -56,12 +60,20 @@ const ProjectCard = (props) => {
         <CardContent
           className={classes.content}
         >
-          {props.mode && props.mode !== projectModes.ORACLE && (
+          {props.mode && props.mode === projectModes.ORACLE && (
             <Chip
               size="small"
               label={props.mode}
-              className={classes.mode}
-            />
+              className={classes.modeOracle}
+              />
+          )}
+
+          {props.mode && props.mode === projectModes.SIMULATION && (
+            <Chip
+              size="small"
+              label={props.mode}
+              className={classes.modeSimulation}
+              />
           )}
 
           <Typography gutterBottom variant="h5" component="h2">

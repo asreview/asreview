@@ -4,105 +4,112 @@ import {
   Typography,
 } from '@material-ui/core'
 
-import axios from 'axios'
-
 import './ReviewZone.css';
 
 import { connect } from "react-redux";
 
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
+import { ProjectAPI } from '../api';
 
-
-const StartSimulation = ({project_id, onReady}) => {
+const StartSimulation = ({project_id, simulation_id, onReady}) => {
 
   const [state, setState] = React.useState({
-    "status": null,
-    "message": null,
+    // status
+    start_simulation: simulation_id === null,
+    simulating: simulation_id !== null,
+    ready: false,
+
+    // data
+    simulation_id: simulation_id,
+    error_message: null,
   });
+
 
   useEffect(() => {
 
-    const checkSimulationIsDone = () => {
-
-      const url = api_url + `project/${project_id}/simulation_ready`;
-
-      return axios.get(url)
-      .then((result) => {
-
-
-        if (result.data["status"] === 1){
-          // simulation ready
-          onReady();
-        } else {
-          // simulation not ready yet
-          setTimeout(checkSimulationIsDone, 2000);
-        }
+    const waitForSimulationReady = (simulation_id) => {
+      setState({
+        start_simulation: false,
+        simulating: true,
+        ready: false,
+        simulation_id: simulation_id,
+        error_message: null,
       })
-      .catch((error) => {
+    }
 
-        let message = "Unknown error.";
-
-        if (error.response) {
-            if ('message' in error.response.data){
-                message = error.response.data["message"]
-            }
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-        } else if (error.request) {
-            console.log(error.request);
-        } else {
-            console.log('Error', error.message);
-        }
-
-        setState({
-          "status": "error",
-          "message": message,
-        })
-      });
+    const startSimulationFailed = (error) => {
+      console.log(error);
+      setState({
+        start_simulation: false,
+        simulating: false,
+        ready: true,
+        simulation_id: null,
+        error_message: error,
+    })
     }
 
     const startSimulation = () => {
+      ProjectAPI.simulate(project_id)
+        .then((result) => {
+          waitForSimulationReady(result.simulation_id);
+        })
+        .catch((error) => {
+          startSimulationFailed(error)
+        });
+    }
 
-      // set the state to 'model simulating'
+    if (state.start_simulation){
+      startSimulation()
+    }
+
+  }, [state.start_simulation, project_id, onReady]);
+
+
+  useEffect(() => {
+
+    const waitForSimulationReadyFailed = (error) => {
       setState({
-        "status": "simulating",
-        "message": null,
+        start_simulating: false,
+        simulating: false,
+        ready: true,
+        simulation_id: null,
+        error_message: error,
       })
+    }
 
-      const url = api_url + `project/${project_id}/simulate`;
-
-      return axios({
-        method: 'post',
-        url: url,
-        data: {},
-        headers: {'Content-Type': 'multipart/form-data' }
-      })
-      .then((result) => {
-        checkSimulationIsDone();
+    const waitForSimulationReady = () => {
+      ProjectAPI.isSimulationReady(project_id, state.simulation_id)
+        .then((result) => {
+          if (result.status === 1){
+            // simulation ready
+            onReady();
+          } else {
+            // simulation not ready yet
+            setTimeout(() => {
+              waitForSimulationReady()
+            }, 2000);
+          }
       })
       .catch((error) => {
-        console.log(error);
-        setState({
-          "status": "error",
-          "message": error,
-        })
+        waitForSimulationReadyFailed(error)
       });
     }
-    if (state.status === null){
-      setTimeout(startSimulation, 3000);
+
+    if (state.simulating){
+      waitForSimulationReady();
     }
 
-  }, [state.status, project_id, onReady]);
+  }, [state.simulating, state.simulation_id, project_id, onReady]);
+
 
   return (
     <Box>
 
-      { (state["status"] === null || state["status"] === "simulating") &&
+      { state.simulating &&
         <Typography>(This can take some time)</Typography>
       }
 
-      { state["status"] === "error" &&
+      { state.ready && state.error_message !== null &&
         <Box>
           <Typography
             color="error"
@@ -118,7 +125,7 @@ const StartSimulation = ({project_id, onReady}) => {
           <Typography
             color="error"
           >
-            {state["message"]}
+            {state.error_message}
           </Typography>
         </Box>
       }

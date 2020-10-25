@@ -17,6 +17,7 @@ from abc import abstractmethod
 import warnings
 import logging
 import json
+import os
 
 import numpy as np
 
@@ -316,6 +317,7 @@ class BaseReview(ABC):
             self.log_probabilities(state)
         
         if self.completion_file is not None:
+            os.makedirs(os.path.dirname(self.completion_file), exist_ok=True)
             with open(self.completion_file, "w") as f:
                 f.write("")
                 f.close

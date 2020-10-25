@@ -1,5 +1,4 @@
 import React, {useRef, useEffect}  from 'react'
-import { makeStyles } from '@material-ui/core/styles'
 
 import {
   Box,
@@ -30,56 +29,9 @@ import { connect } from "react-redux";
 import { mapStateToProps } from '../globals.js';
 import { ProjectAPI } from '../api';
 
-const useStyles = makeStyles(theme => ({
-  header: {
-    paddingTop: "128px",
-    paddingBottom: "48px",
-    textAlign: "center",
-  },
-  mode: {
-    marginBottom: 20,
-    backgroundColor: theme.palette.warning.light
-  },
-  title: {
-    fontWeight: "300",
-    letterSpacing: ".7rem",
-  },
-  continuButton: {
-  },
-  quickStartButtons: {
-    marginTop: "24px",
-  },
-  wrapper: {
-    margin: theme.spacing(1),
-    position: 'relative',
-  },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  dangerZone : {
-    borderColor: "red",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    boxShadow: "none",
-},
-  cardBox : {
-    paddingBottom: "24px",
-  },
-  stateElas : {
-    width: "100%",
-    maxWidth: "200px",
-    display: "block",
-    margin: "auto",
-  },
-}));
-
 const ProjectPageOracle  = (props) => {
 
-  const classes = useStyles();
+  const classes = props.classes
 
   const EndRef = useRef(null)
 
@@ -110,6 +62,10 @@ const ProjectPageOracle  = (props) => {
     setState({...state,
       setup : true,
     })
+  }
+
+  const startReviewing = () => {
+    props.handleAppState("review")
   }
 
   const finishProject = () => {
@@ -233,7 +189,7 @@ const ProjectPageOracle  = (props) => {
                   <Button
                     className={classes.continuButton}
                     variant={"outlined"}
-                    onClick={()=>props.handleAppState("review")}
+                    onClick={startReviewing}
                     disabled={state.finished}
                   >
                     Start reviewing
@@ -275,7 +231,9 @@ const ProjectPageOracle  = (props) => {
               />
               <PublicationZone
                 project_id={props.project_id}
-                showExportResult={state.info.projectInitReady && !state.setup && !state.training}
+                disableOptionDownLoad={!state.info.projectInitReady || state.training}
+                disableOptionFinish={!state.info.projectInitReady || state.training}
+                hideOptionFinish={false}
                 toggleExportResult={props.toggleExportResult}
                 reviewFinished={state.finished}
                 finishProject={finishProject}
@@ -292,6 +250,8 @@ const ProjectPageOracle  = (props) => {
             <PreReviewZone
               finishProjectSetup={finishProjectSetup}
               scrollToTop={scrollToTop}
+              isPriorKnowledgeEditable={true}
+              includeExampleDataSets={true}
             />
           }
         </Container>

@@ -68,13 +68,7 @@ const PreReviewZone = (props) => {
     ready: false
   });
 
-  const [project, setProject] = React.useState({
-    "id": null,
-    "mode": null
-  })  
-
   const handleNext = (step_i=state.step) => {
-
     if (state.step <= step_i){
       handleStep(state.step + 1)
     }
@@ -115,19 +109,11 @@ const PreReviewZone = (props) => {
         set_step = 3;
       }
 
-      let mode = fetchedData["mode"]
-
       // set the project step
-      setState({
-        new: state.new,
-        step: set_step,
-        ready: state.ready
-      })
-
-      setProject({
-        id: props.project_id,
-        mode: mode
-      })
+      setState(state => {return({
+        ...state,
+        step: set_step
+      })})
     }
   
     const fetchProjectInfo = async () => {
@@ -142,7 +128,7 @@ const PreReviewZone = (props) => {
         fetchProjectInfo();
     }
 
-  }, [state.new, state.ready, props.project_id]);
+  }, [state.new, props.project_id]);
 
   return (
     <Box className={classes.box}>
@@ -154,11 +140,12 @@ const PreReviewZone = (props) => {
               <ProjectUpload
                 init={state.new}
                 edit={state.step === 1}
-                project={project}
+                project_id={props.project_id}
                 handleNext={handleNext}
                 handleStep={handleStep}
                 setNext={setNext}
                 scrollToBottom={scrollToBottom}
+                includeExampleDataSets={props.includeExampleDataSets}
               />
               <div ref={EndRef} />
             </Box>
@@ -166,9 +153,10 @@ const PreReviewZone = (props) => {
           {(state.step >= 2 && state.step < 4) &&
             <Box>
               <PriorKnowledge
-                project={project}
+                project_id={props.project_id}
                 setNext={setNext}
                 scrollToBottom={scrollToBottom}
+                isEditable={props.isPriorKnowledgeEditable}
               />
               <div ref={EndRef} />
             </Box>

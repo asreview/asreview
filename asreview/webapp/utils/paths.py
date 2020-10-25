@@ -2,7 +2,6 @@ import json
 import os
 from pathlib import Path
 
-
 def asreview_path():
     """Get the location where projects are stored.
 
@@ -77,23 +76,6 @@ def get_data_path(project_id):
     """
 
     return Path(get_project_path(project_id), "data")
-
-
-def get_data_file_path(project_id):
-
-    data_folder = get_data_path(project_id)
-    project_file_path = get_project_file_path(project_id)
-
-    try:
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
-            data_filename = project_dict["dataset_path"]
-
-    except Exception:
-        raise Exception("Dataset location not found")
-
-    return data_folder / data_filename
 
 
 def get_iteration_path(project_id, i):
@@ -183,13 +165,15 @@ def get_state_path(project_id):
 
     return Path(get_project_path(project_id), "result.json")
 
-def get_simulation_ready_path(project_id):
+def get_simulation_ready_path(project_id, simulation_id):
     """Get the simulation_ready file for the project and iteration.
 
     Arguments
     ---------
     project_id: str
         The id of the current project.
+    simulation_id: str
+        The id of the current simulation.
     """
 
-    return Path(get_project_path(project_id), "simulation_ready")
+    return Path(get_project_path(project_id), "simulations", simulation_id + ".json")

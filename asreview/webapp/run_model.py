@@ -15,7 +15,7 @@ from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.io import write_proba
-from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.io import get_data_file_path
 from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.project import read_data

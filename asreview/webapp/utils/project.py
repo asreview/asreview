@@ -18,13 +18,17 @@ from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import read_proba
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
+from asreview.webapp.utils.io import get_project_info
+from asreview.webapp.utils.io import set_project_info
+from asreview.webapp.utils.io import  get_data_file_path
 from asreview.webapp.utils.paths import asreview_path
-from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_tmp_path
+from asreview.webapp.utils.paths import get_kwargs_path
 
 
 def _get_executable():
@@ -62,7 +66,9 @@ def init_project(project_id,
         fp_data = project_dir / "data"
         fp_data.mkdir()
 
-        project_config = {
+        reviewFinished = project_mode is "SIMULATION"
+
+        project_info = {
             'version': asreview_version,  # todo: Fail without git?
             'id': project_id,
             'name': project_name,
@@ -71,20 +77,81 @@ def init_project(project_id,
             'mode': project_mode,
 
             # project related variables
+            'projectSetupReady': False,
             'projectInitReady': False,
-            'reviewFinished': False,
+            'reviewFinished': reviewFinished,
+            'simulations': []
         }
 
-        # create a file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_config, fp)
+        set_project_info(project_id, project_info)
 
-        return project_config
+        return project_info
 
     except Exception as err:
         # remove all generated folders and raise error
         shutil.rmtree(project_dir)
         raise err
+
+
+def enrich_project_info(project_id, project_info):
+    # check if there is a dataset
+    try:
+        get_data_file_path(project_id)
+        project_info["projectHasDataset"] = True
+    except Exception:
+        project_info["projectHasDataset"] = False
+
+    # check if there is a prior knowledge (check if there is a model set),
+    # if this is the case, the reviewer past the prior knowledge screen.
+    project_info["projectHasPriorKnowledge"] = \
+        get_kwargs_path(project_id).exists()
+
+    # check if there is a prior knowledge (check if there is a model set),
+    # if this is the case, the reviewer past the prior knowledge screen.
+    project_info["projectHasAlgorithms"] = \
+        get_kwargs_path(project_id).exists()
+
+    return project_info
+
+
+def migrate_project_info(project_info):
+    # backwards support <0.10
+    if "projectInitReady" not in project_info:
+        if project_info["projectHasPriorKnowledge"]:
+            project_info["projectInitReady"] = True
+        else:
+            project_info["projectInitReady"] = False
+
+    # backwards support <0.10
+    if "mode" not in project_info:
+        project_info["mode"] = "oracle"
+
+    # backwards support prior to simulations
+    if "projectSetupReady" not in project_info:    
+        project_info["projectSetupReady"] = project_info["projectInitReady"]
+
+    if "simulations" not in project_info:    
+        project_info["simulations"] = []
+
+    return project_info    
+
+
+def add_simulation_to_project(project_id, simulation_id): 
+    update_simulation_in_project(project_id, simulation_id, "running")
+
+
+def update_simulation_in_project(project_id, simulation_id, state):
+    project_info = get_project_info(project_id)
+    if "simulations" not in project_info:        
+        project_info["simulations"] = []
+
+    simulation = { 
+        "id": simulation_id,
+        "state" : state 
+    }
+
+    project_info["simulations"].append(simulation)
+    set_project_info(project_id, project_info)
 
 
 def add_dataset_to_project(project_id, file_name):
@@ -93,20 +160,15 @@ def add_dataset_to_project(project_id, file_name):
     Add file to data subfolder and fill the pool of iteration 0.
     """
 
-    project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
-
-        # add path to dict (overwrite if already exists)
-        project_dict["dataset_path"] = file_name
-
-        with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+        
+        # add dataset path to dict (overwrite if already exists)
+        project_info = get_project_info(project_id)
+        project_info["dataset_path"] = file_name
+        set_project_info(project_id, project_info)
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
@@ -136,31 +198,25 @@ def remove_dataset_to_project(project_id, file_name):
 
     """
 
-    project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
-
-        # remove the path from the project file
-        data_fn = project_dict["dataset_path"]
-        del project_dict["dataset_path"]
-
-        with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
-
-        # files to remove
-        data_path = get_data_file_path(project_id, data_fn)
+        # remove files
+        data_path = get_data_file_path(project_id)
         pool_path = get_pool_path(project_id)
         labeled_path = get_labeled_path(project_id)
 
         os.remove(str(data_path))
         os.remove(str(pool_path))
         os.remove(str(labeled_path))
+
+        # update project info
+        project_info = get_project_info(project_id)
+        # remove the dataset path
+        del project_info["dataset_path"]
+        set_project_info(project_id, project_info)
 
 
 def get_paper_data(project_id,

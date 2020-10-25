@@ -8,6 +8,7 @@ import zipfile
 import tempfile
 import subprocess
 import urllib.parse
+import uuid
 from copy import deepcopy
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -33,6 +34,9 @@ from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.io import get_project_info
+from asreview.webapp.utils.io import set_project_info
+from asreview.webapp.utils.io import get_data_file_path
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_kwargs_path
@@ -42,7 +46,6 @@ from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
-from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_simulation_ready_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -54,6 +57,11 @@ from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
+from asreview.webapp.utils.project import add_simulation_to_project
+from asreview.webapp.utils.project import update_simulation_in_project
+from asreview.webapp.utils.project import enrich_project_info
+from asreview.webapp.utils.project import migrate_project_info
+
 from asreview.webapp.utils.validation import check_dataset
 
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
@@ -132,39 +140,10 @@ def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
     try:
+        project_info = get_project_info(project_id)
 
-        # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
-
-            project_info = json.load(fp)
-
-        # check if there is a dataset
-        try:
-            get_data_file_path(project_id)
-            project_info["projectHasDataset"] = True
-        except Exception:
-            project_info["projectHasDataset"] = False
-
-        # check if there is a prior knowledge (check if there is a model set),
-        # if this is the case, the reviewer past the prior knowledge screen.
-        project_info["projectHasPriorKnowledge"] = \
-            get_kwargs_path(project_id).exists()
-
-        # check if there is a prior knowledge (check if there is a model set),
-        # if this is the case, the reviewer past the prior knowledge screen.
-        project_info["projectHasAlgorithms"] = \
-            get_kwargs_path(project_id).exists()
-
-        # backwards support <0.10
-        if "projectInitReady" not in project_info:
-            if project_info["projectHasPriorKnowledge"]:
-                project_info["projectInitReady"] = True
-            else:
-                project_info["projectInitReady"] = False
-
-        # backwards support <0.10
-        if "mode" not in project_info:
-            project_info["mode"] = "oracle"
+        project_info = enrich_project_info(project_id, project_info)
+        project_info = migrate_project_info(project_info)
 
         response = jsonify(project_info)
 
@@ -194,23 +173,13 @@ def api_update_project_info(project_id):  # noqa: F401
     project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
     try:
-
-        # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
-            project_info = json.load(fp)
-
+        project_info = get_project_info(project_id)
         project_info["id"] = project_id_new
         project_info["name"] = project_name
         project_info["authors"] = project_authors
         project_info["description"] = project_description
 
-        # # backwards support <0.10
-        # if "projectInitReady" not in project_info:
-        #     project_info["projectInitReady"] = True
-
-        # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_info, fp)
+        set_project_info(project_id, project_info)
 
         # rename the folder
         get_project_path(project_id) \
@@ -610,23 +579,25 @@ def api_start(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/simulate', methods=["POST"])
 def api_simulate(project_id):  # noqa: F401
-    """Start simulation
-    """
+    """Start simulation"""
 
     logging.info("Starting simulation")
 
     try:
+        simulation_id = uuid.uuid4().hex
         datafile = get_data_file_path(project_id)
-        completion_file = get_simulation_ready_path(project_id)
+        completion_file = get_simulation_ready_path(project_id, simulation_id)
 
         logging.info("Project data file found: {}".format(datafile))
+
+        add_simulation_to_project(project_id, simulation_id)
 
         # start simulation
         py_exe = _get_executable()
         run_command = [py_exe, "-m", "asreview", "simulate", datafile, "--completion_file", completion_file]
         subprocess.Popen(run_command)
 
-        response = jsonify({'success': True})
+        response = jsonify({'success': True, 'simulation_id': simulation_id})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
@@ -634,6 +605,7 @@ def api_simulate(project_id):  # noqa: F401
         logging.error(err)
         message = f"Failed to get data file. {err}"
         return jsonify(message=message), 400
+
 
 @bp.route('/project/<project_id>/model/init_ready', methods=["GET"])
 def api_init_model_ready(project_id):  # noqa: F401
@@ -648,16 +620,9 @@ def api_init_model_ready(project_id):  # noqa: F401
         return jsonify(error_message), 400
 
     if get_proba_path(project_id).exists():
-
-        # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
-            project_info = json.load(fp)
-
+        project_info = get_project_info(project_id)
         project_info["projectInitReady"] = True
-
-        # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_info, fp)
+        set_project_info(project_id, project_info)
 
         response = jsonify({'status': 1})
     else:
@@ -666,12 +631,34 @@ def api_init_model_ready(project_id):  # noqa: F401
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@bp.route('/project/<project_id>/simulation_ready', methods=["GET"])
-def api_simulation_ready(project_id):  # noqa: F401
+
+@bp.route('/project/<project_id>/setup_ready', methods=["GET"])
+def api_setup_ready(project_id):  # noqa: F401
+    """Check if trained model is available
+    """
+
+    try:
+        project_info = get_project_info(project_id)
+        project_info["projectSetupReady"] = True
+        set_project_info(project_id, project_info)
+
+        response = jsonify({'status': 1})
+    except Exception as err:
+        logging.error(err)
+        message = f"Failed to get data file. {err}"
+        response = jsonify(message=message), 400
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/simulation/<simulation_id>/ready', methods=["GET"])
+def api_simulation_ready(project_id, simulation_id):  # noqa: F401
     logging.info("checking if simulation is ready?")
 
-    if get_simulation_ready_path(project_id).exists():
+    if get_simulation_ready_path(project_id, simulation_id).exists():        
         logging.info("simulation ready")
+        update_simulation_in_project(project_id, simulation_id, "ready")
         response = jsonify({'status': 1})
     else:
         logging.info("simulation not ready")
@@ -679,6 +666,7 @@ def api_simulation_ready(project_id):  # noqa: F401
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
 
 @bp.route('/project/import_project', methods=["POST"])
 def api_import_project():
@@ -789,7 +777,7 @@ def export_project(project_id):
 
     # copy the source tree, but ignore pickle files
     shutil.copytree(
-        f"/Users/jonathan/.asreview/{project_id}",
+        Path(str(Path.home()), '.asreview', project_id),
         Path(tmpdir.name, project_id),
         ignore=shutil.ignore_patterns('*.pickle')
     )
@@ -814,9 +802,7 @@ def export_project(project_id):
 def api_finish_project(project_id):
     """Mark a project as finished or not"""
 
-    # read the file with project info
-    with open(get_project_file_path(project_id), "r") as fp:
-        project_info = json.load(fp)
+    project_info = get_project_info(project_id)
 
     try:
         project_info["reviewFinished"] = not project_info["reviewFinished"]
@@ -824,9 +810,7 @@ def api_finish_project(project_id):
         # missing key in projects created in older versions
         project_info["reviewFinished"] = True
 
-    # update the file with project info
-    with open(get_project_file_path(project_id), "w") as fp:
-        json.dump(project_info, fp)
+    set_project_info(project_id, project_info)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -855,13 +839,10 @@ def api_get_progress_info(project_id):  # noqa: F401
 
     project_file_path = get_project_file_path(project_id)
 
-    # open the projects file
-    with open(project_file_path, "r") as f_read:
-        project_dict = json.load(f_read)
-
+    project_info = get_project_info(project_id)
     statistics = get_statistics(project_id)
 
-    response = jsonify({**project_dict, **statistics})
+    response = jsonify({**project_info, **statistics})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.

@@ -37,7 +37,7 @@ import {
 } from '../PreReviewComponents';
 
 import axios from 'axios'
-import { api_url, projectModes } from '../globals.js';
+import { api_url } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -115,11 +115,12 @@ const useStyles = makeStyles(theme => ({
 const ProjectUpload = ({
   init,
   edit,
-  project,
+  project_id,
   handleNext,
   handleStep,
   setNext,
-  scrollToBottom
+  scrollToBottom,
+  includeExampleDataSets
 }) => {
 
   const classes = useStyles();
@@ -202,7 +203,7 @@ const ProjectUpload = ({
       // set error to state
       setError(null)
 
-      const url = api_url + `project/${project.id}/data`;
+      const url = api_url + `project/${project_id}/data`;
 
       axios({
         method: 'post',
@@ -327,7 +328,7 @@ const ProjectUpload = ({
     const fetchDatasetInfo = async () => {
 
       // contruct URL
-      const url = api_url + "project/" + project.id + "/data";
+      const url = api_url + "project/" + project_id + "/data";
 
       axios.get(url)
         .then((result) => {
@@ -349,7 +350,7 @@ const ProjectUpload = ({
       setStatistics(null);
     }
 
-  }, [project, state.edit, state.upload]);
+  }, [project_id, state.edit, state.upload]);
 
   return (
   <Box minHeight={"100%"}>
@@ -429,7 +430,7 @@ const ProjectUpload = ({
                 <Tab label="From file" value="file" />
                 <Tab label="From url" value="url"/>
                 <Tab label="From plugin" value="plugin"/>
-                {project.mode !== projectModes.SIMULATION &&
+                {includeExampleDataSets &&
                 <Tab label="Example datasets" value="test" /> 
                 }
               </Tabs>

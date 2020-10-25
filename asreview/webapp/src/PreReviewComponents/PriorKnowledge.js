@@ -41,7 +41,7 @@ import {
 import axios from 'axios'
 
 import {
-  api_url, projectModes
+  api_url
 } from '../globals.js';
 
 import './ReviewZone.css';
@@ -98,8 +98,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export const labelPriorItem = (project, doc_id, label, callbk=null) => {
-  const url = api_url + `project/${project.id}/labelitem`;
+export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
+  const url = api_url + `project/${project_id}/labelitem`;
 
   let body = new FormData();
   body.set('doc_id', doc_id);
@@ -125,20 +125,19 @@ export const labelPriorItem = (project, doc_id, label, callbk=null) => {
 
 }
 
-
 const PriorKnowledge = ({
-  project,
+  project_id,
   setNext,
   scrollToBottom,
+  isEditable,
 }) => {
-  const edit = project.node === projectModes.ORACLE
 
   const classes = useStyles();
 
   const [state, setState] = React.useState({
     "method": null,
     "loading": true,
-    "edit": edit
+    "edit": isEditable
   })
 
   const [priorDialog, setPriorDialog] = React.useState(false)
@@ -154,7 +153,7 @@ const PriorKnowledge = ({
     setState({
       "method": state.method,
       "loading": true,
-      "edit": project.mode === projectModes.ORACLE
+      "edit": isEditable
     });
   }
 
@@ -171,20 +170,20 @@ const PriorKnowledge = ({
 
   // include the item in the card
   const includeItem = (doc_id, callbk=null) => {
-    console.log(`${project.id} - add item ${doc_id} to prior inclusions`);
-    labelPriorItem(project.id, doc_id, 1, callbk)
+    console.log(`${project_id} - add item ${doc_id} to prior inclusions`);
+    labelPriorItem(project_id, doc_id, 1, callbk)
   }
 
   // exclude the item in the card
   const excludeItem = (doc_id, callbk=null) => {
-    console.log(`${project.id} - add item ${doc_id} to prior exclusions`);
-    labelPriorItem(project.id, doc_id, 0, callbk)
+    console.log(`${project_id} - add item ${doc_id} to prior exclusions`);
+    labelPriorItem(project_id, doc_id, 0, callbk)
   }
 
   // reset the item (for search and revert)
   const resetItem = (doc_id, callbk=null) => {
-    console.log(`${project.id} - remove item ${doc_id} from prior knowledge`);
-    labelPriorItem(project.id, doc_id, -1, callbk);
+    console.log(`${project_id} - remove item ${doc_id} from prior knowledge`);
+    labelPriorItem(project_id, doc_id, -1, callbk);
     updatePriorStats();
   }
 
@@ -204,7 +203,7 @@ const PriorKnowledge = ({
   useEffect(() => {
 
     if (state.loading){
-      const url = api_url + `project/${project.id}/prior_stats`;
+      const url = api_url + `project/${project_id}/prior_stats`;
 
       axios.get(url)
       .then((result) => {
@@ -223,7 +222,7 @@ const PriorKnowledge = ({
       });
     }
 
-  }, [state.loading, project.id]);
+  }, [state.loading, project_id]);
 
   // check if there is enough prior knowledge
   useEffect(() => {
@@ -389,7 +388,7 @@ const PriorKnowledge = ({
               <Divider/>
               <CardContent>
                 <PriorKnowledgeSearch
-                  project={project}
+                  project_id={project_id}
                   updatePriorStats={updatePriorStats}
                   includeItem={includeItem}
                   excludeItem={excludeItem}
@@ -401,7 +400,7 @@ const PriorKnowledge = ({
 
           { state.method === "random" &&
             <PriorKnowledgeRandom
-              project={project}
+              project_id={project_id}
               onClose={()=>{changeMethod(null)}}
               updatePriorStats={updatePriorStats}
               includeItem={includeItem}

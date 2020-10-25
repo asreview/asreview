@@ -24,70 +24,49 @@ import SetUp from '../images/SetUp.svg';
 
 import { connect } from "react-redux";
 import { mapStateToProps } from '../globals.js';
-
-const useStyles = makeStyles(theme => ({
-  header: {
-    paddingTop: "128px",
-    paddingBottom: "48px",
-    textAlign: "center",
-  },
-  mode: {
-    marginBottom: 20,
-    backgroundColor: theme.palette.warning.light
-  },
-  title: {
-    fontWeight: "300",
-    letterSpacing: ".7rem",
-  },
-  continuButton: {
-  },
-  quickStartButtons: {
-    marginTop: "24px",
-  },
-  wrapper: {
-    margin: theme.spacing(1),
-    position: 'relative',
-  },
-  buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  dangerZone : {
-    borderColor: "red",
-    borderWidth: "2px",
-    borderStyle: "solid",
-    boxShadow: "none",
-},
-  cardBox : {
-    paddingBottom: "24px",
-  },
-  stateElas : {
-    width: "100%",
-    maxWidth: "200px",
-    display: "block",
-    margin: "auto",
-  },
-}));
+import PublicationZone from '../PublicationZone';
+import StatisticsZone from '../StatisticsZone';
+import { ProjectAPI } from '../api';
 
 const ProjectPageSimulation = (props) => {
 
-  const classes = useStyles();
+  const classes = props.classes
 
   const EndRef = useRef(null)
+
+  const runningSimulation = (info) => {
+    const simulation = info.simulations.find(s => s.state === 'running');
+    if (simulation !== undefined) {
+      return simulation.id
+    }
+    return null
+  }
+
+  const hasSimulations = (info) => {
+    return info.simulations.length > 0
+  }
+
+  const hasRunningSimulation = (info) => {
+    return runningSimulation(info) !== null
+  }
 
   const [state, setState] = React.useState({
     info: props.info,
 
     // stage
-    setup: false,
-    simulating: false,
-    finished: false,
+    setup: !props.info.projectSetupReady,
+    simulating: hasRunningSimulation(props.info),
+    idle: !hasRunningSimulation(props.info),
   });
 
   const finishProjectSetup = () => {
+    ProjectAPI.markSetupReady(props.project_id)
+      .then((result) => {
+        startSimulation()
+      })
+  }
+
+  const startSimulation = () => {
     setState({
       ...state,
       setup : false,
@@ -103,21 +82,14 @@ const ProjectPageSimulation = (props) => {
     })
   }
 
-  const continueProjectSetup = () => {
-    setState({
-      ...state,
-      setup : true,
-    })
-  }
-
   const returnElasState = () => {
     // Setup
-    if (!state.info.projectInitReady || state.setup){
+    if (state.setup){
       return SetUp
     }
 
     // Simulating review
-    if (state.training){
+    if (state.simulating){
       return InReview
     }
 
@@ -154,7 +126,7 @@ const ProjectPageSimulation = (props) => {
             <Grid item xs={12} sm={9}>
               <Chip
                 label={state.info.mode}
-                className={classes.mode}
+                className={classes.chip}
               />
               <Typography
                 variant="h3"
@@ -173,17 +145,6 @@ const ProjectPageSimulation = (props) => {
 
               <Box className={classes.quickStartButtons}>
 
-                {/* Project is not ready, continue setup */}
-                {(!state.info.projectInitReady && !state.setup && !state.simulating && !state.finished) &&
-                  <Button
-                    className={classes.continuButton}
-                    variant={"outlined"}
-                    onClick={continueProjectSetup}
-                  >
-                    {state.info.projectHasDataset ? "Finish" : "Start"} setup
-                  </Button>
-                }
-
                 {state.simulating &&
                   <div className={classes.wrapper}>
                     <Button
@@ -192,13 +153,13 @@ const ProjectPageSimulation = (props) => {
                       className={classes.continuButton}
                       startIcon={<KeyboardVoiceIcon />}
                     >
-                      Simulating review
+                      Simulating
                     </Button>
                     <CircularProgress size={24} className={classes.buttonProgress} />
                   </div>
                 }
 
-                {state.finished &&
+                {state.idle && hasSimulations(state.info) && runningSimulation(state.info) === null &&
                   <Typography
                     color="primary"
                     variant="h5"
@@ -206,11 +167,13 @@ const ProjectPageSimulation = (props) => {
                     Simulation finished
                   </Typography>
                 }
+
               </Box>
 
-              {/* Project is not ready, continue setup */}
               {state.simulating &&
                 <StartSimulation
+                  project_id={props.project_id}
+                  simulation_id={runningSimulation(state.info)}
                   onReady={finishProjectSimulation}
                 />
               }
@@ -220,6 +183,18 @@ const ProjectPageSimulation = (props) => {
           {/* Cards on the project board */}
           {!state.setup && !state.simulating &&
             <Box className={classes.cardBox}>
+              <StatisticsZone
+                project_id={props.project_id}
+                projectInitReady={true}
+                training={false}
+              />
+              <PublicationZone
+                project_id={props.project_id}
+                disableOptionDownLoad={false}
+                hideOptionFinish={true}
+                showExportResult={!state.setup && !state.training}
+                toggleExportResult={props.toggleExportResult}
+              />
               <DangerZone
                 project_id={props.project_id}
                 handleAppState={props.handleAppState}
@@ -232,6 +207,8 @@ const ProjectPageSimulation = (props) => {
             <PreReviewZone
               finishProjectSetup={finishProjectSetup}
               scrollToTop={scrollToTop}
+              isPriorKnowledgeEditable={false}
+              includeExampleDataSets={false}
             />
           }
         </Container>
