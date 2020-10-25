@@ -27,37 +27,42 @@ def list_balance_strategies():
     return list_model_names(entry_name="asreview.models.balance")
 
 
-def get_balance_class(method):
+def get_balance_class(name):
     """Get class of balance model from string.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the model, e.g. 'simple', 'double' or 'undersample'.
 
     Returns
     -------
     BaseBalanceModel:
-        Class corresponding to the method.
+        Class corresponding to the name.
     """
     return _model_class_from_entry_point(
-        method,
+        name,
         entry_name="asreview.models.balance")
 
 
-def get_balance_model(method, *args, random_state=None, **kwargs):
+def get_balance_model(name, *args, random_state=None, **kwargs):
     """Get an instance of a balance model from a string.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the balance model.
     *args:
         Arguments for the balance model.
     **kwargs:
         Keyword arguments for the balance model.
+
+    Returns
+    -------
+    BaseFeatureExtraction:
+        Initialized instance of features extraction algorithm.
     """
-    balance_class = get_balance_class(method)
+    balance_class = get_balance_class(name)
     try:
         return balance_class(*args, random_state=random_state, **kwargs)
     except TypeError:

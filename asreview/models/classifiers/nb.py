@@ -23,7 +23,7 @@ class NaiveBayesClassifier(BaseTrainClassifier):
     """Naive Bayes classifier
 
     Naive Bayes classifier. Only works in combination with the
-    :class:`asreview.feature_extraction.Tfidf` feature extraction model.
+    :class:`asreview.models.feature_extraction.Tfidf` feature extraction model.
     Though relatively simplistic, seems to work quite well on a wide range of
     datasets.
 

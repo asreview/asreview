@@ -29,12 +29,12 @@ def list_query_strategies():
     return list_model_names(entry_name="asreview.models.query")
 
 
-def get_query_class(method):
+def get_query_class(name):
     """Get class of query strategy from its name.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the query strategy, e.g. 'max', 'uncertainty', 'random.
         A special mixed query strategy is als possible. The mix is denoted
         by an underscore: 'max_random' or 'max_uncertainty'.
@@ -42,28 +42,28 @@ def get_query_class(method):
     Returns
     -------
     BaseQueryModel:
-        Class corresponding to the method name.
+        Class corresponding to the name name.
     """
     from asreview.models.query.mixed import MixedQuery
 
     # Try to split the query strategy if the string wasn't found.
     try:
         return _model_class_from_entry_point(
-            method,
+            name,
             entry_name="asreview.models.query")
     except ValueError:
-        mix = method.split("_")
+        mix = name.split("_")
         if len(mix) == 2:
             return MixedQuery
-        raise ValueError(f"Error: query method '{method}' is not implemented.")
+        raise ValueError(f"Error: query name '{name}' is not implemented.")
 
 
-def get_query_model(method, *args, random_state=None, **kwargs):
+def get_query_model(name, *args, random_state=None, **kwargs):
     """Get an instance of the query strategy.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the query strategy.
     *args:
         Arguments for the model.
@@ -76,9 +76,9 @@ def get_query_model(method, *args, random_state=None, **kwargs):
         Initialized instance of query strategy.
     """
     from asreview.models.query.mixed import MixedQuery
-    query_class = get_query_class(method)
+    query_class = get_query_class(name)
     if query_class == MixedQuery:
-        mix = method.split("_")
+        mix = name.split("_")
         for i in range(2):
             kwargs.pop("strategy_" + str(i + 1), None)
         try:

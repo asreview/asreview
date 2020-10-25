@@ -27,35 +27,40 @@ def list_classifiers():
     return list_model_names(entry_name="asreview.models.classifiers")
 
 
-def get_classifier_class(method):
+def get_classifier_class(name):
     """Get class of model from string.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the model, e.g. 'svm', 'nb' or 'lstm-pool'.
 
     Returns
     -------
     BaseModel:
-        Class corresponding to the method.
+        Class corresponding to the name.
     """
-    return _model_class_from_entry_point(method, "asreview.models.classifiers")
+    return _model_class_from_entry_point(name, "asreview.models.classifiers")
 
 
-def get_classifier(method, *args, random_state=None, **kwargs):
+def get_classifier(name, *args, random_state=None, **kwargs):
     """Get an instance of a model from a string.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the model.
     *args:
         Arguments for the model.
     **kwargs:
         Keyword arguments for the model.
+
+    Returns
+    -------
+    BaseFeatureExtraction:
+        Initialized instance of classifier.
     """
-    model_class = get_classifier_class(method)
+    model_class = get_classifier_class(name)
     try:
         return model_class(*args, random_state=random_state, **kwargs)
     except TypeError:

@@ -51,7 +51,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
     Neural network with two hidden, dense layers of the same size.
 
     Recommended feature extraction model is
-    :class:`asreview.feature_extraction.Doc2Vec`.
+    :class:`asreview.models.feature_extraction.Doc2Vec`.
 
     .. note::
 
@@ -62,7 +62,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
     .. warning::
 
         Might crash on some systems with limited memory in
-        combination with :class:`asreview.feature_extraction.Tfidf`.
+        combination with :class:`asreview.models.feature_extraction.Tfidf`.
 
     Arguments
     ---------

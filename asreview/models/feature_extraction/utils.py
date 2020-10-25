@@ -27,35 +27,40 @@ def list_feature_extraction():
     return list_model_names(entry_name="asreview.models.feature_extraction")
 
 
-def get_feature_class(method):
+def get_feature_class(name):
     """Get class of feature extraction from string.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the feature model, e.g. 'doc2vec', 'tfidf' or 'embedding-lstm'.
 
     Returns
     -------
     BaseFeatureExtraction:
-        Class corresponding to the method.
+        Class corresponding to the name.
     """
-    return _model_class_from_entry_point(method, "asreview.models.feature_extraction")
+    return _model_class_from_entry_point(name, "asreview.models.feature_extraction")
 
 
-def get_feature_model(method, *args, random_state=None, **kwargs):
+def get_feature_model(name, *args, random_state=None, **kwargs):
     """Get an instance of a feature extraction model from a string.
 
     Arguments
     ---------
-    method: str
+    name: str
         Name of the feature extraction model.
     *args:
         Arguments for the feature extraction model.
     **kwargs:
         Keyword arguments for thefeature extraction  model.
+
+    Returns
+    -------
+    BaseFeatureExtraction:
+        Initialized instance of feature extraction algorithm.
     """
-    model_class = get_feature_class(method)
+    model_class = get_feature_class(name)
     try:
         return model_class(*args, random_state=random_state, **kwargs)
     except TypeError:

@@ -47,8 +47,9 @@ def _check_tensorflow():
 class EmbeddingLSTM(BaseFeatureExtraction):
     """Class to create embedding matrices for LSTM models.
 
-    Feature extraction method for :class:`asreview.models.LSTMBaseModel` and
-    :class:`asreview.models.LSTMPoolModel` models.
+    Feature extraction method for
+    :class:`asreview.models.classifiers.LSTMBaseClassifier` and
+    :class:`asreview.models.classifiers.LSTMPoolClassifier` models.
 
     .. note::
 
