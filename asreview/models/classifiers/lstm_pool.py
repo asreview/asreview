@@ -33,7 +33,7 @@ else:
     except AttributeError:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
 
@@ -45,7 +45,7 @@ def _check_tensorflow():
             " 'EmbeddingIdf'.")
 
 
-class LSTMPoolModel(BaseTrainModel):
+class LSTMPoolClassifier(BaseTrainClassifier):
     """
     LSTM pool classifier.
 
@@ -105,7 +105,7 @@ class LSTMPoolModel(BaseTrainModel):
                  shuffle=False,
                  class_weight=30.0):
         """Initialize the LSTM pool model."""
-        super(LSTMPoolModel, self).__init__()
+        super(LSTMPoolClassifier, self).__init__()
         self.embedding_matrix = embedding_matrix
         self.backwards = backwards
         self.dropout = dropout
@@ -162,7 +162,7 @@ class LSTMPoolModel(BaseTrainModel):
 
     @property
     def default_param(self):
-        defaults = super(LSTMPoolModel, self).default_param
+        defaults = super(LSTMPoolClassifier, self).default_param
         defaults.pop("embedding_matrix")
         return defaults
 

@@ -16,11 +16,11 @@ import logging
 
 from sklearn.linear_model import LogisticRegression
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.utils import _set_class_weight
 
 
-class LogisticModel(BaseTrainModel):
+class LogisticClassifier(BaseTrainClassifier):
     """
     Logistic regressions classifier
 
@@ -43,7 +43,7 @@ class LogisticModel(BaseTrainModel):
 
     def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
 
-        super(LogisticModel, self).__init__()
+        super(LogisticClassifier, self).__init__()
         self.C = C
         self.class_weight = class_weight
         self.n_jobs = n_jobs

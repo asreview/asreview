@@ -14,11 +14,11 @@
 
 from sklearn.svm import SVC
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.utils import _set_class_weight
 
 
-class SVMModel(BaseTrainModel):
+class SVMClassifier(BaseTrainClassifier):
     """
     Support Vector Machine classifier
 
@@ -47,7 +47,7 @@ class SVMModel(BaseTrainModel):
                  C=15.4,
                  kernel="linear",
                  random_state=None):
-        super(SVMModel, self).__init__()
+        super(SVMClassifier, self).__init__()
         self.gamma = gamma
         self.class_weight = class_weight
         self.C = C

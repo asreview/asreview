@@ -15,7 +15,7 @@
 from asreview.models.base import BaseModel
 
 
-class BaseTrainModel(BaseModel):
+class BaseTrainClassifier(BaseModel):
     """
     Base model, abstract class to be implemented by derived ones.
 

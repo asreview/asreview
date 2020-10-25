@@ -31,7 +31,7 @@ else:
     except AttributeError:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.utils import _set_class_weight
 
 
@@ -42,7 +42,7 @@ def _check_tensorflow():
             " 'EmbeddingIdf'.")
 
 
-class LSTMBaseModel(BaseTrainModel):
+class LSTMBaseClassifier(BaseTrainClassifier):
     """LSTM base classifier.
 
     LSTM model that consists of an embedding layer, LSTM layer with one
@@ -101,7 +101,7 @@ class LSTMBaseModel(BaseTrainModel):
                  shuffle=False,
                  class_weight=30.0):
         """Initialize the LSTM base model"""
-        super(LSTMBaseModel, self).__init__()
+        super(LSTMBaseClassifier, self).__init__()
         self.embedding_matrix = embedding_matrix
         self.backwards = backwards
         self.dropout = dropout
@@ -160,7 +160,7 @@ class LSTMBaseModel(BaseTrainModel):
 
     @property
     def default_param(self):
-        defaults = super(LSTMBaseModel, self).default_param
+        defaults = super(LSTMBaseClassifier, self).default_param
         defaults.pop("embedding_matrix")
         return defaults
 

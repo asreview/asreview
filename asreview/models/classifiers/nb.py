@@ -16,10 +16,10 @@ import logging
 
 from sklearn.naive_bayes import MultinomialNB
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 
 
-class NBModel(BaseTrainModel):
+class NaiveBayesClassifier(BaseTrainClassifier):
     """Naive Bayes classifier
 
     Naive Bayes classifier. Only works in combination with the
@@ -41,7 +41,7 @@ class NBModel(BaseTrainModel):
 
     def __init__(self, alpha=3.822):
 
-        super(NBModel, self).__init__()
+        super(NaiveBayesClassifier, self).__init__()
         self.alpha = alpha
         self._model = MultinomialNB(alpha=alpha)
         logging.debug(self._model)

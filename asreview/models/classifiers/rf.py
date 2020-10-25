@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier as SKRandomForestClassifier
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.utils import _set_class_weight
 
 
-class RFModel(BaseTrainModel):
+class RandomForestClassifier(BaseTrainClassifier):
     """
     Random Forest classifier
 
@@ -46,13 +46,13 @@ class RFModel(BaseTrainModel):
                  class_weight=1.0,
                  random_state=None):
 
-        super(RFModel, self).__init__()
+        super(RandomForestClassifier, self).__init__()
         self.n_estimators = int(n_estimators)
         self.max_features = int(max_features)
         self.class_weight = class_weight
         self._random_state = random_state
 
-        self._model = RandomForestClassifier(
+        self._model = SKRandomForestClassifier(
             n_estimators=self.n_estimators,
             max_features=self.max_features,
             class_weight=_set_class_weight(class_weight),

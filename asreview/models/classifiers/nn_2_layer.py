@@ -33,7 +33,7 @@ else:
 import scipy
 
 
-from asreview.models.classifiers.base import BaseTrainModel
+from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer
 from asreview.utils import _set_class_weight
 
@@ -45,7 +45,7 @@ def _check_tensorflow():
             " 'EmbeddingIdf'.")
 
 
-class NN2LayerModel(BaseTrainModel):
+class NN2LayerClassifier(BaseTrainClassifier):
     """Dense neural network classifier.
 
     Neural network with two hidden, dense layers of the same size.
@@ -99,7 +99,7 @@ class NN2LayerModel(BaseTrainModel):
                  shuffle=False,
                  class_weight=30.0):
         """Initialize the 2-layer neural network model."""
-        super(NN2LayerModel, self).__init__()
+        super(NN2LayerClassifier, self).__init__()
         self.dense_width = int(dense_width)
         self.optimizer = optimizer
         self.learn_rate = learn_rate
@@ -139,7 +139,7 @@ class NN2LayerModel(BaseTrainModel):
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
             X = X.toarray()
-        return super(NN2LayerModel, self).predict_proba(X)
+        return super(NN2LayerClassifier, self).predict_proba(X)
 
     def full_hyper_space(self):
         from hyperopt import hp
