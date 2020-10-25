@@ -98,8 +98,10 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Framework :: Flask',
     ],
-    keywords='systematic review',
+    keywords='systematic review machine-learning',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={'asreview': [
         'webapp/build/*',
