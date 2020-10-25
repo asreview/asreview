@@ -2,12 +2,17 @@ from asreview.models.deprecated import _moved_warning
 
 from asreview.models.feature_extraction.tfidf import Tfidf as _Tfidf
 from asreview.models.feature_extraction.doc2vec import Doc2Vec as _Doc2Vec
-from asreview.models.feature_extraction.embedding_idf import EmbeddingIdf as _EmbeddingIdf
-from asreview.models.feature_extraction.embedding_lstm import EmbeddingLSTM as _EmbeddingLSTM
+from asreview.models.feature_extraction.embedding_idf \
+    import EmbeddingIdf as _EmbeddingIdf
+from asreview.models.feature_extraction.embedding_lstm \
+    import EmbeddingLSTM as _EmbeddingLSTM
 from asreview.models.feature_extraction.sbert import SBERT as _SBERT
-from asreview.models.feature_extraction.utils import get_feature_model as _get_feature_model
-from asreview.models.feature_extraction.utils import get_feature_class as _get_feature_class
-from asreview.models.feature_extraction.utils import list_feature_extraction as _list_feature_extraction
+from asreview.models.feature_extraction.utils \
+    import get_feature_model as _get_feature_model
+from asreview.models.feature_extraction.utils \
+    import get_feature_class as _get_feature_class
+from asreview.models.feature_extraction.utils \
+    import list_feature_extraction as _list_feature_extraction
 
 """Deprecated, will be removed in version 1.0"""
 
