@@ -129,3 +129,22 @@ First check whether the package is correctly installed. Do this with the command
 .. code-block:: bash
 
   python -m asreview oracle
+  
+
+Build dependencies error
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The command line returns the following message:
+
+.. code:: bash
+
+  "Installing build dependencies ... error"
+
+This error typically happens when the version of your Python installation has been 
+released very recently. Because of this, the dependencies of ASReview are not 
+compatible with your Python installation yet. It is advised to install 
+the second most recent version of Python instead. Detailed step-by-step instructions 
+to install Python (and ASReview) are available for
+`Windows <https://asreview.nl/installation-guide-windows/>`__ and
+`MacOS <https://asreview.nl/installation-guide-mac/>`__ users.
+

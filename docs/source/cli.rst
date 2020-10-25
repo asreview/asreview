@@ -23,6 +23,14 @@ lab
 
 	The port the server will listen on.
 
+.. option:: --clean_project CLEAN_PROJECT
+
+    Safe cleanup of temporary files in project.
+
+.. option:: --clean_all_projects CLEAN_ALL_PROJECTS
+
+    Safe cleanup of temporary files in all projects.
+
 .. option:: --embedding EMBEDDING_FP
 
     File path of embedding matrix. Required for LSTM models.
