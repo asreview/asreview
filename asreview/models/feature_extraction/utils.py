@@ -24,7 +24,7 @@ def list_feature_extraction():
     list:
         Names of available feature extraction methods in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.feature_extraction")
+    return list_model_names(entry_name="asreview.models.feature_extraction")
 
 
 def get_feature_class(method):
@@ -40,7 +40,7 @@ def get_feature_class(method):
     BaseFeatureExtraction:
         Class corresponding to the method.
     """
-    return _model_class_from_entry_point(method, "asreview.feature_extraction")
+    return _model_class_from_entry_point(method, "asreview.models.feature_extraction")
 
 
 def get_feature_model(method, *args, random_state=None, **kwargs):

@@ -26,7 +26,7 @@ def list_query_strategies():
     list:
         Names of available query strategies in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.query_strategy")
+    return list_model_names(entry_name="asreview.models.query")
 
 
 def get_query_class(method):
@@ -50,7 +50,7 @@ def get_query_class(method):
     try:
         return _model_class_from_entry_point(
             method,
-            entry_name="asreview.query_strategy")
+            entry_name="asreview.models.query")
     except ValueError:
         mix = method.split("_")
         if len(mix) == 2:

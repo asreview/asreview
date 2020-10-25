@@ -24,7 +24,7 @@ def list_balance_strategies():
     list:
         Names of available balance strategies in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.balance_strategy")
+    return list_model_names(entry_name="asreview.models.balance")
 
 
 def get_balance_class(method):
@@ -42,7 +42,7 @@ def get_balance_class(method):
     """
     return _model_class_from_entry_point(
         method,
-        entry_name="asreview.balance_strategy")
+        entry_name="asreview.models.balance")
 
 
 def get_balance_model(method, *args, random_state=None, **kwargs):

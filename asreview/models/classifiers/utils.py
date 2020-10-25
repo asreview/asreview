@@ -24,7 +24,7 @@ def list_classifiers():
     list:
         Names of available classifiers in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models")
+    return list_model_names(entry_name="asreview.models.classifiers")
 
 
 def get_classifier_class(method):
@@ -40,7 +40,7 @@ def get_classifier_class(method):
     BaseModel:
         Class corresponding to the method.
     """
-    return _model_class_from_entry_point(method, "asreview.models")
+    return _model_class_from_entry_point(method, "asreview.models.classifiers")
 
 
 def get_classifier(method, *args, random_state=None, **kwargs):
