@@ -118,7 +118,7 @@ def api_init_project():  # noqa: F401
 
         return response, 500
 
-    return response
+    return response, 201
 
 
 @bp.route('/project/<project_id>/info', methods=["GET"])
@@ -156,13 +156,11 @@ def api_get_project_info(project_id):  # noqa: F401
             else:
                 project_info["projectInitReady"] = False
 
-        response = jsonify(project_info)
-
     except FileNotFoundError as err:
         logging.error(err)
         response = jsonify(message="Project not found.")
 
-        return response, 400
+        return response, 404
 
     except Exception as err:
         logging.error(err)
@@ -170,7 +168,7 @@ def api_get_project_info(project_id):  # noqa: F401
 
         return response, 500
 
-    return response
+    return jsonify(project_info)
 
 
 @bp.route('/project/<project_id>/info', methods=["PUT"])
