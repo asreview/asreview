@@ -8,6 +8,7 @@ from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
+from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
@@ -49,9 +50,22 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"*": {"origins": "*"}})
 
     app.register_blueprint(api.bp)
+
+    @app.errorhandler(InternalServerError)
+    def error_500(e):
+        original = getattr(e, "original_exception", None)
+
+        if original is None:
+            # direct 500 error, such as abort(500)
+            logging.error(e)
+            return jsonify(message="Whoops, something went wrong."), 500
+
+        # wrapped unhandled error
+        logging.error(e.original_exception)
+        return jsonify(message=str(e.original_exception)), 500
 
     @app.route('/', methods=['GET'])
     def index():
@@ -129,4 +143,5 @@ def main(argv):
         config_file=args.config_file,
         seed=args.seed
     )
+    app.config['PROPAGATE_EXCEPTIONS'] = False
     app.run(host=host, port=port)

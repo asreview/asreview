@@ -19,9 +19,10 @@ from flask import current_app as app
 from flask import request
 from flask import Response
 from flask import send_file
-from flask.json import jsonify
+from flask import jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.datasets import DatasetManager
@@ -64,6 +65,38 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
 
 
+# custom errors
+
+class ProjectNotFoundError(Exception):
+    status_code = 400
+
+
+# error handlers
+
+@bp.errorhandler(ProjectNotFoundError)
+def project_not_found(e):
+
+    message = str(e) if str(e) else "Project not found."
+    logging.error(message)
+    return jsonify(message=message), e.status_code
+
+
+@bp.errorhandler(InternalServerError)
+def error_500(e):
+    original = getattr(e, "original_exception", None)
+
+    if original is None:
+        # direct 500 error, such as abort(500)
+        logging.error(e)
+        return jsonify(message="Whoops, something went wrong."), 500
+
+    # wrapped unhandled error
+    logging.error(e.original_exception)
+    return jsonify(message=str(e.original_exception)), 500
+
+
+# routes
+
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
@@ -103,20 +136,13 @@ def api_init_project():  # noqa: F401
 
     project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
-    try:
-        project_config = init_project(
-            project_id,
-            project_name=project_name,
-            project_description=project_description,
-            project_authors=project_authors)
+    project_config = init_project(
+        project_id,
+        project_name=project_name,
+        project_description=project_description,
+        project_authors=project_authors)
 
-        response = jsonify(project_config)
-
-    except Exception as err:
-        logging.error(err)
-        response = jsonify(message="project-init-failure")
-
-        return response, 500
+    response = jsonify(project_config)
 
     return response, 201
 
@@ -156,17 +182,8 @@ def api_get_project_info(project_id):  # noqa: F401
             else:
                 project_info["projectInitReady"] = False
 
-    except FileNotFoundError as err:
-        logging.error(err)
-        response = jsonify(message="Project not found.")
-
-        return response, 404
-
-    except Exception as err:
-        logging.error(err)
-        response = jsonify(message="Internal Server Error.")
-
-        return response, 500
+    except FileNotFoundError:
+        raise ProjectNotFoundError()
 
     return jsonify(project_info)
 
