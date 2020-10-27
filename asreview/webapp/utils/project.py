@@ -20,7 +20,7 @@ from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.io import get_project_info
 from asreview.webapp.utils.io import set_project_info
-from asreview.webapp.utils.io import  get_data_file_path
+from asreview.webapp.utils.io import get_data_file_path
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_labeled_path
@@ -64,7 +64,7 @@ def init_project(project_id,
         get_project_path(project_id).mkdir()
         get_data_path(project_id).mkdir()
 
-        reviewFinished = project_mode is "SIMULATION"
+        reviewFinished = project_mode == "SIMULATION"
 
         project_info = {
             'version': asreview_version,  # todo: Fail without git?
@@ -87,7 +87,7 @@ def init_project(project_id,
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(get_project_path())
+        shutil.rmtree(get_project_path(project_id))
         raise err
 
 
@@ -125,27 +125,27 @@ def migrate_project_info(project_info):
         project_info["mode"] = "oracle"
 
     # backwards support prior to simulations
-    if "projectSetupReady" not in project_info:    
+    if "projectSetupReady" not in project_info:
         project_info["projectSetupReady"] = project_info["projectInitReady"]
 
-    if "simulations" not in project_info:    
+    if "simulations" not in project_info:
         project_info["simulations"] = []
 
-    return project_info    
+    return project_info
 
 
-def add_simulation_to_project(project_id, simulation_id): 
+def add_simulation_to_project(project_id, simulation_id):
     update_simulation_in_project(project_id, simulation_id, "running")
 
 
 def update_simulation_in_project(project_id, simulation_id, state):
     project_info = get_project_info(project_id)
-    if "simulations" not in project_info:        
+    if "simulations" not in project_info:
         project_info["simulations"] = []
 
-    simulation = { 
+    simulation = {
         "id": simulation_id,
-        "state" : state 
+        "state": state
     }
 
     project_info["simulations"].append(simulation)
@@ -162,7 +162,7 @@ def add_dataset_to_project(project_id, file_name):
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):
-        
+
         # add dataset path to dict (overwrite if already exists)
         project_info = get_project_info(project_id)
 

@@ -171,8 +171,6 @@ def api_get_project_info(project_id):  # noqa: F401
         project_info = enrich_project_info(project_id, project_info)
         project_info = migrate_project_info(project_info)
 
-        response = jsonify(project_info)
-
     except FileNotFoundError:
         raise ProjectNotFoundError()
 
@@ -594,6 +592,7 @@ def api_start(project_id):  # noqa: F401
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+
 @bp.route('/project/<project_id>/simulate', methods=["POST"])
 def api_simulate(project_id):  # noqa: F401
     """Start simulation"""
@@ -673,7 +672,7 @@ def api_setup_ready(project_id):  # noqa: F401
 def api_simulation_ready(project_id, simulation_id):  # noqa: F401
     logging.info("checking if simulation is ready?")
 
-    if get_simulation_ready_path(project_id, simulation_id).exists():        
+    if get_simulation_ready_path(project_id, simulation_id).exists():
         logging.info("simulation ready")
         update_simulation_in_project(project_id, simulation_id, "ready")
         response = jsonify({'status': 1})
@@ -864,8 +863,6 @@ def api_finish_project(project_id):
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress info on the article"""
-
-    project_file_path = get_project_file_path(project_id)
 
     project_info = get_project_info(project_id)
     statistics = get_statistics(project_id)

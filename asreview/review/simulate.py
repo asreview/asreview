@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import logging
-
 import numpy as np
 
 from asreview.init_sampling import sample_prior_knowledge
@@ -106,6 +105,7 @@ class ReviewSimulate(BaseReview):
                                              *args,
                                              start_idx=start_idx,
                                              **kwargs)
+
 
     def _get_labels(self, ind):
         """Get the labels directly from memory.

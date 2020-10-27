@@ -101,6 +101,7 @@ def write_pool(project_id, pool):
     with open(pool_fp, "w") as f:
         json.dump(pool, f)
 
+
 def read_proba(project_id):
     proba_fp = get_proba_path(project_id)
     try:

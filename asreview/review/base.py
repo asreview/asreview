@@ -107,8 +107,8 @@ class BaseReview(ABC):
         be already labeled. Failing to do so might result bad behaviour.
     state_file: str
         Path to state file. Replaces log_file argument.
-    completion_file: str   
-        A file that is created at the end of a simulation. 
+    completion_file: str
+        A file that is created at the end of a simulation.
     """
 
     name = "base"
@@ -327,12 +327,13 @@ class BaseReview(ABC):
             # Update the training data and pool afterwards
             self.train()
             self.log_probabilities(state)
-        
+
         if self.completion_file is not None:
             os.makedirs(os.path.dirname(self.completion_file), exist_ok=True)
             with open(self.completion_file, "w") as f:
                 f.write("")
                 f.close
+
 
     def review(self, *args, **kwargs):
         """Do the systematic review, writing the results to the state file.
@@ -347,6 +348,7 @@ class BaseReview(ABC):
         """
         with open_state(self.state_file) as state:
             self._do_review(state, *args, **kwargs)
+
 
     def log_probabilities(self, state):
         """Store the modeling probabilities of the training indices and

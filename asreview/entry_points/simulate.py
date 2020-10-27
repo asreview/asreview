@@ -13,6 +13,7 @@ from asreview.entry_points.base import BaseEntryPoint, _base_parser
 from asreview.review import review_simulate
 from pathlib import Path
 
+
 class SimulateEntryPoint(BaseEntryPoint):
     description = "Simulate the performance of ASReview."
 
@@ -32,6 +33,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             logging.getLogger().setLevel(logging.DEBUG)
 
         review_simulate(dataset_path, **args_dict)
+
 
 DESCRIPTION_SIMULATE = """
 ASReview for simulation.

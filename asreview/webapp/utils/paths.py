@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 
+
 def asreview_path():
     """Get the location where projects are stored.
 
@@ -164,6 +165,7 @@ def get_state_path(project_id):
     """
 
     return Path(get_project_path(project_id), "result.json")
+
 
 def get_simulation_ready_path(project_id, simulation_id):
     """Get the simulation_ready file for the project and iteration.
