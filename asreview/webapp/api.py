@@ -611,7 +611,7 @@ def api_simulate(project_id):  # noqa: F401
         # start simulation
         py_exe = _get_executable()
         run_command = [
-            py_exe, "-m", "asreview", "simulate", 
+            py_exe, "-m", "asreview", "simulate",
             datafile, "--completion_file", completion_file
         ]
         subprocess.Popen(run_command)
