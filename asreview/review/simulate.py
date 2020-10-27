@@ -106,7 +106,6 @@ class ReviewSimulate(BaseReview):
                                              start_idx=start_idx,
                                              **kwargs)
 
-
     def _get_labels(self, ind):
         """Get the labels directly from memory.
 
