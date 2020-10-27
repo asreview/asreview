@@ -633,65 +633,77 @@ def api_init_model_ready(project_id):  # noqa: F401
 def api_import_project():
     """Import uploaded project"""
 
-    import_project_id = None
-
-    if 'file' in request.files:
-
-        project_file = request.files['file']
-        filename = secure_filename(project_file.filename)
-
-        try:
-
-            with zipfile.ZipFile(project_file, "r") as zipObj:
-                FileNames = zipObj.namelist()
-
-                # check if the zip file contains a ASReview project
-                if sum([fn.endswith("project.json") for fn in FileNames]) == 1:
-
-                    # extract all files to a temporary folder
-                    tmpdir = tempfile.TemporaryDirectory()
-                    zipObj.extractall(path=tmpdir.name)
-
-                    for fn in FileNames:
-                        if fn.endswith("project.json"):
-                            fp = Path(tmpdir.name, fn)
-                            with open(fp, "r+") as f:
-                                project = json.load(f)
-
-                                # if the uploaded project already exists,
-                                # then make a copy
-                                if is_project(project["id"]):
-                                    project["id"] += " copy"
-                                    project["name"] += " copy"
-                                    f.seek(0)
-                                    json.dump(project, f)
-                                    f.truncate()
-                else:
-                    response = jsonify(
-                        message="No project found within the chosen file.")
-                    return response, 404
-            try:
-                # check if a copy of a project already exists
-                os.rename(tmpdir.name, asreview_path() / f"{project['id']}")
-
-                import_project_id = project['id']
-
-            except Exception as err:
-                logging.error(err)
-                response = jsonify(
-                    message=f"A copy of {project['id'][:-5]} already exists.")
-                return response, 400
-
-        except Exception as err:
-            logging.error(err)
-            response = jsonify(message=f"Failed to upload file '{filename}'.")
-            return response, 400
-    else:
+    # raise error if file not given
+    if 'file' not in request.files:
         response = jsonify(message="No file found to upload.")
         return response, 400
 
+    # import project id
+    import_project = None
+
+    # set the project file
+    project_file = request.files['file']
+
+    try:
+
+        with zipfile.ZipFile(project_file, "r") as zip_obj:
+            zip_filenames = zip_obj.namelist()
+
+            # raise error if no ASReview project file
+            if "project.json" not in zip_filenames:
+                response = jsonify(
+                    message="File doesn't contain valid project format.")
+                return response, 404
+
+            # extract all files to a temporary folder
+            tmpdir = tempfile.TemporaryDirectory()
+            zip_obj.extractall(path=tmpdir.name)
+
+            # Open the project file and check the id. The id needs to be
+            # unique, otherwise it is exended with -copy.
+            fp = Path(tmpdir.name, "project.json")
+            with open(fp, "r+") as f:
+
+                # load the project info in scope of function
+                import_project = json.load(f)
+
+                # If the uploaded project already exists,
+                # then overwrite project.json with a copy suffix.
+                while is_project(import_project["id"]):
+
+                    # project update
+                    import_project["id"] = f"{import_project['id']}-copy"
+                    import_project["name"] = f"{import_project['name']} copy"
+
+                else:
+                    # write to file
+                    f.seek(0)
+                    json.dump(import_project, f)
+                    f.truncate()
+
+    except Exception as err:
+        # Unknown error.
+        logging.error(err)
+        response = jsonify(
+            message="Unknown error when uploading project "
+            f"'{project_file.filename}'."
+        )
+        return response, 400
+
+    # location to copy file to
+    fp_copy = get_project_path(import_project["id"])
+
+    try:
+        # Move the project from the temp folder to the projects folder.
+        os.rename(tmpdir.name, fp_copy)
+
+    except Exception as err:
+        logging.error(err)
+        response = jsonify(message=f"Failed to copy project to {fp_copy}.")
+        return response, 400
+
     # return the project info in the same format as project_info
-    return api_get_project_info(import_project_id)
+    return api_get_project_info(import_project["id"])
 
 
 @bp.route('/project/<project_id>/export', methods=["GET"])
