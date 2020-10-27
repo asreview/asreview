@@ -18,7 +18,7 @@ from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import read_proba
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
-from asreview.webapp.utils.paths import asreview_path
+from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
@@ -27,6 +27,7 @@ from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.validation import is_project
 
 
 def _get_executable():
@@ -49,19 +50,14 @@ def init_project(project_id,
 
     if not project_id and not isinstance(project_id, str) \
             and len(project_id) >= 3:
-        raise ValueError("Project name can't be None or empty string")
+        raise ValueError("Project name should be at least 3 characters.")
 
-    # get the directory with the projects
-    project_dir = asreview_path() / project_id
-
-    if project_dir.exists():
-        raise ValueError("Project already exists")
+    if is_project(project_id):
+        raise ValueError("Project already exists.")
 
     try:
-        project_dir.mkdir()
-
-        fp_data = project_dir / "data"
-        fp_data.mkdir()
+        get_project_path(project_id).mkdir()
+        get_data_path(project_id).mkdir()
 
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
@@ -83,7 +79,7 @@ def init_project(project_id,
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(project_dir)
+        shutil.rmtree(get_project_path())
         raise err
 
 
