@@ -1,6 +1,7 @@
 # from asreview.dataset import ASReviewData
 from asreview.webapp.utils.paths import get_project_path
 
+
 def check_dataset(fp):
 
     # try:
