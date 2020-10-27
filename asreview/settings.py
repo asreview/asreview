@@ -126,8 +126,8 @@ class ASReviewSettings(object):
                           "feature_param"]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
-                print (f"Warning: section [{sect}] is ignored in "
-                       f"config file {config_file}")
+                print(f"Warning: section [{sect}] is ignored in "
+                      f"config file {config_file}")
 
         model = get_model(self.model)
         _convert_types(model.default_param, self.model_param)

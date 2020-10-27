@@ -64,70 +64,71 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
     prior_indices = np.array(np.append(included, excluded), dtype=np.int)
 
     if return_labels:
-        prior_included_labels = np.ones((len(included),), dtype=int)
-        prior_excluded_labels = np.zeros((len(excluded),), dtype=int)
+        prior_included_labels = np.ones((len(included), ), dtype=int)
+        prior_excluded_labels = np.zeros((len(excluded), ), dtype=int)
 
-        labels = np.concatenate([
-            prior_included_labels,
-            prior_excluded_labels
-        ])
+        labels = np.concatenate([prior_included_labels, prior_excluded_labels])
         return prior_indices, labels
     return prior_indices
 
 
 class BaseReview(ABC):
-    """Base class for Systematic Review"""
+    """Base class for Systematic Review.
+
+    Arguments
+    ---------
+    as_data: asreview.ASReviewData
+        The data object which contains the text, labels, etc.
+    model: BaseModel
+        Initialized model to fit the data during active learning.
+        See asreview.models.utils.py for possible models.
+    query_model: BaseQueryModel
+        Initialized model to query new instances for review, such as random
+        sampling or max sampling.
+        See asreview.query_strategies.utils.py for query models.
+    balance_model: BaseBalanceModel
+        Initialized model to redistribute the training data during the
+        active learning process. They might either resample or undersample
+        specific papers.
+    feature_model: BaseFeatureModel
+        Feature extraction model that converts texts and keywords to
+        feature matrices.
+    n_papers: int
+        Number of papers to review during the active learning process,
+        excluding the number of initial priors. To review all papers, set
+        n_papers to None.
+    n_instances: int
+        Number of papers to query at each step in the active learning
+        process.
+    n_queries: int
+        Number of steps/queries to perform. Set to None for no limit.
+    start_idx: numpy.array
+        Start the simulation/review with these indices. They are assumed to
+        be already labeled. Failing to do so might result bad behaviour.
+    state_file: str
+        Path to state file. Replaces log_file argument.
+    completion_file: str   
+        A file that is created at the end of a simulation. 
+    """
+
     name = "base"
 
-    def __init__(self,
-                 as_data,
-                 model=None,
-                 query_model=None,
-                 balance_model=None,
-                 feature_model=None,
-                 n_papers=None,
-                 n_instances=DEFAULT_N_INSTANCES,
-                 n_queries=None,
-                 start_idx=[],
-                 state_file=None,
-                 log_file=None,
-                 completion_file=None,
-                 ):
-        """ Initialize base class for systematic reviews.
-
-        Arguments
-        ---------
-        as_data: asreview.ASReviewData
-            The data object which contains the text, labels, etc.
-        model: BaseModel
-            Initialized model to fit the data during active learning.
-            See asreview.models.utils.py for possible models.
-        query_model: BaseQueryModel
-            Initialized model to query new instances for review, such as random
-            sampling or max sampling.
-            See asreview.query_strategies.utils.py for query models.
-        balance_model: BaseBalanceModel
-            Initialized model to redistribute the training data during the
-            active learning process. They might either resample or undersample
-            specific papers.
-        feature_model: BaseFeatureModel
-            Feature extraction model that converts texts and keywords to
-            feature matrices.
-        n_papers: int
-            Number of papers to review during the active learning process,
-            excluding the number of initial priors. To review all papers, set
-            n_papers to None.
-        n_instances: int
-            Number of papers to query at each step in the active learning
-            process.
-        n_queries: int
-            Number of steps/queries to perform. Set to None for no limit.
-        start_idx: numpy.array
-            Start the simulation/review with these indices. They are assumed to
-            be already labeled. Failing to do so might result bad behaviour.
-        state_file: str
-            Path to state file. Replaces log_file argument.
-        """
+    def __init__(
+        self,
+        as_data,
+        model=None,
+        query_model=None,
+        balance_model=None,
+        feature_model=None,
+        n_papers=None,
+        n_instances=DEFAULT_N_INSTANCES,
+        n_queries=None,
+        start_idx=[],
+        state_file=None,
+        log_file=None,
+        completion_file=None,
+    ):
+        """Initialize base class for systematic reviews."""
         super(BaseReview, self).__init__()
 
         # Default to Naive Bayes model
@@ -161,8 +162,10 @@ class BaseReview(ABC):
         self.completion_file = completion_file
 
         if log_file is not None:
-            warnings.warn("The log_file argument for BaseReview will be"
-                          " replaced by state_file.", category=FutureWarning)
+            warnings.warn(
+                "The log_file argument for BaseReview will be"
+                " replaced by state_file.",
+                category=FutureWarning)
             self.state_file = log_file
         else:
             self.state_file = state_file
@@ -179,8 +182,10 @@ class BaseReview(ABC):
                 startup = state.startup_vals()
                 # If there are start indices not in the training add them.
                 if not set(startup["train_idx"]) >= set(start_idx):
-                    new_idx = list(set(start_idx)-set(startup["train_idx"]))
-                    self.classify(new_idx, self.y[new_idx], state,
+                    new_idx = list(set(start_idx) - set(startup["train_idx"]))
+                    self.classify(new_idx,
+                                  self.y[new_idx],
+                                  state,
                                   method="initial")
                     startup = state.startup_vals()
                 self.train_idx = startup["train_idx"]
@@ -192,7 +197,9 @@ class BaseReview(ABC):
             else:
                 state.set_labels(self.y)
                 state.settings = self.settings
-                self.classify(start_idx, self.y[start_idx], state,
+                self.classify(start_idx,
+                              self.y[start_idx],
+                              state,
                               method="initial")
                 self.query_i_classified = len(start_idx)
 
@@ -200,9 +207,10 @@ class BaseReview(ABC):
             try:
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
-                self.X = feature_model.fit_transform(
-                    as_data.texts, as_data.headings, as_data.bodies,
-                    as_data.keywords)
+                self.X = feature_model.fit_transform(as_data.texts,
+                                                     as_data.headings,
+                                                     as_data.bodies,
+                                                     as_data.keywords)
                 state._add_as_data(as_data, feature_matrix=self.X)
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "
@@ -218,20 +226,20 @@ class BaseReview(ABC):
             extra_kwargs['n_prior_included'] = self.n_prior_included
         if hasattr(self, 'n_prior_excluded'):
             extra_kwargs['n_prior_excluded'] = self.n_prior_excluded
-        return ASReviewSettings(
-            mode=self.name, model=self.model.name,
-            query_strategy=self.query_model.name,
-            balance_strategy=self.balance_model.name,
-            feature_extraction=self.feature_model.name,
-            n_instances=self.n_instances,
-            n_queries=self.n_queries,
-            n_papers=self.n_papers,
-            model_param=self.model.param,
-            query_param=self.query_model.param,
-            balance_param=self.balance_model.param,
-            feature_param=self.feature_model.param,
-            data_name=self.as_data.data_name,
-            **extra_kwargs)
+        return ASReviewSettings(mode=self.name,
+                                model=self.model.name,
+                                query_strategy=self.query_model.name,
+                                balance_strategy=self.balance_model.name,
+                                feature_extraction=self.feature_model.name,
+                                n_instances=self.n_instances,
+                                n_queries=self.n_queries,
+                                n_papers=self.n_papers,
+                                model_param=self.model.param,
+                                query_param=self.query_model.param,
+                                balance_param=self.balance_model.param,
+                                feature_param=self.feature_model.param,
+                                data_name=self.as_data.data_name,
+                                **extra_kwargs)
 
     @abstractmethod
     def _get_labels(self, ind):
@@ -264,7 +272,13 @@ class BaseReview(ABC):
         return stop_iter
 
     def n_pool(self):
-        """Number of indices left in the pool"""
+        """Number of indices left in the pool.
+
+        Returns
+        -------
+        int:
+            Number of indices left in the pool.
+        """
         return self.X.shape[0] - len(self.train_idx)
 
     def _next_n_instances(self):  # Could be merged with _stop_iter someday.
@@ -288,11 +302,9 @@ class BaseReview(ABC):
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
-        while not self._stop_iter(self.query_i-1, n_pool):
+        while not self._stop_iter(self.query_i - 1, n_pool):
             # STEP 1: Make a new query
-            query_idx = self.query(
-                n_instances=self._next_n_instances()
-            )
+            query_idx = self.query(n_instances=self._next_n_instances())
             self.log_current_query(state)
 
             # STEP 2: Classify the queried papers.
@@ -363,12 +375,12 @@ class BaseReview(ABC):
             self.shared["current_queries"] = {}
 
     def query(self, n_instances, query_model=None):
-        """Query new results.
+        """Query records from pool.
 
         Arguments
         ---------
         n_instances: int
-            Batch size of the queries, i.e. number of papers to be queried.
+            Batch size of the queries, i.e. number of records to be queried.
         query_model: BaseQueryModel
             Query strategy model to use. If None, the query model of the
             reviewer is used.
@@ -376,7 +388,7 @@ class BaseReview(ABC):
         Returns
         -------
         np.array:
-            Indices of papers queried.
+            Indices of records queried.
         """
 
         pool_idx = get_pool_idx(self.X, self.train_idx)
@@ -404,7 +416,7 @@ class BaseReview(ABC):
         return query_idx
 
     def classify(self, query_idx, inclusions, state, method=None):
-        """ Classify new papers and update the training indices.
+        """Classify new papers and update the training indices.
 
         It automaticaly updates the state.
 
@@ -438,12 +450,13 @@ class BaseReview(ABC):
         else:
             methods = np.full(len(query_idx), method)
             if method in self.shared["query_src"]:
-                self.shared["query_src"][method].extend(
-                    query_idx.tolist())
+                self.shared["query_src"][method].extend(query_idx.tolist())
             else:
                 self.shared["query_src"][method] = query_idx.tolist()
 
-        state.add_classification(query_idx, inclusions, methods=methods,
+        state.add_classification(query_idx,
+                                 inclusions,
+                                 methods=methods,
                                  query_i=self.query_i)
         state.set_labels(self.y)
 
@@ -456,8 +469,10 @@ class BaseReview(ABC):
             return
 
         # Get the training data.
-        X_train, y_train = self.balance_model.sample(
-            self.X, self.y, self.train_idx, shared=self.shared)
+        X_train, y_train = self.balance_model.sample(self.X,
+                                                     self.y,
+                                                     self.train_idx,
+                                                     shared=self.shared)
 
         # Train the model on the training data.
         self.model.fit(
@@ -471,7 +486,14 @@ class BaseReview(ABC):
             self.query_i_classified = 0
 
     def statistics(self):
-        "Get a number of statistics about the current state of the review."
+        """Get statistics on the current state of the review.
+
+        Returns
+        -------
+        dict:
+            A dictonary with statistics like n_included and
+            last_inclusion.
+        """
         try:
             n_initial = len(self.shared['query_src']['initial'])
         except KeyError:

@@ -19,24 +19,33 @@ from asreview.utils import _set_class_weight
 
 
 class RFModel(BaseTrainModel):
-    "Random Forest SKLearn model."
+    """
+    Random Forest classifier
+
+    The Random Forest classifier is an implementation based
+    on the sklearn Random Forest classifier.
+
+    Arguments
+    ---------
+    n_estimators : int, default=100
+        The number of trees in the forest.
+    max_features: int, default=10
+        Number of features in the model.
+    class_weight: float, default=1.0
+        Class weight of the inclusions.
+    random_state : int or RandomState, default=None
+        Controls both the randomness of the bootstrapping of the samples used
+        when building trees and the sampling of the features to consider when
+        looking for the best split at each node.
+    """
     name = "rf"
 
-    def __init__(self, n_estimators=100, max_features=10, class_weight=1.0,
+    def __init__(self,
+                 n_estimators=100,
+                 max_features=10,
+                 class_weight=1.0,
                  random_state=None):
-        """Initialize the SKLearn Random Forest model.
 
-        Arguments
-        ---------
-        n_estimators: int
-            Number of estimators.
-        max_features: int
-            Number of features in the model.
-        class_weight: float
-            Class weight of the inclusions.
-        random_state: int, RandomState
-            Set the random state of the RNG.
-        """
         super(RFModel, self).__init__()
         self.n_estimators = int(n_estimators)
         self.max_features = int(max_features)
@@ -44,7 +53,8 @@ class RFModel(BaseTrainModel):
         self._random_state = random_state
 
         self._model = RandomForestClassifier(
-            n_estimators=self.n_estimators, max_features=self.max_features,
+            n_estimators=self.n_estimators,
+            max_features=self.max_features,
             class_weight=_set_class_weight(class_weight),
             random_state=random_state)
 

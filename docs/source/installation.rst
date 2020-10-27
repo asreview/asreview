@@ -22,7 +22,7 @@ Start the application with the following command (in CMD.exe or Terminal):
 
 .. code:: bash
 
-    asreview oracle
+    asreview lab
 
 You are now ready to start your first Automated Systematic Review!
 
@@ -48,8 +48,13 @@ closed networks.
 
 .. code:: bash
 
-    asreview oracle --port 5555 --ip xxx.x.x.xx
+    asreview lab --port 5555 --ip xxx.x.x.xx
+    
+.. warning::
 
+    Don't use the development server in production. Read the Flask documentation 
+    about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
+	
 
 Install with Docker
 -------------------
@@ -124,3 +129,22 @@ First check whether the package is correctly installed. Do this with the command
 .. code-block:: bash
 
   python -m asreview oracle
+  
+
+Build dependencies error
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The command line returns the following message:
+
+.. code:: bash
+
+  "Installing build dependencies ... error"
+
+This error typically happens when the version of your Python installation has been 
+released very recently. Because of this, the dependencies of ASReview are not 
+compatible with your Python installation yet. It is advised to install 
+the second most recent version of Python instead. Detailed step-by-step instructions 
+to install Python (and ASReview) are available for
+`Windows <https://asreview.nl/installation-guide-windows/>`__ and
+`MacOS <https://asreview.nl/installation-guide-mac/>`__ users.
+

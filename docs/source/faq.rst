@@ -128,7 +128,9 @@ you have finished screening with ASReview. However, it is very important for
 the performance of ASReview to have as little missing data as possible. We
 have written a `blogpost <https://asreview.nl/the-importance-of-abstracts/>`__
 on how the absence of abstracts impacts your review and how you can retrieve
-missing abstracts.
+missing abstracts. If you want to screen books, you can use the summary of the
+book as an abstract.
+
 
 How does the tool handle quality and standardisation of abstracts? Is this accounted for in any way in training the machine learning model?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,14 +213,23 @@ different classifiers on several datasets
 We do not advise specific classifiers for specific jobs because we've not
 found enough evidence (yet) to make such recommendations.
 
-I had already started labeling before I came across ASReview. How can I keep my former screening decisions when starting a new project in ASReview?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I already started labeling before I came across ASReview. How can I keep my former screening decisions when starting a new project in ASReview?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can keep your former labeling decisions by adding an extra column in
 your dataset called 'included' or 'label\_included'. In this column, you
 can indicate previous screening decisions on records with 0s
 (irrelevant) and 1s (relevant). ASReview will use this information to
 train the model.
+
+Related question: How can I add more publications while I are already started screening in ASReview?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can export the results of ASReview you have so far and add your new
+publications to this file. Make sure that for your new publications the column
+`included` is empty and rename or delete the column of `record_id`.
+This latter will save you from running into errors. Then simply import this
+updated file to ASReview and you can continue the screening process.
 
 Is it possible to get the inclusion likelihood for unlabelled papers?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,9 +251,18 @@ How do I remove duplicate publications?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ASReview LAB works best with deduplicated datasets. One can use software like
-EndNote to remove duplicates. See the following article for examples.
-`https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4915647/
-<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4915647/>`__
+EndNote to remove duplicates. See the following article for examples:
 
+Bramer, W. M., Giustini, D., de Jonge, G. B., Holland, L., & Bekhuis, T. (2016). 
+De-duplication of database search results for systematic reviews in EndNote. 
+Journal of the Medical Library Association : JMLA, 104(3), 240–243. 
+`https://doi.org/10.3163/1536-5050.104.3.014 
+<https://doi.org/10.3163/1536-5050.104.3.014>`__
 
+Third-party manuals for removing duplicates in Zotero, Mendeley, and RefWorks, 
+can found in the folder **4. Deduplication** by Staaks (2020). 
+
+Staaks, J. (2020, October 15). Systematic Review Search Support.
+`https://doi.org/10.17605/OSF.IO/49T8X
+<https://osf.io/yh3xe/>`__
 

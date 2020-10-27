@@ -54,8 +54,8 @@ def random_sample_embedding(words, n_samples=200):
 
     assert len(words) >= n_samples
     keys = random.sample(words, n_samples)
-    order = random.sample(range(1, n_samples+1), n_samples)
-    for i in range(1, n_samples+1):
+    order = random.sample(range(1, n_samples + 1), n_samples)
+    for i in range(1, n_samples + 1):
         assert i in order
     word_index = dict(zip(keys, order))
     assert len(keys) == n_samples
@@ -105,10 +105,10 @@ def write_random_embedding(full_embedding, tmpfile):
     with open(tmpfile, "w") as f:
         f.write(f"{n_words} {emb_vec_dim}\n")
         for word in list(full_embedding):
-            f.write(word+" ")
+            f.write(word + " ")
             new_rand_str = [str(x) for x in full_embedding[word]]
             # Add extra space at the end of the line for compatibility.
-            f.write(" ".join(new_rand_str)+" \n")
+            f.write(" ".join(new_rand_str) + " \n")
 
 
 def check_embedding(emb, full_embedding, n_samples, emb_vec_dim):
@@ -130,7 +130,7 @@ def check_embedding(emb, full_embedding, n_samples, emb_vec_dim):
         assert emb[key].size == emb_vec_dim
         for i in range(emb[key].size):
             assert abs(emb[key][i] - full_embedding[key][i]) < 1e-5
-    assert isinstance(emb, (dict,))
+    assert isinstance(emb, (dict, ))
 
 
 def test_load_embedding(tmpdir):
@@ -174,7 +174,7 @@ def test_sample_embedding():
     full_embedding = random_embedding(words, emb_vec_dim)
     emb_matrix = sample_embedding(full_embedding, word_index)
 
-    assert emb_matrix.shape == (n_samples+1, emb_vec_dim)
+    assert emb_matrix.shape == (n_samples + 1, emb_vec_dim)
     for key in word_index:
         i_row = word_index[key]
         if key in words:

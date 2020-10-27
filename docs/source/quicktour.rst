@@ -1,5 +1,8 @@
-ASReview LAB Quick Tour
-=======================
+Quick Tour
+==========
+
+This is a introduction in the ASReview LAB software. ASReview LAB is the user-
+friendly frontend for active learning in systematic reviews.
 
 .. contents:: Table of Contents
 
@@ -14,7 +17,7 @@ Launch ASReview LAB by running the following command in the command line (`CMD.e
 
 ::
 
-    asreview oracle
+    asreview lab
 
 
 Create a new project
@@ -100,7 +103,7 @@ mind and click Relevant (Clicking Irrevant results in an irrelevant document).
 
 |
 
-The Prior Knowledge step will know show 1 relevant document. Repeat this step
+The Prior Knowledge step will now show 1 relevant document. Repeat this step
 until you've selected your 1-5 relevant documents. Note that there are no
 restrictions on the number of publications you need to provide, but preferably
 provide 1-5 relevant documents.
@@ -122,7 +125,7 @@ or irrelevant to your systematic review.
    :alt:
 
 After labeling a couple of randomly selected documents, ASReview LAB will
-asked you whether you want to stop. Click on Stop and go to the next step.
+ask you whether you want to stop. Click on Stop and go to the next step.
 
 
 .. figure:: ../images/4_label_random_next.png
@@ -160,7 +163,7 @@ will be shown.
 Start Reviewing
 ---------------
 
-As soon as the active learning model is ready, a button appear with Start
+As soon as the active learning model is ready, a button appears with Start
 Review. Click the button to start screening. ASReview LAB presents you a
 document that the software is most confident about in terms of relevancy for
 your systematic review.

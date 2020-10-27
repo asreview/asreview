@@ -1,7 +1,7 @@
 import json
 import logging
 
-from asreview.ascii import welcome_message
+from asreview.batch import batch_simulate
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -31,7 +31,6 @@ class SimulateEntryPoint(BaseEntryPoint):
         elif verbose >= 2:
             logging.getLogger().setLevel(logging.DEBUG)
 
-        print(welcome_message())
         review_simulate(dataset_path, **args_dict)
 
 DESCRIPTION_SIMULATE = """
@@ -59,14 +58,14 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=DEFAULT_N_PRIOR_INCLUDED,
         type=int,
         help="Sample n prior included papers. "
-             "Only used when --prior_included is not given. "
+             "Only used when --prior_idx is not given. "
              f"Default {DEFAULT_N_PRIOR_INCLUDED}")
     parser.add_argument(
         "--n_prior_excluded",
         default=DEFAULT_N_PRIOR_EXCLUDED,
         type=int,
         help="Sample n prior excluded papers. "
-             "Only used when --prior_excluded is not given. "
+             "Only used when --prior_idx is not given. "
              f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
     parser.add_argument(
@@ -74,7 +73,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=[],
         nargs="*",
         type=int,
-        help="Prior indices by id."
+        help="Prior indices by rownumber (0 is first rownumber)."
     )
     parser.add_argument(
         "--included_dataset",
@@ -165,15 +164,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
              "interrupted by the user."
     )
     parser.add_argument(
-        "--abstract_only",
-        default=False,
-        action='store_true',
-        help="Simulate using the labels of abstract screening. "
-             "This is option is useful if there is both a column for "
-             "abstract and final screening available in the dataset. "
-             "Default False."
-    )
-    parser.add_argument(
         "--verbose", "-v",
         default=0,
         type=int,
@@ -186,4 +176,35 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="A file that is created at the end of a simulation."
     )
 
+    return parser
+
+
+class BatchEntryPoint(BaseEntryPoint):
+    description = "Parallel simulation for ASReview."
+
+    def execute(self, argv):
+        parser = _batch_parser()
+        kwargs = vars(parser.parse_args(argv))
+        batch_simulate(**kwargs)
+
+
+DESCRIPTION_BATCH = """
+Automated Systematic Review (ASReview) batch system for simulation runs.
+
+It has the same interface as the simulation modus, but adds an extra option
+(--n_runs) to run a batch of simulation runs with the same configuration.
+"""
+
+
+def _batch_parser():
+    parser = _simulate_parser(
+        prog="simulate-batch",
+        description=DESCRIPTION_BATCH
+    )
+    parser.add_argument(
+        "-r", "--n_run",
+        default=10,
+        type=int,
+        help="Number of runs to perform."
+    )
     return parser

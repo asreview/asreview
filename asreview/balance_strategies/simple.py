@@ -16,6 +16,11 @@ from asreview.balance_strategies.base import BaseBalance
 
 
 class SimpleBalance(BaseBalance):
+    """No balancing.
+
+    Use all training data.
+    """
+
     name = "simple"
 
     def sample(self, X, y, train_idx, shared):

@@ -27,8 +27,11 @@ from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_project_file_path
+from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import get_kwargs_path
+from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.validation import is_project
 
 
 def _get_executable():
@@ -52,19 +55,14 @@ def init_project(project_id,
 
     if not project_id and not isinstance(project_id, str) \
             and len(project_id) >= 3:
-        raise ValueError("Project name can't be None or empty string")
+        raise ValueError("Project name should be at least 3 characters.")
 
-    # get the directory with the projects
-    project_dir = asreview_path() / project_id
-
-    if project_dir.exists():
-        raise ValueError("Project already exists")
+    if is_project(project_id):
+        raise ValueError("Project already exists.")
 
     try:
-        project_dir.mkdir()
-
-        fp_data = project_dir / "data"
-        fp_data.mkdir()
+        get_project_path(project_id).mkdir()
+        get_data_path(project_id).mkdir()
 
         reviewFinished = project_mode is "SIMULATION"
 
@@ -89,7 +87,7 @@ def init_project(project_id,
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(project_dir)
+        shutil.rmtree(get_project_path())
         raise err
 
 
@@ -167,6 +165,7 @@ def add_dataset_to_project(project_id, file_name):
         
         # add dataset path to dict (overwrite if already exists)
         project_info = get_project_info(project_id)
+
         project_info["dataset_path"] = file_name
         set_project_info(project_id, project_info)
 
@@ -217,6 +216,33 @@ def remove_dataset_to_project(project_id, file_name):
         # remove the dataset path
         del project_info["dataset_path"]
         set_project_info(project_id, project_info)
+
+
+def clean_project_tmp_files(project_id):
+    """Clean temporary files in a project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+    project_path = get_project_path(project_id)
+    # clean pickle files
+    for f_pickle in project_path.rglob("*.pickle"):
+        try:
+            os.remove(f_pickle)
+        except OSError as e:
+            print(f"Error: {f_pickle} : {e.strerror}")
+
+    # clean tmp export files
+    # TODO
+
+
+def clean_all_project_tmp_files():
+    """Clean temporary files in all projects.
+    """
+    for project_path in list_asreview_project_paths():
+        clean_project_tmp_files(project_path)
 
 
 def get_paper_data(project_id,

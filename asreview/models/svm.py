@@ -19,26 +19,34 @@ from asreview.utils import _set_class_weight
 
 
 class SVMModel(BaseTrainModel):
+    """
+    Support Vector Machine classifier
+
+    The Support Vector Machine classifier is an implementation based
+    on the sklearn Support Vector Machine classifier.
+
+    Arguments
+    ---------
+    gamma: str
+        Gamma parameter of the SVM model.
+    class_weight: float
+        class_weight of the inclusions.
+    C: float
+        C parameter of the SVM model.
+    kernel: str
+        SVM kernel type.
+    random_state: int, RandomState
+        State of the RNG.
+    """
     "Support Vector Machine SKLearn model."
     name = "svm"
 
-    def __init__(self, gamma="auto", class_weight=0.249, C=15.4,
-                 kernel="linear", random_state=None):
-        """Initialize the SKLearn SVM model.
-
-        Arguments
-        ---------
-        gamma: str
-            Gamma parameter of the SVM model.
-        class_weight: float
-            class_weight of the inclusions.
-        C: float
-            C parameter of the SVM model.
-        kernel: str
-            SVM kernel type.
-        random_state: int, RandomState
-            State of the RNG.
-        """
+    def __init__(self,
+                 gamma="auto",
+                 class_weight=0.249,
+                 C=15.4,
+                 kernel="linear",
+                 random_state=None):
         super(SVMModel, self).__init__()
         self.gamma = gamma
         self.class_weight = class_weight
@@ -46,10 +54,13 @@ class SVMModel(BaseTrainModel):
         self.kernel = kernel
         self._random_state = random_state
 
-        self._model = SVC(kernel=kernel, C=C,
-                          class_weight=_set_class_weight(class_weight),
-                          random_state=random_state, gamma=gamma,
-                          probability=True)
+        self._model = SVC(
+            kernel=kernel,
+            C=C,
+            class_weight=_set_class_weight(class_weight),
+            random_state=random_state,
+            gamma=gamma,
+            probability=True)
 
     def full_hyper_space(self):
         from hyperopt import hp

@@ -1,9 +1,9 @@
 import logging
 
 import pandas as pd
-from RISparser import readris
-from RISparser import TAG_KEY_MAPPING
-from RISparser.config import LIST_TYPE_TAGS
+import rispy
+from rispy import TAG_KEY_MAPPING
+from rispy.config import LIST_TYPE_TAGS
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import standardize_dataframe
@@ -38,8 +38,8 @@ def read_ris(fp):
 
     Returns
     -------
-    list:
-        List with entries.
+    pandas.DataFrame:
+        Dataframe with entries.
 
     """
 
@@ -49,7 +49,7 @@ def read_ris(fp):
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
                 mapping = _tag_key_mapping(reverse=False)
-                entries = list(readris(bibliography_file, mapping=mapping))
+                entries = list(rispy.load(bibliography_file, mapping=mapping))
                 break
         except UnicodeDecodeError:
             pass

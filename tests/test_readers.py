@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from pytest import mark
@@ -7,22 +6,20 @@ import numpy as np
 from asreview import ASReviewData
 
 
-@mark.parametrize(
-    "test_file,n_lines,labels,ignore_col",
-    [
-        ("embase.csv", 6, None, ["keywords"]),
-        ("embase.ris", 6, None, []),
-        ("generic.csv", 2, None, []),
-        ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0], []),
-        ("generic.ris", 2, None, []),
-        ("generic_labels.ris", 2, [1, 0], []),
-        ("pubmed_zotero.ris", 6, None, []),
-        ("pubmed_endnote.txt", 6, None, []),
-        ("scopus.ris", 6, None, []),
-        ("ovid_zotero.ris", 6, None, []),
-        ("proquest.ris", 6, None, []),
-        ("pubmed.xml", 10, None, []),
-    ])
+@mark.parametrize("test_file,n_lines,labels,ignore_col", [
+    ("embase.csv", 6, None, ["keywords"]),
+    ("embase.ris", 6, None, []),
+    ("generic.csv", 2, None, []),
+    ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0], []),
+    ("generic.ris", 2, None, []),
+    ("generic_labels.ris", 2, [1, 0], []),
+    ("pubmed_zotero.ris", 6, None, []),
+    ("pubmed_endnote.txt", 6, None, []),
+    ("scopus.ris", 6, None, []),
+    ("ovid_zotero.ris", 6, None, []),
+    ("proquest.ris", 6, None, []),
+    ("pubmed.xml", 10, None, []),
+])
 def test_reader(test_file, n_lines, labels, ignore_col):
     fp = Path("tests", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)

@@ -27,7 +27,7 @@ import versioneer
 
 
 def get_long_description():
-    """Get project description based on README"""
+    """Get project description based on README."""
     here = path.abspath(path.dirname(__file__))
 
     # Get the long description from the README file
@@ -53,7 +53,8 @@ DEPS['all'] += DEPS['tensorflow']
 
 class CompileAssets(Command):
     """
-    Compile and build the frontend assets using yarn and webpack.
+    Compile and build the frontend assets using npm and webpack.
+
     Registered as cmdclass in setup() so it can be called with
     ``python setup.py compile_assets``.
     """
@@ -69,10 +70,8 @@ class CompileAssets(Command):
 
     def run(self):
         """Run a command to compile and build assets."""
-        subprocess.check_call(
-            'sh ./asreview/webapp/compile_assets.sh',
-            shell=True
-        )
+        subprocess.check_call('sh ./asreview/webapp/compile_assets.sh',
+                              shell=True)
 
 
 def get_cmdclass():
@@ -92,13 +91,17 @@ setup(
     author='ASReview Core Development Team',
     author_email='asreview@uu.nl',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Framework :: Flask',
     ],
-    keywords='systematic review',
+    keywords='systematic review machine-learning',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     package_data={'asreview': [
         'webapp/build/*',
@@ -109,12 +112,12 @@ setup(
         'numpy',
         'sklearn',
         'pandas',
-        'RISparser',
+        'rispy',
         'dill',
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
-        'flask',
+        'flask>=1.1',
         'flask_cors',
         'openpyxl',
     ],
@@ -124,10 +127,12 @@ setup(
             'asreview=asreview.__main__:main',
         ],
         'asreview.entry_points': [
-            'simulate=asreview.entry_points:SimulateEntryPoint',
-            'oracle=asreview.entry_points:GUIEntryPoint',
+            'lab=asreview.entry_points:LABEntryPoint',
+            'oracle=asreview.entry_points:OracleEntryPoint',  # deprecated (use lab)
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
+            'simulate=asreview.entry_points:SimulateEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
+            'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
@@ -154,11 +159,22 @@ setup(
             'embedding-lstm = asreview.feature_extraction.embedding_lstm:EmbeddingLSTM',  # noqa
             'sbert = asreview.feature_extraction.sbert:SBERT',
             'tfidf = asreview.feature_extraction.tfidf:Tfidf',
+        ],
+        'asreview.balance_strategy': [
+            "simple = asreview.balance_strategies.simple:SimpleBalance",
+            "double = asreview.balance_strategies.double:DoubleBalance",
+            "triple = asreview.balance_strategies.triple:TripleBalance",
+            "undersample = asreview.balance_strategies.undersample:UndersampleBalance",  # noqa
+        ],
+        'asreview.query_strategy': [
+            "max = asreview.query_strategies.max:MaxQuery",
+            "random = asreview.query_strategies.random:RandomQuery",
+            "uncertainty = asreview.query_strategies.uncertainty:UncertaintyQuery",  # noqa
+            "cluster = asreview.query_strategies.cluster:ClusterQuery",
         ]
     },
     project_urls={
-        'Bug Reports':
-            'https://github.com/asreview/asreview/issues',
+        'Bug Reports': 'https://github.com/asreview/asreview/issues',
         'Source': 'https://github.com/asreview/asreview/',
     },
 )

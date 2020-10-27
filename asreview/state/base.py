@@ -241,7 +241,7 @@ class BaseState(ABC):
             n_queries = self.n_queries()
             last_inclusions = None
             try:
-                last_inclusions = self.get("inclusions", n_queries-1)
+                last_inclusions = self.get("inclusions", n_queries - 1)
             except KeyError:
                 last_inclusions = []
             if last_inclusions is None:
@@ -336,7 +336,8 @@ class BaseState(ABC):
 
         query_datasets = [
             "label_methods", "label_idx", "inclusions", "proba", "pool_idx",
-            "train_idx"]
+            "train_idx"
+        ]
         state_dict["results"] = []
         for query_i in range(self.n_queries()):
             state_dict["results"].append({})

@@ -78,9 +78,9 @@ class DictState(BaseState):
         # Find the first number that has not yet been used.
         results = self._state_dict["results"]
         if i is None:
-            if (len(results) > 0
-                    and set(new_dict.keys()).isdisjoint(results[-1])):
-                i = len(results)-1
+            if (len(results) > 0 and
+                    set(new_dict.keys()).isdisjoint(results[-1])):
+                i = len(results) - 1
             else:
                 i = len(results)
 
@@ -215,7 +215,9 @@ class DictState(BaseState):
     def initialize_structure(self):
         from asreview import __version__ as asr_version
         self._state_dict = OrderedDict({
-            "time": {"start_time": str(datetime.now())},
+            "time": {
+                "start_time": str(datetime.now())
+            },
             "version": self.version,
             "software_version": asr_version,
             "settings": {},

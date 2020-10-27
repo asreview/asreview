@@ -8,10 +8,13 @@ from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
+from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
-from asreview.entry_points.gui import _oracle_parser
+from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
+from asreview.webapp.utils.project import clean_project_tmp_files
+from asreview.webapp.utils.project import clean_all_project_tmp_files
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -47,9 +50,22 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"*": {"origins": "*"}})
 
     app.register_blueprint(api.bp)
+
+    @app.errorhandler(InternalServerError)
+    def error_500(e):
+        original = getattr(e, "original_exception", None)
+
+        if original is None:
+            # direct 500 error, such as abort(500)
+            logging.error(e)
+            return jsonify(message="Whoops, something went wrong."), 500
+
+        # wrapped unhandled error
+        logging.error(e.original_exception)
+        return jsonify(message=str(e.original_exception)), 500
 
     @app.route('/', methods=['GET'])
     def index():
@@ -94,11 +110,22 @@ def create_app(**kwargs):
 
 def main(argv):
 
-    parser = _oracle_parser(prog="oracle")
-    kwargs = vars(parser.parse_args(argv))
+    parser = _lab_parser(prog="lab")
+    args = parser.parse_args(argv)
 
-    host = kwargs.pop("ip")
-    port = kwargs.pop("port")
+    # clean all projects
+    if args.clean_all_projects:
+        clean_all_project_tmp_files()
+        return
+
+    # clean project by project_id
+    if args.clean_project is not None:
+        clean_project_tmp_files(args.clean_project)
+        return
+
+    # shortcuts for host and port
+    host = args.ip
+    port = args.port
 
     def _internal_open_webbrowser():
         _open_browser(host, port)
@@ -111,5 +138,10 @@ def main(argv):
         "\n\n\n\nIf your browser doesn't open. "
         "Please navigate to '{url}'\n\n\n\n".format(url=_url(host, port)))
 
-    app = create_app(**kwargs)
+    app = create_app(
+        embedding_fp=args.embedding_fp,
+        config_file=args.config_file,
+        seed=args.seed
+    )
+    app.config['PROPAGATE_EXCEPTIONS'] = False
     app.run(host=host, port=port)

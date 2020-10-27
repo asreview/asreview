@@ -12,10 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.utils import list_model_names
+from asreview.utils import _model_class_from_entry_point
+
+
+def list_query_strategies():
+    """List available query strategies.
+
+    This excludes all possible mixed query strategies.
+
+    Returns
+    -------
+    list:
+        Names of available query strategies in alphabetical order.
+    """
+    return list_model_names(entry_name="asreview.query_strategy")
+
 
 def get_query_class(method):
     """Get class of query strategy from its name.
-
 
     Arguments
     ---------
@@ -29,22 +44,14 @@ def get_query_class(method):
     BaseQueryModel:
         Class corresponding to the method name.
     """
-    from asreview.query_strategies.cluster import ClusterQuery
-    from asreview.query_strategies.max import MaxQuery
-    from asreview.query_strategies.uncertainty import UncertaintyQuery
-    from asreview.query_strategies.random import RandomQuery
     from asreview.query_strategies.mixed import MixedQuery
-    query_models = {
-        "cluster": ClusterQuery,
-        "max": MaxQuery,
-        "uncertainty": UncertaintyQuery,
-        "random": RandomQuery,
-    }
 
     # Try to split the query strategy if the string wasn't found.
     try:
-        return query_models[method]
-    except KeyError:
+        return _model_class_from_entry_point(
+            method,
+            entry_name="asreview.query_strategy")
+    except ValueError:
         mix = method.split("_")
         if len(mix) == 2:
             return MixedQuery
@@ -73,10 +80,10 @@ def get_query_model(method, *args, random_state=None, **kwargs):
     if query_class == MixedQuery:
         mix = method.split("_")
         for i in range(2):
-            kwargs.pop("strategy_" + str(i+1), None)
+            kwargs.pop("strategy_" + str(i + 1), None)
         try:
-            return query_class(mix[0], mix[1], *args,
-                               random_state=random_state, **kwargs)
+            return query_class(
+                mix[0], mix[1], *args, random_state=random_state, **kwargs)
         except TypeError:
             return query_class(mix[0], mix[1], *args, **kwargs)
     try:

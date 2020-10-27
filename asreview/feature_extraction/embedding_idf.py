@@ -12,51 +12,70 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from math import log
 
 import numpy as np
-import logging
 
 try:
     import tensorflow as tf
+    from tensorflow.keras.preprocessing.text import text_to_word_sequence
 except ImportError:
-    raise ImportError("Install tensorflow package (`pip install tensorflow`)"
-                      " to use 'embedding-idf' model.")
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+    try:
+        tf.logging.set_verbosity(tf.logging.ERROR)
+    except AttributeError:
+        logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-try:
-    tf.logging.set_verbosity(tf.logging.ERROR)
-except AttributeError:
-    logging.getLogger("tensorflow").setLevel(logging.ERROR)
-from tensorflow.keras.preprocessing.text import text_to_word_sequence
 
 from asreview.feature_extraction.embedding_lstm import load_embedding
 from asreview.feature_extraction.base import BaseFeatureExtraction
 from asreview.utils import get_random_state
 
 
+def _check_tensorflow():
+    if not TF_AVAILABLE:
+        raise ImportError(
+            "Install tensorflow package (`pip install tensorflow`) to use"
+            " 'EmbeddingIdf'.")
+
+
 class EmbeddingIdf(BaseFeatureExtraction):
     """Class for Embedding-Idf model.
 
-    This model averages the weighted word vectors of all the words in the text,
-    in order to get a single feature vector for each text. The weights are
-    provided by the inverse document frequencies.
+    This model averages the weighted word vectors of all the words in the
+    text, in order to get a single feature vector for each text. The weights
+    are provided by the inverse document frequencies.
+
+    .. note::
+
+        This feature extraction algorithm requires ``tensorflow`` to be
+        installed. Use ``pip install tensorflow`` or install all optional
+        ASReview dependencies with ``pip install asreview[all]``
+
+    Arguments
+    ---------
+    embedding_fp: str
+        Path to embedding.
+
     """
+
     name = "embedding-idf"
 
     def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
-        """Initialize the Embedding-Idf model
-
-        Arguments
-        ---------
-        embedding_fp: str
-            Path to embedding.
-        """
+        """Initialize the Embedding-Idf model."""
         super(EmbeddingIdf, self).__init__(*args, **kwargs)
         self.embedding_fp = embedding_fp
         self.embedding = None
         self._random_state = get_random_state(random_state)
 
     def transform(self, texts):
+
+        # check is tensorflow is available
+        _check_tensorflow()
+
         if self.embedding is None:
             if self.embedding_fp is None:
                 raise ValueError(
@@ -95,7 +114,7 @@ def _get_idf(text_dicts):
 
     idf = {}
     for word in all_count:
-        idf[word] = log(len(text_dicts)/all_count[word])
+        idf[word] = log(len(text_dicts) / all_count[word])
     return idf
 
 
@@ -111,9 +130,9 @@ def _get_X_from_dict(text_dicts, idf, embedding, random_state):
             if cur_vec is None:
                 continue
             if text_vec is None:
-                text_vec = cur_vec*cur_idf*cur_count
+                text_vec = cur_vec * cur_idf * cur_count
             else:
-                text_vec += cur_vec*cur_idf*cur_count
+                text_vec += cur_vec * cur_idf * cur_count
         if text_vec is None:
             text_vec = random_state.random(n_vec)
 
