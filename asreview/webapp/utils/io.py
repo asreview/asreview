@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
+from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
 from asreview.webapp.utils.paths import get_data_file_path
@@ -14,14 +15,16 @@ from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_proba_path
 
 
-def read_data(project_id, save_tmp=True):
+def read_data(project_id, use_cache=True, save_cache=True):
     """Get ASReviewData object from file.
 
     Parameters
     ----------
     project_id: str, iterable
         The project identifier.
-    save_tmp: bool
+    use_cache: bool
+        Use the pickle file if available.
+    save_cache: bool
         Save the file to a pickle file if not available.
 
     Returns
@@ -33,26 +36,31 @@ def read_data(project_id, save_tmp=True):
     fp_data = get_data_file_path(project_id)
     fp_data_pickle = Path(fp_data).with_suffix(fp_data.suffix + ".pickle")
 
-    try:
-        # get the pickle data
-        with open(fp_data_pickle, 'rb') as f_pickle_read:
-            data_obj = pickle.load(f_pickle_read)
-        return data_obj
-    except FileNotFoundError:
-        # file not available
-        data_obj = ASReviewData.from_file(fp_data)
-    except pickle.PickleError:
-        # problem loading pickle file
-        # remove the pickle file
-        os.remove(fp_data_pickle)
+    # use pickle file
+    if use_cache:
+        try:
+            # get the pickle data
+            with open(fp_data_pickle, 'rb') as f_pickle_read:
+                data_obj, data_obj_version = pickle.load(f_pickle_read)
 
-        data_obj = ASReviewData.from_file(fp_data)
+            if asreview_version == data_obj_version:
+                return data_obj
+        except FileNotFoundError:
+            # file not available
+            pass
+        except (pickle.PickleError, TypeError, ValueError):
+            # problem loading pickle file or outdated
+            # remove the pickle file
+            os.remove(fp_data_pickle)
+
+    # load from file
+    data_obj = ASReviewData.from_file(fp_data)
 
     # save a pickle version
-    if save_tmp:
+    if save_cache:
         logging.info("Store a copy of the data in a pickle file.")
         with open(fp_data_pickle, 'wb') as f_pickle:
-            pickle.dump(data_obj, f_pickle)
+            pickle.dump((data_obj, asreview_version), f_pickle)
 
     return data_obj
 
