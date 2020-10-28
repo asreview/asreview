@@ -145,7 +145,7 @@ const PreReviewZone = (props) => {
                 handleStep={handleStep}
                 setNext={setNext}
                 scrollToBottom={scrollToBottom}
-                includeExampleDataSets={props.includeExampleDataSets}
+                includePlugins={props.includePlugins}
               />
               <div ref={EndRef} />
             </Box>

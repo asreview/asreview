@@ -250,7 +250,7 @@ const ProjectPageOracle  = (props) => {
               finishProjectSetup={finishProjectSetup}
               scrollToTop={scrollToTop}
               isPriorKnowledgeEditable={true}
-              includeExampleDataSets={true}
+              includePlugins={true}
             />
           }
         </Container>

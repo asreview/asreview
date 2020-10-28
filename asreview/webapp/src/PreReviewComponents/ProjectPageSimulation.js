@@ -220,7 +220,7 @@ const ProjectPageSimulation = (props) => {
               finishProjectSetup={finishProjectSetup}
               scrollToTop={scrollToTop}
               isPriorKnowledgeEditable={false}
-              includeExampleDataSets={false}
+              includePlugins={false}
             />
           }
         </Container>

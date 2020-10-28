@@ -120,7 +120,7 @@ const ProjectUpload = ({
   handleStep,
   setNext,
   scrollToBottom,
-  includeExampleDataSets
+  includePlugins
 }) => {
 
   const classes = useStyles();
@@ -429,10 +429,11 @@ const ProjectUpload = ({
               >
                 <Tab label="From file" value="file" />
                 <Tab label="From url" value="url"/>
+                { includePlugins &&
                 <Tab label="From plugin" value="plugin"/>
-                {includeExampleDataSets &&
-                <Tab label="Example datasets" value="test" /> 
                 }
+                <Tab label="Example datasets" value="test" /> 
+                
               </Tabs>
 
             <CardContent>
