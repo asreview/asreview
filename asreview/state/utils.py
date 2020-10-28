@@ -152,7 +152,8 @@ def state_from_dot_asreview(data_fp):
     Returns
     -------
     BaseState:
-        The same type of state file as in the .asreview file, which at the moment is JSONState.
+        The same type of state file as in the .asreview file, which at the moment
+        is JSONState.
     """
     if not Path(data_fp).suffix == '.asreview':
         logging.error(f"file {data_fp} does not end with '.asreview'.")
