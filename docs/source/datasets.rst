@@ -2,22 +2,16 @@ Datasets
 ========
 
 To perform an systematic review, ASReview LAB requires a dataset representing
-all documents or publications obtained in a systematic search. To create such
-a dataset for a systematic review, typically an online library search is
+all records (e.g., abstracs of scientific papers) obtained in a systematic search. To create such
+a dataset for a systematic review, typically an `online library search <https://asreview.nl/the-importance-of-abstracts/>` is
 performed for all studies related to a particular topic.
 
-Each entry in the dataset should hold metadata on a paper.  Mandatory metadata
-are ``title`` and ``abstract``. Other metadata such as ``id``, ``author``,
-``date``, and ``keywords`` are optional. When using ASReview in simulation
-mode, an additional binary variable to indicate labeling decisions is
-required, called ``included`` or ``label_included``.  All entries in the
-dataset need to be screened, with the goal to select all relevant papers.
-
-For testing and demonstrating ASReview, the software offers
+It is possible to use
+`your own dataset <#using-your-own-data>`__ with unlabelled records, 
+partly labelled records (where the labelled records are used for training a model), 
+or fully labelled records (used for the Simulation mode).
+For testing and demonstrating ASReview (used for the Exploration mode), the software offers
 `three built-in datasets <#built-in-demonstration-data-sets>`__
-It is also possible to perform an automated systematic review on
-`your own dataset <#using-your-own-data>`__.
-
 
 Data format
 -----------
@@ -25,20 +19,32 @@ Data format
 To carry out an automated systematic review on your own dataset, your data file needs
 to adhere to a certain format. ASReview accepts the following formats:
 
- - `Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_.
+ - **RIS-files**.`Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_.
    Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
    and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support
    the RIS format as well.
  - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should
-   be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of
-   predetermined labels in line with the ones used in RIS files.
+   be comma separated and UTF-8 encoded. 
 
+
+Metadata
+--------
 Each entry in the dataset should hold metadata on a paper. Mandatory metadata
-are title and abstract. Other metadata such as id, author, date, and keywords
-are optional. When using ASReview in simulation mode, an additional binary
-variable to indicate labeling decisions is required, called included or
-label_included. All entries in the dataset need to be screened, with the goal
-to select all relevant papers.
+are ``title`` or ``abstract``. If both are available the text is combined and used for training the model. 
+If ``keywords`` and/or ``author`` are available it can be used for searching prior knowledge. Note
+the information is not shown during the screening phase and is also not used for training the model, 
+but the information is available via the API.
+If ``DOI`` is available it will be displayed during the screening phase as a clickable hyperlink to the full text document. 
+Note by using ASReview you do not automatically have access to full-text and if you do not have access 
+you might want to read our `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>` on this topic. 
+
+When using ASReview in simulation mode, an additional binary
+variable to indicate labeling decisions (``0`` = irrelevant, ``1`` = relevant) is required for ALL records.
+If labels are available for a part of the dataset (i.e., partly labelled data), 
+the labels will be automatically detected and used for prior knowledge. 
+
+For RIS and CSV files, the software accepts a set of
+   predetermined labels:
 
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
 | Name     | CSV names                                                                                               | Mandatory |
