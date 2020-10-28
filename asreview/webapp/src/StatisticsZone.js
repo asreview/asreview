@@ -112,12 +112,12 @@ const StatisticsZone = (props) => {
         })
     }
 
-    if (props.projectInitReady && !props.training){
+    if (props.statisticsAvailable) {
         getProgressInfo();
         getProgressHistory();
         getProgressEfficiency();
     }
-  }, [props.projectInitReady, props.training, props.project_id]);
+  }, [props.statisticsAvailable, props.project_id]);
 
   return (
     <Box>
@@ -162,12 +162,12 @@ const StatisticsZone = (props) => {
             </Grid>
           </Grid>
         }
-        {(statistics === null && !(!props.projectInitReady || props.training)) &&
+        {(statistics === null && props.statisticsAvailable) &&
           <Box className={classes.notAvailable}>
             <CircularProgress/>
           </Box>
         }
-        {(!props.projectInitReady || props.training) &&
+        { !props.statisticsAvailable &&
           <Box
             className={classes.notAvailable}
           >

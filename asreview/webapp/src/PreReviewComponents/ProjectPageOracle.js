@@ -226,8 +226,7 @@ const ProjectPageOracle  = (props) => {
             <Box className={classes.cardBox}>
               <StatisticsZone
                 project_id={props.project_id}
-                projectInitReady={state.info.projectInitReady}
-                training={state.training}
+                statisticsAvailable={state.info.projectInitReady && !state.training}
               />
               <PublicationZone
                 project_id={props.project_id}

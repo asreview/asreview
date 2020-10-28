@@ -41,10 +41,6 @@ const ProjectPageSimulation = (props) => {
     return null
   }
 
-  const hasSimulations = (info) => {
-    return info.simulations.length > 0
-  }
-
   const hasRunningSimulation = (info) => {
     return runningSimulation(info) !== null
   }
@@ -53,10 +49,18 @@ const ProjectPageSimulation = (props) => {
     info: props.info,
 
     // stage
-    setup: !props.info.projectSetupReady,
+    initial: !props.info.projectSetupReady,
+    setup: false,
     simulating: hasRunningSimulation(props.info),
-    idle: !hasRunningSimulation(props.info),
+    finished: props.info.projectSetupReady && !hasRunningSimulation(props.info),
   });
+
+  const continueProjectSetup = () => {
+    setState({...state,
+      initial: false,
+      setup : true,
+    })
+  }
 
   const finishProjectSetup = () => {
     ProjectAPI.markSetupReady(props.project_id)
@@ -83,7 +87,7 @@ const ProjectPageSimulation = (props) => {
 
   const returnElasState = () => {
     // Setup
-    if (state.setup){
+    if (state.initial || state.setup){
       return SetUp
     }
 
@@ -144,6 +148,16 @@ const ProjectPageSimulation = (props) => {
 
               <Box className={classes.quickStartButtons}>
 
+                {state.initial &&
+                  <Button
+                  className={classes.continuButton}
+                  variant={"outlined"}
+                  onClick={continueProjectSetup}
+                >
+                  {state.info.projectHasDataset ? "Finish" : "Start"} setup
+                </Button>
+              }
+
                 {state.simulating &&
                   <div className={classes.wrapper}>
                     <Button
@@ -158,7 +172,7 @@ const ProjectPageSimulation = (props) => {
                   </div>
                 }
 
-                {state.idle && hasSimulations(state.info) && runningSimulation(state.info) === null &&
+                {state.finished &&
                   <Typography
                     color="primary"
                     variant="h5"
@@ -184,8 +198,7 @@ const ProjectPageSimulation = (props) => {
             <Box className={classes.cardBox}>
               <StatisticsZone
                 project_id={props.project_id}
-                projectInitReady={true}
-                training={false}
+                statisticsAvailable={state.finished}
               />
               <PublicationZone
                 project_id={props.project_id}
