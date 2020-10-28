@@ -32,11 +32,8 @@ dataset is compiled and maintained by a collaboration of the Allen
 Institute for AI, the Chan Zuckerberg Initiative, Georgetown
 University’s Center for Security and Emerging Technology, Microsoft
 Research, and the National Library of Medicine of the National
-Institutes of Health. Version 5 of the dataset
-(`csv <https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/2020-03-27/metadata.csv>`__,
-dated March 27, 2020) contains metadata of 45.8K publications on
-COVID-19 and coronavirus-related research. The CORD-19 dataset is
-updated weekly.
+Institutes of Health. The data is updated 
+`daily <https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/historical_releases.html>`__.
 
 ASReview plugin
 ---------------
