@@ -6,12 +6,12 @@ all records (e.g., abstracs of scientific papers) obtained in a systematic searc
 a dataset for a systematic review, typically an `online library search <https://asreview.nl/the-importance-of-abstracts/>` is
 performed for all studies related to a particular topic.
 
-It is possible to use
-`your own dataset <#using-your-own-data>`__ with unlabelled records, 
+It is possible to use your own dataset with unlabelled records, 
 partly labelled records (where the labelled records are used for training a model), 
 or fully labelled records (used for the Simulation mode).
 For testing and demonstrating ASReview (used for the Exploration mode), the software offers
-`three built-in datasets <#built-in-demonstration-data-sets>`__
+`three built-in datasets <https://asreview.readthedocs.io/en/latest/datasets.html#demonstration-datasets>`__
+Also, a plugin with `Corona related publications<https://asreview.readthedocs.io/en/latest/covid-19.html>` is available. 
 
 Data format
 -----------
@@ -19,32 +19,11 @@ Data format
 To carry out an automated systematic review on your own dataset, your data file needs
 to adhere to a certain format. ASReview accepts the following formats:
 
- - **RIS-files**.`Research Information Systems (RIS) <https://en.wikipedia.org/wiki/RIS_(file_format)>`_.
-   Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
+ - **RIS-files**.  Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
    and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support
    the RIS format as well.
  - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should
-   be comma separated and UTF-8 encoded. 
-
-
-Metadata
---------
-Each entry in the dataset should hold metadata on a paper. Mandatory metadata
-are ``title`` or ``abstract``. If both are available the text is combined and used for training the model. 
-If ``keywords`` and/or ``author`` are available it can be used for searching prior knowledge. Note
-the information is not shown during the screening phase and is also not used for training the model, 
-but the information is available via the API.
-If ``DOI`` is available it will be displayed during the screening phase as a clickable hyperlink to the full text document. 
-Note by using ASReview you do not automatically have access to full-text and if you do not have access 
-you might want to read our `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>` on this topic. 
-
-When using ASReview in simulation mode, an additional binary
-variable to indicate labeling decisions (``0`` = irrelevant, ``1`` = relevant) is required for ALL records.
-If labels are available for a part of the dataset (i.e., partly labelled data), 
-the labels will be automatically detected and used for prior knowledge. 
-
-For RIS and CSV files, the software accepts a set of
-   predetermined labels:
+   be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of predetermined labels:
 
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
 | Name     | CSV names                                                                                               | Mandatory |
@@ -63,6 +42,25 @@ For RIS and CSV files, the software accepts a set of
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
 
 \* Either a title or an abstract is mandatory.
+
+
+Metadata
+--------
+
+Each entry in the dataset should hold metadata on a paper. Mandatory metadata
+are ``title`` or ``abstract``. If both title and abstract are available the text is combined and used for training the model. 
+If ``keywords`` and/or ``author`` are available it can be used for searching prior knowledge. Note
+the information is not shown during the screening phase and is also not used for training the model, 
+but the information is available via the API.
+If ``DOI`` is available it will be displayed during the screening phase as a clickable hyperlink to the full text document. 
+Note by using ASReview you do not automatically have access to full-text and if you do not have access 
+you might want to read this `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`. 
+
+When using the ASReview command line interface (link) for simulation, an additional binary
+variable to indicate labeling decisions (``0`` = irrelevant, ``1`` = relevant) is required for ALL records.
+If labels are available for a part of the dataset (i.e., partly labelled data), 
+the labels will be automatically detected and used for prior knowledge. 
+
 
 Compatibility
 -------------
