@@ -2,7 +2,7 @@ Datasets
 ========
 
 To perform an systematic review, ASReview LAB requires a dataset representing
-all records (e.g., abstracs of scientific papers) obtained in a systematic search. To create such
+all records (e.g., abstracts of scientific papers) obtained in a systematic search. To create such
 a dataset for a systematic review, typically an `online library search <https://asreview.nl/the-importance-of-abstracts/>` is
 performed for all studies related to a particular topic.
 
