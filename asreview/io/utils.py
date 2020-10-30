@@ -9,9 +9,9 @@ from asreview.exceptions import BadFileFormatError
 
 def type_from_column(col_name, col_definitions):
     """Transform a column name to its standardized form."""
-    for definition in col_definitions:
+    for name, definition in col_definitions.items():
         if col_name.lower() in definition:
-            return definition[0]
+            return name
     return None
 
 
@@ -98,9 +98,9 @@ def standardize_dataframe(df, column_spec={}):
             pass
 
     # Convert labels to integers.
-    if "final_included" in col_names:
+    if "included" in col_names:
         try:
-            col = all_column_spec["final_included"]
+            col = all_column_spec["included"]
             df[col].fillna(LABEL_NA, inplace=True)
             df[col] = pd.to_numeric(df[col])
         except KeyError:
@@ -108,8 +108,8 @@ def standardize_dataframe(df, column_spec={}):
         except ValueError:
             logging.warning("Failed to parse label column name, no labels will"
                             " be present.")
-            df.rename(columns={"label": "final_included"})
-            all_column_spec.pop("final_included")
+            df.rename(columns={"label": "included"})
+            all_column_spec.pop("included")
 
     # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):
