@@ -37,16 +37,25 @@ def read_data(project_id, save_tmp=True):
         # get the pickle data
         with open(fp_data_pickle, 'rb') as f_pickle_read:
             data_obj = pickle.load(f_pickle_read)
+
+        # validate object
+        if not isinstance(data_obj, ASReviewData):
+            raise ValueError("Expected ASReviewData object.")
+
         return data_obj
+
     except FileNotFoundError:
         # file not available
-        data_obj = ASReviewData.from_file(fp_data)
-    except pickle.PickleError:
+        pass
+    except Exception:
         # problem loading pickle file
         # remove the pickle file
-        os.remove(fp_data_pickle)
+        try:
+            os.remove(fp_data_pickle)
+        except FileNotFoundError:
+            pass
 
-        data_obj = ASReviewData.from_file(fp_data)
+    data_obj = ASReviewData.from_file(fp_data)
 
     # save a pickle version
     if save_tmp:
