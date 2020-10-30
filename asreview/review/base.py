@@ -18,12 +18,12 @@ import warnings
 
 import numpy as np
 
-from asreview.balance_strategies.simple import SimpleBalance
+from asreview.models.balance.simple import SimpleBalance
 from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
-from asreview.feature_extraction.tfidf import Tfidf
-from asreview.models.nb import NBModel
-from asreview.query_strategies.max import MaxQuery
-from asreview.query_strategies.random import RandomQuery
+from asreview.models.feature_extraction.tfidf import Tfidf
+from asreview.models.classifiers import NaiveBayesClassifier
+from asreview.models.query.max import MaxQuery
+from asreview.models.query.random import RandomQuery
 from asreview.settings import ASReviewSettings
 from asreview.state.utils import open_state
 
@@ -127,7 +127,7 @@ class BaseReview(ABC):
 
         # Default to Naive Bayes model
         if model is None:
-            model = NBModel()
+            model = NaiveBayesClassifier()
         if query_model is None:
             query_model = MaxQuery()
         if balance_model is None:

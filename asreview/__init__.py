@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from asreview.data import ASReviewData
-from asreview.feature_extraction.embedding_lstm import load_embedding
-from asreview.feature_extraction.embedding_lstm import sample_embedding
-from asreview.feature_extraction.embedding_lstm import text_to_features
+from asreview.models.feature_extraction.embedding_lstm import load_embedding
+from asreview.models.feature_extraction.embedding_lstm import sample_embedding
+from asreview.models.feature_extraction.embedding_lstm import text_to_features
 from asreview.io.csv_reader import read_csv
 from asreview.io.excel_reader import read_excel
 from asreview.io.pubmed_xml_reader import read_pubmed_xml
