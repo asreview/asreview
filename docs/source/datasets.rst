@@ -2,16 +2,17 @@ Datasets
 ========
 
 To perform an systematic review, ASReview LAB requires a dataset representing
-all records (e.g., abstracts of scientific papers) obtained in a systematic search. To create such
-a dataset for a systematic review, typically an `online library search <https://asreview.nl/the-importance-of-abstracts/>` is
+all records (e.g., abstracts of scientific papers) obtained in a systematic
+search. To create such a dataset for a systematic review, typically an `online
+library search <https://asreview.nl/the-importance-of-abstracts/>` is
 performed for all studies related to a particular topic.
 
-It is possible to use your own dataset with unlabelled records, 
-partly labelled records (where the labelled records are used for training a model), 
-or fully labelled records (used for the Simulation mode).
-For testing and demonstrating ASReview (used for the Exploration mode), the software offers
-`three built-in datasets <https://asreview.readthedocs.io/en/latest/datasets.html#demonstration-datasets>`__
-Also, a plugin with `Corona related publications<https://asreview.readthedocs.io/en/latest/covid-19.html>` is available. 
+It is possible to use your own dataset with unlabelled records, partly
+labelled records (where the labelled records are used for training a model),
+or fully labelled records (used for the Simulation mode). For testing and
+demonstrating ASReview (used for the Exploration mode), the software offers
+`three built-in datasets <datasets.html#demonstration-datasets>`__ Also, a
+plugin with `Corona related publications<covid-19.html>` is available.
 
 Data format
 -----------
@@ -48,18 +49,22 @@ Metadata
 --------
 
 Each entry in the dataset should hold metadata on a paper. Mandatory metadata
-are ``title`` or ``abstract``. If both title and abstract are available the text is combined and used for training the model. 
-If ``keywords`` and/or ``author`` are available it can be used for searching prior knowledge. Note
-the information is not shown during the screening phase and is also not used for training the model, 
-but the information is available via the API.
-If ``DOI`` is available it will be displayed during the screening phase as a clickable hyperlink to the full text document. 
-Note by using ASReview you do not automatically have access to full-text and if you do not have access 
-you might want to read this `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`. 
+are ``title`` or ``abstract``. If both title and abstract are available the
+text is combined and used for training the model. If ``keywords`` and/or
+``author`` are available it can be used for searching prior knowledge. Note
+the information is not shown during the screening phase and is also not used
+for training the model, but the information is available via the API. If
+``DOI`` is available it will be displayed during the screening phase as a
+clickable hyperlink to the full text document. Note by using ASReview you do
+not automatically have access to full-text and if you do not have access you
+might want to read this `blog post <https://asreview.nl/tools-that-work-well-
+with-asreview-google-scholar-button/>`.
 
-When using the ASReview command line interface (link) for simulation, an additional binary
-variable to indicate labeling decisions (``0`` = irrelevant, ``1`` = relevant) is required for ALL records.
-If labels are available for a part of the dataset (i.e., partly labelled data), 
-the labels will be automatically detected and used for prior knowledge. 
+When using the ASReview command line interface (link) for simulation, an
+additional binary variable to indicate labeling decisions (``0`` = irrelevant,
+``1`` = relevant) is required for ALL records. If labels are available for a
+part of the dataset (i.e., partly labelled data), the labels will be
+automatically detected and used for prior knowledge.
 
 
 Compatibility
@@ -229,10 +234,11 @@ Name (for the simulation mode): ``example_hall``
 Cohen (ACE Inhibitors)
 ~~~~~~~~~~~~~~~~~~~~~~
 
-dataset from a project set up to test the performance of automated review systems such as
-the ASReview project. The project includes several datasets from the medical sciences.
-The dataset implemented in ASReview is the ``ACEInhibitors`` dataset.
-Of the 2544 entries in the dataset, 41 were included in the systematic review.
+A dataset from a project set up to test the performance of automated review
+systems such as the ASReview project. The project includes several datasets
+from the medical sciences. The dataset implemented in ASReview is the
+``ACEInhibitors`` dataset. Of the 2544 entries in the dataset, 41 were
+included in the systematic review.
 
 **Reducing Workload in Systematic Review Preparation Using Automated Citation Classification**
 A.M. Cohen, MD, MS, W.R. Hersh, MD, K. Peterson, MS, and Po-Yin Yen, MS. https://doi.org/10.1197/jamia.M1929
