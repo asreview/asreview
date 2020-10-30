@@ -4,7 +4,7 @@ Datasets
 To perform an systematic review, ASReview LAB requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
 search. To create such a dataset for a systematic review, typically an `online
-library search <https://asreview.nl/the-importance-of-abstracts/>` is
+library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
 It is possible to use your own dataset with unlabelled records, partly
@@ -12,7 +12,7 @@ labelled records (where the labelled records are used for training a model),
 or fully labelled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
 `three built-in datasets <datasets.html#demonstration-datasets>`__ Also, a
-plugin with `Corona related publications<covid-19.html>` is available.
+plugin with `Corona related publications <covid-19.html>`__ is available.
 
 Data format
 -----------
@@ -57,8 +57,7 @@ for training the model, but the information is available via the API. If
 ``DOI`` is available it will be displayed during the screening phase as a
 clickable hyperlink to the full text document. Note by using ASReview you do
 not automatically have access to full-text and if you do not have access you
-might want to read this `blog post <https://asreview.nl/tools-that-work-well-
-with-asreview-google-scholar-button/>`.
+might want to read this `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
 When using the ASReview command line interface (link) for simulation, an
 additional binary variable to indicate labeling decisions (``0`` = irrelevant,
