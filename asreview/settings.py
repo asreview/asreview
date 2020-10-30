@@ -17,10 +17,10 @@ from configparser import ConfigParser
 import logging
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.models.utils import get_model
-from asreview.balance_strategies.utils import get_balance_model
-from asreview.query_strategies.utils import get_query_model
-from asreview.feature_extraction.utils import get_feature_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.balance import get_balance_model
+from asreview.models.query import get_query_model
+from asreview.models.feature_extraction import get_feature_model
 from asreview.utils import pretty_format
 
 
@@ -67,6 +67,7 @@ class ASReviewSettings(object):
         review session. The main difference being that it type checks (some)
         of its contents.
     """
+
     def __init__(self, mode, model, query_strategy, balance_strategy,
                  feature_extraction,
                  n_instances=DEFAULT_N_INSTANCES, n_queries=None,
@@ -129,7 +130,7 @@ class ASReviewSettings(object):
                 print(f"Warning: section [{sect}] is ignored in "
                       f"config file {config_file}")
 
-        model = get_model(self.model)
+        model = get_classifier(self.model)
         _convert_types(model.default_param, self.model_param)
         balance_model = get_balance_model(self.balance_strategy)
         _convert_types(balance_model.default_param, self.balance_param)

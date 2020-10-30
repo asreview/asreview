@@ -12,19 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.models.nb import NBModel
-from asreview.models.rf import RFModel
-from asreview.models.svm import SVMModel
-from asreview.models.logistic import LogisticModel
-from asreview.models.lstm_base import LSTMBaseModel
-from asreview.models.lstm_pool import LSTMPoolModel
-from asreview.models.nn_2_layer import NN2LayerModel
-from asreview.models.utils import get_model
-from asreview.models.utils import get_model_class
-from asreview.models.utils import list_classifiers
+# import deprecated models for backwards compatibility
+from asreview.models.deprecated import _moved_warning
 
-"""Machine learning classifiers to classify the documents.
+from asreview.models.classifiers.nb import NaiveBayesClassifier
+from asreview.models.classifiers.rf import RandomForestClassifier
+from asreview.models.classifiers.svm import SVMClassifier
+from asreview.models.classifiers.logistic import LogisticClassifier
+from asreview.models.classifiers.lstm_base import LSTMBaseClassifier
+from asreview.models.classifiers.lstm_pool import LSTMPoolClassifier
+from asreview.models.classifiers.nn_2_layer import NN2LayerClassifier
+from asreview.models.classifiers.utils import get_classifier
+from asreview.models.classifiers.utils import get_classifier_class
+from asreview.models.classifiers.utils import list_classifiers as _list_classifiers
 
-There are several machine learning classifiers available. In configuration
-files, parameters are found under the section ``[model_param]``.
-"""
+NBModel = _moved_warning(
+    NaiveBayesClassifier, "asreview.models.classifiers.NaiveBayesClassifier",
+    "asreview.models.NBModel")
+RFModel = _moved_warning(
+    RandomForestClassifier, "asreview.models.classifiers.RandomForestClassifier",
+    "asreview.models.RFModel")
+SVMModel = _moved_warning(
+    SVMClassifier, "asreview.models.classifiers.SVMClassifier",
+    "asreview.models.SVMModel")
+LogisticModel = _moved_warning(
+    LogisticClassifier, "asreview.models.classifiers.LogisticClassifier",
+    "asreview.models.LogisticModel")
+LSTMBaseModel = _moved_warning(
+    LSTMBaseClassifier, "asreview.models.classifiers.LSTMBaseClassifier",
+    "asreview.models.LSTMBaseModel")
+LSTMPoolModel = _moved_warning(
+    LSTMPoolClassifier, "asreview.models.classifiers.LSTMPoolClassifier",
+    "asreview.models.LSTMPoolModel")
+NN2LayerModel = _moved_warning(
+    NN2LayerClassifier, "asreview.models.classifiers.NN2LayerClassifier",
+    "asreview.models.NN2LayerModel")
+get_model = _moved_warning(
+    get_classifier, "asreview.models.classifiers.get_classifier",
+    "asreview.models.get_model")
+get_model_class = _moved_warning(
+    get_classifier_class, "asreview.models.classifiers.get_classifier_class",
+    "asreview.models.get_model_class")
+list_classifiers = _moved_warning(
+    _list_classifiers, "asreview.models.classifiers.list_classifiers",
+    "asreview.models.list_classifiers")
+"""Active learning model components.
+
+Components like classifiers, query strategies, balance strategies, and
+feature_extraction techniques."""
