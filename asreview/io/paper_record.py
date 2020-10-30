@@ -30,7 +30,7 @@ class PaperRecord():
     def __init__(self, record_id, column_spec={}, **kwargs):
 
         for attr in [
-                "title", "abstract", "authors", "keywords", "final_included"
+                "title", "abstract", "authors", "keywords", "included"
         ]:
             if attr in column_spec:
                 col = column_spec[attr]
@@ -41,10 +41,10 @@ class PaperRecord():
             setattr(self, attr, kwargs.pop(col, None))
 
         self.record_id = record_id
-        if self.final_included is None:
-            self.final_included = LABEL_NA
+        if self.included is None:
+            self.included = LABEL_NA
         else:
-            self.final_included = int(self.final_included)
+            self.included = int(self.included)
 
         self.extra_fields = kwargs
 
