@@ -1,5 +1,8 @@
 import React, { } from 'react'
+import clsx from 'clsx';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
+import Box from '@material-ui/core/Box';
+import TextField from '@material-ui/core/TextField';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import CloseIcon from '@material-ui/icons/Close';
@@ -9,25 +12,37 @@ import { reviewDrawerWidth } from '../globals.js'
 const useStyles = makeStyles(theme => ({
   barFullWidth: {
     width: '100%',
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
     position: 'fixed',
     bottom: 0,
     boxShadow: '0 -1px 1px 0 rgba(0,0,0,.1)',
     // fontSize: '.53rem',
     // fontWeight: 500,
     // textDecoration: 'none',
-    paddingRight: 0,
+    marginRight: 0,
   },
   barWithDrawer: {
-    width: '100%',
     position: 'fixed',
+    width: `calc(100% - ${reviewDrawerWidth}px)`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
     bottom: 0,
     boxShadow: '0 -1px 1px 0 rgba(0,0,0,.1)',
-    paddingRight: reviewDrawerWidth,
+    marginRight: reviewDrawerWidth,
   },
-  unselectedAction: {}, 
+  unselectedAction: {},
   selectedAction: {
     color: theme.palette.secondary.main
   },
+  notesField: {
+    padding: theme.spacing(3),
+  },
+
 }));
 
 const DecisionBar = (props) => {
@@ -49,30 +64,34 @@ const DecisionBar = (props) => {
   let releventClassName = props.recordState.selection === 1 ? classes.selectedAction : classes.unselectedAction
 
   return (
-    <BottomNavigation
-      // value={value}
-      onChange={(event, newValue) => {
-        props.makeDecision(newValue)
-      }}
-      showLabels
-      className={props.reviewDrawerState?classes.barWithDrawer:classes.barFullWidth}
-    >
-      <BottomNavigationAction
-        className={irreleventClassName}  
-        label={irrelevantLabel}
-        icon={<CloseIcon />} 
-        disabled={props.block} 
-      />
+    <Box
+        className={clsx(classes.barFullWidth, {
+          [classes.barWithDrawer]: props.reviewDrawerOpen,
+        })}
+      >
+      <BottomNavigation
+        // value={value}
+        onChange={(event, newValue) => {
+          props.makeDecision(newValue)
+        }}
+        showLabels
+      >
+        <BottomNavigationAction
+          className={irreleventClassName}
+          label={irrelevantLabel}
+          icon={<CloseIcon />}
+          disabled={props.block}
+        />
 
-      <BottomNavigationAction 
-        className={releventClassName}  
-        label={relevantLabel}
-        icon={<FavoriteIcon />} 
-        disabled={props.block} 
-      />
-
-    </BottomNavigation>    
-  )  
+        <BottomNavigationAction
+          className={releventClassName}
+          label={relevantLabel}
+          icon={<FavoriteIcon />}
+          disabled={props.block}
+        />
+      </BottomNavigation>
+    </Box>
+  )
 }
 export default DecisionBar;
 
