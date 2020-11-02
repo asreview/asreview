@@ -20,7 +20,7 @@ Data format
 To carry out an automated systematic review on your own dataset, your data file needs
 to adhere to a certain format. ASReview accepts the following formats:
 
- - **RIS-files**.  Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
+ - **RIS-files** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__.  Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
    and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support
    the RIS format as well.
  - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should
