@@ -6,7 +6,6 @@ import {
   Typography,
   Link,
 } from '@material-ui/core'
-import { reviewDrawerWidth } from '../globals.js'
 
 const useStyles = makeStyles(theme => ({
   boxFullWidth: {
