@@ -42,6 +42,9 @@ const useStyles = makeStyles(theme => ({
     }),
     marginRight: reviewDrawerWidth,
   },
+}));
+
+const useStylesAlert = makeStyles(theme => ({
   alertFullWidth: {
     width: '100%',
     overflowY: 'auto',
@@ -55,6 +58,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: "3px",
   },
 }));
+
 
 
 const mapStateToProps = state => {
@@ -71,6 +75,29 @@ function mapDispatchToProps(dispatch) {
     })
 }
 
+
+
+const ExplorationAlert = (props) => {
+  const classes = useStylesAlert();
+
+  return (
+    <div className={classes.alertFullWidth}>
+      <Alert severity="warning">
+        <AlertTitle>You are screening through a manually pre-labeled dataset</AlertTitle>
+        <div>
+          Relevant documents are displayed in green. Read more about
+          <Link
+            className={classes.link}
+            href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#exploration-mode"
+            target="_blank"
+          >
+            <strong>Exploration Mode</strong>
+          </Link>.
+        </div>
+      </Alert>
+    </div>
+  )
+}
 
 const ReviewZone = (props) => {
   const classes = useStyles();
@@ -317,6 +344,7 @@ const ReviewZone = (props) => {
       className={classes.box}
     >
       <Box
+        id="main-content-item"
         className={clsx(classes.content, {
           [classes.contentShift]: props.reviewDrawerOpen,
         })}
@@ -324,28 +352,13 @@ const ReviewZone = (props) => {
 
         {/* Alert Exploration Mode */}
         {recordState.record !== null && recordState.record._debug_label !== null  &&
-          <div className={classes.alertFullWidth}>
-            <Alert severity="warning">
-              <AlertTitle>You are screening through a manually pre-labeled dataset</AlertTitle>
-              <div>
-                Relevant documents are displayed in green. Read more about
-                <Link
-                  className={classes.link}
-                  href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#exploration-mode"
-                  target="_blank"
-                >
-                  <strong>Exploration Mode</strong>
-                </Link>.
-              </div>
-            </Alert>
-          </div>
+          <ExplorationAlert/>
         }
 
         {/* Article panel */}
         {recordState['isloaded'] &&
           <ArticlePanel
             record={recordState['record']}
-            reviewDrawerState={props.reviewDrawerOpen}
             showAuthors={props.showAuthors}
             textSize={props.textSize}
           />
