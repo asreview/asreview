@@ -23,7 +23,7 @@ import { connect } from "react-redux";
 import { toggleReviewDrawer } from '../redux/actions'
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   menuButton: {
     marginRight: 10
   },
@@ -31,10 +31,19 @@ const useStyles = makeStyles({
     flexGrow: 1,
   },
   barFullWidth: {
-    paddingRight: 0,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginRight: 0,
   },
   barWithReviewDrawer: {
-    paddingRight: reviewDrawerWidth-10,
+    width: `calc(100% - ${reviewDrawerWidth}px)`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginRight: reviewDrawerWidth,
   },
   appTitle: {
     flexGrow: 1
@@ -43,7 +52,7 @@ const useStyles = makeStyles({
   menuTitle: {
     marginLeft: 15, marginTop: 15
   },
-});
+}));
 
 const mapStateToProps = state => {
   return {

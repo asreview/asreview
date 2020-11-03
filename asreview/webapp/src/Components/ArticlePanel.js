@@ -6,21 +6,14 @@ import {
   Typography,
   Link,
 } from '@material-ui/core'
-import { reviewDrawerWidth } from '../globals.js'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   boxFullWidth: {
     paddingTop: 40,
     paddingBottom: 30,
+    padding: theme.spacing(3),
     // height: 600,
     overflowY: 'auto',
-  },
-  boxWithDrawer: {
-    paddingTop: 40,
-    paddingBottom: 30,
-    // height: 600,
-    overflowY: 'auto',
-    paddingRight: reviewDrawerWidth+30,
   },
   title: {
     lineHeight: 1.2
@@ -49,7 +42,7 @@ const useStyles = makeStyles({
     position: 'fixed',
     bottom: 0,
   }
-});
+}));
 
 
 const ArticlePanel = (props) => {
@@ -62,7 +55,7 @@ const ArticlePanel = (props) => {
   return (
       <Container
         maxWidth="md"
-        className={props.reviewDrawerState?classes.boxWithDrawer:classes.boxFullWidth}
+        className={classes.boxFullWidth}
       >
 
         {/* Show the title */}
