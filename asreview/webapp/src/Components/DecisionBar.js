@@ -13,8 +13,8 @@ const useStyles = makeStyles(theme => ({
   barFullWidth: {
     width: '100%',
     transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
     }),
     position: 'fixed',
     bottom: 0,
