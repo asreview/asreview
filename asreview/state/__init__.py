@@ -16,4 +16,4 @@ from asreview.state.base import BaseState
 from asreview.state.dict import DictState
 from asreview.state.hdf5 import HDF5State
 from asreview.state.json import JSONState
-from asreview.state.utils import open_state
+from asreview.state.utils import open_state, states_from_dir, state_from_file, state_from_asreview_file

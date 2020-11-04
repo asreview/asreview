@@ -100,7 +100,7 @@ def states_from_dir(data_dir, prefix=""):
 
         state_fp = os.path.join(data_dir, state_file)
         if Path(state_fp).suffix == ".asreview":
-            states[state_file] = state_from_dot_asreview(state_fp)
+            states[state_file] = state_from_asreview_file(state_fp)
         else:
             state_class = _get_state_class(state_fp)
             if state_class is None:
@@ -128,12 +128,12 @@ def state_from_file(data_fp):
         return None
 
     if Path(data_fp).suffix == ".asreview":
-        base_state = state_from_dot_asreview(data_fp)
-    else:
-        if not Path(data_fp).suffix in STATE_EXTENSIONS:
-            logging.error(f"file {data_fp} does not end with {STATE_EXTENSIONS}.")
-            return None
+        base_state = state_from_asreview_file(data_fp)
+    elif Path(data_fp).suffix in STATE_EXTENSIONS:
         base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
+    else:
+        raise ValueError(f"Expected ASReview file or file {data_fp} with extension {STATE_EXTENSIONS}.")
+
     state = {
         os.path.basename(os.path.normpath(data_fp)):
         base_state
@@ -141,7 +141,7 @@ def state_from_file(data_fp):
     return state
 
 
-def state_from_dot_asreview(data_fp):
+def state_from_asreview_file(data_fp):
     """Obtain the state from a .asreview file.
 
     Parameters
@@ -156,8 +156,7 @@ def state_from_dot_asreview(data_fp):
         is JSONState.
     """
     if not Path(data_fp).suffix == '.asreview':
-        logging.error(f"file {data_fp} does not end with '.asreview'.")
-        return None
+        raise ValueError(f"file {data_fp} does not end with '.asreview'.")
 
     # Name of the state file in the .asreview file.
     state_fp_in_zip = 'result.json'

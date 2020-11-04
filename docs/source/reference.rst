@@ -128,6 +128,10 @@ State
 -------
 
 .. autofunction:: asreview.state.open_state
+.. autofunction:: asreview.state.state_from_dir
+.. autofunction:: asreview.state.state_from_file
+.. autofunction:: asreview.state.state_from_asreview_file
+
 .. autoclass:: asreview.state.BaseState
 	:members:
 .. autoclass:: asreview.state.HDF5State
