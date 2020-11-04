@@ -132,7 +132,8 @@ def state_from_file(data_fp):
     elif Path(data_fp).suffix in STATE_EXTENSIONS:
         base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
     else:
-        raise ValueError(f"Expected ASReview file or file {data_fp} with extension {STATE_EXTENSIONS}.")
+        raise ValueError(f"Expected ASReview file or file {data_fp} with "
+                         f"extension {STATE_EXTENSIONS}.")
 
     state = {
         os.path.basename(os.path.normpath(data_fp)):
