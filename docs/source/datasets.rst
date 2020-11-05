@@ -11,8 +11,8 @@ It is possible to use your own dataset with unlabelled records, partly
 labelled records (where the labelled records are used for training a model),
 or fully labelled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-`three built-in datasets <datasets.html#demonstration-datasets>`__ Also, a
-plugin with `Corona related publications <covid-19.html>`__ is available.
+:ref:`demonstration datasets <datasets:Demonstration datasets>`. Also, a plugin with :doc:`Corona related
+publications <covid-19>` is available.
 
 Data format
 -----------
@@ -231,7 +231,7 @@ T. Hall, S. Beecham, D. Bowes, D. Gray, S. Counsell, in IEEE Transactions on Sof
 Engineering, vol. 38, no. 6, pp. 1276-1304, Nov.-Dec. 2012. https://doi.org/10.1109/TSE.2011.103
 
 
-Dataset publication https://zenodo.org/record/1162952#.XiBgMi2ZNQK
+Dataset publication https://zenodo.org/record/1162952.
 
 Name (for the simulation mode): ``example_hall``
 
