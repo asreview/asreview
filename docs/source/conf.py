@@ -6,6 +6,11 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+try:
+    from asreview import __version__ as asreview_verion
+except Exception:
+    asreview_verion = ""
+
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -55,13 +60,13 @@ autodoc_mock_imports = [
 # -- Project information -----------------------------------------------------
 
 project = 'ASReview'
-copyright = '2019, ASReview Core Development Team'
+copyright = '2020, ASReview Core Development Team'
 author = 'ASReview Core Development Team, Utrecht University'
 
 # The short X.Y version
-version = ''
+version = asreview_verion
 # The full version, including alpha/beta/rc tags
-release = ''
+release = asreview_verion
 
 
 # -- General configuration ---------------------------------------------------
