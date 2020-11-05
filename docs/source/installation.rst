@@ -76,7 +76,7 @@ afterwards, like this:
 
    docker run -p 9000:9000 asreview/asreview  --port 9000
 
-For more information, see the `README in the docker folder <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
+For more information, see `the GitHub page <https://github.com/asreview/asreview/tree/master/docker>`__.
 
 
 Troubleshooting
