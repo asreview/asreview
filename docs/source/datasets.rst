@@ -17,17 +17,22 @@ plugin with `Corona related publications <covid-19.html>`__ is available.
 Data format
 -----------
 
-To carry out an automated systematic review on your own dataset, your data file needs
-to adhere to a certain format. ASReview accepts the following formats:
+To carry out a systematic review with ASReview on your own dataset, your data
+file needs to adhere to a certain format. ASReview accepts the following
+formats:
 
- - **RIS-files** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__.  Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like IEEE Xplore, Scopus
-   and ScienceDirect. Citation managers Mendeley, RefWorks, Zotero, and EndNote support
-   the RIS format as well.
+ - **RIS-files** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__.
+   Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like
+   IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
+   Zotero, and EndNote support the RIS format as well.
+
  - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should
-   be comma separated and UTF-8 encoded. For CSV files, the software accepts a set of predetermined labels:
+   be comma separated and UTF-8 encoded.
+
+For tabular data files, the software accepts a set of predetermined column names:
 
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
-| Name     | CSV names                                                                                               | Mandatory |
+| Name     | Column names                                                                                            | Mandatory |
 +==========+=========================================================================================================+===========+
 | title    | title, primary_title                                                                                    | yes\*     |
 +----------+---------------------------------------------------------------------------------------------------------+-----------+
@@ -59,11 +64,12 @@ clickable hyperlink to the full text document. Note by using ASReview you do
 not automatically have access to full-text and if you do not have access you
 might want to read this `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
-When using the ASReview command line interface (link) for simulation, an
-additional binary variable to indicate labeling decisions (``0`` = irrelevant,
-``1`` = relevant) is required for ALL records. If labels are available for a
-part of the dataset (i.e., partly labelled data), the labels will be
-automatically detected and used for prior knowledge.
+When using the :ref:`ASReview command line interface for simulation
+<cli:Simulate>`, an additional binary variable to indicate labeling decisions
+(``0`` = irrelevant, ``1`` = relevant) is required for ALL records. In
+ASReview LAB, if labels are available for a part of the dataset (i.e., partly
+labeled data), the labels will be automatically detected and used for prior
+knowledge.
 
 
 Compatibility
