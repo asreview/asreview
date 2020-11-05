@@ -12,7 +12,7 @@ labelled records (where the labelled records are used for training a model),
 or fully labelled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
 :ref:`demonstration datasets <datasets:Demonstration datasets>`. Also, a plugin with :doc:`Corona related
-publications <covid-19>` is available.
+publications <plugins/covid-19>` is available.
 
 Data format
 -----------

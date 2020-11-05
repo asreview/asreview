@@ -15,18 +15,6 @@ pip). If you have no experience with creating packages, look at the
 `visualization extension <https://github.com/asreview/ASReview-
 visualization>`__ and modify it to suit your needs.
 
-Available extensions
---------------------
-
-- ``asreview-visualization``: Plotting functionality for state files produced by ASReview. `GitHub <https://github.com/asreview/asreview-visualization>`__
-- ``asreview-statistics``: Tool to give some basic properties of a dataset, such as number of
-  papers, number of inclusions. `GitHub <https://github.com/asreview/asreview-statistics>`__
-- ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
-
-If an extension is not on this list, or you make one and want it added to this
-list, make an issue on `github
-<https://github.com/asreview/asreview/issues>`__.
-
 Usage
 -----
 
