@@ -31,8 +31,7 @@ where ``myreview.h5`` is the file where the results will be stored.
 
 
 More detail on specific model and simulation settings can be found in the
-Simulation options section. For how to prepare your data, see the `dataset
-<datasets.html>`__ page.
+Simulation options section. For how to prepare your data, see :doc:`datasets`.
 
 
 
@@ -61,17 +60,18 @@ performance of your review:
 	asreview plot myreview.h5
 	asreview plot DIR_WITH_MULTIPLE_SIMULATIONS
 
-For an example of results of a simulation study, see the `Simulation Results
-<simulation-results.html>`__ page.
+For an example of results of a simulation study, see
+:doc:`simulation_study_results`.
 
 
 Simulation options
 ------------------
 
-The options for simulating are shown on
-the `CLI <cli.html>`__ page. We will highlight some of the more often used
-options here. When no additional arguments are specified in the ``asreview
-simulate`` command, default settings are used.
+ASReview provides an extensive simulation interface via the command line. An
+overview of the options are found on the :ref:`ASReview command line interface
+for simulation <cli:Simulate>` page. This section highlights some of the more
+often used options here. When no additional arguments are specified in the
+``asreview simulate`` command, default settings are used.
 
 To make your simulations reproducible you can use the ``--seed`` and
 ``--init_seed`` options. 'init_seed' controls the starting set of papers to

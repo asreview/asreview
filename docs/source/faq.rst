@@ -20,7 +20,7 @@ following in your command line:
 How to upgrade my ASReview installation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Please see the `upgrade section on the installation page <installation.html#upgrade-asreview>`__.
+Please see :ref:`installation:Upgrade ASReview`.
 
 
 ASReview LAB & systematic reviewing
@@ -50,7 +50,7 @@ from an enormous pile of texts, such as patents, jurisdiction,
 historical newspapers, company reports, or keeping track of relevant
 research in an information overload environment.
 
-Also see `Can we use ASReview LAB also to screen based on full text? <faq.html#can-we-use-asreview-lab-also-to-screen-based-on-full-text>`__
+Also see :ref:`full-text`
 
 Can we use ASReview LAB as a stand-alone screener?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,7 +115,7 @@ Can the tool be used in combination with any (academic) database?
 
 Yes it can. You will have to export data from a database yourself, and
 import these into ASReview. For supported databases and formats, please
-read the `documentation on creating datasets <datasets.html>`__.
+read the :doc:`datasets`.
 
 .. _no-abstract:
 
@@ -186,6 +186,8 @@ project. We recommend multiple users to screen their records
 independently in separate projects. Afterwards, the results can be
 easily exported and combined to compare their screening decisions.
 
+.. _full-text:
+
 Can we use ASReview LAB also to screen full text?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -207,11 +209,11 @@ Which classifier should I choose in ASReview LAB?
 In ASReview, you need to choose which classifier you want to use to predict
 relevancy of your documents. Currently, we always advise to use the Naive
 Bayes classifier since it performs very well and needs little computation
-time. We have performed several simulation studies to evaluate `performance of
-different classifiers on several datasets
-<https://asreview.readthedocs.io/en/latest/simulation_study_results.html>`__.
-We do not advise specific classifiers for specific jobs because we've not
-found enough evidence (yet) to make such recommendations.
+time. We have performed several simulation studies to evaluate performance of
+different classifiers on several datasets. See
+:doc:`simulation_study_results`. We do not advise specific classifiers for
+specific jobs because we've not found enough evidence (yet) to make such
+recommendations.
 
 I already started labeling before I came across ASReview. How can I keep my former screening decisions when starting a new project in ASReview?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,14 +255,14 @@ How do I remove duplicate publications?
 ASReview LAB works best with deduplicated datasets. One can use software like
 EndNote to remove duplicates. See the following article for examples:
 
-Bramer, W. M., Giustini, D., de Jonge, G. B., Holland, L., & Bekhuis, T. (2016). 
-De-duplication of database search results for systematic reviews in EndNote. 
-Journal of the Medical Library Association : JMLA, 104(3), 240–243. 
-`https://doi.org/10.3163/1536-5050.104.3.014 
+Bramer, W. M., Giustini, D., de Jonge, G. B., Holland, L., & Bekhuis, T. (2016).
+De-duplication of database search results for systematic reviews in EndNote.
+Journal of the Medical Library Association : JMLA, 104(3), 240–243.
+`https://doi.org/10.3163/1536-5050.104.3.014
 <https://doi.org/10.3163/1536-5050.104.3.014>`__
 
-Third-party manuals for removing duplicates in Zotero, Mendeley, and RefWorks, 
-can found in the folder **4. Deduplication** by Staaks (2020). 
+Third-party manuals for removing duplicates in Zotero, Mendeley, and RefWorks,
+can found in the folder **4. Deduplication** by Staaks (2020).
 
 Staaks, J. (2020, October 15). Systematic Review Search Support.
 `https://doi.org/10.17605/OSF.IO/49T8X

@@ -9,11 +9,11 @@ friendly frontend for active learning in systematic reviews.
 Launching ASReview
 ------------------
 
-This tutorial assumes you have already installed Python and ASReview. If
-this is not the case, please check out the
-`installation <installation.html>`__ page.
+This tutorial assumes you have already installed Python and ASReview. If this
+is not the case, please check out the :doc:`installation` page.
 
-Launch ASReview LAB by running the following command in the command line (`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
+Launch ASReview LAB by running the following command in the command line
+(`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
 
 ::
 
@@ -54,10 +54,11 @@ titles and/or abstracts of all documents or publications you want to screen.
 
 There are four ways to select a dataset:
 
-- upload your own dataset. Read more about the format on our `datasets page <https://asreview.readthedocs.io/en/latest/datasets.html>`__.
+- upload your own dataset. Read more about the format on :doc:`datasets`.
 - import a dataset with an URL
 - select a dataset from an extension (for example our COVID-19 extension)
-- choose one of the built-in test datasets. Read more about testing on our `user testing page <https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html>`__.
+- choose one of the built-in test datasets. Read more about testing here
+  :doc:`user_testing_algorithms`.
 
 .. figure:: ../images/2_select_dataset.png
    :alt:
