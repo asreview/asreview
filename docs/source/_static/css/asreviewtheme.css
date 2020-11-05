@@ -1,0 +1,13 @@
+
+/* This line is theme specific - it includes the base theme CSS */
+@import 'theme.css';       /* for the Read the Docs theme */
+
+.wy-side-nav-search {
+
+    background-color: #FFcc00;
+
+}
+
+.caption-text {
+	color: #FFcc00;
+}
