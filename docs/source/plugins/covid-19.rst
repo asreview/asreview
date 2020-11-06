@@ -5,52 +5,42 @@
 ASReview against COVID-19
 =========================
 
-The Active learning for Systematic Reviews software
-`ASReview <https://github.com/asreview/asreview>`__ implements learning
-algorithms that interactively query the researcher during the title and
-abstract reading phase of a systematic search. This way of interactive
-training is known as active learning. ASReview offers support for
-classical learning algorithms and state-of-the-art learning algorithms
-like neural networks. The software can be used for traditional
-systematic reviews for which the user uploads a dataset of papers, or
-one can make use of the built-in datasets.
+For many questions from medical doctors, journalists, policy makers the scientific literature on COVID-19 needs to be checked in a systematic way to avoid biased decision-making. For example, to develop evidence-based medical guidelines to transparently support medical doctors. Medical guidelines rely on comprehensive systematic reviews. Such reviews entail several explicit and reproducible steps, including identifying all likely relevant papers in a standardized way, extracting data from eligible studies, and synthesizing the results into medical guidelines. They need to scan hundreds, or even thousands of COVID-19 related studies, by hand to find relevant papers to include in their overview. This is error prone and extremely time intensive; time we do not have right now! 
 
-To help combat the COVID-19 crisis, the ASReview team released an
-extension that integrates the latest scientific datasets on COVID-19 in
-the ASReview software.
+The software relies on Active learning [REF NAAR GUIDE] which denotes the scenario in which the reviewer is labeling data that are presented by a machine learning model. The machine learns from the reviewers’ decisions and uses this knowledge in selecting the reference that will be presented to the reviewer next. In this way, the COVID-19 related papers are presented ordered from most to least relevant based on the input from the user. The goal of the software is to help scholars and practitioners to get an overview of the most relevant papers for their work as efficiently as possible, while being transparent in the process.
 
-CORD-19 dataset
----------------
 
-The `CORD-19
-dataset <https://www.semanticscholar.org/cord19>`__ is a
-dataset with scientific publications on COVID-19 and coronavirus-related
-research (e.g. SARS, MERS, etc.) from PubMed Central, the WHO COVID-19
-database of publications, the preprint servers bioRxiv and medRxiv and
-papers contributed by specific publishers (currently Elsevier). The
-dataset is compiled and maintained by a collaboration of the Allen
-Institute for AI, the Chan Zuckerberg Initiative, Georgetown
-University’s Center for Security and Emerging Technology, Microsoft
-Research, and the National Library of Medicine of the National
-Institutes of Health. The data is updated
-`daily <https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/historical_releases.html>`__.
 
 ASReview plugin
 ---------------
 
 To help combat the COVID-19 crisis, the ASReview team has decided to
-release a package that provides the latest scientific datasets on
+release [REF NAAR FORTUNE PAPER - https://asreview.nl/interview-in-fortune/] a plugin that provides three datasets on
 COVID-19. These are integrated automatically into ASReview once we
 install the correct packages, so reviewers can start reviewing the
-latest scientific literature on COVID-19 as soon as possible! Two
-versions of the CORD-19 dataset (publications relating to COVID-19) are
+latest scientific literature on COVID-19 as soon as possible! 
+
+CORD-19 dataset
+---------------
+
+Two versions of the CORD-19 dataset (publications relating to COVID-19) are
 made available in ASReview:
 
--  full CORD-19 dataset
--  CORD-19 dataset with publications from December 2019 onwards
+-  full CORD-19 dataset [REF NAAR https://arxiv.org/abs/2004.10706]
+-  custum made subset of the CORD-19 dataset with publications from December 2019 onwards
+
+The Cord19 database, developed by the Allen Institute for AI [REF https://www.semanticscholar.org/cord19 ], with all publications on COVID-19 and other coronavirus research (e.g. SARS, MERS, etc.) from PubMed Central, the WHO COVID-19 database of publications, the preprint servers bioRxiv and medRxiv and papers contributed by specific publishers. 
+
+In addition to the full dataset, we construct automatically a daily subset of the database with studies published after December 1st, 2019 to search for relevant papers published during the COVID-19 crisis. 
 
 The datasets are updated in ASReview plugin shortly after the release by
 the Allen Institute for AI.
+
+Pre-print dataset
+-----------------
+
+A separate dataset of COVID-19 related preprints [REF NAAR https://github.com/nicholasmfraser/covid19_preprints], containing metadata of preprints from over 15 preprints servers across disciplines, published since January 1, 2020. The preprint dataset is updated weekly by the maintainers (Nicholas Fraser and Bianca Kramer) and then automatically updated in ASReview as well. As this dataset is not readily available to researchers through regular search engines (e.g. PubMed), its inclusion in ASReview provided added value to researchers interested in COVID-19 research, especially if they want a quick way to screen preprints specifically. 
+
 
 Installation and usage
 ----------------------
