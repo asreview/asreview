@@ -43,12 +43,12 @@ def test_nan_values_ris():
     as_data = ASReviewData.from_file(fp)
 
     # check missing titles
-    assert pd.isnull(as_data.record(1, by_index=True).title)
-    assert pd.isnull(as_data.record(3, by_index=True).title)
+    assert as_data.record(1, by_index=True).title == ""
+    assert as_data.record(3, by_index=True).title == ""
 
     # check missing abstracts
-    assert pd.isnull(as_data.record(0, by_index=True).abstract)
-    assert pd.isnull(as_data.record(2, by_index=True).abstract)
+    assert as_data.record(0, by_index=True).abstract == ""
+    assert as_data.record(2, by_index=True).abstract == ""
 
 
 def test_nan_values_csv():
