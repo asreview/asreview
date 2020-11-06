@@ -1,8 +1,9 @@
 Quick Tour
 ==========
 
-This is a introduction in the ASReview LAB software. ASReview LAB is the user-
-friendly frontend for active learning in systematic reviews.
+This is a quick tour in using the ASReview LAB software, which is the user-
+friendly frontend for active learning in systematic reviews. If you encounter any issues during the process, 
+first consult the Frequently Asked Questions [REF NEEDED] or the Troubleshooting [REF NEEDED] pages. If you cannot find your problem, we ask you to file an issue via Github [REF NEEDED].
 
 .. contents:: Table of Contents
 
