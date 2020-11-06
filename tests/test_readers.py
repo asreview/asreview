@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pytest import mark
 import numpy as np
+import pandas as pd
 
 from asreview import ASReviewData
 
@@ -34,6 +35,34 @@ def test_reader(test_file, n_lines, labels, ignore_col):
     for col in cols:
         values = as_data.get(col)
         assert len(values) == n_lines
+
+
+def test_nan_values_ris():
+
+    fp = Path("tests", "demo_data", "missing_values.ris")
+    as_data = ASReviewData.from_file(fp)
+
+    # check missing titles
+    assert pd.isnull(as_data.record(1, by_index=True).title)
+    assert pd.isnull(as_data.record(3, by_index=True).title)
+
+    # check missing abstracts
+    assert pd.isnull(as_data.record(0, by_index=True).abstract)
+    assert pd.isnull(as_data.record(2, by_index=True).abstract)
+
+
+def test_nan_values_csv():
+
+    fp = Path("tests", "demo_data", "missing_values.csv")
+    as_data = ASReviewData.from_file(fp)
+
+    # check missing titles
+    assert pd.isnull(as_data.record(1, by_index=True).title)
+    assert pd.isnull(as_data.record(3, by_index=True).title)
+
+    # check missing abstracts
+    assert pd.isnull(as_data.record(0, by_index=True).abstract)
+    assert pd.isnull(as_data.record(2, by_index=True).abstract)
 
 
 def test_csv_write_data():
