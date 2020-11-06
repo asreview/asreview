@@ -4,11 +4,50 @@ Features
 Keyboard shortcuts
 ------------------
 
-Enable keyboard shortcuts in the settings menu before you can make use of them. 
+ASReview LAB supports keyboard shortcuts. By default, keyboard shortcuts are
+disabled. Enable the shortcuts as follows:
 
-To improve the efficiency of the screening process, users can strike keyboard shortcuts to label the document as:
+1. Open ASReview LAB.
+2. Click on the settings icon (top right).
+3. Check the **keyboard settings** field.
 
-- ``R`` or ``r``: Relevant
-- ``I`` or ``i``: Irrelevant
+The table below lists the available keyboard shortcuts.
 
-Users can undo a decision by striking ``U`` or ``u`` if the undo feature has been toggled on.
++-----------------------------+------------------------+
+| Action                      | Shortcut               |
++=============================+========================+
+| Label record as relevant    | **r** or **Shift + r** |
++-----------------------------+------------------------+
+| Label record as irrelevant  | **i** or **Shift + i** |
++-----------------------------+------------------------+
+| Return to previous decision | **u** or **Shift + u** |
++-----------------------------+------------------------+
+
+.. note::
+
+	Return to previous decision, **u** or **Shift + u**, is only available
+	if the **Undo** feature has been toggled on in the settings panel.
+
+Undo last decision
+------------------
+
+In some cases, you might want to change your previous decision. The screening
+interface of ASReview LAB can be used to return to the previous decision.
+
+1. Open ASReview LAB.
+2. Open or create a project.
+3. Label the record displayed in the screen as relevant or irrelevant.
+4. Click on **Undo** (See picture below).
+
+.. figure:: ../images/undo_button.png
+   :alt: Undo previous decision
+
+5. Click on **Keep (ir)relevant** or **Covert to (ir)relevant**
+6. Continue labeling.
+
+
+It is possible to disable this option in the settings menu
+
+1. Open ASReview LAB.
+2. Click on the settings icon (top right).
+3. Uncheck the **Undo** field.
