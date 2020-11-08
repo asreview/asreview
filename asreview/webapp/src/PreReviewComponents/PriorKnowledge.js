@@ -19,6 +19,7 @@ import {
 import HelpIcon from '@material-ui/icons/Help';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/Check';
+import ListIcon from '@material-ui/icons/List';
 
 import { green, brown } from '@material-ui/core/colors';
 
@@ -124,17 +125,19 @@ export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
 
 }
 
-
 const PriorKnowledge = ({
   project_id,
   setNext,
   scrollToBottom,
+  isEditable,
 }) => {
+
   const classes = useStyles();
 
   const [state, setState] = React.useState({
     "method": null,
     "loading": true,
+    "edit": isEditable
   })
 
   const [priorDialog, setPriorDialog] = React.useState(false)
@@ -150,6 +153,7 @@ const PriorKnowledge = ({
     setState({
       "method": state.method,
       "loading": true,
+      "edit": isEditable
     });
   }
 
@@ -188,6 +192,7 @@ const PriorKnowledge = ({
     setState({
       "method": method,
       "loading": state.loading,
+      "edit": state.edit
     });
   }
 
@@ -230,6 +235,13 @@ const PriorKnowledge = ({
 
   }, [priorStats, setNext]);
 
+  const DetailsIcon = props => {
+    return state.edit ? <EditIcon /> : <ListIcon />
+  };
+
+  const cardHeaderTitle = state.edit ? "Select prior knowledge" : "Prior knowledge"
+  const detailsTooltipTitle = state.edit ? "Edit" : "List"
+
   return (
     <Box
       style={{clear: "both"}}
@@ -247,20 +259,20 @@ const PriorKnowledge = ({
           <CardHeader
 
             /* Prior card */
-            title="Select prior knowledge"
+            title= {cardHeaderTitle}
             titleTypographyProps={{"color": "primary"}}
 
             /* The edit and help options */
             action={
               <Box>
                 {priorStats['n_prior'] > 0 &&
-                  <Tooltip title="Edit">
+                  <Tooltip title={detailsTooltipTitle} >
 
                     <IconButton
                       aria-label="project-prior-edit"
                       onClick={openPriorKnowledge}
                     >
-                      <EditIcon />
+                    <DetailsIcon/>
                     </IconButton>
                   </Tooltip>
                 }
@@ -334,6 +346,7 @@ const PriorKnowledge = ({
             </Box>
           </CardContent>
 
+          { state.edit &&
           <CardContent className="cardHighlight">
             <Button
               variant="outlined"
@@ -368,7 +381,8 @@ const PriorKnowledge = ({
             */}
 
           </CardContent>
-
+          }
+          
           { state.method === "search" &&
             <Box>
               <Divider/>
@@ -411,6 +425,7 @@ const PriorKnowledge = ({
         />
         <DialogContent dividers={true}>
           <LabeledItems
+            edit={state.edit}
             resetItem={resetItem}
           />
         </DialogContent>

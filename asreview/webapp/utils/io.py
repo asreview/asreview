@@ -10,10 +10,38 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
-from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_proba_path
+from asreview.webapp.utils.paths import get_simulation_ready_path
+from asreview.webapp.utils.paths import get_project_file_path
+from asreview.webapp.utils.paths import get_data_path
+
+
+def get_project_info(project_id):
+    """Get project info from file."""
+    with open(get_project_file_path(project_id), "r") as fp:
+        return json.load(fp)
+
+
+def set_project_info(project_id, info):
+    """Save project info to file."""
+    with open(get_project_file_path(project_id), "w") as fp:
+        json.dump(info, fp)
+
+
+def get_data_file_path(project_id):
+
+    data_folder = get_data_path(project_id)
+
+    try:
+        project_info = get_project_info(project_id)
+        data_filename = project_info["dataset_path"]
+
+    except Exception:
+        raise Exception("Dataset location not found")
+
+    return data_folder / data_filename
 
 
 class CacheDataError(Exception):

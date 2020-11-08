@@ -70,7 +70,8 @@ const LabeledItems = (props) => {
   const [state, setState] = React.useState({
     "tab": 0,
     "data": null,
-    "loading" : true
+    "loading" : true,
+    "edit": props.edit
   });
 
   const handleTabChange = (event, newValue) => {
@@ -136,6 +137,7 @@ const LabeledItems = (props) => {
                         <ListItemText
                           primary={value.title}
                         />
+                      { state.edit &&
                         <ListItemIcon
                           className={classes.deleteIcon}
                         >
@@ -146,6 +148,7 @@ const LabeledItems = (props) => {
                             <DeleteIcon/>
                           </IconButton>
                         </ListItemIcon>
+                      }
                       </ListItem>
                     );
                   }
@@ -170,6 +173,7 @@ const LabeledItems = (props) => {
                       <ListItemText
                         primary={value.title}
                       />
+                      { state.edit &&
                       <ListItemIcon
                         className={classes.deleteIcon}
                       >
@@ -180,6 +184,7 @@ const LabeledItems = (props) => {
                           <DeleteIcon/>
                         </IconButton>
                       </ListItemIcon>
+                      }
                     </ListItem>
                   );
                 })

@@ -163,6 +163,7 @@ const Projects = (props) => {
                         className={classes.paper}
                         id={project.id}
                         name={project.name}
+                        mode={project.mode}
                         description={project.description}
                         projectInitReady={project.projectInitReady}
                         handleAppState={props.handleAppState}

@@ -119,7 +119,8 @@ const ProjectUpload = ({
   handleNext,
   handleStep,
   setNext,
-  scrollToBottom
+  scrollToBottom,
+  includePlugins
 }) => {
 
   const classes = useStyles();
@@ -282,7 +283,7 @@ const ProjectUpload = ({
     return onUploadHandler(data, callback)
   }
 
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState("file");
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -426,14 +427,17 @@ const ProjectUpload = ({
                 variant="scrollable"
                 scrollButtons="auto"
               >
-                <Tab label="From file" />
-                <Tab label="From url" />
-                <Tab label="From plugin" />
-                <Tab label="Example datasets" />
+                <Tab label="From file" value="file" />
+                <Tab label="From url" value="url"/>
+                { includePlugins &&
+                <Tab label="From plugin" value="plugin"/>
+                }
+                <Tab label="Example datasets" value="test" /> 
+                
               </Tabs>
 
             <CardContent>
-              {value === 0 &&
+              {value === "file" &&
 
                 <div>
                   <div className={classes.upload} {...getRootProps({style})}>
@@ -458,7 +462,7 @@ const ProjectUpload = ({
                 </div>
               }
 
-              {value === 1 &&
+              {value === "url" &&
                 <div>
                   <ProjectUploadURL
                     upload={state.upload}
@@ -467,14 +471,14 @@ const ProjectUpload = ({
                 </div>
               }
 
-              {value === 2 &&
+              {value === "plugin" &&
                 <ProjectUploadDatasets
                   subset={"plugin"}
                   onUploadHandler={onUploadHandlerDemoDataset}
                 />
               }
 
-              {value === 3 &&
+              {value === "test" &&
 
                 <div>
                   <ProjectUploadDatasets
