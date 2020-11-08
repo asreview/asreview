@@ -21,13 +21,29 @@ ASReview: Active learning for Systematic Reviews
 
    datasets
 
-   features
-
    user_testing_algorithms
 
    faq
 
    troubleshooting
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Features
+
+   features/auto_save
+
+   features/dark_mode
+
+   features/doi
+
+   features/keybord_shortcuts
+
+   features/text_size
+
+   features/undo
+
 
 .. toctree::
    :maxdepth: 2
