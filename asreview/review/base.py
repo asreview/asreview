@@ -15,9 +15,6 @@
 from abc import ABC
 from abc import abstractmethod
 import warnings
-import logging
-import json
-import os
 
 import numpy as np
 
@@ -107,8 +104,6 @@ class BaseReview(ABC):
         be already labeled. Failing to do so might result bad behaviour.
     state_file: str
         Path to state file. Replaces log_file argument.
-    completion_file: str
-        A file that is created at the end of a simulation.
     """
 
     name = "base"
@@ -126,7 +121,6 @@ class BaseReview(ABC):
         start_idx=[],
         state_file=None,
         log_file=None,
-        completion_file=None,
     ):
         """Initialize base class for systematic reviews."""
         super(BaseReview, self).__init__()
@@ -159,7 +153,6 @@ class BaseReview(ABC):
         self.n_instances = n_instances
         self.n_queries = n_queries
         self.start_idx = start_idx
-        self.completion_file = completion_file
 
         if log_file is not None:
             warnings.warn(
@@ -327,12 +320,6 @@ class BaseReview(ABC):
             # Update the training data and pool afterwards
             self.train()
             self.log_probabilities(state)
-
-        if self.completion_file is not None:
-            os.makedirs(os.path.dirname(self.completion_file), exist_ok=True)
-            with open(self.completion_file, "w") as f:
-                f.write("")
-                f.close
 
     def review(self, *args, **kwargs):
         """Do the systematic review, writing the results to the state file.

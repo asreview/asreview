@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+
 import numpy as np
 
 from asreview.init_sampling import sample_prior_knowledge

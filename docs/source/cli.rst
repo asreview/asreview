@@ -153,10 +153,6 @@ Example:
     The number of papers to be reviewed. By default, the program stops after
     all documents  are reviewed or is interrupted by the user.
 
-.. option:: --completion_file COMPLETION_FILE
-    
-	A file that is created at the end of a simulation.
-
 .. option:: --verbose VERBOSE, -v VERBOSE
 
     Verbosity
