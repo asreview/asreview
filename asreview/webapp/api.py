@@ -114,11 +114,22 @@ def api_get_projects():  # noqa: F401
             if "projectInitReady" not in res:
                 res["projectInitReady"] = True
 
+            # if time is not available (<0.14)
+            if "created_at_unix" not in res:
+                res["created_at_unix"] = None
+
             logging.info("Project found: {}".format(res["id"]))
             project_info.append(res)
 
         except Exception as err:
             logging.error(err)
+
+    # sort the projects based on created_at_unix
+    project_info = sorted(
+        project_info,
+        key=lambda y: (y["created_at_unix"] is not None, y["created_at_unix"]),
+        reverse=True
+    )
 
     response = jsonify({"result": project_info})
     response.headers.add('Access-Control-Allow-Origin', '*')
