@@ -23,6 +23,8 @@ import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
 import { api_url, mapStateToProps, projectModes } from '../globals.js';
+import ProjectModeSelect from './ProjectModeSelect';
+
 
 import './ReviewZone.css';
 
@@ -42,8 +44,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.warning.light
   },
   textfieldItem: {
-    marginTop: 0,
-    marginBottom: 40,
+    marginBottom: theme.spacing(3),
   },
   clear: {
     overflow: "auto",
@@ -92,7 +93,7 @@ const ProjectInit = (props) => {
     });
   };
 
-  const onChange = (evt) => { 
+  const onChange = (evt) => {
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value
@@ -143,8 +144,15 @@ const ProjectInit = (props) => {
       <form noValidate autoComplete="off">
 
         <div className={classes.textfieldItem}>
+          <ProjectModeSelect
+
+          />
+        </div>
+
+        <div className={classes.textfieldItem}>
           <TextField
             fullWidth
+            variant="outlined"
             error={error}
             autoFocus={true}
             required
@@ -160,6 +168,7 @@ const ProjectInit = (props) => {
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
+            variant="outlined"
             name="authors"
             id="project-author"
             label="Your name"
@@ -171,6 +180,7 @@ const ProjectInit = (props) => {
         <div className={classes.textfieldItem}>
           <TextField
             fullWidth
+            variant="outlined"
             multiline
             rows={4}
             rowsMax={6}
@@ -181,19 +191,6 @@ const ProjectInit = (props) => {
             value={info.description}
           />
         </div>
-
-        <List className={classes.list}>
-            <ListItem>
-              <ListItemText id="switch-list-label-simulation" primary="Simulation" secondary="Some explanation about simulation mode.."/>
-              <ListItemSecondaryAction>
-                <Switch
-                  edge="end"
-                  onChange={toggleMode}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-         </List>   
-
       </form>
       </DialogContent>
       <DialogActions>
