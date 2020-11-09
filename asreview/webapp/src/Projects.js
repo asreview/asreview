@@ -20,7 +20,8 @@ import {
 import ProjectCard from './ProjectCard';
 
 import {
-  ImportDialog
+  ImportDialog,
+  QuickTourDialog,
 } from './Components'
 
 import {
@@ -82,6 +83,9 @@ const Projects = (props) => {
         })
         .catch((error) => {
           console.log(error);
+          if (error.response) {
+            console.log(error.response);
+          }
         });
     };
 
@@ -215,6 +219,8 @@ const Projects = (props) => {
               onClick={event => {handleClickAdd(event, "newProject")}}
             />
             </SpeedDial>
+
+        <QuickTourDialog/>
       </Box>
     );
 }

@@ -19,7 +19,7 @@ from pathlib import PurePath
 
 import numpy as np
 
-from asreview.balance_strategies.utils import get_balance_model
+from asreview.models.balance.utils import get_balance_model
 from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -29,12 +29,14 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import EMAIL_ADDRESS
+from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.datasets import find_data
-from asreview.feature_extraction.utils import get_feature_model
-from asreview.models.utils import get_model
-from asreview.query_strategies.utils import get_query_model
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.query import get_query_model
 from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
@@ -42,13 +44,42 @@ from asreview.state.utils import open_state
 from asreview.utils import get_random_state
 
 
+ASCII_LOGO = """
+            _____ _____            _
+     /\    / ____|  __ \          (_)
+    /  \  | (___ | |__) |_____   ___  _____      __
+   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
+  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
+ /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
+"""  # noqa
+
+ASCII_MSG_SIMULATE = """
+---------------------------------------------------------------------------------
+|                                                                                |
+|  Welcome to the ASReview Automated Systematic Review software.                 |
+|  In this mode the computer will simulate how well the ASReview software        |
+|  could have accelerate the systematic review of your dataset.                  |
+|  You can sit back and relax while the computer runs this simulation.           |
+|                                                                                |
+|  GitHub page:        {0: <58}|
+|  Questions/remarks:  {1: <58}|
+|                                                                                |
+---------------------------------------------------------------------------------
+""".format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
+
+
 def _add_defaults(set_param, default_param):
-    set_param.update({key: value for key, value in default_param.items()
-                      if key not in set_param})
+    set_param.update({
+        key: value
+        for key, value in default_param.items() if key not in set_param
+    })
 
 
-def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
-                   prior_dataset=[], new=False):
+def create_as_data(dataset,
+                   included_dataset=[],
+                   excluded_dataset=[],
+                   prior_dataset=[],
+                   new=False):
     """Create ASReviewData object from multiple datasets."""
     if isinstance(dataset, (str, PurePath)):
         dataset = [dataset]
@@ -68,16 +99,16 @@ def create_as_data(dataset, included_dataset=[], excluded_dataset=[],
         as_data.append(ASReviewData.from_file(find_data(data)))
 
     if new:
-        as_data.labels = np.full((len(as_data),), LABEL_NA, dtype=int)
+        as_data.labels = np.full((len(as_data), ), LABEL_NA, dtype=int)
     for data in included_dataset:
-        as_data.append(ASReviewData.from_file(
-            find_data(data), data_type="included"))
+        as_data.append(
+            ASReviewData.from_file(find_data(data), data_type="included"))
     for data in excluded_dataset:
-        as_data.append(ASReviewData.from_file(
-            find_data(data), data_type="excluded"))
+        as_data.append(
+            ASReviewData.from_file(find_data(data), data_type="excluded"))
     for data in prior_dataset:
-        as_data.append(ASReviewData.from_file(
-            find_data(data), data_type="prior"))
+        as_data.append(
+            ASReviewData.from_file(find_data(data), data_type="prior"))
     return as_data
 
 
@@ -102,32 +133,36 @@ def get_reviewer(dataset,
                  balance_param=None,
                  feature_param=None,
                  seed=None,
-                 abstract_only=False,
                  included_dataset=[],
                  excluded_dataset=[],
                  prior_dataset=[],
                  new=False,
-                 **kwargs
-                 ):
+                 **kwargs):
     """Get a review object from arguments.
 
     See __main__.py for a description of the arguments.
     """
-    as_data = create_as_data(dataset, included_dataset, excluded_dataset,
-                             prior_dataset, new=new)
+    as_data = create_as_data(dataset,
+                             included_dataset,
+                             excluded_dataset,
+                             prior_dataset,
+                             new=new)
 
     if len(as_data) == 0:
         raise ValueError("Supply at least one dataset"
                          " with at least one record.")
 
-    cli_settings = ASReviewSettings(
-        model=model, n_instances=n_instances, n_queries=n_queries,
-        n_papers=n_papers, n_prior_included=n_prior_included,
-        n_prior_excluded=n_prior_excluded, query_strategy=query_strategy,
-        balance_strategy=balance_strategy,
-        feature_extraction=feature_extraction,
-        mode=mode, data_fp=None,
-        abstract_only=abstract_only)
+    cli_settings = ASReviewSettings(model=model,
+                                    n_instances=n_instances,
+                                    n_queries=n_queries,
+                                    n_papers=n_papers,
+                                    n_prior_included=n_prior_included,
+                                    n_prior_excluded=n_prior_excluded,
+                                    query_strategy=query_strategy,
+                                    balance_strategy=balance_strategy,
+                                    feature_extraction=feature_extraction,
+                                    mode=mode,
+                                    data_fp=None)
     cli_settings.from_file(config_file)
 
     if state_file is not None:
@@ -161,8 +196,9 @@ def get_reviewer(dataset,
 
     # Initialize models.
     random_state = get_random_state(seed)
-    train_model = get_model(settings.model, **settings.model_param,
-                            random_state=random_state)
+    train_model = get_classifier(settings.model,
+                                 **settings.model_param,
+                                 random_state=random_state)
     query_model = get_query_model(settings.query_strategy,
                                   **settings.query_param,
                                   random_state=random_state)
@@ -181,39 +217,40 @@ def get_reviewer(dataset,
 
     # Initialize the review class.
     if mode == "simulate":
-        reviewer = ReviewSimulate(
-            as_data,
-            model=train_model,
-            query_model=query_model,
-            balance_model=balance_model,
-            feature_model=feature_model,
-            n_papers=settings.n_papers,
-            n_instances=settings.n_instances,
-            n_queries=settings.n_queries,
-            prior_idx=prior_idx,
-            n_prior_included=settings.n_prior_included,
-            n_prior_excluded=settings.n_prior_excluded,
-            state_file=state_file,
-            **kwargs)
+        reviewer = ReviewSimulate(as_data,
+                                  model=train_model,
+                                  query_model=query_model,
+                                  balance_model=balance_model,
+                                  feature_model=feature_model,
+                                  n_papers=settings.n_papers,
+                                  n_instances=settings.n_instances,
+                                  n_queries=settings.n_queries,
+                                  prior_idx=prior_idx,
+                                  n_prior_included=settings.n_prior_included,
+                                  n_prior_excluded=settings.n_prior_excluded,
+                                  state_file=state_file,
+                                  **kwargs)
     elif mode == "minimal":
-        reviewer = MinimalReview(
-            as_data,
-            model=train_model,
-            query_model=query_model,
-            balance_model=balance_model,
-            feature_model=feature_model,
-            n_papers=settings.n_papers,
-            n_instances=settings.n_instances,
-            n_queries=settings.n_queries,
-            state_file=state_file,
-            **kwargs)
+        reviewer = MinimalReview(as_data,
+                                 model=train_model,
+                                 query_model=query_model,
+                                 balance_model=balance_model,
+                                 feature_model=feature_model,
+                                 n_papers=settings.n_papers,
+                                 n_instances=settings.n_instances,
+                                 n_queries=settings.n_queries,
+                                 state_file=state_file,
+                                 **kwargs)
     else:
         raise ValueError("Error finding mode, should never come here...")
 
     return reviewer
 
 
-def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
+def review(*args,
+           mode="simulate",
+           model=DEFAULT_MODEL,
+           save_model_fp=None,
            **kwargs):
     """Perform a review from arguments. Compatible with the CLI interface"""
     if mode not in AVAILABLE_CLI_MODI:
@@ -226,7 +263,7 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
 
     # If we're dealing with a keras model, we can save the last model weights.
     if save_model_fp is not None and model in KERAS_MODELS:
-        save_model_h5_fp = splitext(save_model_fp)[0]+".h5"
+        save_model_h5_fp = splitext(save_model_fp)[0] + ".h5"
         json_model = model.model.to_json()
         with open(save_model_fp, "w") as f:
             json.dump(json_model, f, indent=2)
@@ -235,5 +272,7 @@ def review(*args, mode="simulate", model=DEFAULT_MODEL, save_model_fp=None,
 
 def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
+
+    print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
     review(dataset, *args, mode='simulate', **kwargs)

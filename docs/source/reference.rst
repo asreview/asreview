@@ -9,53 +9,106 @@ API Reference
 Low level API
 -------------
 
-.. autofunction:: asreview.review.get_reviewer
-
 .. autoclass:: asreview.review.BaseReview
    :members:
 
 .. autoclass:: asreview.ReviewSimulate
+   :members:
+   :inherited-members:
 
-Models
-------
+Classifiers
+-----------
 
-.. autoclass:: asreview.models.NBModel
-.. autoclass:: asreview.models.RFModel
-.. autoclass:: asreview.models.SVMModel
-.. autoclass:: asreview.models.LogisticModel
-.. autofunction:: asreview.models.get_model
-.. autofunction:: asreview.models.get_model_class
+.. autoclass:: asreview.models.classifiers.NaiveBayesClassifier
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.classifiers.RandomForestClassifier
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.classifiers.SVMClassifier
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.classifiers.LogisticClassifier
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.classifiers.LSTMBaseClassifier
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.classifiers.LSTMPoolClassifier
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.classifiers.NN2LayerClassifier
+   :members:
+   :inherited-members:
+.. autofunction:: asreview.models.classifiers.list_classifiers
+.. autofunction:: asreview.models.classifiers.get_classifier
+.. autofunction:: asreview.models.classifiers.get_classifier_class
 
 
-Query strategies
-----------------
+Query
+-----
 
-.. autoclass:: asreview.query_strategies.MaxQuery
-.. autoclass:: asreview.query_strategies.MixedQuery
-.. autoclass:: asreview.query_strategies.UncertaintyQuery
-.. autoclass:: asreview.query_strategies.RandomQuery
-.. autoclass:: asreview.query_strategies.ClusterQuery
-.. autofunction:: asreview.query_strategies.get_query_model
-.. autofunction:: asreview.query_strategies.get_query_class
+.. autoclass:: asreview.models.query.MaxQuery
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.query.MixedQuery
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.query.UncertaintyQuery
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.query.RandomQuery
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.query.ClusterQuery
+   :members:
+   :inherited-members:
+.. autofunction:: asreview.models.query.list_query_strategies
+.. autofunction:: asreview.models.query.get_query_model
+.. autofunction:: asreview.models.query.get_query_class
 
 
-Balance Strategies
+Balance
+-------
+
+.. autoclass:: asreview.models.balance.SimpleBalance
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.balance.DoubleBalance
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.balance.TripleBalance
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.balance.UndersampleBalance
+   :members:
+   :inherited-members:
+.. autofunction:: asreview.models.balance.list_balance_strategies
+.. autofunction:: asreview.models.balance.get_balance_model
+.. autofunction:: asreview.models.balance.get_balance_class
+
+
+Feature extraction
 ------------------
 
-.. autoclass:: asreview.balance_strategies.SimpleBalance
-.. autoclass:: asreview.balance_strategies.DoubleBalance
-.. autoclass:: asreview.balance_strategies.TripleBalance
-.. autoclass:: asreview.balance_strategies.UndersampleBalance
-.. autofunction:: asreview.balance_strategies.get_balance_model
-.. autofunction:: asreview.balance_strategies.get_balance_class
-
-
-Feature Extraction
-------------------
-
-.. autoclass:: asreview.feature_extraction.Tfidf
-.. autofunction:: asreview.feature_extraction.get_feature_model
-.. autofunction:: asreview.feature_extraction.get_feature_class
+.. autoclass:: asreview.models.feature_extraction.Tfidf
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.feature_extraction.Doc2Vec
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.feature_extraction.EmbeddingIdf
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.feature_extraction.EmbeddingLSTM
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.feature_extraction.SBERT
+   :members:
+   :inherited-members:
+.. autofunction:: asreview.models.feature_extraction.list_feature_extraction
+.. autofunction:: asreview.models.feature_extraction.get_feature_model
+.. autofunction:: asreview.models.feature_extraction.get_feature_class
 
 
 

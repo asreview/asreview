@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
-
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles'
-
 import {
   Box,
+  Link,
 } from '@material-ui/core'
+import { Alert, AlertTitle } from '@material-ui/lab'
 
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
@@ -15,18 +16,49 @@ import { useKeyPress } from '../hooks/useKeyPress'
 import { connect } from "react-redux";
 
 import axios from 'axios'
-import { api_url } from '../globals.js';
+import { api_url, reviewDrawerWidth } from '../globals.js';
 
 // redux config
 import { toggleReviewDrawer } from '../redux/actions'
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   box: {
     paddingBottom: 30,
     overflowY: 'auto',
   },
-});
+  content: {
+    flexGrow: 1,
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginRight: 0,
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginRight: reviewDrawerWidth,
+  },
+}));
+
+const useStylesAlert = makeStyles(theme => ({
+  alertFullWidth: {
+    width: '100%',
+    overflowY: 'auto',
+  },
+  alertWithDrawer: {
+    width: '100%',
+    overflowY: 'auto',
+    paddingRight: reviewDrawerWidth,
+  },
+  link: {
+    paddingLeft: "3px",
+  },
+}));
+
 
 
 const mapStateToProps = state => {
@@ -43,6 +75,29 @@ function mapDispatchToProps(dispatch) {
     })
 }
 
+
+
+const ExplorationAlert = (props) => {
+  const classes = useStylesAlert();
+
+  return (
+    <div className={classes.alertFullWidth}>
+      <Alert severity="warning">
+        <AlertTitle>You are screening through a manually pre-labeled dataset</AlertTitle>
+        <div>
+          Relevant documents are displayed in green. Read more about
+          <Link
+            className={classes.link}
+            href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#exploration-mode"
+            target="_blank"
+          >
+            <strong>Exploration Mode</strong>
+          </Link>.
+        </div>
+      </Alert>
+    </div>
+  )
+}
 
 const ReviewZone = (props) => {
   const classes = useStyles();
@@ -288,31 +343,42 @@ const ReviewZone = (props) => {
     <Box
       className={classes.box}
     >
+      <Box
+        id="main-content-item"
+        className={clsx(classes.content, {
+          [classes.contentShift]: props.reviewDrawerOpen,
+        })}
+      >
 
-      {/* Article panel */}
-      {recordState['isloaded'] &&
-        <ArticlePanel
-          record={recordState['record']}
-          reviewDrawerState={props.reviewDrawerOpen}
-          showAuthors={props.showAuthors}
-          textSize={props.textSize}
+        {/* Alert Exploration Mode */}
+        {recordState.record !== null && recordState.record._debug_label !== null  &&
+          <ExplorationAlert/>
+        }
+
+        {/* Article panel */}
+        {recordState['isloaded'] &&
+          <ArticlePanel
+            record={recordState['record']}
+            showAuthors={props.showAuthors}
+            textSize={props.textSize}
+          />
+        }
+
+      {/* Decision bar */}
+        <DecisionBar
+          reviewDrawerOpen={props.reviewDrawerOpen}
+          makeDecision={makeDecision}
+          block={!recordState['isloaded']}
+          recordState={recordState}
         />
-      }
 
-    {/* Decision bar */}
-      <DecisionBar
-        reviewDrawerState={props.reviewDrawerOpen}
-        makeDecision={makeDecision}
-        block={!recordState['isloaded']}
-        recordState={recordState}
-      />
-
-    {/* Decision undo bar */}
-    <DecisionUndoBar
-        state={undoState}
-        undo={undoDecision}
-        close={closeUndoBar}
-      />
+      {/* Decision undo bar */}
+      <DecisionUndoBar
+          state={undoState}
+          undo={undoDecision}
+          close={closeUndoBar}
+        />
+    </Box>
 
     {/* Statistics drawer */}
       <ReviewDrawer

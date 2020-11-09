@@ -95,7 +95,9 @@ const PreReviewZone = (props) => {
   }
 
   const scrollToBottom = () => {
-    EndRef.current.scrollIntoView({ behavior: "smooth" })
+    if ((EndRef !== undefined) & (EndRef.current !== null)){
+      EndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
   }
 
   useEffect(() => {

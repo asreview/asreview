@@ -1,0 +1,10 @@
+[run]
+source =
+  asreview/
+omit =
+  asreview/_version.py
+  asreview/tests/*
+
+[report]
+omit =
+  asreview/webapp/*

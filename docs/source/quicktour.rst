@@ -1,20 +1,23 @@
-ASReview LAB Quick Tour
-=======================
+Quick Tour
+==========
+
+This is a introduction in the ASReview LAB software. ASReview LAB is the user-
+friendly frontend for active learning in systematic reviews.
 
 .. contents:: Table of Contents
 
 Launching ASReview
 ------------------
 
-This tutorial assumes you have already installed Python and ASReview. If
-this is not the case, please check out the
-`installation <installation.html>`__ page.
+This tutorial assumes you have already installed Python and ASReview. If this
+is not the case, please check out the :doc:`installation` page.
 
-Launch ASReview LAB by running the following command in the command line (`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
+Launch ASReview LAB by running the following command in the command line
+(`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
 
 ::
 
-    asreview oracle
+    asreview lab
 
 
 Create a new project
@@ -51,10 +54,11 @@ titles and/or abstracts of all documents or publications you want to screen.
 
 There are four ways to select a dataset:
 
-- upload your own dataset. Read more about the format on our `datasets page <https://asreview.readthedocs.io/en/latest/datasets.html>`__.
+- upload your own dataset. Read more about the format on :doc:`datasets`.
 - import a dataset with an URL
 - select a dataset from an extension (for example our COVID-19 extension)
-- choose one of the built-in test datasets. Read more about testing on our `user testing page <https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html>`__.
+- choose one of the built-in test datasets. Read more about testing here
+  :doc:`user_testing_algorithms`.
 
 .. figure:: ../images/2_select_dataset.png
    :alt:
@@ -100,7 +104,7 @@ mind and click Relevant (Clicking Irrevant results in an irrelevant document).
 
 |
 
-The Prior Knowledge step will know show 1 relevant document. Repeat this step
+The Prior Knowledge step will now show 1 relevant document. Repeat this step
 until you've selected your 1-5 relevant documents. Note that there are no
 restrictions on the number of publications you need to provide, but preferably
 provide 1-5 relevant documents.
@@ -122,7 +126,7 @@ or irrelevant to your systematic review.
    :alt:
 
 After labeling a couple of randomly selected documents, ASReview LAB will
-asked you whether you want to stop. Click on Stop and go to the next step.
+ask you whether you want to stop. Click on Stop and go to the next step.
 
 
 .. figure:: ../images/4_label_random_next.png
@@ -160,7 +164,7 @@ will be shown.
 Start Reviewing
 ---------------
 
-As soon as the active learning model is ready, a button appear with Start
+As soon as the active learning model is ready, a button appears with Start
 Review. Click the button to start screening. ASReview LAB presents you a
 document that the software is most confident about in terms of relevancy for
 your systematic review.

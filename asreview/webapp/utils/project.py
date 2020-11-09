@@ -1,9 +1,9 @@
 import json
-import logging
 import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -27,7 +27,10 @@ from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_project_file_path
+from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
+from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.validation import is_project
 
 
 def _get_executable():
@@ -42,29 +45,22 @@ def _get_executable():
     return py_exe
 
 
-def init_project(
-        project_id,
-        project_name=None,
-        project_description=None,
-        project_authors=None
-):
+def init_project(project_id,
+                 project_name=None,
+                 project_description=None,
+                 project_authors=None):
     """Initialize the necessary files specific to the web app."""
 
     if not project_id and not isinstance(project_id, str) \
             and len(project_id) >= 3:
-        raise ValueError("Project name can't be None or empty string")
+        raise ValueError("Project name should be at least 3 characters.")
 
-    # get the directory with the projects
-    project_dir = asreview_path() / project_id
-
-    if project_dir.exists():
-        raise ValueError("Project already exists")
+    if is_project(project_id):
+        raise ValueError("Project already exists.")
 
     try:
-        project_dir.mkdir()
-
-        fp_data = project_dir / "data"
-        fp_data.mkdir()
+        get_project_path(project_id).mkdir()
+        get_data_path(project_id).mkdir()
 
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
@@ -72,6 +68,7 @@ def init_project(
             'name': project_name,
             'description': project_description,
             'authors': project_authors,
+            'created_at_unix': int(time.time()),
 
             # project related variables
             'projectInitReady': False,
@@ -86,7 +83,7 @@ def init_project(
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(project_dir)
+        shutil.rmtree(get_project_path())
         raise err
 
 
@@ -99,7 +96,8 @@ def add_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         # open the projects file
         with open(project_file_path, "r") as f_read:
             project_dict = json.load(f_read)
@@ -141,7 +139,8 @@ def remove_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_id)
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
@@ -164,13 +163,40 @@ def remove_dataset_to_project(project_id, file_name):
         os.remove(str(labeled_path))
 
 
+def clean_project_tmp_files(project_id):
+    """Clean temporary files in a project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+    project_path = get_project_path(project_id)
+
+    # clean pickle files
+    for f_pickle in project_path.rglob("*.pickle"):
+        try:
+            os.remove(f_pickle)
+        except OSError as e:
+            print(f"Error: {f_pickle} : {e.strerror}")
+
+    # clean tmp export files
+    # TODO
+
+
+def clean_all_project_tmp_files():
+    """Clean temporary files in all projects.
+    """
+    for project_path in list_asreview_project_paths():
+        clean_project_tmp_files(project_path)
+
+
 def get_paper_data(project_id,
                    paper_id,
                    return_title=True,
                    return_authors=True,
                    return_abstract=True,
-                   return_debug_label=False
-                   ):
+                   return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
     record = as_data.record(int(paper_id))
@@ -210,22 +236,22 @@ def get_instance(project_id):
 
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         pool_idx = read_pool(project_id)
 
     if len(pool_idx) > 0:
-        logging.info(f"Requesting {pool_idx[0]} from project {project_id}")
         return pool_idx[0]
     else:
         # end of pool
-        logging.info(f"No more records for project {project_id}")
         return None
 
 
 def get_statistics(project_id):
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         # get the index of the active iteration
         label_history = read_label_history(project_id)
         current_labels = read_current_labels(
@@ -253,7 +279,8 @@ def get_statistics(project_id):
 def export_to_string(project_id, export_type="csv"):
     fp_lock = get_lock_path(project_id)
     as_data = read_data(project_id)
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
         proba = read_proba(project_id)
         if proba is None:
             proba = np.flip(np.arange(len(as_data)))
@@ -266,8 +293,8 @@ def export_to_string(project_id, export_type="csv"):
     zero_idx = np.where(labels == 0)[0]
 
     proba_order = np.argsort(-proba[pool_idx])
-    ranking = np.concatenate(
-        (one_idx, pool_idx[proba_order], zero_idx), axis=None)
+    ranking = np.concatenate((one_idx, pool_idx[proba_order], zero_idx),
+                             axis=None)
 
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
@@ -275,10 +302,7 @@ def export_to_string(project_id, export_type="csv"):
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
         return as_data.to_excel(
-            fp=fp_tmp_export,
-            labels=labels,
-            ranking=ranking
-        )
+            fp=fp_tmp_export, labels=labels, ranking=ranking)
     else:
         raise ValueError("This export type isn't implemented.")
 
@@ -293,26 +317,18 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     fp_lock = get_lock_path(project_id)
 
-    with SQLiteLock(fp_lock, blocking=True, lock_name="active"):
+    with SQLiteLock(
+            fp_lock, blocking=True, lock_name="active", project_id=project_id):
 
         # get the index of the active iteration
         if int(label) in [0, 1]:
-            move_label_from_pool_to_labeled(
-                project_id, paper_i, label
-            )
+            move_label_from_pool_to_labeled(project_id, paper_i, label)
         else:
-            move_label_from_labeled_to_pool(
-                project_id, paper_i
-            )
+            move_label_from_labeled_to_pool(project_id, paper_i)
 
     if retrain_model:
         # Update the model (if it isn't busy).
 
         py_exe = _get_executable()
-        run_command = [
-            py_exe,
-            "-m", "asreview",
-            "web_run_model",
-            project_id
-        ]
+        run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
         subprocess.Popen(run_command)

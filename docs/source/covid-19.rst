@@ -1,4 +1,4 @@
-.. figure:: https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true
+.. figure:: https://raw.githubusercontent.com/asreview/asreview/master/images/intro-covid19-small.png
    :alt: ASReview against COVID19
 
 
@@ -23,7 +23,7 @@ CORD-19 dataset
 ---------------
 
 The `CORD-19
-dataset <https://pages.semanticscholar.org/coronavirus-research>`__ is a
+dataset <https://www.semanticscholar.org/cord19>`__ is a
 dataset with scientific publications on COVID-19 and coronavirus-related
 research (e.g. SARS, MERS, etc.) from PubMed Central, the WHO COVID-19
 database of publications, the preprint servers bioRxiv and medRxiv and
@@ -32,11 +32,8 @@ dataset is compiled and maintained by a collaboration of the Allen
 Institute for AI, the Chan Zuckerberg Initiative, Georgetown
 University’s Center for Security and Emerging Technology, Microsoft
 Research, and the National Library of Medicine of the National
-Institutes of Health. Version 5 of the dataset
-(`csv <https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/2020-03-27/metadata.csv>`__,
-dated March 27, 2020) contains metadata of 45.8K publications on
-COVID-19 and coronavirus-related research. The CORD-19 dataset is
-updated weekly.
+Institutes of Health. The data is updated
+`daily <https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/historical_releases.html>`__.
 
 ASReview plugin
 ---------------
@@ -59,8 +56,7 @@ Installation and usage
 ----------------------
 
 The COVID-19 plug-in requires ASReview 0.8 or higher. Install ASReview
-by following the instructions in `Installation of
-ASReview <https://asreview.readthedocs.io/en/latest/installation.html>`__.
+by following the instructions in :doc:`installation`.
 
 Install the extension with pip:
 
@@ -72,12 +68,11 @@ The datasets are immediately available after starting ASReview.
 
 .. code:: bash
 
-    asreview oracle
+    asreview lab
 
 The datasets are selectable in Step 2 of the project initialization. For
 more information on the usage of ASReview, please have a look at the
-`Quick
-Tour <https://asreview.readthedocs.io/en/latest/quicktour.html>`__.
+:doc:`quicktour`.
 
 |ASReview CORD19 datasets|
 
@@ -86,8 +81,8 @@ License
 
 The ASReview software and the plugin have an Apache 2.0 LICENSE. For the
 datasets, please see the license of the CORD-19 dataset
-https://pages.semanticscholar.org/coronavirus-research.
+https://www.semanticscholar.org/cord19.
 
 
-.. |ASReview CORD19 datasets| image:: https://github.com/asreview/asreview/blob/master/images/asreview-covid19-screenshot.png?raw=true
+.. |ASReview CORD19 datasets| image:: https://raw.githubusercontent.com/asreview/asreview/master/images/asreview-covid19-screenshot.png
    :target: https://github.com/asreview/asreview-covid19

@@ -1,65 +1,218 @@
-.. _Develop Extensions:
+.. _develop-extensions:
 
-Develop Extensions
-==================
+Extensions
+==========
 
-The extensibility of the framework is provided by the entrypoints of setuptools. You will need to
-create a package and install it (for example with pip). If you have no experience with creating
-packages, have a look at our
-`visualization extension <https://github.com/asreview/ASReview-visualization>`__ and modify it to suit
-your needs.
+ASReview has support for extensions, which enable you to integrate your
+programs with the ASReview framework seamlessly. These extensions can extend
+the software with new classifiers, query strategies, balance strategies, and
+feature extraction techniques. It is also possible to extend ASReview with a
+completely new subcommand (like ``lab`` of ``simulate``).
+
+The extensibility of the framework is provided by the entrypoints of
+setuptools. You will need to create a package and install it (for example with
+pip). If you have no experience with creating packages, look at the
+`visualization extension <https://github.com/asreview/ASReview-
+visualization>`__ and modify it to suit your needs.
+
+Available extensions
+--------------------
+
+- ``asreview-visualization``: Plotting functionality for state files produced by ASReview. `GitHub <https://github.com/asreview/asreview-visualization>`__
+- ``asreview-statistics``: Tool to give some basic properties of a dataset, such as number of
+  papers, number of inclusions. `GitHub <https://github.com/asreview/asreview-statistics>`__
+- ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
+
+If an extension is not on this list, or you make one and want it added to this
+list, make an issue on `github
+<https://github.com/asreview/asreview/issues>`__.
+
+Usage
+-----
+
+This section shows how to use an extension. In this example, the
+`asreview-visualization <https://github.com/asreview/ASReview-visualization>`__
+extension is used. The extension extends ASReview to create basic plots from
+ASReview state files.
+
+Install the extension with
+
+.. code:: bash
+
+    pip install asreview-visualization
+
+After installation, the subcommand ``plot`` is available in the command line.
+See ``asreview -h`` for this option.
+
+.. code:: bash
+
+    $ asreview -h
+    usage: asreview [-h] [-V] [subcommand]
+
+    Automated Systematic Review (ASReview).
+
+    positional arguments:
+      subcommand     The subcommand to launch. Available commands:
+
+                     lab [asreview-0.13]
+                         Graphical user interface for ASReview.
+
+                     simulate [asreview-0.13]
+                         Simulate the performance of ASReview.
+
+                     simulate-batch [asreview-0.13]
+                         Parallel simulation for ASReview.
+
+                     plot [asreview-visualization-0.2.2]
+                         Plotting functionality for logging files produced by ASReview.
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      -V, --version  print the ASR version number and exit
 
 
-Program your extension
-----------------------
+With this extension installed, a plot can be made with an ASReview state
+file. The following example shows how a plot is made of the file
+``example_run_1.h5``.
 
-First create the functionality you would like to be able to use in any directory. Say, some type of
-analysis, or perhaps some more visualization options.
+.. code:: bash
 
-An extension may implement one or more entry points (e.g. ``plot`` or ``analyze``).
-
-We advise you to use the following package structure:
-``asreviewcontrib.{extension_name}.{your_modules}``
+    asreview plot example_run_1.h5
 
 
-Create the entry point class
-----------------------------
+Create subcommand
+-----------------
 
-The easiest way to create a class that can be used as a new entry point for ASReview is to create a
-new class from the :class:`asreview.entry_points.BaseEntryPoint`. You only need to implement a
-single member function:
+Extensions in ASReview are Python packages. Extension packages can extend the
+subcommands of asreview (see ``asreview -h``) or add new algorithms.
+
+The easiest way to create an extension is by defining a class that can be used
+as a new entry point for ASReview. This class should inherit from
+:class:`asreview.entry_points.BaseEntryPoint`. Add the functionality to the
+class method ``execute``.
 
 .. code:: python
 
-	def execute(self, argv)
-		pass  # Implement your functionality here.
+    from asreview.entry_points import BaseEntryPoint
 
-The argument ``argv`` are the arguments left after removing asreview and the entry point. In the
-case of our visualization extension example above, ``argv`` would be equal to ``DIR_WITH_STATE_FILES``.
+    class ExampleEntryPoint(BaseEntryPoint):
 
-It is also strongly recommended to define the following attributes:
+        description = "Description of example extension"
+        extension_name = "asreview-example"  # Name of the extension
+        version = "1.0"  # Version of the extension in x.y(.z) format.
 
-- ``description``: A one sentence description what the entry point provides.
-- ``extension_name``: Name of the extension it is part of.
-- ``version``: Version of the extension. It is recommended to use the ``x.y(.z)`` format.
+        def execute(self, argv)
+            pass  # Implement your functionality here.
 
-Entry points
-------------
+It is strongly recommended to define the attributes ``description``,
+``extension_name``, and ``version``.
 
-Create a ``setup.py`` according to your needs, and set the keyword argument `entry_points` of
+The class method ``execute`` accepts a positional arugument (``argv`` in this
+example).  First create the functionality you would like to be able to use in
+any directory. The argument ``argv`` are the command line arguments left after
+removing asreview and the entry point.
+
+It is advised to place the newly defined class ``ExampleEntryPoints`` in the
+following package structure:
+``asreviewcontrib.{extension_name}.{your_modules}``. For example:
+
+.. code:: bash
+
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── example
+    │       ├── __init__.py
+    │       ├── entrypoint.py
+    │       └── example_utils.py
+    ├── setup.py
+    └── tests
+
+
+Create a ``setup.py`` in
+the root of the package, and set the keyword argument `entry_points` of
 ``setup()`` under ``asreview.entry_points``, for example:
 
 .. code:: python
 
-    entry_points={"asreview.entry_points": [
-            "plot = asreviewcontrib.visualization.entrypoint:PlotEntryPoint",
-        ]}
+    entry_points={
+        "asreview.entry_points": [
+            "example = asreviewcontrib.example.entrypoint:ExampleEntryPoint",
+        ]
+    }
 
-\[Optional\] Share your extension!
-----------------------------------
+After installing this package. ASReview is extended with the ``asreview
+example`` subcommand.
 
-You are not in any way obliged to share your work with others, but we would love to know
-how you use our software!
+If you are willing to share your work, the easiest way is to upload your
+package to GitHub and/or PyPi. Users can directly install the extension from
+these sources.
 
-If you are willing to share your work, the easiest way is to upload your package to GitHub and/or
-PyPi. And don't forget to send us an issue/email, so that we can add it to the list of extensions.
+Add model
+---------
+
+In the ASReview project, an active learning model consists of classifier,
+query strategy, balance strategy, or feature extraction technique. The easiest
+way to extend ASReview with a new classifier, query strategy, balance
+strategy, or feature extraction technique is by using the template `Template
+for extending ASReview <https://github.com/asreview/template- extension-new-
+model>`__. Create a copy of the template and add the new algorithms. It is
+advised to use the following structure of the package:
+
+.. code:: bash
+
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── models
+    │       ├── classifiers
+    │       │   ├── __init__.py
+    │       │   └── example_model.py
+    │       ├── feature_extraction
+    │       │   ├── __init__.py
+    │       │   └── example_feature_extraction.py
+    │       ├── balance
+    │       │   ├── __init__.py
+    │       │   └── example_balance_strategies.py
+    │       └── query
+    │           ├── __init__.py
+    │           └── example_query_strategies.py
+    ├── setup.py
+    └── tests
+
+The next step is to add metadata to the `setup.py <https://github.com/asreview
+/template-extension-new-model/blob/main/setup.py>`__ file. Edit the ``name``
+of the package and point the ``entry_points`` to the models.
+
+.. code:: bash
+
+    entry_points={
+        'asreview.models.classifiers': [
+            'example = asreviewcontrib.models.classifiers.example_model:ExampleClassifier',
+        ],
+        'asreview.models.feature_extraction': [
+            # define feature_extraction algorithms
+        ],
+        'asreview.models.balance': [
+            # define balance_strategy algorithms
+        ],
+        'asreview.models.query': [
+            # define query_strategy algorithms
+        ]
+    },
+
+This code registers the model with name ``example``.
+
+Install the package with pip:
+
+.. code:: bash
+
+    pip install .
+
+The new classifier is now available and can be used, for example, in the
+simulate command line.
+
+.. code:: bash
+
+    asreview simulate example_data_file.csv -m example
+
+
+

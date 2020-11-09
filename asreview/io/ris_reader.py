@@ -1,24 +1,22 @@
 import logging
 
 import pandas as pd
-from RISparser import readris
-from RISparser import TAG_KEY_MAPPING
-from RISparser.config import LIST_TYPE_TAGS
+import rispy
+from rispy import TAG_KEY_MAPPING
+from rispy.config import LIST_TYPE_TAGS
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import standardize_dataframe
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"
-LABEL_INCLUDED_VALUES = COLUMN_DEFINITIONS[0]
-NAME_LABEL_INCLUDED = LABEL_INCLUDED_VALUES[0]
 
 
 def _tag_key_mapping(reverse=False):
     # Add label_included into the specification and create reverse mapping.
-    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = NAME_LABEL_INCLUDED
+    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
     KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-    for label in LABEL_INCLUDED_VALUES:
+    for label in COLUMN_DEFINITIONS["included"]:
         KEY_TAG_MAPPING[label] = "LI"
     if reverse:
         return KEY_TAG_MAPPING
@@ -38,8 +36,8 @@ def read_ris(fp):
 
     Returns
     -------
-    list:
-        List with entries.
+    pandas.DataFrame:
+        Dataframe with entries.
 
     """
 
@@ -49,10 +47,12 @@ def read_ris(fp):
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
                 mapping = _tag_key_mapping(reverse=False)
-                entries = list(readris(bibliography_file, mapping=mapping))
+                entries = list(rispy.load(bibliography_file, mapping=mapping))
                 break
-        except (UnicodeDecodeError, IOError):
+        except UnicodeDecodeError:
             pass
+        except IOError as e:
+            logging.warning(e)
 
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")

@@ -12,60 +12,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.base_model import BaseModel
+from abc import ABC
+import inspect
+
+import numpy as np
 
 
-class BaseTrainModel(BaseModel):
-    """Base model, abstract class to be implemented by derived ones.
+def sig_to_param(signature):
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
 
-    All the non-abstract methods are okay if they are not implemented.
-    All functions dealing with hyperparameters can be ignore if you don't
-    use hyperopt for hyperparameter tuning.
-    There is a distinction between model parameters, which are needed during
-    model creation and fit parameters, which are used during the fitting
-    process. Fit parameters can be distinct from fit_kwargs (which are passed
-    to the fit function).
-    """
-    name = "base-train"
 
-    def __init__(self):
-        self._model = None
+class BaseModel(ABC):
+    """Abstract class for any kind of model."""
 
-    def fit(self, X, y):
-        """Fit the model to the data.
+    name = "base"
 
-        X: np.array
-            Feature matrix to fit.
-        y: np.array
-            Labels for supervised learning.
-        """
-        return self._model.fit(X, y)
-
-    def predict_proba(self, X):
-        """Get the inclusion probability for each sample.
-
-        Arguments
-        ---------
-        X: np.array
-            Feature matrix to predict.
+    @property
+    def default_param(self):
+        """Get the default parameters of the model.
 
         Returns
         -------
-        np.array:
-            Array with the probabilities for each class, with two
-            columns (class 0, and class 1) and the number of samples rows.
+        dict:
+            Dictionary with parameter: default value
         """
-        return self._model.predict_proba(X)
+        cur_class = self.__class__
+        default_parameters = sig_to_param(inspect.signature(self.__init__))
+        while cur_class != BaseModel:
+            signature = inspect.signature(super(cur_class, self).__init__)
+            new_parameters = sig_to_param(signature)
+            default_parameters.update(new_parameters)
+            cur_class = cur_class.__bases__[0]
+        return default_parameters
+
+    @property
+    def param(self):
+        """Get the (assigned) parameters of the model.
+
+        Returns
+        -------
+        dict:
+            Dictionary with parameter: current value.
+        """
+        parameters = self.default_param
+        for par in list(parameters):
+            try:
+                parameters[par] = getattr(self, par)
+            except AttributeError:
+                del parameters[par]
+                continue
+            if isinstance(parameters[par], np.integer):
+                parameters[par] = int(parameters[par])
+
+        return parameters
 
     def full_hyper_space(self):
-        """Get a hyperparameter space to use with hyperopt.
-
-        Returns
-        -------
-        dict:
-            Parameter space.
-        dict:
-            Parameter choices; in case of hyperparameters with a list of
-            choices, store the choices there.
-        """
         return {}, {}
+
+    def hyper_space(self):
+        hyper_space, hyper_choices = self.full_hyper_space()
+        return hyper_space, hyper_choices

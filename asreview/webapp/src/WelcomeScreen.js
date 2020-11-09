@@ -8,7 +8,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import './WelcomeScreen.css'
-import {api_url} from "./globals";
+import {base_url} from "./globals";
 import axios from "axios";
 
 import { connect } from "react-redux";
@@ -80,6 +80,7 @@ const WelcomeScreen = ({setASReviewVersion, setAppState}) => {
     "loading": true,
     "bootInfo" : null,
     "error": null,
+    "errorMsg": null,
     "animation": false,
   })
 
@@ -93,7 +94,7 @@ const WelcomeScreen = ({setASReviewVersion, setAppState}) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await axios.get(api_url + "boot")
+      await axios.get(base_url + "boot")
           .then(result => {
 
             // set the version of asreview
@@ -112,10 +113,19 @@ const WelcomeScreen = ({setASReviewVersion, setAppState}) => {
             }
           })
           .catch(err => {
+
+            // check if there is an error, otherwise Network Error
+            let errorMsg = null;
+            if (err.response && (err.response.data.message !== "")){
+              errorMsg = err.response.data.message
+            }
+
+            // set the state
             setState(s => {return({
               ...s,
-              "loading": true,
-              "error": true
+              "loading": false,
+              "error": true,
+              "errorMsg": errorMsg,
             })});
           })
     }
@@ -132,7 +142,7 @@ const WelcomeScreen = ({setASReviewVersion, setAppState}) => {
     return (
       <Box className={classes.background}>
         <Typography className={classes.error} color='error'>
-          Error - failed to connect with server
+          {state.errorMsg !== null ? state.errorMsg : "Network Error - Failed to connect to server."}
         </Typography>
       </Box>
     );

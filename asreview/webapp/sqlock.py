@@ -1,11 +1,19 @@
+import logging
 import os
 import sqlite3
 from time import sleep
 
 
+def _log_msg(msg, project_id=None):
+    """Return the log message with project_id."""
+    if project_id is not None:
+        return f"Project {project_id} - {msg}"
+
+    return msg
+
+
 def get_db(db_file):
-    db = sqlite3.connect(
-        str(db_file), detect_types=sqlite3.PARSE_DECLTYPES)
+    db = sqlite3.connect(str(db_file), detect_types=sqlite3.PARSE_DECLTYPES)
     db.row_factory = sqlite3.Row
     return db
 
@@ -17,13 +25,23 @@ def release_all_locks(db_file):
 
 
 class SQLiteLock():
-    def __init__(self, db_file, lock_name="global", blocking=False,
-                 timeout=30, polling_rate=0.4):
+    def __init__(self,
+                 db_file,
+                 lock_name="global",
+                 blocking=False,
+                 timeout=30,
+                 polling_rate=0.4,
+                 project_id=None):
         self.db_file = db_file
         self.lock_name = lock_name
         self.lock_acquired = False
-        self.acquire(blocking=blocking, timeout=timeout,
-                     polling_rate=polling_rate)
+        self.timeout = timeout
+        self.polling_rate = polling_rate
+        self.project_id = project_id
+
+        # acquire
+        self.acquire(
+            blocking=blocking, timeout=timeout, polling_rate=polling_rate)
 
     def acquire(self, blocking=False, timeout=30, polling_rate=0.4):
         if self.lock_acquired:
@@ -38,18 +56,20 @@ class SQLiteLock():
             try:
                 db.isolation_level = 'EXCLUSIVE'
                 db.execute('BEGIN EXCLUSIVE')
-                lock_entry = db.execute(
-                    'SELECT * FROM locks WHERE name = ?',
-                    (self.lock_name,)).fetchone()
+                lock_entry = db.execute('SELECT * FROM locks WHERE name = ?',
+                                        (self.lock_name, )).fetchone()
                 if lock_entry is None:
-                    db.execute(
-                        'INSERT INTO locks (name) VALUES (?)',
-                        (self.lock_name,))
+                    db.execute('INSERT INTO locks (name) VALUES (?)',
+                               (self.lock_name, ))
                     self.lock_acquired = True
-                    print(f"Acquired lock {self.lock_name}")
+                    logging.debug(
+                        _log_msg(f"Acquired lock {self.lock_name}",
+                                 self.project_id))
                 db.commit()
             except sqlite3.OperationalError as e:
-                print(f"Encountering operational error {e}")
+                logging.error(
+                    _log_msg(f"Encountering operational error {e}",
+                             self.project_id))
             db.close()
             if self.lock_acquired or not blocking:
                 break
@@ -77,9 +97,8 @@ class SQLiteLock():
         while True:
             db = get_db(self.db_file)
             try:
-                db.execute(
-                    'DELETE FROM locks WHERE name = ?',
-                    (self.lock_name,))
+                db.execute('DELETE FROM locks WHERE name = ?',
+                           (self.lock_name, ))
                 db.commit()
                 db.close()
                 break
@@ -87,5 +106,6 @@ class SQLiteLock():
                 pass
             db.close()
             sleep(0.4)
-        print(f"Released lock {self.lock_name}")
+        logging.debug(
+            _log_msg(f"Released lock {self.lock_name}", self.project_id))
         self.lock_acquired = False

@@ -46,7 +46,6 @@ ASReview LAB is a user-friendly interface for screening documents and experiment
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview LAB Quick Tour")
 
-
 ## Covid-19 plugin
 
 [![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
@@ -59,15 +58,11 @@ Install the plugin with the command below.
 pip install asreview-covid19
 ```
 
-
 ## Documentation
 
 Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io). Please have a look at https://asreview.readthedocs.io/en/latest/quicktour.html for a quick tour through the user interface.
 
 Check out the ASReview website, https://asreview.nl/, for more information and our blog.
-
-- [systematic-review-datasets](https://github.com/asreview/systematic-review-datasets) A project with systematic review datasets optimized and processed for use with ASReview or other systematic review software. The project describes the preferred format to store systematic review datasets.
-- [systematic-review-simulations](https://github.com/asreview/automated-systematic-review-simulations) A repository with scripts for a simulation study and scripts for the aggregation and visualisation of the results.
 
 ## Contact
 This project is coordinated by [Rens van de Schoot](https://www.rensvandeschoot.com) ([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob)) and is part of the research work conducted by the [Department of

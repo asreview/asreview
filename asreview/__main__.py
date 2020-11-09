@@ -15,26 +15,66 @@
 """Command Line Interface (CLI) for ASReview project."""
 import argparse
 import logging
-import pkg_resources
 import sys
 
 from asreview import __version__
+from asreview.utils import get_entry_points
 
 
-PROG_DESCRIPTION = f"""
-Automated Systematic Review (ASReview).
-"""
+PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
+
+# Internal or deprecated entry points. These entry points
+# are not displayed in the help page of the  user interface.
+INTERNAL_ENTRY_POINTS = ["web_run_model"]
+DEPRECATED_ENTRY_POINTS = ["oracle"]
+
+
+def _sort_entry_points(entry_points):
+
+    entry_points_copy = entry_points.copy()
+
+    entry_points_sorted = {
+        "lab": entry_points_copy.pop("lab"),
+        "simulate": entry_points_copy.pop("simulate"),
+        "simulate-batch": entry_points_copy.pop("simulate-batch"),
+    }
+
+    entry_points_sorted.update(entry_points_copy)
+
+    return entry_points_sorted
+
+
+def _output_available_entry_points(entry_points):
+
+    entry_points_sorted = _sort_entry_points(entry_points)
+
+    description_list = []
+    for name, entry in entry_points_sorted.items():
+
+        # don't display the internal entry points
+        if name in INTERNAL_ENTRY_POINTS:
+            continue
+
+        # don't display the deprecated entry points
+        if name in DEPRECATED_ENTRY_POINTS:
+            continue
+
+        # try to load entry points, hide when failing on loading
+        try:
+            description_list.append(entry.load()().format(name))
+        except ModuleNotFoundError:
+            logging.warning(
+                f"Plugin with entry point {name} could not be loaded.")
+    return "\n\n".join(description_list)
 
 
 def main():
-    # Find the available entry points.
-    entry_points = {
-        entry.name: entry
-        for entry in pkg_resources.iter_entry_points('asreview.entry_points')
-    }
+    # Get the available entry points.
+    entry_points = get_entry_points("asreview.entry_points")
 
     # Try to load the entry point if available.
     if len(sys.argv) > 1 and sys.argv[1] in entry_points:
+
         try:
             entry = entry_points[sys.argv[1]]
             entry.load()().execute(sys.argv[2:])
@@ -42,17 +82,12 @@ def main():
             raise ValueError(
                 f"Plugin with entry point {entry.name} could not be loaded.")
 
-    # Print help message if the entry point could not be found.
+    # Print help message if subcommand not given of incorrect
     else:
-        description_list = []
-        for name, entry in entry_points.items():
-            try:
-                description_list.append(entry.load()().format(name))
-            except ModuleNotFoundError:
-                logging.warning(
-                    f"Plugin with entry point {name} could not be loaded.")
 
-        description = "\n\n".join(description_list)
+        # format the available subcommands
+        description_subcommands = _output_available_entry_points(entry_points)
+
         parser = argparse.ArgumentParser(
             prog="asreview",
             formatter_class=argparse.RawTextHelpFormatter,
@@ -63,7 +98,7 @@ def main():
             nargs="?",
             default=None,
             help=f"The subcommand to launch. Available commands:\n\n"
-            f"{description}"
+            f"{description_subcommands}"
         )
 
         # version
