@@ -41,12 +41,9 @@ const ProjectCard = (props) => {
 
   return (
     <Card className={classes.root}>
-      <CardActionArea>
-        {/*<CardMedia
-          className={classes.media}
-          image="/static/images/cards/contemplative-reptile.jpg"
-          title="ASReview Project"
-        />*/}
+      <CardActionArea
+        onClick={openExistingProject}
+      >
         <CardContent
           className={classes.content}
         >
@@ -63,14 +60,6 @@ const ProjectCard = (props) => {
           </Typography>
         </CardContent>
       </CardActionArea>
-      <CardActions>
-        <Button
-          size="small"
-          onClick={openExistingProject}
-        >
-          Open
-        </Button>
-      </CardActions>
     </Card>
   );
 }
