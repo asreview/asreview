@@ -63,8 +63,8 @@ def open_state(fp, *args, read_only=False, **kwargs):
     if state_class is None:
         raise ValueError("Bad state file extension, choose one of the"
                          f" following:\n   {', '.join(STATE_EXTENSIONS)}")
+        state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs) 
     try:
-        state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs)
         yield state
     finally:
         state.close()
