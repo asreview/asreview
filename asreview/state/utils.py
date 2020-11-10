@@ -60,10 +60,14 @@ def open_state(fp, *args, read_only=False, **kwargs):
         - Anything else -> JSONstate.
     """
     state_class = _get_state_class(fp)
+
     if state_class is None:
         raise ValueError("Bad state file extension, choose one of the"
                          f" following:\n   {', '.join(STATE_EXTENSIONS)}")
+
+    # init state class
     state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs)
+
     try:
         yield state
     finally:
