@@ -4,47 +4,50 @@ ASReview: Active learning for Systematic Reviews
 
 
 .. toctree::
-   :maxdepth: 1
+   :caption: Introduction
+   :maxdepth: 2
 
-   overview
+   intro/overview
 
-   installation
+   intro/installation
+
+   intro/zen
+
+   intro/datasets
 
 
 .. toctree::
    :maxdepth: 2
    :caption: ASReview LAB
 
-   overview_lab
+   lab/overview_lab
 
-   quicktour
+   lab/oracle
 
-   datasets
+   lab/exploration
 
-   user_testing_algorithms
+   lab/simulation
 
-   faq
+   lab/faq
 
-   troubleshooting
+   lab/troubleshooting
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Features
 
-   features/auto_save
+   features/overview_features
 
-   features/dark_mode
+   features/Settings
 
-   features/doi
+   features/Pre-screening
 
-   features/keybord_shortcuts
+   features/Screening
 
-   features/text_size
+   features/Post-screening
 
-   features/undo
-
-
+ 
 .. toctree::
    :maxdepth: 2
    :caption: Plugins
@@ -59,25 +62,25 @@ ASReview: Active learning for Systematic Reviews
    :maxdepth: 2
    :caption: API
 
-   overview_cli
+   API/overview_cli
 
-   cli
+   API/cli
 
-   extensions_dev
+   API/extensions_dev
 
-   reference
+   API/reference
 
 .. toctree::
    :maxdepth: 2
    :caption: Guides
 
-   activelearning
+   guides/activelearning
 
-   simulation_study_results
+   guides/simulation_study_results
 
-   sim_overview
+   guides/sim_overview
 
-   api
+   guides/api
 
 
 Indices and tables

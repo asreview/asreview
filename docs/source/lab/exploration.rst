@@ -7,7 +7,9 @@ yourself. Therefore, ASReview implements a mode in which the relevant articles
 are displayed in green. This make decision making straightforward.
 
 This tutorial assumes you have already installed Python and ASReview. If
-this is not the case, please see :doc:`installation`.
+this is not the case, please see :doc:`../intro/installation`.
+
+
 
 Create a project
 ----------------

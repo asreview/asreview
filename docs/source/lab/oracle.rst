@@ -1,5 +1,5 @@
-Quick Tour
-==========
+Oracle Mode
+===========
 
 This is a quick tour in using the ASReview LAB software, which is the user-
 friendly frontend for active learning in systematic reviews. If you encounter any issues during the process, 
@@ -11,7 +11,7 @@ Launching ASReview
 ------------------
 
 This tutorial assumes you have already installed Python and ASReview. If this
-is not the case, please check out the :doc:`installation` page.
+is not the case, please check out the :doc:`../intro/installation` page.
 
 Launch ASReview LAB by running the following command in the command line
 (`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
@@ -55,11 +55,11 @@ titles and/or abstracts of all documents or publications you want to screen.
 
 There are four ways to select a dataset:
 
-- upload your own dataset. Read more about the format on :doc:`datasets`.
+- upload your own dataset. Read more about the format on :doc:`../intro/datasets`.
 - import a dataset with an URL
 - select a dataset from an extension (for example our COVID-19 extension)
 - choose one of the built-in test datasets. Read more about testing here
-  :doc:`user_testing_algorithms`.
+  :doc:`exploration`.
 
 .. figure:: ../images/2_select_dataset.png
    :alt:

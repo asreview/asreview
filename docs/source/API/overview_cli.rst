@@ -13,9 +13,9 @@ shows the available interfaces for interacting with the ASReview software:
   front-end communicate with the backend and algorithms. The REST API is not
   documented at the moment and should be considered 'internal use only'.
 - The :doc:`cli` is an interface to open ASReview LAB, to run
-  :ref:`simulations <cli:Simulate>`, and more. See :doc:`sim_overview` for
+  simulations, and more. See :doc:`../guides/sim_overview` for
   example usage.
 - The :doc:`reference` is a low level Python interface for ASReview. This
   interface requires detailed knowledge about the workings of the software.
   There is extensive documentation available on the functions, classes,
-  modules. An outline for usage can be found in :doc:`api`.
+  modules. An outline for usage can be found in :doc:`../guides/api`.
