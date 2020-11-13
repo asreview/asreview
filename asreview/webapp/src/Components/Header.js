@@ -13,6 +13,7 @@ import { reviewDrawerWidth } from '../globals.js'
 import {
   Menu,
   BarChart,
+  History,
   GetApp,
 } from '@material-ui/icons'
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -119,7 +120,7 @@ const Header = (props) => {
               }
             </Typography>
 
-          {(props.app_state === 'review') &&
+          {(props.app_state === 'review' || props.app_state === 'review-pause') &&
             <Tooltip title="Download results">
               <IconButton
                 aria-label="Export"
@@ -130,6 +131,19 @@ const Header = (props) => {
               </IconButton>
             </Tooltip>
           }
+
+          {(props.app_state === 'review' || props.app_state === 'review-pause') &&
+            <Tooltip title="Review history">
+              <IconButton
+                aria-label="History"
+                onClick={props.toggleHistory}
+                color="inherit"
+              >
+                <History />
+              </IconButton>
+            </Tooltip>
+          }
+
           <IconButton
             aria-label="Settings"
             onClick={props.handleClickOpen}
@@ -138,7 +152,7 @@ const Header = (props) => {
             <SettingsIcon />
           </IconButton>
 
-          {(props.app_state === 'review' && !props.reviewDrawerOpen)?<IconButton
+          {((props.app_state === 'review' || props.app_state === 'review-pause') && !props.reviewDrawerOpen)?<IconButton
             color="inherit"
             className={classes.barChart}
             onClick={props.toggleReviewDrawer}
