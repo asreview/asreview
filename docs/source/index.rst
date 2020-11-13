@@ -30,6 +30,8 @@ ASReview: Active learning for Systematic Reviews
 
    lab/overview_lab
 
+   lab/launch
+
    lab/oracle
 
    lab/exploration
@@ -58,7 +60,7 @@ ASReview: Active learning for Systematic Reviews
 
    plugins/overview_plugins
 
-   plugins/covid-19
+   plugins/covid19
 
    plugins/plugin_visualization
 

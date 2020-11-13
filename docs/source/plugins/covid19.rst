@@ -46,7 +46,7 @@ Installation and usage
 ----------------------
 
 The COVID-19 plug-in requires ASReview 0.8 or higher. Install ASReview
-by following the instructions in :doc:`../installation`.
+by following the instructions in :doc:`../intro/installation`.
 
 Install the extension with pip:
 
@@ -62,7 +62,7 @@ The datasets are immediately available after starting ASReview.
 
 The datasets are selectable in Step 2 of the project initialization. For
 more information on the usage of ASReview, please have a look at the
-:doc:`../quicktour`.
+:doc:`../lab/oracle`.
 
 |ASReview CORD19 datasets|
 

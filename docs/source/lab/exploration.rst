@@ -2,20 +2,17 @@ Exploration Mode
 ================
 
 This tutorial shows how the active learning software and algorithms can be
-tested. Because it is not possible to test the software by reading everything
-yourself. Therefore, ASReview implements a mode in which the relevant articles
-are displayed in green. This make decision making straightforward.
+tested on already labelled data. In this mode relevant articles are displayed
+in green and a so-called recall curce can be obtained. 
 
-This tutorial assumes you have already installed Python and ASReview. If
-this is not the case, please see :doc:`../intro/installation`.
-
-
-
-Create a project
-----------------
-
-Create a project and give the project a name in step 1. The name is not
+This tutorial assumes you have already installed Python and ASReview. If this
+is not the case, please see :doc:`../intro/installation`. Also, you should
+have created a :doc:`project<launch>` and selected **Exploration** mode. The name is not
 relevant, but is adviced to have a test-prefix.
+
+
+.. contents:: Table of Contents
+
 
 Upload a dataset
 ----------------
@@ -119,17 +116,27 @@ the relevant papers by using ASReview LAB compared to random screening papers
 one by one. These animated plots are all based on a single trial per dataset
 in which only one paper was added as relevant and one as irrelevant.
 
-**PTSD (38 inclusions out of 5,782 papers)**
+PTSD 
+~~~~
 
-.. figure:: ../images/gifs/ptsd_recall_slow_1trial_fancy.gif
+38 inclusions out of 5,782 papers
+
+.. figure:: ../../images/gifs/ptsd_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the ptsd dataset
 
-**Hall (104 inclusions out of 8,911 papers)**
+Hall
+~~~~
 
-.. figure:: ../images/gifs/software_recall_slow_1trial_fancy.gif
+104 inclusions out of 8,911 papers)
+
+.. figure:: ../../images/gifs/software_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the software dataset
 
-**ACE (41 inclusions out of 2,544 papers)**
 
-.. figure:: ../images/gifs/ace_recall_slow_1trial_fancy.gif
+ACE
+~~~
+
+41 inclusions out of 2,544 papers
+
+.. figure:: ../../images/gifs/ace_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the ACE dataset

@@ -1,12 +1,28 @@
 Overview
 ========
 
-The free and ready-to-use software ASReview Lab implements an ‘oracle’, a ‘simulation’ and an ‘exploration’ mode. The oracle mode is used to perform a systematic review with interaction by the user (:doc:`oracle`). The simulation mode [REF NAAR SIMULATIE BINNEN API EN LATER NAAR APARTE QUICK TOUR] is used for simulation of the ASReview performance on existing systematic reviews. The :doc:`exploration` can be used for teaching purposes and includes several pre-loaded labelled datasets.
+The source code of ASReview is available open source under an Apache-2.0
+license on `GitHub <https://github.com/asreview/asreview>`_.  Compiled and
+packaged versions of the software are available on the  `Python Package Index
+<https://pypi.org/project/asreview>`_ or `Docker Hub
+<https://hub.docker.com/r/asreview/asreview>`_. The software ASReview
+implements an :doc:`oracle<../lab/oracle>`,
+:doc:`exploration<../lab/exploration>` and a
+:doc:`simulation<../lab/simulation>` mode.  The oracle mode is used to perform
+a systematic review with interaction by the user.  The simulation mode is used
+for simulation of the ASReview performance on existing systematic reviews. 
+The exploration mode can be used for teaching purposes and includes several
+pre-loaded labelled datasets. 
 
-.. figure:: ../figures/ASReviewLAB_explanation.png
+
+If you encounter any issues during the process,  first consult the
+:doc:`Frequently Asked Questions<../intro/faq>` or the Troubleshooting in the
+:doc:`installation manual <../intro/installation>`. If you cannot find your
+problem, we ask you to file an issue via `Github
+<https://github.com/asreview/asreview/issues/new/choose>`_.
+
+
+.. figure:: ../../figures/ASReviewLAB_explanation.png
    :alt: ASReview LAB overview
 
-
-
-Multiple file formats are supported [https://asreview.readthedocs.io/en/latest/datasets.html] and we offer many unique features [REF NEEDED].
 
