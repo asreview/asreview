@@ -33,3 +33,24 @@ Open the webbrowser at `localhost:3000`. **Important**: ignore `localhost:5000` 
 
 [1]:	https://www.npmjs.com/get-npm
 [2]:	https://reactjs.org/
+
+## Documentation
+
+Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
+The source files are available in the [`docs`](/docs) folder of this repository. The project makes
+use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
+or PDF files.
+
+Install the dependcies for rendering the documenation with
+
+```
+pip install -r docs/requirements.txt
+```
+
+Navigate into the `docs` folder and render the documentation (the HTML version) with
+
+```
+make html
+```
+
+Open the file `docs/build/html/index.html` in your webbrowser.
