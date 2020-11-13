@@ -14,7 +14,7 @@ Enable the dark mode as follows:
 2. Click on the settings icon (top right).
 3. Toggle the **Dark Mode** field.
 
-.. figure:: ../..images/dark_mode.png
+.. figure:: ../../images/dark_mode.png
    :alt: Dark Mode
 
 .. note::

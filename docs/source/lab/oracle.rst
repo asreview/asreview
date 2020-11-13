@@ -105,11 +105,10 @@ Select Active Learning Model
 ----------------------------
 
 In the final step of the setup, you can select a model by chosing a
-combination of a classifier, feature extraction technique, query strategy, and
-balance strategy. The defaults are Naive Bayes, TF-IDF, certainty-based
-sampling and dynamic resampling. After choosing your model, click on `Finish`.
-You will return to the project page and the model is trained for the first
-time.
+combination of a classifier, query strategy, and feature extraction technique.
+The defaults are Naive Bayes, certainty-based sampling, and TF-IDF. After
+choosing your model, click on `Finish`. You will return to the project page
+and the model is trained for the first time.
 
 
 [SCREENSHOT NEEDED]
