@@ -1,6 +1,8 @@
 Settings
 ========
 
+.. contents:: Table of Contents
+
 
 Dark Mode
 ---------
@@ -12,7 +14,7 @@ Enable the dark mode as follows:
 2. Click on the settings icon (top right).
 3. Toggle the **Dark Mode** field.
 
-.. figure:: images/dark_mode.png
+.. figure:: ../..images/dark_mode.png
    :alt: Dark Mode
 
 .. note::
@@ -31,12 +33,12 @@ Change the text size as follows:
 2. Click on the settings icon (top right).
 3. Select the size in the **Text Size** field.
 
-.. figure:: images/text_size_options.png
+.. figure:: ../../images/text_size_options.png
    :alt: Text Size Options
 
 Resulting in:
 
-.. figure:: images/text_size.png
+.. figure:: ../../images/text_size.png
    :alt: Text Size
 
 .. note::

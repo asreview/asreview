@@ -1,6 +1,7 @@
 Screening
 =========
 
+.. contents:: Table of Contents
 
 DOI
 ---
@@ -8,7 +9,7 @@ DOI
 If a column with Digital Object Identifiers (DOI) is available in the meta-data
 of your dataset, ASReview Lab will display the DOI with hyperlink during
 screening. Most of the time, DOIs point to the full-text of a publication. See
-:doc:`datasets </source/intro/datasets>` for more information on including DOI values to your
+:doc:`datasets <../intro/datasets>` for more information on including DOI values to your
 datasets.
 
 
@@ -56,7 +57,7 @@ interface of ASReview LAB can be used to return to the previous decision.
 3. Label the record displayed in the screen as relevant or irrelevant.
 4. Click on **Undo** (See picture below).
 
-.. figure:: images/undo_button.png
+.. figure:: ../../images/undo_button.png
    :alt: Undo previous decision
 
 5. Click on **Keep (ir)relevant** or **Convert to (ir)relevant**
