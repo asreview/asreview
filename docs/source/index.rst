@@ -53,6 +53,8 @@ ASReview: Active learning for Systematic Reviews
 
    features/Post-screening
 
+   features/Project_Dashboard
+
  
 .. toctree::
    :maxdepth: 2

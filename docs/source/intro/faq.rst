@@ -23,8 +23,8 @@ How to upgrade my ASReview installation?
 Please see :ref:`installation:Upgrade ASReview`.
 
 
-ASReview LAB & systematic reviewing
------------------------------------
+Systematic reviewing
+--------------------
 
 What parts of my Systematic Review project does ASReview support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

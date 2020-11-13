@@ -11,14 +11,6 @@ or get stressed!
 .. figure:: ../../images/auto_save.png
    :alt: Auto Save
 
-The techincal files can be found in the **.asreview** folder on your machine
-(on Windows: **C:\Users\NAME\.asreview\FILES**), but more importantly a file containing all
-meta-data including your decissions can be downloaded any time during the screening process,
-or on the project dashboard. When you click **download** you will be asked where to safe the files.
-
-.. figure:: ../../images/export_results.png
-   :alt: Export Results
-
 
 
 Select Model
@@ -66,7 +58,8 @@ package which needs to be installed manually.
 To use it, please install the gensim package manually:
 
 .. code:: bash
-       pip install gensim
+
+    pip install gensim
 
 It takes relatively long to create a feature matrix with this method. However,
 this only has to be done once per simulation/review. The upside of this method

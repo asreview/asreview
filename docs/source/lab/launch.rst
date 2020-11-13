@@ -31,14 +31,6 @@ red button in the bottom right corner, select **new** and a pop-screen will appe
 [SCREENSHOT NEEDED]
 
 
-Choose mode
------------
-
-First, select which mode you want to use.
-[ADD INFO ABOUT CHOOSING MODE]
-
-
-
 Provide project info
 --------------------
 
