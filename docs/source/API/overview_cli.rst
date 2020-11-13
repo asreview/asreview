@@ -6,7 +6,7 @@ ASReview machinery. This provides researchers an interface to study the
 behavior of algorithms and develop custom workflows. The following figure
 shows the available interfaces for interacting with the ASReview software:
 
-.. figure:: ../figures/asreview_api.png
+.. figure:: ../../figures/asreview_api.png
    :alt: ASReview API
 
 - The REST API is used a Flask REST API to provide a method to let the React
