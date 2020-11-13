@@ -9,11 +9,19 @@ ASReview: Active learning for Systematic Reviews
 
    intro/overview
 
-   intro/installation
+   intro/introduction
 
    intro/zen
 
+   intro/installation
+
    intro/datasets
+
+   intro/cite_the_project
+   
+   intro/contribute
+
+   intro/faq
 
 
 .. toctree::
@@ -27,10 +35,6 @@ ASReview: Active learning for Systematic Reviews
    lab/exploration
 
    lab/simulation
-
-   lab/faq
-
-   lab/troubleshooting
 
 
 .. toctree::

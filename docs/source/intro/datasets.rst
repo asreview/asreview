@@ -1,5 +1,5 @@
-Datasets
-========
+Prepare your data
+=================
 
 To perform an systematic review, ASReview LAB requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
@@ -11,8 +11,9 @@ It is possible to use your own dataset with unlabelled records, partly
 labelled records (where the labelled records are used for training a model),
 or fully labelled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-:ref:`demonstration datasets <datasets:Demonstration datasets>`. Also, a plugin with :doc:`Corona related
-publications <plugins/covid-19>` is available.
+:ref:`demonstration datasets <datasets:Demonstration datasets>`. Also, a
+plugin with :doc:`Corona related publications <plugins/covid-19>` is
+available.
 
 Data format
 -----------
