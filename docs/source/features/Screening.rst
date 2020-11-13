@@ -1,49 +1,44 @@
 Screening
 =========
 
+The screen in which you provide labels for records shown to you by the
+software is kept as simple as possible. This is because we want you to focus
+on the content of the text so that you can make your deicssion as a true
+Oracle. There are few features you can access during screening which we
+present below. 
+
 .. contents:: Table of Contents
 
-DOI
----
 
-If a column with Digital Object Identifiers (DOI) is available in the meta-data
-of your dataset, ASReview Lab will display the DOI with hyperlink during
-screening. Most of the time, DOIs point to the full-text of a publication. See
-:doc:`datasets <../intro/datasets>` for more information on including DOI values to your
-datasets.
+Auto-Save
+---------
 
+Your work is saved automatically so you do not need to press any buttons,
+or get stressed!
 
-.. figure:: ../../images/doi.png
-   :alt: Digital Object Identifier (DOI)
+.. figure:: ../../images/auto_save.png
+   :alt: Auto Save
 
 
+Label options
+-------------
 
-Keyboard shortcuts
-------------------
+Below the text we provide two options: Relevant or Irrelevant. If you are in
+doubt, think harder and take your time to make a decission, you are the
+oracle. Based on your input a new model will be trained in the background. If
+you make decissions faster than the model needs for computing new relevance
+scores, you will simply be presented with the record next in line (etcetera),
+untill the model is done training.
 
-ASReview LAB supports keyboard shortcuts. By default, keyboard shortcuts are
-disabled. Enable the shortcuts as follows:
+To make a decission:
 
 1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Check the **keyboard settings** field.
+2. Start a new project, upload a dataset and select prior knowledge.
+3. Start screening.
+4. Click on either the button Relevant or Irrelevant.
 
-The table below lists the available keyboard shortcuts.
 
-+-----------------------------+------------------------+
-| Action                      | Shortcut               |
-+=============================+========================+
-| Label record as relevant    | **r** or **Shift + r** |
-+-----------------------------+------------------------+
-| Label record as irrelevant  | **i** or **Shift + i** |
-+-----------------------------+------------------------+
-| Return to previous decision | **u** or **Shift + u** |
-+-----------------------------+------------------------+
-
-.. note::
-
-	Return to previous decision, **u** or **Shift + u**, is only available
-	if the **Undo** feature has been toggled on in the settings panel.
+[SCREENSHOT]
 
 
 Undo last decision
@@ -69,3 +64,116 @@ It is possible to disable this option in the settings menu
 1. Open ASReview LAB.
 2. Click on the settings icon (top right).
 3. Uncheck the **Undo** field.
+
+Statistics Panel
+----------------
+
+For unlabelled data the software offers some insightful graphs to keep track
+of your screening process so far. To open the statistics panel:
+
+1. Open ASReview LAB.
+2. Start a new project, upload a dataset and select prior knowledge.
+3. Start screening.
+4. Click the **statistics** icon in the upper-right corner.
+5. To close the panel click on the '>'.
+
+[SCREENSHOT]
+
+In the top of the statistics panel the project name , authors and total number
+of records in the dataset are displayed.
+
+The pie chart on the presents an overview of how many relevant (green) and
+irrelevant (orange) records you have screened so far. Also, the total number
+of records screened is displayed, as well as the percentage screened relative
+to the total number of records in the dataset. 
+
+
+The second plot is a progress plot. On the x-axis the number of records
+screened is tracked. The y-axis shows a moving average. It displays the ratio
+between relevant and irrelevant records for a batch of 10 labelled records. If
+you hoover over the plot you can see the moving average for any batch of 10
+labelled records. 
+
+Underneath the progress plot the number of irrelevant records is shown, which
+might help in deciding when to stop reviewing. 
+
+
+DOI
+---
+
+If a column with Digital Object Identifiers (DOI) is available in the meta-data
+of your dataset, ASReview Lab will display the DOI with hyperlink during
+screening. Most of the time, DOIs point to the full-text of a publication. See
+:doc:`datasets <../intro/datasets>` for more information on including DOI values to your
+datasets. To access the full text:
+
+1. Open ASReview LAB.
+2. Start a new project, upload a dataset and select prior knowledge.
+3. Start screening.
+4. As soon as a record contains a DOI number, it will be presented below the title.
+
+
+.. figure:: ../../images/doi.png
+   :alt: Digital Object Identifier (DOI)
+
+
+Download Results
+----------------
+
+
+A file containing all meta-data including your decissions can be downloaded
+any time during the screening process. To download your results:
+
+1. Open ASReview LAB.
+2. Start a new project, upload a dataset and select prior knowledge.
+3. Start screening.
+4. Click the **download** icon in the upper-right corner.
+5. You will be aksed whether you want to save an excel or a csv file. 
+6. You will be aksed where to save the file. 
+
+[SCREENSHOT OF THE ICON AND POP-UP SCREEN]
+
+
+Hamburger menu
+--------------
+
+Via the hamburger menu in the left-upper corner you can:
+
+1. Navigate back to the :doc:`overview <Pre-screening>` page containing all your projects (or to start a new project).
+2. You can access the :doc:`Project Dashboard <Post-screening>`.
+3. Ask for `HELP <https://asreview.readthedocs.io/en/latest/>`_.
+4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
+5. Donate some money via our `crowdfunding platform <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-everyone>`_ (the software is for free, but the development is not)
+6. Quit the software (all your results are automatically saved)
+
+[SCREENSHOT]
+
+
+Keyboard shortcuts
+------------------
+
+ASReview LAB supports the use of keyboard shortcuts during screening. By
+default, keyboard shortcuts are disabled. Enable the shortcuts as follows:
+
+1. Open ASReview LAB.
+2. Click on the settings icon (top right).
+3. Check the **keyboard settings** field.
+
+The table below lists the available keyboard shortcuts.
+
++-----------------------------+------------------------+
+| Action                      | Shortcut               |
++=============================+========================+
+| Label record as relevant    | **r** or **Shift + r** |
++-----------------------------+------------------------+
+| Label record as irrelevant  | **i** or **Shift + i** |
++-----------------------------+------------------------+
+| Return to previous decision | **u** or **Shift + u** |
++-----------------------------+------------------------+
+
+.. note::
+
+	Return to previous decision, **u** or **Shift + u**, is only available
+	if the **Undo** feature has been toggled on in the settings panel.
+
+

@@ -1,16 +1,84 @@
 Pre-Screening
 =============
 
+Before you can actually start screening you have to start a project and set-up
+your model. We discuss the options below. 
 
-Auto-Save
----------
+.. contents:: Table of Contents
 
-Your work is saved automatically so you do not need to press any buttons,
-or get stressed!
 
-.. figure:: ../../images/auto_save.png
-   :alt: Auto Save
+Start a new project
+-------------------
 
+To start a new project:
+
+1. Open ASReview LAB.
+2. Start a new project by clicking the '+' button in the right-down corner.
+3. Select *New project*.
+
+In a pop-up screen you will be asked to fill-in a project name (obligatory),
+your name (or any name), and a description if you like.
+
+[SCREENSHOT OF BOTH THE BUTTON AND POP-UP]
+
+
+Open an existing project
+------------------------
+
+To open an existing project:
+
+1. Open ASReview LAB.
+2. Click on the title of a project or on the button *open*.
+
+You will be redirected to the :doc:`project dashbboard <Post-screening>`.
+
+[SCREENSHOT]
+
+
+Import a project
+----------------
+
+To import an existing project file (and continue screening, or to inspect the results):
+
+1. Open ASReview LAB.
+2. Click on the '+' button.
+3. Select *Import project*.
+
+A pop-up will open and you will be asked to select the .asreview file. 
+
+[SCREENSHOT]
+
+
+Start Set-up
+------------
+
+After you have started a project, you are redirected to the project dashboard
+and you will first be asked to start the setup.
+
+1. Open ASReview LAB.
+2. Start a new project.
+3. Click the *Start Setup* button.
+
+[SCREENSHOT]
+
+Already in this project dashboard some of the features are available which are
+described in the :doc:`Post-screening` section. 
+
+Select Database
+---------------
+
+To select a dataset:
+
+1. Open ASReview LAB.
+2. Start a new project.
+3. Click the *Start Setup* button.
+4. Choose one of the four options:
+
+a: Upload a file by Drag 'n' Drop, or select a file via the browser. The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a file is uploaded and reckognized as one of the available formats, it will display the message *Successful upload* and provide the number of records in the database.
+
+[SCREENSHOT]
+
+b: 
 
 
 Select Model
