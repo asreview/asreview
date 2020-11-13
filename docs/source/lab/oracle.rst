@@ -166,6 +166,6 @@ in the publication zone. A project file is downloaded which can be imported
 later on, or shared with others.
 
 
-.. figure:: ../images/7.1_exporting.png
+.. figure:: ../../images/7.1_exporting.png
    :alt:
 

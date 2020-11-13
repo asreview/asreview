@@ -78,7 +78,7 @@ computer and click `Import`. After a successful project initialization, a
 project dashboard will be shown.
 
 
-.. figure:: ../images/5.0_import_project.png
+.. figure:: ../../images/5.0_import_project.png
    :alt:
 
 

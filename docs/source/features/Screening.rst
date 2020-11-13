@@ -13,7 +13,7 @@ screening. Most of the time, DOIs point to the full-text of a publication. See
 datasets.
 
 
-.. figure:: images/doi.png
+.. figure:: ../../images/doi.png
    :alt: Digital Object Identifier (DOI)
 
 
