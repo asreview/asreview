@@ -70,7 +70,12 @@ When using the :ref:`ASReview command line interface for simulation
 (``0`` = irrelevant, ``1`` = relevant) is required for ALL records. In
 ASReview LAB, if labels are available for a part of the dataset (i.e., :doc:`partly
 labeled data <../features/pre-screening>`), the labels will be automatically detected and used for prior
-knowledge.
+knowledge. 
+
+You can explore a previously labeled dataset in ASReview LAB by adding an
+extra column called ‘debug_label’, indicating the relevant and irrelevant
+records with ones and zeroes. The relevant records will show up green during
+screening.
 
 
 Compatibility

@@ -115,6 +115,23 @@ prior relevant/irrelevant papers in the section *Prior Knowledge*.
 [SCREENSHOT]
 
 
+Upload Data for Exploration Mode
+--------------------------------
+
+You can explore a previously labeled dataset in ASReview LAB by adding an
+extra column called ‘debug_label’, indicating the relevant and irrelevant
+records with ones and zeroes. The relevant records will show up green during
+screening, just like the demo datasets described in the :doc:`exploration mode
+<../lab/exploration>`.
+
+1. Open ASReview LAB.
+2. Start a new project.
+3. Click the *Start Setup* button.
+4. Select your labelled dataset containing the ‘debug_label’.
+
+[SCREENSHOT]
+
+
 Select Model
 ------------
 

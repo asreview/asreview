@@ -2,7 +2,7 @@ Exploration Mode
 ================
 
 This tutorial shows how the active learning software and algorithms can be
-tested on already labelled data. In this mode relevant articles are displayed
+explored on already labelled data. In this mode relevant articles are displayed
 in green and a so-called recall curce can be obtained.
 
 This tutorial assumes you have already installed Python and ASReview. If this
@@ -39,6 +39,10 @@ below.
    sciences
    (`https://doi.org/10.1197/jamia.M1929 <https://doi.org/10.1197/jamia.M1929>`__)
    with 2,544 papers of which 41 inclusions (1.61%).
+
+
+You can also use your own dataset and a column titled :doc:debug_label
+<../features/pre-screening>` is needed. 
 
 Prior Inclusions
 ----------------
