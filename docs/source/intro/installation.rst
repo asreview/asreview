@@ -27,7 +27,7 @@ Start the application with the following command (in CMD.exe or Terminal):
 
 You are now ready to start your first Automated Systematic Review!
 
-Please see `Troubleshooting`_ for common problems.
+See `Troubleshooting`_ for common problems.
 
 
 
@@ -85,7 +85,7 @@ Troubleshooting
 ---------------
 
 ASReview LAB is advanced machine learning software. In some situations, you
-might run into unexpected behavior. Please see below for solutions to
+might run into unexpected behavior. See below for solutions to
 problems.
 
 Unknown command "pip"
@@ -129,7 +129,7 @@ Unknown command "asreview"
 
 In some situations, the entry point "asreview" can not be found after installation.
 First check whether the package is correctly installed. Do this with the command
-`python -m asreview -h`. If this shows a decription of the program, please use
+`python -m asreview -h`. If this shows a decription of the program, use
 `python -m` in front of all your commands. For example:
 
 .. code-block:: bash

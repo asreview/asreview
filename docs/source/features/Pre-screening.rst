@@ -2,7 +2,7 @@ Pre-Screening
 =============
 
 Before you can actually start screening you have to start a project and set-up
-your model. We discuss the options below. 
+your model. We discuss the options below.
 
 .. contents:: Table of Contents
 
@@ -44,7 +44,7 @@ To import an existing project file (and continue screening, or to inspect the re
 2. Click on the '+' button.
 3. Select *Import project*.
 
-A pop-up will open and you will be asked to select the .asreview file. 
+A pop-up will open and you will be asked to select the .asreview file.
 
 [SCREENSHOT]
 
@@ -62,7 +62,7 @@ and you will first be asked to start the setup.
 [SCREENSHOT]
 
 Already in this project dashboard some of the features are available which are
-described in the :doc:`Post-screening` section. 
+described in the :doc:`Post-screening` section.
 
 Select Database
 ---------------
@@ -78,7 +78,7 @@ a: Upload a file by Drag 'n' Drop, or select a file via the browser. The data ne
 
 [SCREENSHOT]
 
-b: 
+b:
 
 
 Select Model
@@ -86,7 +86,7 @@ Select Model
 
 It is possible to change the settings of the Active learning model. There are
 three ingredients that can be changed in the software: the type of classifier,
-the query strategy and the feature extraction technique. 
+the query strategy and the feature extraction technique.
 
 To change the default setting:
 
@@ -120,10 +120,10 @@ going to be accelerated by ASReview.
 The feature extraction technique determines the method how text is translated
 into a vector that can be used by the classifier. The default is TF-IDF (Term
 Frequency-Inverse Document Frequency) from `SKLearn <https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`_.
-It works well in combination with Naive Bayes and other fast training models. 
-Another option is Doc2Vec provided by the `gensim <https://radimrehurek.com/gensim/>`_ 
-package which needs to be installed manually. 
-To use it, please install the gensim package manually:
+It works well in combination with Naive Bayes and other fast training models.
+Another option is Doc2Vec provided by the `gensim <https://radimrehurek.com/gensim/>`_
+package which needs to be installed manually.
+To use it, install the gensim package manually:
 
 .. code:: bash
 

@@ -7,8 +7,8 @@ unlabelled data with interaction by the user. A more elaborate instruction can
 be found on our `blogpost <https://asreview.nl/asreview-class-101/>`_
 
 This tutorial assumes you have already installed Python and ASReview. If this
-is not the case, please check out the :doc:`../intro/installation` page. 
-Also, you should have created a :doc:`project<launch>` and selected **Oracle** mode. 
+is not the case, check out the :doc:`../intro/installation` page.
+Also, you should have created a :doc:`project<launch>` and selected **Oracle** mode.
 
 .. contents:: Table of Contents
 
@@ -117,7 +117,7 @@ Start Reviewing
 ---------------
 
 As soon as the model is ready, a button appears with **Start Review**. Click
-the button to start screening. 
+the button to start screening.
 
 
 .. figure:: ../../images/5.1_start_reviewing.png
@@ -126,7 +126,7 @@ the button to start screening.
 
 ASReview LAB presents you a document for you to
 screen and label. If you have selected certainty-based sampling it will be the
-document with the highest relevance score. 
+document with the highest relevance score.
 
 You are asked to make a decision: relevant or irrelevant?
 

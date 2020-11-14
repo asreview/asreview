@@ -3,10 +3,10 @@ Exploration Mode
 
 This tutorial shows how the active learning software and algorithms can be
 tested on already labelled data. In this mode relevant articles are displayed
-in green and a so-called recall curce can be obtained. 
+in green and a so-called recall curce can be obtained.
 
 This tutorial assumes you have already installed Python and ASReview. If this
-is not the case, please see :doc:`../intro/installation`. Also, you should
+is not the case, see :doc:`../intro/installation`. Also, you should
 have created a :doc:`project<launch>` and selected **Exploration** mode. The name is not
 relevant, but is adviced to have a test-prefix.
 
@@ -116,7 +116,7 @@ the relevant papers by using ASReview LAB compared to random screening papers
 one by one. These animated plots are all based on a single trial per dataset
 in which only one paper was added as relevant and one as irrelevant.
 
-PTSD 
+PTSD
 ~~~~
 
 38 inclusions out of 5,782 papers

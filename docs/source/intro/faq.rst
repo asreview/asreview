@@ -20,7 +20,7 @@ following in your command line:
 How to upgrade my ASReview installation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Please see :ref:`installation:Upgrade ASReview`.
+See :ref:`installation:Upgrade ASReview`.
 
 
 Systematic reviewing
@@ -102,10 +102,7 @@ Also see:
 How can I refer to ASReview in my paper?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to refer to ASReview project and research study in your paper,
-please cite our pre-print on `ArXiv <https://arxiv.org/abs/2006.12166>`__. We
-ask users of the software to cite the used version of our software. See
-https://doi.org/10.5281/zenodo.3345592 for a persistent link to our software.
+Both the project and software are citable. See :doc:`cite_the_project`.
 
 ASReview LAB
 ------------
@@ -114,8 +111,8 @@ Can the tool be used in combination with any (academic) database?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Yes it can. You will have to export data from a database yourself, and
-import these into ASReview. For supported databases and formats, please
-read the :doc:`datasets`.
+import these into ASReview. For supported databases and formats,
+see the documentation on :doc:`datasets`.
 
 .. _no-abstract:
 

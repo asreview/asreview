@@ -2,7 +2,7 @@ Starting ASReview Lab
 =====================
 
 
-This is a quick tour in launching ASReview and setting-up a project. 
+This is a quick tour in launching ASReview and setting-up a project.
 
 
 .. contents:: Table of Contents
@@ -12,7 +12,7 @@ Launching ASReview Lab
 ----------------------
 
 This tutorial assumes you have already installed Python and ASReview. If this
-is not the case, please check out the :doc:`../intro/installation` page.
+is not the case, see the :doc:`../intro/installation` documentation.
 
 Launch ASReview LAB by running the following command in the command line
 (`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
@@ -26,7 +26,7 @@ Create a new project
 --------------------
 
 To start with ASReview, first a project needs to be made. Click on the
-red button in the bottom right corner, select **new** and a pop-screen will appear. 
+red button in the bottom right corner, select **new** and a pop-screen will appear.
 
 [SCREENSHOT NEEDED]
 
