@@ -44,16 +44,21 @@ const HistoryDialog = (props) => {
 
   const classes = useStyles();
 
+  // indicate which record abstract collapse
   const [openIndex, setOpenIndex] = useState("");
+
   const [state, setState] = useState({
     "select": 10,
     "data": null,
   });
 
+  // filter all records
   const handleSelectChange = (event) => {
     setState({...state, "select": event.target.value});
+    setOpenIndex("");
   };
 
+  // change decision of labeled records
   const updateInstance = (doc_id, label) => {
 
     props.setRecordState(s => {return({
@@ -96,6 +101,7 @@ const HistoryDialog = (props) => {
     }
   }, [props.history]);
 
+  // show all records by default
   useEffect(() => {
     if (props.history) {
       setState(s => {return({
@@ -105,6 +111,7 @@ const HistoryDialog = (props) => {
     }
   }, [props.history]);
 
+  // refresh after toggle the dialog and change a decision
   useEffect(() => {
 
     setOpenIndex("");

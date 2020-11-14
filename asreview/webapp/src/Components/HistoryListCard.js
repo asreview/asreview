@@ -25,6 +25,7 @@ const HistoryListCard = (props) => {
 
   const classes = useStyles();
 
+  // click to fold/unfold abstract and decision button
   const handleClick = (index) => {
     if (props.openIndex === index) {
       props.setOpenIndex("");
