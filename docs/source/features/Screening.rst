@@ -140,7 +140,7 @@ Hamburger menu
 Via the hamburger menu in the left-upper corner you can:
 
 1. Navigate back to the :doc:`overview <pre_screening>` page containing all your projects (or to start a new project).
-2. You can access the :doc:`Project Dashboard <post-screening>`.
+2. You can access the :doc:`Project Dashboard <post_screening>`.
 3. Ask for `HELP <https://asreview.readthedocs.io/en/latest/>`_.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
 5. Donate some money via our `crowdfunding platform <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-everyone>`_ (the software is for free, but the development is not)

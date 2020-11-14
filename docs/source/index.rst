@@ -2,10 +2,13 @@
 ASReview: Active learning for Systematic Reviews
 ************************************************
 
+Welcome to the documentation of ASReview! It includes an :doc:`installation
+</intro/installation>` guide, a :doc:`quick tour </lab/oracle>`, details how
+to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
 
 .. toctree::
    :caption: Introduction
-   :maxdepth: 2
+   :maxdepth: 1
 
    intro/overview
 
@@ -25,7 +28,7 @@ ASReview: Active learning for Systematic Reviews
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: ASReview LAB
 
    lab/overview_lab
@@ -40,7 +43,7 @@ ASReview: Active learning for Systematic Reviews
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Features
 
    features/overview_features
@@ -56,7 +59,7 @@ ASReview: Active learning for Systematic Reviews
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Plugins
 
    plugins/overview_plugins
@@ -66,7 +69,7 @@ ASReview: Active learning for Systematic Reviews
    plugins/plugin_visualization
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: API
 
    API/overview_cli
@@ -78,7 +81,7 @@ ASReview: Active learning for Systematic Reviews
    API/reference
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Guides
 
    guides/activelearning
