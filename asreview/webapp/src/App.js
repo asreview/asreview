@@ -63,6 +63,12 @@ const App = (props) => {
   const [exportResult, setExportResult] = React.useState(false);
   const [history, setHistory] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
+  const [recordState, setRecordState] = React.useState({
+    'isloaded': false,
+    'record': null,
+    'selection': null,
+  })
+
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
@@ -140,18 +146,12 @@ const App = (props) => {
       {(props.app_state === 'review') &&
       <ReviewZone
         handleAppState={props.setAppState}
+        recordState={recordState}
+        setRecordState={setRecordState}
         showAuthors={authors}
         textSize={textSize}
         undoEnabled={undoEnabled}
         keyPressEnabled={keyPressEnabled}
-      />
-      }
-
-      {(props.app_state === 'review' || props.app_state === 'review-pause') &&
-      <HistoryDialog
-        handleAppState={props.setAppState}
-        toggleHistory={toggleHistory}
-        history={history}
       />
       }
 
@@ -184,6 +184,12 @@ const App = (props) => {
       <ExportDialog
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
+      />
+      <HistoryDialog
+        recordState={recordState}
+        setRecordState={setRecordState}
+        toggleHistory={toggleHistory}
+        history={history}
       />
     </ThemeProvider>
   );

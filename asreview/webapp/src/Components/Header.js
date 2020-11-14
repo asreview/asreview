@@ -120,7 +120,7 @@ const Header = (props) => {
               }
             </Typography>
 
-          {(props.app_state === 'review' || props.app_state === 'review-pause') &&
+          {(props.app_state === 'review') &&
             <Tooltip title="Download results">
               <IconButton
                 aria-label="Export"
@@ -132,7 +132,7 @@ const Header = (props) => {
             </Tooltip>
           }
 
-          {(props.app_state === 'review' || props.app_state === 'review-pause') &&
+          {(props.app_state === 'review') &&
             <Tooltip title="Review history">
               <IconButton
                 aria-label="History"
@@ -152,7 +152,7 @@ const Header = (props) => {
             <SettingsIcon />
           </IconButton>
 
-          {((props.app_state === 'review' || props.app_state === 'review-pause') && !props.reviewDrawerOpen)?<IconButton
+          {(props.app_state === 'review' && !props.reviewDrawerOpen)?<IconButton
             color="inherit"
             className={classes.barChart}
             onClick={props.toggleReviewDrawer}

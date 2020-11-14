@@ -2,27 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Box, 
   Button,
-  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  // InputLabel,
-  IconButton,
   List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
   MenuItem,
   Select,
-  Tooltip,
-  Typography,
 } from '@material-ui/core';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import CloseIcon from '@material-ui/icons/Close';
-import UndoIcon from '@material-ui/icons/Undo';
+
 import { makeStyles } from '@material-ui/core/styles';
+
+import {
+  HistoryListCard,
+} from '../Components'
 
 import axios from 'axios';
 
@@ -30,27 +24,13 @@ import { api_url } from '../globals.js';
 
 import { connect } from "react-redux";
 
-// import {
-//   LabeledItems,
-// } from '../PreReviewComponents';
 
 const useStyles = makeStyles(theme => ({
-  selectLabel: {
-    position: 'absolute',
-    right: theme.spacing(1), 
-    // minWidth: 120,
-  },
   selectMenu: {
     position: 'absolute',
     right: theme.spacing(2),
     top: theme.spacing(2),
     minWidth: 130,
-  },
-  item: {
-    maxWidth: 432,
-  },
-  iconButton: {
-    left: -12,
   },
 }));
 
@@ -64,27 +44,22 @@ const HistoryDialog = (props) => {
 
   const classes = useStyles();
 
-  // const [filter, setFilter] = React.useState(10);
+  const [openIndex, setOpenIndex] = useState("");
   const [state, setState] = useState({
     "select": 10,
     "data": null,
-    "loading": true,
   });
-  const [openIndex, setOpenIndex] = useState("");
 
   const handleSelectChange = (event) => {
     setState({...state, "select": event.target.value});
   };
 
-  const handleClick = (index) => {
-    if (openIndex === index) {
-      setOpenIndex("");
-    } else {
-      setOpenIndex(index);
-    };
-  };
-
   const updateInstance = (doc_id, label) => {
+
+    props.setRecordState(s => {return({
+        ...s,        
+        'isloaded': true,
+    })});
 
     const url = api_url + `project/${props.project_id}/record/${doc_id}`;
 
@@ -100,10 +75,10 @@ const HistoryDialog = (props) => {
       headers: { 'Content-Type': 'application/json' }
     })
     .then((response) => {
-      console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "inclusions" : "exclusions"}`);
-      setState(s => {return({
+      console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
+      props.setRecordState(s => {return({
         ...s,
-        "loading": true,
+        'isloaded': false,
       })});
     })
     .catch((error) => {
@@ -121,22 +96,20 @@ const HistoryDialog = (props) => {
     }
   }, [props.history]);
 
-  console.log(state.loading);
-
-  // if (props.history) {
-  //   setState(s => {return({
-  //     ...s,
-  //     "loading": true,
-  //   })});
-  // }
+  useEffect(() => {
+    if (props.history) {
+      setState(s => {return({
+        ...s,
+        "select": 10,
+      })});
+    }
+  }, [props.history]);
 
   useEffect(() => {
 
     setOpenIndex("");
 
-    if (state.loading && props.history) {
-
-      props.handleAppState("review-pause");
+    if (props.history && props.recordState["isloaded"]) {
 
       const url = api_url + `project/${props.project_id}/prior`;
 
@@ -144,12 +117,9 @@ const HistoryDialog = (props) => {
       .then((result) => {
 
         setState(s => {return({
-          "select": 10,
+          ...s,
           "data": result.data["result"].reverse(),
-          "loading": false,
         })});
-
-        props.handleAppState("review");
 
       })
       .catch((error) => {
@@ -157,7 +127,7 @@ const HistoryDialog = (props) => {
       });
     }
 
-  }, [props.project_id, state.loading, props.history, props]);
+  }, [props.project_id, props.history, props.recordState]);
 
 
   return (
@@ -186,7 +156,6 @@ const HistoryDialog = (props) => {
           }
         </DialogTitle>
         <DialogContent dividers={true}>
-          
           <Box>
             {state["data"] !== null && state["select"] === 10 &&
               <List>
@@ -195,46 +164,15 @@ const HistoryDialog = (props) => {
                     .map((value, index) =>
                       {
                         return (
-                          <Box key={`result-item-${value.id}`}>
-                            <ListItem>
-                              {index !== openIndex &&
-                                <ListItemIcon>
-                                  {value.included === 1 ? <FavoriteIcon/> : <CloseIcon/>}
-                                </ListItemIcon>
-                              }
-                              {index === openIndex &&
-                                <ListItemIcon>
-                                  <Tooltip title="Change decision">
-                                    <IconButton 
-                                      onClick={() => {updateInstance(value.id, value.included)}}
-                                      className={classes.iconButton}
-                                      color="secondary" 
-                                    >
-                                      <UndoIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </ListItemIcon>
-                              }
-                              <ListItem
-                                button
-                                onClick={() => {handleClick(index)}}
-                              >
-                                <ListItemText
-                                  primary={value.title}
-                                  secondary={value.authors}
-                                />
-                              </ListItem>
-                            </ListItem>
-                            <Collapse in={index === openIndex}>
-                              <ListItem>
-                                <ListItemText>
-                                  <Typography>
-                                    {value.abstract}
-                                  </Typography>
-                                </ListItemText>
-                              </ListItem>
-                            </Collapse>
-                          </Box>
+                          <HistoryListCard
+                            value={value}
+                            index={index}
+                            openIndex={openIndex}
+                            setOpenIndex={setOpenIndex}
+                            updateInstance={updateInstance}
+
+                            key={`result-item-${value.id}`}
+                          />
                         );
                       })
                 }
@@ -248,42 +186,15 @@ const HistoryDialog = (props) => {
                     .map((value, index) =>
                       {
                         return (
-                          <Box key={`result-item-${value.id}`}>
-                            <ListItem>
-                              {index !== openIndex &&
-                                <ListItemIcon>
-                                  {value.included === 1 ? <FavoriteIcon/> : <CloseIcon/>}
-                                </ListItemIcon>
-                              }
-                              {index === openIndex &&
-                                <ListItemIcon>
-                                  <Tooltip title="Change decision">
-                                    <IconButton color="secondary" className={classes.iconButton}>
-                                      <UndoIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </ListItemIcon>
-                              }
-                              <ListItem
-                                button
-                                onClick={() => {handleClick(index)}}
-                              >
-                                <ListItemText
-                                  primary={value.title}
-                                  secondary={value.authors}
-                                />
-                              </ListItem>
-                            </ListItem>
-                            <Collapse in={index === openIndex}>
-                              <ListItem>
-                                <ListItemText>
-                                  <Typography>
-                                    {value.abstract}
-                                  </Typography>
-                                </ListItemText>
-                              </ListItem>
-                            </Collapse>
-                          </Box>
+                          <HistoryListCard
+                            value={value}
+                            index={index}
+                            openIndex={openIndex}
+                            setOpenIndex={setOpenIndex}
+                            updateInstance={updateInstance}
+
+                            key={`result-item-${value.id}`}
+                          />
                         );
                       })
                 }
@@ -297,42 +208,15 @@ const HistoryDialog = (props) => {
                     .map((value, index) =>
                       {
                         return (
-                          <Box key={`result-item-${value.id}`}>
-                            <ListItem>
-                              {index !== openIndex &&
-                                <ListItemIcon>
-                                  {value.included === 1 ? <FavoriteIcon/> : <CloseIcon/>}
-                                </ListItemIcon>
-                              }
-                              {index === openIndex &&
-                                <ListItemIcon>
-                                  <Tooltip title="Change decision">
-                                    <IconButton color="secondary" className={classes.iconButton}>
-                                      <UndoIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </ListItemIcon>
-                              }
-                              <ListItem
-                                button
-                                onClick={() => {handleClick(index)}}
-                              >
-                                <ListItemText
-                                  primary={value.title}
-                                  secondary={value.authors}
-                                />
-                              </ListItem>
-                            </ListItem>
-                            <Collapse in={index === openIndex}>
-                              <ListItem>
-                                <ListItemText>
-                                  <Typography>
-                                    {value.abstract}
-                                  </Typography>
-                                </ListItemText>
-                              </ListItem>
-                            </Collapse>
-                          </Box>
+                          <HistoryListCard
+                            value={value}
+                            index={index}
+                            openIndex={openIndex}
+                            setOpenIndex={setOpenIndex}
+                            updateInstance={updateInstance}
+
+                            key={`result-item-${value.id}`}
+                          />
                         );
                       })
                 }
