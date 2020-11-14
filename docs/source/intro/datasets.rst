@@ -1,5 +1,5 @@
-Prepare your data
-=================
+How to Prepare your Data?
+=========================
 
 To perform an systematic review, ASReview LAB requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
@@ -15,7 +15,7 @@ demonstrating ASReview (used for the Exploration mode), the software offers
 plugin with :doc:`Corona related publications <plugins/covid-19>` is
 available.
 
-Data format
+Data Format
 -----------
 
 To carry out a systematic review with ASReview on your own dataset, your data
@@ -68,15 +68,15 @@ might want to read this `blog post <https://asreview.nl/tools-that-work-well-wit
 When using the :ref:`ASReview command line interface for simulation
 <cli:Simulate>`, an additional binary variable to indicate labeling decisions
 (``0`` = irrelevant, ``1`` = relevant) is required for ALL records. In
-ASReview LAB, if labels are available for a part of the dataset (i.e., partly
-labeled data), the labels will be automatically detected and used for prior
+ASReview LAB, if labels are available for a part of the dataset (i.e., :doc:`partly
+labeled data <../features/pre-screening>`), the labels will be automatically detected and used for prior
 knowledge.
 
 
 Compatibility
 -------------
 
-Citation managers
+Citation Managers
 ~~~~~~~~~~~~~~~~~
 
 The following table provides an overview of export files from citation
@@ -101,7 +101,7 @@ managers  which are accepted by ASReview.
 - Not supported: The exported format can not be imported in ASReview.
 - (empty): The data cannot be exported from the citation manager in this format.
 
-Search engines
+Search Engines
 ~~~~~~~~~~~~~~
 
 When using search engines, it is often possible to store the articles of
@@ -147,7 +147,7 @@ try the following: import the search engine file first into one of the
 citation managers mentioned in the previous part, and export it again into a
 format that is accepted by ASReview.
 
-Systematic review software
+Systematic Review Software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are several software packages available for systematic reviewing. Some
@@ -185,10 +185,10 @@ imported in ASReview.
 
 \*** Robotreviewer does not provide exports suitable for asreview, since it supports evidence synthesis.
 
-Demonstration datasets
+Demonstration Datasets
 ----------------------
 
-The ASReview software contains 3 datasets that can be used to test the
+The ASReview software contains 3 datasets that can be used to :doc:`explore <../lab/exploration>` the
 software and algorithms. The built-in datasets are PRISMA based reviews on
 various research topics. Each paper in this systematic review is labeled relevant or
 irrelevant. This information can be used to simulate the performance of ASReview.
