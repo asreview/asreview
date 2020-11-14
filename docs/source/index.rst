@@ -10,10 +10,6 @@ to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
    :caption: Introduction
    :maxdepth: 1
 
-   intro/overview
-
-   intro/introduction
-
    intro/zen
 
    intro/installation
