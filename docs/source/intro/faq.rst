@@ -1,7 +1,7 @@
 Frequently Asked Questions
 ==========================
 
-General questions
+General Questions
 -----------------
 
 .. _which-version:
@@ -17,13 +17,10 @@ following in your command line:
 
   asreview --version
 
-How to upgrade my ASReview installation?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-See :ref:`installation:Upgrade ASReview`.
 
 
-Systematic reviewing
+
+Systematic Reviewing
 --------------------
 
 What parts of my Systematic Review project does ASReview support?
@@ -52,6 +49,7 @@ research in an information overload environment.
 
 Also see :ref:`full-text`
 
+
 Can we use ASReview LAB as a stand-alone screener?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -77,8 +75,6 @@ than manual reviewing, while exhibiting adequate quality. Also ASReview can be
 used in combination with traditional approaches to systematic reviewing.
 
 Also see:
-
-
 -  :ref:`peer-reviewed`
 -  :ref:`cite-asreview`
 
@@ -102,7 +98,9 @@ Also see:
 How can I refer to ASReview in my paper?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both the project and software are citable. See :doc:`cite_the_project`.
+Both the project and software are citable. See :doc:`contribute`. 
+
+
 
 ASReview LAB
 ------------
@@ -138,6 +136,7 @@ with standardized abstracts - but not all abstracts are standardized.
 
 Also see :ref:`no-abstract`
 
+
 What happens if I have records from different languages?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -147,6 +146,7 @@ ASReview will have difficulty with identifying a relevant record when it
 is written in a language that is different from the rest of the records
 in your dataset.
 
+
 Why did you choose a license that allows commercial reuse for the software?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -154,17 +154,20 @@ We believe that free and open source software is important in advancing
 research. In the field of machine learning and systematic reviews,
 transparency is very important to give a better understanding of the process.
 
+
 What do you mean with a dataset?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A datasets is a file that contains information such as the title, abstract,
 authors, doi etc. of all articles that are or have been screened.
 
+
 What do you mean with a model?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A model (sometimes also referred to as a classifier) is a machine
 learning model that is used to predict the relevance of the records.
+
 
 How do we decide when to stop?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -173,7 +176,8 @@ At this moment, there is limited guidance on this; the decision of when to
 stop is left to the user. An example stopping rule can be:
 
 - stop after screenings 25% of the records in the dataset
-- 250 irrelevant records in a row (this number can be found in the statistics panel)
+- 250 (or 42) irrelevant records in a row (this number can be found in the statistics panel)
+
 
 Can we use ASReview LAB with multiple screeners?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,6 +204,7 @@ display and training purposes.
 
 Also see: :ref:`asreview-other-use-cases`
 
+
 Which classifier should I choose in ASReview LAB?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -208,9 +213,10 @@ relevancy of your documents. Currently, we always advise to use the Naive
 Bayes classifier since it performs very well and needs little computation
 time. We have performed several simulation studies to evaluate performance of
 different classifiers on several datasets. See
-:doc:`simulation_study_results`. We do not advise specific classifiers for
+:doc:`../guides/simulation_study_results`. We do not advise specific classifiers for
 specific jobs because we've not found enough evidence (yet) to make such
 recommendations.
+
 
 I already started labeling before I came across ASReview. How can I keep my former screening decisions when starting a new project in ASReview?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -221,6 +227,7 @@ can indicate previous screening decisions on records with 0s
 (irrelevant) and 1s (relevant). ASReview will use this information to
 train the model.
 
+
 Related question: How can I add more publications while I are already started screening in ASReview?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -229,6 +236,7 @@ publications to this file. Make sure that for your new publications the column
 `included` is empty and rename or delete the column of `record_id`.
 This latter will save you from running into errors. Then simply import this
 updated file to ASReview and you can continue the screening process.
+
 
 Is it possible to get the inclusion likelihood for unlabelled papers?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -239,12 +247,14 @@ have scores that signify which papers are more likely included, but to avoid
 confusion, we do not put these in the export file. They are however available
 in the state files.
 
+
 How can I make my previously labeled records green, like in the example datasets?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can explore a previously labeled dataset in ASReview LAB by adding
 an extra column called 'debug\_label', indicating the relevant and
 irrelevant records with ones and zeroes.
+
 
 How do I remove duplicate publications?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
