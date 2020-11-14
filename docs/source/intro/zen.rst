@@ -1,6 +1,9 @@
 The Zen of Elas
 ---------------
 
+Research Team
+~~~~~~~~~~~~~
+
 ASReview is a research project coordinated by `Rens van de Schoot <www.rensvandeschoot.com>`_, full Professor at
 the Department of Methodology & Statistics at Utrecht University, The
 Netherlands. Also, top researcher and machine learning expert Daniel Oberski
