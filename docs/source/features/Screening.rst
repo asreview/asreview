@@ -5,7 +5,7 @@ The screen in which you provide labels for records shown to you by the
 software is kept as simple as possible. This is because we want you to focus
 on the content of the text so that you can make your deicssion as a true
 Oracle. There are few features you can access during screening which we
-present below. 
+present below.
 
 .. contents:: Table of Contents
 
@@ -85,17 +85,17 @@ of records in the dataset are displayed.
 The pie chart on the presents an overview of how many relevant (green) and
 irrelevant (orange) records you have screened so far. Also, the total number
 of records screened is displayed, as well as the percentage screened relative
-to the total number of records in the dataset. 
+to the total number of records in the dataset.
 
 
 The second plot is a progress plot. On the x-axis the number of records
 screened is tracked. The y-axis shows a moving average. It displays the ratio
 between relevant and irrelevant records for a batch of 10 labelled records. If
 you hoover over the plot you can see the moving average for any batch of 10
-labelled records. 
+labelled records.
 
 Underneath the progress plot the number of irrelevant records is shown, which
-might help in deciding when to stop reviewing. 
+might help in deciding when to stop reviewing.
 
 
 DOI
@@ -128,8 +128,8 @@ any time during the screening process. To download your results:
 2. Start a new project, upload a dataset and select prior knowledge.
 3. Start screening.
 4. Click the **download** icon in the upper-right corner.
-5. You will be aksed whether you want to save an excel or a csv file. 
-6. You will be aksed where to save the file. 
+5. You will be aksed whether you want to save an excel or a csv file.
+6. You will be aksed where to save the file.
 
 [SCREENSHOT OF THE ICON AND POP-UP SCREEN]
 
@@ -139,8 +139,8 @@ Hamburger menu
 
 Via the hamburger menu in the left-upper corner you can:
 
-1. Navigate back to the :doc:`overview <Pre-screening>` page containing all your projects (or to start a new project).
-2. You can access the :doc:`Project Dashboard <Post-screening>`.
+1. Navigate back to the :doc:`overview <pre_screening>` page containing all your projects (or to start a new project).
+2. You can access the :doc:`Project Dashboard <post-screening>`.
 3. Ask for `HELP <https://asreview.readthedocs.io/en/latest/>`_.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
 5. Donate some money via our `crowdfunding platform <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-everyone>`_ (the software is for free, but the development is not)

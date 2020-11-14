@@ -2,7 +2,7 @@ Overview
 ========
 
 The source code of ASReview is available open source under an Apache-2.0
-license on `GitHub <https://github.com/asreview/asreview>`_.  Compiled and
+license on `GitHub <https://github.com/asreview/asreview>`_. Compiled and
 packaged versions of the software are available on the  `Python Package Index
 <https://pypi.org/project/asreview>`_ or `Docker Hub
 <https://hub.docker.com/r/asreview/asreview>`_. The software ASReview
@@ -10,9 +10,9 @@ implements an :doc:`oracle<../lab/oracle>`,
 :doc:`exploration<../lab/exploration>` and a
 :doc:`simulation<../lab/simulation>` mode.  The oracle mode is used to perform
 a systematic review with interaction by the user.  The simulation mode is used
-for simulation of the ASReview performance on existing systematic reviews. 
+for simulation of the ASReview performance on existing systematic reviews.
 The exploration mode can be used for teaching purposes and includes several
-pre-loaded labelled datasets. 
+pre-loaded labelled datasets.
 
 
 If you encounter any issues during the process,  first consult the

@@ -30,7 +30,7 @@ To open an existing project:
 1. Open ASReview LAB.
 2. Click on the title of a project or on the button *open*.
 
-You will be redirected to the :doc:`project dashbboard <Post-screening>`.
+You will be redirected to the :doc:`project dashbboard <post_screening>`.
 
 [SCREENSHOT]
 
@@ -62,7 +62,7 @@ and you will first be asked to start the setup.
 [SCREENSHOT]
 
 Already in this project dashboard some of the features are available which are
-described in the :doc:`Post-screening` section.
+described in the :doc:`post_screening` section.
 
 Select Database
 ---------------

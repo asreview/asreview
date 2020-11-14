@@ -18,7 +18,7 @@ ASReview: Active learning for Systematic Reviews
    intro/datasets
 
    intro/cite_the_project
-   
+
    intro/contribute
 
    intro/faq
@@ -45,16 +45,16 @@ ASReview: Active learning for Systematic Reviews
 
    features/overview_features
 
-   features/Settings
+   features/settings
 
-   features/Pre-screening
+   features/pre_screening
 
-   features/Screening
+   features/screening
 
-   features/Post-screening
+   features/post_screening
 
 
- 
+
 .. toctree::
    :maxdepth: 2
    :caption: Plugins

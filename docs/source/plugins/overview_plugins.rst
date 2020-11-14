@@ -2,11 +2,11 @@ Overview
 ========
 
 ASReview has support for extensions. Extensions are a nice way to extend the
-functionality of the :doc:`ASReview LAB <../overview_lab>` software or the
-:doc:`command line interface <../cli>`. See the following officially supported
+functionality of the :doc:`ASReview LAB <../lab/overview_lab>` software or the
+:doc:`command line interface <../API/cli>`. See the following officially supported
 extensions of ASReview:
 
-- :doc:`covid-19`: Make literature on COVID-19 available in ASReview.
+- :doc:`covid19`: Make literature on COVID-19 available in ASReview.
 - :doc:`plugin_visualization`: Plotting functionality for state files produced by ASReview.
 - ``asreview-statistics``: Tool to give some basic properties of a dataset, such as number of
   papers, number of inclusions. `GitHub <https://github.com/asreview/asreview-statistics>`__
