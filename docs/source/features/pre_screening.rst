@@ -7,7 +7,7 @@ your model. We discuss the options below.
 .. contents:: Table of Contents
 
 
-Start a new project
+Start a New Project
 -------------------
 
 To start a new project:
@@ -22,7 +22,7 @@ your name (or any name), and a description if you like.
 [SCREENSHOT OF BOTH THE BUTTON AND POP-UP]
 
 
-Open an existing project
+Open an Existing Project
 ------------------------
 
 To open an existing project:
@@ -35,7 +35,7 @@ You will be redirected to the :doc:`project dashbboard <post_screening>`.
 [SCREENSHOT]
 
 
-Import a project
+Import a Project
 ----------------
 
 To import an existing project file (and continue screening, or to inspect the results):
@@ -72,13 +72,47 @@ To select a dataset:
 1. Open ASReview LAB.
 2. Start a new project.
 3. Click the *Start Setup* button.
-4. Choose one of the four options:
+4. Choose one of the four options to select a dataset:
 
-a: Upload a file by Drag 'n' Drop, or select a file via the browser. The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a file is uploaded and reckognized as one of the available formats, it will display the message *Successful upload* and provide the number of records in the database.
+I) Upload your file by *Drag 'n' Drop*, or select your file via the browser. The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a file is uploaded and reckognized as one of the available formats, it will display the message *Successful upload* and provide the number of records in the database.
 
 [SCREENSHOT]
 
-b:
+II) Provide a link to [????????]
+
+[SCREENSHOT]
+
+
+III) Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
+
+IV) Select one of the :doc:`example dataset <../lab/exploration>`.
+
+
+Partly Labelled Data
+--------------------
+
+If you want to include decisions you've already made prior to setting up your
+project, you can upload a partly labelled dataset containg labels for part of
+the data and unlabelled recors you want to screen with ASReview.
+
+Currently, this can be done by merging your dataset with labeled and unlabeled
+records via Excel for example. Your dataset should contain a column, called
+*label_included* (or: final_included, label, label_included, included_label,
+included_final, included, included_flag, include) which is filled with 1's or
+0's for the publications that you have already screened, and is empty for the
+publications that you still need to screen using ASReview.
+
+To use a partly labelled dataset:
+
+1. Open ASReview LAB.
+2. Start a new project.
+3. Click the *Start Setup* button.
+4. Select your partly labelled dataset.
+
+ASReview will reckognize the column with the labels and show you the number of
+prior relevant/irrelevant papers in the section *Prior Knowledge*.
+
+[SCREENSHOT]
 
 
 Select Model
