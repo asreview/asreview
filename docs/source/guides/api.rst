@@ -1,12 +1,12 @@
-Programming interface (API)
+Programming Interface (API)
 ===========================
 
-For more control over the workings of the ASReview software, a API is
+For more control over the workings of the ASReview software, an API is
 provided. For example, it is possible to define a new model or sampling
 strategy and use it with ASReview.
 
 
-Simulation mode
+Simulation Mode
 ---------------
 
 An example of use the API for the simulation mode:
