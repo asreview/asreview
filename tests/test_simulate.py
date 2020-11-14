@@ -4,7 +4,7 @@ from shutil import copyfile
 import numpy as np
 import pytest
 
-from asreview.models.utils import list_classifiers
+from asreview.models.classifiers import list_classifiers
 from asreview.state import open_state
 from asreview.review.factory import get_reviewer
 

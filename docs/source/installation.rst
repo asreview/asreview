@@ -9,7 +9,7 @@ Install ASReview
 ASReview software requires having Python 3.6 or higher installed. Detailed
 step-by-step instructions to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/installation-guide-windows/>`__ and
-`MacOS <https://asreview.nl/installation-guide-mac/>`__ users.
+`MacOS <https://asreview.nl/installation-guide-macos/>`__ users.
 
 Install the ASReview software with Pip by running the following command in the
 `CMD.exe` (Windows) or `Terminal` (MacOS/Linux):
@@ -26,7 +26,7 @@ Start the application with the following command (in CMD.exe or Terminal):
 
 You are now ready to start your first Automated Systematic Review!
 
-Please see the `Troubleshooting <installation.html#troubleshooting>`__ section for common problems.
+Please see :ref:`installation:Troubleshooting` for common problems.
 
 
 Upgrade ASReview
@@ -49,12 +49,12 @@ closed networks.
 .. code:: bash
 
     asreview lab --port 5555 --ip xxx.x.x.xx
-    
+
 .. warning::
 
-    Don't use the development server in production. Read the Flask documentation 
+    Don't use the development server in production. Read the Flask documentation
     about `deploying a Flask app to production <https://flask.palletsprojects.com/en/1.1.x/tutorial/deploy/>`__.
-	
+
 
 Install with Docker
 -------------------
@@ -76,7 +76,7 @@ afterwards, like this:
 
    docker run -p 9000:9000 asreview/asreview  --port 9000
 
-For more information, see the `README in the docker folder <https://docs.anaconda.com/anaconda/install/mac-os/>`__.
+For more information, see `the GitHub page <https://github.com/asreview/asreview/tree/master/docker>`__.
 
 
 Troubleshooting
@@ -108,7 +108,7 @@ installed.
 Most likely, the enviroment variables aren't configured correctly. Follow
 our detailed step-by-step instructions to install Python correctly on
 `Windows <https://asreview.nl/installation-guide-windows/>`__
-and `MacOS <https://asreview.nl/installation-guide-mac/>`__.
+and `MacOS <https://asreview.nl/installation-guide-macos/>`__.
 
 However, there is a simple way to deal with correct environment variables
 by ading `python -m` in front of the command. For example:
@@ -129,7 +129,7 @@ First check whether the package is correctly installed. Do this with the command
 .. code-block:: bash
 
   python -m asreview oracle
-  
+
 
 Build dependencies error
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,11 +140,11 @@ The command line returns the following message:
 
   "Installing build dependencies ... error"
 
-This error typically happens when the version of your Python installation has been 
-released very recently. Because of this, the dependencies of ASReview are not 
-compatible with your Python installation yet. It is advised to install 
-the second most recent version of Python instead. Detailed step-by-step instructions 
+This error typically happens when the version of your Python installation has been
+released very recently. Because of this, the dependencies of ASReview are not
+compatible with your Python installation yet. It is advised to install
+the second most recent version of Python instead. Detailed step-by-step instructions
 to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/installation-guide-windows/>`__ and
-`MacOS <https://asreview.nl/installation-guide-mac/>`__ users.
+`MacOS <https://asreview.nl/installation-guide-macos/>`__ users.
 

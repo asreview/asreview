@@ -1,9 +1,9 @@
 from pytest import mark
 import numpy as np
 
-from asreview.models.utils import get_model
-from asreview.query_strategies.utils import get_query_model
-from asreview.query_strategies.utils import list_query_strategies
+from asreview.models.classifiers import get_classifier
+from asreview.models.query import get_query_model
+from asreview.models.query import list_query_strategies
 
 
 @mark.parametrize("query_strategy", [
@@ -20,7 +20,7 @@ def test_query(query_strategy,
                n_sample=100,
                n_instances_list=[0, 1, 5, 50],
                n_train_idx=[0, 1, 5, 50]):
-    classifier = get_model("rf")
+    classifier = get_classifier("rf")
 
     query_model = get_query_model(query_strategy)
     X = np.random.rand(n_sample, n_features)

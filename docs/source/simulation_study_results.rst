@@ -265,7 +265,7 @@ literature reviews. Empir Softw Eng 2018;23:3161–86.
 [5] Nagtegaal R, Tummers L, Noordegraaf M, Bekkers V. Nudging healthcare
 professionals towards evidence-based medicine: A systematic scoping
 review. J Behav Public Adm 2019;2.
-`https://doi.org/doi.org/10.30636/jbpa.22.71 <https://doi.org/doi.org/10.30636/jbpa.22.71>`__.
+`https://doi.org/10.30636/jbpa.22.71 <https://doi.org/10.30636/jbpa.22.71>`__.
 
 .. raw:: html
 
