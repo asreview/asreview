@@ -93,14 +93,18 @@ Partly Labelled Data
 
 If you want to include decisions you've already made prior to setting up your
 project, you can upload a partly labelled dataset containg labels for part of
-the data and unlabelled recors you want to screen with ASReview.
+the data and unlabelled recors you want to screen with ASReview. This might be
+veru helpfull if you switch from screening in another tool to screening with
+ASReview, or when updating an existing systematic review with more recent
+publications.
 
 Currently, this can be done by merging your dataset with labeled and unlabeled
-records via Excel for example. Your dataset should contain a column, called
-*label_included* (or: final_included, label, label_included, included_label,
-included_final, included, included_flag, include) which is filled with 1's or
-0's for the publications that you have already screened, and is empty for the
-publications that you still need to screen using ASReview.
+records via Excel or another reference manager. Your dataset should contain a
+column, called *label_included* (or: final_included, label, label_included,
+included_label, included_final, included, included_flag, include) which is
+filled with 1's or 0's for the publications that you have already screened,
+and is empty for the records that you still need to screen using
+ASReview.
 
 To use a partly labelled dataset:
 
@@ -130,6 +134,11 @@ screening, just like the demo datasets described in the :doc:`exploration mode
 4. Select your labelled dataset containing the ‘debug_label’.
 
 [SCREENSHOT]
+
+
+Select Prior Knowledge
+----------------------
+
 
 
 Select Model
