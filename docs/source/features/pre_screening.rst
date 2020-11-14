@@ -72,7 +72,7 @@ To select a dataset:
 1. Open ASReview LAB.
 2. Start a new project.
 3. Click the *Start Setup* button.
-4. Choose one of the four options to select a dataset:
+4. Choose one of the four options to select a dataset and click upload:
 
 I) Upload your file by *Drag 'n' Drop*, or select your file via the browser. The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a file is uploaded and reckognized as one of the available formats, it will display the message *Successful upload* and provide the number of records in the database.
 
