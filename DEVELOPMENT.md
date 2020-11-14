@@ -36,6 +36,8 @@ Open the webbrowser at `localhost:3000`. **Important**: ignore `localhost:5000` 
 
 ## Documentation
 
+### Sphinx docs
+
 Documentation for the ASReview project is available on https://asreview.readthedocs.io/en/latest/.
 The source files are available in the [`docs`](/docs) folder of this repository. The project makes
 use of [Sphinx](https://www.sphinx-doc.org/) to convert the source files and docstrings into HTML
@@ -54,3 +56,15 @@ make html
 ```
 
 Open the file `docs/build/html/index.html` in your webbrowser.
+
+### Screenshots
+
+Screenshots are an important part of the ASReview documentation. When contributing screenshots,
+follow the guidelines below.
+
+1. Open Developers Tools in your browser (e.g. Chrome or Firefox).
+2. Set device dimensions to **1280x800**.
+3. Capture screenshot with internal screenshot tool (preferred, see [example](https://www.deconetwork.com/blog/how-to-take-full-webpage-screenshots-instantly/)).
+4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
+5. Resize image to **1280x800** maximum and **960x600** minimum.
+6. [OPTIONAL] Use a red box to highlight relevant components.
