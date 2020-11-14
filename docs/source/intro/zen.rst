@@ -2,7 +2,7 @@ The Zen of Elas
 ---------------
 
 
-The case of systematic reviewing
+The Case of Systematic Reviewing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ASReview is a generic tool for the screening  of :doc:`any type of

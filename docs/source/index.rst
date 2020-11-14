@@ -16,8 +16,6 @@ to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
 
    intro/datasets
 
-   intro/cite_the_project
-
    intro/contribute
 
    intro/faq
