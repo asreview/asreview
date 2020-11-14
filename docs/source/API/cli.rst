@@ -4,7 +4,7 @@ Command Line
 ASReview provides a powerful command line interface for running tasks like
 simulations. For a list of available commands, type :code:`asreview --help`.
 
-lab
+Lab
 ---
 
 :program:`asreview lab` launches the ASReview LAB software (the frontend).
@@ -44,7 +44,7 @@ lab
 
 	Show help message and exit.
 
-simulate
+Simulate
 --------
 
 :program:`asreview simulate` measures the performance of the software on
@@ -169,7 +169,7 @@ Example:
 
 .. _feature-extraction-table:
 
-Feature extraction
+Feature Extraction
 ~~~~~~~~~~~~~~~~~~
 
 +----------------+-----------------------------------------------------------+-----------------------------------------------------------------------------+
@@ -211,7 +211,7 @@ Classifiers
 
 .. _query-strategies-table:
 
-Query strategies
+Query Strategies
 ~~~~~~~~~~~~~~~~
 
 +-------------+---------------------------------------------------------+--------------+
@@ -228,7 +228,7 @@ Query strategies
 
 .. _balance-strategies-table:
 
-Balance strategies
+Balance Strategies
 ~~~~~~~~~~~~~~~~~~
 
 +-------------+---------------------------------------------------------+----------+
@@ -244,7 +244,7 @@ Balance strategies
 +-------------+---------------------------------------------------------+----------+
 
 
-simulate-batch
+Simulate-batch
 --------------
 
 :program:`asreview simulate-batch` provides the same interface as the
@@ -271,7 +271,7 @@ batch of simulation runs with the same configuration.
     Number of simulation runs.
 
 
-algorithms
+Algorithms
 ----------
 
 .. versionadded:: 0.14
