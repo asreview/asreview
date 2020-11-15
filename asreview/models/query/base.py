@@ -36,11 +36,11 @@ class BaseQueryStrategy(BaseModel):
 
         Arguments
         ---------
-        X: np.array
+        X: numpy.ndarray
             Feature matrix to choose samples from.
         classifier: SKLearnModel
             Trained classifier to compute probabilities if they are necessary.
-        pool_idx: np.array
+        pool_idx: numpy.ndarray
             Indices of samples that are still in the pool.
         n_instances: int
             Number of instances to query.

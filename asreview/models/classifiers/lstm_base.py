@@ -58,7 +58,7 @@ class LSTMBaseClassifier(BaseTrainClassifier):
 
     Arguments
     ---------
-    embedding_matrix: np.array
+    embedding_matrix: numpy.ndarray
         Embedding matrix to use with LSTM model.
     backwards: bool
         Whether to have a forward or backward LSTM.

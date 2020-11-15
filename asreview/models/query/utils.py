@@ -23,7 +23,7 @@ def list_query_strategies():
 
     Returns
     -------
-    list:
+    list
         Names of available query strategies in alphabetical order.
     """
     return list_model_names(entry_name="asreview.models.query")
@@ -41,7 +41,7 @@ def get_query_class(name):
 
     Returns
     -------
-    BaseQueryModel:
+    class
         Class corresponding to the name name.
     """
     from asreview.models.query.mixed import MixedQuery
@@ -72,7 +72,7 @@ def get_query_model(name, *args, random_state=None, **kwargs):
 
     Returns
     -------
-    BaseQueryModel:
+    asreview.query.base.BaseQueryModel
         Initialized instance of query strategy.
     """
     from asreview.models.query.mixed import MixedQuery

@@ -56,7 +56,7 @@ class ReviewSimulate(BaseReview):
         process.
     n_queries: int
         Number of steps/queries to perform. Set to None for no limit.
-    start_idx: numpy.array
+    start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
         be already labeled. Failing to do so might result bad behaviour.
     init_seed: int
@@ -112,12 +112,12 @@ class ReviewSimulate(BaseReview):
 
         Arguments
         ---------
-        ind: list, np.array
+        ind: list, numpy.ndarray
             A list with indices
 
         Returns
         -------
-        list, np.array
+        list, numpy.ndarray
             The corresponding true labels for each indice.
         """
 

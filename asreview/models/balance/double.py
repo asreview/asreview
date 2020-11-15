@@ -69,18 +69,18 @@ class DoubleBalance(BaseBalance):
 
         Arguments
         ---------
-        X: np.array
+        X: numpy.ndarray
             Complete feature matrix.
-        y: np.array
+        y: numpy.ndarray
             Labels for all papers.
-        train_idx: np.array
+        train_idx: numpy.ndarray
             Training indices, that is all papers that have been reviewed.
         shared: dict
             Dictionary to share data between balancing models and other models.
 
         Returns
         -------
-        np.array, np.array:
+        numpy.ndarray,numpy.ndarray:
             X_train, y_train: the resampled matrix, labels.
         """
         # Get inclusions and exclusions

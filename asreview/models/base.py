@@ -37,7 +37,7 @@ class BaseModel(ABC):
 
         Returns
         -------
-        dict:
+        dict
             Dictionary with parameter: default value
         """
         cur_class = self.__class__
@@ -55,7 +55,7 @@ class BaseModel(ABC):
 
         Returns
         -------
-        dict:
+        dict
             Dictionary with parameter: current value.
         """
         parameters = self.default_param
