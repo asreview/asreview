@@ -31,7 +31,8 @@ where ``myreview.h5`` is the file where the results will be stored.
 
 
 More detail on specific model and simulation settings can be found in the
-Simulation options section. For how to prepare your data, see :doc:`datasets`.
+Simulation options section. For how to prepare your data, see
+:doc:`../intro/datasets`.
 
 
 
