@@ -131,8 +131,14 @@ State
 .. autoclass:: asreview.state.BaseState
 	:members:
 .. autoclass:: asreview.state.HDF5State
+   :members:
+   :inherited-members:
 .. autoclass:: asreview.state.JSONState
+   :members:
+   :inherited-members:
 .. autoclass:: asreview.state.DictState
+   :members:
+   :inherited-members:
 
 Analysis
 --------
