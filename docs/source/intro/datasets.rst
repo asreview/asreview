@@ -11,9 +11,8 @@ It is possible to use your own dataset with unlabelled records, partly
 labelled records (where the labelled records are used for training a model),
 or fully labelled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-:ref:`demonstration datasets <datasets:Demonstration datasets>`. Also, a
-plugin with :doc:`Corona related publications <plugins/covid-19>` is
-available.
+`Demonstration Datasets`_. Also, a plugin with :doc:`Corona related
+publications <../plugins/covid19>` is available.
 
 Data Format
 -----------
@@ -65,11 +64,11 @@ clickable hyperlink to the full text document. Note by using ASReview you do
 not automatically have access to full-text and if you do not have access you
 might want to read this `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
-When using the :ref:`ASReview command line interface for simulation
-<cli:Simulate>`, an additional binary variable to indicate labeling decisions
+When using the :doc:`ASReview command line interface for simulation
+<../API/cli/>`, an additional binary variable to indicate labeling decisions
 (``0`` = irrelevant, ``1`` = relevant) is required for ALL records. In
 ASReview LAB, if labels are available for a part of the dataset (i.e., :doc:`partly
-labeled data <../features/pre-screening>`), the labels will be automatically detected and used for prior
+labeled data <../features/pre_screening>`), the labels will be automatically detected and used for prior
 knowledge. 
 
 You can explore a previously labeled dataset in ASReview LAB by adding an
