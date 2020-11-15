@@ -36,6 +36,34 @@ def test_reader(test_file, n_lines, labels, ignore_col):
         assert len(values) == n_lines
 
 
+def test_nan_values_ris():
+
+    fp = Path("tests", "demo_data", "missing_values.ris")
+    as_data = ASReviewData.from_file(fp)
+
+    # check missing titles
+    assert as_data.record(1, by_index=True).title == ""
+    assert as_data.record(3, by_index=True).title == ""
+
+    # check missing abstracts
+    assert as_data.record(0, by_index=True).abstract == ""
+    assert as_data.record(2, by_index=True).abstract == ""
+
+
+def test_nan_values_csv():
+
+    fp = Path("tests", "demo_data", "missing_values.csv")
+    as_data = ASReviewData.from_file(fp)
+
+    # check missing titles
+    assert as_data.record(1, by_index=True).title == ""
+    assert as_data.record(3, by_index=True).title == ""
+
+    # check missing abstracts
+    assert as_data.record(0, by_index=True).abstract == ""
+    assert as_data.record(2, by_index=True).abstract == ""
+
+
 def test_csv_write_data():
     fp_in = Path("tests", "demo_data", "generic_labels.csv")
     fp_out = Path("tests", "out_data", "generic_out.csv")
