@@ -91,10 +91,8 @@ class ReviewSimulate(BaseReview):
             labels = as_data.labels
 
         if prior_idx is not None and len(prior_idx) != 0:
-            id_to_index = {as_data.df.index.values[i]: i
-                           for i in range(len(as_data))}
-            start_idx = np.array([id_to_index[idx] for idx in prior_idx],
-                                 dtype=int)
+            start_idx = np.array(
+                [as_data.reverse_index[idx] for idx in prior_idx], dtype=int)
         else:
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:

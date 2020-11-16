@@ -119,6 +119,7 @@ class ASReviewData():
         self.df = df
         self.data_name = data_name
         self.prior_idx = np.array([], dtype=int)
+        self._reverse_index = []
         if df is None:
             self.column_spec = {}
             return
@@ -315,7 +316,8 @@ class ASReviewData():
                     **self.df.loc[j, :],
                     column_spec=self.column_spec,
                     record_id=j,
-                    by_index=False)
+                    record_by_id=j,
+                    record_by_index=self.reverse_index[j])
                 for j in index_list
             ]
         else:
@@ -323,7 +325,8 @@ class ASReviewData():
                 PaperRecord(**self.df.iloc[j],
                             column_spec=self.column_spec,
                             record_id=j,
-                            by_index=True)
+                            record_by_id=self.df.index.values[j],
+                            record_by_index=j)
                 for j in index_list
             ]
 
@@ -469,6 +472,13 @@ class ASReviewData():
             return self.df[self.column_spec[name]].values
         except KeyError:
             return self.df[name].values
+
+    @property
+    def reverse_index(self):
+        if len(self._reverse_index) != len(self):
+            self._reverse_index = {
+                self.df.index.values[i]: i for i in range(len(self))}
+        return self._reverse_index
 
     @property
     def prior_data_idx(self):
