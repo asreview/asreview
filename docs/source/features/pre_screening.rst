@@ -7,48 +7,6 @@ your model. We discuss the options below.
 .. contents:: Table of Contents
 
 
-Start a New Project
--------------------
-
-To start a new project:
-
-1. Open ASReview LAB.
-2. Start a new project by clicking the '+' button in the right-down corner.
-3. Select *New project*.
-
-In a pop-up screen you will be asked to fill-in a project name (obligatory),
-your name (or any name), and a description if you like.
-
-[SCREENSHOT OF BOTH THE BUTTON AND POP-UP]
-
-
-Open an Existing Project
-------------------------
-
-To open an existing project:
-
-1. Open ASReview LAB.
-2. Click on the title of a project or on the button *open*.
-
-You will be redirected to the :doc:`project dashbboard <post_screening>`.
-
-[SCREENSHOT]
-
-
-Import a Project
-----------------
-
-To import an existing project file (and continue screening, or to inspect the results):
-
-1. Open ASReview LAB.
-2. Click on the '+' button.
-3. Select *Import project*.
-
-A pop-up will open and you will be asked to select the .asreview file.
-
-[SCREENSHOT]
-
-
 Start Set-up
 ------------
 
@@ -64,8 +22,8 @@ and you will first be asked to start the setup.
 Already in this project dashboard some of the features are available which are
 described in the :doc:`post_screening` section.
 
-Select Database
----------------
+Select Dataset
+--------------
 
 To select a dataset:
 
@@ -74,7 +32,11 @@ To select a dataset:
 3. Click the *Start Setup* button.
 4. Choose one of the four options to select a dataset and click upload:
 
-I) Upload your file by *Drag 'n' Drop*, or select your file via the browser. The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a file is uploaded and reckognized as one of the available formats, it will display the message *Successful upload* and provide the number of records in the database.
+I) Upload your file by *Drag 'n' Drop*, or select your file via the browser.
+The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a
+file is uploaded and reckognized as one of the available formats, it will
+display the message *Successful upload* and provides the number of records in
+the dataset.
 
 [SCREENSHOT]
 
@@ -88,12 +50,12 @@ III) Select a file available via a plug-in like the :doc:`COVID-19 plugin <../pl
 IV) Select one of the :doc:`example dataset <../lab/exploration>`.
 
 
-Partly Labelled Data
---------------------
+Partly Labeled Data
+-------------------
 
 If you want to include decisions you've already made prior to setting up your
-project, you can upload a partly labelled dataset containg labels for part of
-the data and unlabelled recors you want to screen with ASReview. This might be
+project, you can upload a partly labeled dataset containg labels for part of
+the data and unlabeled recors you want to screen with ASReview. This might be
 veru helpfull if you switch from screening in another tool to screening with
 ASReview, or when updating an existing systematic review with more recent
 publications.
@@ -106,12 +68,12 @@ filled with 1's or 0's for the publications that you have already screened,
 and is empty for the records that you still need to screen using
 ASReview.
 
-To use a partly labelled dataset:
+To use a partly labeled dataset:
 
 1. Open ASReview LAB.
 2. Start a new project.
 3. Click the *Start Setup* button.
-4. Select your partly labelled dataset.
+4. Select your partly labeled dataset.
 
 ASReview will reckognize the column with the labels and show you the number of
 prior relevant/irrelevant papers in the section *Prior Knowledge*.
@@ -131,7 +93,7 @@ screening, just like the demo datasets described in the :doc:`exploration mode
 1. Open ASReview LAB.
 2. Start a new project.
 3. Click the *Start Setup* button.
-4. Select your labelled dataset containing the ‘debug_label’.
+4. Select your labeled dataset containing the ‘debug_label’.
 
 [SCREENSHOT]
 

@@ -41,7 +41,7 @@ Upgrade ASReview software with
     pip install --upgrade asreview
 
 
-Server installation
+Server Installation
 -------------------
 
 It is possible to run the ASReview software on a server or custom domain. Use
@@ -88,7 +88,7 @@ ASReview LAB is advanced machine learning software. In some situations, you
 might run into unexpected behavior. See below for solutions to
 problems.
 
-Unknown command "pip"
+Unknown Command "pip"
 ~~~~~~~~~~~~~~~~~~~~~
 
 The command line returns one of the following messages:

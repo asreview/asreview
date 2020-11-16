@@ -18,8 +18,6 @@ following in your command line:
   asreview --version
 
 
-
-
 Systematic Reviewing
 --------------------
 
@@ -32,6 +30,7 @@ of publications. For the Identification phase, we recommend you to use
 your current databases and reference managers,or to distribute the work
 among your colleagues. You can import your records into ASReview, screen
 them, and import the results back into your own tools.
+
 
 .. _asreview-other-use-cases:
 
@@ -47,8 +46,8 @@ from an enormous pile of texts, such as patents, jurisdiction,
 historical newspapers, company reports, or keeping track of relevant
 research in an information overload environment.
 
-Also see :ref:`full-text`
 
+Also see :ref:`full-text`
 
 Can we use ASReview LAB as a stand-alone screener?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,6 +77,7 @@ Also see:
 -  :ref:`peer-reviewed`
 -  :ref:`cite-asreview`
 
+
 .. _peer-reviewed:
 
 Has ASReview been used in any peer-reviewed article?
@@ -95,11 +95,11 @@ Also see:
 
 .. _cite-asreview:
 
+
 How can I refer to ASReview in my paper?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both the project and software are citable. See :doc:`contribute`. 
-
+Both the project and software are citable. See :doc:`contribute`.
 
 
 ASReview LAB
@@ -113,6 +113,7 @@ import these into ASReview. For supported databases and formats,
 see the documentation on :doc:`datasets`.
 
 .. _no-abstract:
+
 
 How to deal with records that do not have abstracts?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,6 +187,7 @@ Currently, we do not support collaboration of multiple users within one
 project. We recommend multiple users to screen their records
 independently in separate projects. Afterwards, the results can be
 easily exported and combined to compare their screening decisions.
+
 
 .. _full-text:
 

@@ -23,12 +23,7 @@ or get stressed!
 Label options
 -------------
 
-Below the text we provide two options: Relevant or Irrelevant. If you are in
-doubt, think harder and take your time to make a decission, you are the
-oracle. Based on your input a new model will be trained in the background. If
-you make decissions faster than the model needs for computing new relevance
-scores, you will simply be presented with the record next in line (etcetera),
-untill the model is done training.
+Below the text we provide two options: Relevant or Irrelevant.
 
 To make a decission:
 
@@ -37,6 +32,13 @@ To make a decission:
 3. Start screening.
 4. Click on either the button Relevant or Irrelevant.
 
+.. warning::
+
+    If you are in doubt, think harder and take your time to make a decission, you
+    are the oracle. Based on your input a new model will be trained in the
+    background. If you make decissions faster than the model needs for computing
+    new relevance scores, you will simply be presented with the record next in
+    line (etcetera), untill the model is done training.
 
 [SCREENSHOT]
 
@@ -86,7 +88,6 @@ The pie chart on the presents an overview of how many relevant (green) and
 irrelevant (orange) records you have screened so far. Also, the total number
 of records screened is displayed, as well as the percentage screened relative
 to the total number of records in the dataset.
-
 
 The second plot is a progress plot. On the x-axis the number of records
 screened is tracked. The y-axis shows a moving average. It displays the ratio
@@ -173,7 +174,7 @@ The table below lists the available keyboard shortcuts.
 
 .. note::
 
-	Return to previous decision, **u** or **Shift + u**, is only available
-	if the **Undo** feature has been toggled on in the settings panel.
+    Return to previous decision, **u** or **Shift + u**, is only available
+    if the **Undo** feature has been toggled on in the settings panel.
 
 

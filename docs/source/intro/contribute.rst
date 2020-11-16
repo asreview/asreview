@@ -1,8 +1,8 @@
-How to Cite, Donate and Contribute
-----------------------------------
+Cite, Donate and Contribute
+---------------------------
 
-Cite the Project
-~~~~~~~~~~~~~~~~
+Cite
+~~~~
 
 The preprint `ArXiv:2006.12166`_ can be used to cite this project.
 
@@ -27,13 +27,14 @@ find the citation format of prevalence.
    :target: https://doi.org/10.5281/zenodo.3345592
 
 
-More studies related to the project can be found on our `website` <https://asreview.nl/open-science/>_. 
+More studies related to the project can be found on the
+`ASReview website <https://asreview.nl/open-science/>`_.
 
 
 Donate
 ~~~~~~
 
-Although the software is for free (and Open Source), the development is not…
+Although the ASReview software is Free and Open Source Software (FOSS), the development is not…
 
 We are research-focused and not a commercial company (which we do not want to
 become). So, if you want to contribute, consider donating some money via our
@@ -41,7 +42,7 @@ become). So, if you want to contribute, consider donating some money via our
 <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-everyone>`_
 (even small donations are highly appreciated).
 
-Another option is to include budget for ASReview in your grant proposal ;-) 
+Another option is to include budget for ASReview in your grant proposal ;-)
 
 
 Contribute
@@ -50,6 +51,6 @@ Contribute
 If you discover issues please let us know via `Github
 <https://github.com/asreview/asreview/issues/new/choose>`_. If you have ideas
 to solve your own or other issues, it is highly appreciate to contribute to
-the `development <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_. 
+the `development <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_.
 
 

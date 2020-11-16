@@ -2,7 +2,7 @@ Oracle Mode
 ===========
 
 This is a quick tour in using the ASReview LAB software in Oracle Mode, which
-is the user- friendly frontend for active learning in systematic reviews for
+is the user-friendly frontend for active learning in systematic reviews for
 unlabelled data with interaction by the user. A more elaborate instruction can
 be found on our `blogpost <https://asreview.nl/asreview-class-101/>`_
 

@@ -40,8 +40,6 @@ to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
    :maxdepth: 1
    :caption: Features
 
-   features/overview_features
-
    features/settings
 
    features/pre_screening
@@ -49,7 +47,6 @@ to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
    features/screening
 
    features/post_screening
-
 
 
 .. toctree::
