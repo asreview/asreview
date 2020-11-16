@@ -3,7 +3,7 @@ name: "Bug report \U0001F41B"
 about: "If something isn't working as expected \U0001F914."
 title: ''
 labels: bug
-assignees: J535D165, qubixes
+assignees: J535D165
 
 ---
 
