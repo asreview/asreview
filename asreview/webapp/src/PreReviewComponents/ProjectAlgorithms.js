@@ -281,7 +281,7 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
                             value="max"
                             color="default"
                           >
-                            {"Max (default)"}
+                            {"Certainty-based (default)"}
                           </MenuItem>
 
                           <MenuItem
