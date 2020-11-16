@@ -121,10 +121,11 @@ def standardize_dataframe(df, column_spec={}):
         else:
             try:
                 df['record_id'] = pd.to_numeric(df['record_id'])
+                df['record_id'] = df['record_id'].astype(int)
                 df.set_index('record_id', inplace=True)
             except ValueError:
-                logging.warning("Column 'record_id' has non-integer values. "
-                                "Continuing with new index.")
+                logging.warning("Column 'record_id' has non-integer or missing"
+                                " values. Continuing with new index.")
 
     # Create a new index if we haven't found it in the data.
     if df.index.name != "record_id":
