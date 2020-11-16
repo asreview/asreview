@@ -119,7 +119,7 @@ class ASReviewData():
         self.df = df
         self.data_name = data_name
         self.prior_idx = np.array([], dtype=int)
-        self._reverse_index = []
+        self._reverse_index = {}
         if df is None:
             self.column_spec = {}
             return
