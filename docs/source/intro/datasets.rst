@@ -91,6 +91,9 @@ managers  which are accepted by ASReview.
 +-----------------+---------------+----------------+--------------+--------------+
 | **Endnote**     | Supported     | Not supported  |              |              |
 +-----------------+---------------+----------------+--------------+--------------+
+| **Excel**       |               |                | Supported\*  |  Supported   |
+|                 |               |                |              |              |
++-----------------+---------------+----------------+--------------+--------------+
 | **Mendeley**    | Supported     |                |              |              |
 |                 |               |                |              |              |
 +-----------------+---------------+----------------+--------------+--------------+
@@ -104,6 +107,8 @@ managers  which are accepted by ASReview.
 - Supported: The data can be exported from the citation manager and imported in ASReview using this extension.
 - Not supported: The exported format can not be imported in ASReview.
 - (empty): The data cannot be exported from the citation manager in this format.
+
+\* Only comma seperated files are supported. Semicolon seperated files are not supported.
 
 Search Engines
 ~~~~~~~~~~~~~~
