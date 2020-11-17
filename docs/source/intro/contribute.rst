@@ -40,9 +40,14 @@ We are research-focused and not a commercial company (which we do not want to
 become). So, if you want to contribute, consider donating some money via our
 `crowdfunding platform
 <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-everyone>`_
-(even small donations are highly appreciated).
+ - even small donations are highly appreciated!!
+ 
 
-Another option is to include budget for ASReview in your grant proposal ;-)
+Collaborate
+~~~~~~~~~~~
+
+Another option is to include budget for ASReview in your grant proposal. If
+you are interested in this option, `contact <https://www.rensvandeschoot.com/contact/>`_ Prof. Dr. Rens van de Schoot. 
 
 
 Contribute
