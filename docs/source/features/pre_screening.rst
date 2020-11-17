@@ -49,6 +49,7 @@ III) Select a file available via a plug-in like the :doc:`COVID-19 plugin <../pl
 
 IV) Select one of the :doc:`example dataset <../lab/exploration>`.
 
+.. _partly-labeled-data:
 
 Partly Labeled Data
 -------------------
@@ -81,27 +82,14 @@ prior relevant/irrelevant papers in the section *Prior Knowledge*.
 [SCREENSHOT]
 
 
-Upload Data for Exploration Mode
---------------------------------
 
-You can explore a previously labeled dataset in ASReview LAB by adding an
-extra column called ‘debug_label’, indicating the relevant and irrelevant
-records with ones and zeroes. The relevant records will show up green during
-screening, just like the demo datasets described in the :doc:`exploration mode
-<../lab/exploration>`.
-
-1. Open ASReview LAB.
-2. Start a new project.
-3. Click the *Start Setup* button.
-4. Select your labeled dataset containing the ‘debug_label’.
-
-[SCREENSHOT]
-
+.. _select-prior-knowledge:
 
 Select Prior Knowledge
 ----------------------
 
 
+.. _select-model:
 
 Select Model
 ------------
