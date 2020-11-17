@@ -37,7 +37,8 @@ den Brand, Sybren Hindriks and Albert Harkema.  Many thanks to all the
 Principles of Elas
 ~~~~~~~~~~~~~~~~~~
 
-[INSERT FIGURE ZEN-ELAS]
+
+
 
 Elas is the mascotte of ASReview and your `Electronic Learning Assistant
 <https://asreview.nl/the-story-behind-elas/>`_ who will guide you through the
@@ -83,6 +84,9 @@ post processing  of the data (which reference managers are designed for). Be
 aware of the principle GIGO and  don’t blame Elas if the performance is not as
 good as expected (`and first check the quality of your data <https://asreview.nl/the-importance-of-abstracts/>`_).
 
+.. figure:: ../../images/TheZENofELAS.png
+   :alt: The Zen of Elas
+
 
 The Case of Systematic Reviewing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,4 +122,7 @@ extensible, allowing third parties to add modules  that enhance the pipeline
 and can process any text (although we consider systematic reviewing as a very
 useful approach).
 
-[INSERT IMAGE WORKFLOW]
+
+.. figure:: ../../images/FlowChartC.png
+   :alt: AI-aided Pipeline
+

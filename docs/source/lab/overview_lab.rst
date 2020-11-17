@@ -22,7 +22,7 @@ problem, we ask you to file an issue via `Github
 <https://github.com/asreview/asreview/issues/new/choose>`_.
 
 
-.. figure:: ../../figures/ASReviewLAB_explanation.png
+.. figure:: ../../images/ASReviewLAB_explanation_Website_v3_wit.png
    :alt: ASReview LAB overview
 
 
