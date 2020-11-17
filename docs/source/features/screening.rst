@@ -43,7 +43,9 @@ To make a decission:
 [SCREENSHOT]
 
 
-Undo last decision
+.. _undo-last:
+
+Undo Last Decision
 ------------------
 
 In some cases, you might want to change your previous decision. The screening
@@ -61,11 +63,6 @@ interface of ASReview LAB can be used to return to the previous decision.
 6. Continue labeling.
 
 
-It is possible to disable this option in the settings menu
-
-1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Uncheck the **Undo** field.
 
 Statistics Panel
 ----------------
@@ -150,17 +147,13 @@ Via the hamburger menu in the left-upper corner you can:
 [SCREENSHOT]
 
 
+.. _keybord-shortcuts:
+
 Keyboard shortcuts
 ------------------
 
-ASReview LAB supports the use of keyboard shortcuts during screening. By
-default, keyboard shortcuts are disabled. Enable the shortcuts as follows:
-
-1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Check the **keyboard settings** field.
-
-The table below lists the available keyboard shortcuts.
+ASReview LAB supports the use of keyboard shortcuts during screening. The
+table below lists the available keyboard shortcuts.
 
 +-----------------------------+------------------------+
 | Action                      | Shortcut               |
@@ -174,7 +167,7 @@ The table below lists the available keyboard shortcuts.
 
 .. note::
 
-    Return to previous decision, **u** or **Shift + u**, is only available
-    if the **Undo** feature has been toggled on in the settings panel.
+    The keyboard shortcuts is only available
+    if the **Undo** feature has been toggled on in the :ref:`settings panel<toggle-shortcuts>.
 
 

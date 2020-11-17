@@ -4,7 +4,8 @@ Settings
 .. contents:: Table of Contents
 
 
-[SCREENSHOT Settings]
+[SCREENSHOT Settings menu]
+
 
 Dark Mode
 ---------
@@ -47,3 +48,27 @@ Resulting in:
 
 	Your preference is saved in the browser.
 
+
+
+Toggle Undo option
+------------------
+
+It is possible to enable or disable the :ref:`undo option <export-project>` in the settings menu:
+
+1. Open ASReview LAB.
+2. Click on the settings icon (top right).
+3. Uncheck the **Undo** field.
+
+
+.. _toggle-shortcuts:
+
+Toggle Shortcuts
+----------------
+
+ASReview LAB supports the use of :ref:`keyboard shortcuts <keybord-shortcuts>`
+during screening. By default, keyboard shortcuts are disabled. Enable the
+shortcuts as follows:
+
+1. Open ASReview LAB.
+2. Click on the settings icon (top right).
+3. Check the **keyboard settings** field.
