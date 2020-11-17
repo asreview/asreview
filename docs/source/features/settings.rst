@@ -1,11 +1,8 @@
 Settings
 ========
 
-.. contents:: Table of Contents
-
-
-[SCREENSHOT Settings menu]
-
+.. figure:: ../../images/asreview_settings.png
+   :alt: ASReview settings
 
 Dark Mode
 ---------

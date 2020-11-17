@@ -17,7 +17,7 @@ Our advisory board consists of machine learning expert `Daniel Oberski
 Department of Methodology & Statistics, and the department of Biostatistics at
 the Julius Center, University Medical Center Utrecht),  full professor `Lars
 Tummers <https://larstummers.com/>`_ (Professor of Public Management and
-Behavior at Utrecht University), `Ayoub Bagheri <https://www.uu.nl/staff/ABagheri>`_ (NLP-expert at Utrecht University), 
+Behavior at Utrecht University), `Ayoub Bagheri <https://www.uu.nl/staff/ABagheri>`_ (NLP-expert at Utrecht University),
 `Bianca Kramer <https://www.uu.nl/staff/bmrkramer>`_ (Open Science expert at
 the Utrecht university library), `Jan de Boer
 <https://www.uu.nl/staff/JdeBoer>`_ (Information specialist at the Utrecht
@@ -30,7 +30,7 @@ The Art-Work of ASReview was developed by `Joukje Willemsen <http://www.statisti
 
 Moreover, many others helped the project, like researchers Gerbrich Ferdinands
 and Laura Hofstee, as well as many students like Yongchao Terry Ma, Sofie van
-den Brand, Sybren Hindriks and Albert Harkema.  Many thanks to all the
+den Brand, Sybren Hindriks and Albert Harkema. Many thanks to all the
 `contributors <https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md>`_!
 
 

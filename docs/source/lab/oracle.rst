@@ -10,9 +10,6 @@ This tutorial assumes you have already installed Python and ASReview. If this
 is not the case, check out the :doc:`../intro/installation` page.
 Also, you should have created a :doc:`project<launch>`.
 
-.. contents:: Table of Contents
-
-
 
 Select Dataset
 --------------
@@ -42,9 +39,9 @@ The first iteration of the :doc:`active learning cycle
 <../guides/activelearning>` requires some prior knowledge to work. This
 knowledge is used to train the first model. In this step you need to provide
 at least one relevant and one irrelevant document. To facilitate this, it is
-possible to :ref:`search for specific records <select-prior-knowledge>` within
+possible to :ref:`search for specific records <features/pre_screening:Search>` within
 your dataset (for finding prior relevant papers), ask the software to present
-a couple of :ref:`random documents <select-prior-knowledge>>` (for prior
+a couple of :ref:`random documents <features/pre_screening:Random>` (for prior
 irrelevant papers), or to upload :ref:`partly labelled data
 <partly-labeled-data>`.
 
@@ -100,7 +97,7 @@ During the screening or via the :doc:`dashboard <../features/post_screening>`
 you can download the results with your decisions by clicking the download
 icon. A dialog will show the download options. Choose from the menu whether
 you would like to download your results as a CSV or an Excel file and click
-`Download`. 
+`Download`.
 
 
 [NEW SCREENSHOT NEEDED OF DOWNLOAD POP-UP WITHIN THE SCREENING SCREEN IN THE BACKGROUND]
@@ -110,6 +107,6 @@ Return to Project Dashboard
 ---------------------------
 
 If you want to return to the project dashboard, click the hamburger menu and
-click **Project Dashboard**. 
+click **Project Dashboard**.
 
 [SCREENSHOT HAMBURGER MENU]

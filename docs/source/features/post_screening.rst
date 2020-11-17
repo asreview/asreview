@@ -7,8 +7,6 @@ top-left. Below we will explain the options in the project dashboard.
 
 [SCREENSHOT OF HAMBURGER MENU]
 
-.. contents:: Table of Contents
-
 
 Download Results
 ----------------

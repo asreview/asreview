@@ -7,16 +7,14 @@ on the content of the text so that you can make your deicssion as a true
 Oracle. There are few features you can access during screening which we
 present below.
 
-.. contents:: Table of Contents
 
-
-Auto-Save
----------
+Autosave
+--------
 
 Your work is saved automatically so you do not need to press any buttons,
 or get stressed!
 
-.. figure:: ../../images/auto_save.png
+.. figure:: ../../images/asreview_screening_auto_save.png
    :alt: Auto Save
 
 
@@ -34,11 +32,11 @@ To make a decission:
 
 .. warning::
 
-    If you are in doubt, think harder and take your time to make a decission, you
-    are the oracle. Based on your input a new model will be trained in the
-    background. If you make decissions faster than the model needs for computing
-    new relevance scores, you will simply be presented with the record next in
-    line (etcetera), untill the model is done training.
+  If you are in doubt, think harder and take your time to make a decision, you
+  are the oracle. Based on your input, a new model will be trained in the
+  background. If you make decisions faster than the model needs for computing
+  new relevance scores, you will simply be presented with the record next in
+  line (etcetera) until the model is done training.
 
 [SCREENSHOT]
 
@@ -165,9 +163,9 @@ table below lists the available keyboard shortcuts.
 | Return to previous decision | **u** or **Shift + u** |
 +-----------------------------+------------------------+
 
-.. note::
+.. note:
 
-    The keyboard shortcuts is only available
-    if the **Undo** feature has been toggled on in the :ref:`settings panel<toggle-shortcuts>.
+  Keyboard shortcuts are only available when the **Undo** feature has been
+  enabled in the :ref:`settings panel<toggle-shortcuts>.
 
 

@@ -1,14 +1,12 @@
 Pre-Screening
 =============
 
-Before you can actually start screening you have to start a project and set-up
-your model. We discuss the options below.
-
-.. contents:: Table of Contents
+Before you can actually start screening you have to initialize a project,
+select a dataset, prior knowledge and a model.
 
 
-Start Set-up
-------------
+Start Setup
+-----------
 
 After you have started a project, you are redirected to the project dashboard
 and you will first be asked to initialize the setup.
@@ -17,7 +15,8 @@ and you will first be asked to initialize the setup.
 2. Start a new project.
 3. Click the *Start Setup* button.
 
-[SCREENSHOT]
+.. figure:: ../../images/asreview_project_page_start_setup.png
+   :alt: ASReview project setup
 
 Already in this project dashboard some of the features are available which are
 described in the :doc:`post_screening` section.
@@ -32,22 +31,33 @@ To select a dataset:
 3. Click the *Start Setup* button.
 4. Choose one of the four options to select a dataset and click upload:
 
-I) Upload your file by *Drag 'n' Drop*, or select your file via the browser.
+.. figure:: ../../images/asreview_prescreening_datasets.png
+   :alt: ASReview dataset selector
+
+From File
+~~~~~~~~~
+
+Upload your file by *Drag 'n' Drop*, or select your file via the browser.
 The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a
 file is uploaded and reckognized as one of the available formats, it will
 display the message *Successful upload* and provides the number of records in
 the dataset.
 
+From URL
+~~~~~~~~
 
-II) Fill in a link to a file from the Internet, for example from our 'dataset repository <https://github.com/asreview/systematic-review-datasets>`_.
+Fill in a link to a file on the Internet. For example, a link from this
+`dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
 
-III) Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
+From Plugin
+~~~~~~~~~~~
 
-IV) Select one of the :ref:`example dataset <demonstration-datasets>`.
+Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
 
+Example Datasets
+~~~~~~~~~~~~~~~~
 
-[SCREENSHOT]
-
+Select one of the :ref:`example datasets <demonstration-datasets>`.
 
 .. _partly-labeled-data:
 
@@ -76,34 +86,36 @@ To use a partly labeled dataset:
 3. Click the *Start Setup* button.
 4. Select your partly labeled dataset.
 
-ASReview will reckognize the column with the labels and show you the number of
+ASReview will recognize the column with the labels and show you the number of
 prior relevant/irrelevant papers in the section *Prior Knowledge*.
-
-[SCREENSHOT]
-
-
 
 .. _select-prior-knowledge:
 
 Select Prior Knowledge
 ----------------------
 
-The first iteration of the :doc:`active learning cycle <../guides/activelearning>` requires some prior knowledge
-to work. This knowledge is used to train the first model. In this step you
-need to provide at least one relevant and one irrelevant document. To
-facilitate this, it is possible to search within your dataset (for finding
-prior relevant papers) or ask the software to present a couple of random
-documents (for prior irrelevant papers).
+The first iteration of the :doc:`active learning cycle
+<../guides/activelearning>` requires prior knowledge to work. This knowledge
+is used to train the first model. In this step you need to provide at least
+one relevant and one irrelevant document. To facilitate this, it is possible
+to search within your dataset (for finding prior relevant papers) or ask the
+software to present a couple of random documents (for prior irrelevant
+papers).
 
 1. Open ASReview LAB.
 2. Start a new project.
 3. Click the *Start Setup* button.
 4. Select a dataset.
-5. Click **SEARCH** or **RANDOM** to select your prior knowledge.
+5. Click **Search** or **Random** to select your prior knowledge.
 
 
-.. figure:: ../../images/3_start.png
-   :alt:
+.. figure:: ../../images/asreview_prescreening_prior.png
+   :alt: ASReview prior knowledge selector
+
+After selecting some prior information, you can click **Next**.
+
+.. figure:: ../../images/asreview_prescreening_prior_next.png
+   :alt: ASReview prior knowledge selector next
 
 
 Search
@@ -116,30 +128,19 @@ keywords or title, or a combination thereof. Enter your search terms (Use
 'enter' to start searching).
 
 
-.. figure:: ../../images/3_include_publications.png
-   :alt:
+.. figure:: ../../images/asreview_prescreening_prior_search.png
+   :alt: ASReview prior knowledge search
 
 
-
-Click the document you had in
-mind and click Relevant (Clicking Irrevant results in an irrelevant document).
-
-
-.. figure:: ../../images/3.3_include_search.png
-   :alt:
-
-
+Click the document you had in mind and click Relevant (Clicking Irrevant
+results in an irrelevant document).
 
 The Prior Knowledge step will now show 1 relevant document. This is already
 enough to  proceed to the next step. Note that there are no restrictions on
 the number of publications you need to provide, but preferably provide 1-5
 relevant documents.
 
-If you are done click **NEXT**.
-
-
-.. figure:: ../../images/3_3relevant.png
-   :alt:
+If you are done click **Next**.
 
 
 Random
@@ -152,26 +153,11 @@ here will most probable be irrelevant for your study. Click on random to and a
 couple of random documents will be shown. Indicate for each document whether
 it is relevant or irrelevant.
 
-
-.. figure:: ../../images/4_label_random_2.png
-   :alt:
+.. figure:: ../../images/asreview_prescreening_prior_random.png
+   :alt: ASReview prior knowledge random
 
 After labeling a couple of randomly selected documents, ASReview LAB will
-ask you whether you want to stop. Click on **STOP** and click **NEXT**.
-
-
-.. figure:: ../../images/4_label_random_next.png
-   :alt:
-
-
-Partly Labeled Data
-~~~~~~~~~~~~~~~~~~~
-
-If you have uploaded a :ref:`partly labeled dataset <partly-labeled-data>`,
-the labels will be automatically detected and used for prior knowledge. You
-can click **NEXT** and continue screening the unlabeled records in the
-dataset.
-
+ask you whether you want to stop. Click on **STOP** and click **Next**.
 
 
 .. _select-model:
@@ -187,12 +173,13 @@ To change the default setting:
 
 1. Open ASReview LAB.
 2. Start a new project, upload a dataset and select prior knowledge.
-3. Click on the **edit** button.
+3. Click on the **edit** icon (top right).
 4. Using the drop-down menu select a different classifier, query strategy or feature extraction technique.
 5. Click Finish.
 
 
-[ADD SCREEN SHOT]
+.. figure:: ../../images/asreview_prescreening_model.png
+   :alt: ASReview model
 
 
 The classifier is the machine learning model used to compute the relevance

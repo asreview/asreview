@@ -12,10 +12,6 @@ have created a :doc:`project<launch>` - the name is not
 relevant, but is adviced to have a test-prefix.
 
 
-.. contents:: Table of Contents
-
-
-
 Upload Data for Exploration Mode
 --------------------------------
 
@@ -68,8 +64,7 @@ In the next step, you are asked to add prior inclusions. Select two (or more)
 papers of your choice and copy-paste the title in the search bar. For the test
 datasets you can use the following titles of papers:
 
-PTSD
-~~~~
+PTSD:
 
 - Latent trajectories of trauma symptoms and resilience: the 3-year longitudinal prospective USPER study of Danish veterans deployed in Afghanistan
 - A Latent Growth Mixture Modeling Approach to PTSD Symptoms in Rape Victims
@@ -78,8 +73,7 @@ PTSD
 - Trajectories of trauma symptoms and resilience in deployed US military service members: Prospective cohort study
 
 
-Hall
-~~~~
+Hall:
 
 - Predicting Defect-Prone Software Modules at Different Logical Levels
 - Quantitative analysis of faults and failures in a complex software system
@@ -88,8 +82,7 @@ Hall
 - Robust prediction of fault-proneness by random forests
 
 
-ACE
-~~~
+ACE:
 
 - Quinapril in patients with congestive heart failure: controlled trial versus captopril.
 - Clinical effects of early angiotensin-converting enzyme inhibitor treatment for acute myocardial infarction are similar in the presence and absence of aspirin: systematic overview of individual data from 96,712 randomized patients. Angiotensin-converting Enzyme Inhibitor Myocardial Infarction Collaborative Group.
@@ -109,7 +102,7 @@ START reviewing
 
 Start reviewing the first 50, 100 or even 200 papers. Abstracts in green are
 relevenant papers and abstracts in black are irrelevant. This is based on a
-fully labeled dataset. 
+fully labeled dataset.
 
 For the **PTSD** dataset we expect you to find about 7 out of 38 relevant
 papers (in red) after screening 50 papers, 19 after screening 100 papers
@@ -133,16 +126,14 @@ the relevant papers by using ASReview LAB compared to random screening papers
 one by one. These animated plots are all based on a single trial per dataset
 in which only one paper was added as relevant and one as irrelevant.
 
-PTSD
-~~~~
+PTSD:
 
 38 inclusions out of 5,782 papers
 
 .. figure:: ../../images/gifs/ptsd_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the ptsd dataset
 
-Hall
-~~~~
+Hall:
 
 104 inclusions out of 8,911 papers)
 
@@ -150,8 +141,7 @@ Hall
    :alt: Recall curve for the software dataset
 
 
-ACE
-~~~
+ACE:
 
 41 inclusions out of 2,544 papers
 

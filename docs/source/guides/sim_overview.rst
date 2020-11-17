@@ -70,7 +70,7 @@ Simulation options
 
 ASReview provides an extensive simulation interface via the command line. An
 overview of the options are found on the :ref:`ASReview command line interface
-for simulation <cli:Simulate>` page. This section highlights some of the more
+for simulation <API/cli:Simulate>` page. This section highlights some of the more
 often used options here. When no additional arguments are specified in the
 ``asreview simulate`` command, default settings are used.
 

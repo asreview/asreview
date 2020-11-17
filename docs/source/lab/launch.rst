@@ -9,9 +9,6 @@ a project.
 [ADD SCREENSHOT OF PROJECT PAGE WITH PANELS]
 
 
-.. contents:: Table of Contents
-
-
 Launching ASReview Lab
 ----------------------
 
