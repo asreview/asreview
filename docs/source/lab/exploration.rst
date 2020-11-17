@@ -1,25 +1,43 @@
 Exploration Mode
 ================
 
-This tutorial shows how the active learning software and algorithms can be
-explored on already labelled data. In this mode relevant articles are displayed
-in green and a so-called recall curce can be obtained.
+This tutorial shows how the active learning software and the performance of
+:ref:`different algorithms <feature-extraction-table>` can be explored on
+already labelled data. In this mode relevant articles are displayed in green
+and a so-called recall curce can be obtained.
 
 This tutorial assumes you have already installed Python and ASReview. If this
 is not the case, see :doc:`../intro/installation`. Also, you should
-have created a :doc:`project<launch>` and selected **Exploration** mode. The name is not
+have created a :doc:`project<launch>` - the name is not
 relevant, but is adviced to have a test-prefix.
 
 
 .. contents:: Table of Contents
 
 
-Upload a dataset
-----------------
 
-Select one of the three test-datasets available by default. The datasets
-available are PTSD, Hall and AceInhibitors. See a description of the datasets
-below.
+Upload Data for Exploration Mode
+--------------------------------
+
+You can explore a previously labeled dataset in ASReview LAB by adding an
+extra column called ‘debug_label’ to your dataset. This column should indicate
+the relevant (1) and irrelevant (0) records. The relevant records will show up
+green during screening.
+
+1. Open ASReview LAB.
+2. Start a new project.
+3. Click the *Start Setup* button.
+4. Select your labeled dataset containing the ‘debug_label’.
+
+
+[SCREENSHOT]
+
+
+Upload a Built-in dataset
+-------------------------
+
+Select one of the three :ref:`test-datasets <demonstration-datasets>` available. The datasets
+available are PTSD, Hall and AceInhibitors:
 
 1. The PTSD data containing the results of a systematic search for
    longitudinal studies that applied unsupervised machine learning
@@ -40,15 +58,15 @@ below.
    (`https://doi.org/10.1197/jamia.M1929 <https://doi.org/10.1197/jamia.M1929>`__)
    with 2,544 papers of which 41 inclusions (1.61%).
 
+[SCREENSHOT]
 
-You can also use your own dataset and a column titled :doc:debug_label
-<../features/pre-screening>` is needed. 
 
 Prior Inclusions
 ----------------
 
-In the next step, Step 3, you are asked to add prior inclusions. Select 2
-papers of your dataset of choice and copy-paste the title in the search bar.
+In the next step, you are asked to add prior inclusions. Select two (or more)
+papers of your choice and copy-paste the title in the search bar. For the test
+datasets you can use the following titles of papers:
 
 PTSD
 ~~~~
@@ -80,17 +98,18 @@ ACE
 - Comparison of perindopril versus captopril for treatment of acute myocardial infarction.
 
 
-Random papers
--------------
+Prior Exclusions
+----------------
 
-Mark all five papers in Step 4 as irrelevant.
+Mark five papers as irrelevant.
+
 
 START reviewing
 ---------------
 
-Start reviewing the first 50, 100 or even 200 papers. Abstracts in red are
+Start reviewing the first 50, 100 or even 200 papers. Abstracts in green are
 relevenant papers and abstracts in black are irrelevant. This is based on a
-fully labeled dataset. Hint: open the statistics panel on the top right.
+fully labeled dataset. 
 
 For the **PTSD** dataset we expect you to find about 7 out of 38 relevant
 papers (in red) after screening 50 papers, 19 after screening 100 papers
@@ -104,13 +123,7 @@ For the **ACE** dataset we expect you to find 16 out of 41 relevant papers
 (in red) after screening 50 papers, 27 after screening 100 papers and 32
 after 200 papers.
 
-Export data
------------
 
-Export the results (in the menu; top left) and open the file in excel.
-The papers are now presented starting with your inclusions – unseen
-papers papers ordered from most to least relevant according to the last
-iteration of the software – your exclusions.
 
 Results
 -------
