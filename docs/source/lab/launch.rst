@@ -6,6 +6,9 @@ This is a quick tour in launching ASReview and starting, opening and importing
 a project.
 
 
+[ADD SCREENSHOT OF PROJECT PAGE WITH PANELS]
+
+
 .. contents:: Table of Contents
 
 
@@ -26,7 +29,7 @@ Launch ASReview LAB by running the following command in the command line
 Create a New Project
 --------------------
 
-To start with ASReview, first a project needs to be made. Click on the
+To start with ASReview, first a project needs to be initialized. Click on the
 red button in the bottom right corner, select **new** and a pop-screen will appear.
 
 .. figure:: ../../images/v0.14_01_empty_project_screen_new_project.png
@@ -47,6 +50,35 @@ on your systematic review project.
 
 
 
+
+Open a Project
+--------------
+
+If you want to continue with an existing project, simply click on the title.
+
+.. figure:: ../../images/v0.14_04_overview_projects.png
+   :alt: Project overview
+
+
+
+
+Import a Project
+----------------
+
+You can also import an ``.asreview`` project file which was :ref:`exported
+<export-project>`. Importing can be done by clicking the red button in the
+bottom right corner of the home page. In the pop-up screen choose the project
+file from your computer and click `Import`. After a successful project
+initialization, a project dashboard will be shown.
+
+
+.. figure:: ../../images/v0.14_05_empty_project_screen_import_project.png
+   :alt:
+
+
+
+
+
 Project Dashboard
 -----------------
 
@@ -59,30 +91,3 @@ The other options in the project dashboard are desribed in the :doc:`features
 
 .. figure:: ../../images/v0.14_03_project_dashboard_empty.png
    :alt: Project dashboard in setup stage
-
-
-
-Open a Project
---------------
-
-If you want to continue with an existing project, simply click on the title.
-
-.. figure:: ../../images/v0.14_04_overview_projects.png
-   :alt: Project overview
-
-
-
-Import a Project
-----------------
-
-You can also import an ``.asreview`` project file by clicking the red button
-in the bottom right corner of the home page. In the pop-up screen choose the
-project file from your computer and click `Import`. After a successful project
-initialization, a project dashboard will be shown.
-
-
-.. figure:: ../../images/v0.14_05_empty_project_screen_import_project.png
-   :alt:
-
-
-
