@@ -4,25 +4,40 @@ The Zen of Elas
 Research Team
 ~~~~~~~~~~~~~
 
-ASReview is a research project coordinated by `Rens van de Schoot <www.rensvandeschoot.com>`_, full Professor at
-the Department of Methodology & Statistics at Utrecht University, The
-Netherlands. Also, top researcher and machine learning expert Daniel Oberski
-is part of our team, as well as Lars Tummers, Professor of Public Management
-and Behavior at Utrecht University. He has extensive experience with
-conducting systematic reviews in the social and behavioral sciences.
+ASReview is a research project coordinated by `Rens van de Schoot
+<www.rensvandeschoot.com>`_ (full Professor at the Department of Methodology &
+Statistics and ambassador of the focus area Applied Data Science at Utrecht
+University, The Netherlands), together with `Jonathan de Bruin
+<https://github.com/J535D165>`_, Lead engineer of the ASReview project and
+working at the depeartment of Information and Technology Services at Utrecht
+University.
 
-Our maintainers are Jonathan de Bruin (Lead engineer) and Raoul Schram
-together with many of their colleagues including Parisa Zahedi who programmed
-the very first simulation study. We are supported by systematic review
-specialists at the Utrecht University Library (Bianca Kramer, Jan de Boer,
-Felix Weijdema). The Art-Work was developed by `Joukje Willemsen <http://www.statistics-illustrated.com/>`_.
+Our advisory board consists of machine learning expert `Daniel Oberski
+<http://daob.nl/about-me/>`_, associate professor at Utrecht University’s
+Department of Methodology & Statistics, and the department of Biostatistics at
+the Julius Center, University Medical Center Utrecht),  full professor `Lars
+Tummers <https://larstummers.com/>`_ (Professor of Public Management and
+Behavior at Utrecht University), `Ayoub Bagheri <https://www.uu.nl/staff/ABagheri>`_ (NLP-expert at Utrecht University), 
+`Bianca Kramer <https://www.uu.nl/staff/bmrkramer>`_ (Open Science expert at
+the Utrecht university library), `Jan de Boer
+<https://www.uu.nl/staff/JdeBoer>`_ (Information specialist at the Utrecht
+university library), `Felix Weijdema <https://www.uu.nl/staff/FPWeijdema>`_
+(Systematic review specialist at the Utrecht university library), and `Martijn
+Hutijs <https://www.uu.nl/staff/MTIHuijts>`_ (UX-expert at the department Test
+and Quality Services at Utrecht Unviversity).
 
-Moreover, many others helped the project: Many thanks to all the
+The Art-Work of ASReview was developed by `Joukje Willemsen <http://www.statistics-illustrated.com/>`_.
+
+Moreover, many others helped the project, like researchers Gerbrich Ferdinands
+and Laura Hofstee, as well as many students like Yongchao Terry Ma, Sofie van
+den Brand, Sybren Hindriks and Albert Harkema.  Many thanks to all the
 `contributors <https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md>`_!
 
 
 Principles of Elas
 ~~~~~~~~~~~~~~~~~~
+
+[INSERT FIGURE ZEN-ELAS]
 
 Elas is the mascotte of ASReview and your `Electronic Learning Assistant
 <https://asreview.nl/the-story-behind-elas/>`_ who will guide you through the
