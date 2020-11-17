@@ -11,7 +11,7 @@ Start Set-up
 ------------
 
 After you have started a project, you are redirected to the project dashboard
-and you will first be asked to start the setup.
+and you will first be asked to initialize the setup.
 
 1. Open ASReview LAB.
 2. Start a new project.
@@ -38,16 +38,16 @@ file is uploaded and reckognized as one of the available formats, it will
 display the message *Successful upload* and provides the number of records in
 the dataset.
 
-[SCREENSHOT]
 
-II) Provide a link to [????????]
-
-[SCREENSHOT]
-
+II) Fill in a link to a file from the Internet, for example from our 'dataset repository <https://github.com/asreview/systematic-review-datasets>`_.
 
 III) Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
 
-IV) Select one of the :doc:`example dataset <../lab/exploration>`.
+IV) Select one of the :ref:`example dataset <demonstration-datasets>`.
+
+
+[SCREENSHOT]
+
 
 .. _partly-labeled-data:
 
@@ -87,6 +87,91 @@ prior relevant/irrelevant papers in the section *Prior Knowledge*.
 
 Select Prior Knowledge
 ----------------------
+
+The first iteration of the :doc:`active learning cycle <../guides/activelearning>` requires some prior knowledge
+to work. This knowledge is used to train the first model. In this step you
+need to provide at least one relevant and one irrelevant document. To
+facilitate this, it is possible to search within your dataset (for finding
+prior relevant papers) or ask the software to present a couple of random
+documents (for prior irrelevant papers).
+
+1. Open ASReview LAB.
+2. Start a new project.
+3. Click the *Start Setup* button.
+4. Select a dataset.
+5. Click **SEARCH** or **RANDOM** to select your prior knowledge.
+
+
+.. figure:: ../../images/3_start.png
+   :alt:
+
+
+Search
+~~~~~~
+
+Let's start with finding a prior relevant document. Probabily the most
+efficient way to do this is by searching for a specific document you already
+know is relevant. Click the search button and search your dataset by authors,
+keywords or title, or a combination thereof. Enter your search terms (Use
+'enter' to start searching).
+
+
+.. figure:: ../../images/3_include_publications.png
+   :alt:
+
+
+
+Click the document you had in
+mind and click Relevant (Clicking Irrevant results in an irrelevant document).
+
+
+.. figure:: ../../images/3.3_include_search.png
+   :alt:
+
+
+
+The Prior Knowledge step will now show 1 relevant document. This is already
+enough to  proceed to the next step. Note that there are no restrictions on
+the number of publications you need to provide, but preferably provide 1-5
+relevant documents.
+
+If you are done click **NEXT**.
+
+
+.. figure:: ../../images/3_3relevant.png
+   :alt:
+
+
+Random
+~~~~~~
+
+You also need to provide at least one prior irrelevant document and we will
+use the random option. Given that the majority of documents in the dataset is
+probably irrelevant (extreme inbalanced data problem), the documents presented
+here will most probable be irrelevant for your study. Click on random to and a
+couple of random documents will be shown. Indicate for each document whether
+it is relevant or irrelevant.
+
+
+.. figure:: ../../images/4_label_random_2.png
+   :alt:
+
+After labeling a couple of randomly selected documents, ASReview LAB will
+ask you whether you want to stop. Click on **STOP** and click **NEXT**.
+
+
+.. figure:: ../../images/4_label_random_next.png
+   :alt:
+
+
+Partly Labeled Data
+~~~~~~~~~~~~~~~~~~~
+
+If you have uploaded a :ref:`partly labeled dataset <partly-labeled-data>`,
+the labels will be automatically detected and used for prior knowledge. You
+can click **NEXT** and continue screening the unlabeled records in the
+dataset.
+
 
 
 .. _select-model:
