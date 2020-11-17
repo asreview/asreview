@@ -3,7 +3,7 @@ Exploration Mode
 
 This tutorial shows how the active learning software and the performance of
 :ref:`different algorithms <feature-extraction-table>` can be explored on
-already labelled data. In this mode relevant articles are displayed in green
+already labeled data. In this mode relevant articles are displayed in green
 and a so-called recall curce can be obtained.
 
 This tutorial assumes you have already installed Python and ASReview. If this

@@ -65,7 +65,7 @@ interface of ASReview LAB can be used to return to the previous decision.
 Statistics Panel
 ----------------
 
-For unlabelled data the software offers some insightful graphs to keep track
+For unlabeled data the software offers some insightful graphs to keep track
 of your screening process so far. To open the statistics panel:
 
 1. Open ASReview LAB.
@@ -86,9 +86,9 @@ to the total number of records in the dataset.
 
 The second plot is a progress plot. On the x-axis the number of records
 screened is tracked. The y-axis shows a moving average. It displays the ratio
-between relevant and irrelevant records for a batch of 10 labelled records. If
+between relevant and irrelevant records for a batch of 10 labeled records. If
 you hoover over the plot you can see the moving average for any batch of 10
-labelled records.
+labeled records.
 
 Underneath the progress plot the number of irrelevant records is shown, which
 might help in deciding when to stop reviewing.

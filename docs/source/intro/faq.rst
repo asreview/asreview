@@ -240,7 +240,7 @@ This latter will save you from running into errors. Then simply import this
 updated file to ASReview and you can continue the screening process.
 
 
-Is it possible to get the inclusion likelihood for unlabelled papers?
+Is it possible to get the inclusion likelihood for unlabeled papers?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Unfortunately, no. Getting unbiased estimates for inclusion probabilities is a

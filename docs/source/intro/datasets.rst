@@ -7,9 +7,9 @@ search. To create such a dataset for a systematic review, typically an `online
 library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
-It is possible to use your own dataset with unlabelled records, partly
-labelled records (where the labelled records are used for training a model),
-or fully labelled records (used for the Simulation mode). For testing and
+It is possible to use your own dataset with unlabeled records, partly
+labeled records (where the labeled records are used for training a model),
+or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
 `Demonstration Datasets`_. Also, a plugin with :doc:`Corona related
 publications <../plugins/covid19>` is available.

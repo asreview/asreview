@@ -7,7 +7,7 @@ Why run a simulation?
 ---------------------
 
 Doing simulations can be a great way to assess how well ASReview performs for
-your particular purposes. The user can run simulations on previously labelled
+your particular purposes. The user can run simulations on previously labeled
 datasets to see how much time the user could have saved using ASReview.
 
 Doing the simulation
@@ -86,7 +86,7 @@ specific set of starting papers, you can use ``--prior_idx`` to select the
 indices of the papers you want to start the simulation with.
 
 The ``--n_instances`` argument controls the number of records that have to be
-labelled before the model is retrained again and is set at 1 by default. If
+labeled before the model is retrained again and is set at 1 by default. If
 you want to reduce the number of training iterations, for example to limit the
 size of your state file and the time to simulate, you can increase
 ``--n_instances``.

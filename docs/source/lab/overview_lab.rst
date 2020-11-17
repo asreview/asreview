@@ -12,7 +12,7 @@ implements an :doc:`oracle<../lab/oracle>`,
 a systematic review with interaction by the user.  The simulation mode is used
 for simulation of the ASReview performance on existing systematic reviews.
 The exploration mode can be used for teaching purposes and includes several
-pre-loaded labelled datasets.
+pre-loaded labeled datasets.
 
 
 If you encounter any issues during the process,  first consult the

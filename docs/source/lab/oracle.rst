@@ -3,7 +3,7 @@ Oracle Mode
 
 This is a quick tour in using the ASReview LAB software in Oracle Mode, which
 is the user-friendly frontend for active learning in systematic reviews for
-unlabelled data with interaction by the user. A more elaborate instruction can
+unlabeled data with interaction by the user. A more elaborate instruction can
 be found on our `blogpost <https://asreview.nl/asreview-class-101/>`_
 
 This tutorial assumes you have already installed Python and ASReview. If this
@@ -42,7 +42,7 @@ at least one relevant and one irrelevant document. To facilitate this, it is
 possible to :ref:`search for specific records <features/pre_screening:Search>` within
 your dataset (for finding prior relevant papers), ask the software to present
 a couple of :ref:`random documents <features/pre_screening:Random>` (for prior
-irrelevant papers), or to upload :ref:`partly labelled data
+irrelevant papers), or to upload :ref:`partly labeled data
 <partly-labeled-data>`.
 
 

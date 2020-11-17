@@ -31,7 +31,7 @@ datasets, inclusion rates were centred around 1-2 per cent.
 
 .. raw:: html
 
-   <!-- Preprocessing scripts and resulting datasets can be found on the [GitHub repository for this thesis](https://github.com/GerbrichFerdinands/asreview-thesis). Datasets were labelled to indicate which candidate studies were included in the systematic review, thereby indicating relevant publications.  -->
+   <!-- Preprocessing scripts and resulting datasets can be found on the [GitHub repository for this thesis](https://github.com/GerbrichFerdinands/asreview-thesis). Datasets were labeled to indicate which candidate studies were included in the systematic review, thereby indicating relevant publications.  -->
 
 **Table 1 - Statistics on the systematic review datasets**
 
