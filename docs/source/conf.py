@@ -30,7 +30,7 @@ autodoc_mock_imports = [
     "modAL.models",
     "modAL.utils.data",
     "modAL.utils.selection",
-    "RISparser",
+    "rispy",
     "pandas",
     "tensorflow",
     "tensorflow.keras",
