@@ -18,12 +18,12 @@ class BaseFeatureExtraction(BaseModel):
 
         Arguments
         ---------
-        texts: np.array
+        texts: numpy.ndarray
             A sequence of texts to be transformed. They are not yet tokenized.
 
         Returns
         -------
-        np.array:
+        numpy.ndarray
             Feature matrix representing the texts.
         """
         self.fit(texts)
@@ -53,13 +53,12 @@ class BaseFeatureExtraction(BaseModel):
     def fit(self, texts):
         """Fit the model to the texts.
 
-
         It is not always necessary to implement this if there's not real
         fitting being done.
 
         Arguments
         ---------
-        texts: np.array
+        texts: numpy.ndarray
             Texts to be fitted.
         """
         pass
@@ -70,12 +69,12 @@ class BaseFeatureExtraction(BaseModel):
 
         Arguments
         ---------
-        texts: np.array
+        texts: numpy.ndarray
             A sequence of texts to be transformed. They are not yet tokenized.
 
         Returns
         -------
-        np.array:
+        numpy.ndarray
             Feature matrix representing the texts.
         """
         raise NotImplementedError

@@ -58,7 +58,7 @@ def standardize_dataframe(df, column_spec={}):
 
     Arguments
     ---------
-    df: pd.DataFrame
+    df: pandas.DataFrame
         Unclean dataframe to be cleaned up.
 
     Returns

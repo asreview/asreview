@@ -47,7 +47,7 @@ class BaseState(ABC):
 
         Arguments
         ---------
-        y: np.array
+        y: numpy.ndarray
             One dimensional integer numpy array with inclusion labels.
         """
         raise NotImplementedError
@@ -60,7 +60,7 @@ class BaseState(ABC):
 
         Arguments
         ---------
-        y: np.array
+        y: numpy.ndarray
             One dimensional integer numpy array with final inclusion labels.
         """
         raise NotImplementedError
@@ -89,7 +89,7 @@ class BaseState(ABC):
 
         Returns
         -------
-        np.ndarray or sklearn.sparse.csr_matrix:
+        np.ndarray, sklearn.sparse.csr_matrix:
             Feature matrix as computed by the feature extraction model.
         """
         raise NotImplementedError
@@ -132,7 +132,7 @@ class BaseState(ABC):
 
         Arguments
         ---------
-        indices: list, np.array
+        indices: list, numpy.ndarray
             A list of indices used for training.
         labels: list
             A list of labels corresponding with the training indices.
@@ -147,9 +147,9 @@ class BaseState(ABC):
 
         Arguments
         ---------
-        indices: list, np.array
+        indices: list, numpy.ndarray
             A list of indices used for unlabeled pool.
-        pred: np.array
+        pred: numpy.ndarray
             Array of prediction probabilities for unlabeled pool.
         i: int
             The query number.
@@ -161,7 +161,7 @@ class BaseState(ABC):
 
         Returns
         -------
-        bool:
+        bool
             True if empty.
         """
         return self.n_queries() == 0
@@ -172,7 +172,7 @@ class BaseState(ABC):
 
         Returns
         -------
-        int:
+        int
             Number of queries.
         """
         raise NotImplementedError
@@ -194,7 +194,7 @@ class BaseState(ABC):
             , train_idx, pool_idx.
         query_i: int
             Query number, should be between 0 and self.n_queries().
-        idx: int, np.array, list
+        idx: int, numpy.ndarray,list
             Indices to get in the returned array.
         """
         raise NotImplementedError
@@ -209,9 +209,9 @@ class BaseState(ABC):
 
         Returns
         -------
-        np.array:
+        numpy.ndarray:
             Current labels of dataset.
-        np.array:
+        numpy.ndarray:
             Current training indices.
         dict:
             Dictionary containing the sources of the labels.
