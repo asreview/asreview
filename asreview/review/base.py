@@ -38,9 +38,9 @@ def _merge_prior_knowledge(included, excluded, return_labels=True):
 
     Parameters
     ----------
-    included: numpy.array
+    included: numpy.ndarray
         Array of indices which should be included.
-    excluded: numpy.array
+    excluded: numpy.ndarray
         Array of indices which should be excluded.
     return_labels: bool
         Return the labels of the merged priors.
@@ -99,7 +99,7 @@ class BaseReview(ABC):
         process.
     n_queries: int
         Number of steps/queries to perform. Set to None for no limit.
-    start_idx: numpy.array
+    start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
         be already labeled. Failing to do so might result bad behaviour.
     state_file: str
@@ -374,7 +374,7 @@ class BaseReview(ABC):
 
         Returns
         -------
-        np.array:
+        numpy.ndarray:
             Indices of records queried.
         """
 
@@ -409,9 +409,9 @@ class BaseReview(ABC):
 
         Arguments
         ---------
-        query_idx: list, np.array
+        query_idx: list, numpy.ndarray
             Indices to classify.
-        inclusions: list, np.array
+        inclusions: list, numpy.ndarray
             Labels of the query_idx.
         state: BaseLogger
             Logger to store the classification in.

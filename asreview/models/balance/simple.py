@@ -29,18 +29,18 @@ class SimpleBalance(BaseBalance):
 
         Arguments
         ---------
-        X: np.array
+        X: numpy.ndarray
             Complete matrix of all samples.
-        y: np.array
+        y: numpy.ndarray
             Classified results of all samples.
         extra_vars: dict:
             Extra variables that can be passed around between functions.
 
         Returns
         -------
-        np.array:
+        numpy.ndarray:
             Training samples.
-        np.array:
+        numpy.ndarray:
             Classification of training samples.
         """
         return X[train_idx], y[train_idx]

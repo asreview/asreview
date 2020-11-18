@@ -88,7 +88,7 @@ def get_fuzzy_scores(keywords, match_strings):
 
     Returns
     -------
-    np.ndarray:
+    numpy.ndarray
         Array of scores ordered in the same way as the str_list input.
     """
     return token_set_ratio(keywords, match_strings)
@@ -99,7 +99,7 @@ class ASReviewData():
 
     Arguments
     ---------
-    df: pd.DataFrame
+    df: pandas.DataFrame
         Dataframe containing the data for the ASReview data object.
     data_name: str
         Give a name to the data object.
@@ -168,12 +168,12 @@ class ASReviewData():
 
         Arguments
         ---------
-        idx: list, np.ndarray
+        idx: list, numpy.ndarray
             Record ids that should be kept.
 
         Returns
         -------
-        ASReviewData:
+        ASReviewData
             Slice of itself.
         """
         if self.df is None:
@@ -242,9 +242,9 @@ class ASReviewData():
 
         Arguments
         ---------
-        fp: str, Path
+        fp: str, pathlib.Path
             Read the data from this file.
-        read_fn: function
+        read_fn: callable
             Function to read the file. It should return a standardized
             dataframe.
         data_name: str
@@ -300,7 +300,7 @@ class ASReviewData():
 
         Returns
         -------
-        PaperRecord:
+        PaperRecord
             The corresponding record if i was an integer, or a list of records
             if i was an iterable.
         """
@@ -376,15 +376,16 @@ class ASReviewData():
             Don't return records below this threshold.
         max_return: int
             Maximum number of records to return.
-        exclude: list, np.ndarray
+        exclude: list, numpy.ndarray
             List of indices that should be excluded in the search. You would
             put papers that were already labeled here for example.
         by_index: bool
             If True, use internal indexing.
             If False, use record ids for indexing.
+
         Returns
         -------
-        list:
+        list
             Sorted list of indexes that match best the keywords.
         """
         new_ranking = get_fuzzy_scores(keywords, self.match_string)
@@ -528,7 +529,7 @@ class ASReviewData():
 
         Returns
         -------
-        np.array:
+        numpy.ndarray
             Array of indices that have the 'initial' property.
         """
         query_src = state.startup_vals()["query_src"]
@@ -552,9 +553,9 @@ class ASReviewData():
         ---------
         fp: str
             Filepath to export to.
-        labels: list, np.array
+        labels: list, numpy.ndarray
             Labels to be inserted into the dataframe before export.
-        ranking: list, np.array
+        ranking: list, numpy.ndarray
             Optionally, dataframe rows can be reordered.
         """
         if Path(fp).suffix in [".csv", ".CSV"]:
@@ -573,7 +574,7 @@ class ASReviewData():
 
         Arguments
         ---------
-        labels: list, np.ndarray
+        labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
@@ -582,7 +583,7 @@ class ASReviewData():
 
         Returns
         -------
-        pd.DataFrame:
+        pandas.DataFrame
             Dataframe of all available record data.
         """
         new_df = pd.DataFrame.copy(self.df)
@@ -607,7 +608,7 @@ class ASReviewData():
         ---------
         fp: str, NoneType
             Filepath or None for buffer.
-        labels: list, np.ndarray
+        labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
@@ -616,7 +617,7 @@ class ASReviewData():
 
         Returns
         -------
-        pd.DataFrame:
+        pandas.DataFrame
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
@@ -629,7 +630,7 @@ class ASReviewData():
         ---------
         fp: str, NoneType
             Filepath or None for buffer.
-        labels: list, np.ndarray
+        labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
@@ -638,7 +639,7 @@ class ASReviewData():
 
         Returns
         -------
-        pd.DataFrame:
+        pandas.DataFrame
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
