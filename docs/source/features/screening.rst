@@ -75,8 +75,6 @@ of your screening process so far. To open the statistics panel:
 4. Click the **statistics** icon in the upper-right corner.
 5. To close the panel click on the '>' icon.
 
-[SCREENSHOT]
-
 In the top of the statistics panel the project name, authors and total number
 of records in the dataset are displayed.
 

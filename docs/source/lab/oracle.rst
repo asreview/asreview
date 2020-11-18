@@ -21,17 +21,17 @@ titles and/or abstracts of all documents (records) you want to screen.
 There are four ways to select a dataset:
 
 - Upload your own dataset. Read more about the format on :doc:`../intro/datasets`.
-- Import a dataset with an URL.
+- Import a dataset with an URL. Read more about the format on :doc:`../intro/datasets`.
 - Select a dataset from an :doc:`extension <../plugins/overview_plugins>` (for example to use the :doc:`COVID-19 extension <../plugins/covid19>`).
 - Choose one of the built-in :doc:`built-in data sets <exploration>`.
 
-[NEW SCREENSHOT NEEDED]
+.. figure:: ../../images/asreview_prescreening_datasets.png
+   :alt: ASReview dataset selector
 
 After a successfull upload of the data, move to the next step.
 
-
-[NEW SCREENSHOT NEEDED]
-
+.. figure:: ../../images/asreview_prescreening_datasets_uploaded.png
+   :alt: ASReview dataset uploaded
 
 Select Prior Knowledge
 ----------------------
@@ -47,7 +47,8 @@ irrelevant papers), or to upload :ref:`partly labeled data
 <partly-labeled-data>`.
 
 
-[SCREENSHOT NEEDED]
+.. figure:: ../../images/asreview_prescreening_prior_next.png
+   :alt: ASReview prior knowledge selector next
 
 
 Select Active Learning Model
@@ -61,27 +62,22 @@ your model, click on `Finish`. You will return to the project page and the
 model is trained for the first time.
 
 
-[SCREENSHOT NEEDED]
+.. figure:: ../../images/asreview_prescreening_model.png
+   :alt: ASReview model
 
 
 Start Reviewing
 ---------------
 
 As soon as the model is ready, a button appears with **Start Review**. Click
-the button to start screening.
-
-
-[NEW SCREENSHOT NEEDED]
-
-
-ASReview LAB presents you a document for you to
-screen and label. If you have selected certainty-based sampling it will be the
+the button to start screening. ASReview LAB presents you a document to screen
+and label. If you have selected certainty-based sampling it will be the
 document with the highest relevance score.
 
 You are asked to make a decision: relevant or irrelevant?
 
-
-[SCREENSHOT NEEDED]
+.. figure:: ../../images/asreview_screening_asreview_label.png
+   :alt: ASReview Screening
 
 While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
@@ -101,13 +97,12 @@ you would like to download your results as a CSV or an Excel file and click
 `Download`.
 
 
-[NEW SCREENSHOT NEEDED OF DOWNLOAD POP-UP WITHIN THE SCREENING SCREEN IN THE BACKGROUND]
+.. figure:: ../../images/asreview_project_page_download.png
+   :alt: ASReview project download
 
 
 Return to Project Dashboard
 ---------------------------
 
-If you want to return to the project dashboard, click the hamburger menu and
-click **Project Dashboard**.
-
-[SCREENSHOT HAMBURGER MENU]
+If you want to return to the project dashboard, click the hamburger menu (top
+left) and click **Project Dashboard**.

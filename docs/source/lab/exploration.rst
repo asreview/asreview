@@ -26,9 +26,6 @@ green during screening.
 4. Select your labeled dataset containing the ‘debug_label’.
 
 
-[SCREENSHOT]
-
-
 Upload a Built-in dataset
 -------------------------
 
@@ -54,7 +51,9 @@ available are PTSD, Hall and AceInhibitors:
    (`https://doi.org/10.1197/jamia.M1929 <https://doi.org/10.1197/jamia.M1929>`__)
    with 2,544 papers of which 41 inclusions (1.61%).
 
-[SCREENSHOT]
+
+.. figure:: ../../images/asreview_prescreening_demo_datasets.png
+   :alt: Demo datasets
 
 
 Prior Inclusions
