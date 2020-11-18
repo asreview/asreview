@@ -111,7 +111,7 @@ def add_dataset_to_project(project_id, file_name):
 
         if as_data.labels is not None:
             unlabeled = np.where(as_data.labels == LABEL_NA)[0]
-            pool_indices = as_data.record_ids[unlabeled]
+            pool_indices = unlabeled
 
             label_indices_included = \
                 [[int(x), 1] for x in np.where(as_data.labels == 1)[0]]
@@ -119,7 +119,7 @@ def add_dataset_to_project(project_id, file_name):
                 [[int(x), 0] for x in np.where(as_data.labels == 0)[0]]
             label_indices = label_indices_included + label_indices_excluded
         else:
-            pool_indices = as_data.record_ids
+            pool_indices = np.arange(len(as_data))
             label_indices = []
 
         np.random.shuffle(pool_indices)
