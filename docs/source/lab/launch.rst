@@ -2,18 +2,14 @@ Start, Open and Import a Project
 ================================
 
 
-This is a quick tour in launching ASReview and starting, opening and importing
-a project.
+This is a quick tour on launching ASReview and basic project routines like
+starting, opening and importing a project. It assumes you have ASReview
+installed. If this is not the case, see the :doc:`../intro/installation`
+guide.
 
 
-[ADD SCREENSHOT OF PROJECT PAGE WITH PANELS]
-
-
-Launching ASReview Lab
-----------------------
-
-This tutorial assumes you have already installed Python and ASReview. If this
-is not the case, see the :doc:`../intro/installation` documentation.
+Launch ASReview Lab
+-------------------
 
 Launch ASReview LAB by running the following command in the command line
 (`CMD.exe` for Windows or `Terminal` for MacOS/Linux):
@@ -26,8 +22,9 @@ Launch ASReview LAB by running the following command in the command line
 Create a New Project
 --------------------
 
-To start with ASReview, first a project needs to be initialized. Click on the
-red button in the bottom right corner, select **new** and a pop-screen will appear.
+To start reviewing a dataset with ASReview LAB, you first need project to
+initialize a project. Click on the red button in the bottom right corner,
+select **new** and a pop-screen will appear.
 
 .. figure:: ../../images/v0.14_01_empty_project_screen_new_project.png
    :alt: Empty project page
@@ -62,17 +59,12 @@ If you want to continue with an existing project, simply click on the title.
 Import a Project
 ----------------
 
-You can also import an ``.asreview`` project file which was :ref:`exported
-<export-project>`. Importing can be done by clicking the red button in the
-bottom right corner of the home page. In the pop-up screen choose the project
-file from your computer and click `Import`. After a successful project
-initialization, a project dashboard will be shown.
-
-
-.. figure:: ../../images/v0.14_05_empty_project_screen_import_project.png
-   :alt:
-
-
+Another option is to import an ASReview project file (``.asreview``
+extension). Usually, this is a project exported from ASReview LAB via the
+:ref:`export-project` panel. Importing can be done by
+clicking the red button in the bottom right corner of the home page. In the
+pop-up screen choose the project file from your computer and click `Import`.
+After a successful project initialization, a project dashboard will be shown.
 
 
 
@@ -81,9 +73,9 @@ Project Dashboard
 
 After a successful project initialization, a project dashboard will be shown
 and you are ready to continue with setting-up the project, like uploading data
-for the :doc:`Oracle <oracle>` or the :doc:`Exploration <exploration>` mode.
-The other options in the project dashboard are desribed in the :doc:`features
-<../features/post_screening>`-overview
+for the :doc:`oracle` or the :doc:`exploration`. The other options in the
+project dashboard are described in the :doc:`features section
+<../features/post_screening>`.
 
 
 .. figure:: ../../images/v0.14_03_project_dashboard_empty.png

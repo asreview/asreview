@@ -4,7 +4,8 @@ Oracle Mode
 This is a quick tour in using the ASReview LAB software in Oracle Mode, which
 is the user-friendly frontend for active learning in systematic reviews for
 unlabeled data with interaction by the user. A more elaborate instruction can
-be found on our `blogpost <https://asreview.nl/asreview-class-101/>`_
+be found in this `blogpost <https://asreview.nl/asreview-class-101/>`_ on the
+ASReview website.
 
 This tutorial assumes you have already installed Python and ASReview. If this
 is not the case, check out the :doc:`../intro/installation` page.

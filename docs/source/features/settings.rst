@@ -22,7 +22,6 @@ Enable the dark mode as follows:
 	Your preference is saved in the browser.
 
 
-
 Text Size
 ---------
 

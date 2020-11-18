@@ -11,8 +11,8 @@ present below.
 Autosave
 --------
 
-Your work is saved automatically so you do not need to press any buttons,
-or get stressed!
+Your work is saved automatically. There is no need to press any buttons to
+save your work anywhere in ASReview LAB.
 
 .. figure:: ../../images/asreview_screening_auto_save.png
    :alt: Auto Save
@@ -21,14 +21,17 @@ or get stressed!
 Label options
 -------------
 
-Below the text we provide two options: Relevant or Irrelevant.
+Below the text, ASReview provides two labeling options: *Relevant* or *Irrelevant*.
 
-To make a decission:
+To make a decision:
 
 1. Open ASReview LAB.
-2. Start a new project, upload a dataset and select prior knowledge.
-3. Start screening.
-4. Click on either the button Relevant or Irrelevant.
+2. Open a project.
+3. Click on either the button Relevant or Irrelevant.
+4. The next record is presented. Repeat the process of labeling.
+
+.. figure:: ../../images/asreview_screening_asreview_label.png
+   :alt: ASReview Screening
 
 .. warning::
 
@@ -37,8 +40,6 @@ To make a decission:
   background. If you make decisions faster than the model needs for computing
   new relevance scores, you will simply be presented with the record next in
   line (etcetera) until the model is done training.
-
-[SCREENSHOT]
 
 
 .. _undo-last:
@@ -65,22 +66,22 @@ interface of ASReview LAB can be used to return to the previous decision.
 Statistics Panel
 ----------------
 
-For unlabeled data the software offers some insightful graphs to keep track
+For unlabeled data, ASReview LAB offers some insightful graphs to keep track
 of your screening process so far. To open the statistics panel:
 
 1. Open ASReview LAB.
-2. Start a new project, upload a dataset and select prior knowledge.
+2. Open a project.
 3. Start screening.
 4. Click the **statistics** icon in the upper-right corner.
-5. To close the panel click on the '>'.
+5. To close the panel click on the '>' icon.
 
 [SCREENSHOT]
 
-In the top of the statistics panel the project name , authors and total number
+In the top of the statistics panel the project name, authors and total number
 of records in the dataset are displayed.
 
 The pie chart on the presents an overview of how many relevant (green) and
-irrelevant (orange) records you have screened so far. Also, the total number
+irrelevant (orange) records have been screened so far. Also, the total number
 of records screened is displayed, as well as the percentage screened relative
 to the total number of records in the dataset.
 
@@ -90,21 +91,21 @@ between relevant and irrelevant records for a batch of 10 labeled records. If
 you hoover over the plot you can see the moving average for any batch of 10
 labeled records.
 
-Underneath the progress plot the number of irrelevant records is shown, which
-might help in deciding when to stop reviewing.
+Underneath the progress plot, the number of irrelevant records after the last
+relevant is shown. This statistic might help in deciding when to stop reviewing.
 
 
 DOI
 ---
 
-If a column with Digital Object Identifiers (DOI) is available in the meta-data
+If a column with Digital Object Identifiers (DOI) is available in the metadata
 of your dataset, ASReview Lab will display the DOI with hyperlink during
 screening. Most of the time, DOIs point to the full-text of a publication. See
 :doc:`datasets <../intro/datasets>` for more information on including DOI values to your
 datasets. To access the full text:
 
 1. Open ASReview LAB.
-2. Start a new project, upload a dataset and select prior knowledge.
+2. Open a project
 3. Start screening.
 4. As soon as a record contains a DOI number, it will be presented below the title.
 
@@ -117,17 +118,19 @@ Download Results
 ----------------
 
 
-A file containing all meta-data including your decissions can be downloaded
+A file containing all metadata including your decissions can be downloaded
 any time during the screening process. To download your results:
 
 1. Open ASReview LAB.
-2. Start a new project, upload a dataset and select prior knowledge.
+2. Open a project.
 3. Start screening.
 4. Click the **download** icon in the upper-right corner.
-5. You will be aksed whether you want to save an excel or a csv file.
-6. You will be aksed where to save the file.
+5. You will be asked whether you want to save an Excel or a CSV file.
+6. You will be asked where to save the file.
 
-[SCREENSHOT OF THE ICON AND POP-UP SCREEN]
+
+.. figure:: ../../images/asreview_screening_result.png
+   :alt: ASReview download results
 
 
 Hamburger menu
@@ -137,12 +140,10 @@ Via the hamburger menu in the left-upper corner you can:
 
 1. Navigate back to the :doc:`overview <pre_screening>` page containing all your projects (or to start a new project).
 2. You can access the :doc:`Project Dashboard <post_screening>`.
-3. Ask for `HELP <https://asreview.readthedocs.io/en/latest/>`_.
+3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
-5. Donate some money via our `crowdfunding platform <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-everyone>`_ (the software is for free, but the development is not)
-6. Quit the software (all your results are automatically saved)
-
-[SCREENSHOT]
+5. Donate some money via our `crowdfunding platform <https://asreview.nl/donate>`_
+6. Quit the software (your progress was saved automatically)
 
 
 .. _keybord-shortcuts:
