@@ -11,11 +11,11 @@
 }
 
 .caption-text {
-	color: #FFcc00;
+    color: #FFcc00;
 }
 
-.rst-content dl:not(.docutils) dt {
+html.writer-html4 .rst-content dl:not(.docutils)>dt, html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple)>dt {
     background: #fffae6;
     color: #666;
-    border-top: solid 3px #ffcc00;
+    border-top: 3px solid #ffcc00;
 }
