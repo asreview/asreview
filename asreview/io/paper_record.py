@@ -166,19 +166,3 @@ class PaperRecord():
         if self.abstract is None:
             return ""
         return self.abstract
-
-    def todict(self):
-        """Create dictionary from the record."""
-        included = self.included
-        if self.included == LABEL_NA:
-            included = None
-        paper_dict = {
-            "title": self.title,
-            "abstract": self.abstract,
-            "authors": self.authors,
-            "keywords": self.keywords,
-            "record_id": self.record_id,
-            "included": included,
-        }
-        paper_dict.update(self.extra_fields)
-        return paper_dict
