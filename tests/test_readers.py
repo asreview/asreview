@@ -1,4 +1,5 @@
 from pathlib import Path
+import warnings
 
 from pytest import mark
 import numpy as np
@@ -56,12 +57,29 @@ def test_nan_values_csv():
     as_data = ASReviewData.from_file(fp)
 
     # check missing titles
-    assert as_data.record(1, by_index=True).title == ""
-    assert as_data.record(3, by_index=True).title == ""
+    assert as_data.record(0, by_index=True).abstract == ""
+    assert as_data.record(1, by_index=True).abstract == ""
 
     # check missing abstracts
-    assert as_data.record(0, by_index=True).abstract == ""
-    assert as_data.record(2, by_index=True).abstract == ""
+    assert as_data.record(2, by_index=True).title == ""
+    assert as_data.record(3, by_index=True).title == ""
+
+    assert as_data.record(-3, by_index=False).title == "Title 1"
+    assert as_data.record(0, by_index=False).title == "Title 2"
+
+
+def test_broken_record_id():
+    fp = Path("tests", "demo_data", "broken_record_id.csv")
+#     with warnings.catch_warnings():
+#         warnings.filterwarnings('error')
+#         try:
+#             ASReviewData.from_file(fp)
+#             assert False
+#         except UserWarning as w:
+#             pass
+
+    as_data = ASReviewData.from_file(fp)
+    assert as_data.record(1, by_index=True).abstract == "Abstract 1"
 
 
 def test_csv_write_data():
