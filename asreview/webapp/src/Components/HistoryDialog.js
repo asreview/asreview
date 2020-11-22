@@ -7,12 +7,16 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  IconButton,
   List,
   MenuItem,
   Select,
+  Typography,
 } from '@material-ui/core';
 
 import { makeStyles } from '@material-ui/core/styles';
+
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 import {
   HistoryListCard,
@@ -32,6 +36,16 @@ const useStyles = makeStyles(theme => ({
     top: theme.spacing(2),
     minWidth: 130,
   },
+  backButton: {
+    position: 'absolute',
+    left: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
+  detailTitle: {
+    position: 'relative',
+    marginLeft: '36px',
+  },
 }));
 
 const mapStateToProps = state => {
@@ -45,7 +59,10 @@ const HistoryDialog = (props) => {
   const classes = useStyles();
 
   // indicate which record abstract collapse
-  const [openIndex, setOpenIndex] = useState("");
+  const [openIndex, setOpenIndex] = useState({
+    "index": null,
+    "record": null,
+  });
 
   const [state, setState] = useState({
     "select": 10,
@@ -55,7 +72,13 @@ const HistoryDialog = (props) => {
   // filter all records
   const handleSelectChange = (event) => {
     setState({...state, "select": event.target.value});
-    setOpenIndex("");
+  };
+
+  const handleBack = () => {
+    setOpenIndex({
+      "index": null,
+      "record": null,
+    });
   };
 
   // change decision of labeled records
@@ -101,38 +124,37 @@ const HistoryDialog = (props) => {
     }
   }, [props.history]);
 
-  // show all records by default
-  useEffect(() => {
-    if (props.history) {
-      setState(s => {return({
-        ...s,
-        "select": 10,
-      })});
-    }
-  }, [props.history]);
-
   // refresh after toggle the dialog and change a decision
   useEffect(() => {
 
-    setOpenIndex("");
-
-    if (props.history && props.recordState["isloaded"]) {
+    if (props.project_id !== null) {
 
       const url = api_url + `project/${props.project_id}/prior`;
 
       axios.get(url)
       .then((result) => {
-
         setState(s => {return({
           ...s,
           "data": result.data["result"].reverse(),
         })});
-
       })
       .catch((error) => {
         console.log("Failed to load review history");
       });
     }
+
+    if (props.history) {
+      // show all records by default
+      setState(s => {return({
+        ...s,
+        "select": 10,
+      })});
+      // back to list of records
+      setOpenIndex({
+        "index": null,
+        "record": null,
+      });
+    };
 
   }, [props.project_id, props.history, props.recordState]);
 
@@ -147,91 +169,142 @@ const HistoryDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        <DialogTitle id="scroll-dialog-title">
-          Review History
-          {state["data"] !== null &&
-            <FormControl className={classes.selectMenu}>
-              <Select
-                value={state.select}
-                onChange={handleSelectChange}
-              >
-                <MenuItem value={10}>All ({state["data"].length})</MenuItem>
-                <MenuItem value={20}>Relevant ({state["data"].filter(value => value.included === 1).length})</MenuItem>
-                <MenuItem value={30}>Irrelevant ({state["data"].filter(value => value.included !== 1).length})</MenuItem>
-              </Select>
-            </FormControl>
-          }
-        </DialogTitle>
-        <DialogContent dividers={true}>
-          <Box>
-            {state["data"] !== null && state["select"] === 10 &&
-              <List>
-                {
-                  state["data"]
-                    .map((value, index) =>
-                      {
-                        return (
-                          <HistoryListCard
-                            value={value}
-                            index={index}
-                            openIndex={openIndex}
-                            setOpenIndex={setOpenIndex}
-                            updateInstance={updateInstance}
-
-                            key={`result-item-${value.id}`}
-                          />
-                        );
-                      })
-                }
-              </List>
+        {openIndex["index"] === null &&
+          <DialogTitle>
+            Review History
+            {state["data"] !== null &&
+              <FormControl className={classes.selectMenu}>
+                <Select
+                  value={state.select}
+                  onChange={handleSelectChange}
+                >
+                  <MenuItem value={10}>All ({state["data"].length})</MenuItem>
+                  <MenuItem value={20}>Relevant ({state["data"].filter(value => value.included === 1).length})</MenuItem>
+                  <MenuItem value={30}>Irrelevant ({state["data"].filter(value => value.included !== 1).length})</MenuItem>
+                </Select>
+              </FormControl>
             }
-            {state["data"] !== null && state["select"] === 20 &&
-              <List>
-                {
-                  state["data"]
-                    .filter(value => value.included === 1)
-                    .map((value, index) =>
-                      {
-                        return (
-                          <HistoryListCard
-                            value={value}
-                            index={index}
-                            openIndex={openIndex}
-                            setOpenIndex={setOpenIndex}
-                            updateInstance={updateInstance}
+          </DialogTitle>
+        }
 
-                            key={`result-item-${value.id}`}
-                          />
-                        );
-                      })
-                }
-              </List>
-            }
-            {state["data"] !== null && state["select"] === 30 &&
-              <List>
-                {
-                  state["data"]
-                    .filter(value => value.included !== 1)
-                    .map((value, index) =>
-                      {
-                        return (
-                          <HistoryListCard
-                            value={value}
-                            index={index}
-                            openIndex={openIndex}
-                            setOpenIndex={setOpenIndex}
-                            updateInstance={updateInstance}
+        {openIndex["index"] !== null &&
+          <DialogTitle>
+            <IconButton
+              aria-label="back"
+              className={classes.backButton}
+              onClick={handleBack}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <div className={classes.detailTitle}>
+              Document Details
+            </div>
+          </DialogTitle>
+        }
 
-                            key={`result-item-${value.id}`}
-                          />
-                        );
-                      })
-                }
-              </List>
-            }
-          </Box> 
-        </DialogContent>
+        {openIndex["index"] === null &&
+          <DialogContent dividers={true}>
+            <Box>
+              {state["data"] !== null && state["select"] === 10 &&
+                <List>
+                  {
+                    state["data"]
+                      .map((value, index) =>
+                        {
+                          return (
+                            <HistoryListCard
+                              value={value}
+                              index={index}
+                              state={state}
+                              setOpenIndex={setOpenIndex}
+
+                              key={`result-item-${value.id}`}
+                            />
+                          );
+                        })
+                  }
+                </List>
+              }
+              {state["data"] !== null && state["select"] === 20 &&
+                <List>
+                  {
+                    state["data"]
+                      .filter(value => value.included === 1)
+                      .map((value, index) =>
+                        {
+                          return (
+                            <HistoryListCard
+                              value={value}
+                              index={index}
+                              state={state}
+                              setOpenIndex={setOpenIndex}
+
+                              key={`result-item-${value.id}`}
+                            />
+                          );
+                        })
+                  }
+                </List>
+              }
+              {state["data"] !== null && state["select"] === 30 &&
+                <List>
+                  {
+                    state["data"]
+                      .filter(value => value.included !== 1)
+                      .map((value, index) =>
+                        {
+                          return (
+                            <HistoryListCard
+                              value={value}
+                              index={index}
+                              state={state}
+                              setOpenIndex={setOpenIndex}
+
+                              key={`result-item-${value.id}`}
+                            />
+                          );
+                        })
+                  }
+                </List>
+              }
+            </Box> 
+          </DialogContent>
+        }
+
+        {openIndex["index"] !== null &&
+          <DialogContent dividers={true}>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                {openIndex.record.title}
+              </Typography>
+
+              {(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
+                <Box fontStyle="italic">
+                  <Typography gutterBottom>
+                    This document doesn't have an abstract.
+                  </Typography>
+                </Box>
+              }
+
+              {!(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
+                <Typography>
+                  {openIndex.record.abstract}
+                </Typography>
+              }
+            </Box>
+          </DialogContent>
+        }
+
         <DialogActions>
+          {openIndex["index"] !== null &&
+            <Button 
+              onClick={() => {
+                updateInstance(openIndex.record.id, openIndex.record.included)
+              }}
+            >
+              {openIndex.record.included === 1 ? "Convert to IRRELEVANT" : "Convert to RELEVANT"}
+            </Button>
+          }
           <Button onClick={props.toggleHistory}>
             Close
           </Button>
