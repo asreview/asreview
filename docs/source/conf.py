@@ -177,8 +177,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'ASReview.tex', 'ASReview Documentation',
-     'Methodology and Statistics, Utrecht University', 'manual'),
+    (master_doc, 'ASReview.tex', 'ASReview Software Documentation',
+     author, 'manual'),
 ]
 
 
@@ -187,7 +187,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'asreview', 'ASReview Documentation',
+    (master_doc, 'asreview', 'ASReview Software Documentation',
      [author], 1)
 ]
 
@@ -198,8 +198,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'ASReview', 'ASReview Documentation',
-     author, 'ASReview', 'Automated Systematic Review Software.',
+    (master_doc, 'ASReview', 'ASReview Software Documentation',
+     author, 'ASReview', 'ASReview Software Documentation.',
      'Miscellaneous'),
 ]
 
