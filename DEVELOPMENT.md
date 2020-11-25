@@ -19,6 +19,11 @@ Start the Python API server
 
 	export FLASK_ENV=development
 	asreview lab
+	
+For Windows, instead use 
+
+	set FLASK_ENV=development
+	asreview lab
 
 Navigate to `asreview/webapp` and install npm.
 
