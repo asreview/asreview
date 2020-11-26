@@ -275,25 +275,48 @@ def get_statistics(project_id):
 
 
 def export_to_string(project_id, export_type="csv"):
-    fp_lock = get_lock_path(project_id)
+
+    # read the dataset into a ASReview data object
     as_data = read_data(project_id)
+
+    # set the lock to safely read data on labels and probs
+    fp_lock = get_lock_path(project_id)
     with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
+            fp_lock,
+            blocking=True,
+            lock_name="active",
+            project_id=project_id
+    ):
+        # read the proba from file and use this for ordering
         proba = read_proba(project_id)
         if proba is None:
             proba = np.flip(np.arange(len(as_data)))
         else:
             proba = np.array(proba)
+        # read current labels. This is a combination of the labels
+        # in the project file and the labels in the dataset
         labels = read_current_labels(project_id, as_data=as_data)
 
+    # get the row numbers of each subgroup
     pool_idx = np.where(labels == LABEL_NA)[0]
-    one_idx = np.where(labels == 1)[0]
-    zero_idx = np.where(labels == 0)[0]
+    inclusion_idx = np.where(labels == 1)[0]
+    exclusion_idx = np.where(labels == 0)[0]
 
+    # make a ranking based on row numbers
     proba_order = np.argsort(-proba[pool_idx])
-    ranking = np.concatenate((one_idx, pool_idx[proba_order], zero_idx),
-                             axis=None)
+    ranking = np.concatenate(
+        (
+            # add the inclusions
+            inclusion_idx,
+            # order the unlabeled
+            pool_idx[proba_order],
+            # add the exclusions
+            exclusion_idx
+        ),
+        axis=None
+    )
 
+    # export the data to file
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
     if export_type == "excel":
