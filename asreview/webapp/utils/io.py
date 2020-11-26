@@ -176,6 +176,12 @@ def write_label_history(project_id, label_history):
 
 
 def read_current_labels(project_id, as_data=None, label_history=None):
+    """Function to combine label history with prior labels.
+
+    Function that combines the label info in the dataset and
+    the label history in the project file.
+    """
+    # read the asreview data
     if as_data is None:
         as_data = read_data(project_id)
 

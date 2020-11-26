@@ -588,17 +588,23 @@ class ASReviewData():
         """
         new_df = pd.DataFrame.copy(self.df)
         col = self.column_spec["included"]
+
+        # if there are labels, add them to the frame
         if labels is not None:
             new_df[col] = labels
+
+        # if there is a ranking, apply this ranking as order
         if ranking is not None:
             # sort the datasets based on the ranking
             new_df = new_df.iloc[ranking]
             # append a column with 1 to n
             new_df["asreview_ranking"] = np.arange(1, len(new_df) + 1)
 
+        # replace labeled NA values by np.nan
         if col in list(new_df):
             new_df[col] = new_df[col].astype(object)
             new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
+
         return new_df
 
     def to_csv(self, fp, labels=None, ranking=None):
