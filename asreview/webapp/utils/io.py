@@ -175,22 +175,27 @@ def write_label_history(project_id, label_history):
         json.dump(label_history, f)
 
 
-def read_current_labels(project_id, as_data=None, label_history=None):
+def read_current_labels(project_id, label_history=None):
     """Function to combine label history with prior labels.
 
     Function that combines the label info in the dataset and
     the label history in the project file.
     """
     # read the asreview data
-    if as_data is None:
-        as_data = read_data(project_id)
+    as_data = read_data(project_id)
 
+    # use label history from project file
     if label_history is None:
         label_history = read_label_history(project_id)
+
+    # get the labels in the import dataset
     labels = as_data.labels
+
+    # make a list of NA labels if None
     if labels is None:
         labels = np.full(len(as_data), LABEL_NA, dtype=int)
 
+    # update labels with label history
     for idx, inclusion in label_history:
         labels[idx] = inclusion
 

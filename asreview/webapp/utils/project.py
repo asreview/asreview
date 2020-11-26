@@ -295,7 +295,7 @@ def export_to_string(project_id, export_type="csv"):
             proba = np.array(proba)
         # read current labels. This is a combination of the labels
         # in the project file and the labels in the dataset
-        labels = read_current_labels(project_id, as_data=as_data)
+        labels = read_current_labels(project_id)
 
     # get the row numbers of each subgroup
     pool_idx = np.where(labels == LABEL_NA)[0]
