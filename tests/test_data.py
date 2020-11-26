@@ -1,7 +1,5 @@
-from pathlib import Path
 import urllib
 
-import numpy as np
 from pytest import mark
 
 from asreview import ASReviewData
@@ -38,9 +36,3 @@ def test_fuzzy_finder(keywords, paper_id):
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
     assert exists(data.get())
-
-
-def test_bad_record_id():
-    data_fp = Path("tests", "demo_data", "generic_bad_record_id.csv")
-    as_data = ASReviewData.from_file(data_fp)
-    assert(len(np.unique(as_data.df.index.values)) == len(as_data))

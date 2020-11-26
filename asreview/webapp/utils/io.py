@@ -196,7 +196,11 @@ def read_current_labels(project_id, label_history=None):
         labels = np.full(len(as_data), LABEL_NA, dtype=int)
 
     # update labels with label history
-    for idx, inclusion in label_history:
-        labels[idx] = inclusion
+    label_idx = [idx for idx, incl in label_history]
+    label_incl = [incl for idx, incl in label_history]
 
-    return np.array(labels, dtype=int)
+    # create a pandas series such that the index can be used
+    labels_s = pd.Series(labels, index=as_data.df.index)
+    labels_s.loc[label_idx] = label_incl
+
+    return np.array(labels_s, dtype=int)
