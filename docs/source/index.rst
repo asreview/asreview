@@ -6,6 +6,12 @@ Welcome to the documentation of ASReview! It includes an :doc:`installation
 </intro/installation>` guide, a :doc:`quick tour </lab/oracle>`, details how
 to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
 
+ASReview is `open source<https://github.com/asreview/asreview>`_ research
+software developed by
+`researchers<https://asreview.readthedocs.io/en/latest/intro/zen.html#research-team>`_
+at Utrecht University and is published under the `Apache 2.0 licence
+<https://github.com/asreview/asreview/blob/master/LICENSE>`_.
+
 .. toctree::
    :caption: Introduction
    :maxdepth: 1
