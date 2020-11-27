@@ -113,11 +113,11 @@ def add_dataset_to_project(project_id, file_name):
             unlabeled = np.where(as_data.labels == LABEL_NA)[0]
             pool_indices = as_data.record_ids[unlabeled]
 
-            label_indices_included = \
-                [[int(x), 1] for x in np.where(as_data.labels == 1)[0]]
-            label_indices_excluded = \
-                [[int(x), 0] for x in np.where(as_data.labels == 0)[0]]
-            label_indices = label_indices_included + label_indices_excluded
+            labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+            label_indices = list(zip(
+                as_data.record_ids[labeled_indices].tolist(),
+                as_data.labels[labeled_indices].tolist()
+            ))
         else:
             pool_indices = as_data.record_ids
             label_indices = []
