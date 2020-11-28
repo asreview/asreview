@@ -1,4 +1,5 @@
 import urllib
+from pathlib import Path
 
 from pytest import mark
 

@@ -301,10 +301,12 @@ def export_to_string(project_id, export_type="csv"):
         label_history = read_label_history(project_id)
 
     # get the row numbers of each subgroup
-    inclusion_idx = convert_id_to_idx(as_data,
+    inclusion_idx = convert_id_to_idx(
+        as_data,
         [int(x[0]) for x in label_history if x[1] == 1]
     )
-    exclusion_idx = convert_id_to_idx(as_data,
+    exclusion_idx = convert_id_to_idx(
+        as_data,
         [int(x[0]) for x in label_history if x[1] == 0]
     )
 
