@@ -146,15 +146,16 @@ def main(argv):
     try:
         train_model(args.project_id, args.label_method)
     except Exception as err:
-        logging.error(f"Project {args.project_id} - " + err)
+        err_type = type(err).__name__
+        logging.error(f"Project {args.project_id} - {err_type}: {err}")
 
         # write error to file is label method is prior (first iteration)
         if args.label_method == "prior":
-            message = {"message": str(err)}
+            message = {"message": f"{err_type}: {err}"}
 
-        fp = get_project_path(args.project_id) / "error.json"
-        with open(fp, 'w') as f:
-            json.dump(message, f)
+            fp = get_project_path(args.project_id) / "error.json"
+            with open(fp, 'w') as f:
+                json.dump(message, f)
 
 
 if __name__ == "__main__":
