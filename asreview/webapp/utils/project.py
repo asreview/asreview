@@ -197,7 +197,7 @@ def get_paper_data(project_id,
                    return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
-    record = as_data.record(int(paper_id))
+    record = as_data.record(int(paper_id), by_index=False)
 
     paper_data = {}
     if return_title and record.title is not None:
