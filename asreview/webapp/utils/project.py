@@ -11,6 +11,7 @@ import pandas as pd
 
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
+from asreview.compat import convert_id_to_idx
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_current_labels
 from asreview.webapp.utils.io import read_data
@@ -297,13 +298,20 @@ def export_to_string(project_id, export_type="csv"):
         # in the project file and the labels in the dataset
         labels = read_current_labels(project_id)
 
-    # get the row numbers of each subgroup
-    pool_idx = np.where(labels == LABEL_NA)[0]
-    inclusion_idx = np.where(labels == 1)[0]
-    exclusion_idx = np.where(labels == 0)[0]
+        label_history = read_label_history(project_id)
 
-    # make a ranking based on row numbers
+    # get the row numbers of each subgroup
+    inclusion_idx = convert_id_to_idx(as_data,
+        [int(x[0]) for x in label_history if x[1] == 1]
+    )
+    exclusion_idx = convert_id_to_idx(as_data,
+        [int(x[0]) for x in label_history if x[1] == 0]
+    )
+
+    # order the unlabeled based on proba
+    pool_idx = np.where(labels == LABEL_NA)[0]
     proba_order = np.argsort(-proba[pool_idx])
+
     ranking = np.concatenate(
         (
             # add the inclusions
