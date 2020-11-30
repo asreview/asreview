@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 from asreview.state import JSONState, HDF5State, DictState
-from asreview.state import open_state
+from asreview.state import open_state, state_from_asreview_file
 from asreview.settings import ASReviewSettings
 
 
@@ -25,6 +25,12 @@ def test_read_hdf5_state():
 def test_read_dict_state():
     with open_state(None) as state:
         assert isinstance(state, DictState)
+
+
+def test_read_asreview_file():
+    state_fp = Path("tests", "state_files", "test_1_inst.asreview")
+    with state_from_asreview_file(str(state_fp)) as state:
+        assert isinstance(state, JSONState)
 
 
 def test_write_json_state(tmpdir):
