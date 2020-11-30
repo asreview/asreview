@@ -128,7 +128,6 @@ State
 -------
 
 .. autofunction:: asreview.state.open_state
-
 .. autoclass:: asreview.state.BaseState
 	:members:
 .. autoclass:: asreview.state.HDF5State
