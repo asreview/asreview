@@ -156,8 +156,7 @@ def get_proba_path(project_id):
     project_id: str
         The id of the current project.
     """
-
-    return Path(get_project_path(project_id), "proba.json")
+    return Path(get_project_path(project_id), "proba.csv")
 
 
 def get_labeled_path(project_id):

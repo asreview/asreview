@@ -5,6 +5,7 @@ import logging
 import sys
 
 import numpy as np
+import pandas as pd
 
 from asreview.compat import convert_id_to_idx, convert_idx_to_id
 from asreview.review.factory import get_reviewer
@@ -119,7 +120,12 @@ def train_model(project_id, label_method=None):
             reviewer.log_probabilities(state)
             new_query_idx = reviewer.query(reviewer.n_pool()).tolist()
             reviewer.log_current_query(state)
-            proba = state.pred_proba.tolist()
+
+            # write the proba to a pandas dataframe with record_ids as index
+            proba = pd.DataFrame(
+                {"proba": state.pred_proba.tolist()},
+                index=pd.Index(as_data.record_ids, name="record_id")
+            )
 
         # update the pool and output the proba's
         # important: pool is sorted on query

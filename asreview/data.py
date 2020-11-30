@@ -578,7 +578,7 @@ class ASReviewData():
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
-            Reorder the dataframe according to these (internal) indices.
+            Reorder the dataframe according to these record_ids.
             Default ordering if ranking is None.
 
         Returns
@@ -591,12 +591,19 @@ class ASReviewData():
 
         # if there are labels, add them to the frame
         if labels is not None:
-            result_df[col_label] = labels
+
+            # unnest the nested (record_id, label) tuples
+            labeled_record_ids = [x[0] for x in labels]
+            labeled_values = [x[1] for x in labels]
+
+            # remove the old results and write the values
+            result_df[col_label] = LABEL_NA
+            result_df.loc[labeled_record_ids, col_label] = labeled_values
 
         # if there is a ranking, apply this ranking as order
         if ranking is not None:
             # sort the datasets based on the ranking
-            result_df = result_df.iloc[ranking]
+            result_df = result_df.loc[ranking]
             # append a column with 1 to n
             result_df["asreview_ranking"] = np.arange(1, len(result_df) + 1)
 

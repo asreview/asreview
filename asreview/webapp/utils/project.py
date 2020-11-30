@@ -312,7 +312,7 @@ def export_to_string(project_id, export_type="csv"):
     # read the dataset into a ASReview data object
     as_data = read_data(project_id)
 
-    # set the lock to safely read data on labels and probs
+    # set the lock to safely read labeled, pool, and proba
     fp_lock = get_lock_path(project_id)
     with SQLiteLock(
             fp_lock,
@@ -320,52 +320,42 @@ def export_to_string(project_id, export_type="csv"):
             lock_name="active",
             project_id=project_id
     ):
-        # read the proba from file and use this for ordering
         proba = read_proba(project_id)
-        if proba is None:
-            proba = np.flip(np.arange(len(as_data)))
-        else:
-            proba = np.array(proba)
-        # read current labels. This is a combination of the labels
-        # in the project file and the labels in the dataset
-        labels = read_current_labels(project_id)
+        pool = read_pool(project_id)
+        labeled = read_label_history(project_id)
 
-        label_history = read_label_history(project_id)
+    # get the record_id of the inclusions and exclusions
+    inclusion_record_id = [int(x[0]) for x in labeled if x[1] == 1]
+    exclusion_record_id = [int(x[0]) for x in labeled if x[1] == 0]
 
-    # get the row numbers of each subgroup
-    inclusion_idx = convert_id_to_idx(
-        as_data,
-        [int(x[0]) for x in label_history if x[1] == 1]
-    )
-    exclusion_idx = convert_id_to_idx(
-        as_data,
-        [int(x[0]) for x in label_history if x[1] == 0]
-    )
+    # order the pool from high to low proba
+    if proba is not None:
+        pool_ordered = proba.loc[pool, :] \
+            .sort_values("proba", ascending=False).index.values
+    else:
+        pool_ordered = pool_ordered
 
-    # order the unlabeled based on proba
-    pool_idx = np.where(labels == LABEL_NA)[0]
-    proba_order = np.argsort(-proba[pool_idx])
-
+    # get the ranking of the 3 subcategories
     ranking = np.concatenate(
         (
-            # add the inclusions
-            inclusion_idx,
-            # order the unlabeled
-            pool_idx[proba_order],
-            # add the exclusions
-            exclusion_idx
+            # add the inclusions first
+            inclusion_record_id,
+            # add the ordered pool second
+            pool_ordered,
+            # add the exclusions last
+            exclusion_record_id
         ),
         axis=None
     )
 
     # export the data to file
     if export_type == "csv":
-        return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
+        return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
     if export_type == "excel":
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
         return as_data.to_excel(
-            fp=fp_tmp_export, labels=labels, ranking=ranking)
+            fp=fp_tmp_export, labels=labeled, ranking=ranking)
     else:
         raise ValueError("This export type isn't implemented.")
 
