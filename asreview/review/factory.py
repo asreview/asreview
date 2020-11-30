@@ -34,7 +34,6 @@ from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.datasets import find_data
-from asreview.io.paper_record import preview_record
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.query import get_query_model
@@ -258,12 +257,6 @@ def review(*args,
         raise ValueError(f"Unknown mode '{mode}'.")
 
     reviewer = get_reviewer(*args, mode=mode, model=model, **kwargs)
-
-    # output the prior indices
-    print("The following records are prior knowledge:\n")
-    for prior_record_id in reviewer.start_idx:
-        preview = preview_record(reviewer.as_data.record(prior_record_id))
-        print(f"{prior_record_id} - {preview}")
 
     # Start the review process.
     reviewer.review()
