@@ -327,18 +327,6 @@ class ASReviewData():
             return records
         return records[0]
 
-    def preview_record(self, i, by_index=True, *args, **kwargs):
-        "Return a preview string for record i."
-        return self.record(i, by_index=by_index).preview(*args, **kwargs)
-
-    def format_record(self, i, by_index=True, *args, **kwargs):
-        "Format one record for displaying in the CLI."
-        return self.record(i, by_index=by_index).format(*args, **kwargs)
-
-    def print_record(self, *args, **kwargs):
-        "Print a record to the CLI."
-        print(self.format_record(*args, **kwargs))
-
     @property
     def match_string(self):
         match_str = np.full(len(self), "x", dtype=object)
