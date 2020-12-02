@@ -46,7 +46,7 @@ class ReviewSimulate(BaseReview):
     n_prior_excluded: int
         Sample n prior excluded papers.
     prior_idx: int
-        Prior indices by id.
+        Prior indices by row number.
     n_papers: int
         Number of papers to review during the active learning process,
         excluding the number of initial priors. To review all papers, set
@@ -91,10 +91,7 @@ class ReviewSimulate(BaseReview):
             labels = as_data.labels
 
         if prior_idx is not None and len(prior_idx) != 0:
-            id_to_index = {as_data.df.index.values[i]: i
-                           for i in range(len(as_data))}
-            start_idx = np.array([id_to_index[idx] for idx in prior_idx],
-                                 dtype=int)
+            start_idx = prior_idx
         else:
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:

@@ -115,6 +115,10 @@ Example:
 
     Prior indices by rownumber (0 is first rownumber).
 
+.. option:: --prior_record_id [PRIOR_RECORD_ID [PRIOR_RECORD_ID ...]]
+
+    Prior indices by record_id.
+
 .. option:: --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
 
     A dataset with papers that should be includedCan be used multiple times.
