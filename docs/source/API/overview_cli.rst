@@ -9,7 +9,7 @@ shows the available interfaces for interacting with the ASReview software:
 .. figure:: ../../figures/asreview_api.png
    :alt: ASReview API
 
-- The REST API is used a Flask REST API to provide a method to let the React
+- The REST API uses a Flask REST API to provide a method to let the React
   front-end communicate with the backend and algorithms. The REST API is not
   documented at the moment and should be considered 'internal use only'.
 - The :doc:`cli` is an interface to open ASReview LAB, to run
