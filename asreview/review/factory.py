@@ -262,10 +262,7 @@ def review(*args,
     # output the prior indices
     print("The following records are prior knowledge:\n")
     for prior_record_id in reviewer.start_idx:
-        preview = preview_record(reviewer.as_data.record(
-            prior_record_id,
-            by_index=True
-        ))
+        preview = preview_record(reviewer.as_data.record(prior_record_id))
         print(f"{prior_record_id} - {preview}")
 
     # Start the review process.
