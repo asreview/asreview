@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -326,18 +326,6 @@ class ASReviewData():
         if is_iterable(i):
             return records
         return records[0]
-
-    def preview_record(self, i, by_index=True, *args, **kwargs):
-        "Return a preview string for record i."
-        return self.record(i, by_index=by_index).preview(*args, **kwargs)
-
-    def format_record(self, i, by_index=True, *args, **kwargs):
-        "Format one record for displaying in the CLI."
-        return self.record(i, by_index=by_index).format(*args, **kwargs)
-
-    def print_record(self, *args, **kwargs):
-        "Print a record to the CLI."
-        print(self.format_record(*args, **kwargs))
 
     @property
     def match_string(self):
