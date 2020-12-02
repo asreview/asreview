@@ -19,6 +19,19 @@ any time during the screening process. To download your results:
 5. You will be asked whether you want to save an excel or a csv file.
 6. You will be asked where to save the file.
 
+Two columns will be added to your dataset: 
+
+The column titled **included** contains the labels as provided by the user:
+``0`` = not relevant, ``1`` = relevant and if missing it means the record is
+not seen during the screening process. First, all relevant records are
+presented in the order these shown during the screening process. Then, all
+records not seen during the screening proces are presented ordered from most
+to least relevant according to the last iteration of the model. At end of the
+file all non-relevant records are presented in the order these are shown
+during the screening proces. 
+
+The second column titled **asreview_ranking** contains an identifier to
+preserve the rank ordering as described above.  
 
 .. figure:: ../../images/asreview_project_page_download.png
    :alt: ASReview project download
