@@ -30,7 +30,7 @@ Navigate to `asreview/webapp` and install npm.
 	cd asreview/webapp
 	npm install
 
-The user interface is written in [React][2]. First, start a development server with npm. This serves is used for React development.
+The user interface is written in [React][2]. First, start a development server with npm. This server is used for React development.
 
 	npm start
 
