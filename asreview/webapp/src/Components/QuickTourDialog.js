@@ -49,7 +49,7 @@ const quickTourSteps = [
   },
   {
     imgPath: Start,
-    textTitle: "Mark text as relevant",
+    textTitle: "Mark text as (ir)relevant",
     text: "Read the displayed text and decide whether it is relevant or not.",
   },
   {
