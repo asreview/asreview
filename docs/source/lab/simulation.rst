@@ -19,4 +19,4 @@ See the following resources for  information on running a simulation:
     as many abstracts as possible (`don't know how?
     <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>` 
-    has to offer you. 
+    has to offer. 

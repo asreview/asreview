@@ -39,7 +39,7 @@ After a successfull upload of the data, move to the next step.
     as many abstracts as possible (`don't know how?
     <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>` 
-    has to offer you. 
+    has to offer. 
 
 
 Select Prior Knowledge
