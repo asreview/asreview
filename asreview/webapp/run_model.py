@@ -18,7 +18,9 @@ import logging
 import sys
 
 import numpy as np
+import pandas as pd
 
+from asreview.compat import convert_id_to_idx, convert_idx_to_id
 from asreview.review.factory import get_reviewer
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -34,7 +36,7 @@ from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.project import read_data
 
 
-def get_diff_history(new_history, old_history):
+def _get_diff_history(new_history, old_history):
     for i in range(len(new_history)):
         try:
             if old_history[i] != new_history[i]:
@@ -44,7 +46,7 @@ def get_diff_history(new_history, old_history):
     return []
 
 
-def get_label_train_history(state):
+def _get_label_train_history(state):
     label_idx = []
     inclusions = []
     for query_i in range(state.n_queries()):
@@ -109,17 +111,19 @@ def train_model(project_id, label_method=None):
         reviewer = get_reviewer(dataset=data_fp, mode="minimal", **asr_kwargs)
 
         with open_state(state_file) as state:
-            old_label_history = get_label_train_history(state)
+            old_label_history = _get_label_train_history(state)
 
-        diff_history = get_diff_history(new_label_history, old_label_history)
+        diff_history = _get_diff_history(new_label_history, old_label_history)
 
         if len(diff_history) == 0:
             logging.info(
                 "Project {project_id} - No new labels since last run.")
             return
 
-        query_idx = np.array([x[0] for x in diff_history], dtype=int)
+        query_record_ids = np.array([x[0] for x in diff_history], dtype=int)
         inclusions = np.array([x[1] for x in diff_history], dtype=int)
+
+        query_idx = convert_id_to_idx(as_data, query_record_ids)
 
         # Classify the new labels, train and store the results.
         with open_state(state_file) as state:
@@ -129,17 +133,33 @@ def train_model(project_id, label_method=None):
             reviewer.log_probabilities(state)
             new_query_idx = reviewer.query(reviewer.n_pool()).tolist()
             reviewer.log_current_query(state)
-            proba = state.pred_proba.tolist()
 
+            # write the proba to a pandas dataframe with record_ids as index
+            proba = pd.DataFrame(
+                {"proba": state.pred_proba.tolist()},
+                index=pd.Index(as_data.record_ids, name="record_id")
+            )
+
+        # update the pool and output the proba's
+        # important: pool is sorted on query
         with SQLiteLock(
                 lock_file,
                 blocking=True,
                 lock_name="active",
                 project_id=project_id) as lock:
+
+            # read the pool
             current_pool = read_pool(project_id)
-            in_current_pool = np.zeros(len(as_data))
-            in_current_pool[current_pool] = 1
-            new_pool = [x for x in new_query_idx if in_current_pool[x]]
+
+            # diff pool and new_query_ind
+            current_pool_idx = convert_id_to_idx(as_data, current_pool)
+            current_pool_idx = frozenset(current_pool_idx)
+            new_pool_idx = [x for x in new_query_idx if x in current_pool_idx]
+
+            # convert new_pool_idx back to record_ids
+            new_pool = convert_idx_to_id(as_data, new_pool_idx)
+
+            # write the pool and proba
             write_pool(project_id, new_pool)
             write_proba(project_id, proba)
 
@@ -169,6 +189,9 @@ def main(argv):
             fp = get_project_path(args.project_id) / "error.json"
             with open(fp, 'w') as f:
                 json.dump(message, f)
+
+        # raise the error for full traceback
+        raise err
 
 
 if __name__ == "__main__":

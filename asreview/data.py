@@ -566,7 +566,7 @@ class ASReviewData():
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
-            Reorder the dataframe according to these (internal) indices.
+            Reorder the dataframe according to these record_ids.
             Default ordering if ranking is None.
 
         Returns
@@ -574,20 +574,33 @@ class ASReviewData():
         pandas.DataFrame
             Dataframe of all available record data.
         """
-        new_df = pd.DataFrame.copy(self.df)
-        col = self.column_spec["included"]
+        result_df = pd.DataFrame.copy(self.df)
+        col_label = self.column_spec["included"]
+
+        # if there are labels, add them to the frame
         if labels is not None:
-            new_df[col] = labels
+
+            # unnest the nested (record_id, label) tuples
+            labeled_record_ids = [x[0] for x in labels]
+            labeled_values = [x[1] for x in labels]
+
+            # remove the old results and write the values
+            result_df[col_label] = LABEL_NA
+            result_df.loc[labeled_record_ids, col_label] = labeled_values
+
+        # if there is a ranking, apply this ranking as order
         if ranking is not None:
             # sort the datasets based on the ranking
-            new_df = new_df.iloc[ranking]
+            result_df = result_df.loc[ranking]
             # append a column with 1 to n
-            new_df["asreview_ranking"] = np.arange(1, len(new_df) + 1)
+            result_df["asreview_ranking"] = np.arange(1, len(result_df) + 1)
 
-        if col in list(new_df):
-            new_df[col] = new_df[col].astype(object)
-            new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
-        return new_df
+        # replace labeled NA values by np.nan
+        if col_label in list(result_df):
+            result_df[col_label] = result_df[col_label].astype(object)
+            result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
+
+        return result_df
 
     def to_csv(self, fp, labels=None, ranking=None):
         """Export to csv.

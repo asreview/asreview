@@ -472,7 +472,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     indices = [x[0] for x in label_history]
 
-    records = read_data(project_id).record(indices)
+    records = read_data(project_id).record(indices, by_index=False)
 
     payload = {"result": []}
     for i, record in enumerate(records):
@@ -540,7 +540,7 @@ def api_random_prior_papers(project_id):  # noqa: F401
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    record = read_data(project_id).record(pool_random)
+    record = read_data(project_id).record(pool_random, by_index=False)
 
     payload = {"result": []}
 
