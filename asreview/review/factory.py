@@ -219,11 +219,12 @@ def get_reviewer(dataset,
             texts, embedding_fp)
 
     # prior knowledge
-    if len(prior_idx) > 0 and len(prior_record_id) > 0:
+    if prior_idx is not None and prior_record_id is not None and \
+            len(prior_idx) > 0 and len(prior_record_id) > 0:
         raise ValueError(
             "Not possible to provide both prior_idx and prior_record_id"
         )
-    if len(prior_record_id) > 0:
+    if prior_record_id is not None and len(prior_record_id) > 0:
         prior_idx = convert_id_to_idx(as_data, prior_record_id)
 
     # Initialize the review class.
