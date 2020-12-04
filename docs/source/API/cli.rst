@@ -119,6 +119,8 @@ Example:
 
     Prior indices by record_id.
 
+.. versionadded:: 0.15
+
 .. option:: --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
 
     A dataset with papers that should be includedCan be used multiple times.
