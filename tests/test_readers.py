@@ -68,4 +68,4 @@ def test_csv_write_data():
     fp_in = Path("tests", "demo_data", "generic_labels.csv")
     fp_out = Path("tests", "out_data", "generic_out.csv")
     asr_data = ASReviewData.from_file(fp_in)
-    asr_data.to_csv(fp_out, labels=[0, 1, 0, 1, 0, 1])
+    asr_data.to_csv(fp_out, labels=[[0, 0], [2, 1], [3, 1]])

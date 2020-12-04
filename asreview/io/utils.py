@@ -144,5 +144,5 @@ def standardize_dataframe(df, column_spec={}):
     if df.index.name != "record_id":
         df["record_id"] = np.arange(len(df.index))
         df.set_index('record_id', inplace=True)
-    # df.sort_index(inplace=True)
+
     return df, all_column_spec
