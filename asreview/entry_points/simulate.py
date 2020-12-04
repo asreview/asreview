@@ -91,6 +91,13 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Prior indices by rownumber (0 is first rownumber)."
     )
     parser.add_argument(
+        "--prior_record_id",
+        default=[],
+        nargs="*",
+        type=int,
+        help="Prior indices by record_id."
+    )
+    parser.add_argument(
         "--included_dataset",
         default=[],
         nargs="*",

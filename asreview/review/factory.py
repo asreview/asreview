@@ -20,6 +20,7 @@ from pathlib import PurePath
 import numpy as np
 
 from asreview.models.balance.utils import get_balance_model
+from asreview.compat import convert_id_to_idx
 from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -125,6 +126,7 @@ def get_reviewer(dataset,
                  embedding_fp=None,
                  verbose=0,
                  prior_idx=None,
+                 prior_record_id=None,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  config_file=None,
@@ -215,6 +217,15 @@ def get_reviewer(dataset,
         texts = as_data.texts
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
+
+    # prior knowledge
+    if prior_idx is not None and prior_record_id is not None and \
+            len(prior_idx) > 0 and len(prior_record_id) > 0:
+        raise ValueError(
+            "Not possible to provide both prior_idx and prior_record_id"
+        )
+    if prior_record_id is not None and len(prior_record_id) > 0:
+        prior_idx = convert_id_to_idx(as_data, prior_record_id)
 
     # Initialize the review class.
     if mode == "simulate":
