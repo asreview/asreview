@@ -28,6 +28,7 @@ from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_proba_path
+from asreview.webapp.utils.paths import get_project_path
 
 
 class CacheDataError(Exception):
@@ -137,21 +138,61 @@ def write_pool(project_id, pool):
         json.dump(pool, f)
 
 
-def read_proba(project_id):
-    proba_fp = get_proba_path(project_id)
-    try:
-        with open(proba_fp, "r") as f:
-            proba = json.load(f)
+def read_proba_legacy(project_id):
+    """Read a project <0.15 proba values"""
+
+    # get the old json project file path
+    proba_fp = Path(get_project_path(project_id), "proba.json")
+
+    with open(proba_fp, "r") as f:
+
+        # read the JSON file and make a list of the proba's
+        proba = json.load(f)
         proba = [float(x) for x in proba]
-    except FileNotFoundError:
-        proba = None
+
+    # make a dataframe that looks like the new structure
+    as_data = read_data(project_id)
+    proba = pd.DataFrame(
+        {
+            "proba": [float(x) for x in proba]
+        },
+        index=as_data.record_ids
+    )
+    proba.index.name = "record_id"
     return proba
 
 
-def write_proba(project_id, proba):
+def read_proba(project_id):
+
     proba_fp = get_proba_path(project_id)
-    with open(proba_fp, "w") as f:
-        json.dump(proba, f)
+    try:
+        return pd.read_csv(proba_fp, index_col="record_id")
+    except FileNotFoundError:
+
+        # try to read the legacy file
+        try:
+            return read_proba_legacy(project_id)
+        except FileNotFoundError:
+            # no proba.csv or proba.json found.
+            pass
+
+    return None
+
+
+def write_proba(project_id, proba):
+
+    # get the proba file path location
+    proba_fp = get_proba_path(project_id)
+
+    # validate object
+    if not isinstance(proba, pd.DataFrame):
+        raise ValueError("Expect pandas.DataFrame with proba values.")
+
+    if proba.index.name != "record_id":
+        raise ValueError("Expect index with name 'record_id'.")
+
+    # write the file to a csv file
+    proba.to_csv(proba_fp)
 
 
 def read_label_history(project_id, subset=None):
@@ -189,17 +230,32 @@ def write_label_history(project_id, label_history):
         json.dump(label_history, f)
 
 
-def read_current_labels(project_id, as_data=None, label_history=None):
-    if as_data is None:
-        as_data = read_data(project_id)
+def read_current_labels(project_id, label_history=None):
+    """Function to combine label history with prior labels.
 
+    Function that combines the label info in the dataset and
+    the label history in the project file.
+    """
+    # read the asreview data
+    as_data = read_data(project_id)
+
+    # use label history from project file
     if label_history is None:
         label_history = read_label_history(project_id)
+
+    # get the labels in the import dataset
     labels = as_data.labels
+
+    # make a list of NA labels if None
     if labels is None:
         labels = np.full(len(as_data), LABEL_NA, dtype=int)
 
-    for idx, inclusion in label_history:
-        labels[idx] = inclusion
+    # update labels with label history
+    label_idx = [idx for idx, incl in label_history]
+    label_incl = [incl for idx, incl in label_history]
 
-    return np.array(labels, dtype=int)
+    # create a pandas series such that the index can be used
+    labels_s = pd.Series(labels, index=as_data.df.index)
+    labels_s.loc[label_idx] = label_incl
+
+    return np.array(labels_s, dtype=int)
