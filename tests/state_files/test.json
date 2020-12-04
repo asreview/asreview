@@ -1,0 +1,144 @@
+{
+  "time": {
+    "start_time": "2020-12-04 15:18:36.707297",
+    "end_time": "2020-12-04 15:18:36.726241"
+  },
+  "version": "2.1",
+  "software_version": "0.14+34.g9f376af.dirty",
+  "settings": {
+    "mode": "simulate",
+    "model": "logistic",
+    "query_strategy": "max",
+    "balance_strategy": "double",
+    "feature_extraction": "tfidf",
+    "n_instances": 1,
+    "n_queries": 2,
+    "n_papers": null,
+    "n_prior_included": 1,
+    "n_prior_excluded": 1,
+    "abstract_only": false,
+    "as_data": null,
+    "model_param": {
+      "C": 1.0,
+      "class_weight": 1.0,
+      "n_jobs": 1
+    },
+    "query_param": {},
+    "balance_param": {
+      "a": 2.155,
+      "alpha": 0.94,
+      "b": 0.789,
+      "beta": 1.0
+    },
+    "feature_param": {
+      "ngram_max": 1,
+      "stop_words": "english",
+      "split_ta": 0,
+      "use_keywords": 0
+    },
+    "data_name": "generic_labels"
+  },
+  "results": [
+    {
+      "labelled": [
+        [
+          1,
+          0,
+          "initial"
+        ],
+        [
+          2,
+          1,
+          "initial"
+        ],
+        [
+          3,
+          0,
+          "initial"
+        ],
+        [
+          4,
+          1,
+          "initial"
+        ]
+      ]
+    },
+    {
+      "pool_idx": [
+        0,
+        5
+      ],
+      "train_idx": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "proba": [
+        0.5029115213893832,
+        0.4970884786106167,
+        0.5029115213893832,
+        0.4970884786106167,
+        0.5029115213893832,
+        0.4970884786106167
+      ],
+      "labelled": [
+        [
+          0,
+          1,
+          "max"
+        ]
+      ]
+    },
+    {
+      "pool_idx": [
+        5
+      ],
+      "train_idx": [
+        1,
+        2,
+        3,
+        4,
+        0
+      ],
+      "proba": [
+        0.5741976802209606,
+        0.567276187034635,
+        0.5741976802209606,
+        0.567276187034635,
+        0.5741976802209606,
+        0.567276187034635
+      ],
+      "labelled": [
+        [
+          5,
+          0,
+          "max"
+        ]
+      ]
+    }
+  ],
+  "labels": [
+    1,
+    0,
+    1,
+    0,
+    1,
+    0
+  ],
+  "data_properties": {
+    "6cd1ba06a5444628ac7aa9a1b8834d2cf450e0f9": {
+      "record_table": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "feature_matrix": "UEsDBBQAAAAIAAAAIQBpHtMPzQAAAPwFAAALABQAaW5kaWNlcy5ucHkBABAA/AUAAAAAAADNAAAAAAAAAO3Ru04CURSF4QMKCKigAiKoHEA4A4woDhch1nYQGgorMnGGQGIYM0NsiE/BC/sbn0A6Liv5ir26lb0ajPrDN5/4Ektl2d67q3pSvcyaSpdq4rgL15yPHdeyf/tX88Oz6b2p+Wlza0aroVd0+S3XTqQnhOjiGR200UITBp7QwCMeUMc9dNRQRQUaFMoo4Q5FFJCHRA63uME1ssjgCmlcIoUkErjAOc4QRwynOMExIgjjCCEEEcAhDuCHT/xlk3dGd2jrruzc/3T7dv73pz9QSwMEFAAAAAgAAAAhAOcsNWBXAAAAnAAAAAoAFABpbmRwdHIubnB5AQAQAJwAAAAAAAAAVwAAAAAAAACb7BfqGxDJyFDGUK2eklqcXKRupaBuk2mirqOgnpZfVFKUmBefX5SSChJ3S8wpTgWKF2ckFqQC+RrmOpo6CrUKFAAuBiCwAuJSIF4PxK+AWIWRgSEeiAFQSwMEFAAAAAgAAAAhAKPDdJdFAAAAgwAAAAoAFABmb3JtYXQubnB5AQAQAIMAAAAAAAAARQAAAAAAAACb7BfqGxDJyFDGUK2eklqcXKRupaBeE2ysrqOgnpZfVFKUmBefX5SSChJ3S8wpTgWKF2ckFqQC+RqaOgq1ChQBruTiIgBQSwMEFAAAAAgAAAAhAC9MZ45KAAAAkAAAAAkAFABzaGFwZS5ucHkBABAAkAAAAAAAAABKAAAAAAAAAJvsF+obEMnIUMZQrZ6SWpxcpG6loG6TaaGuo6Cell9UUpSYF59flJIKEndLzClOBYoXZyQWpAL5GkY6mjoKtQoUAC42BgiwhtIAUEsDBBQAAAAIAAAAIQC1gK5UsQAAAHgLAAAIABQAZGF0YS5ucHkBABAAeAsAAAAAAACxAAAAAAAAAJvsF+obEMnIUMZQrZ6SWpxcpG6loG6TZqGuo6Cell9UUpSYF59flJIKEndLzClOBYoXZyQWpAL5GsamhjqaOgq1CmQDLtfV7a/ZI3fa05c+SYBPSJxYeeLVFx9Y+uEo02Ui9RNyP7o6Ut1JfniK2dswsPDSmz5JgE9InFh54tUH6OsyHD55iUj9hNyPrg7TXsGf3ye97jhMs3Adzaej+XQ0n47m09F8OppPR/Mp5eEKAFBLAQIUAxQAAAAIAAAAIQBpHtMPzQAAAPwFAAALAAAAAAAAAAAAAACAAQAAAABpbmRpY2VzLm5weVBLAQIUAxQAAAAIAAAAIQDnLDVgVwAAAJwAAAAKAAAAAAAAAAAAAACAAQoBAABpbmRwdHIubnB5UEsBAhQDFAAAAAgAAAAhAKPDdJdFAAAAgwAAAAoAAAAAAAAAAAAAAIABnQEAAGZvcm1hdC5ucHlQSwECFAMUAAAACAAAACEAL0xnjkoAAACQAAAACQAAAAAAAAAAAAAAgAEeAgAAc2hhcGUubnB5UEsBAhQDFAAAAAgAAAAhALWArlSxAAAAeAsAAAgAAAAAAAAAAAAAAIABowIAAGRhdGEubnB5UEsFBgAAAAAFAAUAFgEAAI4DAAAAAA==",
+      "matrix_type": "csr_matrix"
+    }
+  },
+  "current_queries": {}
+}
