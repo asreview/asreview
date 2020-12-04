@@ -65,7 +65,7 @@ def type_from_column_spec(col_name, column_spec):
 
 def _is_record_id_unique(s):
 
-    if len(np.unique(s)) != len(s.index):
+    if len(pd.unique(s)) != len(s.index):
         raise ValueError("Column 'record_id' contains duplicate values.")
 
 
