@@ -14,6 +14,16 @@ demonstrating ASReview (used for the Exploration mode), the software offers
 `Demonstration Datasets`_. Also, a plugin with :doc:`Corona related
 publications <../plugins/covid19>` is available.
 
+.. warning::
+
+    I If you upload your own data, make sure to remove duplicates and to
+    retrieve  as many abstracts as possible (`don't know how?
+    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    benefit most from what :doc:`active learning <../guides/activelearning>` 
+    has to offer. 
+
+
+
 Data Format
 -----------
 
