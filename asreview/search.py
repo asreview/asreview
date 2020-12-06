@@ -135,8 +135,8 @@ def fuzzy_find(as_data,
     if exclude is None:
         exclude = np.array([], dtype=int)
     for idx in sorted_idx:
-        if ((not by_index and as_data.df.index.values[idx] in exclude)
-                or by_index and idx in exclude):
+        if ((not by_index and as_data.df.index.values[idx] in exclude) or
+                by_index and idx in exclude):
             continue
         if len(best_idx) >= max_return:
             break
