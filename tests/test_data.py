@@ -5,6 +5,7 @@ from pytest import mark
 
 from asreview import ASReviewData
 from asreview.datasets import DatasetManager
+from asreview.search import fuzzy_find
 
 
 def exists(url):
@@ -26,7 +27,7 @@ def test_fuzzy_finder(keywords, paper_id):
     fp = Path("tests", "demo_data", "embase.csv")
     as_data = ASReviewData.from_file(fp)
 
-    assert as_data.fuzzy_find(keywords)[0] == paper_id
+    assert fuzzy_find(as_data, keywords)[0] == paper_id
 
 
 @mark.parametrize("data_name", [
