@@ -82,6 +82,11 @@ class ASReviewData():
         if data_type == "prior":
             self.prior_idx = df.index.values
 
+    def __len__(self):
+        if self.df is None:
+            return 0
+        return len(self.df.index)
+
     def hash(self):
         """Compute a hash from the dataset.
 
@@ -395,11 +400,6 @@ class ASReviewData():
         if by_index:
             return np.array(query_src["initial"], dtype=int)
         return self.df.index.values[query_src["initial"]]
-
-    def __len__(self):
-        if self.df is None:
-            return 0
-        return len(self.df.index)
 
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
