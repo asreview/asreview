@@ -12,86 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from difflib import SequenceMatcher
 import hashlib
-from pathlib import Path
 import pkg_resources
+from pathlib import Path
 from urllib.parse import urlparse
-import re
 
 import numpy as np
 import pandas as pd
 
-from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io.paper_record import PaperRecord
 from asreview.io.ris_reader import write_ris
-from asreview.io.utils import type_from_column, convert_keywords
-from asreview.utils import format_to_str
+from asreview.io.utils import type_from_column
+from asreview.io.utils import convert_keywords
 from asreview.utils import is_iterable
 from asreview.utils import is_url
-
-
-def create_inverted_index(match_strings):
-    index = {}
-    word = re.compile(r"['\w]+")
-    for i, match in enumerate(match_strings):
-        tokens = word.findall(match.lower())
-        for token in tokens:
-            if token in index:
-                if index[token][-1] != i:
-                    index[token].append(i)
-            else:
-                index[token] = [i]
-    return index
-
-
-def match_best(keywords, index, match_strings, threshold=0.75):
-    n_match = len(match_strings)
-    word = re.compile(r"['\w]+")
-    key_list = word.findall(keywords.lower())
-
-    ratios = np.zeros(n_match)
-    for key in key_list:
-        cur_ratios = {}
-        s = SequenceMatcher()
-        s.set_seq2(key)
-        for token in index:
-            s.set_seq1(token)
-            ratio = s.quick_ratio()
-            if ratio < threshold:
-                continue
-            for idx in index[token]:
-                if ratio > cur_ratios.get(idx, 0.0):
-                    cur_ratios[idx] = ratio
-
-        for idx, rat in cur_ratios.items():
-            ratios[idx] += rat
-
-    return (100 * ratios) / len(key_list)
-
-
-def token_set_ratio(keywords, match_strings):
-    inv_index = create_inverted_index(match_strings)
-    return match_best(keywords, inv_index, match_strings)
-
-
-def get_fuzzy_scores(keywords, match_strings):
-    """Rank a list of strings, depending on a set of keywords.
-
-    Arguments
-    ---------
-    keywords: str
-        Keywords that we are trying to find in the string list.
-    str_list: list
-        List of strings that should be scored according to the keywords.
-
-    Returns
-    -------
-    numpy.ndarray
-        Array of scores ordered in the same way as the str_list input.
-    """
-    return token_set_ratio(keywords, match_strings)
 
 
 class ASReviewData():
@@ -326,74 +263,6 @@ class ASReviewData():
         if is_iterable(i):
             return records
         return records[0]
-
-    @property
-    def match_string(self):
-        match_str = np.full(len(self), "x", dtype=object)
-
-        all_titles = self.title
-        all_authors = self.authors
-        all_keywords = self.keywords
-        for i in range(len(self)):
-            match_list = []
-            if all_authors is not None:
-                match_list.append(format_to_str(all_authors[i]))
-            match_list.append(all_titles[i])
-            if all_keywords is not None:
-                match_list.append(format_to_str(all_keywords[i]))
-            match_str[i, ] = " ".join(match_list)
-        return match_str
-
-    def fuzzy_find(self,
-                   keywords,
-                   threshold=60,
-                   max_return=10,
-                   exclude=None,
-                   by_index=True):
-        """Find a record using keywords.
-
-        It looks for keywords in the title/authors/keywords
-        (for as much is available). Using the diflib package it creates
-        a ranking based on token set matching.
-
-        Arguments
-        ---------
-        keywords: str
-            A string of keywords together, can be a combination.
-        threshold: float
-            Don't return records below this threshold.
-        max_return: int
-            Maximum number of records to return.
-        exclude: list, numpy.ndarray
-            List of indices that should be excluded in the search. You would
-            put papers that were already labeled here for example.
-        by_index: bool
-            If True, use internal indexing.
-            If False, use record ids for indexing.
-
-        Returns
-        -------
-        list
-            Sorted list of indexes that match best the keywords.
-        """
-        new_ranking = get_fuzzy_scores(keywords, self.match_string)
-        sorted_idx = np.argsort(-new_ranking)
-        best_idx = []
-        if exclude is None:
-            exclude = np.array([], dtype=int)
-        for idx in sorted_idx:
-            if ((not by_index and self.df.index.values[idx] in exclude) or
-                    by_index and idx in exclude):
-                continue
-            if len(best_idx) >= max_return:
-                break
-            if len(best_idx) > 0 and new_ranking[idx] < threshold:
-                break
-            best_idx.append(idx)
-        fuzz_idx = np.array(best_idx, dtype=np.int)
-        if not by_index:
-            fuzz_idx = self.df.index.values[fuzz_idx]
-        return fuzz_idx.tolist()
 
     @property
     def record_ids(self):
