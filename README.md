@@ -1,4 +1,8 @@
-[![ASReview logo](https://github.com/asreview/asreview/blob/master/images/RepoCardGithub-1280x640px.png?raw=true)](https://github.com/asreview/asreview)
+<p align="center">
+  <a href="https://github.com/asreview/asreview">
+    <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview/master/images/RepoCardGithub-1280x640px.png">
+  </a>
+</p>
 
 ## ASReview: Active learning for Systematic Reviews
 
