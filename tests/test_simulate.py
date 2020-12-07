@@ -28,6 +28,15 @@ h5_state_file = Path(state_dir, "test.h5")
 json_state_file = Path(state_dir, "test.json")
 
 
+@pytest.mark.xfail(
+    raises=FileNotFoundError,
+    reason="Dataset not found"
+)
+def test_dataset_not_found():
+    reviewer = get_reviewer("doesnt_exist.csv", mode="simulate")
+    reviewer.review()
+
+
 def test_state_continue_json():
     inter_file = Path(state_dir, "test_1_inst.json")
     if not inter_file.is_file():
