@@ -55,7 +55,7 @@ const quickTourSteps = [
   {
     imgPath: Benefit,
     textTitle: "Benefit from AI-assisted reviewing",
-    text: "After each decision, the predicted ranking of records is updated. If certainty-based is selected as query strategy, you will see the most relevant record next.",
+    text: "After each decision, the predicted ranking of records is updated and you will see the most relevant record next (default).",
   },
   {
     imgPath: DontStress,
@@ -70,7 +70,7 @@ const quickTourSteps = [
   {
     imgPath: Publish,
     textTitle: "Love Open Science",
-    text: "Share the ASReview project file to enhance transparency. It contains all your decisions, as well as the technical information to reproduce the results.",
+    text: "Share the ASReview project file to enhance transparency and reproducibility.",
   },
 ];
 
