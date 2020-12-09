@@ -89,7 +89,7 @@ class method ``execute``.
         extension_name = "asreview-example"  # Name of the extension
         version = "1.0"  # Version of the extension in x.y(.z) format.
 
-        def execute(self, argv)
+        def execute(self, argv):
             pass  # Implement your functionality here.
 
 It is strongly recommended to define the attributes ``description``,
