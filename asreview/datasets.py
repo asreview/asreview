@@ -220,7 +220,9 @@ class DatasetManager():
             return list(all_results.values())[0]
 
         # Could not find dataset, return None.
-        return None
+        raise FileNotFoundError(
+            f"File or dataset does not exist: '{dataset_name}'"
+        )
 
     def list(self, group_name=None, latest_only=True):
         """List the available datasets.
