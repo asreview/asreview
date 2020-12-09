@@ -36,7 +36,7 @@ def _find_inclusions(state, labels, remove_initial=True):
                 cur_inclusions += labels[label_idx[i]]
                 inclusions.append(cur_inclusions)
 
-    inclusions_after_init = sum(labels)
+    inclusions_after_init = sum(labels == 1)
     if remove_initial:
         inclusions_after_init -= n_initial_inc
     return inclusions, inclusions_after_init, n_initial
