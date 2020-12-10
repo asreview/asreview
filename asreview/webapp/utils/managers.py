@@ -46,11 +46,11 @@ def get_random_from_pool(project_id):
         pool = read_pool(project_id)
 
     try:
-        pool_random = np.random.choice(pool, 1, replace=False)[0]
+        random_index = np.random.choice(pool, 1, replace=False)[0]
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    return pool_random["index"]
+    return pool[random_index]
 
 
 def add_to_labeled(project_id, paper_i, label):
