@@ -481,62 +481,48 @@ def api_get_prior(project_id):  # noqa: F401
 def api_get_prior_stats(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+    # get the labeled data
     lock_fp = get_lock_path(project_id)
     with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        label_history = read_label_history(project_id)
-
-    counter_prior = Counter(label_history)
+        label_history = get_labeled_labels(project_id)
+        # alternative would be read_label_history and extract it
+        # from source
 
     response = jsonify({
         "n_prior": len(label_history),
-        "n_inclusions": counter_prior[1],
-        "n_exclusions": counter_prior[0]
+        "n_inclusions": label_history.count(1),
+        "n_exclusions": label_history.count(0)
     })
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
 @bp.route('/project/<project_id>/prior_random', methods=["GET"])
-def api_random_prior_papers(project_id):  # noqa: F401
-    """Get a selection of random papers to find exclusions.
+def api_random_prior_item(project_id):  # noqa: F401
+    """Get a random record to find exclusions.
 
-    This set of papers is extracted from the pool, but without
-    the already labeled items.
+    This set of papers is extracted from the pool.
     """
 
-    lock_fp = get_lock_path(project_id)
-    with SQLiteLock(lock_fp, blocking=True, lock_name="active"):
-        pool = read_pool(project_id)
+    # get item from pool
+    item_random = get_random_from_pool(project_id)
 
-#     with open(get_labeled_path(project_id, 0), "r") as f_label:
-#         prior_labeled = json.load(f_label)
+    # find attributes of record
+    record = read_data(project_id).record(item_random)
 
-    # excluded the already labeled items from our random selection.
-#     prior_labeled_index = [int(label) for label in prior_labeled.keys()]
-#     pool = [i for i in pool if i not in prior_labeled_index]
+    # define payload
+    payload = {"result": [
+        {
+            "id": int(record.record_id),
+            "title": record.title,
+            "abstract": record.abstract,
+            "authors": record.authors,
+            "keywords": record.keywords,
+            "included": None
+        }
+    ]}
 
-    # sample from the pool (this is already done atm of initializing
-    # the pool. But doing it again because a double shuffle is always
-    # best)
-
-    try:
-        pool_random = np.random.choice(pool, 1, replace=False)[0]
-    except Exception:
-        raise ValueError("Not enough random indices to sample from.")
-
-    record = read_data(project_id).record(pool_random)
-
-    payload = {"result": []}
-
-    payload["result"].append({
-        "id": int(record.record_id),
-        "title": record.title,
-        "abstract": record.abstract,
-        "authors": record.authors,
-        "keywords": record.keywords,
-        "included": None
-    })
-
+    # return response
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response

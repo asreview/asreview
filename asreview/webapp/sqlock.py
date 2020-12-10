@@ -3,6 +3,8 @@ import os
 import sqlite3
 from time import sleep
 
+# from asreview.webapp.utils.paths import get_lock_path
+
 
 def _log_msg(msg, project_id=None):
     """Return the log message with project_id."""
@@ -26,12 +28,21 @@ def release_all_locks(db_file):
 
 class SQLiteLock():
     def __init__(self,
-                 db_file,
+                 db_file=None,
                  lock_name="global",
                  blocking=False,
                  timeout=30,
                  polling_rate=0.4,
                  project_id=None):
+
+        # # set the lock path based on project_id if not available
+        # if db_file is not None:
+        #     self.db_file = db_file
+        # elif db_file is None and project_id is not None:
+        #     self.db_file = get_lock_path(project_id)
+        # else:
+        #     raise ValueError("Provide db_file or project_id")
+
         self.db_file = db_file
         self.lock_name = lock_name
         self.lock_acquired = False

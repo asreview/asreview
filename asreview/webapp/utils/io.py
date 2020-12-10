@@ -155,34 +155,56 @@ def _validate_labeled_raw(data):
 
 
 def read_label_history(project_id, subset=None):
-    """Get all the newly labeled papers from the file.
+    """Get the label history.
 
     Make sure to lock the "active" lock.
+
+    Parameters
+    ----------
+    project_id: str, iterable
+        The project identifier.
+    subset: bool
+        'included', 'excluded' or None
+
+    Returns
+    -------
+    list:
+        List with labeled items.
+
     """
 
     try:
+        # extract labels from file
         with open(get_labeled_path(project_id), "r") as fp:
             labeled = json.load(fp)
-            labeled = _convert_labeled_raw(labeled)
-        if subset is None:
-            return labeled
-        elif subset in ["included", "relevant"]:
-            return filter(lambda x: int(x["label"]) == 1, labeled)
-        elif subset in ["excluded", "irrelevant"]:
-            return filter(lambda x: int(x["label"]) == 0, labeled)
-        else:
-            raise ValueError(f"Subset value '{subset}' not found.")
 
+            # convert file with labels if in old format
+            labeled = _convert_labeled_raw(labeled)
+
+    # file not found implies that there is no file written yet
     except FileNotFoundError:
-        # file not found implies that there is no file written yet
         labeled = []
 
-    return labeled
+    # return the full set, return a subset or raise error
+    if subset is None:
+        return labeled
+    elif subset in ["included", "relevant"]:
+        return filter(lambda x: int(x["label"]) == 1, labeled)
+    elif subset in ["excluded", "irrelevant"]:
+        return filter(lambda x: int(x["label"]) == 0, labeled)
+    else:
+        raise ValueError(f"Subset value '{subset}' not found.")
 
 
 def write_label_history(project_id, label_history):
+
+    # validate the label_history
+    # TODO
+
+    # get path to the file location
     label_fp = get_labeled_path(project_id)
 
+    # write labeled items to file
     with open(label_fp, "w") as f:
         json.dump(label_history, f)
 

@@ -21,7 +21,7 @@ from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.managers import move_label_from_labeled_to_pool
 from asreview.webapp.utils.managers import move_label_from_pool_to_labeled
-from asreview.webapp.utils.paths import asreview_path
+from asreview.webapp.utils.paths import asreview_path, get_data_path
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
@@ -59,8 +59,8 @@ def init_project(project_id,
         raise ValueError("Project already exists.")
 
     try:
-        get_project_path(project_id).mkdir()
-        get_data_path(project_id).mkdir()
+        get_project_path(project_id).mkdir(parents=True, exist_ok=True)
+        get_data_path(project_id).mkdir(parents=False, exist_ok=True)
 
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
@@ -248,31 +248,47 @@ def get_instance(project_id):
 
 
 def get_statistics(project_id):
+
+    # get lock path
     fp_lock = get_lock_path(project_id)
 
     with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
-        # get the index of the active iteration
+            fp_lock,
+            blocking=True,
+            lock_name="active",
+            project_id=project_id
+    ):
         label_history = read_label_history(project_id)
         current_labels = read_current_labels(
-            project_id, label_history=label_history)
+            project_id,
+            label_history=label_history
+        )
 
-    n_since_last_inclusion = 0
-    for _, inclusion in reversed(label_history):
-        if inclusion == 1:
-            break
-        n_since_last_inclusion += 1
+    # n_since_last_inclusion = 0
+    # for _, inclusion in reversed(label_history):
+    #     if inclusion == 1:
+    #         break
+    #     n_since_last_inclusion += 1
 
-    n_included = len(np.where(current_labels == 1)[0])
-    n_excluded = len(np.where(current_labels == 0)[0])
-    n_papers = len(current_labels)
+    # n_included = len(np.where(current_labels == 1)[0])
+    # n_excluded = len(np.where(current_labels == 0)[0])
+    # n_papers = len(current_labels)
+    # stats = {
+    #     "n_included": n_included,
+    #     "n_excluded": n_excluded,
+    #     "n_since_last_inclusion": n_since_last_inclusion,
+    #     "n_papers": n_papers,
+    #     "n_pool": n_papers - n_included - n_excluded
+    # }
+
     stats = {
-        "n_included": n_included,
-        "n_excluded": n_excluded,
-        "n_since_last_inclusion": n_since_last_inclusion,
-        "n_papers": n_papers,
-        "n_pool": n_papers - n_included - n_excluded
+        "n_included": 0,
+        "n_excluded": 0,
+        "n_since_last_inclusion": 0,
+        "n_papers": 100,
+        "n_pool": 99
     }
+
     return stats
 
 

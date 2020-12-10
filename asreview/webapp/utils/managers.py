@@ -14,7 +14,7 @@ def add_to_pool(project_id, paper_i):
 
     # load the papers from the pool
     pool_list = read_pool(project_id)
-    pool_list.append(paper_i)
+    pool_list.append({"index": int(paper_i)})
 
     # write the papers to the label dataset
     write_pool(project_id, pool_list)
@@ -50,7 +50,7 @@ def get_random_from_pool(project_id):
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    return pool_random
+    return pool_random["index"]
 
 
 def add_to_labeled(project_id, paper_i, label):
