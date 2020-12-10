@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,11 +36,11 @@ class BaseQueryStrategy(BaseModel):
 
         Arguments
         ---------
-        X: np.array
+        X: numpy.ndarray
             Feature matrix to choose samples from.
         classifier: SKLearnModel
             Trained classifier to compute probabilities if they are necessary.
-        pool_idx: np.array
+        pool_idx: numpy.ndarray
             Indices of samples that are still in the pool.
         n_instances: int
             Number of instances to query.

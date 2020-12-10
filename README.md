@@ -1,4 +1,8 @@
-[![ASReview logo](https://github.com/asreview/asreview/blob/master/images/RepoCardGithub-1280x640px.png?raw=true)](https://github.com/asreview/asreview)
+<p align="center">
+  <a href="https://github.com/asreview/asreview">
+    <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview/master/images/RepoCardGithub-1280x640px.png">
+  </a>
+</p>
 
 ## ASReview: Active learning for Systematic Reviews
 
@@ -42,7 +46,7 @@ pip install --upgrade asreview
 
 ## ASReview LAB
 
-ASReview LAB is a user-friendly interface for screening documents and experimentation with AI-aided systematic reviews. Read more about using the software in the [Quick Tour](https://asreview.readthedocs.io/en/latest/quicktour.html).
+ASReview LAB is a user-friendly interface for screening documents and experimentation with AI-aided systematic reviews. Read more about using the software in the [Quick Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html).
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview LAB Quick Tour")
 
@@ -60,7 +64,7 @@ pip install asreview-covid19
 
 ## Documentation
 
-Documentation is available at [asreview.rtfd.io](https://asreview.rtfd.io). Please have a look at https://asreview.readthedocs.io/en/latest/quicktour.html for a quick tour through the user interface.
+Documentation is available at [asreview.readthedocs.io/](https://asreview.readthedocs.io/). Please have a look at https://asreview.readthedocs.io/en/latest/lab/overview_lab.html for a quick tour through the user interface.
 
 Check out the ASReview website, https://asreview.nl/, for more information and our blog.
 

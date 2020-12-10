@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,86 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from difflib import SequenceMatcher
 import hashlib
-from pathlib import Path
 import pkg_resources
+from pathlib import Path
 from urllib.parse import urlparse
-import re
 
 import numpy as np
 import pandas as pd
 
-from asreview.config import LABEL_NA, COLUMN_DEFINITIONS
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io.paper_record import PaperRecord
 from asreview.io.ris_reader import write_ris
-from asreview.io.utils import type_from_column, convert_keywords
-from asreview.utils import format_to_str
+from asreview.io.utils import type_from_column
+from asreview.io.utils import convert_keywords
 from asreview.utils import is_iterable
 from asreview.utils import is_url
-
-
-def create_inverted_index(match_strings):
-    index = {}
-    word = re.compile(r"['\w]+")
-    for i, match in enumerate(match_strings):
-        tokens = word.findall(match.lower())
-        for token in tokens:
-            if token in index:
-                if index[token][-1] != i:
-                    index[token].append(i)
-            else:
-                index[token] = [i]
-    return index
-
-
-def match_best(keywords, index, match_strings, threshold=0.75):
-    n_match = len(match_strings)
-    word = re.compile(r"['\w]+")
-    key_list = word.findall(keywords.lower())
-
-    ratios = np.zeros(n_match)
-    for key in key_list:
-        cur_ratios = {}
-        s = SequenceMatcher()
-        s.set_seq2(key)
-        for token in index:
-            s.set_seq1(token)
-            ratio = s.quick_ratio()
-            if ratio < threshold:
-                continue
-            for idx in index[token]:
-                if ratio > cur_ratios.get(idx, 0.0):
-                    cur_ratios[idx] = ratio
-
-        for idx, rat in cur_ratios.items():
-            ratios[idx] += rat
-
-    return (100 * ratios) / len(key_list)
-
-
-def token_set_ratio(keywords, match_strings):
-    inv_index = create_inverted_index(match_strings)
-    return match_best(keywords, inv_index, match_strings)
-
-
-def get_fuzzy_scores(keywords, match_strings):
-    """Rank a list of strings, depending on a set of keywords.
-
-    Arguments
-    ---------
-    keywords: str
-        Keywords that we are trying to find in the string list.
-    str_list: list
-        List of strings that should be scored according to the keywords.
-
-    Returns
-    -------
-    np.ndarray:
-        Array of scores ordered in the same way as the str_list input.
-    """
-    return token_set_ratio(keywords, match_strings)
 
 
 class ASReviewData():
@@ -99,7 +36,7 @@ class ASReviewData():
 
     Arguments
     ---------
-    df: pd.DataFrame
+    df: pandas.DataFrame
         Dataframe containing the data for the ASReview data object.
     data_name: str
         Give a name to the data object.
@@ -145,6 +82,11 @@ class ASReviewData():
         if data_type == "prior":
             self.prior_idx = df.index.values
 
+    def __len__(self):
+        if self.df is None:
+            return 0
+        return len(self.df.index)
+
     def hash(self):
         """Compute a hash from the dataset.
 
@@ -168,12 +110,12 @@ class ASReviewData():
 
         Arguments
         ---------
-        idx: list, np.ndarray
+        idx: list, numpy.ndarray
             Record ids that should be kept.
 
         Returns
         -------
-        ASReviewData:
+        ASReviewData
             Slice of itself.
         """
         if self.df is None:
@@ -242,9 +184,9 @@ class ASReviewData():
 
         Arguments
         ---------
-        fp: str, Path
+        fp: str, pathlib.Path
             Read the data from this file.
-        read_fn: function
+        read_fn: callable
             Function to read the file. It should return a standardized
             dataframe.
         data_name: str
@@ -300,7 +242,7 @@ class ASReviewData():
 
         Returns
         -------
-        PaperRecord:
+        PaperRecord
             The corresponding record if i was an integer, or a list of records
             if i was an iterable.
         """
@@ -326,85 +268,6 @@ class ASReviewData():
         if is_iterable(i):
             return records
         return records[0]
-
-    def preview_record(self, i, by_index=True, *args, **kwargs):
-        "Return a preview string for record i."
-        return self.record(i, by_index=by_index).preview(*args, **kwargs)
-
-    def format_record(self, i, by_index=True, *args, **kwargs):
-        "Format one record for displaying in the CLI."
-        return self.record(i, by_index=by_index).format(*args, **kwargs)
-
-    def print_record(self, *args, **kwargs):
-        "Print a record to the CLI."
-        print(self.format_record(*args, **kwargs))
-
-    @property
-    def match_string(self):
-        match_str = np.full(len(self), "x", dtype=object)
-
-        all_titles = self.title
-        all_authors = self.authors
-        all_keywords = self.keywords
-        for i in range(len(self)):
-            match_list = []
-            if all_authors is not None:
-                match_list.append(format_to_str(all_authors[i]))
-            match_list.append(all_titles[i])
-            if all_keywords is not None:
-                match_list.append(format_to_str(all_keywords[i]))
-            match_str[i, ] = " ".join(match_list)
-        return match_str
-
-    def fuzzy_find(self,
-                   keywords,
-                   threshold=60,
-                   max_return=10,
-                   exclude=None,
-                   by_index=True):
-        """Find a record using keywords.
-
-        It looks for keywords in the title/authors/keywords
-        (for as much is available). Using the diflib package it creates
-        a ranking based on token set matching.
-
-        Arguments
-        ---------
-        keywords: str
-            A string of keywords together, can be a combination.
-        threshold: float
-            Don't return records below this threshold.
-        max_return: int
-            Maximum number of records to return.
-        exclude: list, np.ndarray
-            List of indices that should be excluded in the search. You would
-            put papers that were already labeled here for example.
-        by_index: bool
-            If True, use internal indexing.
-            If False, use record ids for indexing.
-        Returns
-        -------
-        list:
-            Sorted list of indexes that match best the keywords.
-        """
-        new_ranking = get_fuzzy_scores(keywords, self.match_string)
-        sorted_idx = np.argsort(-new_ranking)
-        best_idx = []
-        if exclude is None:
-            exclude = np.array([], dtype=int)
-        for idx in sorted_idx:
-            if ((not by_index and self.df.index.values[idx] in exclude) or
-                    by_index and idx in exclude):
-                continue
-            if len(best_idx) >= max_return:
-                break
-            if len(best_idx) > 0 and new_ranking[idx] < threshold:
-                break
-            best_idx.append(idx)
-        fuzz_idx = np.array(best_idx, dtype=np.int)
-        if not by_index:
-            fuzz_idx = self.df.index.values[fuzz_idx]
-        return fuzz_idx.tolist()
 
     @property
     def record_ids(self):
@@ -528,7 +391,7 @@ class ASReviewData():
 
         Returns
         -------
-        np.array:
+        numpy.ndarray
             Array of indices that have the 'initial' property.
         """
         query_src = state.startup_vals()["query_src"]
@@ -537,11 +400,6 @@ class ASReviewData():
         if by_index:
             return np.array(query_src["initial"], dtype=int)
         return self.df.index.values[query_src["initial"]]
-
-    def __len__(self):
-        if self.df is None:
-            return 0
-        return len(self.df.index)
 
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
@@ -552,9 +410,9 @@ class ASReviewData():
         ---------
         fp: str
             Filepath to export to.
-        labels: list, np.array
+        labels: list, numpy.ndarray
             Labels to be inserted into the dataframe before export.
-        ranking: list, np.array
+        ranking: list, numpy.ndarray
             Optionally, dataframe rows can be reordered.
         """
         if Path(fp).suffix in [".csv", ".CSV"]:
@@ -573,32 +431,45 @@ class ASReviewData():
 
         Arguments
         ---------
-        labels: list, np.ndarray
+        labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
-            Reorder the dataframe according to these (internal) indices.
+            Reorder the dataframe according to these record_ids.
             Default ordering if ranking is None.
 
         Returns
         -------
-        pd.DataFrame:
+        pandas.DataFrame
             Dataframe of all available record data.
         """
-        new_df = pd.DataFrame.copy(self.df)
-        col = self.column_spec["included"]
+        result_df = pd.DataFrame.copy(self.df)
+        col_label = self.column_spec["included"]
+
+        # if there are labels, add them to the frame
         if labels is not None:
-            new_df[col] = labels
+
+            # unnest the nested (record_id, label) tuples
+            labeled_record_ids = [x[0] for x in labels]
+            labeled_values = [x[1] for x in labels]
+
+            # remove the old results and write the values
+            result_df[col_label] = LABEL_NA
+            result_df.loc[labeled_record_ids, col_label] = labeled_values
+
+        # if there is a ranking, apply this ranking as order
         if ranking is not None:
             # sort the datasets based on the ranking
-            new_df = new_df.iloc[ranking]
+            result_df = result_df.loc[ranking]
             # append a column with 1 to n
-            new_df["asreview_ranking"] = np.arange(1, len(new_df) + 1)
+            result_df["asreview_ranking"] = np.arange(1, len(result_df) + 1)
 
-        if col in list(new_df):
-            new_df[col] = new_df[col].astype(object)
-            new_df.loc[new_df[col] == LABEL_NA, col] = np.nan
-        return new_df
+        # replace labeled NA values by np.nan
+        if col_label in list(result_df):
+            result_df[col_label] = result_df[col_label].astype(object)
+            result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
+
+        return result_df
 
     def to_csv(self, fp, labels=None, ranking=None):
         """Export to csv.
@@ -607,7 +478,7 @@ class ASReviewData():
         ---------
         fp: str, NoneType
             Filepath or None for buffer.
-        labels: list, np.ndarray
+        labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
@@ -616,7 +487,7 @@ class ASReviewData():
 
         Returns
         -------
-        pd.DataFrame:
+        pandas.DataFrame
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
@@ -629,7 +500,7 @@ class ASReviewData():
         ---------
         fp: str, NoneType
             Filepath or None for buffer.
-        labels: list, np.ndarray
+        labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
         ranking: list
@@ -638,7 +509,7 @@ class ASReviewData():
 
         Returns
         -------
-        pd.DataFrame:
+        pandas.DataFrame
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)

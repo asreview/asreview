@@ -1,0 +1,11 @@
+record_id,title,abstract,final_included
+12,Lorem Ipsum record_id 12 - row 0 (1 label),Lorem Ipsum,1
+11,Lorem Ipsum record_id 11 - row 1 (0 label),Lorem Ipsum,0
+10,Lorem Ipsum record_id 10 - row 2,Lorem Ipsum,
+9,Lorem Ipsum record_id 9 - row 3,Lorem Ipsum,
+8,Lorem Ipsum record_id 8 - row 4,Lorem Ipsum,
+7,Lorem Ipsum record_id 7 - row 5,Lorem Ipsum,
+6,Lorem Ipsum record_id 6 - row 6,Lorem Ipsum,
+5,Lorem Ipsum record_id 5 - row 7,Lorem Ipsum,
+4,Lorem Ipsum record_id 4 - row 8,Lorem Ipsum,
+3,Lorem Ipsum record_id 3 - row 9,Lorem Ipsum,

@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,9 +36,11 @@ class BaseTrainClassifier(BaseModel):
     def fit(self, X, y):
         """Fit the model to the data.
 
-        X: np.array
+        Arguments
+        ---------
+        X: numpy.ndarray
             Feature matrix to fit.
-        y: np.array
+        y: numpy.ndarray
             Labels for supervised learning.
         """
         return self._model.fit(X, y)
@@ -48,12 +50,12 @@ class BaseTrainClassifier(BaseModel):
 
         Arguments
         ---------
-        X: np.array
+        X: numpy.ndarray
             Feature matrix to predict.
 
         Returns
         -------
-        np.array:
+        numpy.ndarray
             Array with the probabilities for each class, with two
             columns (class 0, and class 1) and the number of samples rows.
         """
@@ -64,10 +66,8 @@ class BaseTrainClassifier(BaseModel):
 
         Returns
         -------
-        dict:
-            Parameter space.
-        dict:
-            Parameter choices; in case of hyperparameters with a list of
-            choices, store the choices there.
+        dict, dict
+            Parameter space. Parameter choices; in case of hyperparameters
+            with a list of choices, store the choices there.
         """
         return {}, {}

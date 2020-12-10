@@ -1,9 +1,109 @@
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 
 import pandas as pd
 
 from asreview.config import LABEL_NA
 from asreview.utils import format_to_str
+
+
+def preview_record(record, w_title=80, w_authors=40, automatic_width=False):
+    """Return a single line preview string for record i.
+
+    Arguments
+    ---------
+    record: PaperRecord
+        The paperRecord to preview.
+    w_title: int
+        Width to be allocated for the title of the paper.
+    w_authors: int
+        Width to be allocated for the authors of the paper.
+    automatic_width: bool
+        If true, compute w_title, w_authors from the console width.
+
+    Returns
+    -------
+    str:
+        A string that previews a paper record.
+    """
+    if automatic_width:
+        term_width = os.get_terminal_size().columns
+        width_available = term_width - 7
+        w_title = round((2 / 3) * width_available)
+        w_authors = width_available - w_title
+    title_str = ""
+    author_str = ""
+    heading = record.title
+    if heading is None:
+        heading = record.abstract
+    if heading is not None:
+        if len(heading) > w_title:
+            title_str = heading[:w_title - 2] + ".."
+        else:
+            title_str = heading
+
+    if record.authors is not None:
+        cur_authors = format_to_str(record.authors)
+        if len(cur_authors) > w_authors:
+            author_str = cur_authors[:w_authors - 2] + ".."
+        else:
+            author_str = cur_authors
+    format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
+    format_str += "}"
+    prev_str = format_str.format(title_str, author_str)
+    return prev_str
+
+
+def format_record(record, use_cli_colors=True):
+    """Format one record for displaying in the CLI.
+
+    Arguments
+    ---------
+    record: PaperRecord
+        The paperRecord to format.
+    use_cli_colors: bool
+        Some terminals support colors, set to True to use them.
+
+    Returns
+    -------
+    str:
+        A string including title, abstracts and authors.
+    """
+    if record.title is not None:
+        title = record.title
+        if use_cli_colors:
+            title = "\033[95m" + title + "\033[0m"
+        title += "\n"
+    else:
+        title = ""
+
+    if record.authors is not None and len(record.authors) > 0:
+        authors = format_to_str(record.authors) + "\n"
+    else:
+        authors = ""
+
+    if record.abstract is not None and len(record.abstract) > 0:
+        abstract = record.abstract
+        abstract = "\n" + abstract + "\n"
+    else:
+        abstract = ""
+
+    return ("\n\n----------------------------------"
+            f"\n{title}{authors}{abstract}"
+            "----------------------------------\n\n")
 
 
 class PaperRecord():
@@ -27,6 +127,7 @@ class PaperRecord():
     kwargs: dict
         Any extra keyword arguments will be put in self.extra_fields.
     """
+
     def __init__(self, record_id, column_spec={}, **kwargs):
 
         for attr in [
@@ -52,89 +153,8 @@ class PaperRecord():
             if pd.isna(val):
                 self.extra_fields[attr] = None
 
-    def preview(self, w_title=80, w_authors=40, automatic_width=False):
-        """Return a single line preview string for record i.
-
-        Arguments
-        ---------
-        w_title: int
-            Width to be allocated for the title of the paper.
-        w_authors: int
-            Width to be allocated for the authors of the paper.
-        automatic_width: bool
-            If true, compute w_title, w_authors from the console width.
-
-        Returns
-        -------
-        str:
-            A string that previews a paper record.
-        """
-        if automatic_width:
-            term_width = os.get_terminal_size().columns
-            width_available = term_width - 7
-            w_title = round((2 / 3) * width_available)
-            w_authors = width_available - w_title
-        title_str = ""
-        author_str = ""
-        heading = self.title
-        if heading is None:
-            heading = self.abstract
-        if heading is not None:
-            if len(heading) > w_title:
-                title_str = heading[:w_title - 2] + ".."
-            else:
-                title_str = heading
-
-        if self.authors is not None:
-            cur_authors = format_to_str(self.authors)
-            if len(cur_authors) > w_authors:
-                author_str = cur_authors[:w_authors - 2] + ".."
-            else:
-                author_str = cur_authors
-        format_str = "{0: <" + str(w_title) + "}   " + "{1: <" + str(w_authors)
-        format_str += "}"
-        prev_str = format_str.format(title_str, author_str)
-        return prev_str
-
-    def format(self, use_cli_colors=True):
-        """Format one record for displaying in the CLI.
-
-        Arguments
-        ---------
-        use_cli_colors: bool
-            Some terminals support colors, set to True to use them.
-
-        Returns
-        -------
-        str:
-            A string including title, abstracts and authors.
-        """
-        if self.title is not None:
-            title = self.title
-            if use_cli_colors:
-                title = "\033[95m" + title + "\033[0m"
-            title += "\n"
-        else:
-            title = ""
-
-        if self.authors is not None and len(self.authors) > 0:
-            authors = format_to_str(self.authors) + "\n"
-        else:
-            authors = ""
-
-        if self.abstract is not None and len(self.abstract) > 0:
-            abstract = self.abstract
-            abstract = "\n" + abstract + "\n"
-        else:
-            abstract = ""
-
-        return ("\n\n----------------------------------"
-                f"\n{title}{authors}{abstract}"
-                "----------------------------------\n\n")
-
-    def print(self, *args, **kwargs):
-        "Print a record to the console."
-        print(self.format(*args, **kwargs))
+    def __str__(self):
+        return format_record(self)
 
     @property
     def text(self):
@@ -166,19 +186,3 @@ class PaperRecord():
         if self.abstract is None:
             return ""
         return self.abstract
-
-    def todict(self):
-        """Create dictionary from the record."""
-        label = self.label
-        if self.label is LABEL_NA:
-            label = None
-        paper_dict = {
-            "title": self.title,
-            "abstract": self.abstract,
-            "authors": self.authors,
-            "keywords": self.keywords,
-            "record_id": self.record_id,
-            "label": label,
-        }
-        paper_dict.update(self.extra_fields)
-        return paper_dict

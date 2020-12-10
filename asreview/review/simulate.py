@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ import logging
 
 import numpy as np
 
+from asreview.compat import convert_id_to_idx
 from asreview.init_sampling import sample_prior_knowledge
 from asreview.review import BaseReview
 
@@ -46,7 +47,7 @@ class ReviewSimulate(BaseReview):
     n_prior_excluded: int
         Sample n prior excluded papers.
     prior_idx: int
-        Prior indices by id.
+        Prior indices by row number.
     n_papers: int
         Number of papers to review during the active learning process,
         excluding the number of initial priors. To review all papers, set
@@ -56,7 +57,7 @@ class ReviewSimulate(BaseReview):
         process.
     n_queries: int
         Number of steps/queries to perform. Set to None for no limit.
-    start_idx: numpy.array
+    start_idx: numpy.ndarray
         Start the simulation/review with these indices. They are assumed to
         be already labeled. Failing to do so might result bad behaviour.
     init_seed: int
@@ -81,6 +82,9 @@ class ReviewSimulate(BaseReview):
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
 
+        # Remove records from the dataset without labels when running the
+        # simulation. There is a tricky hack required to get the correct row
+        # number after the slicing. See convert_id_to_idx(as_data, prior_idx).
         labels = as_data.labels
         labeled_idx = np.where((labels == 0) | (labels == 1))[0]
 
@@ -89,12 +93,11 @@ class ReviewSimulate(BaseReview):
                             f" papers (n={len(labels)-len(labeled_idx)}.")
             as_data = as_data.slice(labeled_idx)
             labels = as_data.labels
+            if prior_idx is not None:
+                prior_idx = convert_id_to_idx(as_data, prior_idx)
 
         if prior_idx is not None and len(prior_idx) != 0:
-            id_to_index = {as_data.df.index.values[i]: i
-                           for i in range(len(as_data))}
-            start_idx = np.array([id_to_index[idx] for idx in prior_idx],
-                                 dtype=int)
+            start_idx = prior_idx
         else:
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:
@@ -112,12 +115,12 @@ class ReviewSimulate(BaseReview):
 
         Arguments
         ---------
-        ind: list, np.array
+        ind: list, numpy.ndarray
             A list with indices
 
         Returns
         -------
-        list, np.array
+        list, numpy.ndarray
             The corresponding true labels for each indice.
         """
 

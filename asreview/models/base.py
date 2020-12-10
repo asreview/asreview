@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class BaseModel(ABC):
 
         Returns
         -------
-        dict:
+        dict
             Dictionary with parameter: default value
         """
         cur_class = self.__class__
@@ -55,7 +55,7 @@ class BaseModel(ABC):
 
         Returns
         -------
-        dict:
+        dict
             Dictionary with parameter: current value.
         """
         parameters = self.default_param

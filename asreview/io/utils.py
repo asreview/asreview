@@ -1,3 +1,17 @@
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 
 import pandas as pd
@@ -49,8 +63,28 @@ def type_from_column_spec(col_name, column_spec):
     return None
 
 
+def _is_record_id_unique(s):
+
+    if len(pd.unique(s)) != len(s.index):
+        raise ValueError("Column 'record_id' contains duplicate values.")
+
+
+def _is_record_id_notnull(s):
+
+    if s.isnull().any():
+        raise ValueError("Column 'record_id' contains missing values.")
+
+
+def _is_record_id_int(s):
+
+    try:
+        pd.to_numeric(s).astype(int)
+    except Exception:
+        raise ValueError("Column 'record_id' should contain integer values.")
+
+
 def standardize_dataframe(df, column_spec={}):
-    """Creates a ASReview readable dataframe.
+    """Create a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;
     'authors' vs 'first_authors', etc. This greatly widens the compatibility
@@ -58,7 +92,7 @@ def standardize_dataframe(df, column_spec={}):
 
     Arguments
     ---------
-    df: pd.DataFrame
+    df: pandas.DataFrame
         Unclean dataframe to be cleaned up.
 
     Returns
@@ -114,21 +148,17 @@ def standardize_dataframe(df, column_spec={}):
 
     # If the we have a record_id (for example from an ASReview export) use it.
     if "record_id" in list(df):
-        if len(np.unique(df["record_id"])) != len(df.index):
-            logging.warning(
-                "Column 'record_id' found, but they are not unique. "
-                "Continuing with new index.")
-        else:
-            try:
-                df['record_id'] = pd.to_numeric(df['record_id'])
-                df.set_index('record_id', inplace=True)
-            except ValueError:
-                logging.warning("Column 'record_id' has non-integer values. "
-                                "Continuing with new index.")
+
+        # validate record_id column
+        _is_record_id_unique(df["record_id"])
+        _is_record_id_notnull(df["record_id"])
+        _is_record_id_int(df["record_id"])
 
     # Create a new index if we haven't found it in the data.
     if df.index.name != "record_id":
         df["record_id"] = np.arange(len(df.index))
-        df.set_index('record_id', inplace=True)
-    df.sort_index(inplace=True)
+
+    # set the index
+    df.set_index('record_id', inplace=True)
+
     return df, all_column_spec

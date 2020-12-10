@@ -1,3 +1,17 @@
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import os
 import shutil
@@ -11,6 +25,7 @@ import pandas as pd
 
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
+from asreview.compat import convert_id_to_idx
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_current_labels
 from asreview.webapp.utils.io import read_data
@@ -115,11 +130,11 @@ def add_dataset_to_project(project_id, file_name):
             unlabeled = np.where(as_data.labels == LABEL_NA)[0]
             pool_indices = as_data.record_ids[unlabeled]
 
-            label_indices_included = \
-                [[int(x), 1] for x in np.where(as_data.labels == 1)[0]]
-            label_indices_excluded = \
-                [[int(x), 0] for x in np.where(as_data.labels == 0)[0]]
-            label_indices = label_indices_included + label_indices_excluded
+            labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+            label_indices = list(zip(
+                as_data.record_ids[labeled_indices].tolist(),
+                as_data.labels[labeled_indices].tolist()
+            ))
         else:
             pool_indices = as_data.record_ids
             label_indices = []
@@ -199,7 +214,7 @@ def get_paper_data(project_id,
                    return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
-    record = as_data.record(int(paper_id))
+    record = as_data.record(int(paper_id), by_index=False)
 
     paper_data = {}
     if return_title and record.title is not None:
@@ -247,7 +262,41 @@ def get_instance(project_id):
         return None
 
 
+def stop_n_since_last_relevant(labeled):
+    """Count n since last relevant"""
+
+    n_since_last_inclusion = 0
+    for _, inclusion in reversed(labeled):
+        if inclusion == 1:
+            break
+        n_since_last_inclusion += 1
+
+    return n_since_last_inclusion
+
+
+def n_relevant(labeled):
+
+    return len(list(filter(lambda x: x[1] == 1, labeled)))
+
+
+def n_irrelevant(labeled):
+
+    return len(list(filter(lambda x: x[1] == 0, labeled)))
+
+
 def get_statistics(project_id):
+    """Get statistics from project files.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+
+    Returns
+    -------
+    dict:
+        Dictonary with statistics.
+    """
 
     # get lock path
     fp_lock = get_lock_path(project_id)
@@ -264,61 +313,71 @@ def get_statistics(project_id):
             label_history=label_history
         )
 
-    # n_since_last_inclusion = 0
-    # for _, inclusion in reversed(label_history):
-    #     if inclusion == 1:
-    #         break
-    #     n_since_last_inclusion += 1
+    # compute metrics
+    n_included = n_relevant(labeled)
+    n_excluded = n_irrelevant(labeled)
+    n_pool = len(pool)
 
-    # n_included = len(np.where(current_labels == 1)[0])
-    # n_excluded = len(np.where(current_labels == 0)[0])
-    # n_papers = len(current_labels)
-    # stats = {
-    #     "n_included": n_included,
-    #     "n_excluded": n_excluded,
-    #     "n_since_last_inclusion": n_since_last_inclusion,
-    #     "n_papers": n_papers,
-    #     "n_pool": n_papers - n_included - n_excluded
-    # }
-
-    stats = {
-        "n_included": 0,
-        "n_excluded": 0,
-        "n_since_last_inclusion": 0,
-        "n_papers": 100,
-        "n_pool": 99
+    return {
+        "n_included": n_included,
+        "n_excluded": n_excluded,
+        "n_since_last_inclusion": stop_n_since_last_relevant(labeled),
+        "n_papers": n_pool + n_included + n_excluded,
+        "n_pool": n_pool
     }
 
     return stats
 
 
 def export_to_string(project_id, export_type="csv"):
-    fp_lock = get_lock_path(project_id)
+
+    # read the dataset into a ASReview data object
     as_data = read_data(project_id)
+
+    # set the lock to safely read labeled, pool, and proba
+    fp_lock = get_lock_path(project_id)
     with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
+            fp_lock,
+            blocking=True,
+            lock_name="active",
+            project_id=project_id
+    ):
         proba = read_proba(project_id)
-        if proba is None:
-            proba = np.flip(np.arange(len(as_data)))
-        else:
-            proba = np.array(proba)
-        labels = read_current_labels(project_id, as_data=as_data)
+        pool = read_pool(project_id)
+        labeled = read_label_history(project_id)
 
-    pool_idx = np.where(labels == LABEL_NA)[0]
-    one_idx = np.where(labels == 1)[0]
-    zero_idx = np.where(labels == 0)[0]
+    # get the record_id of the inclusions and exclusions
+    inclusion_record_id = [int(x[0]) for x in labeled if x[1] == 1]
+    exclusion_record_id = [int(x[0]) for x in labeled if x[1] == 0]
 
-    proba_order = np.argsort(-proba[pool_idx])
-    ranking = np.concatenate((one_idx, pool_idx[proba_order], zero_idx),
-                             axis=None)
+    # order the pool from high to low proba
+    if proba is not None:
+        pool_ordered = proba.loc[pool, :] \
+            .sort_values("proba", ascending=False).index.values
+    else:
+        pool_ordered = pool_ordered
 
+    # get the ranking of the 3 subcategories
+    ranking = np.concatenate(
+        (
+            # add the inclusions first
+            inclusion_record_id,
+            # add the ordered pool second
+            pool_ordered,
+            # add the exclusions last
+            exclusion_record_id
+        ),
+        axis=None
+    )
+
+    # export the data to file
     if export_type == "csv":
-        return as_data.to_csv(fp=None, labels=labels, ranking=ranking)
+        return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
     if export_type == "excel":
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
         return as_data.to_excel(
-            fp=fp_tmp_export, labels=labels, ranking=ranking)
+            fp=fp_tmp_export, labels=labeled, ranking=ranking)
     else:
         raise ValueError("This export type isn't implemented.")
 
