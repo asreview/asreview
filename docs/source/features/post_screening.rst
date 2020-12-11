@@ -16,7 +16,8 @@ any time during the screening process. To download your results:
 2. Start a new project, upload a dataset and select prior knowledge.
 3. Navigate to the Project Dashboard.
 4. Click the *download* icon (see screenshot below), or click on *Download Results*.
-5. You will be asked whether you want to save an excel or a csv file.
+5. You will be asked whether you want to save an Excel file, a CSV file, or a RIS file containing the
+relevant/irrelevant papers or the list of papers not seen during the screening proces. .
 6. You will be asked where to save the file.
 
 Three columns will be added to your dataset: 

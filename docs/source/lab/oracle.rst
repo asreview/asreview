@@ -102,8 +102,9 @@ Download Results
 During the screening or via the :doc:`dashboard <../features/post_screening>`
 you can download the results with your decisions by clicking the download
 icon. A dialog will show the download options. Choose from the menu whether
-you would like to download your results as a CSV or an Excel file and click
-`Download`.
+you would like to download your results as an Excel file, a CSV file, or a RIS
+file containing the relevant/irrelevant papers or the list of papers not seen
+during the screening proces. Click `Download`.
 
 
 .. figure:: ../../images/asreview_project_page_download.png
