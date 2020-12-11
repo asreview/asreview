@@ -102,7 +102,7 @@ point where [5, 8, 9, 11, 12, 22-24]. This is work in progress.
 15.	Singh, G., J. Thomas, and J. Shawe-Taylor, Improving Active Learning in Systematic Reviews. 2018.
 16.	Holzinger, A., Interactive Machine Learning for Health Informatics: When Do We Need the Human-in-the-Loop? Brain Inf., 2016. 3(2): p. 119-131.
 17.	Van de Schoot, R. and J. De Bruin Researcher-in-the-loop for systematic reviewing of text databases. 2020.  DOI: 10.5281/zenodo.4013207.
-18.	Cohen, A.M., Performance of Support-Vector-Machine-Based Classification on 15 Systematic Review Topics Evaluated with the WSS@95 Measure. J Am Med Inform Assoc, 2011. 18(1): p. 104-104.
+18.	Cohen, A.M., Performance of Support-Vector-Machine-Based Classification on 15 Systematic Review Topics Evaluated with the WSS\@95 Measure. J Am Med Inform Assoc, 2011. 18(1): p. 104-104.
 19.	Wang, Z., et al., Error rates of human reviewers during abstract screening in systematic reviews. PloS one, 2020. 15(1): p. e0227742.
 20.	Yu, Z., N. Kraft, and T. Menzies, Finding better active learners for faster literature reviews. Empirical Software Engineering, 2018.
 21.	Ros, R., E. Bjarnason, and P. Runeson. A machine learning approach for semi-automated search and selection in literature studies. in Proceedings of the 21st International Conference on Evaluation and Assessment in Software Engineering. 2017.
