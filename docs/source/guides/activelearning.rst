@@ -55,7 +55,7 @@ Researcher-In-The-Loop (RITL)[17] with three unique components:
 papers; 
 
 (II) All data points in the relevant selection should have been seen by
-a human at the end of the process (**uncertainty-based sampling**);
+a human at the end of the process (**certainty-based sampling**);
 
 (III) The process requires a strong, systematic way of working. As such, it
 entails several explicit and reproducible steps, as outlined in the `PRISMA
