@@ -349,6 +349,9 @@ def export_to_string(project_id, export_type="csv"):
     else:
         pool_ordered = pool_ordered
 
+    print(as_data.df.head())
+    print(inclusion_record_id)
+
     # get the ranking of the 3 subcategories
     ranking = np.concatenate(
         (

@@ -155,7 +155,7 @@ def standardize_dataframe(df, column_spec={}):
         _is_record_id_int(df["record_id"])
 
     # Create a new index if we haven't found it in the data.
-    if df.index.name != "record_id":
+    else:
         df["record_id"] = np.arange(len(df.index))
 
     # set the index
