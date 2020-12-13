@@ -88,7 +88,7 @@ const ExplorationAlert = (props) => {
           Relevant documents are displayed in green. Read more about
           <Link
             className={classes.link}
-            href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#exploration-mode"
+            href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
             target="_blank"
           >
             <strong>Exploration Mode</strong>
