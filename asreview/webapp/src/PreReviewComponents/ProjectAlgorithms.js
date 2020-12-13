@@ -414,7 +414,7 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
               An
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/models.html#active-learning-algorithms"
+                href="https://asreview.readthedocs.io/en/latest/API/cli.html#feature-extraction"
                 target="_blank"
               >active learning model
               </Link> consists of a classifier, a feature extraction technique, a query strategy, and a balance strategy.
@@ -424,7 +424,7 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
               Note: Doc2Vec is provided by the gensim package which needs to be installed manually. Follow the 
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/models.html#doc2vec"
+                href="https://radimrehurek.com/gensim/"
                 target="_blank"
               >instruction
               </Link> before using it.
