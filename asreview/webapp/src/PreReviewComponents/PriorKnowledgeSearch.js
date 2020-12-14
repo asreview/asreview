@@ -88,7 +88,7 @@ const PriorKnowledgeSearch = (props) => {
       className={classes.inputSearch}
     >
       <Typography>
-        Search for a document of interest.
+        Search for a document to use as prior knowledge.
       </Typography>
       <form
         className={classes.root}
