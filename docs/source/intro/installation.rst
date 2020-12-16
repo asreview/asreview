@@ -131,7 +131,7 @@ First check whether the package is correctly installed. Do this with the command
 
 .. code-block:: bash
 
-  python -m asreview oracle
+  python -m asreview lab
 
 
 Build dependencies error
