@@ -118,12 +118,11 @@ const PreReviewZone = (props) => {
             set_step = 3;
           }
 
-          // set the project step
-          setState({
-            new: state.new,
-            step: set_step,
-            ready: state.ready
-          })
+          setState(s => {return({
+              ...s,
+              "step": set_step,
+            })
+          });
 
         })
         .catch((error) => {
@@ -136,7 +135,7 @@ const PreReviewZone = (props) => {
         fetchProjectInfo();
     }
 
-  }, [state.new, state.ready, props.project_id]);
+  }, [state.new, props.project_id]);
 
   return (
 
