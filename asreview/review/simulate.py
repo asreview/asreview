@@ -82,19 +82,11 @@ class ReviewSimulate(BaseReview):
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
 
-        # Remove records from the dataset without labels when running the
-        # simulation. There is a tricky hack required to get the correct row
-        # number after the slicing. See convert_id_to_idx(as_data, prior_idx).
+        # check for partly labeled data
         labels = as_data.labels
         labeled_idx = np.where((labels == 0) | (labels == 1))[0]
-
         if len(labeled_idx) != len(labels):
-            logging.warning("Simulating partial review, ignoring unlabeled"
-                            f" papers (n={len(labels)-len(labeled_idx)}.")
-            as_data = as_data.slice(labeled_idx)
-            labels = as_data.labels
-            if prior_idx is not None:
-                prior_idx = convert_id_to_idx(as_data, prior_idx)
+            raise ValueError("Expected fully labeled dataset.")
 
         if prior_idx is not None and len(prior_idx) != 0:
             start_idx = prior_idx
