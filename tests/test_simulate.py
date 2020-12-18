@@ -150,6 +150,10 @@ def test_partial_simulation():
                 state_checker=check_partial_state)
 
 
+@pytest.mark.xfail(
+    raises=ValueError,
+    reason="prior_idx not available for partly labeled data"
+)
 def test_partial_simulation_2():
     check_model(data_fp=data_fp_partial,
                 prior_idx=[0, 5],
