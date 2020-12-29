@@ -413,5 +413,23 @@ class BuiltinDataGroup(BaseDataGroup):
         )
 
 
+class BenchmarkDataGroup(BaseDataGroup):
+    group_id = "benchmark"
+    description = "A collections of fully labeled datasets for benchmarking."
+
+    def __init__(self):
+        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/config/index.json"  # noqa
+        with urlopen(meta_file) as f:
+            meta_data = json.loads(f.read().decode())
+
+        datasets = []
+        for data in meta_data.values():
+            datasets.append(_create_dataset_from_meta(data))
+
+        super(BenchmarkDataGroup, self).__init__(
+            *datasets
+        )
+
+
 def find_data(project_id):
     return DatasetManager().find(project_id).get()
