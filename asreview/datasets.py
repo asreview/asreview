@@ -13,12 +13,31 @@
 # limitations under the License.
 
 from pathlib import Path
-import pkg_resources
 import json
 
+from asreview.utils import get_entry_points
 from asreview.utils import pretty_format
 from asreview.utils import is_iterable, is_url
 from urllib.request import urlopen
+
+
+class DataSetNotFoundError(Exception):
+    pass
+
+
+def _create_dataset_from_meta(data):
+    """Create dataset from entry."""
+    if data["type"] == "versioned":
+        datasets = []
+        title = data["title"]
+        base_dataset_id = data["base_id"]
+        for config in data["configs"]:
+            datasets.append(BaseDataSet.from_config(config))
+        return BaseVersionedDataSet(base_dataset_id, datasets, title)
+    elif data["type"] == "base":
+        return BaseVersionedDataSet.from_config(data["configs"][0])
+    else:
+        raise ValueError(f"Dataset type {data['type']} unknown.")
 
 
 class BaseDataSet():
@@ -98,7 +117,10 @@ class BaseDataSet():
         """Return self if the name is one of our aliases."""
         if data_name in self.aliases:
             return self
-        return None
+
+        raise DataSetNotFoundError(
+            f"Dataset {data_name} not found"
+        )
 
     def list(self, latest_only=True):
         """Return a list of itself."""
@@ -140,7 +162,9 @@ class BaseVersionedDataSet():
             if dataset_name in aliases:
                 return dataset
 
-        return None
+        raise DataSetNotFoundError(
+            f"Dataset {dataset_name} not found"
+        )
 
     def get(self, i_version=-1):
         return self.datasets[i_version].get()
@@ -151,17 +175,57 @@ class BaseVersionedDataSet():
         return [self]
 
 
-class DatasetManager():
-    def __init__(self):
-        """Manager to search for datasets from the ones currently available."""
-        entry_points = {
-            entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.datasets')
-        }
+class BaseDataGroup():
+    def __init__(self, *args):
+        """Group of datasets."""
+        self._data_sets = [a for a in args]
 
-        self.all_datasets = {}
-        for group, entry in entry_points.items():
-            self.all_datasets[group] = entry.load()()
+    def __str__(self):
+        return "".join([
+            f"*******  {str(data.dataset_id)}  *******\n"
+            f"{str(data)}\n\n" for data in self._data_sets
+        ])
+
+    def to_dict(self):
+        return {data.dataset_id: data for data in self._data_sets}
+
+    def append(self, dataset):
+        self._data_sets.append(dataset)
+
+    def find(self, dataset_name):
+        results = []
+        for d in self._data_sets:
+            try:
+                dataset_result = d.find(dataset_name)
+                results.append(dataset_result)
+            except DataSetNotFoundError:
+                pass
+        if len(results) > 1:
+            raise ValueError(
+                f"Broken dataset group '{self.group_id}' containing multiple"
+                f" datasets with the same name/alias '{dataset_name}'.")
+        elif len(results) == 1:
+            return results[0]
+
+        raise DataSetNotFoundError(
+            f"Dataset {dataset_name} not found"
+        )
+
+    def list(self, latest_only=True):
+        return_list = []
+        for d in self._data_sets:
+            return_list.extend(d.list(latest_only=latest_only))
+        return return_list
+
+
+class DatasetManager():
+
+    @property
+    def groups(self):
+
+        entry_points = get_entry_points('asreview.datasets')
+
+        return list(entry_points.keys())
 
     def find(self, dataset_name):
         """Find a dataset.
@@ -193,20 +257,27 @@ class DatasetManager():
 
         dataset_name = str(dataset_name)
 
+        # get installed dataset groups
+        dataset_groups = get_entry_points('asreview.datasets')
+
         # Split into group/dataset if possible.
         split_dataset_id = dataset_name.split(":")
         if len(split_dataset_id) == 2:
             data_group = split_dataset_id[0]
             split_dataset_name = split_dataset_id[1]
-            if data_group in self.all_datasets:
-                return self.all_datasets[data_group].find(split_dataset_name)
+            if data_group in self.groups:
+                return dataset_groups[data_group].load()() \
+                    .find(split_dataset_name)
 
         # Look through all available/installed groups for the name.
         all_results = {}
-        for group_name, dataset in self.all_datasets.items():
-            result = dataset.find(dataset_name)
-            if result is not None:
-                all_results[group_name] = result
+        for group_name, dataset_entry in dataset_groups.items():
+            try:
+                all_results[group_name] = \
+                    dataset_entry.load()().find(dataset_name)
+            except Exception:
+                # don't raise error on loading entry point
+                pass
 
         # If we have multiple results, throw an error.
         if len(all_results) > 1:
@@ -240,55 +311,24 @@ class DatasetManager():
             values.
         """
         if group_name is None:
-            group_names = list(self.all_datasets)
+            group_names = self.groups
         elif not is_iterable(group_name):
             group_names = [group_name]
         else:
             group_names = group_name
 
-        dataset_list = {
-            gn: self.all_datasets[gn].list(latest_only=latest_only)
-            for gn in group_names
-        }
+        dataset_groups = get_entry_points('asreview.datasets')
+
+        dataset_list = {}
+        for group in group_names:
+            try:
+                dataset_list[group] = \
+                    dataset_groups[group].load()().list(latest_only=latest_only)
+            except Exception:
+                # don't raise error on loading entry point
+                pass
+
         return dataset_list
-
-
-class BaseDataGroup():
-    def __init__(self, *args):
-        """Group of datasets."""
-        self._data_sets = [a for a in args]
-
-    def __str__(self):
-        return "".join([
-            f"*******  {str(data.dataset_id)}  *******\n"
-            f"{str(data)}\n\n" for data in self._data_sets
-        ])
-
-    def to_dict(self):
-        return {data.dataset_id: data for data in self._data_sets}
-
-    def append(self, dataset):
-        self._data_sets.append(dataset)
-
-    def find(self, dataset_name):
-        results = []
-        for d in self._data_sets:
-            res = d.find(dataset_name)
-            if res is not None:
-                results.append(res)
-        if len(results) > 1:
-            raise ValueError(
-                f"Broken dataset group '{self.group_id}' containing multiple"
-                f" datasets with the same name/alias '{dataset_name}'.")
-        elif len(results) == 1:
-            return results[0]
-        return None
-
-    def list(self, latest_only=True):
-        return_list = []
-        for d in self._data_sets:
-            return_list.extend(d.list(latest_only=latest_only))
-        return return_list
 
 
 class PTSDDataSet(BaseDataSet):
@@ -371,29 +411,6 @@ class BuiltinDataGroup(BaseDataGroup):
             AceDataSet(),
             HallDataSet(),
         )
-
-
-def dataset_from_url(url):
-    """Helper function to create a dataset from an url"""
-    index_file = url + "/index.json"
-    with urlopen(index_file) as f:
-        meta_data = json.loads(f.read().decode())
-    dataset_type = meta_data["type"]
-    if dataset_type == "versioned":
-        file_list = meta_data["filenames"]
-        base_dataset_id = meta_data["base_id"]
-        title = meta_data["title"]
-        if meta_data["type"] != "versioned":
-            raise ValueError("BaseVersionedDataSet: wrong datatype: "
-                             f"{meta_data['type']}")
-        datasets = []
-        for config_file in [url + "/" + f for f in file_list]:
-            datasets.append(BaseDataSet.from_config(config_file))
-        return BaseVersionedDataSet(base_dataset_id, datasets, title)
-    elif dataset_type == "base":
-        config_file = url + "/" + meta_data["filenames"][0]
-        return BaseDataSet.from_config(config_file)
-    raise ValueError(f"Dataset type {dataset_type} unknown.")
 
 
 def find_data(project_id):
