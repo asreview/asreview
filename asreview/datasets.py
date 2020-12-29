@@ -398,28 +398,5 @@ class BuiltinDataGroup(BaseDataGroup):
         )
 
 
-def dataset_from_url(url):
-    """Helper function to create a dataset from an url"""
-    index_file = url + "/index.json"
-    with urlopen(index_file) as f:
-        meta_data = json.loads(f.read().decode())
-    dataset_type = meta_data["type"]
-    if dataset_type == "versioned":
-        file_list = meta_data["filenames"]
-        base_dataset_id = meta_data["base_id"]
-        title = meta_data["title"]
-        if meta_data["type"] != "versioned":
-            raise ValueError("BaseVersionedDataSet: wrong datatype: "
-                             f"{meta_data['type']}")
-        datasets = []
-        for config_file in [url + "/" + f for f in file_list]:
-            datasets.append(BaseDataSet.from_config(config_file))
-        return BaseVersionedDataSet(base_dataset_id, datasets, title)
-    elif dataset_type == "base":
-        config_file = url + "/" + meta_data["filenames"][0]
-        return BaseDataSet.from_config(config_file)
-    raise ValueError(f"Dataset type {dataset_type} unknown.")
-
-
 def find_data(project_id):
     return DatasetManager().find(project_id).get()
