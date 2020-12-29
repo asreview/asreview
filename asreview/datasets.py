@@ -25,6 +25,21 @@ class DataSetNotFoundError(Exception):
     pass
 
 
+def _create_dataset_from_meta(data):
+    """Create dataset from entry."""
+    if data["type"] == "versioned":
+        datasets = []
+        title = data["title"]
+        base_dataset_id = data["base_id"]
+        for config in data["configs"]:
+            datasets.append(BaseDataSet.from_config(config))
+        return BaseVersionedDataSet(base_dataset_id, datasets, title)
+    elif data["type"] == "base":
+        return BaseVersionedDataSet.from_config(data["configs"][0])
+    else:
+        raise ValueError(f"Dataset type {data['type']} unknown.")
+
+
 class BaseDataSet():
     def __init__(self, fp=None):
         """Initialize BaseDataSet which contains metadata.
