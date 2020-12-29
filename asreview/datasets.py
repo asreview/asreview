@@ -37,6 +37,9 @@ class BaseDataSet():
 
         super(BaseDataSet, self).__init__()
 
+    def __str__(self):
+        return pretty_format(self.to_dict())
+
     @classmethod
     def from_config(cls, config_file):
         """Create DataSet from a JSON configuration file.
@@ -64,11 +67,11 @@ class BaseDataSet():
 
     @property
     def aliases(self):
-        "Can be overriden by setting it manually."
+        """Can be overriden by setting it manually."""
         return [self.dataset_id]
 
     def get(self):
-        "Get the url/fp for the dataset."
+        """Get the url/fp for the dataset."""
         try:
             return self.url
         except AttributeError:
@@ -91,17 +94,14 @@ class BaseDataSet():
                 pass
         return mydict
 
-    def __str__(self):
-        return pretty_format(self.to_dict())
-
     def find(self, data_name):
-        "Return self if the name is one of our aliases."
+        """Return self if the name is one of our aliases."""
         if data_name in self.aliases:
             return self
         return None
 
     def list(self, latest_only=True):
-        "Return a list of itself."
+        """Return a list of itself."""
         return [self]
 
 
@@ -120,6 +120,16 @@ class BaseVersionedDataSet():
         self.datasets = datasets
         self.title = title
         self.dataset_id = base_dataset_id
+
+    def __str__(self):
+        dataset_dict = self.datasets[-1].to_dict()
+        dataset_dict["versions_available"] = [
+            d.dataset_id for d in self.datasets
+        ]
+        return pretty_format(dataset_dict)
+
+    def __len__(self):
+        return len(self.datasets)
 
     def find(self, dataset_name):
         if dataset_name == self.dataset_id:
@@ -140,21 +150,10 @@ class BaseVersionedDataSet():
             return [self.datasets[-1]]
         return [self]
 
-    def __str__(self):
-        dataset_dict = self.datasets[-1].to_dict()
-        dataset_dict["versions_available"] = [
-            d.dataset_id for d in self.datasets
-        ]
-        return pretty_format(dataset_dict)
-
-    def __len__(self):
-        return len(self.datasets)
-
 
 class DatasetManager():
-    """Manager to search for datasets from the ones currently available."""
     def __init__(self):
-        """Look through the entry points to create a database of datasets."""
+        """Manager to search for datasets from the ones currently available."""
         entry_points = {
             entry.name: entry
             for entry in pkg_resources.iter_entry_points('asreview.datasets')
@@ -221,8 +220,7 @@ class DatasetManager():
 
         # Could not find dataset, return None.
         raise FileNotFoundError(
-            f"File or dataset does not exist: '{dataset_name}'"
-        )
+            f"File or dataset does not exist: '{dataset_name}'")
 
     def list(self, group_name=None, latest_only=True):
         """List the available datasets.
@@ -256,18 +254,18 @@ class DatasetManager():
 
 
 class BaseDataGroup():
-    """A grouping of datasets."""
     def __init__(self, *args):
+        """Group of datasets."""
         self._data_sets = [a for a in args]
-
-    def to_dict(self):
-        return {data.dataset_id: data for data in self._data_sets}
 
     def __str__(self):
         return "".join([
             f"*******  {str(data.dataset_id)}  *******\n"
             f"{str(data)}\n\n" for data in self._data_sets
         ])
+
+    def to_dict(self):
+        return {data.dataset_id: data for data in self._data_sets}
 
     def append(self, dataset):
         self._data_sets.append(dataset)
