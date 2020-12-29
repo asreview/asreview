@@ -373,20 +373,6 @@ class BuiltinDataGroup(BaseDataGroup):
         )
 
 
-def get_available_datasets():
-    """Deprecated, use DatasetManager instead"""
-    entry_points = {
-        entry.name: entry
-        for entry in pkg_resources.iter_entry_points('asreview.datasets')
-    }
-
-    all_datasets = {}
-    for group, entry in entry_points.items():
-        datasets = entry.load()().to_dict()
-        all_datasets[group] = datasets
-    return all_datasets
-
-
 def dataset_from_url(url):
     """Helper function to create a dataset from an url"""
     index_file = url + "/index.json"
