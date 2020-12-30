@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {
+  Box,
   Card,
   CardActionArea,
   CardMedia,
@@ -101,7 +102,11 @@ const ProjectUploadDatasets = (props) => {
 
     const classes = useStyles();
 
-    const [datasets, setDatasets] = useState([]);
+    const [state, setState] = useState({
+      'datasets': null,
+      'loaded': false,
+      'error': false,
+    });
 
     useEffect(() => {
 
@@ -122,20 +127,31 @@ const ProjectUploadDatasets = (props) => {
             {params: params}
           )
           .then((result) => {
-            setDatasets(result.data['result']);
+            setState({
+              'datasets': result.data['result'],
+              'loaded': true,
+              'error': false,
+            });
           })
           .catch((error) => {
-            console.log(error);
+            setState({
+              'datasets': null,
+              'loaded': true,
+              'error': true,
+            })
           });
       };
-      fetchData();
 
-    }, [props.subset]);
+      if (!state.loaded && !state.error){
+        fetchData();
+      }
+
+    }, [props.subset, state.loaded, state.error]);
 
     return (
 
-      <div className={classes.cards}>
-        {datasets.map(dataset => (
+      <Box className={classes.cards}>
+        {state.loaded && !state.error && state.datasets.map(dataset => (
           <Dataset
             key={dataset[dataset.length - 1].dataset_id}
             dataset={dataset[dataset.length - 1]}
@@ -143,7 +159,13 @@ const ProjectUploadDatasets = (props) => {
           />
           )
         )}
-      </div>
+        {state.loaded && state.error &&
+          <Typography>Error loading datasets.</Typography>
+        }
+        {!state.loaded && !state.error &&
+          <CircularProgress />
+        }
+      </Box>
     );
 }
 

@@ -49,19 +49,33 @@ def get_data_statistics(project_id):
 
 
 def get_dataset_metadata(exclude=None, include=None):
-    all_datasets = DatasetManager().list(latest_only=False)
+
+    manager = DatasetManager()
+    groups = manager.groups.copy()
+
     if exclude is not None:
+
+        # make iterable if not the case
         if not is_iterable(exclude):
             exclude = [exclude]
+
+        # pop items
         for group_id in exclude:
-            all_datasets.pop(group_id, None)
+            groups.remove(group_id)
 
     if include is not None:
+
+        # make iterable if not the case
         if not is_iterable(include):
             include = [include]
-        for group_id in list(all_datasets):
+
+        # pop items
+        for group_id in groups:
             if group_id not in include:
-                all_datasets.pop(group_id, None)
+                groups.remove(group_id)
+
+    # get datasets
+    all_datasets = manager.list(group_name=groups, latest_only=False, raise_on_error=True)
 
     result_datasets = []
     for group_id, data_list in all_datasets.items():
