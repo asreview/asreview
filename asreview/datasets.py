@@ -35,7 +35,7 @@ def _create_dataset_from_meta(data):
             datasets.append(BaseDataSet.from_config(config))
         return BaseVersionedDataSet(base_dataset_id, datasets, title)
     elif data["type"] == "base":
-        return BaseVersionedDataSet.from_config(data["configs"][0])
+        return BaseDataSet.from_config(data)
     else:
         raise ValueError(f"Dataset type {data['type']} unknown.")
 
@@ -410,6 +410,24 @@ class BuiltinDataGroup(BaseDataGroup):
             PTSDDataSet(),
             AceDataSet(),
             HallDataSet(),
+        )
+
+
+class BenchmarkDataGroup(BaseDataGroup):
+    group_id = "benchmark"
+    description = "A collections of fully labeled datasets for benchmarking."
+
+    def __init__(self):
+        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/metadata/index.json"  # noqa
+        with urlopen(meta_file) as f:
+            meta_data = json.loads(f.read().decode())
+
+        datasets = []
+        for data in meta_data.values():
+            datasets.append(_create_dataset_from_meta(data))
+
+        super(BenchmarkDataGroup, self).__init__(
+            *datasets
         )
 
 
