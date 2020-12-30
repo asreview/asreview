@@ -113,7 +113,7 @@ const ProjectUploadDatasets = (props) => {
         const params = {};
 
         // prepare properties and make subset
-        if ((props.subset === 'plugin') | (props.subset === 'test')){
+        if ((props.subset === 'plugin') | (props.subset === 'benchmark')){
           params['subset'] = props.subset
         }
 

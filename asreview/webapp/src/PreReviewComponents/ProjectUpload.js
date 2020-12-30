@@ -246,7 +246,11 @@ const ProjectUpload = ({
           });
 
           // set error to state
-          setError(error.response.data["message"])
+          if (error.response !== undefined){
+            setError(error.response.data["message"])
+          } else {
+            setError("Unexpected error")
+          }
 
           // callback
           if (callback !== undefined){
@@ -478,7 +482,7 @@ const ProjectUpload = ({
 
                 <div>
                   <ProjectUploadDatasets
-                    subset={"test"}
+                    subset={"benchmark"}
                     onUploadHandler={onUploadHandlerDemoDataset}
                   />
                 </div>

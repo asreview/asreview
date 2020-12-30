@@ -262,9 +262,13 @@ def api_demo_data_project():  # noqa: F401
     subset = request.args.get('subset', None)
 
     if subset == "plugin":
-        result_datasets = get_dataset_metadata(exclude="builtin")
-    elif subset == "test":
-        result_datasets = get_dataset_metadata(include="builtin")
+        result_datasets = get_dataset_metadata(
+            exclude=["builtin", "benchmark"]
+        )
+    elif subset == "benchmark":
+        result_datasets = get_dataset_metadata(
+            include="benchmark"
+        )
     else:
         response = jsonify(message="demo-data-loading-failed")
 
