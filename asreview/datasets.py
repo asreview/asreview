@@ -415,7 +415,7 @@ class BuiltinDataGroup(BaseDataGroup):
 
 class BenchmarkDataGroup(BaseDataGroup):
     group_id = "benchmark"
-    description = "A collections of fully labeled datasets for benchmarking."
+    description = "A collections of labeled datasets for benchmarking."
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/metadata/index.json"  # noqa
