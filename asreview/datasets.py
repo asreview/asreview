@@ -15,6 +15,8 @@
 import json
 import socket
 from pathlib import Path
+import json
+import warnings
 
 from asreview.utils import get_entry_points
 from asreview.utils import pretty_format
@@ -417,6 +419,13 @@ class BuiltinDataGroup(BaseDataGroup):
             AceDataSet(),
             HallDataSet(),
         )
+
+
+
+
+def dataset_from_url(*args, **kwargs):
+    # compat for asreview-covid<=0.9.1
+    warnings.warn("Deprecated function.")
 
 
 class BenchmarkDataGroup(BaseDataGroup):

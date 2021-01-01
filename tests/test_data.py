@@ -36,7 +36,7 @@ def test_fuzzy_finder(keywords, paper_id):
     "hall",
     "benchmark:van_de_Schoot_2017",
     "benchmark:Hall_2012",
-    "benchmark:ACEInhibitors",
+    "benchmark:Cohen_2006_ACEInhibitors",
     "benchmark:Bos_2018",
 ])
 def test_datasets(data_name):
