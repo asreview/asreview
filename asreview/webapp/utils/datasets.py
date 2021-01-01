@@ -92,6 +92,6 @@ def get_dataset_metadata(exclude=None, include=None):
                 result_datasets.append(cur_data)
             else:
                 dataset.dataset_id = f"{group_id}:{dataset.dataset_id}"
-                result_datasets.append([dataset.to_dict()])
+                result_datasets.append(dataset.to_dict())
 
     return result_datasets

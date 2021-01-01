@@ -37,6 +37,7 @@ const useStyles = makeStyles(theme => ({
   },
   media: {
     height: 140,
+    backgroundColor: "#A3A3A3",
   },
 }));
 
@@ -151,20 +152,44 @@ const ProjectUploadDatasets = (props) => {
     return (
 
       <Box className={classes.cards}>
-        {state.loaded && !state.error && state.datasets.map(dataset => (
-          <Dataset
-            key={dataset[dataset.length - 1].dataset_id}
-            dataset={dataset[dataset.length - 1]}
-            onUploadHandler={props.onUploadHandler}
-          />
-          )
-        )}
-        {state.loaded && state.error &&
-          <Typography>Error loading datasets.</Typography>
+        {state.loaded && !state.error &&
+          <Box className={classes.featured}>
+            <Typography variant="h5">Featured benchmark datasets</Typography>
+            <Box>
+              {state.datasets.filter(function(dataset) {
+                  return dataset.featured;
+                }).map(dataset => (
+                  <Dataset
+                    key={dataset.dataset_id}
+                    dataset={dataset}
+                    onUploadHandler={props.onUploadHandler}
+                  />
+              ))}
+            </Box>
+          </Box>
         }
-        {!state.loaded && !state.error &&
-          <CircularProgress />
+        {state.loaded && !state.error &&
+          <Box className={classes.all_datasets}>
+            <Typography variant="h5">All benchmark datasets</Typography>
+            <Box>
+              {state.datasets.map(dataset => (
+                  <Dataset
+                    key={dataset.dataset_id}
+                    dataset={dataset}
+                    onUploadHandler={props.onUploadHandler}
+                  />
+              ))}
+            </Box>
+          </Box>
         }
+        <Box>
+          {state.loaded && state.error &&
+            <Typography>Error loading datasets.</Typography>
+          }
+          {!state.loaded && !state.error &&
+            <CircularProgress />
+          }
+        </Box>
       </Box>
     );
 }

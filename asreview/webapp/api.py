@@ -266,9 +266,19 @@ def api_demo_data_project():  # noqa: F401
             exclude=["builtin", "benchmark"]
         )
     elif subset == "benchmark":
+
+        # collect the datasets metadata
         result_datasets = get_dataset_metadata(
             include="benchmark"
         )
+
+        # mark the featured datasets
+        featured_dataset_ids = ["van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors", "Bos_2018"]
+        for featured_id in featured_dataset_ids:
+            for i, dataset in enumerate(result_datasets):
+                if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
+                    result_datasets[i]["featured"] = True
+
     else:
         response = jsonify(message="demo-data-loading-failed")
 
