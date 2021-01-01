@@ -418,7 +418,7 @@ class BenchmarkDataGroup(BaseDataGroup):
     description = "A collections of labeled datasets for benchmarking."
 
     def __init__(self):
-        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/metadata/index.json"  # noqa
+        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index.json"  # noqa
         with urlopen(meta_file) as f:
             meta_data = json.loads(f.read().decode())
 
