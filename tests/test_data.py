@@ -34,8 +34,10 @@ def test_fuzzy_finder(keywords, paper_id):
     "ptsd",
     "ace",
     "hall",
+    "benchmark:van_de_Schoot_2017",
+    "benchmark:Hall_2012",
+    "benchmark:ACEInhibitors",
     "benchmark:Bos_2018",
-    "benchmark:van_de_Schoot_2017"
 ])
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
