@@ -273,7 +273,12 @@ def api_demo_data_project():  # noqa: F401
         )
 
         # mark the featured datasets
-        featured_dataset_ids = ["van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors", "Bos_2018"]
+        featured_dataset_ids = [
+            "van_de_Schoot_2017",
+            "Hall_2012",
+            "Cohen_2006_ACEInhibitors",
+            "Bos_2018"
+        ]
         for featured_id in featured_dataset_ids:
             for i, dataset in enumerate(result_datasets):
                 if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
