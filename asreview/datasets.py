@@ -44,6 +44,11 @@ def _create_dataset_from_meta(data):
         raise ValueError(f"Dataset type {data['type']} unknown.")
 
 
+def dataset_from_url(*args, **kwargs):
+    # compat for asreview-covid<=0.9.1
+    warnings.warn("Deprecated function.")
+
+
 class BaseDataSet():
     def __init__(self, fp=None):
         """Initialize BaseDataSet which contains metadata.
@@ -419,13 +424,6 @@ class BuiltinDataGroup(BaseDataGroup):
             AceDataSet(),
             HallDataSet(),
         )
-
-
-
-
-def dataset_from_url(*args, **kwargs):
-    # compat for asreview-covid<=0.9.1
-    warnings.warn("Deprecated function.")
 
 
 class BenchmarkDataGroup(BaseDataGroup):
