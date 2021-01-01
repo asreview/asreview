@@ -75,7 +75,11 @@ def get_dataset_metadata(exclude=None, include=None):
                 groups.remove(group_id)
 
     # get datasets
-    all_datasets = manager.list(group_name=groups, latest_only=False, raise_on_error=True)
+    all_datasets = manager.list(
+        group_name=groups,
+        latest_only=False,
+        raise_on_error=True
+    )
 
     result_datasets = []
     for group_id, data_list in all_datasets.items():

@@ -14,9 +14,8 @@
 
 import json
 import socket
-from pathlib import Path
-import json
 import warnings
+from pathlib import Path
 
 from asreview.utils import get_entry_points
 from asreview.utils import pretty_format
