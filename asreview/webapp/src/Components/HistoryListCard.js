@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Box, 
+  Box,
   ListItem,
   ListItemText,
   ListItemIcon,
@@ -13,12 +13,12 @@ const HistoryListCard = (props) => {
 
   // click to fold/unfold abstract and decision button
   const handleClick = (index) => {
-    if (props.state["select"] === 10) {
+    if (props.state["select"] === 1) {
       props.setOpenIndex({
         "index": index,
         "record": props.state["data"][index],
       });
-    } else if (props.state["select"] === 20) {
+    } else if (props.state["select"] === 2) {
       props.setOpenIndex({
         "index": index,
         "record": props.state["data"].filter(value => value.included === 1)[index],
