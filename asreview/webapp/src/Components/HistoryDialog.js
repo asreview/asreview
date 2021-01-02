@@ -209,7 +209,7 @@ const HistoryDialog = (props) => {
               <ArrowBackIcon />
             </IconButton>
             <div className={classes.detailTitle}>
-              Document Details
+              Details
             </div>
           </DialogTitle>
         }
@@ -293,7 +293,7 @@ const HistoryDialog = (props) => {
               {(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
                 <Box fontStyle="italic">
                   <Typography gutterBottom>
-                    This document doesn't have an abstract.
+                    This record doesn't have an abstract.
                   </Typography>
                 </Box>
               }
