@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Box, 
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -17,6 +17,8 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import CloseIcon from '@material-ui/icons/Close';
 
 import {
   HistoryListCard,
@@ -46,6 +48,16 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     marginLeft: '36px',
   },
+  recordLabelAction: {
+    flex: 'auto',
+    padding: '6px 8px',
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  recordLabelActionText: {
+    paddingRight: '4px',
+  }
 }));
 
 const mapStateToProps = state => {
@@ -65,7 +77,7 @@ const HistoryDialog = (props) => {
   });
 
   const [state, setState] = useState({
-    "select": 10,
+    "select": 1,
     "data": null,
   });
 
@@ -85,7 +97,7 @@ const HistoryDialog = (props) => {
   const updateInstance = (doc_id, label) => {
 
     props.setRecordState(s => {return({
-        ...s,        
+        ...s,
         'isloaded': true,
     })});
 
@@ -147,7 +159,7 @@ const HistoryDialog = (props) => {
       // show all records by default
       setState(s => {return({
         ...s,
-        "select": 10,
+        "select": 1,
       })});
       // back to list of records
       setOpenIndex({
@@ -165,7 +177,7 @@ const HistoryDialog = (props) => {
         onClose={props.toggleHistory}
         scroll="paper"
         fullWidth={true}
-        maxWidth={"sm"}
+        maxWidth={"md"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
@@ -178,9 +190,9 @@ const HistoryDialog = (props) => {
                   value={state.select}
                   onChange={handleSelectChange}
                 >
-                  <MenuItem value={10}>All ({state["data"].length})</MenuItem>
-                  <MenuItem value={20}>Relevant ({state["data"].filter(value => value.included === 1).length})</MenuItem>
-                  <MenuItem value={30}>Irrelevant ({state["data"].filter(value => value.included !== 1).length})</MenuItem>
+                  <MenuItem value={1}>All ({state["data"].length})</MenuItem>
+                  <MenuItem value={2}>Relevant ({state["data"].filter(value => value.included === 1).length})</MenuItem>
+                  <MenuItem value={3}>Irrelevant ({state["data"].filter(value => value.included !== 1).length})</MenuItem>
                 </Select>
               </FormControl>
             }
@@ -205,7 +217,7 @@ const HistoryDialog = (props) => {
         {openIndex["index"] === null &&
           <DialogContent dividers={true}>
             <Box>
-              {state["data"] !== null && state["select"] === 10 &&
+              {state["data"] !== null && state["select"] === 1 &&
                 <List>
                   {
                     state["data"]
@@ -225,7 +237,7 @@ const HistoryDialog = (props) => {
                   }
                 </List>
               }
-              {state["data"] !== null && state["select"] === 20 &&
+              {state["data"] !== null && state["select"] === 2 &&
                 <List>
                   {
                     state["data"]
@@ -246,7 +258,7 @@ const HistoryDialog = (props) => {
                   }
                 </List>
               }
-              {state["data"] !== null && state["select"] === 30 &&
+              {state["data"] !== null && state["select"] === 3 &&
                 <List>
                   {
                     state["data"]
@@ -267,7 +279,7 @@ const HistoryDialog = (props) => {
                   }
                 </List>
               }
-            </Box> 
+            </Box>
           </DialogContent>
         }
 
@@ -297,7 +309,20 @@ const HistoryDialog = (props) => {
 
         <DialogActions>
           {openIndex["index"] !== null &&
-            <Button 
+            <Box className={classes.recordLabelAction}>
+              <Typography className={classes.recordLabelActionText}>
+                {openIndex.record.included === 1 ? "Relevant" : "Irrelevant"}
+              </Typography>
+              {openIndex.record.included === 1 ? <FavoriteIcon color="secondary" /> : <CloseIcon/>}
+            </Box>
+          }
+          {openIndex["index"] === null &&
+            <Button onClick={props.toggleHistory}>
+              Close
+            </Button>
+          }
+          {openIndex["index"] !== null &&
+            <Button
               onClick={() => {
                 updateInstance(openIndex.record.id, openIndex.record.included)
               }}
@@ -305,9 +330,7 @@ const HistoryDialog = (props) => {
               {openIndex.record.included === 1 ? "Convert to IRRELEVANT" : "Convert to RELEVANT"}
             </Button>
           }
-          <Button onClick={props.toggleHistory}>
-            Close
-          </Button>
+
         </DialogActions>
       </Dialog>
   );
