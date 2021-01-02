@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from pathlib import PurePath
 import numpy as np
 
 from asreview.models.balance.utils import get_balance_model
+from asreview.compat import convert_id_to_idx
 from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
 from asreview.config import AVAILABLE_REVIEW_CLASSES
 from asreview.config import DEFAULT_BALANCE_STRATEGY
@@ -34,6 +35,7 @@ from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.datasets import find_data
+from asreview.io.paper_record import preview_record
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.query import get_query_model
@@ -124,6 +126,7 @@ def get_reviewer(dataset,
                  embedding_fp=None,
                  verbose=0,
                  prior_idx=None,
+                 prior_record_id=None,
                  n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
                  n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
                  config_file=None,
@@ -215,6 +218,28 @@ def get_reviewer(dataset,
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
+    # continue with partly labeled dataset when in simulation mode.
+    if mode == "simulate":
+        labels = as_data.labels
+        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
+        if len(labeled_idx) != len(labels):
+            print("Simulating partial review, ignoring unlabeled"
+                  f" records (n={len(labels)-len(labeled_idx)}).\n")
+            as_data = as_data.slice(labeled_idx, by_index=True)
+
+            if prior_idx is not None and len(prior_idx) > 0:
+                raise ValueError("Not possible to select prior knowledge by"
+                                 " row number for partly labeled data.")
+
+    # prior knowledge
+    if prior_idx is not None and prior_record_id is not None and \
+            len(prior_idx) > 0 and len(prior_record_id) > 0:
+        raise ValueError(
+            "Not possible to provide both prior_idx and prior_record_id"
+        )
+    if prior_record_id is not None and len(prior_record_id) > 0:
+        prior_idx = convert_id_to_idx(as_data, prior_record_id)
+
     # Initialize the review class.
     if mode == "simulate":
         reviewer = ReviewSimulate(as_data,
@@ -257,6 +282,12 @@ def review(*args,
         raise ValueError(f"Unknown mode '{mode}'.")
 
     reviewer = get_reviewer(*args, mode=mode, model=model, **kwargs)
+
+    # output the prior indices
+    print("The following records are prior knowledge:\n")
+    for prior_record_id in reviewer.start_idx:
+        preview = preview_record(reviewer.as_data.record(prior_record_id))
+        print(f"{prior_record_id} - {preview}")
 
     # Start the review process.
     reviewer.review()

@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@ from contextlib import contextmanager
 import logging
 import os
 from pathlib import Path
+import zipfile
+import tempfile
 
 from asreview.config import STATE_EXTENSIONS
 
@@ -80,7 +82,7 @@ def states_from_dir(data_dir, prefix=""):
     Arguments
     ---------
     data_dir: str
-        Directory where to search for state files.
+        Directory where to search for state files or .asreview files.
     prefix: str
         Files starting with the prefix are assumed to be state files.
         The rest is ignored.
@@ -101,10 +103,13 @@ def states_from_dir(data_dir, prefix=""):
             continue
 
         state_fp = os.path.join(data_dir, state_file)
-        state_class = _get_state_class(state_fp)
-        if state_class is None:
-            continue
-        states[state_file] = state_class(state_fp=state_fp, read_only=True)
+        if Path(state_fp).suffix == ".asreview":
+            states[state_file] = state_from_asreview_file(state_fp)
+        else:
+            state_class = _get_state_class(state_fp)
+            if state_class is None:
+                continue
+            states[state_file] = state_class(state_fp=state_fp, read_only=True)
 
     return states
 
@@ -115,7 +120,7 @@ def state_from_file(data_fp):
     Arguments
     ---------
     data_fp: str
-        Path to state file.
+        Path to state file or .asreview file.
 
     Returns
     -------
@@ -126,11 +131,43 @@ def state_from_file(data_fp):
         logging.error(f"File {data_fp} does not exist, cannot create state.")
         return None
 
-    if not Path(data_fp).suffix in STATE_EXTENSIONS:
-        logging.error(f"file {data_fp} does not end with {STATE_EXTENSIONS}.")
-        return None
+    if Path(data_fp).suffix == ".asreview":
+        base_state = state_from_asreview_file(data_fp)
+    elif Path(data_fp).suffix in STATE_EXTENSIONS:
+        base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
+    else:
+        raise ValueError(f"Expected ASReview file or file {data_fp} with "
+                         f"extension {STATE_EXTENSIONS}.")
+
     state = {
         os.path.basename(os.path.normpath(data_fp)):
-        _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
+        base_state
     }
     return state
+
+
+def state_from_asreview_file(data_fp):
+    """Obtain the state from a .asreview file.
+
+    Parameters
+    ----------
+    data_fp: str
+        Path to .asreview file.
+
+    Returns
+    -------
+    BaseState:
+        The same type of state file as in the .asreview file, which at the moment
+        is JSONState.
+    """
+    if not Path(data_fp).suffix == '.asreview':
+        raise ValueError(f"file {data_fp} does not end with '.asreview'.")
+
+    # Name of the state file in the .asreview file.
+    state_fp_in_zip = 'result.json'
+    with zipfile.ZipFile(data_fp, "r") as zipObj:
+        tmpdir = tempfile.TemporaryDirectory()
+        zipObj.extract(state_fp_in_zip, tmpdir.name)
+        fp = Path(tmpdir.name, state_fp_in_zip)
+        state = _get_state_class(fp)(state_fp=fp, read_only=True)
+        return state

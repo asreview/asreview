@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,18 +29,18 @@ class SimpleBalance(BaseBalance):
 
         Arguments
         ---------
-        X: np.array
+        X: numpy.ndarray
             Complete matrix of all samples.
-        y: np.array
+        y: numpy.ndarray
             Classified results of all samples.
         extra_vars: dict:
             Extra variables that can be passed around between functions.
 
         Returns
         -------
-        np.array:
+        numpy.ndarray:
             Training samples.
-        np.array:
+        numpy.ndarray:
             Classification of training samples.
         """
         return X[train_idx], y[train_idx]

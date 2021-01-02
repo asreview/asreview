@@ -1,3 +1,17 @@
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from collections import Counter
 import json
 import logging
@@ -458,7 +472,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     indices = [x[0] for x in label_history]
 
-    records = read_data(project_id).record(indices)
+    records = read_data(project_id).record(indices, by_index=False)
 
     payload = {"result": []}
     for i, record in enumerate(records):
@@ -526,7 +540,7 @@ def api_random_prior_papers(project_id):  # noqa: F401
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    record = read_data(project_id).record(pool_random)
+    record = read_data(project_id).record(pool_random, by_index=False)
 
     payload = {"result": []}
 

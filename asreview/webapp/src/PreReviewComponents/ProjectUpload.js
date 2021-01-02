@@ -535,7 +535,7 @@ const ProjectUpload = ({
               Read more about
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/datasets.html"
+                href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
                 target="_blank"
               >dataset requirements
               </Link>.
@@ -549,7 +549,7 @@ const ProjectUpload = ({
               For example:
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/covid-19.html"
+                href="https://asreview.readthedocs.io/en/latest/plugins/covid19.html"
                 target="_blank"
               >COVID-19
               </Link>.
@@ -561,10 +561,10 @@ const ProjectUpload = ({
             <Typography variant="body2" gutterBottom>
               Select an example dataset for testing active learning models.
               The datasets are fully labeled into relevant and irrelevant.
-              The relevant records are displayed in red during the review process. Read more about
+              The relevant records are displayed in green during the review process. Read more about
               <Link
                 className={classes.link}
-                href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html"
+                href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
                 target="_blank"
               >end-user testing
               </Link>.

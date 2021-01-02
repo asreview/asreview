@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,3 +17,6 @@ from asreview.state.dict import DictState
 from asreview.state.hdf5 import HDF5State
 from asreview.state.json import JSONState
 from asreview.state.utils import open_state
+from asreview.state.utils import states_from_dir
+from asreview.state.utils import state_from_file
+from asreview.state.utils import state_from_asreview_file

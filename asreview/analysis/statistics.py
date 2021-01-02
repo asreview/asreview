@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ def _find_inclusions(state, labels, remove_initial=True):
                 cur_inclusions += labels[label_idx[i]]
                 inclusions.append(cur_inclusions)
 
-    inclusions_after_init = sum(labels)
+    inclusions_after_init = sum(labels == 1)
     if remove_initial:
         inclusions_after_init -= n_initial_inc
     return inclusions, inclusions_after_init, n_initial

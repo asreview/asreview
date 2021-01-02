@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
   Link,
+  Typography,
 } from '@material-ui/core'
 import { Alert, AlertTitle } from '@material-ui/lab'
 
@@ -88,7 +89,7 @@ const ExplorationAlert = (props) => {
           Relevant documents are displayed in green. Read more about
           <Link
             className={classes.link}
-            href="https://asreview.readthedocs.io/en/latest/user_testing_algorithms.html#exploration-mode"
+            href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
             target="_blank"
           >
             <strong>Exploration Mode</strong>
@@ -105,6 +106,17 @@ const ReviewZone = (props) => {
   const [undoState, setUndoState] = useState({
     'open': false,
     'message': null,
+  })
+
+  const [recordState, setRecordState] = useState({
+    // is loaded
+    'isloaded': false,
+    // record object with metadata
+    'record': null,
+    // ...
+    'selection': null,
+    // error loading record
+    'error': null,
   })
 
   const [previousRecordState, setPreviousRecordState] = useState({
@@ -148,6 +160,7 @@ const ReviewZone = (props) => {
       'isloaded': true,
       'record': previousRecordState.record,
       'selection': previousRecordState.decision,
+      'error': null,
     });
 }
 
@@ -156,6 +169,7 @@ const ReviewZone = (props) => {
       'isloaded': false,
       'record': null,
       'selection': null,
+      'error': null,
     });
   }
 
@@ -294,12 +308,19 @@ const ReviewZone = (props) => {
             'record':result.data["result"],
             'isloaded': true,
             'selection': null,
+            'error': null,
           });
         }
 
       })
       .catch((error) => {
         console.log(error);
+        setRecordState({
+          'record':null,
+          'isloaded': true,
+          'selection': null,
+          'error': error["message"],
+        });
       });
     }
 
@@ -352,7 +373,7 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {props.recordState['isloaded'] &&
+        {recordState.error === null && recordState['isloaded'] &&
           <ArticlePanel
             record={props.recordState['record']}
             showAuthors={props.showAuthors}
@@ -360,12 +381,22 @@ const ReviewZone = (props) => {
           />
         }
 
-      {/* Decision bar */}
+        {/* Article panel */}
+        {recordState.error !== null &&
+          <Typography
+            variant="h5"
+            color="textSecondary"
+          >
+            Unexpected error: {recordState.error}
+          </Typography>
+        }
+
+        {/* Decision bar */}
         <DecisionBar
           reviewDrawerOpen={props.reviewDrawerOpen}
           makeDecision={makeDecision}
-          block={!props.recordState['isloaded']}
-          recordState={props.recordState}
+          block={(!recordState['isloaded']) || (recordState.error !== null)}
+          recordState={recordState}
         />
 
       {/* Decision undo bar */}

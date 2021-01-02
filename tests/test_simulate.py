@@ -1,5 +1,6 @@
 import os
 from shutil import copyfile
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -16,23 +17,29 @@ try:
 except ImportError:
     pass
 
-data_fp = os.path.join("tests", "demo_data", "generic_labels.csv")
-data_fp_no_abs = os.path.join("tests", "demo_data",
-                              "generic_labels_no_abs.csv")
-data_fp_no_title = os.path.join("tests", "demo_data",
-                                "generic_labels_no_title.csv")
-data_fp_partial = os.path.join("tests", "demo_data",
-                               "generic_partial_labels.csv")
-embedding_fp = os.path.join("tests", "demo_data", "generic.vec")
-cfg_dir = os.path.join("tests", "cfg_files")
-state_dir = os.path.join("tests", "state_files")
-h5_state_file = os.path.join(state_dir, "test.h5")
-json_state_file = os.path.join(state_dir, "test.json")
+data_fp = Path("tests", "demo_data", "generic_labels.csv")
+data_fp_no_abs = Path("tests", "demo_data", "generic_labels_no_abs.csv")
+data_fp_no_title = Path("tests", "demo_data", "generic_labels_no_title.csv")
+data_fp_partial = Path("tests", "demo_data", "generic_partial_labels.csv")
+embedding_fp = Path("tests", "demo_data", "generic.vec")
+cfg_dir = Path("tests", "cfg_files")
+state_dir = Path("tests", "state_files")
+h5_state_file = Path(state_dir, "test.h5")
+json_state_file = Path(state_dir, "test.json")
+
+
+@pytest.mark.xfail(
+    raises=FileNotFoundError,
+    reason="Dataset not found"
+)
+def test_dataset_not_found():
+    reviewer = get_reviewer("doesnt_exist.csv", mode="simulate")
+    reviewer.review()
 
 
 def test_state_continue_json():
-    inter_file = os.path.join(state_dir, "test_1_inst.json")
-    if not os.path.isfile(inter_file):
+    inter_file = Path(state_dir, "test_1_inst.json")
+    if not inter_file.is_file():
         reviewer = get_reviewer(data_fp,
                                 mode="simulate",
                                 model="nb",
@@ -52,8 +59,8 @@ def test_state_continue_json():
 
 
 def test_state_continue_h5():
-    inter_file = os.path.join(state_dir, "test_1_inst.h5")
-    if not os.path.isfile(inter_file):
+    inter_file = Path(state_dir, "test_1_inst.h5")
+    if not inter_file.is_file():
         reviewer = get_reviewer(data_fp,
                                 mode="simulate",
                                 model="nb",
@@ -112,7 +119,7 @@ def test_nn_2_layer():
                    reason="requires tensorflow")
 def test_lstm_base():
 
-    check_model(config_file=os.path.join(cfg_dir, "lstm_base.ini"),
+    check_model(config_file=Path(cfg_dir, "lstm_base.ini"),
                 state_file=h5_state_file)
 
 
@@ -120,7 +127,7 @@ def test_lstm_base():
                    raises=ImportError,
                    reason="requires tensorflow")
 def test_lstm_pool():
-    check_model(config_file=os.path.join(cfg_dir, "lstm_pool.ini"),
+    check_model(config_file=Path(cfg_dir, "lstm_pool.ini"),
                 state_file=json_state_file)
 
 
@@ -137,13 +144,20 @@ def test_classifiers():
 
 def test_partial_simulation():
     check_model(data_fp=data_fp_partial,
-                n_prior_included=1, n_prior_excluded=1,
-                prior_idx=None, state_checker=check_partial_state)
+                n_prior_included=1,
+                n_prior_excluded=1,
+                prior_idx=None,
+                state_checker=check_partial_state)
 
 
+@pytest.mark.xfail(
+    raises=ValueError,
+    reason="prior_idx not available for partly labeled data"
+)
 def test_partial_simulation_2():
     check_model(data_fp=data_fp_partial,
-                prior_idx=[0, 5], state_checker=check_partial_state)
+                prior_idx=[0, 5],
+                state_checker=check_partial_state)
 
 
 def check_label_methods(label_methods, n_labels, methods):
@@ -207,6 +221,7 @@ def check_model(monkeypatch=None,
 
     if monkeypatch is not None:
         monkeypatch.setattr('builtins.input', lambda _: "0")
+
     # start the review process.
     reviewer = get_reviewer(data_fp,
                             mode=mode,
@@ -214,6 +229,7 @@ def check_model(monkeypatch=None,
                             prior_idx=prior_idx,
                             state_file=state_file,
                             **kwargs)
+
     if use_granular:
         with open_state(state_file) as state:
             # Two loops of training and classification.
@@ -229,12 +245,14 @@ def check_model(monkeypatch=None,
             inclusions = reviewer._get_labels(query_idx)
             reviewer.classify(query_idx, inclusions, state)
     else:
+
         with open_state(state_file) as state:
             if state_file is None:
                 state.set_labels(reviewer.y)
                 init_idx, init_labels = reviewer._prior_knowledge()
                 reviewer.query_i = 0
                 reviewer.train_idx = np.array([], dtype=np.int)
+
                 reviewer.classify(init_idx,
                                   init_labels,
                                   state,

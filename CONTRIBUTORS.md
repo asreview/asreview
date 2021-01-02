@@ -4,7 +4,7 @@ This project is in collaboration with researchers from the focus area of [Utrech
 
 - [Rens van de Schoot](https://www.rensvandeschoot.com) (Main coordinator, [@Rensvandeschoot](https://github.com/Rensvandeschoot))
 - [Daniel Oberski](https://www.uu.nl/staff/DLOberski) (Scientific Director, [@daob](https://github.com/daob)).
--  [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165))
+- [Jonathan de Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer, [@J535D165](https://github.com/J535D165))
 - Raoul Schram ([@qubixes](https://github.com/qubixes)).
 - [Parisa Zahedi](https://www.linkedin.com/in/parisa-zahedi-28b17148/) ([@parisa-zahedi](https://github.com/parisa-zahedi))
 - [Kees van Eijden](https://www.uu.nl/staff/CJvanEijden) ([@KvEijden](https://github.com/KvEijden))
@@ -25,3 +25,7 @@ This project is in collaboration with researchers from the focus area of [Utrech
 - [Sybren Hindriks](https://www.linkedin.com/in/sybren-hindriks-054320135)
 - [Yongchao Terry Ma](https://www.linkedin.com/in/yongchao-ma/) ([@terrymyc](https://github.com/terrymyc))
 - [Emiel van der Veen](https://www.linkedin.com/in/emielvdveen/) (CTO @ EYRA)
+- Sofie van den Brand [@SagevdBrand](https://github.com/SagevdBrand))
+- Laura Hofstee [@LHofstee](https://github.com/LHofstee))
+- Peter Lombaers [@PeterLombaers](https://github.com/PeterLombaers)
+

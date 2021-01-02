@@ -1,4 +1,4 @@
-# Copyright 2019 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class LSTMPoolClassifier(BaseTrainClassifier):
 
     Arguments
     ---------
-    embedding_matrix: np.array
+    embedding_matrix: numpy.ndarray
         Embedding matrix to use with LSTM model.
     backwards: bool
         Whether to have a forward or backward LSTM.

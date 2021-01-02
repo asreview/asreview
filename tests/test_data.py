@@ -1,11 +1,11 @@
-from pathlib import Path
 import urllib
+from pathlib import Path
 
-import numpy as np
 from pytest import mark
 
 from asreview import ASReviewData
 from asreview.datasets import DatasetManager
+from asreview.search import fuzzy_find
 
 
 def exists(url):
@@ -27,20 +27,18 @@ def test_fuzzy_finder(keywords, paper_id):
     fp = Path("tests", "demo_data", "embase.csv")
     as_data = ASReviewData.from_file(fp)
 
-    assert as_data.fuzzy_find(keywords)[0] == paper_id
+    assert fuzzy_find(as_data, keywords)[0] == paper_id
 
 
 @mark.parametrize("data_name", [
     "ptsd",
     "ace",
     "hall",
+    "benchmark:van_de_Schoot_2017",
+    "benchmark:Hall_2012",
+    "benchmark:Cohen_2006_ACEInhibitors",
+    "benchmark:Bos_2018",
 ])
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
     assert exists(data.get())
-
-
-def test_bad_record_id():
-    data_fp = Path("tests", "demo_data", "generic_bad_record_id.csv")
-    as_data = ASReviewData.from_file(data_fp)
-    assert(len(np.unique(as_data.df.index.values)) == len(as_data))

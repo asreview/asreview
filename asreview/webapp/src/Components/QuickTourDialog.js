@@ -39,38 +39,38 @@ const mapStateToProps = state => {
 const quickTourSteps = [
   {
     imgPath: Welcome,
-    textTitle: "Introducing\nAI-assisted reviewing",
+    textTitle: "Quick Tour",
     text: "Take a quick tour to learn the basics of systematic reviewing with ASReview!",
   },
   {
     imgPath: SetUp,
     textTitle: "Easy project setup",
-    text: "Supply a dataset, select prior knowledge, and choose a machine learning model (optional).",
+    text: "Supply a clean dataset, select prior knowledge, and choose a machine learning model (optional).",
   },
   {
     imgPath: Start,
-    textTitle: "Screen for relevant publications",
-    text: "Read the displayed publication and decide whether it is relevant or not.",
+    textTitle: "Mark text as (ir)relevant",
+    text: "Read the displayed text and decide whether it is relevant or not.",
   },
   {
     imgPath: Benefit,
     textTitle: "Benefit from AI-assisted reviewing",
-    text: "After each decision, the predicted ranking of publications is updated. In this way, you will see the relevant articles first.",
+    text: "After each decision, the predicted ranking of records is updated and you will see the most relevant record next (default).",
   },
   {
     imgPath: DontStress,
-    textTitle: "Your projects are autosaved and stored locally",
+    textTitle: "Autosave",
     text: "Your screening decisions are automatically saved on your own device.",
   },
   {
     imgPath: Done,
     textTitle: "Done screening? It's your choice!",
-    text: "You decide when to finish the reviewing process.",
+    text: "You decide when to stop the reviewing process (but hopefully before you have reached the end of your dataset).",
   },
   {
     imgPath: Publish,
-    textTitle: "Share the ASReview project file to enhance transparency",
-    text: "It contains all your decisions, as well as the technical information.",
+    textTitle: "Love Open Science",
+    text: "Share the ASReview project file to enhance transparency and reproducibility.",
   },
 ];
 

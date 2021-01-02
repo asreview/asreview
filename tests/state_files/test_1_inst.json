@@ -1,12 +1,31 @@
 {
   "time": {
     "start_time": "2020-01-09 16:10:26.263195",
-    "end_time": "2020-10-06 14:15:47.024948"
+    "end_time": "2020-12-04 12:44:09.667250"
   },
   "version": "2.1",
   "software_version": "0.3.1+14.gd39b057.dirty",
   "settings": {
-    "feature_param": {},
+    "mode": "simulate",
+    "model": "nb",
+    "query_strategy": "max_random",
+    "balance_strategy": "triple",
+    "feature_extraction": "tfidf",
+    "n_instances": 1,
+    "n_queries": 1,
+    "n_papers": null,
+    "n_prior_included": 10,
+    "n_prior_excluded": 10,
+    "abstract_only": false,
+    "as_data": null,
+    "model_param": {
+      "alpha": 3.822
+    },
+    "query_param": {
+      "strategy_1": "max",
+      "strategy_2": "random",
+      "mix_ratio": 0.95
+    },
     "balance_param": {
       "a": 2.155,
       "alpha": 0.94,
@@ -16,26 +35,7 @@
       "gamma": 2.0,
       "shuffle": true
     },
-    "query_param": {
-      "strategy_1": "max",
-      "strategy_2": "random",
-      "mix_ratio": 0.95
-    },
-    "model_param": {
-      "alpha": 3.822
-    },
-    "as_data": null,
-    "abstract_only": false,
-    "n_prior_excluded": 10,
-    "n_prior_included": 10,
-    "n_papers": null,
-    "n_queries": 1,
-    "n_instances": 1,
-    "feature_extraction": "tfidf",
-    "balance_strategy": "triple",
-    "query_strategy": "max_random",
-    "model": "nb",
-    "mode": "simulate",
+    "feature_param": {},
     "data_name": "generic_labels.csv",
     "data_fp": "test/demo_data/generic_labels.csv"
   },
