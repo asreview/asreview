@@ -8,11 +8,6 @@ import {
   DialogContent,
   DialogActions,
   Dialog,
-  List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  Switch,
 } from '@material-ui/core'
 
 import { brown } from '@material-ui/core/colors';
@@ -86,12 +81,12 @@ const ProjectInit = (props) => {
   })
   const [error, setError] = React.useState(false)
 
-  const toggleMode = () => {
-    setInfo({
-      ...info,
-      mode: info.mode === projectModes.ORACLE ? projectModes.SIMULATION : projectModes.ORACLE
-    });
-  };
+  // const toggleMode = () => {
+  //   setInfo({
+  //     ...info,
+  //     mode: info.mode === projectModes.ORACLE ? projectModes.SIMULATION : projectModes.ORACLE
+  //   });
+  // };
 
   const onChange = (evt) => {
     setInfo({

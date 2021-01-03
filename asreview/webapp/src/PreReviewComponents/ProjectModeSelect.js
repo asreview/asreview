@@ -41,7 +41,7 @@ export default function ProjectModeSelect() {
           onChange={handleChange}
           labelWidth={labelWidth}
         >
-          <MenuItem value={1}>
+          <MenuItem value={1} component='div'>
             <ListItem>
               <ListItemText
                 primary="Oracle"
@@ -49,7 +49,7 @@ export default function ProjectModeSelect() {
               />
             </ListItem>
           </MenuItem>
-          <MenuItem value={2}>
+          <MenuItem value={2} component='div'>
             <ListItem>
               <ListItemText
                 primary="Exploration"
@@ -57,7 +57,7 @@ export default function ProjectModeSelect() {
               />
             </ListItem>
           </MenuItem>
-          <MenuItem value={3}>
+          <MenuItem value={3} component='div'>
             <ListItem>
               <ListItemText
                 primary="Simulation"
