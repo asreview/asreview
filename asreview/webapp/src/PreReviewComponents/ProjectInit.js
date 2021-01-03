@@ -88,6 +88,14 @@ const ProjectInit = (props) => {
   //   });
   // };
 
+  // handle project type/mode change
+  const onModeChange = (event) => {
+    setInfo({
+      ...info,
+      mode: event.target.value
+    });
+  };
+
   const onChange = (evt) => {
     setInfo({
       ...info,
@@ -140,7 +148,8 @@ const ProjectInit = (props) => {
 
         <div className={classes.textfieldItem}>
           <ProjectModeSelect
-
+            mode={info.mode}
+            onModeChange={onModeChange}
           />
         </div>
 

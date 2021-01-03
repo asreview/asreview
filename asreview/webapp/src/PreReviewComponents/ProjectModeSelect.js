@@ -7,25 +7,23 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 
+import { projectModes } from '../globals.js';
+
 const useStyles = makeStyles((theme) => ({
   formControl: {
     width: "100%"
   },
 }));
 
-export default function ProjectModeSelect() {
+export default function ProjectModeSelect(props) {
   const classes = useStyles();
-  const [age, setAge] = React.useState(1);
 
+  // variables for styling the menu
   const inputLabel = React.useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
   React.useEffect(() => {
     setLabelWidth(inputLabel.current.offsetWidth);
   }, []);
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
 
   return (
     <div>
@@ -37,11 +35,11 @@ export default function ProjectModeSelect() {
         <Select
           labelId="demo-simple-select-outlined-label"
           id="demo-simple-select-outlined"
-          value={age}
-          onChange={handleChange}
+          value={props.mode}
+          onChange={props.onModeChange}
           labelWidth={labelWidth}
         >
-          <MenuItem value={1} component='div'>
+          <MenuItem value={projectModes.ORACLE} component='div'>
             <ListItem>
               <ListItemText
                 primary="Oracle"
@@ -49,7 +47,7 @@ export default function ProjectModeSelect() {
               />
             </ListItem>
           </MenuItem>
-          <MenuItem value={2} component='div'>
+          <MenuItem value={projectModes.SIMULATION} component='div'>
             <ListItem>
               <ListItemText
                 primary="Exploration"
@@ -57,7 +55,7 @@ export default function ProjectModeSelect() {
               />
             </ListItem>
           </MenuItem>
-          <MenuItem value={3} component='div'>
+          <MenuItem value={projectModes.EXPLORATION} component='div'>
             <ListItem>
               <ListItemText
                 primary="Simulation"
