@@ -10,6 +10,7 @@ import {
   Header,
   ReviewZone,
   ExportDialog,
+  HistoryDialog,
 }
 from './Components'
 import {
@@ -60,7 +61,14 @@ const App = (props) => {
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
+  const [history, setHistory] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
+  const [recordState, setRecordState] = React.useState({
+    'isloaded': false,
+    'record': null,
+    'selection': null,
+  })
+
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
@@ -86,6 +94,11 @@ const App = (props) => {
     setExportResult(a => (!a));
   };
 
+  const toggleHistory = () => {
+    setHistory(a => (!a));
+  };
+
+
   return (
       <ThemeProvider theme={muiTheme}>
       <CssBaseline/>
@@ -97,6 +110,7 @@ const App = (props) => {
 
         /* Handle the app review drawer */
         toggleExportResult={toggleExportResult}
+        toggleHistory={toggleHistory}
         toggleDarkMode={toggleDarkMode}
         handleClickOpen={handleClickOpen}
         handleTextSizeChange={handleTextSizeChange}
@@ -129,9 +143,11 @@ const App = (props) => {
       />
       }
 
-      {props.app_state === 'review' &&
+      {(props.app_state === 'review') &&
       <ReviewZone
         handleAppState={props.setAppState}
+        recordState={recordState}
+        setRecordState={setRecordState}
         showAuthors={authors}
         textSize={textSize}
         undoEnabled={undoEnabled}
@@ -168,6 +184,12 @@ const App = (props) => {
       <ExportDialog
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
+      />
+      <HistoryDialog
+        recordState={recordState}
+        setRecordState={setRecordState}
+        toggleHistory={toggleHistory}
+        history={history}
       />
     </ThemeProvider>
   );
