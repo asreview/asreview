@@ -44,8 +44,8 @@ export default function ProjectModeSelect() {
           <MenuItem value={1}>
             <ListItem>
               <ListItemText
-                primary="Systematic review"
-                secondary="An interactive AI-aided systematic review. Lorum Ipsum"
+                primary="Oracle"
+                secondary="Start an interactive AI-aided screening with an unlabeled dataset."
               />
             </ListItem>
           </MenuItem>
@@ -53,7 +53,7 @@ export default function ProjectModeSelect() {
             <ListItem>
               <ListItemText
                 primary="Exploration"
-                secondary="Explore an existing, fully labeled dataset in an interactive way."
+                secondary="Explore an existing, labeled dataset in an interactive way."
               />
             </ListItem>
           </MenuItem>
@@ -61,7 +61,7 @@ export default function ProjectModeSelect() {
             <ListItem>
               <ListItemText
                 primary="Simulation"
-                secondary="Simulate the performance of ASReview on a fully labeled dataset."
+                secondary="Simulate the performance of ASReview on a labeled dataset."
               />
             </ListItem>
           </MenuItem>
