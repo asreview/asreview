@@ -318,6 +318,24 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
         urlretrieve(download_url, get_data_path(project_id) / filename)
 
+    elif request.form.get('benchmark', None):
+
+        benchmark_dataset_id = DatasetManager().find(request.form['benchmark'])
+
+        # read dataset
+        df = pd.read_csv(benchmark_dataset_id.url)
+
+        # rename label column
+        df.rename({"label_included": "debug_label"}, axis=1, inplace=True)
+
+        # define export filepath
+        url_parts = urllib.parse.urlparse(benchmark_dataset_id.url)
+        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
+        export_fp = get_data_path(project_id) / filename
+
+        # export file
+        df.to_csv(export_fp, index=False)
+
     elif request.form.get('url', None):
         # download file and save to folder
 

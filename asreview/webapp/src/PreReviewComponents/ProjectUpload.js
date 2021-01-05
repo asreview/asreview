@@ -269,10 +269,19 @@ const ProjectUpload = ({
   }
 
   /* Upload demo dataset */
-  const onUploadHandlerDemoDataset = (demo_data_id, callback) => {
+  const onUploadHandlerPluginDataset = (demo_data_id, callback) => {
 
     const data = new FormData()
     data.append('demo_data', demo_data_id)
+
+    return onUploadHandler(data, callback)
+  }
+
+  /* Upload benchmark dataset */
+  const onUploadHandlerBenchmarkDataset = (demo_data_id, callback) => {
+
+    const data = new FormData()
+    data.append('benchmark', demo_data_id)
 
     return onUploadHandler(data, callback)
   }
@@ -474,7 +483,7 @@ const ProjectUpload = ({
               {value === 2 &&
                 <ProjectUploadDatasets
                   subset={"plugin"}
-                  onUploadHandler={onUploadHandlerDemoDataset}
+                  onUploadHandler={onUploadHandlerPluginDataset}
                 />
               }
 
@@ -483,7 +492,7 @@ const ProjectUpload = ({
                 <div>
                   <ProjectUploadDatasets
                     subset={"benchmark"}
-                    onUploadHandler={onUploadHandlerDemoDataset}
+                    onUploadHandler={onUploadHandlerBenchmarkDataset}
                   />
                 </div>
               }
