@@ -41,6 +41,15 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+const formatCitation = (authors, year) => {
+
+  if (Array.isArray(authors)){
+      var first_author = authors[0].split(",")[0];
+      return first_author + " et al. ("  + year + ")"
+  } else {
+    return authors
+  }
+}
 
 const Dataset = (props) => {
 
@@ -76,10 +85,10 @@ const Dataset = (props) => {
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
-            {props.dataset.title}
+            {formatCitation(props.dataset.authors, props.dataset.year)}
           </Typography>
           <Typography noWrap variant="body2" color="textSecondary" component="p">
-            {props.dataset.description}
+            {props.dataset.topic}
           </Typography>
         </CardContent>
       </CardActionArea>:
