@@ -7,7 +7,7 @@
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.48",
     "@material-ui/styles": "^4.9.6",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
