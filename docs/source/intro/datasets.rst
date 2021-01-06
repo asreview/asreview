@@ -103,7 +103,7 @@ names are allowed, see the table. The use is twofold:
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabelled part of the data.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
-  the coluimn containing the labels is used to simulate a systematic review run. 
+  the column containing the labels is used to simulate a systematic review run. 
   Only records containing labels are used for the simulation, unlabelled records are ignored.
 
 .. note::
