@@ -126,27 +126,27 @@ Citation Managers
 The following table provides an overview of export files from citation
 managers  which are accepted by ASReview.
 
-+-----------------+---------------+----------------+--------------+--------------+
-|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Endnote**     | Supported     | Not supported  |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Excel**       |               |                | Supported\*  |  Supported   |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Mendeley**    | Supported     |                |              |              |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Refworks**    | Supported     | Not supported  |              |              |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Zotero**      | Supported     |                | Supported    |              |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
++-----------------+---------------+--------------+--------------+
+|                 | **.ris**      |  **.csv**    | **.xlsx**    |
++-----------------+---------------+--------------+--------------+
+| **Endnote**     | Supported     |              |              |
++-----------------+---------------+--------------+--------------+
+| **Excel**       |               |  Supported\* |  Supported   |
+|                 |               |              |              |
++-----------------+---------------+--------------+--------------+
+| **Mendeley**    | Supported     |              |              |
+|                 |               |              |              |
++-----------------+---------------+--------------+--------------+
+| **Refworks**    | Supported     |              |              |
+|                 |               |              |              |
++-----------------+---------------+--------------+--------------+
+| **Zotero**      | Supported     |  Supported   |              |
+|                 |               |              |              |
++-----------------+---------------+--------------+--------------+
 
-- Supported: The data can be exported from the citation manager and imported in ASReview using this extension.
-- Not supported: The exported format can not be imported in ASReview.
-- (empty): The data cannot be exported from the citation manager in this format.
+- Supported: The data can be exported from the citation manager and imported
+in ASReview.  
+- Empty: This format does not exist.
 
 \* Only comma seperated files are supported. Semicolon seperated files are not supported.
 
@@ -188,21 +188,24 @@ acceptance in ASReview:
 
 - Supported: The data can be exported from the search engine and imported in ASReview using this extension.
 - Not supported: The exported data can not be imported in ASReview using this extension.
-- (empty): The data cannot be exported from the search engine using this extension.
+- Empty: The extension format cannot be exported from the search engine.
 
 
-If the export of your search engine is not accepted in ASReview, you can also
-try the following: import the search engine file first into one of the
-citation managers mentioned in the previous part, and export it again into a
-format that is accepted by ASReview.
+.. warning::
+
+    If the export of your search engine is not accepted in ASReview, you can
+    also try the following: import the search engine file first into one of
+    the citation managers mentioned in the previous part, and export it again
+    into a format that is accepted by ASReview.
 
 Systematic Review Software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are several software packages available for systematic reviewing. Some
-of them use machine learning, while other focus on screening and management.
-The overview below shows an overview of alternative software programs and the
-compatibility with ASReview.
+There are several software packages available for systematic reviewing, see
+for an `overview <https://arxiv.org/abs/2006.12166>`_. Some of them use machine
+learning, while other focus on screening and management. The overview below
+shows an overview of alternative software programs and the compatibility with
+ASReview. 
 
 +-----------------+---------------+----------------+--------------+--------------+
 |                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
@@ -224,15 +227,16 @@ compatibility with ASReview.
 
 - Supported: The data can be exported from the software and imported in ASReview using this extension.
 - Not supported: The exported data can not be imported in ASReview using this extension.
-- (empty): The data cannot be exported from the software using this extension.
+- Empty: The extension format cannot be exported from the search engine.
 
-\* When using Covidence it is possible to export articles in .ris formats for different citation managers,
+\* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
 such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
 
-\** When exporting from Distiller set the ``sort references by`` to ``Authors``. Then the data can be
-imported in ASReview.
+\** When exporting from Distiller and if the following error occurs ``Unable
+to parse string "Yes (include)" at position 0`` set the ``sort references by``
+to ``Authors``. Then the data can be imported in ASReview.
 
-\*** Robotreviewer does not provide exports suitable for asreview, since it supports evidence synthesis.
+\*** Robotreviewer does not provide exports suitable for asreview.
 
 
 .. _demonstration-datasets:
