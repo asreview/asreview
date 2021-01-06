@@ -101,10 +101,10 @@ names are allowed, see the table. The use is twofold:
   dataset (see :doc:`partly labeled data <../features/pre_screening>`), the
   labels will be automatically detected and used for prior knowledge. The first
   iteration of the model will then be based on these decisions and used to
-  predict relevance scores for the unlabelled part of the data.
+  predict relevance scores for the unlabeled part of the data.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
   the column containing the labels is used to simulate a systematic review run. 
-  Only records containing labels are used for the simulation, unlabelled records are ignored.
+  Only records containing labels are used for the simulation, unlabeled records are ignored.
 
 .. note::
 
