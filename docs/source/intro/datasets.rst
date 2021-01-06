@@ -8,7 +8,7 @@ library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
 It is possible to use your own dataset with unlabeled, partly labeled (where
-the labeled records are used for training a model for the unlabelled records),
+the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
 `Demonstration Datasets`_. Also, a plugin with :doc:`Corona related
