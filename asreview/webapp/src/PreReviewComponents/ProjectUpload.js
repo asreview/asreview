@@ -30,7 +30,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import HelpIcon from '@material-ui/icons/Help';
 
 import {
-  ProjectUploadDatasets,
+  ProjectUploadBenchmarkDatasets,
+  ProjectUploadPluginDatasets,
   ProjectUploadURL,
   Help,
   useHelp,
@@ -272,7 +273,7 @@ const ProjectUpload = ({
   const onUploadHandlerPluginDataset = (demo_data_id, callback) => {
 
     const data = new FormData()
-    data.append('demo_data', demo_data_id)
+    data.append('plugin', demo_data_id)
 
     return onUploadHandler(data, callback)
   }
@@ -481,17 +482,14 @@ const ProjectUpload = ({
               }
 
               {value === 2 &&
-                <ProjectUploadDatasets
-                  subset={"plugin"}
+                <ProjectUploadPluginDatasets
                   onUploadHandler={onUploadHandlerPluginDataset}
                 />
               }
 
               {value === 3 &&
-
                 <div>
-                  <ProjectUploadDatasets
-                    subset={"benchmark"}
+                  <ProjectUploadBenchmarkDatasets
                     onUploadHandler={onUploadHandlerBenchmarkDataset}
                   />
                 </div>

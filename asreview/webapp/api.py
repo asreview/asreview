@@ -303,20 +303,14 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         response = jsonify(message="Project not found.")
         return response, 404
 
-    if request.form.get('demo_data', None):
-        # download file and save to folder
+    if request.form.get('plugin', None):
 
-        demo_data = DatasetManager().find(request.form['demo_data'])
+        plugin_data = DatasetManager().find(request.form['plugin'])
 
-        if demo_data.dataset_id in ["hall", "ace", "ptsd"]:
-            download_url = demo_data.url_demo
-        else:
-            download_url = demo_data.url
-
-        url_parts = urllib.parse.urlparse(download_url)
+        url_parts = urllib.parse.urlparse(plugin_data.url)
         filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-        urlretrieve(download_url, get_data_path(project_id) / filename)
+        urlretrieve(plugin_data.url, get_data_path(project_id) / filename)
 
     elif request.form.get('benchmark', None):
 
