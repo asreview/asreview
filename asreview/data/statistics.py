@@ -82,7 +82,7 @@ def n_unlabeled(data):
     """
     if data.labels is None:
         return None
-    return len(data.labels) - n_included() - n_excluded()
+    return len(data.labels) - n_included(data) - n_excluded(data)
 
 
 def n_missing_title(data):
