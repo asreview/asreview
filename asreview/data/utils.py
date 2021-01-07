@@ -36,13 +36,13 @@ def describe_data(data):
 
     return {
         "n_records": n_records(data),
-        "n_included": n_included(data),
-        "n_excluded": n_excluded(data),
+        "n_relevant": n_included(data),
+        "n_irrelevant": n_excluded(data),
         "n_unlabeled": n_unlabeled(data),
         "n_missing_title": _n_missing_title,
-        "n_missing_title_included": _n_missing_title_included,
+        "n_missing_title_relevant": _n_missing_title_included,
         "n_missing_abstract": _n_missing_abs,
-        "n_missing_abstract_included": _n_missing_abs_included,
+        "n_missing_abstract_relevant": _n_missing_abs_included,
         "title_length": title_length(data),
         "abstract_length": abstract_length(data),
         "n_keywords": n_keywords(data),
@@ -63,11 +63,11 @@ def format_describe_data(data):
     else:
         avg_keywords = None
     values_str = (
-        f"Number of papers:            {values['n_records']}\n"
-        f"Number of inclusions:        {values['n_included']} "
-        f"({100*values['n_included']/values['n_records']:.2f}%)\n"
-        f"Number of exclusions:        {values['n_excluded']} "
-        f"({100*values['n_excluded']/values['n_records']:.2f}%)\n"
+        f"Number of records:           {values['n_records']}\n"
+        f"Number of relevant:          {values['n_relevant']} "
+        f"({100*values['n_relevant']/values['n_records']:.2f}%)\n"
+        f"Number of irrelevant:        {values['n_irrelevant']} "
+        f"({100*values['n_irrelevant']/values['n_records']:.2f}%)\n"
         f"Number of unlabeled:         {values['n_unlabeled']} "
         f"({100*values['n_unlabeled']/values['n_records']:.2f}%)\n"
         f"Average title length:        {values['title_length']:.0f}\n"
@@ -75,13 +75,13 @@ def format_describe_data(data):
         f"Average number of keywords:  {avg_keywords}\n"
         f"Number of missing titles:    {values['n_missing_title']}"
     )
-    if values['n_missing_title_included'] is not None:
-        values_str += (f" (of which {values['n_missing_title_included']}"
-                       " included)")
+    if values['n_missing_title_relevant'] is not None:
+        values_str += (f" (of which {values['n_missing_title_relevant']}"
+                       " relevant)")
     values_str += (f"\nNumber of missing abstracts: "
                    f"{values['n_missing_abstract']}")
-    if values['n_missing_abstract_included'] is not None:
-        val = values['n_missing_abstract_included']
-        values_str += (f" (of which {val} included)")
+    if values['n_missing_abstract_relevant'] is not None:
+        val = values['n_missing_abstract_relevant']
+        values_str += (f" (of which {val} relevant)")
     values_str += "\n"
     return values_str
