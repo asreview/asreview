@@ -277,7 +277,7 @@ def api_demo_data_project():  # noqa: F401
             "van_de_Schoot_2017",
             "Hall_2012",
             "Cohen_2006_ACEInhibitors",
-            "Bos_2018"
+            "Kwok_2020"
         ]
         for featured_id in featured_dataset_ids:
             for i, dataset in enumerate(result_datasets):
