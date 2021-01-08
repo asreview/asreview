@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from asreview.data.statistics import n_records
-from asreview.data.statistics import n_included
-from asreview.data.statistics import n_excluded
+from asreview.data.statistics import n_relevant
+from asreview.data.statistics import n_irrelevant
 from asreview.data.statistics import n_unlabeled
 from asreview.data.statistics import n_missing_title
 from asreview.data.statistics import n_missing_abstract
@@ -24,7 +24,7 @@ from asreview.data.statistics import n_keywords
 
 
 def describe_data(data):
-    """Compute dataset statisticsg.
+    """Compute dataset statistics.
 
     Returns
     -------
@@ -36,8 +36,8 @@ def describe_data(data):
 
     return {
         "n_records": n_records(data),
-        "n_relevant": n_included(data),
-        "n_irrelevant": n_excluded(data),
+        "n_relevant": n_relevant(data),
+        "n_irrelevant": n_irrelevant(data),
         "n_unlabeled": n_unlabeled(data),
         "n_missing_title": _n_missing_title,
         "n_missing_title_relevant": _n_missing_title_included,

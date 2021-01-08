@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ def n_records(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -31,13 +31,13 @@ def n_records(data):
     return len(data)
 
 
-def n_included(data):
-    """Return the number of included records.
+def n_relevant(data):
+    """Return the number of relevant records.
 
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -49,13 +49,13 @@ def n_included(data):
     return None
 
 
-def n_excluded(data):
-    """Return the number of excluded records.
+def n_irrelevant(data):
+    """Return the number of irrelevant records.
 
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -73,7 +73,7 @@ def n_unlabeled(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -82,7 +82,7 @@ def n_unlabeled(data):
     """
     if data.labels is None:
         return None
-    return len(data.labels) - n_included(data) - n_excluded(data)
+    return len(data.labels) - n_relevant(data) - n_irrelevant(data)
 
 
 def n_missing_title(data):
@@ -91,7 +91,7 @@ def n_missing_title(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -119,7 +119,7 @@ def n_missing_abstract(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -149,7 +149,7 @@ def title_length(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -170,7 +170,7 @@ def abstract_length(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
@@ -191,7 +191,7 @@ def n_keywords(data):
     Arguments
     ---------
     data: asreview.data.ASReviewData
-        An ASReviewData object with the records to review.
+        An ASReviewData object with the records.
 
     Return
     ------
