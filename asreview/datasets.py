@@ -92,11 +92,6 @@ class BaseDataSet():
             setattr(dataset, attr, val)
         return dataset
 
-    @property
-    def aliases(self):
-        """Can be overriden by setting it manually."""
-        return [self.dataset_id]
-
     def get(self):
         """Get the url/fp for the dataset."""
         try:
