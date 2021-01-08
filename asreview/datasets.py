@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
 import json
+import socket
 import warnings
+from pathlib import Path
 
 from asreview.utils import get_entry_points
 from asreview.utils import pretty_format
 from asreview.utils import is_iterable, is_url
 from urllib.request import urlopen
+from urllib.error import URLError
 
 
 class DataSetNotFoundError(Exception):
@@ -39,6 +41,11 @@ def _create_dataset_from_meta(data):
         return BaseDataSet.from_config(data)
     else:
         raise ValueError(f"Dataset type {data['type']} unknown.")
+
+
+def dataset_from_url(*args, **kwargs):
+    # compat for asreview-covid<=0.9.1
+    warnings.warn("Deprecated function.")
 
 
 class BaseDataSet():
@@ -294,7 +301,7 @@ class DatasetManager():
         raise FileNotFoundError(
             f"File or dataset does not exist: '{dataset_name}'")
 
-    def list(self, group_name=None, latest_only=True):
+    def list(self, group_name=None, latest_only=True, raise_on_error=False):
         """List the available datasets.
 
         Parameters
@@ -304,6 +311,8 @@ class DatasetManager():
             groups if group_name is None.
         latest_only: bool
             Only include the latest version of the dataset.
+        raise_on_error: bool
+            Raise error when entry point can't be loaded.
 
         Returns
         -------
@@ -325,9 +334,11 @@ class DatasetManager():
             try:
                 dataset_list[group] = \
                     dataset_groups[group].load()().list(latest_only=latest_only)
-            except Exception:
+            except Exception as err:
+
                 # don't raise error on loading entry point
-                pass
+                if raise_on_error:
+                    raise err
 
         return dataset_list
 
@@ -420,21 +431,29 @@ class BenchmarkDataGroup(BaseDataGroup):
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index.json"  # noqa
-        with urlopen(meta_file) as f:
-            meta_data = json.loads(f.read().decode())
-
-        datasets = []
-        for data in meta_data.values():
-            datasets.append(_create_dataset_from_meta(data))
+        datasets = download_from_metadata(meta_file)
 
         super(BenchmarkDataGroup, self).__init__(
             *datasets
         )
 
 
-def dataset_from_url(*args, **kwargs):
-    # compat for asreview-covid<=0.9.1
-    warnings.warn("Deprecated function.")
+def download_from_metadata(url):
+    """Download metadata to dataset."""
+
+    try:
+        with urlopen(url, timeout=10) as f:
+            meta_data = json.loads(f.read().decode())
+    except URLError as e:
+        if isinstance(e.reason, socket.timeout):
+            raise Exception("Connection time out.")
+        raise e
+
+    datasets = []
+    for data in meta_data.values():
+        datasets.append(_create_dataset_from_meta(data))
+
+    return datasets
 
 
 def find_data(project_id):

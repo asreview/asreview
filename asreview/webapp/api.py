@@ -262,9 +262,28 @@ def api_demo_data_project():  # noqa: F401
     subset = request.args.get('subset', None)
 
     if subset == "plugin":
-        result_datasets = get_dataset_metadata(exclude="builtin")
-    elif subset == "test":
-        result_datasets = get_dataset_metadata(include="builtin")
+        result_datasets = get_dataset_metadata(
+            exclude=["builtin", "benchmark"]
+        )
+    elif subset == "benchmark":
+
+        # collect the datasets metadata
+        result_datasets = get_dataset_metadata(
+            include="benchmark"
+        )
+
+        # mark the featured datasets
+        featured_dataset_ids = [
+            "van_de_Schoot_2017",
+            "Hall_2012",
+            "Cohen_2006_ACEInhibitors",
+            "Kwok_2020"
+        ]
+        for featured_id in featured_dataset_ids:
+            for i, dataset in enumerate(result_datasets):
+                if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
+                    result_datasets[i]["featured"] = True
+
     else:
         response = jsonify(message="demo-data-loading-failed")
 
@@ -284,20 +303,32 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         response = jsonify(message="Project not found.")
         return response, 404
 
-    if request.form.get('demo_data', None):
-        # download file and save to folder
+    if request.form.get('plugin', None):
 
-        demo_data = DatasetManager().find(request.form['demo_data'])
+        plugin_data = DatasetManager().find(request.form['plugin'])
 
-        if demo_data.dataset_id in ["hall", "ace", "ptsd"]:
-            download_url = demo_data.url_demo
-        else:
-            download_url = demo_data.url
-
-        url_parts = urllib.parse.urlparse(download_url)
+        url_parts = urllib.parse.urlparse(plugin_data.url)
         filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-        urlretrieve(download_url, get_data_path(project_id) / filename)
+        urlretrieve(plugin_data.url, get_data_path(project_id) / filename)
+
+    elif request.form.get('benchmark', None):
+
+        benchmark_dataset_id = DatasetManager().find(request.form['benchmark'])
+
+        # read dataset
+        df = pd.read_csv(benchmark_dataset_id.url)
+
+        # rename label column
+        df.rename({"label_included": "debug_label"}, axis=1, inplace=True)
+
+        # define export filepath
+        url_parts = urllib.parse.urlparse(benchmark_dataset_id.url)
+        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
+        export_fp = get_data_path(project_id) / filename
+
+        # export file
+        df.to_csv(export_fp, index=False)
 
     elif request.form.get('url', None):
         # download file and save to folder
