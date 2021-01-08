@@ -89,13 +89,13 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             <Box>
               {state.datasets.filter(function(dataset) {
                   return dataset.featured;
-                }).map(dataset => (
+                }).map((dataset, index, array) => (
                   <Dataset
-                    key={dataset.dataset_id}
-                    dataset_id={dataset.dataset_id}
-                    title={formatCitation(dataset.authors, dataset.year)}
-                    description={dataset.topic}
-                    img_url={dataset.img_url}
+                    key={array[array.length - 1 - index].dataset_id}
+                    dataset_id={array[array.length - 1 - index].dataset_id}
+                    title={formatCitation(array[array.length - 1 - index].authors, array[array.length - 1 - index].year)}
+                    description={array[array.length - 1 - index].topic}
+                    img_url={array[array.length - 1 - index].img_url}
                     onUploadHandler={props.onUploadHandler}
                   />
               ))}
