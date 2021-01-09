@@ -95,7 +95,7 @@ class BaseDataSet():
     @property
     def aliases(self):
         """Can be overriden by setting it manually."""
-        return [self.dataset_id]
+        return [self.dataset_id.lower()]
 
     def get(self):
         """Get the url/fp for the dataset."""
@@ -123,7 +123,7 @@ class BaseDataSet():
 
     def find(self, data_name):
         """Return self if the name is one of our aliases."""
-        if data_name in self.aliases:
+        if data_name.lower() in self.aliases:
             return self
 
         raise DataSetNotFoundError(
@@ -167,7 +167,7 @@ class BaseVersionedDataSet():
 
         all_dataset_names = [(d, d.aliases) for d in self.datasets]
         for dataset, aliases in all_dataset_names:
-            if dataset_name in aliases:
+            if dataset_name.lower() in aliases:
                 return dataset
 
         raise DataSetNotFoundError(
