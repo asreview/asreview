@@ -306,4 +306,25 @@ def review_simulate(dataset, *args, **kwargs):
 
     print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ptsd", "example_ptsd", "schoot"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:van_de_Schoot_2017' instead.\n\n")
+        dataset = "benchmark:van_de_Schoot_2017"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ace", "example_cohen", "example_ace"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Cohen_2006_ACEInhibitors' instead.\n\n")
+        dataset = "benchmark:Cohen_2006_ACEInhibitors"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["hall", "example_hall", "example_software"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Hall_2012' instead.\n\n")
+        dataset = "benchmark:Hall_2012"
+
     review(dataset, *args, mode='simulate', **kwargs)
