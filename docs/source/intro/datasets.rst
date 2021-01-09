@@ -142,12 +142,9 @@ managers  which are accepted by ASReview.
 | **Zotero**                    | ✅       | ✅       | N/A      |
 +-------------------------------+----------+----------+----------+
 
-Note: 
-
 -  ✅ = The data can be exported from the citation manager and imported in ASReview. 
 -  N/A = This format does not exist.
 -  X = not suported.
-
 
 
 Search Engines
@@ -186,13 +183,9 @@ acceptance in ASReview:
 |**Science**      |          |          |          |           |
 +-----------------+----------+----------+----------+-----------+
 
-Note: 
-
 -  ✅ = The data can be exported from the citation manager and imported in ASReview. 
 -  N/A = This format does not exist.
 -  X = not suported.
-
-
 
 .. warning::
 
@@ -227,19 +220,15 @@ ASReview.
 |**Robotreviewer**| N/A       | N/A      | N/A      | N/A      |
 +-----------------+-----------+----------+----------+----------+
 
-Note: 
-
 -  ✅ = The data can be exported from the citation manager and imported in ASReview. 
 -  N/A = This format does not exist.
 -  X = not suported.
-
 
 \* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
 such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
 
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0`` 
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
-
 
 
 .. _demonstration-datasets:
