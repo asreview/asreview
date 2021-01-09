@@ -20,7 +20,7 @@ any time during the screening process. To download your results:
 relevant/irrelevant papers or the list of papers not seen during the screening proces. .
 6. You will be asked where to save the file.
 
-Three columns will be added to your dataset: 
+In case of an Excel or a CSV file, three columns will be added to your dataset: 
 
 The column titled **included** contains the labels as provided by the user:
 ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
@@ -56,6 +56,7 @@ export your project:
 3. Navigate to the Project Dashboard.
 4. Click on *Export this project*.
 5. You will be asked where to save the ASReview file (extension `.asreview`).
+
 
 Finished
 --------
