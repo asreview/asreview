@@ -18,7 +18,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import CloseIcon from '@material-ui/icons/Close';
+import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 
 import {
   HistoryListCard,
@@ -209,7 +209,7 @@ const HistoryDialog = (props) => {
               <ArrowBackIcon />
             </IconButton>
             <div className={classes.detailTitle}>
-              Details
+              Overview
             </div>
           </DialogTitle>
         }
@@ -313,7 +313,7 @@ const HistoryDialog = (props) => {
               <Typography className={classes.recordLabelActionText}>
                 {openIndex.record.included === 1 ? "Relevant" : "Irrelevant"}
               </Typography>
-              {openIndex.record.included === 1 ? <FavoriteIcon color="secondary" /> : <CloseIcon/>}
+              {openIndex.record.included === 1 ? <FavoriteIcon color="secondary" /> : <ThumbDownIcon/>}
             </Box>
           }
           {openIndex["index"] === null &&
