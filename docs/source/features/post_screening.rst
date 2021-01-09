@@ -38,6 +38,9 @@ If present, the column **record_id** contains the values of the original
 **record_id** as included by the user. If not available, ASReview generates a
 new record_id, based on the row number and starting at 0.
 
+In case of a ``.ris`` file, you can choose between three datasets: a ``.ris``
+file containing the relevant, irrelevant or unseen records. 
+
 .. figure:: ../../images/asreview_project_page_download.png
    :alt: ASReview project download
 
