@@ -30,6 +30,7 @@ To make a decision:
 3. Click on either the button Relevant or Irrelevant.
 4. The next record is presented. Repeat the process of labeling.
 
+
 .. figure:: ../../images/asreview_screening_asreview_label.png
    :alt: ASReview Screening
 
@@ -125,7 +126,7 @@ any time during the screening process. To download your results:
 4. Click the
 **download** icon in the upper-right corner. 
 5. You will be asked whether you want to save an Excel file, a CSV file, or a RIS file containing the
-relevant/irrelevant papers or the list of papers not seen during the screening proces. 
+relevant, irrelevant, or unseen/unlabeled records. 
 6. You will be asked where to save the file.
 
 
