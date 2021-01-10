@@ -185,12 +185,14 @@ const App = (props) => {
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
       />
+      {(props.app_state === 'review') &&
       <HistoryDialog
         recordState={recordState}
         setRecordState={setRecordState}
         toggleHistory={toggleHistory}
         history={history}
       />
+      }
     </ThemeProvider>
   );
 }
