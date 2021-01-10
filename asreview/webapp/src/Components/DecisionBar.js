@@ -5,7 +5,7 @@ import Box from '@material-ui/core/Box';
 // import TextField from '@material-ui/core/TextField';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import CloseIcon from '@material-ui/icons/Close';
+import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 import { makeStyles } from '@material-ui/core/styles'
 import { reviewDrawerWidth } from '../globals.js'
 
@@ -79,7 +79,7 @@ const DecisionBar = (props) => {
         <BottomNavigationAction
           className={irreleventClassName}
           label={irrelevantLabel}
-          icon={<CloseIcon />}
+          icon={<ThumbDownIcon />}
           disabled={props.block}
         />
 
