@@ -48,7 +48,7 @@ def _read_data_from_cache(project_id, version_check=True):
     except FileNotFoundError:
         # file not available
         pass
-    except (pickle.PickleError, TypeError, ValueError) as err:
+    except Exception as err:
         # problem loading pickle file or outdated
         # remove the pickle file
         logging.error(f"Error reading cache file: {err}")
