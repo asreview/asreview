@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import Path
 import json
+import socket
 import warnings
+from pathlib import Path
 
 from asreview.utils import get_entry_points
 from asreview.utils import pretty_format
 from asreview.utils import is_iterable, is_url
 from urllib.request import urlopen
+from urllib.error import URLError
 
 
 class DataSetNotFoundError(Exception):
@@ -39,6 +41,11 @@ def _create_dataset_from_meta(data):
         return BaseDataSet.from_config(data)
     else:
         raise ValueError(f"Dataset type {data['type']} unknown.")
+
+
+def dataset_from_url(*args, **kwargs):
+    # compat for asreview-covid<=0.9.1
+    warnings.warn("Deprecated function.")
 
 
 class BaseDataSet():
@@ -88,7 +95,7 @@ class BaseDataSet():
     @property
     def aliases(self):
         """Can be overriden by setting it manually."""
-        return [self.dataset_id]
+        return [self.dataset_id.lower()]
 
     def get(self):
         """Get the url/fp for the dataset."""
@@ -116,7 +123,7 @@ class BaseDataSet():
 
     def find(self, data_name):
         """Return self if the name is one of our aliases."""
-        if data_name in self.aliases:
+        if data_name.lower() in self.aliases:
             return self
 
         raise DataSetNotFoundError(
@@ -160,7 +167,7 @@ class BaseVersionedDataSet():
 
         all_dataset_names = [(d, d.aliases) for d in self.datasets]
         for dataset, aliases in all_dataset_names:
-            if dataset_name in aliases:
+            if dataset_name.lower() in aliases:
                 return dataset
 
         raise DataSetNotFoundError(
@@ -294,7 +301,7 @@ class DatasetManager():
         raise FileNotFoundError(
             f"File or dataset does not exist: '{dataset_name}'")
 
-    def list(self, group_name=None, latest_only=True):
+    def list(self, group_name=None, latest_only=True, raise_on_error=False):
         """List the available datasets.
 
         Parameters
@@ -304,6 +311,8 @@ class DatasetManager():
             groups if group_name is None.
         latest_only: bool
             Only include the latest version of the dataset.
+        raise_on_error: bool
+            Raise error when entry point can't be loaded.
 
         Returns
         -------
@@ -325,93 +334,13 @@ class DatasetManager():
             try:
                 dataset_list[group] = \
                     dataset_groups[group].load()().list(latest_only=latest_only)
-            except Exception:
+            except Exception as err:
+
                 # don't raise error on loading entry point
-                pass
+                if raise_on_error:
+                    raise err
 
         return dataset_list
-
-
-class PTSDDataSet(BaseDataSet):
-    dataset_id = "ptsd"
-    aliases = ["ptsd", "example_ptsd", "schoot"]
-    title = "PTSD - Schoot"
-    description = "Bayesian PTSD-Trajectory Analysis with Informed Priors"
-    url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/PTSD_VandeSchoot_18.csv"  # noqa
-    url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/PTSD_VandeSchoot_18_debug.csv"  # noqa
-    sha512 = ("e2b62c93e4e9ddebf786e2cc8a0effb7fd8bf2ada986d53e6e5133092e7de88"
-              "6b311286fa459144576ed3ac0dfff1bca1ba9c198d0235d8280a40b2533d0c0"
-              "a7")
-    authors = [
-        'Rens van de Schoot', 'Marit Sijbrandij', 'Sarah Depaoli',
-        'Sonja D. Winter', 'Miranda Olff', 'Nancy E. van Loey'
-    ]
-    topic = "PTSD"
-    license = "CC-BY Attribution 4.0 International"
-    link = "https://osf.io/h5k2q/"
-    last_update = "2020-03-23"
-    year = 2018
-    img_url = ("https://raw.githubusercontent.com/asreview/asreview/master/"
-               "images/ptsd.png")
-    date = "2018-01-11"
-
-
-class AceDataSet(BaseDataSet):
-    dataset_id = "ace"
-    aliases = ["ace", "example_cohen", "example_ace"]
-    title = "ACEInhibitors - Cohen"
-    description = "Systematic Drug Class Review Gold Standard Data"
-    url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv"  # noqa
-    url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/ACEInhibitors_debug.csv"  # noqa
-    link = ("https://dmice.ohsu.edu/cohenaa/"
-            "systematic-drug-class-review-data.html")
-    authors = ["A.M. Cohen", "W.R. Hersh", "K. Peterson", "Po-Yin Yen"]
-    year = 2006
-    license = None
-    topic = "ACEInhibitors"
-    sha512 = ("bde84809236e554abd982c724193777c1b904adb2326cb0a0ccb350b02d4246"
-              "e8db5e9b36d0cb4b23e9aab521441764cdb0e31d6cb90fdc9e6c907ae1650d6"
-              "1a")
-    img_url = ("https://raw.githubusercontent.com/asreview/asreview/master/"
-               "images/ace.png")
-    last_update = "2020-03-23"
-    date = "2006-03-01"
-
-
-class HallDataSet(BaseDataSet):
-    dataset_id = "hall"
-    aliases = ["hall", "example_hall", "example_software"]
-    title = "Fault prediction - Hall"
-    description = ("A systematic literature review on fault prediction "
-                   "performance in software engineering")
-    url = "https://raw.githubusercontent.com/asreview/asreview/master/datasets/Software_Engineering_Hall.csv"  # noqa
-    url_demo = "https://raw.githubusercontent.com/asreview/asreview/master/tests/test_datasets/Software_Engineering_Hall_debug.csv"  # noqa
-    link = "https://zenodo.org/record/1162952#.XIVBE_ZFyVR"
-    authors = [
-        "Tracy Hall", "Sarah Beecham", "David Bowes", "David Gray",
-        "Steve Counsell"
-    ]
-    year = 2012
-    license = "CC-BY Attribution 4.0 International"
-    topic = "Software Fault Prediction"
-    sha512 = ("0d5cc86586d7e6f28e5c52c78cf4647556cdf41a73c9188b6424ca007f38ea9"
-              "55230e297d7c4a96a41ae46ec716a21c2d5dc432a77dd4d81886aa60ad9b771"
-              "00")
-    img_url = ("https://raw.githubusercontent.com/asreview/asreview/master/"
-               "images/softwareengineering.png")
-    last_update = "2020-03-23"
-    date = "2011-10-06"
-
-
-class BuiltinDataGroup(BaseDataGroup):
-    group_id = "builtin"
-
-    def __init__(self):
-        super(BuiltinDataGroup, self).__init__(
-            PTSDDataSet(),
-            AceDataSet(),
-            HallDataSet(),
-        )
 
 
 class BenchmarkDataGroup(BaseDataGroup):
@@ -420,21 +349,29 @@ class BenchmarkDataGroup(BaseDataGroup):
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index.json"  # noqa
-        with urlopen(meta_file) as f:
-            meta_data = json.loads(f.read().decode())
-
-        datasets = []
-        for data in meta_data.values():
-            datasets.append(_create_dataset_from_meta(data))
+        datasets = download_from_metadata(meta_file)
 
         super(BenchmarkDataGroup, self).__init__(
             *datasets
         )
 
 
-def dataset_from_url(*args, **kwargs):
-    # compat for asreview-covid<=0.9.1
-    warnings.warn("Deprecated function.")
+def download_from_metadata(url):
+    """Download metadata to dataset."""
+
+    try:
+        with urlopen(url, timeout=10) as f:
+            meta_data = json.loads(f.read().decode())
+    except URLError as e:
+        if isinstance(e.reason, socket.timeout):
+            raise Exception("Connection time out.")
+        raise e
+
+    datasets = []
+    for data in meta_data.values():
+        datasets.append(_create_dataset_from_meta(data))
+
+    return datasets
 
 
 def find_data(project_id):

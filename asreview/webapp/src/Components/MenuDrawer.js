@@ -16,6 +16,7 @@ import {
   Feedback,
   ExitToApp,
   Payment,
+  Info,
 } from '@material-ui/icons'
 
 // local imports
@@ -170,7 +171,17 @@ const MenuDrawer = (props) => {
               <ListItemText primary="Sponsor ASReview" />
             </ListItem>
           }
-
+          <ListItem
+            button
+            key="menu-button-about"
+            component={Link}
+            color="inherit"
+            href="https://asreview.readthedocs.io/en/latest/intro/about.html"
+            target="_blank"
+          >
+            <ListItemIcon><Info/></ListItemIcon>
+            <ListItemText primary="About ASReview" />
+          </ListItem>
           <ListItem
             button
             key="menu-button-exit"

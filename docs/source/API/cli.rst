@@ -263,7 +263,7 @@ batch of simulation runs with the same configuration.
 
 .. warning::
 
-	The behavour of some arguments of :program:`asreview simulate-batch` will differ
+	The behavior of some arguments of :program:`asreview simulate-batch` will differ
 	slightly from :program:`asreview simulate`.
 
 .. program:: asreview simulate-batch
@@ -292,6 +292,6 @@ strategies, and feature extraction algorithms) in ASReview.
 
 .. note::
 
-    :program:`asreview algorithms` lists models added via extensions as well.
-    See :ref:`develop-extensions` for more information on creating an model
-    extension.
+    :program:`asreview algorithms` included models added via extensions.
+    See :ref:`develop-extensions` for more information on extending ASReview with new
+    models via extensions.
