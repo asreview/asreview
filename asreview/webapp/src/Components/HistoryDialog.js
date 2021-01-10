@@ -81,6 +81,9 @@ const HistoryDialog = (props) => {
     "data": null,
   });
 
+  // alert change of decision
+  const [changeDecision, setChangeDecision] = useState(false);
+
   // filter all records
   const handleSelectChange = (event) => {
     setState({...state, "select": event.target.value});
@@ -101,6 +104,8 @@ const HistoryDialog = (props) => {
         'isloaded': true,
     })});
 
+    setChangeDecision(true);
+
     const url = api_url + `project/${props.project_id}/record/${doc_id}`;
 
     // set up the form
@@ -120,6 +125,7 @@ const HistoryDialog = (props) => {
         ...s,
         'isloaded': false,
       })});
+      setChangeDecision(false);
     })
     .catch((error) => {
       console.log(error);
@@ -168,7 +174,7 @@ const HistoryDialog = (props) => {
       });
     };
 
-  }, [props.project_id, props.history, props.recordState]);
+  }, [props.project_id, props.history, changeDecision]);
 
 
   return (

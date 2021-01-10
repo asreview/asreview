@@ -108,16 +108,16 @@ const ReviewZone = (props) => {
     'message': null,
   })
 
-  const [recordState, setRecordState] = useState({
-    // is loaded
-    'isloaded': false,
-    // record object with metadata
-    'record': null,
-    // ...
-    'selection': null,
-    // error loading record
-    'error': null,
-  })
+  // const [recordState, setRecordState] = useState({
+  //   // is loaded
+  //   'isloaded': false,
+  //   // record object with metadata
+  //   'record': null,
+  //   // ...
+  //   'selection': null,
+  //   // error loading record
+  //   'error': null,
+  // })
 
   const [previousRecordState, setPreviousRecordState] = useState({
       'record': null,
@@ -315,7 +315,7 @@ const ReviewZone = (props) => {
       })
       .catch((error) => {
         console.log(error);
-        setRecordState({
+        props.setRecordState({
           'record':null,
           'isloaded': true,
           'selection': null,
@@ -373,7 +373,7 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {recordState.error === null && recordState['isloaded'] &&
+        {props.recordState.error === null && props.recordState['isloaded'] &&
           <ArticlePanel
             record={props.recordState['record']}
             showAuthors={props.showAuthors}
@@ -382,12 +382,12 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {recordState.error !== null &&
+        {props.recordState.error !== null &&
           <Typography
             variant="h5"
             color="textSecondary"
           >
-            Unexpected error: {recordState.error}
+            Unexpected error: {props.recordState.error}
           </Typography>
         }
 
@@ -395,8 +395,8 @@ const ReviewZone = (props) => {
         <DecisionBar
           reviewDrawerOpen={props.reviewDrawerOpen}
           makeDecision={makeDecision}
-          block={(!recordState['isloaded']) || (recordState.error !== null)}
-          recordState={recordState}
+          block={(!props.recordState['isloaded']) || (props.recordState.error !== null)}
+          recordState={props.recordState}
         />
 
       {/* Decision undo bar */}

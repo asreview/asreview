@@ -67,6 +67,7 @@ const App = (props) => {
     'isloaded': false,
     'record': null,
     'selection': null,
+    'error': null,
   })
 
   const [textSize, handleTextSizeChange] = useTextSize();
