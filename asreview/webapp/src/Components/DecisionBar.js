@@ -4,7 +4,7 @@ import BottomNavigation from '@material-ui/core/BottomNavigation';
 import Box from '@material-ui/core/Box';
 // import TextField from '@material-ui/core/TextField';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 import { makeStyles } from '@material-ui/core/styles'
 import { reviewDrawerWidth } from '../globals.js'
@@ -86,7 +86,7 @@ const DecisionBar = (props) => {
         <BottomNavigationAction
           className={releventClassName}
           label={relevantLabel}
-          icon={<FavoriteIcon />}
+          icon={<ThumbUpIcon />}
           disabled={props.block}
         />
       </BottomNavigation>
