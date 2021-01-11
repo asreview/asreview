@@ -72,6 +72,12 @@ them expressed in absolute numbers:
 
     asreview plot ace ptsd --absolute-values
 
+Since version 0.15, you can plot project files (exported from asreview lab) as well. Use the following code:
+
+.. code:: bash
+
+    asreview plot my_project_file.asreview
+
 Plot types
 ----------
 
