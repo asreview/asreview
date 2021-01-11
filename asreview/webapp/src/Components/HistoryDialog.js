@@ -17,7 +17,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 
 import {
@@ -313,7 +313,7 @@ const HistoryDialog = (props) => {
               <Typography className={classes.recordLabelActionText}>
                 {openIndex.record.included === 1 ? "Relevant" : "Irrelevant"}
               </Typography>
-              {openIndex.record.included === 1 ? <FavoriteIcon color="secondary" /> : <ThumbDownIcon/>}
+              {openIndex.record.included === 1 ? <ThumbUpIcon color="secondary" /> : <ThumbDownIcon/>}
             </Box>
           }
           {openIndex["index"] === null &&
