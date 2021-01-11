@@ -61,7 +61,10 @@ def get_dataset_metadata(exclude=None, include=None):
 
         # pop items
         for group_id in exclude:
-            groups.remove(group_id)
+            try:
+                groups.remove(group_id)
+            except ValueError:
+                pass
 
     if include is not None:
 
