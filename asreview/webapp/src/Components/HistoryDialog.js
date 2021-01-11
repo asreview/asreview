@@ -209,7 +209,7 @@ const HistoryDialog = (props) => {
               <ArrowBackIcon />
             </IconButton>
             <div className={classes.detailTitle}>
-              Details
+              Overview
             </div>
           </DialogTitle>
         }
