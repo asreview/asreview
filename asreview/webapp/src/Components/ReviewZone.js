@@ -108,17 +108,6 @@ const ReviewZone = (props) => {
     'message': null,
   })
 
-  // const [recordState, setRecordState] = useState({
-  //   // is loaded
-  //   'isloaded': false,
-  //   // record object with metadata
-  //   'record': null,
-  //   // ...
-  //   'selection': null,
-  //   // error loading record
-  //   'error': null,
-  // })
-
   const [previousRecordState, setPreviousRecordState] = useState({
       'record': null,
       'decision': null,
