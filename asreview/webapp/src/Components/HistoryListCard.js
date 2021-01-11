@@ -5,7 +5,7 @@ import {
   ListItemText,
   ListItemIcon,
 } from '@material-ui/core';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import ThumbDownIcon from '@material-ui/icons/ThumbDown';
 
 
@@ -39,7 +39,7 @@ const HistoryListCard = (props) => {
 		  onClick={() => {handleClick(props.index)}}
 		>
 		  <ListItemIcon>
-		    {props.value.included === 1 ? <FavoriteIcon color="secondary" /> : <ThumbDownIcon />}
+		    {props.value.included === 1 ? <ThumbUpIcon color="secondary" /> : <ThumbDownIcon />}
 		  </ListItemIcon>
 		  <ListItemText
 		    primary={props.value.title}
