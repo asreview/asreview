@@ -26,10 +26,11 @@ import {
 
 import axios from 'axios';
 
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 import { connect } from "react-redux";
 
+const DEFAULT_SELECTION = 1;
 
 const useStyles = makeStyles(theme => ({
   selectMenu: {
@@ -60,12 +61,6 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const mapStateToProps = state => {
-  return {
-    project_id: state.project_id,
-  };
-};
-
 const HistoryDialog = (props) => {
 
   const classes = useStyles();
@@ -77,12 +72,9 @@ const HistoryDialog = (props) => {
   });
 
   const [state, setState] = useState({
-    "select": 1,
+    "select": DEFAULT_SELECTION,
     "data": null,
   });
-
-  // alert change of decision
-  const [changeDecision, setChangeDecision] = useState(false);
 
   // filter all records
   const handleSelectChange = (event) => {
@@ -94,12 +86,17 @@ const HistoryDialog = (props) => {
       "index": null,
       "record": null,
     });
+
+    setState({
+      "select": state.select,
+      "data": null,
+    });
   };
 
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
 
-    setChangeDecision(true);
+    // setChangeDecision(true);
 
     const url = api_url + `project/${props.project_id}/record/${doc_id}`;
 
@@ -116,7 +113,7 @@ const HistoryDialog = (props) => {
     })
     .then((response) => {
       console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
-      setChangeDecision(false);
+      handleBack();
     })
     .catch((error) => {
       console.log(error);
@@ -136,27 +133,31 @@ const HistoryDialog = (props) => {
   // refresh after toggle the dialog and change a decision
   useEffect(() => {
 
-    if (props.project_id !== null) {
+    if ((props.project_id !== null) && (state["data"] === null)) {
 
       const url = api_url + `project/${props.project_id}/prior`;
 
-      axios.get(url)
-      .then((result) => {
-        setState(s => {return({
-          ...s,
-          "data": result.data["result"].reverse(),
-        })});
-      })
-      .catch((error) => {
-        console.log("Failed to load review history");
-      });
+      axios
+        .get(url)
+        .then((result) => {
+          setState(s => {return({
+            ...s,
+            "data": result.data["result"].reverse(),
+          })});
+        })
+        .catch((error) => {
+          console.log("Failed to load review history");
+        });
     }
+  }, [props.project_id, props.history, state["data"]]);
 
+  useEffect(() => {
+    // on open history panel, set screen
     if (props.history) {
       // show all records by default
       setState(s => {return({
         ...s,
-        "select": 1,
+        "select": DEFAULT_SELECTION,
       })});
       // back to list of records
       setOpenIndex({
@@ -165,7 +166,7 @@ const HistoryDialog = (props) => {
       });
     };
 
-  }, [props.project_id, props.history, changeDecision]);
+  }, [props.history]);
 
 
   return (
