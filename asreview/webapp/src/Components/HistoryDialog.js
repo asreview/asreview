@@ -65,15 +65,10 @@ const HistoryDialog = (props) => {
 
   const classes = useStyles();
 
-  // indicate which record abstract collapse
-  const [openIndex, setOpenIndex] = useState({
-    "index": null,
-    "record": null,
-  });
-
   const [state, setState] = useState({
     "select": DEFAULT_SELECTION,
     "data": null,
+    "index": null,
   });
 
   // filter all records
@@ -81,15 +76,21 @@ const HistoryDialog = (props) => {
     setState({...state, "select": event.target.value});
   };
 
+  // click to fold/unfold abstract and decision button
+  const openRecord = (index) => {
+    setState(s => {return({
+      ...s,
+      "index": index,
+    })});
+  };
+
+
   const handleBack = () => {
-    setOpenIndex({
-      "index": null,
-      "record": null,
-    });
 
     setState({
       "select": state.select,
       "data": null,
+      "index": null,
     });
   };
 
@@ -149,7 +150,7 @@ const HistoryDialog = (props) => {
           console.log("Failed to load review history");
         });
     }
-  }, [props.project_id, props.history, state["data"]]);
+  }, [props.project_id, props.history, state]);
 
   useEffect(() => {
     // on open history panel, set screen
@@ -159,11 +160,6 @@ const HistoryDialog = (props) => {
         ...s,
         "select": DEFAULT_SELECTION,
       })});
-      // back to list of records
-      setOpenIndex({
-        "index": null,
-        "record": null,
-      });
     };
 
   }, [props.history]);
@@ -179,7 +175,7 @@ const HistoryDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        {openIndex["index"] === null &&
+        {state.index === null &&
           <DialogTitle>
             Review History
             {state["data"] !== null &&
@@ -197,7 +193,7 @@ const HistoryDialog = (props) => {
           </DialogTitle>
         }
 
-        {openIndex["index"] !== null &&
+        {state.index !== null &&
           <DialogTitle>
             <IconButton
               aria-label="back"
@@ -212,7 +208,7 @@ const HistoryDialog = (props) => {
           </DialogTitle>
         }
 
-        {openIndex["index"] === null &&
+        {state.index === null &&
           <DialogContent dividers={true}>
             <Box>
               {state["data"] !== null && state["select"] === 1 &&
@@ -225,9 +221,7 @@ const HistoryDialog = (props) => {
                             <HistoryListCard
                               value={value}
                               index={index}
-                              state={state}
-                              setOpenIndex={setOpenIndex}
-
+                              handleClick={openRecord}
                               key={`result-item-${value.id}`}
                             />
                           );
@@ -239,20 +233,21 @@ const HistoryDialog = (props) => {
                 <List>
                   {
                     state["data"]
-                      .filter(value => value.included === 1)
                       .map((value, index) =>
                         {
-                          return (
-                            <HistoryListCard
-                              value={value}
-                              index={index}
-                              state={state}
-                              setOpenIndex={setOpenIndex}
-
-                              key={`result-item-${value.id}`}
-                            />
-                          );
-                        })
+                          if (value.included === 1){
+                            return (
+                              <HistoryListCard
+                                value={value}
+                                index={index}
+                                handleClick={openRecord}
+                                key={`result-item-${value.id}`}
+                              />
+                            )
+                          } else {
+                            return null
+                          }}
+                        )
                   }
                 </List>
               }
@@ -260,20 +255,21 @@ const HistoryDialog = (props) => {
                 <List>
                   {
                     state["data"]
-                      .filter(value => value.included !== 1)
                       .map((value, index) =>
                         {
-                          return (
-                            <HistoryListCard
-                              value={value}
-                              index={index}
-                              state={state}
-                              setOpenIndex={setOpenIndex}
-
-                              key={`result-item-${value.id}`}
-                            />
-                          );
-                        })
+                          if (value.included !== 1){
+                            return (
+                              <HistoryListCard
+                                value={value}
+                                index={index}
+                                handleClick={openRecord}
+                                key={`result-item-${value.id}`}
+                              />
+                            )
+                          } else {
+                            return null
+                          }}
+                        )
                   }
                 </List>
               }
@@ -281,14 +277,14 @@ const HistoryDialog = (props) => {
           </DialogContent>
         }
 
-        {openIndex["index"] !== null &&
+        {state.index !== null &&
           <DialogContent dividers={true}>
             <Box>
               <Typography variant="h6" gutterBottom>
-                {openIndex.record.title}
+                {state.data[state.index].title}
               </Typography>
 
-              {(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
+              {(state.data[state.index].abstract === "" || state.data[state.index].abstract === null) &&
                 <Box fontStyle="italic">
                   <Typography gutterBottom>
                     This record doesn't have an abstract.
@@ -296,9 +292,9 @@ const HistoryDialog = (props) => {
                 </Box>
               }
 
-              {!(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
+              {!(state.data[state.index].abstract === "" || state.data[state.index].abstract === null) &&
                 <Typography>
-                  {openIndex.record.abstract}
+                  {state.data[state.index].abstract}
                 </Typography>
               }
             </Box>
@@ -306,26 +302,26 @@ const HistoryDialog = (props) => {
         }
 
         <DialogActions>
-          {openIndex["index"] !== null &&
+          {state.index !== null &&
             <Box className={classes.recordLabelAction}>
               <Typography className={classes.recordLabelActionText}>
-                {openIndex.record.included === 1 ? "Relevant" : "Irrelevant"}
+                {state.data[state.index].included === 1 ? "Relevant" : "Irrelevant"}
               </Typography>
-              {openIndex.record.included === 1 ? <FavoriteIcon color="secondary" /> : <CloseIcon/>}
+              {state.data[state.index].included === 1 ? <FavoriteIcon color="secondary" /> : <CloseIcon/>}
             </Box>
           }
-          {openIndex["index"] === null &&
+          {state.index === null &&
             <Button onClick={props.toggleHistory}>
               Close
             </Button>
           }
-          {openIndex["index"] !== null &&
+          {state.index !== null &&
             <Button
               onClick={() => {
-                updateInstance(openIndex.record.id, openIndex.record.included)
+                updateInstance(state.data[state.index].id, state.data[state.index].included)
               }}
             >
-              {openIndex.record.included === 1 ? "Convert to IRRELEVANT" : "Convert to RELEVANT"}
+              {state.data[state.index].included === 1 ? "Convert to IRRELEVANT" : "Convert to RELEVANT"}
             </Button>
           }
 
