@@ -99,11 +99,6 @@ const HistoryDialog = (props) => {
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
 
-    props.setRecordState(s => {return({
-        ...s,
-        'isloaded': true,
-    })});
-
     setChangeDecision(true);
 
     const url = api_url + `project/${props.project_id}/record/${doc_id}`;
@@ -121,10 +116,6 @@ const HistoryDialog = (props) => {
     })
     .then((response) => {
       console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
-      props.setRecordState(s => {return({
-        ...s,
-        'isloaded': false,
-      })});
       setChangeDecision(false);
     })
     .catch((error) => {

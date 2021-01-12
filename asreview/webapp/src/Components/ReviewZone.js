@@ -103,6 +103,13 @@ const ExplorationAlert = (props) => {
 const ReviewZone = (props) => {
   const classes = useStyles();
 
+  const [recordState, setRecordState] = React.useState({
+    'isloaded': false,
+    'record': null,
+    'selection': null,
+    'error': null,
+  })
+
   const [undoState, setUndoState] = useState({
     'open': false,
     'message': null,
@@ -132,7 +139,7 @@ const ReviewZone = (props) => {
 
   const storeRecordState = (label) => {
     setPreviousRecordState({
-      'record': props.recordState.record,
+      'record': recordState.record,
       'decision': label,
     })
   }
@@ -145,7 +152,7 @@ const ReviewZone = (props) => {
   }
 
   const loadPreviousRecordState = () => {
-    props.setRecordState({
+    setRecordState({
       'isloaded': true,
       'record': previousRecordState.record,
       'selection': previousRecordState.decision,
@@ -154,7 +161,7 @@ const ReviewZone = (props) => {
 }
 
   const startLoadingNewDocument = () => {
-    props.setRecordState({
+    setRecordState({
       'isloaded': false,
       'record': null,
       'selection': null,
@@ -185,7 +192,7 @@ const ReviewZone = (props) => {
   }
 
   const isUndoModeActive = () => {
-    return props.recordState.record.doc_id === previousRecordState['record']?.doc_id
+    return recordState.record.doc_id === previousRecordState['record']?.doc_id
   }
 
   const needsClassification = (label) => {
@@ -223,11 +230,11 @@ const ReviewZone = (props) => {
    */
   const classifyInstance = (label, initial) => {
 
-    const url = api_url + `project/${props.project_id}/record/${props.recordState['record'].doc_id}`;
+    const url = api_url + `project/${props.project_id}/record/${recordState['record'].doc_id}`;
 
     // set up the form
     let body = new FormData();
-    body.set('doc_id', props.recordState['record'].doc_id);
+    body.set('doc_id', recordState['record'].doc_id);
     body.set('label', label);
 
     return axios({
@@ -237,7 +244,7 @@ const ReviewZone = (props) => {
       headers: { 'Content-Type': 'application/json' }
     })
     .then((response) => {
-      console.log(`${props.project_id} - add item ${props.recordState['record'].doc_id} to ${label?"inclusions":"exclusions"}`);
+      console.log(`${props.project_id} - add item ${recordState['record'].doc_id} to ${label?"inclusions":"exclusions"}`);
       startLoadingNewDocument()
       showUndoBarIfNeeded(label, initial);
     })
@@ -293,7 +300,7 @@ const ReviewZone = (props) => {
         } else {
 
           /* New article found and set */
-          props.setRecordState({
+          setRecordState({
             'record':result.data["result"],
             'isloaded': true,
             'selection': null,
@@ -304,7 +311,7 @@ const ReviewZone = (props) => {
       })
       .catch((error) => {
         console.log(error);
-        props.setRecordState({
+        setRecordState({
           'record':null,
           'isloaded': true,
           'selection': null,
@@ -317,12 +324,12 @@ const ReviewZone = (props) => {
 
     getProgressHistory();
 
-    if (!props.recordState['isloaded']) {
+    if (!recordState['isloaded']) {
 
       getDocument();
 
     }
-  },[props.project_id, props.recordState, props]);
+  },[props.project_id, recordState, props]);
 
   useEffect(() => {
 
@@ -331,10 +338,10 @@ const ReviewZone = (props) => {
      */
     if (props.keyPressEnabled) {
 
-      if (relevantPress && props.recordState.isloaded) {
+      if (relevantPress && recordState.isloaded) {
         makeDecision(1);
       }
-      if (irrelevantPress && props.recordState.isloaded) {
+      if (irrelevantPress && recordState.isloaded) {
         makeDecision(0);
       }
       if (undoPress && undoState.open && props.undoEnabled) {
@@ -357,26 +364,26 @@ const ReviewZone = (props) => {
       >
 
         {/* Alert Exploration Mode */}
-        {props.recordState.record !== null && props.recordState.record._debug_label !== null  &&
+        {recordState.record !== null && recordState.record._debug_label !== null  &&
           <ExplorationAlert/>
         }
 
         {/* Article panel */}
-        {props.recordState.error === null && props.recordState['isloaded'] &&
+        {recordState.error === null && recordState['isloaded'] &&
           <ArticlePanel
-            record={props.recordState['record']}
+            record={recordState['record']}
             showAuthors={props.showAuthors}
             textSize={props.textSize}
           />
         }
 
         {/* Article panel */}
-        {props.recordState.error !== null &&
+        {recordState.error !== null &&
           <Typography
             variant="h5"
             color="textSecondary"
           >
-            Unexpected error: {props.recordState.error}
+            Unexpected error: {recordState.error}
           </Typography>
         }
 
@@ -384,8 +391,8 @@ const ReviewZone = (props) => {
         <DecisionBar
           reviewDrawerOpen={props.reviewDrawerOpen}
           makeDecision={makeDecision}
-          block={(!props.recordState['isloaded']) || (props.recordState.error !== null)}
-          recordState={props.recordState}
+          block={(!recordState['isloaded']) || (recordState.error !== null)}
+          recordState={recordState}
         />
 
       {/* Decision undo bar */}

@@ -63,12 +63,6 @@ const App = (props) => {
   const [exportResult, setExportResult] = React.useState(false);
   const [history, setHistory] = React.useState(false);
   const [authors, setAuthors] = React.useState(false);
-  const [recordState, setRecordState] = React.useState({
-    'isloaded': false,
-    'record': null,
-    'selection': null,
-    'error': null,
-  })
 
   const [textSize, handleTextSizeChange] = useTextSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
@@ -147,8 +141,6 @@ const App = (props) => {
       {(props.app_state === 'review') &&
       <ReviewZone
         handleAppState={props.setAppState}
-        recordState={recordState}
-        setRecordState={setRecordState}
         showAuthors={authors}
         textSize={textSize}
         undoEnabled={undoEnabled}
@@ -188,8 +180,6 @@ const App = (props) => {
       />
       {(props.app_state === 'review') &&
       <HistoryDialog
-        recordState={recordState}
-        setRecordState={setRecordState}
         toggleHistory={toggleHistory}
         history={history}
       />
