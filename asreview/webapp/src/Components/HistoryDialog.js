@@ -97,8 +97,6 @@ const HistoryDialog = (props) => {
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
 
-    // setChangeDecision(true);
-
     const url = api_url + `project/${props.project_id}/record/${doc_id}`;
 
     // set up the form
