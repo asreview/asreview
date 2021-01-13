@@ -85,7 +85,7 @@ const HistoryDialog = (props) => {
   };
 
 
-  const handleBack = () => {
+  const reloadHistory = () => {
 
     setState({
       "select": state.select,
@@ -93,6 +93,13 @@ const HistoryDialog = (props) => {
       "index": null,
     });
   };
+
+  const closeHistory = () => {
+
+    reloadHistory();
+    props.toggleHistory();
+
+  }
 
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
@@ -112,7 +119,7 @@ const HistoryDialog = (props) => {
     })
     .then((response) => {
       console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
-      handleBack();
+      reloadHistory();
     })
     .catch((error) => {
       console.log(error);
@@ -132,7 +139,7 @@ const HistoryDialog = (props) => {
   // refresh after toggle the dialog and change a decision
   useEffect(() => {
 
-    if ((props.project_id !== null) && (state["data"] === null)) {
+    if ((props.project_id !== null) && props.history && (state["data"] === null)) {
 
       const url = api_url + `project/${props.project_id}/prior`;
 
@@ -150,23 +157,10 @@ const HistoryDialog = (props) => {
     }
   }, [props.project_id, props.history, state]);
 
-  useEffect(() => {
-    // on open history panel, set screen
-    if (props.history) {
-      // show all records by default
-      setState(s => {return({
-        ...s,
-        "select": DEFAULT_SELECTION,
-      })});
-    };
-
-  }, [props.history]);
-
-
   return (
       <Dialog
         open={props.history}
-        onClose={props.toggleHistory}
+        onClose={closeHistory}
         scroll="paper"
         fullWidth={true}
         maxWidth={"md"}
@@ -196,7 +190,7 @@ const HistoryDialog = (props) => {
             <IconButton
               aria-label="back"
               className={classes.backButton}
-              onClick={handleBack}
+              onClick={reloadHistory}
             >
               <ArrowBackIcon />
             </IconButton>
@@ -309,7 +303,7 @@ const HistoryDialog = (props) => {
             </Box>
           }
           {state.index === null &&
-            <Button onClick={props.toggleHistory}>
+            <Button onClick={closeHistory}>
               Close
             </Button>
           }
