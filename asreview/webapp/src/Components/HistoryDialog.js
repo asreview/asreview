@@ -26,10 +26,11 @@ import {
 
 import axios from 'axios';
 
-import { api_url } from '../globals.js';
+import { api_url, mapStateToProps } from '../globals.js';
 
 import { connect } from "react-redux";
 
+const DEFAULT_SELECTION = 1;
 
 const useStyles = makeStyles(theme => ({
   selectMenu: {
@@ -60,25 +61,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const mapStateToProps = state => {
-  return {
-    project_id: state.project_id,
-  };
-};
-
 const HistoryDialog = (props) => {
 
   const classes = useStyles();
 
-  // indicate which record abstract collapse
-  const [openIndex, setOpenIndex] = useState({
-    "index": null,
-    "record": null,
-  });
-
   const [state, setState] = useState({
-    "select": 1,
+    "select": DEFAULT_SELECTION,
     "data": null,
+    "index": null,
   });
 
   // filter all records
@@ -86,20 +76,33 @@ const HistoryDialog = (props) => {
     setState({...state, "select": event.target.value});
   };
 
-  const handleBack = () => {
-    setOpenIndex({
+  // click to fold/unfold abstract and decision button
+  const openRecord = (index) => {
+    setState(s => {return({
+      ...s,
+      "index": index,
+    })});
+  };
+
+
+  const reloadHistory = () => {
+
+    setState({
+      "select": state.select,
+      "data": null,
       "index": null,
-      "record": null,
     });
   };
 
+  const closeHistory = () => {
+
+    reloadHistory();
+    props.toggleHistory();
+
+  }
+
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
-
-    props.setRecordState(s => {return({
-        ...s,
-        'isloaded': true,
-    })});
 
     const url = api_url + `project/${props.project_id}/record/${doc_id}`;
 
@@ -116,10 +119,7 @@ const HistoryDialog = (props) => {
     })
     .then((response) => {
       console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
-      props.setRecordState(s => {return({
-        ...s,
-        'isloaded': false,
-      })});
+      reloadHistory();
     })
     .catch((error) => {
       console.log(error);
@@ -139,49 +139,35 @@ const HistoryDialog = (props) => {
   // refresh after toggle the dialog and change a decision
   useEffect(() => {
 
-    if (props.project_id !== null) {
+    if ((props.project_id !== null) && props.history && (state["data"] === null)) {
 
       const url = api_url + `project/${props.project_id}/prior`;
 
-      axios.get(url)
-      .then((result) => {
-        setState(s => {return({
-          ...s,
-          "data": result.data["result"].reverse(),
-        })});
-      })
-      .catch((error) => {
-        console.log("Failed to load review history");
-      });
+      axios
+        .get(url)
+        .then((result) => {
+          setState(s => {return({
+            ...s,
+            "data": result.data["result"].reverse(),
+          })});
+        })
+        .catch((error) => {
+          console.log("Failed to load review history");
+        });
     }
-
-    if (props.history) {
-      // show all records by default
-      setState(s => {return({
-        ...s,
-        "select": 1,
-      })});
-      // back to list of records
-      setOpenIndex({
-        "index": null,
-        "record": null,
-      });
-    };
-
-  }, [props.project_id, props.history, props.recordState]);
-
+  }, [props.project_id, props.history, state]);
 
   return (
       <Dialog
         open={props.history}
-        onClose={props.toggleHistory}
+        onClose={closeHistory}
         scroll="paper"
         fullWidth={true}
         maxWidth={"md"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
-        {openIndex["index"] === null &&
+        {state.index === null &&
           <DialogTitle>
             Review History
             {state["data"] !== null &&
@@ -199,12 +185,12 @@ const HistoryDialog = (props) => {
           </DialogTitle>
         }
 
-        {openIndex["index"] !== null &&
+        {state.index !== null &&
           <DialogTitle>
             <IconButton
               aria-label="back"
               className={classes.backButton}
-              onClick={handleBack}
+              onClick={reloadHistory}
             >
               <ArrowBackIcon />
             </IconButton>
@@ -214,7 +200,7 @@ const HistoryDialog = (props) => {
           </DialogTitle>
         }
 
-        {openIndex["index"] === null &&
+        {state.index === null &&
           <DialogContent dividers={true}>
             <Box>
               {state["data"] !== null && state["select"] === 1 &&
@@ -227,9 +213,7 @@ const HistoryDialog = (props) => {
                             <HistoryListCard
                               value={value}
                               index={index}
-                              state={state}
-                              setOpenIndex={setOpenIndex}
-
+                              handleClick={openRecord}
                               key={`result-item-${value.id}`}
                             />
                           );
@@ -241,20 +225,21 @@ const HistoryDialog = (props) => {
                 <List>
                   {
                     state["data"]
-                      .filter(value => value.included === 1)
                       .map((value, index) =>
                         {
-                          return (
-                            <HistoryListCard
-                              value={value}
-                              index={index}
-                              state={state}
-                              setOpenIndex={setOpenIndex}
-
-                              key={`result-item-${value.id}`}
-                            />
-                          );
-                        })
+                          if (value.included === 1){
+                            return (
+                              <HistoryListCard
+                                value={value}
+                                index={index}
+                                handleClick={openRecord}
+                                key={`result-item-${value.id}`}
+                              />
+                            )
+                          } else {
+                            return null
+                          }}
+                        )
                   }
                 </List>
               }
@@ -262,20 +247,21 @@ const HistoryDialog = (props) => {
                 <List>
                   {
                     state["data"]
-                      .filter(value => value.included !== 1)
                       .map((value, index) =>
                         {
-                          return (
-                            <HistoryListCard
-                              value={value}
-                              index={index}
-                              state={state}
-                              setOpenIndex={setOpenIndex}
-
-                              key={`result-item-${value.id}`}
-                            />
-                          );
-                        })
+                          if (value.included !== 1){
+                            return (
+                              <HistoryListCard
+                                value={value}
+                                index={index}
+                                handleClick={openRecord}
+                                key={`result-item-${value.id}`}
+                              />
+                            )
+                          } else {
+                            return null
+                          }}
+                        )
                   }
                 </List>
               }
@@ -283,14 +269,14 @@ const HistoryDialog = (props) => {
           </DialogContent>
         }
 
-        {openIndex["index"] !== null &&
+        {state.index !== null &&
           <DialogContent dividers={true}>
             <Box>
               <Typography variant="h6" gutterBottom>
-                {openIndex.record.title}
+                {state.data[state.index].title}
               </Typography>
 
-              {(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
+              {(state.data[state.index].abstract === "" || state.data[state.index].abstract === null) &&
                 <Box fontStyle="italic">
                   <Typography gutterBottom>
                     This record doesn't have an abstract.
@@ -298,9 +284,9 @@ const HistoryDialog = (props) => {
                 </Box>
               }
 
-              {!(openIndex.record.abstract === "" || openIndex.record.abstract === null) &&
+              {!(state.data[state.index].abstract === "" || state.data[state.index].abstract === null) &&
                 <Typography>
-                  {openIndex.record.abstract}
+                  {state.data[state.index].abstract}
                 </Typography>
               }
             </Box>
@@ -308,26 +294,26 @@ const HistoryDialog = (props) => {
         }
 
         <DialogActions>
-          {openIndex["index"] !== null &&
+          {state.index !== null &&
             <Box className={classes.recordLabelAction}>
               <Typography className={classes.recordLabelActionText}>
-                {openIndex.record.included === 1 ? "Relevant" : "Irrelevant"}
+                {state.data[state.index].included === 1 ? "Relevant" : "Irrelevant"}
               </Typography>
-              {openIndex.record.included === 1 ? <FavoriteIcon color="secondary" /> : <CloseIcon/>}
+              {state.data[state.index].included === 1 ? <FavoriteIcon color="secondary" /> : <CloseIcon/>}
             </Box>
           }
-          {openIndex["index"] === null &&
-            <Button onClick={props.toggleHistory}>
+          {state.index === null &&
+            <Button onClick={closeHistory}>
               Close
             </Button>
           }
-          {openIndex["index"] !== null &&
+          {state.index !== null &&
             <Button
               onClick={() => {
-                updateInstance(openIndex.record.id, openIndex.record.included)
+                updateInstance(state.data[state.index].id, state.data[state.index].included)
               }}
             >
-              {openIndex.record.included === 1 ? "Convert to IRRELEVANT" : "Convert to RELEVANT"}
+              {state.data[state.index].included === 1 ? "Convert to IRRELEVANT" : "Convert to RELEVANT"}
             </Button>
           }
 
