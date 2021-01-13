@@ -52,7 +52,7 @@ Enter ``y`` to confirm.
 
 .. warning::
 
-    Note that your project files will **not** delete with this action. You find them in the folder `.asreview`  in your home folder.
+    Note that your project files will **not** delete with this action. You find them in the `.asreview` folder in your home folder.
 
 Server Installation
 -------------------
