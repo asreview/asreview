@@ -65,18 +65,25 @@ interface of ASReview LAB can be used to return to the previous decision.
 Review History
 --------------
 
-An overview of your decissions made during screening can be found in the **Review History**:
+An overview of your decisions made during screening can be found in the
+**Review History** dialog.
+
+Open history
+~~~~~~~~~~~~
 
 1. Open ASReview LAB.
 2. Open or create a project.
 3. Start/continue screening.
-4. Click on the icon shown below to open the Review History.
-5. A pop-up screen will open with the labelled records. 
-6. Using the drop-down menu you can select to display all records or only the relevant or irrelevant subset.
-7. By clicking on a title, the abstract will be shown.
-8. If you want to change the label of the record click :guilabel:`convert to...`. The next iteration of the model will take the new label into account.
-9. To go back to the overview, click :guilabel:`🡐`. 
-10. To close the Review History, click :guilabel:`close`. 
+4. Click on **Review History** in the *menu bar* on top. A dialog will open with the labeled records.
+5. With the drop-down list, you can select records to display (all, relevant only, or irrelevant only).
+6. By clicking on a title, the full information opens.
+
+Changing decisions
+~~~~~~~~~~~~~~~~~~
+
+7. To change a label of a record, click **convert to ...**. The next iteration of the model will take the new label into account.
+8. To go back to the overview, click **←**.
+9. To close the Review History, click **Close**.
 
 
 Statistics Panel
