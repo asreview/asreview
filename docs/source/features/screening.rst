@@ -78,6 +78,9 @@ Open history
 5. With the drop-down list, you can select records to display (all, relevant only, or irrelevant only).
 6. By clicking on a title, the full information opens.
 
+.. figure:: ../../images/asreview_screening_history_overview.png
+   :alt: Undo previous decision
+
 Changing decisions
 ~~~~~~~~~~~~~~~~~~
 
@@ -85,6 +88,9 @@ Changing decisions
 8. To go back to the overview, click **←**.
 9. To close the Review History, click **Close**.
 
+
+.. figure:: ../../images/asreview_screening_history_metadata.png
+   :alt: Undo previous decision
 
 Statistics Panel
 ----------------
