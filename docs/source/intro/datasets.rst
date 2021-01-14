@@ -7,8 +7,8 @@ search. To create such a dataset for a systematic review, typically an `online
 library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
-It is possible to use your own dataset with unlabeled records, partly
-labeled records (where the labeled records are used for training a model),
+It is possible to use your own dataset with unlabeled, partly labeled (where
+the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
 `Demonstration Datasets`_. Also, a plugin with :doc:`Corona related
@@ -16,11 +16,11 @@ publications <../plugins/covid19>` is available.
 
 .. warning::
 
-    I If you upload your own data, make sure to remove duplicates and to
+    If you upload your own data, make sure to remove duplicates and to
     retrieve  as many abstracts as possible (`don't know how?
     <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <../guides/activelearning>` 
-    has to offer. 
+    benefit most from what :doc:`active learning <../guides/activelearning>`
+    has to offer.
 
 
 
@@ -31,60 +31,93 @@ To carry out a systematic review with ASReview on your own dataset, your data
 file needs to adhere to a certain format. ASReview accepts the following
 formats:
 
- - **RIS-files** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__.
-   Extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like
+ - **RIS-files** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with
+   extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS format as well.
 
- - **Tabular datasets**. Extensions ``.csv``, ``.xlsx``, and ``.xls``. CSV files should
+ - **Tabular datasets** with extensions ``.csv``, ``.xlsx``, or ``.xls``. CSV files should
    be comma separated and UTF-8 encoded.
 
 For tabular data files, the software accepts a set of predetermined column names:
 
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
-| Name     | Column names                                                                                            | Mandatory |
-+==========+=========================================================================================================+===========+
-| title    | title, primary_title                                                                                    | yes\*     |
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
-| abstract | abstract, abstract note                                                                                 | yes\*     |
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
-| keywords | keywords                                                                                                | no        |
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
-| authors  | authors, author names, first_authors                                                                    | no        |
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
-| doi      | doi                                                                                                     | no        |
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
-| included | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
-+----------+---------------------------------------------------------------------------------------------------------+-----------+
+.. table:: Table with column name definitions
+    :widths: 20 60 20
 
-\* Either a title or an abstract is mandatory.
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | Name        | Column names                                                                                            | Mandatory |
+    +=============+=========================================================================================================+===========+
+    | ID          | record_id                                                                                               | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | Title       | title, primary_title                                                                                    | yes\*     |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | Abstract    | abstract, abstract note                                                                                 | yes\*     |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | Keywords    | keywords                                                                                                | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | Authors     | authors, author names, first_authors                                                                    | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | DOI         | doi                                                                                                     | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | Included    | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+    | debug_label | debug_label                                                                                             | no        |
+    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+
+\* Only a title or an abstract is mandatory.
+
+**ID**
+If your data contains a column titled ``record_id`` it needs to
+consists only of integers, and it should contain no missing data and no
+duplicates, otherwise you will receive an error. If there is no ``record_id``
+it will be automtically generated by the software. This column can also be
+used for the Simulation Mode to select prior knowledge.
+
+**Title, Abstract** Each record (i.e., entry in the dataset) should hold
+metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
+both title and abstract are available, the text is combined and used for
+training the model. If the column ``title`` is empty, the software will search
+for the next column ``primary_title`` and the same holds for ``bastract`` and
+``abstract_note``. 
+
+**Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
+empty: ``author names`` or ``first_authors``) are available it can be used for
+searching prior knowledge. Note the information is not shown during the
+screening phase and is also not used for training the model, but the
+information is available via the API.
+
+**DOI**
+If a Digital Object Identifier ( ``DOI``) is available it will be displayed during the
+screening phase as a clickable hyperlink to the full text document. Note by
+using ASReview you do *not* automatically have access to full-text and if you do
+not have access you might want to read this `blog post
+<https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
+
+**Included** A binary variable indicating the existing labeling decisions with
+``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column
+names are allowed, see the table. The use is twofold:
+
+- **Screening**: In ASReview LAB, if labels are available for a part of the
+  dataset (see :doc:`partly labeled data <../features/pre_screening>`), the
+  labels will be automatically detected and used for prior knowledge. The first
+  iteration of the model will then be based on these decisions and used to
+  predict relevance scores for the unlabeled part of the data.
+- **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
+  the column containing the labels is used to simulate a systematic review run. 
+  Only records containing labels are used for the simulation, unlabeled records are ignored.
+
+.. note::
+
+  Files exported with ASReview LAB contain the column ``included`` and can be used for
+  prior knowledge.
 
 
-Metadata
---------
-
-Each entry in the dataset should hold metadata on a paper. Mandatory metadata
-are ``title`` or ``abstract``. If both title and abstract are available the
-text is combined and used for training the model. If ``keywords`` and/or
-``author`` are available it can be used for searching prior knowledge. Note
-the information is not shown during the screening phase and is also not used
-for training the model, but the information is available via the API. If
-``DOI`` is available it will be displayed during the screening phase as a
-clickable hyperlink to the full text document. Note by using ASReview you do
-not automatically have access to full-text and if you do not have access you
-might want to read this `blog post <https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
-
-When using the :doc:`ASReview command line interface for simulation
-<../API/cli/>`, an additional binary variable to indicate labeling decisions
-(``0`` = irrelevant, ``1`` = relevant) is required for ALL records. In
-ASReview LAB, if labels are available for a part of the dataset (i.e., :doc:`partly
-labeled data <../features/pre_screening>`), the labels will be automatically detected and used for prior
-knowledge.
-
-You can explore a previously labeled dataset in ASReview LAB by adding an
-extra column called ‘debug_label’, indicating the relevant and irrelevant
-records with ones and zeroes. The relevant records will show up green during
-screening.
+**debug_label**
+You can explore a existing fully labeled dataset in the Exploraton
+Mode. A column called named ``debug_label`` is required, indicating the relevant
+and irrelevant records with ones and zeroes. The relevant records will be displayed in
+green during screening. This option is useful for training purposes,
+presentations, and workshops.
 
 
 Compatibility

@@ -13,6 +13,7 @@ import { reviewDrawerWidth } from '../globals.js'
 import {
   Menu,
   BarChart,
+  History,
   GetApp,
 } from '@material-ui/icons'
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -139,6 +140,19 @@ const Header = (props) => {
               </IconButton>
             </Tooltip>
           }
+
+          {(props.app_state === 'review') &&
+            <Tooltip title="Review history">
+              <IconButton
+                aria-label="History"
+                onClick={props.toggleHistory}
+                color="inherit"
+              >
+                <History />
+              </IconButton>
+            </Tooltip>
+          }
+
           <IconButton
             aria-label="Settings"
             onClick={props.handleClickOpen}

@@ -38,6 +38,22 @@ Upgrade ASReview software with
     pip install --upgrade asreview
 
 
+
+Uninstall ASReview
+------------------
+
+Remove ASReview with
+
+.. code:: bash
+
+    pip uninstall asreview
+
+Enter ``y`` to confirm. 
+
+.. warning::
+
+    Note that your project files will **not** delete with this action. You find them in the `.asreview` folder in your home folder.
+
 Server Installation
 -------------------
 
@@ -131,7 +147,7 @@ First check whether the package is correctly installed. Do this with the command
 
 .. code-block:: bash
 
-  python -m asreview oracle
+  python -m asreview lab
 
 
 Build dependencies error

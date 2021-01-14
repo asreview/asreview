@@ -150,8 +150,8 @@ def standardize_dataframe(df, column_spec={}):
     if "record_id" in list(df):
 
         # validate record_id column
-        _is_record_id_unique(df["record_id"])
         _is_record_id_notnull(df["record_id"])
+        _is_record_id_unique(df["record_id"])
         _is_record_id_int(df["record_id"])
 
     # Create a new index if we haven't found it in the data.

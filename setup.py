@@ -142,7 +142,7 @@ setup(
             '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
         ],
         'asreview.datasets': [
-            'builtin = asreview.datasets:BuiltinDataGroup',
+            'benchmark = asreview.datasets:BenchmarkDataGroup',
         ],
         'asreview.models.classifiers': [
             'svm = asreview.models.classifiers:SVMClassifier',

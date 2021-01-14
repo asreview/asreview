@@ -107,10 +107,16 @@ def add_dataset_to_project(project_id, file_name):
     """
 
     project_file_path = get_project_file_path(project_id)
-    fp_lock = get_lock_path(project_id)
+
+    # clean temp project files
+    clean_project_tmp_files(project_id)
 
     with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
+            get_lock_path(project_id),
+            blocking=True,
+            lock_name="active",
+            project_id=project_id
+    ):
         # open the projects file
         with open(project_file_path, "r") as f_read:
             project_dict = json.load(f_read)
@@ -348,9 +354,6 @@ def export_to_string(project_id, export_type="csv"):
             .sort_values("proba", ascending=False).index.values
     else:
         pool_ordered = pool_ordered
-
-    print(as_data.df.head())
-    print(inclusion_record_id)
 
     # get the ranking of the 3 subcategories
     ranking = np.concatenate(

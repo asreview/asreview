@@ -48,7 +48,7 @@ pip install --upgrade asreview
 
 ASReview LAB is a user-friendly interface for screening documents and experimentation with AI-aided systematic reviews. Read more about using the software in the [Quick Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html).
 
-[![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/quicktour.html "ASReview LAB Quick Tour")
+[![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB Quick Tour")
 
 ## Covid-19 plugin
 

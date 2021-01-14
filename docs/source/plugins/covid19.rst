@@ -32,7 +32,7 @@ transparent in the process.
 ASReview plugin
 ---------------
 
-To help combat the COVID-19 crisis, the ASReview team has decided to 
+To help combat the COVID-19 crisis, the ASReview team has decided to
 `release <https://asreview.nl/interview-in-fortune/>`_ a plugin
 that provides three datasets on COVID-19. These are integrated automatically
 into ASReview once we install the correct packages, so reviewers can start
@@ -47,8 +47,8 @@ made available in ASReview:
 -  Full `CORD-19 dataset <https://arxiv.org/abs/2004.10706>`_ .
 -  Custum made subset of the CORD-19 dataset with publications from December 2019 onwards.
 
-The Cord19 database, developed by the `Allen Institute for AI <REF
-https://www.semanticscholar.org/cord19>`_, with all publications on COVID-19
+The Cord19 database, developed by the `Allen Institute for AI
+<https://www.semanticscholar.org/cord19>`_, with all publications on COVID-19
 and other coronavirus research (e.g. SARS, MERS, etc.) from PubMed Central,
 the WHO COVID-19 database of publications, the preprint servers bioRxiv and
 medRxiv and papers contributed by specific publishers.

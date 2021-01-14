@@ -218,6 +218,19 @@ def get_reviewer(dataset,
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
+    # continue with partly labeled dataset when in simulation mode.
+    if mode == "simulate":
+        labels = as_data.labels
+        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
+        if len(labeled_idx) != len(labels):
+            print("Simulating partial review, ignoring unlabeled"
+                  f" records (n={len(labels)-len(labeled_idx)}).\n")
+            as_data = as_data.slice(labeled_idx, by_index=True)
+
+            if prior_idx is not None and len(prior_idx) > 0:
+                raise ValueError("Not possible to select prior knowledge by"
+                                 " row number for partly labeled data.")
+
     # prior knowledge
     if prior_idx is not None and prior_record_id is not None and \
             len(prior_idx) > 0 and len(prior_record_id) > 0:
@@ -292,5 +305,26 @@ def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
 
     print(ASCII_LOGO + ASCII_MSG_SIMULATE)
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ptsd", "example_ptsd", "schoot"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:van_de_Schoot_2017' instead.\n\n")
+        dataset = "benchmark:van_de_Schoot_2017"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ace", "example_cohen", "example_ace"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Cohen_2006_ACEInhibitors' instead.\n\n")
+        dataset = "benchmark:Cohen_2006_ACEInhibitors"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["hall", "example_hall", "example_software"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Hall_2012' instead.\n\n")
+        dataset = "benchmark:Hall_2012"
 
     review(dataset, *args, mode='simulate', **kwargs)
