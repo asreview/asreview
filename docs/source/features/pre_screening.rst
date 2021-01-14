@@ -66,7 +66,7 @@ Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
 
-Select one of the :ref:`example datasets <benchmark-datasets>`.
+Select one of the :ref:`benchmark datasets <benchmark-datasets>`.
 
 .. _partly-labeled-data:
 
