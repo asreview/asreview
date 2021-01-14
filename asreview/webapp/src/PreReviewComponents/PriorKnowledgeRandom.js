@@ -142,7 +142,7 @@ const PriorKnowledgeRandom = (props) => {
 
         {state["count_exclusions"] < n_items &&
             <DialogTitleWithClose
-              title={"If this document can be used as prior knowledge, is it relevant or irrelevant?"}
+              title={"Prior Knowledge: Is this document relevant or irrelevant?"}
               onClose={props.onClose}
             />
           }
