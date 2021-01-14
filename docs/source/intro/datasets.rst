@@ -11,7 +11,7 @@ It is possible to use your own dataset with unlabeled, partly labeled (where
 the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-`Demonstration Datasets`_. Also, a plugin with :doc:`Corona related
+`Benchmark Datasets`_. Also, a plugin with :doc:`Corona related
 publications <../plugins/covid19>` is available.
 
 .. warning::
@@ -238,71 +238,62 @@ imported in ASReview.
 \*** Robotreviewer does not provide exports suitable for asreview, since it supports evidence synthesis.
 
 
-.. _demonstration-datasets:
+.. _benchmark-datasets:
 
-Demonstration Datasets
-----------------------
+Benchmark Datasets
+------------------
 
-The ASReview software contains 3 datasets that can be used to :doc:`explore <../lab/exploration>` the
-software and algorithms. The built-in datasets are PRISMA based reviews on
-various research topics. Each paper in this systematic review is labeled relevant or
-irrelevant. This information can be used to simulate the performance of ASReview.
-The datasets are available in the front-end in step 2 and in the simulation mode.
+The ASReview software contains a large amount of benchmark datasets that can
+be used in the :doc:`exploration <../lab/exploration>` or :doc:`simulation
+<../lab/simulation>` mode. The labelled datasets are PRISMA-based reviews on
+various research topics, are available under an open licence and are
+automatically harvested from the `dataset reposisotory
+<https://github.com/asreview/systematic-review-datasets>`_. See `index.csv
+<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
+for all available properties.
 
-Van de Schoot (PTSD)
-~~~~~~~~~~~~~~~~~~~~
+Featured Datasets
+~~~~~~~~~~~~~~~~~
 
-A dataset on 5782 papers on posttraumatic stress disorder. Of these papers, 38
-were included in the systematic review.
+Some featured datasets are: 
 
-    "We performed a systematic search to identify longitudinal studies that applied LGMM,
-    latent growth curve analysis, or hierarchical cluster analysis on symptoms of
-    posttraumatic stress assessed after trauma exposure."
+-  The *PTSD Trajectories* data by `Van de Schoot et al. (2018) <https://doi.org/10.1080/00273171.2017.1412293>`_ stems from a review  of longitudinal studies that applied unsupervised machine learning techniques on longitudinal data of self-reported symptoms of posttraumatic stress assessed after trauma exposure. In total, 5,782 studies were obtained by searching Pubmed, Embase, PsychInfo, and Scopus, and through a snowballing strategy in which both the references and the citation of the included papers were screened. Thirty-eight studies were included in the review (0.66%). 
 
-**Bayesian PTSD-Trajectory Analysis with Informed Priors Based on a Systematic Literature**
-**Search and Expert Elicitation**
-Rens van de Schoot, Marit Sijbrandij, Sarah Depaoli, Sonja D. Winter, Miranda Olff
-& Nancy E. van Loey
-https://doi.org/10.1080/00273171.2017.1412293
+-  The *Virus Metagenomics* data by `Kwok et al. (2020) <https://doi.org/10.3390/v12010107>`_ which systematically described studies that performed viral Metagenomic Next-Generation Sequencing (mNGS) in common livestock such as cattle, small ruminants, poultry, and pigs.44 Studies were retrieved from Embase (n = 1,806), Medline (n = 1,384), Cochrane Central (n = 1), Web of Science (n = 977), and Google Scholar (n = 200, the top relevant references). After deduplication this led to 2,481 studies obtained in the initial search, of which 120 inclusions (4.84%).  
 
-Dataset publication: https://osf.io/h5k2q/
+-  The *Software Fault Prediction* by `Hall et al. (2012) <https://doi.org/10.1109/TSE.2011.103>`_ stems from a systematic review of studies on fault prediction in software engineering. Studies were obtained from ACM Digital Library, IEEExplore and the ISI Web of Science. Additionally, a snowballing strategy and a manual search were conducted, accumulating to 8,911 publications of which 104 were included in the systematic review (1.2%).
 
-Name (for the simulation mode): ``example_ptsd``
+-  The *ACEinhibitors* by `Cohen et al. (2006) <https://doi.org/10.1197/jamia.M1929>`_ data stems from a systematic review on the efficacy of Angiotensin-converting enzyme (ACE) inhibitors. The data is a subset of 2,544 publications from the TREC 2004 Genomics Track document corpus48. This is a static subset from all MEDLINE records from 1994 through 2003, which allows for replicability of results. Forty-one publications were included in the review (1.6%). 
 
-Hall (Fault prediction - software)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Results
+~~~~~~~
 
-A dataset on 8911 papers on fault prediction performance in software
-engineering.  Of these papers, 104 were included in the systematic review.
+For the featured datasets, the animated plots below show how fast you can find
+the relevant papers by using ASReview LAB compared to random screening papers
+one by one. These animated plots are all based on a single run per dataset
+in which only one paper was added as relevant and one as irrelevant.
 
-The dataset results from
+*PTSD Trajectories*:
 
-**How to Read Less: Better Machine Assisted Reading Methods for Systematic Literature Reviews.**
-Yu, Zhe, Kraft, Nicholas, Menzies, Tim. (2016).  `arXiv:1612.03224v1 <https://www.researchgate.net/publication/311586326_How_to_Read_Less_Better_Machine_Assisted_Reading_Methods_for_Systematic_Literature_Reviews>`_
+38 inclusions out of 5,782 papers
 
-The original study can be be found here:
+.. figure:: ../../images/gifs/ptsd_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the ptsd dataset
 
-**A systematic literature review on fault prediction performance in software engineering**
-T. Hall, S. Beecham, D. Bowes, D. Gray, S. Counsell, in IEEE Transactions on Software
-Engineering, vol. 38, no. 6, pp. 1276-1304, Nov.-Dec. 2012. https://doi.org/10.1109/TSE.2011.103
+*Virus Metagenomics*
+XXX
 
+*Software Fault Prediction*:
 
-Dataset publication https://zenodo.org/record/1162952.
+104 inclusions out of 8,911 papers)
 
-Name (for the simulation mode): ``example_hall``
+.. figure:: ../../images/gifs/software_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the software dataset
 
 
-Cohen (ACE Inhibitors)
-~~~~~~~~~~~~~~~~~~~~~~
+*ACEinhibitors*:
 
-A dataset from a project set up to test the performance of automated review
-systems such as the ASReview project. The project includes several datasets
-from the medical sciences. The dataset implemented in ASReview is the
-``ACEInhibitors`` dataset. Of the 2544 entries in the dataset, 41 were
-included in the systematic review.
+41 inclusions out of 2,544 papers
 
-**Reducing Workload in Systematic Review Preparation Using Automated Citation Classification**
-A.M. Cohen, MD, MS, W.R. Hersh, MD, K. Peterson, MS, and Po-Yin Yen, MS. https://doi.org/10.1197/jamia.M1929
-
-Name (for the simulation mode): ``example_cohen``
-
+.. figure:: ../../images/gifs/ace_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the ACE dataset
