@@ -568,9 +568,9 @@ const ProjectUpload = ({
           </Typography>
 
           <Typography variant="subtitle2" >
-            Example datasets:
+            Benchmark datasets:
             <Typography variant="body2" gutterBottom>
-              Select an example dataset for testing active learning models.
+              Select a benchmark dataset for testing active learning models.
               The datasets are fully labeled into relevant and irrelevant.
               The relevant records are displayed in green during the review process. Read more about
               <Link
