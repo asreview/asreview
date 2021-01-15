@@ -38,7 +38,11 @@ papers:
 
 *Virus Metagenomics*:
 
-- XXX
+- Detection of viromes of RNA viruses using the next generation sequencing libraries prepared by three methods
+- Identification of a novel astrovirus in domestic sheep in Hungary
+- Identification of novel bovine group A rotavirus G15P[14] strain from epizootic diarrhea of adult cows by de novo sequencing using a next-generation sequencer
+- Detection of novel viruses in porcine fecal samples from China
+- Metagenomic Analysis of the Jinding Duck Fecal Virome
 
 *Software Fault Prediction*:
 
@@ -68,7 +72,7 @@ START reviewing
 ~~~~~~~~~~~~~~~
 
 Start reviewing the first 50, 100 or even 200 papers. Abstracts in green are
-relevenant papers and abstracts in black are irrelevant. 
+relevenant papers and abstracts in black are irrelevant.
 
 For the *PTSD Trajectories* dataset we expect you to find about 7 out of 38
 relevant papers after screening 50 papers, 19 after screening 100
