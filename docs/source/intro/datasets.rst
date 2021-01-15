@@ -283,6 +283,7 @@ in which only one paper was added as relevant and one as irrelevant.
 *Virus Metagenomics*:
 
 120 inclusions out of 2,481 papers
+
 .. figure:: ../../images/gifs/virusM_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the Virus Metagenomics dataset
 
@@ -292,7 +293,6 @@ in which only one paper was added as relevant and one as irrelevant.
 
 .. figure:: ../../images/gifs/software_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the software dataset
-
 
 *ACEinhibitors*:
 
