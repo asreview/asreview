@@ -31,7 +31,7 @@ To carry out a systematic review with ASReview on your own dataset, your data
 file needs to adhere to a certain format. ASReview accepts the following
 formats:
 
- - **RIS file format** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with 
+ - **RIS file format** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with
    extensions ``.ris`` or ``.txt``. RIS file formats are used by digital libraries, like
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
@@ -78,7 +78,7 @@ metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
 both title and abstract are available, the text is combined and used for
 training the model. If the column ``title`` is empty, the software will search
 for the next column ``primary_title`` and the same holds for ``bastract`` and
-``abstract_note``. 
+``abstract_note``.
 
 **Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
 empty: ``author names`` or ``first_authors``) are available it can be used for
@@ -103,7 +103,7 @@ names are allowed, see the table. The use is twofold:
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabeled part of the data.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
-  the column containing the labels is used to simulate a systematic review run. 
+  the column containing the labels is used to simulate a systematic review run.
   Only records containing labels are used for the simulation, unlabeled records are ignored.
 
 .. note::
@@ -145,9 +145,9 @@ managers  which are accepted by ASReview.
 | **Zotero**                    | ✅       | ✅       | N/A      |
 +-------------------------------+----------+----------+----------+
 
--  ✅ = The data can be exported from the citation manager and imported in ASReview. 
+-  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
--  X = not suported.
+-  X = Not suported.
 
 
 Search Engines
@@ -186,9 +186,9 @@ acceptance in ASReview:
 |**Science**      |          |          |          |           |
 +-----------------+----------+----------+----------+-----------+
 
--  ✅ = The data can be exported from the citation manager and imported in ASReview. 
+-  ✅ = The data can be exported from the search engine and imported in ASReview.
 -  N/A = This format does not exist.
--  X = not suported.
+-  X = Not suported.
 
 .. warning::
 
@@ -204,7 +204,7 @@ There are several software packages available for systematic reviewing, see
 for an `overview <https://arxiv.org/abs/2006.12166>`_. Some of them use machine
 learning, while other focus on screening and management. The overview below
 shows an overview of alternative software programs and the compatibility with
-ASReview. 
+ASReview.
 
 +-----------------+-----------+----------+----------+----------+
 |                 | **.ris**  | **.tsv** | **.csv** | **.xlsx**|
@@ -223,14 +223,14 @@ ASReview.
 |**Robotreviewer**| N/A       | N/A      | N/A      | N/A      |
 +-----------------+-----------+----------+----------+----------+
 
--  ✅ = The data can be exported from the citation manager and imported in ASReview. 
+-  ✅ = The data can be exported from the third-party review software and imported in ASReview.
 -  N/A = This format does not exist.
--  X = not suported.
+-  X = Not suported.
 
 \* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
 such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
 
-\** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0`` 
+\** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
 
 
