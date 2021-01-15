@@ -78,9 +78,9 @@ For the *PTSD Trajectories* dataset we expect you to find about 7 out of 38
 relevant papers after screening 50 papers, 19 after screening 100
 papers and 36 after 200 papers.
 
-For the *Virus Metagenomics* dataset we expect you to find XX out of YY relevant
-papers after screening 50 papers, XXX after screening 100 papers
-and XXX after 200 papers
+For the *Virus Metagenomics* dataset we expect you to find 20 out of 120 relevant
+papers after screening 50 papers, 40 after screening 100 papers
+and 70 after 200 papers
 
 For the *Software Fault Prediction* dataset we expect you to find 25 out of 104 relevant
 papers after screening 50 papers, 48 after screening 100 papers
@@ -89,8 +89,6 @@ and 88 after 200 papers.
 For the *ACEinhibitors* dataset we expect you to find 16 out of 41 relevant
 papers after screening 50 papers, 27 after screening 100 papers and 32 after
 200 papers.
-
-
 
 
 Upload Your own Data for Exploration
