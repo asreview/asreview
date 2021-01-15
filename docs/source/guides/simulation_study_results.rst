@@ -12,11 +12,12 @@ relevant publications after screening only 5% of relevant publications.
 Datasets
 --------
 To assess the generalizability of the models across research
-contexts, the models were simulated on data from varying research contexts. Data were collected from the fields of medicine (Cohen et al. 2006;
+contexts, the models were simulated on data from varying research contexts. 
+Data were collected from the fields of medicine (Cohen et al. 2006;
 Appenzeller‐Herzog et al. 2019), virology (Kwok et al. 2020), software
 engineering (Yu, Kraft, and Menzies 2018), behavioural public
 administration (Nagtegaal et al. 2019) and psychology (van de Schoot et
-al. 2017). Datasets are available in the `ASReview systematic review
+al. 2017, 2018). Datasets are available in the `ASReview systematic review
 datasets
 repository <https://github.com/asreview/systematic-review-datasets>`__.
 

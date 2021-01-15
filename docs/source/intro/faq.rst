@@ -250,8 +250,8 @@ confusion, we do not put these in the export file. They are however available
 in the state files.
 
 
-How can I make my previously labeled records green, like in the example datasets?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How can I make my previously labeled records green, like in the benchmark datasets?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can explore a previously labeled dataset in ASReview LAB by adding
 an extra column called 'debug\_label', indicating the relevant and

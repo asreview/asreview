@@ -96,7 +96,7 @@ def create_as_data(dataset,
         prior_dataset = [prior_dataset]
 
     as_data = ASReviewData()
-    # Find the URL of the datasets if the dataset is an example dataset.
+    # Find the URL of the datasets if the dataset is a benchmark dataset.
     for data in dataset:
         as_data.append(ASReviewData.from_file(find_data(data)))
 
