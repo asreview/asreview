@@ -78,7 +78,7 @@ metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
 both title and abstract are available, the text is combined and used for
 training the model. If the column ``title`` is empty, the software will search
 for the next column ``primary_title`` and the same holds for ``bastract`` and
-``abstract_note``. 
+``abstract_note``.
 
 **Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
 empty: ``author names`` or ``first_authors``) are available it can be used for
@@ -103,7 +103,7 @@ names are allowed, see the table. The use is twofold:
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabeled part of the data.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
-  the column containing the labels is used to simulate a systematic review run. 
+  the column containing the labels is used to simulate a systematic review run.
   Only records containing labels are used for the simulation, unlabeled records are ignored.
 
 .. note::
@@ -255,15 +255,15 @@ for all available properties.
 Featured Datasets
 ~~~~~~~~~~~~~~~~~
 
-Some featured datasets are: 
+Some featured datasets are:
 
--  The *PTSD Trajectories* data by Van de Schoot et al. (`2017 <https://doi.org/10.1080/10705511.2016.1247646>`_, `2018 <https://doi.org/10.1080/00273171.2017.1412293>`_) stems from a review  of longitudinal studies that applied unsupervised machine learning techniques on longitudinal data of self-reported symptoms of posttraumatic stress assessed after trauma exposure. In total, 5,782 studies were obtained by searching Pubmed, Embase, PsychInfo, and Scopus, and through a snowballing strategy in which both the references and the citation of the included papers were screened. Thirty-eight studies were included in the review (0.66%). 
+-  The *PTSD Trajectories* data by Van de Schoot et al. (`2017 <https://doi.org/10.1080/10705511.2016.1247646>`_, `2018 <https://doi.org/10.1080/00273171.2017.1412293>`_) stems from a review  of longitudinal studies that applied unsupervised machine learning techniques on longitudinal data of self-reported symptoms of posttraumatic stress assessed after trauma exposure. In total, 5,782 studies were obtained by searching Pubmed, Embase, PsychInfo, and Scopus, and through a snowballing strategy in which both the references and the citation of the included papers were screened. Thirty-eight studies were included in the review (0.66%).
 
--  The *Virus Metagenomics* data by `Kwok et al. (2020) <https://doi.org/10.3390/v12010107>`_ which systematically described studies that performed viral Metagenomic Next-Generation Sequencing (mNGS) in common livestock such as cattle, small ruminants, poultry, and pigs.44 Studies were retrieved from Embase (n = 1,806), Medline (n = 1,384), Cochrane Central (n = 1), Web of Science (n = 977), and Google Scholar (n = 200, the top relevant references). After deduplication this led to 2,481 studies obtained in the initial search, of which 120 inclusions (4.84%).  
+-  The *Virus Metagenomics* data by `Kwok et al. (2020) <https://doi.org/10.3390/v12010107>`_ which systematically described studies that performed viral Metagenomic Next-Generation Sequencing (mNGS) in common livestock such as cattle, small ruminants, poultry, and pigs.44 Studies were retrieved from Embase (n = 1,806), Medline (n = 1,384), Cochrane Central (n = 1), Web of Science (n = 977), and Google Scholar (n = 200, the top relevant references). After deduplication this led to 2,481 studies obtained in the initial search, of which 120 inclusions (4.84%).
 
 -  The *Software Fault Prediction* by `Hall et al. (2012) <https://doi.org/10.1109/TSE.2011.103>`_ stems from a systematic review of studies on fault prediction in software engineering. Studies were obtained from ACM Digital Library, IEEExplore and the ISI Web of Science. Additionally, a snowballing strategy and a manual search were conducted, accumulating to 8,911 publications of which 104 were included in the systematic review (1.2%).
 
--  The *ACEinhibitors* by `Cohen et al. (2006) <https://doi.org/10.1197/jamia.M1929>`_ data stems from a systematic review on the efficacy of Angiotensin-converting enzyme (ACE) inhibitors. The data is a subset of 2,544 publications from the TREC 2004 Genomics Track document corpus48. This is a static subset from all MEDLINE records from 1994 through 2003, which allows for replicability of results. Forty-one publications were included in the review (1.6%). 
+-  The *ACEinhibitors* by `Cohen et al. (2006) <https://doi.org/10.1197/jamia.M1929>`_ data stems from a systematic review on the efficacy of Angiotensin-converting enzyme (ACE) inhibitors. The data is a subset of 2,544 publications from the TREC 2004 Genomics Track document corpus48. This is a static subset from all MEDLINE records from 1994 through 2003, which allows for replicability of results. Forty-one publications were included in the review (1.6%).
 
 Results
 ~~~~~~~
@@ -280,12 +280,15 @@ in which only one paper was added as relevant and one as irrelevant.
 .. figure:: ../../images/gifs/ptsd_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the ptsd dataset
 
-*Virus Metagenomics*
-XXX
+*Virus Metagenomics*:
+
+120 inclusions out of 2,481 papers
+../../images/gifs/virusM_recall_slow_1trial_fancy.gif
+   :alt: Recall curve for the Virus Metagenomics dataset
 
 *Software Fault Prediction*:
 
-104 inclusions out of 8,911 papers)
+104 inclusions out of 8,911 papers
 
 .. figure:: ../../images/gifs/software_recall_slow_1trial_fancy.gif
    :alt: Recall curve for the software dataset
