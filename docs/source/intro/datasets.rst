@@ -31,10 +31,10 @@ To carry out a systematic review with ASReview on your own dataset, your data
 file needs to adhere to a certain format. ASReview accepts the following
 formats:
 
- - **RIS-files** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with
-   extension ``.ris`` or ``.txt``. RIS files are used by digital libraries, like
+ - **RIS file format** `(wikipedia) <https://en.wikipedia.org/wiki/RIS_(file_format)>`__ with
+   extensions ``.ris`` or ``.txt``. RIS file formats are used by digital libraries, like
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
-   Zotero, and EndNote support the RIS format as well.
+   Zotero, and EndNote support the RIS file format as well.
 
  - **Tabular datasets** with extensions ``.csv``, ``.xlsx``, or ``.xls``. CSV files should
    be comma separated and UTF-8 encoded.
@@ -78,7 +78,7 @@ metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
 both title and abstract are available, the text is combined and used for
 training the model. If the column ``title`` is empty, the software will search
 for the next column ``primary_title`` and the same holds for ``bastract`` and
-``abstract_note``. 
+``abstract_note``.
 
 **Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
 empty: ``author names`` or ``first_authors``) are available it can be used for
@@ -103,7 +103,7 @@ names are allowed, see the table. The use is twofold:
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabeled part of the data.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
-  the column containing the labels is used to simulate a systematic review run. 
+  the column containing the labels is used to simulate a systematic review run.
   Only records containing labels are used for the simulation, unlabeled records are ignored.
 
 .. note::
@@ -129,29 +129,26 @@ Citation Managers
 The following table provides an overview of export files from citation
 managers  which are accepted by ASReview.
 
-+-----------------+---------------+----------------+--------------+--------------+
-|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Endnote**     | Supported     | Not supported  |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Excel**       |               |                | Supported\*  |  Supported   |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Mendeley**    | Supported     |                |              |              |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Refworks**    | Supported     | Not supported  |              |              |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Zotero**      | Supported     |                | Supported    |              |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
++-------------------------------+----------+----------+----------+
+|                               | **.ris** | **.csv** | **.xlsx**|
++-------------------------------+----------+----------+----------+
+| **Endnote**                   | ✅       | N/A      | N/A      |
++-------------------------------+----------+----------+----------+
+| **Excel** comma-seperated     | N/A      | ✅       | ✅       |
++-------------------------------+----------+----------+----------+
+| **Excel** semicolon-seperated | N/A      | X        | ✅       |
++-------------------------------+----------+----------+----------+
+| **Mendeley**                  | ✅       | N/A      | N/A      |
++-------------------------------+----------+----------+----------+
+| **Refworks**                  | ✅       | N/A      | N/A      |
++-------------------------------+----------+----------+----------+
+| **Zotero**                    | ✅       | ✅       | N/A      |
++-------------------------------+----------+----------+----------+
 
-- Supported: The data can be exported from the citation manager and imported in ASReview using this extension.
-- Not supported: The exported format can not be imported in ASReview.
-- (empty): The data cannot be exported from the citation manager in this format.
+-  ✅ = The data can be exported from the citation manager and imported in ASReview.
+-  N/A = This format does not exist.
+-  X = Not suported.
 
-\* Only comma seperated files are supported. Semicolon seperated files are not supported.
 
 Search Engines
 ~~~~~~~~~~~~~~
@@ -165,77 +162,76 @@ will provide the most information.
 The export files of the following search engines have been tested for their
 acceptance in ASReview:
 
-+-----------------+---------------+----------------+---------------+---------------+
-|                 | **.ris**      | **.tsv**       | **.csv**      | **.xlsx**     |
-|                 |               |                |               |               |
-+-----------------+---------------+----------------+---------------+---------------+
-|**CINHAL**       | Not supported |                |Not supported  |               |
-|**(EBSCO)**      |               |                |               |               |
-+-----------------+---------------+----------------+---------------+---------------+
-|**Cochrane**     | Supported     |                | Supported     |               |
-+-----------------+---------------+----------------+---------------+---------------+
-| **Embase**      | Supported     |                | Supported     | Supported     |
-+-----------------+---------------+----------------+---------------+---------------+
-|**Eric (Ovid)**  | Not supported |                |               |Not supported  |
-+-----------------+---------------+----------------+---------------+---------------+
-|**Psychinfo**    | Not supported |                |               |Not supported  |
-|**(Ovid)**       |               |                |               |               |
-+-----------------+---------------+----------------+---------------+---------------+
-| **Pubmed**      | Not supported |                |Not supported  |               |
-+-----------------+---------------+----------------+---------------+---------------+
-| **Scopus**      | Supported     |                |Supported      |               |
-+-----------------+---------------+----------------+---------------+---------------+
-|**Web of**       | Not supported |Not supported   |               |               |
-|**Science**      |               |                |               |               |
-+-----------------+---------------+----------------+---------------+---------------+
++-----------------+----------+----------+----------+-----------+
+|                 | **.ris** | **.tsv** | **.csv** |  **.xlsx**|
+|                 |          |          |          |           |
++-----------------+----------+----------+----------+-----------+
+|**CINHAL**       | X        | N/A      | X        | N/A       |
+|**(EBSCO)**      |          |          |          |           |
++-----------------+----------+----------+----------+-----------+
+|**Cochrane**     | ✅       | N/A      | ✅       | N/A       |
++-----------------+----------+----------+----------+-----------+
+| **Embase**      | ✅       | N/A      | ✅       | ✅        |
++-----------------+----------+----------+----------+-----------+
+|**Eric (Ovid)**  | X        | N/A      | N/A      | X         |
++-----------------+----------+----------+----------+-----------+
+|**Psychinfo**    | X        | N/A      | N/A      | X         |
+|**(Ovid)**       |          |          |          |           |
++-----------------+----------+----------+----------+-----------+
+| **Pubmed**      | X        | N/A      | X        | N/A       |
++-----------------+----------+----------+----------+-----------+
+| **Scopus**      | ✅       | N/A      | ✅       | N/A       |
++-----------------+----------+----------+----------+-----------+
+|**Web of**       | X        | X        | N/A      | N/A       |
+|**Science**      |          |          |          |           |
++-----------------+----------+----------+----------+-----------+
 
-- Supported: The data can be exported from the search engine and imported in ASReview using this extension.
-- Not supported: The exported data can not be imported in ASReview using this extension.
-- (empty): The data cannot be exported from the search engine using this extension.
+-  ✅ = The data can be exported from the search engine and imported in ASReview.
+-  N/A = This format does not exist.
+-  X = Not suported.
 
+.. warning::
 
-If the export of your search engine is not accepted in ASReview, you can also
-try the following: import the search engine file first into one of the
-citation managers mentioned in the previous part, and export it again into a
-format that is accepted by ASReview.
+    If the export of your search engine is not accepted in ASReview, you can
+    also try the following: import the search engine file first into one of
+    the citation managers mentioned in the previous part, and export it again
+    into a format that is accepted by ASReview.
 
 Systematic Review Software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are several software packages available for systematic reviewing. Some
-of them use machine learning, while other focus on screening and management.
-The overview below shows an overview of alternative software programs and the
-compatibility with ASReview.
+There are several software packages available for systematic reviewing, see
+for an `overview <https://arxiv.org/abs/2006.12166>`_. Some of them use machine
+learning, while other focus on screening and management. The overview below
+shows an overview of alternative software programs and the compatibility with
+ASReview.
 
-+-----------------+---------------+----------------+--------------+--------------+
-|                 | **.ris**      | **.tsv**       | **.csv**     | **.xlsx**    |
-|                 |               |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Abstrackr**   | Supported     |                | Supported    |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Covidence**\* | Supported     |                | Supported    |              |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Distiller**   |Not supported  |                | Supported\** | Supported\** |
-+-----------------+---------------+----------------+--------------+--------------+
-|**EPPI-reviewer**| Supported     |                |              |Not supported |
-+-----------------+---------------+----------------+--------------+--------------+
-| **Rayyan**      | Supported     |                | Supported    |              |
-+-----------------+---------------+----------------+--------------+--------------+
-|**Robotreviewer**|               |                |              |              |
-|\***		  |    		  |                |              |              |
-+-----------------+---------------+----------------+--------------+--------------+
++-----------------+-----------+----------+----------+----------+
+|                 | **.ris**  | **.tsv** | **.csv** | **.xlsx**|
+|                 |           |          |          |          |
++-----------------+-----------+----------+----------+----------+
+| **Abstrackr**   | ✅        | N/A      | ✅       | N/A      |
++-----------------+-----------+----------+----------+----------+
+| **Covidence**\* | ✅        | N/A      | ✅       | N/A      |
++-----------------+-----------+----------+----------+----------+
+| **Distiller**   | X         | N/A      | ✅\**    | ✅\**    |
++-----------------+-----------+----------+----------+----------+
+|**EPPI-reviewer**| ✅        | N/A      | N/A      | X        |
++-----------------+-----------+----------+----------+----------+
+| **Rayyan**      | ✅        | N/A      | ✅       | N/A      |
++-----------------+-----------+----------+----------+----------+
+|**Robotreviewer**| N/A       | N/A      | N/A      | N/A      |
++-----------------+-----------+----------+----------+----------+
 
-- Supported: The data can be exported from the software and imported in ASReview using this extension.
-- Not supported: The exported data can not be imported in ASReview using this extension.
-- (empty): The data cannot be exported from the software using this extension.
+-  ✅ = The data can be exported from the third-party review software and imported in ASReview.
+-  N/A = This format does not exist.
+-  X = Not suported.
 
-\* When using Covidence it is possible to export articles in .ris formats for different citation managers,
+\* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
 such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
 
-\** When exporting from Distiller set the ``sort references by`` to ``Authors``. Then the data can be
-imported in ASReview.
-
-\*** Robotreviewer does not provide exports suitable for asreview, since it supports evidence synthesis.
+\** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
+set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
 
 
 .. _demonstration-datasets:
