@@ -443,7 +443,7 @@ const ProjectUpload = ({
                 <Tab label="From file" />
                 <Tab label="From url" />
                 <Tab label="From plugin" />
-                <Tab label="Example datasets" />
+                <Tab label="Benchmark datasets" />
               </Tabs>
 
             <CardContent>
@@ -568,11 +568,10 @@ const ProjectUpload = ({
           </Typography>
 
           <Typography variant="subtitle2" >
-            Example datasets:
+            Benchmark datasets:
             <Typography variant="body2" gutterBottom>
-              Select an example dataset for testing active learning models.
-              The datasets are fully labeled into relevant and irrelevant.
-              The relevant records are displayed in green during the review process. Read more about
+              Select a benchmark dataset for testing active learning models.
+              The datasets are fully labeled and the relevant records are displayed in green during the review process. Read more about
               <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"

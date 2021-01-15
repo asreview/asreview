@@ -49,18 +49,31 @@ Simulate
 
 :program:`asreview simulate` measures the performance of the software on
 existing systematic reviews. The software shows how many papers you could have
-potentially skipped during the systematic review.
+potentially skipped during the systematic review. You can use  :doc:`your own
+labelled dataset <../intro/datasets>` 
 
 .. code:: bash
 
-	asreview simulate [options] [dataset [dataset ...]]
+    asreview simulate [options] [dataset [dataset ...]]
 
-Example:
+or one of the :ref:`benchmark-datasets
+<benchmark-datasets>` (see `index.csv
+<https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
+for dataset IDs). 
+
+.. code:: bash
+
+    asreview simulate [options] benchmark: [dataset_id]
+
+Examples:
 
 .. code:: bash
 
 	asreview simulate YOUR_DATA.csv --state_file myreview.h5
 
+.. code:: bash
+
+    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.h5
 
 .. program:: asreview simulate
 
