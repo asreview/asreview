@@ -73,7 +73,7 @@ Examples:
 
 .. code:: bash
 
-    asreview simulate benchmark:van_de_Schoot_2018 --state_file myreview.h5
+    asreview simulate benchmark:van_de_Schoot_2017 --state_file myreview.h5
 
 .. program:: asreview simulate
 
