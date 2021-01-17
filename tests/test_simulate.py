@@ -91,11 +91,8 @@ def test_state_continue_h5(tmpdir):
 
 def test_nb(tmpdir):
 
-    # copy state file to tmp dir for changes
-    tmp_h5_state_fp = Path(tmpdir, "tmp_state_nb.h5")
-
     check_model(model="nb",
-                state_file=tmp_h5_state_fp,
+                state_file=None,
                 use_granular=True,
                 n_instances=1,
                 n_queries=1)
@@ -259,19 +256,18 @@ def check_partial_state(state):
 
 def check_model(monkeypatch=None,
                 use_granular=False,
-                state_file=h5_state_file,
+                state_file=None,
                 continue_from_state=False,
                 mode="simulate",
                 data_fp=data_fp,
                 state_checker=check_state,
                 prior_idx=[1, 2, 3, 4],
                 **kwargs):
-    # if not continue_from_state:
-    #     try:
-    #         if state_file is not None:
-    #             os.unlink(state_file)
-    #     except OSError as err:
-    #         print(err)
+    if not continue_from_state:
+        try:
+            os.unlink(state_file)
+        except (OSError, TypeError) as err:
+            print(err)
 
     if monkeypatch is not None:
         monkeypatch.setattr('builtins.input', lambda _: "0")
