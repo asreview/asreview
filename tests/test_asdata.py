@@ -30,7 +30,8 @@ def test_column_names_with_spaces():
     data_fp = Path("tests", "demo_data", "generic.csv")
     as_data = ASReviewData.from_file(data_fp)
 
-    data_fp_bad_cols = Path("tests", "demo_data", "generic_column_names_with_spaces.csv")
+    data_fp_bad_cols = Path(
+        "tests", "demo_data", "generic_column_names_with_spaces.csv")
     as_data_bad_cols = ASReviewData.from_file(data_fp_bad_cols)
 
     assert_frame_equal(
