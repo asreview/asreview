@@ -43,3 +43,5 @@ def read_csv(data_fp):
         except UnicodeDecodeError:
             # if unicode error, go to next encoding
             continue
+
+    raise UnicodeDecodeError("The encoding of the file is not supported.")
