@@ -28,9 +28,9 @@ from werkzeug.exceptions import InternalServerError
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
+from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
-from asreview.webapp.utils.misc import check_port_in_use
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -145,12 +145,11 @@ def main(argv):
 
     # if port is already taken find another one
     if not os.environ.get('FLASK_ENV', "") == "development":
-        if check_port_in_use:
+        while check_port_in_use(host, port) is True:
             old_port = port
             port = int(port) + 1
             print(
-                'Port ' + str(old_port) + ' is in use.\n' +
-                '* Trying to start at ' + str(port)
+                f"Port {old_port} is in use.\n* Trying to start at {port}"
             )
 
     def _internal_open_webbrowser():
