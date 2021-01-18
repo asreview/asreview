@@ -22,6 +22,7 @@ from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
+from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
@@ -29,6 +30,7 @@ from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
+from asreview.webapp.utils.misc import check_port_in_use
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -141,6 +143,14 @@ def main(argv):
     host = args.ip
     port = args.port
 
+    # if port is already taken find another one
+    if not os.environ.get('FLASK_ENV', "") == "development":
+        if check_port_in_use:
+            old_port = port
+            port = int(port) + 1
+            print('Port ' + str(old_port) + ' is in use.\n' +
+                '* Trying to start at ' + str(port))
+
     def _internal_open_webbrowser():
         _open_browser(host, port)
 
@@ -158,4 +168,9 @@ def main(argv):
         seed=args.seed
     )
     app.config['PROPAGATE_EXCEPTIONS'] = False
-    app.run(host=host, port=port)
+
+    # use WSGI server if use_gevent flag is present
+    if args.use_gevent:
+        WSGIServer((host, port), app).serve_forever()
+    else:
+        app.run(host=host, port=port)

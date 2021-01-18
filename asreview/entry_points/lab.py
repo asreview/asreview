@@ -52,6 +52,11 @@ def _lab_parser(prog="lab"):
         type=int,
         help="The port the server will listen on.")
 
+    parser.add_argument(
+        "--use-gevent",
+        action='store_true',
+        help="Serve ASReview LAB with WSGI for better concurrency.")
+
     return parser
 
 
