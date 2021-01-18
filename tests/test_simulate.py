@@ -37,8 +37,10 @@ def test_dataset_not_found():
     reviewer.review()
 
 
-def test_state_continue_json():
+def test_state_continue_json(tmpdir):
+
     inter_file = Path(state_dir, "test_1_inst.json")
+
     if not inter_file.is_file():
         reviewer = get_reviewer(data_fp,
                                 mode="simulate",
@@ -50,16 +52,21 @@ def test_state_continue_json():
                                 n_queries=1)
         reviewer.review()
 
-    copyfile(inter_file, json_state_file)
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(inter_file, tmp_json_state_fp)
+
     check_model(model="nb",
-                state_file=json_state_file,
+                state_file=tmp_json_state_fp,
                 continue_from_state=True,
                 n_instances=1,
                 n_queries=2)
 
 
-def test_state_continue_h5():
+def test_state_continue_h5(tmpdir):
+
     inter_file = Path(state_dir, "test_1_inst.h5")
+
     if not inter_file.is_file():
         reviewer = get_reviewer(data_fp,
                                 mode="simulate",
@@ -70,15 +77,20 @@ def test_state_continue_h5():
                                 n_instances=1,
                                 n_queries=1)
         reviewer.review()
-    copyfile(inter_file, h5_state_file)
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(inter_file, tmp_h5_state_fp)
+
     check_model(model="nb",
-                state_file=h5_state_file,
+                state_file=tmp_h5_state_fp,
                 continue_from_state=True,
                 n_instances=1,
                 n_queries=2)
 
 
-def test_nb():
+def test_nb(tmpdir):
+
     check_model(model="nb",
                 state_file=None,
                 use_granular=True,
@@ -86,19 +98,27 @@ def test_nb():
                 n_queries=1)
 
 
-def test_svm():
+def test_svm(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(json_state_file, tmp_json_state_fp)
+
     check_model(model="svm",
-                state_file=json_state_file,
-                use_granular=False,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2,
                 data_fp=data_fp_no_abs)
 
 
-def test_rf():
+def test_rf(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(json_state_file, tmp_json_state_fp)
+
     check_model(model="rf",
-                state_file=json_state_file,
-                use_granular=False,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2,
                 data_fp=data_fp_no_title)
@@ -107,9 +127,14 @@ def test_rf():
 @pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
                    raises=ImportError,
                    reason="requires tensorflow")
-def test_nn_2_layer():
+def test_nn_2_layer(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(json_state_file, tmp_json_state_fp)
+
     check_model(model="nn-2-layer",
-                state_file=json_state_file,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2)
 
@@ -117,23 +142,37 @@ def test_nn_2_layer():
 @pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
                    raises=ImportError,
                    reason="requires tensorflow")
-def test_lstm_base():
+def test_lstm_base(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(h5_state_file, tmp_h5_state_fp)
 
     check_model(config_file=Path(cfg_dir, "lstm_base.ini"),
-                state_file=h5_state_file)
+                state_file=tmp_h5_state_fp)
 
 
 @pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
                    raises=ImportError,
                    reason="requires tensorflow")
-def test_lstm_pool():
+def test_lstm_pool(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(json_state_file, tmp_json_state_fp)
+
     check_model(config_file=Path(cfg_dir, "lstm_pool.ini"),
-                state_file=json_state_file)
+                state_file=tmp_json_state_fp)
 
 
-def test_logistic():
+def test_logistic(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(json_state_file, tmp_json_state_fp)
+
     check_model(model="logistic",
-                state_file=json_state_file,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2)
 
@@ -142,8 +181,14 @@ def test_classifiers():
     assert len(list_classifiers()) >= 7
 
 
-def test_partial_simulation():
+def test_partial_simulation(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(h5_state_file, tmp_h5_state_fp)
+
     check_model(data_fp=data_fp_partial,
+                state_file=tmp_h5_state_fp,
                 n_prior_included=1,
                 n_prior_excluded=1,
                 prior_idx=None,
@@ -154,8 +199,14 @@ def test_partial_simulation():
     raises=ValueError,
     reason="prior_idx not available for partly labeled data"
 )
-def test_partial_simulation_2():
+def test_partial_simulation_2(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(h5_state_file, tmp_h5_state_fp)
+
     check_model(data_fp=data_fp_partial,
+                state_file=tmp_h5_state_fp,
                 prior_idx=[0, 5],
                 state_checker=check_partial_state)
 
@@ -205,7 +256,7 @@ def check_partial_state(state):
 
 def check_model(monkeypatch=None,
                 use_granular=False,
-                state_file=h5_state_file,
+                state_file=None,
                 continue_from_state=False,
                 mode="simulate",
                 data_fp=data_fp,
@@ -214,10 +265,9 @@ def check_model(monkeypatch=None,
                 **kwargs):
     if not continue_from_state:
         try:
-            if state_file is not None:
-                os.unlink(state_file)
-        except OSError:
-            pass
+            os.unlink(state_file)
+        except (OSError, TypeError) as err:
+            print(err)
 
     if monkeypatch is not None:
         monkeypatch.setattr('builtins.input', lambda _: "0")
