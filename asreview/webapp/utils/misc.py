@@ -18,7 +18,10 @@ import socket
 
 # check if host port is already taken
 def check_port_in_use(host, port):
-    logging.info('Checking if host & port is available :: ' + str(host) + ':' + str(port))
+    logging.info(
+        'Checking if host & port is available :: '
+        + str(host) + ':' + str(port)
+    )
     host = host.replace('https://', '').replace('http://', '')
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex((host, port)) == 0

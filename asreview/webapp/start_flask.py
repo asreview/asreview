@@ -148,8 +148,10 @@ def main(argv):
         if check_port_in_use:
             old_port = port
             port = int(port) + 1
-            print('Port ' + str(old_port) + ' is in use.\n' +
-                '* Trying to start at ' + str(port))
+            print(
+                'Port ' + str(old_port) + ' is in use.\n' +
+                '* Trying to start at ' + str(port)
+            )
 
     def _internal_open_webbrowser():
         _open_browser(host, port)
