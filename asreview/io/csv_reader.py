@@ -30,8 +30,16 @@ def read_csv(data_fp):
         List with entries.
 
     """
-    try:
-        df = pd.read_csv(data_fp)
-    except UnicodeDecodeError:
-        df = pd.read_csv(data_fp, encoding="ISO-8859-1")
-    return standardize_dataframe(df)
+
+    for encoding in ["utf-8", "ISO-8859-1"]:
+        try:
+            df = pd.read_csv(
+                data_fp,
+                sep=None,
+                encoding=encoding,
+                engine='python'
+            )
+            return standardize_dataframe(df)
+        except UnicodeDecodeError:
+            # if unicode error, go to next encoding
+            continue
