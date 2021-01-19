@@ -101,6 +101,11 @@ def standardize_dataframe(df, column_spec={}):
         Cleaned dataframe with proper column names.
     """
     all_column_spec = {}
+
+    # remove whitespace from colnames
+    df.columns = df.columns.str.strip()
+
+    # map columns on column specification
     col_names = list(df)
     for column_name in col_names:
         # First try the supplied column specifications if supplied.
