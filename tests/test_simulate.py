@@ -18,7 +18,7 @@ except ImportError:
     pass
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
-DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"
+DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
 DATA_FP_PARTIAL = Path("tests", "demo_data", "generic_partial_labels.csv")
@@ -49,7 +49,6 @@ def test_dataset_from_benchmark_group():
 def test_dataset_not_found():
     reviewer = get_reviewer("doesnt_exist.csv", mode="simulate")
     reviewer.review()
-
 
 
 def test_state_continue_json(tmpdir):
