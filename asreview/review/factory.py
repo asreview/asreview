@@ -34,7 +34,7 @@ from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
-from asreview.datasets import find_data
+from asreview.data import load_data
 from asreview.io.paper_record import preview_record
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.classifiers import get_classifier
@@ -98,19 +98,16 @@ def create_as_data(dataset,
     as_data = ASReviewData()
     # Find the URL of the datasets if the dataset is a benchmark dataset.
     for data in dataset:
-        as_data.append(ASReviewData.from_file(find_data(data)))
+        as_data.append(load_data(data))
 
     if new:
         as_data.labels = np.full((len(as_data), ), LABEL_NA, dtype=int)
     for data in included_dataset:
-        as_data.append(
-            ASReviewData.from_file(find_data(data), data_type="included"))
+        as_data.append(load_data(data, data_type="included"))
     for data in excluded_dataset:
-        as_data.append(
-            ASReviewData.from_file(find_data(data), data_type="excluded"))
+        as_data.append(load_data(data, data_type="excluded"))
     for data in prior_dataset:
-        as_data.append(
-            ASReviewData.from_file(find_data(data), data_type="prior"))
+        as_data.append(load_data(data, data_type="prior"))
     return as_data
 
 
