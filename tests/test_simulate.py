@@ -18,6 +18,7 @@ except ImportError:
     pass
 
 DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
+DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
 DATA_FP_PARTIAL = Path("tests", "demo_data", "generic_partial_labels.csv")
@@ -28,6 +29,19 @@ H5_STATE_FILE = Path(STATE_DIR, "test.h5")
 JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 
 
+def test_dataset_from_url():
+    reviewer = get_reviewer(DATA_FP_URL, mode="simulate")
+    reviewer.review()
+
+
+def test_dataset_from_benchmark_group():
+    reviewer = get_reviewer(
+        "benchmark:Cohen_2006_ACEInhibitors",
+        mode="simulate"
+    )
+    reviewer.review()
+
+
 @pytest.mark.xfail(
     raises=FileNotFoundError,
     reason="Dataset not found"
@@ -35,6 +49,7 @@ JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 def test_dataset_not_found():
     reviewer = get_reviewer("doesnt_exist.csv", mode="simulate")
     reviewer.review()
+
 
 
 def test_state_continue_json(tmpdir):
