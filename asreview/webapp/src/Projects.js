@@ -2,8 +2,10 @@ import React, {useState, useEffect} from 'react';
 import {
   Backdrop,
   Box,
+  Button,
   Container,
   Grid,
+  Link,
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -46,7 +48,14 @@ const useStyles = makeStyles(theme => ({
   },
   backdropZ: {
     zIndex: 1000,
-  }
+  },
+  link: {
+    paddingLeft: "3px",
+  },
+  button: {
+    position: "relative",
+    top: "12px",
+  },
 }));
 
 const Projects = (props) => {
@@ -62,6 +71,8 @@ const Projects = (props) => {
     const [projects, setProjects] = useState({
       "projects": [],
       "loaded": false,
+      "error": null,
+      "retry": false,
     });
 
     useEffect(() => {
@@ -79,12 +90,28 @@ const Projects = (props) => {
           setProjects({
             "projects": result.data['result'],
             "loaded": true,
+            "error": null,
+            "retry": false,
           });
         })
         .catch((error) => {
-          console.log(error);
+          
           if (error.response) {
+
+            setProjects(s => {return({
+            ...s,
+            "error": error.response.data.message,
+            "retry": true,
+            })});
             console.log(error.response);
+
+          } else {
+
+            setProjects(s => {return({
+            ...s,
+            "error": "The software has been shut down. Please restart and refresh.",
+            })});
+
           }
         });
     };
@@ -140,8 +167,37 @@ const Projects = (props) => {
       <Box>
           <Container maxWidth='md' className={classes.root}>
 
+          {projects['error'] !== null &&
+            <Box>
+              <Box className={classes.noProjects}>
+                <Typography variant="h5" align="center">
+                  {projects.error}
+                </Typography>
+                <Box fontStyle="italic">
+                  <Typography align="center">
+                    If the issue remains after retrying, please
+                    <Link
+                      className={classes.link}
+                      href="https://github.com/asreview/asreview/issues/new/choose"
+                      target="_blank"
+                    >
+                      <strong>report it</strong>
+                    </Link> to us.
+                  </Typography>
+                </Box>
+              </Box>
+              {projects['retry'] === true &&
+                <Box align="center">
+                  <Button className={classes.button} variant="contained" color="primary">
+                    Retry
+                  </Button>
+                </Box>
+              }
+            </Box>
+          }
+
           {/* Project loaded, but no projects found */}
-          {(projects['loaded'] && projects['projects'].length === 0) &&
+          {(projects['error'] === null && projects['loaded'] && projects['projects'].length === 0) &&
                 <Box className={classes.noProjects}>
                   <Typography variant="h5" align="center">
                     You don't have any projects yet.
@@ -155,7 +211,7 @@ const Projects = (props) => {
           }
 
           {/* Project loaded and projects found */}
-          {(projects['loaded'] && projects['projects'].length !== 0) &&
+          {(projects['error'] === null && projects['loaded'] && projects['projects'].length !== 0) &&
             <Grid container spacing={3}>
                 {projects['projects'].map(project => (
                     <Grid item xs={12} sm={6} key={project.id}>

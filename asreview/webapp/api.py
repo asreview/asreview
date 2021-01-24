@@ -99,7 +99,7 @@ def project_not_found(e):
 def error_500(e):
     original = getattr(e, "original_exception", None)
 
-    if original is None:
+    if original is None or str(e.original_exception) == "":
         # direct 500 error, such as abort(500)
         logging.error(e)
         return jsonify(message="Whoops, something went wrong."), 500
