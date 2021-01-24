@@ -79,7 +79,7 @@ const Projects = (props) => {
 
       refreshProjects();
 
-    }, []);
+    }, [projects.error]);
 
     const refreshProjects = () => {
 
@@ -99,17 +99,17 @@ const Projects = (props) => {
           if (error.response) {
 
             setProjects(s => {return({
-            ...s,
-            "error": error.response.data.message,
-            "retry": true,
+              ...s,
+              "error": error.response.data.message,
+              "retry": true,  
             })});
             console.log(error.response);
 
           } else {
 
             setProjects(s => {return({
-            ...s,
-            "error": "The software has been shut down. Please restart and refresh.",
+              ...s,
+              "error": "The software has been shut down. Please restart and refresh.",
             })});
 
           }
@@ -162,6 +162,14 @@ const Projects = (props) => {
       };
     }
 
+    const handleClickRetry = () => {
+      setProjects(s => {return({
+        ...s,
+        "error": null,
+        "retry": false,
+      })});
+    };
+
     return (
 
       <Box>
@@ -188,7 +196,12 @@ const Projects = (props) => {
               </Box>
               {projects['retry'] === true &&
                 <Box align="center">
-                  <Button className={classes.button} variant="contained" color="primary">
+                  <Button 
+                    className={classes.button}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleClickRetry}
+                  >
                     Retry
                   </Button>
                 </Box>
