@@ -132,7 +132,7 @@ managers  which are accepted by ASReview.
 +-------------------------------+----------+----------+----------+
 |                               | **.ris** | **.csv** | **.xlsx**|
 +-------------------------------+----------+----------+----------+
-| **Endnote**                   | ✅       | N/A      | N/A      |
+| **EndNote**                   | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
 | **Excel** comma-seperated     | N/A      | ✅       | ✅       |
 +-------------------------------+----------+----------+----------+
@@ -148,6 +148,18 @@ managers  which are accepted by ASReview.
 -  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
 -  X = Not suported.
+
+.. note::
+
+  When using EndNote use the following steps to export a .ris file:
+  
+  - In EndNote, click on the style selection dropdown menu from the main EndNote toolbar.
+  - Click "Select Another Style".
+  - Browse to RefMan (RIS) Export and click "Choose".
+  - Click on the file menu and select "Export".
+  - Pick a name and location for the text file 
+  - Choose the output format RefMan (RIS) Export and click "Save".
+
 
 
 Search Engines
@@ -228,7 +240,7 @@ ASReview.
 -  X = Not suported.
 
 \* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
-such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
+such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
 
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
