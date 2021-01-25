@@ -157,7 +157,7 @@ managers  which are accepted by ASReview.
   - Click "Select Another Style".
   - Browse to RefMan (RIS) Export and click "Choose".
   - Click on the file menu and select "Export".
-  - Pick a name and location for the text file 
+  - Pick a name and location for the text file.
   - Choose the output format RefMan (RIS) Export and click "Save".
 
 
