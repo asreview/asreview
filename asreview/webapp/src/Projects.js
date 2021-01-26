@@ -183,14 +183,14 @@ const Projects = (props) => {
                 </Typography>
                 <Box fontStyle="italic">
                   <Typography align="center">
-                    If the issue remains after retrying, please
+                    If the issue remains after retrying, click
                     <Link
                       className={classes.link}
                       href="https://github.com/asreview/asreview/issues/new/choose"
                       target="_blank"
                     >
-                      <strong>report it</strong>
-                    </Link> to us.
+                      <strong>here</strong>
+                    </Link> to report.
                   </Typography>
                 </Box>
               </Box>
