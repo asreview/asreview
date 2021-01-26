@@ -1008,19 +1008,23 @@ def api_get_document(project_id):  # noqa: F401
     Although it might be better to call this function after 20 requests on the
     client side.
     """
+    
+    try:
+        new_instance = get_instance(project_id)
 
-    new_instance = get_instance(project_id)
+        if new_instance is None:  # don't use 'if not new_instance:'
 
-    if new_instance is None:  # don't use 'if not new_instance:'
+            item = None
+            pool_empty = True
+        else:
 
-        item = None
-        pool_empty = True
-    else:
+            item = get_paper_data(
+                project_id, new_instance, return_debug_label=True)
+            item["doc_id"] = new_instance
+            pool_empty = False
 
-        item = get_paper_data(
-            project_id, new_instance, return_debug_label=True)
-        item["doc_id"] = new_instance
-        pool_empty = False
+    except Exception("Cannot retrieve new documents.") as err:
+            logging.error(err)
 
     response = jsonify({"result": item, "pool_empty": pool_empty})
     response.headers.add('Access-Control-Allow-Origin', '*')
