@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   link: {
     paddingLeft: "3px",
   },
-  button: {
+  retryButton: {
     position: "relative",
     top: "12px",
   },
@@ -197,7 +197,7 @@ const Projects = (props) => {
               {projects['retry'] === true &&
                 <Box align="center">
                   <Button 
-                    className={classes.button}
+                    className={classes.retryButton}
                     variant="contained"
                     color="primary"
                     onClick={handleClickRetry}
