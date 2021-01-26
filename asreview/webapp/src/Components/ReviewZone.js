@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
+  Button,
   Link,
   Typography,
 } from '@material-ui/core'
@@ -42,6 +43,17 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginRight: reviewDrawerWidth,
+  },
+  errorMessage: {
+    paddingTop: '24px',
+    opacity: 0.5,
+  },
+  link: {
+    paddingLeft: "3px",
+  },
+  retryButton: {
+    position: "relative",
+    top: "12px",
   },
 }));
 
@@ -108,6 +120,7 @@ const ReviewZone = (props) => {
     'record': null,
     'selection': null,
     'error': null,
+    'retry': false,
   })
 
   const [undoState, setUndoState] = useState({
@@ -157,6 +170,7 @@ const ReviewZone = (props) => {
       'record': previousRecordState.record,
       'selection': previousRecordState.decision,
       'error': null,
+      'retry': false,
     });
 }
 
@@ -166,6 +180,7 @@ const ReviewZone = (props) => {
       'record': null,
       'selection': null,
       'error': null,
+      'retry': false,
     });
   }
 
@@ -253,6 +268,15 @@ const ReviewZone = (props) => {
     });
   }
 
+  const handleClickRetry = () => {
+    setRecordState(s => {return({
+      ...s,
+      isloaded: false,
+      error: null,
+      retry: false,
+    })});
+  };
+
   useEffect(() => {
 
     /**
@@ -305,30 +329,48 @@ const ReviewZone = (props) => {
             'isloaded': true,
             'selection': null,
             'error': null,
+            'retry': false,
           });
         }
 
       })
       .catch((error) => {
-        console.log(error);
-        setRecordState({
-          'record':null,
-          'isloaded': true,
-          'selection': null,
-          'error': error["message"],
-        });
+
+        if (error.response) {
+
+          setRecordState({
+            'record': null,
+            'isloaded': true,
+            'selection': null,
+            'error': error.response.data.message,
+            'retry': true,
+          });
+          console.log(error);
+
+        } else {
+
+          setRecordState(s => {return({
+            'record': null,
+            'isloaded': true,
+            'selection': null,
+            'error': "The software has been shut down. Please restart.",
+            'retry': false,
+          })});
+
+        };
       });
     }
-
-    getProgressInfo();
-
-    getProgressHistory();
 
     if (!recordState['isloaded']) {
 
       getDocument();
 
     }
+
+    getProgressInfo();
+
+    getProgressHistory();
+
   },[props.project_id, recordState, props]);
 
   useEffect(() => {
@@ -379,12 +421,37 @@ const ReviewZone = (props) => {
 
         {/* Article panel */}
         {recordState.error !== null &&
-          <Typography
-            variant="h5"
-            color="textSecondary"
-          >
-            Unexpected error: {recordState.error}
-          </Typography>
+          <Box>
+            <Box className={classes.errorMessage}>
+              <Typography variant="h5" align="center">
+                {recordState.error}
+              </Typography>
+              <Box fontStyle="italic">
+                <Typography align="center">
+                  If the issue remains after retrying, click
+                  <Link
+                    className={classes.link}
+                    href="https://github.com/asreview/asreview/issues/new/choose"
+                    target="_blank"
+                  >
+                    <strong>here</strong>
+                  </Link> to report.
+                </Typography>
+              </Box>
+            </Box>
+            {recordState.retry === true &&
+              <Box align="center">
+                <Button 
+                  className={classes.retryButton}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickRetry}
+                >
+                  Retry
+                </Button>
+              </Box>
+            }
+          </Box>
         }
 
         {/* Decision bar */}
