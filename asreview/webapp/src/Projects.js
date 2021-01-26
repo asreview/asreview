@@ -109,7 +109,7 @@ const Projects = (props) => {
 
             setProjects(s => {return({
               ...s,
-              "error": "The software has been shut down. Please restart and refresh.",
+              "error": "The software has been shut down. Please restart.",
             })});
 
           }
