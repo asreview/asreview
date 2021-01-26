@@ -6,6 +6,7 @@ import {
   Button,
   Container,
   Grid,
+  Link,
   Typography,
   CircularProgress,
   IconButton,
@@ -74,6 +75,17 @@ const useStyles = makeStyles(theme => ({
     display: "block",
     margin: "auto",
   },
+  errorMessage: {
+    paddingTop: '24px',
+    opacity: 0.5,
+  },
+  link: {
+    paddingLeft: "3px",
+  },
+  retryButton: {
+    position: "relative",
+    top: "12px",
+  },
 }));
 
 const ProjectPage = (props) => {
@@ -93,6 +105,9 @@ const ProjectPage = (props) => {
     training: false,
     finished: null,
 
+    // error
+    error: null,
+    retry: false,
   });
 
   const finishProjectSetup = () => {
@@ -164,6 +179,14 @@ const ProjectPage = (props) => {
     EndRef.current.scrollIntoView({ behavior: "smooth" })
   }
 
+  const handleClickRetry = () => {
+      setState(s => {return({
+        ...s,
+        error: null,
+        retry: false,
+      })});
+  };
+
   useEffect(() => {
 
     if (!state.infoLoading && EndRef.current !== undefined){
@@ -195,17 +218,69 @@ const ProjectPage = (props) => {
 
         })
         .catch((error) => {
-          console.log(error);
+
+          if (error.response) {
+               
+            setState(s => {
+              return({
+                ...s,
+                error: error.response.data.message,
+                retry: true,
+            })});
+            console.log(error.response);
+
+          } else {
+
+            setState(s => {return({
+              ...s,
+              error: "The software has been shut down. Please restart and refresh.",
+            })});
+
+          };
         });
     };
 
     fetchProjectInfo();
 
-  }, [props.project_id, state.finished]);
+  }, [props.project_id, state.finished, state.error]);
 
   return (
     <Box>
-      {!state.infoLoading &&
+      {state.error !== null &&
+        <Box>
+          <Box className={classes.errorMessage}>
+            <Typography variant="h5" align="center">
+              {state.error}
+            </Typography>
+            <Box fontStyle="italic">
+              <Typography align="center">
+                If the issue remains after retrying, click
+                <Link
+                  className={classes.link}
+                  href="https://github.com/asreview/asreview/issues/new/choose"
+                  target="_blank"
+                >
+                  <strong>here</strong>
+                </Link> to report.
+              </Typography>
+            </Box>
+          </Box>
+          {state.retry === true &&
+            <Box align="center">
+              <Button 
+                className={classes.retryButton}
+                variant="contained"
+                color="primary"
+                onClick={handleClickRetry}
+              >
+                Retry
+              </Button>
+            </Box>
+          }
+        </Box>
+      }
+
+      {state.error === null && !state.infoLoading &&
         <Box className={classes.box}>
           <div ref={EndRef} />
           <Container maxWidth='md'>
