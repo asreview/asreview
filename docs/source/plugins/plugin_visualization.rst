@@ -72,6 +72,12 @@ them expressed in absolute numbers:
 
     asreview plot ace ptsd --absolute-values
 
+Since version 0.15, you can plot project files (exported from asreview lab) as well. Use the following code:
+
+.. code:: bash
+
+    asreview plot my_project_file.asreview
+
 Plot types
 ----------
 
@@ -94,7 +100,7 @@ at (0,0).
 
 The quicker the line goes to a 100%, the better the performance.
 
-.. figure:: https://github.com/msdslab/asreview-visualization/blob/master/docs/inclusions.png?raw=true
+.. figure:: https://raw.githubusercontent.com/asreview/asreview-visualization/master/docs/inclusions.png
    :alt: Inclusions
 
 Discovery
@@ -106,7 +112,7 @@ hard to find.
 
 The closer to the left, the better.
 
-.. figure:: https://github.com/msdslab/asreview-visualization/blob/master/docs/discovery.png?raw=true
+.. figure:: https://raw.githubusercontent.com/asreview/asreview-visualization/master/docs/discovery.png
    :alt: Discovery
 
 Limit
@@ -122,7 +128,7 @@ lines with the same color. The three values for *z* are 0.1, 0.5 and
 
 The quicker the lines touch the black (``y=x``) line, the better.
 
-.. figure:: https://github.com/msdslab/asreview-visualization/blob/master/docs/limits.png?raw=true
+.. figure:: https://raw.githubusercontent.com/asreview/asreview-visualization/master/docs/limits.png
    :alt: Limits
 
 Progression
@@ -135,7 +141,7 @@ visualization package will automatically detect which are directories
 and which are files. The curve is smoothed out by using a Gaussian
 smoothing algorithm.
 
-.. figure:: https://github.com/msdslab/asreview-visualization/blob/master/docs/progression.png?raw=true
+.. figure:: https://raw.githubusercontent.com/asreview/asreview-visualization/master/docs/progression.png
    :alt: Progression
 
 API

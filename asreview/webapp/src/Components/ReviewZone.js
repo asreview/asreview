@@ -103,20 +103,16 @@ const ExplorationAlert = (props) => {
 const ReviewZone = (props) => {
   const classes = useStyles();
 
+  const [recordState, setRecordState] = React.useState({
+    'isloaded': false,
+    'record': null,
+    'selection': null,
+    'error': null,
+  })
+
   const [undoState, setUndoState] = useState({
     'open': false,
     'message': null,
-  })
-
-  const [recordState, setRecordState] = useState({
-    // is loaded
-    'isloaded': false,
-    // record object with metadata
-    'record': null,
-    // ...
-    'selection': null,
-    // error loading record
-    'error': null,
   })
 
   const [previousRecordState, setPreviousRecordState] = useState({
@@ -324,13 +320,14 @@ const ReviewZone = (props) => {
       });
     }
 
+    getProgressInfo();
+
+    getProgressHistory();
+
     if (!recordState['isloaded']) {
 
-      getProgressInfo();
-
-      getProgressHistory();
-
       getDocument();
+
     }
   },[props.project_id, recordState, props]);
 
@@ -358,6 +355,7 @@ const ReviewZone = (props) => {
     <Box
       className={classes.box}
     >
+
       <Box
         id="main-content-item"
         className={clsx(classes.content, {

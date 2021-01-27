@@ -38,6 +38,22 @@ Upgrade ASReview software with
     pip install --upgrade asreview
 
 
+
+Uninstall ASReview
+------------------
+
+Remove ASReview with
+
+.. code:: bash
+
+    pip uninstall asreview
+
+Enter ``y`` to confirm. 
+
+.. warning::
+
+    Note that your project files will **not** delete with this action. You find them in the `.asreview` folder in your home folder.
+
 Server Installation
 -------------------
 

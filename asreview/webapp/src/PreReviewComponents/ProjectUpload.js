@@ -30,7 +30,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import HelpIcon from '@material-ui/icons/Help';
 
 import {
-  ProjectUploadDatasets,
+  ProjectUploadBenchmarkDatasets,
+  ProjectUploadPluginDatasets,
   ProjectUploadURL,
   Help,
   useHelp,
@@ -246,7 +247,11 @@ const ProjectUpload = ({
           });
 
           // set error to state
-          setError(error.response.data["message"])
+          if (error.response !== undefined){
+            setError(error.response.data["message"])
+          } else {
+            setError("Unexpected error")
+          }
 
           // callback
           if (callback !== undefined){
@@ -265,10 +270,19 @@ const ProjectUpload = ({
   }
 
   /* Upload demo dataset */
-  const onUploadHandlerDemoDataset = (demo_data_id, callback) => {
+  const onUploadHandlerPluginDataset = (demo_data_id, callback) => {
 
     const data = new FormData()
-    data.append('demo_data', demo_data_id)
+    data.append('plugin', demo_data_id)
+
+    return onUploadHandler(data, callback)
+  }
+
+  /* Upload benchmark dataset */
+  const onUploadHandlerBenchmarkDataset = (demo_data_id, callback) => {
+
+    const data = new FormData()
+    data.append('benchmark', demo_data_id)
 
     return onUploadHandler(data, callback)
   }
@@ -429,7 +443,7 @@ const ProjectUpload = ({
                 <Tab label="From file" />
                 <Tab label="From url" />
                 <Tab label="From plugin" />
-                <Tab label="Example datasets" />
+                <Tab label="Benchmark datasets" />
               </Tabs>
 
             <CardContent>
@@ -468,18 +482,15 @@ const ProjectUpload = ({
               }
 
               {value === 2 &&
-                <ProjectUploadDatasets
-                  subset={"plugin"}
-                  onUploadHandler={onUploadHandlerDemoDataset}
+                <ProjectUploadPluginDatasets
+                  onUploadHandler={onUploadHandlerPluginDataset}
                 />
               }
 
               {value === 3 &&
-
                 <div>
-                  <ProjectUploadDatasets
-                    subset={"test"}
-                    onUploadHandler={onUploadHandlerDemoDataset}
+                  <ProjectUploadBenchmarkDatasets
+                    onUploadHandler={onUploadHandlerBenchmarkDataset}
                   />
                 </div>
               }
@@ -557,11 +568,10 @@ const ProjectUpload = ({
           </Typography>
 
           <Typography variant="subtitle2" >
-            Example datasets:
+            Benchmark datasets:
             <Typography variant="body2" gutterBottom>
-              Select an example dataset for testing active learning models.
-              The datasets are fully labeled into relevant and irrelevant.
-              The relevant records are displayed in green during the review process. Read more about
+              Select a benchmark dataset for testing active learning models.
+              The datasets are fully labeled and the relevant records are displayed in green during the review process. Read more about
               <Link
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"

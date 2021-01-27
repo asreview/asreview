@@ -64,7 +64,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "dataset",
         type=str,
         nargs="*",
-        help="File path to the dataset or one of the built-in datasets."
+        help="File path to the dataset or one of the benchmark datasets."
     )
     # Initial data (prior knowledge)
     parser.add_argument(

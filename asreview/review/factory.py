@@ -34,7 +34,7 @@ from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
 from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
-from asreview.datasets import find_data
+from asreview.data import load_data
 from asreview.io.paper_record import preview_record
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.classifiers import get_classifier
@@ -96,21 +96,18 @@ def create_as_data(dataset,
         prior_dataset = [prior_dataset]
 
     as_data = ASReviewData()
-    # Find the URL of the datasets if the dataset is an example dataset.
+    # Find the URL of the datasets if the dataset is a benchmark dataset.
     for data in dataset:
-        as_data.append(ASReviewData.from_file(find_data(data)))
+        as_data.append(load_data(data))
 
     if new:
         as_data.labels = np.full((len(as_data), ), LABEL_NA, dtype=int)
     for data in included_dataset:
-        as_data.append(
-            ASReviewData.from_file(find_data(data), data_type="included"))
+        as_data.append(load_data(data, data_type="included"))
     for data in excluded_dataset:
-        as_data.append(
-            ASReviewData.from_file(find_data(data), data_type="excluded"))
+        as_data.append(load_data(data, data_type="excluded"))
     for data in prior_dataset:
-        as_data.append(
-            ASReviewData.from_file(find_data(data), data_type="prior"))
+        as_data.append(load_data(data, data_type="prior"))
     return as_data
 
 
@@ -305,5 +302,26 @@ def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
 
     print(ASCII_LOGO + ASCII_MSG_SIMULATE)
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ptsd", "example_ptsd", "schoot"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:van_de_Schoot_2017' instead.\n\n")
+        dataset = "benchmark:van_de_Schoot_2017"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ace", "example_cohen", "example_ace"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Cohen_2006_ACEInhibitors' instead.\n\n")
+        dataset = "benchmark:Cohen_2006_ACEInhibitors"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["hall", "example_hall", "example_software"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Hall_2012' instead.\n\n")
+        dataset = "benchmark:Hall_2012"
 
     review(dataset, *args, mode='simulate', **kwargs)

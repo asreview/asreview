@@ -17,15 +17,29 @@ try:
 except ImportError:
     pass
 
-data_fp = Path("tests", "demo_data", "generic_labels.csv")
-data_fp_no_abs = Path("tests", "demo_data", "generic_labels_no_abs.csv")
-data_fp_no_title = Path("tests", "demo_data", "generic_labels_no_title.csv")
-data_fp_partial = Path("tests", "demo_data", "generic_partial_labels.csv")
-embedding_fp = Path("tests", "demo_data", "generic.vec")
-cfg_dir = Path("tests", "cfg_files")
-state_dir = Path("tests", "state_files")
-h5_state_file = Path(state_dir, "test.h5")
-json_state_file = Path(state_dir, "test.json")
+DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
+DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
+DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
+DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
+DATA_FP_PARTIAL = Path("tests", "demo_data", "generic_partial_labels.csv")
+EMBEDDING_FP = Path("tests", "demo_data", "generic.vec")
+CFG_DIR = Path("tests", "cfg_files")
+STATE_DIR = Path("tests", "state_files")
+H5_STATE_FILE = Path(STATE_DIR, "test.h5")
+JSON_STATE_FILE = Path(STATE_DIR, "test.json")
+
+
+def test_dataset_from_url():
+    reviewer = get_reviewer(DATA_FP_URL, mode="simulate")
+    reviewer.review()
+
+
+def test_dataset_from_benchmark_group():
+    reviewer = get_reviewer(
+        "benchmark:Cohen_2006_ACEInhibitors",
+        mode="simulate"
+    )
+    reviewer.review()
 
 
 @pytest.mark.xfail(
@@ -37,48 +51,60 @@ def test_dataset_not_found():
     reviewer.review()
 
 
-def test_state_continue_json():
-    inter_file = Path(state_dir, "test_1_inst.json")
+def test_state_continue_json(tmpdir):
+
+    inter_file = Path(STATE_DIR, "test_1_inst.json")
+
     if not inter_file.is_file():
-        reviewer = get_reviewer(data_fp,
+        reviewer = get_reviewer(DATA_FP,
                                 mode="simulate",
                                 model="nb",
-                                embedding_fp=embedding_fp,
+                                embedding_fp=EMBEDDING_FP,
                                 prior_idx=[1, 2, 3, 4],
                                 state_file=inter_file,
                                 n_instances=1,
                                 n_queries=1)
         reviewer.review()
 
-    copyfile(inter_file, json_state_file)
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(inter_file, tmp_json_state_fp)
+
     check_model(model="nb",
-                state_file=json_state_file,
+                state_file=tmp_json_state_fp,
                 continue_from_state=True,
                 n_instances=1,
                 n_queries=2)
 
 
-def test_state_continue_h5():
-    inter_file = Path(state_dir, "test_1_inst.h5")
+def test_state_continue_h5(tmpdir):
+
+    inter_file = Path(STATE_DIR, "test_1_inst.h5")
+
     if not inter_file.is_file():
-        reviewer = get_reviewer(data_fp,
+        reviewer = get_reviewer(DATA_FP,
                                 mode="simulate",
                                 model="nb",
-                                embedding_fp=embedding_fp,
+                                embedding_fp=EMBEDDING_FP,
                                 prior_idx=[1, 2, 3, 4],
                                 state_file=inter_file,
                                 n_instances=1,
                                 n_queries=1)
         reviewer.review()
-    copyfile(inter_file, h5_state_file)
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(inter_file, tmp_h5_state_fp)
+
     check_model(model="nb",
-                state_file=h5_state_file,
+                state_file=tmp_h5_state_fp,
                 continue_from_state=True,
                 n_instances=1,
                 n_queries=2)
 
 
-def test_nb():
+def test_nb(tmpdir):
+
     check_model(model="nb",
                 state_file=None,
                 use_granular=True,
@@ -86,30 +112,43 @@ def test_nb():
                 n_queries=1)
 
 
-def test_svm():
+def test_svm(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+
     check_model(model="svm",
-                state_file=json_state_file,
-                use_granular=False,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2,
-                data_fp=data_fp_no_abs)
+                data_fp=DATA_FP_NO_ABS)
 
 
-def test_rf():
+def test_rf(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+
     check_model(model="rf",
-                state_file=json_state_file,
-                use_granular=False,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2,
-                data_fp=data_fp_no_title)
+                data_fp=DATA_FP_NO_TITLE)
 
 
 @pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
                    raises=ImportError,
                    reason="requires tensorflow")
-def test_nn_2_layer():
+def test_nn_2_layer(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+
     check_model(model="nn-2-layer",
-                state_file=json_state_file,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2)
 
@@ -117,23 +156,37 @@ def test_nn_2_layer():
 @pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
                    raises=ImportError,
                    reason="requires tensorflow")
-def test_lstm_base():
+def test_lstm_base(tmpdir):
 
-    check_model(config_file=Path(cfg_dir, "lstm_base.ini"),
-                state_file=h5_state_file)
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(H5_STATE_FILE, tmp_h5_state_fp)
+
+    check_model(config_file=Path(CFG_DIR, "lstm_base.ini"),
+                state_file=tmp_h5_state_fp)
 
 
 @pytest.mark.xfail(not ADVANCED_DEPS["tensorflow"],
                    raises=ImportError,
                    reason="requires tensorflow")
-def test_lstm_pool():
-    check_model(config_file=Path(cfg_dir, "lstm_pool.ini"),
-                state_file=json_state_file)
+def test_lstm_pool(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+
+    check_model(config_file=Path(CFG_DIR, "lstm_pool.ini"),
+                state_file=tmp_json_state_fp)
 
 
-def test_logistic():
+def test_logistic(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_json_state_fp = Path(tmpdir, "tmp_state.json")
+    copyfile(JSON_STATE_FILE, tmp_json_state_fp)
+
     check_model(model="logistic",
-                state_file=json_state_file,
+                state_file=tmp_json_state_fp,
                 n_instances=1,
                 n_queries=2)
 
@@ -142,8 +195,14 @@ def test_classifiers():
     assert len(list_classifiers()) >= 7
 
 
-def test_partial_simulation():
-    check_model(data_fp=data_fp_partial,
+def test_partial_simulation(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(H5_STATE_FILE, tmp_h5_state_fp)
+
+    check_model(data_fp=DATA_FP_PARTIAL,
+                state_file=tmp_h5_state_fp,
                 n_prior_included=1,
                 n_prior_excluded=1,
                 prior_idx=None,
@@ -154,8 +213,14 @@ def test_partial_simulation():
     raises=ValueError,
     reason="prior_idx not available for partly labeled data"
 )
-def test_partial_simulation_2():
-    check_model(data_fp=data_fp_partial,
+def test_partial_simulation_2(tmpdir):
+
+    # copy state file to tmp dir for changes
+    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
+    copyfile(H5_STATE_FILE, tmp_h5_state_fp)
+
+    check_model(data_fp=DATA_FP_PARTIAL,
+                state_file=tmp_h5_state_fp,
                 prior_idx=[0, 5],
                 state_checker=check_partial_state)
 
@@ -205,19 +270,18 @@ def check_partial_state(state):
 
 def check_model(monkeypatch=None,
                 use_granular=False,
-                state_file=h5_state_file,
+                state_file=None,
                 continue_from_state=False,
                 mode="simulate",
-                data_fp=data_fp,
+                data_fp=DATA_FP,
                 state_checker=check_state,
                 prior_idx=[1, 2, 3, 4],
                 **kwargs):
     if not continue_from_state:
         try:
-            if state_file is not None:
-                os.unlink(state_file)
-        except OSError:
-            pass
+            os.unlink(state_file)
+        except (OSError, TypeError) as err:
+            print(err)
 
     if monkeypatch is not None:
         monkeypatch.setattr('builtins.input', lambda _: "0")
@@ -225,7 +289,7 @@ def check_model(monkeypatch=None,
     # start the review process.
     reviewer = get_reviewer(data_fp,
                             mode=mode,
-                            embedding_fp=embedding_fp,
+                            embedding_fp=EMBEDDING_FP,
                             prior_idx=prior_idx,
                             state_file=state_file,
                             **kwargs)
