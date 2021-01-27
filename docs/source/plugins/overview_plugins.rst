@@ -6,6 +6,7 @@ functionality of the :doc:`ASReview LAB <../lab/overview_lab>` software or the
 :doc:`command line interface <../API/cli>`. See the following officially supported
 extensions of ASReview:
 
+- Wordcloud XXX
 - :doc:`covid19`: Make literature on COVID-19 available in ASReview.
 - :doc:`plugin_visualization`: Plotting functionality for state files produced by ASReview.
 - ``asreview-statistics``: Tool to give some basic properties of a dataset, such as number of
