@@ -50,16 +50,17 @@ def create_prototype_h5(prototype_fp, state_fp, basic, proba_gap=None):
             pt['results'].attrs['n_priors'] = n_priors
 
             # Index (row number) of sample being labeled.
-            sf_indices = list(sf.f['results/0/new_labels/idx'][:]) + \
-                         [sf.f[f'results/{i}/new_labels/idx'][0]
-                          for i in sf_queries]
+            sf_indices = \
+                list(sf.f['results/0/new_labels/idx'][:]) + \
+                [sf.f[f'results/{i}/new_labels/idx'][0] for i in sf_queries]
             sf_indices = np.array(sf_indices)
             pt['results'].create_dataset('indices', data=sf_indices)
 
             # Label applied to sample.
-            sf_labels = list(sf.f['results/0/new_labels/labels'][:]) + \
-                        [sf.f[f'results/{i}/new_labels/labels'][0]
-                         for i in sf_queries]
+            sf_labels = \
+                list(sf.f['results/0/new_labels/labels'][:]) + \
+                [sf.f[f'results/{i}/new_labels/labels'][0]
+                 for i in sf_queries]
             sf_labels = np.array(sf_labels)
             pt['results'].create_dataset('labels', data=sf_labels)
 
@@ -78,9 +79,10 @@ def create_prototype_h5(prototype_fp, state_fp, basic, proba_gap=None):
                                          data=sf_predictor_model)
 
             # Prediction method used for sample.
-            sf_predictor_method = list(sf.f['results/0/new_labels/methods'][:]) + \
-                                  [sf.f[f'results/{i}/new_labels/methods'][0]
-                                   for i in sf_queries]
+            sf_predictor_method = \
+                list(sf.f['results/0/new_labels/methods'][:]) + \
+                [sf.f[f'results/{i}/new_labels/methods'][0]
+                 for i in sf_queries]
             sf_predictor_method = np.array(sf_predictor_method, dtype='S')
             pt['results'].create_dataset('predictor_methods',
                                          data=sf_predictor_method)
