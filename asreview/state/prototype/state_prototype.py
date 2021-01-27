@@ -6,10 +6,8 @@ import numpy as np
 from scipy.sparse import load_npz, csr_matrix
 from asreview.state.utils import open_state
 
-
 # todo: Right now, both states have a wrapper with settings, pred_proba,
 #  read_only, state_fp and version. Should prototype have this too?
-
 
 PROTOTYPE_VERSION = '0.0'
 
@@ -72,8 +70,9 @@ def create_prototype_h5(prototype_fp, state_fp, basic, proba_gap=None):
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
-            sf_predictor_model = ['initial']*n_priors + [f'{model}{i-1}'
-                                                         for i in sf_queries]
+            sf_predictor_model = ['initial'] * n_priors + [
+                f'{model}{i - 1}' for i in sf_queries
+            ]
             sf_predictor_model = np.array(sf_predictor_model, dtype='S')
             pt['results'].create_dataset('predictor_models',
                                          data=sf_predictor_model)
@@ -100,26 +99,30 @@ def create_prototype_h5(prototype_fp, state_fp, basic, proba_gap=None):
             # last query has been labeled, all training is stopped, so the last
             # entry is 'NA'.
             sf_models_training = [f'{model}0'] + \
-                                [f'{model}{i}' for i in sf_queries[:-1]] + \
-                                ['NA']
+                                 [f'{model}{i}' for i in sf_queries[:-1]] + \
+                                 ['NA']
             sf_models_training = np.array(sf_models_training, dtype='S')
-            pt['results'].create_dataset('models_training', data=sf_models_training)
+            pt['results'].create_dataset('models_training',
+                                         data=sf_models_training)
 
             if not basic:
                 pt['results'].create_group('custom')
                 # Indices of samples where probabilities are stored. Should 0 be
                 # included?
                 proba_interval = proba_gap
-                proba_col_index = [num for num in sf_queries if
-                                   (num % proba_interval == 0) or sf_labels[num]]
+                proba_col_index = [
+                    num for num in sf_queries
+                    if (num % proba_interval == 0) or sf_labels[num]
+                ]
                 proba_col_index = np.array(proba_col_index)
-                pt['results/custom'].create_dataset('probabilities_column_index',
-                                                    data=proba_col_index)
+                pt['results/custom'].create_dataset(
+                    'probabilities_column_index', data=proba_col_index)
 
                 # Probabilities. Is the probability in query_i of '{model}{i}' or of
                 # '{model}{i-1}'? Should you adjust number of decimals of floats?
-                proba_cols = [sf.f[f'results/{i}/proba'][:]
-                              for i in proba_col_index]
+                proba_cols = [
+                    sf.f[f'results/{i}/proba'][:] for i in proba_col_index
+                ]
                 proba_matrix = np.column_stack(proba_cols)
                 pt['results/custom'].create_dataset('probabilities',
                                                     data=proba_matrix)
@@ -169,15 +172,18 @@ def create_prototype_json(prototype_fp, state_fp, basic, proba_gap=None):
             data_prop_group.create_dataset('indptr', data=sparse_mat.indptr)
             data_prop_group.create_dataset('shape', data=sparse_mat.shape)
             data_prop_group.create_dataset('data', data=sparse_mat.data)
-            data_prop_group.create_dataset('record_table',
-                                           data=sf._state_dict['data_properties'][data_hash]['record_table'])
+            data_prop_group.create_dataset(
+                'record_table',
+                data=sf._state_dict['data_properties'][data_hash]
+                ['record_table'])
 
             # Current attributes are current_queries, end_time, settings,
             # start_time and version.
             pt.attrs['settings'] = str(sf._state_dict['settings'])
             pt.attrs['start_time'] = sf._state_dict['time']['start_time']
             pt.attrs['end_time'] = sf._state_dict['time']['end_time']
-            pt.attrs['current_queries'] = str(sf._state_dict['current_queries'])
+            pt.attrs['current_queries'] = str(
+                sf._state_dict['current_queries'])
             pt.attrs['state_version'] = PROTOTYPE_VERSION
             pt.attrs['software_version'] = sf._state_dict['software_version']
 
@@ -188,14 +194,20 @@ def create_prototype_json(prototype_fp, state_fp, basic, proba_gap=None):
             pt['results'].attrs['n_priors'] = n_priors
 
             # Index (row number) of sample being labeled.
-            sf_indices = [sample_data[0] for query in range(len(sf._state_dict['results']))
-                          for sample_data in sf._state_dict['results'][query]['labelled']]
+            sf_indices = [
+                sample_data[0]
+                for query in range(len(sf._state_dict['results']))
+                for sample_data in sf._state_dict['results'][query]['labelled']
+            ]
             sf_indices = np.array(sf_indices)
             pt['results'].create_dataset('indices', data=sf_indices)
 
             # Label applied to sample.
-            sf_labels = [sample_data[1] for query in range(len(sf._state_dict['results']))
-                         for sample_data in sf._state_dict['results'][query]['labelled']]
+            sf_labels = [
+                sample_data[1]
+                for query in range(len(sf._state_dict['results']))
+                for sample_data in sf._state_dict['results'][query]['labelled']
+            ]
             sf_labels = np.array(sf_labels)
             pt['results'].create_dataset('labels', data=sf_labels)
 
@@ -206,15 +218,19 @@ def create_prototype_json(prototype_fp, state_fp, basic, proba_gap=None):
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
-            sf_predictor_model = ['initial'] * n_priors + [f'{model}{i - 1}'
-                                                      for i in sf_queries]
+            sf_predictor_model = ['initial'] * n_priors + [
+                f'{model}{i - 1}' for i in sf_queries
+            ]
             sf_predictor_model = np.array(sf_predictor_model, dtype='S')
             pt['results'].create_dataset('predictor_models',
                                          data=sf_predictor_model)
 
             # Prediction method used for sample.
-            sf_predictor_method = [sample_data[2] for query in range(len(sf._state_dict['results']))
-                                   for sample_data in sf._state_dict['results'][query]['labelled']]
+            sf_predictor_method = [
+                sample_data[2]
+                for query in range(len(sf._state_dict['results']))
+                for sample_data in sf._state_dict['results'][query]['labelled']
+            ]
             sf_predictor_method = np.array(sf_predictor_method, dtype='S')
             pt['results'].create_dataset('predictor_methods',
                                          data=sf_predictor_method)
@@ -231,26 +247,31 @@ def create_prototype_json(prototype_fp, state_fp, basic, proba_gap=None):
             # last query has been labeled, all training is stopped, so the last
             # entry is 'NA'.
             sf_models_training = [f'{model}0'] + \
-                                [f'{model}{i}' for i in sf_queries[:-1]] + \
-                                ['NA']
+                                 [f'{model}{i}' for i in sf_queries[:-1]] + \
+                                 ['NA']
             sf_models_training = np.array(sf_models_training, dtype='S')
-            pt['results'].create_dataset('models_training', data=sf_models_training)
+            pt['results'].create_dataset('models_training',
+                                         data=sf_models_training)
 
             if not basic:
                 pt['results'].create_group('custom')
                 # Indices of samples where probabilities are stored. Should 0 be
                 # included?
                 proba_interval = proba_gap
-                proba_col_index = [num for num in sf_queries if
-                                   (num % proba_interval == 0) or sf_labels[num]]
+                proba_col_index = [
+                    num for num in sf_queries
+                    if (num % proba_interval == 0) or sf_labels[num]
+                ]
                 proba_col_index = np.array(proba_col_index)
-                pt['results/custom'].create_dataset('probabilities_column_index',
-                                                    data=proba_col_index)
+                pt['results/custom'].create_dataset(
+                    'probabilities_column_index', data=proba_col_index)
 
                 # Probabilities. Is the probability in query_i of '{model}{i}' or of
                 # '{model}{i-1}'? Should you adjust number of decimals of floats?
-                proba_cols = [sf._state_dict['results'][i]['proba']
-                              for i in proba_col_index]
+                proba_cols = [
+                    sf._state_dict['results'][i]['proba']
+                    for i in proba_col_index
+                ]
                 proba_matrix = np.column_stack(proba_cols)
                 pt['results/custom'].create_dataset('probabilities',
                                                     data=proba_matrix)
