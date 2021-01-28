@@ -496,26 +496,32 @@ def api_get_prior(project_id):  # noqa: F401
         message = "Unkown subset parameter"
         return jsonify(message=message), 400
 
-    lock_fp = get_lock_path(project_id)
-    with SQLiteLock(
-            lock_fp, blocking=True, lock_name="active", project_id=project_id):
-        label_history = read_label_history(project_id, subset=subset)
+    try:
 
-    indices = [x[0] for x in label_history]
+        lock_fp = get_lock_path(project_id)
+        with SQLiteLock(
+                lock_fp, blocking=True, lock_name="active", project_id=project_id):
+            label_history = read_label_history(project_id, subset=subset)
 
-    records = read_data(project_id).record(indices, by_index=False)
+        indices = [x[0] for x in label_history]
 
-    payload = {"result": []}
-    for i, record in enumerate(records):
+        records = read_data(project_id).record(indices, by_index=False)
 
-        payload["result"].append({
-            "id": int(record.record_id),
-            "title": record.title,
-            "abstract": record.abstract,
-            "authors": record.authors,
-            "keywords": record.keywords,
-            "included": int(label_history[i][1])
-        })
+        payload = {"result": []}
+        for i, record in enumerate(records):
+
+            payload["result"].append({
+                "id": int(record.record_id),
+                "title": record.title,
+                "abstract": record.abstract,
+                "authors": record.authors,
+                "keywords": record.keywords,
+                "included": int(label_history[i][1])
+            })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load review history."), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

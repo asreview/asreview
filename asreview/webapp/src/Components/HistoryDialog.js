@@ -8,6 +8,7 @@ import {
   DialogTitle,
   FormControl,
   IconButton,
+  Link,
   List,
   MenuItem,
   Select,
@@ -58,7 +59,19 @@ const useStyles = makeStyles(theme => ({
   },
   recordLabelActionText: {
     paddingRight: '4px',
-  }
+  },
+  errorMessage: {
+    paddingTop: '24px',
+    paddingBottom: "24px",
+    opacity: 0.5,
+  },
+  link: {
+    paddingLeft: "3px",
+  },
+  retryButton: {
+    position: "relative",
+    paddingBottom: "24px",
+  },
 }));
 
 const HistoryDialog = (props) => {
@@ -69,6 +82,11 @@ const HistoryDialog = (props) => {
     "select": DEFAULT_SELECTION,
     "data": null,
     "index": null,
+  });
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
   });
 
   // filter all records
@@ -92,6 +110,11 @@ const HistoryDialog = (props) => {
       "data": null,
       "index": null,
     });
+
+    setError({
+      "message": null,
+      "retry": false,
+    });
   };
 
   const closeHistory = () => {
@@ -100,6 +123,12 @@ const HistoryDialog = (props) => {
     props.toggleHistory();
 
   }
+
+  const handleClickRetry = () => {
+
+    reloadHistory();
+
+  };
 
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
@@ -152,7 +181,18 @@ const HistoryDialog = (props) => {
           })});
         })
         .catch((error) => {
-          console.log("Failed to load review history");
+          if (error.response) {
+            setError({
+              "message": error.response.data.message,
+              "retry": true,
+            });
+            console.log(error.response);
+          } else {
+            setError({
+              "message": "The software has been shut down. Please restart.",
+              "retry": false,
+            })
+          };
         });
     }
   }, [props.project_id, props.history, state]);
@@ -200,7 +240,40 @@ const HistoryDialog = (props) => {
           </DialogTitle>
         }
 
-        {state.index === null &&
+        {error.message !== null &&
+          <DialogContent dividers={true}>
+            <Box className={classes.errorMessage}>
+              <Typography variant="h5" align="center">
+                {error.message}
+              </Typography>
+              <Box fontStyle="italic">
+                <Typography align="center">
+                  If the issue remains after retrying, click
+                  <Link
+                    className={classes.link}
+                    href="https://github.com/asreview/asreview/issues/new/choose"
+                    target="_blank"
+                  >
+                    <strong>here</strong>
+                  </Link> to report.
+                </Typography>
+              </Box>
+            </Box>
+            {error.retry === true &&
+              <Box className={classes.retryButton} align="center">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleClickRetry}
+                >
+                  Retry
+                </Button>
+              </Box>
+            }
+          </DialogContent>
+        }
+
+        {error.message === null && state.index === null &&
           <DialogContent dividers={true}>
             <Box>
               {state["data"] !== null && state["select"] === 1 &&
@@ -269,7 +342,7 @@ const HistoryDialog = (props) => {
           </DialogContent>
         }
 
-        {state.index !== null &&
+        {error.message === null && state.index !== null &&
           <DialogContent dividers={true}>
             <Box>
               <Typography variant="h6" gutterBottom>
