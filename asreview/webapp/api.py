@@ -1028,8 +1028,9 @@ def api_get_document(project_id):  # noqa: F401
             item["doc_id"] = new_instance
             pool_empty = False
 
-    except Exception("Cannot retrieve new documents.") as err:
+    except Exception as err:
         logging.error(err)
+        return jsonify(message="Failed to retrieve new documents."), 500
 
     response = jsonify({"result": item, "pool_empty": pool_empty})
     response.headers.add('Access-Control-Allow-Origin', '*')
