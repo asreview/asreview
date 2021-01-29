@@ -22,6 +22,7 @@ import {
   CardContent,
   Grow,
 } from '@material-ui/core'
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { green, brown } from '@material-ui/core/colors';
 
@@ -519,12 +520,21 @@ const ProjectUpload = ({
       {/* The Card with the selected dataset */}
       {error !== null &&
         <Box>
-          <Typography variant="h2">Error</Typography>
-          <Typography variant="subtitle1">{error}</Typography>
-
-          <Button color="inherit" size="small" onClick={() => {setError(null)}}>
-            Close
-          </Button>
+          <div>
+            <Alert severity="error" onClose={() => {setError(null)}}>
+              <AlertTitle>{error}</AlertTitle>
+              <div>
+                If the issue remains after retrying, click
+                  <Link
+                    className={classes.link}
+                    href="https://github.com/asreview/asreview/issues/new/choose"
+                    target="_blank"
+                  >
+                    <strong>here</strong>
+                  </Link> to report.
+              </div>
+            </Alert>
+          </div>
         </Box>
       }
       </Paper>
