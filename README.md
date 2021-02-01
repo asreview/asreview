@@ -96,17 +96,31 @@ The menu on the right can be used to find the citation format of prevalence.
 Check out the ASReview [website](https://asreview.nl/papers/), for even more
 scientific results based on the software.
 
-## Contact This project is coordinated by [Rens van de
-Schoot](https://www.rensvandeschoot.com)
-([@Rensvandeschoot](https://github.com/Rensvandeschoot)) and [Daniel
-Oberski](https://www.uu.nl/staff/DLOberski) ([@daob](https://github.com/daob))
-and is part of the research work conducted by the [Department of Methodology &
-Statistics](https://www.uu.nl/en/organisation/faculty-of-social-and-behavioural-sciences/about-the-faculty/departments/methodology-statistics),
-Faculty of Social and Behavioral Sciences, Utrecht University, The
-Netherlands. Maintainers are [Jonathan de
-Bruin](https://www.uu.nl/staff/JdeBruin1) (Lead engineer,
-[@J535D165](https://github.com/J535D165)) and Raoul Schram
-([@qubixes](https://github.com/qubixes)).
+## Contact 
+
+ASReview is a research project coordinated by [Rens van de Schoot](www.rensvandeschoot.com) (full
+Professor at the Department of Methodology & Statistics and ambassador of the
+focus area Applied Data Science at Utrecht University, The Netherlands),
+together with Jonathan de Bruin, Lead engineer of the ASReview project and
+working for the Open Sciene Programme at Utrecht University. 
+
+Our advisory board consists of machine learning expert Daniel Oberski,
+associate professor at Utrecht University’s Department of Methodology &
+Statistics, and the department of Biostatistics at the Julius Center,
+University Medical Center Utrecht), full professor Lars Tummers (Professor of
+Public Management and Behavior at Utrecht University), Ayoub Bagheri
+(NLP-expert at Utrecht University), Bianca Kramer (Open Science expert at the
+Utrecht University library), Jan de Boer (Information specialist at the
+Utrecht university library), Felix Weijdema (Systematic review specialist at
+the Utrecht University library), and Martijn Hutijs (UX-expert at the
+department Test and Quality Services at Utrecht University).
+
+The Art-Work of ASReview was developed by Joukje Willemsen.
+
+Moreover, many others helped the project, like researchers Gerbrich Ferdinands
+and Laura Hofstee, as well as many students like Yongchao Terry Ma, Sofie van
+den Brand, Sybren Hindriks, and Albert Harkema. Many thanks to all the
+contributors!
 
 Got ideas for improvement? We would love to hear about your suggestions! Get
 started [here
