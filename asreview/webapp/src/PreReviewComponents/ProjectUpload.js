@@ -586,7 +586,7 @@ const ProjectUpload = ({
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
                 target="_blank"
-              >end-user testing
+              >exploration mode
               </Link>.
             </Typography>
           </Typography>
