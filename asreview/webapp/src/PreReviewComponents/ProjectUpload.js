@@ -160,6 +160,9 @@ const ProjectUpload = ({
       return
     }
 
+    // set error to state
+    setError(null)
+
     // set the state such that we ca upload the file
     setFile(acceptedFiles[0])
 
@@ -200,9 +203,6 @@ const ProjectUpload = ({
         edit: false,
         upload: true,
       });
-
-      // set error to state
-      setError(null)
 
       const url = api_url + `project/${project_id}/data`;
 
@@ -248,10 +248,10 @@ const ProjectUpload = ({
           });
 
           // set error to state
-          if (error.response !== undefined){
+          if (error.response){
             setError(error.response.data["message"])
           } else {
-            setError("Unexpected error")
+            setError("Connection lost with the server. Please restart the software.")
           }
 
           // callback
