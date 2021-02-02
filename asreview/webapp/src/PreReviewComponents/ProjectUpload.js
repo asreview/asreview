@@ -478,6 +478,8 @@ const ProjectUpload = ({
                   <ProjectUploadURL
                     upload={state.upload}
                     onUploadHandler={onUploadHandlerURL}
+                    error={error}
+                    setError={setError}
                   />
                 </div>
               }
