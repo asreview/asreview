@@ -353,7 +353,7 @@ const ReviewZone = (props) => {
             'record': null,
             'isloaded': true,
             'selection': null,
-            'error': "The software has been shut down. Please restart.",
+            'error': "Connection lost with the server. Please restart the software.",
             'retry': false,
           })});
 

@@ -189,7 +189,7 @@ const HistoryDialog = (props) => {
             console.log(error.response);
           } else {
             setError({
-              "message": "The software has been shut down. Please restart.",
+              "message": "Connection lost with the server. Please restart the software.",
               "retry": false,
             })
           };
