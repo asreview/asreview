@@ -123,6 +123,7 @@ const ProjectPage = (props) => {
   const finishProjectFirstTraining = () => {
 
     setState({
+      ...state,
       info: {...state.info, projectInitReady : true},
       training : false,
     })
