@@ -126,7 +126,20 @@ const PreReviewZone = (props) => {
 
         })
         .catch((error) => {
-          console.log(error);
+          if (error.response) {
+            props.setProjectPageState(s => {
+              return({
+                ...s,
+                error: error.response.data.message,
+                retry: true,
+            })});
+            console.log(error);
+          } else {
+            props.setProjectPageState(s => {return({
+              ...s,
+              error: "Connection lost with the server. Please restart the software.",
+            })});
+          };
         });
     };
 
@@ -135,7 +148,7 @@ const PreReviewZone = (props) => {
         fetchProjectInfo();
     }
 
-  }, [state.new, props.project_id]);
+  }, [state.new, props]);
 
   return (
 

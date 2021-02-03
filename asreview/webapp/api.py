@@ -183,6 +183,11 @@ def api_get_project_info(project_id):  # noqa: F401
 
             project_info = json.load(fp)
 
+    except FileNotFoundError:
+        raise ProjectNotFoundError()
+
+    try:
+
         # check if there is a dataset
         try:
             get_data_file_path(project_id)
@@ -207,8 +212,9 @@ def api_get_project_info(project_id):  # noqa: F401
             else:
                 project_info["projectInitReady"] = False
 
-    except FileNotFoundError:
-        raise ProjectNotFoundError()
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to retrieve project information."), 500
 
     return jsonify(project_info)
 

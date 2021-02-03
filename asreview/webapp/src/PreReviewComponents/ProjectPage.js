@@ -401,6 +401,7 @@ const ProjectPage = (props) => {
               <PreReviewZone
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
+                setProjectPageState={setState}
               />
             }
           </Container>
