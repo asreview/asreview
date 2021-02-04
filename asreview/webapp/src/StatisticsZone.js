@@ -7,7 +7,11 @@ import {
   CircularProgress,
   Paper,
   Grid,
+  IconButton,
+  Link,
+  Tooltip,
 } from '@material-ui/core';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 import {
   ProgressPieChart,
@@ -58,6 +62,18 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: "74px",
     textAlign: "center",
   },
+  errorMessage: {
+    paddingTop: '38px',
+    textAlign: "center",
+  },
+  link: {
+    paddingLeft: "3px",
+  },
+  retryButton: {
+    position: "relative",
+    top: "8px",
+    paddingBottom: "28px",
+  },
 }));
 
 const StatisticsZone = (props) => {
@@ -67,6 +83,21 @@ const StatisticsZone = (props) => {
   const [statistics, setStatistics] = useState(null);
   const [history, setHistory] = useState([]);
   const [efficiency, setEfficiency] = useState([]);
+  const [error, setError] = useState({
+    error: false,
+    statistics: null,
+    history: null,
+    efficiency: null,
+  });
+
+  const handleClickRetry = () => {
+    setError({
+      error: false,
+      statistics: null,
+      history: null,
+      efficiency: null,
+    });
+  };
 
   useEffect(() => {
 
@@ -79,11 +110,21 @@ const StatisticsZone = (props) => {
 
       return axios.get(url)
         .then((result) => {
-            setStatistics(result.data)
+          setStatistics(result.data)
         })
-        .catch((err) => {
-            console.log(err)
-        })
+        .catch((error) => {
+          if (error.response) {
+            setError(s => {
+              return({
+                ...s,
+                error: true,
+                statistics: error.response.data.message,
+            })});
+            console.log(error);
+          } else {
+            setError("Connection lost with the server. Please restart the software.");
+          };
+        });
     }
 
     const getProgressHistory = () => {
@@ -94,9 +135,19 @@ const StatisticsZone = (props) => {
         .then((result) => {
           setHistory(result.data)
         })
-        .catch((err) => {
-          console.log(err)
-        })
+        .catch((error) => {
+          if (error.response) {
+            setError(s => {
+              return({
+                ...s,
+                error: true,
+                history: error.response.data.message,
+            })});
+            console.log(error);
+          } else {
+            setError("Connection lost with the server. Please restart the software.");
+          };
+        });
     }
 
     const getProgressEfficiency = () => {
@@ -107,9 +158,19 @@ const StatisticsZone = (props) => {
         .then((result) => {
           setEfficiency(result.data)
         })
-        .catch((err) => {
-          console.log(err)
-        })
+        .catch((error) => {
+          if (error.response) {
+            setError(s => {
+              return({
+                ...s,
+                error: true,
+                efficiency: error.response.data.message,
+            })});
+            console.log(error);
+          } else {
+            setError("Connection lost with the server. Please restart the software.");
+          };
+        });
     }
 
     if (props.projectInitReady && !props.training){
@@ -117,7 +178,7 @@ const StatisticsZone = (props) => {
         getProgressHistory();
         getProgressEfficiency();
     }
-  }, [props.projectInitReady, props.training, props.project_id]);
+  }, [props.projectInitReady, props.training, props.project_id, error.error]);
 
   return (
     <Box>
@@ -129,7 +190,44 @@ const StatisticsZone = (props) => {
       </Typography>
 
       <Paper className={classes.paper}>
-        {statistics !== null &&
+        {(error.statistics !== null || error.history !== null || error.efficiency !== null) &&
+          <Box>
+            <Box className={classes.errorMessage}>
+              <Typography>
+                {error.statistics}
+              </Typography>
+              <Typography>
+                {error.history}
+              </Typography>
+              <Typography>
+                {error.efficiency}
+              </Typography>
+              <Box fontStyle="italic">
+                <Typography align="center">
+                  If the issue remains after refreshing, click
+                  <Link
+                    className={classes.link}
+                    href="https://github.com/asreview/asreview/issues/new/choose"
+                    target="_blank"
+                  >
+                    <strong>here</strong>
+                  </Link> to report.
+                </Typography>
+              </Box>
+            </Box>
+            <Box className={classes.retryButton} align="center">
+              <Tooltip title="Refresh">
+                <IconButton
+                  color="primary"
+                  onClick={handleClickRetry}
+                >
+                  <RefreshIcon fontSize="large" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Box>
+        }
+        {(error.statistics === null && error.history === null && error.efficiency === null) && statistics !== null &&
           <Grid container spacing={3}>
             <Grid item xs={12} sm={4}>
               <Box className={classes.pieChart}>
@@ -162,7 +260,7 @@ const StatisticsZone = (props) => {
             </Grid>
           </Grid>
         }
-        {(statistics === null && !(!props.projectInitReady || props.training)) &&
+        {(error.statistics === null && statistics === null && !(!props.projectInitReady || props.training)) &&
           <Box className={classes.notAvailable}>
             <CircularProgress/>
           </Box>

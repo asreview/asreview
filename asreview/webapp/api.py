@@ -900,11 +900,16 @@ def api_get_progress_info(project_id):  # noqa: F401
 
     project_file_path = get_project_file_path(project_id)
 
-    # open the projects file
-    with open(project_file_path, "r") as f_read:
-        project_dict = json.load(f_read)
+    try:
+        # open the projects file
+        with open(project_file_path, "r") as f_read:
+            project_dict = json.load(f_read)
 
-    statistics = get_statistics(project_id)
+        statistics = get_statistics(project_id)
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load pie chart."), 500
 
     response = jsonify({**project_dict, **statistics})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -917,30 +922,35 @@ def api_get_progress_info(project_id):  # noqa: F401
 def api_get_progress_history(project_id):
     """Get progress history on the article"""
 
-    # get label history
-    labeled = read_label_history(project_id)
-    data = []
-    for [key, value] in labeled:
-        data.append(value)
+    try:
+        # get label history
+        labeled = read_label_history(project_id)
+        data = []
+        for [key, value] in labeled:
+            data.append(value)
 
-    # create a dataset with the rolling mean of every 10 papers
-    df = pd.DataFrame(
-        data, columns=["Relevant"]).rolling(
-            10, min_periods=1).mean()
-    df["Total"] = df.index + 1
+        # create a dataset with the rolling mean of every 10 papers
+        df = pd.DataFrame(
+            data, columns=["Relevant"]).rolling(
+                10, min_periods=1).mean()
+        df["Total"] = df.index + 1
 
-    # transform mean(percentage) to number
-    for i in range(0, len(df)):
-        if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (
-                1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
-            df.loc[i,
-                   "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
-        else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
-            df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
+        # transform mean(percentage) to number
+        for i in range(0, len(df)):
+            if df.loc[i, "Total"] < 10:
+                df.loc[i, "Irrelevant"] = (
+                    1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
+                df.loc[i,
+                       "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+            else:
+                df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
+                df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
 
-    df = df.round(1).to_dict(orient="records")
+        df = df.round(1).to_dict(orient="records")
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load progress plot."), 500
 
     response = jsonify(df)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -952,19 +962,24 @@ def api_get_progress_history(project_id):
 def api_get_progress_efficiency(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
-    statistics = get_data_statistics(project_id)
-    labeled = read_label_history(project_id)
-    data = []
-    for [key, value] in labeled:
-        data.append(value)
+    try:
+        statistics = get_data_statistics(project_id)
+        labeled = read_label_history(project_id)
+        data = []
+        for [key, value] in labeled:
+            data.append(value)
 
-    # create a dataset with the cumulative number of inclusions
-    df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
-    df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (
-        df["Relevant"][-1:] / statistics["n_rows"]).values).round()
+        # create a dataset with the cumulative number of inclusions
+        df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+        df["Total"] = df.index + 1
+        df["Random"] = (df["Total"] * (
+            df["Relevant"][-1:] / statistics["n_rows"]).values).round()
 
-    df = df.round(1).to_dict(orient="records")
+        df = df.round(1).to_dict(orient="records")
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load efficiency plot."), 500
 
     response = jsonify(df)
     response.headers.add('Access-Control-Allow-Origin', '*')
