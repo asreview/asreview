@@ -337,6 +337,10 @@ const ProjectUpload = ({
   }, [scrollToBottom]);
 
   useEffect(() => {
+    setError(null);
+  }, [value]);
+
+  useEffect(() => {
 
     // fetch dataset info
     const fetchDatasetInfo = async () => {
