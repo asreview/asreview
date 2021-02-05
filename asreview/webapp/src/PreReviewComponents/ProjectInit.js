@@ -14,6 +14,7 @@ import { brown } from '@material-ui/core/colors';
 
 import axios from 'axios'
 
+import { ErrorHandler } from '../Components';
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
@@ -74,7 +75,11 @@ const ProjectInit = (props) => {
     name: "",
     description: "",
   })
-  const [error, setError] = React.useState(false)
+  const [projectExist, setProjectExist] = React.useState(false)
+  const [error, setError] = React.useState({
+    "message": null,
+    "retry": false, // not in use
+  })
 
   const onChange = (evt) => {
     setInfo({
@@ -105,10 +110,17 @@ const ProjectInit = (props) => {
       props.handleAppState("project-page")
 
     })
-    .catch(function (response) {
-
-        //handle error
-        setError(true);
+    .catch((error) => {        
+        if (error.response) {
+          //handle projectExist
+          setProjectExist(true);
+          console.log(error);
+        } else {
+          setError(s => {return({
+            ...s,
+            "message": "Failed to connect to server. Please restart the software."
+          })});
+        };
     });
   }
 
@@ -121,67 +133,90 @@ const ProjectInit = (props) => {
       <DialogTitle>
         Create a new project
       </DialogTitle>
-      <DialogContent dividers={true}>
-    {/* The actual form */}
-      <form noValidate autoComplete="off">
 
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
+      {error["message"] !== null &&
+        <DialogContent dividers={true}>
+          <ErrorHandler
             error={error}
-            autoFocus={true}
-            required
-            name="name"
-            id="project-name"
-            label="Project name"
-            onChange={onChange}
-            value={info.name}
-            helperText={error && "Project name already exists"}
           />
-        </div>
+        </DialogContent>
+      }
+      {error["message"] !== null &&
+        <DialogActions>
+          <Button
+            onClick={props.onClose}
+            color="primary"
+          >
+            Close
+          </Button>
+        </DialogActions>
+      }
 
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
-            name="authors"
-            id="project-author"
-            label="Your name"
-            onChange={onChange}
-            value={info.authors}
-          />
-        </div>
+      {error["message"] === null &&
+        <DialogContent dividers={true}>
+        {/* The actual form */}
+        <form noValidate autoComplete="off">
 
-        <div className={classes.textfieldItem}>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={6}
-            name="description"
-            id="project-description"
-            label="Description"
-            onChange={onChange}
-            value={info.description}
-          />
-        </div>
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              error={projectExist}
+              autoFocus={true}
+              required
+              name="name"
+              id="project-name"
+              label="Project name"
+              onChange={onChange}
+              value={info.name}
+              helperText={projectExist && "Project name already exists"}
+            />
+          </div>
 
-      </form>
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={props.onClose}
-          color="primary"
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={submitForm}
-          color="primary"
-          disabled={info.name.length < 3}
-        >
-          Create
-        </Button>
-      </DialogActions>
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              name="authors"
+              id="project-author"
+              label="Your name"
+              onChange={onChange}
+              value={info.authors}
+            />
+          </div>
+
+          <div className={classes.textfieldItem}>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              rowsMax={6}
+              name="description"
+              id="project-description"
+              label="Description"
+              onChange={onChange}
+              value={info.description}
+            />
+          </div>
+
+        </form>
+        </DialogContent>
+      }
+      {error["message"] === null &&
+        <DialogActions>
+          <Button
+            onClick={props.onClose}
+            color="primary"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={submitForm}
+            color="primary"
+            disabled={info.name.length < 3}
+          >
+            Create
+          </Button>
+        </DialogActions>
+      }
     </Dialog>
   )
 }
