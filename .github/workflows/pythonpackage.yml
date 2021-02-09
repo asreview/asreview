@@ -26,9 +26,6 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"
-      - name: Install node_modules
-        run: |
-          cd asreview/webapp
       - name: Compile assets
         run: |
           python setup.py compile_assets
