@@ -5,7 +5,7 @@ Anyone who goes through the process of screening large amounts of texts knows
 how labor intensive this can be. The future will be an interaction with
 machine learning algorithms to deal with the enormous increase of available
 text. Therefore, an open source machine learning-aided pipeline applying
-active learning was developed at `Utrecht University <www.uu.nl>`_, titled
+active learning was developed at `Utrecht University <https://www.uu.nl>`_, titled
 **ASReview**. The goal of ASReview is to help scholars and practitioners to
 get an overview of the most relevant records for their work as efficiently as
 possible, while being transparent in the process.
