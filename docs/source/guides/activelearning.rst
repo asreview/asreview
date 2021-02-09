@@ -44,7 +44,7 @@ used to classify new data, also called Human-in-the-Loop machine learning[16].
 In the general sense the key idea behind active learning is that, if we allow
 the model to decide for itself which data it wants to learn from, its
 performance and accuracy may improve and it requires fewer training instances
-to do so. Moreover, the dataset's informativeness is increaded by having the
+to do so. Moreover, the dataset's informativeness is increased by having the
 reviewer annotate those references that are more informative to the model
 (**uncertainty-based sampling**).  
 
