@@ -4,25 +4,21 @@ jobs:
   compile-and-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-python@v1
-      with:
-        python-version: '3.6' # Version range or exact version of a Python version to use, using semvers version range syntax.
-        architecture: 'x64' # (x64 or x86)
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '10.x'
-    - name: Install node_modules
-      run: |
-        cd asreview/webapp
-        npm install
-    - name: Compile assets
-      run: |
-        python setup.py compile_assets
-    - name: Install pytest and package
-      run: |
-        pip install pytest
-        pip install --no-cache-dir .
-    - name: Test flask app
-      run: |
-        pytest asreview/webapp/tests
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.6" # Version range or exact version of a Python version to use, using semvers version range syntax.
+          architecture: "x64" # (x64 or x86)
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "10.x"
+      - name: Compile assets
+        run: |
+          python setup.py compile_assets
+      - name: Install pytest and package
+        run: |
+          pip install pytest
+          pip install --no-cache-dir .
+      - name: Test flask app
+        run: |
+          pytest asreview/webapp/tests
