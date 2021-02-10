@@ -24,17 +24,17 @@ from asreview.config import STATE_EXTENSIONS
 
 def _get_state_class(fp):
     "Get state class from file extension."
-    from asreview.state.hdf5 import HDF5State
-    from asreview.state.json import JSONState
-    from asreview.state.dict import DictState
 
     if fp is None:
+        from asreview.state.legacy.dict import DictState
         return DictState
 
     state_ext = Path(fp).suffix
     if state_ext in ['.h5', '.hdf5', '.he5']:
+        from asreview.state.hdf5 import HDF5State
         state_class = HDF5State
     elif state_ext in ['.json']:
+        from asreview.state.legacy.json import JSONState
         state_class = JSONState
     else:
         state_class = None
@@ -42,7 +42,7 @@ def _get_state_class(fp):
 
 
 @contextmanager
-def open_state(fp, *args, read_only=False, **kwargs):
+def open_state(fp, read_only=False):
     """Open a state from a file.
 
     Arguments
@@ -64,13 +64,14 @@ def open_state(fp, *args, read_only=False, **kwargs):
     state_class = _get_state_class(fp)
 
     if state_class is None:
-        raise ValueError("Bad state file extension, choose one of the"
+        raise ValueError("State file extension not found, choose one of the"
                          f" following:\n   {', '.join(STATE_EXTENSIONS)}")
 
     # init state class
-    state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs)
+    state = state_class(read_only=read_only)
 
     try:
+        state.restore(fp, read_only)
         yield state
     finally:
         state.close()

@@ -18,17 +18,13 @@ import numpy as np
 
 
 class BaseState(ABC):
-    def __init__(self, state_fp, read_only=False):
-        """Initialize State instance.
+    def __init__(self, read_only=False):
+        """Abstract Base Class for state.
 
-        state_fp: str
-            Path to state file.
         read_only: bool
             Whether to open file in read only mode.
         """
-        self.state_fp = state_fp
         self.read_only = read_only
-        self.restore(state_fp)
 
     def __enter__(self):
         return self
@@ -38,6 +34,20 @@ class BaseState(ABC):
 
     def __str__(self):
         return str(self.to_dict())
+
+    @abstractmethod
+    def restore(self, fp):
+        """Restore or create state from a state file.
+
+        If the state file doesn't exist, creates and empty state that is ready
+        for storage.
+
+        Arguments
+        ---------
+        fp: str
+            Path to file to restore/create.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def set_labels(self, y):
@@ -299,20 +309,6 @@ class BaseState(ABC):
         fp: str
             The file path to export the results to.
 
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def restore(self, fp):
-        """Restore or create state from a state file.
-
-        If the state file doesn't exist, creates and empty state that is ready
-        for storage.
-
-        Arguments
-        ---------
-        fp: str
-            Path to file to restore/create.
         """
         raise NotImplementedError
 

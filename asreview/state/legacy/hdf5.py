@@ -24,9 +24,6 @@ from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 
 
-LATEST_HDF5STATE_VERSION = "1.1"
-
-
 def _append_to_dataset(name, values, g, dtype):
     if name not in g:
         g.create_dataset(name, (len(values), ),
@@ -48,72 +45,12 @@ def _result_group(f, query_i):
     return g
 
 
-class HDF5State(BaseState):
+class HDF5StateLegacy(BaseState):
     """Class for storing the review state with HDF5 storage."""
+    version = "1.1"
 
-    def __init__(self, read_only=False):
-        super(HDF5State, self).__init__(read_only=read_only)
-
-    @property
-    def version(self):
-
-        try:
-            return self.f.attrs['version'].decode("ascii")
-        except Exception:
-            raise AttributeError("Attribute 'version' not found.")
-
-    def _is_valid_version(self):
-
-        # TODO check for version <= 1.1, should fail as well
-
-        return self.version[0] == LATEST_HDF5STATE_VERSION[0]
-
-    def initialize_structure(self):
-        self.f.attrs['start_time'] = np.string_(datetime.now())
-        self.f.attrs['end_time'] = np.string_(datetime.now())
-        self.f.attrs['settings'] = np.string_("{}")
-        self.f.attrs['version'] = np.string_(LATEST_HDF5STATE_VERSION)
-        self.f.create_group('results')
-
-    def restore(self, fp, read_only=False, init_on_missing=True):
-
-        # store read_only value
-        self.read_only = read_only
-        mode = "r" if self.read_only else "a"
-
-        # create folder to state file if not exist
-        Path(fp).parent.mkdir(parents=True, exist_ok=True)
-
-        # open the HDF5 file
-        self.f = h5py.File(fp, mode)
-
-        try:
-            if not self._is_valid_version():
-                raise ValueError(
-                    f"State cannot be read: state version {self.version}, "
-                    f"state file version {self.version}.")
-        except AttributeError:
-            if init_on_missing:
-                self.initialize_structure()
-            else:
-                raise ValueError("")
-
-    def save(self):
-        self.f['end_time'] = str(datetime.now())
-        self.f.flush()
-
-    @property
-    def settings(self):
-        settings = self.f.attrs.get('settings', None)
-        if settings is None:
-            return None
-        settings_dict = json.loads(settings)
-        return ASReviewSettings(**settings_dict)
-
-    @settings.setter
-    def settings(self, settings):
-        self.f.attrs.pop('settings', None)
-        self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
+    def __init__(self, state_fp, read_only=False):
+        super(HDF5StateLegacy, self).__init__(state_fp, read_only=read_only)
 
     def set_labels(self, y):
         if "labels" not in self.f:
@@ -161,8 +98,25 @@ class HDF5State(BaseState):
         g.create_dataset("train_idx", data=train_idx, dtype=np.int)
         g.create_dataset("proba", data=proba, dtype=np.float)
 
+    @property
+    def settings(self):
+        settings = self.f.attrs.get('settings', None)
+        if settings is None:
+            return None
+        settings_dict = json.loads(settings)
+        return ASReviewSettings(**settings_dict)
+
+    @settings.setter
+    def settings(self, settings):
+        self.f.attrs.pop('settings', None)
+        self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
+
     def n_queries(self):
         return len(self.f['results'].keys())
+
+    def save(self):
+        self.f['end_time'] = str(datetime.now())
+        self.f.flush()
 
     def _add_as_data(self, as_data, feature_matrix=None):
         record_table = as_data.record_ids
@@ -245,6 +199,30 @@ class HDF5State(BaseState):
     def delete_last_query(self):
         query_i_last = self.n_queries() - 1
         del self.f[f"/results/{query_i_last}"]
+
+    def restore(self, fp):
+        if self.read_only:
+            mode = 'r'
+        else:
+            mode = 'a'
+
+        Path(fp).parent.mkdir(parents=True, exist_ok=True)
+        self.f = h5py.File(fp, mode)
+        try:
+            state_version = self.f.attrs['version'].decode("ascii")
+            if state_version != self.version:
+                raise ValueError(
+                    f"State cannot be read: state version {self.version}, "
+                    f"state file version {state_version}.")
+        except KeyError:
+            self.initialize_structure()
+
+    def initialize_structure(self):
+        self.f.attrs['start_time'] = np.string_(datetime.now())
+        self.f.attrs['end_time'] = np.string_(datetime.now())
+        self.f.attrs['settings'] = np.string_("{}")
+        self.f.attrs['version'] = np.string_(self.version)
+        self.f.create_group('results')
 
     def close(self):
         if not self.read_only:
