@@ -19,6 +19,5 @@ from asreview.state.hdf5 import HDF5State
 from asreview.state.legacy.json import JSONState
 from asreview.state.utils import open_state
 from asreview.state.utils import states_from_dir
-from asreview.state.utils import state_from_file
 from asreview.state.utils import state_from_asreview_file
 

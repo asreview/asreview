@@ -91,9 +91,8 @@ def test_version_number_state():
 def test_settings_state():
     state_fp = Path("tests", "state_files", "test_1_inst.h5")
     with open_state(state_fp) as state:
+        print(state.settings)
         assert isinstance(state.settings, ASReviewSettings)
-
-
 
 
 # def test_read_asreview_file():

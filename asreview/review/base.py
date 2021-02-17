@@ -172,6 +172,7 @@ class BaseReview(ABC):
         with open_state(self.state_file) as state:
             # From file
             if not state.is_empty():
+                # TODO{STATE} Directly from state file
                 startup = state.startup_vals()
                 # If there are start indices not in the training add them.
                 if not set(startup["train_idx"]) >= set(start_idx):
@@ -188,7 +189,7 @@ class BaseReview(ABC):
                 self.query_i_classified = startup["query_i_classified"]
             # From scratch
             else:
-                state.set_labels(self.y)
+                # state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx,
                               self.y[start_idx],

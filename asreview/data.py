@@ -394,6 +394,7 @@ class ASReviewData():
         numpy.ndarray
             Array of indices that have the 'initial' property.
         """
+        # @TODO{STATE} Rewrite directly to state file.
         query_src = state.startup_vals()["query_src"]
         if "initial" not in query_src:
             return np.array([], dtype=int)

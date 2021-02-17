@@ -49,31 +49,31 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def set_labels(self, y):
-        """Add/set labels to state
+    # @abstractmethod
+    # def set_labels(self, y):
+    #     """Add/set labels to state
 
-        If the labels do not exist, add it to the state.
+    #     If the labels do not exist, add it to the state.
 
-        Arguments
-        ---------
-        y: numpy.ndarray
-            One dimensional integer numpy array with inclusion labels.
-        """
-        raise NotImplementedError
+    #     Arguments
+    #     ---------
+    #     y: numpy.ndarray
+    #         One dimensional integer numpy array with inclusion labels.
+    #     """
+    #     raise NotImplementedError
 
-    @abstractmethod
-    def set_final_labels(self, y):
-        """Add/set final labels to state.
+    # @abstractmethod
+    # def set_final_labels(self, y):
+    #     """Add/set final labels to state.
 
-        If final_labels does not exist yet, add it.
+    #     If final_labels does not exist yet, add it.
 
-        Arguments
-        ---------
-        y: numpy.ndarray
-            One dimensional integer numpy array with final inclusion labels.
-        """
-        raise NotImplementedError
+    #     Arguments
+    #     ---------
+    #     y: numpy.ndarray
+    #         One dimensional integer numpy array with final inclusion labels.
+    #     """
+    #     raise NotImplementedError
 
     @abstractmethod
     def _add_as_data(self, as_data, feature_matrix=None):
@@ -215,6 +215,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     def startup_vals(self):
+        # TODO{STATE} Remove method
         """Get variables for reviewer to continue review.
 
         Returns
@@ -270,10 +271,10 @@ class BaseState(ABC):
         }
         return startup_vals
 
-    def review_state(self):
-        startup = self.startup_vals()
-        return (startup["labals"], startup["train_idx"], startup["query_src"],
-                startup["query_i"])
+    # def review_state(self):
+    #     startup = self.startup_vals()
+    #     return (startup["labals"], startup["train_idx"], startup["query_src"],
+    #             startup["query_i"])
 
     @property
     def pred_proba(self):
@@ -288,7 +289,7 @@ class BaseState(ABC):
         return None
 
     @abstractmethod
-    def initialize_structure(self):
+    def _initialize_structure(self):
         """Create empty internal structure for state"""
         raise NotImplementedError
 

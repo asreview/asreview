@@ -115,36 +115,36 @@ def states_from_dir(data_dir, prefix=""):
     return states
 
 
-def state_from_file(data_fp):
-    """Obtain a single state from a file.
+# def state_from_file(data_fp):
+#     """Obtain a single state from a file.
 
-    Arguments
-    ---------
-    data_fp: str
-        Path to state file or .asreview file.
+#     Arguments
+#     ---------
+#     data_fp: str
+#         Path to state file or .asreview file.
 
-    Returns
-    -------
-    dict:
-        A dictionary of a single opened state, with its filename as key.
-    """
-    if not Path(data_fp).is_file():
-        logging.error(f"File {data_fp} does not exist, cannot create state.")
-        return None
+#     Returns
+#     -------
+#     dict:
+#         A dictionary of a single opened state, with its filename as key.
+#     """
+#     if not Path(data_fp).is_file():
+#         logging.error(f"File {data_fp} does not exist, cannot create state.")
+#         return None
 
-    if Path(data_fp).suffix == ".asreview":
-        base_state = state_from_asreview_file(data_fp)
-    elif Path(data_fp).suffix in STATE_EXTENSIONS:
-        base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
-    else:
-        raise ValueError(f"Expected ASReview file or file {data_fp} with "
-                         f"extension {STATE_EXTENSIONS}.")
+#     if Path(data_fp).suffix == ".asreview":
+#         base_state = state_from_asreview_file(data_fp)
+#     elif Path(data_fp).suffix in STATE_EXTENSIONS:
+#         base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
+#     else:
+#         raise ValueError(f"Expected ASReview file or file {data_fp} with "
+#                          f"extension {STATE_EXTENSIONS}.")
 
-    state = {
-        os.path.basename(os.path.normpath(data_fp)):
-        base_state
-    }
-    return state
+#     state = {
+#         os.path.basename(os.path.normpath(data_fp)):
+#         base_state
+#     }
+#     return state
 
 
 def state_from_asreview_file(data_fp):

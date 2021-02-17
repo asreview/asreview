@@ -27,6 +27,10 @@ from asreview.state.base import BaseState
 LATEST_HDF5STATE_VERSION = "1.1"
 
 
+class StateNotFoundError(FileNotFoundError):
+    pass
+
+
 def _append_to_dataset(name, values, g, dtype):
     if name not in g:
         g.create_dataset(name, (len(values), ),
@@ -49,26 +53,32 @@ def _result_group(f, query_i):
 
 
 class HDF5State(BaseState):
-    """Class for storing the review state with HDF5 storage."""
+    """Class for storing the review state with HDF5 storage.
+
+    Arguments
+    ---------
+    read_only: bool
+        Open state in read only mode. Default False.
+    """
 
     def __init__(self, read_only=False):
         super(HDF5State, self).__init__(read_only=read_only)
 
     @property
     def version(self):
-
+        """Version number of the state file."""
         try:
             return self.f.attrs['version'].decode("ascii")
         except Exception:
             raise AttributeError("Attribute 'version' not found.")
 
     def _is_valid_version(self):
-
+        """Check compatibility of state version."""
         # TODO check for version <= 1.1, should fail as well
 
         return self.version[0] == LATEST_HDF5STATE_VERSION[0]
 
-    def initialize_structure(self):
+    def _initialize_structure(self):
         self.f.attrs['start_time'] = np.string_(datetime.now())
         self.f.attrs['end_time'] = np.string_(datetime.now())
         self.f.attrs['settings'] = np.string_("{}")
@@ -76,6 +86,17 @@ class HDF5State(BaseState):
         self.f.create_group('results')
 
     def restore(self, fp, read_only=False, init_on_missing=True):
+        """Init or restore the state file.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            File path of the state file.
+        read_only: bool
+            Open state in read only mode. Default False.
+        init_on_missing: bool
+            Create new state file if it doesn't exist. Default True.
+        """
 
         # store read_only value
         self.read_only = read_only
@@ -94,16 +115,48 @@ class HDF5State(BaseState):
                     f"state file version {self.version}.")
         except AttributeError:
             if init_on_missing:
-                self.initialize_structure()
+                self._initialize_structure()
             else:
-                raise ValueError("")
+                raise StateNotFoundError(f"State file {fp} doesn't exist.")
 
     def save(self):
+        """Save and close the state file."""
         self.f['end_time'] = str(datetime.now())
         self.f.flush()
 
+    def close(self):
+        # TODO{STATE} Merge with save?
+        if not self.read_only:
+            self.f.attrs['end_time'] = np.string_(datetime.now())
+        self.f.close()
+
     @property
     def settings(self):
+        """Settings of the ASReview pipeline.
+
+        Settings like models.
+
+        Example
+        -------
+
+        Example of settings.
+
+            model             : nb
+            query_strategy    : max_random
+            balance_strategy  : triple
+            feature_extraction: tfidf
+            n_instances       : 1
+            n_queries         : 1
+            n_prior_included  : 10
+            n_prior_excluded  : 10
+            mode              : simulate
+            model_param       : {'alpha': 3.822}
+            query_param       : {'strategy_1': 'max', 'strategy_2': 'random', 'mix_ratio': 0.95}
+            feature_param     : {}
+            balance_param     : {'a': 2.155, 'alpha': 0.94, ... 'gamma': 2.0, 'shuffle': True}
+            abstract_only     : False
+
+        """
         settings = self.f.attrs.get('settings', None)
         if settings is None:
             return None
@@ -115,20 +168,30 @@ class HDF5State(BaseState):
         self.f.attrs.pop('settings', None)
         self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
 
-    def set_labels(self, y):
-        if "labels" not in self.f:
-            self.f.create_dataset("labels", y.shape, dtype=np.int, data=y)
-        else:
-            self.f["labels"][...] = y
+    # def set_labels(self, y):
+    # Remove this
+    #     """Set the initial labels as of the dataset.
 
-    def set_final_labels(self, y):
-        if "final_labels" not in self.f:
-            self.f.create_dataset("final_labels",
-                                  y.shape,
-                                  dtype=np.int,
-                                  data=y)
-        else:
-            self.f["final_labels"][...] = y
+    #     y: list
+    #         List of outcome labels.
+    #     """
+
+    #     if "labels" not in self.f:
+    #         # key labels doesn't exist, create and fill with data
+    #         self.f.create_dataset("labels", y.shape, dtype=np.int, data=y)
+    #     else:
+    #         # exists, but overwrite
+    #         self.f["labels"][...] = y
+
+    # def set_final_labels(self, y):
+    #     # Seems to be deprecated
+    #     if "final_labels" not in self.f:
+    #         self.f.create_dataset("final_labels",
+    #                               y.shape,
+    #                               dtype=np.int,
+    #                               data=y)
+    #     else:
+    #         self.f["final_labels"][...] = y
 
     def set_current_queries(self, current_queries):
         str_queries = {
@@ -228,10 +291,10 @@ class HDF5State(BaseState):
             array = np.array(g["new_labels"]["labels"], dtype=int)
         if variable == "proba":
             array = np.array(g["proba"], dtype=np.float)
-        if variable == "labels":
-            array = np.array(self.f["labels"], dtype=np.int)
-        if variable == "final_labels":
-            array = np.array(self.f["final_labels"], dtype=np.int)
+        # if variable == "labels":
+        #     array = np.array(self.f["labels"], dtype=np.int)
+        # if variable == "final_labels":
+        #     array = np.array(self.f["final_labels"], dtype=np.int)
         if variable == "pool_idx":
             array = np.array(g["pool_idx"], dtype=np.int)
         if variable == "train_idx":
@@ -242,11 +305,7 @@ class HDF5State(BaseState):
             return array[idx]
         return array
 
-    def delete_last_query(self):
-        query_i_last = self.n_queries() - 1
-        del self.f[f"/results/{query_i_last}"]
-
-    def close(self):
-        if not self.read_only:
-            self.f.attrs['end_time'] = np.string_(datetime.now())
-        self.f.close()
+    # def delete_last_query(self):
+    #     # Nowhere found
+    #     query_i_last = self.n_queries() - 1
+    #     del self.f[f"/results/{query_i_last}"]
