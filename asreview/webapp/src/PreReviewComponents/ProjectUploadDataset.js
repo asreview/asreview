@@ -6,6 +6,8 @@ import {
   AccordionActions,
   Button,
   Divider,
+  Link,
+  Grid,
   Typography,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -25,7 +27,20 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(15),
     color: theme.palette.text.secondary,
   },
+  link: {
+    marginLeft: "6px",
+  },
 }));
+
+const DOILink = (doi) => {
+
+  if (doi.startsWith("http")) {
+    return doi
+  } else {
+    return "https://doi.org/" + doi
+  };
+
+};
 
 const Dataset = (props) => {
 
@@ -72,12 +87,73 @@ const Dataset = (props) => {
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
         >
-          <Typography className={classes.heading}>{props.title}</Typography>
+          <Typography className={classes.heading}>{props.authors}</Typography>
           <Typography className={classes.secondaryHeading}>{props.description}</Typography>          
         </AccordionSummary>
         <AccordionDetails>
           <div>
-            DOI: {props.doi}
+            <Grid container spacing={1}>
+              <Grid item xs={12}>
+                <Typography className={classes.heading}>
+                  {props.title}
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography className={classes.heading} gutterBottom={true}>
+                  DOI:
+                  <Link
+                    href={DOILink(props.doi)}
+                    className={classes.link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {props.doi}
+                  </Link>
+                </Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography className={classes.secondaryHeading}>
+                  Publication year:
+                </Typography>
+              </Grid>
+              <Grid item xs={10}>
+                <Typography className={classes.secondaryHeading}>
+                  {props.year}
+                </Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography className={classes.secondaryHeading}>
+                  License:
+                </Typography>
+              </Grid>
+              <Grid item xs={10}>
+                <Typography className={classes.secondaryHeading}>
+                  <Link
+                    href={props.link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {props.license}
+                  </Link>
+                </Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography className={classes.secondaryHeading}>
+                  Location:
+                </Typography>
+              </Grid>
+              <Grid item xs={10}>
+                <Typography className={classes.secondaryHeading}>
+                  <Link
+                    href={props.location}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Link to the dataset
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
           </div>
         </AccordionDetails>
         <Divider />

@@ -110,9 +110,14 @@ const ProjectUploadBenchmarkDatasets = (props) => {
                     featured={dataset.featured}
                     key={array[array.length - 1 - index].dataset_id}
                     dataset_id={array[array.length - 1 - index].dataset_id}
-                    title={formatCitation(array[array.length - 1 - index].authors, array[array.length - 1 - index].year)}
+                    authors={formatCitation(array[array.length - 1 - index].authors, array[array.length - 1 - index].year)}
                     description={array[array.length - 1 - index].topic}
-                    doi={array[array.length - 1 - index].reference}
+                    doi={array[array.length - 1 - index].reference.replace(/^(https:\/\/doi\.org\/)/,"")}
+                    title={array[array.length - 1 - index].title}
+                    year={array[array.length - 1 - index].year}
+                    license={array[array.length - 1 - index].license}
+                    link={array[array.length - 1 - index].link}
+                    location={array[array.length - 1 - index].url}
                     onUploadHandler={props.onUploadHandler}
                   />
               ))}
@@ -132,9 +137,14 @@ const ProjectUploadBenchmarkDatasets = (props) => {
                   setUploading={setUploading}
                   key={dataset.dataset_id}
                   dataset_id={dataset.dataset_id}
-                  title={formatCitation(dataset.authors, dataset.year)}
+                  authors={formatCitation(dataset.authors, dataset.year)}
                   description={dataset.topic}
-                  doi={dataset.reference}
+                  doi={dataset.reference.replace(/^(https:\/\/doi\.org\/)/,"")}
+                  title={dataset.title}
+                  year={dataset.year}
+                  license={dataset.license}
+                  link={dataset.link}
+                  location={dataset.url}
                   onUploadHandler={props.onUploadHandler}
                 />
               ))}
