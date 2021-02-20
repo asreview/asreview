@@ -111,12 +111,12 @@ const BenchmarkDatasets = (props) => {
                   </Link>
                 </Typography>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <Typography className={classes.secondaryHeading}>
                   License:
                 </Typography>
               </Grid>
-              <Grid item xs={10}>
+              <Grid item xs={11}>
                 <Typography className={classes.secondaryHeading}>
                   <Link
                     href={props.link}
@@ -127,12 +127,12 @@ const BenchmarkDatasets = (props) => {
                   </Link>
                 </Typography>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <Typography className={classes.secondaryHeading}>
                   Location:
                 </Typography>
               </Grid>
-              <Grid item xs={10}>
+              <Grid item xs={11}>
                 <Typography className={classes.secondaryHeading}>
                   <Link
                     href={props.location}
