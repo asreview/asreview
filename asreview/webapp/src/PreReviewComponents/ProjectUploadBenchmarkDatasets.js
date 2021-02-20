@@ -114,7 +114,6 @@ const ProjectUploadBenchmarkDatasets = (props) => {
                     description={array[array.length - 1 - index].topic}
                     doi={array[array.length - 1 - index].reference.replace(/^(https:\/\/doi\.org\/)/,"")}
                     title={array[array.length - 1 - index].title}
-                    year={array[array.length - 1 - index].year}
                     license={array[array.length - 1 - index].license}
                     link={array[array.length - 1 - index].link}
                     location={array[array.length - 1 - index].url}
@@ -141,7 +140,6 @@ const ProjectUploadBenchmarkDatasets = (props) => {
                   description={dataset.topic}
                   doi={dataset.reference.replace(/^(https:\/\/doi\.org\/)/,"")}
                   title={dataset.title}
-                  year={dataset.year}
                   license={dataset.license}
                   link={dataset.link}
                   location={dataset.url}

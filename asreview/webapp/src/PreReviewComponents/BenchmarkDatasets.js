@@ -113,16 +113,6 @@ const BenchmarkDatasets = (props) => {
               </Grid>
               <Grid item xs={2}>
                 <Typography className={classes.secondaryHeading}>
-                  Publication year:
-                </Typography>
-              </Grid>
-              <Grid item xs={10}>
-                <Typography className={classes.secondaryHeading}>
-                  {props.year}
-                </Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography className={classes.secondaryHeading}>
                   License:
                 </Typography>
               </Grid>
