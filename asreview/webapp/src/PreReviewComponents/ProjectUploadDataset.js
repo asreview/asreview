@@ -1,24 +1,29 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
-  Card,
-  CardActionArea,
-  CardMedia,
-  CardContent,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  AccordionActions,
+  Button,
+  Divider,
   Typography,
-  CircularProgress,
 } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
-  cardRoot: {
-    width: 360,
-    height: 250,
-    display: "inline-block",
-    margin: theme.spacing(2),
+  root: {
+    width: '100%',
+    marginBottom: '5px',
   },
-  media: {
-    height: 140,
-    backgroundColor: "#A3A3A3",
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    flexBasis: '33.33%',
+    flexShrink: 0,
+  },
+  secondaryHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    color: theme.palette.text.secondary,
   },
 }));
 
@@ -26,12 +31,28 @@ const Dataset = (props) => {
 
   const classes = useStyles();
 
-  const [state, setState] = useState(false)
+  const handleChange = (index, featured) => (event, isExpanded) => {
+
+    if (!props.uploading) {
+      if (featured) {
+        props.setExpanded(s => {return({
+          "all": false,
+          "featured": isExpanded ? index : false,
+        })});
+      } else {
+        props.setExpanded(s => {return({
+          "all": isExpanded ? index : false,
+          "featured": false,
+        })});
+      };
+    };
+
+  };
 
   const uploadDataset = () => {
 
     // upload state
-    setState(true);
+    props.setUploading(true);
 
     // send upload request to server
     props.onUploadHandler(props.dataset_id, resetState);
@@ -39,44 +60,40 @@ const Dataset = (props) => {
   }
 
   const resetState = () => {
-    // setState(false);
-  }
+    // props.setUploading(false);
+  };
 
   return (
-    <Card
-      className={classes.cardRoot}
-      key={props.dataset_id}
-      onClick={!state ? uploadDataset : undefined}
-    >
-      {!state ? <CardActionArea>
-        <CardMedia
-          className={classes.media}
-          image={props.img_url}
-          title={props.title}
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
-            {props.title}
-          </Typography>
-          <Typography noWrap variant="body2" color="textSecondary" component="p">
-            {props.description}
-          </Typography>
-        </CardContent>
-      </CardActionArea>:
-      <div>
-        <CardMedia
-            className={classes.media}
-            image={props.img_url}
-            title={props.title}
-          />
-          <CardContent>
-            <CircularProgress />
-          </CardContent>
-      </div>
-    }
-    </Card>
+    <div className={classes.root}>
+      <Accordion
+        expanded={props.expanded === props.index}
+        onChange={handleChange(props.index, props.featured)}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+        >
+          <Typography className={classes.heading}>{props.title}</Typography>
+          <Typography className={classes.secondaryHeading}>{props.description}</Typography>          
+        </AccordionSummary>
+        <AccordionDetails>
+          <div>
+            DOI: {props.doi}
+          </div>
+        </AccordionDetails>
+        <Divider />
+        <AccordionActions>
+          <Button
+            size="small"
+            color="primary"
+            disabled={props.uploading}
+            onClick={() => uploadDataset()}
+          >
+            {props.uploading ? "USING DATASET..." : "USE DATASET"}
+          </Button>
+        </AccordionActions>
+      </Accordion>
+    </div>
   )
 }
 
 export default Dataset;
-
