@@ -7,7 +7,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
-  Dataset,
+  BenchmarkDatasets,
 } from '../PreReviewComponents';
 
 import { api_url } from '../globals.js';
@@ -101,7 +101,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
               {state.datasets.filter(function(dataset) {
                   return dataset.featured;
                 }).map((dataset, index, array) => (
-                  <Dataset
+                  <BenchmarkDatasets
                     index={index}
                     expanded={expanded.featured}
                     setExpanded={setExpanded}
@@ -129,7 +129,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             <Typography className={classes.title} variant="h6">All benchmark datasets</Typography>
             <Box>
               {state.datasets.map((dataset, index) => (
-                <Dataset
+                <BenchmarkDatasets
                   index={index}
                   expanded={expanded.all}
                   setExpanded={setExpanded}

@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
 
 const DOILink = (doi) => {
 
-  if (doi.startsWith("http")) {
+  if (doi !== undefined && doi.startsWith("http")) {
     return doi
   } else {
     return "https://doi.org/" + doi
@@ -42,7 +42,7 @@ const DOILink = (doi) => {
 
 };
 
-const Dataset = (props) => {
+const BenchmarkDatasets = (props) => {
 
   const classes = useStyles();
 
@@ -172,4 +172,4 @@ const Dataset = (props) => {
   )
 }
 
-export default Dataset;
+export default BenchmarkDatasets;

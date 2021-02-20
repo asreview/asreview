@@ -7,7 +7,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
-  Dataset,
+  PluginDatasets,
 } from '../PreReviewComponents';
 
 import { api_url } from '../globals.js';
@@ -76,7 +76,7 @@ const ProjectUploadPluginDatasets = (props) => {
         {state.loaded && !state.error &&
             <Box>
               {state.datasets.map(dataset => (
-                <Dataset
+                <PluginDatasets
                   key={dataset[dataset.length - 1].dataset_id}
                   dataset_id={dataset[dataset.length - 1].dataset_id}
                   title={dataset[dataset.length - 1].title}
