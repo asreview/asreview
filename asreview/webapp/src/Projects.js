@@ -2,10 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {
   Backdrop,
   Box,
-  Button,
   Container,
   Grid,
-  Link,
   Typography,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,6 +17,7 @@ import {
   CreateNewFolderOutlined,
 } from '@material-ui/icons';
 
+import ErrorHandler from './ErrorHandler';
 import ProjectCard from './ProjectCard';
 
 import {
@@ -71,7 +70,10 @@ const Projects = (props) => {
     const [projects, setProjects] = useState({
       "projects": [],
       "loaded": false,
-      "error": null,
+    });
+
+    const [error, setError] = useState({
+      "message": null,
       "retry": false,
     });
 
@@ -79,7 +81,7 @@ const Projects = (props) => {
 
       refreshProjects();
 
-    }, [projects.error]);
+    }, [error.message]);
 
     const refreshProjects = () => {
 
@@ -90,26 +92,23 @@ const Projects = (props) => {
           setProjects({
             "projects": result.data['result'],
             "loaded": true,
-            "error": null,
-            "retry": false,
           });
         })
         .catch((error) => {
           
           if (error.response) {
 
-            setProjects(s => {return({
-              ...s,
-              "error": error.response.data.message,
-              "retry": true,  
-            })});
+            setError({
+              "message": error.response.data.message,
+              "retry": true,
+            });
             console.log(error.response);
 
           } else {
 
-            setProjects(s => {return({
+            setError(s => {return({
               ...s,
-              "error": "Connection lost with the server. Please restart the software.",
+              "message": "Failed to connect to server. Please restart the software.",
             })});
 
           }
@@ -162,55 +161,20 @@ const Projects = (props) => {
       };
     }
 
-    const handleClickRetry = () => {
-      setProjects(s => {return({
-        ...s,
-        "error": null,
-        "retry": false,
-      })});
-    };
-
     return (
 
       <Box>
           <Container maxWidth='md' className={classes.root}>
 
-          {projects['error'] !== null &&
-            <Box>
-              <Box className={classes.noProjects}>
-                <Typography variant="h5" align="center">
-                  {projects.error}
-                </Typography>
-                <Box fontStyle="italic">
-                  <Typography align="center">
-                    If the issue remains after retrying, click
-                    <Link
-                      className={classes.link}
-                      href="https://github.com/asreview/asreview/issues/new/choose"
-                      target="_blank"
-                    >
-                      <strong>here</strong>
-                    </Link> to report.
-                  </Typography>
-                </Box>
-              </Box>
-              {projects['retry'] === true &&
-                <Box align="center">
-                  <Button 
-                    className={classes.retryButton}
-                    variant="contained"
-                    color="primary"
-                    onClick={handleClickRetry}
-                  >
-                    Retry
-                  </Button>
-                </Box>
-              }
-            </Box>
+          {error['message'] !== null &&
+            <ErrorHandler
+              error={error}
+              setError={setError}
+            />
           }
 
           {/* Project loaded, but no projects found */}
-          {(projects['error'] === null && projects['loaded'] && projects['projects'].length === 0) &&
+          {(error['message'] === null && projects['loaded'] && projects['projects'].length === 0) &&
                 <Box className={classes.noProjects}>
                   <Typography variant="h5" align="center">
                     You don't have any projects yet.
@@ -224,7 +188,7 @@ const Projects = (props) => {
           }
 
           {/* Project loaded and projects found */}
-          {(projects['error'] === null && projects['loaded'] && projects['projects'].length !== 0) &&
+          {(error['message'] === null && projects['loaded'] && projects['projects'].length !== 0) &&
             <Grid container spacing={3}>
                 {projects['projects'].map(project => (
                     <Grid item xs={12} sm={6} key={project.id}>

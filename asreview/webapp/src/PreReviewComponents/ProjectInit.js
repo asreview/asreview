@@ -14,7 +14,7 @@ import { brown } from '@material-ui/core/colors';
 
 import axios from 'axios'
 
-import { ErrorHandler } from '../Components';
+import ErrorHandler from '../ErrorHandler';
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
