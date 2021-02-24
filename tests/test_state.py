@@ -121,9 +121,6 @@ def test_print_state():
 def test_settings_state():
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
-
-        print(state.f.attrs["settings"])
-        print(state.settings)
         assert isinstance(state.settings, ASReviewSettings)
 
 
