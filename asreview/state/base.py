@@ -209,10 +209,10 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def delete_last_query(self):
-        """Delete the last query from the state object."""
-        raise NotImplementedError
+    # @abstractmethod
+    # def delete_last_query(self):
+    #     """Delete the last query from the state object."""
+    #     raise NotImplementedError
 
     def startup_vals(self):
         # TODO{STATE} Remove method
