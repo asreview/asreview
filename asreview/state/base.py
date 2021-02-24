@@ -36,16 +36,18 @@ class BaseState(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def restore(self, fp):
-        """Restore or create state from a state file.
+    def _create_new_state_file(self):
+        """Create empty internal structure for state"""
+        raise NotImplementedError
 
-        If the state file doesn't exist, creates and empty state that is ready
-        for storage.
+    @abstractmethod
+    def _restore(self, fp):
+        """Restore state from a state file.
 
         Arguments
         ---------
         fp: str
-            Path to file to restore/create.
+            Path to file to restore.
         """
         raise NotImplementedError
 
@@ -289,11 +291,6 @@ class BaseState(ABC):
         return None
 
     @abstractmethod
-    def _initialize_structure(self):
-        """Create empty internal structure for state"""
-        raise NotImplementedError
-
-    @abstractmethod
     def close(self):
         """Close the files opened by the state.
 
@@ -324,12 +321,12 @@ class BaseState(ABC):
         state_dict = {}
         state_dict["settings"] = vars(self.settings)
 
-        global_datasets = ["labels", "final_labels"]
-        for dataset in global_datasets:
-            try:
-                state_dict[dataset] = self.get(dataset).tolist()
-            except KeyError:
-                pass
+        # global_datasets = ["labels", "final_labels"]
+        # for dataset in global_datasets:
+        #     try:
+        #         state_dict[dataset] = self.get(dataset).tolist()
+        #     except KeyError:
+        #         pass
 
         query_datasets = [
             "label_methods", "label_idx", "inclusions", "proba", "pool_idx",

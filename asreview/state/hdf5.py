@@ -22,13 +22,10 @@ from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
+from asreview.state.errors import StateNotFoundError
 
 
 LATEST_HDF5STATE_VERSION = "1.1"
-
-
-class StateNotFoundError(FileNotFoundError):
-    pass
 
 
 def _append_to_dataset(name, values, g, dtype):
@@ -61,8 +58,78 @@ class HDF5State(BaseState):
         Open state in read only mode. Default False.
     """
 
-    def __init__(self, read_only=False):
+    def __init__(self, read_only=True):
         super(HDF5State, self).__init__(read_only=read_only)
+
+### OPEN, CLOSE, SAVE, INIT
+
+    def _create_new_state_file(self, fp):
+
+        if self.read_only:
+            raise ValueError(
+                "Can't create new state file in read_only mode."
+            )
+
+        # create folder to state file if not exist
+        Path(fp).parent.mkdir(parents=True, exist_ok=True)
+
+        self.f = h5py.File(fp, "a")
+        self.f.attrs['start_time'] = np.string_(datetime.now())
+        self.f.attrs['end_time'] = np.string_("")
+        self.f.attrs['settings'] = np.string_("{}")
+        self.f.attrs['version'] = np.string_(LATEST_HDF5STATE_VERSION)
+        self.f.create_group('results')
+
+        # TODO{CREATE Feature matric group}
+
+    def _restore(self, fp):
+        """Restore the state file.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            File path of the state file.
+        """
+
+        # If state already exist
+        if not fp.is_file():
+            raise StateNotFoundError(f"State file {fp} doesn't exist.")
+
+        # store read_only value
+        mode = "r" if self.read_only else "a"
+
+        # open or create state file
+        self.f = h5py.File(fp, mode)
+
+        try:
+            if not self._is_valid_version():
+                raise ValueError(
+                    f"State cannot be read: state version {self.version}, "
+                    f"state file version {self.version}.")
+        except AttributeError as err:
+            raise ValueError(
+                f"Unexpected error when opening state file {err}"
+            )
+
+    def save(self):
+        """Save and close the state file."""
+        self.f['end_time'] = str(datetime.now())
+        self.f.flush()
+
+    def close(self):
+        # TODO{STATE} Merge with save?
+
+        if not self.read_only:
+            self.f.attrs['end_time'] = np.string_(datetime.now())
+
+        self.f.close()
+
+### PROPERTIES
+    def _is_valid_version(self):
+        """Check compatibility of state version."""
+        # TODO check for version <= 1.1, should fail as well
+
+        return self.version[0] == LATEST_HDF5STATE_VERSION[0]
 
     @property
     def version(self):
@@ -72,63 +139,21 @@ class HDF5State(BaseState):
         except Exception:
             raise AttributeError("Attribute 'version' not found.")
 
-    def _is_valid_version(self):
-        """Check compatibility of state version."""
-        # TODO check for version <= 1.1, should fail as well
-
-        return self.version[0] == LATEST_HDF5STATE_VERSION[0]
-
-    def _initialize_structure(self):
-        self.f.attrs['start_time'] = np.string_(datetime.now())
-        self.f.attrs['end_time'] = np.string_(datetime.now())
-        self.f.attrs['settings'] = np.string_("{}")
-        self.f.attrs['version'] = np.string_(LATEST_HDF5STATE_VERSION)
-        self.f.create_group('results')
-
-    def restore(self, fp, read_only=False, init_on_missing=True):
-        """Init or restore the state file.
-
-        Arguments
-        ---------
-        fp: str, pathlib.Path
-            File path of the state file.
-        read_only: bool
-            Open state in read only mode. Default False.
-        init_on_missing: bool
-            Create new state file if it doesn't exist. Default True.
-        """
-
-        # store read_only value
-        self.read_only = read_only
-        mode = "r" if self.read_only else "a"
-
-        # create folder to state file if not exist
-        Path(fp).parent.mkdir(parents=True, exist_ok=True)
-
-        # open the HDF5 file
-        self.f = h5py.File(fp, mode)
-
+    @property
+    def start_time(self):
+        """Init datetime of the state file."""
         try:
-            if not self._is_valid_version():
-                raise ValueError(
-                    f"State cannot be read: state version {self.version}, "
-                    f"state file version {self.version}.")
-        except AttributeError:
-            if init_on_missing:
-                self._initialize_structure()
-            else:
-                raise StateNotFoundError(f"State file {fp} doesn't exist.")
+            return self.f.attrs['start_time']
+        except Exception:
+            raise AttributeError("Attribute 'start_time' not found.")
 
-    def save(self):
-        """Save and close the state file."""
-        self.f['end_time'] = str(datetime.now())
-        self.f.flush()
-
-    def close(self):
-        # TODO{STATE} Merge with save?
-        if not self.read_only:
-            self.f.attrs['end_time'] = np.string_(datetime.now())
-        self.f.close()
+    @property
+    def end_time(self):
+        """Last modified (datetime) of the state file."""
+        try:
+            return self.f.attrs['end_time']
+        except Exception:
+            raise AttributeError("Attribute 'end_time' not found.")
 
     @property
     def settings(self):
@@ -168,6 +193,8 @@ class HDF5State(BaseState):
         self.f.attrs.pop('settings', None)
         self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
 
+
+### METHODS/FUNC
     # def set_labels(self, y):
     # Remove this
     #     """Set the initial labels as of the dataset.

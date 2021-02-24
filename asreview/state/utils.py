@@ -27,6 +27,7 @@ from scipy.sparse import load_npz
 from scipy.sparse import csr_matrix
 
 from asreview.config import STATE_EXTENSIONS
+from asreview.state.errors import StateNotFoundError
 
 
 V3STATE_VERSION = "0.0"
@@ -52,7 +53,7 @@ def _get_state_class(fp):
 
 
 @contextmanager
-def open_state(fp, read_only=False):
+def open_state(fp, read_only=True):
     """Open a state from a file.
 
     Arguments
@@ -81,10 +82,20 @@ def open_state(fp, read_only=False):
     state = state_class(read_only=read_only)
 
     try:
-        state.restore(fp, read_only)
+        if Path(fp).is_file():
+            state._restore(fp)
+        elif not Path(fp).is_file() and not read_only:
+            state._create_new_state_file(fp)
+        else:
+            raise StateNotFoundError("State file does not exist")
         yield state
     finally:
-        state.close()
+
+        try:
+            state.close()
+        except AttributeError:
+            # file seems to be closed, do nothing
+            pass
 
 
 def states_from_dir(data_dir, prefix=""):

@@ -169,7 +169,7 @@ def get_reviewer(dataset,
     cli_settings.from_file(config_file)
 
     if state_file is not None:
-        with open_state(state_file) as state:
+        with open_state(state_file, read_only=False) as state:
             if state.is_empty():
                 state.settings = cli_settings
             settings = state.settings

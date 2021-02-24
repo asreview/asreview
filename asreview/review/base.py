@@ -169,7 +169,7 @@ class BaseReview(ABC):
         self.model_trained = False
 
         # Restore the state from a file or initialize said file.
-        with open_state(self.state_file) as state:
+        with open_state(self.state_file, read_only=False) as state:
 
             # state file exists
             if not state.is_empty():
@@ -339,7 +339,7 @@ class BaseReview(ABC):
         instant_save: bool
             If True, save results after each single classification.
         """
-        with open_state(self.state_file) as state:
+        with open_state(self.state_file, read_only=False) as state:
             self._do_review(state, *args, **kwargs)
 
     def log_probabilities(self, state):

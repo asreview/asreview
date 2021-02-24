@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
 
+import pytest
+
 import numpy as np
 
 from asreview.state import HDF5State
 from asreview.state import open_state, state_from_asreview_file
+from asreview.state.errors import StateNotFoundError
 from asreview.settings import ASReviewSettings
 
 
@@ -75,29 +78,74 @@ from asreview.settings import ASReviewSettings
 #         assert np.all(res["pool_idx"] == list(range(label_i + 1, n_records)))
 #         assert np.all(res["train_idx"] == list(range(0, label_i + 1)))
 
+@pytest.mark.xfail(
+    raises=StateNotFoundError,
+    reason="State not found and in read_only mode"
+)
+def test_state_not_found():
+    with open_state("this_file_doesnt_exist.h5") as state:
+        pass
+
 def test_read_basic_state():
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
         assert isinstance(state, HDF5State)
 
 
-def test_read_hdf5_state():
-    state_fp = Path("tests", "state_files", "test_1_inst.h5")
-    with open_state(state_fp) as state:
-        assert isinstance(state, HDF5State)
-
-
 def test_version_number_state():
-    state_fp = Path("tests", "state_files", "test_1_inst.h5")
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
         assert state.version[0] == "1"
 
 
-def test_settings_state():
-    state_fp = Path("tests", "state_files", "test_1_inst.h5")
+def test_read_only_state():
+
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    with open_state(state_fp, read_only=True) as state1:
+        end_time1 = state1.end_time
+
+    with open_state(state_fp) as state2:
+        end_time2 = state2.end_time
+
+    assert end_time1 == end_time2
+
+    # TODO{Try to modify and catch error}
+
+
+def test_print_state():
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
+        print(state)
+
+
+def test_settings_state():
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    with open_state(state_fp) as state:
+
+        print(state.f.attrs["settings"])
         print(state.settings)
         assert isinstance(state.settings, ASReviewSettings)
+
+
+
+# ##### tests for old HDF5 states
+# def test_read_hdf5_state():
+#     state_fp = Path("tests", "state_files", "test_1_inst.h5")
+#     with open_state(state_fp) as state:
+#         assert isinstance(state, HDF5State)
+
+
+# def test_version_number_state():
+#     state_fp = Path("tests", "state_files", "test_1_inst.h5")
+#     with open_state(state_fp) as state:
+#         assert state.version[0] == "1"
+
+
+# def test_settings_state():
+#     state_fp = Path("tests", "state_files", "test_1_inst.h5")
+#     with open_state(state_fp) as state:
+#         print(state.settings)
+#         assert isinstance(state.settings, ASReviewSettings)
 
 
 # def test_read_asreview_file():
