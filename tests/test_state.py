@@ -75,6 +75,11 @@ from asreview.settings import ASReviewSettings
 #         assert np.all(res["pool_idx"] == list(range(label_i + 1, n_records)))
 #         assert np.all(res["train_idx"] == list(range(0, label_i + 1)))
 
+def test_read_basic_state():
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    with open_state(state_fp) as state:
+        assert isinstance(state, HDF5State)
+
 
 def test_read_hdf5_state():
     state_fp = Path("tests", "state_files", "test_1_inst.h5")
