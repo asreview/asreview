@@ -36,8 +36,14 @@ class BaseState(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def _create_new_state_file(self):
-        """Create empty internal structure for state"""
+    def _create_new_state_file(self, fp):
+        """Create empty internal structure for state.
+
+        Arguments
+        ---------
+        fp: str
+            Location of created file.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -328,8 +334,9 @@ class BaseState(ABC):
         #     except KeyError:
         #         pass
 
+        # Removed: "label_methods", "label_idx"
         query_datasets = [
-            "label_methods", "label_idx", "inclusions", "proba", "pool_idx",
+            "inclusions", "proba", "pool_idx",
             "train_idx"
         ]
         state_dict["results"] = []

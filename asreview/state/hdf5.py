@@ -92,7 +92,7 @@ class HDF5State(BaseState):
         """
 
         # If state already exist
-        if not fp.is_file():
+        if not Path(fp).is_file():
             raise StateNotFoundError(f"State file {fp} doesn't exist.")
 
         # store read_only value
@@ -108,7 +108,7 @@ class HDF5State(BaseState):
                     f"state file version {self.version}.")
         except AttributeError as err:
             raise ValueError(
-                f"Unexpected error when opening state file {err}"
+                f"Unexpected error when opening state file: {err}"
             )
 
     def save(self):
@@ -128,7 +128,8 @@ class HDF5State(BaseState):
     def _is_valid_version(self):
         """Check compatibility of state version."""
         # TODO check for version <= 1.1, should fail as well
-
+        # QUESTION: Should all version < LATEST_HDF5STATE fail, or only versions
+        # < LATEST_DEPRECATED_VERSION?
         return self.version[0] == LATEST_HDF5STATE_VERSION[0]
 
     @property
@@ -316,16 +317,23 @@ class HDF5State(BaseState):
         g.create_dataset("proba", data=proba, dtype=np.float)
 
     def n_queries(self):
-        return len(self.f['results'].keys())
+        return (self.f['results/indices'].shape[0] -
+                self.f['results'].attrs['n_priors'] + 1)
+        # QUESTION: This treats the priors as one query, is that what you want?
 
     def get(self, variable, query_i=None, idx=None):
+        # TODO(State): Turn logic into if, elif, ..., elif, else.
         if query_i is not None:
             g = self.f[f"/results/{query_i}"]
         array = None
-        if variable == "label_methods":
-            array = np.array(g["new_labels"]["methods"]).astype('U20')
-        if variable == "label_idx":
-            array = np.array(g["new_labels"]["idx"], dtype=int)
+        # if variable == "label_methods":
+        #     array = np.array(g["new_labels"]["methods"]).astype('U20')
+        # if variable == "label_idx":
+        #     array = np.array(g["new_labels"]["idx"], dtype=int)
+        if variable == "predictor_methods":
+            array = np.array(self.f['results/predictor_methods'])
+        if variable == "indices":
+            array = np.array(self.f['results/indices'], dtype=int)
         if variable == "inclusions":
             array = np.array(g["new_labels"]["labels"], dtype=int)
         if variable == "proba":
@@ -342,6 +350,20 @@ class HDF5State(BaseState):
             return None
         if idx is not None:
             return array[idx]
+        return array
+
+    def ideal_get(self, variable, iloc=None):
+        """Get the dataset given by variable from the state file. If loc is not
+        None, only return the selected subset."""
+        if variable == 'train_idx':
+            pass
+        elif variable == 'pool_idx':
+            pass
+        if variable not in ['train_idx', 'pool_idx']:
+            array = np.array(self.f[f'results/{variable}'])
+
+        if iloc is not None:
+            array = array[iloc]
         return array
 
     # def delete_last_query(self):

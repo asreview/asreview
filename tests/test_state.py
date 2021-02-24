@@ -86,6 +86,7 @@ def test_state_not_found():
     with open_state("this_file_doesnt_exist.h5") as state:
         pass
 
+
 def test_read_basic_state():
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
@@ -99,7 +100,6 @@ def test_version_number_state():
 
 
 def test_read_only_state():
-
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp, read_only=True) as state1:
         end_time1 = state1.end_time
@@ -123,6 +123,26 @@ def test_settings_state():
     with open_state(state_fp) as state:
         assert isinstance(state.settings, ASReviewSettings)
 
+
+def test_n_queries():
+    NUM_QUERIES_IN_TEST = 2543
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    with open_state(state_fp) as state:
+        assert state.n_queries() == NUM_QUERIES_IN_TEST
+
+
+# Test get by querying for the whole dataset everytime. I'll implement indexing
+# at a later stage.
+def test_get():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    METHODS = ['initial', 'initial', 'max', 'max']
+    INDICES = [0, 3, 2, 1]
+    LABELS = [1, 0, 1, 0]
+
+    with open_state(state_fp) as state:
+        assert all([x.encode('ascii') for x in METHODS] ==
+                   state.get("predictor_methods"))
+        assert all(INDICES == state.get("indices"))
 
 
 # ##### tests for old HDF5 states

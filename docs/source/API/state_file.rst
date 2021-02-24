@@ -93,6 +93,7 @@ The schema of the state file:
    (HDF5 file) |         |- start_time         (str: Time state file was created)
                |         |- end_time           (str: Time state file was last closed)
                |         |- version            (str: state_file version)
+               |         |- software_version   (str: software (ASReview) version)
                |         |- settings           (json'ed dict: contains the same info as the ASReviewSettings object)
                |- results --- attrs --- n_priors   (int)
                |           |- indices              (dtype <i4: All labelled indices in order. First n_priors are the prior ones)

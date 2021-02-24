@@ -30,11 +30,11 @@ from asreview.config import STATE_EXTENSIONS
 from asreview.state.errors import StateNotFoundError
 
 
-V3STATE_VERSION = "0.0"
+V3STATE_VERSION = "1.1"
 
 
 def _get_state_class(fp):
-    "Get state class from file extension."
+    """Get state class from file extension."""
 
     if fp is None:
         from asreview.state.legacy.dict import DictState
@@ -195,14 +195,15 @@ def state_from_asreview_file(data_fp):
         return state
 
 
-def convert_h5_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=None):
+# TODO(State): If conversion fails, clean up created file.
+def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
     """Create a prototype of the new state file from an old HDF5 state file.
 
     Arguments
-    ----------
+    ---------
     v3state_fp: str
         Location where to create the new '.h5' state file.
-    jsonstate_fp: str
+    old_h5_state_fp: str
         Location of the existing HDF5 state file.
     basic: bool
         Make the basic version, or also include probabilities.
@@ -213,18 +214,20 @@ def convert_h5_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=None):
     -------
     New version '.h5' state file at location of prototype_fp.
     """
-    with open_state(jsonstate_fp, read_only=True) as sf:
+    with open_state(old_h5_state_fp, read_only=True) as sf:
         with h5py.File(v3state_fp, 'w') as pt:
             # Copy data_properties and metadata/settings from state file.
             sf.f.copy('data_properties', pt['/'])
             for attr in sf.f.attrs:
                 # Current attributes are current_queries, end_time, settings,
-                # start_time and version.
+                # start_time, version and software_version. Note that software
+                # version is not actually available in old HDF5 state files.
                 if attr == 'version':
-                    pt.attrs['state_version'] = V3STATE_VERSION
+                    pt.attrs['version'] = np.string_(V3STATE_VERSION)
+                    pt.attrs['software_version'] = np.string_("")
                 else:
                     pt.attrs[attr] = sf.f.attrs[attr]
-                    # todo: Add 'software_version'
+                    # QUESTION: Should all attributes be numpy datatypes?
 
             # Create the results group and set num priors as attribute.
             pt.create_group('results')
@@ -292,12 +295,11 @@ def convert_h5_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=None):
 
             if not basic:
                 pt['results'].create_group('custom')
-                # Indices of samples where probabilities are stored. Should 0 be
-                # included?
-                proba_interval = proba_gap
+                # QUESTION: Indices of samples where probabilities are stored.
+                # Should 0 be included?
                 proba_col_index = [
                     num for num in sf_queries
-                    if (num % proba_interval == 0) or sf_labels[num]
+                    if (num % proba_gap == 0) or sf_labels[num]
                 ]
                 proba_col_index = np.array(proba_col_index)
                 pt['results/custom'].create_dataset(
@@ -326,11 +328,11 @@ def decode_feature_matrix(jsonstate, data_hash):
     return encoded_X
 
 
-def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=None):
+def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
     """Create a prototype of the new state file from an old json state file.
 
     Arguments
-    ----------
+    ---------
     v3state_fp: str
         Location where to create the new '.h5' state file.
     jsonstate_fp: str
@@ -366,9 +368,8 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=None):
             pt.attrs['settings'] = str(sf._state_dict['settings'])
             pt.attrs['start_time'] = sf._state_dict['time']['start_time']
             pt.attrs['end_time'] = sf._state_dict['time']['end_time']
-            pt.attrs['current_queries'] = str(
-                sf._state_dict['current_queries'])
-            pt.attrs['state_version'] = V3STATE_VERSION
+            pt.attrs['current_queries'] = str(sf._state_dict['current_queries'])
+            pt.attrs['version'] = np.string_(V3STATE_VERSION)
             pt.attrs['software_version'] = sf._state_dict['software_version']
 
             # Create the results group and set num priors as attribute.
@@ -441,10 +442,9 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=None):
                 pt['results'].create_group('custom')
                 # Indices of samples where probabilities are stored. Should 0 be
                 # included?
-                proba_interval = proba_gap
                 proba_col_index = [
                     num for num in sf_queries
-                    if (num % proba_interval == 0) or sf_labels[num]
+                    if (num % proba_gap == 0) or sf_labels[num]
                 ]
                 proba_col_index = np.array(proba_col_index)
                 pt['results/custom'].create_dataset(
