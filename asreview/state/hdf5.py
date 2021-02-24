@@ -203,6 +203,16 @@ class HDF5State(BaseState):
         self.f.attrs["current_queries"] = data
 
     def get_current_queries(self):
+        """Get the current queries made by the model.
+
+        This is useful to get back exactly to the state it was in before
+        shutting down a review.
+
+        Returns
+        -------
+        dict:
+            The last known queries according to the state file.
+        """
         str_queries = json.loads(self.f.attrs["current_queries"])
         return {int(key): value for key, value in str_queries.items()}
 

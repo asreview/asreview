@@ -170,7 +170,8 @@ class BaseReview(ABC):
 
         # Restore the state from a file or initialize said file.
         with open_state(self.state_file) as state:
-            # From file
+
+            # state file exists
             if not state.is_empty():
                 # TODO{STATE} Directly from state file
                 startup = state.startup_vals()
@@ -187,7 +188,7 @@ class BaseReview(ABC):
                 self.shared["query_src"] = startup["query_src"]
                 self.query_i = startup["query_i"]
                 self.query_i_classified = startup["query_i_classified"]
-            # From scratch
+            # state file doesnt exist
             else:
                 # state.set_labels(self.y)
                 state.settings = self.settings
@@ -197,7 +198,9 @@ class BaseReview(ABC):
                               method="initial")
                 self.query_i_classified = len(start_idx)
 
-            # Try to retrieve feature matrix from the state file.
+            # Retrieve feature matrix from the state file or create
+            # one from scratch. Check if the number of records in the
+            # feature matrix matches the length of the labels.
             try:
                 self.X = state.get_feature_matrix(as_data.hash())
             except KeyError:
@@ -206,10 +209,13 @@ class BaseReview(ABC):
                                                      as_data.bodies,
                                                      as_data.keywords)
                 state._add_as_data(as_data, feature_matrix=self.X)
+
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "
                                  "given data file, please use another state "
                                  "file or dataset.")
+
+            #
             self.load_current_query(state)
 
     @property
@@ -357,6 +363,7 @@ class BaseReview(ABC):
         state.set_current_queries(self.shared["current_queries"])
 
     def load_current_query(self, state):
+        """Load the latest query."""
         try:
             self.shared["current_queries"] = state.get_current_queries()
         except KeyError:
