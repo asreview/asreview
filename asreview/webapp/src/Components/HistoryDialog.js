@@ -8,7 +8,6 @@ import {
   DialogTitle,
   FormControl,
   IconButton,
-  Link,
   List,
   MenuItem,
   Select,
@@ -24,6 +23,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import {
   HistoryListCard,
 } from '../Components'
+import ErrorHandler from '../ErrorHandler';
 
 import axios from 'axios';
 
@@ -59,18 +59,6 @@ const useStyles = makeStyles(theme => ({
   },
   recordLabelActionText: {
     paddingRight: '4px',
-  },
-  errorMessage: {
-    paddingTop: '24px',
-    paddingBottom: "24px",
-    opacity: 0.5,
-  },
-  link: {
-    paddingLeft: "3px",
-  },
-  retryButton: {
-    position: "relative",
-    paddingBottom: "24px",
   },
 }));
 
@@ -111,10 +99,6 @@ const HistoryDialog = (props) => {
       "index": null,
     });
 
-    setError({
-      "message": null,
-      "retry": false,
-    });
   };
 
   const closeHistory = () => {
@@ -123,12 +107,6 @@ const HistoryDialog = (props) => {
     props.toggleHistory();
 
   }
-
-  const handleClickRetry = () => {
-
-    reloadHistory();
-
-  };
 
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
@@ -189,13 +167,13 @@ const HistoryDialog = (props) => {
             console.log(error.response);
           } else {
             setError({
-              "message": "Connection lost with the server. Please restart the software.",
+              "message": "Failed to connect to server. Please restart the software.",
               "retry": false,
             })
           };
         });
     }
-  }, [props.project_id, props.history, state]);
+  }, [props.project_id, props.history, state, error.message]);
 
   return (
       <Dialog
@@ -242,34 +220,10 @@ const HistoryDialog = (props) => {
 
         {error.message !== null &&
           <DialogContent dividers={true}>
-            <Box className={classes.errorMessage}>
-              <Typography variant="h5" align="center">
-                {error.message}
-              </Typography>
-              <Box fontStyle="italic">
-                <Typography align="center">
-                  If the issue remains after retrying, click
-                  <Link
-                    className={classes.link}
-                    href="https://github.com/asreview/asreview/issues/new/choose"
-                    target="_blank"
-                  >
-                    <strong>here</strong>
-                  </Link> to report.
-                </Typography>
-              </Box>
-            </Box>
-            {error.retry === true &&
-              <Box className={classes.retryButton} align="center">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickRetry}
-                >
-                  Retry
-                </Button>
-              </Box>
-            }
+            <ErrorHandler
+              error={error}
+              setError={setError}
+            />
           </DialogContent>
         }
 

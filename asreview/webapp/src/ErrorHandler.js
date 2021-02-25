@@ -19,6 +19,7 @@ const useStyles = makeStyles(theme => ({
   },
   retryButton: {
     position: "relative",
+    paddingBottom: '24px',
   },
 }));
 
@@ -53,9 +54,8 @@ const ErrorHandler = (props) => {
         </Box>
       </Box>
       {props.error["retry"] === true &&
-        <Box align="center">
-          <Button 
-            className={classes.retryButton}
+        <Box className={classes.retryButton} align="center">
+          <Button
             variant="contained"
             color="primary"
             onClick={handleClickRetry}
