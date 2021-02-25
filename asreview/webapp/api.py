@@ -441,23 +441,27 @@ def api_get_project_data(project_id):  # noqa: F401
 def api_search_data(project_id):  # noqa: F401
     """Search for papers
     """
-
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
 
-    payload = {"result": []}
-    if q:
-        result_search = search_data(project_id, q=q, n_max=max_results)
+    try:
+        payload = {"result": []}
+        if q:
+            result_search = search_data(project_id, q=q, n_max=max_results)
 
-        for paper in result_search:
-            payload["result"].append({
-                "id": int(paper.record_id),
-                "title": paper.title,
-                "abstract": paper.abstract,
-                "authors": paper.authors,
-                "keywords": paper.keywords,
-                "included": int(paper.included)
-            })
+            for paper in result_search:
+                payload["result"].append({
+                    "id": int(paper.record_id),
+                    "title": paper.title,
+                    "abstract": paper.abstract,
+                    "authors": paper.authors,
+                    "keywords": paper.keywords,
+                    "included": int(paper.included)
+                })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load search results."), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
