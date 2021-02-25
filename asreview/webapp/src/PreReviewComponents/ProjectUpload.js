@@ -251,7 +251,7 @@ const ProjectUpload = ({
           if (error.response){
             setError(error.response.data["message"])
           } else {
-            setError("Connection lost with the server. Please restart the software.")
+            setError("Failed to connect to server. Please restart the software.")
           }
 
           // callback

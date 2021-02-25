@@ -19,7 +19,6 @@ const useStyles = makeStyles(theme => ({
   },
   retryButton: {
     position: "relative",
-    top: "12px",
   },
 }));
 

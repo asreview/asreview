@@ -1,4 +1,4 @@
-import React, {useRef, useEffect}  from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
@@ -6,7 +6,6 @@ import {
   Button,
   Container,
   Grid,
-  Link,
   Typography,
   CircularProgress,
   IconButton,
@@ -17,6 +16,7 @@ import {
   PreReviewZone,
 } from '../PreReviewComponents'
 
+import ErrorHandler from '../ErrorHandler';
 import DangerZone from '../DangerZone.js'
 import PublicationZone from '../PublicationZone.js'
 import StatisticsZone from '../StatisticsZone.js'
@@ -75,17 +75,6 @@ const useStyles = makeStyles(theme => ({
     display: "block",
     margin: "auto",
   },
-  errorMessage: {
-    paddingTop: '24px',
-    opacity: 0.5,
-  },
-  link: {
-    paddingLeft: "3px",
-  },
-  retryButton: {
-    position: "relative",
-    top: "12px",
-  },
 }));
 
 const ProjectPage = (props) => {
@@ -94,7 +83,7 @@ const ProjectPage = (props) => {
 
   const EndRef = useRef(null)
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     // info-header
     infoLoading: true,
     info: null,
@@ -108,6 +97,11 @@ const ProjectPage = (props) => {
     // error
     error: null,
     retry: false,
+  });
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
   });
 
   const finishProjectSetup = () => {
@@ -180,14 +174,6 @@ const ProjectPage = (props) => {
     EndRef.current.scrollIntoView({ behavior: "smooth" })
   }
 
-  const handleClickRetry = () => {
-      setState(s => {return({
-        ...s,
-        error: null,
-        retry: false,
-      })});
-  };
-
   useEffect(() => {
 
     if (!state.infoLoading && EndRef.current !== undefined){
@@ -222,19 +208,17 @@ const ProjectPage = (props) => {
 
           if (error.response) {
                
-            setState(s => {
-              return({
-                ...s,
-                error: error.response.data.message,
-                retry: true,
-            })});
+            setError({
+              message: error.response.data.message,
+              retry: true,
+            });
             console.log(error.response);
 
           } else {
 
-            setState(s => {return({
+            setError(s => {return({
               ...s,
-              error: "Connection lost with the server. Please restart the software.",
+              message: "Failed to connect to server. Please restart the software.",
             })});
 
           };
@@ -243,45 +227,18 @@ const ProjectPage = (props) => {
 
     fetchProjectInfo();
 
-  }, [props.project_id, state.finished, state.error]);
+  }, [props.project_id, state.finished, error.message]);
 
   return (
     <Box>
-      {state.error !== null &&
-        <Box>
-          <Box className={classes.errorMessage}>
-            <Typography variant="h5" align="center">
-              {state.error}
-            </Typography>
-            <Box fontStyle="italic">
-              <Typography align="center">
-                If the issue remains after retrying, click
-                <Link
-                  className={classes.link}
-                  href="https://github.com/asreview/asreview/issues/new/choose"
-                  target="_blank"
-                >
-                  <strong>here</strong>
-                </Link> to report.
-              </Typography>
-            </Box>
-          </Box>
-          {state.retry === true &&
-            <Box align="center">
-              <Button 
-                className={classes.retryButton}
-                variant="contained"
-                color="primary"
-                onClick={handleClickRetry}
-              >
-                Retry
-              </Button>
-            </Box>
-          }
-        </Box>
+      {error.message !== null &&
+        <ErrorHandler
+          error={error}
+          setError={setError}
+        />
       }
 
-      {state.error === null && !state.infoLoading &&
+      {error.message === null && !state.infoLoading &&
         <Box className={classes.box}>
           <div ref={EndRef} />
           <Container maxWidth='md'>

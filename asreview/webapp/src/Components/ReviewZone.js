@@ -3,12 +3,11 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
-  Button,
   Link,
-  Typography,
 } from '@material-ui/core'
 import { Alert, AlertTitle } from '@material-ui/lab'
 
+import ErrorHandler from '../ErrorHandler';
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
@@ -44,16 +43,8 @@ const useStyles = makeStyles(theme => ({
     }),
     marginRight: reviewDrawerWidth,
   },
-  errorMessage: {
-    paddingTop: '24px',
-    opacity: 0.5,
-  },
   link: {
     paddingLeft: "3px",
-  },
-  retryButton: {
-    position: "relative",
-    top: "12px",
   },
 }));
 
@@ -119,9 +110,12 @@ const ReviewZone = (props) => {
     'isloaded': false,
     'record': null,
     'selection': null,
-    'error': null,
-    'retry': false,
   })
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
+  });
 
   const [undoState, setUndoState] = useState({
     'open': false,
@@ -169,18 +163,14 @@ const ReviewZone = (props) => {
       'isloaded': true,
       'record': previousRecordState.record,
       'selection': previousRecordState.decision,
-      'error': null,
-      'retry': false,
     });
-}
+  }
 
   const startLoadingNewDocument = () => {
     setRecordState({
       'isloaded': false,
       'record': null,
       'selection': null,
-      'error': null,
-      'retry': false,
     });
   }
 
@@ -268,15 +258,6 @@ const ReviewZone = (props) => {
     });
   }
 
-  const handleClickRetry = () => {
-    setRecordState(s => {return({
-      ...s,
-      isloaded: false,
-      error: null,
-      retry: false,
-    })});
-  };
-
   useEffect(() => {
 
     /**
@@ -328,8 +309,6 @@ const ReviewZone = (props) => {
             'record':result.data["result"],
             'isloaded': true,
             'selection': null,
-            'error': null,
-            'retry': false,
           });
         }
 
@@ -338,24 +317,18 @@ const ReviewZone = (props) => {
 
         if (error.response) {
 
-          setRecordState({
-            'record': null,
-            'isloaded': true,
-            'selection': null,
-            'error': error.response.data.message,
+          setError({
+            'message': error.response.data.message,
             'retry': true,
           });
-          console.log(error);
+          console.log(error.response);
 
         } else {
 
-          setRecordState(s => {return({
-            'record': null,
-            'isloaded': true,
-            'selection': null,
-            'error': "Connection lost with the server. Please restart the software.",
+          setError({
+            'message': "Failed to connect to server. Please restart the software.",
             'retry': false,
-          })});
+          });
 
         };
       });
@@ -371,7 +344,7 @@ const ReviewZone = (props) => {
 
     getProgressHistory();
 
-  },[props.project_id, recordState, props]);
+  },[props.project_id, recordState, props, error.message]);
 
   useEffect(() => {
 
@@ -411,7 +384,7 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {recordState.error === null && recordState['isloaded'] &&
+        {error.message === null && recordState['isloaded'] &&
           <ArticlePanel
             record={recordState['record']}
             showAuthors={props.showAuthors}
@@ -420,45 +393,18 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {recordState.error !== null &&
-          <Box>
-            <Box className={classes.errorMessage}>
-              <Typography variant="h5" align="center">
-                {recordState.error}
-              </Typography>
-              <Box fontStyle="italic">
-                <Typography align="center">
-                  If the issue remains after retrying, click
-                  <Link
-                    className={classes.link}
-                    href="https://github.com/asreview/asreview/issues/new/choose"
-                    target="_blank"
-                  >
-                    <strong>here</strong>
-                  </Link> to report.
-                </Typography>
-              </Box>
-            </Box>
-            {recordState.retry === true &&
-              <Box align="center">
-                <Button 
-                  className={classes.retryButton}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleClickRetry}
-                >
-                  Retry
-                </Button>
-              </Box>
-            }
-          </Box>
+        {error.message !== null &&
+          <ErrorHandler
+            error={error}
+            setError={setError}
+          />
         }
 
         {/* Decision bar */}
         <DecisionBar
           reviewDrawerOpen={props.reviewDrawerOpen}
           makeDecision={makeDecision}
-          block={(!recordState['isloaded']) || (recordState.error !== null)}
+          block={(!recordState['isloaded']) || (error.message !== null)}
           recordState={recordState}
         />
 

@@ -48,13 +48,6 @@ const useStyles = makeStyles(theme => ({
   backdropZ: {
     zIndex: 1000,
   },
-  link: {
-    paddingLeft: "3px",
-  },
-  retryButton: {
-    position: "relative",
-    top: "12px",
-  },
 }));
 
 const Projects = (props) => {
