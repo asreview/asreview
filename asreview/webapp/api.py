@@ -587,18 +587,23 @@ def api_random_prior_papers(project_id):  # noqa: F401
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    record = read_data(project_id).record(pool_random, by_index=False)
+    try:
+        record = read_data(project_id).record(pool_random, by_index=False)
 
-    payload = {"result": []}
+        payload = {"result": []}
 
-    payload["result"].append({
-        "id": int(record.record_id),
-        "title": record.title,
-        "abstract": record.abstract,
-        "authors": record.authors,
-        "keywords": record.keywords,
-        "included": None
-    })
+        payload["result"].append({
+            "id": int(record.record_id),
+            "title": record.title,
+            "abstract": record.abstract,
+            "authors": record.authors,
+            "keywords": record.keywords,
+            "included": None
+        })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load random documents."), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
