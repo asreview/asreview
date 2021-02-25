@@ -531,7 +531,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load review history."), 500
+        return jsonify(message="Failed to load labeled documents"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
