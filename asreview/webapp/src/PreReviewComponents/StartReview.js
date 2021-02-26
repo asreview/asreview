@@ -1,8 +1,10 @@
 import React, {useEffect} from 'react'
 import {
   Box,
+  Link,
   Typography,
 } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles';
 
 import axios from 'axios'
 
@@ -13,7 +15,15 @@ import { connect } from "react-redux";
 import { api_url, mapStateToProps } from '../globals.js';
 
 
+const useStyles = makeStyles(theme => ({
+  link: {
+    paddingLeft: "3px",
+  },
+}));
+
 const StartReview = ({project_id, onReady}) => {
+
+  const classes = useStyles();
 
   const [state, setState] = React.useState({
     "status": null,
@@ -105,20 +115,22 @@ const StartReview = ({project_id, onReady}) => {
       { state["status"] === "error" &&
         <Box>
           <Typography
-            color="error"
-          >
-            An error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.
-          </Typography>
-          <Typography
-            variant="h4"
-            color="error"
-          >
-            Error message
-          </Typography>
-          <Typography
+            variant="h6"
             color="error"
           >
             {state["message"]}
+          </Typography>
+          <Typography
+            color="error"
+          >
+            If the issue remains after refreshing, click
+            <Link
+              className={classes.link}
+              href="https://github.com/asreview/asreview/issues/new/choose"
+              target="_blank"
+            >
+              <strong>here</strong>
+            </Link> to report.
           </Typography>
         </Box>
       }
