@@ -93,10 +93,6 @@ const ProjectPage = (props) => {
     setup: false,
     training: false,
     finished: null,
-
-    // error
-    error: null,
-    retry: false,
   });
 
   const [error, setError] = useState({
@@ -359,7 +355,7 @@ const ProjectPage = (props) => {
               <PreReviewZone
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
-                setProjectPageState={setState}
+                setProjectPageError={setError}
               />
             }
           </Container>

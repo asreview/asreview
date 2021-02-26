@@ -127,18 +127,16 @@ const PreReviewZone = (props) => {
         })
         .catch((error) => {
           if (error.response) {
-            props.setProjectPageState(s => {
-              return({
-                ...s,
-                error: error.response.data.message,
-                retry: true,
-            })});
-            console.log(error);
+            props.setProjectPageError({
+              'message': error.response.data.message,
+              'retry': true,
+            });
+            console.log(error.response);
           } else {
-            props.setProjectPageState(s => {return({
-              ...s,
-              error: "Connection lost with the server. Please restart the software.",
-            })});
+            props.setProjectPageError({
+              'message': "Failed to connect to server. Please restart the software.",
+              'retry': false,
+            });
           };
         });
     };

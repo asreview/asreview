@@ -120,7 +120,7 @@ const StatisticsZone = (props) => {
                 error: true,
                 statistics: error.response.data.message,
             })});
-            console.log(error);
+            console.log(error.response);
           } else {
             setError("Failed to connect to server. Please restart the software.");
           };
@@ -143,7 +143,7 @@ const StatisticsZone = (props) => {
                 error: true,
                 history: error.response.data.message,
             })});
-            console.log(error);
+            console.log(error.response);
           } else {
             setError("Failed to connect to server. Please restart the software.");
           };
@@ -166,7 +166,7 @@ const StatisticsZone = (props) => {
                 error: true,
                 efficiency: error.response.data.message,
             })});
-            console.log(error);
+            console.log(error.response);
           } else {
             setError("Failed to connect to server. Please restart the software.");
           };
