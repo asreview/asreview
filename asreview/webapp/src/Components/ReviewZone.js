@@ -117,6 +117,8 @@ const ReviewZone = (props) => {
     "retry": false,
   });
 
+  const [sideStatsError, setSideStatsError] = useState(false);
+
   const [undoState, setUndoState] = useState({
     'open': false,
     'message': null,
@@ -269,12 +271,17 @@ const ReviewZone = (props) => {
 
       return axios.get(url)
         .then((result) => {
-            setStatistics(result.data)
+          setStatistics(result.data);
         })
-        .catch((err) => {
-            console.log(err)
-        })
-    }
+        .catch((error) => {
+          if (error.response) {
+            setSideStatsError(true);
+            console.log(error.response);
+          } else {
+            console.log(error);
+          };
+        });
+    };
 
     const getProgressHistory = () => {
 
@@ -284,10 +291,15 @@ const ReviewZone = (props) => {
         .then((result) => {
           setHistory(result.data)
         })
-        .catch((err) => {
-          console.log(err)
-        })
-    }
+        .catch((error) => {
+          if (error.response) {
+            setSideStatsError(true);
+            console.log(error.response);
+          } else {
+            console.log(error);
+          };
+        });
+    };
 
     /**
      * Get next article
@@ -344,7 +356,7 @@ const ReviewZone = (props) => {
 
     getProgressHistory();
 
-  },[props.project_id, recordState, props, error.message]);
+  },[props.project_id, recordState, props, error.message, sideStatsError]);
 
   useEffect(() => {
 
@@ -422,6 +434,8 @@ const ReviewZone = (props) => {
         handle={props.toggleReviewDrawer}
         statistics={statistics}
         history={history}
+        sideStatsError={sideStatsError}
+        setSideStatsError={setSideStatsError}
       />
 
     </Box>

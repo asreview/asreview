@@ -203,7 +203,7 @@ const StatisticsZone = (props) => {
                 {error.efficiency}
               </Typography>
               <Box fontStyle="italic">
-                <Typography align="center">
+                <Typography variant="body2" align="center">
                   If the issue remains after refreshing, click
                   <Link
                     className={classes.link}
@@ -221,7 +221,7 @@ const StatisticsZone = (props) => {
                   color="primary"
                   onClick={handleClickRetry}
                 >
-                  <RefreshIcon fontSize="large" />
+                  <RefreshIcon />
                 </IconButton>
               </Tooltip>
             </Box>
