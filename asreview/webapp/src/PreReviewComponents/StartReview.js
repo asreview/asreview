@@ -39,7 +39,6 @@ const StartReview = ({project_id, onReady}) => {
       return axios.get(url)
       .then((result) => {
 
-
         if (result.data["status"] === 1){
           // model ready
           onReady();
@@ -50,25 +49,21 @@ const StartReview = ({project_id, onReady}) => {
       })
       .catch((error) => {
 
-        let message = "Unknown error.";
-
         if (error.response) {
-            if ('message' in error.response.data){
-                message = error.response.data["message"]
-            }
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
+          setState({
+            "status": "error",
+            "message": error.response.data.message,
+          });
+          console.log(error.response);
         } else if (error.request) {
-            console.log(error.request);
+          console.log(error.request);
         } else {
-            console.log('Error', error.message);
-        }
+          setState({
+            "status": "error",
+            "message": "Failed to connect to server. Please restart the software.",
+          });
+        };
 
-        setState({
-          "status": "error",
-          "message": message,
-        })
       });
     }
 
@@ -92,11 +87,18 @@ const StartReview = ({project_id, onReady}) => {
         checkModelIsFitted();
       })
       .catch((error) => {
-        console.log(error);
-        setState({
-          "status": "error",
-          "message": error,
-        })
+        if (error.response) {
+          setState({
+            "status": "error",
+            "message": error.response.data.message,
+          });
+          console.log(error.response);
+        } else {
+          setState({
+            "status": "error",
+            "message": "Failed to connect to server. Please restart the software.",
+          });
+        };
       });
     }
     if (state.status === null){
@@ -123,7 +125,7 @@ const StartReview = ({project_id, onReady}) => {
           <Typography
             color="error"
           >
-            If the issue remains after refreshing, click
+            If the issue remains after retrying, click
             <Link
               className={classes.link}
               href="https://github.com/asreview/asreview/issues/new/choose"
