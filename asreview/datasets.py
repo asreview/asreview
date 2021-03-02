@@ -297,9 +297,10 @@ class DatasetManager():
         if len(all_results) == 1:
             return list(all_results.values())[0]
 
-        # Could not find dataset, return None.
-        raise FileNotFoundError(
-            f"File or dataset does not exist: '{dataset_name}'")
+        # Could not find dataset
+        raise DataSetNotFoundError(
+            f"Dataset {dataset_name} not found"
+        )
 
     def list(self, group_name=None, latest_only=True, raise_on_error=False):
         """List the available datasets.
@@ -372,7 +373,3 @@ def download_from_metadata(url):
         datasets.append(_create_dataset_from_meta(data))
 
     return datasets
-
-
-def find_data(project_id):
-    return DatasetManager().find(project_id).get()
