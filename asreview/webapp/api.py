@@ -268,9 +268,16 @@ def api_demo_data_project():  # noqa: F401
     subset = request.args.get('subset', None)
 
     if subset == "plugin":
-        result_datasets = get_dataset_metadata(
-            exclude=["builtin", "benchmark"]
-        )
+
+        try:
+            result_datasets = get_dataset_metadata(
+                exclude=["builtin", "benchmark"]
+            )
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load plugin datasets."), 500
+
     elif subset == "benchmark":
 
         try:

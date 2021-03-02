@@ -17,7 +17,7 @@ import { api_url } from '../globals.js';
 import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
-  cards: {
+  accordion: {
     marginBottom: "20px",
     margin: 0,
   },
@@ -25,6 +25,11 @@ const useStyles = makeStyles(theme => ({
     marginTop: "20px",
     marginLeft: "13px",
     marginBottom: "20px",
+  },
+  loading: {
+    marginBottom: "20px",
+    textAlign: "center",
+    margin: 0,
   },
 }));
 
@@ -87,10 +92,6 @@ const ProjectUploadBenchmarkDatasets = (props) => {
                 'message': error.response.data.message,
                 'retry': true,
               });
-              // setState({
-              //   'datasets': null,
-              //   'loaded': true,
-              // });
               console.log(error.response);
             } else {
               setError(s => {return({
@@ -109,9 +110,9 @@ const ProjectUploadBenchmarkDatasets = (props) => {
 
     return (
 
-      <Box className={classes.cards}>
+      <Box className={classes.accordion}>
         {state.loaded && error.message === null &&
-          <Box className={classes.featured}>
+          <Box>
             <Typography className={classes.title} variant="h6">Featured benchmark datasets</Typography>
             <Box>
               {state.datasets.filter(function(dataset) {
@@ -140,7 +141,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
           </Box>
         }
         {state.loaded && error.message === null &&
-          <Box className={classes.all_datasets}>
+          <Box>
             <Typography className={classes.title} variant="h6">All benchmark datasets</Typography>
             <Box>
               {state.datasets.map((dataset, index) => (
@@ -165,7 +166,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             </Box>
           </Box>
         }
-        <Box>
+        <Box className={classes.loading}>
           {!state.loaded && error.message === null &&
             <CircularProgress />
           }
