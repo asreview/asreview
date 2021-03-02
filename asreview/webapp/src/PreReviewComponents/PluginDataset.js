@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const PluginDatasets = (props) => {
+const PluginDataset = (props) => {
 
   const classes = useStyles();
 
@@ -78,4 +78,4 @@ const PluginDatasets = (props) => {
   )
 }
 
-export default PluginDatasets;
+export default PluginDataset;

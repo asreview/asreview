@@ -42,7 +42,7 @@ const DOILink = (doi) => {
 
 };
 
-const BenchmarkDatasets = (props) => {
+const BenchmarkDataset = (props) => {
 
   const classes = useStyles();
 
@@ -154,7 +154,7 @@ const BenchmarkDatasets = (props) => {
             disabled={props.uploading}
             onClick={() => uploadDataset()}
           >
-            {props.uploading ? "USING DATASET..." : "USE DATASET"}
+            {props.uploading ? "UPLOADING DATASET..." : "USE DATASET"}
           </Button>
         </AccordionActions>
       </Accordion>
@@ -162,4 +162,4 @@ const BenchmarkDatasets = (props) => {
   )
 }
 
-export default BenchmarkDatasets;
+export default BenchmarkDataset;
