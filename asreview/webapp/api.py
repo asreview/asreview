@@ -273,22 +273,27 @@ def api_demo_data_project():  # noqa: F401
         )
     elif subset == "benchmark":
 
-        # collect the datasets metadata
-        result_datasets = get_dataset_metadata(
-            include="benchmark"
-        )
+        try:
+            # collect the datasets metadata
+            result_datasets = get_dataset_metadata(
+                include="benchmark"
+            )
 
-        # mark the featured datasets
-        featured_dataset_ids = [
-            "van_de_Schoot_2017",
-            "Hall_2012",
-            "Cohen_2006_ACEInhibitors",
-            "Kwok_2020"
-        ]
-        for featured_id in featured_dataset_ids:
-            for i, dataset in enumerate(result_datasets):
-                if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
-                    result_datasets[i]["featured"] = True
+            # mark the featured datasets
+            featured_dataset_ids = [
+                "van_de_Schoot_2017",
+                "Hall_2012",
+                "Cohen_2006_ACEInhibitors",
+                "Kwok_2020"
+            ]
+            for featured_id in featured_dataset_ids:
+                for i, dataset in enumerate(result_datasets):
+                    if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
+                        result_datasets[i]["featured"] = True
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
         response = jsonify(message="demo-data-loading-failed")
