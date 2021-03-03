@@ -81,14 +81,13 @@ pip install asreview-covid19
 
 ## Citation
 
-The publication in [Nature Machine
+The following publication in [Nature Machine
 Intelligence](https://doi.org/10.1038/s42256-020-00287-7) can be used to cite
 the project.
 
 > van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
   learning framework for efficient and transparent systematic reviews.
   Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
-
 
 For citing the software, please refer to the specific release of
 the ASReview software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu on the
@@ -102,8 +101,12 @@ For more scientific publications on the ASReview software, go to
 ASReview is a research project coordinated by [Rens van de
 Schoot](www.rensvandeschoot.com) (full professor at the Department of
 Methodology & Statistics at [Utrecht University](https://www.uu.nl), The
-Netherlands), together with [Jonathan de Bruin](https://github.com/J535D165),
-lead engineer of the ASReview project.
+Netherlands), together with ASReview lead engineer 
+[Jonathan de Bruin](https://github.com/J535D165). For an overview of the team working on
+ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team). 
+
+The best resources to find an answer to your question or ways to get in 
+contact with the team are:
 
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
@@ -116,6 +119,3 @@ lead engineer of the ASReview project.
 The ASReview software has an Apache 2.0 [LICENSE](LICENSE). The ASReview team
 accepts no responsibility or liability for the use of the ASReview tool or any
 direct or indirect damages arising out of the application of the tool.
-
-
-
