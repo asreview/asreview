@@ -27,6 +27,8 @@ University and is published under the `Apache 2.0 licence
 
    intro/faq
 
+   intro/vocabulary
+
 
 .. toctree::
    :maxdepth: 1
