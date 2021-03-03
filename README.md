@@ -92,8 +92,7 @@ Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
 ```
 
 For citing the software, please refer to the specific release of
-the ASReview software on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/z
-enodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592). The menu on the
+the ASReview software on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592). The menu on the
 right can be used to find the citation format of prevalence. Check out the
 ASReview [website](https://asreview.nl/papers/), for even more scientific
 results based on the software.
@@ -102,8 +101,9 @@ results based on the software.
 
 ASReview is a research project coordinated by [Rens van de
 Schoot](www.rensvandeschoot.com) (full professor at the Department of
-Methodology & Statistics at Utrecht University, The Netherlands), together
-with Jonathan de Bruin, lead engineer of the ASReview project.
+Methodology & Statistics at [Utrecht University](https://www.uu.nl), The
+Netherlands), together with [Jonathan de Bruin](https://github.com/J535D165),
+lead engineer of the ASReview project.
 
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
