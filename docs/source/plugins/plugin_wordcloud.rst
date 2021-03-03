@@ -29,7 +29,7 @@ It should list the 'wordcloud' modus.
 Basic usage
 -----------
 
-The dataset should contain a column containing :doc:`titles and/or abstracts<../intro/datasets>`. 
+The dataset should contain a column containing :doc:`titles and/or abstracts<../intro/datasets>`.
 To use your data use:
 
 .. code:: bash
