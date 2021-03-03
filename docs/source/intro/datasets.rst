@@ -151,7 +151,7 @@ managers  which are accepted by ASReview.
 
 .. note::
 
-  When using EndNote use the following steps to export a .ris file:
+  When using EndNote use the following steps to export a RIS file (.ris):
   
   - In EndNote, click on the style selection dropdown menu from the main EndNote toolbar.
   - Click "Select Another Style".
