@@ -85,17 +85,17 @@ The publication in [Nature Machine
 Intelligence](https://doi.org/10.1038/s42256-020-00287-7) can be used to cite
 the project.
 
-```
-van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
-learning framework for efficient and transparent systematic reviews.
-Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
-```
+> van de Schoot, R., de Bruin, J., Schram, R. et al. An open source machine
+  learning framework for efficient and transparent systematic reviews.
+  Nat Mach Intell 3, 125–133 (2021). https://doi.org/10.1038/s42256-020-00287-7
+
 
 For citing the software, please refer to the specific release of
-the ASReview software on Zenodo [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592). The menu on the
-right can be used to find the citation format of prevalence. Check out the
-ASReview [website](https://asreview.nl/papers/), for even more scientific
-results based on the software.
+the ASReview software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu on the
+right can be used to find the citation format of prevalence. 
+
+For more scientific publications on the ASReview software, go to 
+[asreview.nl/papers](https://asreview.nl/papers/).
 
 ## Contact
 
