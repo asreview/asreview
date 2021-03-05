@@ -16,8 +16,21 @@ import logging
 import socket
 
 
-# check if host port is already taken
 def check_port_in_use(host, port):
+    """Check if port is already in use.
+
+    Arguments
+    ---------
+    host: str
+        The current host.
+    port: int
+        The host port to be checked. 
+
+    Returns
+    -------
+    bool:
+        True if port is in use, false otherwise.
+    """
     logging.info(
         f"Checking if host and port are available :: {host}:{port}"
     )

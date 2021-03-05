@@ -22,6 +22,8 @@ from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
+from gevent import monkey
+monkey.patch_all()
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
