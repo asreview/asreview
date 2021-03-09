@@ -12,6 +12,8 @@ from asreview import ASReviewData
     ("generic.csv", 2, None, []),
     ("generic_semicolon.csv", 2, None, []),
     ("generic_tab.csv", 2, None, []),
+    ("generic_tab.tab", 2, None, []),
+    ("generic_tab.tsv", 2, None, []),
     ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0], []),
     ("generic.ris", 2, None, []),
     ("generic_labels.ris", 2, [1, 0], []),

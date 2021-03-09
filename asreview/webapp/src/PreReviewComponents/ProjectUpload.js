@@ -178,7 +178,7 @@ const ProjectUpload = ({
   } = useDropzone({
     onDrop: onDrop,
     multiple: false,
-    accept: '.txt,.csv,.ris,.xlsx'
+    accept: '.txt,.tsv,.tab,.csv,.ris,.xlsx'
   });
 
   const style = useMemo(() => ({
