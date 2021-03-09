@@ -123,10 +123,8 @@ any time during the screening process. To download your results:
 1. Open ASReview LAB. 
 2. Open a project. 
 3. Start screening. 
-4. Click the
-**download** icon in the upper-right corner. 
-5. You will be asked whether you want to save an Excel file, a CSV file, or a RIS file containing the
-relevant, irrelevant, or unseen/unlabeled records. 
+4. Click the **download** icon in the upper-right corner. 
+5. You will be asked whether you want to save an Excel file, a CSV file, or a RIS file containing the relevant, irrelevant, or unseen/unlabeled records. 
 6. You will be asked where to save the file.
 
 
