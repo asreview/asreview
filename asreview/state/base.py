@@ -112,8 +112,9 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def get_current_queries(self):
+    def current_queries(self):
         """Get the current queries made by the model.
 
         This is useful to get back exactly to the state it was in before
@@ -126,8 +127,9 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    @current_queries.setter
     @abstractmethod
-    def set_current_queries(self, current_queries):
+    def current_queries(self, current_queries):
         """Set the current queries made by the model.
 
         Arguments

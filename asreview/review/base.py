@@ -360,12 +360,12 @@ class BaseReview(ABC):
         state.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
     def log_current_query(self, state):
-        state.set_current_queries(self.shared["current_queries"])
+        state.current_queries = self.shared["current_queries"]
 
     def load_current_query(self, state):
         """Load the latest query."""
         try:
-            self.shared["current_queries"] = state.get_current_queries()
+            self.shared["current_queries"] = state.current_queries
         except KeyError:
             self.shared["current_queries"] = {}
 

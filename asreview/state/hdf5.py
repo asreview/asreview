@@ -80,7 +80,7 @@ class HDF5State(BaseState):
         self.f.attrs['version'] = np.string_(LATEST_HDF5STATE_VERSION)
         self.f.create_group('results')
 
-        # TODO{CREATE Feature matric group}
+        # TODO{CREATE Feature matrix group}
 
     def _restore(self, fp):
         """Restore the state file.
@@ -275,16 +275,8 @@ class HDF5State(BaseState):
     #     else:
     #         self.f["final_labels"][...] = y
 
-    def set_current_queries(self, current_queries):
-        str_queries = {
-            str(key): value
-            for key, value in current_queries.items()
-        }
-        data = np.string_(json.dumps(str_queries))
-        self.f.attrs.pop("current_queries", None)
-        self.f.attrs["current_queries"] = data
-
-    def get_current_queries(self):
+    @property
+    def current_queries(self):
         """Get the current queries made by the model.
 
         This is useful to get back exactly to the state it was in before
@@ -298,7 +290,20 @@ class HDF5State(BaseState):
         str_queries = json.loads(self.f.attrs["current_queries"])
         return {int(key): value for key, value in str_queries.items()}
 
+    @current_queries.setter
+    def current_queries(self, current_queries):
+        str_queries = {
+            str(key): value
+            for key, value in current_queries.items()
+        }
+        data = np.string_(json.dumps(str_queries))
+        self.f.attrs.pop("current_queries", None)
+        self.f.attrs["current_queries"] = data
+
+    # add_labelling_data(..)
     def add_classification(self, idx, labels, methods, query_i):
+        """Add all data of one labelling action."""
+        # TODO(State): Do you need to enlarge maximum size of a HDF5 dataset? (See branch improved_h5_state)
         g = _result_group(self.f, query_i)
         if "new_labels" not in g:
             g.create_group("new_labels")
@@ -310,7 +315,10 @@ class HDF5State(BaseState):
         _append_to_dataset('labels', labels, g, dtype=np.int)
         _append_to_dataset('methods', np_methods, g, dtype='S20')
 
+    # def add_model_data(..)
     def add_proba(self, pool_idx, train_idx, proba, query_i):
+        """Add data after finishing training of a model."""
+        # TODO(State): Do you need to enlarge maximum size of a HDF5 dataset? (See branch improved_h5_state)
         g = _result_group(self.f, query_i)
         g.create_dataset("pool_idx", data=pool_idx, dtype=np.int)
         g.create_dataset("train_idx", data=train_idx, dtype=np.int)
@@ -320,6 +328,76 @@ class HDF5State(BaseState):
         return (self.f['results/indices'].shape[0] -
                 self.f['results'].attrs['n_priors'] + 1)
         # QUESTION: This treats the priors as one query, is that what you want?
+
+    def record_id_to_row_index(self, record_id):
+        """Find the row index that corresponds to a given record id.
+
+        Arguments
+        ---------
+        record_id: int
+            Record id of a sample.
+
+        Returns
+        -------
+        int:
+            Row index of the given record_id in the dataset.
+        """
+        data_hash = list(self.f['data_properties'].keys())[0]
+        record_table = self.f[f'data_properties/{data_hash}/record_table']
+        return np.where(record_table[:] == record_id)[0][0]
+
+    @property
+    def n_priors(self):
+        """Get the number of samples in the prior information.
+
+        Returns
+        -------
+        int:
+            Number of priors. If priors have not been selected returns None.
+        """
+        try:
+            n_priors = self.f['results'].attrs['n_priors']
+        except KeyError:
+            n_priors = None
+        return n_priors
+
+    def get_predictor_methods(self, query=None, record_id=None):
+        """Get the predictor method from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor method.
+            If this is 0, you the predictor method for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor method.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array will predictor methods.
+            Else it returns only the specific one.
+        """
+        if (query is not None) and (record_id is not None):
+            raise ValueError("You can not query by record_id and query at the same time.")
+
+        if query is not None:
+            # 0 corresponds to all priors.
+            if query == 0:
+                dataset_slice = range(self.n_priors)
+            # query_i is in spot (i + n_priors - 1).
+            else:
+                dataset_slice = [query + self.n_priors]
+        elif record_id is not None:
+            # Convert record id to row index.
+            idx = self.record_id_to_row_index(record_id)
+            # Find where this row number was labelled.
+            dataset_slice = np.where(self.f['results/indices'][:] == idx)[0]
+        else:
+            # Return the whole dataset.
+            dataset_slice = range(self.f['results/predictor_methods'].shape[0])
+
+        return np.array(self.f['results/predictor_methods'])[dataset_slice]
 
     def get(self, variable, query_i=None, idx=None):
         # TODO(State): Turn logic into if, elif, ..., elif, else.

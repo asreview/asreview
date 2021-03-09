@@ -125,6 +125,13 @@ def test_settings_state():
         assert isinstance(state.settings, ASReviewSettings)
 
 
+def test_current_queries():
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    with open_state(state_fp) as state:
+        assert isinstance(state.current_queries, dict)
+        assert len(state.current_queries.keys()) > 0
+
+
 def test_n_queries():
     NUM_QUERIES_IN_TEST = 2543
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
@@ -132,18 +139,45 @@ def test_n_queries():
         assert state.n_queries() == NUM_QUERIES_IN_TEST
 
 
-# Test get by querying for the whole dataset everytime. I'll implement indexing
-# at a later stage.
-def test_get():
-    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
-    METHODS = ['initial', 'initial', 'max', 'max']
-    INDICES = [0, 3, 2, 1]
-    LABELS = [1, 0, 1, 0]
-
+def test_n_priors():
+    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
-        assert all([x.encode('ascii') for x in METHODS] ==
-                   state.get("predictor_methods"))
-        assert all(INDICES == state.get("indices"))
+        assert state.n_priors == 2
+
+
+def test_get_predictor_methods():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    METHODS = [b'initial', b'initial', b'max', b'max']
+    with open_state(state_fp) as state:
+        all_methods = state.get_predictor_methods()
+        assert isinstance(all_methods, np.ndarray)
+        assert all_methods.tolist() == METHODS
+
+        priors = state.get_predictor_methods(query=0)
+        assert isinstance(priors, np.ndarray)
+        assert priors.tolist() == METHODS[:2]
+
+        query1 = state.get_predictor_methods(query=1)
+        assert isinstance(query1, np.ndarray)
+        assert query1.tolist() == METHODS[2:3]
+
+        # priors_record_id = state.get_predictor_methods(record_id=2)
+        # assert isinstance(priors_record_id, np.ndarray)
+        # assert priors_record_id.tolist() == METHODS[:2]
+
+
+# # Test get by querying for the whole dataset everytime. I'll implement indexing
+# # at a later stage.
+# def test_get():
+#     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+#     METHODS = ['initial', 'initial', 'max', 'max']
+#     INDICES = [0, 3, 2, 1]
+#     LABELS = [1, 0, 1, 0]
+#
+#     with open_state(state_fp) as state:
+#         assert all([x.encode('ascii') for x in METHODS] ==
+#                    state.get("predictor_methods"))
+#         assert all(INDICES == state.get("indices"))
 
 
 # ##### tests for old HDF5 states

@@ -71,6 +71,16 @@ an example, if we set the interval to 5, and the sample 4, 7, 8 and 13 where rel
 data after labeling 4, 5, 7, 8, 10, 13, 15, etc. We will save one 1-D dataset containing
 these indices, and a 2-D dataset containing the actual data, for example the probabilities.
 
+Every dataset in the basic version is 1-dimensional, and contains as many entries as there are labelled samples. The
+first entries correspond to the prior knowledge. After that, the i-th entry corresponds to the data from the i-th query.
+Inside the state file the indexing goes by row number in the original dataset, which can be found in the
+'data_properties' section of the state file. Outside of the state file everything goes by record_id, a unique identifier
+associated to each sample. In the state file you can find a mapping between row number and record_id.
+
+You can ask for information from the state file in multiple ways. First you can ask for a complete dataset, for example
+the complete set of all labels. This is returned in the order in which it was labelled. You can also ask for the
+information in a dataset corresponding to a specific record_id, or to a specific query.
+
 Comparison with previous versions
 ---------------------------------
 The two main reasons for creating a new state file (V3State) were to reduce the size of the file, and to make sure that
