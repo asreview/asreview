@@ -161,7 +161,7 @@ const ProjectUpload = ({
     }
 
     // set error to state
-    setError(null)
+    // setError(null);
 
     // set the state such that we ca upload the file
     setFile(acceptedFiles[0])

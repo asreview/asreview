@@ -122,7 +122,7 @@ const StatisticsZone = (props) => {
             })});
             console.log(error.response);
           } else {
-            setError("Failed to connect to server. Please restart the software.");
+            console.log(error);
           };
         });
     }
@@ -145,7 +145,7 @@ const StatisticsZone = (props) => {
             })});
             console.log(error.response);
           } else {
-            setError("Failed to connect to server. Please restart the software.");
+            console.log(error);
           };
         });
     }
@@ -168,7 +168,7 @@ const StatisticsZone = (props) => {
             })});
             console.log(error.response);
           } else {
-            setError("Failed to connect to server. Please restart the software.");
+            console.log(error);
           };
         });
     }
