@@ -14,11 +14,11 @@ import {
   PaperCard,
 } from '../PreReviewComponents'
 
-
 import {
   DialogTitleWithClose,
 } from '../Components'
 
+import ErrorHandler from '../ErrorHandler';
 
 import axios from 'axios'
 
@@ -67,6 +67,11 @@ const PriorKnowledgeRandom = (props) => {
     "count_exclusions": 0,
     "records": null,
     "loaded": false,
+  });
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
   });
 
   const includeRandomDocument = () => {
@@ -124,14 +129,25 @@ const PriorKnowledgeRandom = (props) => {
         });
       })
       .catch((error) => {
-        console.log(error);
+        if (error.response) {
+          setError({
+            'message': error.response.data.message,
+            'retry': true,
+          });
+          console.log(error.response);
+        } else {
+          setError({
+            'message': "Failed to connect to server. Please restart the software.",
+            'retry': false,
+          });
+        };
       });
     }
 
     if(!state.loaded){
       getDocument();
     }
-  }, [props.project_id, state.loaded, state.count_inclusions, state.count_exclusions]);
+  }, [props.project_id, state.loaded, state.count_inclusions, state.count_exclusions, error.message]);
 
   return (
       <Dialog
@@ -148,22 +164,31 @@ const PriorKnowledgeRandom = (props) => {
           }
           {state["count_exclusions"] < n_items &&
             <DialogContent dividers={true}>
-
-              {!state["loaded"] ?
-                <Box className={classes.loader}>
-                  <CircularProgress
-                    style={{margin: "0 auto"}}
-                  />
-                </Box> :
-                  <PaperCard
-                    id={state["records"].id}
-                    title={state["records"].title}
-                    abstract={state["records"].abstract}
-                  />
+              {error.message !== null &&
+                <ErrorHandler
+                  error={error}
+                  setError={setError}
+                />
+              }
+              {error.message === null &&
+                <div>
+                  {!state["loaded"] ?
+                    <Box className={classes.loader}>
+                      <CircularProgress
+                        style={{margin: "0 auto"}}
+                      />
+                    </Box> :
+                      <PaperCard
+                        id={state["records"].id}
+                        title={state["records"].title}
+                        abstract={state["records"].abstract}
+                      />
+                  }
+                </div>
               }
             </DialogContent>
           }
-          {state["count_exclusions"] < n_items &&
+          {error.message === null && state["count_exclusions"] < n_items &&
             <DialogActions>
               <Button
                 onClick={() => excludeRandomDocument(props.id)}
@@ -178,7 +203,7 @@ const PriorKnowledgeRandom = (props) => {
                 Relevant
               </Button>
             </DialogActions>
-        }
+          }
 
         {state["count_exclusions"] >= n_items &&
           <Box>
@@ -187,25 +212,35 @@ const PriorKnowledgeRandom = (props) => {
               onClose={props.onClose}
             />
             <DialogContent dividers={true}>
-              <Typography>
-                {n_items} Random documents were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant documents as well).
-              </Typography>
+              {error.message !== null &&
+                <ErrorHandler
+                  error={error}
+                  setError={setError}
+                />
+              }
+              {error.message === null &&
+                <Typography>
+                  {n_items} Random documents were marked as 'irrelevant'. Usually, this is enough prior knowledge to start the review (make sure you do have enough relevant documents as well).
+                </Typography>
+              }
             </DialogContent>
 
-            <DialogActions>
-              <Button
-                onClick={resetCount}
-                color="primary"
-              >
-                Show more
-              </Button>
-              <Button
-                onClick={props.onClose}
-                color="primary"
-              >
-                Stop
-              </Button>
-            </DialogActions>
+            {error.message === null &&
+              <DialogActions>
+                <Button
+                  onClick={resetCount}
+                  color="primary"
+                >
+                  Show more
+                </Button>
+                <Button
+                  onClick={props.onClose}
+                  color="primary"
+                >
+                  Stop
+                </Button>
+              </DialogActions>
+            }
           </Box>
         }
 

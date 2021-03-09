@@ -27,6 +27,8 @@ University and is published under the `Apache 2.0 licence
 
    intro/faq
 
+   intro/vocabulary
+
 
 .. toctree::
    :maxdepth: 1
@@ -65,6 +67,8 @@ University and is published under the `Apache 2.0 licence
    plugins/covid19
 
    plugins/plugin_visualization
+
+   plugings/wordcloud
 
 .. toctree::
    :maxdepth: 1

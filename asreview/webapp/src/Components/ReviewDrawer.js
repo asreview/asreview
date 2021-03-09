@@ -78,6 +78,8 @@ const ReviewDrawer = (props) => {
         n_papers={props.statistics.n_papers}
         n_since_last_inclusion={props.statistics.n_since_last_inclusion}
         history={props.history}
+        sideStatsError={props.sideStatsError}
+        setSideStatsError={props.setSideStatsError}
       />
       <Divider />
 

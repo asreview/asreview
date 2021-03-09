@@ -23,6 +23,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import {
   HistoryListCard,
 } from '../Components'
+import ErrorHandler from '../ErrorHandler';
 
 import axios from 'axios';
 
@@ -58,7 +59,7 @@ const useStyles = makeStyles(theme => ({
   },
   recordLabelActionText: {
     paddingRight: '4px',
-  }
+  },
 }));
 
 const HistoryDialog = (props) => {
@@ -69,6 +70,11 @@ const HistoryDialog = (props) => {
     "select": DEFAULT_SELECTION,
     "data": null,
     "index": null,
+  });
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
   });
 
   // filter all records
@@ -92,6 +98,7 @@ const HistoryDialog = (props) => {
       "data": null,
       "index": null,
     });
+
   };
 
   const closeHistory = () => {
@@ -152,10 +159,21 @@ const HistoryDialog = (props) => {
           })});
         })
         .catch((error) => {
-          console.log("Failed to load review history");
+          if (error.response) {
+            setError({
+              "message": error.response.data.message,
+              "retry": true,
+            });
+            console.log(error.response);
+          } else {
+            setError({
+              "message": "Failed to connect to server. Please restart the software.",
+              "retry": false,
+            })
+          };
         });
     }
-  }, [props.project_id, props.history, state]);
+  }, [props.project_id, props.history, state, error.message]);
 
   return (
       <Dialog
@@ -200,7 +218,16 @@ const HistoryDialog = (props) => {
           </DialogTitle>
         }
 
-        {state.index === null &&
+        {error.message !== null &&
+          <DialogContent dividers={true}>
+            <ErrorHandler
+              error={error}
+              setError={setError}
+            />
+          </DialogContent>
+        }
+
+        {error.message === null && state.index === null &&
           <DialogContent dividers={true}>
             <Box>
               {state["data"] !== null && state["select"] === 1 &&
@@ -269,7 +296,7 @@ const HistoryDialog = (props) => {
           </DialogContent>
         }
 
-        {state.index !== null &&
+        {error.message === null && state.index !== null &&
           <DialogContent dividers={true}>
             <Box>
               <Typography variant="h6" gutterBottom>
