@@ -1,8 +1,10 @@
 import React, {useEffect} from 'react'
 import {
   Box,
+  Link,
   Typography,
 } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles';
 
 import axios from 'axios'
 
@@ -13,7 +15,15 @@ import { connect } from "react-redux";
 import { api_url, mapStateToProps } from '../globals.js';
 
 
+const useStyles = makeStyles(theme => ({
+  link: {
+    paddingLeft: "3px",
+  },
+}));
+
 const StartReview = ({project_id, onReady}) => {
+
+  const classes = useStyles();
 
   const [state, setState] = React.useState({
     "status": null,
@@ -29,7 +39,6 @@ const StartReview = ({project_id, onReady}) => {
       return axios.get(url)
       .then((result) => {
 
-
         if (result.data["status"] === 1){
           // model ready
           onReady();
@@ -40,25 +49,21 @@ const StartReview = ({project_id, onReady}) => {
       })
       .catch((error) => {
 
-        let message = "Unknown error.";
-
         if (error.response) {
-            if ('message' in error.response.data){
-                message = error.response.data["message"]
-            }
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
+          setState({
+            "status": "error",
+            "message": error.response.data.message,
+          });
+          console.log(error.response);
         } else if (error.request) {
-            console.log(error.request);
+          console.log(error.request);
         } else {
-            console.log('Error', error.message);
-        }
+          setState({
+            "status": "error",
+            "message": "Failed to connect to server. Please restart the software.",
+          });
+        };
 
-        setState({
-          "status": "error",
-          "message": message,
-        })
       });
     }
 
@@ -82,11 +87,18 @@ const StartReview = ({project_id, onReady}) => {
         checkModelIsFitted();
       })
       .catch((error) => {
-        console.log(error);
-        setState({
-          "status": "error",
-          "message": error,
-        })
+        if (error.response) {
+          setState({
+            "status": "error",
+            "message": error.response.data.message,
+          });
+          console.log(error.response);
+        } else {
+          setState({
+            "status": "error",
+            "message": "Failed to connect to server. Please restart the software.",
+          });
+        };
       });
     }
     if (state.status === null){
@@ -105,20 +117,22 @@ const StartReview = ({project_id, onReady}) => {
       { state["status"] === "error" &&
         <Box>
           <Typography
-            color="error"
-          >
-            An error occured. Please send an email to asreview@uu.nl or file an issue on GitHub.
-          </Typography>
-          <Typography
-            variant="h4"
-            color="error"
-          >
-            Error message
-          </Typography>
-          <Typography
+            variant="h6"
             color="error"
           >
             {state["message"]}
+          </Typography>
+          <Typography
+            color="error"
+          >
+            If the issue remains after retrying, click
+            <Link
+              className={classes.link}
+              href="https://github.com/asreview/asreview/issues/new/choose"
+              target="_blank"
+            >
+              <strong>here</strong>
+            </Link> to report.
           </Typography>
         </Box>
       }

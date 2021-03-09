@@ -22,11 +22,10 @@ const ProjectUploadURL = (props) => {
     const [url, setURL] = useState("");
 
     const onChangeURL = (evt) => {
-      if (evt.target.value.toLowerCase() === "aceinhibitors.csv"){
-        setURL("https://raw.githubusercontent.com/asreview/asreview/master/datasets/ACEInhibitors.csv");
-      } else {
-        setURL(evt.target.value);
-      }
+
+      props.setError(null);
+      setURL(evt.target.value);
+      
     }
 
     const submitForm = (evt) => {
@@ -50,7 +49,7 @@ const ProjectUploadURL = (props) => {
             />
           </form>
 
-          {url !== "" &&
+          {props.error === null && url !== "" &&
             <div>
               <Button
                 type="submit"

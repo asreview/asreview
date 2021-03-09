@@ -22,6 +22,7 @@ import {
   CardContent,
   Grow,
 } from '@material-ui/core'
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import { green, brown } from '@material-ui/core/colors';
 
@@ -159,6 +160,9 @@ const ProjectUpload = ({
       return
     }
 
+    // set error to state
+    // setError(null);
+
     // set the state such that we ca upload the file
     setFile(acceptedFiles[0])
 
@@ -199,9 +203,6 @@ const ProjectUpload = ({
         edit: false,
         upload: true,
       });
-
-      // set error to state
-      setError(null)
 
       const url = api_url + `project/${project_id}/data`;
 
@@ -247,10 +248,10 @@ const ProjectUpload = ({
           });
 
           // set error to state
-          if (error.response !== undefined){
+          if (error.response){
             setError(error.response.data["message"])
           } else {
-            setError("Unexpected error")
+            setError("Failed to connect to server. Please restart the software.")
           }
 
           // callback
@@ -334,6 +335,10 @@ const ProjectUpload = ({
       scrollToBottom()
     }
   }, [scrollToBottom]);
+
+  useEffect(() => {
+    setError(null);
+  }, [value]);
 
   useEffect(() => {
 
@@ -477,6 +482,8 @@ const ProjectUpload = ({
                   <ProjectUploadURL
                     upload={state.upload}
                     onUploadHandler={onUploadHandlerURL}
+                    error={error}
+                    setError={setError}
                   />
                 </div>
               }
@@ -519,12 +526,21 @@ const ProjectUpload = ({
       {/* The Card with the selected dataset */}
       {error !== null &&
         <Box>
-          <Typography variant="h2">Error</Typography>
-          <Typography variant="subtitle1">{error}</Typography>
-
-          <Button color="inherit" size="small" onClick={() => {setError(null)}}>
-            Close
-          </Button>
+          <div>
+            <Alert severity="error" onClose={() => {setError(null)}}>
+              <AlertTitle>{error}</AlertTitle>
+              <div>
+                If the issue remains after retrying, click
+                  <Link
+                    className={classes.link}
+                    href="https://github.com/asreview/asreview/issues/new/choose"
+                    target="_blank"
+                  >
+                    <strong>here</strong>
+                  </Link> to report.
+              </div>
+            </Alert>
+          </div>
         </Box>
       }
       </Paper>
@@ -576,7 +592,7 @@ const ProjectUpload = ({
                 className={classes.link}
                 href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
                 target="_blank"
-              >end-user testing
+              >exploration mode
               </Link>.
             </Typography>
           </Typography>

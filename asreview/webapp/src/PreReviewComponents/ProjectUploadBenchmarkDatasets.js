@@ -10,12 +10,14 @@ import {
   BenchmarkDataset,
 } from '../PreReviewComponents';
 
+import ErrorHandler from '../ErrorHandler';
+
 import { api_url } from '../globals.js';
 
 import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
-  cards: {
+  accordion: {
     marginBottom: "20px",
     margin: 0,
   },
@@ -23,6 +25,11 @@ const useStyles = makeStyles(theme => ({
     marginTop: "20px",
     marginLeft: "13px",
     marginBottom: "20px",
+  },
+  loading: {
+    marginBottom: "20px",
+    textAlign: "center",
+    margin: 0,
   },
 }));
 
@@ -43,7 +50,11 @@ const ProjectUploadBenchmarkDatasets = (props) => {
     const [state, setState] = useState({
       'datasets': null,
       'loaded': false,
-      'error': false,
+    });
+
+    const [error, setError] = useState({
+      "message": null,
+      "retry": false,
     });
 
     const [expanded, setExpanded] = useState({
@@ -73,29 +84,35 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             setState({
               'datasets': result.data['result'],
               'loaded': true,
-              'error': false,
             });
           })
           .catch((error) => {
-            setState({
-              'datasets': null,
-              'loaded': true,
-              'error': true,
-            })
+            if (error.response) {
+              setError({
+                'message': error.response.data.message,
+                'retry': true,
+              });
+              console.log(error.response);
+            } else {
+              setError(s => {return({
+                ...s,
+                'message': "Failed to connect to server. Please restart the software.",
+              })});
+            };
           });
       };
 
-      if (!state.loaded && !state.error){
+      if (!state.loaded && error.message === null){
         fetchData();
       }
 
-    }, [props.subset, state.loaded, state.error]);
+    }, [props.subset, state.loaded, error.message]);
 
     return (
 
-      <Box className={classes.cards}>
-        {state.loaded && !state.error &&
-          <Box className={classes.featured}>
+      <Box className={classes.accordion}>
+        {state.loaded && error.message === null &&
+          <Box>
             <Typography className={classes.title} variant="h6">Featured benchmark datasets</Typography>
             <Box>
               {state.datasets.filter(function(dataset) {
@@ -123,8 +140,8 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             </Box>
           </Box>
         }
-        {state.loaded && !state.error &&
-          <Box className={classes.all_datasets}>
+        {state.loaded && error.message === null &&
+          <Box>
             <Typography className={classes.title} variant="h6">All benchmark datasets</Typography>
             <Box>
               {state.datasets.map((dataset, index) => (
@@ -149,12 +166,15 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             </Box>
           </Box>
         }
-        <Box>
-          {state.loaded && state.error &&
-            <Typography>Error loading datasets.</Typography>
-          }
-          {!state.loaded && !state.error &&
+        <Box className={classes.loading}>
+          {!state.loaded && error.message === null &&
             <CircularProgress />
+          }
+          {error.message !== null &&
+            <ErrorHandler
+              error={error}
+              setError={setError}
+            />
           }
         </Box>
       </Box>
@@ -162,4 +182,3 @@ const ProjectUploadBenchmarkDatasets = (props) => {
 }
 
 export default ProjectUploadBenchmarkDatasets;
-

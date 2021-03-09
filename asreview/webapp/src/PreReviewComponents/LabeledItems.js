@@ -1,10 +1,9 @@
-import React, {useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
-
   Box,
   List,
   ListItem,
@@ -15,6 +14,8 @@ import {
   IconButton,
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
+
+import ErrorHandler from '../ErrorHandler';
 
 import axios from 'axios'
 
@@ -67,10 +68,15 @@ const LabeledItems = (props) => {
   const classes = useStyles();
 
   // state of the item
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     "tab": 0,
     "data": null,
     "loading" : true
+  });
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
   });
 
   const handleTabChange = (event, newValue) => {
@@ -100,94 +106,117 @@ const LabeledItems = (props) => {
 
       })
       .catch((error) => {
-        console.log("Failed to load prior information");
+
+        if (error.response) {
+          setError({
+            'message': error.response.data.message,
+            'retry': true,
+          });
+          console.log(error.response);
+        } else {
+          setError({
+            'message': "Failed to connect to server. Please restart the software.",
+            'retry': false,
+          });
+        };
+
       });
     }
 
-  }, [props.project_id, state.loading]);
+  }, [props.project_id, state.loading, error.message]);
 
   return (
-    <Box>
-      <Tabs
-        value={state.tab}
-        indicatorColor="primary"
-        textColor="primary"
-        onChange={handleTabChange}
-        centered
-        aria-label="disabled tabs example"
-      >
-        <Tab label="Relevant" />
-        <Tab label="Irrelevant" />
-      </Tabs>
+    <div>
+      {error.message !== null &&
+        <ErrorHandler
+          error={error}
+          setError={setError}
+        />
+      }
+      {error.message === null &&
+        <Box>
+          <Tabs
+            value={state.tab}
+            indicatorColor="primary"
+            textColor="primary"
+            onChange={handleTabChange}
+            centered
+            aria-label="disabled tabs example"
+          >
+            <Tab label="Relevant" />
+            <Tab label="Irrelevant" />
+          </Tabs>
 
-      {state["data"] !== null &&
-        <TabPanel value={state.tab} index={0}>
+          {state["data"] !== null &&
+            <TabPanel value={state.tab} index={0}>
 
-          <List>
-            {
-              state["data"]
-                .filter(value => value.included === 1)
-                .map((value, index) =>
-                  {
-                    return (
-                      <ListItem
-                        key={`result-item-${value.id}`}
-                      >
-                        <ListItemText
-                          primary={value.title}
-                        />
-                        <ListItemIcon
-                          className={classes.deleteIcon}
-                        >
-                          <IconButton
-                            aria-label="delete"
-                            onClick={() => {props.resetItem(value.id, reloadItems)}}
+              <List>
+                {
+                  state["data"]
+                    .filter(value => value.included === 1)
+                    .map((value, index) =>
+                      {
+                        return (
+                          <ListItem
+                            key={`result-item-${value.id}`}
                           >
-                            <DeleteIcon/>
-                          </IconButton>
-                        </ListItemIcon>
-                      </ListItem>
-                    );
-                  }
-                )
-            }
-          </List>
-        </TabPanel>
-      }
-      {state["data"] !== null &&
-        <TabPanel value={state.tab} index={1}>
+                            <ListItemText
+                              primary={value.title}
+                            />
+                            <ListItemIcon
+                              className={classes.deleteIcon}
+                            >
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() => {props.resetItem(value.id, reloadItems)}}
+                              >
+                                <DeleteIcon/>
+                              </IconButton>
+                            </ListItemIcon>
+                          </ListItem>
+                        );
+                      }
+                    )
+                }
+              </List>
+            </TabPanel>
+          }
+          {state["data"] !== null &&
+            <TabPanel value={state.tab} index={1}>
 
-          <List>
-            {
-              state["data"]
-                .filter(value => value.included !== 1)
-                .map((value, index) => {
+              <List>
+                {
+                  state["data"]
+                    .filter(value => value.included !== 1)
+                    .map((value, index) => {
 
-                  return (
-                    <ListItem
-                      key={`result-item-${value.id}`}
-                    >
-                      <ListItemText
-                        primary={value.title}
-                      />
-                      <ListItemIcon
-                        className={classes.deleteIcon}
-                      >
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => {props.resetItem(value.id, reloadItems)}}
+                      return (
+                        <ListItem
+                          key={`result-item-${value.id}`}
                         >
-                          <DeleteIcon/>
-                        </IconButton>
-                      </ListItemIcon>
-                    </ListItem>
-                  );
-                })
-              }
-          </List>
-        </TabPanel>
+                          <ListItemText
+                            primary={value.title}
+                          />
+                          <ListItemIcon
+                            className={classes.deleteIcon}
+                          >
+                            <IconButton
+                              aria-label="delete"
+                              onClick={() => {props.resetItem(value.id, reloadItems)}}
+                            >
+                              <DeleteIcon/>
+                            </IconButton>
+                          </ListItemIcon>
+                        </ListItem>
+                      );
+                    })
+                  }
+              </List>
+            </TabPanel>
+          }
+        </Box>
       }
-    </Box>
+    </div>
   )
 
 }

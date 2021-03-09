@@ -126,7 +126,18 @@ const PreReviewZone = (props) => {
 
         })
         .catch((error) => {
-          console.log(error);
+          if (error.response) {
+            props.setProjectPageError({
+              'message': error.response.data.message,
+              'retry': true,
+            });
+            console.log(error.response);
+          } else {
+            props.setProjectPageError({
+              'message': "Failed to connect to server. Please restart the software.",
+              'retry': false,
+            });
+          };
         });
     };
 
@@ -135,7 +146,7 @@ const PreReviewZone = (props) => {
         fetchProjectInfo();
     }
 
-  }, [state.new, props.project_id]);
+  }, [state.new, props]);
 
   return (
 
