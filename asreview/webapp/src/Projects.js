@@ -17,6 +17,7 @@ import {
   CreateNewFolderOutlined,
 } from '@material-ui/icons';
 
+import ErrorHandler from './ErrorHandler';
 import ProjectCard from './ProjectCard';
 
 import {
@@ -46,7 +47,7 @@ const useStyles = makeStyles(theme => ({
   },
   backdropZ: {
     zIndex: 1000,
-  }
+  },
 }));
 
 const Projects = (props) => {
@@ -64,11 +65,16 @@ const Projects = (props) => {
       "loaded": false,
     });
 
+    const [error, setError] = useState({
+      "message": null,
+      "retry": false,
+    });
+
     useEffect(() => {
 
       refreshProjects();
 
-    }, []);
+    }, [error.message]);
 
     const refreshProjects = () => {
 
@@ -82,9 +88,22 @@ const Projects = (props) => {
           });
         })
         .catch((error) => {
-          console.log(error);
+          
           if (error.response) {
+
+            setError({
+              "message": error.response.data.message,
+              "retry": true,
+            });
             console.log(error.response);
+
+          } else {
+
+            setError(s => {return({
+              ...s,
+              "message": "Failed to connect to server. Please restart the software.",
+            })});
+
           }
         });
     };
@@ -140,8 +159,15 @@ const Projects = (props) => {
       <Box>
           <Container maxWidth='md' className={classes.root}>
 
+          {error['message'] !== null &&
+            <ErrorHandler
+              error={error}
+              setError={setError}
+            />
+          }
+
           {/* Project loaded, but no projects found */}
-          {(projects['loaded'] && projects['projects'].length === 0) &&
+          {(error['message'] === null && projects['loaded'] && projects['projects'].length === 0) &&
                 <Box className={classes.noProjects}>
                   <Typography variant="h5" align="center">
                     You don't have any projects yet.
@@ -155,7 +181,7 @@ const Projects = (props) => {
           }
 
           {/* Project loaded and projects found */}
-          {(projects['loaded'] && projects['projects'].length !== 0) &&
+          {(error['message'] === null && projects['loaded'] && projects['projects'].length !== 0) &&
             <Grid container spacing={3}>
                 {projects['projects'].map(project => (
                     <Grid item xs={12} sm={6} key={project.id}>

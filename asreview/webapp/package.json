@@ -3,25 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.9.9",
-    "@material-ui/icons": "^4.5.1",
-    "@material-ui/lab": "^4.0.0-alpha.48",
-    "@material-ui/styles": "^4.9.6",
-    "axios": "^0.19.2",
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "@material-ui/styles": "^4.11.3",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
-    "core-js": "^3.6.5",
+    "core-js": "^3.8.3",
     "cors": "^2.8.5",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-dropzone": "^10.2.2",
     "react-rotation": "^1.3.0",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^3.4.4",
     "react-swipeable-views": "^0.13.9",
-    "react-transition-group": "^4.3.0",
+    "react-transition-group": "^4.4.1",
     "recharts": "^1.8.5",
-    "semver": "^7.3.2",
+    "semver": "^7.3.4",
     "typeface-roboto": "0.0.75",
-    "typescript": "^3.9.7",
+    "typescript": "^3.9.9",
     "yargs-parser": "^18.1.3"
   },
   "scripts": {
@@ -46,7 +46,7 @@
     ]
   },
   "devDependencies": {
-    "react-redux": "^7.2.0",
+    "react-redux": "^7.2.2",
     "redux": "^4.0.5"
   }
 }

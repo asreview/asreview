@@ -6,9 +6,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Link,
   Typography,
 } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import { Alert, AlertTitle } from '@material-ui/lab';
 
 import axios from 'axios';
 
@@ -32,7 +33,8 @@ const useStyles = makeStyles((theme) => ({
   uploadButton: {
     marginTop: "26px",
   },
-  upload: {
+  link: {
+    paddingLeft: "3px",
   },
 }));
 
@@ -97,19 +99,32 @@ const ImportDialog = (props) => {
 
     })
     .catch(function (error) {
+      if (error.response) {
+        // set upload to false
+        setUpload(false);
 
-      // set upload to false
-      setUpload(false);
+        // remove accepted files
+        setFile(null);
 
-      // remove accepted files
-      setFile(null);
+        // remove selection
+        setSelection(null);
 
-      // remove selection
-      setSelection(null);
+        // set error to state
+        setError(error.response.data["message"]);
 
-      // set error to state
-      setError(error.response.data["message"]);
+      } else {
+        // set upload to false
+        setUpload(false);
 
+        // remove accepted files
+        setFile(null);
+
+        // remove selection
+        setSelection(null);
+
+        // set error to state
+        setError("Failed to connect to server. Please restart the software.");
+      };
     });
   };
 
@@ -148,10 +163,18 @@ const ImportDialog = (props) => {
 
             <div className={classes.root}>
               {file === null && error !== null &&
-                <Alert
-                  severity="error"
-                >
-                  {error}
+                <Alert severity="error">
+                  <AlertTitle>{error}</AlertTitle>
+                  <div>
+                    If the issue remains after retrying, click
+                    <Link
+                      className={classes.link}
+                      href="https://github.com/asreview/asreview/issues/new/choose"
+                      target="_blank"
+                    >
+                      <strong>here</strong>
+                    </Link> to report.
+                  </div>
                 </Alert>
               }
             </div>

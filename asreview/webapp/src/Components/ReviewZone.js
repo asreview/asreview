@@ -4,10 +4,10 @@ import { makeStyles } from '@material-ui/core/styles'
 import {
   Box,
   Link,
-  Typography,
 } from '@material-ui/core'
 import { Alert, AlertTitle } from '@material-ui/lab'
 
+import ErrorHandler from '../ErrorHandler';
 import ReviewDrawer from './ReviewDrawer'
 import ArticlePanel from './ArticlePanel'
 import DecisionBar from './DecisionBar'
@@ -42,6 +42,9 @@ const useStyles = makeStyles(theme => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginRight: reviewDrawerWidth,
+  },
+  link: {
+    paddingLeft: "3px",
   },
 }));
 
@@ -103,20 +106,22 @@ const ExplorationAlert = (props) => {
 const ReviewZone = (props) => {
   const classes = useStyles();
 
+  const [recordState, setRecordState] = React.useState({
+    'isloaded': false,
+    'record': null,
+    'selection': null,
+  })
+
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
+  });
+
+  const [sideStatsError, setSideStatsError] = useState(false);
+
   const [undoState, setUndoState] = useState({
     'open': false,
     'message': null,
-  })
-
-  const [recordState, setRecordState] = useState({
-    // is loaded
-    'isloaded': false,
-    // record object with metadata
-    'record': null,
-    // ...
-    'selection': null,
-    // error loading record
-    'error': null,
   })
 
   const [previousRecordState, setPreviousRecordState] = useState({
@@ -160,16 +165,14 @@ const ReviewZone = (props) => {
       'isloaded': true,
       'record': previousRecordState.record,
       'selection': previousRecordState.decision,
-      'error': null,
     });
-}
+  }
 
   const startLoadingNewDocument = () => {
     setRecordState({
       'isloaded': false,
       'record': null,
       'selection': null,
-      'error': null,
     });
   }
 
@@ -268,12 +271,17 @@ const ReviewZone = (props) => {
 
       return axios.get(url)
         .then((result) => {
-            setStatistics(result.data)
+          setStatistics(result.data);
         })
-        .catch((err) => {
-            console.log(err)
-        })
-    }
+        .catch((error) => {
+          if (error.response) {
+            setSideStatsError(true);
+            console.log(error.response);
+          } else {
+            console.log(error);
+          };
+        });
+    };
 
     const getProgressHistory = () => {
 
@@ -283,10 +291,15 @@ const ReviewZone = (props) => {
         .then((result) => {
           setHistory(result.data)
         })
-        .catch((err) => {
-          console.log(err)
-        })
-    }
+        .catch((error) => {
+          if (error.response) {
+            setSideStatsError(true);
+            console.log(error.response);
+          } else {
+            console.log(error);
+          };
+        });
+    };
 
     /**
      * Get next article
@@ -308,31 +321,42 @@ const ReviewZone = (props) => {
             'record':result.data["result"],
             'isloaded': true,
             'selection': null,
-            'error': null,
           });
         }
 
       })
       .catch((error) => {
-        console.log(error);
-        setRecordState({
-          'record':null,
-          'isloaded': true,
-          'selection': null,
-          'error': error["message"],
-        });
+
+        if (error.response) {
+
+          setError({
+            'message': error.response.data.message,
+            'retry': true,
+          });
+          console.log(error.response);
+
+        } else {
+
+          setError({
+            'message': "Failed to connect to server. Please restart the software.",
+            'retry': false,
+          });
+
+        };
       });
     }
 
     if (!recordState['isloaded']) {
 
-      getProgressInfo();
-
-      getProgressHistory();
-
       getDocument();
+
     }
-  },[props.project_id, recordState, props]);
+
+    getProgressInfo();
+
+    getProgressHistory();
+
+  },[props.project_id, recordState, props, error.message, sideStatsError]);
 
   useEffect(() => {
 
@@ -358,6 +382,7 @@ const ReviewZone = (props) => {
     <Box
       className={classes.box}
     >
+
       <Box
         id="main-content-item"
         className={clsx(classes.content, {
@@ -371,7 +396,7 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {recordState.error === null && recordState['isloaded'] &&
+        {error.message === null && recordState['isloaded'] &&
           <ArticlePanel
             record={recordState['record']}
             showAuthors={props.showAuthors}
@@ -380,20 +405,18 @@ const ReviewZone = (props) => {
         }
 
         {/* Article panel */}
-        {recordState.error !== null &&
-          <Typography
-            variant="h5"
-            color="textSecondary"
-          >
-            Unexpected error: {recordState.error}
-          </Typography>
+        {error.message !== null &&
+          <ErrorHandler
+            error={error}
+            setError={setError}
+          />
         }
 
         {/* Decision bar */}
         <DecisionBar
           reviewDrawerOpen={props.reviewDrawerOpen}
           makeDecision={makeDecision}
-          block={(!recordState['isloaded']) || (recordState.error !== null)}
+          block={(!recordState['isloaded']) || (error.message !== null)}
           recordState={recordState}
         />
 
@@ -411,6 +434,8 @@ const ReviewZone = (props) => {
         handle={props.toggleReviewDrawer}
         statistics={statistics}
         history={history}
+        sideStatsError={sideStatsError}
+        setSideStatsError={setSideStatsError}
       />
 
     </Box>

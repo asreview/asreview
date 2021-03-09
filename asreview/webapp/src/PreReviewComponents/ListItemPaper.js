@@ -85,7 +85,7 @@ const ListItemPaper = (props) => {
         fullWidth={true}
       >
         <DialogTitleWithClose
-          title={"Is this article relevant?"}
+          title={"Prior Knowledge: Is this document relevant or irrelevant?"}
           onClose={handleClose}
         />
         <DialogContent dividers={true}>

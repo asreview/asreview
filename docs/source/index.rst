@@ -7,13 +7,15 @@ Welcome to the documentation of ASReview! It includes an :doc:`installation
 to prepare your :doc:`dataset </intro/datasets>` and much more - enjoy!
 
 ASReview is `open source <https://github.com/asreview/asreview>`_ research
-software developed by :ref:`researchers <intro/zen:research team>` at Utrecht
+software developed by :ref:`researchers <intro/about:research team>` at Utrecht
 University and is published under the `Apache 2.0 licence
 <https://github.com/asreview/asreview/blob/master/LICENSE>`_.
 
 .. toctree::
    :caption: Introduction
    :maxdepth: 1
+
+   intro/about
 
    intro/zen
 
@@ -24,6 +26,8 @@ University and is published under the `Apache 2.0 licence
    intro/contribute
 
    intro/faq
+
+   intro/vocabulary
 
 
 .. toctree::
@@ -63,6 +67,8 @@ University and is published under the `Apache 2.0 licence
    plugins/covid19
 
    plugins/plugin_visualization
+
+   plugings/wordcloud
 
 .. toctree::
    :maxdepth: 1
