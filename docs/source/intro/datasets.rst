@@ -36,8 +36,9 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
- - **Tabular datasets** with extensions ``.csv``, ``.xlsx``, or ``.xls``. CSV files should
-   be comma separated and UTF-8 encoded.
+ - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, ``.xlsx``,
+   or ``.xls``. CSV and TAB files are preferably comma, semicolon, or tab-delimited.
+   The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
 
@@ -134,9 +135,7 @@ managers  which are accepted by ASReview.
 +-------------------------------+----------+----------+----------+
 | **EndNote**                   | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
-| **Excel** comma-seperated     | N/A      | ✅       | ✅       |
-+-------------------------------+----------+----------+----------+
-| **Excel** semicolon-seperated | N/A      | X        | ✅       |
+| **Excel**                     | N/A      | ✅       | ✅       |
 +-------------------------------+----------+----------+----------+
 | **Mendeley**                  | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
@@ -152,7 +151,7 @@ managers  which are accepted by ASReview.
 .. note::
 
   When using EndNote use the following steps to export a RIS file (.ris):
-  
+
   - In EndNote, click on the style selection dropdown menu from the main EndNote toolbar.
   - Click "Select Another Style".
   - Browse to RefMan (RIS) Export and click "Choose".
