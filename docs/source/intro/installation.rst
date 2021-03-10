@@ -177,13 +177,13 @@ However, the easiest way to remove these files is with:
 
 .. code:: bash
 
-  asreview lab --clean_all_projects
+  asreview lab --clean-all-projects
 
 This will safely remove temporay files, nothing will harm your review. To
 clean a specific project, use
 
 .. code:: bash
 
-  asreview lab --clean_project my-project
+  asreview lab --clean-project my-project
 
 in which ``my_project`` is your project name.
