@@ -63,7 +63,8 @@ def _lab_parser(prog="lab"):
         dest="port_retries",
         default=50,
         type=int,
-        help="The number of additional ports to try if the specified port is not available.")
+        help="The number of additional ports to try if the"
+        "specified port is not available.")
 
     parser.add_argument(
         "--certfile",
