@@ -30,7 +30,7 @@ Lab
 .. option:: --port-retries NUMBER_RETRIES
 
 	The number of additional ports to try if the specified port is not
-    available.
+        available.
 
 .. option:: --certfile CERTFILE_FULL_PATH
 
