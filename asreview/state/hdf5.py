@@ -347,7 +347,7 @@ class HDF5State(BaseState):
         return np.where(record_table[:] == record_id)[0][0]
 
     def _row_index_to_record_id(self, row_index):
-        """Find the record id that corresponds to a given row index.
+        """Find the record_id that corresponds to a given row index.
 
         Arguments
         ----------
@@ -357,13 +357,12 @@ class HDF5State(BaseState):
         Returns
         -------
         str:
-            Record id of the record with given row index.
+            Record_id of the record with given row index.
 
         """
         data_hash = list(self.f['data_properties'].keys())[0]
         record_table = self.f[f'data_properties/{data_hash}/record_table']
         return record_table[row_index]
-
 
     @property
     def n_priors(self):
@@ -381,9 +380,27 @@ class HDF5State(BaseState):
         return n_priors
 
     def _get_dataset(self, dataset, query=None, record_id=None):
-        """"""
+        """Get a dataset from the state file, or only the part corresponding to a given query or record_id.
+
+        Arguments
+        ---------
+        dataset: str
+            Name of the dataset you want to get.
+        query: int
+            Only return the data of the given query, where query=0 correspond to the prior information.
+        record_id: str/int
+            Only return the data corresponding to the given record_id.
+
+        Returns
+        -------
+        np.ndarray:
+            If both query and record_id are None, return the full dataset.
+            If query is given, return the data from that query, where the 0-th query is the prior information.
+            If record_id is given, return the data corresponding record.
+            If both are given it raises a ValueError.
+        """
         if (query is not None) and (record_id is not None):
-            raise ValueError("You can not query by record_id and query at the same time.")
+            raise ValueError("You can not search by record_id and query at the same time.")
 
         if query is not None:
             # 0 corresponds to all priors.
@@ -391,7 +408,7 @@ class HDF5State(BaseState):
                 dataset_slice = range(self.n_priors)
             # query_i is in spot (i + n_priors - 1).
             else:
-                dataset_slice = [query + self.n_priors]
+                dataset_slice = [query + self.n_priors - 1]
         elif record_id is not None:
             # Convert record id to row index.
             idx = self._record_id_to_row_index(record_id)
@@ -410,38 +427,70 @@ class HDF5State(BaseState):
         ---------
         query: int
             The query number from which you want to obtain the predictor method.
-            If this is 0, you the predictor method for all the priors.
+            If this is 0, you get the predictor method for all the priors.
         record_id: str
             The record_id of the sample from which you want to obtain the predictor method.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array will predictor methods.
-            Else it returns only the specific one.
+            If query and record_id are None, it returns the full array with predictor methods in the labelling order,
+            else it returns only the specific one determined by query or record_id.
         """
         return self._get_dataset(dataset='predictor_methods', query=query, record_id=record_id)
 
     def get_order_of_labelling(self):
         """Get full array of record id's in order that they were labelled.
 
+        Returns
+        -------
+        np.ndarray:
+            The record_id's in the order that they were labelled.
+        """
+        indices = self._get_dataset(dataset='indices')
+        return np.array([self._row_index_to_record_id(idx) for idx in indices])
+
+    def get_labels(self, query=None, record_id=None):
+        """Get the labels from the state file.
+
         Arguments
         ---------
         query: int
-            The query number from which you want to obtain the predictor method.
-            If this is 0, you the predictor method for all the priors.
+            The query number from which you want to obtain the label.
+            If this is 0, you get the label for all the priors.
         record_id: str
-            The record_id of the sample from which you want to obtain the predictor method.
+            The record_id of the sample from which you want to obtain the label.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array will predictor methods.
-            Else it returns only the specific one.
+            If query and record_id are None, it returns the full array with labels in the labelling order,
+            else it returns only the specific one determined by query or record_id.
         """
-        indices = self._get_dataset(dataset='indices')
-        return self._row_index_to_record_id(indices)
+        return self._get_dataset('labels', query=query, record_id=record_id)
 
+    def get_time(self, query=None, record_id=None):
+        """Get the time of labelling the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the time.
+            If this is 0, you get the time the priors were entered,
+            which is the same for all priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the time.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with times in the labelling order,
+            else it returns only the specific one determined by query or record_id.
+        """
+        times = self._get_dataset('time', query=query, record_id=record_id)
+        if query == 0:
+            times = times[[self.n_priors-1]]
+        return times
 
 
     def get(self, variable, query_i=None, idx=None):
@@ -473,20 +522,6 @@ class HDF5State(BaseState):
             return None
         if idx is not None:
             return array[idx]
-        return array
-
-    def ideal_get(self, variable, iloc=None):
-        """Get the dataset given by variable from the state file. If loc is not
-        None, only return the selected subset."""
-        if variable == 'train_idx':
-            pass
-        elif variable == 'pool_idx':
-            pass
-        if variable not in ['train_idx', 'pool_idx']:
-            array = np.array(self.f[f'results/{variable}'])
-
-        if iloc is not None:
-            array = array[iloc]
         return array
 
     # def delete_last_query(self):

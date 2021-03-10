@@ -196,6 +196,8 @@ def state_from_asreview_file(data_fp):
 
 
 # TODO(State): If conversion fails, clean up created file.
+# TODO(State): Split predictor_model into model and training_set.
+# TODO(State): Split models_training into model and training_set.
 def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
     """Create a prototype of the new state file from an old HDF5 state file.
 
@@ -276,7 +278,7 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
             # Time of labeling. This is only relevant after the priors has been
             # entered so it starts at 0. Maybe it should start at 1?
             # todo: Give a different name. What time_stamps should be collected?
-            sf_time = [sf.f['results/0'].attrs['creation_time']] + \
+            sf_time = [sf.f['results/0'].attrs['creation_time']] * n_priors + \
                       [sf.f[f'results/{i}'].attrs['creation_time']
                        for i in sf_queries]
             sf_time = np.array(sf_time)
@@ -286,7 +288,7 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
             # after the priors have been entered, so it starts at 0. After the
             # last query has been labeled, all training is stopped, so the last
             # entry is 'NA'.
-            sf_models_training = [f'{model}0'] + \
+            sf_models_training = ['NA'] * (n_priors-1) + [f'{model}0'] + \
                                  [f'{model}{i}' for i in sf_queries[:-1]] + \
                                  ['NA']
             sf_models_training = np.array(sf_models_training, dtype='S')
@@ -421,17 +423,19 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
                                          data=sf_predictor_method)
 
             # Time of labeling. This is only relevant after the priors have been
-            # entered so it starts at 0. Maybe it should start at 1?
-            sf_time = ['NA' for _ in range(len(sf._state_dict['results']))]
+            # entered.
+            sf_time = ['NA' for _ in range(len(sf._state_dict['results']) + n_priors - 1)]
             # I took the same data type as came out of the .h5 time part:
             sf_time = np.array(sf_time, dtype="|S29")
             pt['results'].create_dataset('time', data=sf_time)
 
             # Models being trained right after labeling. This is only relevant
-            # after the priors have been entered, so it starts at 0. After the
+            # after the priors have been entered. After the
             # last query has been labeled, all training is stopped, so the last
             # entry is 'NA'.
-            sf_models_training = [f'{model}0'] + \
+            # TODO(State): Is this correct when converting a state file from a
+            # partial review?
+            sf_models_training = ['NA'] * (n_priors-1) + [f'{model}0'] + \
                                  [f'{model}{i}' for i in sf_queries[:-1]] + \
                                  ['NA']
             sf_models_training = np.array(sf_models_training, dtype='S')

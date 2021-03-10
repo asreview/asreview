@@ -145,9 +145,59 @@ def test_n_priors():
         assert state.n_priors == 2
 
 
+# TODO(STATE): Make example of state file where record ids are strings.
+def test_row_index_to_record_id():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    RECORD_IDS = [0, 1, 4, 5]
+
+    with open_state(state_fp) as state:
+        for i in range(4):
+            assert state._row_index_to_record_id(i) == RECORD_IDS[i]
+
+
+def test_record_id_to_row_index():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    RECORD_IDS = [0, 1, 4, 5]
+
+    with open_state(state_fp) as state:
+        for i in range(4):
+            assert state._record_id_to_row_index(RECORD_IDS[i]) == i
+
+
+@pytest.mark.xfail(
+    raises=ValueError,
+    reason="You can not search by record_id and query at the same time."
+)
+def test_get_dataset_fail():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    with open_state(state_fp) as state:
+        state._get_dataset('labels', query=0, record_id=0)
+
+
+def test_get_dataset():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    INDICES = [0, 3, 2, 1]
+    RECORD_IDS = [0, 1, 4, 5]
+    TIMES = [b'2020-12-04 15:18:36.822064', b'2020-12-04 15:18:36.822064',
+             b'2020-12-04 15:18:36.833420', b'2020-12-04 15:18:36.838645']
+
+    with open_state(state_fp) as state:
+        assert isinstance(state._get_dataset('predictor_methods'), np.ndarray)
+        assert isinstance(state._get_dataset('labels', query=2), np.ndarray)
+        assert isinstance(state._get_dataset('models_training', record_id=4), np.ndarray)
+
+        assert all(state._get_dataset('indices') == INDICES)
+        assert state._get_dataset('predictor_models', query=1)[0] == b'nb0'
+        assert all(state._get_dataset('predictor_methods', query=0) == [b'initial', b'initial'])
+        assert state._get_dataset('labels', record_id=4)[0] == 1
+        assert state._get_dataset('time', record_id=0)[0] == TIMES[0]
+
+
 def test_get_predictor_methods():
     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     METHODS = [b'initial', b'initial', b'max', b'max']
+    RECORD_IDS = [0, 1, 4, 5]
+
     with open_state(state_fp) as state:
         all_methods = state.get_predictor_methods()
         assert isinstance(all_methods, np.ndarray)
@@ -161,26 +211,46 @@ def test_get_predictor_methods():
         assert isinstance(query1, np.ndarray)
         assert query1.tolist() == METHODS[2:3]
 
-        # priors_record_id = state.get_predictor_methods(record_id=2)
-        # assert isinstance(priors_record_id, np.ndarray)
-        # assert priors_record_id.tolist() == METHODS[:2]
+        priors_record_id = state.get_predictor_methods(record_id=4)
+        assert isinstance(priors_record_id, np.ndarray)
+        assert priors_record_id[0] == METHODS[2]
 
 
 def test_get_order_of_labelling():
     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
-    RECORD_IDS = [0, 3, 2, 1]
+    RECORD_ID_ORDER = [0, 5, 4, 1]
 
     with open_state(state_fp) as state:
         assert isinstance(state.get_order_of_labelling(), np.ndarray)
-        assert all(state.get_order_of_labelling == RECORD_IDS)
+        assert all(state.get_order_of_labelling() == RECORD_ID_ORDER)
 
-# TODO(STATE): Make example of state file where record ids are strings.
-# def test_row_index_to_record_id():
-#     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
-#     INDICES = [0, 3, 2, 1]
-#
-#     with open_state(state_fp) as state:
-#         assert
+
+def test_get_labels():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    RECORD_ID_ORDER = [0, 5, 4, 1]
+    LABELS = [1, 0, 1, 0]
+
+    with open_state(state_fp) as state:
+        assert isinstance(state.get_labels(), np.ndarray)
+        assert all(state.get_labels() == LABELS)
+        assert all(state.get_labels(query=0) == LABELS[:2])
+        assert state.get_labels(query=2)[0] == LABELS[3]
+        assert state.get_labels(record_id=1)[0] == LABELS[3]
+
+
+def test_get_time():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    RECORD_ID_ORDER = [0, 5, 4, 1]
+    TIMES = [b'2020-12-04 15:18:36.822064', b'2020-12-04 15:18:36.822064',
+             b'2020-12-04 15:18:36.833420', b'2020-12-04 15:18:36.838645']
+
+    with open_state(state_fp) as state:
+        assert isinstance(state.get_time(), np.ndarray)
+        assert all(state.get_time() == TIMES)
+        assert len(state.get_time(query=0)) == 1
+        assert state.get_time(query=0)[0] == TIMES[1]
+        assert state.get_time(query=1)[0] == TIMES[2]
+        assert state.get_time(record_id=5)[0] == TIMES[1]
 
 # # Test get by querying for the whole dataset everytime. I'll implement indexing
 # # at a later stage.
