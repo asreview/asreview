@@ -22,8 +22,6 @@ from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
 from flask_cors import CORS
-from gevent import monkey
-monkey.patch_all()
 from gevent.pywsgi import WSGIServer
 from werkzeug.exceptions import InternalServerError
 
@@ -41,12 +39,32 @@ else:
     logging.basicConfig(level=logging.INFO)
 
 
-def _url(host, port):
-    return "http://{host}:{port}/".format(host=host, port=port)
+def _url(host, port, protocol):
+    """Create url from host and port."""
+    return f"{protocol}{host}:{port}/"
 
 
-def _open_browser(host, port):
-    webbrowser.open_new(_url(host, port))
+def _open_browser(host, port, protocol, no_browser):
+    """Open ASReview in browser if flag is set.
+
+    Otherwise, it displays an alert to copy and paste the url
+    at which ASReview is currently served.
+    """
+    if no_browser:
+        print(
+            "\nTo access ASReview LAB, copy and paste "
+            "this url in a browser "
+            f"{_url(host, port, protocol)}\n"
+        )
+        return
+
+    start_url = _url(host, port, protocol)
+    Timer(1, lambda: webbrowser.open_new(start_url)).start()
+    print(
+        f"Start browser at {start_url}"
+        "\n\n\n\nIf your browser doesn't open. "
+        f"Please navigate to '{start_url}'\n\n\n\n"
+    )
 
 
 def create_app(**kwargs):
@@ -100,8 +118,7 @@ def create_app(**kwargs):
 
     @app.route('/boot', methods=["GET"])
     def api_boot():
-        """Get the boot info"""
-
+        """Get the boot info."""
         if os.environ.get("FLASK_ENV", None) == "development":
             status = "development"
         else:
@@ -131,6 +148,23 @@ def main(argv):
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
 
+    app = create_app(
+        embedding_fp=args.embedding_fp,
+        config_file=args.config_file,
+        seed=args.seed
+    )
+    app.config['PROPAGATE_EXCEPTIONS'] = False
+
+    # ssl certificate, key and protocol
+    certfile = args.certfile
+    keyfile = args.keyfile
+    ssl_context = None
+    if certfile and keyfile:
+        protocol = "https://"
+        ssl_context = (certfile, keyfile)
+    else:
+        protocol = "http://"
+
     # clean all projects
     if args.clean_all_projects:
         clean_all_project_tmp_files()
@@ -141,39 +175,34 @@ def main(argv):
         clean_project_tmp_files(args.clean_project)
         return
 
-    # shortcuts for host and port
+    flask_dev = os.environ.get('FLASK_ENV', "") == "development"
     host = args.ip
     port = args.port
-
+    port_retries = args.port_retries
     # if port is already taken find another one
     if not os.environ.get('FLASK_ENV', "") == "development":
+        original_port = port
         while check_port_in_use(host, port) is True:
             old_port = port
             port = int(port) + 1
+            if port - original_port >= port_retries:
+                raise ConnectionError(
+                    "Could not find an available port \n"
+                    "to launch ASReview LAB. Last port \n"
+                    f"was {str(port)}"
+                )
             print(
                 f"Port {old_port} is in use.\n* Trying to start at {port}"
             )
 
-    def _internal_open_webbrowser():
-        _open_browser(host, port)
-
     # open webbrowser if not in flask development mode
-    if os.environ.get('FLASK_ENV', "") != "development":
-        Timer(1, _internal_open_webbrowser).start()
+    if flask_dev is False:
+        _open_browser(host, port, protocol, args.no_browser)
 
-    print(
-        "\n\n\n\nIf your browser doesn't open. "
-        "Please navigate to '{url}'\n\n\n\n".format(url=_url(host, port)))
-
-    app = create_app(
-        embedding_fp=args.embedding_fp,
-        config_file=args.config_file,
-        seed=args.seed
-    )
-    app.config['PROPAGATE_EXCEPTIONS'] = False
-
-    # use WSGI server if use_gevent flag is present
-    if args.use_gevent:
-        WSGIServer((host, port), app).serve_forever()
+    # run app in flask mode only if flask_env == development is True
+    if flask_dev is True:
+        app.run(host=host, port=port, ssl_context=ssl_context)
     else:
-        app.run(host=host, port=port)
+        ssl_args = {'keyfile': keyfile, 'certfile': certfile} if ssl_context else {}
+        server = WSGIServer((host, port), app, **ssl_args)
+        server.serve_forever()

@@ -53,9 +53,29 @@ def _lab_parser(prog="lab"):
         help="The port the server will listen on.")
 
     parser.add_argument(
-        "--use-gevent",
+        "--no-browser",
+        dest="no_browser",
         action='store_true',
-        help="Serve ASReview LAB with WSGI for better concurrency.")
+        help="Do not open ASReview LAB in a browser after startup.")
+
+    parser.add_argument(
+        "--port-retries",
+        dest="port_retries",
+        default=50,
+        type=int,
+        help="The number of additional ports to try if the specified port is not available.")
+
+    parser.add_argument(
+        "--certfile",
+        default="",
+        type=str,
+        help="The full path to an SSL/TLS certificate file.")
+
+    parser.add_argument(
+        "--keyfile",
+        default="",
+        type=str,
+        help="The full path to a private key file for usage with SSL/TLS.")
 
     return parser
 

@@ -24,7 +24,7 @@ def check_port_in_use(host, port):
     host: str
         The current host.
     port: int
-        The host port to be checked. 
+        The host port to be checked.
 
     Returns
     -------
