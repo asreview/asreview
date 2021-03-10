@@ -329,13 +329,13 @@ class HDF5State(BaseState):
                 self.f['results'].attrs['n_priors'] + 1)
         # QUESTION: This treats the priors as one query, is that what you want?
 
-    def record_id_to_row_index(self, record_id):
+    def _record_id_to_row_index(self, record_id):
         """Find the row index that corresponds to a given record id.
 
         Arguments
         ---------
         record_id: int
-            Record id of a sample.
+            Record_id of a record.
 
         Returns
         -------
@@ -345,6 +345,25 @@ class HDF5State(BaseState):
         data_hash = list(self.f['data_properties'].keys())[0]
         record_table = self.f[f'data_properties/{data_hash}/record_table']
         return np.where(record_table[:] == record_id)[0][0]
+
+    def _row_index_to_record_id(self, row_index):
+        """Find the record id that corresponds to a given row index.
+
+        Arguments
+        ----------
+        row_index: int
+            Row index.
+
+        Returns
+        -------
+        str:
+            Record id of the record with given row index.
+
+        """
+        data_hash = list(self.f['data_properties'].keys())[0]
+        record_table = self.f[f'data_properties/{data_hash}/record_table']
+        return record_table[row_index]
+
 
     @property
     def n_priors(self):
@@ -360,6 +379,29 @@ class HDF5State(BaseState):
         except KeyError:
             n_priors = None
         return n_priors
+
+    def _get_dataset(self, dataset, query=None, record_id=None):
+        """"""
+        if (query is not None) and (record_id is not None):
+            raise ValueError("You can not query by record_id and query at the same time.")
+
+        if query is not None:
+            # 0 corresponds to all priors.
+            if query == 0:
+                dataset_slice = range(self.n_priors)
+            # query_i is in spot (i + n_priors - 1).
+            else:
+                dataset_slice = [query + self.n_priors]
+        elif record_id is not None:
+            # Convert record id to row index.
+            idx = self._record_id_to_row_index(record_id)
+            # Find where this row number was labelled.
+            dataset_slice = np.where(self.f['results/indices'][:] == idx)[0]
+        else:
+            # Return the whole dataset.
+            dataset_slice = range(self.f[f'results/{dataset}'].shape[0])
+
+        return np.array(self.f[f'results/{dataset}'])[dataset_slice]
 
     def get_predictor_methods(self, query=None, record_id=None):
         """Get the predictor method from the state file.
@@ -378,26 +420,29 @@ class HDF5State(BaseState):
             If query and record_id are None, it returns the full array will predictor methods.
             Else it returns only the specific one.
         """
-        if (query is not None) and (record_id is not None):
-            raise ValueError("You can not query by record_id and query at the same time.")
+        return self._get_dataset(dataset='predictor_methods', query=query, record_id=record_id)
 
-        if query is not None:
-            # 0 corresponds to all priors.
-            if query == 0:
-                dataset_slice = range(self.n_priors)
-            # query_i is in spot (i + n_priors - 1).
-            else:
-                dataset_slice = [query + self.n_priors]
-        elif record_id is not None:
-            # Convert record id to row index.
-            idx = self.record_id_to_row_index(record_id)
-            # Find where this row number was labelled.
-            dataset_slice = np.where(self.f['results/indices'][:] == idx)[0]
-        else:
-            # Return the whole dataset.
-            dataset_slice = range(self.f['results/predictor_methods'].shape[0])
+    def get_order_of_labelling(self):
+        """Get full array of record id's in order that they were labelled.
 
-        return np.array(self.f['results/predictor_methods'])[dataset_slice]
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor method.
+            If this is 0, you the predictor method for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor method.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array will predictor methods.
+            Else it returns only the specific one.
+        """
+        indices = self._get_dataset(dataset='indices')
+        return self._row_index_to_record_id(indices)
+
+
 
     def get(self, variable, query_i=None, idx=None):
         # TODO(State): Turn logic into if, elif, ..., elif, else.

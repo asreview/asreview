@@ -166,6 +166,22 @@ def test_get_predictor_methods():
         # assert priors_record_id.tolist() == METHODS[:2]
 
 
+def test_get_order_of_labelling():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    RECORD_IDS = [0, 3, 2, 1]
+
+    with open_state(state_fp) as state:
+        assert isinstance(state.get_order_of_labelling(), np.ndarray)
+        assert all(state.get_order_of_labelling == RECORD_IDS)
+
+# TODO(STATE): Make example of state file where record ids are strings.
+# def test_row_index_to_record_id():
+#     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+#     INDICES = [0, 3, 2, 1]
+#
+#     with open_state(state_fp) as state:
+#         assert
+
 # # Test get by querying for the whole dataset everytime. I'll implement indexing
 # # at a later stage.
 # def test_get():
