@@ -23,11 +23,11 @@ Lab
 
 	The port the server will listen on.
 
-.. option:: --clean_project CLEAN_PROJECT
+.. option:: --clean-project CLEAN_PROJECT
 
     Safe cleanup of temporary files in project.
 
-.. option:: --clean_all_projects CLEAN_ALL_PROJECTS
+.. option:: --clean-all-projects CLEAN_ALL_PROJECTS
 
     Safe cleanup of temporary files in all projects.
 
