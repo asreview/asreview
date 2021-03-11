@@ -19,8 +19,7 @@ This example shows how to use the API in simulation mode:
 	from asreview.balance_strategies import SimpleBalanceModel
 	from asreview.feature_extraction import EmbeddingLSTM
 
-
-	# load data
+	# Load data
 	as_data = asreview.ASReviewData.from_file(DATA_FILE)
 
 	train_model = LSTMBaseModel()
@@ -28,11 +27,11 @@ This example shows how to use the API in simulation mode:
 	balance_model = SimpleBalanceModel()
 	feature_model = EmbeddingLSTM()
 
-	# Load the embedding matrix, only necessary for lstm models.
+	# Load the embedding matrix, only necessary for lstm models
 	train_model.embedding_matrix = feature_model.get_embedding_matrix(
 		as_data.texts, EMBEDDING_FILE)
 
-	# start the review process.
+	# Start the review process
 	reviewer = asreview.ReviewSimulate(
 	    as_data,
 	    model=train_model,
