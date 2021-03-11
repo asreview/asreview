@@ -28,4 +28,4 @@ This project is in collaboration with researchers from the focus area of [Utrech
 - Sofie van den Brand [@SagevdBrand](https://github.com/SagevdBrand))
 - Laura Hofstee [@LHofstee](https://github.com/LHofstee))
 - Peter Lombaers [@PeterLombaers](https://github.com/PeterLombaers)
-
+- [Otto Mättas](https://www.linkedin.com/in/ottomattas/) ([@ottomattas](https://github.com/ottomattas))
