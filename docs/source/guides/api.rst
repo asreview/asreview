@@ -2,14 +2,14 @@ Programming Interface (API)
 ===========================
 
 For more control over the workings of the ASReview software, an API is
-provided. For example, it is possible to define a new model or sampling
+provided. For example, it is possible to define a new model or a sampling
 strategy and use it with ASReview.
 
 
 Simulation Mode
 ---------------
 
-An example of use the API for the simulation mode:
+This example shows how to use the API in simulation mode:
 
 .. code-block:: python
 
