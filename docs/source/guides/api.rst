@@ -27,7 +27,7 @@ This example shows how to use the API in simulation mode:
 	balance_model = SimpleBalanceModel()
 	feature_model = EmbeddingLSTM()
 
-	# Load the embedding matrix, only necessary for lstm models
+	# Load the embedding matrix, only necessary for LSTM models
 	train_model.embedding_matrix = feature_model.get_embedding_matrix(
 		as_data.texts, EMBEDDING_FILE)
 
