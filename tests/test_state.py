@@ -1,4 +1,5 @@
 import os
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -8,17 +9,27 @@ from asreview.state import open_state, state_from_asreview_file
 from asreview.settings import ASReviewSettings
 
 
-def test_read_json_state():
+def test_read_json_state(tmpdir):
 
     state_fp = Path("tests", "state_files", "test_1_inst.json")
+    state_tmp_fp = Path(tmpdir, "test_1_inst.json")
 
-    with open_state(str(state_fp)) as state:
+    # copy state to open to tmpdir
+    shutil.copyfile(state_fp, state_tmp_fp)
+
+    with open_state(state_tmp_fp) as state:
         assert isinstance(state, JSONState)
 
 
-def test_read_hdf5_state():
+def test_read_hdf5_state(tmpdir):
+
     state_fp = Path("tests", "state_files", "test_1_inst.h5")
-    with open_state(str(state_fp)) as state:
+    state_tmp_fp = Path(tmpdir, "test_1_inst.h5")
+
+    # copy state to open to tmpdir
+    shutil.copyfile(state_fp, state_tmp_fp)
+
+    with open_state(state_tmp_fp) as state:
         assert isinstance(state, HDF5State)
 
 

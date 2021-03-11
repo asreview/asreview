@@ -36,8 +36,9 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
- - **Tabular datasets** with extensions ``.csv``, ``.xlsx``, or ``.xls``. CSV files should
-   be comma separated and UTF-8 encoded.
+ - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, ``.xlsx``,
+   or ``.xls``. CSV and TAB files are preferably comma, semicolon, or tab-delimited.
+   The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
 
@@ -132,11 +133,9 @@ managers  which are accepted by ASReview.
 +-------------------------------+----------+----------+----------+
 |                               | **.ris** | **.csv** | **.xlsx**|
 +-------------------------------+----------+----------+----------+
-| **Endnote**                   | ✅       | N/A      | N/A      |
+| **EndNote**                   | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
-| **Excel** comma-seperated     | N/A      | ✅       | ✅       |
-+-------------------------------+----------+----------+----------+
-| **Excel** semicolon-seperated | N/A      | X        | ✅       |
+| **Excel**                     | N/A      | ✅       | ✅       |
 +-------------------------------+----------+----------+----------+
 | **Mendeley**                  | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
@@ -148,6 +147,18 @@ managers  which are accepted by ASReview.
 -  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
 -  X = Not suported.
+
+.. note::
+
+  When using EndNote use the following steps to export a RIS file (.ris):
+
+  - In EndNote, click on the style selection dropdown menu from the main EndNote toolbar.
+  - Click "Select Another Style".
+  - Browse to RefMan (RIS) Export and click "Choose".
+  - Click on the file menu and select "Export".
+  - Pick a name and location for the text file.
+  - Choose the output format RefMan (RIS) Export and click "Save".
+
 
 
 Search Engines
@@ -228,7 +239,7 @@ ASReview.
 -  X = Not suported.
 
 \* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
-such as Endnote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
+such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
 
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.

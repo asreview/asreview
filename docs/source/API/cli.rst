@@ -23,14 +23,14 @@ Lab
 
 	The port the server will listen on.
 
-.. option:: --no-browser NO_BROWSER
-
-	Do not open ASReview LAB in a browser after startup.
-
 .. option:: --port-retries NUMBER_RETRIES
 
 	The number of additional ports to try if the specified port is not
         available.
+
+.. option:: --no-browser NO_BROWSER
+
+	Do not open ASReview LAB in a browser after startup.
 
 .. option:: --certfile CERTFILE_FULL_PATH
 
@@ -44,11 +44,11 @@ Lab
 
     File path of embedding matrix. Required for LSTM models.
 
-.. option:: --clean_project CLEAN_PROJECT
+.. option:: --clean-project CLEAN_PROJECT
 
     Safe cleanup of temporary files in project.
 
-.. option:: --clean_all_projects CLEAN_ALL_PROJECTS
+.. option:: --clean-all-projects CLEAN_ALL_PROJECTS
 
     Safe cleanup of temporary files in all projects.
 

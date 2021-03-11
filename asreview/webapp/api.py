@@ -99,7 +99,7 @@ def project_not_found(e):
 def error_500(e):
     original = getattr(e, "original_exception", None)
 
-    if original is None:
+    if original is None or str(e.original_exception) == "":
         # direct 500 error, such as abort(500)
         logging.error(e)
         return jsonify(message="Whoops, something went wrong."), 500
@@ -183,6 +183,11 @@ def api_get_project_info(project_id):  # noqa: F401
 
             project_info = json.load(fp)
 
+    except FileNotFoundError:
+        raise ProjectNotFoundError()
+
+    try:
+
         # check if there is a dataset
         try:
             get_data_file_path(project_id)
@@ -207,8 +212,9 @@ def api_get_project_info(project_id):  # noqa: F401
             else:
                 project_info["projectInitReady"] = False
 
-    except FileNotFoundError:
-        raise ProjectNotFoundError()
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to retrieve project information."), 500
 
     return jsonify(project_info)
 
@@ -262,27 +268,39 @@ def api_demo_data_project():  # noqa: F401
     subset = request.args.get('subset', None)
 
     if subset == "plugin":
-        result_datasets = get_dataset_metadata(
-            exclude=["builtin", "benchmark"]
-        )
+
+        try:
+            result_datasets = get_dataset_metadata(
+                exclude=["builtin", "benchmark"]
+            )
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load plugin datasets."), 500
+
     elif subset == "benchmark":
 
-        # collect the datasets metadata
-        result_datasets = get_dataset_metadata(
-            include="benchmark"
-        )
+        try:
+            # collect the datasets metadata
+            result_datasets = get_dataset_metadata(
+                include="benchmark"
+            )
 
-        # mark the featured datasets
-        featured_dataset_ids = [
-            "van_de_Schoot_2017",
-            "Hall_2012",
-            "Cohen_2006_ACEInhibitors",
-            "Kwok_2020"
-        ]
-        for featured_id in featured_dataset_ids:
-            for i, dataset in enumerate(result_datasets):
-                if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
-                    result_datasets[i]["featured"] = True
+            # mark the featured datasets
+            featured_dataset_ids = [
+                "van_de_Schoot_2017",
+                "Hall_2012",
+                "Cohen_2006_ACEInhibitors",
+                "Kwok_2020"
+            ]
+            for featured_id in featured_dataset_ids:
+                for i, dataset in enumerate(result_datasets):
+                    if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
+                        result_datasets[i]["featured"] = True
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
         response = jsonify(message="demo-data-loading-failed")
@@ -435,23 +453,27 @@ def api_get_project_data(project_id):  # noqa: F401
 def api_search_data(project_id):  # noqa: F401
     """Search for papers
     """
-
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
 
-    payload = {"result": []}
-    if q:
-        result_search = search_data(project_id, q=q, n_max=max_results)
+    try:
+        payload = {"result": []}
+        if q:
+            result_search = search_data(project_id, q=q, n_max=max_results)
 
-        for paper in result_search:
-            payload["result"].append({
-                "id": int(paper.record_id),
-                "title": paper.title,
-                "abstract": paper.abstract,
-                "authors": paper.authors,
-                "keywords": paper.keywords,
-                "included": int(paper.included)
-            })
+            for paper in result_search:
+                payload["result"].append({
+                    "id": int(paper.record_id),
+                    "title": paper.title,
+                    "abstract": paper.abstract,
+                    "authors": paper.authors,
+                    "keywords": paper.keywords,
+                    "included": int(paper.included)
+                })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load search results."), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -496,26 +518,32 @@ def api_get_prior(project_id):  # noqa: F401
         message = "Unkown subset parameter"
         return jsonify(message=message), 400
 
-    lock_fp = get_lock_path(project_id)
-    with SQLiteLock(
-            lock_fp, blocking=True, lock_name="active", project_id=project_id):
-        label_history = read_label_history(project_id, subset=subset)
+    try:
 
-    indices = [x[0] for x in label_history]
+        lock_fp = get_lock_path(project_id)
+        with SQLiteLock(
+                lock_fp, blocking=True, lock_name="active", project_id=project_id):
+            label_history = read_label_history(project_id, subset=subset)
 
-    records = read_data(project_id).record(indices, by_index=False)
+        indices = [x[0] for x in label_history]
 
-    payload = {"result": []}
-    for i, record in enumerate(records):
+        records = read_data(project_id).record(indices, by_index=False)
 
-        payload["result"].append({
-            "id": int(record.record_id),
-            "title": record.title,
-            "abstract": record.abstract,
-            "authors": record.authors,
-            "keywords": record.keywords,
-            "included": int(label_history[i][1])
-        })
+        payload = {"result": []}
+        for i, record in enumerate(records):
+
+            payload["result"].append({
+                "id": int(record.record_id),
+                "title": record.title,
+                "abstract": record.abstract,
+                "authors": record.authors,
+                "keywords": record.keywords,
+                "included": int(label_history[i][1])
+            })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load labeled documents"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -571,18 +599,23 @@ def api_random_prior_papers(project_id):  # noqa: F401
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 
-    record = read_data(project_id).record(pool_random, by_index=False)
+    try:
+        record = read_data(project_id).record(pool_random, by_index=False)
 
-    payload = {"result": []}
+        payload = {"result": []}
 
-    payload["result"].append({
-        "id": int(record.record_id),
-        "title": record.title,
-        "abstract": record.abstract,
-        "authors": record.authors,
-        "keywords": record.keywords,
-        "included": None
-    })
+        payload["result"].append({
+            "id": int(record.record_id),
+            "title": record.title,
+            "abstract": record.abstract,
+            "authors": record.authors,
+            "keywords": record.keywords,
+            "included": None
+        })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load random documents."), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -656,14 +689,18 @@ def api_set_algorithms(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training the model
     """
+    try:
+        # start training the model
+        py_exe = _get_executable()
+        run_command = [
+            py_exe, "-m", "asreview", "web_run_model", project_id,
+            "--label_method", "prior"
+        ]
+        subprocess.Popen(run_command)
 
-    # start training the model
-    py_exe = _get_executable()
-    run_command = [
-        py_exe, "-m", "asreview", "web_run_model", project_id,
-        "--label_method", "prior"
-    ]
-    subprocess.Popen(run_command)
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to train the model."), 500
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -680,23 +717,29 @@ def api_init_model_ready(project_id):  # noqa: F401
         logging.error("error on training")
         with open(error_path, "r") as f:
             error_message = json.load(f)
-        return jsonify(error_message), 400
+        return jsonify(message=error_message), 400
 
-    if get_proba_path(project_id).exists():
+    try:
 
-        # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
-            project_info = json.load(fp)
+        if get_proba_path(project_id).exists():
 
-        project_info["projectInitReady"] = True
+            # read the file with project info
+            with open(get_project_file_path(project_id), "r") as fp:
+                project_info = json.load(fp)
 
-        # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_info, fp)
+            project_info["projectInitReady"] = True
 
-        response = jsonify({'status': 1})
-    else:
-        response = jsonify({'status': 0})
+            # update the file with project info
+            with open(get_project_file_path(project_id), "w") as fp:
+                json.dump(project_info, fp)
+
+            response = jsonify({'status': 1})
+        else:
+            response = jsonify({'status': 0})
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to initiate the project."), 500
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
@@ -888,11 +931,16 @@ def api_get_progress_info(project_id):  # noqa: F401
 
     project_file_path = get_project_file_path(project_id)
 
-    # open the projects file
-    with open(project_file_path, "r") as f_read:
-        project_dict = json.load(f_read)
+    try:
+        # open the projects file
+        with open(project_file_path, "r") as f_read:
+            project_dict = json.load(f_read)
 
-    statistics = get_statistics(project_id)
+        statistics = get_statistics(project_id)
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load pie chart."), 500
 
     response = jsonify({**project_dict, **statistics})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -905,30 +953,35 @@ def api_get_progress_info(project_id):  # noqa: F401
 def api_get_progress_history(project_id):
     """Get progress history on the article"""
 
-    # get label history
-    labeled = read_label_history(project_id)
-    data = []
-    for [key, value] in labeled:
-        data.append(value)
+    try:
+        # get label history
+        labeled = read_label_history(project_id)
+        data = []
+        for [key, value] in labeled:
+            data.append(value)
 
-    # create a dataset with the rolling mean of every 10 papers
-    df = pd.DataFrame(
-        data, columns=["Relevant"]).rolling(
-            10, min_periods=1).mean()
-    df["Total"] = df.index + 1
+        # create a dataset with the rolling mean of every 10 papers
+        df = pd.DataFrame(
+            data, columns=["Relevant"]).rolling(
+                10, min_periods=1).mean()
+        df["Total"] = df.index + 1
 
-    # transform mean(percentage) to number
-    for i in range(0, len(df)):
-        if df.loc[i, "Total"] < 10:
-            df.loc[i, "Irrelevant"] = (
-                1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
-            df.loc[i,
-                   "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
-        else:
-            df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
-            df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
+        # transform mean(percentage) to number
+        for i in range(0, len(df)):
+            if df.loc[i, "Total"] < 10:
+                df.loc[i, "Irrelevant"] = (
+                    1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
+                df.loc[i,
+                       "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+            else:
+                df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
+                df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
 
-    df = df.round(1).to_dict(orient="records")
+        df = df.round(1).to_dict(orient="records")
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load progress plot."), 500
 
     response = jsonify(df)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -940,19 +993,24 @@ def api_get_progress_history(project_id):
 def api_get_progress_efficiency(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
-    statistics = get_data_statistics(project_id)
-    labeled = read_label_history(project_id)
-    data = []
-    for [key, value] in labeled:
-        data.append(value)
+    try:
+        statistics = get_data_statistics(project_id)
+        labeled = read_label_history(project_id)
+        data = []
+        for [key, value] in labeled:
+            data.append(value)
 
-    # create a dataset with the cumulative number of inclusions
-    df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
-    df["Total"] = df.index + 1
-    df["Random"] = (df["Total"] * (
-        df["Relevant"][-1:] / statistics["n_rows"]).values).round()
+        # create a dataset with the cumulative number of inclusions
+        df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+        df["Total"] = df.index + 1
+        df["Random"] = (df["Total"] * (
+            df["Relevant"][-1:] / statistics["n_rows"]).values).round()
 
-    df = df.round(1).to_dict(orient="records")
+        df = df.round(1).to_dict(orient="records")
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load efficiency plot."), 500
 
     response = jsonify(df)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1008,19 +1066,23 @@ def api_get_document(project_id):  # noqa: F401
     Although it might be better to call this function after 20 requests on the
     client side.
     """
-
     new_instance = get_instance(project_id)
 
-    if new_instance is None:  # don't use 'if not new_instance:'
+    try:
+        if new_instance is None:  # don't use 'if not new_instance:'
 
-        item = None
-        pool_empty = True
-    else:
+            item = None
+            pool_empty = True
+        else:
 
-        item = get_paper_data(
-            project_id, new_instance, return_debug_label=True)
-        item["doc_id"] = new_instance
-        pool_empty = False
+            item = get_paper_data(
+                project_id, new_instance, return_debug_label=True)
+            item["doc_id"] = new_instance
+            pool_empty = False
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to retrieve new documents."), 500
 
     response = jsonify({"result": item, "pool_empty": pool_empty})
     response.headers.add('Access-Control-Allow-Origin', '*')

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
@@ -9,6 +9,7 @@ import {
 import {
   ListItemPaper,
 } from '../PreReviewComponents'
+import ErrorHandler from '../ErrorHandler';
 
 import axios from 'axios'
 import { api_url } from '../globals.js';
@@ -29,11 +30,15 @@ const SearchResultDialog = (props) => {
 
   const classes = useStyles();
 
-  const [searchResult, setSearchResult] = React.useState(null);
+  const [searchResult, setSearchResult] = useState(null);
 
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
+  });
 
-  const descriptionElementRef = React.useRef(null);
-  React.useEffect(() => {
+  const descriptionElementRef = useRef(null);
+  useEffect(() => {
     if (true) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
@@ -56,23 +61,42 @@ const SearchResultDialog = (props) => {
             );
         })
         .catch((error) => {
-          console.log(error);
+          if (error.response) {
+            setError({
+              'message': error.response.data.message,
+              'retry': true,
+            });
+            console.log(error.response);
+          } else {
+            setError({
+              'message': "Failed to connect to server. Please restart the software.",
+              'retry': false,
+            });
+          };
         });
     }
     // make search request
     searchRequest(props.searchQuery)
 
-  }, [props.searchQuery, props.project_id]);
+  }, [props.searchQuery, props.project_id, error.message]);
 
   return (
     <div>
-        <Typography>Search result: {props.searchQuery}</Typography>
-          {searchResult === null &&
+      <Typography>Search result: {props.searchQuery}</Typography>
+        {error.message !== null &&
+          <div className={classes.root}>
+            <ErrorHandler
+              error={error}
+              setError={setError}
+            />
+          </div>
+        }
+        {error.message === null && searchResult === null &&
           <div className={classes.root}>
             <CircularProgress/>
           </div>
-          }
-          {searchResult !== null &&
+        }
+        {error.message === null && searchResult !== null &&
           <List dense={true}>
 
             {searchResult.map((value, index) => {
@@ -97,8 +121,8 @@ const SearchResultDialog = (props) => {
               );
             })}
 
-        </List>
-          }
+          </List>
+        }
     </div>
   );
 }

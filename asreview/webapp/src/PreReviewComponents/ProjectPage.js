@@ -1,4 +1,4 @@
-import React, {useRef, useEffect}  from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import {
@@ -16,6 +16,7 @@ import {
   PreReviewZone,
 } from '../PreReviewComponents'
 
+import ErrorHandler from '../ErrorHandler';
 import DangerZone from '../DangerZone.js'
 import PublicationZone from '../PublicationZone.js'
 import StatisticsZone from '../StatisticsZone.js'
@@ -82,7 +83,7 @@ const ProjectPage = (props) => {
 
   const EndRef = useRef(null)
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     // info-header
     infoLoading: true,
     info: null,
@@ -92,7 +93,11 @@ const ProjectPage = (props) => {
     setup: false,
     training: false,
     finished: null,
+  });
 
+  const [error, setError] = useState({
+    "message": null,
+    "retry": false,
   });
 
   const finishProjectSetup = () => {
@@ -108,6 +113,7 @@ const ProjectPage = (props) => {
   const finishProjectFirstTraining = () => {
 
     setState({
+      ...state,
       info: {...state.info, projectInitReady : true},
       training : false,
     })
@@ -195,17 +201,40 @@ const ProjectPage = (props) => {
 
         })
         .catch((error) => {
-          console.log(error);
+
+          if (error.response) {
+               
+            setError({
+              message: error.response.data.message,
+              retry: true,
+            });
+            console.log(error.response);
+
+          } else {
+
+            setError(s => {return({
+              ...s,
+              message: "Failed to connect to server. Please restart the software.",
+            })});
+
+          };
         });
     };
 
     fetchProjectInfo();
 
-  }, [props.project_id, state.finished]);
+  }, [props.project_id, state.finished, error.message]);
 
   return (
     <Box>
-      {!state.infoLoading &&
+      {error.message !== null &&
+        <ErrorHandler
+          error={error}
+          setError={setError}
+        />
+      }
+
+      {error.message === null && !state.infoLoading &&
         <Box className={classes.box}>
           <div ref={EndRef} />
           <Container maxWidth='md'>
@@ -326,6 +355,7 @@ const ProjectPage = (props) => {
               <PreReviewZone
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
+                setProjectPageError={setError}
               />
             }
           </Container>

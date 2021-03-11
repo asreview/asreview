@@ -17,7 +17,7 @@ learning cycle.
 
 
 **Open & Transparent**
-We are strong opponents of `open science <https://asreview.nl/open-science/>`_,
+We are strong proponents of `open science <https://asreview.nl/open-science/>`_,
 and therefore ASReview code is free and openly available. We value your privacy
 and hence do not get to see any of your data
 (everything stays on your device). We do hope you believe like us in the

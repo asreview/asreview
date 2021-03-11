@@ -137,6 +137,8 @@ setup(
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
+            '.tab = asreview.io.csv_reader:read_csv',
+            '.tsv = asreview.io.csv_reader:read_csv',
             '.ris = asreview.io.ris_reader:read_ris',
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
