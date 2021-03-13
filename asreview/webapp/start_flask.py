@@ -129,12 +129,16 @@ def main(argv):
 
     # clean all projects
     if args.clean_all_projects:
+        print("Cleaning all project files.")
         clean_all_project_tmp_files()
+        print("Done")
         return
 
     # clean project by project_id
     if args.clean_project is not None:
+        print(f"Cleaning project file '{args.clean_project}'.")
         clean_project_tmp_files(args.clean_project)
+        print("Done")
         return
 
     # shortcuts for host and port
