@@ -31,14 +31,15 @@ def _lab_parser(prog="lab"):
 
     parser.add_argument(
         "--clean-project",
-        dest="--clean_project",
+        dest="clean_project",
         default=None,
         type=str,
         help="Safe cleanup of temporary files in project.")
 
     parser.add_argument(
         "--clean-all-projects",
-        dest="--clean_all_projects",
+        dest="clean_all_projects",
+        default=None,
         action='store_true',
         help="Safe cleanup of temporary files in all projects.")
 
