@@ -54,6 +54,7 @@ def _map_settings_type(name, value):
             f"Can't convert setting '{name}' to {SETTINGS_TYPE_DICT[name]}"
         )
 
+
 def _convert_types(par_defaults, param):
     """Convert strings from the config file to the appropriate type."""
     for par in param:
