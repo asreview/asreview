@@ -22,7 +22,7 @@ University, The Netherlands), together with `Jonathan de Bruin
 working at the Information and Technology Services department at Utrecht
 University.
 
-Our advisory board consists of machine learning expert `Daniel Oberski
+The advisory board consists of machine learning expert `Daniel Oberski
 <http://daob.nl/about-me/>`_, associate professor at Utrecht University’s
 Department of Methodology & Statistics, and the department of Biostatistics at
 the Julius Center, University Medical Center Utrecht),  full professor `Lars
@@ -40,8 +40,13 @@ The Art-Work of ASReview was developed by `Joukje Willemsen <http://www.statisti
 
 Moreover, many others helped the project, like researchers Gerbrich Ferdinands
 and Laura Hofstee, as well as many students like Yongchao Terry Ma, Sofie van
-den Brand, Sybren Hindriks, and Albert Harkema. Many thanks to all the
-`contributors <https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md>`_!
+den Brand, Sybren Hindriks, and Albert Harkema. See
+`ASReview project members <https://github.com/orgs/asreview/people/>`_ for an
+overview of the people involved in the project.
+
+ASReview thanks the community for their contributions. A full
+list of code contributors can be found on the
+`contributors <https://github.com/asreview/asreview/graphs/contributors>`_ page on Github.
 
 The Case of Systematic Reviewing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
