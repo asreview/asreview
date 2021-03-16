@@ -44,6 +44,19 @@ class ProjectAPI {
     });
   };
 
+  static prior_random(project_id, setError) {
+    const url = api_url + `project/${project_id}/prior_random`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          apiErrorHandler.withRetry(error, setError);
+        });
+    });
+  };
+
   static labelitem(project_id, body) {
     const url = api_url + `project/${project_id}/labelitem`;
     return new Promise(function(resolve, reject) {
