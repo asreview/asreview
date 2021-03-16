@@ -57,17 +57,15 @@ class ProjectAPI {
     });
   };
 
-  static labelitem(project_id, body) {
+  static labelitem(project_id, data) {
     const url = api_url + `project/${project_id}/labelitem`;
     return new Promise(function(resolve, reject) {
-      axios.post(
-        url,
-        body,
-        {
-          headers: {
-            'Content-type': 'application/x-www-form-urlencoded',
-          }
-        })
+      axios({
+        method: 'post',
+        url: url,
+        data: data,
+        headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+      })
       .then((result) => {
         resolve(result);
       })
