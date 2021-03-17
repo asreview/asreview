@@ -12,13 +12,13 @@ import {
 
 import { brown } from '@material-ui/core/colors';
 
-import axios from 'axios'
-
 import ErrorHandler from '../ErrorHandler';
+import { ProjectAPI } from '../api/index.js';
+
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -96,32 +96,18 @@ const ProjectInit = (props) => {
     bodyFormData.set('authors', info.authors);
     bodyFormData.set('description', info.description);
 
-    axios({
-      method: "post",
-      url: api_url + "project/info",
-      data: bodyFormData,
-      headers: {'Content-Type': 'multipart/form-data' }
-    })
-    .then(function (response) {
+    ProjectAPI.init(bodyFormData, setError, setProjectExist)
+      .then(function (result) {
 
-      // set the project_id in the redux store
-      props.setProjectId(response.data["id"])
+        // set the project_id in the redux store
+        props.setProjectId(result.data["id"])
 
-      props.handleAppState("project-page")
+        props.handleAppState("project-page")
 
-    })
-    .catch((error) => {        
-        if (error.response) {
-          //handle projectExist
-          setProjectExist(true);
-          console.log(error);
-        } else {
-          setError(s => {return({
-            ...s,
-            "message": "Failed to connect to server. Please restart the software."
-          })});
-        };
-    });
+      })
+      .catch((error) => {        
+        // handled in api wrapper
+      });
   }
 
   return (

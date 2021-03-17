@@ -17,6 +17,19 @@ class apiErrorHandler {
 
   };
 
+  static withoutRetry(error, setError) {
+    
+    if (error.response) {
+      console.log(error.response);
+    } else {
+      setError(s => {return({
+        ...s,
+        message: "Failed to connect to server. Please restart the software.",
+      })});
+    };
+    
+  };
+
 };
 
 export default apiErrorHandler

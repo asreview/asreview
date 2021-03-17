@@ -5,6 +5,28 @@ import axios from 'axios';
 
 class ProjectAPI {
 
+  static init(data, setError, setProjectExist) {
+    const url = api_url + `project/info`;
+    return new Promise(function(resolve, reject) {
+      axios({
+        method: 'post',
+        url: url,
+        data: data,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        if (error.response) {
+        //handle projectExist
+          setProjectExist(true);
+        };
+        apiErrorHandler.withoutRetry(error, setError);
+      });
+    });
+  };
+
   static info(project_id, setError) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise(function(resolve, reject) {
