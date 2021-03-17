@@ -11,6 +11,7 @@ import {
 } from '../PreReviewComponents';
 
 import ErrorHandler from '../ErrorHandler';
+import { ProjectAPI } from '../api/index.js';
 
 import { api_url } from '../globals.js';
 
@@ -76,10 +77,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
         // prepare properties and make subset
         params['subset'] = 'benchmark'
 
-        axios.get(
-            url,
-            {params: params}
-          )
+        ProjectAPI.datasets(params, setError)
           .then((result) => {
             setState({
               'datasets': result.data['result'],
@@ -87,18 +85,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             });
           })
           .catch((error) => {
-            if (error.response) {
-              setError({
-                'message': error.response.data.message,
-                'retry': true,
-              });
-              console.log(error.response);
-            } else {
-              setError(s => {return({
-                ...s,
-                'message': "Failed to connect to server. Please restart the software.",
-              })});
-            };
+            // handled in api wrapper
           });
       };
 

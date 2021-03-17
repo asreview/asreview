@@ -36,6 +36,22 @@ class ProjectAPI {
     });
   };
 
+  static datasets(params, setError) {
+    const url = api_url + `datasets`;
+    return new Promise(function(resolve, reject) {
+      axios.get(
+        url,
+        { params: params }
+      )
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        apiErrorHandler.withRetry(error, setError);
+      });
+    });
+  };
+
   static data(project_id, edit, data=null) {
     const url = api_url + `project/${project_id}/data`;
     return new Promise(function(resolve, reject) {
