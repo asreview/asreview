@@ -13,9 +13,6 @@ import {
 import ErrorHandler from '../ErrorHandler';
 import { ProjectAPI } from '../api/index.js';
 
-import { api_url } from '../globals.js';
-
-import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   accordion: {
@@ -68,9 +65,6 @@ const ProjectUploadBenchmarkDatasets = (props) => {
     useEffect(() => {
 
       const fetchData = async () => {
-
-        // contruct URL
-        const url = api_url + "datasets";
 
         const params = {};
 
