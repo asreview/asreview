@@ -96,7 +96,7 @@ const ProjectInit = (props) => {
     bodyFormData.set('authors', info.authors);
     bodyFormData.set('description', info.description);
 
-    ProjectAPI.init(bodyFormData, setError, setProjectExist)
+    ProjectAPI.init(bodyFormData, setError)
       .then(function (result) {
 
         // set the project_id in the redux store
@@ -105,8 +105,9 @@ const ProjectInit = (props) => {
         props.handleAppState("project-page")
 
       })
-      .catch((error) => {        
-        // handled in api wrapper
+      .catch((error) => {
+        // handle projectExist
+        setProjectExist(true);
       });
   }
 

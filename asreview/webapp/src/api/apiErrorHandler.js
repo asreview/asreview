@@ -17,9 +17,10 @@ class apiErrorHandler {
 
   };
 
-  static withoutRetry(error, setError) {
+  static withoutRetry(reject, error, setError) {
     
     if (error.response) {
+      reject(error);
       console.log(error.response);
     } else {
       setError(s => {return({
@@ -27,7 +28,7 @@ class apiErrorHandler {
         message: "Failed to connect to server. Please restart the software.",
       })});
     };
-    
+
   };
 
 };

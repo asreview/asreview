@@ -5,7 +5,7 @@ import axios from 'axios';
 
 class ProjectAPI {
 
-  static init(data, setError, setProjectExist) {
+  static init(data, setError) {
     const url = api_url + `project/info`;
     return new Promise(function(resolve, reject) {
       axios({
@@ -18,11 +18,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        if (error.response) {
-        //handle projectExist
-          setProjectExist(true);
-        };
-        apiErrorHandler.withoutRetry(error, setError);
+        apiErrorHandler.withoutRetry(reject, error, setError);
       });
     });
   };
