@@ -10,9 +10,8 @@ import {
   ListItemPaper,
 } from '../PreReviewComponents'
 import ErrorHandler from '../ErrorHandler';
+import { ProjectAPI } from '../api/index.js';
 
-import axios from 'axios'
-import { api_url } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -48,31 +47,14 @@ const SearchResultDialog = (props) => {
 
     const searchRequest = (searchQuery) => {
 
-        const url = api_url + `project/${props.project_id}/search`;
-
-        axios.get(
-          url,
-          {params:
-            {q: searchQuery,
-             n_max: 10}})
+      ProjectAPI.search(props.project_id, searchQuery, setError)
         .then((result) => {
-            setSearchResult(
-              result.data['result']
-            );
+          setSearchResult(
+            result.data['result']
+          );
         })
         .catch((error) => {
-          if (error.response) {
-            setError({
-              'message': error.response.data.message,
-              'retry': true,
-            });
-            console.log(error.response);
-          } else {
-            setError({
-              'message': "Failed to connect to server. Please restart the software.",
-              'retry': false,
-            });
-          };
+          // handled in api wrapper
         });
     }
     // make search request

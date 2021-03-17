@@ -69,6 +69,26 @@ class ProjectAPI {
     });
   };
 
+  static search(project_id, searchQuery, setError) {
+    const url = api_url + `project/${project_id}/search`;
+    return new Promise(function(resolve, reject) {
+      axios.get(
+        url,
+        { params:
+            { q: searchQuery,
+              n_max: 10,
+            }
+        },
+      )
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        apiErrorHandler.withRetry(error, setError);
+      });
+    });
+  };
+
   static prior(project_id, setError) {
     const url = api_url + `project/${project_id}/prior`;
     return new Promise(function(resolve, reject) {
