@@ -36,6 +36,23 @@ class ProjectAPI {
     });
   };
 
+  static data(project_id, edit, data=null) {
+    const url = api_url + `project/${project_id}/data`;
+    return new Promise(function(resolve, reject) {
+      axios({
+        method: edit ? 'post' : 'get',
+        url: url,
+        data: data,
+      })
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+    });
+  };
+
   static prior(project_id, setError) {
     const url = api_url + `project/${project_id}/prior`;
     return new Promise(function(resolve, reject) {
