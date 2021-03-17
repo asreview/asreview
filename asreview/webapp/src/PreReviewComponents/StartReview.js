@@ -5,14 +5,13 @@ import {
   Typography,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
-
-import axios from 'axios'
+import { ProjectAPI } from '../api/index.js';
 
 import './ReviewZone.css';
 
 import { connect } from "react-redux";
 
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 
 const useStyles = makeStyles(theme => ({
@@ -34,37 +33,35 @@ const StartReview = ({project_id, onReady}) => {
 
     const checkModelIsFitted = () => {
 
-      const url = api_url + `project/${project_id}/model/init_ready`;
+      return ProjectAPI.init_ready(project_id)
+        .then((result) => {
 
-      return axios.get(url)
-      .then((result) => {
+          if (result.data["status"] === 1){
+            // model ready
+            onReady();
+          } else {
+            // not ready yet
+            setTimeout(checkModelIsFitted, 2000);
+          }
+        })
+        .catch((error) => {
 
-        if (result.data["status"] === 1){
-          // model ready
-          onReady();
-        } else {
-          // not ready yet
-          setTimeout(checkModelIsFitted, 2000);
-        }
-      })
-      .catch((error) => {
+          if (error.response) {
+            setState({
+              "status": "error",
+              "message": error.response.data.message,
+            });
+            console.log(error.response);
+          } else if (error.request) {
+            console.log(error.request);
+          } else {
+            setState({
+              "status": "error",
+              "message": "Failed to connect to server. Please restart the software.",
+            });
+          };
 
-        if (error.response) {
-          setState({
-            "status": "error",
-            "message": error.response.data.message,
-          });
-          console.log(error.response);
-        } else if (error.request) {
-          console.log(error.request);
-        } else {
-          setState({
-            "status": "error",
-            "message": "Failed to connect to server. Please restart the software.",
-          });
-        };
-
-      });
+        });
     }
 
     const startTraining = () => {
@@ -75,31 +72,24 @@ const StartReview = ({project_id, onReady}) => {
         "message": null,
       })
 
-      const url = api_url + `project/${project_id}/start`;
-
-      return axios({
-        method: 'post',
-        url: url,
-        data: {},
-        headers: {'Content-Type': 'multipart/form-data' }
-      })
-      .then((result) => {
-        checkModelIsFitted();
-      })
-      .catch((error) => {
-        if (error.response) {
-          setState({
-            "status": "error",
-            "message": error.response.data.message,
-          });
-          console.log(error.response);
-        } else {
-          setState({
-            "status": "error",
-            "message": "Failed to connect to server. Please restart the software.",
-          });
-        };
-      });
+      return ProjectAPI.start(project_id)
+        .then((result) => {
+          checkModelIsFitted();
+        })
+        .catch((error) => {
+          if (error.response) {
+            setState({
+              "status": "error",
+              "message": error.response.data.message,
+            });
+            console.log(error.response);
+          } else {
+            setState({
+              "status": "error",
+              "message": "Failed to connect to server. Please restart the software.",
+            });
+          };
+        });
     }
     if (state.status === null){
       setTimeout(startTraining, 3000);

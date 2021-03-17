@@ -145,6 +145,37 @@ class ProjectAPI {
     });
   };
 
+  static start(project_id) {
+    const url = api_url + `project/${project_id}/start`;
+    return new Promise(function(resolve, reject) {
+      axios({
+        method: 'post',
+        url: url,
+        data: {},
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+    });
+  };
+
+  static init_ready(project_id) {
+    const url = api_url + `project/${project_id}/model/init_ready`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
+
   static labelitem(project_id, data) {
     const url = api_url + `project/${project_id}/labelitem`;
     return new Promise(function(resolve, reject) {
