@@ -78,7 +78,7 @@ used for the Simulation Mode to select prior knowledge.
 metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
 both title and abstract are available, the text is combined and used for
 training the model. If the column ``title`` is empty, the software will search
-for the next column ``primary_title`` and the same holds for ``bastract`` and
+for the next column ``primary_title`` and the same holds for ``abstract`` and
 ``abstract_note``.
 
 **Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
