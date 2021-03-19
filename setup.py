@@ -133,7 +133,6 @@ setup(
             'simulate=asreview.entry_points:SimulateEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
             'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
-            "describe = asreview.entry_points:DescribeEntryPoint",
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
