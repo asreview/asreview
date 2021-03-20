@@ -102,6 +102,24 @@ class ProjectAPI {
     });
   };
 
+  static labelitem(project_id, data) {
+    const url = api_url + `project/${project_id}/labelitem`;
+    return new Promise(function(resolve, reject) {
+      axios({
+        method: 'post',
+        url: url,
+        data: data,
+        headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+      })
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    });
+  };
+
   static prior(project_id, setError) {
     const url = api_url + `project/${project_id}/prior`;
     return new Promise(function(resolve, reject) {
@@ -189,20 +207,19 @@ class ProjectAPI {
     });
   };
 
-  static labelitem(project_id, data) {
-    const url = api_url + `project/${project_id}/labelitem`;
+  static import_project(data) {
+    const url = api_url + `project/import_project`;
     return new Promise(function(resolve, reject) {
       axios({
         method: 'post',
         url: url,
         data: data,
-        headers: { 'Content-type': 'application/x-www-form-urlencoded' }
       })
       .then((result) => {
         resolve(result);
       })
       .catch((error) => {
-        console.log(error);
+        reject(error);
       });
     });
   };

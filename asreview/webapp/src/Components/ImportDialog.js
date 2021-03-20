@@ -11,12 +11,12 @@ import {
 } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
-import axios from 'axios';
+import { ProjectAPI } from '../api/index.js';
 
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -82,50 +82,44 @@ const ImportDialog = (props) => {
     const data = new FormData();
     data.append("file", file);
 
-    const importUrl = api_url + `project/import_project`;
+    ProjectAPI.import_project(data)
+      .then(function (response) {
 
-    axios({
-      method: 'post',
-      url: importUrl,
-      data: data
-    })
-    .then(function (response) {
+        // set the project_id in the redux store
+        props.setProjectId(response.data["id"])
 
-      // set the project_id in the redux store
-      props.setProjectId(response.data["id"])
+        // navigate to project page
+        props.handleAppState("project-page")
 
-      // navigate to project page
-      props.handleAppState("project-page")
+      })
+      .catch(function (error) {
+        if (error.response) {
+          // set upload to false
+          setUpload(false);
 
-    })
-    .catch(function (error) {
-      if (error.response) {
-        // set upload to false
-        setUpload(false);
+          // remove accepted files
+          setFile(null);
 
-        // remove accepted files
-        setFile(null);
+          // remove selection
+          setSelection(null);
 
-        // remove selection
-        setSelection(null);
+          // set error to state
+          setError(error.response.data["message"]);
 
-        // set error to state
-        setError(error.response.data["message"]);
+        } else {
+          // set upload to false
+          setUpload(false);
 
-      } else {
-        // set upload to false
-        setUpload(false);
+          // remove accepted files
+          setFile(null);
 
-        // remove accepted files
-        setFile(null);
+          // remove selection
+          setSelection(null);
 
-        // remove selection
-        setSelection(null);
-
-        // set error to state
-        setError("Failed to connect to server. Please restart the software.");
-      };
-    });
+          // set error to state
+          setError("Failed to connect to server. Please restart the software.");
+        };
+      });
   };
 
 
