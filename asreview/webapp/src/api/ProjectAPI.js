@@ -207,6 +207,16 @@ class ProjectAPI {
     });
   };
 
+  static export_results(project_id, exportFileType) {
+    const exportUrl = api_url + `project/${project_id}/export?file_type=${exportFileType}`
+    setTimeout(() => {
+      const response = {
+        file: exportUrl,
+      };
+      window.location.href = response.file;
+    }, 100);
+  };
+
   static export_project(project_id) {
     const exportUrl = api_url + `project/${project_id}/export_project`
     setTimeout(() => {

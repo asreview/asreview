@@ -14,9 +14,9 @@ import {
   Link,
 } from '@material-ui/core';
 
-// import axios from 'axios'
+import { ProjectAPI } from '../api/index.js';
 
-import { api_url, donateURL } from '../globals.js';
+import { donateURL } from '../globals.js';
 
 import { connect } from "react-redux";
 import store from '../redux/store'
@@ -65,15 +65,7 @@ const ExportDialog = (props) => {
 
     if (project_id !== null){
 
-      // download URL, example http://localhost:5000/api/project/myproject/export?file_type=excel
-      const exportUrl = api_url + `project/${project_id}/export?file_type=${exportFileType}`
-
-      setTimeout(() => {
-        const response = {
-          file: exportUrl,
-        };
-        window.location.href = response.file;
-      }, 100);
+      ProjectAPI.export_results(project_id, exportFileType);
 
     } else{
       // raise exception
