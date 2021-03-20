@@ -220,6 +220,19 @@ class ProjectAPI {
     });
   };
 
+  static delete(project_id) {
+    const url = api_url + `project/${project_id}/delete`;
+    return new Promise(function(resolve, reject) {
+      axios.delete(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          console.log("Failed to delete project.");
+        });
+    });
+  };
+
 }
 
 export default ProjectAPI
