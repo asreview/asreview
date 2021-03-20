@@ -230,6 +230,45 @@ class ProjectAPI {
     });
   };
 
+  static progress(project_id) {
+    const url = api_url + `project/${project_id}/progress`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
+
+  static progress_history(project_id) {
+    const url = api_url + `project/${project_id}/progress_history`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
+
+  static progress_efficiency(project_id) {
+    const url = api_url + `project/${project_id}/progress_efficiency`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
+
   static delete(project_id) {
     const url = api_url + `project/${project_id}/delete`;
     return new Promise(function(resolve, reject) {

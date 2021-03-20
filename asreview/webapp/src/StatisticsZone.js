@@ -19,9 +19,8 @@ import {
   ProgressLineChart,
 } from './SideStats'
 
-import axios from 'axios'
+import { ProjectAPI } from './api/index.js';
 
-import { api_url } from './globals.js';
 
 const useStyles = makeStyles(theme => ({
 
@@ -106,9 +105,7 @@ const StatisticsZone = (props) => {
      */
     const getProgressInfo = () => {
 
-      const url = api_url + `project/${props.project_id}/progress`;
-
-      return axios.get(url)
+      ProjectAPI.progress(props.project_id)
         .then((result) => {
           setStatistics(result.data)
         })
@@ -129,9 +126,7 @@ const StatisticsZone = (props) => {
 
     const getProgressHistory = () => {
 
-      const url = api_url + `project/${props.project_id}/progress_history`;
-
-      return axios.get(url)
+      ProjectAPI.progress_history(props.project_id)
         .then((result) => {
           setHistory(result.data)
         })
@@ -152,9 +147,7 @@ const StatisticsZone = (props) => {
 
     const getProgressEfficiency = () => {
 
-      const url = api_url + `project/${props.project_id}/progress_efficiency`;
-
-      return axios.get(url)
+      ProjectAPI.progress_efficiency(props.project_id)
         .then((result) => {
           setEfficiency(result.data)
         })
