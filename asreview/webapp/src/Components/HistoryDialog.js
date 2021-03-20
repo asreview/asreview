@@ -116,7 +116,7 @@ const HistoryDialog = (props) => {
     body.set('doc_id', doc_id);
     body.set('label', label === 1 ? 0 : 1);
 
-    ProjectAPI.classify_instance(props.project_id, doc_id, body)
+    ProjectAPI.classify_instance(props.project_id, doc_id, body, false)
       .then((response) => {
         console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
         reloadHistory();

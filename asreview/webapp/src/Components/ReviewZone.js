@@ -14,10 +14,11 @@ import DecisionBar from './DecisionBar'
 import DecisionUndoBar from './DecisionUndoBar'
 import { useKeyPress } from '../hooks/useKeyPress'
 
+import { ProjectAPI } from '../api/index.js';
+
 import { connect } from "react-redux";
 
-import axios from 'axios'
-import { api_url, reviewDrawerWidth } from '../globals.js';
+import { reviewDrawerWidth } from '../globals.js';
 
 // redux config
 import { toggleReviewDrawer } from '../redux/actions'
@@ -237,27 +238,20 @@ const ReviewZone = (props) => {
    */
   const classifyInstance = (label, initial) => {
 
-    const url = api_url + `project/${props.project_id}/record/${recordState['record'].doc_id}`;
-
     // set up the form
     let body = new FormData();
     body.set('doc_id', recordState['record'].doc_id);
     body.set('label', label);
 
-    return axios({
-      method: initial ? 'post' : 'put',
-      url: url,
-      data: body,
-      headers: { 'Content-Type': 'application/json' }
-    })
-    .then((response) => {
-      console.log(`${props.project_id} - add item ${recordState['record'].doc_id} to ${label?"inclusions":"exclusions"}`);
-      startLoadingNewDocument()
-      showUndoBarIfNeeded(label, initial);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    ProjectAPI.classify_instance(props.project_id, recordState.record.doc_id, body, initial)
+      .then((response) => {
+        console.log(`${props.project_id} - add item ${recordState['record'].doc_id} to ${label?"inclusions":"exclusions"}`);
+        startLoadingNewDocument()
+        showUndoBarIfNeeded(label, initial);
+      })
+      .catch((error) => {
+        // handled in api wrapper
+      });
   }
 
   useEffect(() => {
@@ -267,9 +261,7 @@ const ReviewZone = (props) => {
      */
     const getProgressInfo = () => {
 
-      const url = api_url + `project/${props.project_id}/progress`;
-
-      return axios.get(url)
+      ProjectAPI.progress(props.project_id)
         .then((result) => {
           setStatistics(result.data);
         })
@@ -285,9 +277,7 @@ const ReviewZone = (props) => {
 
     const getProgressHistory = () => {
 
-      const url = api_url + `project/${props.project_id}/progress_history`;
-
-      return axios.get(url)
+      ProjectAPI.progress_history(props.project_id)
         .then((result) => {
           setHistory(result.data)
         })
@@ -306,44 +296,26 @@ const ReviewZone = (props) => {
      */
     const getDocument = () => {
 
-      const url = api_url + `project/${props.project_id}/get_document`;
+      ProjectAPI.get_document(props.project_id, setError)
+        .then((result) => {
 
-      return axios.get(url)
-      .then((result) => {
+          /* Check for last paper */
+          if (result.data["pool_empty"]){
+            props.handleAppState('review-complete');
+          } else {
 
-        /* Check for last paper */
-        if (result.data["pool_empty"]){
-          props.handleAppState('review-complete');
-        } else {
+            /* New article found and set */
+            setRecordState({
+              'record':result.data["result"],
+              'isloaded': true,
+              'selection': null,
+            });
+          }
 
-          /* New article found and set */
-          setRecordState({
-            'record':result.data["result"],
-            'isloaded': true,
-            'selection': null,
-          });
-        }
-
-      })
-      .catch((error) => {
-
-        if (error.response) {
-
-          setError({
-            'message': error.response.data.message,
-            'retry': true,
-          });
-          console.log(error.response);
-
-        } else {
-
-          setError({
-            'message': "Failed to connect to server. Please restart the software.",
-            'retry': false,
-          });
-
-        };
-      });
+        })
+        .catch((error) => {
+          // handled in api wrapper
+        });
     }
 
     if (!recordState['isloaded']) {

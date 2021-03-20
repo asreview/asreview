@@ -296,11 +296,11 @@ class ProjectAPI {
     });
   };
 
-  static classify_instance(project_id, doc_id, data) {
+  static classify_instance(project_id, doc_id, data, initial) {
     const url = api_url + `project/${project_id}/record/${doc_id}`;
     return new Promise(function(resolve, reject) {
       axios({
-        method: 'put',
+        method: initial ? 'post' : 'put',
         url: url,
         data: data,
         headers: { 'Content-Type': 'application/json' }
@@ -311,6 +311,19 @@ class ProjectAPI {
       .catch((error) => {
         console.log(error);
       });
+    });
+  };
+
+  static get_document(project_id, setError) {
+    const url = api_url + `project/${project_id}/get_document`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          apiErrorHandler.withRetry(error, setError);
+        });
     });
   };
 
