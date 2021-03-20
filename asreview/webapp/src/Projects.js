@@ -29,9 +29,8 @@ import {
   ProjectInit
 } from './PreReviewComponents'
 
-import { api_url } from './globals.js';
+import { ProjectAPI } from './api/index.js';
 
-import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -78,9 +77,7 @@ const Projects = (props) => {
 
     const refreshProjects = () => {
 
-      const url = api_url + "projects";
-
-      axios.get(url)
+      ProjectAPI.projects(setError)
         .then((result) => {
           setProjects({
             "projects": result.data['result'],
@@ -88,23 +85,7 @@ const Projects = (props) => {
           });
         })
         .catch((error) => {
-          
-          if (error.response) {
-
-            setError({
-              "message": error.response.data.message,
-              "retry": true,
-            });
-            console.log(error.response);
-
-          } else {
-
-            setError(s => {return({
-              ...s,
-              "message": "Failed to connect to server. Please restart the software.",
-            })});
-
-          }
+          // handled in api wrapper
         });
     };
 

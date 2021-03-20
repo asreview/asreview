@@ -5,6 +5,19 @@ import axios from 'axios';
 
 class ProjectAPI {
 
+  static projects(setError) {
+    const url = api_url + `projects`;
+    return new Promise(function(resolve, reject) {
+      axios.get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          apiErrorHandler.withRetry(error, setError);
+        });
+    });
+  };
+
   static init(data, setError) {
     const url = api_url + `project/info`;
     return new Promise(function(resolve, reject) {
