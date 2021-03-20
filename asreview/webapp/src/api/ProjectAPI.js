@@ -279,6 +279,24 @@ class ProjectAPI {
     });
   };
 
+  static classify_instance(project_id, doc_id, data) {
+    const url = api_url + `project/${project_id}/record/${doc_id}`;
+    return new Promise(function(resolve, reject) {
+      axios({
+        method: 'put',
+        url: url,
+        data: data,
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    });
+  };
+
   static delete(project_id) {
     const url = api_url + `project/${project_id}/delete`;
     return new Promise(function(resolve, reject) {

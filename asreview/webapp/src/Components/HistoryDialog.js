@@ -25,9 +25,9 @@ import {
 } from '../Components'
 import ErrorHandler from '../ErrorHandler';
 
-import axios from 'axios';
+import { ProjectAPI } from '../api/index.js';
 
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 import { connect } from "react-redux";
 
@@ -111,26 +111,19 @@ const HistoryDialog = (props) => {
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
 
-    const url = api_url + `project/${props.project_id}/record/${doc_id}`;
-
     // set up the form
     let body = new FormData();
     body.set('doc_id', doc_id);
     body.set('label', label === 1 ? 0 : 1);
 
-    return axios({
-      method: 'put',
-      url: url,
-      data: body,
-      headers: { 'Content-Type': 'application/json' }
-    })
-    .then((response) => {
-      console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
-      reloadHistory();
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    ProjectAPI.classify_instance(props.project_id, doc_id, body)
+      .then((response) => {
+        console.log(`${props.project_id} - add item ${doc_id} to ${label === 1 ? "exclusions" : "inclusions"}`);
+        reloadHistory();
+      })
+      .catch((error) => {
+        // handled in api wrapper
+      });
   }
 
   const descriptionElementRef = useRef(null);
@@ -148,10 +141,7 @@ const HistoryDialog = (props) => {
 
     if ((props.project_id !== null) && props.history && (state["data"] === null)) {
 
-      const url = api_url + `project/${props.project_id}/prior`;
-
-      axios
-        .get(url)
+      ProjectAPI.prior(props.project_id, setError)
         .then((result) => {
           setState(s => {return({
             ...s,
@@ -159,18 +149,7 @@ const HistoryDialog = (props) => {
           })});
         })
         .catch((error) => {
-          if (error.response) {
-            setError({
-              "message": error.response.data.message,
-              "retry": true,
-            });
-            console.log(error.response);
-          } else {
-            setError({
-              "message": "Failed to connect to server. Please restart the software.",
-              "retry": false,
-            })
-          };
+          // handled in api wrapper
         });
     }
   }, [props.project_id, props.history, state, error.message]);
