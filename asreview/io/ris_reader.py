@@ -86,14 +86,14 @@ def read_ris(fp):
     return standardize_dataframe(df)
 
 
-def write_ris(df, ris_fp):
+def write_ris(df, fp):
     """Write dataframe to RIS file.
 
     Arguments
     ---------
     df: pandas.Dataframe
         Dataframe to export.
-    ris_fp: str
+    fp: str
         RIS file to export to.
     """
     column_names = list(df)
@@ -117,7 +117,7 @@ def write_ris(df, ris_fp):
         else:
             col_order.append(i)
 
-    with open(ris_fp, "w") as fp:
+    with open(fp, "w") as fp:
         for i_row in range(n_row):
             for i_col in col_order:
                 value = df.iloc[i_row, i_col]

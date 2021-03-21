@@ -515,6 +515,6 @@ class ASReviewData():
         df = self.to_dataframe(labels=labels, ranking=ranking)
         return df.to_excel(fp, index=True)
 
-    def to_ris(self, ris_fp, labels=None, ranking=None):
+    def to_ris(self, fp, labels=None, ranking=None):
         df = self.to_dataframe(labels=labels, ranking=ranking)
-        write_ris(df, ris_fp)
+        write_ris(df, fp)
