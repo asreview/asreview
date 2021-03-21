@@ -1,7 +1,5 @@
-import React, {useCallback, useMemo, useEffect} from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-
-import {useDropzone} from 'react-dropzone'
 
 import {
   Box,
@@ -34,6 +32,7 @@ import {
   ProjectUploadBenchmarkDatasets,
   ProjectUploadPluginDatasets,
   ProjectUploadURL,
+  ProjectUploadFile,
   Help,
   useHelp,
 } from '../PreReviewComponents';
@@ -42,33 +41,6 @@ import axios from 'axios'
 import { api_url } from '../globals.js';
 
 import './ReviewZone.css';
-
-
-const baseStyle = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  padding: '60px 20px 60px 20px',
-  borderWidth: 2,
-  borderRadius: 2,
-  borderColor: '#eeeeee',
-  borderStyle: 'dashed',
-  outline: 'none',
-  transition: 'border .24s ease-in-out'
-};
-
-const activeStyle = {
-  borderColor: '#2196f3'
-};
-
-const acceptStyle = {
-  borderColor: '#00e676'
-};
-
-const rejectStyle = {
-  borderColor: '#ff1744'
-};
 
 
 const useStyles = makeStyles(theme => ({
@@ -85,8 +57,6 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginBottom: "20px",
   },
-  upload: {
-  },
   divider: {
     textAlign: "center",
     margin: "20px 0px 20px 0px"
@@ -100,9 +70,6 @@ const useStyles = makeStyles(theme => ({
   },
   datasets:{
     maxWidth: theme.spacing(2) * 4 + 390
-  },
-  uploadButton: {
-    marginTop: '26px',
   },
   avatar: {
     color: theme.palette.getContrastText(brown[500]),
@@ -152,45 +119,6 @@ const ProjectUpload = ({
 
   // help dialog
   const [help, openHelp, closeHelp] = useHelp()
-
-  const onDrop = useCallback(acceptedFiles => {
-
-    if (acceptedFiles.length !== 1){
-      console.log("No valid files provided.")
-      return
-    }
-
-    // set error to state
-    // setError(null);
-
-    // set the state such that we ca upload the file
-    setFile(acceptedFiles[0])
-
-  }, [])
-
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragAccept,
-    isDragReject,
-    // acceptedFiles
-  } = useDropzone({
-    onDrop: onDrop,
-    multiple: false,
-    accept: '.txt,.tsv,.tab,.csv,.ris,.xlsx'
-  });
-
-  const style = useMemo(() => ({
-    ...baseStyle,
-    ...(isDragActive ? activeStyle : {}),
-    ...(isDragAccept ? acceptStyle : {}),
-    ...(isDragReject ? rejectStyle : {})
-  }), [
-    isDragActive,
-    isDragReject,
-    isDragAccept
-  ]);
 
   const onUploadHandler = (data, callback) => {
 
@@ -338,6 +266,7 @@ const ProjectUpload = ({
 
   useEffect(() => {
     setError(null);
+    setFile(null);
   }, [value]);
 
   useEffect(() => {
@@ -453,27 +382,14 @@ const ProjectUpload = ({
 
             <CardContent>
               {value === 0 &&
-
                 <div>
-                  <div className={classes.upload} {...getRootProps({style})}>
-                    <input {...getInputProps()} />
-                    <Typography>Drag 'n' drop a file here, or click to a file</Typography>
-                  </div>
-
-                  {file !== null &&
-                    <div>
-                      <Typography>File '{file.path}' selected.</Typography>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={state.upload}
-                        onClick={() => onUploadHandlerFile()}
-                        className={classes.uploadButton}
-                      >
-                        {state.upload ? "Uploading..." : "Upload"}
-                      </Button>
-                    </div>
-                  }
+                  <ProjectUploadFile
+                    file={file}
+                    setFile={setFile}
+                    upload={state.upload}
+                    onUploadHandler={onUploadHandlerFile}
+                    setError={setError}
+                  />
                 </div>
               }
 

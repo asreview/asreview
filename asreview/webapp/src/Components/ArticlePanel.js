@@ -26,6 +26,7 @@ const useStyles = makeStyles(theme => ({
     color: "#00C49F",
   },
   abstract: {
+    whiteSpace: "pre-line",
   },
   doi: {
   },

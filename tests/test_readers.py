@@ -8,6 +8,7 @@ from asreview import ASReviewData
 
 @mark.parametrize("test_file,n_lines,labels,ignore_col", [
     ("embase.csv", 6, None, ["keywords"]),
+    ("embase_newpage.csv", 6, None, ["keywords"]),
     ("embase.ris", 6, None, []),
     ("generic.csv", 2, None, []),
     ("generic_semicolon.csv", 2, None, []),
