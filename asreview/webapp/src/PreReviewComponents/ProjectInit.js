@@ -124,14 +124,14 @@ const ProjectInit = (props) => {
         Create a new project
       </DialogTitle>
 
-      {error.code &&
+      {error.code === 503 &&
         <DialogContent dividers={true}>
           <ErrorHandler
             error={error}
           />
         </DialogContent>
       }
-      {error.code &&
+      {error.code === 503 &&
         <DialogActions>
           <Button
             onClick={props.onClose}
@@ -142,7 +142,7 @@ const ProjectInit = (props) => {
         </DialogActions>
       }
 
-      {!error.code &&
+      {error.code !== 503 &&
         <DialogContent dividers={true}>
         {/* The actual form */}
         <form noValidate autoComplete="off">
@@ -150,7 +150,7 @@ const ProjectInit = (props) => {
           <div className={classes.textfieldItem}>
             <TextField
               fullWidth
-              error={error.code === undefined}
+              error={error.message !== null}
               autoFocus={true}
               required
               name="name"
@@ -158,7 +158,7 @@ const ProjectInit = (props) => {
               label="Project name"
               onChange={onChange}
               value={info.name}
-              helperText={error.code === undefined && error.message}
+              helperText={error.code !== 503 && error.message}
             />
           </div>
 
@@ -190,7 +190,7 @@ const ProjectInit = (props) => {
         </form>
         </DialogContent>
       }
-      {!error.code &&
+      {error.code !== 503 &&
         <DialogActions>
           <Button
             onClick={props.onClose}

@@ -53,7 +53,7 @@ const ErrorHandler = (props) => {
           </Typography>
         </Box>
       </Box>
-      {!props.error.code &&
+      {props.error.code !== 503 &&
         <Box className={classes.retryButton} align="center">
           <Button
             variant="contained"

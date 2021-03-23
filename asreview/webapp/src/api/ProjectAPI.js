@@ -10,9 +10,15 @@ const axiosErrorHandler = (error) => {
   if (error.response) {
 
     if (error.response.data["message"]) {
+
+      api_error["code"] = error.response["status"];
       api_error["message"] = error.response.data["message"];
+
     } else {
+
+      api_error["code"] = 500;
       api_error["message"] = "Whoops, something went wrong.";
+
     };
 
   } else if (error.request) {
@@ -174,7 +180,7 @@ class ProjectAPI {
     });
   };
 
-  static prior_random(project_id, setError) {
+  static prior_random(project_id) {
     const url = api_url + `project/${project_id}/prior_random`;
     return new Promise((resolve, reject) => {
       axios.get(url)
@@ -182,7 +188,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          apiErrorHandler.withRetry(error, setError);
+          reject(axiosErrorHandler(error));
         });
     });
   };
