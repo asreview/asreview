@@ -75,10 +75,9 @@ const ProjectInit = (props) => {
     name: "",
     description: "",
   })
-  const [projectExist, setProjectExist] = React.useState(false)
   const [error, setError] = React.useState({
+    "code": null,
     "message": null,
-    "retry": false, // not in use
   })
 
   const onChange = (evt) => {
@@ -96,8 +95,8 @@ const ProjectInit = (props) => {
     bodyFormData.set('authors', info.authors);
     bodyFormData.set('description', info.description);
 
-    ProjectAPI.init(bodyFormData, setError)
-      .then(function (result) {
+    ProjectAPI.init(bodyFormData)
+      .then((result) => {
 
         // set the project_id in the redux store
         props.setProjectId(result.data["id"])
@@ -106,8 +105,12 @@ const ProjectInit = (props) => {
 
       })
       .catch((error) => {
-        // handle projectExist
-        setProjectExist(true);
+
+        setError({
+          "code": error.code,
+          "message": error.message,
+        });
+
       });
   }
 
@@ -121,14 +124,14 @@ const ProjectInit = (props) => {
         Create a new project
       </DialogTitle>
 
-      {error["message"] !== null &&
+      {error.code &&
         <DialogContent dividers={true}>
           <ErrorHandler
             error={error}
           />
         </DialogContent>
       }
-      {error["message"] !== null &&
+      {error.code &&
         <DialogActions>
           <Button
             onClick={props.onClose}
@@ -139,7 +142,7 @@ const ProjectInit = (props) => {
         </DialogActions>
       }
 
-      {error["message"] === null &&
+      {!error.code &&
         <DialogContent dividers={true}>
         {/* The actual form */}
         <form noValidate autoComplete="off">
@@ -147,7 +150,7 @@ const ProjectInit = (props) => {
           <div className={classes.textfieldItem}>
             <TextField
               fullWidth
-              error={projectExist}
+              error={error.code === undefined}
               autoFocus={true}
               required
               name="name"
@@ -155,7 +158,7 @@ const ProjectInit = (props) => {
               label="Project name"
               onChange={onChange}
               value={info.name}
-              helperText={projectExist && "Project name already exists"}
+              helperText={error.code === undefined && error.message}
             />
           </div>
 
@@ -187,7 +190,7 @@ const ProjectInit = (props) => {
         </form>
         </DialogContent>
       }
-      {error["message"] === null &&
+      {!error.code &&
         <DialogActions>
           <Button
             onClick={props.onClose}

@@ -69,7 +69,7 @@ def init_project(project_id,
         raise ValueError("Project name should be at least 3 characters.")
 
     if is_project(project_id):
-        raise ValueError("Project already exists.")
+        raise ValueError("Project name already exists.")
 
     try:
         get_project_path(project_id).mkdir()
