@@ -285,7 +285,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          console.log(error);
+          reject(axiosErrorHandler(error));
         });
     });
   };
