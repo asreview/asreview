@@ -65,8 +65,8 @@ const Projects = (props) => {
     });
 
     const [error, setError] = useState({
+      "code": null,
       "message": null,
-      "retry": false,
     });
 
     useEffect(() => {
@@ -77,7 +77,7 @@ const Projects = (props) => {
 
     const refreshProjects = () => {
 
-      ProjectAPI.projects(setError)
+      ProjectAPI.projects()
         .then((result) => {
           setProjects({
             "projects": result.data['result'],
@@ -85,7 +85,10 @@ const Projects = (props) => {
           });
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     };
 

@@ -26,7 +26,7 @@ const axiosErrorHandler = (error) => {
 
 class ProjectAPI {
 
-  static projects(setError) {
+  static projects() {
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
       axios.get(url)
@@ -34,7 +34,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          apiErrorHandler.withRetry(error, setError);
+          reject(axiosErrorHandler(error));
         });
     });
   };
