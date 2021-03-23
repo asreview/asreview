@@ -796,7 +796,7 @@ def api_import_project():
                     f.seek(0)
                     json.dump(import_project, f)
                     f.truncate()
-    
+
     except zipfile.BadZipFile as err:
         logging.error(err)
         response = jsonify(message="File is not an ASReview file.")
