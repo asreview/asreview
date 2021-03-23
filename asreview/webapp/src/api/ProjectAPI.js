@@ -298,7 +298,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          reject(error);
+          reject(axiosErrorHandler(error));
         });
     });
   };
@@ -311,7 +311,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          reject(error);
+          reject(axiosErrorHandler(error));
         });
     });
   };
@@ -324,7 +324,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          reject(error);
+          reject(axiosErrorHandler(error));
         });
     });
   };

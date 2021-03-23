@@ -266,12 +266,8 @@ const ReviewZone = (props) => {
           setStatistics(result.data);
         })
         .catch((error) => {
-          if (error.response) {
-            setSideStatsError(true);
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setSideStatsError(true);
+          console.log(error);
         });
     };
 
@@ -282,12 +278,8 @@ const ReviewZone = (props) => {
           setHistory(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setSideStatsError(true);
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setSideStatsError(true);
+          console.log(error);
         });
     };
 

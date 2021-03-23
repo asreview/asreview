@@ -110,17 +110,12 @@ const StatisticsZone = (props) => {
           setStatistics(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setError(s => {
-              return({
-                ...s,
-                error: true,
-                statistics: error.response.data.message,
-            })});
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setError(s => {
+            return({
+              ...s,
+              error: true,
+              statistics: error.message,
+          })});
         });
     }
 
@@ -131,17 +126,12 @@ const StatisticsZone = (props) => {
           setHistory(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setError(s => {
-              return({
-                ...s,
-                error: true,
-                history: error.response.data.message,
-            })});
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setError(s => {
+            return({
+              ...s,
+              error: true,
+              history: error.message,
+          })});
         });
     }
 
@@ -152,17 +142,12 @@ const StatisticsZone = (props) => {
           setEfficiency(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setError(s => {
-              return({
-                ...s,
-                error: true,
-                efficiency: error.response.data.message,
-            })});
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setError(s => {
+            return({
+              ...s,
+              error: true,
+              efficiency: error.message,
+          })});
         });
     }
 
