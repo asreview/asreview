@@ -77,18 +77,10 @@ const StartReview = ({project_id, onReady}) => {
           checkModelIsFitted();
         })
         .catch((error) => {
-          if (error.response) {
-            setState({
-              "status": "error",
-              "message": error.response.data.message,
-            });
-            console.log(error.response);
-          } else {
-            setState({
-              "status": "error",
-              "message": "Failed to connect to server. Please restart the software.",
-            });
-          };
+          setState({
+            "status": "error",
+            "message": error.message,
+          });
         });
     }
     if (state.status === null){
