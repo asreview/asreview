@@ -96,8 +96,8 @@ const ProjectPage = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const finishProjectSetup = () => {
@@ -181,7 +181,7 @@ const ProjectPage = (props) => {
 
     const fetchProjectInfo = async () => {
 
-      ProjectAPI.info(props.project_id, setError)
+      ProjectAPI.info(props.project_id)
         .then((result) => {
 
           // update the state with the fetched data
@@ -196,7 +196,10 @@ const ProjectPage = (props) => {
 
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     };
 
@@ -334,7 +337,7 @@ const ProjectPage = (props) => {
               <PreReviewZone
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
-                setProjectPageError={setError}
+                setError={setError}
               />
             }
           </Container>

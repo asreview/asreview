@@ -72,8 +72,8 @@ const LabeledItems = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const handleTabChange = (event, newValue) => {
@@ -90,7 +90,7 @@ const LabeledItems = (props) => {
   useEffect(() => {
 
     if (state.loading){
-      ProjectAPI.prior(props.project_id, setError)
+      ProjectAPI.prior(props.project_id)
         .then((result) => {
 
           setState(s => {return({
@@ -101,7 +101,10 @@ const LabeledItems = (props) => {
 
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     }
 

@@ -64,7 +64,7 @@ class ProjectAPI {
     });
   };
 
-  static info(project_id, setError) {
+  static info(project_id) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
       axios.get(url)
@@ -72,7 +72,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          apiErrorHandler.withRetry(error, setError);
+          reject(axiosErrorHandler(error));
         });
     });
   };
@@ -148,7 +148,7 @@ class ProjectAPI {
     });
   };
 
-  static prior(project_id, setError) {
+  static prior(project_id) {
     const url = api_url + `project/${project_id}/prior`;
     return new Promise((resolve, reject) => {
       axios.get(url)
@@ -156,7 +156,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          apiErrorHandler.withRetry(error, setError);
+          reject(axiosErrorHandler(error));
         });
     });
   };

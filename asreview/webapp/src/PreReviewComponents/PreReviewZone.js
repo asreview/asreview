@@ -103,7 +103,7 @@ const PreReviewZone = (props) => {
 
     const fetchProjectInfo = async () => {
 
-      ProjectAPI.info(props.project_id, props.setProjectPageError)
+      ProjectAPI.info(props.project_id)
         .then((result) => {
 
           let set_step = 1;
@@ -122,7 +122,10 @@ const PreReviewZone = (props) => {
 
         })
         .catch((error) => {
-          // handled in api wrapper
+          props.setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     };
 
