@@ -83,16 +83,16 @@ const ImportDialog = (props) => {
     data.append("file", file);
 
     ProjectAPI.import_project(data)
-      .then(function (response) {
+      .then((result) => {
 
         // set the project_id in the redux store
-        props.setProjectId(response.data["id"])
+        props.setProjectId(result.data["id"])
 
         // navigate to project page
         props.handleAppState("project-page")
 
       })
-      .catch(function (error) {
+      .catch((error) => {
 
           // set upload to false
           setUpload(false);

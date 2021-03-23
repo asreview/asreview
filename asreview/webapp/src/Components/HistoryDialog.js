@@ -73,8 +73,8 @@ const HistoryDialog = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   // filter all records
@@ -122,7 +122,7 @@ const HistoryDialog = (props) => {
         reloadHistory();
       })
       .catch((error) => {
-        // handled in api wrapper
+        console.log(error);
       });
   }
 
@@ -141,7 +141,7 @@ const HistoryDialog = (props) => {
 
     if ((props.project_id !== null) && props.history && (state["data"] === null)) {
 
-      ProjectAPI.prior(props.project_id, setError)
+      ProjectAPI.prior(props.project_id)
         .then((result) => {
           setState(s => {return({
             ...s,
@@ -149,7 +149,10 @@ const HistoryDialog = (props) => {
           })});
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     }
   }, [props.project_id, props.history, state, error.message]);

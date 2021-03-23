@@ -114,8 +114,8 @@ const ReviewZone = (props) => {
   })
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const [sideStatsError, setSideStatsError] = useState(false);
@@ -250,7 +250,7 @@ const ReviewZone = (props) => {
         showUndoBarIfNeeded(label, initial);
       })
       .catch((error) => {
-        // handled in api wrapper
+        console.log(error);
       });
   }
 
@@ -296,7 +296,7 @@ const ReviewZone = (props) => {
      */
     const getDocument = () => {
 
-      ProjectAPI.get_document(props.project_id, setError)
+      ProjectAPI.get_document(props.project_id)
         .then((result) => {
 
           /* Check for last paper */
@@ -314,7 +314,10 @@ const ReviewZone = (props) => {
 
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     }
 

@@ -1,4 +1,3 @@
-import { apiErrorHandler } from './index.js';
 import { api_url } from '../globals.js';
 import axios from 'axios';
 
@@ -343,7 +342,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        console.log(error);
+        reject(axiosErrorHandler(error));
       });
     });
   };
@@ -356,7 +355,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          apiErrorHandler.withRetry(error, setError);
+          reject(axiosErrorHandler(error));
         });
     });
   };
@@ -369,7 +368,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          console.log("Failed to delete project.");
+          reject(axiosErrorHandler(error));
         });
     });
   };

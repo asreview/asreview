@@ -55,11 +55,11 @@ export default function ProjectSettings(props) {
 
     if (deleteInput === props.id) {
       ProjectAPI.delete(props.id)
-        .then(function (res) {
+        .then((result) => {
           props.handleAppState("projects");
         })
-        .catch(function (res) {
-          // handled in api wrapper
+        .catch((error) => {
+          console.log(error);
         });
     }
   }
