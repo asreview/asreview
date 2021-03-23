@@ -31,8 +31,8 @@ const ProjectUploadPluginDatasets = (props) => {
     });
 
     const [error, setError] = useState({
+      "code": null,
       "message": null,
-      "retry": false,
     });
 
     useEffect(() => {
@@ -44,7 +44,7 @@ const ProjectUploadPluginDatasets = (props) => {
         // prepare properties and make subset
         params['subset'] = 'plugin'
 
-        ProjectAPI.datasets(params, setError)
+        ProjectAPI.datasets(params)
           .then((result) => {
             setState({
               'datasets': result.data['result'],
@@ -52,7 +52,10 @@ const ProjectUploadPluginDatasets = (props) => {
             });
           })
           .catch((error) => {
-            // handled in api wrapper
+            setError({
+              "code": error.code,
+              "message": error.message,
+            });
           });
       };
 

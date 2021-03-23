@@ -136,7 +136,7 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
           // nothing to do
         })
         .catch((error) => {
-          // handled in api wrapper
+          console.log(error);
         });
     }
 
@@ -153,7 +153,7 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
           setAlgorithms(result.data);
         })
         .catch((error) => {
-          // handled in api wrapper
+          console.log(error);
         });
     };
 

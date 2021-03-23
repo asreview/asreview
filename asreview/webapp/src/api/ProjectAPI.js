@@ -83,7 +83,7 @@ class ProjectAPI {
     });
   };
 
-  static datasets(params, setError) {
+  static datasets(params) {
     const url = api_url + `datasets`;
     return new Promise((resolve, reject) => {
       axios.get(
@@ -94,7 +94,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        apiErrorHandler.withRetry(error, setError);
+        reject(axiosErrorHandler(error));
       });
     });
   };
@@ -111,7 +111,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        reject(error);
+        reject(axiosErrorHandler(error));
       });
     });
   };
@@ -205,7 +205,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        console.log(error);
+        reject(axiosErrorHandler(error));
       });
     });
   };

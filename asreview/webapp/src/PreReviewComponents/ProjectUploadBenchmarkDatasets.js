@@ -51,8 +51,8 @@ const ProjectUploadBenchmarkDatasets = (props) => {
     });
 
     const [error, setError] = useState({
+      "code": null,
       "message": null,
-      "retry": false,
     });
 
     const [expanded, setExpanded] = useState({
@@ -71,7 +71,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
         // prepare properties and make subset
         params['subset'] = 'benchmark'
 
-        ProjectAPI.datasets(params, setError)
+        ProjectAPI.datasets(params)
           .then((result) => {
             setState({
               'datasets': result.data['result'],
@@ -79,7 +79,10 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             });
           })
           .catch((error) => {
-            // handled in api wrapper
+            setError({
+              "code": error.code,
+              "message": error.message,
+            });
           });
       };
 

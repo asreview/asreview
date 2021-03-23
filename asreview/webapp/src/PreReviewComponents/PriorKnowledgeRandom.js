@@ -68,8 +68,8 @@ const PriorKnowledgeRandom = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const includeRandomDocument = () => {
@@ -115,7 +115,7 @@ const PriorKnowledgeRandom = (props) => {
 
     const getDocument = () => {
 
-      return ProjectAPI.prior_random(props.project_id, setError)
+      return ProjectAPI.prior_random(props.project_id)
         .then((result) => {
           setState({
             "count_inclusions": state.count_inclusions,
@@ -125,7 +125,10 @@ const PriorKnowledgeRandom = (props) => {
           });
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     }
 
