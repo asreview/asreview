@@ -116,7 +116,7 @@ class ProjectAPI {
     });
   };
 
-  static search(project_id, searchQuery, setError) {
+  static search(project_id, searchQuery) {
     const url = api_url + `project/${project_id}/search`;
     return new Promise((resolve, reject) => {
       axios.get(
@@ -131,7 +131,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        apiErrorHandler.withRetry(error, setError);
+        reject(axiosErrorHandler(error));
       });
     });
   };
@@ -236,7 +236,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          reject(error);
+          reject(axiosErrorHandler(error));
         });
     });
   };

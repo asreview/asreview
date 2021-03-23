@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Link,
@@ -24,7 +24,7 @@ const StartReview = ({project_id, onReady}) => {
 
   const classes = useStyles();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     "status": null,
     "message": null,
   });
@@ -45,22 +45,10 @@ const StartReview = ({project_id, onReady}) => {
           }
         })
         .catch((error) => {
-
-          if (error.response) {
-            setState({
-              "status": "error",
-              "message": error.response.data.message,
-            });
-            console.log(error.response);
-          } else if (error.request) {
-            console.log(error.request);
-          } else {
-            setState({
-              "status": "error",
-              "message": "Failed to connect to server. Please restart the software.",
-            });
-          };
-
+          setState({
+            "status": "error",
+            "message": error.message,
+          });
         });
     }
 

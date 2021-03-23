@@ -32,8 +32,8 @@ const SearchResultDialog = (props) => {
   const [searchResult, setSearchResult] = useState(null);
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const descriptionElementRef = useRef(null);
@@ -47,14 +47,17 @@ const SearchResultDialog = (props) => {
 
     const searchRequest = (searchQuery) => {
 
-      ProjectAPI.search(props.project_id, searchQuery, setError)
+      ProjectAPI.search(props.project_id, searchQuery)
         .then((result) => {
           setSearchResult(
             result.data['result']
           );
         })
         .catch((error) => {
-          // handled in api wrapper
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     }
     // make search request
