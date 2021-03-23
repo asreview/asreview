@@ -107,7 +107,7 @@ export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
       }
     })
     .catch((error) => {
-      // handled in api wrapper
+      console.log(error);
     });
 
 }
@@ -199,7 +199,7 @@ const PriorKnowledge = ({
 
         })
         .catch((error) => {
-          // handled in api wrapper
+          console.log(error);
         });
     }
 

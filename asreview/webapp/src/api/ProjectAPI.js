@@ -143,7 +143,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        console.log(error);
+        reject(axiosErrorHandler(error));
       });
     });
   };
@@ -169,7 +169,7 @@ class ProjectAPI {
           resolve(result);
         })
         .catch((error) => {
-          console.log("Failed to load prior information");
+          reject(axiosErrorHandler(error));
         });
     });
   };
