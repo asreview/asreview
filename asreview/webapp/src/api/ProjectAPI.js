@@ -347,7 +347,7 @@ class ProjectAPI {
     });
   };
 
-  static get_document(project_id, setError) {
+  static get_document(project_id) {
     const url = api_url + `project/${project_id}/get_document`;
     return new Promise((resolve, reject) => {
       axios.get(url)
