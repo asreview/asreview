@@ -93,7 +93,7 @@ const ImportDialog = (props) => {
 
       })
       .catch(function (error) {
-        if (error.response) {
+
           // set upload to false
           setUpload(false);
 
@@ -104,21 +104,8 @@ const ImportDialog = (props) => {
           setSelection(null);
 
           // set error to state
-          setError(error.response.data["message"]);
+          setError(error.message);
 
-        } else {
-          // set upload to false
-          setUpload(false);
-
-          // remove accepted files
-          setFile(null);
-
-          // remove selection
-          setSelection(null);
-
-          // set error to state
-          setError("Failed to connect to server. Please restart the software.");
-        };
       });
   };
 

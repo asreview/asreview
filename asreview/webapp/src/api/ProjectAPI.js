@@ -3,11 +3,32 @@ import { api_url } from '../globals.js';
 import axios from 'axios';
 
 
+const axiosErrorHandler = (error) => {
+
+  let api_error = {}
+    if (error.response) {
+      if (error.response.data["message"]) {
+        api_error["message"] = error.response.data["message"];
+      } else {
+        api_error["message"] = "Whoops, something went wrong.";
+      };
+    } else if (error.request) {
+      api_error["code"] = 503;
+      api_error["message"] = "Failed to connect to server. Please restart the software.";
+    } else {
+      api_error["message"] = "Unexpected error.";
+      console.log(error);
+    };
+
+  return api_error;
+
+};
+
 class ProjectAPI {
 
   static projects(setError) {
     const url = api_url + `projects`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -18,9 +39,9 @@ class ProjectAPI {
     });
   };
 
-  static init(data, setError) {
+  static init(data) {
     const url = api_url + `project/info`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: 'post',
         url: url,
@@ -31,14 +52,14 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        apiErrorHandler.withoutRetry(reject, error, setError);
+        reject(axiosErrorHandler(error));
       });
     });
   };
 
   static info(project_id, setError) {
     const url = api_url + `project/${project_id}/info`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -51,7 +72,7 @@ class ProjectAPI {
 
   static datasets(params, setError) {
     const url = api_url + `datasets`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(
         url,
         { params: params }
@@ -67,7 +88,7 @@ class ProjectAPI {
 
   static data(project_id, edit, data=null) {
     const url = api_url + `project/${project_id}/data`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: edit ? 'post' : 'get',
         url: url,
@@ -84,7 +105,7 @@ class ProjectAPI {
 
   static search(project_id, searchQuery, setError) {
     const url = api_url + `project/${project_id}/search`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(
         url,
         { params:
@@ -104,7 +125,7 @@ class ProjectAPI {
 
   static labelitem(project_id, data) {
     const url = api_url + `project/${project_id}/labelitem`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: 'post',
         url: url,
@@ -122,7 +143,7 @@ class ProjectAPI {
 
   static prior(project_id, setError) {
     const url = api_url + `project/${project_id}/prior`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -135,7 +156,7 @@ class ProjectAPI {
 
   static prior_stats(project_id) {
     const url = api_url + `project/${project_id}/prior_stats`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -148,7 +169,7 @@ class ProjectAPI {
 
   static prior_random(project_id, setError) {
     const url = api_url + `project/${project_id}/prior_random`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -161,7 +182,7 @@ class ProjectAPI {
 
   static algorithms(project_id, edit, data=null) {
     const url = api_url + `project/${project_id}/algorithms`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: edit ? 'post' : 'get',
         url: url,
@@ -178,7 +199,7 @@ class ProjectAPI {
 
   static start(project_id) {
     const url = api_url + `project/${project_id}/start`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: 'post',
         url: url,
@@ -196,7 +217,7 @@ class ProjectAPI {
 
   static init_ready(project_id) {
     const url = api_url + `project/${project_id}/model/init_ready`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -209,7 +230,7 @@ class ProjectAPI {
 
   static import_project(data) {
     const url = api_url + `project/import_project`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: 'post',
         url: url,
@@ -219,7 +240,7 @@ class ProjectAPI {
         resolve(result);
       })
       .catch((error) => {
-        reject(error);
+        reject(axiosErrorHandler(error));
       });
     });
   };
@@ -246,7 +267,7 @@ class ProjectAPI {
 
   static finish(project_id) {
     const url = api_url + `project/${project_id}/finish`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -259,7 +280,7 @@ class ProjectAPI {
 
   static progress(project_id) {
     const url = api_url + `project/${project_id}/progress`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -272,7 +293,7 @@ class ProjectAPI {
 
   static progress_history(project_id) {
     const url = api_url + `project/${project_id}/progress_history`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -285,7 +306,7 @@ class ProjectAPI {
 
   static progress_efficiency(project_id) {
     const url = api_url + `project/${project_id}/progress_efficiency`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -298,7 +319,7 @@ class ProjectAPI {
 
   static classify_instance(project_id, doc_id, data, initial) {
     const url = api_url + `project/${project_id}/record/${doc_id}`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios({
         method: initial ? 'post' : 'put',
         url: url,
@@ -316,7 +337,7 @@ class ProjectAPI {
 
   static get_document(project_id, setError) {
     const url = api_url + `project/${project_id}/get_document`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.get(url)
         .then((result) => {
           resolve(result);
@@ -329,7 +350,7 @@ class ProjectAPI {
 
   static delete(project_id) {
     const url = api_url + `project/${project_id}/delete`;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       axios.delete(url)
         .then((result) => {
           resolve(result);
