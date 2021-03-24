@@ -374,7 +374,7 @@ class Analysis():
         if not isinstance(prob_allow_miss, list):
             prob_allow_miss = [prob_allow_miss]
         state = self.states[self._first_state_key]
-        n_queries = state.n_queries()
+        n_queries = state.n_queries
         results = {
             "x_range": [],
             "limits": [[] for _ in range(len(prob_allow_miss))],

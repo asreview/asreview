@@ -184,7 +184,7 @@ class BaseState(ABC):
         bool
             True if empty.
         """
-        return self.n_queries() == 0
+        return self.n_queries == 0
 
     @abstractmethod
     def n_queries(self):
@@ -213,7 +213,7 @@ class BaseState(ABC):
             label_idx, inclusions, label_methods, labels, final_labels, proba
             , train_idx, pool_idx.
         query_i: int
-            Query number, should be between 0 and self.n_queries().
+            Query number, should be between 0 and self.n_queries.
         idx: int, numpy.ndarray,list
             Indices to get in the returned array.
         """
@@ -243,7 +243,7 @@ class BaseState(ABC):
 
         train_idx = []
         query_src = {}
-        for query_i in range(self.n_queries()):
+        for query_i in range(self.n_queries):
             try:
                 label_idx = self.get("label_idx", query_i)
                 labelled = self.get("inclusions", query_i)
@@ -259,7 +259,7 @@ class BaseState(ABC):
             train_idx.extend(label_idx)
 
         if query_i > 0:
-            n_queries = self.n_queries()
+            n_queries = self.n_queries
             last_inclusions = None
             try:
                 last_inclusions = self.get("inclusions", n_queries - 1)
@@ -289,7 +289,7 @@ class BaseState(ABC):
     @property
     def pred_proba(self):
         """Get last predicted probabilities."""
-        for query_i in reversed(range(self.n_queries())):
+        for query_i in reversed(range(self.n_queries)):
             try:
                 proba = self.get("proba", query_i=query_i)
                 if proba is not None:
@@ -342,7 +342,7 @@ class BaseState(ABC):
             "train_idx"
         ]
         state_dict["results"] = []
-        for query_i in range(self.n_queries()):
+        for query_i in range(self.n_queries):
             state_dict["results"].append({})
             for dataset in query_datasets:
                 try:

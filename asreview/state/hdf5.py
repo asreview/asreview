@@ -28,27 +28,6 @@ from asreview.state.errors import StateNotFoundError
 LATEST_HDF5STATE_VERSION = "1.1"
 
 
-def _append_to_dataset(name, values, g, dtype):
-    if name not in g:
-        g.create_dataset(name, (len(values), ),
-                         dtype=dtype,
-                         maxshape=(None, ),
-                         chunks=True)
-    else:
-        g[name].resize((len(g[name]) + len(values), ))
-    dataset = g[name]
-    dataset[len(g[name]) - len(values):] = values
-
-
-def _result_group(f, query_i):
-    try:
-        g = f[f'/results/{query_i}']
-    except KeyError:
-        g = f.create_group(f'/results/{query_i}')
-        g.attrs['creation_time'] = np.string_(datetime.now())
-    return g
-
-
 class HDF5State(BaseState):
     """Class for storing the review state with HDF5 storage.
 
@@ -62,9 +41,7 @@ class HDF5State(BaseState):
         super(HDF5State, self).__init__(read_only=read_only)
 
 ### OPEN, CLOSE, SAVE, INIT
-
     def _create_new_state_file(self, fp):
-
         if self.read_only:
             raise ValueError(
                 "Can't create new state file in read_only mode."
@@ -79,6 +56,18 @@ class HDF5State(BaseState):
         self.f.attrs['settings'] = np.string_("{}")
         self.f.attrs['version'] = np.string_(LATEST_HDF5STATE_VERSION)
         self.f.create_group('results')
+        results = self.f['results']
+        results.create_dataset('indices', (0,), dtype=int,
+                               maxshape=(None,), chunks=True)
+        results.create_dataset('labels', (0,), dtype=int,
+                               maxshape=(None,), chunks=True)
+        results.create_dataset('time_labeled', (0,), dtype=np.int64,
+                               maxshape=(None,), chunks=True)
+        # results.create_dataset('predictor_method', (0,), dtype=np.string_,
+        #                        maxshape=(None,), chunks=True)
+
+        'predictor_models'
+        'models_being_trained'
 
         # TODO{CREATE Feature matrix group}
 
@@ -111,6 +100,15 @@ class HDF5State(BaseState):
                 f"Unexpected error when opening state file: {err}"
             )
 
+        self._is_valid_state()
+
+    def _is_valid_state(self):
+        results = self.f['results']
+
+        # # TODO: check all datasets are present.
+        # if "labels" not in results.keys():
+        #     raise KeyError("State file structure has not been initialized in time.")
+
     def save(self):
         """Save and close the state file."""
         self.f['end_time'] = str(datetime.now())
@@ -140,11 +138,15 @@ class HDF5State(BaseState):
         except Exception:
             raise AttributeError("Attribute 'version' not found.")
 
+    # TODO: Convert time to datetime.
     @property
     def start_time(self):
         """Init datetime of the state file."""
         try:
-            return self.f.attrs['start_time']
+            # Time is saved as integer number of microseconds.
+            # Divide by 10**6 to convert to second
+            start_time = self.f.attrs['start_time']
+            return datetime.utcfromtimestamp(start_time/10**6)
         except Exception:
             raise AttributeError("Attribute 'start_time' not found.")
 
@@ -152,7 +154,8 @@ class HDF5State(BaseState):
     def end_time(self):
         """Last modified (datetime) of the state file."""
         try:
-            return self.f.attrs['end_time']
+            end_time = self.f.attrs['end_time']
+            return datetime.utcfromtimestamp(end_time/10**6)
         except Exception:
             raise AttributeError("Attribute 'end_time' not found.")
 
@@ -193,6 +196,53 @@ class HDF5State(BaseState):
     def settings(self, settings):
         self.f.attrs.pop('settings', None)
         self.f.attrs['settings'] = np.string_(json.dumps(vars(settings)))
+
+    @property
+    def current_queries(self):
+        """Get the current queries made by the model.
+
+        This is useful to get back exactly to the state it was in before
+        shutting down a review.
+
+        Returns
+        -------
+        dict:
+            The last known queries according to the state file.
+        """
+        str_queries = json.loads(self.f.attrs["current_queries"])
+        return {int(key): value for key, value in str_queries.items()}
+
+    @current_queries.setter
+    def current_queries(self, current_queries):
+        str_queries = {
+            str(key): value
+            for key, value in current_queries.items()
+        }
+        data = np.string_(json.dumps(str_queries))
+        self.f.attrs.pop("current_queries", None)
+        self.f.attrs["current_queries"] = data
+
+    #TODO: make n_labeled_records and turn n_queries into n_predictor_models
+    @property
+    def n_queries(self):
+        return (self.f['results/indices'].shape[0] -
+                self.f['results'].attrs['n_priors'] + 1)
+        # QUESTION: This treats the priors as one query, is that what you want?
+
+    @property
+    def n_priors(self):
+        """Get the number of samples in the prior information.
+
+        Returns
+        -------
+        int:
+            Number of priors. If priors have not been selected returns None.
+        """
+        try:
+            n_priors = self.f['results'].attrs['n_priors']
+        except KeyError:
+            n_priors = None
+        return n_priors
 
 ### Features
 
@@ -275,45 +325,67 @@ class HDF5State(BaseState):
     #     else:
     #         self.f["final_labels"][...] = y
 
-    @property
-    def current_queries(self):
-        """Get the current queries made by the model.
+    def _resize_state(self):
+        pass
+    #     RESIZING DATASETS
+    #     cur_size = g.attrs["cur_size"]
+    #     max_size = g.attrs["max_size"]
+    #     while cur_size + len(idx) > max_size:
+    #         g["idx"].resize((max_size + RESIZE_CHUNK,))
+    #         g["labels"].resize((max_size + RESIZE_CHUNK,))
+    #         g["methods"].resize((max_size + RESIZE_CHUNK,))
+    #         max_size += RESIZE_CHUNK
+    #         g.attrs["max_size"] = max_size
 
-        This is useful to get back exactly to the state it was in before
-        shutting down a review.
+    def _append_to_dataset(self, dataset, values):
+        """Add the values to the dataset.
 
-        Returns
-        -------
-        dict:
-            The last known queries according to the state file.
+        Arguments
+        ---------
+        dataset: str
+            Name of the dataset you want to add values to.
+        values: list, np.array
+            Values to add to dataset.
         """
-        str_queries = json.loads(self.f.attrs["current_queries"])
-        return {int(key): value for key, value in str_queries.items()}
-
-    @current_queries.setter
-    def current_queries(self, current_queries):
-        str_queries = {
-            str(key): value
-            for key, value in current_queries.items()
-        }
-        data = np.string_(json.dumps(str_queries))
-        self.f.attrs.pop("current_queries", None)
-        self.f.attrs["current_queries"] = data
+        cur_size = self.f[dataset].shape[0]
+        self.f[dataset].resize((cur_size + len(values),))
+        self.f[dataset][cur_size: cur_size + len(values)] = values
 
     # add_labelling_data(..)
+    # TODO: Split model and training set.
+    # TODO: Add time of labeling.
+    #TODO: Rename
     def add_classification(self, idx, labels, methods, query_i):
         """Add all data of one labelling action."""
-        # TODO(State): Do you need to enlarge maximum size of a HDF5 dataset? (See branch improved_h5_state)
-        g = _result_group(self.f, query_i)
-        if "new_labels" not in g:
-            g.create_group("new_labels")
+        # Check if the datasets have all been created.
+        self._is_valid_state()
 
-        g = g['new_labels']
+        # Add labeling data.
+        self._append_to_dataset('indices')
+        self._append_to_dataset('labels')
+        self._append_to_dataset('predictor_methods')
+        self._append_to_dataset('predictor_models')
 
-        np_methods = np.array(list(map(np.string_, methods)))
-        _append_to_dataset('idx', idx, g, dtype=np.int)
-        _append_to_dataset('labels', labels, g, dtype=np.int)
-        _append_to_dataset('methods', np_methods, g, dtype='S20')
+    # def add_classification(self, idx, labels, methods, query_i):
+    #     INITIALIZING DATASETS
+    #     if "idx" not in g:
+    #         g.create_dataset("idx", (RESIZE_CHUNK,), dtype=int,
+    #                          maxshape=(None,), chunks=True)
+    #         g.create_dataset("labels", (RESIZE_CHUNK,), dtype=int,
+    #                          maxshape=(None,), chunks=True)
+    #         g.create_dataset("methods", (RESIZE_CHUNK,), dtype='S20',
+    #                          maxshape=(None,), chunks=True)
+    #         g.attrs["cur_size"] = 0
+    #         g.attrs["max_size"] = RESIZE_CHUNK
+
+    #
+    #     UPDATING DATA
+    #     np_methods = np.array(list(map(np.string_, methods)), dtype='S20')
+    #     new_size = cur_size + len(idx)
+    #     g["idx"][cur_size:new_size] = idx
+    #     g["labels"][cur_size:new_size] = labels
+    #     g["methods"][cur_size:new_size] = np_methods
+    #     g.attrs["cur_size"] += len(idx)
 
     # def add_model_data(..)
     def add_proba(self, pool_idx, train_idx, proba, query_i):
@@ -324,10 +396,19 @@ class HDF5State(BaseState):
         g.create_dataset("train_idx", data=train_idx, dtype=np.int)
         g.create_dataset("proba", data=proba, dtype=np.float)
 
-    def n_queries(self):
-        return (self.f['results/indices'].shape[0] -
-                self.f['results'].attrs['n_priors'] + 1)
-        # QUESTION: This treats the priors as one query, is that what you want?
+    # def add_proba(self, pool_idx, train_idx, proba, query_i):
+    #     cur_at_hist = self.f["label_history"].attrs["cur_size"]
+    #     train_group = self.f["train_history"]
+    #     if str(cur_at_hist) in train_group:
+    #         g = train_group[cur_at_hist]
+    #         g["proba"][...] = proba
+    #     else:
+    #         g = train_group.create_group(str(cur_at_hist))
+    #         g.attrs["timestamp"] = np.string_(datetime.now())
+    #         g.create_dataset("pool_idx", data=pool_idx, dtype=int)
+    #         g.create_dataset("train_idx", data=train_idx, dtype=int)
+    #         g.create_dataset("proba", data=proba, dtype=float)
+
 
     def _record_id_to_row_index(self, record_id):
         """Find the row index that corresponds to a given record id.
@@ -363,21 +444,6 @@ class HDF5State(BaseState):
         data_hash = list(self.f['data_properties'].keys())[0]
         record_table = self.f[f'data_properties/{data_hash}/record_table']
         return record_table[row_index]
-
-    @property
-    def n_priors(self):
-        """Get the number of samples in the prior information.
-
-        Returns
-        -------
-        int:
-            Number of priors. If priors have not been selected returns None.
-        """
-        try:
-            n_priors = self.f['results'].attrs['n_priors']
-        except KeyError:
-            n_priors = None
-        return n_priors
 
     def _get_dataset(self, dataset, query=None, record_id=None):
         """Get a dataset from the state file, or only the part corresponding to a given query or record_id.
@@ -439,7 +505,7 @@ class HDF5State(BaseState):
         """
         return self._get_dataset(dataset='predictor_methods', query=query, record_id=record_id)
 
-    def get_order_of_labelling(self):
+    def get_order_of_labeling(self):
         """Get full array of record id's in order that they were labelled.
 
         Returns
@@ -469,8 +535,8 @@ class HDF5State(BaseState):
         """
         return self._get_dataset('labels', query=query, record_id=record_id)
 
-    def get_time(self, query=None, record_id=None):
-        """Get the time of labelling the state file.
+    def get_labeling_time(self, query=None, record_id=None, format='int'):
+        """Get the time of labeling the state file.
 
         Arguments
         ---------
@@ -480,19 +546,29 @@ class HDF5State(BaseState):
             which is the same for all priors.
         record_id: str
             The record_id of the sample from which you want to obtain the time.
+        format: 'int' or 'datetime'
+            Format of the return value. If it is 'int' you get a UTC timestamp ,
+            if it is 'datetime' you get datetime instead of an integer.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array with times in the labelling order,
+            If query and record_id are None, it returns the full array with times in the labeling order,
             else it returns only the specific one determined by query or record_id.
+            If format='int' you get a UTC timestamp (integer number of microseconds) as np.int64 dtype,
+            if it is 'datetime' you get np.datetime64 format.
         """
-        times = self._get_dataset('time', query=query, record_id=record_id)
+        times = self._get_dataset('time_labeled', query=query, record_id=record_id)
+
+        # Convert time to datetime in string format.
+        if format == 'datetime':
+            times = np.array([datetime.utcfromtimestamp(time/10**6) for time in times], dtype=np.datetime64)
+
         if query == 0:
             times = times[[self.n_priors-1]]
         return times
 
-
+    # TODO: Get pool/train idx.
     def get(self, variable, query_i=None, idx=None):
         # TODO(State): Turn logic into if, elif, ..., elif, else.
         if query_i is not None:
@@ -523,8 +599,3 @@ class HDF5State(BaseState):
         if idx is not None:
             return array[idx]
         return array
-
-    # def delete_last_query(self):
-    #     # Nowhere found
-    #     query_i_last = self.n_queries() - 1
-    #     del self.f[f"/results/{query_i_last}"]

@@ -1,5 +1,6 @@
 import os
 import shutil
+import datetime
 from pathlib import Path
 
 import pytest
@@ -136,13 +137,30 @@ def test_n_queries():
     NUM_QUERIES_IN_TEST = 2543
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
-        assert state.n_queries() == NUM_QUERIES_IN_TEST
+        assert state.n_queries == NUM_QUERIES_IN_TEST
 
 
 def test_n_priors():
     state_fp = Path("tests", "hdf5_states", "basic_state.h5")
     with open_state(state_fp) as state:
         assert state.n_priors == 2
+
+
+def test_is_valid_state(tmpdir):
+    state_fp = Path(tmpdir, 'test.h5')
+    with open_state(state_fp, read_only=False) as state:
+        state._is_valid_state()
+
+
+# def test_append_to_dataset(tmpdir):
+#     state_fp = Path(tmpdir, 'test.h5')
+#     indices = [1, 4, 9, 16, 25]
+#     labels = [1, 0, 1, 0, 1]
+#
+#     with open_state(state_fp, read_only=False) as state:
+#         state._append_to_dataset('indices', indices[0])
+#         assert state.f['results/indices'].shape[0] == 1
+
 
 
 # TODO(STATE): Make example of state file where record ids are strings.
@@ -178,8 +196,7 @@ def test_get_dataset():
     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     INDICES = [0, 3, 2, 1]
     RECORD_IDS = [0, 1, 4, 5]
-    TIMES = [b'2020-12-04 15:18:36.822064', b'2020-12-04 15:18:36.822064',
-             b'2020-12-04 15:18:36.833420', b'2020-12-04 15:18:36.838645']
+    TIMES = [1607095116822064, 1607095116822064, 1607095116833420, 1607095116838645]
 
     with open_state(state_fp) as state:
         assert isinstance(state._get_dataset('predictor_methods'), np.ndarray)
@@ -190,7 +207,7 @@ def test_get_dataset():
         assert state._get_dataset('predictor_models', query=1)[0] == b'nb0'
         assert all(state._get_dataset('predictor_methods', query=0) == [b'initial', b'initial'])
         assert state._get_dataset('labels', record_id=4)[0] == 1
-        assert state._get_dataset('time', record_id=0)[0] == TIMES[0]
+        assert state._get_dataset('time_labeled', record_id=0)[0] == TIMES[0]
 
 
 def test_get_predictor_methods():
@@ -221,8 +238,8 @@ def test_get_order_of_labelling():
     RECORD_ID_ORDER = [0, 5, 4, 1]
 
     with open_state(state_fp) as state:
-        assert isinstance(state.get_order_of_labelling(), np.ndarray)
-        assert all(state.get_order_of_labelling() == RECORD_ID_ORDER)
+        assert isinstance(state.get_order_of_labeling(), np.ndarray)
+        assert all(state.get_order_of_labeling() == RECORD_ID_ORDER)
 
 
 def test_get_labels():
@@ -241,16 +258,20 @@ def test_get_labels():
 def test_get_time():
     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     RECORD_ID_ORDER = [0, 5, 4, 1]
-    TIMES = [b'2020-12-04 15:18:36.822064', b'2020-12-04 15:18:36.822064',
-             b'2020-12-04 15:18:36.833420', b'2020-12-04 15:18:36.838645']
+    TIMES_DT = np.array(['2020-12-04T15:18:36.822064', '2020-12-04T15:18:36.822064',
+     '2020-12-04T15:18:36.833420', '2020-12-04T15:18:36.838645'], dtype=np.datetime64)
+    TIMES = [1607095116822064, 1607095116822064, 1607095116833420,
+       1607095116838645]
 
     with open_state(state_fp) as state:
-        assert isinstance(state.get_time(), np.ndarray)
-        assert all(state.get_time() == TIMES)
-        assert len(state.get_time(query=0)) == 1
-        assert state.get_time(query=0)[0] == TIMES[1]
-        assert state.get_time(query=1)[0] == TIMES[2]
-        assert state.get_time(record_id=5)[0] == TIMES[1]
+        assert isinstance(state.get_labeling_time(), np.ndarray)
+        assert all(state.get_labeling_time() == TIMES)
+        assert all(state.get_labeling_time(format='datetime') == TIMES_DT)
+        assert len(state.get_labeling_time(query=0)) == 1
+        assert state.get_labeling_time(query=0)[0] == TIMES[1]
+        assert state.get_labeling_time(query=1)[0] == TIMES[2]
+        assert state.get_labeling_time(record_id=5)[0] == TIMES[1]
+        assert state.get_labeling_time(record_id=1, format='datetime')[0] == TIMES_DT[3]
 
 # # Test get by querying for the whole dataset everytime. I'll implement indexing
 # # at a later stage.

@@ -195,8 +195,8 @@ def state_from_asreview_file(data_fp):
         return state
 
 
+# TODO(State): Fix legacy in converter.
 # TODO(State): If conversion fails, clean up created file.
-# TODO(State): Split predictor_model into model and training_set.
 # TODO(State): Split models_training into model and training_set.
 def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
     """Create a prototype of the new state file from an old HDF5 state file.
@@ -220,16 +220,16 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
         with h5py.File(v3state_fp, 'w') as pt:
             # Copy data_properties and metadata/settings from state file.
             sf.f.copy('data_properties', pt['/'])
-            for attr in sf.f.attrs:
-                # Current attributes are current_queries, end_time, settings,
-                # start_time, version and software_version. Note that software
-                # version is not actually available in old HDF5 state files.
-                if attr == 'version':
-                    pt.attrs['version'] = np.string_(V3STATE_VERSION)
-                    pt.attrs['software_version'] = np.string_("")
-                else:
-                    pt.attrs[attr] = sf.f.attrs[attr]
-                    # QUESTION: Should all attributes be numpy datatypes?
+
+            # Current attributes are current_queries, end_time, settings,
+            # start_time, version and software_version. Note that software
+            # version is not actually available in old HDF5 state files.
+            pt.attrs['version'] = np.string_(V3STATE_VERSION)
+            pt.attrs['software_version'] = np.string_("")
+            pt.attrs['start_time'] = np.datetime64(sf.f.attrs['start_time'].decode('utf-8')).astype(np.int64)
+            pt.attrs['end_time'] = np.datetime64(sf.f.attrs['end_time'].decode('utf-8')).astype(np.int64)
+            pt.attrs['current_queries'] = sf.f.attrs['current_queries']
+            pt.attrs['settings'] = sf.f.attrs['settings']
 
             # Create the results group and set num priors as attribute.
             pt.create_group('results')
@@ -252,19 +252,27 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
             sf_labels = np.array(sf_labels)
             pt['results'].create_dataset('labels', data=sf_labels)
 
-            # Model that produced sample. String of form {type}{training_set}.
-            # Here training_set is indicated by an integer: '0' means prior
-            # data, '1' means prior data + first sample, etc.
+            # Model that produced sample, indicated by a string.
             # NOTE: You need to force the dtype to 'S'. h5py does not support a
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
             sf_predictor_model = ['initial'] * n_priors + [
-                f'{model}{i - 1}' for i in sf_queries
+                f'{model}' for _ in sf_queries
             ]
             sf_predictor_model = np.array(sf_predictor_model, dtype='S')
-            pt['results'].create_dataset('predictor_models',
+            pt['results'].create_dataset('predictor_model',
                                          data=sf_predictor_model)
+
+            # Here training_set is indicated by an integer: '-1' means that the
+            # there was no training set, i.e. for the prior data. '0' means trained
+            # on the prior data, '1' means prior data + first sample, etc.
+            sf_predictor_training_set = [-1] * n_priors + [
+                i-1 for i in sf_queries
+            ]
+            sf_predictor_training_set = np.array(sf_predictor_training_set, dtype=int)
+            pt['results'].create_dataset('predictor_training_set',
+                                         data=sf_predictor_training_set)
 
             # Prediction method used for sample.
             sf_predictor_method = \
@@ -277,17 +285,18 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
 
             # Time of labeling. This is only relevant after the priors has been
             # entered so it starts at 0. Maybe it should start at 1?
-            # todo: Give a different name. What time_stamps should be collected?
             sf_time = [sf.f['results/0'].attrs['creation_time']] * n_priors + \
                       [sf.f[f'results/{i}'].attrs['creation_time']
                        for i in sf_queries]
-            sf_time = np.array(sf_time)
-            pt['results'].create_dataset('time', data=sf_time)
+            sf_time = [np.datetime64(labeling_time.decode('utf-8')).astype(np.int64) for labeling_time in sf_time]
+            sf_time = np.array(sf_time, dtype=np.int64)
+            pt['results'].create_dataset('time_labeled', data=sf_time)
 
             # Models being trained right after labeling. This is only relevant
             # after the priors have been entered, so it starts at 0. After the
             # last query has been labeled, all training is stopped, so the last
             # entry is 'NA'.
+            # TODO: Can you split this into model-training set? You have multiple.
             sf_models_training = ['NA'] * (n_priors-1) + [f'{model}0'] + \
                                  [f'{model}{i}' for i in sf_queries[:-1]] + \
                                  ['NA']
@@ -368,8 +377,10 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
             # Current attributes are current_queries, end_time, settings,
             # start_time and version.
             pt.attrs['settings'] = str(sf._state_dict['settings'])
-            pt.attrs['start_time'] = sf._state_dict['time']['start_time']
-            pt.attrs['end_time'] = sf._state_dict['time']['end_time']
+            pt.attrs['start_time'] = \
+                np.datetime64(sf._state_dict['time_labeled']['start_time'].decode('utf-8')).astype(np.int64)
+            pt.attrs['end_time'] =\
+                np.datetime64(sf._state_dict['time_labeled']['end_time'].decode('utf-8')).astype(np.int64)
             pt.attrs['current_queries'] = str(sf._state_dict['current_queries'])
             pt.attrs['version'] = np.string_(V3STATE_VERSION)
             pt.attrs['software_version'] = sf._state_dict['software_version']
@@ -398,19 +409,27 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
             sf_labels = np.array(sf_labels)
             pt['results'].create_dataset('labels', data=sf_labels)
 
-            # Model that produced sample. String of form {type}{training_set}.
-            # Here training_set is indicated by an integer: '0' means prior
-            # data, '1' means prior data + first sample, etc.
+            # Model that produced sample, indicated by a string.
             # NOTE: You need to force the dtype to 'S'. h5py does not support a
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
             sf_predictor_model = ['initial'] * n_priors + [
-                f'{model}{i - 1}' for i in sf_queries
+                f'{model}' for _ in sf_queries
             ]
             sf_predictor_model = np.array(sf_predictor_model, dtype='S')
-            pt['results'].create_dataset('predictor_models',
+            pt['results'].create_dataset('predictor_model',
                                          data=sf_predictor_model)
+
+            # Here training_set is indicated by an integer: '-1' means that the
+            # there was no training set, i.e. for the prior data. '0' means trained
+            # on the prior data, '1' means prior data + first sample, etc.
+            sf_predictor_training_set = [-1] * n_priors + [
+                i - 1 for i in sf_queries
+            ]
+            sf_predictor_training_set = np.array(sf_predictor_training_set, dtype=int)
+            pt['results'].create_dataset('predictor_training_set',
+                                         data=sf_predictor_training_set)
 
             # Prediction method used for sample.
             sf_predictor_method = [
@@ -424,10 +443,10 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
 
             # Time of labeling. This is only relevant after the priors have been
             # entered.
-            sf_time = ['NA' for _ in range(len(sf._state_dict['results']) + n_priors - 1)]
+            sf_time = [0 for _ in range(len(sf._state_dict['results']) + n_priors - 1)]
             # I took the same data type as came out of the .h5 time part:
-            sf_time = np.array(sf_time, dtype="|S29")
-            pt['results'].create_dataset('time', data=sf_time)
+            sf_time = np.array(sf_time, dtype=np.int64)
+            pt['results'].create_dataset('time_labeled', data=sf_time)
 
             # Models being trained right after labeling. This is only relevant
             # after the priors have been entered. After the

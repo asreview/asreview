@@ -21,7 +21,7 @@ import numpy as np
 from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
-from asreview.state.base import BaseState
+from asreview.state.legacy.base import BaseState
 
 
 def _append_to_dataset(name, values, g, dtype):
