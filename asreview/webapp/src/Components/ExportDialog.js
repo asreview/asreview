@@ -94,7 +94,7 @@ const ExportDialog = (props) => {
         <DialogTitle id="scroll-dialog-title">Download review result</DialogTitle>
           <DialogContent dividers={true}>
             <Typography>
-              Download the result of your review. Select a file format (Excel or CSV file).
+              Download the result of your review. Select a file format (CSV, Excel or RIS file).
             </Typography>
 
             <Box className={classes.file_type}>
@@ -105,8 +105,9 @@ const ExportDialog = (props) => {
                 value={exportFileType}
                 onChange={handleExportFileTypeChange}
               >
-                <MenuItem value={"excel"}>Excel</MenuItem>
                 <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
+                <MenuItem value={"excel"}>Excel</MenuItem>
+                <MenuItem value={"ris"}>RIS</MenuItem>
               </Select>
 
             </Box>
