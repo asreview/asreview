@@ -118,12 +118,4 @@ def write_ris(df, fp):
             col_order.append(i)
 
     with open(fp, "w") as fp:
-        for i_row in range(n_row):
-            for i_col in col_order:
-                value = df.iloc[i_row, i_col]
-                if isinstance(value, list):
-                    for val in value:
-                        fp.write(f"{column_key[i_col]}  - {val}\n")
-                else:
-                    fp.write(f"{column_key[i_col]}  - {value}\n")
-            fp.write("ER  - \n\n")
+        rispy.dump(df, fp)
