@@ -838,7 +838,7 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.csv"
             })
-    else:  # excel
+    elif file_type == "xlsx":  # excel
 
         dataset_str = export_to_string(project_id, export_type="excel")
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
@@ -848,6 +848,17 @@ def export_results(project_id):
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             attachment_filename=f"asreview_result_{project_id}.xlsx",
+            cache_timeout=0)
+    else:  # ris
+
+        dataset_str = export_to_string(project_id, export_type="ris")
+        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.ris")
+
+        return send_file(
+            fp_tmp_export,
+            mimetype="application/octet-stream",  # noqa
+            as_attachment=True,
+            attachment_filename=f"asreview_result_{project_id}.ris",
             cache_timeout=0)
 
 
