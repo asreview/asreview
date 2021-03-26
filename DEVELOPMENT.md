@@ -9,32 +9,49 @@ Build the project from source with the following code.
 
 ## Development workflow
 
-Install both [npm][1] and Python.
+### Back end
+Install Python
 
-Install the ASReview package (in a different terminal)
+Install the ASReview package
 
 	pip install -e .
 
-Start the Python API server
+Start the Python API server with the Flask development environment
 
 	export FLASK_ENV=development
 	asreview lab
 	
-For Windows, instead use 
+For Windows, use 
+
+	set FLASK_ENV=development
+	asreview lab
+	
+### Front end
+
+Install both [npm][1] and Python
+
+Start the Python API server with the Flask development environment. Before the front end development can be started, the back end has to run as well
+
+	export FLASK_ENV=development
+	asreview lab
+	
+For Windows, use 
 
 	set FLASK_ENV=development
 	asreview lab
 
-Navigate to `asreview/webapp` and install npm.
+Navigate to `asreview/webapp` and install the front end application with npm
 
 	cd asreview/webapp
 	npm install
 
-The user interface is written in [React][2]. First, start a development server with npm. This server is used for React development.
+The user interface is written in [React][2]. Start the local front end application with npm
 
 	npm start
 
-Open the webbrowser at `localhost:3000`. **Important**: ignore `localhost:5000` for front-end development.
+Open the web browser at `localhost:3000`
+
+**Important**: Ignore `localhost:5000`. You can also find a front end on `:5000` but this is not relevant for the current front end development step.
 
 [1]:	https://www.npmjs.com/get-npm
 [2]:	https://reactjs.org/
@@ -60,7 +77,7 @@ Navigate into the `docs` folder and render the documentation (the HTML version) 
 make html
 ```
 
-Open the file `docs/build/html/index.html` in your webbrowser.
+Open the file `docs/build/html/index.html` in your web browser.
 
 ### Screenshots
 
