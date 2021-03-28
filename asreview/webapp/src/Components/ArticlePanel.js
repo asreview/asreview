@@ -20,10 +20,10 @@ const useStyles = makeStyles(theme => ({
   },
   titleDebug: {
     lineHeight: 1.2,
-    color: "#00C49F",
+    color: theme.overrides.debug.color,
   },
   debug: {
-    color: "#00C49F",
+    color: theme.overrides.debug.color,
   },
   abstract: {
     whiteSpace: "pre-line",
