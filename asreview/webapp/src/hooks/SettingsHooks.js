@@ -4,32 +4,55 @@ import brown from '@material-ui/core/colors/brown';
 
 const useDarkMode = () => {
 
-  let defaultTheme = {
+  let lightTheme = {
     palette: {
       type: "light",
       primary: brown,
     },
+    overrides: {
+      MuiLink: {
+        root: {
+          color: "#DC004E",
+        },
+      },
+    },
   };
 
-  const [theme, setTheme] = useState(defaultTheme);
+  let darkTheme = {
+    palette: {
+      type: "dark",
+      primary: brown,
+    },
+    overrides: {
+      MuiLink: {
+        root: {
+          color: "#F48FB1",
+        },
+      },
+    },
+  }
+
+  const [theme, setTheme] = useState(lightTheme);
 
   const toggleDarkMode = () => {
 
     if (theme.palette.type === "light") {
       window.localStorage.setItem("themeType", "dark")
-      setTheme({palette: {...defaultTheme.palette, type: "dark"}})
+      setTheme(darkTheme)
     } else {
       window.localStorage.setItem("themeType", "light")
-      setTheme(defaultTheme)
+      setTheme(lightTheme)
     }
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
     if (theme.palette.type !== localTheme && localTheme !== null) {
-      setTheme({palette: {...defaultTheme.palette, type: "dark"}})
+      setTheme(darkTheme)
     }
-  }, [defaultTheme.palette, theme.palette.type]);
+  }, [darkTheme, theme.palette.type]);
+
+  console.log(theme);
 
   return [theme, toggleDarkMode]
 };

@@ -95,7 +95,7 @@ const ExplorationAlert = (props) => {
             href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
             target="_blank"
           >
-            <strong>Exploration Mode</strong>
+            Exploration Mode
           </Link>.
         </div>
       </Alert>

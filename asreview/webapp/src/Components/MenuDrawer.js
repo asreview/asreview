@@ -2,7 +2,6 @@ import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Drawer,
-  Link,
   List,
   // ListSubheader,
   ListItem,
@@ -138,7 +137,7 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-help"
-            component={Link}
+            component={"a"}
             color="inherit"
             href="https://asreview.readthedocs.io/"
             target="_blank"
@@ -149,7 +148,7 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-feedback"
-            component={Link}
+            component={"a"}
             color="inherit"
             href="https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md"
             target="_blank"
@@ -162,7 +161,7 @@ const MenuDrawer = (props) => {
             <ListItem
               button
               key="menu-button-donate"
-              component={Link}
+              component={"a"}
               color="inherit"
               href={donateURL}
               target="_blank"
@@ -174,7 +173,7 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-about"
-            component={Link}
+            component={"a"}
             color="inherit"
             href="https://asreview.readthedocs.io/en/latest/intro/about.html"
             target="_blank"
