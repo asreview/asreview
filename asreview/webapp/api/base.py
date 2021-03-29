@@ -16,7 +16,6 @@ import logging
 import os
 
 from flask import Blueprint
-from flask import request
 from flask import send_from_directory
 from flask.json import jsonify
 from flask.templating import render_template
@@ -26,8 +25,8 @@ from asreview import __version__ as asreview_version
 
 bp = Blueprint('base',
                __name__,
-               static_folder="build/static",
-               template_folder="build")
+               static_folder="../build/static",
+               template_folder="../build")
 
 
 @bp.errorhandler(InternalServerError)
