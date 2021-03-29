@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.webapp.auth.models import User
 import logging
 
 from flask import Blueprint
@@ -25,8 +24,6 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound
 from werkzeug.exceptions import BadRequest
 
-#from flask_restx import Namespace, Resource, fields
-
 from asreview.webapp.auth.crud import (  # isort:skip
     get_all_users,
     get_user_by_email,
@@ -35,6 +32,7 @@ from asreview.webapp.auth.crud import (  # isort:skip
     update_user,
     delete_user,
 )
+from asreview.webapp.auth.models import User
 
 # TODO: add flask-smorest for data validation and
 #   automatic Swagger UI creation
@@ -53,7 +51,7 @@ def user_not_found(e, user_id):
 
 
 @bp.errorhandler(BadRequest)
-def email_already_exist(e):
+def email_already_exists(e):
     message = "Sorry. That email already exists."
     logging.error(message)
     return jsonify(message=message), e.status_code
@@ -90,7 +88,7 @@ class UsersList(MethodView):
         try:
             user = get_user_by_email(email)
             if user:
-                return email_already_exist()
+                return email_already_exists()
             add_user(username, email, password)
             response = jsonify(message=f'{email} was added!')
             return response, 201
@@ -120,7 +118,7 @@ class Users(MethodView):
             # return jsonify(message=f"User {user_id} does not exist"), 404
 
         if get_user_by_email(email):
-            return email_already_exist()
+            return email_already_exists()
 
         update_user(user, username, email)
         response = jsonify(message=f"{user.id} was updated!")
