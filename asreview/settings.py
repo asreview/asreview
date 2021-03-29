@@ -23,9 +23,8 @@ from asreview.models.query import get_query_model
 from asreview.models.feature_extraction import get_feature_model
 from asreview.utils import pretty_format
 
-
 SETTINGS_TYPE_DICT = {
-    "data_file": str,
+    "data_name": str,
     "model": str,
     "query_strategy": str,
     "balance_strategy": str,
@@ -40,8 +39,20 @@ SETTINGS_TYPE_DICT = {
     "query_param": dict,
     "feature_param": dict,
     "balance_param": dict,
-    "abstract_only": bool,
 }
+
+
+def _map_settings_type(name, value):
+
+    if value is None:
+        return None
+
+    try:
+        return SETTINGS_TYPE_DICT[name](value)
+    except TypeError:
+        raise TypeError(
+            f"Can't convert setting '{name}' to {SETTINGS_TYPE_DICT[name]}"
+        )
 
 
 def _convert_types(par_defaults, param):
@@ -55,48 +66,90 @@ def _convert_types(par_defaults, param):
                 try:
                     param[par] = par_type(param[par])
                 except TypeError:
-                    raise(TypeError(
-                        f"Error converting key in config file: {par}"))
+                    raise TypeError(
+                        f"Error converting key in config file: {par}")
         except KeyError:
             logging.warning(f"Parameter {par} does not have a default.\n"
                             f"Defaults: {par_defaults}.")
 
 
 class ASReviewSettings(object):
-    """ Dictionary like object that stores the configuration of a
-        review session. The main difference being that it type checks (some)
-        of its contents.
+    """Object to store the configuration of a review session.
+
+    The main difference being that it type checks (some)
+    of its contents.
     """
-
-    def __init__(self, mode, model, query_strategy, balance_strategy,
+    def __init__(self,
+                 mode,
+                 model,
+                 query_strategy,
+                 balance_strategy,
                  feature_extraction,
-                 n_instances=DEFAULT_N_INSTANCES, n_queries=None,
-                 n_papers=None, n_prior_included=None, n_prior_excluded=None,
+                 n_instances=DEFAULT_N_INSTANCES,
+                 n_queries=None,
+                 n_papers=None,
+                 n_prior_included=None,
+                 n_prior_excluded=None,
                  abstract_only=False,
-                 as_data=None, model_param={},
-                 query_param={}, balance_param={}, feature_param={}, **kwargs
-                 ):
-        all_args = locals().copy()
-        del all_args["self"]
-        del all_args["kwargs"]
-        self._from_args(**all_args, **kwargs)
+                 as_data=None,
+                 model_param={},
+                 query_param={},
+                 balance_param={},
+                 feature_param={},
+                 data_name=None,
+                 data_fp=None):
 
-    def _from_args(self, **kwargs):
-        for key in kwargs:
-            try:
-                setattr(self, key, SETTINGS_TYPE_DICT[key](kwargs[key]))
-            except (KeyError, TypeError):
-                setattr(self, key, kwargs[key])
+        self.mode = mode
+        self.model = model
+        self.query_strategy = query_strategy
+        self.balance_strategy = balance_strategy
+        self.feature_extraction = feature_extraction
+        self.n_instances = n_instances
+        self.n_queries = n_queries
+        self.n_papers = n_papers
+        self.n_prior_included = n_prior_included
+        self.n_prior_excluded = n_prior_excluded
+        self.abstract_only = abstract_only
+        self.as_data = as_data
+        self.model_param = model_param
+        self.query_param = query_param
+        self.balance_param = balance_param
+        self.feature_param = feature_param
 
-        if "data_name" in kwargs and kwargs["data_name"] is not None:
-            self.data_name = kwargs["data_name"]
-        elif "data_fp" in kwargs and kwargs["data_fp"] is not None:
-            self.data_name = os.path.basename(kwargs["data_fp"])
+        if data_name:
+            self.data_name = data_name
+        elif data_fp:
+            self.data_name = os.path.basename(data_fp)
         else:
             self.data_name = "unknown"
 
+    def __str__(self):
+        return pretty_format(self.to_dict())
+
+    def __setattr__(self, name, value):
+
+        try:
+            super(ASReviewSettings, self).__setattr__(
+                name,
+                _map_settings_type(name, value)
+            )
+        except KeyError:
+            super(ASReviewSettings, self).__setattr__(
+                name,
+                value
+            )
+
+    def to_dict(self):
+        """Export default settings to dict."""
+        info_dict = {}
+        for attrib in SETTINGS_TYPE_DICT:
+            value = getattr(self, attrib, None)
+            if value is not None:
+                info_dict[attrib] = value
+        return info_dict
+
     def from_file(self, config_file):
-        """ Fill the contents of settings by reading a config file.
+        """Fill the contents of settings by reading a config file.
 
         Arguments
         ---------
@@ -123,8 +176,10 @@ class ASReviewSettings(object):
                         print(f"Warning: value with key '{key}' is ignored "
                               "(spelling mistake, wrong type?).")
 
-            elif sect in ["model_param", "query_param", "balance_param",
-                          "feature_param"]:
+            elif sect in [
+                    "model_param", "query_param", "balance_param",
+                    "feature_param"
+            ]:
                 setattr(self, sect, dict(config.items(sect)))
             elif sect != "DEFAULT":
                 print(f"Warning: section [{sect}] is ignored in "
@@ -138,14 +193,3 @@ class ASReviewSettings(object):
         _convert_types(query_model.default_param, self.query_param)
         feature_model = get_feature_model(self.feature_extraction)
         _convert_types(feature_model.default_param, self.feature_param)
-
-    def to_dict(self):
-        info_dict = {}
-        for attrib in SETTINGS_TYPE_DICT:
-            value = getattr(self, attrib, None)
-            if value is not None:
-                info_dict[attrib] = value
-        return info_dict
-
-    def __str__(self):
-        return pretty_format(self.to_dict())
