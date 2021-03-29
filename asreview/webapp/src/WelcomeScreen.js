@@ -1,4 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
+import brown from '@material-ui/core/colors/brown';
 
 import {
   Box,
@@ -29,7 +30,7 @@ function mapDispatchToProps(dispatch) {
 
 const useStyles = makeStyles(theme => ({
   background: {
-    backgroundColor: "#8D6E63",
+    backgroundColor: brown[500],
     height: "100%",
     width: "100%",
     position: "absolute",
