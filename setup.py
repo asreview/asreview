@@ -121,6 +121,7 @@ setup(
         'flask_cors',
         'openpyxl',
         'gevent',
+        'PyJWT',
     ],
     extras_require=DEPS,
     entry_points={

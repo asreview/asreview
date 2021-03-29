@@ -12,11 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 
-def test_get_projects(test_client):
-    """Test get projects."""
-    response = test_client.get("/api/projects")
-    json_data = response.get_json()
+# TODO: add ProductionConfig
 
-    assert "result" in json_data
-    assert isinstance(json_data["result"], list)
+
+class BaseConfig:
+    TESTING = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Database is in memory
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    # TODO How to set this in production?
+    SECRET_KEY = "secret_key"
+    BCRYPT_LOG_ROUNDS = 13
+    ACCESS_TOKEN_EXPIRATION = 900
+    REFRESH_TOKEN_EXPIRATION = 2592000
+
+
+class DevelopmentConfig(BaseConfig):
+    BCRYPT_LOG_ROUNDS = 4
+
+
+class TestingConfig(BaseConfig):
+    TESTING = True
+    BCRYPT_LOG_ROUNDS = 4
+    ACCESS_TOKEN_EXPIRATION = 3
+    REFRESH_TOKEN_EXPIRATION = 3

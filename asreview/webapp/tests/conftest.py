@@ -15,17 +15,46 @@
 import pytest
 
 from asreview.webapp.start_flask import create_app
+from asreview.webapp.start_flask import db
+from asreview.webapp.auth.models import User
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def app():
-
     app = create_app()
-
     return app
 
 
-@pytest.fixture
-def client(app):
+@pytest.fixture(scope="module")
+def test_client(app):
     """A test client for the app."""
     return app.test_client()
+
+
+@pytest.fixture(scope="module")
+def test_app(app):
+    """A test client for the app."""
+    app.config.from_object("asreview.webapp.config.TestingConfig")
+    with app.app_context():
+        yield app  # testing happens here
+
+
+@pytest.fixture(scope="module")
+def test_database():
+    """Database for the app."""
+    db.create_all()
+    yield db  # testing happens here
+    db.session.remove()
+    db.drop_all()
+
+
+@pytest.fixture(scope="module")
+def add_user():
+    """Add user to database."""
+    def _add_user(username, email, password):
+        user = User(username=username, email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    return _add_user

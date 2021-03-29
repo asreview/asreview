@@ -27,16 +27,26 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
-from asreview.webapp import api
+from asreview.webapp.api import api
 from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
+
+from flask_admin import Admin
+from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
+
+# instantiate extensions
+cors = CORS()
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+admin = Admin(template_mode="bootstrap3")
 
 
 def _url(host, port, protocol):
@@ -86,7 +96,10 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    CORS(app, resources={r"*": {"origins": "*"}})
+    # set up extensions
+    db.init_app(app)
+    cors.init_app(app, resources={r"*": {"origins": "*"}})
+    bcrypt.init_app(app)
 
     app.register_blueprint(api.bp)
 
