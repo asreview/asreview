@@ -18,35 +18,28 @@ import webbrowser
 from threading import Timer
 
 from flask import Flask
-from flask import send_from_directory
-from flask.json import jsonify
-from flask.templating import render_template
-from flask_cors import CORS
 from gevent.pywsgi import WSGIServer
-from werkzeug.exceptions import InternalServerError
 
-from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.webapp.api import api
+from asreview.webapp.api import base
+from asreview.webapp.auth import auth
+from asreview.webapp.auth import views
 from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
-
-from flask_admin import Admin
-from flask_bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy
+from asreview.webapp.extensions import (
+    admin,
+    bcrypt,
+    db,
+    cors,
+)
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.INFO)
-
-# instantiate extensions
-cors = CORS()
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-admin = Admin(template_mode="bootstrap3")
 
 
 def _url(host, port, protocol):
@@ -82,8 +75,6 @@ def create_app(**kwargs):
     app = Flask(
         __name__,
         instance_relative_config=True,
-        static_folder="build/static",
-        template_folder="build"
     )
 
     # Get the ASReview arguments.
@@ -96,64 +87,29 @@ def create_app(**kwargs):
     except OSError:
         pass
 
-    # set up extensions
+    register_extensions(app)
+    register_blueprints(app)
+
+    return app
+
+
+def register_extensions(app):
+    """Register Flask extensions."""
     db.init_app(app)
     cors.init_app(app, resources={r"*": {"origins": "*"}})
     bcrypt.init_app(app)
+    if os.getenv("FLASK_ENV") == "development":
+        admin.init_app(app)
+    return None
 
+
+def register_blueprints(app):
+    """Register Flask blueprints."""
+    app.register_blueprint(base.bp)
     app.register_blueprint(api.bp)
-
-    @app.errorhandler(InternalServerError)
-    def error_500(e):
-        original = getattr(e, "original_exception", None)
-
-        if original is None:
-            # direct 500 error, such as abort(500)
-            logging.error(e)
-            return jsonify(message="Whoops, something went wrong."), 500
-
-        # wrapped unhandled error
-        logging.error(e.original_exception)
-        return jsonify(message=str(e.original_exception)), 500
-
-    @app.route('/', methods=['GET'])
-    def index():
-
-        return render_template("index.html")
-
-    @app.route('/favicon.ico')
-    def send_favicon():
-        return send_from_directory(
-            'build',
-            'favicon.ico',
-            mimetype='image/vnd.microsoft.icon'
-        )
-
-    @app.route('/boot', methods=["GET"])
-    def api_boot():
-        """Get the boot info."""
-        if os.environ.get("FLASK_ENV", None) == "development":
-            status = "development"
-        else:
-            status = "asreview"
-
-            try:
-                import asreviewcontrib.covid19  # noqa
-                status = "asreview-covid19"
-            except ImportError:
-                logging.debug("covid19 plugin not found")
-
-        # get the asreview version
-
-        response = jsonify({
-            "status": status,
-            "version": asreview_version,
-        })
-        response.headers.add('Access-Control-Allow-Origin', '*')
-
-        return response
-
-    return app
+    # app.register_blueprint(auth)
+    # app.register_blueprint(views)
+    return None
 
 
 def main(argv):

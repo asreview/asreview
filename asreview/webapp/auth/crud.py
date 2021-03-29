@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.webapp.start_flask import db
 from asreview.webapp.auth.models import User
+from asreview.webapp.extensions import (
+    db,
+)
 
 
 def get_all_users():

@@ -19,7 +19,11 @@ import jwt
 from flask import current_app
 from sqlalchemy.sql import func
 
-from asreview.webapp.start_flask import bcrypt, db
+from asreview.webapp.extensions import (
+    admin,
+    bcrypt,
+    db,
+)
 
 
 class User(db.Model):

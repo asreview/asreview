@@ -15,25 +15,19 @@
 import logging
 
 import jwt
-from flask import json, request
 from flask import Blueprint
-from flask import current_app as app
 from flask import request
 from flask import jsonify
 from flask.views import MethodView
-from flask_cors import CORS
-from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, Forbidden
 
-from asreview.webapp.start_flask import bcrypt
 from asreview.webapp.auth.crud import add_user, get_user_by_email, get_user_by_id
 from asreview.webapp.auth.models import User
+from asreview.webapp.extensions import (
+    bcrypt,
+)
 
-parser = auth_namespace.parser()
-parser.add_argument("Authorization", location="headers")
-
-bp = Blueprint('auth', __name__, url_prefix='/api')
-CORS(bp, resources={r"*": {"origins": "*"}})
+bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # error handlers
 
@@ -151,3 +145,20 @@ class Status(MethodView):
                 return invalid_token(message="Invalid token. Please log in again.")
         else:
             return unauthorized()
+
+
+register = Register.as_view('register')
+bp.add_url_rule(
+    '/register/', view_func=register, methods=['POST', ])
+
+login = Register.as_view('login')
+bp.add_url_rule(
+    '/login/', view_func=login, methods=['POST', ])
+
+refresh = Refresh.as_view('refresh')
+bp.add_url_rule(
+    '/refresh/', view_func=refresh, methods=['POST', ])
+
+status = Refresh.as_view('status')
+bp.add_url_rule(
+    '/status/', view_func=status, methods=['GET', ])

@@ -15,11 +15,9 @@
 import logging
 
 from flask import Blueprint
-from flask import current_app as app
 from flask import request
 from flask import jsonify
 from flask.views import MethodView
-from flask_cors import CORS
 from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound
 from werkzeug.exceptions import BadRequest
@@ -37,8 +35,7 @@ from asreview.webapp.auth.models import User
 # TODO: add flask-smorest for data validation and
 #   automatic Swagger UI creation
 
-bp = Blueprint('auth', __name__, url_prefix='/api')
-CORS(bp, resources={r"*": {"origins": "*"}})
+bp = Blueprint('users', __name__, url_prefix='/users')
 
 # error handlers
 
@@ -103,7 +100,6 @@ class Users(MethodView):
         user = get_user_by_id(user_id)
         if not user:
             return user_not_found()
-            # return jsonify(message=f"User {user_id} does not exist"), 500
         return user, 200
 
     def put(self, user_id):
@@ -115,7 +111,6 @@ class Users(MethodView):
         user = get_user_by_id(user_id)
         if not user:
             return user_not_found()
-            # return jsonify(message=f"User {user_id} does not exist"), 404
 
         if get_user_by_email(email):
             return email_already_exists()
@@ -130,7 +125,6 @@ class Users(MethodView):
 
         if not user:
             return user_not_found()
-            # return jsonify(message=f"User {user_id} does not exist"), 404
 
         delete_user(user)
 
@@ -139,9 +133,13 @@ class Users(MethodView):
 
 
 users_list = UsersList.as_view('user_list')
-bp.add_url_rule('/users_list/', defaults={'user_id': None},
-                view_func=user_view, methods=['GET', ])
+bp.add_url_rule('/users_list/', view_func=users_list, methods=['GET', ])
+bp.add_url_rule(
+    '/users_list/', defaults={'user_id': None}, view_func=users_list, methods=['POST', ])
+
 
 users = Users.as_view('users')
 bp.add_url_rule('/users/', defaults={'user_id': None},
-                view_func=user_view, methods=['GET', ])
+                view_func=users, methods=['GET', ])
+bp.add_url_rule('/users/<int:user_id>', view_func=users,
+                methods=['GET', 'PUT', 'DELETE'])
