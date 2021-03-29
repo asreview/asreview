@@ -226,6 +226,7 @@ def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
     project_name = request.form['name']
+    project_mode = request.form['mode']
     project_description = request.form['description']
     project_authors = request.form['authors']
 
@@ -239,6 +240,7 @@ def api_update_project_info(project_id):  # noqa: F401
 
         project_info["id"] = project_id_new
         project_info["name"] = project_name
+        project_info["mode"] = project_mode
         project_info["authors"] = project_authors
         project_info["description"] = project_description
 
