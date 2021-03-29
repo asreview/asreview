@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 
 def test_get_projects(client):
     """Test get projects."""
@@ -20,3 +21,31 @@ def test_get_projects(client):
 
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
+
+
+def test_create_project(tmp_path, client):
+    """Test create project."""
+
+    os.environ["ASREVIEW_PATH"] = str(tmp_path)
+
+    response = client.post("/api/project/info", data={
+        "name": "project_id",
+        "authors": "name",
+        "description": "hello world"
+    })
+    json_data = response.get_json()
+
+    assert "name" in json_data
+    assert isinstance(json_data, dict)
+
+    response = client.get("/api/projects")
+    json_data = response.get_json()
+
+    response = client.post("/api/project/project-id/data", data={
+        "benchmark": "benchmark:Hall_2012"
+    })
+    assert response.status_code == 200
+
+    response = client.get("/api/project/project-id/info")
+    json_data = response.get_json()
+    assert json_data["dataset_path"] == "Hall_2012.csv"
