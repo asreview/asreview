@@ -20,6 +20,7 @@ import ErrorHandler from '../ErrorHandler';
 import DangerZone from '../DangerZone.js'
 import PublicationZone from '../PublicationZone.js'
 import StatisticsZone from '../StatisticsZone.js'
+import { ProjectAPI } from '../api/index.js';
 
 import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -30,9 +31,8 @@ import SetUp from '../images/SetUp.svg';
 
 import { connect } from "react-redux";
 
-import axios from 'axios'
+import { mapStateToProps } from '../globals.js';
 
-import { api_url, mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -96,8 +96,8 @@ const ProjectPage = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const finishProjectSetup = () => {
@@ -129,9 +129,7 @@ const ProjectPage = (props) => {
 
   const finishProject = () => {
 
-    const finishUrl = api_url + `project/${props.project_id}/finish`
-
-    axios.get(finishUrl)
+    ProjectAPI.finish(props.project_id)
       .then((result) => {
 
         setState(s => {
@@ -183,10 +181,7 @@ const ProjectPage = (props) => {
 
     const fetchProjectInfo = async () => {
 
-      // contruct URL
-      const url = api_url + "project/" + props.project_id + "/info";
-
-      axios.get(url)
+      ProjectAPI.info(props.project_id)
         .then((result) => {
 
           // update the state with the fetched data
@@ -201,23 +196,10 @@ const ProjectPage = (props) => {
 
         })
         .catch((error) => {
-
-          if (error.response) {
-               
-            setError({
-              message: error.response.data.message,
-              retry: true,
-            });
-            console.log(error.response);
-
-          } else {
-
-            setError(s => {return({
-              ...s,
-              message: "Failed to connect to server. Please restart the software.",
-            })});
-
-          };
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     };
 
@@ -355,7 +337,7 @@ const ProjectPage = (props) => {
               <PreReviewZone
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
-                setProjectPageError={setError}
+                setError={setError}
               />
             }
           </Container>

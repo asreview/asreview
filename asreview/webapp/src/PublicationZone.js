@@ -11,7 +11,8 @@ import {
   Paper,
 } from '@material-ui/core';
 
-import { api_url } from './globals.js';
+import { ProjectAPI } from './api/index.js';
+
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -54,15 +55,7 @@ const PublicationZone = (props) => {
   */
   const downloadProject = () => {
 
-    // download URL, example http://localhost:5000/api/project/myproject/export_project
-    const exportUrl = api_url + `project/${props.project_id}/export_project`
-
-    setTimeout(() => {
-      const response = {
-        file: exportUrl,
-      };
-      window.location.href = response.file;
-    }, 100);
+    ProjectAPI.export_project(props.project_id);
 
   }
 

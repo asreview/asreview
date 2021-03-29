@@ -19,10 +19,8 @@ import {
 } from '../Components'
 
 import ErrorHandler from '../ErrorHandler';
+import { ProjectAPI } from '../api/index.js';
 
-import axios from 'axios'
-
-import { api_url } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -70,8 +68,8 @@ const PriorKnowledgeRandom = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const includeRandomDocument = () => {
@@ -116,32 +114,22 @@ const PriorKnowledgeRandom = (props) => {
   useEffect(() => {
 
     const getDocument = () => {
-      const url = api_url + `project/${props.project_id}/prior_random`;
 
-      return axios.get(url)
-      .then((result) => {
-
-        setState({
-          "count_inclusions": state.count_inclusions,
-          "count_exclusions": state.count_exclusions,
-          "records": result.data['result'][0],
-          "loaded": true,
+      return ProjectAPI.prior_random(props.project_id)
+        .then((result) => {
+          setState({
+            "count_inclusions": state.count_inclusions,
+            "count_exclusions": state.count_exclusions,
+            "records": result.data['result'][0],
+            "loaded": true,
+          });
+        })
+        .catch((error) => {
+          setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
-      })
-      .catch((error) => {
-        if (error.response) {
-          setError({
-            'message': error.response.data.message,
-            'retry': true,
-          });
-          console.log(error.response);
-        } else {
-          setError({
-            'message': "Failed to connect to server. Please restart the software.",
-            'retry': false,
-          });
-        };
-      });
     }
 
     if(!state.loaded){

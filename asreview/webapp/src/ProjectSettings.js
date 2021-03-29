@@ -12,8 +12,8 @@ import {
   TextField,
 } from '@material-ui/core';
 
-import axios from 'axios'
-import { api_url } from './globals.js';
+import { ProjectAPI } from './api/index.js';
+
 
 const useStyles = makeStyles({
   root: {
@@ -53,15 +53,13 @@ export default function ProjectSettings(props) {
   const deleteProject = (evt) => {
     evt.preventDefault();
 
-    const url = api_url + `project/${props.id}/delete`;
-
     if (deleteInput === props.id) {
-      axios.delete(url)
-        .then(function (res) {
+      ProjectAPI.delete(props.id)
+        .then((result) => {
           props.handleAppState("projects");
         })
-        .catch(function (res) {
-            console.log("Failed to delete project")
+        .catch((error) => {
+          console.log(error);
         });
     }
   }

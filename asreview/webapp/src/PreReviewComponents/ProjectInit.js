@@ -12,13 +12,13 @@ import {
 
 import { brown } from '@material-ui/core/colors';
 
-import axios from 'axios'
-
 import ErrorHandler from '../ErrorHandler';
+import { ProjectAPI } from '../api/index.js';
+
 import { setProject } from '../redux/actions'
 
 import { connect } from "react-redux";
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 import './ReviewZone.css';
 
@@ -75,10 +75,9 @@ const ProjectInit = (props) => {
     name: "",
     description: "",
   })
-  const [projectExist, setProjectExist] = React.useState(false)
   const [error, setError] = React.useState({
+    "code": null,
     "message": null,
-    "retry": false, // not in use
   })
 
   const onChange = (evt) => {
@@ -96,32 +95,23 @@ const ProjectInit = (props) => {
     bodyFormData.set('authors', info.authors);
     bodyFormData.set('description', info.description);
 
-    axios({
-      method: "post",
-      url: api_url + "project/info",
-      data: bodyFormData,
-      headers: {'Content-Type': 'multipart/form-data' }
-    })
-    .then(function (response) {
+    ProjectAPI.init(bodyFormData)
+      .then((result) => {
 
-      // set the project_id in the redux store
-      props.setProjectId(response.data["id"])
+        // set the project_id in the redux store
+        props.setProjectId(result.data["id"])
 
-      props.handleAppState("project-page")
+        props.handleAppState("project-page")
 
-    })
-    .catch((error) => {        
-        if (error.response) {
-          //handle projectExist
-          setProjectExist(true);
-          console.log(error);
-        } else {
-          setError(s => {return({
-            ...s,
-            "message": "Failed to connect to server. Please restart the software."
-          })});
-        };
-    });
+      })
+      .catch((error) => {
+
+        setError({
+          "code": error.code,
+          "message": error.message,
+        });
+
+      });
   }
 
   return (
@@ -134,14 +124,14 @@ const ProjectInit = (props) => {
         Create a new project
       </DialogTitle>
 
-      {error["message"] !== null &&
+      {error.code === 503 &&
         <DialogContent dividers={true}>
           <ErrorHandler
             error={error}
           />
         </DialogContent>
       }
-      {error["message"] !== null &&
+      {error.code === 503 &&
         <DialogActions>
           <Button
             onClick={props.onClose}
@@ -152,7 +142,7 @@ const ProjectInit = (props) => {
         </DialogActions>
       }
 
-      {error["message"] === null &&
+      {error.code !== 503 &&
         <DialogContent dividers={true}>
         {/* The actual form */}
         <form noValidate autoComplete="off">
@@ -160,7 +150,7 @@ const ProjectInit = (props) => {
           <div className={classes.textfieldItem}>
             <TextField
               fullWidth
-              error={projectExist}
+              error={error.message !== null}
               autoFocus={true}
               required
               name="name"
@@ -168,7 +158,7 @@ const ProjectInit = (props) => {
               label="Project name"
               onChange={onChange}
               value={info.name}
-              helperText={projectExist && "Project name already exists"}
+              helperText={error.code !== 503 && error.message}
             />
           </div>
 
@@ -200,7 +190,7 @@ const ProjectInit = (props) => {
         </form>
         </DialogContent>
       }
-      {error["message"] === null &&
+      {error.code !== 503 &&
         <DialogActions>
           <Button
             onClick={props.onClose}

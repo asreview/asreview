@@ -12,12 +12,11 @@ import {
   ProjectAlgorithms,
 } from '../PreReviewComponents'
 // import ProjectUpload from './ProjectUpload.js'
+import { ProjectAPI } from '../api/index.js';
 
 import { connect } from "react-redux";
 
-import axios from 'axios'
-
-import { api_url, mapStateToProps } from '../globals.js';
+import { mapStateToProps } from '../globals.js';
 
 const useStyles = makeStyles(theme => ({
   box: {
@@ -104,10 +103,7 @@ const PreReviewZone = (props) => {
 
     const fetchProjectInfo = async () => {
 
-      // contruct URL
-      const url = api_url + "project/" + props.project_id + "/info";
-
-      axios.get(url)
+      ProjectAPI.info(props.project_id)
         .then((result) => {
 
           let set_step = 1;
@@ -126,18 +122,10 @@ const PreReviewZone = (props) => {
 
         })
         .catch((error) => {
-          if (error.response) {
-            props.setProjectPageError({
-              'message': error.response.data.message,
-              'retry': true,
-            });
-            console.log(error.response);
-          } else {
-            props.setProjectPageError({
-              'message': "Failed to connect to server. Please restart the software.",
-              'retry': false,
-            });
-          };
+          props.setError({
+            "code": error.code,
+            "message": error.message,
+          });
         });
     };
 
