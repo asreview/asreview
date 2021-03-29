@@ -36,9 +36,7 @@ import {
   Help,
   useHelp,
 } from '../PreReviewComponents';
-
-import axios from 'axios'
-import { api_url } from '../globals.js';
+import { ProjectAPI } from '../api/index.js';
 
 import './ReviewZone.css';
 
@@ -132,61 +130,51 @@ const ProjectUpload = ({
         upload: true,
       });
 
-      const url = api_url + `project/${project_id}/data`;
-
-      axios({
-        method: 'post',
-        url: url,
-        data: data
-      })
-      .then(function (res) {
-
-        // remove accepted files
-        setFile(null);
-
-        // set state to lock such that it triggers the fetch stats call
-        setState({
-          init: false,
-          edit: false,
-          upload: false,
-        });
-
-        // set next button ready
-        setNext(true);
-
-        // callback
-        if (callback !== undefined){
-          callback();
-        }
-
-      })
-      .catch(function (error) {
-
-          // // set upload to false
-          // setUpload(false);
+      ProjectAPI.data(project_id, true, data)
+        .then(function (res) {
 
           // remove accepted files
           setFile(null);
 
           // set state to lock such that it triggers the fetch stats call
           setState({
-            init: state.init,
-            edit: true,
+            init: false,
+            edit: false,
             upload: false,
           });
 
-          // set error to state
-          if (error.response){
-            setError(error.response.data["message"])
-          } else {
-            setError("Failed to connect to server. Please restart the software.")
-          }
+          // set next button ready
+          setNext(true);
 
           // callback
           if (callback !== undefined){
             callback();
           }
-      });
+
+        })
+        .catch(function (error) {
+
+            // // set upload to false
+            // setUpload(false);
+
+            // remove accepted files
+            setFile(null);
+
+            // set state to lock such that it triggers the fetch stats call
+            setState({
+              init: state.init,
+              edit: true,
+              upload: false,
+            });
+
+            // set error to state
+            setError(error.message)
+
+            // callback
+            if (callback !== undefined){
+              callback();
+            }
+        });
   }
 
   /* Upload file */
@@ -274,10 +262,7 @@ const ProjectUpload = ({
     // fetch dataset info
     const fetchDatasetInfo = async () => {
 
-      // contruct URL
-      const url = api_url + "project/" + project_id + "/data";
-
-      axios.get(url)
+      ProjectAPI.data(project_id, false)
         .then((result) => {
 
           // set statistics

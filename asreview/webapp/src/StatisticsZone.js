@@ -19,9 +19,8 @@ import {
   ProgressLineChart,
 } from './SideStats'
 
-import axios from 'axios'
+import { ProjectAPI } from './api/index.js';
 
-import { api_url } from './globals.js';
 
 const useStyles = makeStyles(theme => ({
 
@@ -106,70 +105,49 @@ const StatisticsZone = (props) => {
      */
     const getProgressInfo = () => {
 
-      const url = api_url + `project/${props.project_id}/progress`;
-
-      return axios.get(url)
+      ProjectAPI.progress(props.project_id)
         .then((result) => {
           setStatistics(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setError(s => {
-              return({
-                ...s,
-                error: true,
-                statistics: error.response.data.message,
-            })});
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setError(s => {
+            return({
+              ...s,
+              error: true,
+              statistics: error.message,
+          })});
         });
     }
 
     const getProgressHistory = () => {
 
-      const url = api_url + `project/${props.project_id}/progress_history`;
-
-      return axios.get(url)
+      ProjectAPI.progress_history(props.project_id)
         .then((result) => {
           setHistory(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setError(s => {
-              return({
-                ...s,
-                error: true,
-                history: error.response.data.message,
-            })});
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setError(s => {
+            return({
+              ...s,
+              error: true,
+              history: error.message,
+          })});
         });
     }
 
     const getProgressEfficiency = () => {
 
-      const url = api_url + `project/${props.project_id}/progress_efficiency`;
-
-      return axios.get(url)
+      ProjectAPI.progress_efficiency(props.project_id)
         .then((result) => {
           setEfficiency(result.data)
         })
         .catch((error) => {
-          if (error.response) {
-            setError(s => {
-              return({
-                ...s,
-                error: true,
-                efficiency: error.response.data.message,
-            })});
-            console.log(error.response);
-          } else {
-            console.log(error);
-          };
+          setError(s => {
+            return({
+              ...s,
+              error: true,
+              efficiency: error.message,
+          })});
         });
     }
 

@@ -554,12 +554,17 @@ def api_get_prior(project_id):  # noqa: F401
 def api_get_prior_stats(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
-    lock_fp = get_lock_path(project_id)
-    with SQLiteLock(
-            lock_fp, blocking=True, lock_name="active", project_id=project_id):
-        label_history = read_label_history(project_id)
+    try:
+        lock_fp = get_lock_path(project_id)
+        with SQLiteLock(
+                lock_fp, blocking=True, lock_name="active", project_id=project_id):
+            label_history = read_label_history(project_id)
 
-    counter_prior = Counter([x[1] for x in label_history])
+        counter_prior = Counter([x[1] for x in label_history])
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to load prior information."), 500
 
     response = jsonify({
         "n_prior": len(label_history),
@@ -796,6 +801,11 @@ def api_import_project():
                     f.seek(0)
                     json.dump(import_project, f)
                     f.truncate()
+
+    except zipfile.BadZipFile as err:
+        logging.error(err)
+        response = jsonify(message="File is not an ASReview file.")
+        return response, 400
 
     except Exception as err:
         # Unknown error.

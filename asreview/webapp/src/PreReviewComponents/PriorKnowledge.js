@@ -37,11 +37,7 @@ import {
   useHelp,
 } from '../PreReviewComponents'
 
-import axios from 'axios'
-
-import {
-  api_url
-} from '../globals.js';
+import { ProjectAPI } from '../api/index.js';
 
 import './ReviewZone.css';
 
@@ -98,29 +94,21 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export const labelPriorItem = (project_id, doc_id, label, callbk=null) => {
-  const url = api_url + `project/${project_id}/labelitem`;
 
   let body = new FormData();
   body.set('doc_id', doc_id);
   body.set('label', label);
   body.set('is_prior', 1);
 
-  axios.post(
-    url,
-    body,
-    {
-      headers: {
-        'Content-type': 'application/x-www-form-urlencoded',
+  ProjectAPI.labelitem(project_id, body)
+    .then((result) => {
+      if (callbk !== null){
+        callbk();
       }
     })
-  .then((result) => {
-    if (callbk !== null){
-      callbk();
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+    .catch((error) => {
+      console.log(error);
+    });
 
 }
 
@@ -198,23 +186,21 @@ const PriorKnowledge = ({
   useEffect(() => {
 
     if (state.loading){
-      const url = api_url + `project/${project_id}/prior_stats`;
+      ProjectAPI.prior_stats(project_id)
+        .then((result) => {
 
-      axios.get(url)
-      .then((result) => {
-
-        setState(s => {return({
-            ...s,
-            "loading": false,
+          setState(s => {return({
+              ...s,
+              "loading": false,
+            })
           })
+
+          setPriorStats(result.data);
+
         })
-
-        setPriorStats(result.data);
-
-      })
-      .catch((error) => {
-        console.log("Failed to load prior information");
-      });
+        .catch((error) => {
+          console.log(error);
+        });
     }
 
   }, [state.loading, project_id]);

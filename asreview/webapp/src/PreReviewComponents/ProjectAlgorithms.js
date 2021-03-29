@@ -25,10 +25,7 @@ import {
   Help,
   useHelp,
 } from '../PreReviewComponents';
-
-import axios from 'axios';
-
-import { api_url } from '../globals.js';
+import { ProjectAPI } from '../api/index.js';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -129,17 +126,12 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
   useEffect(() => {
 
     if (algorithms !== null){
-        var bodyFormData = new FormData();
-        bodyFormData.set("model", algorithms.model);
-        bodyFormData.set("query_strategy", algorithms.query_strategy);
-        bodyFormData.set("feature_extraction", algorithms.feature_extraction);
+      var bodyFormData = new FormData();
+      bodyFormData.set("model", algorithms.model);
+      bodyFormData.set("query_strategy", algorithms.query_strategy);
+      bodyFormData.set("feature_extraction", algorithms.feature_extraction);
 
-        axios({
-          method: "post",
-          url: api_url + "project/" + project_id + "/algorithms",
-          data: bodyFormData,
-          headers: {'Content-Type': 'multipart/form-data' }
-        })
+      ProjectAPI.algorithms(project_id, true, bodyFormData)
         .then((result) => {
           // nothing to do
         })
@@ -156,10 +148,7 @@ const ProjectAlgorithms = ({project_id, scrollToBottom}) => {
     // fetch algorithms info
     const fetchAlgorithmsSettings = async () => {
 
-      // contruct URL
-      const url = api_url + "project/" + project_id + "/algorithms";
-
-      axios.get(url)
+      ProjectAPI.algorithms(project_id, false)
         .then((result) => {
           setAlgorithms(result.data);
         })

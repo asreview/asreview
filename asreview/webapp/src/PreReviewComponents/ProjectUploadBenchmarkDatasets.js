@@ -11,10 +11,8 @@ import {
 } from '../PreReviewComponents';
 
 import ErrorHandler from '../ErrorHandler';
+import { ProjectAPI } from '../api/index.js';
 
-import { api_url } from '../globals.js';
-
-import axios from 'axios';
 
 const useStyles = makeStyles(theme => ({
   accordion: {
@@ -53,8 +51,8 @@ const ProjectUploadBenchmarkDatasets = (props) => {
     });
 
     const [error, setError] = useState({
+      "code": null,
       "message": null,
-      "retry": false,
     });
 
     const [expanded, setExpanded] = useState({
@@ -68,18 +66,12 @@ const ProjectUploadBenchmarkDatasets = (props) => {
 
       const fetchData = async () => {
 
-        // contruct URL
-        const url = api_url + "datasets";
-
         const params = {};
 
         // prepare properties and make subset
         params['subset'] = 'benchmark'
 
-        axios.get(
-            url,
-            {params: params}
-          )
+        ProjectAPI.datasets(params)
           .then((result) => {
             setState({
               'datasets': result.data['result'],
@@ -87,18 +79,10 @@ const ProjectUploadBenchmarkDatasets = (props) => {
             });
           })
           .catch((error) => {
-            if (error.response) {
-              setError({
-                'message': error.response.data.message,
-                'retry': true,
-              });
-              console.log(error.response);
-            } else {
-              setError(s => {return({
-                ...s,
-                'message': "Failed to connect to server. Please restart the software.",
-              })});
-            };
+            setError({
+              "code": error.code,
+              "message": error.message,
+            });
           });
       };
 

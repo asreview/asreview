@@ -28,17 +28,17 @@ const ErrorHandler = (props) => {
   const classes = useStyles();
 
   const handleClickRetry = () => {
-    props.setError(s => {return({
+    props.setError({
+      "code": null,
       "message": null,
-      "retry": false,
-    })});
+    });
   };
 
   return(
   	<Box>
       <Box className={classes.errorMessage}>
         <Typography variant="h5" align="center">
-          {props.error["message"]}
+          {props.error.message}
         </Typography>
         <Box fontStyle="italic">
           <Typography align="center">
@@ -53,7 +53,7 @@ const ErrorHandler = (props) => {
           </Typography>
         </Box>
       </Box>
-      {props.error["retry"] === true &&
+      {props.error.code !== 503 &&
         <Box className={classes.retryButton} align="center">
           <Button
             variant="contained"

@@ -16,10 +16,7 @@ import {
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import ErrorHandler from '../ErrorHandler';
-
-import axios from 'axios'
-
-import { api_url } from '../globals.js';
+import { ProjectAPI } from '../api/index.js';
 
 import { connect } from "react-redux";
 
@@ -75,8 +72,8 @@ const LabeledItems = (props) => {
   });
 
   const [error, setError] = useState({
+    "code": null,
     "message": null,
-    "retry": false,
   });
 
   const handleTabChange = (event, newValue) => {
@@ -93,34 +90,22 @@ const LabeledItems = (props) => {
   useEffect(() => {
 
     if (state.loading){
-      const url = api_url + `project/${props.project_id}/prior`;
+      ProjectAPI.prior(props.project_id)
+        .then((result) => {
 
-      axios.get(url)
-      .then((result) => {
+          setState(s => {return({
+            ...s,
+            "data": result.data["result"],
+            "loading": false,
+          })});
 
-        setState(s => {return({
-          ...s,
-          "data": result.data["result"],
-          "loading": false,
-        })});
-
-      })
-      .catch((error) => {
-
-        if (error.response) {
+        })
+        .catch((error) => {
           setError({
-            'message': error.response.data.message,
-            'retry': true,
+            "code": error.code,
+            "message": error.message,
           });
-          console.log(error.response);
-        } else {
-          setError({
-            'message': "Failed to connect to server. Please restart the software.",
-            'retry': false,
-          });
-        };
-
-      });
+        });
     }
 
   }, [props.project_id, state.loading, error.message]);
