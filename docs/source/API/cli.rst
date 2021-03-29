@@ -23,6 +23,27 @@ Lab
 
 	The port the server will listen on.
 
+.. option:: --port-retries NUMBER_RETRIES
+
+	The number of additional ports to try if the specified port is not
+        available.
+
+.. option:: --no-browser NO_BROWSER
+
+	Do not open ASReview LAB in a browser after startup.
+
+.. option:: --certfile CERTFILE_FULL_PATH
+
+    The full path to an SSL/TLS certificate file.
+
+.. option:: --keyfile KEYFILE_FULL_PATH
+
+    The full path to a private key file for usage with SSL/TLS.
+
+.. option:: --embedding EMBEDDING_FP
+
+    File path of embedding matrix. Required for LSTM models.
+
 .. option:: --clean-project CLEAN_PROJECT
 
     Safe cleanup of temporary files in project.
@@ -30,10 +51,6 @@ Lab
 .. option:: --clean-all-projects CLEAN_ALL_PROJECTS
 
     Safe cleanup of temporary files in all projects.
-
-.. option:: --embedding EMBEDDING_FP
-
-    File path of embedding matrix. Required for LSTM models.
 
 .. option:: --seed SEED
 
