@@ -18,6 +18,11 @@ const useDarkMode = () => {
           color: "#DC004E",
         },
       },
+      MuiTypography: {
+        colorTextSecondary: {
+          color: "#555555",
+        },
+      },
     },
   };
 
