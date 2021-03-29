@@ -74,6 +74,7 @@ const ProjectInit = (props) => {
     authors: "",
     name: "",
     description: "",
+    mode: "oracle",
   })
   const [error, setError] = React.useState({
     "code": null,
@@ -91,6 +92,7 @@ const ProjectInit = (props) => {
     evt.preventDefault();
 
     var bodyFormData = new FormData();
+    bodyFormData.set('mode', info.mode);
     bodyFormData.set('name', info.name);
     bodyFormData.set('authors', info.authors);
     bodyFormData.set('description', info.description);

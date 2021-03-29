@@ -59,6 +59,7 @@ def _get_executable():
 
 
 def init_project(project_id,
+                 project_mode="oracle",
                  project_name=None,
                  project_description=None,
                  project_authors=None):
@@ -78,6 +79,7 @@ def init_project(project_id,
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
             'id': project_id,
+            'mode': project_mode,
             'name': project_name,
             'description': project_description,
             'authors': project_authors,

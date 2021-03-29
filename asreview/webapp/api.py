@@ -155,6 +155,7 @@ def api_get_projects():  # noqa: F401
 def api_init_project():  # noqa: F401
     """Get info on the article"""
 
+    project_mode = request.form['mode']
     project_name = request.form['name']
     project_description = request.form['description']
     project_authors = request.form['authors']
@@ -163,6 +164,7 @@ def api_init_project():  # noqa: F401
 
     project_config = init_project(
         project_id,
+        project_mode=project_mode,
         project_name=project_name,
         project_description=project_description,
         project_authors=project_authors)
