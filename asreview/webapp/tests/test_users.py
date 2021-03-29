@@ -23,7 +23,7 @@ def test_add_user(test_app, test_database):
     """Add a new user."""
     client = test_app.test_client()
     resp = client.post(
-        "/users",
+        "/user",
         data=json.dumps(
             {
                 "username": "test",

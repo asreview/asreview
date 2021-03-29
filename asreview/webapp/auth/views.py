@@ -70,10 +70,19 @@ def error_500(e):
 # Views
 
 
-class UsersList(MethodView):
+class Users(MethodView):
     def get(self):
         """Returns all users.   """
         return get_all_users(), 200
+
+
+class User(MethodView):
+    def get(self, user_id):
+        """Returns a single user."""
+        user = get_user_by_id(user_id)
+        if not user:
+            return user_not_found()
+        return user, 200
 
     def post(self):
         """Creates a new user."""
@@ -92,15 +101,6 @@ class UsersList(MethodView):
 
         except Exception as err:
             logging.error(err)
-
-
-class Users(MethodView):
-    def get(self, user_id):
-        """Returns a single user."""
-        user = get_user_by_id(user_id)
-        if not user:
-            return user_not_found()
-        return user, 200
 
     def put(self, user_id):
         """Updates a user."""
@@ -132,14 +132,14 @@ class Users(MethodView):
         return response, 200
 
 
-users_list = UsersList.as_view('user_list')
-bp.add_url_rule('/users_list/', view_func=users_list, methods=['GET', ])
-bp.add_url_rule(
-    '/users_list/', defaults={'user_id': None}, view_func=users_list, methods=['POST', ])
+users = Users.as_view('user_list')
+bp.add_url_rule('/users/', view_func=users, methods=['GET', ])
 
 
-users = Users.as_view('users')
-bp.add_url_rule('/users/', defaults={'user_id': None},
-                view_func=users, methods=['GET', ])
-bp.add_url_rule('/users/<int:user_id>', view_func=users,
+user = User.as_view('users')
+bp.add_url_rule('/user/', defaults={'user_id': None},
+                view_func=user, methods=['GET', ])
+bp.add_url_rule('/user/<int:user_id>', view_func=user,
                 methods=['GET', 'PUT', 'DELETE'])
+bp.add_url_rule(
+    '/user/', view_func=user, methods=['POST', ])

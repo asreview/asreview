@@ -107,8 +107,8 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     app.register_blueprint(base.bp)
     app.register_blueprint(api.bp)
-    # app.register_blueprint(auth)
-    # app.register_blueprint(views)
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(views.bp)
     return None
 
 
