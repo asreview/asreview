@@ -35,6 +35,33 @@ const useDarkMode = () => {
           color: "#F48FB1",
         },
       },
+      MuiButton: {
+        textPrimary: {
+          color: "#CFA596",
+        },
+        outlinedPrimary: {
+          color: "#CFA596",
+        },
+      },
+      MuiTypography: {
+        colorPrimary: {
+          color: "#CFA596",
+        },
+      },
+      MuiFormLabel: {
+        root: {
+          "&$focused": {
+            color: "#CFA596",
+          }, 
+        },
+      },
+      MuiTab: {
+        textColorPrimary: {
+          "&$selected": {
+            color: "#CFA596",
+          },
+        },
+      },
     },
   }
 
@@ -57,8 +84,6 @@ const useDarkMode = () => {
       setTheme(darkTheme)
     }
   }, [darkTheme, theme.palette.type]);
-
-  console.log(theme);
 
   return [theme, toggleDarkMode]
 };
