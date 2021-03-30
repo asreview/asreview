@@ -1,35 +1,102 @@
 import { useEffect, useState } from 'react'
 import brown from '@material-ui/core/colors/brown';
+import red from '@material-ui/core/colors/red';
 
 
 const useDarkMode = () => {
 
-  let defaultTheme = {
+  let lightTheme = {
     palette: {
       type: "light",
-      primary: brown,
+      primary: {
+        main: brown[500],
+      },
+    },
+    overrides: {
+      debug: {
+        color: "#1E824C",
+      },
+      MuiLink: {
+        root: {
+          color: "#DC004E",
+        },
+      },
+      MuiTypography: {
+        colorTextSecondary: {
+          color: "#555555",
+        },
+      },
     },
   };
 
-  const [theme, setTheme] = useState(defaultTheme);
+  let darkTheme = {
+    palette: {
+      type: "dark",
+      primary: {
+        main: brown[500],
+      },
+      secondary: {
+        main: red[500],
+      },
+    },
+    overrides: {
+      debug: {
+        color: "#65A665",
+      },
+      MuiLink: {
+        root: {
+          color: "#F48FB1",
+        },
+      },
+      MuiButton: {
+        textPrimary: {
+          color: "#CFA596",
+        },
+        outlinedPrimary: {
+          color: "#CFA596",
+        },
+      },
+      MuiTypography: {
+        colorPrimary: {
+          color: "#CFA596",
+        },
+      },
+      MuiFormLabel: {
+        root: {
+          "&$focused": {
+            color: "#CFA596",
+          }, 
+        },
+      },
+      MuiTab: {
+        textColorPrimary: {
+          "&$selected": {
+            color: "#CFA596",
+          },
+        },
+      },
+    },
+  }
+
+  const [theme, setTheme] = useState(lightTheme);
 
   const toggleDarkMode = () => {
 
     if (theme.palette.type === "light") {
       window.localStorage.setItem("themeType", "dark")
-      setTheme({palette: {...defaultTheme.palette, type: "dark"}})
+      setTheme(darkTheme)
     } else {
       window.localStorage.setItem("themeType", "light")
-      setTheme(defaultTheme)
+      setTheme(lightTheme)
     }
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
     if (theme.palette.type !== localTheme && localTheme !== null) {
-      setTheme({palette: {...defaultTheme.palette, type: "dark"}})
+      setTheme(darkTheme)
     }
-  }, [defaultTheme.palette, theme.palette.type]);
+  }, [darkTheme, theme.palette.type]);
 
   return [theme, toggleDarkMode]
 };

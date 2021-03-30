@@ -11,7 +11,10 @@ const useStyles = makeStyles(theme => ({
     },
   snackbar: {
     marginBottom: decisionUndoBarMarginBottom,
-  },  
+  },
+  undoButton: {
+    color: theme.palette.secondary.light,
+  },
 }));
 
 const DecisionUndoBar = (props) => {
@@ -40,7 +43,7 @@ const DecisionUndoBar = (props) => {
           message={props.state.message}
           action={
             <React.Fragment>
-              <Button color="secondary" size="small" onClick={handleUndo}>
+              <Button className={classes.undoButton} size="small" onClick={handleUndo}>
                 UNDO
               </Button>
             </React.Fragment>
