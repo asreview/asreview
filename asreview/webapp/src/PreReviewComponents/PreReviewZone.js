@@ -151,6 +151,7 @@ const PreReviewZone = (props) => {
                 init={state.new}
                 edit={state.step === 1}
                 project_id={props.project_id}
+                mode={props.mode}
                 handleNext={handleNext}
                 handleStep={handleStep}
                 setNext={setNext}
