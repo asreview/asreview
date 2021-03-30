@@ -848,6 +848,17 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.csv"
             })
+
+    elif file_type == "tsv":
+        dataset_str = export_to_string(project_id, export_type="tsv")
+
+        return Response(
+            dataset_str,
+            mimetype="text/tab-separated-values",
+            headers={
+                "Content-disposition":
+                f"attachment; filename=asreview_result_{project_id}.tsv"
+            })
     else:  # excel
 
         dataset_str = export_to_string(project_id, export_type="excel")
