@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import brown from '@material-ui/core/colors/brown';
+import red from '@material-ui/core/colors/red';
 
 
 const useDarkMode = () => {
@@ -7,7 +8,9 @@ const useDarkMode = () => {
   let lightTheme = {
     palette: {
       type: "light",
-      primary: brown,
+      primary: {
+        main: brown[500],
+      },
     },
     overrides: {
       debug: {
@@ -29,7 +32,12 @@ const useDarkMode = () => {
   let darkTheme = {
     palette: {
       type: "dark",
-      primary: brown,
+      primary: {
+        main: brown[500],
+      },
+      secondary: {
+        main: red[500],
+      },
     },
     overrides: {
       debug: {
@@ -43,9 +51,6 @@ const useDarkMode = () => {
       MuiButton: {
         textPrimary: {
           color: "#CFA596",
-        },
-        textSecondary: {
-          color: "#F48FB1",
         },
         outlinedPrimary: {
           color: "#CFA596",
