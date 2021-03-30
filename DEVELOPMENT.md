@@ -20,12 +20,12 @@ Start the Python API server with the Flask development environment
 
 	export FLASK_ENV=development
 	asreview lab
-	
-For Windows, use 
+
+For Windows, use
 
 	set FLASK_ENV=development
 	asreview lab
-	
+
 ### Front end
 
 Install both [npm][1] and Python
@@ -34,8 +34,8 @@ Start the Python API server with the Flask development environment. Before the f
 
 	export FLASK_ENV=development
 	asreview lab
-	
-For Windows, use 
+
+For Windows, use
 
 	set FLASK_ENV=development
 	asreview lab
@@ -52,6 +52,15 @@ The user interface is written in [React][2]. Start the local front end applicati
 Open the web browser at `localhost:3000`
 
 **Important**: Ignore `localhost:5000`. You can also find a front end on `:5000` but this is not relevant for the current front end development step.
+
+Please make use of Prettier (https://prettier.io/docs/en/install.html) to
+format React/Javascript code. Use the following code to format all files in
+the webapp folder.
+
+```
+cd asreview/webapp
+npx prettier --write .
+```
 
 [1]:	https://www.npmjs.com/get-npm
 [2]:	https://reactjs.org/

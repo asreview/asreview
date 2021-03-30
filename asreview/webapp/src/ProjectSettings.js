@@ -1,5 +1,5 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Button,
@@ -10,10 +10,9 @@ import {
   // DialogContentText,
   Typography,
   TextField,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
-import { ProjectAPI } from './api/index.js';
-
+import { ProjectAPI } from "./api/index.js";
 
 const useStyles = makeStyles({
   root: {
@@ -22,22 +21,21 @@ const useStyles = makeStyles({
   deleteButton: {
     margin: 5,
   },
-  header :{
+  header: {
     marginBottom: 10,
   },
-  inputDelete:{
+  inputDelete: {
     marginBottom: 10,
     marginTop: 10,
-  }
+  },
 });
 
 export default function ProjectSettings(props) {
-
   // set the styles
   const classes = useStyles();
 
   // state variables
-  const [deleteInput, setDeleteInput] = React.useState("")
+  const [deleteInput, setDeleteInput] = React.useState("");
 
   // useeffect
   const descriptionElementRef = React.useRef(null);
@@ -62,54 +60,45 @@ export default function ProjectSettings(props) {
           console.log(error);
         });
     }
-  }
+  };
 
   const onChange = (evt) => {
-    setDeleteInput(evt.target.value)
-  }
+    setDeleteInput(evt.target.value);
+  };
 
   return (
-      <Dialog
-        open={props.settings}
-        onClose={props.toggleProjectDelete}
-        scroll="paper"
-        fullWidth={true}
-        maxWidth={"sm"}
-        aria-labelledby="scroll-dialog-title"
-        aria-describedby="scroll-dialog-description"
-      >
-        <DialogTitle
-          id="delete-project-title"
-        >
-          Delete project '{props.id}'?
-        </DialogTitle>
-        <DialogContent dividers={true}>
-            <Typography>
-              Delete your project by typing the project name '{props.id}' below.
-            </Typography>
-            <TextField
-              className={classes.inputDelete}
-              fullWidth
-              required
-              name="project-name"
-              id="project-name"
-              label="Project name"
-              onChange={onChange}
-            />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={props.toggleProjectDelete}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={deleteProject}
-            disabled={deleteInput !== props.id}
-          >
-            Yes, Delete project
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <Dialog
+      open={props.settings}
+      onClose={props.toggleProjectDelete}
+      scroll="paper"
+      fullWidth={true}
+      maxWidth={"sm"}
+      aria-labelledby="scroll-dialog-title"
+      aria-describedby="scroll-dialog-description"
+    >
+      <DialogTitle id="delete-project-title">
+        Delete project '{props.id}'?
+      </DialogTitle>
+      <DialogContent dividers={true}>
+        <Typography>
+          Delete your project by typing the project name '{props.id}' below.
+        </Typography>
+        <TextField
+          className={classes.inputDelete}
+          fullWidth
+          required
+          name="project-name"
+          id="project-name"
+          label="Project name"
+          onChange={onChange}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.toggleProjectDelete}>Cancel</Button>
+        <Button onClick={deleteProject} disabled={deleteInput !== props.id}>
+          Yes, Delete project
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

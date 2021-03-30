@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 const useKeyPress = (targetKey) => {
-
   const [keyPressed, setKeyPressed] = useState(false);
-  
-  useEffect(() => {
 
+  useEffect(() => {
     const downHandler = ({ key }) => {
       if (key.toLowerCase() === targetKey) {
         setKeyPressed(true);
@@ -19,14 +17,13 @@ const useKeyPress = (targetKey) => {
     };
 
     // Add event listeners
-    window.addEventListener('keydown', downHandler);
-    window.addEventListener('keyup', upHandler);
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
     // Remove event listeners on cleanup
     return () => {
-      window.removeEventListener('keydown', downHandler);
-      window.removeEventListener('keyup', upHandler);
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
     };
-
   }, [targetKey]);
 
   return keyPressed;
