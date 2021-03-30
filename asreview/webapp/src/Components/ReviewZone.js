@@ -316,13 +316,11 @@ const ReviewZone = (props) => {
     if (!recordState['isloaded']) {
 
       getDocument();
+      getProgressInfo();
+      getProgressHistory();
 
     }
-
-    getProgressInfo();
-
-    getProgressHistory();
-
+    
   },[props.project_id, recordState, props, error.message, sideStatsError]);
 
   useEffect(() => {
