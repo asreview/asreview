@@ -99,6 +99,7 @@ const ExportDialog = (props) => {
               >
                 <MenuItem value={"excel"}>Excel</MenuItem>
                 <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
+                <MenuItem value={"tsv"}>TSV (UTF-8)</MenuItem>
               </Select>
 
             </Box>
