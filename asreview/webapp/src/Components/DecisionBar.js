@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => ({
   },
   unselectedAction: {},
   selectedAction: {
-    color: theme.palette.secondary.main
+    color: theme.palette.secondary.light,
   },
   notesField: {
     padding: theme.spacing(3),
