@@ -83,6 +83,7 @@ const ProjectUpload = ({
   init,
   edit,
   project_id,
+  mode,
   handleNext,
   handleStep,
   setNext,
@@ -213,7 +214,7 @@ const ProjectUpload = ({
     return onUploadHandler(data, callback)
   }
 
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState("file");
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -359,14 +360,16 @@ const ProjectUpload = ({
                 variant="scrollable"
                 scrollButtons="auto"
               >
-                <Tab label="From file" />
-                <Tab label="From url" />
-                <Tab label="From plugin" />
-                <Tab label="Benchmark datasets" />
+                <Tab label="From file" value="file"/>
+                <Tab label="From url" value="url"/>
+                { (mode === undefined || mode === "oracle") &&
+                  <Tab label="From plugin" value="plugin"/>
+                }
+                <Tab label="Benchmark datasets" value="benchmark"/>
               </Tabs>
 
             <CardContent>
-              {value === 0 &&
+              {value === "file" &&
                 <div>
                   <ProjectUploadFile
                     file={file}
@@ -378,7 +381,7 @@ const ProjectUpload = ({
                 </div>
               }
 
-              {value === 1 &&
+              {value === "url" &&
                 <div>
                   <ProjectUploadURL
                     upload={state.upload}
@@ -389,13 +392,13 @@ const ProjectUpload = ({
                 </div>
               }
 
-              {value === 2 &&
+              {value === "plugin" &&
                 <ProjectUploadPluginDatasets
                   onUploadHandler={onUploadHandlerPluginDataset}
                 />
               }
 
-              {value === 3 &&
+              {value === "benchmark" &&
                 <div>
                   <ProjectUploadBenchmarkDatasets
                     onUploadHandler={onUploadHandlerBenchmarkDataset}
