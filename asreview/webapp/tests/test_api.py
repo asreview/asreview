@@ -36,7 +36,7 @@ def test_create_project(tmp_path, client):
         "description": "hello world"
     })
     json_data = response.get_json()
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     assert "name" in json_data
     assert isinstance(json_data, dict)
