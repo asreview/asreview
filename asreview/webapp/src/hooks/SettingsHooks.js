@@ -44,6 +44,9 @@ const useDarkMode = () => {
         textPrimary: {
           color: "#CFA596",
         },
+        textSecondary: {
+          color: "#F48FB1",
+        },
         outlinedPrimary: {
           color: "#CFA596",
         },

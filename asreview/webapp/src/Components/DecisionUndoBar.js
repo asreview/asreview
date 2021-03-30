@@ -40,7 +40,7 @@ const DecisionUndoBar = (props) => {
           message={props.state.message}
           action={
             <React.Fragment>
-              <Button color="secondary" size="small" onClick={handleUndo}>
+              <Button variant="text" color="secondary" size="small" onClick={handleUndo}>
                 UNDO
               </Button>
             </React.Fragment>
