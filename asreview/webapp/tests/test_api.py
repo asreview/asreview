@@ -27,6 +27,7 @@ def test_get_projects(client):
 def test_create_project(tmp_path, client):
     """Test create project."""
 
+    # change default folder for projects
     os.environ["ASREVIEW_PATH"] = str(tmp_path)
 
     response = client.post("/api/project/info", data={
@@ -35,17 +36,23 @@ def test_create_project(tmp_path, client):
         "description": "hello world"
     })
     json_data = response.get_json()
+    assert response.status_code == 200
 
     assert "name" in json_data
     assert isinstance(json_data, dict)
 
-    response = client.get("/api/projects")
-    json_data = response.get_json()
+
+def test_add_data_to_project(client):
+    """Test add data to project."""
 
     response = client.post("/api/project/project-id/data", data={
         "benchmark": "benchmark:Hall_2012"
     })
     assert response.status_code == 200
+
+
+def test_data_in_project_info(client):
+    """Test create project."""
 
     response = client.get("/api/project/project-id/info")
     json_data = response.get_json()
