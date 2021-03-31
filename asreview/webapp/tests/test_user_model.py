@@ -27,12 +27,12 @@ def test_encode_token(test_app, test_database, add_user):
     user = add_user("test", "test@test.com", "test")
     token = user.encode_token(user.id, "access")
     print(token)
-    assert isinstance(token, str)
+    assert isinstance(token, bytes)
 
 
 def test_decode_token(test_app, test_database, add_user):
     """Test the decoding of the token in auth.models.User."""
     user = add_user("test", "test@test.com", "test")
     token = user.encode_token(user.id, "access")
-    assert isinstance(token, str)
+    assert isinstance(token, bytes)
     assert User.decode_token(token) == user.id

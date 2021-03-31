@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from asreview.webapp.auth.models import User
-from asreview.webapp.extensions import (
-    db,
-)
+from asreview.webapp.extensions import db
 
 
 def get_all_users():

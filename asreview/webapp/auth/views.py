@@ -22,6 +22,8 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound
 from werkzeug.exceptions import BadRequest
 
+from marshmallow import Schema, fields, ValidationError
+
 from asreview.webapp.auth.crud import (  # isort:skip
     get_all_users,
     get_user_by_email,
@@ -30,28 +32,33 @@ from asreview.webapp.auth.crud import (  # isort:skip
     update_user,
     delete_user,
 )
-from asreview.webapp.auth.models import User
+from asreview.webapp.auth import models
 
-# TODO: add flask-smorest for data validation and
-#   automatic Swagger UI creation
+# TODO: Better data validation and automatic Swagger UI creation: FastAPI?
 
-bp = Blueprint('users', __name__, url_prefix='/users')
+bp = Blueprint('users', __name__)
 
 # error handlers
 
 
+class ModelSchema(Schema):
+    username = fields.String(required=True)
+    email = fields.String(required=True)
+    password = fields.String(required=True)
+
+
 @bp.errorhandler(NotFound)
-def user_not_found(e, user_id):
+def user_not_found(user_id):
     message = f"User {user_id} does not exist"
     logging.error(message)
-    return jsonify(message=message), e.status_code
+    return jsonify(message=message), 404
 
 
 @bp.errorhandler(BadRequest)
-def email_already_exists(e):
+def email_already_exists():
     message = "Sorry. That email already exists."
     logging.error(message)
-    return jsonify(message=message), e.status_code
+    return jsonify(message=message), 400
 
 
 @bp.errorhandler(InternalServerError)
@@ -81,12 +88,18 @@ class User(MethodView):
         """Returns a single user."""
         user = get_user_by_id(user_id)
         if not user:
-            return user_not_found()
+            return user_not_found(user_id)
         return user, 200
 
     def post(self):
         """Creates a new user."""
         post_data = request.get_json()
+        schema = ModelSchema()
+        try:
+            result = schema.load(post_data)
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
         username = post_data.get("username")
         email = post_data.get("email")
         password = post_data.get("password")
@@ -95,12 +108,12 @@ class User(MethodView):
             user = get_user_by_email(email)
             if user:
                 return email_already_exists()
-            add_user(username, email, password)
+            add_user(username=username, email=email, password=password)
             response = jsonify(message=f'{email} was added!')
             return response, 201
 
-        except Exception as err:
-            logging.error(err)
+        except Exception as e:
+            return e, 400
 
     def put(self, user_id):
         """Updates a user."""
@@ -110,7 +123,7 @@ class User(MethodView):
 
         user = get_user_by_id(user_id)
         if not user:
-            return user_not_found()
+            return user_not_found(user_id)
 
         if get_user_by_email(email):
             return email_already_exists()
@@ -124,7 +137,7 @@ class User(MethodView):
         user = get_user_by_id(user_id)
 
         if not user:
-            return user_not_found()
+            return user_not_found(user_id)
 
         delete_user(user)
 
@@ -133,13 +146,12 @@ class User(MethodView):
 
 
 users = Users.as_view('user_list')
-bp.add_url_rule('/users/', view_func=users, methods=['GET', ])
-
+bp.add_url_rule('/users', view_func=users, methods=['GET', ])
 
 user = User.as_view('users')
-bp.add_url_rule('/user/', defaults={'user_id': None},
+bp.add_url_rule('/user', defaults={'user_id': None},
                 view_func=user, methods=['GET', ])
 bp.add_url_rule('/user/<int:user_id>', view_func=user,
                 methods=['GET', 'PUT', 'DELETE'])
 bp.add_url_rule(
-    '/user/', view_func=user, methods=['POST', ])
+    '/user', view_func=user, methods=['POST', ])
