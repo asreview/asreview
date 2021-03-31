@@ -374,7 +374,7 @@ class Analysis():
         if not isinstance(prob_allow_miss, list):
             prob_allow_miss = [prob_allow_miss]
         state = self.states[self._first_state_key]
-        n_queries = state.n_queries
+        n_predictor_models = state.n_predictor_models
         results = {
             "x_range": [],
             "limits": [[] for _ in range(len(prob_allow_miss))],
@@ -382,7 +382,7 @@ class Analysis():
 
         n_train = 0
         _, n_initial = _get_labeled_order(state)
-        for query_i in range(n_queries):
+        for query_i in range(n_predictor_models):
             new_limits = _get_limits(self.states,
                                      query_i,
                                      self.labels,

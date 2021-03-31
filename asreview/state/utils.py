@@ -28,6 +28,7 @@ from scipy.sparse import csr_matrix
 
 from asreview.config import STATE_EXTENSIONS
 from asreview.state.errors import StateNotFoundError
+from asreview.state.legacy.utils import open_state as open_state_legacy
 
 
 V3STATE_VERSION = "1.1"
@@ -195,7 +196,6 @@ def state_from_asreview_file(data_fp):
         return state
 
 
-# TODO(State): Fix legacy in converter.
 # TODO(State): If conversion fails, clean up created file.
 # TODO(State): Split models_training into model and training_set.
 def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
@@ -216,7 +216,7 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
     -------
     New version '.h5' state file at location of prototype_fp.
     """
-    with open_state(old_h5_state_fp, read_only=True) as sf:
+    with open_state_legacy(old_h5_state_fp, read_only=True) as sf:
         with h5py.File(v3state_fp, 'w') as pt:
             # Copy data_properties and metadata/settings from state file.
             sf.f.copy('data_properties', pt['/'])
@@ -257,31 +257,31 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
-            sf_predictor_model = ['initial'] * n_priors + [
+            sf_predictor_models = ['initial'] * n_priors + [
                 f'{model}' for _ in sf_queries
             ]
-            sf_predictor_model = np.array(sf_predictor_model, dtype='S')
-            pt['results'].create_dataset('predictor_model',
-                                         data=sf_predictor_model)
+            sf_predictor_models = np.array(sf_predictor_models, dtype='S')
+            pt['results'].create_dataset('predictor_models',
+                                         data=sf_predictor_models)
 
             # Here training_set is indicated by an integer: '-1' means that the
             # there was no training set, i.e. for the prior data. '0' means trained
             # on the prior data, '1' means prior data + first sample, etc.
-            sf_predictor_training_set = [-1] * n_priors + [
+            sf_predictor_training_sets = [-1] * n_priors + [
                 i-1 for i in sf_queries
             ]
-            sf_predictor_training_set = np.array(sf_predictor_training_set, dtype=int)
-            pt['results'].create_dataset('predictor_training_set',
-                                         data=sf_predictor_training_set)
+            sf_predictor_training_sets = np.array(sf_predictor_training_sets, dtype=int)
+            pt['results'].create_dataset('predictor_training_sets',
+                                         data=sf_predictor_training_sets)
 
             # Prediction method used for sample.
-            sf_predictor_method = \
+            sf_predictor_methods = \
                 list(sf.f['results/0/new_labels/methods'][:]) + \
                 [sf.f[f'results/{i}/new_labels/methods'][0]
                  for i in sf_queries]
-            sf_predictor_method = np.array(sf_predictor_method, dtype='S')
+            sf_predictor_methods = np.array(sf_predictor_methods, dtype='S')
             pt['results'].create_dataset('predictor_methods',
-                                         data=sf_predictor_method)
+                                         data=sf_predictor_methods)
 
             # Time of labeling. This is only relevant after the priors has been
             # entered so it starts at 0. Maybe it should start at 1?
@@ -290,7 +290,7 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
                        for i in sf_queries]
             sf_time = [np.datetime64(labeling_time.decode('utf-8')).astype(np.int64) for labeling_time in sf_time]
             sf_time = np.array(sf_time, dtype=np.int64)
-            pt['results'].create_dataset('time_labeled', data=sf_time)
+            pt['results'].create_dataset('labeling_times', data=sf_time)
 
             # Models being trained right after labeling. This is only relevant
             # after the priors have been entered, so it starts at 0. After the
@@ -357,7 +357,7 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
     -------
     New version '.h5' state file at location of prototype_fp.
     """
-    with open_state(jsonstate_fp, read_only=True) as sf:
+    with open_state_legacy(jsonstate_fp, read_only=True) as sf:
         with h5py.File(v3state_fp, 'w') as pt:
             # Copy data_properties and metadata/settings from state file.
             data_hash = list(sf._state_dict['data_properties'].keys())[0]
@@ -378,9 +378,9 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
             # start_time and version.
             pt.attrs['settings'] = str(sf._state_dict['settings'])
             pt.attrs['start_time'] = \
-                np.datetime64(sf._state_dict['time_labeled']['start_time'].decode('utf-8')).astype(np.int64)
+                np.datetime64(sf._state_dict['time']['start_time']).astype(np.int64)
             pt.attrs['end_time'] =\
-                np.datetime64(sf._state_dict['time_labeled']['end_time'].decode('utf-8')).astype(np.int64)
+                np.datetime64(sf._state_dict['time']['end_time']).astype(np.int64)
             pt.attrs['current_queries'] = str(sf._state_dict['current_queries'])
             pt.attrs['version'] = np.string_(V3STATE_VERSION)
             pt.attrs['software_version'] = sf._state_dict['software_version']
@@ -414,39 +414,39 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
-            sf_predictor_model = ['initial'] * n_priors + [
+            sf_predictor_models = ['initial'] * n_priors + [
                 f'{model}' for _ in sf_queries
             ]
-            sf_predictor_model = np.array(sf_predictor_model, dtype='S')
-            pt['results'].create_dataset('predictor_model',
-                                         data=sf_predictor_model)
+            sf_predictor_models = np.array(sf_predictor_models, dtype='S')
+            pt['results'].create_dataset('predictor_models',
+                                         data=sf_predictor_models)
 
             # Here training_set is indicated by an integer: '-1' means that the
             # there was no training set, i.e. for the prior data. '0' means trained
             # on the prior data, '1' means prior data + first sample, etc.
-            sf_predictor_training_set = [-1] * n_priors + [
+            sf_predictor_training_sets = [-1] * n_priors + [
                 i - 1 for i in sf_queries
             ]
-            sf_predictor_training_set = np.array(sf_predictor_training_set, dtype=int)
-            pt['results'].create_dataset('predictor_training_set',
-                                         data=sf_predictor_training_set)
+            sf_predictor_training_sets = np.array(sf_predictor_training_sets, dtype=int)
+            pt['results'].create_dataset('predictor_training_sets',
+                                         data=sf_predictor_training_sets)
 
             # Prediction method used for sample.
-            sf_predictor_method = [
+            sf_predictor_methods = [
                 sample_data[2]
                 for query in range(len(sf._state_dict['results']))
                 for sample_data in sf._state_dict['results'][query]['labelled']
             ]
-            sf_predictor_method = np.array(sf_predictor_method, dtype='S')
+            sf_predictor_methods = np.array(sf_predictor_methods, dtype='S')
             pt['results'].create_dataset('predictor_methods',
-                                         data=sf_predictor_method)
+                                         data=sf_predictor_methods)
 
             # Time of labeling. This is only relevant after the priors have been
             # entered.
             sf_time = [0 for _ in range(len(sf._state_dict['results']) + n_priors - 1)]
             # I took the same data type as came out of the .h5 time part:
             sf_time = np.array(sf_time, dtype=np.int64)
-            pt['results'].create_dataset('time_labeled', data=sf_time)
+            pt['results'].create_dataset('labeling_times', data=sf_time)
 
             # Models being trained right after labeling. This is only relevant
             # after the priors have been entered. After the

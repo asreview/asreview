@@ -410,10 +410,11 @@ class BaseReview(ABC):
         )
         return query_idx
 
+# TODO (State): Add labeling times, model, training_set
     def classify(self, query_idx, inclusions, state, method=None):
         """Classify new papers and update the training indices.
 
-        It automaticaly updates the state.
+        It automatically updates the state.
 
         Arguments
         ---------
@@ -449,10 +450,10 @@ class BaseReview(ABC):
             else:
                 self.shared["query_src"][method] = query_idx.tolist()
 
-        state.add_classification(query_idx,
-                                 inclusions,
-                                 methods=methods,
-                                 query_i=self.query_i)
+        state.add_labeling_data(query_idx,
+                                inclusions,
+                                methods=methods,
+                                query_i=self.query_i)
         state.set_labels(self.y)
 
     def train(self):

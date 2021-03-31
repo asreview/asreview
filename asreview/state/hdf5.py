@@ -61,13 +61,15 @@ class HDF5State(BaseState):
                                maxshape=(None,), chunks=True)
         results.create_dataset('labels', (0,), dtype=int,
                                maxshape=(None,), chunks=True)
-        results.create_dataset('time_labeled', (0,), dtype=np.int64,
+        results.create_dataset('labeling_times', (0,), dtype=np.int64,
                                maxshape=(None,), chunks=True)
-        # results.create_dataset('predictor_method', (0,), dtype=np.string_,
-        #                        maxshape=(None,), chunks=True)
-
-        'predictor_models'
-        'models_being_trained'
+        results.create_dataset('predictor_methods', (0,), dtype='|S10',
+                               maxshape=(None,), chunks=True)
+        results.create_dataset('predictor_models', (0,), dtype='|S10',
+                               maxshape=(None,), chunks=True)
+        results.create_dataset('predictor_training_sets', (0,), dtype=int,
+                               maxshape=(None,), chunks=True)
+        # TODO (State): Models being trained.
 
         # TODO{CREATE Feature matrix group}
 
@@ -104,10 +106,12 @@ class HDF5State(BaseState):
 
     def _is_valid_state(self):
         results = self.f['results']
+        required_datasets = ['indices', 'labels', 'labeling_times', 'predictor_models', 'predictor_methods',
+                             'predictor_training_sets']
 
-        # # TODO: check all datasets are present.
-        # if "labels" not in results.keys():
-        #     raise KeyError("State file structure has not been initialized in time.")
+        for dataset in required_datasets:
+            if dataset not in results.keys():
+                raise KeyError(f"State file structure has not been initialized in time, {dataset} is not present. ")
 
     def save(self):
         """Save and close the state file."""
@@ -138,7 +142,6 @@ class HDF5State(BaseState):
         except Exception:
             raise AttributeError("Attribute 'version' not found.")
 
-    # TODO: Convert time to datetime.
     @property
     def start_time(self):
         """Init datetime of the state file."""
@@ -222,12 +225,21 @@ class HDF5State(BaseState):
         self.f.attrs.pop("current_queries", None)
         self.f.attrs["current_queries"] = data
 
-    #TODO: make n_labeled_records and turn n_queries into n_predictor_models
     @property
-    def n_queries(self):
-        return (self.f['results/indices'].shape[0] -
-                self.f['results'].attrs['n_priors'] + 1)
-        # QUESTION: This treats the priors as one query, is that what you want?
+    def n_records_labeled(self):
+        """Get the number of labeled records, where each prior is counted individually."""
+        return self.f['results/indices'].shape[0]
+
+# TODO: Should this return 0 if it is empty?
+    @property
+    def n_predictor_models(self):
+        """Get the number of unique (model type + training set) models that were used. """
+        predictor_models = [model.decode('utf-8') for model in self.f['results/predictor_models'][self.n_priors:]]
+        predictor_training_sets = [str(tr_set) for tr_set in self.f['results/predictor_training_sets'][self.n_priors:]]
+        # A model is uniquely determine by the string {model_code}{training_set}.
+        model_ids = [model + tr_set for (model, tr_set) in zip(predictor_models, predictor_training_sets)]
+        # Return the number of unique model_ids plus one for the priors.
+        return np.unique(model_ids).shape[0] + 1
 
     @property
     def n_priors(self):
@@ -298,7 +310,6 @@ class HDF5State(BaseState):
             return feature_matrix
         return as_data_group["feature_matrix"]
 
-
 ### METHODS/FUNC
     # def set_labels(self, y):
     # Remove this
@@ -325,18 +336,6 @@ class HDF5State(BaseState):
     #     else:
     #         self.f["final_labels"][...] = y
 
-    def _resize_state(self):
-        pass
-    #     RESIZING DATASETS
-    #     cur_size = g.attrs["cur_size"]
-    #     max_size = g.attrs["max_size"]
-    #     while cur_size + len(idx) > max_size:
-    #         g["idx"].resize((max_size + RESIZE_CHUNK,))
-    #         g["labels"].resize((max_size + RESIZE_CHUNK,))
-    #         g["methods"].resize((max_size + RESIZE_CHUNK,))
-    #         max_size += RESIZE_CHUNK
-    #         g.attrs["max_size"] = max_size
-
     def _append_to_dataset(self, dataset, values):
         """Add the values to the dataset.
 
@@ -347,68 +346,37 @@ class HDF5State(BaseState):
         values: list, np.array
             Values to add to dataset.
         """
-        cur_size = self.f[dataset].shape[0]
-        self.f[dataset].resize((cur_size + len(values),))
-        self.f[dataset][cur_size: cur_size + len(values)] = values
+        results = self.f['results']
+        cur_size = results[dataset].shape[0]
+        results[dataset].resize((cur_size + len(values),))
+        results[dataset][cur_size: cur_size + len(values)] = values
 
-    # add_labelling_data(..)
-    # TODO: Split model and training set.
-    # TODO: Add time of labeling.
-    #TODO: Rename
-    def add_classification(self, idx, labels, methods, query_i):
-        """Add all data of one labelling action."""
+# TODO (State): Should these be added by row_index instead?
+# TODO (State): Add models being trained.
+    def add_labeling_data(self, record_ids, labels, models, methods, training_sets, labeling_times):
+        """Add all data of one labeling action. """
         # Check if the datasets have all been created.
         self._is_valid_state()
 
+        # Convert record_ids to row indices.
+        indices = np.array([self._record_id_to_row_index(record_id) for record_id in record_ids])
+
         # Add labeling data.
-        self._append_to_dataset('indices')
-        self._append_to_dataset('labels')
-        self._append_to_dataset('predictor_methods')
-        self._append_to_dataset('predictor_models')
+        self._append_to_dataset('indices', indices)
+        self._append_to_dataset('labels', labels)
+        self._append_to_dataset('predictor_models', models)
+        self._append_to_dataset('predictor_methods', methods)
+        self._append_to_dataset('predictor_training_sets', training_sets)
+        self._append_to_dataset('labeling_times', labeling_times)
 
-    # def add_classification(self, idx, labels, methods, query_i):
-    #     INITIALIZING DATASETS
-    #     if "idx" not in g:
-    #         g.create_dataset("idx", (RESIZE_CHUNK,), dtype=int,
-    #                          maxshape=(None,), chunks=True)
-    #         g.create_dataset("labels", (RESIZE_CHUNK,), dtype=int,
-    #                          maxshape=(None,), chunks=True)
-    #         g.create_dataset("methods", (RESIZE_CHUNK,), dtype='S20',
-    #                          maxshape=(None,), chunks=True)
-    #         g.attrs["cur_size"] = 0
-    #         g.attrs["max_size"] = RESIZE_CHUNK
-
-    #
-    #     UPDATING DATA
-    #     np_methods = np.array(list(map(np.string_, methods)), dtype='S20')
-    #     new_size = cur_size + len(idx)
-    #     g["idx"][cur_size:new_size] = idx
-    #     g["labels"][cur_size:new_size] = labels
-    #     g["methods"][cur_size:new_size] = np_methods
-    #     g.attrs["cur_size"] += len(idx)
-
-    # def add_model_data(..)
-    def add_proba(self, pool_idx, train_idx, proba, query_i):
-        """Add data after finishing training of a model."""
-        # TODO(State): Do you need to enlarge maximum size of a HDF5 dataset? (See branch improved_h5_state)
-        g = _result_group(self.f, query_i)
-        g.create_dataset("pool_idx", data=pool_idx, dtype=np.int)
-        g.create_dataset("train_idx", data=train_idx, dtype=np.int)
-        g.create_dataset("proba", data=proba, dtype=np.float)
-
+# TODO (State): Add custom datasets.
+    # # def add_model_data(..)
     # def add_proba(self, pool_idx, train_idx, proba, query_i):
-    #     cur_at_hist = self.f["label_history"].attrs["cur_size"]
-    #     train_group = self.f["train_history"]
-    #     if str(cur_at_hist) in train_group:
-    #         g = train_group[cur_at_hist]
-    #         g["proba"][...] = proba
-    #     else:
-    #         g = train_group.create_group(str(cur_at_hist))
-    #         g.attrs["timestamp"] = np.string_(datetime.now())
-    #         g.create_dataset("pool_idx", data=pool_idx, dtype=int)
-    #         g.create_dataset("train_idx", data=train_idx, dtype=int)
-    #         g.create_dataset("proba", data=proba, dtype=float)
-
+    #     """Add data after finishing training of a model."""
+    #     g = _result_group(self.f, query_i)
+    #     g.create_dataset("pool_idx", data=pool_idx, dtype=np.int)
+    #     g.create_dataset("train_idx", data=train_idx, dtype=np.int)
+    #     g.create_dataset("proba", data=proba, dtype=np.float)
 
     def _record_id_to_row_index(self, record_id):
         """Find the row index that corresponds to a given record id.
@@ -486,32 +454,13 @@ class HDF5State(BaseState):
 
         return np.array(self.f[f'results/{dataset}'])[dataset_slice]
 
-    def get_predictor_methods(self, query=None, record_id=None):
-        """Get the predictor method from the state file.
-
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the predictor method.
-            If this is 0, you get the predictor method for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the predictor method.
-
-        Returns
-        -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with predictor methods in the labelling order,
-            else it returns only the specific one determined by query or record_id.
-        """
-        return self._get_dataset(dataset='predictor_methods', query=query, record_id=record_id)
-
     def get_order_of_labeling(self):
-        """Get full array of record id's in order that they were labelled.
+        """Get full array of record id's in order that they were labeled.
 
         Returns
         -------
         np.ndarray:
-            The record_id's in the order that they were labelled.
+            The record_id's in the order that they were labeled.
         """
         indices = self._get_dataset(dataset='indices')
         return np.array([self._row_index_to_record_id(idx) for idx in indices])
@@ -530,10 +479,67 @@ class HDF5State(BaseState):
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array with labels in the labelling order,
+            If query and record_id are None, it returns the full array with labels in the labeling order,
             else it returns only the specific one determined by query or record_id.
         """
         return self._get_dataset('labels', query=query, record_id=record_id)
+
+    def get_predictor_models(self, query=None, record_id=None):
+        """Get the predictor models from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor model.
+            If this is 0, you get the predictor model for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor model.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor models in the labeling order,
+            else it returns only the specific one determined by query or record_id.
+        """
+        return self._get_dataset(dataset='predictor_models', query=query, record_id=record_id)
+
+    def get_predictor_methods(self, query=None, record_id=None):
+        """Get the predictor methods from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor method.
+            If this is 0, you get the predictor method for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor method.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor methods in the labeling order,
+            else it returns only the specific one determined by query or record_id.
+        """
+        return self._get_dataset(dataset='predictor_methods', query=query, record_id=record_id)
+
+    def get_predictor_training_sets(self, query=None, record_id=None):
+        """Get the predictor training_sets from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor training set.
+            If this is 0, you get the predictor training set for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor training set.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor training sets in the labeling
+            order, else it returns only the specific one determined by query or record_id.
+        """
+        return self._get_dataset(dataset='predictor_training_sets', query=query, record_id=record_id)
 
     def get_labeling_time(self, query=None, record_id=None, format='int'):
         """Get the time of labeling the state file.
@@ -558,7 +564,7 @@ class HDF5State(BaseState):
             If format='int' you get a UTC timestamp (integer number of microseconds) as np.int64 dtype,
             if it is 'datetime' you get np.datetime64 format.
         """
-        times = self._get_dataset('time_labeled', query=query, record_id=record_id)
+        times = self._get_dataset('labeling_times', query=query, record_id=record_id)
 
         # Convert time to datetime in string format.
         if format == 'datetime':
@@ -568,34 +574,3 @@ class HDF5State(BaseState):
             times = times[[self.n_priors-1]]
         return times
 
-    # TODO: Get pool/train idx.
-    def get(self, variable, query_i=None, idx=None):
-        # TODO(State): Turn logic into if, elif, ..., elif, else.
-        if query_i is not None:
-            g = self.f[f"/results/{query_i}"]
-        array = None
-        # if variable == "label_methods":
-        #     array = np.array(g["new_labels"]["methods"]).astype('U20')
-        # if variable == "label_idx":
-        #     array = np.array(g["new_labels"]["idx"], dtype=int)
-        if variable == "predictor_methods":
-            array = np.array(self.f['results/predictor_methods'])
-        if variable == "indices":
-            array = np.array(self.f['results/indices'], dtype=int)
-        if variable == "inclusions":
-            array = np.array(g["new_labels"]["labels"], dtype=int)
-        if variable == "proba":
-            array = np.array(g["proba"], dtype=np.float)
-        # if variable == "labels":
-        #     array = np.array(self.f["labels"], dtype=np.int)
-        # if variable == "final_labels":
-        #     array = np.array(self.f["final_labels"], dtype=np.int)
-        if variable == "pool_idx":
-            array = np.array(g["pool_idx"], dtype=np.int)
-        if variable == "train_idx":
-            array = np.array(g["train_idx"], dtype=np.int)
-        if array is None:
-            return None
-        if idx is not None:
-            return array[idx]
-        return array

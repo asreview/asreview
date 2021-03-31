@@ -6,8 +6,8 @@ import numpy as np
 from asreview.state.legacy.dict import DictState
 from asreview.state.legacy.json import JSONState
 from asreview.state.legacy.hdf5 import HDF5StateLegacy
-from asreview.state import open_state
-from asreview.state import state_from_asreview_file
+from asreview.state.legacy.utils import open_state
+from asreview.state.legacy.utils import state_from_asreview_file
 from asreview.settings import ASReviewSettings
 
 

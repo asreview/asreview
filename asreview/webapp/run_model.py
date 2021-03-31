@@ -49,7 +49,7 @@ def _get_diff_history(new_history, old_history):
 def _get_label_train_history(state):
     label_idx = []
     inclusions = []
-    for query_i in range(state.n_queries):
+    for query_i in range(state.n_predictor_models):
         try:
             new_labels = state.get("label_idx", query_i=query_i)
             new_inclusions = state.get("inclusions", query_i=query_i)

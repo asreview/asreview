@@ -147,34 +147,41 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_classification(self, idx, labels, methods, query_i):
-        """Add training indices and their labels.
+    def add_labeling_data(self, record_ids, labels, models, methods, training_sets, labeling_times):
+        """Add the data corresponding to a labeling action to the state file.
 
         Arguments
         ---------
-        indices: list, numpy.ndarray
-            A list of indices used for training.
-        labels: list
-            A list of labels corresponding with the training indices.
-        i: int
-            The query number.
+        record_ids: list, numpy.ndarray
+            A list of indices of the labeled records as int.
+        labels: list, numpy.ndarray
+            A list of labels of the labeled records as int.
+        models: list, numpy.ndarray
+            A list of the names of the predictor models as string.
+        methods: list, numpy.ndarray
+            A list of the predictor methods as string.
+        training_sets: list, numpy.ndarray
+            A list of the predictor training sets as integers.
+        labeling_times: list, numpy.ndarray
+            A list of the labeling times as integers
+            (UTC timestamp, microsecond accuracy).
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def add_proba(self, pool_idx, train_idx, proba, query_i):
-        """Add inverse pool indices and their labels.
-
-        Arguments
-        ---------
-        indices: list, numpy.ndarray
-            A list of indices used for unlabeled pool.
-        pred: numpy.ndarray
-            Array of prediction probabilities for unlabeled pool.
-        i: int
-            The query number.
-        """
-        raise NotImplementedError
+    # @abstractmethod
+    # def add_proba(self, pool_idx, train_idx, proba, query_i):
+    #     """Add inverse pool indices and their labels.
+    #
+    #     Arguments
+    #     ---------
+    #     indices: list, numpy.ndarray
+    #         A list of indices used for unlabeled pool.
+    #     pred: numpy.ndarray
+    #         Array of prediction probabilities for unlabeled pool.
+    #     i: int
+    #         The query number.
+    #     """
+    #     raise NotImplementedError
 
     def is_empty(self):
         """Check if state has no results.
@@ -184,40 +191,164 @@ class BaseState(ABC):
         bool
             True if empty.
         """
-        return self.n_queries == 0
+        return self.n_records_labeled == 0
 
+    @property
     @abstractmethod
-    def n_queries(self):
-        """Number of queries saved in the state.
+    def n_predictor_models(self):
+        """Number of unique models used.
 
         Returns
         -------
         int
-            Number of queries.
+            Number of unique models used, priors counted as one.
         """
         raise NotImplementedError
 
+    @property
     @abstractmethod
-    def get(self, variable, query_i=None, default=None, idx=None):
-        """Get data from the state object.
+    def n_records_labeled(self):
+        """Number labeled records.
 
-        This is universal accessor method of the State classes. It can be used
-        to get a variable from one specific query. In theory, it should get the
-        whole data set if query_i=None, but this is not currently implemented
-        in any of the States.
+        Returns
+        -------
+        int
+            Number of labeled records, priors counted individually.
+        """
+        raise NotImplementedError
+
+    def get_order_of_labeling(self):
+        """Get full array of record id's in order that they were labeled.
+
+        Returns
+        -------
+        np.ndarray:
+            The record_id's in the order that they were labeled.
+        """
+        raise NotImplementedError
+
+    def get_labels(self, query=None, record_id=None):
+        """Get the labels from the state file.
 
         Arguments
         ---------
-        variable: str
-            Name of the variable/data to get. Options are:
-            label_idx, inclusions, label_methods, labels, final_labels, proba
-            , train_idx, pool_idx.
-        query_i: int
-            Query number, should be between 0 and self.n_queries.
-        idx: int, numpy.ndarray,list
-            Indices to get in the returned array.
+        query: int
+            The query number from which you want to obtain the label.
+            If this is 0, you get the label for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the label.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with labels in the labeling order,
+            else it returns only the specific one determined by query or record_id.
         """
         raise NotImplementedError
+
+    def get_predictor_models(self, query=None, record_id=None):
+        """Get the predictor models from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor model.
+            If this is 0, you get the predictor model for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor model.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor models in the labeling order,
+            else it returns only the specific one determined by query or record_id.
+        """
+        raise NotImplementedError
+
+    def get_predictor_methods(self, query=None, record_id=None):
+        """Get the predictor methods from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor method.
+            If this is 0, you get the predictor method for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor method.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor methods in the labeling order,
+            else it returns only the specific one determined by query or record_id.
+        """
+        raise NotImplementedError
+
+    def get_predictor_training_sets(self, query=None, record_id=None):
+        """Get the predictor training_sets from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor training set.
+            If this is 0, you get the predictor training set for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor training set.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor training sets in the labeling
+            order, else it returns only the specific one determined by query or record_id.
+        """
+        raise NotImplementedError
+
+    def get_labeling_time(self, query=None, record_id=None, format='int'):
+        """Get the time of labeling the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the time.
+            If this is 0, you get the time the priors were entered,
+            which is the same for all priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the time.
+        format: 'int' or 'datetime'
+            Format of the return value. If it is 'int' you get a UTC timestamp ,
+            if it is 'datetime' you get datetime instead of an integer.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with times in the labeling order,
+            else it returns only the specific one determined by query or record_id.
+            If format='int' you get a UTC timestamp (integer number of microseconds) as np.int64 dtype,
+            if it is 'datetime' you get np.datetime64 format.
+        """
+        raise NotImplementedError
+
+    # @abstractmethod
+    # def get(self, variable, query_i=None, default=None, idx=None):
+    #     """Get data from the state object.
+    #
+    #     This is universal accessor method of the State classes. It can be used
+    #     to get a variable from one specific query. In theory, it should get the
+    #     whole data set if query_i=None, but this is not currently implemented
+    #     in any of the States.
+    #
+    #     Arguments
+    #     ---------
+    #     variable: str
+    #         Name of the variable/data to get. Options are:
+    #         label_idx, inclusions, label_methods, labels, final_labels, proba
+    #         , train_idx, pool_idx.
+    #     query_i: int
+    #         Query number, should be between 0 and self.n_predictor_models.
+    #     idx: int, numpy.ndarray,list
+    #         Indices to get in the returned array.
+    #     """
+    #     raise NotImplementedError
 
     # @abstractmethod
     # def delete_last_query(self):
@@ -243,7 +374,7 @@ class BaseState(ABC):
 
         train_idx = []
         query_src = {}
-        for query_i in range(self.n_queries):
+        for query_i in range(self.n_predictor_models):
             try:
                 label_idx = self.get("label_idx", query_i)
                 labelled = self.get("inclusions", query_i)
@@ -259,10 +390,10 @@ class BaseState(ABC):
             train_idx.extend(label_idx)
 
         if query_i > 0:
-            n_queries = self.n_queries
+            n_predictor_models = self.n_predictor_models
             last_inclusions = None
             try:
-                last_inclusions = self.get("inclusions", n_queries - 1)
+                last_inclusions = self.get("inclusions", n_predictor_models - 1)
             except KeyError:
                 last_inclusions = []
             if last_inclusions is None:
@@ -289,7 +420,7 @@ class BaseState(ABC):
     @property
     def pred_proba(self):
         """Get last predicted probabilities."""
-        for query_i in reversed(range(self.n_queries)):
+        for query_i in reversed(range(self.n_predictor_models)):
             try:
                 proba = self.get("proba", query_i=query_i)
                 if proba is not None:
@@ -328,26 +459,10 @@ class BaseState(ABC):
         """
         state_dict = {}
         state_dict["settings"] = vars(self.settings)
-
-        # global_datasets = ["labels", "final_labels"]
-        # for dataset in global_datasets:
-        #     try:
-        #         state_dict[dataset] = self.get(dataset).tolist()
-        #     except KeyError:
-        #         pass
-
-        # Removed: "label_methods", "label_idx"
-        query_datasets = [
-            "inclusions", "proba", "pool_idx",
-            "train_idx"
-        ]
-        state_dict["results"] = []
-        for query_i in range(self.n_queries):
-            state_dict["results"].append({})
-            for dataset in query_datasets:
-                try:
-                    state_dict["results"][query_i][dataset] = self.get(
-                        dataset, query_i).tolist()
-                except (KeyError, IndexError):
-                    pass
+        state_dict["order_of_labeling"] = self.get_order_of_labeling().tolist()
+        state_dict["labels"] = self.get_labels().tolist()
+        state_dict["predictor_models"] = self.get_predictor_models().tolist()
+        state_dict["predictor_methods"] = self.get_predictor_methods().tolist()
+        state_dict["predictor_training_sets"] = self.get_predictor_training_sets().tolist()
+        state_dict["labeling_times"] = self.get_labeling_time().tolist()
         return state_dict

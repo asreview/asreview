@@ -7,6 +7,7 @@ import pytest
 
 import numpy as np
 
+from asreview import ASReviewData
 from asreview.state import HDF5State
 from asreview.state import open_state, state_from_asreview_file
 from asreview.state.errors import StateNotFoundError
@@ -90,19 +91,19 @@ def test_state_not_found():
 
 
 def test_read_basic_state():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
         assert isinstance(state, HDF5State)
 
 
 def test_version_number_state():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
         assert state.version[0] == "1"
 
 
 def test_read_only_state():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp, read_only=True) as state1:
         end_time1 = state1.end_time
 
@@ -115,33 +116,41 @@ def test_read_only_state():
 
 
 def test_print_state():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
         print(state)
 
 
 def test_settings_state():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
         assert isinstance(state.settings, ASReviewSettings)
 
 
 def test_current_queries():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
         assert isinstance(state.current_queries, dict)
         assert len(state.current_queries.keys()) > 0
 
 
-def test_n_queries():
-    NUM_QUERIES_IN_TEST = 2543
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+def test_n_records_labeled():
+    NUM_RECORDS_LABELED_IN_TEST = 4
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
-        assert state.n_queries == NUM_QUERIES_IN_TEST
+        assert state.n_records_labeled == NUM_RECORDS_LABELED_IN_TEST
+
+
+# TODO (State): Test with n_instance > 1.
+def test_n_predictor_models():
+    NUM_PREDICTOR_MODELS_IN_TEST = 3
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    with open_state(state_fp) as state:
+        assert state.n_predictor_models == NUM_PREDICTOR_MODELS_IN_TEST
 
 
 def test_n_priors():
-    state_fp = Path("tests", "hdf5_states", "basic_state.h5")
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     with open_state(state_fp) as state:
         assert state.n_priors == 2
 
@@ -204,36 +213,43 @@ def test_get_dataset():
         assert isinstance(state._get_dataset('models_training', record_id=4), np.ndarray)
 
         assert all(state._get_dataset('indices') == INDICES)
-        assert state._get_dataset('predictor_models', query=1)[0] == b'nb0'
+        assert state._get_dataset('predictor_models', query=1)[0] == b'nb'
         assert all(state._get_dataset('predictor_methods', query=0) == [b'initial', b'initial'])
         assert state._get_dataset('labels', record_id=4)[0] == 1
-        assert state._get_dataset('time_labeled', record_id=0)[0] == TIMES[0]
+        assert state._get_dataset('labeling_times', record_id=0)[0] == TIMES[0]
 
 
 def test_get_predictor_methods():
     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     METHODS = [b'initial', b'initial', b'max', b'max']
-    RECORD_IDS = [0, 1, 4, 5]
 
     with open_state(state_fp) as state:
         all_methods = state.get_predictor_methods()
         assert isinstance(all_methods, np.ndarray)
         assert all_methods.tolist() == METHODS
 
-        priors = state.get_predictor_methods(query=0)
-        assert isinstance(priors, np.ndarray)
-        assert priors.tolist() == METHODS[:2]
 
-        query1 = state.get_predictor_methods(query=1)
-        assert isinstance(query1, np.ndarray)
-        assert query1.tolist() == METHODS[2:3]
+def test_get_predictor_models():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    MODELS = [b'initial', b'initial', b'nb', b'nb']
 
-        priors_record_id = state.get_predictor_methods(record_id=4)
-        assert isinstance(priors_record_id, np.ndarray)
-        assert priors_record_id[0] == METHODS[2]
+    with open_state(state_fp) as state:
+        all_models = state.get_predictor_models()
+        assert isinstance(all_models, np.ndarray)
+        assert all_models.tolist() == MODELS
 
 
-def test_get_order_of_labelling():
+def test_get_predictor_training_sets():
+    state_fp = Path("tests", "hdf5_states", "test_converted.h5")
+    TRAINING_SETS = [-1, -1, 0, 1]
+
+    with open_state(state_fp) as state:
+        all_training_sets = state.get_predictor_training_sets()
+        assert isinstance(all_training_sets, np.ndarray)
+        assert all_training_sets.tolist() == TRAINING_SETS
+
+
+def test_get_order_of_labeling():
     state_fp = Path("tests", "hdf5_states", "test_converted.h5")
     RECORD_ID_ORDER = [0, 5, 4, 1]
 
@@ -272,6 +288,55 @@ def test_get_time():
         assert state.get_labeling_time(query=1)[0] == TIMES[2]
         assert state.get_labeling_time(record_id=5)[0] == TIMES[1]
         assert state.get_labeling_time(record_id=1, format='datetime')[0] == TIMES_DT[3]
+
+
+def test_create_empty_state(tmpdir):
+    state_fp = Path(tmpdir, 'state.h5')
+    with open_state(state_fp, read_only=False) as state:
+        assert state.is_empty()
+
+
+def test_add_as_data(tmpdir):
+    data_fp = Path("tests", "demo_data", "record_id.csv")
+    as_data = ASReviewData.from_file(data_fp)
+    state_fp = Path(tmpdir, 'state.h5')
+    HASH = '4f2aa98ea92675f9887e63d9a4b972daf8b7b834'
+    RECORD_IDS = list(range(12, 2, -1))
+
+    with open_state(state_fp, read_only=False) as state:
+        state._add_as_data(as_data)
+        assert HASH in state.f['data_properties'].keys()
+        assert all(np.array(state.f[f'data_properties/{HASH}/record_table']) == RECORD_IDS)
+
+
+def test_add_labeling_data(tmpdir):
+    data_fp = Path("tests", "demo_data", "record_id.csv")
+    as_data = ASReviewData.from_file(data_fp)
+
+    RECORD_IDS = np.array([3, 5, 7, 9])
+    LABELS = np.array([1, 0, 0, 1])
+    METHODS = np.array([b'initial', b'initial', b'max', b'max'])
+    MODELS = np.array([b'initial', b'initial', b'nb', b'svm'])
+    TRAINING_SETS = np.array([-1, -1, 0, 1])
+    LABELING_TIMES = np.array([1617197681466447, 1617197700565384, 1617197708920184, 1617197715836106])
+
+    state_fp = Path(tmpdir, 'state.h5')
+    with open_state(state_fp, read_only=False) as state:
+        state._add_as_data(as_data)
+        state.add_labeling_data(record_ids=RECORD_IDS[:2], labels=LABELS[:2],
+                                models=MODELS[:2], methods=METHODS[:2],
+                                training_sets=TRAINING_SETS[:2], labeling_times=LABELING_TIMES[:2])
+        state.add_labeling_data(record_ids=RECORD_IDS[[2]], labels=LABELS[[2]],
+                                models=MODELS[[2]], methods=METHODS[[2]],
+                                training_sets=TRAINING_SETS[[2]], labeling_times=LABELING_TIMES[[2]])
+        state.add_labeling_data(record_ids=RECORD_IDS[[3]], labels=LABELS[[3]],
+                                models=MODELS[[3]], methods=METHODS[[3]],
+                                training_sets=TRAINING_SETS[[3]], labeling_times=LABELING_TIMES[[3]])
+
+        assert all(state.f['results/labels'][:] == LABELS)
+        assert all(state.f['results/predictor_methods'][:] == METHODS)
+        assert all(state.f['results/predictor_models'][:] == MODELS)
+        assert all(state.f['results/labeling_times'][:] == LABELING_TIMES)
 
 # # Test get by querying for the whole dataset everytime. I'll implement indexing
 # # at a later stage.

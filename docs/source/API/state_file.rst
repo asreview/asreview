@@ -51,12 +51,12 @@ results part there is the option to put extra data.
 The basic datasets in 'results' are:
  - 'indices': Indices (row numbers) of the samples, in the order that they are labeled.
  - 'labels': Labels of the samples, in the same order as 'indices'.
- - 'predictor_model': Model that predicted the sample being labeled. This model is identified by a string of the form
-   '{type}{training_set}'. Here 'type' is the model type, for example 'nb' or 'svm', and 'training_set' is an
-   integer indicating the set on which the model was trained. If this is '0', the model was trained on the prior knowledge,
-   if it is 'k' then the model is trained on the prior knowledge plus the first k samples. So for example 'nb15' or
-   'log2403'.
- - 'predictor_method': Prediction method of the predictor model, for example 'max' or 'random'.
+ - 'predictor_models': Model that predicted the sample being labeled. This model is identified by a string with the name
+    used in ASReview, for example 'nb' or 'svm'.
+ - 'predictor_training_sets': Training set on which the predictor model was trained. It is indicated by an integer. If
+   this is '0', the model was trained on the prior knowledge, if it is 'k' then the model is trained on the prior
+   knowledge plus the first k samples.
+ - 'predictor_methods': Prediction method of the predictor model, for example 'max' or 'random'.
  - 'time': The time at which the sample was labeled.
  - 'models_being_trained': The model that were being trained right after the sample was labeled. In
    simulation mode this is always the same model type with the training set equal to all labeled samples,
@@ -109,8 +109,9 @@ The schema of the state file:
                |           |- indices              (dtype <i4: All labelled indices in order. First n_priors are the prior ones)
                |           |- labels               (dtype <i4: All labels in order. First n_priors are the prior ones)
                |           |- models_training      (dtype |S6: Models being trained right after labeling a sample)
-               |           |- predictor_model      (dtype |S7: Model that predicted the sample)
-               |           |- predictor_methods    (dtype |S7: Prediction method for sample)
+               |           |- predictor_models     (dtype |S10: Model that predicted the sample)
+               |           |- predictor_methods    (dtype |S10: Prediction method for sample)
+               |           |- predictor_training_sets    (dtype int: Training set on which the predictor model was trained)
                |           |- time                 (dtype |S29: Time at which the sample was labelled)
                |           |- custom --- probabilities_column_index    (dtype <i4: Indices where probabilties where saved)
                |                      |- probabilities_matrix          (dtype <f8: Probabilities matrix)

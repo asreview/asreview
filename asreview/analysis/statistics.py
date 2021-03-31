@@ -21,8 +21,8 @@ def _find_inclusions(state, labels, remove_initial=True):
     n_initial_inc = 0
     cur_inclusions = 0
     n_initial = 0
-    n_queries = state.n_queries
-    for query_i in range(n_queries):
+    n_predictor_models = state.n_predictor_models
+    for query_i in range(n_predictor_models):
         try:
             label_methods = state.get("label_methods", query_i)
             label_idx = state.get("label_idx", query_i)
@@ -46,8 +46,8 @@ def _get_labeled_order(state):
     """Get the order in which papers were labeled."""
     label_order = []
     n_initial = 0
-    n_queries = state.n_queries
-    for query_i in range(n_queries):
+    n_predictor_models = state.n_predictor_models
+    for query_i in range(n_predictor_models):
         try:
             label_methods = state.get("label_methods", query_i)
         except KeyError:
@@ -62,9 +62,9 @@ def _get_labeled_order(state):
 
 def _get_last_proba_order(state):
     """Get the ranking of papers in the last query."""
-    n_queries = state.n_queries
+    n_predictor_models = state.n_predictor_models
     pool_idx = None
-    for query_i in reversed(range(n_queries)):
+    for query_i in reversed(range(n_predictor_models)):
         try:
             pool_idx = state.get("pool_idx", query_i)
         except KeyError:
