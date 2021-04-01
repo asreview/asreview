@@ -48,7 +48,7 @@ Remove ASReview with
 
     pip uninstall asreview
 
-Enter ``y`` to confirm. 
+Enter ``y`` to confirm.
 
 .. warning::
 
@@ -125,9 +125,8 @@ If this doesn't return 3.6 or higher, then Python isn't or not correctly
 installed.
 
 Most likely, the enviroment variables aren't configured correctly. Follow
-our detailed step-by-step instructions to install Python correctly on
-`Windows <https://asreview.nl/installation-guide-windows/>`__
-and `MacOS <https://asreview.nl/installation-guide-macos/>`__.
+the step-by-step installation instruction on the ASReview website (`Windows <https://asreview.nl/installation-guide-windows/>`__
+and `MacOS <https://asreview.nl/installation-guide-macos/>`__).
 
 However, there is a simple way to deal with correct environment variables
 by ading `python -m` in front of the command. For example:

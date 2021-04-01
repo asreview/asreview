@@ -36,11 +36,11 @@ To select a dataset:
 
 .. warning::
 
-    If you upload your own data, make sure to remove duplicates and to retrieve 
+    If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
     <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <../guides/activelearning>` 
-    has to offer. 
+    benefit most from what :doc:`active learning <../guides/activelearning>`
+    has to offer.
 
 
 From File
@@ -155,10 +155,11 @@ If you are done click **Next**.
 Random
 ~~~~~~
 
-You also need to provide at least one prior irrelevant document and we will
-use the random option. Given that the majority of documents in the dataset is
-probably irrelevant (extreme inbalanced data problem), the documents presented
-here will most probable be irrelevant for your study. Click on random to and a
+You also need to provide at least one prior irrelevant document. One way to
+find an irrelevant document is by labeling a set of random records from the
+dataset. Given that the majority of documents in the dataset is probably
+irrelevant (extreme inbalanced data problem), the documents presented here
+will most probable be irrelevant for your study. Click on random to and a
 couple of random documents will be shown. Indicate for each document whether
 it is relevant or irrelevant.
 
