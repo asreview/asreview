@@ -26,9 +26,9 @@ results, and project file on a data repository.
 
 
 **Unbiasedness**
-We signed the `DORA-declaration <https://sfdora.org/>`_, and we
-only present text for unbiased decision making. So, when screening for
-example academic papers we only show titles and abstracts, and we do not
+ASReview signed the `DORA-declaration <https://sfdora.org/>`_. ASReview
+only presents text for unbiased decision making. So, when screening for
+example academic papers ASReview show titles and abstracts only, and does not
 present authors, or journal names. This way, you can focus on what is truly
 important (the content) and don’t get tempted to use irrelevant information.
 
@@ -40,7 +40,7 @@ the hood.
 
 
 **Garbage in garbage out**
-We focus on the machine learning part of the pipeline and not on the preprocessing or
+ASReview focuses on the machine learning part of the pipeline and not on the preprocessing or
 postprocessing of the data (which reference managers are designed for). Be
 aware of the principle GIGO and `check the quality of your data first <https://asreview.nl/the-importance-of-abstracts/>`_. Don’t blame Elas if the performance is not as good as expected due to low quality input data.
 
