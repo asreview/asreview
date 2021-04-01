@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react'
-import brown from '@material-ui/core/colors/brown';
-import red from '@material-ui/core/colors/red';
-
+import { useEffect, useState } from "react";
+import brown from "@material-ui/core/colors/brown";
+import red from "@material-ui/core/colors/red";
 
 const useDarkMode = () => {
-
   let lightTheme = {
     palette: {
       type: "light",
@@ -65,7 +63,7 @@ const useDarkMode = () => {
         root: {
           "&$focused": {
             color: "#CFA596",
-          }, 
+          },
         },
       },
       MuiTab: {
@@ -76,60 +74,54 @@ const useDarkMode = () => {
         },
       },
     },
-  }
+  };
 
   const [theme, setTheme] = useState(lightTheme);
 
   const toggleDarkMode = () => {
-
     if (theme.palette.type === "light") {
-      window.localStorage.setItem("themeType", "dark")
-      setTheme(darkTheme)
+      window.localStorage.setItem("themeType", "dark");
+      setTheme(darkTheme);
     } else {
-      window.localStorage.setItem("themeType", "light")
-      setTheme(lightTheme)
+      window.localStorage.setItem("themeType", "light");
+      setTheme(lightTheme);
     }
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
     if (theme.palette.type !== localTheme && localTheme !== null) {
-      setTheme(darkTheme)
+      setTheme(darkTheme);
     }
   }, [darkTheme, theme.palette.type]);
 
-  return [theme, toggleDarkMode]
+  return [theme, toggleDarkMode];
 };
 
-
 const useTextSize = () => {
-
   const [textSize, setTextSize] = useState("normal");
 
   const handleTextSizeChange = (event) => {
-
-    window.localStorage.setItem("textSize", event.target.value)
+    window.localStorage.setItem("textSize", event.target.value);
     setTextSize(event.target.value);
   };
 
   useEffect(() => {
     const localTextSize = window.localStorage.getItem("textSize");
     if (textSize !== localTextSize && localTextSize !== null) {
-      setTextSize(localTextSize)
+      setTextSize(localTextSize);
     }
   }, [textSize]);
 
-  return [textSize, handleTextSizeChange]
+  return [textSize, handleTextSizeChange];
 };
 
-
 const useUndoEnabled = () => {
-
   const [undoEnabled, setUndoEnabled] = useState(true);
 
   const toggleUndoEnabled = () => {
     window.localStorage.setItem("undoEnabled", !undoEnabled);
-    setUndoEnabled(a => (!a));
+    setUndoEnabled((a) => !a);
   };
 
   useEffect(() => {
@@ -137,32 +129,32 @@ const useUndoEnabled = () => {
     const localUndoEnabledIsTrue = localUndoEnabled === "true";
     if (undoEnabled !== localUndoEnabledIsTrue && localUndoEnabled !== null) {
       setUndoEnabled(localUndoEnabledIsTrue);
-    };
+    }
   }, [undoEnabled]);
 
-  return [undoEnabled, toggleUndoEnabled]
+  return [undoEnabled, toggleUndoEnabled];
 };
 
-
 const useKeyPressEnabled = () => {
-
   const [keyPressEnabled, setKeyPressEnabled] = useState(false);
 
   const toggleKeyPressEnabled = () => {
     window.localStorage.setItem("keyPressEnabled", !keyPressEnabled);
-    setKeyPressEnabled(a => (!a));
+    setKeyPressEnabled((a) => !a);
   };
 
   useEffect(() => {
     const localKeyPressEnabled = window.localStorage.getItem("keyPressEnabled");
     const localKeyPressEnabledIsTrue = localKeyPressEnabled === "true";
-    if (keyPressEnabled !== localKeyPressEnabledIsTrue && localKeyPressEnabled !== null) {
+    if (
+      keyPressEnabled !== localKeyPressEnabledIsTrue &&
+      localKeyPressEnabled !== null
+    ) {
       setKeyPressEnabled(localKeyPressEnabledIsTrue);
-    };
+    }
   }, [keyPressEnabled]);
 
-  return [keyPressEnabled, toggleKeyPressEnabled]
-}
-
+  return [keyPressEnabled, toggleKeyPressEnabled];
+};
 
 export { useDarkMode, useTextSize, useUndoEnabled, useKeyPressEnabled };

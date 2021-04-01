@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, { useEffect } from "react";
 import {
   Box,
   Dialog,
@@ -13,62 +13,47 @@ import {
   IconButton,
   Tab,
   Tabs,
-} from '@material-ui/core'
-import DeleteIcon from '@material-ui/icons/Delete'
+} from "@material-ui/core";
+import DeleteIcon from "@material-ui/icons/Delete";
 
-import axios from 'axios'
+import axios from "axios";
 
-import {
-  api_url,
-  mapStateToProps
-} from '../globals.js';
+import { api_url, mapStateToProps } from "../globals.js";
 
-import { labelPriorItem } from '../PreReviewComponents/PriorKnowledge.js'
+import { labelPriorItem } from "../PreReviewComponents/PriorKnowledge.js";
 
 import { connect } from "react-redux";
 
-
-const ResultDialogTabPanel =  (props) => {
-
+const ResultDialogTabPanel = (props) => {
   const [state, setState] = React.useState({
-    loading: true
-  })
+    loading: true,
+  });
 
   useEffect(() => {
-
     const getPriorInfo = () => {
-
       const url = api_url + `project/${props.project_id}/prior`;
 
-      axios.get(url,
-        {params: {subset: props.subset}}
-      )
-      .then((result) => {
-
-        setState({
-          result: result.data['result']
+      axios
+        .get(url, { params: { subset: props.subset } })
+        .then((result) => {
+          setState({
+            result: result.data["result"],
+          });
+        })
+        .catch((error) => {
+          console.log("Failed to load prior information");
         });
-
-      })
-      .catch((error) => {
-        console.log("Failed to load prior information");
-      });
-
-    }
-    getPriorInfo()
-
+    };
+    getPriorInfo();
   }, [props.project_id, props.subset]);
 
   return (
     <Box>
-      {state["result"] &&
+      {state["result"] && (
         <List>
-          {state["result"].map((value) =>
+          {state["result"].map((value) => (
             <ListItem key={value.id}>
-              <ListItemText
-                primary={value.title}
-                secondary={value.authors}
-              />
+              <ListItemText primary={value.title} secondary={value.authors} />
               <ListItemSecondaryAction>
                 <IconButton
                   edge="end"
@@ -79,52 +64,40 @@ const ResultDialogTabPanel =  (props) => {
                 </IconButton>
               </ListItemSecondaryAction>
             </ListItem>
-        )}
+          ))}
         </List>
-      }
+      )}
     </Box>
-  )
-}
-
+  );
+};
 
 const ResultDialog = (props) => {
-
-  const [state, setState] = React.useState(0)
+  const [state, setState] = React.useState(0);
 
   const handleChange = (event, newValue) => {
     setState(newValue);
   };
 
   return (
-
-    <Dialog
-      open={props.open}
-      onClose={props.onClose}
-    >
-      <DialogTitle>
-        Prior knowledge
-      </DialogTitle>
+    <Dialog open={props.open} onClose={props.onClose}>
+      <DialogTitle>Prior knowledge</DialogTitle>
       <DialogContent dividers={true}>
-        <Tabs
-          value={state}
-          onChange={handleChange}
-          centered
-        >
+        <Tabs value={state} onChange={handleChange} centered>
           <Tab label="Relevant" />
           <Tab label="Irrelevant" />
         </Tabs>
-        {state === 0 &&
+        {state === 0 && (
           <ResultDialogTabPanel
             project_id={props.project_id}
             subset="included"
           />
-        }
-        {state === 1 &&
+        )}
+        {state === 1 && (
           <ResultDialogTabPanel
             project_id={props.project_id}
             subset="excluded"
           />
-        }
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onClose} color="primary">
@@ -132,8 +105,7 @@ const ResultDialog = (props) => {
         </Button>
       </DialogActions>
     </Dialog>
-  )
-
-}
+  );
+};
 
 export default connect(mapStateToProps)(ResultDialog);

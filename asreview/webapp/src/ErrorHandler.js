@@ -1,16 +1,10 @@
-import React from 'react';
-import {
-  Box,
-  Button,
-  Link,
-  Typography,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import React from "react";
+import { Box, Button, Link, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   errorMessage: {
-    paddingTop: '24px',
+    paddingTop: "24px",
     paddingBottom: "24px",
     opacity: 0.5,
   },
@@ -19,23 +13,22 @@ const useStyles = makeStyles(theme => ({
   },
   retryButton: {
     position: "relative",
-    paddingBottom: '24px',
+    paddingBottom: "24px",
   },
 }));
 
 const ErrorHandler = (props) => {
-
   const classes = useStyles();
 
   const handleClickRetry = () => {
     props.setError({
-      "code": null,
-      "message": null,
+      code: null,
+      message: null,
     });
   };
 
-  return(
-  	<Box>
+  return (
+    <Box>
       <Box className={classes.errorMessage}>
         <Typography variant="h5" align="center">
           {props.error.message}
@@ -49,11 +42,12 @@ const ErrorHandler = (props) => {
               target="_blank"
             >
               <strong>here</strong>
-            </Link> to report.
+            </Link>{" "}
+            to report.
           </Typography>
         </Box>
       </Box>
-      {props.error.code !== 503 &&
+      {props.error.code !== 503 && (
         <Box className={classes.retryButton} align="center">
           <Button
             variant="contained"
@@ -63,7 +57,7 @@ const ErrorHandler = (props) => {
             Retry
           </Button>
         </Box>
-      }
+      )}
     </Box>
   );
 };
