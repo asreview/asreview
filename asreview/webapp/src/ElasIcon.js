@@ -1,5 +1,5 @@
-import React from "react"
-import SvgIcon from '@material-ui/core/SvgIcon';
+import React from "react";
+import SvgIcon from "@material-ui/core/SvgIcon";
 
 function ElasIcon(props) {
   return (
@@ -8,7 +8,7 @@ function ElasIcon(props) {
       <path d="M7.9,11.7a.5.5,0,0,0,.5.4.4.4,0,0,0,.4-.4.9.9,0,0,1,.8-.8.9.9,0,0,1,.8.8.4.4,0,0,0,.4.4.5.5,0,0,0,.5-.4A1.8,1.8,0,0,0,9.6,10,1.8,1.8,0,0,0,7.9,11.7Z" />
       <path d="M12.5,12.1a.4.4,0,0,0,.4-.4.8.8,0,1,1,1.6,0,.4.4,0,0,0,.4.4.5.5,0,0,0,.5-.4,1.7,1.7,0,0,0-3.4,0A.5.5,0,0,0,12.5,12.1Z" />
     </SvgIcon>
-  )
+  );
 }
 
-export default ElasIcon
+export default ElasIcon;
