@@ -23,36 +23,36 @@ annotated dataset starts out small and iteratively grows in size:
 predictions from the records as they are; their textual content needs to be
 represented more abstractly. The algorithm can then determine the important
 features that are necessary to classify a record, thereby drastically
-decreasing the search space; 
+decreasing the search space;
 
 2.	A specific classification algorithm (i.e, machine learning model) is then
-chosen; 
+chosen;
 
 3.	The chosen classifier is trained on the labeled records and estimates
 relevance scores for all unlabeled records. The model chooses a record to show
-to the user for the next iteration of the cycle; 
+to the user for the next iteration of the cycle;
 
 
 4.	The annotator screens this record and provides a label, relevant or
 irrelevant. The newly labeled record is moved to the training data set and
-it’s back to step 1. 
+it’s back to step 1.
 
 
 The interaction with the human can be used to train a model with a minimum
 number of labeling tasks and the trained model is the output which is then
 used to classify new data, also called Human-in-the-Loop machine learning[16].
-In the general sense the key idea behind active learning is that, if we allow
+In the general sense the key idea behind active learning is that, if you allow
 the model to decide for itself which data it wants to learn from, its
 performance and accuracy may improve and it requires fewer training instances
 to do so. Moreover, the dataset's informativeness is increased by having the
 reviewer annotate those references that are more informative to the model
-(**uncertainty-based sampling**).  
+(**uncertainty-based sampling**).
 
 The application of active learning to systematic reviewing is called
-Researcher-In-The-Loop (RITL)[17] with three unique components: 
+Researcher-In-The-Loop (RITL)[17] with three unique components:
 
 (I) The primary output of the process is a selection of the pool with only relevant
-papers; 
+papers;
 
 (II) All data points in the relevant selection should have been seen by
 a human at the end of the process (**certainty-based sampling**);
@@ -62,7 +62,7 @@ entails several explicit and reproducible steps, as outlined in the `PRISMA
 guidelines <http://www.prisma-statement.org/>`_ for systematic reviewing. This
 procedure ensures (more or less)  that all likely relevant publications are
 found in a standardized way based on pre-defined eligibility criteria,
-extracting data from eligible studies, and synthesizing the results. 
+extracting data from eligible studies, and synthesizing the results.
 
 
 In the active learning cycle, the model incrementally improves its predictions
@@ -80,9 +80,7 @@ be found. So researchers might either stop too early and potentially miss many
 relevant papers, or stop too late, causing unnecessary further reading[20].
 That is, one can decide to stop reviewing after a certain amount of
 non-relevant papers have been found in succession[21], but this is up to the
-user to decide. We are currently implementing potential stopping rules based
-on estimating the number of potential relevant papers or finding an inflection
-point where [5, 8, 9, 11, 12, 22-24]. This is work in progress. 
+user to decide.
 
 
 1.	Harrison, H., et al., Software tools to support title and abstract screening for systematic reviews in healthcare: an evaluation. BMC Medical Research Methodology, 2020. 20(1): p. 7.

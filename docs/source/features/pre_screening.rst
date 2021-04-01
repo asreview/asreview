@@ -156,7 +156,7 @@ Random
 ~~~~~~
 
 You also need to provide at least one prior irrelevant document. One way to
-find a irrelevant document is by labeling a set of random records from the
+find an irrelevant document is by labeling a set of random records from the
 dataset. Given that the majority of documents in the dataset is probably
 irrelevant (extreme inbalanced data problem), the documents presented here
 will most probable be irrelevant for your study. Click on random to and a
