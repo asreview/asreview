@@ -86,7 +86,7 @@ def test_get_project_info(client):
 def test_search_data(client):
     """Test search for papers"""
 
-    response = client.get("/api/project/project-id/search?q=Defect-Prone+Software&n_max=10")
+    response = client.get("/api/project/project-id/search?q=Software&n_max=10")
     json_data = response.get_json()
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
