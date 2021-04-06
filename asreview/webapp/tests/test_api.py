@@ -13,11 +13,12 @@
 # limitations under the License.
 
 import os
-import pytest
+import time
+
 
 def test_get_projects(client):
     """Test get projects."""
-    
+
     response = client.get("/api/projects")
     json_data = response.get_json()
 
@@ -85,7 +86,7 @@ def test_get_project_info(client):
 def test_search_data(client):
     """Test search for papers"""
 
-    response = client.get("/api/project/project-id/search?q=Predicting+Defect-Prone+Software+Modules&n_max=10")
+    response = client.get("/api/project/project-id/search?q=Defect-Prone+Software&n_max=10")
     json_data = response.get_json()
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
@@ -160,9 +161,11 @@ def test_start(client):
     assert response.status_code == 200
 
 
-@pytest.mark.flaky(reruns=5, reruns_delay=2)
 def test_init_model_ready(client):
     """Test check if trained model is available"""
+
+    # wait the model ready
+    time.sleep(8)
 
     response = client.get("/api/project/project-id/model/init_ready")
     json_data = response.get_json()
