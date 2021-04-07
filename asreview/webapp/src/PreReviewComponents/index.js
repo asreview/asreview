@@ -1,5 +1,4 @@
 export { default as PreReviewZone } from "../PreReviewComponents/PreReviewZone";
-export { default as ResultDialog } from "../PreReviewComponents/ResultDialog";
 export { default as PriorKnowledge } from "../PreReviewComponents/PriorKnowledge";
 export { default as PriorKnowledgeSearch } from "../PreReviewComponents/PriorKnowledgeSearch";
 export { default as PriorKnowledgeRandom } from "../PreReviewComponents/PriorKnowledgeRandom";
