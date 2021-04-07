@@ -111,6 +111,7 @@ contact with the team are:
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
 - Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
+- FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
 - Donation - [asreview.nl/donate](https://asreview.nl/donate)
 - Contact - [asreview@uu.nl](mailto:asreview@uu.nl)
 
