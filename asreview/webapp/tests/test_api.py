@@ -38,8 +38,8 @@ def test_init_project(tmp_path, client):
         "description": "hello world"
     })
     json_data = response.get_json()
-    assert response.status_code == 201
 
+    assert response.status_code == 201
     assert "name" in json_data
     assert isinstance(json_data, dict)
 
@@ -88,6 +88,7 @@ def test_search_data(client):
 
     response = client.get("/api/project/project-id/search?q=Software&n_max=10")
     json_data = response.get_json()
+
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
 
@@ -97,6 +98,7 @@ def test_random_prior_papers(client):
 
     response = client.get("/api/project/project-id/prior_random")
     json_data = response.get_json()
+
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
 
@@ -114,6 +116,7 @@ def test_label_item(client):
         "label": 1,
         "is_prior": 1
     })
+
     assert response_irrelevant.status_code == 200
     assert response_relevant.status_code == 200
 
@@ -123,6 +126,7 @@ def test_get_prior(client):
 
     response = client.get("/api/project/project-id/prior")
     json_data = response.get_json()
+
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
 
@@ -132,16 +136,8 @@ def test_get_prior_stat(client):
 
     response = client.get("/api/project/project-id/prior_stats")
     json_data = response.get_json()
+
     assert "n_prior" in json_data
-    assert isinstance(json_data, dict)
-
-
-def test_get_algorithms(client):
-    """Test active learning model selection"""
-
-    response = client.get("/api/project/project-id/algorithms")
-    json_data = response.get_json()
-    assert "model" in json_data
     assert isinstance(json_data, dict)
 
 
@@ -149,9 +145,23 @@ def test_set_algorithms(client):
     """Test set active learning model"""
 
     response = client.post("/api/project/project-id/algorithms", data={
-        "model": "svm"
+        "model": "svm",
+        "query_strategy": "random"
     })
     assert response.status_code == 200
+
+
+def test_get_algorithms(client):
+    """Test active learning model selection"""
+
+    response = client.get("/api/project/project-id/algorithms")
+    json_data = response.get_json()
+
+    assert "model" in json_data
+    assert "query_strategy" in json_data
+    assert "svm" in json_data["model"]
+    assert "random" in json_data["query_strategy"]
+    assert isinstance(json_data, dict)
 
 
 def test_start(client):
@@ -177,8 +187,13 @@ def test_init_model_ready(client):
 def test_export_result(client):
     """Test export result"""
 
-    response = client.get("/api/project/project-id/export?file_type=excel")
-    assert response.status_code == 200
+    response_excel = client.get("/api/project/project-id/export?file_type=excel")
+    response_csv = client.get("/api/project/project-id/export?file_type=csv")
+    response_tsv = client.get("/api/project/project-id/export?file_type=tsv")
+
+    assert response_excel.status_code == 200
+    assert response_csv.status_code == 200
+    assert response_tsv.status_code == 200
 
 
 def test_export_project(client):
@@ -244,6 +259,7 @@ def test_get_document(client):
 
     response = client.get("/api/project/project-id/get_document")
     json_data = response.get_json()
+
     assert "result" in json_data
     assert isinstance(json_data, dict)
 
