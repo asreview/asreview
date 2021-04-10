@@ -22,10 +22,13 @@ from urllib.request import urlopen
 
 # Retrieve urls to .asreview files exported in previous versions
 link_project_file = "https://github.com/asreview/" \
-+"asreview-project-files-testing/tree/master/asreview_file"
+    + "asreview-project-files-testing/tree/master/asreview_file"
 html_project_file = requests.get(link_project_file).text
 HTML_TAG_ASREVIEW = re.compile(r"<a[^<>]+?href=([\'\"])(.*\.asreview)\1")
-urls = ["https://github.com" + match[1] + "?raw=true" for match in HTML_TAG_ASREVIEW.findall(html_project_file)]
+
+urls = []
+for match in HTML_TAG_ASREVIEW.findall(html_project_file):
+    urls.append("https://github.com" + match[1] + "?raw=true")
 
 
 @pytest.mark.parametrize("url", urls)
@@ -48,8 +51,9 @@ def test_import_project(tmp_path, client, url):
     response_projects = client.get("/api/projects")
     json_data_projects = response_projects.get_json()
     assert "result" in json_data_projects
-    assert any(item["id"] == f"{json_data_import['id']}" \
-        for item in json_data_projects["result"])
+    assert any(
+        item["id"] == f"{json_data_import['id']}" for item in json_data_projects["result"]
+    )
 
     # Test get progress info on the article
     response_progress = client.get(f"{project_path}/progress")
