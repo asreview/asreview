@@ -52,7 +52,8 @@ def test_import_project(tmp_path, client, url):
     json_data_projects = response_projects.get_json()
     assert "result" in json_data_projects
     assert any(
-        item["id"] == f"{json_data_import['id']}" for item in json_data_projects["result"]
+        item["id"] == f"{json_data_import['id']}"
+        for item in json_data_projects["result"]
     )
 
     # Test get progress info on the article
