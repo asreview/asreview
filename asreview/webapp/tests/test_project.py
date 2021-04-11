@@ -20,19 +20,27 @@ from io import BytesIO
 from urllib.request import urlopen
 
 
+project_urls = []
+
 # Retrieve urls to .asreview files exported in previous versions
 link_project_file = "https://github.com/asreview/" \
     + "asreview-project-files-testing/tree/master/asreview_file"
 html_project_file = requests.get(link_project_file).text
 HTML_TAG_ASREVIEW = re.compile(r"<a[^<>]+?href=([\'\"])(.*\.asreview)\1")
 
-urls = []
 for match in HTML_TAG_ASREVIEW.findall(html_project_file):
-    urls.append("https://github.com" + match[1] + "?raw=true")
+    project_urls.append("https://github.com" + match[1] + "?raw=true")
 
 
-@pytest.mark.parametrize("url", urls)
-def test_import_project(tmp_path, client, url):
+def test_retrieve_project_file():
+    """Test retrieve project files from GitHub"""
+
+    if not project_urls:
+        assert False
+
+
+@pytest.mark.parametrize("url", project_urls)
+def test_project_file(tmp_path, client, url):
     """Test import and continue a project created in previous versions."""
 
     # change default folder for projects
