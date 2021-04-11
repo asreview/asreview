@@ -15,21 +15,21 @@
 import os
 import re
 import pytest
-import requests
 from io import BytesIO
 from urllib.request import urlopen
 
 
 project_urls = []
 
-# Retrieve urls to .asreview files exported in previous versions
+HTML_TAG_ASREVIEW = re.compile(r"<a[^<>]+?href=([\'\"])(.*\.asreview)\1")
 link_project_file = "https://github.com/asreview/" \
     + "asreview-project-files-testing/tree/master/asreview_file"
-html_project_file = requests.get(link_project_file).text
-HTML_TAG_ASREVIEW = re.compile(r"<a[^<>]+?href=([\'\"])(.*\.asreview)\1")
 
-for match in HTML_TAG_ASREVIEW.findall(html_project_file):
-    project_urls.append("https://github.com" + match[1] + "?raw=true")
+# Retrieve urls to .asreview files exported in previous versions
+with urlopen(link_project_file) as html_code:
+    html_project_file = html_code.read().decode("utf8")
+    for match in HTML_TAG_ASREVIEW.findall(html_project_file):
+        project_urls.append("https://github.com" + match[1] + "?raw=true")
 
 
 def test_retrieve_project_file():
@@ -47,9 +47,10 @@ def test_project_file(tmp_path, client, url):
     os.environ["ASREVIEW_PATH"] = str(tmp_path)
 
     # Test import uploaded project
-    response_import = client.post("/api/project/import_project", data={
-        "file": (BytesIO(urlopen(url).read()), "project.asreview")
-    })
+    with urlopen(url) as project_file:
+        response_import = client.post("/api/project/import_project", data={
+            "file": (BytesIO(project_file.read()), "project.asreview")
+        })
     json_data_import = response_import.get_json()
     assert response_import.status_code == 200
 
