@@ -1,5 +1,5 @@
-import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
   Button,
@@ -12,38 +12,37 @@ import {
   Select,
   MenuItem,
   Link,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
-// import axios from 'axios'
+import { ProjectAPI } from "../api/index.js";
 
-import { api_url, donateURL } from '../globals.js';
+import { donateURL } from "../globals.js";
 
 import { connect } from "react-redux";
-import store from '../redux/store'
+import store from "../redux/store";
 
 const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: "16px",
   },
-  link:{
+  link: {
     paddingLeft: "3px",
   },
   file_type: {
     margin: theme.spacing(1),
     width: "100%",
-    padding: "12px 0px"
-  }
+    padding: "12px 0px",
+  },
 }));
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
 
 const ExportDialog = (props) => {
-
   const classes = useStyles();
 
-  const [exportFileType, setExportFileType] = React.useState('excel');
+  const [exportFileType, setExportFileType] = React.useState("excel");
 
   const handleExportFileTypeChange = (event) => {
     setExportFileType(event.target.value);
@@ -60,28 +59,41 @@ const ExportDialog = (props) => {
   }, [props.exportResult]);
 
   const downloadResult = () => {
+    const project_id = store.getState()["project_id"];
 
-    const project_id = store.getState()["project_id"]
-
-    if (project_id !== null){
-
-      // download URL, example http://localhost:5000/api/project/myproject/export?file_type=excel
-      const exportUrl = api_url + `project/${project_id}/export?file_type=${exportFileType}`
-
-      setTimeout(() => {
-        const response = {
-          file: exportUrl,
-        };
-        window.location.href = response.file;
-      }, 100);
-
-    } else{
+    if (project_id !== null) {
+      ProjectAPI.export_results(project_id, exportFileType);
+    } else {
       // raise exception
     }
-
-  }
+  };
 
   return (
+<<<<<<< HEAD
+    <Dialog
+      open={props.exportResult}
+      onClose={props.toggleExportResult}
+      scroll="body"
+      fullWidth={true}
+      maxWidth={"sm"}
+      aria-labelledby="scroll-dialog-title"
+      aria-describedby="scroll-dialog-description"
+    >
+      <DialogTitle id="scroll-dialog-title">Download review result</DialogTitle>
+      <DialogContent dividers={true}>
+        <Typography>
+          Download the result of your review. Select a file format (Excel or CSV
+          file).
+        </Typography>
+
+        <Box className={classes.file_type}>
+          <InputLabel id="select-export-file-type-label">File type</InputLabel>
+          <Select
+            labelId="select-export-file-type-label"
+            id="select-export-file-type"
+            value={exportFileType}
+            onChange={handleExportFileTypeChange}
+=======
       <Dialog
         open={props.exportResult}
         onClose={props.toggleExportResult}
@@ -134,12 +146,32 @@ const ExportDialog = (props) => {
           </Button>
           <Button
             onClick={downloadResult}
+>>>>>>> rispy_inclusion
           >
-            Download
-          </Button>
-        </DialogActions>
-      </Dialog>
-  );
-}
+            <MenuItem value={"excel"}>Excel</MenuItem>
+            <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
+            <MenuItem value={"tsv"}>TSV (UTF-8)</MenuItem>
+          </Select>
+        </Box>
+      </DialogContent>
 
-export default connect(mapStateToProps)(ExportDialog)
+      <DialogContent dividers={true}>
+        {donateURL !== undefined && (
+          <Typography>
+            Our software is made with love and freely available for everyone.
+            Help the development of the ASReview with a donation:
+            <Link className={classes.link} href={donateURL} target="_blank">
+              asreview.nl/donate
+            </Link>
+          </Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.toggleExportResult}>Cancel</Button>
+        <Button onClick={downloadResult}>Download</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default connect(mapStateToProps)(ExportDialog);

@@ -1,5 +1,5 @@
-import React  from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Box,
@@ -9,11 +9,11 @@ import {
   ListItemText,
   Divider,
   Paper,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
-import { api_url } from './globals.js';
+import { ProjectAPI } from "./api/index.js";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   header: {
     paddingTop: "128px",
     paddingBottom: "84px",
@@ -28,50 +28,36 @@ const useStyles = makeStyles(theme => ({
   },
   wrapper: {
     margin: theme.spacing(1),
-    position: 'relative',
+    position: "relative",
   },
   buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
     marginTop: 0,
     marginLeft: -12,
   },
-  mediumDangerZone : {
+  mediumDangerZone: {
     // borderColor: "orange",
     // borderWidth: "2px",
     // borderStyle: "solid",
     // boxShadow: "none",
-}
+  },
 }));
 
 const PublicationZone = (props) => {
-
   const classes = useStyles();
 
   /*
   Download the project file
   */
   const downloadProject = () => {
-
-    // download URL, example http://localhost:5000/api/project/myproject/export_project
-    const exportUrl = api_url + `project/${props.project_id}/export_project`
-
-    setTimeout(() => {
-      const response = {
-        file: exportUrl,
-      };
-      window.location.href = response.file;
-    }, 100);
-
-  }
+    ProjectAPI.export_project(props.project_id);
+  };
 
   return (
     <Box>
-      <Typography
-        variant="h6"
-        className={classes.title}
-      >
+      <Typography variant="h6" className={classes.title}>
         Publication and export
       </Typography>
 
@@ -86,7 +72,9 @@ const PublicationZone = (props) => {
           >
             <ListItemText
               primary="Download results"
-              secondary={'Download a file with all decisions. Various download formats are available.'}
+              secondary={
+                "Download a file with all decisions. Various download formats are available."
+              }
             />
           </ListItem>
           <Divider component="li" />
@@ -98,7 +86,9 @@ const PublicationZone = (props) => {
           >
             <ListItemText
               primary="Export this project"
-              secondary={'Download a complete copy of this project. Ideal to share or import later on.'}
+              secondary={
+                "Download a complete copy of this project. Ideal to share or import later on."
+              }
             />
           </ListItem>
           <Divider component="li" />
@@ -110,14 +100,22 @@ const PublicationZone = (props) => {
             key="finish-project"
           >
             <ListItemText
-              primary={props.reviewFinished ? "Mark screening as finished (undo)" : "Mark screening as finished"}
-              secondary={props.reviewFinished ? 'Mark the screening process as ongoing and resume reviewing.' : 'Stop reviewing and mark the screening process as finished.'}
+              primary={
+                props.reviewFinished
+                  ? "Mark screening as finished (undo)"
+                  : "Mark screening as finished"
+              }
+              secondary={
+                props.reviewFinished
+                  ? "Mark the screening process as ongoing and resume reviewing."
+                  : "Stop reviewing and mark the screening process as finished."
+              }
             />
           </ListItem>
         </List>
       </Paper>
     </Box>
-  )
-}
+  );
+};
 
 export default PublicationZone;

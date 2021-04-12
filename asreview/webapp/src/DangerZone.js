@@ -1,5 +1,5 @@
-import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Box,
@@ -8,46 +8,41 @@ import {
   List,
   ListItem,
   ListItemText,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
-import ProjectSettings from './ProjectSettings.js'
+import ProjectSettings from "./ProjectSettings.js";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   title: {
     color: "red",
     margin: "32px 12px 12px 12px",
   },
   wrapper: {
     margin: theme.spacing(1),
-    position: 'relative',
+    position: "relative",
   },
-  dangerZone : {
+  dangerZone: {
     color: "red",
-}
+  },
 }));
 
 const DangerZone = (props) => {
-
   const classes = useStyles();
 
   const [settings, setDelete] = React.useState(false);
 
-
   const toggleProjectDelete = () => {
-    setDelete(a => (!a));
+    setDelete((a) => !a);
   };
 
   return (
     <Box>
-      <Typography
-        variant="h6"
-        className={classes.title}
-      >
+      <Typography variant="h6" className={classes.title}>
         Danger Zone
       </Typography>
 
       <Paper className={classes.dangerZone}>
-       <List className={classes.root}>
+        <List className={classes.root}>
           {/*
           <ListItem alignItems="flex-start">
             <ListItemText
@@ -57,22 +52,28 @@ const DangerZone = (props) => {
           </ListItem>
           <Divider component="li" />
           */}
-          <ListItem button onClick={toggleProjectDelete} alignItems="flex-start">
+          <ListItem
+            button
+            onClick={toggleProjectDelete}
+            alignItems="flex-start"
+          >
             <ListItemText
               primary="Delete this project"
-              secondary={'Once you delete a project, there is no going back. Please be certain.'}
+              secondary={
+                "Once you delete a project, there is no going back. Please be certain."
+              }
             />
           </ListItem>
         </List>
-      <ProjectSettings
-        id={props.project_id}
-        settings={settings}
-        toggleProjectDelete={toggleProjectDelete}
-        handleAppState={props.handleAppState}
-      />
+        <ProjectSettings
+          id={props.project_id}
+          settings={settings}
+          toggleProjectDelete={toggleProjectDelete}
+          handleAppState={props.handleAppState}
+        />
       </Paper>
     </Box>
-  )
-}
+  );
+};
 
 export default DangerZone;

@@ -2,10 +2,9 @@ Screening
 =========
 
 The screen in which you provide labels for records shown to you by the
-software is kept as simple as possible. This is because we want you to focus
-on the content of the text so that you can make your deicssion as a true
-Oracle. There are few features you can access during screening which we
-present below.
+software is kept as simple as possible. This is because ASReview wants you to
+focus on the content of the text so that you can make your decision as a true
+Oracle. You can access the following features during screening.
 
 
 Autosave
@@ -145,7 +144,7 @@ Download Results
 ----------------
 
 
-A file containing all metadata including your decissions can be downloaded
+A file containing all metadata including your decisions can be downloaded
 any time during the screening process. To download your results:
 
 1. Open ASReview LAB.
@@ -169,7 +168,7 @@ Via the hamburger menu in the left-upper corner you can:
 2. You can access the :doc:`Project Dashboard <post_screening>`.
 3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
-5. Donate some money via our `crowdfunding platform <https://asreview.nl/donate>`_
+5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.nl/donate>`_
 6. Quit the software (your progress was saved automatically)
 
 

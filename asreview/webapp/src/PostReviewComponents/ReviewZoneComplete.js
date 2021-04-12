@@ -1,42 +1,33 @@
-import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
-import {
-  Container,
-  Button,
-  Typography
-} from '@material-ui/core'
+import { Container, Button, Typography } from "@material-ui/core";
 
 import { connect } from "react-redux";
 
-import { mapStateToProps } from '../globals.js';
+import { mapStateToProps } from "../globals.js";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: '24px',
+    paddingTop: "24px",
   },
   title: {
     marginBottom: "20px",
   },
   button: {
     margin: "20px 0px",
-  }
+  },
 }));
 
-
 const ReviewZoneComplete = (props) => {
-
   const classes = useStyles();
 
   return (
-    <Container maxWidth='md' className={classes.root}>
-
+    <Container maxWidth="md" className={classes.root}>
       <Typography variant="h5" className={classes.title}>
         Congratulations, you completed your Systematic Review
       </Typography>
-      <Typography>
-        You can export your results.
-      </Typography>
+      <Typography>You can export your results.</Typography>
       <Button
         variant="contained"
         color="primary"
@@ -45,9 +36,7 @@ const ReviewZoneComplete = (props) => {
       >
         Export
       </Button>
-      <Typography>
-        Return to your projects.
-      </Typography>
+      <Typography>Return to your projects.</Typography>
       <Button
         variant="contained"
         color="primary"
@@ -56,11 +45,9 @@ const ReviewZoneComplete = (props) => {
       >
         Back to projects
       </Button>
-      <Typography>
-        We would love to hear your feedback.
-      </Typography>
+      <Typography>We would love to hear your feedback.</Typography>
     </Container>
-  )
-}
+  );
+};
 
 export default connect(mapStateToProps)(ReviewZoneComplete);

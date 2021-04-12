@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import React, { useState, useRef, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Box,
@@ -10,31 +10,27 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-} from '@material-ui/core';
-import {
-  StartReview,
-  PreReviewZone,
-} from '../PreReviewComponents'
+} from "@material-ui/core";
+import { StartReview, PreReviewZone } from "../PreReviewComponents";
 
-import ErrorHandler from '../ErrorHandler';
-import DangerZone from '../DangerZone.js'
-import PublicationZone from '../PublicationZone.js'
-import StatisticsZone from '../StatisticsZone.js'
+import ErrorHandler from "../ErrorHandler";
+import DangerZone from "../DangerZone.js";
+import PublicationZone from "../PublicationZone.js";
+import StatisticsZone from "../StatisticsZone.js";
+import { ProjectAPI } from "../api/index.js";
 
-import KeyboardVoiceIcon from '@material-ui/icons/KeyboardVoice';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import KeyboardVoiceIcon from "@material-ui/icons/KeyboardVoice";
+import GetAppIcon from "@material-ui/icons/GetApp";
 
-import Finished from '../images/Finished.svg';
-import InReview from '../images/InReview.svg';
-import SetUp from '../images/SetUp.svg';
+import Finished from "../images/Finished.svg";
+import InReview from "../images/InReview.svg";
+import SetUp from "../images/SetUp.svg";
 
 import { connect } from "react-redux";
 
-import axios from 'axios'
+import { mapStateToProps } from "../globals.js";
 
-import { api_url, mapStateToProps } from '../globals.js';
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   header: {
     paddingTop: "128px",
     paddingBottom: "48px",
@@ -44,32 +40,31 @@ const useStyles = makeStyles(theme => ({
     fontWeight: "300",
     letterSpacing: ".7rem",
   },
-  continuButton: {
-  },
+  continuButton: {},
   quickStartButtons: {
     marginTop: "24px",
   },
   wrapper: {
     margin: theme.spacing(1),
-    position: 'relative',
+    position: "relative",
   },
   buttonProgress: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
     marginTop: -12,
     marginLeft: -12,
   },
-  dangerZone : {
+  dangerZone: {
     borderColor: "red",
     borderWidth: "2px",
     borderStyle: "solid",
     boxShadow: "none",
-},
-  cardBox : {
+  },
+  cardBox: {
     paddingBottom: "24px",
   },
-  stateElas : {
+  stateElas: {
     width: "100%",
     maxWidth: "200px",
     display: "block",
@@ -78,10 +73,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ProjectPage = (props) => {
-
   const classes = useStyles();
 
-  const EndRef = useRef(null)
+  const EndRef = useRef(null);
 
   const [state, setState] = useState({
     // info-header
@@ -89,156 +83,117 @@ const ProjectPage = (props) => {
     info: null,
 
     // stage
-    setupFirstTime: (props.setupFirstTime ? props.setupFirstTime : false),
+    setupFirstTime: props.setupFirstTime ? props.setupFirstTime : false,
     setup: false,
     training: false,
     finished: null,
   });
 
   const [error, setError] = useState({
-    "message": null,
-    "retry": false,
+    code: null,
+    message: null,
   });
 
   const finishProjectSetup = () => {
-
     setState({
       ...state,
-      setup : false,
-      training : true,
-    })
-
-  }
+      setup: false,
+      training: true,
+    });
+  };
 
   const finishProjectFirstTraining = () => {
-
     setState({
       ...state,
-      info: {...state.info, projectInitReady : true},
-      training : false,
-    })
-  }
-
+      info: { ...state.info, projectInitReady: true },
+      training: false,
+    });
+  };
 
   const continueProjectSetup = () => {
     setState({
       ...state,
-      setup : true,
-    })
-  }
+      setup: true,
+    });
+  };
 
   const finishProject = () => {
-
-    const finishUrl = api_url + `project/${props.project_id}/finish`
-
-    axios.get(finishUrl)
+    ProjectAPI.finish(props.project_id)
       .then((result) => {
-
-        setState(s => {
-          return({
+        setState((s) => {
+          return {
             ...s,
-            finished : !s.finished,
-          })
+            finished: !s.finished,
+          };
         });
-
       })
       .catch((error) => {
-
         console.log(error);
-
       });
-  }
+  };
 
   const returnElasState = () => {
     // setup
-    if (!state.info.projectInitReady || state.setup){
-      return SetUp
+    if (!state.info.projectInitReady || state.setup) {
+      return SetUp;
     }
 
     // review
-    if (!state.finished){
-      return InReview
+    if (!state.finished) {
+      return InReview;
     }
 
     // finished
-    if (state.finished){
-      return Finished
+    if (state.finished) {
+      return Finished;
     }
-  }
+  };
 
   const scrollToTop = () => {
-    EndRef.current.scrollIntoView({ behavior: "smooth" })
-  }
+    EndRef.current.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-
-    if (!state.infoLoading && EndRef.current !== undefined){
-      scrollToTop()
+    if (!state.infoLoading && EndRef.current !== undefined) {
+      scrollToTop();
     }
-
   }, [state.setup, state.finished, state.infoLoading]);
 
-
   useEffect(() => {
-
     const fetchProjectInfo = async () => {
-
-      // contruct URL
-      const url = api_url + "project/" + props.project_id + "/info";
-
-      axios.get(url)
+      ProjectAPI.info(props.project_id)
         .then((result) => {
-
           // update the state with the fetched data
-          setState(s => {
-            return({
+          setState((s) => {
+            return {
               ...s,
               infoLoading: false,
               info: result.data,
               finished: result.data.reviewFinished,
-            })
-          })
-
+            };
+          });
         })
         .catch((error) => {
-
-          if (error.response) {
-               
-            setError({
-              message: error.response.data.message,
-              retry: true,
-            });
-            console.log(error.response);
-
-          } else {
-
-            setError(s => {return({
-              ...s,
-              message: "Failed to connect to server. Please restart the software.",
-            })});
-
-          };
+          setError({
+            code: error.code,
+            message: error.message,
+          });
         });
     };
 
     fetchProjectInfo();
-
   }, [props.project_id, state.finished, error.message]);
 
   return (
     <Box>
-      {error.message !== null &&
-        <ErrorHandler
-          error={error}
-          setError={setError}
-        />
-      }
+      {error.message !== null && (
+        <ErrorHandler error={error} setError={setError} />
+      )}
 
-      {error.message === null && !state.infoLoading &&
+      {error.message === null && !state.infoLoading && (
         <Box className={classes.box}>
           <div ref={EndRef} />
-          <Container maxWidth='md'>
-
+          <Container maxWidth="md">
             <Grid container spacing={3} className={classes.header}>
               <Grid item xs={12} sm={3}>
                 <img
@@ -256,80 +211,85 @@ const ProjectPage = (props) => {
                 >
                   {state.info.name}
                 </Typography>
-                <Typography
-                  color="primary"
-                  variant="h5"
-                >
+                <Typography color="primary" variant="h5">
                   {state.info.description}
                 </Typography>
-              {/*
+                {/*
               </Grid>
               <Grid item xs={12}>
               */}
                 <Box className={classes.quickStartButtons}>
-
                   {/* Project is not ready, continue setup */}
-                  {(!state.info.projectInitReady && !state.setup && !state.training) &&
-                    <Button
-                      className={classes.continuButton}
-                      variant={"outlined"}
-                      onClick={continueProjectSetup}
-                    >
-                      {state.info.projectHasDataset ? "Finish" : "Start"} setup
-                    </Button>
-                  }
-
-                  {(state.info.projectInitReady && !state.setup && !state.training) &&
-                    <Tooltip title="Download results">
-                      <IconButton
-                        aria-label="Export"
-                        onClick={props.toggleExportResult}
-                        color="inherit"
+                  {!state.info.projectInitReady &&
+                    !state.setup &&
+                    !state.training && (
+                      <Button
+                        className={classes.continuButton}
+                        variant={"outlined"}
+                        onClick={continueProjectSetup}
                       >
-                        <GetAppIcon />
-                      </IconButton>
-                    </Tooltip>
-                  }
+                        {state.info.projectHasDataset ? "Finish" : "Start"}{" "}
+                        setup
+                      </Button>
+                    )}
+
+                  {state.info.projectInitReady &&
+                    !state.setup &&
+                    !state.training && (
+                      <Tooltip title="Download results">
+                        <IconButton
+                          aria-label="Export"
+                          onClick={props.toggleExportResult}
+                          color="inherit"
+                        >
+                          <GetAppIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
 
                   {/* Project is ready, show button */}
-                  {(state.info.projectInitReady && !state.setup && !state.training) &&
-                    <Button
-                      className={classes.continuButton}
-                      variant={"outlined"}
-                      onClick={()=>props.handleAppState("review")}
-                      disabled={state.finished}
-                    >
-                      Start reviewing
-                    </Button>
-                  }
-
-                  {(!state.info.projectInitReady && !state.setup && state.training) &&
-                    <div className={classes.wrapper}>
+                  {state.info.projectInitReady &&
+                    !state.setup &&
+                    !state.training && (
                       <Button
-                        variant={"outlined"}
-                        disabled
                         className={classes.continuButton}
-                        startIcon={<KeyboardVoiceIcon />}
+                        variant={"outlined"}
+                        onClick={() => props.handleAppState("review")}
+                        disabled={state.finished}
                       >
-                        Training model
+                        Start reviewing
                       </Button>
-                      <CircularProgress size={24} className={classes.buttonProgress} />
-                    </div>
+                    )}
 
-                  }
+                  {!state.info.projectInitReady &&
+                    !state.setup &&
+                    state.training && (
+                      <div className={classes.wrapper}>
+                        <Button
+                          variant={"outlined"}
+                          disabled
+                          className={classes.continuButton}
+                          startIcon={<KeyboardVoiceIcon />}
+                        >
+                          Training model
+                        </Button>
+                        <CircularProgress
+                          size={24}
+                          className={classes.buttonProgress}
+                        />
+                      </div>
+                    )}
                 </Box>
 
                 {/* Project is not ready, continue setup */}
-                {state.training &&
-                  <StartReview
-                    onReady={finishProjectFirstTraining}
-                  />
-                }
+                {state.training && (
+                  <StartReview onReady={finishProjectFirstTraining} />
+                )}
               </Grid>
             </Grid>
 
             {/* Cards on the project board */}
-            {!state.setup &&
+            {!state.setup && (
               <Box className={classes.cardBox}>
                 <StatisticsZone
                   project_id={props.project_id}
@@ -338,7 +298,11 @@ const ProjectPage = (props) => {
                 />
                 <PublicationZone
                   project_id={props.project_id}
-                  showExportResult={state.info.projectInitReady && !state.setup && !state.training}
+                  showExportResult={
+                    state.info.projectInitReady &&
+                    !state.setup &&
+                    !state.training
+                  }
                   toggleExportResult={props.toggleExportResult}
                   reviewFinished={state.finished}
                   finishProject={finishProject}
@@ -348,21 +312,22 @@ const ProjectPage = (props) => {
                   handleAppState={props.handleAppState}
                 />
               </Box>
-            }
+            )}
 
             {/* Pre Review settings */}
-            {state.setup &&
+            {state.setup && (
               <PreReviewZone
+                mode={"oracle"}
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
-                setProjectPageError={setError}
+                setError={setError}
               />
-            }
+            )}
           </Container>
         </Box>
-      }
+      )}
     </Box>
-  )
-}
+  );
+};
 
 export default connect(mapStateToProps)(ProjectPage);

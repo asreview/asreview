@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   Box,
   ListItem,
@@ -7,19 +7,13 @@ import {
   DialogContent,
   DialogActions,
   Button,
-} from '@material-ui/core'
+} from "@material-ui/core";
 
-import {
-  PaperCard,
-} from '../PreReviewComponents'
+import { PaperCard } from "../PreReviewComponents";
 
-import {
-  DialogTitleWithClose,
-} from '../Components'
-
+import { DialogTitleWithClose } from "../Components";
 
 const ListItemPaper = (props) => {
-
   // dialog open
   const [open, setOpen] = React.useState(false);
 
@@ -37,53 +31,45 @@ const ListItemPaper = (props) => {
     setOpen(false);
   };
 
-
   const includeAndClose = () => {
-    props.includeItem(props.id, ()=>{
-
+    props.includeItem(props.id, () => {
       // Close the Dialog
       handleClose();
 
       // Close the search results
-      props.closeSearchResult()
+      props.closeSearchResult();
 
       props.updatePriorStats();
     });
-
-  }
+  };
 
   const excludeAndClose = () => {
-    props.excludeItem(props.id, ()=> {
-
+    props.excludeItem(props.id, () => {
       // Close the Dialog
       handleClose();
 
       // Close the search results
-      props.closeSearchResult()
+      props.closeSearchResult();
 
       props.updatePriorStats();
     });
-
-  }
+  };
 
   return (
     <Box>
       <ListItem
         key={`result-item-${props.id}`}
-         button onClick={handleClickOpen}
+        button
+        onClick={handleClickOpen}
       >
         <ListItemText
           primary={props.title}
           secondary={props.authors}
-          secondaryTypographyProps={{noWrap:true}}
+          secondaryTypographyProps={{ noWrap: true }}
         />
       </ListItem>
 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth={true}
-      >
+      <Dialog open={open} onClose={handleClose} fullWidth={true}>
         <DialogTitleWithClose
           title={"Prior Knowledge: Is this document relevant or irrelevant?"}
           onClose={handleClose}
@@ -96,23 +82,16 @@ const ListItemPaper = (props) => {
           />
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={excludeAndClose}
-            color="primary"
-          >
+          <Button onClick={excludeAndClose} color="primary">
             Irrelevant
           </Button>
-          <Button
-            onClick={includeAndClose}
-            color="primary"
-          >
+          <Button onClick={includeAndClose} color="primary">
             Relevant
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
-  )
-
-}
+  );
+};
 
 export default ListItemPaper;
