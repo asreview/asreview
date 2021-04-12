@@ -69,6 +69,7 @@ const ExportDialog = (props) => {
   };
 
   return (
+<<<<<<< HEAD
     <Dialog
       open={props.exportResult}
       onClose={props.toggleExportResult}
@@ -92,6 +93,60 @@ const ExportDialog = (props) => {
             id="select-export-file-type"
             value={exportFileType}
             onChange={handleExportFileTypeChange}
+=======
+      <Dialog
+        open={props.exportResult}
+        onClose={props.toggleExportResult}
+        scroll="body"
+        fullWidth={true}
+        maxWidth={"sm"}
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >
+        <DialogTitle id="scroll-dialog-title">Download review result</DialogTitle>
+          <DialogContent dividers={true}>
+            <Typography>
+              Download the result of your review. Select a file format (CSV, Excel or RIS file).
+            </Typography>
+
+            <Box className={classes.file_type}>
+              <InputLabel id="select-export-file-type-label">File type</InputLabel>
+              <Select
+                labelId="select-export-file-type-label"
+                id="select-export-file-type"
+                value={exportFileType}
+                onChange={handleExportFileTypeChange}
+              >
+                <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
+                <MenuItem value={"excel"}>Excel</MenuItem>
+                <MenuItem value={"ris"}>RIS</MenuItem>
+              </Select>
+
+            </Box>
+          </DialogContent>
+
+          <DialogContent dividers={true}>
+
+          {donateURL !== undefined &&
+            <Typography>Our software is made with love and freely available for everyone. Help the development of the ASReview with a donation:
+              <Link
+                className={classes.link}
+                href={donateURL}
+                target="_blank"
+              >asreview.nl/donate
+              </Link>
+            </Typography>
+          }
+          </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={props.toggleExportResult}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={downloadResult}
+>>>>>>> rispy_inclusion
           >
             <MenuItem value={"excel"}>Excel</MenuItem>
             <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
