@@ -3,7 +3,7 @@ Post-Screening
 
 After you stop screening, or anytime you want to take a break, you can
 return to the project dashboard by clicking the hamburger menu on the
-top-left. Below we will explain the options in the project dashboard.
+top-left. Below, you find the options in the project dashboard.
 
 
 Download Results
@@ -19,7 +19,7 @@ any time during the screening process. To download your results:
 5. You will be asked whether you want to save an excel or a csv file.
 6. You will be asked where to save the file.
 
-Three columns will be added to your dataset: 
+Three columns will be added to your dataset:
 
 The column titled **included** contains the labels as provided by the user:
 ``0`` = not relevant, ``1`` = relevant and if missing it means the record is
@@ -28,10 +28,10 @@ presented in the order these shown during the screening process. Then, all
 records not seen during the screening proces are presented ordered from most
 to least relevant according to the last iteration of the model. At end of the
 file all non-relevant records are presented in the order these are shown
-during the screening proces. 
+during the screening proces.
 
 The column titled **asreview_ranking** contains an identifier to
-preserve the rank ordering as described above.  
+preserve the rank ordering as described above.
 
 If present, the column **record_id** contains the values of the original
 **record_id** as included by the user. If not available, ASReview generates a

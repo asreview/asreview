@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Button,
   Dialog,
@@ -13,10 +13,9 @@ import {
   FormControl,
   Select,
   MenuItem,
-} from '@material-ui/core';
+} from "@material-ui/core";
 
 export default function SettingsDialog(props) {
-
   const descriptionElementRef = React.useRef(null);
   React.useEffect(() => {
     if (props.openSettings) {
@@ -69,7 +68,7 @@ export default function SettingsDialog(props) {
                   edge="end"
                   onChange={props.toggleDarkMode}
                   checked={props.onDark.palette.type === "dark"}
-                  inputProps={{ 'aria-labelledby': 'switch-list-label-dark' }}
+                  inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -82,11 +81,11 @@ export default function SettingsDialog(props) {
                     value={props.textSize}
                     onChange={props.handleTextSizeChange}
                   >
-                    <MenuItem value='smallest'>Smallest</MenuItem>
-                    <MenuItem value='small'>Small</MenuItem>
-                    <MenuItem value='normal'>Normal</MenuItem>
-                    <MenuItem value='large'>Large</MenuItem>
-                    <MenuItem value='largest'>Largest</MenuItem>
+                    <MenuItem value="smallest">Smallest</MenuItem>
+                    <MenuItem value="small">Small</MenuItem>
+                    <MenuItem value="normal">Normal</MenuItem>
+                    <MenuItem value="large">Large</MenuItem>
+                    <MenuItem value="largest">Largest</MenuItem>
                   </Select>
                 </FormControl>
               </ListItemSecondaryAction>
@@ -98,28 +97,28 @@ export default function SettingsDialog(props) {
                   edge="end"
                   onChange={props.toggleUndoEnabled}
                   checked={props.undoEnabled}
-                  inputProps={{ 'aria-labelledby': 'switch-list-label-undo' }}
+                  inputProps={{ "aria-labelledby": "switch-list-label-undo" }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
             <ListItem>
-              <ListItemText id="switch-list-label-key" primary="Keyboard shortcuts" />
+              <ListItemText
+                id="switch-list-label-key"
+                primary="Keyboard shortcuts"
+              />
               <ListItemSecondaryAction>
                 <Switch
                   edge="end"
                   onChange={props.toggleKeyPressEnabled}
                   checked={props.keyPressEnabled}
-                  inputProps={{ 'aria-labelledby': 'switch-list-label-key' }}
+                  inputProps={{ "aria-labelledby": "switch-list-label-key" }}
                 />
               </ListItemSecondaryAction>
             </ListItem>
           </List>
-
         </DialogContent>
         <DialogActions>
-          <Button onClick={props.handleClose}>
-            Close
-          </Button>
+          <Button onClick={props.handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
     </div>

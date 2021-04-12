@@ -35,11 +35,11 @@ After a successfull upload of the data, move to the next step.
 
 .. warning::
 
-    If you upload your own data, make sure to remove duplicates and to retrieve 
+    If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
     <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <../guides/activelearning>` 
-    has to offer. 
+    benefit most from what :doc:`active learning <../guides/activelearning>`
+    has to offer.
 
 
 Select Prior Knowledge
@@ -93,7 +93,8 @@ understanding of your decisions, constantly updating the underlying model.
 
 As you keep reviewing documents and providing more labels, the number of
 unlabeled docuemtns left in the dataset will decline. When to stop is left to
-the user and we provide some tips in our `blogpost <https://asreview.nl/asreview-class-101/>`_.
+the you. The `blogpost *ASReview Class 101* <https://asreview.nl/asreview-class-101/>`_
+provides some tips on stopping with screening.
 
 
 Download Results

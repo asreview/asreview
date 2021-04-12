@@ -120,6 +120,7 @@ setup(
         'flask>=1.1',
         'flask_cors',
         'openpyxl',
+        'gevent',
     ],
     extras_require=DEPS,
     entry_points={
