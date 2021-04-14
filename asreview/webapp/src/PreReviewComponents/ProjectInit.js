@@ -1,5 +1,5 @@
-import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Button,
@@ -8,31 +8,34 @@ import {
   DialogContent,
   DialogActions,
   Dialog,
-} from '@material-ui/core'
+} from "@material-ui/core";
 
-import { brown } from '@material-ui/core/colors';
+import { brown } from "@material-ui/core/colors";
 
 import ErrorHandler from '../ErrorHandler';
 import { ProjectAPI } from '../api/index.js';
 
-import { setProject } from '../redux/actions'
+import { setProject } from "../redux/actions";
 
 import { connect } from "react-redux";
-import { mapStateToProps } from '../globals.js';
+import { api_url, mapStateToProps, projectModes } from "../globals.js";
+import ProjectModeSelect from "./ProjectModeSelect";
 
-import './ReviewZone.css';
+import "./ReviewZone.css";
 
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   title: {
     marginBottom: "20px",
   },
   button: {
-    margin: '36px 0px 0px 12px',
-    float: 'right',
+    margin: "36px 0px 0px 12px",
+    float: "right",
   },
   input: {
-    display: 'none',
+    display: "none",
+  },
+  list: {
+    backgroundColor: theme.palette.warning.light,
   },
   textfieldItem: {
     marginTop: 0,
@@ -49,22 +52,22 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: brown[500],
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
     color: theme.palette.grey[500],
   },
 }));
 
-
 function mapDispatchToProps(dispatch) {
-    return({
-        setProjectId: (project_id) => {dispatch(setProject(project_id))}
-    })
+  return {
+    setProjectId: (project_id) => {
+      dispatch(setProject(project_id));
+    },
+  };
 }
 
 const ProjectInit = (props) => {
-
   const classes = useStyles();
 
   // const [open, setOpen] = React.useState(props.open)
@@ -74,28 +77,36 @@ const ProjectInit = (props) => {
     authors: "",
     name: "",
     description: "",
-    mode: "oracle",
-  })
+    mode: projectModes.ORACLE,
+  });
   const [error, setError] = React.useState({
     "code": null,
     "message": null,
   })
 
+  // handle project type/mode change
+  const onModeChange = (event) => {
+    setInfo({
+      ...info,
+      mode: event.target.value,
+    });
+  };
+
   const onChange = (evt) => {
     setInfo({
       ...info,
-      [evt.target.name]: evt.target.value
+      [evt.target.name]: evt.target.value,
     });
-  }
+  };
 
   const submitForm = (evt) => {
     evt.preventDefault();
 
     var bodyFormData = new FormData();
-    bodyFormData.set('mode', info.mode);
-    bodyFormData.set('name', info.name);
-    bodyFormData.set('authors', info.authors);
-    bodyFormData.set('description', info.description);
+    bodyFormData.set("name", info.name);
+    bodyFormData.set("authors", info.authors);
+    bodyFormData.set("description", info.description);
+    bodyFormData.set("mode", info.mode);
 
     ProjectAPI.init(bodyFormData)
       .then((result) => {
@@ -210,10 +221,7 @@ const ProjectInit = (props) => {
         </DialogActions>
       }
     </Dialog>
-  )
-}
+  );
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProjectInit);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInit);
