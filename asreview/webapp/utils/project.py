@@ -72,6 +72,9 @@ def init_project(project_id,
     if is_project(project_id):
         raise ValueError("Project name already exists.")
 
+    if project_mode not in ["oracle", "explore", "simulate"]:
+        ValueError("Project mode should be oracle, explore, or simulate.")
+
     try:
         get_project_path(project_id).mkdir()
         get_data_path(project_id).mkdir()
@@ -121,13 +124,13 @@ def add_dataset_to_project(project_id, file_name):
     ):
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
+            project_config = json.load(f_read)
 
         # add path to dict (overwrite if already exists)
-        project_dict["dataset_path"] = file_name
+        project_config["dataset_path"] = file_name
 
         with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+            json.dump(project_config, f_write)
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
@@ -165,14 +168,14 @@ def remove_dataset_to_project(project_id, file_name):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
+            project_config = json.load(f_read)
 
         # remove the path from the project file
-        data_fn = project_dict["dataset_path"]
-        del project_dict["dataset_path"]
+        data_fn = project_config["dataset_path"]
+        del project_config["dataset_path"]
 
         with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+            json.dump(project_config, f_write)
 
         # files to remove
         data_path = get_data_file_path(project_id, data_fn)
