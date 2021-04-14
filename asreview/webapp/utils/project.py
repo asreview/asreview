@@ -134,11 +134,9 @@ def import_project_file(file_name):
             # If the uploaded project already exists,
             # then overwrite project.json with a copy suffix.
             while is_project(import_project["id"]):
-
                 # project update
                 import_project["id"] = f"{import_project['id']}-copy"
                 import_project["name"] = f"{import_project['name']} copy"
-
             else:
                 # write to file
                 f.seek(0)
