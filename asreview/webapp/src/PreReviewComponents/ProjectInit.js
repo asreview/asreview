@@ -18,7 +18,7 @@ import { ProjectAPI } from "../api/index.js";
 import { setProject } from "../redux/actions";
 
 import { connect } from "react-redux";
-import { api_url, mapStateToProps, projectModes } from "../globals.js";
+import { mapStateToProps, projectModes } from "../globals.js";
 import ProjectModeSelect from "./ProjectModeSelect";
 
 import "./ReviewZone.css";
