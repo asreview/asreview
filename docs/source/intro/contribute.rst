@@ -19,10 +19,9 @@ More studies related to the project can be found on the
 Donate
 ~~~~~~
 
-Although the ASReview software is Free and Open Source Software (FOSS), the
-development is not. We are research-focused and not a commercial company
-(which we do not want to become). So, if you want to contribute, consider
-donating some money via our `crowdfunding platform
+The ASReview LAB software is Free and Open Source Software (FOSS). To support
+the development of ASReview, you can donate via the
+`ASReview crowdfunding platform
 <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-
 everyone>`_. Even small donations are highly appreciated!
 

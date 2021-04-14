@@ -32,10 +32,9 @@ transparent in the process.
 ASReview plugin
 ---------------
 
-To help combat the COVID-19 crisis, the ASReview team has decided to
-`release <https://asreview.nl/interview-in-fortune/>`_ a plugin
-that provides three datasets on COVID-19. These are integrated automatically
-into ASReview once we install the correct packages, so reviewers can start
+To help combat the COVID-19 crisis, the ASReview team developed a plugin that
+provides three datasets on COVID-19. These are automatically available in
+ASReview after installing the plugin, so reviewers can start
 reviewing the latest scientific literature on COVID-19 as soon as possible!
 
 CORD-19 dataset
@@ -53,9 +52,9 @@ and other coronavirus research (e.g. SARS, MERS, etc.) from PubMed Central,
 the WHO COVID-19 database of publications, the preprint servers bioRxiv and
 medRxiv and papers contributed by specific publishers.
 
-In addition to the full dataset, we construct automatically a daily subset of
-the database with studies published after December 1st, 2019 to search for
-relevant papers published during the COVID-19 crisis.
+In addition to the full dataset, there is a subset available of studies
+published after December 1st, 2019 to search for relevant papers published
+during the COVID-19 crisis.
 
 The datasets are updated in ASReview plugin shortly after the release by
 the Allen Institute for AI.

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -9,18 +9,18 @@ import {
   Link,
   Grid,
   Typography,
-} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { makeStyles } from '@material-ui/core/styles';
+} from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    width: '100%',
-    marginBottom: '5px',
+    width: "100%",
+    marginBottom: "5px",
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
-    flexBasis: '33.33%',
+    flexBasis: "33.33%",
     flexShrink: 0,
   },
   secondaryHeading: {
@@ -33,46 +33,43 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const DOILink = (doi) => {
-
   if (doi !== undefined && doi.startsWith("http")) {
-    return doi
+    return doi;
   } else {
-    return "https://doi.org/" + doi
-  };
-
+    return "https://doi.org/" + doi;
+  }
 };
 
 const BenchmarkDataset = (props) => {
-
   const classes = useStyles();
 
   const handleChange = (index, featured) => (event, isExpanded) => {
-
     if (!props.uploading) {
       if (featured) {
-        props.setExpanded(s => {return({
-          "all": false,
-          "featured": isExpanded ? index : false,
-        })});
+        props.setExpanded((s) => {
+          return {
+            all: false,
+            featured: isExpanded ? index : false,
+          };
+        });
       } else {
-        props.setExpanded(s => {return({
-          "all": isExpanded ? index : false,
-          "featured": false,
-        })});
-      };
-    };
-
+        props.setExpanded((s) => {
+          return {
+            all: isExpanded ? index : false,
+            featured: false,
+          };
+        });
+      }
+    }
   };
 
   const uploadDataset = () => {
-
     // upload state
     props.setUploading(true);
 
     // send upload request to server
     props.onUploadHandler(props.dataset_id, resetState);
-
-  }
+  };
 
   const resetState = () => {
     // props.setUploading(false);
@@ -84,11 +81,11 @@ const BenchmarkDataset = (props) => {
         expanded={props.expanded === props.index}
         onChange={handleChange(props.index, props.featured)}
       >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-        >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography className={classes.heading}>{props.authors}</Typography>
-          <Typography className={classes.secondaryHeading}>{props.description}</Typography>          
+          <Typography className={classes.secondaryHeading}>
+            {props.description}
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <div>
@@ -118,11 +115,7 @@ const BenchmarkDataset = (props) => {
               </Grid>
               <Grid item xs={12} sm={11}>
                 <Typography className={classes.secondaryHeading}>
-                  <Link
-                    href={props.link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <Link href={props.link} target="_blank" rel="noreferrer">
                     {props.license}
                   </Link>
                 </Typography>
@@ -134,11 +127,7 @@ const BenchmarkDataset = (props) => {
               </Grid>
               <Grid item xs={12} sm={11}>
                 <Typography className={classes.secondaryHeading}>
-                  <Link
-                    href={props.location}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <Link href={props.location} target="_blank" rel="noreferrer">
                     Link to the dataset
                   </Link>
                 </Typography>
@@ -159,7 +148,7 @@ const BenchmarkDataset = (props) => {
         </AccordionActions>
       </Accordion>
     </div>
-  )
-}
+  );
+};
 
 export default BenchmarkDataset;
