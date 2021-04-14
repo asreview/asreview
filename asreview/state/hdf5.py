@@ -23,6 +23,7 @@ from scipy.sparse.csr import csr_matrix
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateNotFoundError
+from asreview.state.errors import StateError
 
 
 LATEST_HDF5STATE_VERSION = "1.1"
@@ -112,6 +113,10 @@ class HDF5State(BaseState):
         for dataset in required_datasets:
             if dataset not in results.keys():
                 raise KeyError(f"State file structure has not been initialized in time, {dataset} is not present. ")
+
+        lengths = [results[dataset].shape[0] for dataset in required_datasets]
+        if len(set(lengths)) != 1:
+            raise StateError("All datasets should have the same size.")
 
     def save(self):
         """Save and close the state file."""
@@ -351,12 +356,17 @@ class HDF5State(BaseState):
         results[dataset].resize((cur_size + len(values),))
         results[dataset][cur_size: cur_size + len(values)] = values
 
-# TODO (State): Should these be added by row_index instead?
-# TODO (State): Add models being trained.
+# TODO (State): Where this function is used, still need to update it.
+# TODO (State): Add models being trained (Start with only one model at the same time).
     def add_labeling_data(self, record_ids, labels, models, methods, training_sets, labeling_times):
         """Add all data of one labeling action. """
         # Check if the datasets have all been created.
         self._is_valid_state()
+
+        # Check that all input data has the same length.
+        lengths = [len(record_ids), len(labels), len(models), len(methods), len(training_sets), len(labeling_times)]
+        if len(set(lengths)) != 1:
+            raise ValueError("Input data should be of the same length.")
 
         # Convert record_ids to row indices.
         indices = np.array([self._record_id_to_row_index(record_id) for record_id in record_ids])
