@@ -17,7 +17,7 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
-bcrypt = Bcrypt()
-db = SQLAlchemy()
-cors = CORS()
 admin = Admin(template_mode="bootstrap3")
+bcrypt = Bcrypt()
+cors = CORS()
+db = SQLAlchemy()

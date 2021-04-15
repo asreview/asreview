@@ -24,16 +24,14 @@ from asreview.entry_points.lab import _lab_parser
 from asreview.webapp.api import api
 from asreview.webapp.api import base
 from asreview.webapp.auth import auth
-from asreview.webapp.auth import views
+from asreview.webapp.auth import users
 from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
-from asreview.webapp.extensions import (
-    admin,
-    bcrypt,
-    db,
-    cors,
-)
+from asreview.webapp.extensions import admin
+from asreview.webapp.extensions import bcrypt
+from asreview.webapp.extensions import db
+from asreview.webapp.extensions import cors
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -75,6 +73,8 @@ def create_app(**kwargs):
     app = Flask(
         __name__,
         instance_relative_config=True,
+        static_folder="build/static",
+        template_folder="build"
     )
 
     # Get the ASReview arguments.
@@ -108,7 +108,7 @@ def register_blueprints(app):
     app.register_blueprint(base.bp)
     app.register_blueprint(api.bp)
     app.register_blueprint(auth.bp)
-    app.register_blueprint(views.bp)
+    app.register_blueprint(users.bp)
     return None
 
 
@@ -148,12 +148,25 @@ def main(argv):
         print("Done")
         return
 
+    # IF user didn't insert password or username:
+        # Create random user
+        # with app.app_context():
+        #     db.create_all()
+        #     if db.session.query(User).filter_by(username='randomusername').count() < 1:
+        #         db.session.add(User(
+        #             username='randomusername',
+        #             password= 'strongpassword',
+        #               email = email'strongpassword',
+        #             roles='admin'
+        #         ))
+        #     db.session.commit()
+
     flask_dev = os.environ.get('FLASK_ENV', "") == "development"
     host = args.ip
     port = args.port
     port_retries = args.port_retries
     # if port is already taken find another one
-    if not os.environ.get('FLASK_ENV', "") == "development":
+    if flask_dev is False:
         original_port = port
         while check_port_in_use(host, port) is True:
             old_port = port
@@ -164,9 +177,7 @@ def main(argv):
                     "to launch ASReview LAB. Last port \n"
                     f"was {str(port)}"
                 )
-            print(
-                f"Port {old_port} is in use.\n* Trying to start at {port}"
-            )
+            print(f"Port {old_port} is in use.\n* Trying to start at {port}")
 
     # open webbrowser if not in flask development mode
     if flask_dev is False:

@@ -23,9 +23,7 @@ from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, Forbidden
 
 from asreview.webapp.auth.crud import add_user, get_user_by_email, get_user_by_id
 from asreview.webapp.auth.models import User
-from asreview.webapp.extensions import (
-    bcrypt,
-)
+from asreview.webapp.extensions import bcrypt
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
