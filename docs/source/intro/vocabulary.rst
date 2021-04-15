@@ -11,21 +11,21 @@ When we write about ASReview, we want to use a consistent vocabulary.
 |                  | Avoid this explanation, only use as tagline.              |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
+| **ASReview       | Use ASReview project as an encompassing term for all work |
+| project**        | that is done by the ASReview team members and ASReview    |
+|                  | contributors.                                             |
+|                  |                                                           |
++------------------+-----------------------------------------------------------+
+| **ASReview LAB** | Use to indicate the user-friendly interface that has      |
+|                  | been developed for researchers to use.                    |
+|                  |                                                           |
++------------------+-----------------------------------------------------------+
 | **team members** | UU employees and students and who have permission to      |
 |                  | devote hours to the ASReview project.                     |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **contributors** | Everyone contributing to the ASReview project (through    |
 |                  | GitHub)                                                   |
-|                  |                                                           |
-+------------------+-----------------------------------------------------------+
-| **ASReview       | Use ASReview project as an encompassing term for all work |
-| project**        | that is done by the ASReview team members and ASReview    |
-|                  | contributors.                                             |
-|                  |                                                           |
-+------------------+-----------------------------------------------------------+
-| **ASReview LAB** | Use to indicate the GUI that has been developed for       |
-|                  | researchers to use.                                       |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Extension**    | Use to indicate additional elements to the ASReview       |
