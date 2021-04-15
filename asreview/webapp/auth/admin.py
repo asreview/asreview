@@ -15,7 +15,7 @@
 from flask import current_app
 from flask_admin.contrib.sqla import ModelView
 
-from asreview.webapp.start_flask import bcrypt
+from asreview.webapp.extensions import bcrypt
 
 
 class UsersAdminView(ModelView):

@@ -16,14 +16,12 @@ import datetime
 import os
 
 import jwt
-from flask import current_app
+from flask import current_app as app
 from sqlalchemy.sql import func
 
-from asreview.webapp.extensions import (
-    admin,
-    bcrypt,
-    db,
-)
+from asreview.webapp.extensions import db
+from asreview.webapp.extensions import bcrypt
+from asreview.webapp.extensions import admin
 
 
 class User(db.Model):
@@ -42,7 +40,7 @@ class User(db.Model):
         self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(
-            password, current_app.config.get("BCRYPT_LOG_ROUNDS")
+            password, app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()
 
     def encode_token(self, user_id, token_type):
@@ -62,9 +60,9 @@ class User(db.Model):
             JWT token: encoded with app's secret key and HS256.
         """
         if token_type == "access":
-            seconds = current_app.config.get("ACCESS_TOKEN_EXPIRATION")
+            seconds = app.config.get("ACCESS_TOKEN_EXPIRATION")
         else:
-            seconds = current_app.config.get("REFRESH_TOKEN_EXPIRATION")
+            seconds = app.config.get("REFRESH_TOKEN_EXPIRATION")
 
         payload = {
             "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=seconds),
@@ -73,7 +71,7 @@ class User(db.Model):
         }
         return jwt.encode(
             payload,
-            current_app.config.get("SECRET_KEY"),
+            app.config.get("SECRET_KEY"),
             algorithm="HS256"
         )
 
@@ -82,14 +80,14 @@ class User(db.Model):
         """Decode token with JWT to verify it."""
         payload = jwt.decode(
             token,
-            current_app.config.get("SECRET_KEY"),
+            app.config.get("SECRET_KEY"),
             algorithms="HS256"
         )
         return payload["sub"]
 
 
 if os.getenv("FLASK_ENV") == "development":
-    from asreview.webapp.start_flask import admin
+    from asreview.webapp.extensions import admin
     from asreview.webapp.auth.admin import UsersAdminView
 
     admin.add_view(UsersAdminView(User, db.session))
