@@ -182,7 +182,7 @@ const ProjectPage = (props) => {
     };
 
     fetchProjectInfo();
-  }, [props.project_id, state.finished, error.message]);
+  }, [props.project_id, error.message]);
 
   return (
     <Box>
