@@ -34,7 +34,6 @@ from flask import request
 from flask import Response
 from flask import send_file
 from flask import jsonify
-from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
 
@@ -76,7 +75,8 @@ from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_N_INSTANCES
 
 bp = Blueprint('api', __name__, url_prefix='/api')
-CORS(bp, resources={r"*": {"origins": "*"}})
+#cors.init_app(app, resources={r"*": {"origins": "*"}})
+#CORS(bp, resources={r"*": {"origins": "*"}})
 
 
 # custom errors
