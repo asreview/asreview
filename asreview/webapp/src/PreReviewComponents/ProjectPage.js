@@ -315,9 +315,9 @@ const ProjectPage = (props) => {
             )}
 
             {/* Pre Review settings */}
-            {state.setup && (
+            {!state.infoLoading && state.setup && (
               <PreReviewZone
-                mode={"oracle"}
+                mode={state.info.mode}
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
                 setError={setError}

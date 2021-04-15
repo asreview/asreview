@@ -82,10 +82,6 @@ const ExplorationAlert = (props) => {
     <div className={classes.alertFullWidth}>
       <Alert severity="warning">
         <AlertTitle>
-          You are screening through a manually pre-labeled dataset
-        </AlertTitle>
-        <div>
-          Relevant documents are displayed in green. Read more about
           <Link
             className={classes.link}
             href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
@@ -93,8 +89,8 @@ const ExplorationAlert = (props) => {
           >
             Exploration Mode
           </Link>
-          .
-        </div>
+          You are screening through a manually pre-labeled dataset.
+        </AlertTitle>
       </Alert>
     </div>
   );
