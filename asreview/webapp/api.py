@@ -765,7 +765,7 @@ def api_import_project():
     project_id = import_project_file(project_file)
 
     # return the project info in the same format as project_info
-    return api_get_project_info(project_id), 200
+    return jsonify(id=project_id)
 
 
 @bp.route('/project/<project_id>/export', methods=["GET"])
