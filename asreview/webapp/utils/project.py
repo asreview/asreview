@@ -479,7 +479,7 @@ def retrieve_project_url_github():
             version_tags.append(file["path"])
 
     for tag in version_tags:
-        file_url = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
-        project_urls.append(repo_url + file_url + file_type)
+        file_version = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
+        project_urls.append(repo_url + file_version + file_type)
 
     return project_urls
