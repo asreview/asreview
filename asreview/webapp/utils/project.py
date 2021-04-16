@@ -465,7 +465,7 @@ def retrieve_project_url_github():
     asreview-project-files-testing GitHub repository'''
 
     repo = "/asreview/asreview-project-files-testing"
-    repo_api_url = "https://api.github.com/repos" + repo +"/git/trees/master"
+    repo_api_url = "https://api.github.com/repos" + repo + "/git/trees/master"
     repo_url = "https://github.com" + repo + "/blob/master"
     file_type = "startreview.asreview?raw=true"
 
