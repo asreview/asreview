@@ -16,8 +16,8 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="custom-tooltip">
         <p className="label">{`Total reviewed: ${label}`}</p>
         <p className="intro">Relevant found</p>
-        <p className="asreview">{`By ASReview: ${payload[0].value}`}</p>
-        <p className="random">{`At random: ${payload[1].value}`}</p>
+        <p className="asreview">{`By ASReview: ${payload ? payload[0].value : "null"}`}</p>
+        <p className="random">{`At random: ${payload ? payload[1].value : "null"}`}</p>
       </div>
     );
   }
