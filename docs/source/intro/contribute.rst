@@ -4,7 +4,7 @@ Cite, Donate and Contribute
 Cite
 ~~~~
 
-The `preprint <https://arxiv.org/abs/2006.12166>`_  can be used to cite the **ASReview project**.
+The paper publisehd in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_  can be used to cite the **ASReview project**.
 
 For citing the software **ASReview Lab**, refer to the `specific release
 <https://doi.org/10.5281/zenodo.3345592>`_ of the software. The menu on the
@@ -19,8 +19,8 @@ More studies related to the project can be found on the
 Donate
 ~~~~~~
 
-The ASReview LAB software is Free and Open Source Software (FOSS). To support
-the development of ASReview, you can donate via the
+The ASReview software is Free and Open Source Software (FOSS). To support
+the development, you can donate via the
 `ASReview crowdfunding platform
 <https://steun.uu.nl/project/help-us-to-make-covid-19-research-accessible-to-
 everyone>`_. Even small donations are highly appreciated!
