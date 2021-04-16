@@ -13,23 +13,15 @@
 # limitations under the License.
 
 import os
-import re
 import pytest
 from io import BytesIO
 from urllib.request import urlopen
 
+from asreview.webapp.utils.project import retrieve_project_url_github
 
-project_urls = []
 
-HTML_TAG_ASREVIEW = re.compile(r"<a[^<>]+?href=([\'\"])(.*\.asreview)\1")
-link_project_file = "https://github.com/asreview/" \
-    + "asreview-project-files-testing/tree/master/asreview_file"
-
-# Retrieve urls to .asreview files exported in previous versions
-with urlopen(link_project_file) as html_code:
-    html_project_file = html_code.read().decode("utf8")
-    for match in HTML_TAG_ASREVIEW.findall(html_project_file):
-        project_urls.append("https://github.com" + match[1] + "?raw=true")
+# Retrieve urls to .asreview files exported from previous versions
+project_urls = retrieve_project_url_github()
 
 
 def test_retrieve_project_file():
