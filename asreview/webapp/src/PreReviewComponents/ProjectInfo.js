@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import {
@@ -63,18 +63,18 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const ProjectInit = (props) => {
+const ProjectInfo = (props) => {
   const classes = useStyles();
 
   // const [open, setOpen] = React.useState(props.open)
 
   // the state of the form data
-  const [info, setInfo] = React.useState({
+  const [info, setInfo] = useState({
     authors: "",
     name: "",
     description: "",
   });
-  const [error, setError] = React.useState({
+  const [error, setError] = useState({
     code: null,
     message: null,
   });
@@ -190,4 +190,4 @@ const ProjectInit = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectInit);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);
