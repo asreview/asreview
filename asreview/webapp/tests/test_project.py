@@ -57,6 +57,11 @@ def test_project_file(tmp_path, client, url):
         for item in json_data_projects["result"]
     )
 
+    # Test get info on the project
+    response = client.get(f"{project_path}/info")
+    json_data = response.get_json()
+    assert json_data["id"] == json_data_import['id']
+
     # Test get progress info on the article
     response_progress = client.get(f"{project_path}/progress")
     json_data_progress = response_progress.get_json()
