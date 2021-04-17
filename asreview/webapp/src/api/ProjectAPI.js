@@ -57,11 +57,14 @@ class ProjectAPI {
     });
   }
 
-  static info(project_id) {
+  static info(project_id, edit=false, data=null) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
-      axios
-        .get(url)
+      axios({
+        method: edit ? "put" : "get",
+        url: url,
+        data: data,
+      })
         .then((result) => {
           resolve(result);
         })
