@@ -94,12 +94,24 @@ const ProjectInfo = (props) => {
     bodyFormData.set("authors", info.authors);
     bodyFormData.set("description", info.description);
 
-    ProjectAPI.init(bodyFormData)
+    (props.edit ? ProjectAPI.info(props.project_id, true, bodyFormData) : ProjectAPI.init(bodyFormData))
       .then((result) => {
         // set the project_id in the redux store
         props.setProjectId(result.data["id"]);
-
-        props.handleAppState("project-page");
+        // close project info dialog
+        props.onClose();
+        // switch to project page if init
+        // reload project info if edit
+        if (!props.edit) {
+          props.handleAppState("project-page");
+        } else {
+          props.setInfo((s) => {
+            return {
+              ...s,
+              loading: true,
+            };
+          });
+        };
       })
       .catch((error) => {
         setError({
@@ -109,9 +121,22 @@ const ProjectInfo = (props) => {
       });
   };
 
+  useEffect(() => {
+    // pre-fill project info in edit mode
+    if (props.edit) {
+      setInfo({
+        name: props.name,
+        authors: props.authors,
+        description: props.description,
+      });
+    };
+  }, [props.edit, props.name, props.authors, props.description]);
+
   return (
     <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
-      <DialogTitle>Create a new project</DialogTitle>
+      <DialogTitle>
+        {props.edit ? "Edit project info" : "Create a new project"}
+      </DialogTitle>
 
       {error.code === 503 && (
         <DialogContent dividers={true}>
@@ -182,7 +207,7 @@ const ProjectInfo = (props) => {
             color="primary"
             disabled={info.name.length < 3}
           >
-            Create
+            {props.edit ? "Update" : "Create"}
           </Button>
         </DialogActions>
       )}
