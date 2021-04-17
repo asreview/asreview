@@ -439,9 +439,9 @@ const ProjectUpload = ({
               From file/URL:
               <Typography variant="body2" gutterBottom>
                 Select a file from your computer or fill in a link to a file
-                from the Internet. The accepted file formats are CSV, Excel, TSV, and
-                RIS. The selected dataset should contain the title and abstract
-                of each record. Read more about
+                from the Internet. The accepted file formats are CSV, Excel,
+                TSV, and RIS. The selected dataset should contain the title and
+                abstract of each record. Read more about
                 <Link
                   className={classes.link}
                   href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"

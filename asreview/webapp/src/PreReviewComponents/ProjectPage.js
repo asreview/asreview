@@ -11,7 +11,11 @@ import {
   IconButton,
   Tooltip,
 } from "@material-ui/core";
-import { StartReview, PreReviewZone, ProjectInfo } from "../PreReviewComponents";
+import {
+  StartReview,
+  PreReviewZone,
+  ProjectInfo,
+} from "../PreReviewComponents";
 
 import ErrorHandler from "../ErrorHandler";
 import DangerZone from "../DangerZone.js";
@@ -21,7 +25,7 @@ import { ProjectAPI } from "../api/index.js";
 
 import KeyboardVoiceIcon from "@material-ui/icons/KeyboardVoice";
 import GetAppIcon from "@material-ui/icons/GetApp";
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 
 import Finished from "../images/Finished.svg";
 import InReview from "../images/InReview.svg";
@@ -123,7 +127,7 @@ const ProjectPage = (props) => {
   const finishProjectFirstTraining = () => {
     setInfo({
       ...info,
-      info: { ...info.info, projectInitReady: true }
+      info: { ...info.info, projectInitReady: true },
     });
     setState({
       ...state,
@@ -170,32 +174,31 @@ const ProjectPage = (props) => {
     }
   };
 
-  const fetchProjectInfo = useCallback(
-    async () => {
-      ProjectAPI.info(props.project_id)
-        .then((result) => {
-          // update the state with the fetched data
-          setInfo((s) => {
-            return {
-              ...s,
-              loading: false,
-              info: result.data,
-            };
-          });
-          setState((s) => {
-            return {
-              ...s,
-              finished: result.data.reviewFinished,
-            };
-          });
-        })
-        .catch((error) => {
-          setError({
-            code: error.code,
-            message: error.message,
-          });
+  const fetchProjectInfo = useCallback(async () => {
+    ProjectAPI.info(props.project_id)
+      .then((result) => {
+        // update the state with the fetched data
+        setInfo((s) => {
+          return {
+            ...s,
+            loading: false,
+            info: result.data,
+          };
         });
-    }, [props.project_id]);
+        setState((s) => {
+          return {
+            ...s,
+            finished: result.data.reviewFinished,
+          };
+        });
+      })
+      .catch((error) => {
+        setError({
+          code: error.code,
+          message: error.message,
+        });
+      });
+  }, [props.project_id]);
 
   const scrollToTop = () => {
     EndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -210,7 +213,7 @@ const ProjectPage = (props) => {
   useEffect(() => {
     if (info.loading) {
       fetchProjectInfo();
-    };
+    }
   }, [fetchProjectInfo, info.loading, error.message]);
 
   return (
@@ -240,10 +243,7 @@ const ProjectPage = (props) => {
                 >
                   {info.info.name}
                   <Tooltip title="Edit info">
-                    <IconButton
-                      size="small"
-                      onClick={editProjectInfo}
-                    >
+                    <IconButton size="small" onClick={editProjectInfo}>
                       <EditOutlinedIcon />
                     </IconButton>
                   </Tooltip>
@@ -265,8 +265,7 @@ const ProjectPage = (props) => {
                         variant={"outlined"}
                         onClick={continueProjectSetup}
                       >
-                        {info.info.projectHasDataset ? "Finish" : "Start"}{" "}
-                        setup
+                        {info.info.projectHasDataset ? "Finish" : "Start"} setup
                       </Button>
                     )}
 
@@ -364,7 +363,7 @@ const ProjectPage = (props) => {
         </Box>
       )}
       {/* Edit project info*/}
-      {error.message === null && !info.loading &&
+      {error.message === null && !info.loading && (
         <ProjectInfo
           setInfo={setInfo}
           edit={info.editing}
@@ -374,7 +373,7 @@ const ProjectPage = (props) => {
           authors={info.info.authors}
           description={info.info.description}
         />
-      }
+      )}
     </Box>
   );
 };

@@ -57,7 +57,7 @@ class ProjectAPI {
     });
   }
 
-  static info(project_id, edit=false, data=null) {
+  static info(project_id, edit = false, data = null) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
       axios({

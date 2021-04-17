@@ -94,7 +94,10 @@ const ProjectInfo = (props) => {
     bodyFormData.set("authors", info.authors);
     bodyFormData.set("description", info.description);
 
-    (props.edit ? ProjectAPI.info(props.project_id, true, bodyFormData) : ProjectAPI.init(bodyFormData))
+    (props.edit
+      ? ProjectAPI.info(props.project_id, true, bodyFormData)
+      : ProjectAPI.init(bodyFormData)
+    )
       .then((result) => {
         // set the project_id in the redux store
         props.setProjectId(result.data["id"]);
@@ -111,7 +114,7 @@ const ProjectInfo = (props) => {
               loading: true,
             };
           });
-        };
+        }
       })
       .catch((error) => {
         setError({
@@ -129,7 +132,7 @@ const ProjectInfo = (props) => {
         authors: props.authors,
         description: props.description,
       });
-    };
+    }
   }, [props.edit, props.name, props.authors, props.description]);
 
   return (
