@@ -75,11 +75,23 @@ def test_get_project_data(client):
     assert json_data["filename"] == "Hall_2012"
 
 
+def test_update_project_info(client):
+    """Test update project info"""
+
+    response = client.put("/api/project/project-id/info", data={
+        "name": "project_id",
+        "authors": "asreview team",
+        "description": "hello world"
+    })
+    assert response.status_code == 200
+
+
 def test_get_project_info(client):
     """Test get info on the project"""
 
     response = client.get("/api/project/project-id/info")
     json_data = response.get_json()
+    assert json_data["authors"] == "asreview team"
     assert json_data["dataset_path"] == "Hall_2012.csv"
 
 
