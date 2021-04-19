@@ -458,28 +458,3 @@ def move_label_from_labeled_to_pool(project_id, paper_i):
 
     # load the papers from the pool
     write_label_history(project_id, labeled_list_new)
-
-
-def retrieve_project_url_github():
-    '''Retrieve .asreview file url from
-    asreview-project-files-testing GitHub repository'''
-
-    repo = "/asreview/asreview-project-files-testing"
-    repo_api_url = "https://api.github.com/repos" + repo + "/git/trees/master"
-    repo_url = "https://github.com" + repo + "/blob/master"
-    file_type = "startreview.asreview?raw=true"
-
-    json_file = json.loads(urlopen(repo_api_url).read().decode("utf-8"))["tree"]
-
-    version_tags = []
-    project_urls = []
-
-    for file in json_file:
-        if file["type"] == "tree":
-            version_tags.append(file["path"])
-
-    for tag in version_tags:
-        file_version = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
-        project_urls.append(repo_url + file_version + file_type)
-
-    return project_urls
