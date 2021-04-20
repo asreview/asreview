@@ -84,8 +84,8 @@ const ProjectPage = (props) => {
 
   const [state, setState] = useState({
     // info-header
-    loading: true,
-    editing: false,
+    infoLoading: true,
+    infoEditing: false,
     info: null,
 
     // stage
@@ -103,14 +103,14 @@ const ProjectPage = (props) => {
   const editProjectInfo = () => {
     setState({
       ...state,
-      editing: true,
+      infoEditing: true,
     });
   };
 
   const finishEditProjectInfo = () => {
     setState({
       ...state,
-      editing: false,
+      infoEditing: false,
     });
   };
 
@@ -118,7 +118,7 @@ const ProjectPage = (props) => {
     setState((s) => {
       return {
         ...s,
-        loading: true,
+        infoLoading: true,
       };
     });
   };
@@ -185,7 +185,7 @@ const ProjectPage = (props) => {
         setState((s) => {
           return {
             ...s,
-            loading: false,
+            infoLoading: false,
             info: result.data,
             finished: result.data.reviewFinished,
           };
@@ -204,16 +204,16 @@ const ProjectPage = (props) => {
   };
 
   useEffect(() => {
-    if (!state.loading && EndRef.current !== undefined) {
+    if (!state.infoLoading && EndRef.current !== undefined) {
       scrollToTop();
     }
-  }, [state.setup, state.finished, state.loading]);
+  }, [state.setup, state.finished, state.infoLoading]);
 
   useEffect(() => {
-    if (state.loading) {
+    if (state.infoLoading) {
       fetchProjectInfo();
     }
-  }, [fetchProjectInfo, state.loading, error.message]);
+  }, [fetchProjectInfo, state.infoLoading, error.message]);
 
   return (
     <Box>
@@ -221,7 +221,7 @@ const ProjectPage = (props) => {
         <ErrorHandler error={error} setError={setError} />
       )}
 
-      {error.message === null && !state.loading && (
+      {error.message === null && !state.infoLoading && (
         <Box className={classes.box}>
           <div ref={EndRef} />
           <Container maxWidth="md">
@@ -362,10 +362,10 @@ const ProjectPage = (props) => {
         </Box>
       )}
       {/* Edit project info*/}
-      {error.message === null && !state.loading && (
+      {error.message === null && !state.infoLoading && (
         <ProjectInfo
-          edit={state.editing}
-          open={state.editing}
+          edit={state.infoEditing}
+          open={state.infoEditing}
           onClose={finishEditProjectInfo}
           reloadProjectInfo={reloadProjectInfo}
           name={state.info.name}
