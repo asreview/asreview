@@ -10,7 +10,7 @@
 
 Systematic Reviews are “top of the bill” in research. The number of scientific
 studies is increasing exponentially in many scholarly fields. Performing a
-sound systematic review is a time-consuming and sometimes boring task. Our
+sound systematic review is a time-consuming and sometimes boring task. The ASReview
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false
 negatives.
