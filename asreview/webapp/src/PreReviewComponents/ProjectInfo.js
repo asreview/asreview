@@ -101,19 +101,14 @@ const ProjectInfo = (props) => {
       .then((result) => {
         // set the project_id in the redux store
         props.setProjectId(result.data["id"]);
-        // close project info dialog
-        props.onClose();
         // switch to project page if init
         // reload project info if edit
         if (!props.edit) {
+          props.onClose();  // set newProject state to false
           props.handleAppState("project-page");
         } else {
-          props.setInfo((s) => {
-            return {
-              ...s,
-              loading: true,
-            };
-          });
+          props.onClose();  // set editing state to false
+          props.reloadProjectInfo();
         }
       })
       .catch((error) => {

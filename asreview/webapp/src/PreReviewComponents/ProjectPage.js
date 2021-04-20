@@ -83,18 +83,16 @@ const ProjectPage = (props) => {
   const EndRef = useRef(null);
 
   const [state, setState] = useState({
+    // info-header
+    loading: true,
+    editing: false,
+    info: null,
+
     // stage
     setupFirstTime: props.setupFirstTime ? props.setupFirstTime : false,
     setup: false,
     training: false,
     finished: null,
-  });
-
-  const [info, setInfo] = useState({
-    // info-header
-    loading: true,
-    editing: false,
-    info: null,
   });
 
   const [error, setError] = useState({
@@ -103,16 +101,25 @@ const ProjectPage = (props) => {
   });
 
   const editProjectInfo = () => {
-    setInfo({
-      ...info,
+    setState({
+      ...state,
       editing: true,
     });
   };
 
   const finishEditProjectInfo = () => {
-    setInfo({
-      ...info,
+    setState({
+      ...state,
       editing: false,
+    });
+  };
+
+  const reloadProjectInfo = () => {
+    setState((s) => {
+      return {
+        ...s,
+        loading: true,
+      };
     });
   };
 
@@ -125,13 +132,10 @@ const ProjectPage = (props) => {
   };
 
   const finishProjectFirstTraining = () => {
-    setInfo({
-      ...info,
-      info: { ...info.info, projectInitReady: true },
-    });
     setState({
       ...state,
       training: false,
+      info: { ...state.info, projectInitReady: true },
     });
   };
 
@@ -159,7 +163,7 @@ const ProjectPage = (props) => {
 
   const returnElasState = () => {
     // setup
-    if (!info.info.projectInitReady || state.setup) {
+    if (!state.info.projectInitReady || state.setup) {
       return SetUp;
     }
 
@@ -178,16 +182,11 @@ const ProjectPage = (props) => {
     ProjectAPI.info(props.project_id)
       .then((result) => {
         // update the state with the fetched data
-        setInfo((s) => {
+        setState((s) => {
           return {
             ...s,
             loading: false,
             info: result.data,
-          };
-        });
-        setState((s) => {
-          return {
-            ...s,
             finished: result.data.reviewFinished,
           };
         });
@@ -205,16 +204,16 @@ const ProjectPage = (props) => {
   };
 
   useEffect(() => {
-    if (!info.loading && EndRef.current !== undefined) {
+    if (!state.loading && EndRef.current !== undefined) {
       scrollToTop();
     }
-  }, [state.setup, state.finished, info.loading]);
+  }, [state.setup, state.finished, state.loading]);
 
   useEffect(() => {
-    if (info.loading) {
+    if (state.loading) {
       fetchProjectInfo();
     }
-  }, [fetchProjectInfo, info.loading, error.message]);
+  }, [fetchProjectInfo, state.loading, error.message]);
 
   return (
     <Box>
@@ -222,7 +221,7 @@ const ProjectPage = (props) => {
         <ErrorHandler error={error} setError={setError} />
       )}
 
-      {error.message === null && !info.loading && (
+      {error.message === null && !state.loading && (
         <Box className={classes.box}>
           <div ref={EndRef} />
           <Container maxWidth="md">
@@ -241,7 +240,7 @@ const ProjectPage = (props) => {
                   color="primary"
                   className={classes.title}
                 >
-                  {info.info.name}
+                  {state.info.name}
                   <Tooltip title="Edit info">
                     <IconButton size="small" onClick={editProjectInfo}>
                       <EditOutlinedIcon />
@@ -249,7 +248,7 @@ const ProjectPage = (props) => {
                   </Tooltip>
                 </Typography>
                 <Typography color="primary" variant="h5">
-                  {info.info.description}
+                  {state.info.description}
                 </Typography>
                 {/*
               </Grid>
@@ -257,7 +256,7 @@ const ProjectPage = (props) => {
               */}
                 <Box className={classes.quickStartButtons}>
                   {/* Project is not ready, continue setup */}
-                  {!info.info.projectInitReady &&
+                  {!state.info.projectInitReady &&
                     !state.setup &&
                     !state.training && (
                       <Button
@@ -265,11 +264,11 @@ const ProjectPage = (props) => {
                         variant={"outlined"}
                         onClick={continueProjectSetup}
                       >
-                        {info.info.projectHasDataset ? "Finish" : "Start"} setup
+                        {state.info.projectHasDataset ? "Finish" : "Start"} setup
                       </Button>
                     )}
 
-                  {info.info.projectInitReady &&
+                  {state.info.projectInitReady &&
                     !state.setup &&
                     !state.training && (
                       <Tooltip title="Download results">
@@ -284,7 +283,7 @@ const ProjectPage = (props) => {
                     )}
 
                   {/* Project is ready, show button */}
-                  {info.info.projectInitReady &&
+                  {state.info.projectInitReady &&
                     !state.setup &&
                     !state.training && (
                       <Button
@@ -297,7 +296,7 @@ const ProjectPage = (props) => {
                       </Button>
                     )}
 
-                  {!info.info.projectInitReady &&
+                  {!state.info.projectInitReady &&
                     !state.setup &&
                     state.training && (
                       <div className={classes.wrapper}>
@@ -329,13 +328,13 @@ const ProjectPage = (props) => {
               <Box className={classes.cardBox}>
                 <StatisticsZone
                   project_id={props.project_id}
-                  projectInitReady={info.info.projectInitReady}
+                  projectInitReady={state.info.projectInitReady}
                   training={state.training}
                 />
                 <PublicationZone
                   project_id={props.project_id}
                   showExportResult={
-                    info.info.projectInitReady &&
+                    state.info.projectInitReady &&
                     !state.setup &&
                     !state.training
                   }
@@ -363,15 +362,15 @@ const ProjectPage = (props) => {
         </Box>
       )}
       {/* Edit project info*/}
-      {error.message === null && !info.loading && (
+      {error.message === null && !state.loading && (
         <ProjectInfo
-          setInfo={setInfo}
-          edit={info.editing}
-          open={info.editing}
+          edit={state.editing}
+          open={state.editing}
           onClose={finishEditProjectInfo}
-          name={info.info.name}
-          authors={info.info.authors}
-          description={info.info.description}
+          reloadProjectInfo={reloadProjectInfo}
+          name={state.info.name}
+          authors={state.info.authors}
+          description={state.info.description}
         />
       )}
     </Box>
