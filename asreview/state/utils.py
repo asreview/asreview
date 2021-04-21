@@ -355,7 +355,7 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
 
     Returns
     -------
-    New version '.h5' state file at location of prototype_fp.
+    New version '.h5' state file at location of v3state_fp.
     """
     with open_state_legacy(jsonstate_fp, read_only=True) as sf:
         with h5py.File(v3state_fp, 'w') as pt:
