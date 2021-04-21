@@ -1,7 +1,7 @@
 Vocabulary
 ----------
 
-When writing about ASReview, please use the following vocabulary:
+The ASReview project makes use of standardized terminology for all communication regarding ASReview and its underlying technology. An overview of terms and usage can be found in the table below.  
 
 +------------------+-----------------------------------------------------------+
 | Term             | Usage                                                     |
