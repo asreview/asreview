@@ -29,18 +29,18 @@ Build your feature request yourself?
 Be our guest! :heart_eyes:
 You can submit your changes to ASReview [by creating a pull request](https://github.com/asreview/asreview/pull/new/master).
 
-## Discussions
-Got any questions for the ASReview community?
-Want to show something you have done?
-Running in to some trouble?
-Please don't hesitate to post on our [discussion board](https://github.com/asreview/asreview/discussions).
-
 #### Unsure where to begin? Here are a few examples:  
 - Improve our [documentation](https://asreview.readthedocs.io/en/latest/). :memo:
 - Propose a fix to an existing issue. :warning:
   - See the [issue list here](https://github.com/asreview/asreview/issues).
 - Add a new dataset to [our open dataset repository](https://github.com/asreview/systematic-review-datasets/pull/11)
   - See this [pull request](https://github.com/asreview/systematic-review-datasets/pull/11)) for an example.
+
+## Discussions
+Got any questions for the ASReview community?
+Want to show something you have done?
+Running in to some trouble?
+Please don't hesitate to post on our [discussion board](https://github.com/asreview/asreview/discussions).
 
 ## First timer?
 Do you have little experience with contributing to open-source project and working with GitHub? :octocat: No worries! There are some amazing tutorials out there:
