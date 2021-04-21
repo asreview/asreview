@@ -13,6 +13,7 @@ There are multiple ways to contribute:
 - [Reporting bugs](#reporting-bugs) :bug: :ant: :beetle:
 - [Suggesting enhancements](#feature-request)
 - [Contribute code](#contribute-code)
+- [Contribute in discussions](#discussions)
 
 ##  Reporting Bugs
 Found a glitch in the matrix?
@@ -27,6 +28,12 @@ Want to try to fix the bug you found?
 Build your feature request yourself?
 Be our guest! :heart_eyes:
 You can submit your changes to ASReview [by creating a pull request](https://github.com/asreview/asreview/pull/new/master).
+
+## Discussions
+Got any questions for the ASReview community?
+Want to show something you have done?
+Running in to some trouble?
+Please don't hesitate to post on our [discussion board](https://github.com/asreview/asreview/discussions).
 
 #### Unsure where to begin? Here are a few examples:  
 - Improve our [documentation](https://asreview.readthedocs.io/en/latest/). :memo:
