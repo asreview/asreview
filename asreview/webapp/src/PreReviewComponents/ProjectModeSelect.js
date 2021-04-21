@@ -28,11 +28,11 @@ export default function ProjectModeSelect(props) {
   return (
     <div>
       <FormControl variant="outlined" className={classes.formControl}>
-        <InputLabel ref={inputLabel} id="demo-simple-select-outlined-label">
+        <InputLabel ref={inputLabel} id="mode-label">
           Project type
         </InputLabel>
         <Select
-          labelId="demo-simple-select-outlined-label"
+          labelId="mode-label"
           id="demo-simple-select-outlined"
           value={props.mode}
           onChange={props.onModeChange}
@@ -46,22 +46,24 @@ export default function ProjectModeSelect(props) {
               />
             </ListItem>
           </MenuItem>
-          <MenuItem value={projectModes.EXPLORATION} component="div">
-            <ListItem>
-              <ListItemText
-                primary="Exploration"
-                secondary="Explore an existing, labeled dataset in an interactive way."
-              />
-            </ListItem>
-          </MenuItem>
-          <MenuItem value={projectModes.SIMULATION} component="div">
-            <ListItem>
-              <ListItemText
-                primary="Simulation"
-                secondary="Simulate the performance of ASReview on a labeled dataset."
-              />
-            </ListItem>
-          </MenuItem>
+            <MenuItem value={projectModes.EXPLORATION} component="div">
+              <ListItem>
+                <ListItemText
+                  primary="Exploration"
+                  secondary="Explore an existing, labeled dataset in an interactive way."
+                />
+              </ListItem>
+            </MenuItem>
+          {props.showSimulate &&
+            <MenuItem value={projectModes.SIMULATION} component="div">
+              <ListItem>
+                <ListItemText
+                  primary="Simulation"
+                  secondary="Simulate the performance of ASReview on a labeled dataset."
+                />
+              </ListItem>
+            </MenuItem>
+          }
         </Select>
       </FormControl>
     </div>

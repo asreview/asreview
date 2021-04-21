@@ -2,15 +2,20 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import {
+  Box,
   Button,
   TextField,
   DialogTitle,
   DialogContent,
   DialogActions,
   Dialog,
+  Typography,
 } from "@material-ui/core";
 
 import { brown } from "@material-ui/core/colors";
+
+// import useWindowSize from 'react-use/lib/useWindowSize'
+import Confetti from 'react-confetti'
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
@@ -70,7 +75,7 @@ function mapDispatchToProps(dispatch) {
 const ProjectInit = (props) => {
   const classes = useStyles();
 
-  // const [open, setOpen] = React.useState(props.open)
+  // const { width, height } = useWindowSize()
 
   // the state of the form data
   const [info, setInfo] = React.useState({
@@ -79,6 +84,7 @@ const ProjectInit = (props) => {
     description: "",
     mode: projectModes.ORACLE,
   });
+  const [showSimulate, setShowSimulate] = React.useState(false);
   const [error, setError] = React.useState({
     code: null,
     message: null,
@@ -93,6 +99,7 @@ const ProjectInit = (props) => {
   };
 
   const onChange = (evt) => {
+
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
@@ -123,6 +130,18 @@ const ProjectInit = (props) => {
       });
   };
 
+  React.useEffect(() => {
+    if (info.name === "elas" && !showSimulate){
+
+      setInfo({
+        ...info,
+        "name": "",
+        "mode": projectModes.SIMULATION,
+      });
+      setShowSimulate(true)
+    }
+  }, [info.name]);
+
   return (
     <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
       <DialogTitle>Create a new project</DialogTitle>
@@ -145,8 +164,15 @@ const ProjectInit = (props) => {
           {/* The actual form */}
           <form noValidate autoComplete="off">
             <div className={classes.textfieldItem}>
-              <ProjectModeSelect mode={info.mode} onModeChange={onModeChange} />
+              <ProjectModeSelect mode={info.mode} onModeChange={onModeChange} showSimulate={showSimulate} />
             </div>
+
+            { showSimulate &&
+              <Box>
+                <Typography color='error' className={classes.textfieldItem}>You unlocked the experimental simulation mode!</Typography>
+                <Confetti recycle={false} tweenDuration={50000} numberOfPieces={1000} />
+              </Box>
+            }
 
             <div className={classes.textfieldItem}>
               <TextField
