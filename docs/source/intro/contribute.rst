@@ -4,7 +4,7 @@ Cite, Donate and Contribute
 Cite
 ~~~~
 
-The paper publisehd in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_  can be used to cite the **ASReview project**.
+The paper published in `Nature Machine Intelligence <https://www.nature.com/articles/s42256-020-00287-7>`_ can be used to cite the **ASReview project**.
 
 For citing the software **ASReview Lab**, refer to the `specific release
 <https://doi.org/10.5281/zenodo.3345592>`_ of the software. The menu on the
@@ -40,5 +40,4 @@ If you discover issues please let us know via `Github
 <https://github.com/asreview/asreview/issues/new/choose>`_. If you have ideas
 to solve your own or other issues, it is highly appreciate to contribute to
 the `development <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_.
-
 
