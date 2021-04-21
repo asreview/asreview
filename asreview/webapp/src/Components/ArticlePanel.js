@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     bottom: 0,
   },
+  chipLabel: {
+    paddingBottom: theme.spacing(2.5),
+  }
 }));
 
 const ArticlePanel = (props) => {
@@ -110,13 +113,13 @@ const ArticlePanel = (props) => {
 
       {/* Flag for Exploration mode */}
       {props.record._debug_label === 1 && (
-        <Typography>
-          Exploration mode: <Chip label="Relevant" avatar={<Avatar>R</Avatar>} color="primary"/>
+        <Typography className={classes.chipLabel}>
+          <Chip label="Relevant" avatar={<Avatar>R</Avatar>} color="primary"/>
         </Typography>
       )}
       {props.record._debug_label === 0 && (
-        <Typography>
-          Exploration mode: <Chip label="Irrelevant" avatar={<Avatar>I</Avatar>} color="secondary"/>
+        <Typography className={classes.chipLabel}>
+          <Chip label="Irrelevant" avatar={<Avatar>I</Avatar>} color="secondary"/>
         </Typography>
       )}
 
