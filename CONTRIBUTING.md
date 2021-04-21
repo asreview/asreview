@@ -38,8 +38,7 @@ You can submit your changes to ASReview [by creating a pull request](https://git
 
 ## Discussions
 Got any questions for the ASReview community?
-Want to show something you have done?
-Running in to some trouble?
+Or perhaps you know the answer to a question asked? 💡
 Please don't hesitate to post on our [discussion board](https://github.com/asreview/asreview/discussions).
 
 ## First timer?
