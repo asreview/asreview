@@ -28,7 +28,7 @@ import SetUp from "../images/SetUp.svg";
 
 import { connect } from "react-redux";
 
-import { mapStateToProps } from "../globals.js";
+import { mapStateToProps, projectModes } from "../globals.js";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -250,14 +250,15 @@ const ProjectPage = (props) => {
                   {/* Project is ready, show button */}
                   {state.info.projectInitReady &&
                     !state.setup &&
-                    !state.training && (
+                    !state.training &&
+                    (state.info["mode"] !== projectModes.SIMULATION) && (
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}
                         onClick={() => props.handleAppState("review")}
                         disabled={state.finished}
                       >
-                        Start reviewing
+                        Open review screen
                       </Button>
                     )}
 

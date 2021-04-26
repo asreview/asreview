@@ -819,22 +819,6 @@ def api_init_model_ready(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/simulation/<simulation_id>/ready', methods=["GET"])
-def api_simulation_ready(project_id, simulation_id):  # noqa: F401
-    logging.info("checking if simulation is ready?")
-
-    if get_simulation_ready_path(project_id, simulation_id).exists():
-        logging.info("simulation ready")
-        update_simulation_in_project(project_id, simulation_id, "ready")
-        response = jsonify({'status': 1})
-    else:
-        logging.info("simulation not ready")
-        response = jsonify({'status': 0})
-
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
-
-
 @bp.route('/project/import_project', methods=["POST"])
 def api_import_project():
     """Import uploaded project"""
