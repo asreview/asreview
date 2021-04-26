@@ -74,3 +74,23 @@ def test_csv_write_data():
     fp_out = Path("tests", "out_data", "generic_out.csv")
     asr_data = ASReviewData.from_file(fp_in)
     asr_data.to_csv(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
+
+
+def test_ris_write_data(tmpdir):
+    fp_in = Path("tests", "demo_data", "generic_labels.ris")
+    asr_data = ASReviewData.from_file(fp_in)
+
+    tmp_ris_fp_out = Path(tmpdir, "tmp_generic_labels.ris")
+    asr_data.to_ris(tmp_ris_fp_out)
+
+    asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
+
+    # Check if input file matches the export file
+    assert list(asr_data.title) == list(asr_data_diff.title)
+    assert list(asr_data.labels) == list(asr_data_diff.labels)
+    
+    # Check if export file includes labels [1,0]
+    assert list(asr_data_diff.labels) == [1,0]
+
+    # Break for debugging
+    # assert False
