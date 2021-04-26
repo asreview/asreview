@@ -520,5 +520,24 @@ class ASReviewData():
         return df.to_excel(fp, index=True)
 
     def to_ris(self, fp, labels=None, ranking=None):
+        """Export to RIS .ris file.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, numpy.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe of all available record data which is forwarded
+            to ris_writer for exporting.
+        """
         df = self.to_dataframe(labels=labels, ranking=ranking)
         write_ris(df, fp)
