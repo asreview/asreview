@@ -72,6 +72,7 @@ from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
 from asreview.webapp.utils.project import update_simulation_in_project
+from asreview.webapp.utils.project import get_project_config
 from asreview.webapp.utils.validation import check_dataset
 
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
@@ -700,41 +701,74 @@ def api_set_algorithms(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/start', methods=["POST"])
 def api_start(project_id):  # noqa: F401
-    """Start training the model
+    """Start training of first model or simulation.
     """
-    try:
-        # start training the model
-        py_exe = _get_executable()
-        run_command = [
-            py_exe, "-m", "asreview", "web_run_model", project_id,
-            "--label_method", "prior"
-        ]
-        subprocess.Popen(run_command)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to train the model."), 500
+    project_config = get_project_config(project_id)
+
+    if project_config["mode"] == "simulate":
+
+        logging.info("Starting simulation")
+
+        try:
+            simulation_id = uuid.uuid4().hex
+            datafile = get_data_file_path(project_id)
+            state_file = get_simulation_ready_path(
+                project_id, simulation_id
+            )
+
+            logging.info("Project data file found: {}".format(datafile))
+
+            add_simulation_to_project(project_id, simulation_id)
+
+            # start simulation
+            py_exe = _get_executable()
+            run_command = [
+                py_exe, "-m", "asreview", "simulate",
+                datafile, "--state_file", state_file
+            ]
+            subprocess.Popen(run_command)
+
+        except Exception as err:
+            logging.error(err)
+            message = f"Failed to get data file. {err}"
+            return jsonify(message=message), 400
+    else:
+
+        logging.info("Train first iteration of model")
+        try:
+            # start training the model
+            py_exe = _get_executable()
+            run_command = [
+                py_exe, "-m", "asreview", "web_run_model", project_id,
+                "--label_method", "prior"
+            ]
+            subprocess.Popen(run_command)
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to train the model."), 500
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 
-@bp.route('/project/<project_id>/model/init_ready', methods=["GET"])
+@bp.route('/project/<project_id>/ready', methods=["GET"])
 def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
 
-    error_path = get_project_path(project_id) / "error.json"
-    if error_path.exists():
-        logging.error("error on training")
-        with open(error_path, "r") as f:
-            error_message = json.load(f)
-        return jsonify(message=error_message), 400
+    project_config = get_project_config(project_id)
 
-    try:
+    if project_config["mode"] == "simulate":
+        logging.info("checking if simulation is ready?")
 
-        if get_proba_path(project_id).exists():
+        simulation_id = project_config["simulations"][0]["id"]
+
+        if get_simulation_ready_path(project_id, simulation_id).exists():
+            logging.info("simulation ready")
+            update_simulation_in_project(project_id, simulation_id, "ready")
 
             # read the file with project info
             with open(get_project_file_path(project_id), "r") as fp:
@@ -748,47 +782,41 @@ def api_init_model_ready(project_id):  # noqa: F401
 
             response = jsonify({'status': 1})
         else:
+            logging.info("simulation not ready")
             response = jsonify({'status': 0})
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to initiate the project."), 500
+    else:
+        error_path = get_project_path(project_id) / "error.json"
+        if error_path.exists():
+            logging.error("error on training")
+            with open(error_path, "r") as f:
+                error_message = json.load(f)
+            return jsonify(message=error_message), 400
+
+        try:
+
+            if get_proba_path(project_id).exists():
+
+                # read the file with project info
+                with open(get_project_file_path(project_id), "r") as fp:
+                    project_info = json.load(fp)
+
+                project_info["projectInitReady"] = True
+
+                # update the file with project info
+                with open(get_project_file_path(project_id), "w") as fp:
+                    json.dump(project_info, fp)
+
+                response = jsonify({'status': 1})
+            else:
+                response = jsonify({'status': 0})
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to initiate the project."), 500
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
-
-
-@bp.route('/project/<project_id>/simulate', methods=["POST"])
-def api_simulate(project_id):  # noqa: F401
-    """Start simulation"""
-
-    logging.info("Starting simulation")
-
-    try:
-        simulation_id = uuid.uuid4().hex
-        datafile = get_data_file_path(project_id)
-        completion_file = get_simulation_ready_path(project_id, simulation_id)
-
-        logging.info("Project data file found: {}".format(datafile))
-
-        add_simulation_to_project(project_id, simulation_id)
-
-        # start simulation
-        py_exe = _get_executable()
-        run_command = [
-            py_exe, "-m", "asreview", "simulate",
-            datafile, "--completion_file", completion_file
-        ]
-        subprocess.Popen(run_command)
-
-        response = jsonify({'success': True, 'simulation_id': simulation_id})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-
-    except Exception as err:
-        logging.error(err)
-        message = f"Failed to get data file. {err}"
-        return jsonify(message=message), 400
 
 
 @bp.route('/project/<project_id>/simulation/<simulation_id>/ready', methods=["GET"])

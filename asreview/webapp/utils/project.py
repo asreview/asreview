@@ -212,6 +212,15 @@ def update_simulation_in_project(project_id, simulation_id, state):
         json.dump(project_info, fp)
 
 
+def get_project_config(project_id):
+
+    # read the file with project info
+    with open(get_project_file_path(project_id), "r") as fp:
+        project_info = json.load(fp)
+
+    return project_info
+
+
 def clean_project_tmp_files(project_id):
     """Clean temporary files in a project.
 
@@ -383,7 +392,7 @@ def export_to_string(project_id, export_type="csv"):
         pool_ordered = proba.loc[pool, :] \
             .sort_values("proba", ascending=False).index.values
     else:
-        pool_ordered = pool_ordered
+        pool_ordered = pool
 
     # get the ranking of the 3 subcategories
     ranking = np.concatenate(
