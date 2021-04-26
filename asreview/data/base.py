@@ -24,7 +24,7 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import write_ris
+from asreview.io.ris_writer import write_ris
 from asreview.io.utils import type_from_column
 from asreview.io.utils import convert_keywords
 from asreview.utils import is_iterable
