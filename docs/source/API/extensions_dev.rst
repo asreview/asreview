@@ -7,7 +7,7 @@ ASReview has support for extensions, which enable you to integrate your
 programs with the ASReview framework seamlessly. These extensions can extend
 the software with new classifiers, query strategies, balance strategies, and
 feature extraction techniques. It is also possible to extend ASReview with a
-completely new subcommand (like ``lab`` of ``simulate``).
+completely new subcommand (like ``lab`` or ``simulate``).
 
 The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with

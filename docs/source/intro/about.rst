@@ -6,7 +6,7 @@ how labor intensive this can be. The future will be an interaction with
 machine learning algorithms to deal with the enormous increase of available
 text. Therefore, an open source machine learning-aided pipeline applying
 active learning was developed at `Utrecht University <https://www.uu.nl>`_, titled
-**ASReview**. The goal of ASReview is to help scholars and practitioners to
+**ASReview**. ASReview aims to help scholars and practitioners to
 get an overview of the most relevant records for their work as efficiently as
 possible, while being transparent in the process.
 
@@ -33,12 +33,12 @@ the Utrecht University library), `Jan de Boer
 <https://www.uu.nl/staff/JdeBoer>`_ (Information specialist at the Utrecht
 university library), `Felix Weijdema <https://www.uu.nl/staff/FPWeijdema>`_
 (Systematic review specialist at the Utrecht University library), and `Martijn
-Hutijs <https://www.uu.nl/staff/MTIHuijts>`_ (UX-expert at the department Test
+Huijts <https://www.uu.nl/staff/MTIHuijts>`_ (UX-expert at the department Test
 and Quality Services at Utrecht University).
 
-The Art-Work of ASReview was developed by `Joukje Willemsen <http://www.statistics-illustrated.com/>`_.
+The artwork for the ASReview project is created by `Joukje Willemsen <http://www.statistics-illustrated.com/>`_.
 
-Moreover, many others helped the project, like researchers Gerbrich Ferdinands
+Moreover, many others contribute to the project, like researchers Gerbrich Ferdinands
 and Laura Hofstee, as well as many students like Yongchao Terry Ma, Sofie van
 den Brand, Sybren Hindriks, and Albert Harkema. See
 `ASReview project members <https://github.com/orgs/asreview/people/>`_ for an
@@ -46,7 +46,7 @@ overview of the people involved in the project.
 
 ASReview thanks the community for their contributions. A full
 list of code contributors can be found on the
-`contributors <https://github.com/asreview/asreview/graphs/contributors>`_ page on Github.
+`contributors' <https://github.com/asreview/asreview/graphs/contributors>`_ page on Github.
 
 The Case of Systematic Reviewing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
