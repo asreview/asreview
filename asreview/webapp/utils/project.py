@@ -90,7 +90,7 @@ def init_project(project_id,
 
             # project related variables
             'projectInitReady': False,
-            'reviewFinished': False,
+            'reviewFinished': False
         }
 
         # create a file with project info
@@ -185,6 +185,31 @@ def remove_dataset_to_project(project_id, file_name):
         os.remove(str(data_path))
         os.remove(str(pool_path))
         os.remove(str(labeled_path))
+
+
+def add_simulation_to_project(project_id, simulation_id):
+    update_simulation_in_project(project_id, simulation_id, "running")
+
+
+def update_simulation_in_project(project_id, simulation_id, state):
+
+    # read the file with project info
+    with open(get_project_file_path(project_id), "r") as fp:
+        project_info = json.load(fp)
+
+    if "simulations" not in project_info:
+        project_info["simulations"] = []
+
+    simulation = {
+        "id": simulation_id,
+        "state": state
+    }
+
+    project_info["simulations"].append(simulation)
+
+    # update the file with project info
+    with open(get_project_file_path(project_id), "w") as fp:
+        json.dump(project_info, fp)
 
 
 def clean_project_tmp_files(project_id):
