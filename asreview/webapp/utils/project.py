@@ -15,6 +15,8 @@
 import json
 import os
 import shutil
+import zipfile
+import tempfile
 import subprocess
 import sys
 import time
@@ -98,6 +100,62 @@ def init_project(project_id,
         # remove all generated folders and raise error
         shutil.rmtree(get_project_path())
         raise err
+
+
+def import_project_file(file_name):
+    """Import .asreview project file"""
+
+    try:
+        # Unzip the project file
+        with zipfile.ZipFile(file_name, "r") as zip_obj:
+            zip_filenames = zip_obj.namelist()
+
+            # raise error if no ASReview project file
+            if "project.json" not in zip_filenames:
+                raise ValueError("File doesn't contain valid project format.")
+
+            # extract all files to a temporary folder
+            tmpdir = tempfile.mkdtemp()
+            zip_obj.extractall(path=tmpdir)
+
+    except zipfile.BadZipFile:
+        raise ValueError("File is not an ASReview file.")
+
+    try:
+        # Open the project file and check the id. The id needs to be
+        # unique, otherwise it is exended with -copy.
+        import_project = None
+        fp = Path(tmpdir, "project.json")
+        with open(fp, "r+") as f:
+
+            # load the project info in scope of function
+            import_project = json.load(f)
+
+            # If the uploaded project already exists,
+            # then overwrite project.json with a copy suffix.
+            while is_project(import_project["id"]):
+                # project update
+                import_project["id"] = f"{import_project['id']}-copy"
+                import_project["name"] = f"{import_project['name']} copy"
+            else:
+                # write to file
+                f.seek(0)
+                json.dump(import_project, f)
+                f.truncate()
+
+        # location to copy file to
+        fp_copy = get_project_path(import_project["id"])
+        # Move the project from the temp folder to the projects folder.
+        os.replace(tmpdir, fp_copy)
+
+    except Exception:
+        # Unknown error.
+        raise ValueError(
+            "Failed to import project "
+            f"'{file_name.filename}'."
+        )
+
+    return import_project["id"]
 
 
 def add_dataset_to_project(project_id, file_name):

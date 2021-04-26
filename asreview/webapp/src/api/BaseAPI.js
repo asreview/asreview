@@ -11,7 +11,7 @@ class BaseAPI {
           resolve(result);
         })
         .catch((error) => {
-          console.log(error);
+          reject(error);
         });
     });
   };
