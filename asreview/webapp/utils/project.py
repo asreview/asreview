@@ -407,6 +407,7 @@ def export_to_string(project_id, export_type="csv"):
     exclusion_record_id = [int(x[0]) for x in labeled if x[1] == 0]
 
     # order the pool from high to low proba
+    pool_ordered = ''
     if proba is not None:
         pool_ordered = proba.loc[pool, :] \
             .sort_values("proba", ascending=False).index.values
