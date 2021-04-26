@@ -796,7 +796,7 @@ def export_results(project_id):
                 f"attachment; filename=asreview_result_{project_id}.tsv"
             })
 
-    elif:  # ris
+    elif file_type == "ris":  # ris
 
         dataset_str = export_to_string(project_id, export_type="ris")
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.ris")
