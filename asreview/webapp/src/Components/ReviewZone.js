@@ -10,6 +10,8 @@ import ArticlePanel from "./ArticlePanel";
 import DecisionBar from "./DecisionBar";
 import DecisionUndoBar from "./DecisionUndoBar";
 import { useKeyPress } from "../hooks/useKeyPress";
+import HelpIcon from '@material-ui/icons/Help';
+import IconButton from '@material-ui/core/IconButton';
 
 import { ProjectAPI } from "../api/index.js";
 
@@ -82,19 +84,8 @@ const ExplorationAlert = (props) => {
     <div className={classes.alertFullWidth}>
       <Alert severity="warning">
         <AlertTitle>
-          You are screening through a manually pre-labeled dataset
+          Exploration Mode - You are screening through a manually pre-labeled dataset.
         </AlertTitle>
-        <div>
-          Relevant documents are displayed in green. Read more about
-          <Link
-            className={classes.link}
-            href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
-            target="_blank"
-          >
-            Exploration Mode
-          </Link>
-          .
-        </div>
       </Alert>
     </div>
   );

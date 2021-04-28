@@ -22,3 +22,10 @@ export const decisionUndoBarMarginBottom = 56;
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
+
+// enums
+export const projectModes = {
+  ORACLE: 'oracle',
+  SIMULATION: 'simulate',
+  EXPLORATION: 'explore',
+}

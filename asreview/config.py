@@ -19,6 +19,9 @@ LABEL_NA = -1
 
 KERAS_MODELS = ["lstm_base", "lstm_pool"]
 
+# project types
+PROJECT_MODES = ["oracle", "explore", "simulate"]
+
 # CLI defaults
 DEFAULT_MODEL = "nb"
 DEFAULT_QUERY_STRATEGY = "max"
