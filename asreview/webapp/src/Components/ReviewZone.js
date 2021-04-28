@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Link } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 
 import ErrorHandler from "../ErrorHandler";
@@ -10,8 +10,6 @@ import ArticlePanel from "./ArticlePanel";
 import DecisionBar from "./DecisionBar";
 import DecisionUndoBar from "./DecisionUndoBar";
 import { useKeyPress } from "../hooks/useKeyPress";
-import HelpIcon from '@material-ui/icons/Help';
-import IconButton from '@material-ui/core/IconButton';
 
 import { ProjectAPI } from "../api/index.js";
 
@@ -84,7 +82,8 @@ const ExplorationAlert = (props) => {
     <div className={classes.alertFullWidth}>
       <Alert severity="warning">
         <AlertTitle>
-          Exploration Mode - You are screening through a manually pre-labeled dataset.
+          Exploration Mode - You are screening through a manually pre-labeled
+          dataset.
         </AlertTitle>
       </Alert>
     </div>
