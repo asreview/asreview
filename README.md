@@ -10,7 +10,7 @@
 
 Systematic Reviews are “top of the bill” in research. The number of scientific
 studies is increasing exponentially in many scholarly fields. Performing a
-sound systematic review is a time-consuming and sometimes boring task. Our
+sound systematic review is a time-consuming and sometimes boring task. The ASReview
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false
 negatives.
@@ -111,6 +111,7 @@ contact with the team are:
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
 - Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
+- FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
 - Donation - [asreview.nl/donate](https://asreview.nl/donate)
 - Contact - [asreview@uu.nl](mailto:asreview@uu.nl)
 

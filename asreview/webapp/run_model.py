@@ -107,6 +107,12 @@ def train_model(project_id, label_method=None):
         # collect command line arguments and pass them to the reviewer
         with open(asr_kwargs_file, "r") as fp:
             asr_kwargs = json.load(fp)
+
+        try:
+            del asr_kwargs["abstract_only"]
+        except KeyError:
+            pass
+
         asr_kwargs['state_file'] = str(state_file)
         reviewer = get_reviewer(dataset=data_fp, mode="minimal", **asr_kwargs)
 

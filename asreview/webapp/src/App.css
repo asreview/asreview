@@ -3,33 +3,33 @@
 }
 
 .navBar {
-  background-color:#ffcc00
+  background-color: #ffcc00;
 }
 .btnGrey {
-  background-color:#bcbcbb
+  background-color: #bcbcbb;
 }
-.btnBlue { 
-  background-color:#00a6e1
+.btnBlue {
+  background-color: #00a6e1;
 }
 .btnGreen {
-  background-color:#5dd41b
+  background-color: #5dd41b;
 }
 .btnRed {
-  background-color:#df462e
+  background-color: #df462e;
 }
 
 .textSizesmallest {
-	font-size: 80%!important;
+  font-size: 80% !important;
 }
 .textSizesmall {
-	font-size: 90%!important;
+  font-size: 90% !important;
 }
 .textSizenormal {
-	font-size: 100%!important;
+  font-size: 100% !important;
 }
 .textSizelarge {
-	font-size: 120%!important;
+  font-size: 120% !important;
 }
 .textSizelargest {
-	font-size: 140%!important;
+  font-size: 140% !important;
 }

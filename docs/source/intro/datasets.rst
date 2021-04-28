@@ -1,7 +1,7 @@
 Prepare your Data
 =================
 
-To perform an systematic review, ASReview requires a dataset representing
+To perform a systematic review, ASReview requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
 search. To create such a dataset for a systematic review, typically an `online
 library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
@@ -81,7 +81,7 @@ training the model. If the column ``title`` is empty, the software will search
 for the next column ``primary_title`` and the same holds for ``abstract`` and
 ``abstract_note``.
 
-**Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
+**Keywords, Authors** If ``keywords`` and/or ``author`` (or if the column is
 empty: ``author names`` or ``first_authors``) are available it can be used for
 searching prior knowledge. Note the information is not shown during the
 screening phase and is also not used for training the model, but the
@@ -146,7 +146,7 @@ managers  which are accepted by ASReview.
 
 -  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not suported.
+-  X = Not supported.
 
 .. note::
 
@@ -199,7 +199,7 @@ acceptance in ASReview:
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not suported.
+-  X = Not supported.
 
 .. warning::
 
@@ -236,7 +236,7 @@ ASReview.
 
 -  ✅ = The data can be exported from the third-party review software and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not suported.
+-  X = Not supported.
 
 \* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
 such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
@@ -254,7 +254,7 @@ The ASReview software contains a large amount of benchmark datasets that can
 be used in the :doc:`exploration <../lab/exploration>` or :doc:`simulation
 <../lab/simulation>` mode. The labelled datasets are PRISMA-based reviews on
 various research topics, are available under an open licence and are
-automatically harvested from the `dataset reposisotory
+automatically harvested from the `dataset repository
 <https://github.com/asreview/systematic-review-datasets>`_. See `index.csv
 <https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
 for all available properties.

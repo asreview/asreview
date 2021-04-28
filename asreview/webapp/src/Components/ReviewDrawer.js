@@ -1,27 +1,15 @@
-import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import {
-  Drawer,
-  IconButton,
-  Divider,
-  Typography,
-} from '@material-ui/core'
-import {
-  ChevronRight,
-} from '@material-ui/icons'
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import { Drawer, IconButton, Divider, Typography } from "@material-ui/core";
+import { ChevronRight } from "@material-ui/icons";
 
-import {
-  ProgressPanel,
-  ProjectPanel,
-} from '../SideStats'
+import { ProgressPanel, ProjectPanel } from "../SideStats";
 
-import {
-  reviewDrawerWidth,
-} from '../globals.js';
+import { reviewDrawerWidth } from "../globals.js";
 
 import { connect } from "react-redux";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   drawer: {
     width: reviewDrawerWidth,
     flexShrink: 0,
@@ -30,18 +18,18 @@ const useStyles = makeStyles(theme => ({
     width: reviewDrawerWidth,
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
   },
   drawerTitle: {
-    width: '100%',
+    width: "100%",
   },
 }));
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
 
@@ -51,18 +39,18 @@ const ReviewDrawer = (props) => {
   return (
     <Drawer
       className={classes.drawer}
-      anchor='right'
+      anchor="right"
       open={props.state}
-      variant='persistent'
-      classes={{paper: classes.drawerPaper}}
+      variant="persistent"
+      classes={{ paper: classes.drawerPaper }}
     >
       <div className={classes.drawerHeader}>
-          <IconButton onClick={(e) => props.handle(false)}>
-            <ChevronRight />
-          </IconButton>
-          <div className={classes.drawerTitle}>
-            <Typography variant='subtitle1'>Statistics</Typography>
-          </div>
+        <IconButton onClick={(e) => props.handle(false)}>
+          <ChevronRight />
+        </IconButton>
+        <div className={classes.drawerTitle}>
+          <Typography variant="subtitle1">Statistics</Typography>
+        </div>
       </div>
       <Divider />
       <ProjectPanel
@@ -82,9 +70,8 @@ const ReviewDrawer = (props) => {
         setSideStatsError={props.setSideStatsError}
       />
       <Divider />
-
     </Drawer>
   );
-}
+};
 
 export default connect(mapStateToProps)(ReviewDrawer);
