@@ -15,7 +15,7 @@ Research Team
 ~~~~~~~~~~~~~
 
 ASReview is a research project coordinated by `Rens van de Schoot
-<www.rensvandeschoot.com>`_ (full Professor at the Department of Methodology &
+<https://www.rensvandeschoot.com/>`_ (full Professor at the Department of Methodology &
 Statistics and ambassador of the focus area Applied Data Science at Utrecht
 University, The Netherlands), together with `Jonathan de Bruin
 <https://github.com/J535D165>`_, Lead engineer of the ASReview project and
