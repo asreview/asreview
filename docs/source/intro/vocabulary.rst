@@ -52,13 +52,13 @@ The ASReview project makes use of standardized terminology for all communication
 |                  | training the active learning model, and information that  |
 |                  | is not used for this purpose.                             |
 |                  |                                                           |
-|                  | In the case of systematic reviewing, a record is meta-data|
-|                  | for a scientific publication. Here, the information that  |
-|                  | is used for training purposes is the text in the title and| 
-|                  | abstract of the publication. The information that is not  |            
-|                  | used for training typically consists of other metadata,   |      
-|                  | for example, the authors, journal, or DOI of the          |
-|                  | publication.                                              |
+|                  | In the case of systematic reviewing, a record is          |
+|                  | meta-data for a scientific publication. Here, the         |
+|                  | information that is used for training purposes is the     | 
+|                  | text in the title and abstract of the publication. The    |            
+|                  | information that is not used for training typically       |      
+|                  | consists of other metadata, for example, the authors,     |
+|                  | journal, or DOI of the publication.                       |
 |                  |                                                           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
