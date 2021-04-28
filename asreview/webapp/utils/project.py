@@ -48,6 +48,10 @@ from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.validation import is_project
 
 
+class ProjectNotFoundError(Exception):
+    pass
+
+
 def _get_executable():
     """Get the Python executable"""
 
@@ -272,9 +276,17 @@ def update_simulation_in_project(project_id, simulation_id, state):
 
 def get_project_config(project_id):
 
-    # read the file with project info
-    with open(get_project_file_path(project_id), "r") as fp:
-        project_info = json.load(fp)
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+
+            project_info = json.load(fp)
+
+    except FileNotFoundError:
+        raise ProjectNotFoundError(
+            f"Project '{project_id}' not found"
+        )
 
     return project_info
 

@@ -73,6 +73,7 @@ from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
 from asreview.webapp.utils.project import update_simulation_in_project
 from asreview.webapp.utils.project import get_project_config
+from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.validation import check_dataset
 
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
@@ -84,12 +85,6 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
 
 
-# custom errors
-
-class ProjectNotFoundError(Exception):
-    status_code = 400
-
-
 # error handlers
 
 @bp.errorhandler(ProjectNotFoundError)
@@ -97,7 +92,7 @@ def project_not_found(e):
 
     message = str(e) if str(e) else "Project not found."
     logging.error(message)
-    return jsonify(message=message), e.status_code
+    return jsonify(message=message), 400
 
 
 @bp.errorhandler(InternalServerError)
@@ -183,15 +178,7 @@ def api_init_project():  # noqa: F401
 def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
-    try:
-
-        # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
-
-            project_info = json.load(fp)
-
-    except FileNotFoundError:
-        raise ProjectNotFoundError()
+    project_info = get_project_config(project_id)
 
     try:
 
@@ -326,9 +313,7 @@ def api_demo_data_project():  # noqa: F401
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
 
-    if not is_project(project_id):
-        response = jsonify(message="Project not found.")
-        return response, 404
+    project_config = get_project_config(project_id)
 
     if request.form.get('plugin', None):
 
