@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 import rispy
 
-def write_ris(df, fp):
+def write_ris(df, fp, col_label):
     """RIS file writer
 
     Parameters
@@ -22,8 +22,18 @@ def write_ris(df, fp):
         Dataframe to convert and export.
     fp: str, pathlib.Path
         File path to the RIS file.
+    col_label: 
     """
-    
+    # Check for the 'notes' column and
+    # turn DF label into 'notes'
+    if "notes" in list(df):
+        df["notes"] = df["notes"] + " " + df[col_label].replace({0: "ASReview_irrelevant", 1: 'ASReview_relevant'})
+    else:
+        df["notes"] = df[col_label].replace({0: "ASReview_irrelevant", 1: 'ASReview_relevant'})
+
+    # Delete the col_label
+    del df[col_label]
+
     # Turn pandas DataFrame into list of dictionaries
     d = df.T.to_dict().values()
 
