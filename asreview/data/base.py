@@ -539,5 +539,7 @@ class ASReviewData():
             Dataframe of all available record data which is forwarded
             to ris_writer for exporting.
         """
+        # Catch the col_label and send it to write_ris
+        col_label = self.column_spec["included"]
         df = self.to_dataframe(labels=labels, ranking=ranking)
-        write_ris(df, fp)
+        write_ris(df, fp, col_label)
