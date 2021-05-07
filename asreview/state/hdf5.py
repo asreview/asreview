@@ -13,11 +13,14 @@
 # limitations under the License.
 
 import json
+import zipfile
+import sqlite3
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
-import h5py
 import numpy as np
+import pandas as pd
 from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
@@ -27,6 +30,68 @@ from asreview.state.errors import StateError
 
 
 LATEST_HDF5STATE_VERSION = "1.1"
+RESULTS_TABLE_COLUMNS = ['indices', 'labels', 'predictor_classifiers', 'predictor_query_strategies',
+                         'predictor_balance_strategies', 'predictor_feature_extraction',
+                         'predictor_training_sets', 'labeling_times']
+
+
+def create_sql_data_in_zipfile(zipobj):
+    """Create a file 'results.sql', containing a table 'results'
+    in the zipobj.
+
+    Arguments
+    ---------
+    zipobj: zipfile.ZipFile
+        Zipfile to which to add the sql database.
+    """
+    tempdir = tempfile.TemporaryDirectory()
+    temppath = Path(tempdir.name)
+    sql_fp = temppath / 'results.sql'
+    con = sqlite3.connect(sql_fp)
+    cur = con.cursor()
+
+    # Create the results table.
+    cur.execute('''CREATE TABLE results
+                    (indices INTEGER, 
+                    labels INTEGER, 
+                    predictor_classifiers TEXT,
+                    predictor_query_strategies TEXT,
+                    predictor_balance_strategies TEXT,
+                    predictor_feature_extraction TEXT,
+                    predictor_training_sets INTEGER,
+                    labeling_times TEXT)''')
+
+    con.commit()
+    con.close()
+    zipobj.write(sql_fp, arcname='results.sql')
+
+
+def read_sql_table_from_zipfile(zipobj, sql_name, table):
+    """Read the table from the sqlite database with name sql_name from the given zipfile.
+
+    Arguments
+    ---------
+    zipobj: zipfile.ZipFile
+        Zipfile from which to read the data.
+    sql_name: path-like
+        Location of the sql file in the zipfile.
+    table: str
+        Name of the table in the sqlfile which to read.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe containing the data from the given table in the given sql file.
+    """
+    tempdir = tempfile.TemporaryDirectory()
+    temppath = Path(tempdir.name)
+    zipobj.extractall(temppath)
+    sql_fp = temppath / sql_name
+
+    con = sqlite3.connect(sql_fp)
+    df = pd.read_sql_query(f'SELECT * FROM {table}', con)
+    con.close()
+    return df
 
 
 class HDF5State(BaseState):
@@ -51,25 +116,24 @@ class HDF5State(BaseState):
         # create folder to state file if not exist
         Path(fp).parent.mkdir(parents=True, exist_ok=True)
 
-        self.f = h5py.File(fp, "a")
-        self.f.attrs['start_time'] = np.string_(datetime.now())
-        self.f.attrs['end_time'] = np.string_("")
-        self.f.attrs['settings'] = np.string_("{}")
-        self.f.attrs['version'] = np.string_(LATEST_HDF5STATE_VERSION)
-        self.f.create_group('results')
-        results = self.f['results']
-        results.create_dataset('indices', (0,), dtype=int,
-                               maxshape=(None,), chunks=True)
-        results.create_dataset('labels', (0,), dtype=int,
-                               maxshape=(None,), chunks=True)
-        results.create_dataset('labeling_times', (0,), dtype=np.int64,
-                               maxshape=(None,), chunks=True)
-        results.create_dataset('predictor_methods', (0,), dtype='|S10',
-                               maxshape=(None,), chunks=True)
-        results.create_dataset('predictor_models', (0,), dtype='|S10',
-                               maxshape=(None,), chunks=True)
-        results.create_dataset('predictor_training_sets', (0,), dtype=int,
-                               maxshape=(None,), chunks=True)
+        self.f = zipfile.ZipFile(fp, 'a')
+
+        # TODO(State): Add software version.
+        # Create settings_metadata.json
+        self.settings_metadata = {
+            'start_time': str(datetime.now()),
+            'end_time': "",
+            'settings': "{}",
+            'version': LATEST_HDF5STATE_VERSION
+        }
+
+        self.f.writestr('settings_metadata.json', json.dumps(self.settings_metadata))
+
+        # Create results table.
+        create_sql_data_in_zipfile(self.f)
+
+        # Cache the results table.
+        self.results = pd.DataFrame(columns=RESULTS_TABLE_COLUMNS)
         # TODO (State): Models being trained.
 
         # TODO{CREATE Feature matrix group}
@@ -91,7 +155,19 @@ class HDF5State(BaseState):
         mode = "r" if self.read_only else "a"
 
         # open or create state file
-        self.f = h5py.File(fp, mode)
+        self.f = zipfile.ZipFile(fp, mode)
+
+        # Cache the settings.
+        try:
+            self.settings_metadata = json.load(self.f.open('settings_metadata.json'))
+        except KeyError:
+            raise AttributeError("'settings_metadata.json' not found in the state file.")
+
+        # Cache the results.
+        self.results = read_sql_table_from_zipfile(self.f, 'results.sql', 'results')
+
+        # Cache the record table.
+        self.record_table = read_sql_table_from_zipfile(self.f, 'results.sql', 'record_table')
 
         try:
             if not self._is_valid_version():
@@ -106,17 +182,9 @@ class HDF5State(BaseState):
         self._is_valid_state()
 
     def _is_valid_state(self):
-        results = self.f['results']
-        required_datasets = ['indices', 'labels', 'labeling_times', 'predictor_models', 'predictor_methods',
-                             'predictor_training_sets']
-
-        for dataset in required_datasets:
-            if dataset not in results.keys():
+        for dataset in RESULTS_TABLE_COLUMNS:
+            if dataset not in self.results.columns:
                 raise KeyError(f"State file structure has not been initialized in time, {dataset} is not present. ")
-
-        lengths = [results[dataset].shape[0] for dataset in required_datasets]
-        if len(set(lengths)) != 1:
-            raise StateError("All datasets should have the same size.")
 
     def save(self):
         """Save and close the state file."""
@@ -143,9 +211,9 @@ class HDF5State(BaseState):
     def version(self):
         """Version number of the state file."""
         try:
-            return self.f.attrs['version'].decode("ascii")
-        except Exception:
-            raise AttributeError("Attribute 'version' not found.")
+            return self.settings_metadata['version']
+        except KeyError:
+            raise AttributeError("'settings_metadata.json' does not contain 'version'.")
 
     @property
     def start_time(self):
@@ -153,7 +221,7 @@ class HDF5State(BaseState):
         try:
             # Time is saved as integer number of microseconds.
             # Divide by 10**6 to convert to second
-            start_time = self.f.attrs['start_time']
+            start_time = self.settings_metadata['start_time']
             return datetime.utcfromtimestamp(start_time/10**6)
         except Exception:
             raise AttributeError("Attribute 'start_time' not found.")
@@ -162,7 +230,7 @@ class HDF5State(BaseState):
     def end_time(self):
         """Last modified (datetime) of the state file."""
         try:
-            end_time = self.f.attrs['end_time']
+            end_time = self.settings_metadata['end_time']
             return datetime.utcfromtimestamp(end_time/10**6)
         except Exception:
             raise AttributeError("Attribute 'end_time' not found.")
@@ -194,11 +262,10 @@ class HDF5State(BaseState):
             abstract_only     : False
 
         """
-        settings = self.f.attrs.get('settings', None)
+        settings = self.settings_metadata['settings']
         if settings is None:
             return None
-        settings_dict = json.loads(settings)
-        return ASReviewSettings(**settings_dict)
+        return ASReviewSettings(**settings)
 
     @settings.setter
     def settings(self, settings):
@@ -217,7 +284,7 @@ class HDF5State(BaseState):
         dict:
             The last known queries according to the state file.
         """
-        str_queries = json.loads(self.f.attrs["current_queries"])
+        str_queries = self.settings_metadata['current_queries']
         return {int(key): value for key, value in str_queries.items()}
 
     @current_queries.setter
@@ -233,16 +300,16 @@ class HDF5State(BaseState):
     @property
     def n_records_labeled(self):
         """Get the number of labeled records, where each prior is counted individually."""
-        return self.f['results/indices'].shape[0]
+        return len(self.results)
 
 # TODO: Should this return 0 if it is empty?
     @property
     def n_predictor_models(self):
         """Get the number of unique (model type + training set) models that were used. """
-        predictor_models = [model.decode('utf-8') for model in self.f['results/predictor_models'][self.n_priors:]]
-        predictor_training_sets = [str(tr_set) for tr_set in self.f['results/predictor_training_sets'][self.n_priors:]]
+        predictor_classifiers = list(self.results['predictor_classifiers'])[self.n_priors:]
+        predictor_training_sets = list(self.results['predictor_training_sets'].astype(str))[self.n_priors:]
         # A model is uniquely determine by the string {model_code}{training_set}.
-        model_ids = [model + tr_set for (model, tr_set) in zip(predictor_models, predictor_training_sets)]
+        model_ids = [model + tr_set for (model, tr_set) in zip(predictor_classifiers, predictor_training_sets)]
         # Return the number of unique model_ids plus one for the priors.
         return np.unique(model_ids).shape[0] + 1
 
@@ -255,9 +322,8 @@ class HDF5State(BaseState):
         int:
             Number of priors. If priors have not been selected returns None.
         """
-        try:
-            n_priors = self.f['results'].attrs['n_priors']
-        except KeyError:
+        n_priors = list(self.results['predictor_query_strategies']).count('prior')
+        if n_priors == 0:
             n_priors = None
         return n_priors
 
@@ -401,9 +467,7 @@ class HDF5State(BaseState):
         int:
             Row index of the given record_id in the dataset.
         """
-        data_hash = list(self.f['data_properties'].keys())[0]
-        record_table = self.f[f'data_properties/{data_hash}/record_table']
-        return np.where(record_table[:] == record_id)[0][0]
+        return np.where(self.record_table == record_id)[0][0]
 
     def _row_index_to_record_id(self, row_index):
         """Find the record_id that corresponds to a given row index.
@@ -419,17 +483,15 @@ class HDF5State(BaseState):
             Record_id of the record with given row index.
 
         """
-        data_hash = list(self.f['data_properties'].keys())[0]
-        record_table = self.f[f'data_properties/{data_hash}/record_table']
-        return record_table[row_index]
+        return self.record_table.iloc[row_index].item()
 
-    def _get_dataset(self, dataset, query=None, record_id=None):
-        """Get a dataset from the state file, or only the part corresponding to a given query or record_id.
+    def _get_dataset(self, results_column, query=None, record_id=None):
+        """Get a column from the results table, or only the part corresponding to a given query or record_id.
 
         Arguments
         ---------
-        dataset: str
-            Name of the dataset you want to get.
+        results_column: str
+            Name of the column of the results table you want to get.
         query: int
             Only return the data of the given query, where query=0 correspond to the prior information.
         record_id: str/int
@@ -457,12 +519,12 @@ class HDF5State(BaseState):
             # Convert record id to row index.
             idx = self._record_id_to_row_index(record_id)
             # Find where this row number was labelled.
-            dataset_slice = np.where(self.f['results/indices'][:] == idx)[0]
+            dataset_slice = np.where(self.results['indices'][:] == idx)[0]
         else:
             # Return the whole dataset.
-            dataset_slice = range(self.f[f'results/{dataset}'].shape[0])
+            dataset_slice = range(self.n_records_labeled)
 
-        return np.array(self.f[f'results/{dataset}'])[dataset_slice]
+        return np.array(self.results[results_column])[dataset_slice]
 
     def get_order_of_labeling(self):
         """Get full array of record id's in order that they were labeled.
@@ -472,7 +534,7 @@ class HDF5State(BaseState):
         np.ndarray:
             The record_id's in the order that they were labeled.
         """
-        indices = self._get_dataset(dataset='indices')
+        indices = self._get_dataset(results_column='indices')
         return np.array([self._row_index_to_record_id(idx) for idx in indices])
 
     def get_labels(self, query=None, record_id=None):
@@ -494,43 +556,43 @@ class HDF5State(BaseState):
         """
         return self._get_dataset('labels', query=query, record_id=record_id)
 
-    def get_predictor_models(self, query=None, record_id=None):
-        """Get the predictor models from the state file.
+    def get_predictor_classifiers(self, query=None, record_id=None):
+        """Get the predictor classifiers from the state file.
 
         Arguments
         ---------
         query: int
-            The query number from which you want to obtain the predictor model.
-            If this is 0, you get the predictor model for all the priors.
+            The query number from which you want to obtain the predictor classifiers.
+            If this is 0, you get the predictor classifier for all the priors.
         record_id: str
-            The record_id of the sample from which you want to obtain the predictor model.
+            The record_id of the sample from which you want to obtain the predictor classifiers.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array with predictor models in the labeling order,
+            If query and record_id are None, it returns the full array with predictor classifiers in the labeling order,
             else it returns only the specific one determined by query or record_id.
         """
-        return self._get_dataset(dataset='predictor_models', query=query, record_id=record_id)
+        return self._get_dataset(results_column='predictor_classifiers', query=query, record_id=record_id)
 
-    def get_predictor_methods(self, query=None, record_id=None):
-        """Get the predictor methods from the state file.
+    def get_predictor_query_strategies(self, query=None, record_id=None):
+        """Get the predictor query strategies from the state file.
 
         Arguments
         ---------
         query: int
-            The query number from which you want to obtain the predictor method.
-            If this is 0, you get the predictor method for all the priors.
+            The query number from which you want to obtain the predictor query strategies.
+            If this is 0, you get the predictor query strategie for all the priors.
         record_id: str
-            The record_id of the sample from which you want to obtain the predictor method.
+            The record_id of the sample from which you want to obtain the predictor query strategies.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array with predictor methods in the labeling order,
-            else it returns only the specific one determined by query or record_id.
+            If query and record_id are None, it returns the full array with predictor query strategies in the labeling
+            order, else it returns only the specific one determined by query or record_id.
         """
-        return self._get_dataset(dataset='predictor_methods', query=query, record_id=record_id)
+        return self._get_dataset(results_column='predictor_query_strategies', query=query, record_id=record_id)
 
     def get_predictor_training_sets(self, query=None, record_id=None):
         """Get the predictor training_sets from the state file.
@@ -549,7 +611,7 @@ class HDF5State(BaseState):
             If query and record_id are None, it returns the full array with predictor training sets in the labeling
             order, else it returns only the specific one determined by query or record_id.
         """
-        return self._get_dataset(dataset='predictor_training_sets', query=query, record_id=record_id)
+        return self._get_dataset(results_column='predictor_training_sets', query=query, record_id=record_id)
 
     def get_labeling_time(self, query=None, record_id=None, format='int'):
         """Get the time of labeling the state file.

@@ -196,7 +196,7 @@ class BaseState(ABC):
     @property
     @abstractmethod
     def n_predictor_models(self):
-        """Number of unique models used.
+        """Number of unique (classifier + training set) models used.
 
         Returns
         -------
@@ -246,41 +246,41 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    def get_predictor_models(self, query=None, record_id=None):
-        """Get the predictor models from the state file.
+    def get_predictor_classifiers(self, query=None, record_id=None):
+        """Get the predictor classifiers from the state file.
 
         Arguments
         ---------
         query: int
-            The query number from which you want to obtain the predictor model.
+            The query number from which you want to obtain the predictor classifier.
             If this is 0, you get the predictor model for all the priors.
         record_id: str
-            The record_id of the sample from which you want to obtain the predictor model.
+            The record_id of the sample from which you want to obtain the predictor classifier.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array with predictor models in the labeling order,
+            If query and record_id are None, it returns the full array with predictor classifiers in the labeling order,
             else it returns only the specific one determined by query or record_id.
         """
         raise NotImplementedError
 
-    def get_predictor_methods(self, query=None, record_id=None):
-        """Get the predictor methods from the state file.
+    def get_predictor_query_strategies(self, query=None, record_id=None):
+        """Get the predictor query strategies from the state file.
 
         Arguments
         ---------
         query: int
-            The query number from which you want to obtain the predictor method.
+            The query number from which you want to obtain the predictor query strategies.
             If this is 0, you get the predictor method for all the priors.
         record_id: str
-            The record_id of the sample from which you want to obtain the predictor method.
+            The record_id of the sample from which you want to obtain the predictor query strategies.
 
         Returns
         -------
         np.ndarray:
-            If query and record_id are None, it returns the full array with predictor methods in the labeling order,
-            else it returns only the specific one determined by query or record_id.
+            If query and record_id are None, it returns the full array with predictor query strategies in the labeling
+            order, else it returns only the specific one determined by query or record_id.
         """
         raise NotImplementedError
 

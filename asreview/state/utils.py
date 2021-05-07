@@ -18,11 +18,13 @@ import os
 from pathlib import Path
 import zipfile
 import tempfile
+import sqlite3
 from io import BytesIO
 from base64 import b64decode
 
 import h5py
 import numpy as np
+import pandas as pd
 from scipy.sparse import load_npz
 from scipy.sparse import csr_matrix
 
@@ -48,6 +50,9 @@ def _get_state_class(fp):
     elif state_ext in ['.json']:
         from asreview.state.legacy.json import JSONState
         state_class = JSONState
+    elif state_ext in ['.asreview']:
+        from asreview.state.hdf5 import HDF5State
+        state_class = HDF5State
     else:
         state_class = None
     return state_class
@@ -194,6 +199,31 @@ def state_from_asreview_file(data_fp):
         fp = Path(tmpdir.name, state_fp_in_zip)
         state = _get_state_class(fp)(state_fp=fp, read_only=True)
         return state
+
+
+def read_results_into_dataframe(asreview_fp, table='results'):
+    """Read the result table of a v3 state file into a pandas dataframe.
+
+    Arguments
+    ---------
+    asreview_fp: str/path-like
+        Filepath to the v3 state file.
+    table: str
+        Name of the sql table in the results.sql that you want to read.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe containing contents of the results table of the state file.
+    """
+    tempdir = tempfile.TemporaryDirectory()
+    path = Path(tempdir.name)
+    with zipfile.ZipFile(asreview_fp) as file:
+        file.extract('results.sql', path)
+    con = sqlite3.connect(path / 'results.sql')
+    df = pd.read_sql_query(f'SELECT * FROM {table}', con)
+    con.close()
+    return df
 
 
 # TODO(State): If conversion fails, clean up created file.
