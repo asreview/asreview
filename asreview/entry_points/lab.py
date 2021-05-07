@@ -81,6 +81,12 @@ def _lab_parser(prog="lab"):
         type=str,
         help="The full path to a private key file for usage with SSL/TLS.")
 
+    parser.add_argument(
+        "--authfile",
+        default="",
+        type=str,
+        help="The full path to a htpasswd file to use for HTTP Authentication.")
+
     return parser
 
 

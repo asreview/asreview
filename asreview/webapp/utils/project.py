@@ -29,6 +29,7 @@ from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.compat import convert_id_to_idx
 from asreview.webapp.sqlock import SQLiteLock
+from asreview.webapp.sqlock import SQLiteUserLock
 from asreview.webapp.utils.io import read_current_labels
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.io import read_label_history
@@ -40,6 +41,7 @@ from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
 from asreview.webapp.utils.paths import get_lock_path
+from asreview.webapp.utils.paths import get_user_lock_path
 from asreview.webapp.utils.paths import get_pool_path
 from asreview.webapp.utils.paths import get_project_file_path
 from asreview.webapp.utils.paths import get_project_path
@@ -156,6 +158,15 @@ def import_project_file(file_name):
         )
 
     return import_project["id"]
+
+
+def project_blocking_user(project_id, user):
+    """ Check if other user is blocking the project
+
+    Returns:
+        True if current user is blocking the project, else string with the username of blocking user.
+    """
+    return SQLiteUserLock(get_user_lock_path(project_id), user).is_locked()
 
 
 def add_dataset_to_project(project_id, file_name):
@@ -443,7 +454,7 @@ def export_to_string(project_id, export_type="csv"):
         raise ValueError("This export type isn't implemented.")
 
 
-def label_instance(project_id, paper_i, label, retrain_model=True):
+def label_instance(project_id, paper_i, label, user=None, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
@@ -452,6 +463,12 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
     label = int(label)
 
     fp_lock = get_lock_path(project_id)
+
+    if user:
+        lock_acquired = SQLiteUserLock(get_user_lock_path(project_id), user).acquire()
+        if lock_acquired != True:
+            print('No lock was acquired. Project is blocked by another user. Exiting...')
+            return False
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):

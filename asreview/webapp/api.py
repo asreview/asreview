@@ -37,6 +37,8 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
 
+from asreview.webapp.auth import auth
+
 from asreview import __version__ as asreview_version
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
@@ -68,6 +70,7 @@ from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
+from asreview.webapp.utils.project import project_blocking_user
 from asreview.webapp.utils.validation import check_dataset
 
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
@@ -77,7 +80,6 @@ from asreview.config import DEFAULT_N_INSTANCES
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
-
 
 # custom errors
 
@@ -173,6 +175,7 @@ def api_init_project():  # noqa: F401
 
 
 @bp.route('/project/<project_id>/info', methods=["GET"])
+@auth.login_required
 def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
@@ -211,6 +214,8 @@ def api_get_project_info(project_id):  # noqa: F401
                 project_info["projectInitReady"] = True
             else:
                 project_info["projectInitReady"] = False
+
+        project_info['blockedBy'] = project_blocking_user(project_id, auth.current_user())
 
     except Exception as err:
         logging.error(err)
@@ -976,7 +981,9 @@ def api_get_progress_efficiency(project_id):
 
 
 # I think we don't need this one
+
 @bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
+@auth.login_required
 def api_classify_instance(project_id, doc_id):  # noqa: F401
     """Retrieve classification result.
 
@@ -990,7 +997,7 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     doc_id = request.form['doc_id']
     label = request.form['label']
 
-    label_instance(project_id, doc_id, label, retrain_model=True)
+    label_instance(project_id, doc_id, label, retrain_model=True, user=auth.current_user())
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1014,6 +1021,7 @@ def api_update_classify_instance(project_id, doc_id):
 
 
 @bp.route('/project/<project_id>/get_document', methods=["GET"])
+@auth.login_required
 def api_get_document(project_id):  # noqa: F401
     """Retrieve documents in order of review.
 
@@ -1031,10 +1039,17 @@ def api_get_document(project_id):  # noqa: F401
             item = None
             pool_empty = True
         else:
+            blocking_user = project_blocking_user(project_id, auth.current_user())
+            if blocking_user == False:
+                item = get_paper_data(
+                    project_id, new_instance, return_debug_label=True)
+                item["doc_id"] = new_instance
+            else:
+                item = dict(
+                    title='This project under review by another user',
+                    abstract=f'This project is being reviewed by user {blocking_user}. You can only start reviewing the papers of this project after 15 minutes inactivity of that user in this project.'
+                )
 
-            item = get_paper_data(
-                project_id, new_instance, return_debug_label=True)
-            item["doc_id"] = new_instance
             pool_empty = False
 
     except Exception as err:
