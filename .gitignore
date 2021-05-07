@@ -160,3 +160,6 @@ bower_components
 psd
 thumb
 sketch
+
+# VS Code
+.vscode

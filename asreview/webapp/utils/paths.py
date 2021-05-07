@@ -149,6 +149,17 @@ def get_lock_path(project_id):
 
     return Path(get_project_path(project_id), "lock.sqlite")
 
+def get_user_lock_path(project_id):
+    """Get the active file for the project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+
+    return Path(get_project_path(project_id), "userlock.sqlite")
+
 
 def get_pool_path(project_id):
     """Get the pool file for the project and iteration.
