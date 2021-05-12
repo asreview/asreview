@@ -121,8 +121,8 @@ green during screening. This option is useful for training purposes,
 presentations, and workshops.
 
 
-Compatibility
--------------
+Compatibility for importing in ASReview
+---------------------------------------
 
 Citation Managers
 ~~~~~~~~~~~~~~~~~
@@ -244,6 +244,56 @@ such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
 
+Compatibility for exports from ASReview
+---------------------------------------
+
+After screening the titles and abstracts, you can export the results into a
+.ris or .xslx file. These can be imported again within different programs
+
+Citation Managers
+~~~~~~~~~~~~~~~~~
+
+The following table provides an overview of export files from ASReview
+which are accepted by citation managers.
+
++-------------------------------+----------+----------+
+|                               | **.ris** | **.xlsx**|
++-------------------------------+----------+----------+
+| **EndNote**                   | X        | X        |
++-------------------------------+----------+----------+
+| **Mendeley**                  | X        | X        |
++-------------------------------+----------+----------+
+| **Refworks**                  | X        | X        |
++-------------------------------+----------+----------+
+| **Zotero**                    | X        | X        |
++-------------------------------+----------+----------+
+
+-  ✅ = The ASReview export can be imported into the citation manager.
+-  N/A = This format does not exist.
+-  X = Not supported.
+
+Systematic Review Software
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++-----------------+-----------+----------+
+|                 | **.ris**  | **.xlsx**|
++-----------------+-----------+----------+
+| **Abstrackr**   | X         | X        |
++-----------------+-----------+----------+
+| **Covidence**   | X         | X        |
++-----------------+-----------+----------+
+| **Distiller**   | X         | X        |
++-----------------+-----------+----------+
+|**EPPI-reviewer**| X         | X        |
++-----------------+-----------+----------+
+| **Rayyan**      | X         | X        |
++-----------------+-----------+----------+
+|**Robotreviewer**| X         | X        |
++-----------------+-----------+----------+
+
+-  ✅ =  The ASReview export can be imported into the third-party review software.
+-  N/A = This format does not exist.
+-  X = Not supported.
 
 .. _benchmark-datasets:
 
