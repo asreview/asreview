@@ -37,6 +37,11 @@ from asreview.io.utils import standardize_dataframe
 #     else:
 #         return TAG_KEY_MAPPING
 
+def converter(x):
+    try:
+        return ", ".join(x)
+    except TypeError:
+        return ""
 
 def read_ris(fp):
     """RIS file reader.
