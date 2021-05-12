@@ -43,6 +43,34 @@ def converter(x):
     except TypeError:
         return ""
 
+def convert_labels(entries):
+    """Converter to turn RIS-compatible label into a ASReview-compatible label.
+    "ASReview_irrelevant" -> 0 -> not "included"
+    "ASReview_relevant" -> 1 -> "included"
+    
+    Parameters
+    ----------
+    entries: list
+        List of entries within the Dataframe.
+
+    Returns
+    -------
+    entries: list
+        List of converted entries within the Dataframe.        
+    """
+    for i in range(len(entries)):
+        try:
+            entries[i]["notes"]
+            if "ASReview_relevant" in entries[i]["notes"]: # "included" -> 1
+                entries[i]["included"] = 1
+            elif "ASReview_irrelevant" in entries[i]["notes"]: # not "included" -> 0
+                entries[i]["included"] = 0
+            else :
+                pass        
+        except KeyError:
+            pass
+    return entries      
+
 def read_ris(fp):
     """RIS file reader.
 
@@ -57,7 +85,6 @@ def read_ris(fp):
     -------
     pandas.DataFrame:
         Dataframe with entries.
-
     """
 
     encodings = ['utf-8', 'ISO-8859-1', 'utf-8-sig']
@@ -76,16 +103,13 @@ def read_ris(fp):
 
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
+    
+    # Convert labels from RIS to ASReview
+    entries = convert_labels(entries)
 
+    # Collect the entries to a Dataframe
     df = pd.DataFrame(entries)
 
-    def converter(x):
-        try:
-            return ", ".join(x)
-        except TypeError:
-            return ""
-
-    df = pd.DataFrame(entries)
     print("---BEFORE-")
     print(df["notes"])    
     for tag in LIST_TYPE_TAGS:
@@ -96,3 +120,4 @@ def read_ris(fp):
     print("---AFTER--")
     print(df["notes"])
     return standardize_dataframe(df)
+    
