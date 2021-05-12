@@ -52,6 +52,8 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
+Instructions for usage with Docker are [here](docker/README.md)
+
 ## ASReview LAB
 
 ASReview LAB is a user-friendly interface for screening documents and
