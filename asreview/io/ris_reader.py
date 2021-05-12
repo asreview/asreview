@@ -23,19 +23,19 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import standardize_dataframe
 
 
-RIS_KEY_LABEL_INCLUDED = "LI"
+# RIS_KEY_LABEL_INCLUDED = "LI"
 
 
-def _tag_key_mapping(reverse=False):
-    # Add label_included into the specification and create reverse mapping.
-    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
-    KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-    for label in COLUMN_DEFINITIONS["included"]:
-        KEY_TAG_MAPPING[label] = "LI"
-    if reverse:
-        return KEY_TAG_MAPPING
-    else:
-        return TAG_KEY_MAPPING
+# def _tag_key_mapping(reverse=False):
+#     # Add label_included into the specification and create reverse mapping.
+#     TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
+#     KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
+#     for label in COLUMN_DEFINITIONS["included"]:
+#         KEY_TAG_MAPPING[label] = "LI"
+#     if reverse:
+#         return KEY_TAG_MAPPING
+#     else:
+#         return TAG_KEY_MAPPING
 
 
 def read_ris(fp):
@@ -60,8 +60,9 @@ def read_ris(fp):
     for encoding in encodings:
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
-                mapping = _tag_key_mapping(reverse=False)
-                entries = list(rispy.load(bibliography_file, mapping=mapping))
+                # mapping = _tag_key_mapping(reverse=False)
+                # entries = list(rispy.load(bibliography_file, mapping=mapping))
+                entries = list(rispy.load(bibliography_file))
                 break
         except UnicodeDecodeError:
             pass
