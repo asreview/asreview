@@ -85,8 +85,14 @@ def read_ris(fp):
         except TypeError:
             return ""
 
+    df = pd.DataFrame(entries)
+    print("---BEFORE-")
+    print(df["notes"])    
     for tag in LIST_TYPE_TAGS:
         key = TAG_KEY_MAPPING[tag]
         if key in df:
             df[key] = df[key].apply(converter)
+
+    print("---AFTER--")
+    print(df["notes"])
     return standardize_dataframe(df)
