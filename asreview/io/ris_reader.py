@@ -60,7 +60,7 @@ def read_ris(fp):
 
     """
 
-    encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
+    encodings = ['utf-8', 'ISO-8859-1', 'utf-8-sig']
     entries = None
     for encoding in encodings:
         try:
