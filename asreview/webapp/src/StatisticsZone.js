@@ -96,13 +96,14 @@ const StatisticsZone = (props) => {
   };
 
   useEffect(() => {
-    /**
-     * Get summary statistics
-     */
+
+    // flag denotes mount status
+    let isMounted = true
+
     const getProgressInfo = () => {
       ProjectAPI.progress(props.project_id)
         .then((result) => {
-          setStatistics(result.data);
+          if (isMounted) setStatistics(result.data);
         })
         .catch((error) => {
           setError((s) => {
@@ -118,7 +119,7 @@ const StatisticsZone = (props) => {
     const getProgressHistory = () => {
       ProjectAPI.progress_history(props.project_id)
         .then((result) => {
-          setHistory(result.data);
+          if (isMounted) setHistory(result.data);
         })
         .catch((error) => {
           setError((s) => {
@@ -134,7 +135,7 @@ const StatisticsZone = (props) => {
     const getProgressEfficiency = () => {
       ProjectAPI.progress_efficiency(props.project_id)
         .then((result) => {
-          setEfficiency(result.data);
+          if (isMounted) setEfficiency(result.data);
         })
         .catch((error) => {
           setError((s) => {
@@ -152,6 +153,10 @@ const StatisticsZone = (props) => {
       getProgressHistory();
       getProgressEfficiency();
     }
+
+    // useEffect cleanup to set flag false, if unmounted
+    return () => { isMounted = false };
+
   }, [props.projectInitReady, props.training, props.project_id, error.error]);
 
   return (
