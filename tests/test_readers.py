@@ -80,7 +80,8 @@ def test_ris_write_data(tmpdir):
     fp_in = Path("tests", "demo_data", "generic_labels.ris")
     asr_data = ASReviewData.from_file(fp_in)
 
-    tmp_ris_fp_out = Path(tmpdir, "tmp_generic_labels.ris")
+    # tmp_ris_fp_out = Path(tmpdir, "tmp_generic_labels.ris")
+    tmp_ris_fp_out = Path("tmp_generic_labels.ris")
     asr_data.to_ris(tmp_ris_fp_out)
 
     asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
@@ -93,4 +94,4 @@ def test_ris_write_data(tmpdir):
     assert list(asr_data_diff.labels) == [1,0]
 
     # Break for debugging
-    #assert False
+    # assert False
