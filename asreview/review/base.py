@@ -258,9 +258,16 @@ class BaseReview(ABC):
         if self.n_papers is not None and n_train >= self.n_papers:
             stop_iter = True
 
-        # don't stop if there is no stopping criteria
-        if self.n_queries is not None and query_i >= self.n_queries:
-            stop_iter = True
+        # If n_queries is set to min, stop when all relevant papers are included
+        if self.n_queries == 'min':
+            n_included = np.count_nonzero(self.y[self.train_idx] == 1)
+            n_total_relevant = np.count_nonzero(self.y == 1)
+            if n_included == n_total_relevant:
+                stop_iter = True
+        # Otherwise, stop when reaching n_queries (if provided)
+        elif self.n_queries is not None:
+            if query_i >= int(self.n_queries): # Might be good to check for valid values somewhere earlier
+                stop_iter = True
 
         return stop_iter
 

@@ -31,7 +31,7 @@ SETTINGS_TYPE_DICT = {
     "feature_extraction": str,
     "n_papers": int,
     "n_instances": int,
-    "n_queries": int,
+    "n_queries": str,
     "n_prior_included": int,
     "n_prior_excluded": int,
     "mode": str,

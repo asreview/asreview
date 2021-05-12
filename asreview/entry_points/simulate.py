@@ -171,7 +171,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
              f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_queries",
-        type=int,
+        type=str,
         default=None,
         help="The number of queries. By default, the program "
              "stops after all documents are reviewed or is "
