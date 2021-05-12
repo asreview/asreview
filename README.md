@@ -52,7 +52,7 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
-Instructions for usage with Docker are [here](docker/README.md)
+Instructions for usage with Docker are [here](docker/README.md).
 
 ## ASReview LAB
 
