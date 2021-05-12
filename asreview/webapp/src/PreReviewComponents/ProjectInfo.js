@@ -80,6 +80,12 @@ const ProjectInfo = (props) => {
   });
 
   const onChange = (evt) => {
+    if (error.code) {
+      setError({
+        code: null,
+        message: null,
+      });
+    };
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
