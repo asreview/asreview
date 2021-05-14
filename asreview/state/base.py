@@ -284,6 +284,44 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    def get_predictor_balance_strategies(self, query=None, record_id=None):
+        """Get the predictor balance strategies from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor balance strategies.
+            If this is 0, you get the predictor balance strategy for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor balance strategies.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor balane strategies in the labeling
+            order, else it returns only the specific one determined by query or record_id.
+        """
+        raise NotImplementedError
+
+    def get_predictor_feature_extraction(self, query=None, record_id=None):
+        """Get the predictor query strategies from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor feature extraction methods.
+            If this is 0, you get the predictor feature extraction methods for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor feature extraction methods.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor feature extraction methods in the
+            labeling order, else it returns only the specific one determined by query or record_id.
+        """
+        raise NotImplementedError
+
     def get_predictor_training_sets(self, query=None, record_id=None):
         """Get the predictor training_sets from the state file.
 

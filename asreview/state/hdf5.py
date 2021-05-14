@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.sparse.csr import csr_matrix
+from scipy.sparse import load_npz
 
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
@@ -136,8 +137,6 @@ class HDF5State(BaseState):
         self.results = pd.DataFrame(columns=RESULTS_TABLE_COLUMNS)
         # TODO (State): Models being trained.
 
-        # TODO{CREATE Feature matrix group}
-
     def _restore(self, fp):
         """Restore the state file.
 
@@ -181,6 +180,7 @@ class HDF5State(BaseState):
 
         self._is_valid_state()
 
+    # TODO(State): Check more things?
     def _is_valid_state(self):
         for dataset in RESULTS_TABLE_COLUMNS:
             if dataset not in self.results.columns:
@@ -234,6 +234,12 @@ class HDF5State(BaseState):
             return datetime.utcfromtimestamp(end_time/10**6)
         except Exception:
             raise AttributeError("Attribute 'end_time' not found.")
+
+    @end_time.setter
+    def end_time(self, time):
+        timestamp = int(time.timestamp() * 10**6)
+        self.settings_metadata['end_time'] = timestamp
+
 
     @property
     def settings(self):
@@ -327,7 +333,19 @@ class HDF5State(BaseState):
             n_priors = None
         return n_priors
 
-### Features
+### Features, settings_metadata
+
+    def _add_settings_metadata(self, key, value):
+        """Add information to the settings_metadata dictionary."""
+        self.settings_metadata[key] = value
+
+        # Check if there is already a 'settings_metadata.json' in the zipfile.
+        try:
+            zipinfo = self.f.getinfo('settings_metadata.json')
+        except KeyError:
+            zipinfo = 'settings_metadata.json'
+
+        self.f.writestr(zipinfo, json.dumps(self.settings_metadata))
 
     def _add_as_data(self, as_data, feature_matrix=None):
         record_table = as_data.record_ids
@@ -367,19 +385,9 @@ class HDF5State(BaseState):
             as_data_group.create_dataset("feature_matrix", data=feature_matrix)
             as_data_group.attrs["matrix_type"] = np.string_("unknown")
 
-    def get_feature_matrix(self, data_hash):
-        as_data_group = self.f[f"/data_properties/{data_hash}"]
-
-        matrix_type = as_data_group.attrs["matrix_type"].decode("ascii")
-        if matrix_type == "ndarray":
-            return np.array(as_data_group["feature_matrix"])
-        elif matrix_type == "csr_matrix":
-            feature_matrix = csr_matrix(
-                (as_data_group["data"], as_data_group["indices"],
-                 as_data_group["indexptr"]),
-                shape=as_data_group["shape"])
-            return feature_matrix
-        return as_data_group["feature_matrix"]
+    # TODO(State): Should the feature matrix be behind a data hash?
+    def get_feature_matrix(self):
+        return load_npz(self.f.open('feature_matrix.npz'))
 
 ### METHODS/FUNC
     # def set_labels(self, y):
@@ -582,7 +590,7 @@ class HDF5State(BaseState):
         ---------
         query: int
             The query number from which you want to obtain the predictor query strategies.
-            If this is 0, you get the predictor query strategie for all the priors.
+            If this is 0, you get the predictor query strategy for all the priors.
         record_id: str
             The record_id of the sample from which you want to obtain the predictor query strategies.
 
@@ -593,6 +601,44 @@ class HDF5State(BaseState):
             order, else it returns only the specific one determined by query or record_id.
         """
         return self._get_dataset(results_column='predictor_query_strategies', query=query, record_id=record_id)
+
+    def get_predictor_balance_strategies(self, query=None, record_id=None):
+        """Get the predictor balance strategies from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor balance strategies.
+            If this is 0, you get the predictor balance strategy for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor balance strategies.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor balane strategies in the labeling
+            order, else it returns only the specific one determined by query or record_id.
+        """
+        return self._get_dataset(results_column='predictor_balance_strategies', query=query, record_id=record_id)
+
+    def get_predictor_feature_extraction(self, query=None, record_id=None):
+        """Get the predictor query strategies from the state file.
+
+        Arguments
+        ---------
+        query: int
+            The query number from which you want to obtain the predictor feature extraction methods.
+            If this is 0, you get the predictor feature extraction methods for all the priors.
+        record_id: str
+            The record_id of the sample from which you want to obtain the predictor feature extraction methods.
+
+        Returns
+        -------
+        np.ndarray:
+            If query and record_id are None, it returns the full array with predictor feature extraction methods in the
+            labeling order, else it returns only the specific one determined by query or record_id.
+        """
+        return self._get_dataset(results_column='predictor_feature_extraction', query=query, record_id=record_id)
 
     def get_predictor_training_sets(self, query=None, record_id=None):
         """Get the predictor training_sets from the state file.

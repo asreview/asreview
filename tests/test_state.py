@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 import numpy as np
+from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
 from asreview.state import HDF5State
@@ -183,6 +184,10 @@ def test_create_empty_state(tmpdir):
         assert state.is_empty()
 
 
+def test_get_feature_matrix():
+    with open_state(TEST_STATE_FP) as state:
+        feature_matrix = state.get_feature_matrix()
+        assert isinstance(feature_matrix, csr_matrix)
 #
 #
 # # def test_append_to_dataset(tmpdir):
