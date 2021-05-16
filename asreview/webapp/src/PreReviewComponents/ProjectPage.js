@@ -264,7 +264,8 @@ const ProjectPage = (props) => {
                         variant={"outlined"}
                         onClick={continueProjectSetup}
                       >
-                        {state.info.projectHasDataset ? "Finish" : "Start"} setup
+                        {state.info.projectHasDataset ? "Finish" : "Start"}{" "}
+                        setup
                       </Button>
                     )}
 

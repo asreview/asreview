@@ -85,7 +85,7 @@ const ProjectInfo = (props) => {
         code: null,
         message: null,
       });
-    };
+    }
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
@@ -110,10 +110,10 @@ const ProjectInfo = (props) => {
         // switch to project page if init
         // reload project info if edit
         if (!props.edit) {
-          props.onClose();  // set newProject state to false
+          props.onClose(); // set newProject state to false
           props.handleAppState("project-page");
         } else {
-          props.onClose();  // set editing state to false
+          props.onClose(); // set editing state to false
           props.reloadProjectInfo();
         }
       })

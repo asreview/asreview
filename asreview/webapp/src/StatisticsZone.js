@@ -96,9 +96,8 @@ const StatisticsZone = (props) => {
   };
 
   useEffect(() => {
-
     // flag denotes mount status
-    let isMounted = true
+    let isMounted = true;
 
     const getProgressInfo = () => {
       ProjectAPI.progress(props.project_id)
@@ -155,8 +154,9 @@ const StatisticsZone = (props) => {
     }
 
     // useEffect cleanup to set flag false, if unmounted
-    return () => { isMounted = false };
-
+    return () => {
+      isMounted = false;
+    };
   }, [props.projectInitReady, props.training, props.project_id, error.error]);
 
   return (
