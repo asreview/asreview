@@ -22,7 +22,7 @@ from flask_restx import Api
 from gevent.pywsgi import WSGIServer
 
 from asreview.entry_points.lab import _lab_parser
-import asreview.webapp.api.api as project_api  # TODO
+import asreview.webapp.api.api as project_api
 from asreview.webapp.api.users.users import users_namespace
 from asreview.webapp.api.users.auth import auth_namespace
 from asreview.webapp.api import base
@@ -78,9 +78,11 @@ def create_app(**kwargs):
         template_folder="build"
     )
 
-    # Get the ASReview arguments.
+    # Get the ASReview arguments
     kwargs.pop("dataset", None)
     app.config['asr_kwargs'] = kwargs
+    # Use BaseConfig arguments
+    app.config.from_object("asreview.webapp.config.BaseConfig")
 
     # Ensure the instance folder exists.
     try:
