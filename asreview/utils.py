@@ -182,7 +182,7 @@ def list_model_names(entry_name="asreview.models"):
 
     for method in model_name_values:
         model_names.append(_model_class_from_entry_point(method, entry_name).name)
-    
+
     return model_names
 
 
