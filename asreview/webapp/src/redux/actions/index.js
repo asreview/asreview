@@ -1,8 +1,8 @@
 import {
-	SET_ASREVIEW_VERSION,
-	SET_PROJECT,
-	SET_APP_STATE,
-	TOGGLE_REVIEW_DRAWER,
+  SET_ASREVIEW_VERSION,
+  SET_PROJECT,
+  SET_APP_STATE,
+  TOGGLE_REVIEW_DRAWER,
 } from "../../constants/action-types";
 
 export function setASReviewVersion(asreview_version) {
@@ -18,5 +18,5 @@ export function setAppState(app_state) {
 }
 
 export function toggleReviewDrawer() {
-  return { type: TOGGLE_REVIEW_DRAWER};
+  return { type: TOGGLE_REVIEW_DRAWER };
 }

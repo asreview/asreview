@@ -1,44 +1,24 @@
-import React, {useState, useEffect} from 'react';
-import {
-  Backdrop,
-  Box,
-  Container,
-  Grid,
-  Typography,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  SpeedDial,
-  SpeedDialIcon,
-  SpeedDialAction,
-} from '@material-ui/lab';
-import {
-  AddOutlined,
-  CreateNewFolderOutlined,
-} from '@material-ui/icons';
+import React, { useState, useEffect } from "react";
+import { Backdrop, Box, Container, Grid, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
+import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
-import ErrorHandler from './ErrorHandler';
-import ProjectCard from './ProjectCard';
+import ErrorHandler from "./ErrorHandler";
+import ProjectCard from "./ProjectCard";
 
-import {
-  ImportDialog,
-  QuickTourDialog,
-} from './Components'
+import { ImportDialog, QuickTourDialog } from "./Components";
 
-import {
-  ProjectInit
-} from './PreReviewComponents'
+import { ProjectInit } from "./PreReviewComponents";
 
-import { api_url } from './globals.js';
+import { ProjectAPI } from "./api/index.js";
 
-import axios from 'axios';
-
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: '24px',
+    paddingTop: "24px",
   },
   fab: {
-    position: 'fixed',
+    position: "fixed",
     right: theme.spacing(3),
     bottom: theme.spacing(3),
   },
@@ -51,204 +31,185 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Projects = (props) => {
+  const classes = useStyles();
 
-    const classes = useStyles();
+  const [open, setOpen] = useState({
+    dial: false,
+    newProject: false,
+    importProject: false,
+  });
 
-    const [open, setOpen] = useState({
-      dial: false,
-      newProject: false,
-      importProject: false
-    });
+  const [projects, setProjects] = useState({
+    projects: [],
+    loaded: false,
+  });
 
-    const [projects, setProjects] = useState({
-      "projects": [],
-      "loaded": false,
-    });
+  const [error, setError] = useState({
+    code: null,
+    message: null,
+  });
 
-    const [error, setError] = useState({
-      "message": null,
-      "retry": false,
-    });
+  useEffect(() => {
+    refreshProjects();
+  }, [error.message]);
 
-    useEffect(() => {
-
-      refreshProjects();
-
-    }, [error.message]);
-
-    const refreshProjects = () => {
-
-      const url = api_url + "projects";
-
-      axios.get(url)
-        .then((result) => {
-          setProjects({
-            "projects": result.data['result'],
-            "loaded": true,
-          });
-        })
-        .catch((error) => {
-          
-          if (error.response) {
-
-            setError({
-              "message": error.response.data.message,
-              "retry": true,
-            });
-            console.log(error.response);
-
-          } else {
-
-            setError(s => {return({
-              ...s,
-              "message": "Failed to connect to server. Please restart the software.",
-            })});
-
-          }
+  const refreshProjects = () => {
+    ProjectAPI.projects()
+      .then((result) => {
+        setProjects({
+          projects: result.data["result"],
+          loaded: true,
         });
-    };
-
-    const handleOpen = () => {
-      setOpen({
-        ...open,
-        dial: true
       })
-    };
+      .catch((error) => {
+        setError({
+          code: error.code,
+          message: error.message,
+        });
+      });
+  };
 
-    const handleClose = () => {
+  const handleOpen = () => {
+    setOpen({
+      ...open,
+      dial: true,
+    });
+  };
+
+  const handleClose = () => {
+    setOpen({
+      ...open,
+      dial: false,
+    });
+  };
+
+  const handleCloseNewProject = () => {
+    setOpen({
+      ...open,
+      newProject: false,
+    });
+  };
+
+  const handleCloseImportProject = () => {
+    setOpen({
+      ...open,
+      importProject: false,
+    });
+  };
+
+  const handleClickAdd = (event, operation) => {
+    event.preventDefault();
+    if (operation === "newProject") {
       setOpen({
         ...open,
         dial: false,
-      })
-    };
-
-    const handleCloseNewProject = () => {
+        newProject: true,
+      });
+    } else if (operation === "importProject") {
       setOpen({
         ...open,
-        newProject: false,
-      })
-    };
-
-    const handleCloseImportProject = () => {
-      setOpen({
-        ...open,
-        importProject: false,
-      })
-    };
-
-    const handleClickAdd = (event, operation) => {
-
-      event.preventDefault();
-      if (operation === "newProject") {
-        setOpen({
-          ...open,
-          dial: false,
-          newProject: true,
-        })
-      } else if (operation === "importProject") {
-        setOpen({
-          ...open,
-          dial: false,
-          importProject: true,
-        })
-      };
+        dial: false,
+        importProject: true,
+      });
     }
+  };
 
-    return (
+  return (
+    <Box>
+      <Container maxWidth="md" className={classes.root}>
+        {error["message"] !== null && (
+          <ErrorHandler error={error} setError={setError} />
+        )}
 
-      <Box>
-          <Container maxWidth='md' className={classes.root}>
+        {/* Project loaded, but no projects found */}
+        {error["message"] === null &&
+          projects["loaded"] &&
+          projects["projects"].length === 0 && (
+            <Box className={classes.noProjects}>
+              <Typography variant="h5" align="center">
+                You don't have any projects yet.
+              </Typography>
+              <Box fontStyle="italic">
+                <Typography align="center">
+                  Start a review by clicking on the red button in the bottom
+                  right corner.
+                </Typography>
+              </Box>
+            </Box>
+          )}
 
-          {error['message'] !== null &&
-            <ErrorHandler
-              error={error}
-              setError={setError}
-            />
-          }
-
-          {/* Project loaded, but no projects found */}
-          {(error['message'] === null && projects['loaded'] && projects['projects'].length === 0) &&
-                <Box className={classes.noProjects}>
-                  <Typography variant="h5" align="center">
-                    You don't have any projects yet.
-                  </Typography>
-                  <Box fontStyle="italic">
-                    <Typography align="center">
-                      Start a review by clicking on the red button in the bottom right corner.
-                    </Typography>
-                  </Box>
-                </Box>
-          }
-
-          {/* Project loaded and projects found */}
-          {(error['message'] === null && projects['loaded'] && projects['projects'].length !== 0) &&
+        {/* Project loaded and projects found */}
+        {error["message"] === null &&
+          projects["loaded"] &&
+          projects["projects"].length !== 0 && (
             <Grid container spacing={3}>
-                {projects['projects'].map(project => (
-                    <Grid item xs={12} sm={6} key={project.id}>
-                      <ProjectCard
-                        className={classes.paper}
-                        id={project.id}
-                        name={project.name}
-                        description={project.description}
-                        projectInitReady={project.projectInitReady}
-                        handleAppState={props.handleAppState}
-                        refreshProjects={refreshProjects}
-                      />
-                  </Grid>
-                ))}
+              {projects["projects"].map((project) => (
+                <Grid item xs={12} sm={6} key={project.id}>
+                  <ProjectCard
+                    className={classes.paper}
+                    id={project.id}
+                    name={project.name}
+                    description={project.description}
+                    projectInitReady={project.projectInitReady}
+                    handleAppState={props.handleAppState}
+                    refreshProjects={refreshProjects}
+                  />
+                </Grid>
+              ))}
             </Grid>
-          }
+          )}
+      </Container>
 
-          </Container>
+      {open.newProject && (
+        <ProjectInit
+          handleAppState={props.handleAppState}
+          open={open.newProject}
+          onClose={handleCloseNewProject}
+        />
+      )}
 
+      {open.importProject && (
+        <ImportDialog
+          handleAppState={props.handleAppState}
+          open={open.importProject}
+          onClose={handleCloseImportProject}
+        />
+      )}
 
-          {open.newProject &&
-            <ProjectInit
-              handleAppState={props.handleAppState}
-              open={open.newProject}
-              onClose={handleCloseNewProject}
-            />
-          }
+      {/* Add button for new or importing project */}
+      <Backdrop open={open.dial} className={classes.backdropZ} />
+      <SpeedDial
+        ariaLabel="add"
+        className={classes.fab}
+        FabProps={{ color: "secondary" }}
+        icon={<SpeedDialIcon />}
+        onClose={handleClose}
+        onOpen={handleOpen}
+        open={open.dial}
+      >
+        <SpeedDialAction
+          key={"Import\u00A0project"}
+          icon=<CreateNewFolderOutlined />
+          tooltipTitle={"Import\u00A0project"}
+          tooltipOpen
+          onClick={(event) => {
+            handleClickAdd(event, "importProject");
+          }}
+        />
+        <SpeedDialAction
+          key={"New\u00A0project"}
+          icon=<AddOutlined />
+          tooltipTitle={"New\u00A0project"}
+          tooltipOpen
+          onClick={(event) => {
+            handleClickAdd(event, "newProject");
+          }}
+        />
+      </SpeedDial>
 
-          {open.importProject &&
-            <ImportDialog
-              handleAppState={props.handleAppState}
-              open={open.importProject}
-              onClose={handleCloseImportProject}
-            />
-          }
-
-          {/* Add button for new or importing project */}
-            <Backdrop open={open.dial} className={classes.backdropZ}/>
-            <SpeedDial
-              ariaLabel="add"
-              className={classes.fab}
-              FabProps={{color: "secondary"}}
-              icon={<SpeedDialIcon />}
-              onClose={handleClose}
-              onOpen={handleOpen}
-              open={open.dial}
-            >
-
-            <SpeedDialAction
-              key={'Import\u00A0project'}
-              icon=<CreateNewFolderOutlined />
-              tooltipTitle={'Import\u00A0project'}
-              tooltipOpen
-              onClick={event => {handleClickAdd(event, "importProject")}}
-            />
-            <SpeedDialAction
-              key={'New\u00A0project'}
-              icon=<AddOutlined />
-              tooltipTitle={'New\u00A0project'}
-              tooltipOpen
-              onClick={event => {handleClickAdd(event, "newProject")}}
-            />
-            </SpeedDial>
-
-        <QuickTourDialog/>
-      </Box>
-    );
-}
+      <QuickTourDialog />
+    </Box>
+  );
+};
 
 export default Projects;
