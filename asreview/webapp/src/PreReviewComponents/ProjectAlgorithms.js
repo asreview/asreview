@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -28,23 +28,6 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import "./ReviewZone.css";
 
-const algorithmsLabel = {
-  model: [
-    { value: "nb", label: "Naïve Bayes" },
-    { value: "svm", label: "Support vector machines" },
-    { value: "logistic", label: "Logistic regression" },
-    { value: "rf", label: "Random forest" },
-  ],
-  query_strategy: [
-    { value: "max", label: "Max" },
-    { value: "random", label: "Random" },
-    { value: "max_random", label: "Mixed" },
-  ],
-  feature_extraction: [
-    { value: "tfidf", label: "tf-idf" },
-    { value: "doc2vec", label: "Doc2Vec" },
-  ],
-};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -73,11 +56,12 @@ const useStyles = makeStyles((theme) => ({
 const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
   const classes = useStyles();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     edit: false,
   });
 
-  const [algorithms, setAlgorithms] = React.useState(null);
+  const [algorithms, setAlgorithms] = useState(null);
+  const [algorithmsLabel, setAlgorithmsLabel] = useState(null);
 
   // help button
   const [help, openHelp, closeHelp] = useHelp();
@@ -111,42 +95,56 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
     });
   };
 
+  const fetchAlgorithmsList = useCallback(() => {
+    ProjectAPI.algorithms_list()
+    .then((result) => {
+      setAlgorithmsLabel(result.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  },[]);
+
+  const fetchAlgorithmsSettings = useCallback(async () => {
+    ProjectAPI.algorithms(project_id, false)
+      .then((result) => {
+        setAlgorithms(result.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },[project_id]);
+
+  const updateAlgorithmsSettings = useCallback(() => {
+    var bodyFormData = new FormData();
+    bodyFormData.set("model", algorithms.model);
+    bodyFormData.set("query_strategy", algorithms.query_strategy);
+    bodyFormData.set("feature_extraction", algorithms.feature_extraction);
+
+    ProjectAPI.algorithms(project_id, true, bodyFormData)
+      .then((result) => {
+        // nothing to do
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },[algorithms, project_id]);
+
   // send an update to the server on a model change
   useEffect(() => {
-    if (algorithms !== null) {
-      var bodyFormData = new FormData();
-      bodyFormData.set("model", algorithms.model);
-      bodyFormData.set("query_strategy", algorithms.query_strategy);
-      bodyFormData.set("feature_extraction", algorithms.feature_extraction);
-
-      ProjectAPI.algorithms(project_id, true, bodyFormData)
-        .then((result) => {
-          // nothing to do
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    if (algorithms) {
+      updateAlgorithmsSettings();
     }
-  }, [algorithms, project_id]);
+  }, [algorithms, updateAlgorithmsSettings]);
 
   // if the state is lock, then fetch the data
   useEffect(() => {
-    // fetch algorithms info
-    const fetchAlgorithmsSettings = async () => {
-      ProjectAPI.algorithms(project_id, false)
-        .then((result) => {
-          setAlgorithms(result.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    if (!algorithmsLabel) {
+      fetchAlgorithmsList();
+    } else {
+      fetchAlgorithmsSettings();
     };
-
-    // scroll into view
-    scrollToBottom();
-
-    fetchAlgorithmsSettings();
-  }, [project_id, scrollToBottom]);
+  }, [algorithmsLabel, fetchAlgorithmsList, fetchAlgorithmsSettings]);
 
   return (
     <Box>
@@ -333,7 +331,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   <Grid item xs={6}>
                     <Typography variant="h5" noWrap={true} align="left">
                       {
-                        algorithmsLabel.model.find(
+                        algorithmsLabel.classifier.find(
                           (m) => m.value === algorithms["model"]
                         ).label
                       }

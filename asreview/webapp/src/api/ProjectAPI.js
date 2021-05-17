@@ -176,6 +176,20 @@ class ProjectAPI {
     });
   }
 
+  static algorithms_list() {
+    const url = api_url + `algorithms`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static algorithms(project_id, edit, data = null) {
     const url = api_url + `project/${project_id}/algorithms`;
     return new Promise((resolve, reject) => {

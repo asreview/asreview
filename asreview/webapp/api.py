@@ -38,6 +38,10 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
+from asreview.models.balance import list_balance_strategy_labels
+from asreview.models.classifiers import list_classifier_labels
+from asreview.models.feature_extraction import list_feature_extraction_labels
+from asreview.models.query import list_query_strategy_labels
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
@@ -623,6 +627,26 @@ def api_random_prior_papers(project_id):  # noqa: F401
         return jsonify(message="Failed to load random documents."), 500
 
     response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/algorithms', methods=["GET"])
+def api_list_algorithms():
+
+    try:
+        algorithmsLabel = {
+            "balance_strategy": list_balance_strategy_labels(),
+            "classifier": list_classifier_labels(),
+            "feature_extraction": list_feature_extraction_labels(),
+            "query_strategy": list_query_strategy_labels()
+        }
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to retrieve algorithms."), 500
+
+    response = jsonify(algorithmsLabel)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
