@@ -38,8 +38,11 @@ class SVMClassifier(BaseTrainClassifier):
     random_state: int, RandomState
         State of the RNG.
     """
-    "Support Vector Machine SKLearn model."
-    name = "svm"
+
+    name = {
+        "value": "svm",
+        "label": "Support vector machine"
+    }
 
     def __init__(self,
                  gamma="auto",

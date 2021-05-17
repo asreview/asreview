@@ -37,7 +37,10 @@ class NaiveBayesClassifier(BaseTrainClassifier):
         (0 for no smoothing).
     """
 
-    name = "nb"
+    name = {
+        "value": "nb",
+        "label": "Naive Bayes"
+    }
 
     def __init__(self, alpha=3.822):
 

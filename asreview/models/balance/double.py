@@ -48,7 +48,10 @@ class DoubleBalance(BaseBalance):
         strongly penalizing zeros.
     """
 
-    name = "double"
+    name = {
+        "value": "double",
+        "label": "Dynamic resampling"
+    }
 
     def __init__(self,
                  a=2.155,

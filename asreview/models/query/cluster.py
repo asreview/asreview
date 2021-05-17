@@ -37,7 +37,10 @@ class ClusterQuery(ProbaQueryStrategy):
         State/seed of the RNG.
     """
 
-    name = "cluster"
+    name = {
+        "value": "cluster",
+        "label": "Clustering"
+    }
 
     def __init__(self,
                  cluster_size=350,

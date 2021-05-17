@@ -46,7 +46,10 @@ class SBERT(BaseFeatureExtraction):
 
     """
 
-    name = "sbert"
+    name = {
+        "value": "sbert",
+        "label": "Sentence BERT"
+    }
 
     def transform(self, texts):
 

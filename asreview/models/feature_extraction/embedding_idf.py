@@ -62,7 +62,10 @@ class EmbeddingIdf(BaseFeatureExtraction):
 
     """
 
-    name = "embedding-idf"
+    name = {
+        "value": "embedding-idf",
+        "label": "Embedding-Idf"
+    }
 
     def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
         """Initialize the Embedding-Idf model."""
