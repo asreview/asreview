@@ -39,7 +39,6 @@ class Tfidf(BaseFeatureExtraction):
     name = "tfidf"
     label = "TF-IDF"
 
-
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
         """Initialize tfidf class.
         """

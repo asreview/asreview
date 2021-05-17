@@ -40,7 +40,6 @@ class NaiveBayesClassifier(BaseTrainClassifier):
     name = "nb"
     label = "Naive Bayes"
 
-
     def __init__(self, alpha=3.822):
 
         super(NaiveBayesClassifier, self).__init__()

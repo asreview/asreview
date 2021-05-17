@@ -42,7 +42,6 @@ class LogisticClassifier(BaseTrainClassifier):
     name = "logistic"
     label = "Logistic regressions"
 
-
     def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
 
         super(LogisticClassifier, self).__init__()

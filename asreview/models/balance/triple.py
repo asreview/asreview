@@ -64,7 +64,6 @@ class TripleBalance(BaseBalance):
     name = "triple"
     label = "Triple"
 
-
     def __init__(self,
                  a=2.155,
                  alpha=0.94,

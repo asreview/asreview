@@ -32,7 +32,6 @@ class RandomQuery(NotProbaQueryStrategy):
     name = "random"
     label = "Random"
 
-
     def __init__(self, random_state=None):
         super(RandomQuery, self).__init__()
         self._random_state = get_random_state(random_state)

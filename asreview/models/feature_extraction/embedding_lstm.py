@@ -77,7 +77,6 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     name = "embedding-lstm"
     label = "Embedding-LSTM"
 
-
     def __init__(self,
                  *args,
                  loop_sequence=1,

@@ -42,7 +42,6 @@ class SVMClassifier(BaseTrainClassifier):
     name = "svm"
     label = "Support vector machine"
 
-
     def __init__(self,
                  gamma="auto",
                  class_weight=0.249,

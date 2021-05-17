@@ -30,7 +30,6 @@ class UncertaintyQuery(ProbaQueryStrategy):
     name = "uncertainty"
     label = "Maximum uncertainty"
 
-
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         uncertainty = 1 - np.max(proba[pool_idx], axis=1)
         query_idx = np.argsort(-uncertainty)[:n_instances]

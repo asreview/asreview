@@ -40,7 +40,6 @@ class ClusterQuery(ProbaQueryStrategy):
     name = "cluster"
     label = "Clustering"
 
-
     def __init__(self,
                  cluster_size=350,
                  update_interval=200,

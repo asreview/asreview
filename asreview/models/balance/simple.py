@@ -24,7 +24,6 @@ class SimpleBalance(BaseBalance):
     name =  "simple"
     label = "No balancing"
 
-
     def sample(self, X, y, train_idx, shared):
         """
         Function that does not resample the training set.

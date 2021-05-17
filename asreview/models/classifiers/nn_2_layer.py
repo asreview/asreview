@@ -89,7 +89,6 @@ class NN2LayerClassifier(BaseTrainClassifier):
     name = "nn-2-layer"
     label = "Dense neural network"
 
-
     def __init__(self,
                  dense_width=128,
                  optimizer='rmsprop',

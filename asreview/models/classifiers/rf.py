@@ -41,7 +41,6 @@ class RandomForestClassifier(BaseTrainClassifier):
     name = "rf"
     label = "Random forest"
 
-
     def __init__(self,
                  n_estimators=100,
                  max_features=10,
