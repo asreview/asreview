@@ -15,8 +15,8 @@
 import pytest
 
 from asreview.webapp.start_flask import create_app
-from asreview.webapp.start_flask import db
-from asreview.webapp.auth.models import User
+from asreview.webapp.extensions import db
+from asreview.webapp.api.users.models import User
 
 
 @pytest.fixture(scope="module")
@@ -26,7 +26,7 @@ def app():
 
 
 @pytest.fixture(scope="module")
-def test_client(app):
+def client(app):
     """A test client for the app."""
     return app.test_client()
 
@@ -36,14 +36,14 @@ def test_app(app):
     """A test client for the app."""
     app.config.from_object("asreview.webapp.config.TestingConfig")
     with app.app_context():
-        yield app  # testing happens here
+        yield app  # testing
 
 
 @pytest.fixture(scope="module")
 def test_database():
     """Database for the app."""
     db.create_all()
-    yield db  # testing happens here
+    yield db  # testing
     db.session.remove()
     db.drop_all()
 

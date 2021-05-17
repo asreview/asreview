@@ -18,13 +18,14 @@ import webbrowser
 from threading import Timer
 
 from flask import Flask
+from flask_restx import Api
 from gevent.pywsgi import WSGIServer
 
 from asreview.entry_points.lab import _lab_parser
-from asreview.webapp.api import api
+import asreview.webapp.api.api as project_api  # TODO
+from asreview.webapp.api.users.users import users_namespace
+from asreview.webapp.api.users.auth import auth_namespace
 from asreview.webapp.api import base
-from asreview.webapp.auth import auth
-from asreview.webapp.auth import users
 from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
@@ -95,9 +96,9 @@ def create_app(**kwargs):
 
 def register_extensions(app):
     """Register Flask extensions."""
-    db.init_app(app)
     cors.init_app(app, resources={r"*": {"origins": "*"}})
     bcrypt.init_app(app)
+    db.init_app(app)
     if os.getenv("FLASK_ENV") == "development":
         admin.init_app(app)
     return None
@@ -105,10 +106,16 @@ def register_extensions(app):
 
 def register_blueprints(app):
     """Register Flask blueprints."""
+    # Flask_restx blueprint registration
+    api = Api(version="1.0", title="Users API", doc="/doc")
+
+    api.add_namespace(auth_namespace, path="/auth")
+    api.add_namespace(users_namespace, path="/users")
+    api.init_app(app)
+
+    # Flask standard blueprint registration
     app.register_blueprint(base.bp)
-    app.register_blueprint(api.bp)
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(users.bp)
+    app.register_blueprint(project_api.bp)
     return None
 
 

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ import os
 import time
 
 
-def test_get_projects(test_client):
+def test_get_projects(client):
     """Test get projects."""
-    response = test_client.get("/api/projects")
+    response = client.get("/api/projects")
     json_data = response.get_json()
 
     assert "result" in json_data

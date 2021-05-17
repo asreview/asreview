@@ -88,6 +88,6 @@ class User(db.Model):
 
 if os.getenv("FLASK_ENV") == "development":
     from asreview.webapp.extensions import admin
-    from asreview.webapp.auth.admin import UsersAdminView
+    from asreview.webapp.api.users.admin import UsersAdminView
 
     admin.add_view(UsersAdminView(User, db.session))

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
 # limitations under the License.
 
 
-def test_landing(test_client):
+def test_landing(client):
     """Test if index.html is available.
 
     This test will fail if build is missing. Please run
     `python setup.py compile_assets` first.
     """
-    response = test_client.get("/")
+    response = client.get("/")
     html = response.data.decode()
 
     assert "<title>ASReview - A tool for AI-assisted systematic reviews</title>" in html  # noqa
 
 
-def test_boot(test_client):
+def test_boot(client):
     """Test if version number is available on boot."""
-    response = test_client.get("/boot")
+    response = client.get("/boot")
     json_data = response.get_json()
 
     assert "version" in json_data
