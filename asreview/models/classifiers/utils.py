@@ -27,6 +27,26 @@ def list_classifiers():
     return list_model_names(entry_name="asreview.models.classifiers")
 
 
+def list_classifier_labels():
+    """List available classifier labels
+
+    Returns
+    -------
+    list:
+        Dictionaries of names and labels of available classifiers.
+    """
+    model_names = list_classifiers()
+    model_labels = []
+
+    for name in model_names:
+        model_labels.append({
+            "value": name,
+            "label": get_classifier_class(name).label
+        })
+
+    return model_labels
+
+
 def get_classifier_class(name):
     """Get class of model from string.
 

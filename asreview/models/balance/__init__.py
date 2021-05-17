@@ -19,6 +19,7 @@ from asreview.models.balance.undersample import UndersampleBalance
 from asreview.models.balance.utils import get_balance_model
 from asreview.models.balance.utils import get_balance_class
 from asreview.models.balance.utils import list_balance_strategies
+from asreview.models.balance.utils import list_balance_strategy_labels
 
 """Balance strategies to rebalance and reorder the training data.
 

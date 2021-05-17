@@ -29,6 +29,26 @@ def list_query_strategies():
     return list_model_names(entry_name="asreview.models.query")
 
 
+def list_query_strategy_labels():
+    """List available query strategy labels
+
+    Returns
+    -------
+    list:
+        Dictionaries of names and labels of available query strategies.
+    """
+    model_names = list_query_strategies()
+    model_labels = []
+
+    for name in model_names:
+        model_labels.append({
+            "value": name,
+            "label": get_query_class(name).label
+        })
+
+    return model_labels
+
+
 def get_query_class(name):
     """Get class of query strategy from its name.
 
