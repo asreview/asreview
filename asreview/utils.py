@@ -176,14 +176,7 @@ def is_iterable(i):
 
 
 def list_model_names(entry_name="asreview.models"):
-
-    model_name_values = [*get_entry_points(entry_name)]
-    model_names = []
-
-    for method in model_name_values:
-        model_names.append(_model_class_from_entry_point(method, entry_name).name)
-
-    return model_names
+    return [*get_entry_points(entry_name)]
 
 
 def get_entry_points(entry_name="asreview.entry_points"):
