@@ -68,7 +68,7 @@ University and is published under the `Apache 2.0 licence
 
    plugins/plugin_visualization
 
-   plugings/plugin_wordcloud
+   plugins/plugin_wordcloud
 
 .. toctree::
    :maxdepth: 1
