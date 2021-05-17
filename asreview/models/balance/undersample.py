@@ -33,10 +33,9 @@ class UndersampleBalance(BaseBalance):
         0.25, we would sample only a quarter of the zeros and all the ones.
     """
 
-    name = {
-        "value": "undersample",
-        "label": "Undersample"
-    }
+    name = "undersample"
+    label = "Undersample"
+
 
     def __init__(self, ratio=1.0, random_state=None):
         """Initialize the undersampling balance strategy."""

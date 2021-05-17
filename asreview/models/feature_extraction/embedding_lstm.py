@@ -74,10 +74,9 @@ class EmbeddingLSTM(BaseFeatureExtraction):
         Number of processors used in reading the embedding matrix.
     """
 
-    name = {
-        "value": "embedding-lstm",
-        "label": "Embedding-LSTM",
-    }
+    name = "embedding-lstm"
+    label = "Embedding-LSTM"
+
 
     def __init__(self,
                  *args,

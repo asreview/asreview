@@ -24,10 +24,9 @@ class MaxQuery(ProbaQueryStrategy):
     Choose the most likely samples to be included according to the model.
     """
 
-    name = {
-    	"value": "max",
-    	"label": "Maximum"
-    }
+    name = "max"
+    label = "Maximum"
+
 
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         proba = proba[pool_idx]

@@ -36,10 +36,9 @@ class Tfidf(BaseFeatureExtraction):
         When set to 'english', use stopwords. If set to None or 'none',
         do not use stop words.
     """
-    name = {
-        "value": "tfidf",
-        "label": "TF-IDF"
-    }
+    name = "tfidf"
+    label = "TF-IDF"
+
 
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
         """Initialize tfidf class.

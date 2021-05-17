@@ -86,10 +86,9 @@ class NN2LayerClassifier(BaseTrainClassifier):
         Class weights for inclusions (1's).
     """
 
-    name = {
-        "value": "nn-2-layer",
-        "label": "Dense neural network"
-    }
+    name = "nn-2-layer"
+    label = "Dense neural network"
+
 
     def __init__(self,
                  dense_width=128,

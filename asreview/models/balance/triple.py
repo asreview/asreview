@@ -61,10 +61,9 @@ class TripleBalance(BaseBalance):
         of the % of papers read. Higher values mean stronger scaling.
     """
 
-    name = {
-        "value": "triple",
-        "label": "Triple"
-    }
+    name = "triple"
+    label = "Triple"
+
 
     def __init__(self,
                  a=2.155,

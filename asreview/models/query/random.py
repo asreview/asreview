@@ -29,10 +29,9 @@ class RandomQuery(NotProbaQueryStrategy):
         accelerated by ASReview.
 
     """
-    name = {
-        "value": "random",
-        "label": "Random"
-    }
+    name = "random"
+    label = "Random"
+
 
     def __init__(self, random_state=None):
         super(RandomQuery, self).__init__()

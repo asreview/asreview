@@ -21,10 +21,9 @@ class SimpleBalance(BaseBalance):
     Use all training data.
     """
 
-    name = {
-        "value": "simple",
-        "label": "No balancing"
-    }
+    name =  "simple"
+    label = "No balancing"
+
 
     def sample(self, X, y, train_idx, shared):
         """

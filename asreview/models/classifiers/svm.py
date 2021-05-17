@@ -39,10 +39,9 @@ class SVMClassifier(BaseTrainClassifier):
         State of the RNG.
     """
 
-    name = {
-        "value": "svm",
-        "label": "Support vector machine"
-    }
+    name = "svm"
+    label = "Support vector machine"
+
 
     def __init__(self,
                  gamma="auto",

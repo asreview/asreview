@@ -89,10 +89,9 @@ class Doc2Vec(BaseFeatureExtraction):
         Whether to train the word vectors using the skipgram method.
     """
 
-    name = {
-        "value": "doc2vec",
-        "label": "Doc2Vec"
-    }
+    name = "doc2vec"
+    label = "Doc2Vec"
+
 
     def __init__(self,
                  *args,

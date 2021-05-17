@@ -38,10 +38,9 @@ class RandomForestClassifier(BaseTrainClassifier):
         when building trees and the sampling of the features to consider when
         looking for the best split at each node.
     """
-    name = {
-        "value": "rf",
-        "label": "Random forest"
-    }
+    name = "rf"
+    label = "Random forest"
+
 
     def __init__(self,
                  n_estimators=100,

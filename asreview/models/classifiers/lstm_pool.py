@@ -89,10 +89,9 @@ class LSTMPoolClassifier(BaseTrainClassifier):
         Class weight for the included papers.
     """
 
-    name = {
-        "value": "lstm-pool",
-        "label": "LSTM pool"
-    }
+    name = "lstm-pool"
+    label = "LSTM pool"
+
 
     def __init__(self,
                  embedding_matrix=None,

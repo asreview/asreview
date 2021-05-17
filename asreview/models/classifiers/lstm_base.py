@@ -85,10 +85,9 @@ class LSTMBaseClassifier(BaseTrainClassifier):
         Class weight for the included papers.
     """
 
-    name = {
-        "value": "lstm-base",
-        "label": "LSTM base"
-    }
+    name = "lstm-base"
+    label = "LSTM base"
+
 
     def __init__(self,
                  embedding_matrix=None,

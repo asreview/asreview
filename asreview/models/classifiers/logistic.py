@@ -39,10 +39,9 @@ class LogisticClassifier(BaseTrainClassifier):
         Number of CPU cores used.
     """
 
-    name = {
-        "value": "logistic",
-        "label": "Logistic regressions"
-    }
+    name = "logistic"
+    label = "Logistic regressions"
+
 
     def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
 

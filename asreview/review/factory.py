@@ -210,7 +210,7 @@ def get_reviewer(dataset,
                                       random_state=random_state)
 
     # LSTM models need embedding matrices.
-    if train_model.name["value"].startswith("lstm-"):
+    if train_model.name.startswith("lstm-"):
         texts = as_data.texts
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
