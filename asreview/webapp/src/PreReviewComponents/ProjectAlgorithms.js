@@ -20,9 +20,11 @@ import { brown } from "@material-ui/core/colors";
 
 import HelpIcon from "@material-ui/icons/Help";
 import EditIcon from "@material-ui/icons/Edit";
+import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
 
 import { Help, useHelp } from "../PreReviewComponents";
 import { ProjectAPI } from "../api/index.js";
+import { defaultAlgorithms } from "../globals.js";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -68,6 +70,18 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
   const editAlgorithms = () => {
     setState({
       edit: true,
+    });
+  };
+
+  const restoreDefaultAlgorithms = () => {
+    setAlgorithms({
+      ...algorithms,
+      model: defaultAlgorithms["model"],
+      query_strategy: defaultAlgorithms["query_strategy"],
+      feature_extraction: defaultAlgorithms["feature_extraction"],
+    });
+    setState({
+      edit: false,
     });
   };
 
@@ -166,7 +180,25 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                     </IconButton>
                   </Tooltip>
                 )}
-
+                {state.edit && (
+                  <Tooltip title="Restore default">
+                    <span>
+                      <IconButton
+                        onClick={restoreDefaultAlgorithms}
+                        aria-label="project-algorithms-restore-default"
+                        disabled={
+                          algorithms["model"] === defaultAlgorithms["model"] &&
+                          algorithms["query_strategy"] ===
+                            defaultAlgorithms["query_strategy"] &&
+                          algorithms["feature_extraction"] ===
+                            defaultAlgorithms["feature_extraction"]
+                        }
+                      >
+                        <SettingsBackupRestoreIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
                 <Tooltip title="Help">
                   <IconButton
                     onClick={openHelp}
