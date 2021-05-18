@@ -17,36 +17,19 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_query_strategies():
-    """List available query strategies.
+    """List available query strategy classes.
 
     This excludes all possible mixed query strategies.
 
     Returns
     -------
     list
-        Names of available query strategies in alphabetical order.
+        Classes of available query strategies in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.query")
+    model_class = [get_query_class(name)
+        for name in list_model_names(entry_name="asreview.models.query")]
 
-
-def list_query_strategy_labels():
-    """List available query strategy labels
-
-    Returns
-    -------
-    list:
-        Dictionaries of names and labels of available query strategies.
-    """
-    model_names = list_query_strategies()
-    model_labels = []
-
-    for name in model_names:
-        model_labels.append({
-            "value": name,
-            "label": get_query_class(name).label
-        })
-
-    return model_labels
+    return model_class
 
 
 def get_query_class(name):

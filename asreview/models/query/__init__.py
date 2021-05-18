@@ -20,7 +20,6 @@ from asreview.models.query.cluster import ClusterQuery
 from asreview.models.query.utils import get_query_model
 from asreview.models.query.utils import get_query_class
 from asreview.models.query.utils import list_query_strategies
-from asreview.models.query.utils import list_query_strategy_labels
 
 """Query strategies query records to label by the user.
 

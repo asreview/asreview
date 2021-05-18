@@ -17,34 +17,17 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_classifiers():
-    """List available classifiers.
+    """List available classifier classes.
 
     Returns
     -------
     list:
-        Names of available classifiers in alphabetical order.
+        Classes of available classifiers in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.classifiers")
+    model_class = [get_classifier_class(name)
+        for name in list_model_names(entry_name="asreview.models.classifiers")]
 
-
-def list_classifier_labels():
-    """List available classifier labels
-
-    Returns
-    -------
-    list:
-        Dictionaries of names and labels of available classifiers.
-    """
-    model_names = list_classifiers()
-    model_labels = []
-
-    for name in model_names:
-        model_labels.append({
-            "value": name,
-            "label": get_classifier_class(name).label
-        })
-
-    return model_labels
+    return model_class
 
 
 def get_classifier_class(name):

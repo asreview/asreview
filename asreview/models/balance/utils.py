@@ -17,34 +17,17 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_balance_strategies():
-    """List available balancing strategies.
+    """List available balancing strategy classes.
 
     Returns
     -------
     list:
-        Names of available balance strategies in alphabetical order.
+        Classes of available balance strategies in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.balance")
+    model_class = [get_balance_class(name)
+        for name in list_model_names(entry_name="asreview.models.balance")]
 
-
-def list_balance_strategy_labels():
-    """List available balancing strategy labels
-
-    Returns
-    -------
-    list:
-        Dictionaries of names and labels of available balancing strategies.
-    """
-    model_names = list_balance_strategies()
-    model_labels = []
-
-    for name in model_names:
-        model_labels.append({
-            "value": name,
-            "label": get_balance_class(name).label
-        })
-
-    return model_labels
+    return model_class
 
 
 def get_balance_class(name):

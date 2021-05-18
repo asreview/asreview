@@ -17,34 +17,17 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_feature_extraction():
-    """List available feature extraction methods.
+    """List available feature extraction method classes.
 
     Returns
     -------
     list:
-        Names of available feature extraction methods in alphabetical order.
+        Classes of available feature extraction methods in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.feature_extraction")
+    model_class = [get_feature_class(name)
+        for name in list_model_names(entry_name="asreview.models.feature_extraction")]
 
-
-def list_feature_extraction_labels():
-    """List available feature extraction labels
-
-    Returns
-    -------
-    list:
-        Dictionaries of names and labels of available feature extraction.
-    """
-    model_names = list_feature_extraction()
-    model_labels = []
-
-    for name in model_names:
-        model_labels.append({
-            "value": name,
-            "label": get_feature_class(name).label
-        })
-
-    return model_labels
+    return model_class
 
 
 def get_feature_class(name):

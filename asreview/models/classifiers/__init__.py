@@ -22,7 +22,6 @@ from asreview.models.classifiers.nn_2_layer import NN2LayerClassifier
 from asreview.models.classifiers.utils import get_classifier
 from asreview.models.classifiers.utils import get_classifier_class
 from asreview.models.classifiers.utils import list_classifiers
-from asreview.models.classifiers.utils import list_classifier_labels
 
 """Machine learning classifiers to classify the documents.
 

@@ -21,7 +21,6 @@ from asreview.models.feature_extraction.sbert import SBERT
 from asreview.models.feature_extraction.utils import get_feature_model
 from asreview.models.feature_extraction.utils import get_feature_class
 from asreview.models.feature_extraction.utils import list_feature_extraction
-from asreview.models.feature_extraction.utils import list_feature_extraction_labels
 
 """Feature extraction converts texts into features.
 
