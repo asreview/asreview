@@ -242,7 +242,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                 algorithms["feature_extraction"] === "embedding-lstm") && (
                 <div className={classes.alert}>
                   <Alert severity="info">
-                    This classifier/feature extraction method requires
+                    This classifier/feature extraction algorithm requires
                     <Link
                       className={classes.link}
                       href="https://www.tensorflow.org/"
@@ -357,7 +357,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                           <TextField
                             id="select-feature-extraction"
                             select
-                            label="Feature extraction method"
+                            label="Feature extraction algorithm"
                             value={algorithms.feature_extraction}
                             onChange={handleFeatureExtractionChange}
                           >
@@ -466,11 +466,11 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                 active learning model
               </Link>{" "}
               consists of a classifier, a query strategy, a feature extraction
-              method, and a balance strategy. The default setup (Naive Bayes,
+              algorithm, and a balance strategy. The default setup (Naive Bayes,
               TF-IDF, Maximum) overall has fast and excellent performance.
             </Typography>
             <Typography variant="body2" gutterBottom>
-              Some classifiers and feature extraction methods require additional
+              Some classifiers and feature extraction algorithms require additional
               dependencies. Use <code>pip install asreview[all]</code> to
               install all additional dependencies at once.
             </Typography>
