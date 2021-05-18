@@ -24,6 +24,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.entry_points.base import BaseEntryPoint, _base_parser
 from asreview.review import review_simulate
+from asreview.settings import type_n_queries
 
 
 class SimulateEntryPoint(BaseEntryPoint):
@@ -171,7 +172,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
              f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_queries",
-        type=str,
+        type=type_n_queries,
         default=None,
         help="The number of queries. By default, the program "
              "stops after all documents are reviewed or is "

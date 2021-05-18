@@ -193,3 +193,15 @@ class ASReviewSettings(object):
         _convert_types(query_model.default_param, self.query_param)
         feature_model = get_feature_model(self.feature_extraction)
         _convert_types(feature_model.default_param, self.feature_param)
+
+# Function should be in a different file I guess
+def type_n_queries(value):
+    """Custom type used for --n_queries argument. Allows for integer values or 'min'."""
+    if value == 'min':
+        return value
+    else:
+        try:
+            int(value)
+            return value
+        except:
+            raise ValueError("Value for n_queries is not 'min' or a valid integer")
