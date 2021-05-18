@@ -26,7 +26,10 @@ def _format_algorithm(values, name, description):
     result = []
 
     for x in values:
-        result.append(" " * 22 + f"{x}")
+        if hasattr(x, "label"):
+            result.append(" " * 22 + f"{x.name}" + " " * (16 - len(x.name)) + f"{x.label}")
+        else:
+            result.append(" " * 22 + f"{x.name}")
 
     s += "\n".join(result)
     s += "\n\n"
