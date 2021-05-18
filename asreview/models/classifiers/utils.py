@@ -24,8 +24,10 @@ def list_classifiers():
     list:
         Classes of available classifiers in alphabetical order.
     """
-    model_class = [get_classifier_class(name)
-        for name in list_model_names(entry_name="asreview.models.classifiers")]
+    model_class = [
+        get_classifier_class(name)
+        for name in list_model_names(entry_name="asreview.models.classifiers")
+    ]
 
     return model_class
 

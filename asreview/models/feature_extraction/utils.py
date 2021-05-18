@@ -24,8 +24,10 @@ def list_feature_extraction():
     list:
         Classes of available feature extraction methods in alphabetical order.
     """
-    model_class = [get_feature_class(name)
-        for name in list_model_names(entry_name="asreview.models.feature_extraction")]
+    model_class = [
+        get_feature_class(name)
+        for name in list_model_names(entry_name="asreview.models.feature_extraction")
+    ]
 
     return model_class
 

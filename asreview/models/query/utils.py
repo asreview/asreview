@@ -26,8 +26,10 @@ def list_query_strategies():
     list
         Classes of available query strategies in alphabetical order.
     """
-    model_class = [get_query_class(name)
-        for name in list_model_names(entry_name="asreview.models.query")]
+    model_class = [
+        get_query_class(name)
+        for name in list_model_names(entry_name="asreview.models.query")
+    ]
 
     return model_class
 

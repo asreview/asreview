@@ -24,8 +24,10 @@ def list_balance_strategies():
     list:
         Classes of available balance strategies in alphabetical order.
     """
-    model_class = [get_balance_class(name)
-        for name in list_model_names(entry_name="asreview.models.balance")]
+    model_class = [
+        get_balance_class(name)
+        for name in list_model_names(entry_name="asreview.models.balance")
+    ]
 
     return model_class
 
