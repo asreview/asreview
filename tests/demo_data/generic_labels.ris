@@ -22,7 +22,6 @@ SN  - 1932-6208
 M1  - 1008150341
 L2  - http://example.com
 UR  - http://example_url.com
-N1  - ASReview_relevant
 LI  - 1
 ER  -  
  
@@ -51,5 +50,7 @@ SN  - 1732-4208
 M1  - 1228150341
 L2  - http://example2.com
 UR  - http://example_url.com
-N1  - ASReview_irrelevant
+LI  - 0
 ER  -  
+
+ 
