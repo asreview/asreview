@@ -121,11 +121,11 @@ green during screening. This option is useful for training purposes,
 presentations, and workshops.
 
 
-Compatibility for importing in ASReview
----------------------------------------
+Compatibility in ASReview
+-------------------------
 
-Citation Managers
-~~~~~~~~~~~~~~~~~
+Import from Citation Managers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following table provides an overview of export files from citation
 managers  which are accepted by ASReview.
@@ -161,8 +161,8 @@ managers  which are accepted by ASReview.
 
 
 
-Search Engines
-~~~~~~~~~~~~~~
+Import from Search Engines
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When using search engines, it is often possible to store the articles of
 interest in a list or folder within the search engine itself. Thereafter, you
@@ -208,8 +208,8 @@ acceptance in ASReview:
     the citation managers mentioned in the previous part, and export it again
     into a format that is accepted by ASReview.
 
-Systematic Review Software
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Import from Systematic Review Software
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are several software packages available for systematic reviewing, see
 for an `overview <https://arxiv.org/abs/2006.12166>`_. Some of them use machine
@@ -217,22 +217,28 @@ learning, while other focus on screening and management. The overview below
 shows an overview of alternative software programs and the compatibility with
 ASReview.
 
-+-----------------+-----------+----------+----------+----------+
-|                 | **.ris**  | **.tsv** | **.csv** | **.xlsx**|
-|                 |           |          |          |          |
-+-----------------+-----------+----------+----------+----------+
-| **Abstrackr**   | ✅        | N/A      | ✅      | N/A       |
-+-----------------+-----------+----------+----------+----------+
-| **Covidence**\* | ✅        | N/A      | ✅      | N/A       |
-+-----------------+-----------+----------+----------+----------+
-| **Distiller**   | X         | N/A      | ✅\**   | ✅\**     |
-+-----------------+-----------+----------+----------+----------+
-|**EPPI-reviewer**| ✅        | N/A      | N/A     | X         |
-+-----------------+-----------+----------+----------+----------+
-| **Rayyan**      | ✅        | N/A      | ✅      | N/A       |
-+-----------------+-----------+----------+----------+----------+
-|**Robotreviewer**| N/A       | N/A      | N/A      | N/A      |
-+-----------------+-----------+----------+----------+----------+
++-------------------------+-----------+----------+----------+----------+
+|                         | **.ris**  | **.tsv** | **.csv** | **.xlsx**|
+|                         |           |          |          |          |
++-------------------------+-----------+----------+----------+----------+
+| **Abstrackr**           | ✅        | N/A      | ✅      | N/A       |
++-------------------------+-----------+----------+----------+----------+
+| **Covidence**\*         | ✅        | N/A      | ✅      | N/A       |
++-------------------------+-----------+----------+----------+----------+
+| **Distiller**           | X         | N/A      | ✅\**   | ✅\**     |
++-------------------------+-----------+----------+----------+----------+
+|**EPPI-reviewer**        | ✅        | N/A      | N/A     | X         |
++-------------------------+-----------+----------+----------+----------+
+| **Rayyan**              | ✅        | N/A      | ✅      | N/A       |
++-------------------------+-----------+----------+----------+----------+
+|**Robotreviewer**        | N/A       | N/A      | N/A      | N/A      |
++-------------------------+-----------+----------+----------+----------+
+|**Swift Active Screener**| X         | X        |          |          |
++-------------------------+-----------+----------+----------+----------+
+|**Sysrev**               | X         | X        |          |          |
++-------------------------+-----------+----------+----------+----------+
+|**SR accelerator**       | X         | X        |          |          |
++-------------------------+-----------+----------+----------+----------+
 
 -  ✅ = The data can be exported from the third-party review software and imported in ASReview.
 -  N/A = This format does not exist.
@@ -244,14 +250,13 @@ such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with
 \** When exporting from Distiller and if the following error occurs ``Unable to parse string "Yes (include)" at position 0``
 set the ``sort references by`` to ``Authors``. Then the data can be imported in ASReview.
 
-Compatibility for exports from ASReview
----------------------------------------
+
 
 After screening the titles and abstracts, you can export the results into a
 .ris or .xslx file. These can be imported again within different programs
 
-Citation Managers
-~~~~~~~~~~~~~~~~~
+Export to Citation Managers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following table provides an overview of export files from ASReview
 which are accepted by citation managers.
@@ -272,24 +277,30 @@ which are accepted by citation managers.
 -  N/A = This format does not exist.
 -  X = Not supported.
 
-Systematic Review Software
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Export to Systematic Review Software
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-+-----------------+-----------+----------+
-|                 | **.ris**  | **.xlsx**|
-+-----------------+-----------+----------+
-| **Abstrackr**   | X         | X        |
-+-----------------+-----------+----------+
-| **Covidence**   | X         | X        |
-+-----------------+-----------+----------+
-| **Distiller**   | X         | X        |
-+-----------------+-----------+----------+
-|**EPPI-reviewer**| X         | X        |
-+-----------------+-----------+----------+
-| **Rayyan**      | X         | X        |
-+-----------------+-----------+----------+
-|**Robotreviewer**| X         | X        |
-+-----------------+-----------+----------+
++-------------------------+-----------+----------+
+|                         | **.ris**  | **.xlsx**|
++-------------------------+-----------+----------+
+| **Abstrackr**           | X         | X        |
++-------------------------+-----------+----------+
+| **Covidence**           | X         | X        |
++-------------------------+-----------+----------+
+| **Distiller**           | X         | X        |
++-------------------------+-----------+----------+
+|**EPPI-reviewer**        | X         | X        |
++-------------------------+-----------+----------+
+| **Rayyan**              | X         | X        |
++-------------------------+-----------+----------+
+|**Robotreviewer**        | X         | X        |
++-------------------------+-----------+----------+
+|**Swift Active Screener**| X         |          |
++-------------------------+-----------+----------+
+|**Sysrev**               | X         | X        |
++-------------------------+-----------+----------+
+|**SR accelerator**       | X         | X        |
++-------------------------+-----------+----------+
 
 -  ✅ =  The ASReview export can be imported into the third-party review software.
 -  N/A = This format does not exist.
