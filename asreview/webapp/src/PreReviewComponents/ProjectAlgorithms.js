@@ -28,7 +28,6 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import "./ReviewZone.css";
 
-
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiTextField-root": {
@@ -97,13 +96,13 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
 
   const fetchAlgorithmsList = useCallback(() => {
     ProjectAPI.algorithms_list()
-    .then((result) => {
-      setAlgorithmsLabel(result.data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  },[]);
+      .then((result) => {
+        setAlgorithmsLabel(result.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   const fetchAlgorithmsSettings = useCallback(async () => {
     ProjectAPI.algorithms(project_id, false)
@@ -113,7 +112,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
       .catch((error) => {
         console.log(error);
       });
-  },[project_id]);
+  }, [project_id]);
 
   const updateAlgorithmsSettings = useCallback(() => {
     var bodyFormData = new FormData();
@@ -128,7 +127,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
       .catch((error) => {
         console.log(error);
       });
-  },[algorithms, project_id]);
+  }, [algorithms, project_id]);
 
   // send an update to the server on a model change
   useEffect(() => {
@@ -143,7 +142,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
       fetchAlgorithmsList();
     } else {
       fetchAlgorithmsSettings();
-    };
+    }
   }, [algorithmsLabel, fetchAlgorithmsList, fetchAlgorithmsSettings]);
 
   return (
@@ -209,40 +208,32 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             value={algorithms.model}
                             onChange={handleAlgorithmChange}
                           >
-                            <MenuItem
-                              checked={algorithms["model"] === "nb"}
-                              value="nb"
-                              color="default"
-                              disabled={
-                                algorithms["feature_extraction"] === "doc2vec"
-                              }
-                            >
-                              {"Naïve Bayes (default)"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={algorithms["model"] === "svm"}
-                              value="svm"
-                              color="default"
-                            >
-                              {"Support vector machines"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={algorithms["model"] === "logistic"}
-                              value="logistic"
-                              color="default"
-                            >
-                              {"Logistic regression"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={algorithms["model"] === "rf"}
-                              value="rf"
-                              color="default"
-                            >
-                              {"Random forest"}
-                            </MenuItem>
+                            {algorithmsLabel["classifier"]
+                              .filter(
+                                (value) =>
+                                  ["nb", "svm", "logistic", "rf"].indexOf(
+                                    value.value
+                                  ) > -1
+                              )
+                              .map((value) => {
+                                return (
+                                  <MenuItem
+                                    key={`result-item-${value.value}`}
+                                    checked={
+                                      algorithms["model"] === value.value
+                                    }
+                                    value={value.value}
+                                    color="default"
+                                    disabled={
+                                      value.value === "nb" &&
+                                      algorithms["feature_extraction"] ===
+                                        "doc2vec"
+                                    }
+                                  >
+                                    {value.label}
+                                  </MenuItem>
+                                );
+                              })}
                           </TextField>
 
                           <TextField
@@ -252,24 +243,28 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             value={algorithms.query_strategy}
                             onChange={handleQueryStrategyChange}
                           >
-                            <MenuItem
-                              checked={algorithms["query_strategy"] === "max"}
-                              value="max"
-                              color="default"
-                            >
-                              {"Certainty-based (default)"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={
-                                algorithms["query_strategy"] === "random"
-                              }
-                              value="random"
-                              color="default"
-                            >
-                              {"Random"}
-                            </MenuItem>
-
+                            {algorithmsLabel["query_strategy"]
+                              .filter(
+                                (value) =>
+                                  ["max", "random", "max_random"].indexOf(
+                                    value.value
+                                  ) > -1
+                              )
+                              .map((value) => {
+                                return (
+                                  <MenuItem
+                                    key={`result-item-${value.value}`}
+                                    checked={
+                                      algorithms["query_strategy"] ===
+                                      value.value
+                                    }
+                                    value={value.value}
+                                    color="default"
+                                  >
+                                    {value.label}
+                                  </MenuItem>
+                                );
+                              })}
                             <MenuItem
                               checked={
                                 algorithms["query_strategy"] === "max_random"
@@ -288,26 +283,30 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             value={algorithms.feature_extraction}
                             onChange={handleFeatureExtractionChange}
                           >
-                            <MenuItem
-                              checked={
-                                algorithms["feature_extraction"] === "tfidf"
-                              }
-                              value="tfidf"
-                              color="default"
-                            >
-                              {"tf-idf (default)"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={
-                                algorithms["feature_extraction"] === "doc2vec"
-                              }
-                              value="doc2vec"
-                              color="default"
-                              disabled={algorithms["model"] === "nb"}
-                            >
-                              {"Doc2Vec"}
-                            </MenuItem>
+                            {algorithmsLabel["feature_extraction"]
+                              .filter(
+                                (value) =>
+                                  ["tfidf", "doc2vec"].indexOf(value.value) > -1
+                              )
+                              .map((value) => {
+                                return (
+                                  <MenuItem
+                                    key={`result-item-${value.value}`}
+                                    checked={
+                                      algorithms["feature_extraction"] ===
+                                      value.value
+                                    }
+                                    value={value.value}
+                                    color="default"
+                                    disabled={
+                                      value.value === "doc2vec" &&
+                                      algorithms["model"] === "nb"
+                                    }
+                                  >
+                                    {value.label}
+                                  </MenuItem>
+                                );
+                              })}
                           </TextField>
                         </div>
                       </form>
