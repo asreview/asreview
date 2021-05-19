@@ -997,6 +997,8 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     doc_id = request.form['doc_id']
     label = request.form['label']
 
+    # TODO: handle false return from this method
+    # TODO: check the multiple users collision
     label_instance(project_id, doc_id, label, retrain_model=True, user=auth.current_user())
 
     response = jsonify({'success': True})
@@ -1045,8 +1047,9 @@ def api_get_document(project_id):  # noqa: F401
                     project_id, new_instance, return_debug_label=True)
                 item["doc_id"] = new_instance
             else:
+                # TODO: return the error json and let it be handled on the JS side.
                 item = dict(
-                    title='This project under review by another user',
+                    title='This project is under review by another user',
                     abstract=f'This project is being reviewed by user {blocking_user}. You can only start reviewing the papers of this project after 15 minutes inactivity of that user in this project.'
                 )
 
