@@ -121,6 +121,7 @@ setup(
         'flask_cors',
         'openpyxl',
         'gevent',
+        'flask_httpauth'
     ],
     extras_require=DEPS,
     entry_points={
@@ -134,6 +135,7 @@ setup(
             'simulate=asreview.entry_points:SimulateEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
             'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
+            'auth = asreview.entry_points:AuthEntryPoint'
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',

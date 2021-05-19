@@ -33,6 +33,10 @@ def asreview_path():
 
     return asreview_path
 
+def get_auth_file_path():
+    """ Get the default path of auth file. """
+
+    return Path(asreview_path(), 'auth.txt') 
 
 def list_asreview_project_paths():
     """List the projects in the asreview path"""
