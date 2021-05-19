@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ from flask_restx import Api
 from gevent.pywsgi import WSGIServer
 
 from asreview.entry_points.lab import _lab_parser
+from asreview.webapp.api import base
 import asreview.webapp.api.api as project_api
 from asreview.webapp.api.users.users import users_namespace
 from asreview.webapp.api.users.auth import auth_namespace
-from asreview.webapp.api import base
 from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
@@ -73,9 +73,7 @@ def create_app(**kwargs):
 
     app = Flask(
         __name__,
-        instance_relative_config=True,
-        static_folder="build/static",
-        template_folder="build"
+        instance_relative_config=True
     )
 
     # Get the ASReview arguments
@@ -108,16 +106,21 @@ def register_extensions(app):
 
 def register_blueprints(app):
     """Register Flask blueprints."""
+    # Flask standard blueprint registration
+    app.register_blueprint(base.bp)
+    app.register_blueprint(project_api.bp)
+
     # Flask_restx blueprint registration
-    api = Api(version="1.0", title="Users API", doc="/doc")
+    api = Api(
+        version="1.0",
+        title="ASReview back-end API",
+        doc="/doc",
+    )
 
     api.add_namespace(auth_namespace, path="/auth")
     api.add_namespace(users_namespace, path="/users")
     api.init_app(app)
 
-    # Flask standard blueprint registration
-    app.register_blueprint(base.bp)
-    app.register_blueprint(project_api.bp)
     return None
 
 
@@ -157,7 +160,7 @@ def main(argv):
         print("Done")
         return
 
-    # IF user didn't insert password or username:
+    # TODO IF user didn't insert password or username:
         # Create random user
         # with app.app_context():
         #     db.create_all()
@@ -169,6 +172,8 @@ def main(argv):
         #             roles='admin'
         #         ))
         #     db.session.commit()
+    # TODO Save pass and username and show it to user (TERMINAL: pass; user)
+    # TODO AND send token with URL to authenticate user (TERMINAL: URL)
 
     flask_dev = os.environ.get('FLASK_ENV', "") == "development"
     host = args.ip

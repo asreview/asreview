@@ -20,7 +20,6 @@ from flask import request
 from flask import jsonify
 from flask.views import MethodView
 from flask_restx import Namespace, Resource, fields
-from werkzeug.exceptions import NotFound, BadRequest, Unauthorized, Forbidden
 
 from asreview.webapp.api.users.crud import add_user, get_user_by_email, get_user_by_id
 from asreview.webapp.api.users.models import User
