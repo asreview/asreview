@@ -266,8 +266,7 @@ class BaseReview(ABC):
                 stop_iter = True
         # Otherwise, stop when reaching n_queries (if provided)
         elif self.n_queries is not None:
-            # Might be good to check for valid integer values somewhere earlier
-            if query_i >= int(self.n_queries):
+            if query_i >= self.n_queries:
                 stop_iter = True
 
         return stop_iter

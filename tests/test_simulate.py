@@ -330,3 +330,11 @@ def check_model(monkeypatch=None,
     if state_file is not None:
         with open_state(state_file, read_only=True) as state:
             state_checker(state)
+
+def test_n_queries_min(tmpdir):
+
+    check_model(model="nb",
+                state_file=None,
+                use_granular=True,
+                n_instances=1,
+                n_queries='min')

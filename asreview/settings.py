@@ -22,6 +22,8 @@ from asreview.models.balance import get_balance_model
 from asreview.models.query import get_query_model
 from asreview.models.feature_extraction import get_feature_model
 from asreview.utils import pretty_format
+from asreview.types import type_n_queries
+
 
 SETTINGS_TYPE_DICT = {
     "data_name": str,
@@ -31,7 +33,7 @@ SETTINGS_TYPE_DICT = {
     "feature_extraction": str,
     "n_papers": int,
     "n_instances": int,
-    "n_queries": str,
+    "n_queries": type_n_queries,
     "n_prior_included": int,
     "n_prior_excluded": int,
     "mode": str,
@@ -194,14 +196,4 @@ class ASReviewSettings(object):
         feature_model = get_feature_model(self.feature_extraction)
         _convert_types(feature_model.default_param, self.feature_param)
 
-# Function should be in a different file I guess
-def type_n_queries(value):
-    """Custom type used for --n_queries argument. Allows for integer values or 'min'."""
-    if value == 'min':
-        return value
-    else:
-        try:
-            int(value)
-            return value
-        except:
-            raise ValueError("Value for n_queries is not 'min' or a valid integer")
+
