@@ -195,5 +195,3 @@ class ASReviewSettings(object):
         _convert_types(query_model.default_param, self.query_param)
         feature_model = get_feature_model(self.feature_extraction)
         _convert_types(feature_model.default_param, self.feature_param)
-
-

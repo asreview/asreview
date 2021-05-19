@@ -331,6 +331,7 @@ def check_model(monkeypatch=None,
         with open_state(state_file, read_only=True) as state:
             state_checker(state)
 
+
 def test_n_queries_min(tmpdir):
 
     check_model(model="nb",
