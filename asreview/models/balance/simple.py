@@ -22,7 +22,7 @@ class SimpleBalance(BaseBalance):
     """
 
     name = "simple"
-    label = "No balancing"
+    label = "Simple (no balancing)"
 
     def sample(self, X, y, train_idx, shared):
         """

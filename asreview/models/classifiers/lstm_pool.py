@@ -90,7 +90,7 @@ class LSTMPoolClassifier(BaseTrainClassifier):
     """
 
     name = "lstm-pool"
-    label = "LSTM pool"
+    label = "LSTM-pool"
 
     def __init__(self,
                  embedding_matrix=None,

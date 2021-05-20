@@ -40,7 +40,7 @@ class LogisticClassifier(BaseTrainClassifier):
     """
 
     name = "logistic"
-    label = "Logistic regressions"
+    label = "Logistic regression"
 
     def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
 
