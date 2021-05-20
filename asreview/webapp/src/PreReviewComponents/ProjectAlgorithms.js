@@ -88,10 +88,29 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
   // algorithm change
   const handleAlgorithmChange = (event) => {
     // set the algorithms state
-    setAlgorithms({
-      ...algorithms,
-      model: event.target.value,
-    });
+    if (
+      event.target.value === "lstm-base" ||
+      event.target.value === "lstm-pool"
+    ) {
+      setAlgorithms({
+        ...algorithms,
+        model: event.target.value,
+        feature_extraction: "embedding-lstm",
+      });
+    } else {
+      if (algorithms["feature_extraction"] === "embedding-lstm") {
+        setAlgorithms({
+          ...algorithms,
+          model: event.target.value,
+          feature_extraction: defaultAlgorithms["feature_extraction"],
+        });
+      } else {
+        setAlgorithms({
+          ...algorithms,
+          model: event.target.value,
+        });
+      }
+    }
   };
 
   const handleQueryStrategyChange = (event) => {
@@ -213,6 +232,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
 
           {state.edit && (
             <Box>
+              {/*Warning message*/}
               <div className={classes.alert}>
                 <Alert severity="warning">
                   Some combinations may have incompatibility issues.
@@ -235,6 +255,8 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Alert>
                 </div>
               )}
+
+              {/*Dependency info*/}
               {(algorithms["model"] === "lstm-base" ||
                 algorithms["model"] === "lstm-pool" ||
                 algorithms["model"] === "nn-2-layer" ||
@@ -242,7 +264,6 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                 algorithms["feature_extraction"] === "embedding-lstm") && (
                 <div className={classes.alert}>
                   <Alert severity="info">
-                    This classifier/feature extraction algorithm requires
                     <Link
                       className={classes.link}
                       href="https://www.tensorflow.org/"
@@ -250,7 +271,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                     >
                       <code>tensorflow</code>
                     </Link>{" "}
-                    to be installed.
+                    installation required.
                   </Alert>
                 </div>
               )}
@@ -258,7 +279,6 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                 algorithms["feature_extraction"] === "doc2vec" && (
                   <div className={classes.alert}>
                     <Alert severity="info">
-                      Doc2Vec requires
                       <Link
                         className={classes.link}
                         href="https://radimrehurek.com/gensim/"
@@ -266,7 +286,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                       >
                         <code>gensim</code>
                       </Link>{" "}
-                      to be installed.
+                      installation required.
                     </Alert>
                   </div>
                 )}
@@ -274,7 +294,6 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                 algorithms["feature_extraction"] === "sbert" && (
                   <div className={classes.alert}>
                     <Alert severity="info">
-                      Sentence BERT requires
                       <Link
                         className={classes.link}
                         href="https://www.sbert.net/"
@@ -282,10 +301,12 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                       >
                         <code>sentence_transformers</code>
                       </Link>{" "}
-                      to be installed.
+                      installation required.
                     </Alert>
                   </div>
                 )}
+
+              {/*Select active learning model*/}
               <CardContent className="cardHighlight">
                 {algorithms !== null && (
                   <Grid container spacing={2}>
@@ -357,7 +378,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                           <TextField
                             id="select-feature-extraction"
                             select
-                            label="Feature extraction algorithm"
+                            label="Feature extraction technique"
                             value={algorithms.feature_extraction}
                             onChange={handleFeatureExtractionChange}
                           >
@@ -373,8 +394,14 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                                     value={value.name}
                                     color="default"
                                     disabled={
-                                      value.name === "doc2vec" &&
-                                      algorithms["model"] === "nb"
+                                      (value.name === "doc2vec" &&
+                                        algorithms["model"] === "nb") ||
+                                      (algorithms["model"] !== "lstm-base" &&
+                                        algorithms["model"] !== "lstm-pool" &&
+                                        value.name === "embedding-lstm") ||
+                                      ((algorithms["model"] === "lstm-base" ||
+                                        algorithms["model"] === "lstm-pool") &&
+                                        value.name !== "embedding-lstm")
                                     }
                                   >
                                     {value.label}
@@ -466,13 +493,14 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                 active learning model
               </Link>{" "}
               consists of a classifier, a query strategy, a feature extraction
-              algorithm, and a balance strategy. The default setup (Naive Bayes,
+              technique, and a balance strategy. The default setup (Naive Bayes,
               TF-IDF, Maximum) overall has fast and excellent performance.
             </Typography>
             <Typography variant="body2" gutterBottom>
-              Some classifiers and feature extraction algorithms require additional
-              dependencies. Use <code>pip install asreview[all]</code> to
-              install all additional dependencies at once.
+              Some classifiers and feature extraction techniques require
+              additional dependencies. Use{" "}
+              <code>pip install asreview[all]</code> to install all additional
+              dependencies at once.
             </Typography>
           </Box>
         }
