@@ -758,10 +758,10 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     error_path = get_project_path(project_id) / "error.json"
     if error_path.exists():
-        logging.error("error on training")
+        logging.error("Error on training.")
         with open(error_path, "r") as f:
-            error_message = json.load(f)
-        return jsonify(message=error_message), 400
+            error = json.load(f)
+        return jsonify(message=error["message"]), 400
 
     try:
 
