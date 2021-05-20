@@ -271,7 +271,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                     >
                       <code>tensorflow</code>
                     </Link>{" "}
-                    installation required.
+                    installation required (<code>pip install tensorflow</code>).
                   </Alert>
                 </div>
               )}
@@ -286,7 +286,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                       >
                         <code>gensim</code>
                       </Link>{" "}
-                      installation required.
+                      installation required (<code>pip install gensim</code>).
                     </Alert>
                   </div>
                 )}
@@ -299,9 +299,10 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                         href="https://www.sbert.net/"
                         target="_blank"
                       >
-                        <code>sentence_transformers</code>
+                        <code>sentence-transformers</code>
                       </Link>{" "}
-                      installation required.
+                      installation required (
+                      <code>pip install sentence-transformers</code>).
                     </Alert>
                   </div>
                 )}
