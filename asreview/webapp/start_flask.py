@@ -75,6 +75,12 @@ def create_app(**kwargs):
         __name__,
         instance_relative_config=True
     )
+    # Flask_restx blueprint registration
+    api = Api(
+        version="1.0",
+        title="ASReview back-end API",
+        doc="/doc",
+    )
 
     # Get the ASReview arguments
     kwargs.pop("dataset", None)
@@ -89,7 +95,7 @@ def create_app(**kwargs):
         pass
 
     register_extensions(app)
-    register_blueprints(app)
+    register_blueprints(app, api)
 
     return app
 
@@ -104,19 +110,12 @@ def register_extensions(app):
     return None
 
 
-def register_blueprints(app):
+def register_blueprints(app, api):
     """Register Flask blueprints."""
     # Flask standard blueprint registration
-    app.register_blueprint(base.bp)
     app.register_blueprint(project_api.bp)
-
-    # Flask_restx blueprint registration
-    api = Api(
-        version="1.0",
-        title="ASReview back-end API",
-        doc="/doc",
-    )
-
+    app.register_blueprint(base.bp)
+    # Flask-restx
     api.add_namespace(auth_namespace, path="/auth")
     api.add_namespace(users_namespace, path="/users")
     api.init_app(app)

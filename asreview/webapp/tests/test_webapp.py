@@ -21,7 +21,6 @@ def test_landing(client):
     """
     response = client.get("/")
     html = response.data.decode()
-    print(html)
 
     assert "<title>ASReview - A tool for AI-assisted systematic reviews</title>" in html  # noqa
 
