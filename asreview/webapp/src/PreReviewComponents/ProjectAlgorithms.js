@@ -430,7 +430,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <Typography variant="h5" noWrap={true} align="left">
+                    <Typography variant="h5" align="left">
                       {
                         algorithmsLabel.classifier.find(
                           (m) => m.name === algorithms["model"]
