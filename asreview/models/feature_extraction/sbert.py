@@ -27,8 +27,8 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 def _check_st():
     if not ST_AVAILABLE:
         raise ImportError(
-            "Install sentence_transformers package (`pip install "
-            "sentence_transformers`) to use 'SBERT' model.")
+            "Install sentence-transformers package"
+            " to use Sentence BERT.")
 
 
 class SBERT(BaseFeatureExtraction):

@@ -27,8 +27,8 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 def _check_gensim():
     if not GENSIM_AVAILABLE:
         raise ImportError(
-            "Install gensim package (`pip install gensim`) to use"
-            " 'Doc2Vec' model.")
+            "Install gensim package to use"
+            " Doc2Vec.")
 
 
 def _train_model(corpus, *args, **kwargs):

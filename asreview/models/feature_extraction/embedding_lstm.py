@@ -40,8 +40,8 @@ else:
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingLSTM'.")
+            "Install tensorflow package to use"
+            " Embedding LSTM.")
 
 
 class EmbeddingLSTM(BaseFeatureExtraction):

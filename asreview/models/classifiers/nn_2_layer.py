@@ -41,8 +41,8 @@ from asreview.utils import _set_class_weight
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingIdf'.")
+            "Install tensorflow package to use"
+            " Fully connected neural network (2 hidden layers).")
 
 
 class NN2LayerClassifier(BaseTrainClassifier):

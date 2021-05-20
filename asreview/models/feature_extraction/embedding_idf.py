@@ -38,8 +38,8 @@ from asreview.utils import get_random_state
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingIdf'.")
+            "Install tensorflow package to use"
+            " Embedding IDF.")
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
