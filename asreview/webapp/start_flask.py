@@ -73,7 +73,9 @@ def create_app(**kwargs):
 
     app = Flask(
         __name__,
-        instance_relative_config=True
+        instance_relative_config=True,
+        static_folder="build/static",
+        template_folder="build"
     )
     # Flask_restx blueprint registration
     api = Api(
