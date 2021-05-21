@@ -194,11 +194,11 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             cur.execute('''CREATE TABLE results
                             (indices INTEGER, 
                             labels INTEGER, 
-                            predictor_classifiers TEXT,
-                            predictor_query_strategies TEXT,
-                            predictor_balance_strategies TEXT,
-                            predictor_feature_extraction TEXT,
-                            predictor_training_sets INTEGER,
+                            classifiers TEXT,
+                            query_strategies TEXT,
+                            balance_strategies TEXT,
+                            feature_extraction TEXT,
+                            training_sets INTEGER,
                             labeling_times TEXT)''')
             # TODO(State): models_training?
 
@@ -220,37 +220,35 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                 for sample_data in sf._state_dict['results'][query]['labelled']
             ]
 
-            # Predictor query strategy.
-            sf_predictor_query_strategy = [
+            # query strategy.
+            sf_query_strategy = [
                 sample_data[2]
                 for query in range(len(sf._state_dict['results']))
                 for sample_data in sf._state_dict['results'][query]['labelled']
             ]
 
-            n_priors = sf_predictor_query_strategy.count('prior')
+            n_priors = sf_query_strategy.count('prior')
             n_records_labeled = len(sf_indices)
             n_non_prior_records = n_records_labeled - n_priors
 
-            # Predictor classifier.
+            # classifier.
             classifier = sf.settings.to_dict()['model']
-            sf_predictor_classifiers = ['initial'] * n_priors + [
+            sf_classifiers = ['initial'] * n_priors + [
                 f'{classifier}' for _ in range(n_non_prior_records)
             ]
 
-            # Predictor training set.
-            sf_predictor_training_sets = [-1] * n_priors + [
-                i - 1 for i in range(n_non_prior_records)
-            ]
+            # training set.
+            sf_training_sets = [-1] * n_priors + list(range(n_priors, n_records_labeled))
 
-            # Predictor feature extraction.
+            # feature extraction.
             feature_extraction = sf.settings.to_dict()['feature_extraction']
-            sf_predictor_feature_extraction = ['initial'] * n_priors + [
+            sf_feature_extraction = ['initial'] * n_priors + [
                 f'{feature_extraction}' for _ in range(n_non_prior_records)
             ]
 
-            # Predictor balance strategy.
+            # balance strategy.
             balance_strategy = sf.settings.to_dict()['balance_strategy']
-            sf_predictor_balance_strategy = ['initial'] * n_priors + [
+            sf_balance_strategy = ['initial'] * n_priors + [
                 f'{balance_strategy}' for _ in range(n_non_prior_records)
             ]
 
@@ -258,16 +256,16 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             sf_time = [0 for _ in range(n_records_labeled)]
 
             # Check that all datasets have the same number of entries.
-            lengths = [len(sf_indices), len(sf_labels), len(sf_predictor_classifiers), len(sf_predictor_training_sets),
-                       len(sf_predictor_query_strategy), len(sf_time), len(sf_predictor_feature_extraction),
-                       len(sf_predictor_balance_strategy)]
+            lengths = [len(sf_indices), len(sf_labels), len(sf_classifiers), len(sf_training_sets),
+                       len(sf_query_strategy), len(sf_time), len(sf_feature_extraction),
+                       len(sf_balance_strategy)]
             if not all([length == n_records_labeled for length in lengths]):
                 raise StateError("All datasets should have the same number of entries.")
 
             # Create the database rows.
-            db_rows = [(sf_indices[i], sf_labels[i], sf_predictor_classifiers[i], sf_predictor_query_strategy[i],
-                        sf_predictor_balance_strategy[i], sf_predictor_feature_extraction[i],
-                        sf_predictor_training_sets[i], sf_time[i]) for i in range(n_records_labeled)]
+            db_rows = [(sf_indices[i], sf_labels[i], sf_classifiers[i], sf_query_strategy[i],
+                        sf_balance_strategy[i], sf_feature_extraction[i],
+                        sf_training_sets[i], sf_time[i]) for i in range(n_records_labeled)]
             cur.executemany("""INSERT INTO results VALUES
                             (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
             con.commit()
@@ -283,11 +281,11 @@ def convert_h5_results_to_sql(sql_fp, h5_fp):
             cur.execute('''CREATE TABLE results
                             (indices INTEGER, 
                             labels INTEGER, 
-                            predictor_classifiers TEXT,
-                            predictor_query_strategies TEXT,
-                            predictor_balance_strategies TEXT,
-                            predictor_feature_extraction TEXT,
-                            predictor_training_sets INTEGER,
+                            classifiers TEXT,
+                            query_strategies TEXT,
+                            balance_strategies TEXT,
+                            feature_extraction TEXT,
+                            training_sets INTEGER,
                             labeling_times TEXT)''')
             # TODO(State): models_training?
 
@@ -309,33 +307,31 @@ def convert_h5_results_to_sql(sql_fp, h5_fp):
                  for i in sf_queries]
             sf_labels = [int(label) for label in sf_labels]
 
-            # Predictor classifier.
+            # classifier.
             classifier = sf.settings.to_dict()['model']
-            sf_predictor_classifiers = ['initial'] * n_priors + [
+            sf_classifiers = ['initial'] * n_priors + [
                 f'{classifier}' for _ in sf_queries
             ]
 
-            # Predictor training set.
-            sf_predictor_training_sets = [-1] * n_priors + [
-                i - 1 for i in sf_queries
-            ]
+            # training set.
+            sf_training_sets = [-1] * n_priors + list(range(n_priors, n_records_labeled))
 
-            # Predictor query strategy.
-            sf_predictor_query_strategy = \
+            # query strategy.
+            sf_query_strategy = \
                 list(sf.f['results/0/new_labels/methods'][:]) + \
                 [sf.f[f'results/{i}/new_labels/methods'][0]
                  for i in sf_queries]
-            sf_predictor_query_strategy = [method.decode('utf-8') for method in sf_predictor_query_strategy]
+            sf_query_strategy = [method.decode('utf-8') for method in sf_query_strategy]
 
-            # Predictor feature extraction.
+            # feature extraction.
             feature_extraction = sf.settings.to_dict()['feature_extraction']
-            sf_predictor_feature_extraction = ['initial'] * n_priors + [
+            sf_feature_extraction = ['initial'] * n_priors + [
                 f'{feature_extraction}' for _ in sf_queries
             ]
 
-            # Predictor balance strategy.
+            # balance strategy.
             balance_strategy = sf.settings.to_dict()['balance_strategy']
-            sf_predictor_balance_strategy = ['initial'] * n_priors + [
+            sf_balance_strategy = ['initial'] * n_priors + [
                 f'{balance_strategy}' for _ in sf_queries
             ]
 
@@ -347,17 +343,17 @@ def convert_h5_results_to_sql(sql_fp, h5_fp):
             sf_time = [int(time) for time in sf_time]
 
             # Check that all datasets have the same number of entries.
-            lengths = [len(sf_indices), len(sf_labels), len(sf_predictor_classifiers),
-                       len(sf_predictor_training_sets),
-                       len(sf_predictor_query_strategy), len(sf_time), len(sf_predictor_feature_extraction),
-                       len(sf_predictor_balance_strategy)]
+            lengths = [len(sf_indices), len(sf_labels), len(sf_classifiers),
+                       len(sf_training_sets),
+                       len(sf_query_strategy), len(sf_time), len(sf_feature_extraction),
+                       len(sf_balance_strategy)]
             if not all([length == n_records_labeled for length in lengths]):
                 raise StateError("All datasets should have the same number of entries.")
 
             # Create the database rows.
-            db_rows = [(sf_indices[i], sf_labels[i], sf_predictor_classifiers[i], sf_predictor_query_strategy[i],
-                        sf_predictor_balance_strategy[i], sf_predictor_feature_extraction[i],
-                        sf_predictor_training_sets[i], sf_time[i]) for i in range(n_records_labeled)]
+            db_rows = [(sf_indices[i], sf_labels[i], sf_classifiers[i], sf_query_strategy[i],
+                        sf_balance_strategy[i], sf_feature_extraction[i],
+                        sf_training_sets[i], sf_time[i]) for i in range(n_records_labeled)]
             cur.executemany("""INSERT INTO results VALUES
                             (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
             con.commit()

@@ -1,7 +1,5 @@
-import os
-import shutil
-import datetime
 from pathlib import Path
+from sqlite3 import OperationalError
 
 import pytest
 
@@ -10,7 +8,7 @@ from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
 from asreview.state import HDF5State
-from asreview.state import open_state, state_from_asreview_file
+from asreview.state import open_state
 from asreview.state.errors import StateNotFoundError
 from asreview.settings import ASReviewSettings
 
@@ -18,16 +16,18 @@ from asreview.settings import ASReviewSettings
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
 TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_PREDICTOR_CLASSIFIERS = ['initial', 'initial', 'initial', 'initial', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb']
-TEST_PREDICTOR_QUERY_STRATEGIES = ['prior', 'prior', 'prior', 'prior', 'max', 'max', 'max', 'max', 'max', 'max']
-TEST_PREDICTOR_BALANCE_STRATEGIES = ['initial', 'initial', 'initial', 'initial', 'double', 'double', 'double', 'double',
+TEST_CLASSIFIERS = ['initial', 'initial', 'initial', 'initial', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb']
+TEST_QUERY_STRATEGIES = ['prior', 'prior', 'prior', 'prior', 'max', 'max', 'max', 'max', 'max', 'max']
+TEST_BALANCE_STRATEGIES = ['initial', 'initial', 'initial', 'initial', 'double', 'double', 'double', 'double',
                                    'double', 'double']
-TEST_PREDICTOR_FEATURE_EXTRACTION = ['initial', 'initial', 'initial', 'initial', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
+TEST_FEATURE_EXTRACTION = ['initial', 'initial', 'initial', 'initial', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
                                      'tfidf', 'tfidf']
-TEST_PREDICTOR_TRAINING_SETS = [-1, -1, -1, -1, -1, 0, 1, 2, 3, 4]
+TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
+TEST_LABELING_TIMES = [1621597506037183, 1621597506046369, 1621597506053114, 1621597506061950, 1621597506070351,
+                           1621597506072425, 1621597506073674, 1621597506077505, 1621597506079072, 1621597506084322]
 TEST_N_PRIORS = 4
-TEST_N_PREDICTOR_MODELS = 7
-TEST_STATE_FP = Path("tests", "v3_states", "test_converted.asreview")
+TEST_N_MODELS = 7
+TEST_STATE_FP = Path("tests", "v3_states", "test_converted_unzipped.asreview")
 
 
 @pytest.mark.xfail(
@@ -60,12 +60,25 @@ def test_read_only_state():
 #
 #     # TODO{Try to modify and catch error}
 
+@pytest.mark.xfail(
+    raises=OperationalError,
+    reason="attempt to write a readonly database"
+)
+def test_write_while_read_only_state():
+    with open_state(TEST_STATE_FP, read_only=True) as state:
+        state.add_labeling_data(TEST_RECORD_IDS,
+                                TEST_LABELS,
+                                TEST_CLASSIFIERS,
+                                TEST_QUERY_STRATEGIES,
+                                TEST_BALANCE_STRATEGIES,
+                                TEST_FEATURE_EXTRACTION,
+                                TEST_TRAINING_SETS,
+                                TEST_LABELING_TIMES)
 
-# TODO: print_state
-# def test_print_state():
-#     state_fp = Path("tests", "v3_states", "test_converted.asreview")
-#     with open_state(state_fp) as state:
-#         print(state)
+
+def test_print_state():
+    with open_state(TEST_STATE_FP, read_only=True) as state:
+        print(state)
 
 
 def test_settings_state():
@@ -85,9 +98,9 @@ def test_n_records_labeled():
 
 
 # # TODO (State): Test with n_instance > 1.
-def test_n_predictor_models():
+def test_n_models():
     with open_state(TEST_STATE_FP) as state:
-        assert state.n_predictor_models == TEST_N_PREDICTOR_MODELS
+        assert state.n_models == TEST_N_MODELS
 
 
 def test_n_priors():
@@ -124,37 +137,37 @@ def test_get_dataset_fail():
 
 def test_get_dataset():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state._get_dataset('predictor_query_strategies'), np.ndarray)
+        assert isinstance(state._get_dataset('query_strategies'), np.ndarray)
         assert isinstance(state._get_dataset('labels', query=2), np.ndarray)
-        assert isinstance(state._get_dataset('predictor_feature_extraction', record_id=17), np.ndarray)
+        assert isinstance(state._get_dataset('feature_extraction', record_id=17), np.ndarray)
 
         assert all(state._get_dataset('indices') == TEST_INDICES)
-        assert state._get_dataset('predictor_classifiers', query=1)[0] == \
-               TEST_PREDICTOR_CLASSIFIERS[TEST_N_PRIORS]
-        assert all(state._get_dataset('predictor_query_strategies', query=0) ==
-                   TEST_PREDICTOR_QUERY_STRATEGIES[:TEST_N_PRIORS])
+        assert state._get_dataset('classifiers', query=1)[0] == \
+               TEST_CLASSIFIERS[TEST_N_PRIORS]
+        assert all(state._get_dataset('query_strategies', query=0) ==
+                   TEST_QUERY_STRATEGIES[:TEST_N_PRIORS])
         assert state._get_dataset('labels', record_id=17)[0] == TEST_LABELS[TEST_RECORD_IDS.index(17)]
 
 
-def test_get_predictor_query_strategies():
+def test_get_query_strategies():
     with open_state(TEST_STATE_FP) as state:
-        all_models = state.get_predictor_query_strategies()
+        all_models = state.get_query_strategies()
         assert isinstance(all_models, np.ndarray)
-        assert all_models.tolist() == TEST_PREDICTOR_QUERY_STRATEGIES
+        assert all_models.tolist() == TEST_QUERY_STRATEGIES
 
 
-def test_get_predictor_classifiers():
+def test_get_classifiers():
     with open_state(TEST_STATE_FP) as state:
-        all_methods = state.get_predictor_classifiers()
+        all_methods = state.get_classifiers()
         assert isinstance(all_methods, np.ndarray)
-        assert all_methods.tolist() == TEST_PREDICTOR_CLASSIFIERS
+        assert all_methods.tolist() == TEST_CLASSIFIERS
 
 
-def test_get_predictor_training_sets():
+def test_get_training_sets():
     with open_state(TEST_STATE_FP) as state:
-        all_training_sets = state.get_predictor_training_sets()
+        all_training_sets = state.get_training_sets()
         assert isinstance(all_training_sets, np.ndarray)
-        assert all_training_sets.tolist() == TEST_PREDICTOR_TRAINING_SETS
+        assert all_training_sets.tolist() == TEST_TRAINING_SETS
 
 
 def test_get_order_of_labeling():
@@ -175,11 +188,11 @@ def test_get_labels():
 # TODO(State): Get state file with labeling times.
 def test_get_time():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_labeling_time(), np.ndarray)
+        assert isinstance(state.get_labeling_times(), np.ndarray)
 
 
 def test_create_empty_state(tmpdir):
-    state_fp = Path(tmpdir, 'state.h5')
+    state_fp = Path(tmpdir, 'state.asreview')
     with open_state(state_fp, read_only=False) as state:
         assert state.is_empty()
 
@@ -188,56 +201,50 @@ def test_get_feature_matrix():
     with open_state(TEST_STATE_FP) as state:
         feature_matrix = state.get_feature_matrix()
         assert isinstance(feature_matrix, csr_matrix)
-#
-#
-# # def test_append_to_dataset(tmpdir):
-# #     state_fp = Path(tmpdir, 'test.h5')
-# #     indices = [1, 4, 9, 16, 25]
-# #     labels = [1, 0, 1, 0, 1]
-# #
-# #     with open_state(state_fp, read_only=False) as state:
-# #         state._append_to_dataset('indices', indices[0])
-# #         assert state.f['results/indices'].shape[0] == 1
-#
-#
-# def test_add_as_data(tmpdir):
-#     data_fp = Path("tests", "demo_data", "record_id.csv")
-#     as_data = ASReviewData.from_file(data_fp)
-#     state_fp = Path(tmpdir, 'state.h5')
-#     HASH = '4f2aa98ea92675f9887e63d9a4b972daf8b7b834'
-#     RECORD_IDS = list(range(12, 2, -1))
-#
-#     with open_state(state_fp, read_only=False) as state:
-#         state._add_as_data(as_data)
-#         assert HASH in state.f['data_properties'].keys()
-#         assert all(np.array(state.f[f'data_properties/{HASH}/record_table']) == RECORD_IDS)
-#
-#
-# def test_add_labeling_data(tmpdir):
-#     data_fp = Path("tests", "demo_data", "record_id.csv")
-#     as_data = ASReviewData.from_file(data_fp)
-#
-#     RECORD_IDS = np.array([3, 5, 7, 9])
-#     LABELS = np.array([1, 0, 0, 1])
-#     METHODS = np.array([b'initial', b'initial', b'max', b'max'])
-#     MODELS = np.array([b'initial', b'initial', b'nb', b'svm'])
-#     TRAINING_SETS = np.array([-1, -1, 0, 1])
-#     LABELING_TIMES = np.array([1617197681466447, 1617197700565384, 1617197708920184, 1617197715836106])
-#
-#     state_fp = Path(tmpdir, 'state.h5')
-#     with open_state(state_fp, read_only=False) as state:
-#         state._add_as_data(as_data)
-#         state.add_labeling_data(record_ids=RECORD_IDS[:2], labels=LABELS[:2],
-#                                 models=MODELS[:2], methods=METHODS[:2],
-#                                 training_sets=TRAINING_SETS[:2], labeling_times=LABELING_TIMES[:2])
-#         state.add_labeling_data(record_ids=RECORD_IDS[[2]], labels=LABELS[[2]],
-#                                 models=MODELS[[2]], methods=METHODS[[2]],
-#                                 training_sets=TRAINING_SETS[[2]], labeling_times=LABELING_TIMES[[2]])
-#         state.add_labeling_data(record_ids=RECORD_IDS[[3]], labels=LABELS[[3]],
-#                                 models=MODELS[[3]], methods=METHODS[[3]],
-#                                 training_sets=TRAINING_SETS[[3]], labeling_times=LABELING_TIMES[[3]])
-#
-#         assert all(state.f['results/labels'][:] == LABELS)
-#         assert all(state.f['results/predictor_methods'][:] == METHODS)
-#         assert all(state.f['results/predictor_models'][:] == MODELS)
-#         assert all(state.f['results/labeling_times'][:] == LABELING_TIMES)
+
+
+def test_add_as_data(tmpdir):
+    data_fp = Path("tests", "demo_data", "record_id.csv")
+    as_data = ASReviewData.from_file(data_fp)
+    state_fp = Path(tmpdir, 'state.asreview')
+    RECORD_IDS = list(range(12, 2, -1))
+
+    with open_state(state_fp, read_only=False) as state:
+        state._add_as_data(as_data)
+        assert all(state.record_table['record_ids'] == RECORD_IDS)
+
+
+def test_add_labeling_data(tmpdir):
+    data_fp = TEST_STATE_FP / 'data/ADHD.csv'
+    as_data = ASReviewData.from_file(data_fp)
+
+    state_fp = Path(tmpdir, 'state.asreview')
+    with open_state(state_fp, read_only=False) as state:
+        state._add_as_data(as_data)
+        for i in range(3):
+            state.add_labeling_data([TEST_RECORD_IDS[i]],
+                                    [TEST_LABELS[i]],
+                                    [TEST_CLASSIFIERS[i]],
+                                    [TEST_QUERY_STRATEGIES[i]],
+                                    [TEST_BALANCE_STRATEGIES[i]],
+                                    [TEST_FEATURE_EXTRACTION[i]],
+                                    [TEST_TRAINING_SETS[i]],
+                                    [TEST_LABELING_TIMES[i]])
+
+        state.add_labeling_data(TEST_RECORD_IDS[3:],
+                                TEST_LABELS[3:],
+                                TEST_CLASSIFIERS[3:],
+                                TEST_QUERY_STRATEGIES[3:],
+                                TEST_BALANCE_STRATEGIES[3:],
+                                TEST_FEATURE_EXTRACTION[3:],
+                                TEST_TRAINING_SETS[3:],
+                                TEST_LABELING_TIMES[3:])
+
+        assert all(state.get_order_of_labeling() == TEST_RECORD_IDS)
+        assert all(state.get_labels() == TEST_LABELS)
+        assert all(state.get_classifiers() == TEST_CLASSIFIERS)
+        assert all(state.get_query_strategies() == TEST_QUERY_STRATEGIES)
+        assert all(state.get_balance_strategies() == TEST_BALANCE_STRATEGIES)
+        assert all(state.get_feature_extraction() == TEST_FEATURE_EXTRACTION)
+        assert all(state.get_training_sets() == TEST_TRAINING_SETS)
+        assert all(state.get_labeling_times() == TEST_LABELING_TIMES)

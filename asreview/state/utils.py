@@ -88,9 +88,11 @@ def open_state(fp, read_only=True):
     state = state_class(read_only=read_only)
 
     try:
-        if Path(fp).is_file():
+        # Temporarily treat .asreview file as a folder instead of a zipped file.
+        if Path(fp).is_dir():
             state._restore(fp)
-        elif not Path(fp).is_file() and not read_only:
+        elif not Path(fp).is_dir() and not read_only:
+            Path(fp).mkdir()
             state._create_new_state_file(fp)
         else:
             raise StateNotFoundError("State file does not exist")
