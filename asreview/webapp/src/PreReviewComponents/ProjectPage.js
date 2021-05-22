@@ -86,6 +86,7 @@ const ProjectPage = (props) => {
     setupFirstTime: props.setupFirstTime ? props.setupFirstTime : false,
     setup: false,
     training: false,
+    trainingError: false,
     finished: null,
   });
 
@@ -110,11 +111,38 @@ const ProjectPage = (props) => {
     });
   };
 
+  const failedProjectFirstTraining = () => {
+    setState({
+      ...state,
+      training: false,
+      trainingError: true,
+    });
+  };
+
   const continueProjectSetup = () => {
     setState({
       ...state,
       setup: true,
     });
+  };
+
+  const retryProjectSetup = () => {
+    ProjectAPI.clear_error(props.project_id)
+      .then((result) => {
+        setState((s) => {
+          return {
+            ...s,
+            setup: true,
+            trainingError: false,
+          };
+        });
+      })
+      .catch((error) => {
+        setError({
+          code: error.code,
+          message: error.message,
+        });
+      });
   };
 
   const finishProject = () => {
@@ -222,7 +250,8 @@ const ProjectPage = (props) => {
                   {/* Project is not ready, continue setup */}
                   {!state.info.projectInitReady &&
                     !state.setup &&
-                    !state.training && (
+                    !state.training &&
+                    !state.trainingError && (
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}
@@ -263,7 +292,8 @@ const ProjectPage = (props) => {
 
                   {!state.info.projectInitReady &&
                     !state.setup &&
-                    state.training && (
+                    state.training &&
+                    !state.trainingError && (
                       <div className={classes.wrapper}>
                         <Button
                           variant={"outlined"}
@@ -279,11 +309,29 @@ const ProjectPage = (props) => {
                         />
                       </div>
                     )}
+                  {!state.info.projectInitReady &&
+                    !state.setup &&
+                    !state.training &&
+                    state.trainingError && (
+                      <div className={classes.wrapper}>
+                        <Button
+                          variant={"outlined"}
+                          className={classes.continuButton}
+                          onClick={retryProjectSetup}
+                        >
+                          Retry setup
+                        </Button>
+                      </div>
+                    )}
                 </Box>
 
                 {/* Project is not ready, continue setup */}
-                {state.training && (
-                  <StartReview onReady={finishProjectFirstTraining} />
+                {(state.training || state.trainingError) && (
+                  <StartReview
+                    onReady={finishProjectFirstTraining}
+                    notReady={failedProjectFirstTraining}
+                    trainingError={state.trainingError}
+                  />
                 )}
               </Grid>
             </Grid>
