@@ -61,6 +61,7 @@ from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_state_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -787,6 +788,25 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+
+@bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
+def api_clear_model_error(project_id):
+    """Clear model training error"""
+
+    error_path = get_project_path(project_id) / "error.json"
+    state_path = get_state_path(project_id)
+
+    if error_path.exists() and state_path.exists():
+        os.remove(error_path)
+        os.remove(state_path)
+
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    response = jsonify(message="Failed to clear model training error.")
+    return response, 500
 
 
 @bp.route('/project/import_project', methods=["POST"])
