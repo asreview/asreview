@@ -734,18 +734,14 @@ def api_set_algorithms(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training the model
     """
-    try:
-        # start training the model
-        py_exe = _get_executable()
-        run_command = [
-            py_exe, "-m", "asreview", "web_run_model", project_id,
-            "--label_method", "prior"
-        ]
-        subprocess.Popen(run_command)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to train the model."), 500
+    # start training the model
+    py_exe = _get_executable()
+    run_command = [
+        py_exe, "-m", "asreview", "web_run_model", project_id,
+        "--label_method", "prior"
+    ]
+    subprocess.Popen(run_command)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -764,27 +760,21 @@ def api_init_model_ready(project_id):  # noqa: F401
             error = json.load(f)
         return jsonify(message=error["message"]), 400
 
-    try:
+    if get_proba_path(project_id).exists():
 
-        if get_proba_path(project_id).exists():
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
 
-            # read the file with project info
-            with open(get_project_file_path(project_id), "r") as fp:
-                project_info = json.load(fp)
+        project_info["projectInitReady"] = True
 
-            project_info["projectInitReady"] = True
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
 
-            # update the file with project info
-            with open(get_project_file_path(project_id), "w") as fp:
-                json.dump(project_info, fp)
-
-            response = jsonify({'status': 1})
-        else:
-            response = jsonify({'status': 0})
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to initiate the project."), 500
+        response = jsonify({'status': 1})
+    else:
+        response = jsonify({'status': 0})
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
