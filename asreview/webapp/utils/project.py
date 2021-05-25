@@ -160,13 +160,18 @@ def import_project_file(file_name):
     return import_project["id"]
 
 
-def project_blocking_user(project_id, user):
+def project_locking_user(project_id, user):
     """ Check if other user is blocking the project
 
     Returns:
         True if current user is blocking the project, else string with the username of blocking user.
     """
-    return SQLiteUserLock(get_user_lock_path(project_id), user).is_locked()
+    locking_entry = SQLiteUserLock(get_user_lock_path(project_id), user).locking_entry
+
+    if locking_entry and (locking_entry[0] != user):
+        return locking_entry[0]
+    else:
+        return False
 
 
 def add_dataset_to_project(project_id, file_name):
@@ -453,8 +458,15 @@ def export_to_string(project_id, export_type="csv"):
     else:
         raise ValueError("This export type isn't implemented.")
 
+def acquire_project_lock(project_id, user):
+    return SQLiteUserLock(get_user_lock_path(project_id), user).acquire()
 
-def label_instance(project_id, paper_i, label, user=None, retrain_model=True):
+
+def is_project_locked_by_another_user(project_id, user):
+    return SQLiteUserLock(get_user_lock_path(project_id), user).is_locked_by_another_user
+
+
+def label_instance(project_id, paper_i, label, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
@@ -463,12 +475,6 @@ def label_instance(project_id, paper_i, label, user=None, retrain_model=True):
     label = int(label)
 
     fp_lock = get_lock_path(project_id)
-
-    if user:
-        lock_acquired = SQLiteUserLock(get_user_lock_path(project_id), user).acquire()
-        if lock_acquired != True:
-            print('No lock was acquired. Project is blocked by another user. Exiting...')
-            return False
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):

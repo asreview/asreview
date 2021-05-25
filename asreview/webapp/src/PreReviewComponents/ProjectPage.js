@@ -251,7 +251,7 @@ const ProjectPage = (props) => {
                   {state.info.projectInitReady &&
                     !state.setup &&
                     !state.training && 
-                    !state.info.blockedBy && (
+                    !state.info.lockedBy && (
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}
@@ -285,7 +285,7 @@ const ProjectPage = (props) => {
                     {state.info.projectInitReady &&
                     !state.setup &&
                     !state.training && 
-                    state.info.blockedBy && (
+                    state.info.lockedBy && (
                       <div className={classes.wrapper}>
                         <Button
                           variant={"outlined"}
@@ -293,7 +293,7 @@ const ProjectPage = (props) => {
                           className={classes.continuButton}
                           startIcon={<KeyboardVoiceIcon />}
                         >
-                          Currently reviewed by user {state.info.blockedBy}.
+                          Currently reviewed by user {state.info.lockedBy}.
                         </Button>
                         <CircularProgress
                           size={24}

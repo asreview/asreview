@@ -132,7 +132,6 @@ class SQLiteUserLock():
                  project_id=None,
                  duration=15 * 60):
         self.db_file = db_file
-        self.lock_acquired = False
         self.project_id = project_id
         self.owner = owner
         self.duration = duration
@@ -140,19 +139,30 @@ class SQLiteUserLock():
         if not os.path.isfile(self.db_file):
             self.init_db()
 
-    def is_locked(self):
+
+    @property
+    def is_locked_by_another_user(self):
+        locking_entry = self.locking_entry
+
+        return locking_entry and (locking_entry[0] != self.owner)
+
+
+    @property
+    def locking_entry(self):
         db = get_db(self.db_file)
         cur_time = int(time())
         try:
             db.isolation_level = 'EXCLUSIVE'
             db.execute('BEGIN EXCLUSIVE')
-            lock_entry = db.execute('SELECT * FROM locks WHERE owner != ? AND expires > ?',
-                                    (self.owner, cur_time)).fetchone()
+            
+            lock_entry = db.execute('SELECT * FROM locks WHERE expires > ? ' + \
+                                    'ORDER BY expires ASC',
+                                    (cur_time, )).fetchone()
 
             if lock_entry is None:
                 return  False
             else:
-                return lock_entry[0] # Return owner
+                return lock_entry
 
         except sqlite3.OperationalError as e:
             logging.error(
@@ -164,23 +174,19 @@ class SQLiteUserLock():
         return False
 
     def acquire(self, extend=True):
-        
         try:
-            is_locked = self.is_locked()
-            if is_locked == False:
+            locking_entry = self.locking_entry
+            if (not locking_entry) or (locking_entry[0] == self.owner):
                 db = get_db(self.db_file)
                 cur_time = int(time())
 
-                this_user_lock = db.execute('SELECT * FROM locks WHERE owner = ? AND expires > ?',
-                                    (self.owner, cur_time)).fetchone()
-
-                if this_user_lock is None:
+                if not locking_entry:
                     db.execute('INSERT INTO locks (owner, expires) VALUES (?, ?)',
                             (self.owner, cur_time + self.duration))
                 elif extend:
                     db.execute('UPDATE locks SET expires = ? WHERE owner = ? AND expires > ?',
                             (cur_time + self.duration, self.owner, cur_time))
-                self.lock_acquired = True
+                
                 logging.debug(
                     _log_msg(f"User {self.owner} acquired lock for",
                                 self.project_id))
@@ -189,7 +195,7 @@ class SQLiteUserLock():
 
                 return  True
             else:
-                return is_locked # Return owner
+                return False
 
         except sqlite3.OperationalError as e:
             logging.error(
@@ -210,14 +216,6 @@ class SQLiteUserLock():
                          ');')
         db.close()
 
-    def locked(self):
-        return self.lock_acquired
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *_, **__):
-        self.release()
 
     def release(self):
         if not self.locked():
@@ -236,4 +234,3 @@ class SQLiteUserLock():
             sleep(0.4)
         logging.debug(
             _log_msg(f"Released lock {self.owner}", self.project_id))
-        self.lock_acquired = False
