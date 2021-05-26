@@ -53,6 +53,6 @@ class AuthEntryPoint(BaseEntryPoint):
 
     def execute(self, argv):
 
-        from asreview.webapp.auth import cmd_tool
+        from asreview.webapp.auth import ASReviewAuth
 
-        cmd_tool(argv)
+        ASReviewAuth.cmd_tool(argv)

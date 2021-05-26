@@ -97,7 +97,7 @@ def user_project_lock_required(acquire=True):
         @wraps(api_method)
         def dec_wrapper(*args, **kwargs):
             project_id = kwargs['project_id']
-            if  (auth.current_user() == 'anon') or \
+            if  (not auth.enabled) or \
                 (acquire and acquire_project_lock(project_id, auth.current_user())) or \
                 ((not acquire) and (not is_project_locked_by_another_user(project_id, auth.current_user()))):
                 return api_method(*args, **kwargs)
@@ -255,7 +255,10 @@ def api_get_project_info(project_id):  # noqa: F401
             else:
                 project_info["projectInitReady"] = False
 
-        project_info['lockedBy'] = project_locking_user(project_id, auth.current_user())
+        # TODO: move this logic outside (probably decorate with 
+        # @user_project_lock_required(acquire=False, get_locking_user=True))
+        project_info['lockedBy'] = auth.enabled and \
+                        project_locking_user(project_id, auth.current_user())
 
     except Exception as err:
         logging.error(err)

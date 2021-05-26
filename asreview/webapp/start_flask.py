@@ -33,7 +33,7 @@ from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
 
 # Auth imports
-from asreview.webapp.auth import init_auth, auth
+from asreview.webapp.auth import auth
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -91,7 +91,7 @@ def create_app(**kwargs):
 
     CORS(app, resources={r"*": {"origins": "*"}})
 
-    init_auth(kwargs['auth_file'])
+    auth.reinit(auth_file=kwargs['auth_file'])
 
     app.register_blueprint(api.bp)
 
@@ -110,7 +110,7 @@ def create_app(**kwargs):
 
     
     @app.route('/', methods=['GET'])
-    @auth.login_required()
+    @auth.login_required
     def index():
         return render_template("index.html")
 
