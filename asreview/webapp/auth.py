@@ -16,8 +16,7 @@ class ASReviewAuth(HTTPBasicAuth):
     def __init__(self, auth_file=None, scheme=None, realm=None):
         super().__init__(scheme=scheme, realm=realm)
 
-        if auth_file:
-            self.reinit()
+        self.reinit(auth_file)
 
 
     def reinit(self, auth_file):
