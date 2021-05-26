@@ -200,14 +200,14 @@ though relatively simplistic, it seems to work quite well on a wide range of
 datasets.
 
 The query strategy determines which document is shown after the model has
-computed the relevance scores. With certainty-based is selected the document
-with the highest relevance score is showed followed by the 2nd in line,
-etcetera, untill a new model is trained with new relevance scores. When
-uncertainty-based is selected, the most uncertain docuemtn is sampled
-according to the model (i.e. closest to 0.5 probability).  When random is
-selected, as it says, randomly select samples with no regard to model assigned
-probabilities. **Warning**: selecting this option means your review is not
-going to be accelerated by ASReview.
+computed the relevance scores. The three options are: certainty-based, mixed and 
+randomn. When certainty-based is selected, the documents are shown in the order of
+relevance score. The document the model thinks is most likely to be included is
+shown first. When mixed is selected, the next document will be selected 
+certainty-based 95% of the time, and randomly chosen otherwise. When random is 
+selected, documents are shown in a random order (ignoring the model output 
+completely). **Warning**: selecting this option means your review is not going to be accelerated 
+by using ASReview.
 
 The feature extraction technique determines the method how text is translated
 into a vector that can be used by the classifier. The default is TF-IDF (Term
