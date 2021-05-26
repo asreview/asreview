@@ -201,13 +201,12 @@ datasets.
 
 The query strategy determines which document is shown after the model has
 computed the relevance scores. The three options are: certainty-based, mixed and 
-randomn. When certainty-based is selected, the documents are shown in the order of
-relevance score. The document the model thinks is most likely to be included is
-shown first. When mixed is selected, the next document will be selected 
-certainty-based 95% of the time, and randomly chosen otherwise. When random is 
-selected, documents are shown in a random order (ignoring the model output 
-completely). **Warning**: selecting this option means your review is not going to be accelerated 
-by using ASReview.
+random. When certainty-based is selected, the documents are shown in the order of
+relevance score. The document most likely to be relevant is shown first. When 
+mixed is selected, the next document will be selected certainty-based 95% of the 
+time, and randomly chosen otherwise. When random is selected, documents are shown 
+in a random order (ignoring the model output completely). **Warning**: selecting 
+this option means your review is not going to be accelerated by using ASReview.
 
 The feature extraction technique determines the method how text is translated
 into a vector that can be used by the classifier. The default is TF-IDF (Term
