@@ -92,7 +92,7 @@ While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
 
 As you keep reviewing documents and providing more labels, the number of
-unlabeled docuemtns left in the dataset will decline. When to stop is left to
+unlabeled documents left in the dataset will decline. When to stop is left to
 the you. The `blogpost *ASReview Class 101* <https://asreview.nl/asreview-class-101/>`_
 provides some tips on stopping with screening.
 
