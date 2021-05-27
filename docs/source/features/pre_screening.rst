@@ -76,7 +76,7 @@ Partly Labeled Data
 
 If you want to include decisions you've already made prior to setting up your
 project, you can upload a partly labeled dataset containg labels for part of
-the data and unlabeled recors you want to screen with ASReview. This might be
+the data and unlabeled records you want to screen with ASReview. This might be
 helpful if you switch from screening in another tool to screening with
 ASReview, or when updating an existing systematic review with more recent
 publications.
@@ -193,17 +193,17 @@ To change the default setting:
 
 
 The classifier is the machine learning model used to compute the relevance
-scores. The available classifiers are Naive Bayes, Support Vector
+scores. The available classifiers are Naïve Bayes, Support Vector
 Machine, Logistic Regression, and Random Forest. More classifiers can be
-selected via the :doc:`API <../API/reference>`. The default is Naive Bayes,
-though relatively simplistic, it seems to work quite well on a wide range of
+selected via the :doc:`API <../API/reference>`. The default is Naïve Bayes,
+though relatively simplistic, it works quite well on a wide range of
 datasets.
 
 The query strategy determines which document is shown after the model has
 computed the relevance scores. With certainty-based is selected the document
 with the highest relevance score is showed followed by the 2nd in line,
 etcetera, untill a new model is trained with new relevance scores. When
-uncertainty-based is selected, the most uncertain docuemtn is sampled
+uncertainty-based is selected, the most uncertain document is sampled
 according to the model (i.e. closest to 0.5 probability).  When random is
 selected, as it says, randomly select samples with no regard to model assigned
 probabilities. **Warning**: selecting this option means your review is not
@@ -212,7 +212,7 @@ going to be accelerated by ASReview.
 The feature extraction technique determines the method how text is translated
 into a vector that can be used by the classifier. The default is TF-IDF (Term
 Frequency-Inverse Document Frequency) from `SKLearn <https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`_.
-It works well in combination with Naive Bayes and other fast training models.
+It works well in combination with Naïve Bayes and other fast training models.
 Another option is Doc2Vec provided by the `gensim <https://radimrehurek.com/gensim/>`_
 package which needs to be installed manually.
 To use it, install the gensim package manually:
