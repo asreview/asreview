@@ -162,7 +162,7 @@ def main(argv):
         return
 
     # TODO IF user didn't insert password or username:
-        # Create random user
+        # Create anon user
         # with app.app_context():
         #     db.create_all()
         #     if db.session.query(User).filter_by(username='randomusername').count() < 1:

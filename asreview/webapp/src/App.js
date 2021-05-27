@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import { CssBaseline, createMuiTheme } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
@@ -75,6 +76,51 @@ const App = (props) => {
 
   const toggleHistory = () => {
     setHistory((a) => !a);
+  };
+
+  // Auth
+
+  const isAuthenticated = () => {
+    if (this.state.accessToken || this.validRefresh()) {
+      return true;
+    }
+    return false;
+  };
+
+  const logoutUser = () => {
+    window.localStorage.removeItem("refreshToken");
+    this.setState({ accessToken: null });
+    this.createMessage("success", "You have logged out.");
+  };
+
+  const validRefresh = () => {
+    const token = window.localStorage.getItem("refreshToken");
+    if (token) {
+      axios
+        .post(`${process.env.REACT_APP_API_SERVICE_URL}/auth/refresh`, {
+          refresh_token: token,
+        })
+        .then((res) => {
+          this.setState({ accessToken: res.data.access_token });
+          this.getUsers();
+          window.localStorage.setItem("refreshToken", res.data.refresh_token);
+          return true;
+        })
+        .catch((err) => {
+          return false;
+        });
+    }
+    return false;
+  };
+
+  const createMessage = (type, text) => {
+    this.setState({
+      messageType: type,
+      messageText: text,
+    });
+    setTimeout(() => {
+      this.removeMessage();
+    }, 3000);
   };
 
   return (
