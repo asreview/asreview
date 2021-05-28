@@ -76,7 +76,7 @@ Partly Labeled Data
 
 If you want to include decisions you've already made prior to setting up your
 project, you can upload a partly labeled dataset containg labels for part of
-the data and unlabeled recors you want to screen with ASReview. This might be
+the data and unlabeled records you want to screen with ASReview. This might be
 helpful if you switch from screening in another tool to screening with
 ASReview, or when updating an existing systematic review with more recent
 publications.
@@ -203,7 +203,7 @@ The query strategy determines which document is shown after the model has
 computed the relevance scores. With certainty-based is selected the document
 with the highest relevance score is showed followed by the 2nd in line,
 etcetera, untill a new model is trained with new relevance scores. When
-uncertainty-based is selected, the most uncertain docuemtn is sampled
+uncertainty-based is selected, the most uncertain document is sampled
 according to the model (i.e. closest to 0.5 probability).  When random is
 selected, as it says, randomly select samples with no regard to model assigned
 probabilities. **Warning**: selecting this option means your review is not
