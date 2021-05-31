@@ -21,7 +21,7 @@ from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
-    """Query strategy using clustering algorithms.
+    """Clustering query strategy.
 
     Use clustering after feature extraction on the dataset. Then the highest
     probabilities within random clusters are sampled.

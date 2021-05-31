@@ -20,7 +20,7 @@ from asreview.utils import _set_class_weight
 
 class SVMClassifier(BaseTrainClassifier):
     """
-    Support Vector Machine classifier
+    Support vector machine classifier.
 
     The Support Vector Machine classifier is an implementation based
     on the sklearn Support Vector Machine classifier.

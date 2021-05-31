@@ -74,7 +74,7 @@ def interleave(n_samples, n_strat_1, random_state):
 
 
 class MixedQuery(BaseQueryStrategy):
-    """Class for mixed query strategy.
+    """Mixed query strategy.
 
     The idea is to use two different query strategies at the same time with a
     ratio of one to the other. A mix of two query strategies is used. For

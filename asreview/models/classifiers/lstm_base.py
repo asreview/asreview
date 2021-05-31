@@ -43,7 +43,7 @@ def _check_tensorflow():
 
 
 class LSTMBaseClassifier(BaseTrainClassifier):
-    """LSTM base classifier.
+    """LSTM-base classifier.
 
     LSTM model that consists of an embedding layer, LSTM layer with one
     output, dense layer, and a single sigmoid output node. Use the

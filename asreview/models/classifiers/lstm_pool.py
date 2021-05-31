@@ -47,7 +47,7 @@ def _check_tensorflow():
 
 class LSTMPoolClassifier(BaseTrainClassifier):
     """
-    LSTM pool classifier.
+    LSTM-pool classifier.
 
     LSTM model that consists of an embedding layer, LSTM layer with many
     outputs, max pooling layer, and a single sigmoid output node. Use the

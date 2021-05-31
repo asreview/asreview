@@ -20,7 +20,7 @@ from asreview.models.classifiers.base import BaseTrainClassifier
 
 
 class NaiveBayesClassifier(BaseTrainClassifier):
-    """Naive Bayes classifier
+    """Naive Bayes classifier.
 
     Naive Bayes classifier. Only works in combination with the
     :class:`asreview.models.feature_extraction.Tfidf` feature extraction model.
