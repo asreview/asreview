@@ -34,7 +34,9 @@ def _format_algorithm(values, name, description):
             result.append(" " * 22 + f"{x.name}")
 
     if name == "query_strategies":
-        result.append(" " * 22 + "max_random" + " " * (16 - len("max_random")) + "Mixed")
+        result.append(
+            " " * 22 + "max_random" + " " * (16 - len("max_random")) + "Mixed"
+        )
 
     s += "\n".join(result)
     s += "\n\n"
