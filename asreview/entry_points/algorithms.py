@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ def _format_algorithm(values, name, description):
             )
         else:
             result.append(" " * 22 + f"{x.name}")
+
+    if name == "query_strategies":
+        result.append(" " * 22 + "max_random" + " " * (16 - len("max_random")) + "Mixed")
 
     s += "\n".join(result)
     s += "\n\n"
