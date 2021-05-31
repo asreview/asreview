@@ -653,10 +653,16 @@ def api_list_algorithms():
 
         for c, key in zip(classes, payload.keys()):
             for method in c:
-                payload[key].append({
-                    "name": method.name,
-                    "label": method.label
-                })
+                if hasattr(method, "label"):
+                    payload[key].append({
+                        "name": method.name,
+                        "label": method.label
+                    })
+                else:
+                    payload[key].append({
+                        "name": method.name,
+                        "label": method.name
+                    })
 
     except Exception as err:
         logging.error(err)
