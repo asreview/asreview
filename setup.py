@@ -172,6 +172,7 @@ setup(
         'asreview.models.query': [
             "max = asreview.models.query.max:MaxQuery",
             "random = asreview.models.query.random:RandomQuery",
+            "max_random = asreview.models.query.mixed:MixedQuery",
             "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",
             "cluster = asreview.models.query.cluster:ClusterQuery",
         ]

@@ -85,9 +85,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
     });
   };
 
-  // algorithm change
-  const handleAlgorithmChange = (event) => {
-    // set the algorithms state
+  const handleClassifierChange = (event) => {
     if (
       event.target.value === "lstm-base" ||
       event.target.value === "lstm-pool"
@@ -323,7 +321,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             select
                             label="Classifier"
                             value={algorithms.model}
-                            onChange={handleAlgorithmChange}
+                            onChange={handleClassifierChange}
                           >
                             {algorithmsLabel["classifier"].map((value) => {
                               return (
@@ -365,15 +363,6 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                                 </MenuItem>
                               );
                             })}
-                            <MenuItem
-                              checked={
-                                algorithms["query_strategy"] === "max_random"
-                              }
-                              value="max_random"
-                              color="default"
-                            >
-                              {"Mixed"}
-                            </MenuItem>
                           </TextField>
 
                           <TextField
