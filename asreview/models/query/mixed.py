@@ -100,9 +100,6 @@ class MixedQuery(BaseQueryStrategy):
         strategy and an underscore, e.g. 'max' for maximal sampling.
     """
 
-    name = "max_random"
-    label = "Mixed"
-
     def __init__(self,
                  strategy_1="max",
                  strategy_2="random",
@@ -209,3 +206,7 @@ class MixedQuery(BaseQueryStrategy):
         parameter_space["qry_mix_ratio"] = hp.uniform("qry_mix_ratio", 0, 1)
 
         return parameter_space, hyper_choices
+
+    @property
+    def name(self):
+        return "_".join([self.strategy_1, self.strategy_2])
