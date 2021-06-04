@@ -436,7 +436,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <Typography variant="h5" noWrap={true} align="left">
+                    <Typography variant="h5" align="left">
                       {
                         algorithmsLabel.query_strategy.find(
                           (m) => m.name === algorithms["query_strategy"]
@@ -452,7 +452,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <Typography variant="h5" noWrap={true} align="left">
+                    <Typography variant="h5" align="left">
                       {
                         algorithmsLabel.feature_extraction.find(
                           (m) => m.name === algorithms["feature_extraction"]

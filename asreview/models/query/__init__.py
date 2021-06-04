@@ -17,6 +17,7 @@ from asreview.models.query.mixed import MixedQuery
 from asreview.models.query.uncertainty import UncertaintyQuery
 from asreview.models.query.random import RandomQuery
 from asreview.models.query.cluster import ClusterQuery
+from asreview.models.query.max_random import MaxRandomQuery
 from asreview.models.query.utils import get_query_model
 from asreview.models.query.utils import get_query_class
 from asreview.models.query.utils import list_query_strategies

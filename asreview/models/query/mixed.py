@@ -14,6 +14,7 @@
 
 import logging
 from math import floor
+from abc import abstractmethod
 
 import numpy as np
 from scipy.sparse import issparse
@@ -185,6 +186,10 @@ class MixedQuery(BaseQueryStrategy):
         new_order = interleave(
             len(query_idx), len(query_idx_1), self._random_state)
         return query_idx[new_order], X[new_order]
+
+    @abstractmethod
+    def _query(self, X, pool_idx, n_instances, proba):
+        raise NotImplementedError
 
     def full_hyper_space(self):
         from hyperopt import hp
