@@ -29,8 +29,16 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.errors import StateError
 
 
+# TODO (State): Time of labeling in sql.
+# TODO (State): Records id's should be identifiers.
+
+
+RELATIVE_RESULTS_PATH = Path('results.sql')
+RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
+RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
 LATEST_HDF5STATE_VERSION = "1.1"
-RESULTS_TABLE_COLUMNS = ['indices', 'labels', 'classifiers', 'query_strategies',
+REQUIRED_TABLES = ['results', 'record_table']
+RESULTS_TABLE_COLUMNS = ['record_ids', 'labels', 'classifiers', 'query_strategies',
                          'balance_strategies', 'feature_extraction',
                          'training_sets', 'labeling_times']
 
@@ -66,17 +74,17 @@ class HDF5State(BaseState):
     @property
     def _sql_fp(self):
         """Path to the sql database."""
-        return self.fp / 'results.sql'
+        return self.fp / RELATIVE_RESULTS_PATH
 
     @property
     def _settings_metadata_fp(self):
         """Path to the settings and metadata json file."""
-        return self.fp / 'settings_metadata.json'
+        return self.fp / RELATIVE_SETTINGS_METADATA_PATH
 
     @property
     def _feature_matrix_fp(self):
         """Path to the .npz file of the feature matrix"""
-        return self.fp / 'feature_matrix.npz'
+        return self.fp / RELATIVE_FEATURE_MATRIX_PATH
 
 ### OPEN, CLOSE, SAVE, INIT
     def _create_new_state_file(self, fp):
@@ -91,36 +99,41 @@ class HDF5State(BaseState):
         self.fp.parent.mkdir(parents=True, exist_ok=True)
 
         # TODO(State): Add software version.
+        # TODO: Add version/softwareversion to ASReviewSettings object.
         # Create settings_metadata.json
         self.settings_metadata = {
-            'start_time': str(datetime.now()),
-            'end_time': "",
             'settings': "{}",
             'version': LATEST_HDF5STATE_VERSION
         }
 
-        json.dump(self.settings_metadata, open(self._settings_metadata_fp, 'a'))
+        with open(self._settings_metadata_fp, 'a') as f:
+            json.dump(self.settings_metadata, f)
 
         # Create results table.
         con = self._connect_to_sql()
-        cur = con.cursor()
+        try:
+            cur = con.cursor()
 
-        # Create the results table.
-        cur.execute('''CREATE TABLE results
-                            (indices INTEGER, 
-                            labels INTEGER, 
-                            classifiers TEXT,
-                            query_strategies TEXT,
-                            balance_strategies TEXT,
-                            feature_extraction TEXT,
-                            training_sets INTEGER,
-                            labeling_times TEXT)''')
+            # Create the results table.
+            cur.execute('''CREATE TABLE results
+                                (record_ids INTEGER,
+                                labels INTEGER, 
+                                classifiers TEXT,
+                                query_strategies TEXT,
+                                balance_strategies TEXT,
+                                feature_extraction TEXT,
+                                training_sets INTEGER,
+                                labeling_times INTEGER)''')
 
-        con.commit()
-        con.close()
+            # Create the record_ids table.
+            cur.execute('''CREATE TABLE record_table
+                                (record_ids INT)''')
 
-        # Cache the results table.
-        self.results = pd.DataFrame(columns=RESULTS_TABLE_COLUMNS)
+            con.commit()
+            con.close()
+        except sqlite3.Error as e:
+            con.close()
+            raise e
         # TODO (State): Models being trained.
 
     def _restore(self, fp):
@@ -141,19 +154,10 @@ class HDF5State(BaseState):
 
         # Cache the settings.
         try:
-            self.settings_metadata = json.load(open(self._settings_metadata_fp, self.mode))
+            with open(self._settings_metadata_fp, self.mode) as f:
+                self.settings_metadata = json.load(f)
         except FileNotFoundError:
             raise AttributeError("'settings_metadata.json' not found in the state file.")
-
-        # Cache the results.
-        con = self._connect_to_sql()
-        self.results = pd.read_sql_query(f'SELECT * FROM results', con)
-
-        # Cache the record table.
-        self.record_table = pd.read_sql_query(f'SELECT * FROM record_table', con)
-
-        # Close the connection to the sql.
-        con.close()
 
         try:
             if not self._is_valid_version():
@@ -169,21 +173,29 @@ class HDF5State(BaseState):
 
     # TODO(State): Check more things?
     def _is_valid_state(self):
-        for dataset in RESULTS_TABLE_COLUMNS:
-            if dataset not in self.results.columns:
-                raise KeyError(f"State file structure has not been initialized in time, {dataset} is not present. ")
+        con = self._connect_to_sql()
+        cur = con.cursor()
+
+        # Check if all required tables are present.
+        table_names = cur.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        table_names = [tup[0] for tup in table_names]
+        for table in REQUIRED_TABLES:
+            if table not in table_names:
+                raise StateError(f'The sql file should contain a table named "{table}".')
+
+        # Check if all required columns are present in results.
+        column_names = cur.execute("PRAGMA table_info(results)").fetchall()
+        column_names = [tup[1] for tup in column_names]
+        for column in RESULTS_TABLE_COLUMNS:
+            if column not in column_names:
+                raise StateError(f'The results table does not contain the column {column}.')
 
     def close(self):
-        # TODO(State): What should this be when we treat the state file as a folder?
-        if not self.read_only:
-            self.end_time = datetime.now()
+        pass
 
 ### PROPERTIES
     def _is_valid_version(self):
         """Check compatibility of state version."""
-        # TODO check for version <= 1.1, should fail as well
-        # QUESTION: Should all version < LATEST_HDF5STATE fail, or only versions
-        # < LATEST_DEPRECATED_VERSION?
         return self.version[0] == LATEST_HDF5STATE_VERSION[0]
 
     @property
@@ -193,31 +205,6 @@ class HDF5State(BaseState):
             return self.settings_metadata['version']
         except KeyError:
             raise AttributeError("'settings_metadata.json' does not contain 'version'.")
-
-    @property
-    def start_time(self):
-        """Init datetime of the state file."""
-        try:
-            # Time is saved as integer number of microseconds.
-            # Divide by 10**6 to convert to second
-            start_time = self.settings_metadata['start_time']
-            return datetime.utcfromtimestamp(start_time/10**6)
-        except Exception:
-            raise AttributeError("Attribute 'start_time' not found.")
-
-    @property
-    def end_time(self):
-        """Last modified (datetime) of the state file."""
-        try:
-            end_time = self.settings_metadata['end_time']
-            return datetime.utcfromtimestamp(end_time/10**6)
-        except Exception:
-            raise AttributeError("Attribute 'end_time' not found.")
-
-    @end_time.setter
-    def end_time(self, time):
-        timestamp = int(time.timestamp() * 10**6)
-        self._add_settings_metadata('end_time', timestamp)
 
     @property
     def settings(self):
@@ -284,14 +271,25 @@ class HDF5State(BaseState):
     @property
     def n_records_labeled(self):
         """Get the number of labeled records, where each prior is counted individually."""
-        return len(self.results)
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("SELECT COUNT (*) FROM results")
+        n_rows = cur.fetchone()
+        con.close()
+        return n_rows[0]
 
 # TODO: Should this return 0 if it is empty?
     @property
     def n_models(self):
         """Get the number of unique (classifier type + training set) models that were used. """
-        classifiers = list(self.results['classifiers'])[self.n_priors:]
-        training_sets = list(self.results['training_sets'].astype(str))[self.n_priors:]
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("SELECT classifiers, training_sets FROM results")
+        res = cur.fetchall()
+        con.close()
+
+        classifiers = [row[0] for row in res][self.n_priors:]
+        training_sets = [str(row[1]) for row in res][self.n_priors:]
         # A model is uniquely determine by the string {classifier_code}{training_set}.
         model_ids = [model + tr_set for (model, tr_set) in zip(classifiers, training_sets)]
         # Return the number of unique model_ids, plus 1 for the priors.
@@ -306,28 +304,31 @@ class HDF5State(BaseState):
         int:
             Number of priors. If priors have not been selected returns None.
         """
-        n_priors = list(self.results['query_strategies']).count('prior')
-        if n_priors == 0:
-            n_priors = None
-        return n_priors
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("SELECT COUNT (*) FROM results WHERE query_strategies='prior'")
+        n = cur.fetchone()
+        con.close()
+        n = n[0]
+
+        if n == 0:
+            return None
+        return n
 
 ### Features, settings_metadata
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
         self.settings_metadata[key] = value
-        json.dump(self.settings_metadata, open(self._settings_metadata_fp, self.mode))
+        with open(self._settings_metadata_fp, self.mode) as f:
+            json.dump(self.settings_metadata, f)
 
     # TODO(State): Should this be behind a data hash?
     def _add_as_data(self, as_data, feature_matrix=None):
         # Add the record table to the sql.
-        self.record_table = pd.DataFrame(as_data.record_ids, columns=['record_ids'])
-
-        record_sql_input = [(record_id,) for record_id in self.record_table['record_ids']]
+        record_sql_input = [(int(record_id),) for record_id in as_data.record_ids]
 
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.execute('''CREATE TABLE record_table
-                                (record_ids INT)''')
         cur.executemany("""INSERT INTO record_table VALUES
                                             (?)""", record_sql_input)
         con.commit()
@@ -350,17 +351,18 @@ class HDF5State(BaseState):
 # TODO (State): Add custom datasets.
 # TODO (State): Add models being trained (Start with only one model at the same time).
     def add_labeling_data(self, 
-                          record_ids, 
+                          record_ids,
                           labels, 
                           classifiers, 
                           query_strategies,
                           balance_strategies,
                           feature_extraction,
-                          training_sets,
-                          labeling_times):
+                          training_sets):
         """Add all the data of one labeling action."""
         # Check if the state is still valid.
         self._is_valid_state()
+
+        labeling_times = [datetime.now()] * len(record_ids)
 
         # Check that all input data has the same length.
         lengths = [len(record_ids), len(labels), len(classifiers), len(query_strategies), len(balance_strategies), 
@@ -369,17 +371,10 @@ class HDF5State(BaseState):
             raise ValueError("Input data should be of the same length.")
         n_records_labeled = len(record_ids)
 
-        # Convert record_ids to row indices.
-        indices = np.array([self._record_id_to_row_index(record_id) for record_id in record_ids])
-
         # Create the database rows.
-        db_rows = [(indices[i], labels[i], classifiers[i], query_strategies[i],
+        db_rows = [(record_ids[i], labels[i], classifiers[i], query_strategies[i],
                     balance_strategies[i], feature_extraction[i],
                     training_sets[i], labeling_times[i]) for i in range(n_records_labeled)]
-
-        # Add the rows to the cached version of the database.
-        df_rows = pd.DataFrame(db_rows, columns=RESULTS_TABLE_COLUMNS)
-        self.results = self.results.append(df_rows, ignore_index=True)
 
         # Add the rows to the database.
         con = self._connect_to_sql()
@@ -388,89 +383,173 @@ class HDF5State(BaseState):
                                     (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
         con.commit()
         con.close()
+    #
+    # def _record_id_to_row_index(self, record_id):
+    #     """Find the row index that corresponds to a given record id.
+    #
+    #     Arguments
+    #     ---------
+    #     record_id: int
+    #         Record_id of a record.
+    #
+    #     Returns
+    #     -------
+    #     int:
+    #         Row index of the given record_id in the dataset.
+    #     """
+    #     return np.where(self.record_table == record_id)[0][0]
+    #
+    # def _row_index_to_record_id(self, row_index):
+    #     """Find the record_id that corresponds to a given row index.
+    #
+    #     Arguments
+    #     ----------
+    #     row_index: int
+    #         Row index.
+    #
+    #     Returns
+    #     -------
+    #     str:
+    #         Record_id of the record with given row index.
+    #
+    #     """
+    #     return self.record_table.iloc[row_index].item()
 
-    def _record_id_to_row_index(self, record_id):
-        """Find the row index that corresponds to a given record id.
+    def _get_record_table(self):
+        """Get the record table of the state file.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe with column 'record_ids' containing the record ids.
+        """
+        con = self._connect_to_sql()
+        record_table = pd.read_sql_query('SELECT * FROM record_table', con)
+        con.close()
+        return record_table
+
+    def _get_data_by_query_number(self, query, columns=None):
+        """Get the data of a specific query from the results table.
+
+        Arguments
+        ---------
+        query: int
+            Number of the query of which you want the data. query=0 corresponds to all the prior records.
+        columns: list
+            List of columns names of the results table.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the data from the results table with the given query number and columns.
+        """
+        if columns is not None:
+            if not type(columns) == list:
+                raise ValueError("The columns argument should be a list.")
+        col_query_string = '*' if columns is None else ','.join(columns)
+
+        if query == 0:
+            sql_query = f"SELECT {col_query_string} FROM results WHERE query_strategies='prior'"
+        else:
+            rowid = query + self.n_priors
+            sql_query = f"SELECT {col_query_string} FROM results WHERE rowid={rowid}"
+
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(sql_query, con)
+        con.close()
+        return data
+
+    def _get_data_by_record_id(self, record_id, columns=None):
+        """Get the data of a specific query from the results table.
 
         Arguments
         ---------
         record_id: int
-            Record_id of a record.
+            Record id of which you want the data.
+        columns: list
+            List of columns names of the results table.
 
         Returns
         -------
-        int:
-            Row index of the given record_id in the dataset.
+        pd.DataFrame
+            Dataframe containing the data from the results table with the given record_id and columns.
         """
-        return np.where(self.record_table == record_id)[0][0]
+        query_string = '*' if columns is None else ','.join(columns)
 
-    def _row_index_to_record_id(self, row_index):
-        """Find the record_id that corresponds to a given row index.
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(f'SELECT {query_string} FROM results WHERE record_ids={record_id}', con)
+        con.close()
+        return data
 
-        Arguments
-        ----------
-        row_index: int
-            Row index.
-
-        Returns
-        -------
-        str:
-            Record_id of the record with given row index.
-
-        """
-        return self.record_table.iloc[row_index].item()
-
-    def _get_dataset(self, results_column, query=None, record_id=None):
-        """Get a column from the results table, or only the part corresponding to a given query or record_id.
+    def _get_dataset(self, columns=None):
+        """Get a column from the results table.
 
         Arguments
         ---------
-        results_column: str
-            Name of the column of the results table you want to get.
-        query: int
-            Only return the data of the given query, where query=0 correspond to the prior information.
-        record_id: str/int
-            Only return the data corresponding to the given record_id.
+        columns: list
+            List of columns names of the results table.
 
         Returns
         -------
-        np.ndarray:
-            If both query and record_id are None, return the full dataset.
-            If query is given, return the data from that query, where the 0-th query is the prior information.
-            If record_id is given, return the data corresponding record.
-            If both are given it raises a ValueError.
+        pd.DataFrame:
+            Dataframe containing the data of the specified columns of the results table.
         """
-        if (query is not None) and (record_id is not None):
-            raise ValueError("You can not search by record_id and query at the same time.")
+        query_string = '*' if columns is None else ','.join(columns)
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(f'SELECT {query_string} FROM results', con)
+        con.close()
+        return data
 
-        if query is not None:
-            # 0 corresponds to all priors.
-            if query == 0:
-                dataset_slice = range(self.n_priors)
-            # query_i is in spot (i + n_priors - 1).
-            else:
-                dataset_slice = [query + self.n_priors - 1]
-        elif record_id is not None:
-            # Convert record id to row index.
-            idx = self._record_id_to_row_index(record_id)
-            # Find where this row number was labelled.
-            dataset_slice = np.where(self.results['indices'][:] == idx)[0]
-        else:
-            # Return the whole dataset.
-            dataset_slice = range(self.n_records_labeled)
-
-        return np.array(self.results[results_column])[dataset_slice]
+    # def _get_dataset(self, results_column, query=None, record_id=None):
+    #     """Get a column from the results table, or only the part corresponding to a given query or record_id.
+    #
+    #     Arguments
+    #     ---------
+    #     results_column: str
+    #         Name of the column of the results table you want to get.
+    #     query: int
+    #         Only return the data of the given query, where query=0 correspond to the prior information.
+    #     record_id: str/int
+    #         Only return the data corresponding to the given record_id.
+    #
+    #     Returns
+    #     -------
+    #     np.ndarray:
+    #         If both query and record_id are None, return the full dataset.
+    #         If query is given, return the data from that query, where the 0-th query is the prior information.
+    #         If record_id is given, return the data corresponding record.
+    #         If both are given it raises a ValueError.
+    #     """
+    #     if (query is not None) and (record_id is not None):
+    #         raise ValueError("You can not search by record_id and query at the same time.")
+    #
+    #     if query is not None:
+    #         # 0 corresponds to all priors.
+    #         if query == 0:
+    #             dataset_slice = range(self.n_priors)
+    #         # query_i is in spot (i + n_priors - 1).
+    #         else:
+    #             dataset_slice = [query + self.n_priors - 1]
+    #     elif record_id is not None:
+    #         # Convert record id to row index.
+    #         idx = self._record_id_to_row_index(record_id)
+    #         # Find where this row number was labelled.
+    #         dataset_slice = np.where(self.results['indices'][:] == idx)[0]
+    #     else:
+    #         # Return the whole dataset.
+    #         dataset_slice = range(self.n_records_labeled)
+    #
+    #     return np.array(self.results[results_column])[dataset_slice]
 
     def get_order_of_labeling(self):
         """Get full array of record id's in order that they were labeled.
 
         Returns
         -------
-        np.ndarray:
+        pd.DataFrame:
             The record_id's in the order that they were labeled.
         """
-        indices = self._get_dataset(results_column='indices')
-        return np.array([self._row_index_to_record_id(idx) for idx in indices])
+        return self._get_dataset(columns=['record_ids'])
 
     def get_labels(self, query=None, record_id=None):
         """Get the labels from the state file.
@@ -489,6 +568,8 @@ class HDF5State(BaseState):
             If query and record_id are None, it returns the full array with labels in the labeling order,
             else it returns only the specific one determined by query or record_id.
         """
+        if (query is not None) and (record_id is not None):
+            raise ValueError("Use either query ")
         return self._get_dataset('labels', query=query, record_id=record_id)
 
     def get_classifiers(self, query=None, record_id=None):

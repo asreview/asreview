@@ -460,8 +460,6 @@ class BaseReview(ABC):
         balance_strategies = [self.balance_model.name for _ in range(n_records_labeled)]
         feature_extraction = [self.feature_model.name for _ in range(n_records_labeled)]
         training_sets = [len(self.train_idx) for _ in range(n_records_labeled)]
-        time = datetime.now()
-        labeling_times = [time for _ in range(n_records_labeled)]
 
         state.add_labeling_data(record_ids=record_ids,
                                 labels=labels,
@@ -469,8 +467,7 @@ class BaseReview(ABC):
                                 query_strategies=query_strategies,
                                 balance_strategies=balance_strategies,
                                 feature_extraction=feature_extraction,
-                                training_sets=training_sets,
-                                labeling_times=labeling_times)
+                                training_sets=training_sets)
         # state.set_labels(self.y)
 
     def train(self):

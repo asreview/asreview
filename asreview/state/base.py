@@ -123,7 +123,7 @@ class BaseState(ABC):
 
     @abstractmethod
     def add_labeling_data(self, record_ids, labels, classifiers, query_strategies, balance_strategies,
-                          feature_extraction, training_sets, labeling_times):
+                          feature_extraction, training_sets):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
