@@ -11,9 +11,9 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
-export const setupColor = "#706f6f"
-export const inReviewColor = "#aa6600"
-export const finishedColor = "#415f38"
+export const setupColor = "#706f6f";
+export const inReviewColor = "#aa6600";
+export const finishedColor = "#415f38";
 
 // review drawer configs
 export const reviewDrawerWidth = 250;

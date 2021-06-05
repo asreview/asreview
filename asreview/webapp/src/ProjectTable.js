@@ -9,7 +9,8 @@ import {
   TableContainer,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -31,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     minWidth: 700,
+  },
+  tableTitle: {
+    padding: "16px",
   },
   tableCell: {
     letterSpacing: "0.25px",
@@ -56,7 +60,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProjectTable = (props) => {
-  
   const classes = useStyles();
 
   const [page, setPage] = useState(0);
@@ -73,77 +76,110 @@ const ProjectTable = (props) => {
 
   const formatDate = (datetime) => {
     let date = new Date(datetime);
-    let dateString = date.toDateString().slice(4)
-    return dateString
+    let dateString = date.toDateString().slice(4);
+    return dateString;
   };
 
   return (
     <Paper className={classes.root}>
+      <Box className={classes.tableTitle}>
+        <Typography variant="h6">Current Projects</Typography>
+      </Box>
       <TableContainer>
         <Table className={classes.table} stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  style={{ width: column.width }}
-                >
+                <TableCell key={column.id} style={{ width: column.width }}>
                   {column.label}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.projects["projects"].slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-              const openExistingProject = () => {
-                console.log("Opening existing project " + row.id);
+            {props.projects["projects"]
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row) => {
+                const openExistingProject = () => {
+                  console.log("Opening existing project " + row.id);
 
-                // set the state in the redux store
-                store.dispatch(setProject(row.id));
+                  // set the state in the redux store
+                  store.dispatch(setProject(row.id));
 
-                props.handleAppState("project-page");
-              };
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  <TableCell className={classes.tableCell}>
-                    <Box
-                      onClick={openExistingProject}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {row["name"]}
-                    </Box>
-                  </TableCell>
-                  <TableCell
-                    className={classes.tableCell}
-                  >
-                    {row["datetimeCreated"] ? formatDate(row["datetimeCreated"]) : "N/A"}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    {row["mode"] ? row["mode"] : "N/A"}
-                  </TableCell>
-                  <TableCell className={classes.tableCell}>
-                    <Chip
-                      className={row["projectInitReady"] ? (row["reviewFinished"] ? classes.chipFinished : classes.chipInReview) : classes.chipSetup}
-                      label={row["projectInitReady"] ? (row["reviewFinished"] ? "FINISHED" : "IN REVIEW") : "SETUP"}
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                  props.handleAppState("project-page");
+                };
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    <TableCell>
+                      <Box
+                        onClick={openExistingProject}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <Typography
+                          className={classes.tableCell}
+                          variant="subtitle1"
+                          noWrap
+                        >
+                          {row["name"]}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        className={classes.tableCell}
+                        variant="subtitle1"
+                        noWrap
+                      >
+                        {row["datetimeCreated"]
+                          ? formatDate(row["datetimeCreated"])
+                          : "N/A"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        className={classes.tableCell}
+                        variant="subtitle1"
+                        noWrap
+                      >
+                        {row["mode"] ? row["mode"] : "N/A"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell className={classes.tableCell}>
+                      <Chip
+                        className={
+                          row["projectInitReady"]
+                            ? row["reviewFinished"]
+                              ? classes.chipFinished
+                              : classes.chipInReview
+                            : classes.chipSetup
+                        }
+                        label={
+                          row["projectInitReady"]
+                            ? row["reviewFinished"]
+                              ? "FINISHED"
+                              : "IN REVIEW"
+                            : "SETUP"
+                        }
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, props.projects["projects"].length]}
+        rowsPerPageOptions={[5, 10, 15]}
         component="div"
         count={props.projects["projects"].length}
         rowsPerPage={rowsPerPage}
+        labelRowsPerPage="Projects per page:"
         page={page}
         onChangePage={handleChangePage}
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
     </Paper>
-  )
+  );
 };
 
 export default ProjectTable;
