@@ -18,14 +18,16 @@ import { setProject } from "./redux/actions";
 import { setupColor, inReviewColor, finishedColor } from "./globals";
 
 const columns = [
-  { id: "name", label: "Project", width: "60%", minWidth: 400 },
-  { id: "datetimeCreated", label: "Date", width: "20%", minWidth: 100 },
-  { id: "reviewFinished", label: "Status", width: "20%", minWidth: 100 },
+  { id: "name", label: "Project", width: "55%" },
+  { id: "datetimeCreated", label: "Date", width: "15%" },
+  { id: "mode", label: "Mode", width: "15%" },
+  { id: "reviewFinished", label: "Status", width: "15%" },
 ];
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
+    marginBottom: "100px",
   },
   table: {
     minWidth: 700,
@@ -37,16 +39,19 @@ const useStyles = makeStyles((theme) => ({
     color: "white",
     backgroundColor: setupColor,
     fontWeight: 500,
+    display: "flex",
   },
   chipInReview: {
     color: "white",
     fontWeight: 500,
     backgroundColor: inReviewColor,
+    display: "flex",
   },
   chipFinished: {
     color: "white",
     fontWeight: 500,
     backgroundColor: finishedColor,
+    display: "flex",
   },
 }));
 
@@ -81,7 +86,7 @@ const ProjectTable = (props) => {
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
-                  style={{ width: column.width, minWidth: column.minWidth }}
+                  style={{ width: column.width }}
                 >
                   {column.label}
                 </TableCell>
@@ -100,9 +105,7 @@ const ProjectTable = (props) => {
               };
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  <TableCell
-                    className={classes.tableCell}
-                  >
+                  <TableCell className={classes.tableCell}>
                     <Box
                       onClick={openExistingProject}
                       style={{ cursor: "pointer" }}
@@ -115,9 +118,10 @@ const ProjectTable = (props) => {
                   >
                     {row["datetimeCreated"] ? formatDate(row["datetimeCreated"]) : "N/A"}
                   </TableCell>
-                  <TableCell
-                    className={classes.tableCell}
-                  >
+                  <TableCell className={classes.tableCell}>
+                    {row["mode"] ? row["mode"] : "N/A"}
+                  </TableCell>
+                  <TableCell className={classes.tableCell}>
                     <Chip
                       className={row["projectInitReady"] ? (row["reviewFinished"] ? classes.chipFinished : classes.chipInReview) : classes.chipSetup}
                       label={row["projectInitReady"] ? (row["reviewFinished"] ? "FINISHED" : "IN REVIEW") : "SETUP"}
