@@ -13,6 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import store from "./redux/store";
 import { setProject } from "./redux/actions";
+import { setupColor, inReviewColor, finishedColor } from "./globals";
 
 const columns = [
   { id: "name", label: "Project", minWidth: 170 },
@@ -25,6 +26,21 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     minWidth: 700,
+  },
+  chipSetup: {
+    color: "white",
+    backgroundColor: setupColor,
+    fontWeight: 500,
+  },
+  chipInReview: {
+    color: "white",
+    fontWeight: 500,
+    backgroundColor: inReviewColor,
+  },
+  chipFinished: {
+    color: "white",
+    fontWeight: 500,
+    backgroundColor: finishedColor,
   },
 }));
 
@@ -64,8 +80,8 @@ const ProjectTable = (props) => {
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={row["projectInitReady"] ? (row["reviewFinished"] ? "Finished" : "In Review") : "Setup"}
-                    color={row["projectInitReady"] ? (row["reviewFinished"] ? "#415f38" : "#f39200") : "#706f6f"}
+                    className={row["projectInitReady"] ? (row["reviewFinished"] ? classes.chipFinished : classes.chipInReview) : classes.chipSetup}
+                    label={row["projectInitReady"] ? (row["reviewFinished"] ? "FINISHED" : "IN REVIEW") : "SETUP"}
                   />
                 </TableCell>
               </TableRow>
