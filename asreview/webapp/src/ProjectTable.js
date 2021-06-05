@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Box,
   Chip,
   Paper,
   Table,
@@ -17,7 +18,8 @@ import { setupColor, inReviewColor, finishedColor } from "./globals";
 
 const columns = [
   { id: "name", label: "Project", minWidth: 170 },
-  { id: "reviewFinished", label: "Status", minWidth: 170 },
+  { id: "datetimeCreated", label: "Date", minWidth: 100 },
+  { id: "reviewFinished", label: "Status", minWidth: 100 },
 ];
 
 const useStyles = makeStyles((theme) => ({
@@ -26,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     minWidth: 700,
+  },
+  tableCell: {
+    letterSpacing: "0.25px",
   },
   chipSetup: {
     color: "white",
@@ -47,6 +52,12 @@ const useStyles = makeStyles((theme) => ({
 const ProjectTable = (props) => {
   
   const classes = useStyles();
+
+  const formatDate = (datetime) => {
+    let date = new Date(datetime);
+    let dateString = date.toDateString().slice(4)
+    return dateString
+  };
 
   return (
     <TableContainer component={Paper}>
@@ -75,10 +86,24 @@ const ProjectTable = (props) => {
             };
             return (
               <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                <TableCell onClick={openExistingProject}>
-                  {row["name"]}
+                <TableCell
+                  className={classes.tableCell}
+                >
+                  <Box
+                    onClick={openExistingProject}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {row["name"]}
+                  </Box>
                 </TableCell>
-                <TableCell>
+                <TableCell
+                  className={classes.tableCell}
+                >
+                  {row["datetimeCreated"] ? formatDate(row["datetimeCreated"]) : "N/A"}
+                </TableCell>
+                <TableCell
+                  className={classes.tableCell}
+                >
                   <Chip
                     className={row["projectInitReady"] ? (row["reviewFinished"] ? classes.chipFinished : classes.chipInReview) : classes.chipSetup}
                     label={row["projectInitReady"] ? (row["reviewFinished"] ? "FINISHED" : "IN REVIEW") : "SETUP"}
