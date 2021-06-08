@@ -102,11 +102,11 @@ class HDF5State(BaseState):
         # TODO: Add version/softwareversion to ASReviewSettings object.
         # Create settings_metadata.json
         self.settings_metadata = {
-            'settings': "{}",
+            'settings': None,
             'version': LATEST_HDF5STATE_VERSION
         }
 
-        with open(self._settings_metadata_fp, 'a') as f:
+        with open(self._settings_metadata_fp, 'w') as f:
             json.dump(self.settings_metadata, f)
 
         # Create results table.
@@ -144,7 +144,6 @@ class HDF5State(BaseState):
         fp: str, pathlib.Path
             File path of the state file.
         """
-
         # If state already exist
         if not Path(fp).is_dir():
             raise StateNotFoundError(f"State file {fp} doesn't exist.")
@@ -322,8 +321,8 @@ class HDF5State(BaseState):
         with open(self._settings_metadata_fp, self.mode) as f:
             json.dump(self.settings_metadata, f)
 
-    # TODO(State): Should this be behind a data hash?
-    def _add_as_data(self, as_data, feature_matrix=None):
+    # TODO(State): Input should be record table.
+    def add_record_table(self, as_data):
         # Add the record table to the sql.
         record_sql_input = [(int(record_id),) for record_id in as_data.record_ids]
 
@@ -333,9 +332,7 @@ class HDF5State(BaseState):
                                             (?)""", record_sql_input)
         con.commit()
 
-        # If a feature matrix is given, add it to the state file.
-        if feature_matrix is None:
-            return
+    def add_feature_matrix(self, feature_matrix):
         # Make sure the feature matrix is in csr format.
         if isinstance(feature_matrix, np.ndarray):
             feature_matrix = csr_matrix(feature_matrix)
@@ -372,7 +369,7 @@ class HDF5State(BaseState):
         n_records_labeled = len(record_ids)
 
         # Create the database rows.
-        db_rows = [(record_ids[i], labels[i], classifiers[i], query_strategies[i],
+        db_rows = [(int(record_ids[i]), int(labels[i]), classifiers[i], query_strategies[i],
                     balance_strategies[i], feature_extraction[i],
                     training_sets[i], labeling_times[i]) for i in range(n_records_labeled)]
 
@@ -481,7 +478,7 @@ class HDF5State(BaseState):
         con.close()
         return data
 
-    def _get_dataset(self, columns=None):
+    def get_dataset(self, columns=None):
         """Get a column from the results table.
 
         Arguments

@@ -25,7 +25,7 @@ class BaseState(ABC):
             Whether to open file in read only mode.
         """
         self.read_only = read_only
-        self.mode = 'r' if self.read_only else 'a'
+        self.mode = 'r' if self.read_only else 'r+'
 
     def __enter__(self):
         return self
@@ -59,13 +59,24 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def _add_as_data(self, as_data, feature_matrix=None):
+    def add_record_table(self, as_data):
         """Add properties from as_data to the state.
 
         Arguments
         ---------
         as_data: ASReviewData
             Data file from which the review is run.
+        feature_matrix: np.ndarray, sklearn.sparse.csr_matrix
+            Feature matrix computed by the feature extraction model.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_feature_matrix(self, feature_matrix):
+        """Add feature matrix to the state file.
+
+        Arguments
+        ---------
         feature_matrix: np.ndarray, sklearn.sparse.csr_matrix
             Feature matrix computed by the feature extraction model.
         """

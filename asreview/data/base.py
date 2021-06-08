@@ -380,27 +380,27 @@ class ASReviewData():
         except KeyError:
             self.df["abstract_included"] = abstract_included
 
-    def prior_labels(self, state, by_index=True):
-        """Get the labels that are marked as 'initial'.
-
-        state: BaseState
-            Open state that contains the label information.
-        by_index: bool
-            If True, return internal indexing.
-            If False, return record_ids for indexing.
-
-        Returns
-        -------
-        numpy.ndarray
-            Array of indices that have the 'initial' property.
-        """
-        # @TODO{STATE} Rewrite directly to state file.
-        query_src = state.startup_vals()["query_src"]
-        if "initial" not in query_src:
-            return np.array([], dtype=int)
-        if by_index:
-            return np.array(query_src["initial"], dtype=int)
-        return self.df.index.values[query_src["initial"]]
+    # def prior_labels(self, state, by_index=True):
+    #     """Get the labels that are marked as 'initial'.
+    #
+    #     state: BaseState
+    #         Open state that contains the label information.
+    #     by_index: bool
+    #         If True, return internal indexing.
+    #         If False, return record_ids for indexing.
+    #
+    #     Returns
+    #     -------
+    #     numpy.ndarray
+    #         Array of indices that have the 'initial' property.
+    #     """
+    #     # @TODO{STATE} Rewrite directly to state file.
+    #     query_src = state.startup_vals()["query_src"]
+    #     if "initial" not in query_src:
+    #         return np.array([], dtype=int)
+    #     if by_index:
+    #         return np.array(query_src["initial"], dtype=int)
+    #     return self.df.index.values[query_src["initial"]]
 
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.

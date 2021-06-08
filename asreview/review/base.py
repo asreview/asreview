@@ -171,26 +171,30 @@ class BaseReview(ABC):
 
         # Restore the state from a file or initialize said file.
         with open_state(self.state_file, read_only=False) as state:
-
+            print(state.is_empty())
+            print(state.n_records_labeled)
             # state file exists
             if not state.is_empty():
+                print("not empty")
                 # TODO{STATE} Directly from state file
-                startup = state.startup_vals()
+                # startup = state.startup_vals()
                 # If there are start indices not in the training add them.
-                if not set(startup["train_idx"]) >= set(start_idx):
-                    new_idx = list(set(start_idx) - set(startup["train_idx"]))
-                    self.classify(new_idx,
-                                  self.y[new_idx],
-                                  state,
-                                  method="initial")
-                    startup = state.startup_vals()
+                # if not set(startup["train_idx"]) >= set(start_idx):
+                #     new_idx = list(set(start_idx) - set(startup["train_idx"]))
+                #     self.classify(new_idx,
+                #                   self.y[new_idx],
+                #                   state,
+                #                   method="initial")
+                #     startup = state.startup_vals()
+                print("Loop skipped")
                 self.train_idx = startup["train_idx"]
-                self.y = startup["labels"]
+                self.y = state.get_dataset(['labels'])
                 self.shared["query_src"] = startup["query_src"]
                 self.query_i = startup["query_i"]
                 self.query_i_classified = startup["query_i_classified"]
             # state file doesnt exist
             else:
+                print("Empty")
                 # state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx,
@@ -203,13 +207,14 @@ class BaseReview(ABC):
             # one from scratch. Check if the number of records in the
             # feature matrix matches the length of the labels.
             try:
-                self.X = state.get_feature_matrix(as_data.hash())
-            except KeyError:
+                self.X = state.get_feature_matrix()
+            except FileNotFoundError:
                 self.X = feature_model.fit_transform(as_data.texts,
                                                      as_data.headings,
                                                      as_data.bodies,
                                                      as_data.keywords)
-                state._add_as_data(as_data, feature_matrix=self.X)
+                state.add_record_table(as_data)
+                state.add_feature_matrix(self.X)
 
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "
@@ -299,7 +304,7 @@ class BaseReview(ABC):
 
         # train the algorithm with prior knowledge
         self.train()
-        self.log_probabilities(state)
+        # self.log_probabilities(state)
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
@@ -327,7 +332,7 @@ class BaseReview(ABC):
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
-            self.log_probabilities(state)
+            # self.log_probabilities(state)
 
     def review(self, *args, **kwargs):
         """Do the systematic review, writing the results to the state file.
@@ -343,22 +348,22 @@ class BaseReview(ABC):
         with open_state(self.state_file, read_only=False) as state:
             self._do_review(state, *args, **kwargs)
 
-    def log_probabilities(self, state):
-        """Store the modeling probabilities of the training indices and
-           pool indices."""
-        if not self.model_trained:
-            return
-
-        pool_idx = get_pool_idx(self.X, self.train_idx)
-
-        # Log the probabilities of samples in the pool being included.
-        pred_proba = self.shared.get('pred_proba', np.array([]))
-        if len(pred_proba) == 0:
-            pred_proba = self.model.predict_proba(self.X)
-            self.shared['pred_proba'] = pred_proba
-
-        proba_1 = np.array([x[1] for x in pred_proba])
-        state.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
+    # def log_probabilities(self, state):
+    #     """Store the modeling probabilities of the training indices and
+    #        pool indices."""
+    #     if not self.model_trained:
+    #         return
+    #
+    #     pool_idx = get_pool_idx(self.X, self.train_idx)
+    #
+    #     # Log the probabilities of samples in the pool being included.
+    #     pred_proba = self.shared.get('pred_proba', np.array([]))
+    #     if len(pred_proba) == 0:
+    #         pred_proba = self.model.predict_proba(self.X)
+    #         self.shared['pred_proba'] = pred_proba
+    #
+    #     proba_1 = np.array([x[1] for x in pred_proba])
+    #     state.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
 
     def log_current_query(self, state):
         state.current_queries = self.shared["current_queries"]
