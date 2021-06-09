@@ -6,6 +6,7 @@ import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
 import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";
+import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
 import { ImportDialog, QuickTourDialog } from "./Components";
 
@@ -116,6 +117,9 @@ const Projects = (props) => {
 
   return (
     <Box>
+      <Container maxWidth="md" className={classes.root}>
+        <ProjectStatusGraphic />
+      </Container>
       <Container maxWidth="md" className={classes.root}>
         {error["message"] !== null && (
           <ErrorHandler error={error} setError={setError} />
