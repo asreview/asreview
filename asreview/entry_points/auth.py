@@ -15,13 +15,13 @@ def _auth_parser(prog="auth"):
     )
 
     parser.add_argument("-u", 
-        "--user", 
-        help="User name", 
+        "--username", 
+        help="Username", 
         required=True
     )
 
     parser.add_argument("-p", 
-        "--pwd", 
+        "--password", 
         help="Password"
     )
 

@@ -24,6 +24,8 @@ class ASReviewAuth(HTTPBasicAuth):
 
         if not auth_file:
             self.auth_file = get_auth_file_path()
+            logging.info('No valid auth file path was passed at the start of ASReview. ' +
+                         'Looking at default path %s.' % self.auth_file)
 
         self.users = {}
         if self.auth_file and os.path.isfile(self.auth_file):
