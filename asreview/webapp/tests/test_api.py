@@ -14,6 +14,7 @@
 
 import os
 import time
+import pytest
 
 
 def test_get_projects(client):
@@ -141,12 +142,23 @@ def test_get_prior_stat(client):
     assert isinstance(json_data, dict)
 
 
+def test_list_algorithms(client):
+    """Test get list of active learning models"""
+
+    response = client.get("/api/algorithms")
+    json_data = response.get_json()
+
+    assert "classifier" in json_data.keys()
+    assert "name" in json_data["classifier"][0].keys()
+    assert isinstance(json_data, dict)
+
+
 def test_set_algorithms(client):
     """Test set active learning model"""
 
     response = client.post("/api/project/project-id/algorithms", data={
         "model": "svm",
-        "query_strategy": "random"
+        "query_strategy": "random_max"
     })
     assert response.status_code == 200
 
@@ -171,6 +183,10 @@ def test_start(client):
     assert response.status_code == 200
 
 
+@pytest.mark.xfail(
+    raises=KeyError,
+    reason="status"
+)
 def test_init_model_ready(client):
     """Test check if trained model is available"""
 
@@ -179,6 +195,31 @@ def test_init_model_ready(client):
 
     response = client.get("/api/project/project-id/model/init_ready")
     json_data = response.get_json()
+
+    assert json_data["status"] == 1
+
+
+def test_clear_model_error(client):
+    """Test clear model training error and retrain"""
+
+    response_clear_error = client.delete("/api/project/project-id/model/clear_error")
+    assert response_clear_error.status_code == 200
+
+    # reset active learning model
+    response_reset = client.post("/api/project/project-id/algorithms", data={
+        "model": "svm",
+        "query_strategy": "random"
+    })
+    assert response_reset.status_code == 200
+
+    # retrain active learning model
+    response_retrain = client.post("/api/project/project-id/start")
+    assert response_retrain.status_code == 200
+
+    # wait the model ready
+    time.sleep(8)
+    response_init_ready = client.get("/api/project/project-id/model/init_ready")
+    json_data = response_init_ready.get_json()
 
     assert "status" in json_data
     assert json_data["status"] == 1
