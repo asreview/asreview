@@ -86,7 +86,7 @@ class LSTMBaseClassifier(BaseTrainClassifier):
     """
 
     name = "lstm-base"
-    label = "LSTM-base"
+    label = "LSTM classic"
 
     def __init__(self,
                  embedding_matrix=None,
