@@ -20,7 +20,7 @@ import { setupColor, inReviewColor, finishedColor } from "./globals";
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
-  { id: "datetimeCreated", label: "Date", width: "15%" },
+  { id: "datetimeCreated", label: "Date Created", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
   { id: "reviewFinished", label: "Status", width: "15%" },
 ];
@@ -32,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     minWidth: 700,
-  },
-  tableTitle: {
-    padding: "16px",
   },
   tableCell: {
     letterSpacing: "0.25px",
@@ -82,9 +79,6 @@ const ProjectTable = (props) => {
 
   return (
     <Paper className={classes.root}>
-      <Box className={classes.tableTitle}>
-        <Typography variant="h6">Current Projects</Typography>
-      </Box>
       <TableContainer>
         <Table className={classes.table} stickyHeader aria-label="sticky table">
           <TableHead>
