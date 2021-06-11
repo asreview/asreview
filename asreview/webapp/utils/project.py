@@ -273,6 +273,7 @@ def get_paper_data(project_id,
                    return_title=True,
                    return_authors=True,
                    return_abstract=True,
+                   return_doi=True,
                    return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
@@ -285,14 +286,12 @@ def get_paper_data(project_id,
         paper_data['authors'] = record.authors
     if return_abstract and record.abstract is not None:
         paper_data['abstract'] = record.abstract
+    if return_doi and record.doi is not None:
+        paper_data['doi'] = record.doi
 
     # return the publication data if available
     pub_time = record.extra_fields.get("publish_time", None)
     paper_data['publish_time'] = pub_time if pd.notnull(pub_time) else None
-
-    # return the doi if available
-    doi = record.extra_fields.get("doi", None)
-    paper_data['doi'] = doi if pd.notnull(doi) else None
 
     # return the debug label
     debug_label = record.extra_fields.get("debug_label", None)
