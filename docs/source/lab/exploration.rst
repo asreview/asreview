@@ -30,11 +30,11 @@ papers:
 
 *PTSD Trajectories*:
 
-- Latent trajectories of trauma symptoms and resilience: the 3-year longitudinal prospective USPER study of Danish veterans deployed in Afghanistan.
-- A Latent Growth Mixture Modeling Approach to PTSD Symptoms in Rape Victims.
-- Peace and War: Trajectories of Posttraumatic Stress Disorder Symptoms Before, During, and After Military Deployment in Afghanistan.
-- The relationship between course of PTSD symptoms in deployed U.S. Marines and degree of combat exposure.
-- Trajectories of trauma symptoms and resilience in deployed US military service members: Prospective cohort study.
+- Latent trajectories of trauma symptoms and resilience: the 3-year longitudinal prospective USPER study of Danish veterans deployed in Afghanistan
+- A Latent Growth Mixture Modeling Approach to PTSD Symptoms in Rape Victims
+- Peace and War: Trajectories of Posttraumatic Stress Disorder Symptoms Before, During, and After Military Deployment in Afghanistan
+- The relationship between course of PTSD symptoms in deployed U.S. Marines and degree of combat exposure
+- Trajectories of trauma symptoms and resilience in deployed US military service members: Prospective cohort study
 
 *Virus Metagenomics*:
 
