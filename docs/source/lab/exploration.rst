@@ -46,11 +46,11 @@ papers:
 
 *Software Fault Prediction*:
 
-- Predicting Defect-Prone Software Modules at Different Logical Levels.
-- Quantitative analysis of faults and failures in a complex software system.
-- A Comprehensive Empirical Study of Count Models for Software Fault Prediction.
-- Predicting fault prone modules by the Dempster-Shafer belief networks.
-- Robust prediction of fault-proneness by random forests.
+- Predicting Defect-Prone Software Modules at Different Logical Levels
+- Quantitative analysis of faults and failures in a complex software system
+- A Comprehensive Empirical Study of Count Models for Software Fault Prediction
+- Predicting fault prone modules by the Dempster-Shafer belief networks
+- Robust prediction of fault-proneness by random forests
 
 
 *ACEinhibitors*:
