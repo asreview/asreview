@@ -38,11 +38,11 @@ papers:
 
 *Virus Metagenomics*:
 
-- Detection of viromes of RNA viruses using the next generation sequencing libraries prepared by three methods.
-- Identification of a novel astrovirus in domestic sheep in Hungary.
-- Identification of novel bovine group A rotavirus G15P[14] strain from epizootic diarrhea of adult cows by de novo sequencing using a next-generation sequencer.
-- Detection of novel viruses in porcine fecal samples from China.
-- Metagenomic Analysis of the Jinding Duck Fecal Virome.
+- Detection of viromes of RNA viruses using the next generation sequencing libraries prepared by three methods
+- Identification of a novel astrovirus in domestic sheep in Hungary
+- Identification of novel bovine group A rotavirus G15P[14] strain from epizootic diarrhea of adult cows by de novo sequencing using a next-generation sequencer
+- Detection of novel viruses in porcine fecal samples from China
+- Metagenomic Analysis of the Jinding Duck Fecal Virome
 
 *Software Fault Prediction*:
 
