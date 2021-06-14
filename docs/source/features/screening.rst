@@ -1,7 +1,7 @@
 Screening
 =========
 
-The screen in which you provide labels for records shown to you by the
+The user interface in which you provide labels for records shown to you by the
 software is kept as simple as possible. This is because ASReview wants you to
 focus on the content of the text so that you can make your decision as a true
 Oracle. You can access the following features during screening.
@@ -26,7 +26,7 @@ To make a decision:
 
 1. Open ASReview LAB.
 2. Open a project.
-3. Click on either the button Relevant or Irrelevant.
+3. Click on either the *Relevant* or *Irrelevant* button.
 4. The next record is presented. Repeat the process of labeling.
 
 .. figure:: ../../images/asreview_screening_asreview_label.png
@@ -34,7 +34,7 @@ To make a decision:
 
 .. warning::
 
-  If you are in doubt, think harder and take your time to make a decision, you
+  If you are in doubt, take your time to think on the decision, you
   are the oracle. Based on your input, a new model will be trained in the
   background. If you make decisions faster than the model needs for computing
   new relevance scores, you will simply be presented with the record next in
