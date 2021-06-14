@@ -106,7 +106,7 @@ of your screening process so far. To open the statistics panel:
 In the top of the statistics panel the project name, authors and total number
 of records in the dataset are displayed.
 
-The pie chart on the presents an overview of how many relevant (green) and
+The pie chart presents an overview of how many relevant (green) and
 irrelevant (orange) records have been screened so far. Also, the total number
 of records screened is displayed, as well as the percentage screened relative
 to the total number of records in the dataset.
@@ -168,8 +168,8 @@ Via the hamburger menu in the left-upper corner you can:
 2. You can access the :doc:`Project Dashboard <post_screening>`.
 3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
-5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.nl/donate>`_
-6. Quit the software (your progress was saved automatically)
+5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.nl/donate>`_.
+6. Quit the software (your progress is saved automatically).
 
 
 .. _keybord-shortcuts:
