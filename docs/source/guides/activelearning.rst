@@ -37,7 +37,7 @@ to the user for the next iteration of the cycle;
 irrelevant. The newly labeled record is moved to the training data set and
 it’s back to the previous step.
 
-.. figure:: ../../images/RITL.png
+.. figure:: ../../images/RITL.jpg
    :alt: Researcher in the Loop
 
 The interaction with the human can be used to train a model with a minimum

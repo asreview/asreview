@@ -13,6 +13,6 @@ extensions of ASReview:
   papers, number of inclusions. `GitHub <https://github.com/asreview/asreview-statistics>`__
 - ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
 
-If an extension is not on this list, or you make one and want it added to this
-list, make an issue on `github
+If an extension is not on this list, or you made one and you would like it to be added to this
+list, please initiate an issue on `Github
 <https://github.com/asreview/asreview/issues>`__.
