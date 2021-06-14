@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import {
@@ -11,7 +11,11 @@ import {
   IconButton,
   Tooltip,
 } from "@material-ui/core";
-import { StartReview, PreReviewZone } from "../PreReviewComponents";
+import {
+  StartReview,
+  PreReviewZone,
+  ProjectInfo,
+} from "../PreReviewComponents";
 
 import ErrorHandler from "../ErrorHandler";
 import DangerZone from "../DangerZone.js";
@@ -21,6 +25,7 @@ import { ProjectAPI } from "../api/index.js";
 
 import KeyboardVoiceIcon from "@material-ui/icons/KeyboardVoice";
 import GetAppIcon from "@material-ui/icons/GetApp";
+import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 
 import Finished from "../images/Finished.svg";
 import InReview from "../images/InReview.svg";
@@ -80,6 +85,7 @@ const ProjectPage = (props) => {
   const [state, setState] = useState({
     // info-header
     infoLoading: true,
+    infoEditing: false,
     info: null,
 
     // stage
@@ -94,6 +100,29 @@ const ProjectPage = (props) => {
     message: null,
   });
 
+  const editProjectInfo = () => {
+    setState({
+      ...state,
+      infoEditing: true,
+    });
+  };
+
+  const finishEditProjectInfo = () => {
+    setState({
+      ...state,
+      infoEditing: false,
+    });
+  };
+
+  const reloadProjectInfo = () => {
+    setState((s) => {
+      return {
+        ...s,
+        infoLoading: true,
+      };
+    });
+  };
+
   const finishProjectSetup = () => {
     setState({
       ...state,
@@ -105,8 +134,8 @@ const ProjectPage = (props) => {
   const finishProjectFirstTraining = () => {
     setState({
       ...state,
-      info: { ...state.info, projectInitReady: true },
       training: false,
+      info: { ...state.info, projectInitReady: true },
     });
   };
 
@@ -149,6 +178,27 @@ const ProjectPage = (props) => {
     }
   };
 
+  const fetchProjectInfo = useCallback(async () => {
+    ProjectAPI.info(props.project_id)
+      .then((result) => {
+        // update the state with the fetched data
+        setState((s) => {
+          return {
+            ...s,
+            infoLoading: false,
+            info: result.data,
+            finished: result.data.reviewFinished,
+          };
+        });
+      })
+      .catch((error) => {
+        setError({
+          code: error.code,
+          message: error.message,
+        });
+      });
+  }, [props.project_id]);
+
   const scrollToTop = () => {
     EndRef.current.scrollIntoView({ behavior: "smooth" });
   };
@@ -160,29 +210,10 @@ const ProjectPage = (props) => {
   }, [state.setup, state.finished, state.infoLoading]);
 
   useEffect(() => {
-    const fetchProjectInfo = async () => {
-      ProjectAPI.info(props.project_id)
-        .then((result) => {
-          // update the state with the fetched data
-          setState((s) => {
-            return {
-              ...s,
-              infoLoading: false,
-              info: result.data,
-              finished: result.data.reviewFinished,
-            };
-          });
-        })
-        .catch((error) => {
-          setError({
-            code: error.code,
-            message: error.message,
-          });
-        });
-    };
-
-    fetchProjectInfo();
-  }, [props.project_id, state.finished, error.message]);
+    if (state.infoLoading) {
+      fetchProjectInfo();
+    }
+  }, [fetchProjectInfo, state.infoLoading, error.message]);
 
   return (
     <Box>
@@ -210,6 +241,11 @@ const ProjectPage = (props) => {
                   className={classes.title}
                 >
                   {state.info.name}
+                  <Tooltip title="Edit info">
+                    <IconButton size="small" onClick={editProjectInfo}>
+                      <EditOutlinedIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Typography>
                 <Typography color="primary" variant="h5">
                   {state.info.description}
@@ -325,6 +361,18 @@ const ProjectPage = (props) => {
             )}
           </Container>
         </Box>
+      )}
+      {/* Edit project info*/}
+      {error.message === null && !state.infoLoading && (
+        <ProjectInfo
+          edit={state.infoEditing}
+          open={state.infoEditing}
+          onClose={finishEditProjectInfo}
+          reloadProjectInfo={reloadProjectInfo}
+          name={state.info.name}
+          authors={state.info.authors}
+          description={state.info.description}
+        />
       )}
     </Box>
   );

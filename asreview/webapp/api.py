@@ -65,6 +65,7 @@ from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
 from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import init_project
+from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
@@ -227,38 +228,13 @@ def api_update_project_info(project_id):  # noqa: F401
     project_description = request.form['description']
     project_authors = request.form['authors']
 
-    project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+    project_id_new = update_project_info(
+        project_id,
+        project_name=project_name,
+        project_description=project_description,
+        project_authors=project_authors)
 
-    try:
-
-        # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
-            project_info = json.load(fp)
-
-        project_info["id"] = project_id_new
-        project_info["name"] = project_name
-        project_info["authors"] = project_authors
-        project_info["description"] = project_description
-
-        # # backwards support <0.10
-        # if "projectInitReady" not in project_info:
-        #     project_info["projectInitReady"] = True
-
-        # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_info, fp)
-
-        # rename the folder
-        get_project_path(project_id) \
-            .rename(Path(asreview_path(), project_id_new))
-
-    except Exception as err:
-        logging.error(err)
-        response = jsonify(message="project-update-failure")
-
-        return response, 500
-
-    return api_get_project_info(project_id_new)
+    return jsonify(id=project_id_new)
 
 
 @bp.route('/datasets', methods=["GET"])
