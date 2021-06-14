@@ -8,7 +8,7 @@ ASReview against COVID-19
 For many questions from medical doctors, journalists, policy makers the
 scientific literature on COVID-19 needs to be checked in a systematic way to
 avoid biased decision-making. For example, to develop evidence-based medical
-guidelines to transparently support medical doctors. Medical guidelines rely 
+guidelines to transparently support medical doctors. Medical guidelines rely
 on comprehensive systematic reviews. Such reviews entail several explicit and
 reproducible steps, including identifying all likely relevant papers in a
 standardized way, extracting data from eligible studies, and synthesizing the
