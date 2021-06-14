@@ -22,6 +22,8 @@ from asreview.models.balance import get_balance_model
 from asreview.models.query import get_query_model
 from asreview.models.feature_extraction import get_feature_model
 from asreview.utils import pretty_format
+from asreview.types import type_n_queries
+
 
 SETTINGS_TYPE_DICT = {
     "data_name": str,
@@ -31,7 +33,7 @@ SETTINGS_TYPE_DICT = {
     "feature_extraction": str,
     "n_papers": int,
     "n_instances": int,
-    "n_queries": int,
+    "n_queries": type_n_queries,
     "n_prior_included": int,
     "n_prior_excluded": int,
     "mode": str,
