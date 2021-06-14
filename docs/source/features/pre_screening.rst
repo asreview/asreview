@@ -76,7 +76,7 @@ Partly Labeled Data
 
 If you want to include decisions you've already made prior to setting up your
 project, you can upload a partly labeled dataset containg labels for part of
-the data and unlabeled recors you want to screen with ASReview. This might be
+the data and unlabeled records you want to screen with ASReview. This might be
 helpful if you switch from screening in another tool to screening with
 ASReview, or when updating an existing systematic review with more recent
 publications.

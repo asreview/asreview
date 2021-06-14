@@ -9,7 +9,7 @@
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
 Systematic Reviews are “top of the bill” in research. The number of scientific
-studies is increasing exponentially in many scholarly fields. Performing a
+studies are increasing exponentially in many scholarly fields. Performing a
 sound systematic review is a time-consuming and sometimes boring task. The ASReview
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false
@@ -31,7 +31,7 @@ ASReview software implements two different modes:
 - **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure
   the performance of the active learning software on the results of fully labeled systematic
   reviews. To use the simulation mode, knowledge on programming and bash/Command Prompt
-  is highly recommanded.
+  is highly recommended.
 
 ## Installation
 
