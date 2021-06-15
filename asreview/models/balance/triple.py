@@ -62,7 +62,7 @@ class TripleBalance(BaseBalance):
     """
 
     name = "triple"
-    label = "Triple"
+    label = "Dynamic resampling (Triple)"
 
     def __init__(self,
                  a=2.155,
