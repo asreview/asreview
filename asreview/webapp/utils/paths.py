@@ -33,10 +33,12 @@ def asreview_path():
 
     return asreview_path
 
+
 def get_auth_file_path():
     """ Get the default path of auth file. """
 
-    return Path(asreview_path(), 'auth.txt') 
+    return Path(asreview_path(), 'auth.txt')
+
 
 def list_asreview_project_paths():
     """List the projects in the asreview path"""
@@ -152,6 +154,7 @@ def get_lock_path(project_id):
     """
 
     return Path(get_project_path(project_id), "lock.sqlite")
+
 
 def get_user_lock_path(project_id):
     """Get the active file for the project.

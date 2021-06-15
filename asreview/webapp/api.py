@@ -86,22 +86,27 @@ CORS(bp, resources={r"*": {"origins": "*"}})
 
 # custom errors
 
+
 class ProjectNotFoundError(Exception):
     status_code = 400
 
+
 class AccessToProjectForbiddenError(Exception):
     status_code = 403
+
 
 def user_project_lock_required(acquire=True):
     def dec_inner(api_method):
         @wraps(api_method)
         def dec_wrapper(*args, **kwargs):
             project_id = kwargs['project_id']
-            if  (not auth.enabled) or \
-                (acquire and acquire_project_lock(project_id, auth.current_user())) or \
-                ((not acquire) and (not is_project_locked_by_another_user(project_id, auth.current_user()))):
+            cur_user = auth.current_user()
+            if (not auth.enabled) or \
+                (acquire and acquire_project_lock(project_id, cur_user)) or \
+                ((not acquire) and
+                 (not is_project_locked_by_another_user(project_id, cur_user))):
                 return api_method(*args, **kwargs)
-                
+
             else:
                 raise AccessToProjectForbiddenError()
 
@@ -109,6 +114,7 @@ def user_project_lock_required(acquire=True):
     return dec_inner
 
 # error handlers
+
 
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
@@ -148,11 +154,13 @@ def error_500(e):
 # See https://stackoverflow.com/questions/30761002/ for more complete solution.
 login_required_dummy_view = auth.login_required(lambda: None)
 
+
 @bp.before_request
 def default_login_required():
     return login_required_dummy_view()
 
 # routes
+
 
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
@@ -255,10 +263,10 @@ def api_get_project_info(project_id):  # noqa: F401
             else:
                 project_info["projectInitReady"] = False
 
-        # TODO: move this logic outside (probably decorate with 
+        # TODO: move this logic outside (probably decorate with
         # @user_project_lock_required(acquire=False, get_locking_user=True))
         project_info['lockedBy'] = auth.enabled and \
-                        project_locking_user(project_id, auth.current_user())
+            project_locking_user(project_id, auth.current_user())
 
     except Exception as err:
         logging.error(err)

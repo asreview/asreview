@@ -18,13 +18,12 @@ class ASReviewAuth(HTTPBasicAuth):
 
         self.reinit(auth_file)
 
-
     def reinit(self, auth_file):
         self.auth_file = auth_file
 
         if not auth_file:
             self.auth_file = get_auth_file_path()
-            logging.info('No valid auth file path was passed at the start of ASReview. ' +
+            logging.info('No valid auth file path was passed at the start of ASReview. '
                          'Looking at default path %s.' % self.auth_file)
 
         self.users = {}
@@ -40,16 +39,15 @@ class ASReviewAuth(HTTPBasicAuth):
             self.enabled = False
         else:
             self.enabled = True
-                
 
         @self.verify_password
         def verify_userpwd(username, password):
             if not self.enabled:
                 return ASReviewAuth.ANONYMOUS_USERNAME
-            
+
             if username in self.users and \
-                check_password_hash(self.users[username], password):
-                
+                    check_password_hash(self.users[username], password):
+
                 return username
 
     @property
@@ -58,11 +56,10 @@ class ASReviewAuth(HTTPBasicAuth):
 
         return ASReviewAuth.get_users_from_file(self.auth_file)
 
-
     @staticmethod
     def get_users_from_file(fp, delimiter=None):
         """ Get the dictionary of username:hash_string in the file.
-        
+
         Args:
             fp (string): Path to the authentication file.
             delimiter (string): String which is used to delimit user name and
@@ -77,15 +74,15 @@ class ASReviewAuth(HTTPBasicAuth):
 
         try:
             with open(fp, 'r') as f:
-                users = [l.strip().split(delimiter) for l in f]
+                users = [line.strip().split(delimiter) for line in f]
                 users = {key: value for key, value in users}
 
             return users
 
         except Exception as e:
-            raise Exception("Could not read the users. Check for possible corruptions " +
-                "(e.g. ensure that delimiter is '%s')." % delimiter)
-
+            raise Exception("Could not read the users. Check for possible corruptions "
+                            "(e.g. ensure that delimiter is '%s'). Error message: %s" %
+                            (delimiter, e))
 
     @staticmethod
     def write_auth_file(users, fp, delimiter=None):
@@ -109,7 +106,6 @@ class ASReviewAuth(HTTPBasicAuth):
         with open(fp, 'w') as f:
             f.writelines(lines)
 
-
     @staticmethod
     def cmd_tool(argv):
         parser = _auth_parser()
@@ -131,7 +127,8 @@ class ASReviewAuth(HTTPBasicAuth):
                 if args.user in users:
                     del users[args.user]
                     ASReviewAuth.write_auth_file(users, fp)
-                    print('Removed user %s. Number of users in the file: %d.' % (args.user, len(users)))
+                    print('Removed user %s. Number of users in the file: %d.' %
+                          (args.user, len(users)))
                 else:
                     print('No user %s found to delete.' % args.user)
             else:
@@ -140,14 +137,18 @@ class ASReviewAuth(HTTPBasicAuth):
                     pwd = getpass('Password: ')
 
                 if args.user in users:
-                    print('User %s is already in the file. Changing the password...' % args.user)
+                    print('User %s is already in the file. Changing the password...' %
+                          args.user)
                 method = 'pbkdf2:sha256:%d' % args.iterhash
                 users[args.user] = generate_password_hash(pwd, salt_length=args.saltlen,
-                                        method=method)
+                                                          method=method)
                 ASReviewAuth.write_auth_file(users, fp)
-                print('Done writing password for user %s! Number of users in the file: %d.' % (args.user, len(users)))
+                print('Done writing password for user %s! '
+                      'Number of users in the file: %d.' %
+                      (args.user, len(users)))
 
         except Exception as e:
             print('Error while reading the file: ', e)
+
 
 auth = ASReviewAuth()

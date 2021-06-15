@@ -91,7 +91,7 @@ def create_app(**kwargs):
 
     CORS(app, resources={r"*": {"origins": "*"}})
 
-    auth.reinit(auth_file=kwargs['auth_file'])
+    auth.reinit(auth_file=kwargs.get('auth_file', None))
 
     app.register_blueprint(api.bp)
 
@@ -108,7 +108,6 @@ def create_app(**kwargs):
         logging.error(e.original_exception)
         return jsonify(message=str(e.original_exception)), 500
 
-    
     @app.route('/', methods=['GET'])
     @auth.login_required
     def index():
