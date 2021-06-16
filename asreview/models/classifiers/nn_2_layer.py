@@ -14,13 +14,13 @@
 
 import logging
 
-
 try:
     import tensorflow as tf
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
     from tensorflow.keras import regularizers
+    from tensorflow.keras.models import load_model
 except ImportError:
     TF_AVAILABLE = False
 else:
@@ -31,6 +31,8 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import scipy
+from os.path import isfile
+import numpy as np
 
 
 from asreview.models.classifiers.base import BaseTrainClassifier
@@ -120,21 +122,27 @@ class NN2LayerClassifier(BaseTrainClassifier):
 
         if scipy.sparse.issparse(X):
             X = X.toarray()
-        if self._model is None or X.shape[1] != self.input_dim:
-            self.input_dim = X.shape[1]
-            keras_model = _create_dense_nn_model(
-                self.input_dim, self.dense_width, self.optimizer,
-                self.learn_rate, self.regularization, self.verbose)
-            self._model = KerasClassifier(keras_model, verbose=self.verbose)
+
+        self.input_dim = X.shape[1]
+        keras_model = _create_dense_nn_model(
+            self.input_dim, self.dense_width, self.optimizer,
+            self.learn_rate, self.regularization, self.verbose)
+        self._model = KerasClassifier(keras_model, verbose=self.verbose)
+
+        if isfile('model.h5'):
+            set_size = X.shape[0]
+            self.epochs = int(np.ceil(self.epochs / set_size))
 
         self._model.fit(
             X,
             y,
             batch_size=self.batch_size,
-            epochs=self.epochs,
+            epochs=1,
             shuffle=self.shuffle,
             verbose=self.verbose,
             class_weight=_set_class_weight(self.class_weight))
+
+        self._model.model.save("model.h5")
 
     def predict_proba(self, X):
         if scipy.sparse.issparse(X):
@@ -183,6 +191,11 @@ def _create_dense_nn_model(vector_size=40,
     _check_tensorflow()
 
     def model_wrapper():
+
+        if isfile('model.h5'):
+            model = load_model("model.h5")
+            return model
+
         model = Sequential()
 
         model.add(
