@@ -1,0 +1,8 @@
+input.error {
+    border-color: rgb(255, 136, 0);
+  }
+
+  .input-feedback {
+    color: rgb(255, 136, 0);
+    margin-top: .25rem;
+  }

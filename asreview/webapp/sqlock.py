@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,15 +27,18 @@ def _log_msg(msg, project_id=None):
 
 
 def get_db(db_file):
+    """Retrieve SQLite database."""
     db = sqlite3.connect(str(db_file), detect_types=sqlite3.PARSE_DECLTYPES)
     db.row_factory = sqlite3.Row
     return db
 
 
 def release_all_locks(db_file):
+    """Release all locked projects."""
     db = get_db(db_file)
     db.execute('DELETE FROM locks;')
     db.close()
+    return None
 
 
 class SQLiteLock():

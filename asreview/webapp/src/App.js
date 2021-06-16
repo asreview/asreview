@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import { CssBaseline, createMuiTheme } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
@@ -25,6 +24,18 @@ import { connect } from "react-redux";
 // redux config
 import { setAppState } from "./redux/actions";
 
+// auth users
+import { UsersAPI } from "./api/index.js";
+import { Route, Switch } from "react-router-dom";
+import axios from "axios";
+import UsersList from "./Components/UsersList";
+import LoginForm from "./Components/LoginForm";
+import RegisterForm from "./Components/RegisterForm";
+import UserStatus from "./Components/UserStatus";
+import Message from "./Components/Message";
+import AddUser from "./Components/AddUser";
+
+
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
@@ -41,6 +52,14 @@ function mapDispatchToProps(dispatch) {
 }
 
 const App = (props) => {
+  this.state = {
+    users: [],
+    accessToken: null,
+    messageType: null,
+    messageText: null,
+    showModal: false,
+  };
+
   const [theme, toggleDarkMode] = useDarkMode();
   const muiTheme = createMuiTheme(theme);
 
@@ -78,51 +97,6 @@ const App = (props) => {
     setHistory((a) => !a);
   };
 
-  // Auth
-
-  const isAuthenticated = () => {
-    if (this.state.accessToken || this.validRefresh()) {
-      return true;
-    }
-    return false;
-  };
-
-  const logoutUser = () => {
-    window.localStorage.removeItem("refreshToken");
-    this.setState({ accessToken: null });
-    this.createMessage("success", "You have logged out.");
-  };
-
-  const validRefresh = () => {
-    const token = window.localStorage.getItem("refreshToken");
-    if (token) {
-      axios
-        .post(`${process.env.REACT_APP_API_SERVICE_URL}/auth/refresh`, {
-          refresh_token: token,
-        })
-        .then((res) => {
-          this.setState({ accessToken: res.data.access_token });
-          this.getUsers();
-          window.localStorage.setItem("refreshToken", res.data.refresh_token);
-          return true;
-        })
-        .catch((err) => {
-          return false;
-        });
-    }
-    return false;
-  };
-
-  const createMessage = (type, text) => {
-    this.setState({
-      messageType: type,
-      messageText: text,
-    });
-    setTimeout(() => {
-      this.removeMessage();
-    }, 3000);
-  };
-
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
@@ -136,6 +110,7 @@ const App = (props) => {
           handleClickOpen={handleClickOpen}
           handleTextSizeChange={handleTextSizeChange}
           toggleExit={toggleExit}
+          isAuthenticated={UsersAPI.isAuthenticated}
         />
       )}
 
