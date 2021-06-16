@@ -19,5 +19,6 @@ from asreview.entry_points.lab import OracleEntryPoint
 from asreview.entry_points.lab import WebRunModelEntryPoint
 from asreview.entry_points.simulate import BatchEntryPoint
 from asreview.entry_points.simulate import SimulateEntryPoint
+from asreview.entry_points.auth import AuthEntryPoint
 
 """Default entry points for asreview."""

@@ -32,6 +32,9 @@ from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
 
+# Auth imports
+from asreview.webapp.auth import auth
+
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
     logging.basicConfig(level=logging.DEBUG)
@@ -88,6 +91,8 @@ def create_app(**kwargs):
 
     CORS(app, resources={r"*": {"origins": "*"}})
 
+    auth.reinit(auth_file=kwargs.get('auth_file', None))
+
     app.register_blueprint(api.bp)
 
     @app.errorhandler(InternalServerError)
@@ -104,8 +109,8 @@ def create_app(**kwargs):
         return jsonify(message=str(e.original_exception)), 500
 
     @app.route('/', methods=['GET'])
+    @auth.login_required
     def index():
-
         return render_template("index.html")
 
     @app.route('/favicon.ico')
@@ -151,7 +156,8 @@ def main(argv):
     app = create_app(
         embedding_fp=args.embedding_fp,
         config_file=args.config_file,
-        seed=args.seed
+        seed=args.seed,
+        auth_file=args.authfile
     )
     app.config['PROPAGATE_EXCEPTIONS'] = False
 

@@ -250,7 +250,8 @@ const ProjectPage = (props) => {
                   {/* Project is ready, show button */}
                   {state.info.projectInitReady &&
                     !state.setup &&
-                    !state.training && (
+                    !state.training && 
+                    !state.info.lockedBy && (
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}
@@ -272,6 +273,27 @@ const ProjectPage = (props) => {
                           startIcon={<KeyboardVoiceIcon />}
                         >
                           Training model
+                        </Button>
+                        <CircularProgress
+                          size={24}
+                          className={classes.buttonProgress}
+                        />
+                      </div>
+                    )}
+
+                    {/* Project is ready, show button */}
+                    {state.info.projectInitReady &&
+                    !state.setup &&
+                    !state.training && 
+                    state.info.lockedBy && (
+                      <div className={classes.wrapper}>
+                        <Button
+                          variant={"outlined"}
+                          disabled
+                          className={classes.continuButton}
+                          startIcon={<KeyboardVoiceIcon />}
+                        >
+                          Currently reviewed by user {state.info.lockedBy}.
                         </Button>
                         <CircularProgress
                           size={24}
