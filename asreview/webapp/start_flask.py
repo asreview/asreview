@@ -34,6 +34,9 @@ from asreview.webapp.extensions import bcrypt
 from asreview.webapp.extensions import db
 from asreview.webapp.extensions import cors
 
+# Auth imports
+from asreview.webapp.auth import auth
+
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
     logging.basicConfig(level=logging.DEBUG)
@@ -96,6 +99,8 @@ def create_app(**kwargs):
     except OSError:
         pass
 
+    auth.reinit(auth_file=kwargs.get('auth_file', None))
+
     register_extensions(app)
     register_blueprints(app, api)
 
@@ -133,7 +138,8 @@ def main(argv):
     app = create_app(
         embedding_fp=args.embedding_fp,
         config_file=args.config_file,
-        seed=args.seed
+        seed=args.seed,
+        auth_file=args.authfile
     )
     app.config['PROPAGATE_EXCEPTIONS'] = False
 
@@ -161,18 +167,17 @@ def main(argv):
         print("Done")
         return
 
-    # TODO IF user didn't insert password or username:
-        # Create anon user
-        # with app.app_context():
-        #     db.create_all()
-        #     if db.session.query(User).filter_by(username='randomusername').count() < 1:
-        #         db.session.add(User(
-        #             username='randomusername',
-        #             password= 'strongpassword',
-        #               email = email'strongpassword',
-        #             roles='admin'
-        #         ))
-        #     db.session.commit()
+    # TODO IF user didn't insert password or username: create anon user
+    # with app.app_context():
+    #     db.create_all()
+    #     if db.session.query(User).filter_by(username='test').count() < 1:
+    #         db.session.add(User(
+    #             username='randomusername',
+    #             password= 'strongpassword',
+    #               email = 'strongpassword',
+    #             roles='admin'
+    #         ))
+    #     db.session.commit()
     # TODO Save pass and username and show it to user (TERMINAL: pass; user)
     # TODO AND send token with URL to authenticate user (TERMINAL: URL)
 

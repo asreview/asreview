@@ -24,6 +24,7 @@ import urllib.parse
 from copy import deepcopy
 from pathlib import Path
 from urllib.request import urlretrieve
+from functools import wraps
 
 import numpy as np
 import pandas as pd
@@ -35,6 +36,8 @@ from flask import send_file
 from flask import jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
+
+from asreview.webapp.auth import auth
 
 from asreview import __version__ as asreview_version
 from asreview.datasets import DatasetManager
@@ -67,6 +70,9 @@ from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
+from asreview.webapp.utils.project import acquire_project_lock
+from asreview.webapp.utils.project import is_project_locked_by_another_user
+from asreview.webapp.utils.project import project_locking_user
 from asreview.webapp.utils.validation import check_dataset
 
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
@@ -78,20 +84,55 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 #cors.init_app(app, resources={r"*": {"origins": "*"}})
 #CORS(bp, resources={r"*": {"origins": "*"}})
 
-
 # custom errors
+
 
 class ProjectNotFoundError(Exception):
     status_code = 400
 
 
+class AccessToProjectForbiddenError(Exception):
+    status_code = 403
+
+
+def user_project_lock_required(acquire=True):
+    def dec_inner(api_method):
+        @wraps(api_method)
+        def dec_wrapper(*args, **kwargs):
+            project_id = kwargs['project_id']
+            cur_user = auth.current_user()
+            if (not auth.enabled) or \
+                (acquire and acquire_project_lock(project_id, cur_user)) or \
+                ((not acquire) and
+                 (not is_project_locked_by_another_user(project_id, cur_user))):
+                return api_method(*args, **kwargs)
+
+            else:
+                raise AccessToProjectForbiddenError()
+
+        return dec_wrapper
+    return dec_inner
+
 # error handlers
+
 
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
 
     message = str(e) if str(e) else "Project not found."
     logging.error(message)
+    return jsonify(message=message), e.status_code
+
+
+@bp.errorhandler(AccessToProjectForbiddenError)
+def project_is_locked(e):
+    message = "This project is reviewed by another user and is locked for " + \
+              "other users. The lock will be removed after 15 minutes of " + \
+              "inactivity of locking user."
+    if str(e):
+        message = str(e)
+    logging.error(message)
+
     return jsonify(message=message), e.status_code
 
 
@@ -109,7 +150,17 @@ def error_500(e):
     return jsonify(message=str(e.original_exception)), 500
 
 
+# Requiring login on any route within blueprint
+# See https://stackoverflow.com/questions/30761002/ for more complete solution.
+login_required_dummy_view = auth.login_required(lambda: None)
+
+
+@bp.before_request
+def default_login_required():
+    return login_required_dummy_view()
+
 # routes
+
 
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
@@ -211,6 +262,11 @@ def api_get_project_info(project_id):  # noqa: F401
                 project_info["projectInitReady"] = True
             else:
                 project_info["projectInitReady"] = False
+
+        # TODO: move this logic outside (probably decorate with
+        # @user_project_lock_required(acquire=False, get_locking_user=True))
+        project_info['lockedBy'] = auth.enabled and \
+            project_locking_user(project_id, auth.current_user())
 
     except Exception as err:
         logging.error(err)
@@ -976,7 +1032,9 @@ def api_get_progress_efficiency(project_id):
 
 
 # I think we don't need this one
+
 @bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
+@user_project_lock_required(acquire=True)
 def api_classify_instance(project_id, doc_id):  # noqa: F401
     """Retrieve classification result.
 
@@ -990,6 +1048,8 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     doc_id = request.form['doc_id']
     label = request.form['label']
 
+    # TODO: handle false return from this method
+    # TODO: check the multiple users collision
     label_instance(project_id, doc_id, label, retrain_model=True)
 
     response = jsonify({'success': True})
@@ -1014,27 +1074,28 @@ def api_update_classify_instance(project_id, doc_id):
 
 
 @bp.route('/project/<project_id>/get_document', methods=["GET"])
+@user_project_lock_required(acquire=False)
 def api_get_document(project_id):  # noqa: F401
     """Retrieve documents in order of review.
 
     After these documents were retrieved, the queue on the client side is
     updated.
-    This resuest can get triggered after each document classification.
+    This request can get triggered after each document classification.
     Although it might be better to call this function after 20 requests on the
     client side.
     """
+
     new_instance = get_instance(project_id)
 
     try:
         if new_instance is None:  # don't use 'if not new_instance:'
-
             item = None
             pool_empty = True
         else:
-
             item = get_paper_data(
                 project_id, new_instance, return_debug_label=True)
             item["doc_id"] = new_instance
+
             pool_empty = False
 
     except Exception as err:

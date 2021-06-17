@@ -15,7 +15,7 @@
 import logging
 import os
 import sqlite3
-from time import sleep
+from time import sleep, time
 
 
 def _log_msg(msg, project_id=None):
@@ -67,7 +67,7 @@ class SQLiteLock():
         if not os.path.isfile(self.db_file):
             self.init_db()
 
-        cur_timeout = 0
+        cur_timeout = 0  # Sounds like timeout parameter has no effect here
         while True and not self.lock_acquired:
             db = get_db(self.db_file)
             try:
@@ -126,3 +126,111 @@ class SQLiteLock():
         logging.debug(
             _log_msg(f"Released lock {self.lock_name}", self.project_id))
         self.lock_acquired = False
+
+
+class SQLiteUserLock():
+    def __init__(self,
+                 db_file,
+                 owner,
+                 project_id=None,
+                 duration=15 * 60):
+        self.db_file = db_file
+        self.project_id = project_id
+        self.owner = owner
+        self.duration = duration
+
+        if not os.path.isfile(self.db_file):
+            self.init_db()
+
+    @property
+    def is_locked_by_another_user(self):
+        locking_entry = self.locking_entry
+
+        return locking_entry and (locking_entry[0] != self.owner)
+
+    @property
+    def locking_entry(self):
+        db = get_db(self.db_file)
+        cur_time = int(time())
+        try:
+            db.isolation_level = 'EXCLUSIVE'
+            db.execute('BEGIN EXCLUSIVE')
+
+            lock_entry = db.execute('SELECT * FROM locks WHERE expires > ? ' +
+                                    'ORDER BY expires ASC',
+                                    (cur_time, )).fetchone()
+
+            if lock_entry is None:
+                return False
+            else:
+                return lock_entry
+
+        except sqlite3.OperationalError as e:
+            logging.error(
+                _log_msg(f"Encountering operational error {e}",
+                         self.project_id))
+
+        db.close()
+
+        return False
+
+    def acquire(self, extend=True):
+        try:
+            locking_entry = self.locking_entry
+            if (not locking_entry) or (locking_entry[0] == self.owner):
+                db = get_db(self.db_file)
+                cur_time = int(time())
+
+                if not locking_entry:
+                    db.execute('INSERT INTO locks (owner, expires) VALUES (?, ?)',
+                               (self.owner, cur_time + self.duration))
+                elif extend:
+                    db.execute('UPDATE locks SET expires = ? WHERE owner = ? AND '
+                               'expires > ?',
+                               (cur_time + self.duration, self.owner, cur_time))
+
+                logging.debug(
+                    _log_msg(f"User {self.owner} acquired lock for",
+                             self.project_id))
+                db.commit()
+                db.close()
+
+                return True
+            else:
+                return False
+
+        except sqlite3.OperationalError as e:
+            logging.error(
+                _log_msg(f"Encountering operational error {e}",
+                         self.project_id))
+
+        db.close()
+
+        return False
+
+    def init_db(self):
+        db = get_db(self.db_file)
+        db.executescript('DROP TABLE IF EXISTS locks; '
+                         'CREATE TABLE locks ('
+                         'owner TEXT DEFAULT NULL,'
+                         'expires INT DEFAULT 2524604400'  # Jan 1 2050
+                         ');')
+        db.close()
+
+    def release(self):
+        if not self.locked():
+            return
+        while True:
+            db = get_db(self.db_file)
+            try:
+                db.execute('DELETE FROM locks WHERE owner = ?',
+                           (self.owner))
+                db.commit()
+                db.close()
+                break
+            except sqlite3.OperationalError:
+                pass
+            db.close()
+            sleep(0.4)
+        logging.debug(
+            _log_msg(f"Released lock {self.owner}", self.project_id))
