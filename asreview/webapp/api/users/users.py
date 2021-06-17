@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -135,7 +135,8 @@ class Users(Resource):
 users_namespace.add_resource(UsersList, "")
 users_namespace.add_resource(Users, "/<int:user_id>")
 
-
+# TODO: remove
+# This is a test to avoid using flask_restx but something doesn't work
 #bp = Blueprint('users', __name__)
 
 # class ModelSchema(Schema):

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ from asreview.webapp.api.users.models import User
 from asreview.webapp.extensions import bcrypt
 
 # Views
-
 
 auth_namespace = Namespace("auth")
 user = auth_namespace.model(
@@ -163,7 +162,8 @@ auth_namespace.add_resource(Login, "/login")
 auth_namespace.add_resource(Refresh, "/refresh")
 auth_namespace.add_resource(Status, "/status")
 
-
+# TODO: remove
+# This is a test to avoid using flask_restx but something doesn't work
 #bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # @bp.errorhandler(BadRequest)

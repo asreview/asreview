@@ -52,13 +52,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 const App = (props) => {
-  this.state = {
-    users: [],
-    accessToken: null,
-    messageType: null,
-    messageText: null,
-    showModal: false,
-  };
 
   const [theme, toggleDarkMode] = useDarkMode();
   const muiTheme = createMuiTheme(theme);

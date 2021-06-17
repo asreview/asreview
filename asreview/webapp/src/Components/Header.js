@@ -143,19 +143,6 @@ const Header = (props) => {
             </Tooltip>
           )}
 
-
-          {props.isAuthenticated(
-            <Tooltip title="Download results">
-              <IconButton
-                aria-label="Export"
-                onClick={props.toggleExportResult}
-                color="inherit"
-              >
-                <GetApp />
-              </IconButton>
-            </Tooltip>
-          )}
-
           <IconButton
             aria-label="Settings"
             onClick={props.handleClickOpen}
