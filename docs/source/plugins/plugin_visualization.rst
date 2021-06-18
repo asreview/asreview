@@ -158,11 +158,13 @@ Those are the scripts that are used for the command line interface.
     from asreviewcontrib.visualization.plot import Plot
 
     with Plot.from_paths(["PATH_1", "PATH_2"]) as plot:
-        inc_plot = plot.new("inclusion")
+        inc_plot = plot.new("inclusion", result_format="number")
         inc_plot.set_grid()
         inc_plot.set_xlim(0, 30)
         inc_plot.set_ylim(0, 101)
         inc_plot.set_legend()
+        inc_plot.add_wss('filename.h5', value=100)
+        inc_plot.add_random(add_text=False)
         inc_plot.show()
         inc_plot.save("SOME_FILE.png")
 
