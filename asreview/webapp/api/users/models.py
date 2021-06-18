@@ -21,7 +21,6 @@ from sqlalchemy.sql import func
 
 from asreview.webapp.extensions import db
 from asreview.webapp.extensions import bcrypt
-from asreview.webapp.extensions import admin
 
 
 class User(db.Model):

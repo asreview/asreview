@@ -164,7 +164,7 @@ def default_login_required():
 
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     projects = list_asreview_project_paths()
 
@@ -204,7 +204,7 @@ def api_get_projects():  # noqa: F401
 
 @bp.route('/project/info', methods=["POST"])
 def api_init_project():  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     project_name = request.form['name']
     project_description = request.form['description']
@@ -225,7 +225,7 @@ def api_init_project():  # noqa: F401
 
 @bp.route('/project/<project_id>/info', methods=["GET"])
 def api_get_project_info(project_id):  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     try:
 
@@ -277,7 +277,7 @@ def api_get_project_info(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/info', methods=["PUT"])
 def api_update_project_info(project_id):  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     project_name = request.form['name']
     project_description = request.form['description']
@@ -319,7 +319,7 @@ def api_update_project_info(project_id):  # noqa: F401
 
 @bp.route('/datasets', methods=["GET"])
 def api_demo_data_project():  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     subset = request.args.get('subset', None)
 
@@ -371,7 +371,7 @@ def api_demo_data_project():  # noqa: F401
 
 @bp.route('/project/<project_id>/data', methods=["POST"])
 def api_upload_data_to_project(project_id):  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     if not is_project(project_id):
         response = jsonify(message="Project not found.")
@@ -477,7 +477,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/data', methods=["GET"])
 def api_get_project_data(project_id):  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     if not is_project(project_id):
         response = jsonify(message="Project not found.")
@@ -507,8 +507,7 @@ def api_get_project_data(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/search', methods=["GET"])
 def api_search_data(project_id):  # noqa: F401
-    """Search for papers
-    """
+    """Search for papers."""
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
 
@@ -538,7 +537,7 @@ def api_search_data(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/labelitem', methods=["POST"])
 def api_label_item(project_id):  # noqa: F401
-    """Label item
+    """Label item.
 
     This request handles the document identifier and the corresponding label.
     The result is stored in a temp location. If this storage exceeds a certain
@@ -564,8 +563,7 @@ def api_label_item(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/prior', methods=["GET"])
 def api_get_prior(project_id):  # noqa: F401
-    """Get all papers classified as prior documents
-    """
+    """Get all papers classified as prior documents."""
 
     subset = request.args.get('subset', default=None, type=str)
 
@@ -608,8 +606,7 @@ def api_get_prior(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/prior_stats', methods=["GET"])
 def api_get_prior_stats(project_id):  # noqa: F401
-    """Get all papers classified as prior documents
-    """
+    """Get all papers classified as prior documents."""
     try:
         lock_fp = get_lock_path(project_id)
         with SQLiteLock(
@@ -748,8 +745,7 @@ def api_set_algorithms(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/start', methods=["POST"])
 def api_start(project_id):  # noqa: F401
-    """Start training the model
-    """
+    """Start training the model."""
     try:
         # start training the model
         py_exe = _get_executable()
@@ -770,8 +766,7 @@ def api_start(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/model/init_ready', methods=["GET"])
 def api_init_model_ready(project_id):  # noqa: F401
-    """Check if trained model is available
-    """
+    """Check if trained model is available."""
 
     error_path = get_project_path(project_id) / "error.json"
     if error_path.exists():
@@ -808,7 +803,7 @@ def api_init_model_ready(project_id):  # noqa: F401
 
 @bp.route('/project/import_project', methods=["POST"])
 def api_import_project():
-    """Import uploaded project"""
+    """Import uploaded project."""
 
     # raise error if file not given
     if 'file' not in request.files:
@@ -901,7 +896,7 @@ def export_project(project_id):
 
 @bp.route('/project/<project_id>/finish', methods=["GET"])
 def api_finish_project(project_id):
-    """Mark a project as finished or not"""
+    """Mark a project as finished or not."""
 
     # read the file with project info
     with open(get_project_file_path(project_id), "r") as fp:
@@ -940,7 +935,7 @@ def api_finish_project(project_id):
 
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
-    """Get progress info on the article"""
+    """Get progress info on the article."""
 
     project_file_path = get_project_file_path(project_id)
 
@@ -964,7 +959,7 @@ def api_get_progress_info(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/progress_history', methods=["GET"])
 def api_get_progress_history(project_id):
-    """Get progress history on the article"""
+    """Get progress history on the article."""
 
     try:
         # get label history
@@ -1004,7 +999,7 @@ def api_get_progress_history(project_id):
 
 @bp.route('/project/<project_id>/progress_efficiency', methods=["GET"])
 def api_get_progress_efficiency(project_id):
-    """Get cumulative number of inclusions by ASReview/at random"""
+    """Get cumulative number of inclusions by ASReview/at random."""
 
     try:
         statistics = get_data_statistics(project_id)
@@ -1109,7 +1104,7 @@ def api_get_document(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/delete', methods=["DELETE"])
 def api_delete_project(project_id):  # noqa: F401
-    """Get info on the article"""
+    """Get info on the article."""
 
     # some checks to check if there is a project to delete
     if project_id == "" or project_id is None:

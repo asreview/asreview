@@ -73,7 +73,7 @@ def _open_browser(host, port, protocol, no_browser):
 
 
 def create_app(**kwargs):
-
+    """Create Flask app."""
     app = Flask(
         __name__,
         instance_relative_config=True,

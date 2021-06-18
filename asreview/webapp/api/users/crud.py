@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ def get_user_by_id(user_id):
     Returns
     -------
     User:
-        The user object of the first user found with id == user_id. 
+        The user object of the first user found with id == user_id.
     """
     return User.query.filter_by(id=user_id).first()
 
