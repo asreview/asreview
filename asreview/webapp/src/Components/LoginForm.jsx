@@ -4,12 +4,51 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { Redirect } from "react-router-dom";
 
-import "./form.css";
+import "../PreReviewComponents/ReviewZone.css";
+
+const useStyles = makeStyles((theme) => ({
+    title: {
+        marginBottom: "20px",
+    },
+    button: {
+        margin: "36px 0px 0px 12px",
+        float: "right",
+    },
+    input: {
+        display: "none",
+    },
+    textfieldItem: {
+        marginTop: 0,
+        marginBottom: 40,
+    },
+    clear: {
+        overflow: "auto",
+    },
+    editButton: {
+        float: "right",
+    },
+    avatar: {
+        color: theme.palette.getContrastText(brown[500]),
+        backgroundColor: brown[500],
+    },
+    closeButton: {
+        position: "absolute",
+        right: theme.spacing(1),
+        top: theme.spacing(1),
+        color: theme.palette.grey[500],
+    },
+}));
 
 const LoginForm = (props) => {
-    if (props.isAuthenticated()) {
-        return <Redirect to="/" />;
-    }
+
+    const { onClose, open } = props;
+
+    // if (props.isAuthenticated()) {
+    //     return <Typography align="center">
+    // You are already logged in.
+    //      </Typography >;
+    // }
+
     return (
         <div>
             <h1 className="title is-1">Log In</h1>
@@ -101,8 +140,10 @@ const LoginForm = (props) => {
 };
 
 LoginForm.propTypes = {
-    handleLoginFormSubmit: PropTypes.func.isRequired,
-    isAuthenticated: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
+    open: PropTypes.bool.isRequired,
+    // handleLoginFormSubmit: PropTypes.func.isRequired,
+    // isAuthenticated: PropTypes.func.isRequired,
 };
 
 export default LoginForm;

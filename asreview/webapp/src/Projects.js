@@ -190,20 +190,20 @@ const Projects = (props) => {
         <SpeedDialAction
           key={"Import\u00A0project"}
           icon=<CreateNewFolderOutlined />
-          tooltipTitle={"Import\u00A0project"}
-          tooltipOpen
-          onClick={(event) => {
-            handleClickAdd(event, "importProject");
-          }}
+        tooltipTitle={"Import\u00A0project"}
+        tooltipOpen
+        onClick={(event) => {
+          handleClickAdd(event, "importProject");
+        }}
         />
         <SpeedDialAction
           key={"New\u00A0project"}
           icon=<AddOutlined />
-          tooltipTitle={"New\u00A0project"}
-          tooltipOpen
-          onClick={(event) => {
-            handleClickAdd(event, "newProject");
-          }}
+        tooltipTitle={"New\u00A0project"}
+        tooltipOpen
+        onClick={(event) => {
+          handleClickAdd(event, "newProject");
+        }}
         />
       </SpeedDial>
 

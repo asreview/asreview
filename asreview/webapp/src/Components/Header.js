@@ -12,6 +12,7 @@ import { reviewDrawerWidth } from "../globals.js";
 
 import { Menu, BarChart, History, GetApp } from "@material-ui/icons";
 import SettingsIcon from "@material-ui/icons/Settings";
+import PeopleIcon from '@material-ui/icons/People';
 
 import { connect } from "react-redux";
 
@@ -142,6 +143,14 @@ const Header = (props) => {
               </IconButton>
             </Tooltip>
           )}
+
+          <IconButton
+            aria-label="Users Settings"
+            onClick={props.handleUsersOpen}
+            color="inherit"
+          >
+            <PeopleIcon />
+          </IconButton>
 
           <IconButton
             aria-label="Settings"

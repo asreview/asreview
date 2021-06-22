@@ -8,6 +8,7 @@ import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
 import ReviewZoneComplete from "./PostReviewComponents/ReviewZoneComplete";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
+import UserSettingsDialog from "./UserSettingsDialog";
 import ExitDialog from "./ExitDialog";
 import WelcomeScreen from "./WelcomeScreen";
 import {
@@ -26,20 +27,17 @@ import { setAppState } from "./redux/actions";
 
 // auth users
 import { UsersAPI } from "./api/index.js";
-import { Route, Switch } from "react-router-dom";
-import axios from "axios";
-import UsersList from "./Components/UsersList";
-import LoginForm from "./Components/LoginForm";
-import RegisterForm from "./Components/RegisterForm";
-import UserStatus from "./Components/UserStatus";
-import Message from "./Components/Message";
-import AddUser from "./Components/AddUser";
-
+import { Component } from "react";
 
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
     project_id: state.project_id,
+    // Test
+    //users: [],
+    accessToken: state.accessToken,
+    //messageType: state.messageType,
+    //messageText: state.messageText,
   };
 };
 
@@ -56,6 +54,7 @@ const App = (props) => {
   const [theme, toggleDarkMode] = useDarkMode();
   const muiTheme = createMuiTheme(theme);
 
+  const [openUserSettings, setUserSettingsOpen] = React.useState(false);
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
@@ -77,6 +76,15 @@ const App = (props) => {
   const handleClose = () => {
     setSettingsOpen(false);
   };
+
+  // Users
+  const handleUsersOpen = () => {
+    setUserSettingsOpen(true);
+  }
+
+  const handleUsersClose = () => {
+    setUserSettingsOpen(false);
+  }
 
   const toggleExit = () => {
     setExit((a) => !a);
@@ -101,6 +109,7 @@ const App = (props) => {
           toggleHistory={toggleHistory}
           toggleDarkMode={toggleDarkMode}
           handleClickOpen={handleClickOpen}
+          handleUsersOpen={handleUsersOpen}
           handleTextSizeChange={handleTextSizeChange}
           toggleExit={toggleExit}
           isAuthenticated={UsersAPI.isAuthenticated}
@@ -144,6 +153,12 @@ const App = (props) => {
       )}
 
       {/* Dialogs */}
+      <UserSettingsDialog
+        // handleLoginFormSubmit={handleLoginFormSubmit}
+        // isAuthenticated={isAuthenticated}
+        openUserSettings={openUserSettings}
+        handleClose={handleUsersClose}
+      />
       <SettingsDialog
         openSettings={openSettings}
         handleClose={handleClose}
