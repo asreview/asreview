@@ -4,7 +4,6 @@ from sqlite3 import OperationalError
 import pytest
 
 import pandas as pd
-import numpy as np
 from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
@@ -67,9 +66,9 @@ def test_write_while_read_only_state():
                                 TEST_TRAINING_SETS)
 
 
-# def test_print_state():
-#     with open_state(TEST_STATE_FP, read_only=True) as state:
-#         print(state)
+def test_print_state():
+    with open_state(TEST_STATE_FP, read_only=True) as state:
+        print(state)
 
 
 def test_settings_state():
@@ -110,28 +109,32 @@ def test_get_dataset():
         assert isinstance(state.get_dataset(['query_strategies']), pd.DataFrame)
         assert isinstance(state.get_dataset(), pd.DataFrame)
 
+        # Try getting a specific column.
         assert state.get_dataset(['record_ids'])['record_ids'].to_list() == TEST_RECORD_IDS
         assert state.get_dataset(['feature_extraction'])['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
+        # Try getting all columns and that picking the right column.
         assert state.get_dataset()['balance_strategies'].to_list() == TEST_BALANCE_STRATEGIES
+        # Try getting a specific column with column name as string, instead of list containing column name.
+        assert state.get_dataset('training_sets')['training_sets'].to_list() == TEST_TRAINING_SETS
 
 
 def test_get_data_by_query_number():
     with open_state(TEST_STATE_FP) as state:
-        query = state._get_data_by_query_number(0)
+        query = state.get_data_by_query_number(0)
         assert list(query.columns) == RESULTS_TABLE_COLUMNS
         assert query['balance_strategies'].tolist() == TEST_BALANCE_STRATEGIES[:TEST_N_PRIORS]
         assert query['classifiers'].tolist() == TEST_CLASSIFIERS[:TEST_N_PRIORS]
 
         for query_num in [1, 3, 5]:
             query_idx = query_num + TEST_N_PRIORS - 1
-            query = state._get_data_by_query_number(query_num)
+            query = state.get_data_by_query_number(query_num)
             assert isinstance(query, pd.DataFrame)
             assert query['feature_extraction'].to_list()[0] == TEST_FEATURE_EXTRACTION[query_idx]
             assert query['labels'].to_list()[0] == TEST_LABELS[query_idx]
             assert query['record_ids'].to_list()[0] == TEST_RECORD_IDS[query_idx]
 
         columns = RESULTS_TABLE_COLUMNS[2:5]
-        query = state._get_data_by_query_number(4, columns)
+        query = state.get_data_by_query_number(4, columns)
         assert list(query.columns) == columns
 
 
@@ -139,53 +142,47 @@ def test_get_data_by_record_id():
     with open_state(TEST_STATE_FP) as state:
         for idx in [2, 6, 8]:
             record_id = TEST_RECORD_IDS[idx]
-            query = state._get_data_by_record_id(record_id)
+            query = state.get_data_by_record_id(record_id)
             assert isinstance(query, pd.DataFrame)
             assert query['training_sets'].to_list()[0] == TEST_TRAINING_SETS[idx]
             assert query['record_ids'].to_list()[0] == TEST_RECORD_IDS[idx]
 
-#
-# def test_get_query_strategies():
-#     with open_state(TEST_STATE_FP) as state:
-#         all_models = state.get_query_strategies()
-#         assert isinstance(all_models, np.ndarray)
-#         assert all_models.tolist() == TEST_QUERY_STRATEGIES
-#
-#
-# def test_get_classifiers():
-#     with open_state(TEST_STATE_FP) as state:
-#         all_methods = state.get_classifiers()
-#         assert isinstance(all_methods, np.ndarray)
-#         assert all_methods.tolist() == TEST_CLASSIFIERS
-#
-#
-# def test_get_training_sets():
-#     with open_state(TEST_STATE_FP) as state:
-#         all_training_sets = state.get_training_sets()
-#         assert isinstance(all_training_sets, np.ndarray)
-#         assert all_training_sets.tolist() == TEST_TRAINING_SETS
-#
-#
-# def test_get_order_of_labeling():
-#     with open_state(TEST_STATE_FP) as state:
-#         assert isinstance(state.get_order_of_labeling(), np.ndarray)
-#         assert all(state.get_order_of_labeling() == TEST_RECORD_IDS)
-#
-#
-# def test_get_labels():
-#     with open_state(TEST_STATE_FP) as state:
-#         assert isinstance(state.get_labels(), np.ndarray)
-#         assert all(state.get_labels() == TEST_LABELS)
-#         assert all(state.get_labels(query=0) == TEST_LABELS[:TEST_N_PRIORS])
-#         assert state.get_labels(query=2)[0] == TEST_LABELS[TEST_N_PRIORS + 1]
-#         assert state.get_labels(record_id=TEST_RECORD_IDS[5])[0] == TEST_LABELS[5]
-#
-#
-# # TODO(State): Get state file with labeling times.
-# def test_get_time():
-#     with open_state(TEST_STATE_FP) as state:
-#         assert isinstance(state.get_labeling_times(), pd.DataFrame)
-#
+
+def test_get_query_strategies():
+    with open_state(TEST_STATE_FP) as state:
+        assert isinstance(state.get_query_strategies(), pd.Series)
+        assert all(state.get_query_strategies() == TEST_QUERY_STRATEGIES)
+
+
+def test_get_classifiers():
+    with open_state(TEST_STATE_FP) as state:
+        assert isinstance(state.get_classifiers(), pd.Series)
+        assert all(state.get_classifiers() == TEST_CLASSIFIERS)
+
+
+def test_get_training_sets():
+    with open_state(TEST_STATE_FP) as state:
+        assert isinstance(state.get_training_sets(), pd.Series)
+        assert all(state.get_training_sets() == TEST_TRAINING_SETS)
+
+
+def test_get_order_of_labeling():
+    with open_state(TEST_STATE_FP) as state:
+        assert isinstance(state.get_order_of_labeling(), pd.Series)
+        assert all(state.get_order_of_labeling() == TEST_RECORD_IDS)
+
+
+def test_get_labels():
+    with open_state(TEST_STATE_FP) as state:
+        assert isinstance(state.get_labels(), pd.Series)
+        assert all(state.get_labels() == TEST_LABELS)
+
+
+# TODO(State): Get state file with labeling times.
+def test_get_labeling_times():
+    with open_state(TEST_STATE_FP) as state:
+        assert isinstance(state.get_labeling_times(), pd.Series)
+
 
 def test_create_empty_state(tmpdir):
     state_fp = Path(tmpdir, 'state.asreview')
@@ -201,30 +198,26 @@ def test_get_feature_matrix():
 
 def test_get_record_table():
     with open_state(TEST_STATE_FP) as state:
-        record_table = state._get_record_table()
+        record_table = state.get_record_table()
         assert isinstance(record_table, pd.DataFrame)
         assert list(record_table.columns) == ['record_ids']
         assert record_table['record_ids'].to_list() == TEST_RECORD_TABLE
 
 
-def test_add_as_data(tmpdir):
+def test_record_table(tmpdir):
     data_fp = Path("tests", "demo_data", "record_id.csv")
     as_data = ASReviewData.from_file(data_fp)
     state_fp = Path(tmpdir, 'state.asreview')
     RECORD_IDS = list(range(12, 2, -1))
 
     with open_state(state_fp, read_only=False) as state:
-        state._add_as_data(as_data)
-        assert state._get_record_table()['record_ids'].to_list() == RECORD_IDS
+        state.add_record_table(as_data.record_ids)
+        assert state.get_record_table()['record_ids'].to_list() == RECORD_IDS
 
 
 def test_add_labeling_data(tmpdir):
-    data_fp = TEST_STATE_FP / 'data/ADHD.csv'
-    as_data = ASReviewData.from_file(data_fp)
-
     state_fp = Path(tmpdir, 'state.asreview')
     with open_state(state_fp, read_only=False) as state:
-        state._add_as_data(as_data)
         for i in range(3):
             state.add_labeling_data([TEST_RECORD_IDS[i]],
                                     [TEST_LABELS[i]],
@@ -242,7 +235,7 @@ def test_add_labeling_data(tmpdir):
                                 TEST_FEATURE_EXTRACTION[3:],
                                 TEST_TRAINING_SETS[3:])
 
-        data = state._get_dataset()
+        data = state.get_dataset()
         assert data['record_ids'].to_list() == TEST_RECORD_IDS
         assert data['labels'].to_list() == TEST_LABELS
         assert data['classifiers'].to_list() == TEST_CLASSIFIERS

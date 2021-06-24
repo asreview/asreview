@@ -14,8 +14,6 @@
 
 from abc import ABC, abstractmethod
 
-import numpy as np
-
 
 class BaseState(ABC):
     def __init__(self, read_only=False):
@@ -59,15 +57,13 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_record_table(self, as_data):
+    def add_record_table(self, record_table):
         """Add properties from as_data to the state.
 
         Arguments
         ---------
-        as_data: ASReviewData
-            Data file from which the review is run.
-        feature_matrix: np.ndarray, sklearn.sparse.csr_matrix
-            Feature matrix computed by the feature extraction model.
+        record_table: list-like
+            List containing all record ids of the dataset.
         """
         raise NotImplementedError
 
@@ -83,17 +79,12 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_feature_matrix(self, data_hash):
+    def get_feature_matrix(self):
         """Get feature matrix out of the state.
-
-        Arguments
-        ---------
-        data_hash: str
-            Hash of as_data object from which the matrix is derived.
 
         Returns
         -------
-        np.ndarray, sklearn.sparse.csr_matrix:
+        sklearn.sparse.csr_matrix:
             Feature matrix as computed by the feature extraction model.
         """
         raise NotImplementedError
@@ -154,9 +145,6 @@ class BaseState(ABC):
         training_sets: list, numpy.ndarray
             A list of the training sets as integers.
             Each record in the prior data is counted individually.
-        labeling_times: list, numpy.ndarray
-            A list of the labeling times as integers
-            (UTC timestamp, microsecond accuracy).
         """
         raise NotImplementedError
 
@@ -215,147 +203,85 @@ class BaseState(ABC):
 
         Returns
         -------
-        np.ndarray:
+        pd.Series:
             The record_id's in the order that they were labeled.
         """
         raise NotImplementedError
 
-    def get_labels(self, query=None, record_id=None):
+    def get_labels(self):
         """Get the labels from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the label.
-            If this is 0, you get the label for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the label.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with labels in the labeling order,
-            else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the labels at each labelling moment.
         """
         raise NotImplementedError
 
-    def get_classifiers(self, query=None, record_id=None):
+    def get_classifiers(self):
         """Get the classifiers from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the classifier.
-            If this is 0, you get the model for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the classifier.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with classifiers in the labeling order,
-            else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the classifier used at each labeling moment.
         """
         raise NotImplementedError
 
-    def get_query_strategies(self, query=None, record_id=None):
+    def get_query_strategies(self):
         """Get the query strategies from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the query strategies.
-            If this is 0, you get the method for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the query strategy.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with query strategies in the labeling
-            order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the query strategy used to get the record to query at each labeling moment.
         """
         raise NotImplementedError
 
-    def get_balance_strategies(self, query=None, record_id=None):
+    def get_balance_strategies(self):
         """Get the balance strategies from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the balance strategies.
-            If this is 0, you get the balance strategy for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the balance strategy.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with balance strategies in the labeling
-            order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the balance strategy used to get the training data at each labeling moment.
         """
         raise NotImplementedError
 
-    def get_feature_extraction(self, query=None, record_id=None):
+    def get_feature_extraction(self):
         """Get the query strategies from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the feature extraction methods.
-            If this is 0, you get the feature extraction methods for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the feature extraction method.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with feature extraction methods in the
-            labeling order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the feature extraction method used for the classifier input at each labeling moment.
         """
         raise NotImplementedError
 
-    def get_training_sets(self, query=None, record_id=None):
+    def get_training_sets(self):
         """Get the training_sets from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the training set.
-            If this is 0, you get the training set for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the training set.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with training sets in the labeling
-            order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the training set on which the classifier was fit at each labeling moment.
         """
         raise NotImplementedError
 
-    def get_labeling_times(self, query=None, record_id=None, format='int'):
+    def get_labeling_times(self, time_format='int'):
         """Get the time of labeling the state file.
 
         Arguments
         ---------
-        query: int
-            The query number from which you want to obtain the time.
-            If this is 0, you get the time the priors were entered,
-            which is the same for all priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the time.
-        format: 'int' or 'datetime'
+        time_format: 'int' or 'datetime'
             Format of the return value. If it is 'int' you get a UTC timestamp ,
             if it is 'datetime' you get datetime instead of an integer.
 
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with times in the labeling order,
-            else it returns only the specific one determined by query or record_id.
-            If format='int' you get a UTC timestamp (integer number of microseconds) as np.int64 dtype,
-            if it is 'datetime' you get np.datetime64 format.
+        pd.Series:
+            If format='int' you get a UTC timestamp (integer number of microseconds),
+            if it is 'datetime' you get datetime format.
         """
         raise NotImplementedError
 
@@ -363,19 +289,19 @@ class BaseState(ABC):
     # def delete_last_query(self):
     #     """Delete the last query from the state object."""
     #     raise NotImplementedError
-
-
-    @property
-    def pred_proba(self):
-        """Get last predicted probabilities."""
-        for query_i in reversed(range(self.n_models)):
-            try:
-                proba = self.get("proba", query_i=query_i)
-                if proba is not None:
-                    return proba
-            except KeyError:
-                pass
-        return None
+    #
+    #
+    # @property
+    # def pred_proba(self):
+    #     """Get last predicted probabilities."""
+    #     for query_i in reversed(range(self.n_models)):
+    #         try:
+    #             proba = self.get("proba", query_i=query_i)
+    #             if proba is not None:
+    #                 return proba
+    #         except KeyError:
+    #             pass
+    #     return None
 
     @abstractmethod
     def close(self):

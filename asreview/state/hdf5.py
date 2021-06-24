@@ -337,11 +337,10 @@ class HDF5State(BaseState):
         if isinstance(feature_matrix, np.ndarray):
             feature_matrix = csr_matrix(feature_matrix)
         if not isinstance(feature_matrix, csr_matrix):
-            raise ValueError("The feature matrix should be of type 'np.ndarray' or 'scipy.sparse.csr.csr_matrix'.")
+            raise ValueError("The feature matrix should be convertible to type scipy.sparse.csr.csr_matrix.")
 
         save_npz(self._feature_matrix_fp, feature_matrix)
 
-    # TODO(State): Should the feature matrix be behind a data hash?
     def get_feature_matrix(self):
         return load_npz(self._feature_matrix_fp)
 
@@ -380,39 +379,8 @@ class HDF5State(BaseState):
                                     (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
         con.commit()
         con.close()
-    #
-    # def _record_id_to_row_index(self, record_id):
-    #     """Find the row index that corresponds to a given record id.
-    #
-    #     Arguments
-    #     ---------
-    #     record_id: int
-    #         Record_id of a record.
-    #
-    #     Returns
-    #     -------
-    #     int:
-    #         Row index of the given record_id in the dataset.
-    #     """
-    #     return np.where(self.record_table == record_id)[0][0]
-    #
-    # def _row_index_to_record_id(self, row_index):
-    #     """Find the record_id that corresponds to a given row index.
-    #
-    #     Arguments
-    #     ----------
-    #     row_index: int
-    #         Row index.
-    #
-    #     Returns
-    #     -------
-    #     str:
-    #         Record_id of the record with given row index.
-    #
-    #     """
-    #     return self.record_table.iloc[row_index].item()
 
-    def _get_record_table(self):
+    def get_record_table(self):
         """Get the record table of the state file.
 
         Returns
@@ -425,7 +393,7 @@ class HDF5State(BaseState):
         con.close()
         return record_table
 
-    def _get_data_by_query_number(self, query, columns=None):
+    def get_data_by_query_number(self, query, columns=None):
         """Get the data of a specific query from the results table.
 
         Arguments
@@ -456,7 +424,7 @@ class HDF5State(BaseState):
         con.close()
         return data
 
-    def _get_data_by_record_id(self, record_id, columns=None):
+    def get_data_by_record_id(self, record_id, columns=None):
         """Get the data of a specific query from the results table.
 
         Arguments
@@ -483,217 +451,111 @@ class HDF5State(BaseState):
 
         Arguments
         ---------
-        columns: list
-            List of columns names of the results table.
+        columns: list, str
+            List of columns names of the results table, or a string containing one column name.
 
         Returns
         -------
         pd.DataFrame:
             Dataframe containing the data of the specified columns of the results table.
         """
+        if type(columns) == str:
+            columns = [columns]
         query_string = '*' if columns is None else ','.join(columns)
         con = self._connect_to_sql()
         data = pd.read_sql_query(f'SELECT {query_string} FROM results', con)
         con.close()
         return data
 
-    # def _get_dataset(self, results_column, query=None, record_id=None):
-    #     """Get a column from the results table, or only the part corresponding to a given query or record_id.
-    #
-    #     Arguments
-    #     ---------
-    #     results_column: str
-    #         Name of the column of the results table you want to get.
-    #     query: int
-    #         Only return the data of the given query, where query=0 correspond to the prior information.
-    #     record_id: str/int
-    #         Only return the data corresponding to the given record_id.
-    #
-    #     Returns
-    #     -------
-    #     np.ndarray:
-    #         If both query and record_id are None, return the full dataset.
-    #         If query is given, return the data from that query, where the 0-th query is the prior information.
-    #         If record_id is given, return the data corresponding record.
-    #         If both are given it raises a ValueError.
-    #     """
-    #     if (query is not None) and (record_id is not None):
-    #         raise ValueError("You can not search by record_id and query at the same time.")
-    #
-    #     if query is not None:
-    #         # 0 corresponds to all priors.
-    #         if query == 0:
-    #             dataset_slice = range(self.n_priors)
-    #         # query_i is in spot (i + n_priors - 1).
-    #         else:
-    #             dataset_slice = [query + self.n_priors - 1]
-    #     elif record_id is not None:
-    #         # Convert record id to row index.
-    #         idx = self._record_id_to_row_index(record_id)
-    #         # Find where this row number was labelled.
-    #         dataset_slice = np.where(self.results['indices'][:] == idx)[0]
-    #     else:
-    #         # Return the whole dataset.
-    #         dataset_slice = range(self.n_records_labeled)
-    #
-    #     return np.array(self.results[results_column])[dataset_slice]
-
     def get_order_of_labeling(self):
         """Get full array of record id's in order that they were labeled.
 
         Returns
         -------
-        pd.DataFrame:
+        pd.Series:
             The record_id's in the order that they were labeled.
         """
-        return self._get_dataset(columns=['record_ids'])
+        return self.get_dataset('record_ids')['record_ids']
 
-    def get_labels(self, query=None, record_id=None):
+    def get_labels(self):
         """Get the labels from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the label.
-            If this is 0, you get the label for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the label.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with labels in the labeling order,
-            else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the labels at each labelling moment.
         """
-        if (query is not None) and (record_id is not None):
-            raise ValueError("Use either query ")
-        return self._get_dataset('labels', query=query, record_id=record_id)
+        return self.get_dataset('labels')['labels']
 
-    def get_classifiers(self, query=None, record_id=None):
+    def get_classifiers(self):
         """Get the classifiers from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the classifiers.
-            If this is 0, you get the classifier for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the classifier.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with classifiers in the labeling order,
-            else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the classifier used at each labeling moment.
         """
-        return self._get_dataset(results_column='classifiers', query=query, record_id=record_id)
+        return self.get_dataset('classifiers')['classifiers']
 
-    def get_query_strategies(self, query=None, record_id=None):
+    def get_query_strategies(self):
         """Get the query strategies from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the query strategies.
-            If this is 0, you get the query strategy for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the query strategy.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with query strategies in the labeling
-            order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the query strategy used to get the record to query at each labeling moment.
         """
-        return self._get_dataset(results_column='query_strategies', query=query, record_id=record_id)
+        return self.get_dataset('query_strategies')['query_strategies']
 
-    def get_balance_strategies(self, query=None, record_id=None):
+    def get_balance_strategies(self):
         """Get the balance strategies from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the balance strategies.
-            If this is 0, you get the balance strategy for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the balance strategy.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with balance strategies in the labeling
-            order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the balance strategy used to get the training data at each labeling moment.
         """
-        return self._get_dataset(results_column='balance_strategies', query=query, record_id=record_id)
+        return self.get_dataset('balance_strategies')['balance_strategies']
 
-    def get_feature_extraction(self, query=None, record_id=None):
+    def get_feature_extraction(self):
         """Get the query strategies from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the feature extraction methods.
-            If this is 0, you get the feature extraction methods for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the feature extraction method.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with feature extraction methods in the
-            labeling order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the feature extraction method used for the classifier input at each labeling moment.
         """
-        return self._get_dataset(results_column='feature_extraction', query=query, record_id=record_id)
+        return self.get_dataset('feature_extraction')['feature_extraction']
 
-    def get_training_sets(self, query=None, record_id=None):
+    def get_training_sets(self):
         """Get the training_sets from the state file.
 
-        Arguments
-        ---------
-        query: int
-            The query number from which you want to obtain the training set.
-            If this is 0, you get the training set for all the priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the training set.
-
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with training sets in the labeling
-            order, else it returns only the specific one determined by query or record_id.
+        pd.Series:
+            Series containing the training set on which the classifier was fit at each labeling moment.
         """
-        return self._get_dataset(results_column='training_sets', query=query, record_id=record_id)
+        return self.get_dataset('training_sets')['training_sets']
 
-    def get_labeling_times(self, query=None, record_id=None, format='int'):
+    def get_labeling_times(self, time_format='int'):
         """Get the time of labeling the state file.
 
         Arguments
         ---------
-        query: int
-            The query number from which you want to obtain the time.
-            If this is 0, you get the time the priors were entered,
-            which is the same for all priors.
-        record_id: str
-            The record_id of the sample from which you want to obtain the time.
-        format: 'int' or 'datetime'
+        time_format: 'int' or 'datetime'
             Format of the return value. If it is 'int' you get a UTC timestamp ,
             if it is 'datetime' you get datetime instead of an integer.
 
         Returns
         -------
-        np.ndarray:
-            If query and record_id are None, it returns the full array with times in the labeling order,
-            else it returns only the specific one determined by query or record_id.
-            If format='int' you get a UTC timestamp (integer number of microseconds) as np.int64 dtype,
-            if it is 'datetime' you get np.datetime64 format.
+        pd.Series:
+            If format='int' you get a UTC timestamp (integer number of microseconds),
+            if it is 'datetime' you get datetime format.
         """
-        times = self._get_dataset('labeling_times', query=query, record_id=record_id)
+        times = self.get_dataset('labeling_times')['labeling_times']
 
-        # Convert time to datetime in string format.
-        if format == 'datetime':
-            times = np.array([datetime.utcfromtimestamp(time/10**6) for time in times], dtype=np.datetime64)
+        # Convert time to datetime format.
+        if time_format == 'datetime':
+            times = times.applymap(lambda x: datetime.utcfromtimestamp(x/10**6))
 
-        if query == 0:
-            times = times[[self.n_priors-1]]
         return times
-
