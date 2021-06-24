@@ -107,12 +107,12 @@ def test_create_new_state_file(tmpdir):
 
 def test_get_dataset():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state._get_dataset(['query_strategies']), pd.DataFrame)
-        assert isinstance(state._get_dataset(), pd.DataFrame)
+        assert isinstance(state.get_dataset(['query_strategies']), pd.DataFrame)
+        assert isinstance(state.get_dataset(), pd.DataFrame)
 
-        assert state._get_dataset(['record_ids'])['record_ids'].to_list() == TEST_RECORD_IDS
-        assert state._get_dataset(['feature_extraction'])['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
-        assert state._get_dataset()['balance_strategies'].to_list() == TEST_BALANCE_STRATEGIES
+        assert state.get_dataset(['record_ids'])['record_ids'].to_list() == TEST_RECORD_IDS
+        assert state.get_dataset(['feature_extraction'])['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
+        assert state.get_dataset()['balance_strategies'].to_list() == TEST_BALANCE_STRATEGIES
 
 
 def test_get_data_by_query_number():

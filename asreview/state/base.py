@@ -194,6 +194,22 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def get_dataset(self, columns=None):
+        """Get a column from the results table.
+
+        Arguments
+        ---------
+        columns: list
+            List of columns names of the results table.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe containing the data of the specified columns of the results table.
+        """
+        raise NotImplementedError
+
     def get_order_of_labeling(self):
         """Get full array of record id's in order that they were labeled.
 
@@ -348,62 +364,6 @@ class BaseState(ABC):
     #     """Delete the last query from the state object."""
     #     raise NotImplementedError
 
-    def startup_vals(self):
-        # TODO{STATE} Remove method
-        """Get variables for reviewer to continue review.
-
-        Returns
-        -------
-        numpy.ndarray:
-            Current labels of dataset.
-        numpy.ndarray:
-            Current training indices.
-        dict:
-            Dictionary containing the sources of the labels.
-        query_i:
-            Currenty query number (starting from 0).
-        """
-        labels = self.get("labels")
-
-        train_idx = []
-        query_src = {}
-        for query_i in range(self.n_models):
-            try:
-                label_idx = self.get("label_idx", query_i)
-                labelled = self.get("inclusions", query_i)
-                label_methods = self.get("label_methods", query_i)
-            except (KeyError, IndexError):
-                continue
-
-            for i, meth in enumerate(label_methods):
-                if meth not in query_src:
-                    query_src[meth] = []
-                query_src[meth].append(label_idx[i])
-                labels[label_idx[i]] = labelled[i]
-            train_idx.extend(label_idx)
-
-        if query_i > 0:
-            n_models = self.n_models
-            last_inclusions = None
-            try:
-                last_inclusions = self.get("inclusions", n_models - 1)
-            except KeyError:
-                last_inclusions = []
-            if last_inclusions is None:
-                last_inclusions = []
-            query_i_classified = len(last_inclusions)
-        else:
-            query_i_classified = 0
-
-        train_idx = np.array(train_idx, dtype=np.int)
-        startup_vals = {
-            "labels": labels,
-            "train_idx": np.unique(train_idx),
-            "query_src": query_src,
-            "query_i": query_i,
-            "query_i_classified": query_i_classified,
-        }
-        return startup_vals
 
     @property
     def pred_proba(self):
@@ -433,14 +393,9 @@ class BaseState(ABC):
         dict:
             Dictionary with all relevant variables.
         """
-        state_dict = {}
-        state_dict["settings"] = vars(self.settings)
-        state_dict["order_of_labeling"] = self.get_order_of_labeling().tolist()
-        state_dict["labels"] = self.get_labels().tolist()
-        state_dict["classifiers"] = self.get_classifiers().tolist()
-        state_dict["query_strategies"] = self.get_query_strategies().tolist()
-        state_dict["feature_extraction"] = self.get_feature_extraction().tolist()
-        state_dict["balance_strategies"] = self.get_balance_strategies().tolist()
-        state_dict["training_sets"] = self.get_training_sets().tolist()
-        state_dict["labeling_times"] = self.get_labeling_times().tolist()
+        state_data = self.get_dataset()
+        state_dict = {
+            'settings': vars(self.settings),
+            'data': state_data.to_dict()
+        }
         return state_dict

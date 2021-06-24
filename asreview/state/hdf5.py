@@ -322,9 +322,9 @@ class HDF5State(BaseState):
             json.dump(self.settings_metadata, f)
 
     # TODO(State): Input should be record table.
-    def add_record_table(self, as_data):
+    def add_record_table(self, record_ids):
         # Add the record table to the sql.
-        record_sql_input = [(int(record_id),) for record_id in as_data.record_ids]
+        record_sql_input = [(int(record_id),) for record_id in record_ids]
 
         con = self._connect_to_sql()
         cur = con.cursor()
