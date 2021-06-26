@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Button,
   Dialog,
@@ -13,11 +13,17 @@ import {
   FormControl,
   Select,
   MenuItem,
+  useMediaQuery,
 } from "@material-ui/core";
+import { useTheme } from '@material-ui/core/styles';
 
 export default function SettingsDialog(props) {
-  const descriptionElementRef = React.useRef(null);
-  React.useEffect(() => {
+
+  const descriptionElementRef = useRef(null);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  useEffect(() => {
     if (props.openSettings) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
@@ -29,6 +35,7 @@ export default function SettingsDialog(props) {
   return (
     <div>
       <Dialog
+        fullScreen={fullScreen}
         open={props.openSettings}
         onClose={props.handleClose}
         scroll="paper"
@@ -62,7 +69,7 @@ export default function SettingsDialog(props) {
 
           <List>
             <ListItem>
-              <ListItemText id="switch-list-label-dark" primary="Dark Mode" />
+              <ListItemText id="switch-list-label-dark" primary="Dark mode"/>
               <ListItemSecondaryAction>
                 <Switch
                   edge="end"
