@@ -345,14 +345,14 @@ export default function SettingsDialog(props) {
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   primary="Press r or Shift + r"
-                  secondary="Relevant"
+                  secondary="Label a record as relevant"
                 />
               </ListItem>
               <ListItem>
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   primary="Press i or Shift + i"
-                  secondary="Irrelevant"
+                  secondary="Label a record as irrelevant"
                 />
               </ListItem>
               <ListItem>
