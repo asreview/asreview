@@ -104,7 +104,10 @@ const useTextSize = () => {
   const [textSize, setTextSize] = useState(fontSize[1]);
 
   const handleTextSizeChange = (size) => {
-    window.localStorage.setItem("textSize", JSON.stringify([size.value, size.label]));
+    window.localStorage.setItem(
+      "textSize",
+      JSON.stringify([size.value, size.label])
+    );
     setTextSize(size);
   };
 
