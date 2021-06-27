@@ -99,7 +99,7 @@ const useDarkMode = () => {
 };
 
 const useTextSize = () => {
-  const [textSize, setTextSize] = useState("normal");
+  const [textSize, setTextSize] = useState("default");
 
   const handleTextSizeChange = (event) => {
     window.localStorage.setItem("textSize", event.target.value);
