@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import brown from "@material-ui/core/colors/brown";
 import red from "@material-ui/core/colors/red";
 
+import { fontSize } from "../globals.js";
+
 const useDarkMode = () => {
   let lightTheme = {
     palette: {
@@ -99,17 +101,20 @@ const useDarkMode = () => {
 };
 
 const useTextSize = () => {
-  const [textSize, setTextSize] = useState("default");
+  const [textSize, setTextSize] = useState(fontSize[1]);
 
-  const handleTextSizeChange = (event) => {
-    window.localStorage.setItem("textSize", event.target.value);
-    setTextSize(event.target.value);
+  const handleTextSizeChange = (size) => {
+    window.localStorage.setItem("textSize", JSON.stringify([size.value, size.label]));
+    setTextSize(size);
   };
 
   useEffect(() => {
-    const localTextSize = window.localStorage.getItem("textSize");
-    if (textSize !== localTextSize && localTextSize !== null) {
-      setTextSize(localTextSize);
+    const localTextSize = JSON.parse(window.localStorage.getItem("textSize"));
+    if (localTextSize !== null && textSize.value !== localTextSize[0]) {
+      setTextSize({
+        value: localTextSize[0],
+        label: localTextSize[1],
+      });
     }
   }, [textSize]);
 

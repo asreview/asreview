@@ -57,14 +57,14 @@ const ArticlePanel = (props) => {
       >
         {/* No title, inplace text */}
         {(props.record.title === "" || props.record.title === null) && (
-          <Box className={"textSize" + props.textSize} fontStyle="italic">
+          <Box className={"textSize" + props.textSize.label} fontStyle="italic">
             This document doesn't have a title.
           </Box>
         )}
 
         {/* No title, inplace text */}
         {!(props.record.title === "" || props.record.title === null) && (
-          <Box className={"textSize" + props.textSize}>
+          <Box className={"textSize" + props.textSize.label}>
             {props.record.title}
           </Box>
         )}
@@ -79,7 +79,7 @@ const ArticlePanel = (props) => {
           className={
             (isDebugInclusion() ? classes.debug : classes.publish_time) +
             " textSize" +
-            props.textSize
+            props.textSize.label
           }
           color="textSecondary"
           component="p"
@@ -96,7 +96,7 @@ const ArticlePanel = (props) => {
           className={
             (isDebugInclusion() ? classes.debug : classes.doi) +
             " textSize" +
-            props.textSize
+            props.textSize.label
           }
           color="textSecondary"
           component="p"
@@ -120,7 +120,7 @@ const ArticlePanel = (props) => {
         className={
           (isDebugInclusion() ? classes.debug : classes.abstract) +
           " textSize" +
-          props.textSize
+          props.textSize.label
         }
         variant="body2"
         color="textSecondary"
