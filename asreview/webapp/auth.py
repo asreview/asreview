@@ -110,6 +110,7 @@ class ASReviewAuth(HTTPBasicAuth):
     def cmd_tool(argv):
         parser = _auth_parser()
         args = parser.parse_args(argv)
+        username = args.username
 
         try:
             if args.file:
@@ -124,28 +125,28 @@ class ASReviewAuth(HTTPBasicAuth):
 
             users = ASReviewAuth.get_users_from_file(fp)
             if args.remove:
-                if args.user in users:
-                    del users[args.user]
+                if username in users:
+                    del users[username]
                     ASReviewAuth.write_auth_file(users, fp)
                     print('Removed user %s. Number of users in the file: %d.' %
-                          (args.user, len(users)))
+                          (username, len(users)))
                 else:
-                    print('No user %s found to delete.' % args.user)
+                    print('No user %s found to delete.' % username)
             else:
-                pwd = args.pwd
+                pwd = args.password
                 while not pwd:
                     pwd = getpass('Password: ')
 
-                if args.user in users:
+                if username in users:
                     print('User %s is already in the file. Changing the password...' %
-                          args.user)
+                          username)
                 method = 'pbkdf2:sha256:%d' % args.iterhash
-                users[args.user] = generate_password_hash(pwd, salt_length=args.saltlen,
-                                                          method=method)
+                users[username] = generate_password_hash(pwd, salt_length=args.saltlen,
+                                                         method=method)
                 ASReviewAuth.write_auth_file(users, fp)
                 print('Done writing password for user %s! '
                       'Number of users in the file: %d.' %
-                      (args.user, len(users)))
+                      (username, len(users)))
 
         except Exception as e:
             print('Error while reading the file: ', e)

@@ -80,6 +80,7 @@ def create_app(**kwargs):
     )
 
     # Get the ASReview arguments.
+    auth_file = kwargs.pop('auth_file', None)
     kwargs.pop("dataset", None)
     app.config['asr_kwargs'] = kwargs
 
@@ -91,7 +92,7 @@ def create_app(**kwargs):
 
     CORS(app, resources={r"*": {"origins": "*"}})
 
-    auth.reinit(auth_file=kwargs.get('auth_file', None))
+    auth.reinit(auth_file=auth_file)
 
     app.register_blueprint(api.bp)
 
