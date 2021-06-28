@@ -35,8 +35,7 @@ const useStyles = makeStyles((theme) => ({
     right: 24,
   },
   fontSizeSetting: {
-    paddingLeft: 40,
-    paddingBottom: 20,
+    padding: 20,
   },
   fontSizeSampleContainer: {
     paddingTop: 10,
@@ -260,9 +259,8 @@ export default function SettingsDialog(props) {
                 </CardContent>
               </Card>
             </Container>
-            <div>
+            <div style={{ paddingLeft: 48 }}>
               <Typography
-                className={classes.fontSizeSetting}
                 variant="h6"
                 gutterBottom
               >
@@ -276,13 +274,13 @@ export default function SettingsDialog(props) {
               </Typography>
             </div>
             <div>
-              <Grid container>
+              <Grid container style={{ alignItems: "flex-end" }}>
                 <Grid item xs>
                   <Typography align="center" variant="h6">
                     A
                   </Typography>
                 </Grid>
-                <Grid item xs={8} style={{ paddingTop: 5 }}>
+                <Grid item xs={8}>
                   <Slider
                     value={props.textSize.value}
                     marks={true}
