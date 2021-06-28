@@ -388,7 +388,7 @@ export default function SettingsDialog(props) {
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   primary="Press u or Shift + u"
-                  secondary="Return to the previous record"
+                  secondary="Return to the previous decision"
                 />
               </ListItem>
             </List>
