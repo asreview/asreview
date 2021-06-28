@@ -7,12 +7,7 @@ import {
   IconButton,
   Tooltip,
 } from "@material-ui/core";
-import {
-  Menu,
-  BarChart,
-  History,
-  GetApp
-} from "@material-ui/icons";
+import { Menu, BarChart, History, GetApp } from "@material-ui/icons";
 
 import MenuDrawer from "./MenuDrawer";
 import { reviewDrawerWidth } from "../globals.js";

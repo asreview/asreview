@@ -260,10 +260,7 @@ export default function SettingsDialog(props) {
               </Card>
             </Container>
             <div style={{ paddingLeft: 48 }}>
-              <Typography
-                variant="h6"
-                gutterBottom
-              >
+              <Typography variant="h6" gutterBottom>
                 Preview
               </Typography>
             </div>
