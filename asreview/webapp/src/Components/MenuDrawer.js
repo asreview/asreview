@@ -14,16 +14,12 @@ import {
   Help,
   Feedback,
   ExitToApp,
-  Payment,
-  Info,
   Settings,
 } from "@material-ui/icons";
 
 // local imports
 import ElasIcon from "../ElasIcon";
 import ASReviewLogo from "../images/Wordmark_LAB_colour.svg";
-
-import { donateURL } from "../globals.js";
 
 import { connect } from "react-redux";
 
@@ -176,35 +172,6 @@ const MenuDrawer = (props) => {
               <Feedback />
             </ListItemIcon>
             <ListItemText primary="Feedback" />
-          </ListItem>
-
-          {donateURL !== undefined && (
-            <ListItem
-              button
-              key="menu-button-donate"
-              component={"a"}
-              color="inherit"
-              href={donateURL}
-              target="_blank"
-            >
-              <ListItemIcon>
-                <Payment />
-              </ListItemIcon>
-              <ListItemText primary="Sponsor ASReview" />
-            </ListItem>
-          )}
-          <ListItem
-            button
-            key="menu-button-about"
-            component={"a"}
-            color="inherit"
-            href="https://asreview.readthedocs.io/en/latest/intro/about.html"
-            target="_blank"
-          >
-            <ListItemIcon>
-              <Info />
-            </ListItemIcon>
-            <ListItemText primary="About ASReview" />
           </ListItem>
           <ListItem
             button

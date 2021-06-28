@@ -26,6 +26,7 @@ import { setAppState } from "./redux/actions";
 
 const mapStateToProps = (state) => {
   return {
+    asreview_version: state.asreview_version,
     app_state: state.app_state,
     project_id: state.project_id,
   };
@@ -143,6 +144,7 @@ const App = (props) => {
         undoEnabled={undoEnabled}
         toggleKeyPressEnabled={toggleKeyPressEnabled}
         keyPressEnabled={keyPressEnabled}
+        asreview_version={props.asreview_version}
       />
       <ExitDialog toggleExit={toggleExit} exit={exit} />
       <ExportDialog

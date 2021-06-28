@@ -21,7 +21,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 
 import { AppBarWithinDialog } from "./Components";
-import { fontSize } from "./globals.js";
+import { fontSize, donateURL } from "./globals.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -128,7 +128,7 @@ export default function SettingsDialog(props) {
                 display="block"
                 variant="subtitle2"
               >
-                BASIC
+                DISPLAY
               </Typography>
             </ListItem>
             <ListItem button onClick={props.toggleDarkMode}>
@@ -143,6 +143,14 @@ export default function SettingsDialog(props) {
                 />
               </ListItemSecondaryAction>
             </ListItem>
+            <ListItem button onClick={openFontSizeSetting}>
+              <ListItemIcon></ListItemIcon>
+              <ListItemText
+                id="change-text-size"
+                primary="Font size"
+                secondary={props.textSize.label}
+              />
+            </ListItem>
             <Divider />
             <ListItem>
               <ListItemIcon></ListItemIcon>
@@ -152,16 +160,8 @@ export default function SettingsDialog(props) {
                 display="block"
                 variant="subtitle2"
               >
-                REVIEW SCREEN
+                REVIEW PREFERENCES
               </Typography>
-            </ListItem>
-            <ListItem button onClick={openFontSizeSetting}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="change-text-size"
-                primary="Font size"
-                secondary={props.textSize.label}
-              />
             </ListItem>
             <ListItem button onClick={openShortcutSetting}>
               <ListItemIcon></ListItemIcon>
@@ -187,6 +187,40 @@ export default function SettingsDialog(props) {
                 />
               </ListItemSecondaryAction>
             </ListItem>
+            <Divider />
+            <ListItem>
+              <ListItemIcon></ListItemIcon>
+              <Typography
+                className={classes.subhead}
+                color="textSecondary"
+                display="block"
+                variant="subtitle2"
+              >
+                OTHER
+              </Typography>
+            </ListItem>
+            <ListItem
+              button
+              component={"a"}
+              href="https://asreview.readthedocs.io/en/latest/intro/about.html"
+              target="_blank"
+            >
+              <ListItemIcon></ListItemIcon>
+              <ListItemText
+                id="switch-list-label-about"
+                primary="About ASReview"
+                secondary={"Version " + props.asreview_version}
+              />
+            </ListItem>
+            {donateURL !== undefined && (
+              <ListItem button component={"a"} href={donateURL} target="_blank">
+                <ListItemIcon></ListItemIcon>
+                <ListItemText
+                  id="switch-list-label-about"
+                  primary="Donate to us"
+                />
+              </ListItem>
+            )}
           </List>
         )}
 
