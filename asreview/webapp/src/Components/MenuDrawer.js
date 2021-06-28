@@ -16,6 +16,7 @@ import {
   ExitToApp,
   Payment,
   Info,
+  Settings,
 } from "@material-ui/icons";
 
 // local imports
@@ -118,6 +119,19 @@ const MenuDrawer = (props) => {
               <Folder />
             </ListItemIcon>
             <ListItemText primary="Project Dashboard" />
+          </ListItem>
+          <ListItem
+            button
+            key="menu-button-settings"
+            onClick={() => {
+              props.setMenuDrawerState({ left: false });
+              props.handleSettingsOpen();
+            }}
+          >
+            <ListItemIcon>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
           </ListItem>
 
           {/* Documentation */}
