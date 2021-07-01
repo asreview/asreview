@@ -15,14 +15,9 @@ import {
   MenuItem,
 } from "@material-ui/core";
 
-import { Route } from "react-router-dom";
-import { Switch as RouterSwitch } from "react-router-dom";
 import LoginForm from "./Components/LoginForm";
-import LoginForm2 from "./Components/LoginForm2";
-import axios from "axios";
-
-// auth users
 import { UsersAPI } from "./api/index.js";
+//import LoginForm2 from "./Components/LoginForm2";
 
 export default function UserSettingsDialog(props) {
   const [open, setOpen] = React.useState(false);
@@ -81,23 +76,11 @@ export default function UserSettingsDialog(props) {
 
           <List>
             <ListItem>
-              <ListItemText id="switch-list-label-dark" primary="Login" />
-              {<LoginForm2 open={open} onClose={handleClose} />}
-              {/* {<ListItemSecondaryAction>
-                <RouterSwitch>
-                  <Route
-                    exact
-                    path="/login"
-                    render={() => (
-                      <LoginForm
-                        // eslint-disable-next-line react/jsx-handler-names
-                        handleLoginFormSubmit={props.UsersAPI.handleLoginFormSubmit}
-                        isAuthenticated={props.UsersAPI.isAuthenticated}
-                      />
-                    )}
-                  />
-                </RouterSwitch>
-                    </ListItemSecondaryAction>} */}
+              <LoginForm
+                open={open}
+                onClose={handleClose}
+                isAuthenticated={UsersAPI.isAuthenticated}
+                handleLoginFormSubmit={UsersAPI.handleLoginFormSubmit} />
             </ListItem>
             <ListItem>
               <ListItemText id="switch-list-label-dark" primary="Add a new user" />

@@ -27,7 +27,6 @@ import { setAppState } from "./redux/actions";
 
 // auth users
 import { UsersAPI } from "./api/index.js";
-import { Component } from "react";
 
 const mapStateToProps = (state) => {
   return {
@@ -54,6 +53,7 @@ const App = (props) => {
   const [theme, toggleDarkMode] = useDarkMode();
   const muiTheme = createMuiTheme(theme);
 
+  const [openLogin, setLoginOpen] = React.useState(false);
   const [openUserSettings, setUserSettingsOpen] = React.useState(false);
   const [openSettings, setSettingsOpen] = React.useState(false);
   const [exit, setExit] = React.useState(false);
@@ -77,13 +77,22 @@ const App = (props) => {
     setSettingsOpen(false);
   };
 
-  // Users
+  // Users settings
   const handleUsersOpen = () => {
     setUserSettingsOpen(true);
   }
 
   const handleUsersClose = () => {
     setUserSettingsOpen(false);
+  }
+
+  // Login within settings
+  const handleLoginOpen = () => {
+    setLoginOpen(true);
+  }
+
+  const handleLoginClose = () => {
+    setLoginOpen(false);
   }
 
   const toggleExit = () => {
@@ -154,8 +163,6 @@ const App = (props) => {
 
       {/* Dialogs */}
       <UserSettingsDialog
-        // handleLoginFormSubmit={handleLoginFormSubmit}
-        // isAuthenticated={isAuthenticated}
         openUserSettings={openUserSettings}
         handleClose={handleUsersClose}
       />

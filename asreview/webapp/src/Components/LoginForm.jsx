@@ -1,43 +1,10 @@
 import React from "react";
+import { Typography } from "@material-ui/core";
 import PropTypes from "prop-types";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { Redirect } from "react-router-dom";
 
-import "../PreReviewComponents/ReviewZone.css";
-
-const useStyles = makeStyles((theme) => ({
-    title: {
-        marginBottom: "20px",
-    },
-    button: {
-        margin: "36px 0px 0px 12px",
-        float: "right",
-    },
-    input: {
-        display: "none",
-    },
-    textfieldItem: {
-        marginTop: 0,
-        marginBottom: 40,
-    },
-    clear: {
-        overflow: "auto",
-    },
-    editButton: {
-        float: "right",
-    },
-    avatar: {
-        color: theme.palette.getContrastText(brown[500]),
-        backgroundColor: brown[500],
-    },
-    closeButton: {
-        position: "absolute",
-        right: theme.spacing(1),
-        top: theme.spacing(1),
-        color: theme.palette.grey[500],
-    },
-}));
+import { UsersAPI } from "../api/index.js";
 
 const LoginForm = (props) => {
 
@@ -45,8 +12,8 @@ const LoginForm = (props) => {
 
     // if (props.isAuthenticated()) {
     //     return <Typography align="center">
-    // You are already logged in.
-    //      </Typography >;
+    //         You are already logged in.
+    //     </Typography >;
     // }
 
     return (
