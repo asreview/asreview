@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import {
@@ -63,23 +63,29 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const ProjectInit = (props) => {
+const ProjectInfo = (props) => {
   const classes = useStyles();
 
   // const [open, setOpen] = React.useState(props.open)
 
   // the state of the form data
-  const [info, setInfo] = React.useState({
+  const [info, setInfo] = useState({
     authors: "",
     name: "",
     description: "",
   });
-  const [error, setError] = React.useState({
+  const [error, setError] = useState({
     code: null,
     message: null,
   });
 
   const onChange = (evt) => {
+    if (error.code) {
+      setError({
+        code: null,
+        message: null,
+      });
+    }
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
@@ -94,12 +100,22 @@ const ProjectInit = (props) => {
     bodyFormData.set("authors", info.authors);
     bodyFormData.set("description", info.description);
 
-    ProjectAPI.init(bodyFormData)
+    (props.edit
+      ? ProjectAPI.info(props.project_id, true, bodyFormData)
+      : ProjectAPI.init(bodyFormData)
+    )
       .then((result) => {
         // set the project_id in the redux store
         props.setProjectId(result.data["id"]);
-
-        props.handleAppState("project-page");
+        // switch to project page if init
+        // reload project info if edit
+        if (!props.edit) {
+          props.onClose(); // set newProject state to false
+          props.handleAppState("project-page");
+        } else {
+          props.onClose(); // set editing state to false
+          props.reloadProjectInfo();
+        }
       })
       .catch((error) => {
         setError({
@@ -109,9 +125,22 @@ const ProjectInit = (props) => {
       });
   };
 
+  useEffect(() => {
+    // pre-fill project info in edit mode
+    if (props.edit) {
+      setInfo({
+        name: props.name,
+        authors: props.authors,
+        description: props.description,
+      });
+    }
+  }, [props.edit, props.name, props.authors, props.description]);
+
   return (
     <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
-      <DialogTitle>Create a new project</DialogTitle>
+      <DialogTitle>
+        {props.edit ? "Edit project info" : "Create a new project"}
+      </DialogTitle>
 
       {error.code === 503 && (
         <DialogContent dividers={true}>
@@ -182,7 +211,7 @@ const ProjectInit = (props) => {
             color="primary"
             disabled={info.name.length < 3}
           >
-            Create
+            {props.edit ? "Update" : "Create"}
           </Button>
         </DialogActions>
       )}
@@ -190,4 +219,4 @@ const ProjectInit = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectInit);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);
