@@ -364,7 +364,7 @@ export default function SettingsDialog(props) {
                 </ListItemSecondaryAction>
               </ListItem>
               <Divider />
-              <ListItem>
+              <ListItem alignItems="flex-start">
                 <ListItemIcon>
                   <InfoOutlinedIcon />
                 </ListItemIcon>
@@ -372,24 +372,68 @@ export default function SettingsDialog(props) {
               </ListItem>
               <ListItem>
                 <ListItemIcon></ListItemIcon>
-                <ListItemText
-                  primary="Press r or Shift + r"
-                  secondary="Label a record as relevant"
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemIcon></ListItemIcon>
-                <ListItemText
-                  primary="Press i or Shift + i"
-                  secondary="Label a record as irrelevant"
-                />
-              </ListItem>
-              <ListItem>
-                <ListItemIcon></ListItemIcon>
-                <ListItemText
-                  primary="Press u or Shift + u"
-                  secondary="Return to the previous decision"
-                />
+                <div style={{ flexGrow: 1 }}>
+                  <Grid container>
+                    <Grid item style={{ width: 135 }}>
+                      <Typography
+                        color="textSecondary"
+                        display="block"
+                        variant="body2"
+                      >
+                        Press <b>R</b> or <b>Shift + R</b>:
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography
+                        color="textSecondary"
+                        display="block"
+                        variant="body2"
+                      >
+                        Label a record as relevant
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item style={{ width: 135 }}>
+                      <Typography
+                        color="textSecondary"
+                        display="block"
+                        variant="body2"
+                      >
+                        Press <b>I</b> or <b>Shift + I</b>:
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography
+                        color="textSecondary"
+                        display="block"
+                        variant="body2"
+                      >
+                        Label a record as irrelevant
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  <Grid container>
+                    <Grid item style={{ width: 135 }}>
+                      <Typography
+                        color="textSecondary"
+                        display="block"
+                        variant="body2"
+                      >
+                        Press <b>U</b> or <b>Shift + U</b>:
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography
+                        color="textSecondary"
+                        display="block"
+                        variant="body2"
+                      >
+                        Return to the previous decision
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </div>
               </ListItem>
             </List>
           </div>
