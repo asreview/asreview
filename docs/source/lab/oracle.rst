@@ -4,7 +4,7 @@ Oracle Mode
 This is a quick tour in using the ASReview LAB software in Oracle Mode, which
 is the user-friendly frontend for active learning in systematic reviews for
 unlabeled data with interaction by the user. A more elaborate instruction can
-be found in this `blogpost <https://asreview.nl/asreview-class-101/>`_ on the
+be found in this `blogpost <https://asreview.nl/blog/asreview-class-101/>`_ on the
 ASReview website.
 
 This tutorial assumes you have already installed Python and ASReview. If this
@@ -37,7 +37,7 @@ After a successfull upload of the data, move to the next step.
 
     If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>`
     has to offer.
 
@@ -93,7 +93,7 @@ understanding of your decisions, constantly updating the underlying model.
 
 As you keep reviewing documents and providing more labels, the number of
 unlabeled documents left in the dataset will decline. When to stop is left to
-the you. The `blogpost *ASReview Class 101* <https://asreview.nl/asreview-class-101/>`_
+the you. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
 provides some tips on stopping with screening.
 
 

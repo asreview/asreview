@@ -17,7 +17,7 @@ learning cycle.
 
 
 **Open & Transparent**
-We are strong proponents of `open science <https://asreview.nl/open-science/>`_,
+We are strong proponents of `open science <https://asreview.nl/research>`_,
 and therefore ASReview code is free and openly available. We value your privacy
 and hence do not get to see any of your data
 (everything stays on your device). We do hope you believe like us in the
@@ -42,7 +42,8 @@ the hood.
 **Garbage in garbage out**
 ASReview focuses on the machine learning part of the pipeline and not on the preprocessing or
 postprocessing of the data (which reference managers are designed for). Be
-aware of the principle GIGO and `check the quality of your data first <https://asreview.nl/the-importance-of-abstracts/>`_. Don’t blame Elas if the performance is not as good as expected due to low-quality input data.
+aware of the principle GIGO and `check the quality of your data first <https://asreview.nl/blog/the-importance-of-abstracts/>`_. 
+Don’t blame Elas if the performance is not as good as expected due to low-quality input data.
 
 .. figure:: ../../images/TheZENofELAS.png
    :alt: The Zen of Elas

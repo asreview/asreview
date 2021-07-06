@@ -13,7 +13,7 @@ right (in Zenodo) can be used to find the citation format of prevalence.
 For citing the documentation (or to download the pdf) go to `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_.
 
 More studies related to the project can be found on the
-`ASReview website <https://asreview.nl/papers/>`_.
+`ASReview website <https://asreview.nl/research/>`_.
 
 
 Donate
