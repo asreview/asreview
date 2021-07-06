@@ -316,24 +316,16 @@ def clean_all_project_tmp_files():
 
 def get_paper_data(project_id,
                    paper_id,
-                   return_title=True,
-                   return_authors=True,
-                   return_abstract=True,
-                   return_doi=True,
                    return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
     record = as_data.record(int(paper_id), by_index=False)
 
     paper_data = {}
-    if return_title and record.title is not None:
-        paper_data['title'] = record.title
-    if return_authors and record.authors is not None:
-        paper_data['authors'] = record.authors
-    if return_abstract and record.abstract is not None:
-        paper_data['abstract'] = record.abstract
-    if return_doi and record.doi is not None:
-        paper_data['doi'] = record.doi
+    paper_data['title'] = record.title
+    paper_data['authors'] = record.authors
+    paper_data['abstract'] = record.abstract
+    paper_data['doi'] = record.doi
 
     # return the publication data if available
     pub_time = record.extra_fields.get("publish_time", None)
