@@ -18,7 +18,7 @@ export const reviewDrawerWidth = 250;
 export const decisionUndoBarDuration = 6000;
 export const decisionUndoBarMarginBottom = 56;
 
-export const fontSize = [
+export const fontSizeOptions = [
   {
     value: 1,
     label: "Small",

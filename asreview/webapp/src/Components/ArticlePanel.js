@@ -57,14 +57,14 @@ const ArticlePanel = (props) => {
       >
         {/* No title, inplace text */}
         {(props.record.title === "" || props.record.title === null) && (
-          <Box className={"textSize" + props.textSize.label} fontStyle="italic">
+          <Box className={"fontSize" + props.fontSize.label} fontStyle="italic">
             This document doesn't have a title.
           </Box>
         )}
 
         {/* No title, inplace text */}
         {!(props.record.title === "" || props.record.title === null) && (
-          <Box className={"textSize" + props.textSize.label}>
+          <Box className={"fontSize" + props.fontSize.label}>
             {props.record.title}
           </Box>
         )}
@@ -78,8 +78,8 @@ const ArticlePanel = (props) => {
         <Typography
           className={
             (isDebugInclusion() ? classes.debug : classes.publish_time) +
-            " textSize" +
-            props.textSize.label
+            " fontSize" +
+            props.fontSize.label
           }
           color="textSecondary"
           component="p"
@@ -95,8 +95,8 @@ const ArticlePanel = (props) => {
         <Typography
           className={
             (isDebugInclusion() ? classes.debug : classes.doi) +
-            " textSize" +
-            props.textSize.label
+            " fontSize" +
+            props.fontSize.label
           }
           color="textSecondary"
           component="p"
@@ -119,8 +119,8 @@ const ArticlePanel = (props) => {
       <Typography
         className={
           (isDebugInclusion() ? classes.debug : classes.abstract) +
-          " textSize" +
-          props.textSize.label
+          " fontSize" +
+          props.fontSize.label
         }
         variant="body2"
         color="textSecondary"

@@ -21,7 +21,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 
 import { AppBarWithinDialog } from "./Components";
-import { fontSize, donateURL } from "./globals.js";
+import { fontSizeOptions, donateURL } from "./globals.js";
 
 import { connect } from "react-redux";
 
@@ -80,9 +80,9 @@ const SettingsDialog = (props) => {
   };
 
   const onChangeFontSize = (event, newValue) => {
-    let fontSizeSelected = fontSize.find((size) => size.value === newValue);
-    if (fontSizeSelected !== props.textSize) {
-      props.handleTextSizeChange(fontSizeSelected);
+    let fontSizeSelected = fontSizeOptions.find((size) => size.value === newValue);
+    if (fontSizeSelected !== props.fontSize) {
+      props.handleFontSizeChange(fontSizeSelected);
     }
   };
 
@@ -97,20 +97,20 @@ const SettingsDialog = (props) => {
   };
 
   useEffect(() => {
-    if (props.openSettings) {
+    if (props.onSettings) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.openSettings]);
+  }, [props.onSettings]);
 
   return (
     <div>
       <Dialog
         fullScreen={fullScreen}
-        open={props.openSettings}
-        onClose={props.handleClose}
+        open={props.onSettings}
+        onClose={props.toggleSettings}
         onExited={closeSetting}
         scroll="paper"
         fullWidth={true}
@@ -121,7 +121,7 @@ const SettingsDialog = (props) => {
         {!fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
             closeIcon={true}
-            leftIcon={props.handleClose}
+            leftIcon={props.toggleSettings}
             helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html"
             title="Settings"
           />
@@ -156,7 +156,7 @@ const SettingsDialog = (props) => {
               <ListItemText
                 id="change-text-size"
                 primary="Font size"
-                secondary={props.textSize.label}
+                secondary={props.fontSize.label}
               />
             </ListItem>
             <Divider />
@@ -255,7 +255,7 @@ const SettingsDialog = (props) => {
                     component="div"
                     paragraph
                   >
-                    <Box className={"textSize" + props.textSize.label}>
+                    <Box className={"fontSize" + props.fontSize.label}>
                       An open source machine learning framework for efficient
                       and transparent systematic reviews
                     </Box>
@@ -263,8 +263,8 @@ const SettingsDialog = (props) => {
                   <Typography
                     className={
                       classes.fontSizeSampleAbstract +
-                      " textSize" +
-                      props.textSize.label
+                      " fontSize" +
+                      props.fontSize.label
                     }
                     variant="body2"
                     color="textSecondary"
@@ -308,8 +308,8 @@ const SettingsDialog = (props) => {
             </div>
             <div>
               <Typography align="center" gutterBottom>
-                {props.textSize.label.charAt(0).toUpperCase() +
-                  props.textSize.label.slice(1)}
+                {props.fontSize.label.charAt(0).toUpperCase() +
+                  props.fontSize.label.slice(1)}
               </Typography>
             </div>
             <div>
@@ -321,7 +321,7 @@ const SettingsDialog = (props) => {
                 </Grid>
                 <Grid item xs={8}>
                   <Slider
-                    value={props.textSize.value}
+                    value={props.fontSize.value}
                     marks={true}
                     step={1}
                     min={1}

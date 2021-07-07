@@ -352,7 +352,7 @@ const ReviewZone = (props) => {
           <ArticlePanel
             record={recordState["record"]}
             showAuthors={props.showAuthors}
-            textSize={props.textSize}
+            fontSize={props.fontSize}
           />
         )}
 
