@@ -3,7 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   Drawer,
   List,
-  // ListSubheader,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -14,6 +13,7 @@ import {
   Help,
   Feedback,
   ExitToApp,
+  Payment,
   Settings,
 } from "@material-ui/icons";
 
@@ -25,6 +25,8 @@ import { connect } from "react-redux";
 
 // redux config
 import { setAppState } from "../redux/actions";
+
+import { donateURL } from "../globals.js";
 
 const mapStateToProps = (state) => {
   return {
@@ -173,6 +175,21 @@ const MenuDrawer = (props) => {
             </ListItemIcon>
             <ListItemText primary="Feedback" />
           </ListItem>
+          {donateURL !== undefined && (
+            <ListItem
+              button
+              key="menu-button-donate"
+              component={"a"}
+              color="inherit"
+              href={donateURL}
+              target="_blank"
+            >
+              <ListItemIcon>
+                <Payment />
+              </ListItemIcon>
+              <ListItemText primary="Donate" />
+            </ListItem>
+          )}
           <ListItem
             button
             key="menu-button-exit"

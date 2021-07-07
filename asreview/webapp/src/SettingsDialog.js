@@ -208,7 +208,7 @@ export default function SettingsDialog(props) {
               <ListItemIcon></ListItemIcon>
               <ListItemText
                 id="switch-list-label-about"
-                primary="About ASReview"
+                primary="About ASReview Lab"
                 secondary={"Version " + props.asreview_version}
               />
             </ListItem>
@@ -217,7 +217,7 @@ export default function SettingsDialog(props) {
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   id="switch-list-label-about"
-                  primary="Donate to us"
+                  primary="Donate to ASReview Development Fund"
                 />
               </ListItem>
             )}
