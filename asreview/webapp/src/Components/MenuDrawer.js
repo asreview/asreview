@@ -30,7 +30,6 @@ import { donateURL } from "../globals.js";
 
 const mapStateToProps = (state) => {
   return {
-    asreview_version: state.asreview_version,
     app_state: state.app_state,
   };
 };
@@ -86,7 +85,6 @@ const MenuDrawer = (props) => {
                   className={classes.logo}
                 />
               }
-              secondary={props.asreview_version}
             />
           </ListItem>
           <Divider />

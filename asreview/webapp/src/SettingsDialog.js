@@ -23,6 +23,14 @@ import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 import { AppBarWithinDialog } from "./Components";
 import { fontSize, donateURL } from "./globals.js";
 
+import { connect } from "react-redux";
+
+const mapStateToProps = (state) => {
+  return {
+    asreview_version: state.asreview_version,
+  };
+};
+
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: 0,
@@ -53,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SettingsDialog(props) {
+const SettingsDialog = (props) => {
   const classes = useStyles();
 
   const descriptionElementRef = useRef(null);
@@ -442,3 +450,5 @@ export default function SettingsDialog(props) {
     </div>
   );
 }
+
+export default connect(mapStateToProps)(SettingsDialog);
