@@ -236,7 +236,7 @@ const SettingsDialog = (props) => {
           <AppBarWithinDialog
             closeIcon={false}
             leftIcon={backMainSetting}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#text-size"
+            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
             title="Font size"
           />
         )}
@@ -348,7 +348,7 @@ const SettingsDialog = (props) => {
           <AppBarWithinDialog
             closeIcon={false}
             leftIcon={backMainSetting}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/screening.html#keyboard-shortcuts"
+            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
             title="Keyboard shortcuts"
           />
         )}
