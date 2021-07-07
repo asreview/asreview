@@ -36,8 +36,8 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
- - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, ``.xlsx``,
-   or ``.xls``. CSV and TAB files are preferably comma, semicolon, or tab-delimited.
+ - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
+   CSV and TAB files are preferably comma, semicolon, or tab-delimited.
    The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
