@@ -1,70 +1,50 @@
 Settings
 ========
 
+Click on Settings in the hamburger menu in the upper left cornor of ASReview LAB to configure your preferences.
+
 .. figure:: ../../images/asreview_settings.png
    :alt: ASReview settings
 
-Dark Mode
----------
-
-ASReview LAB supports dark mode. By default, the dark mode is disabled.
-Enable the dark mode as follows:
-
-1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Toggle the **Dark Mode** field.
-
-.. figure:: ../../images/dark_mode.png
-   :alt: Dark Mode
-
 .. note::
-
 	Your preference is saved in the browser.
 
+Display
+-------
 
-Text Size
----------
+Dark mode
+~~~~~~~~~
 
-ASReview LAB supports different text sizes. By default, the text size is set to normal.
-Change the text size as follows:
+By default, the dark mode is disabled.
 
-1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Select the size in the **Text Size** field.
-
-.. figure:: ../../images/text_size_options.png
-   :alt: Text Size Options
-
-Resulting in:
-
-.. figure:: ../../images/text_size.png
-   :alt: Text Size
-
-.. note::
-
-	Your preference is saved in the browser.
+.. figure:: ../../images/asreview_settings_dark_mode.png
+   :alt: Dark mode
 
 
+Font size
+~~~~~~~~~
 
-Toggle Undo option
+You can make the text on the review screen smaller or larger.
+
+.. figure:: ../../images/asreview_settings_font_size.png
+   :alt: Font size
+
+
+Review Preferences
 ------------------
 
-It is possible to enable or disable the :ref:`undo option <export-project>` in the settings menu:
+Keyboard shortcuts
+~~~~~~~~~~~~~~~~~~
 
-1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Uncheck the **Undo** field.
+You can press a key (or a combination of keys) to label a record as relevant or irrelevant, or to return to the previous decision during screening.
+By default, keyboard shortcuts are disabled.
+
+.. figure:: ../../images/asreview_settings_keyboard_shortcuts.png
+   :alt: Keyboard shortcuts
 
 
-.. _toggle-shortcuts:
+Undo
+~~~~
 
-Toggle Shortcuts
-----------------
-
-ASReview LAB supports the use of :ref:`keyboard shortcuts <keybord-shortcuts>`
-during screening. By default, keyboard shortcuts are disabled. Enable the
-shortcuts as follows:
-
-1. Open ASReview LAB.
-2. Click on the settings icon (top right).
-3. Check the **keyboard settings** field.
+You can allow returning to the previous decision during screening.
+By default, the undo option is enabled.
