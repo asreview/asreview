@@ -68,30 +68,29 @@ const SettingsDialog = (props) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // second layer state
   const [fontSizeSetting, setFontSizeSetting] = useState(false);
   const [shortcutSetting, setShortcutSetting] = useState(false);
 
-  const openFontSizeSetting = () => {
-    setFontSizeSetting(true);
+  // second layer toggle
+  const toggleFontSizeSetting = () => {
+    setFontSizeSetting((a) => !a);
   };
 
-  const openShortcutSetting = () => {
-    setShortcutSetting(true);
+  const toggleShortcutSetting = () => {
+    setShortcutSetting((a) => !a);
   };
 
-  const onChangeFontSize = (event, newValue) => {
+  // second layer font size setting
+  const handleFontSize = (event, newValue) => {
     let fontSizeSelected = fontSizeOptions.find((size) => size.value === newValue);
     if (fontSizeSelected !== props.fontSize) {
       props.handleFontSizeChange(fontSizeSelected);
     }
   };
 
-  const backMainSetting = () => {
-    setFontSizeSetting(false);
-    setShortcutSetting(false);
-  };
-
-  const closeSetting = () => {
+  // second layer off when exiting dialog
+  const exitSettings = () => {
     setFontSizeSetting(false);
     setShortcutSetting(false);
   };
@@ -111,7 +110,7 @@ const SettingsDialog = (props) => {
         fullScreen={fullScreen}
         open={props.onSettings}
         onClose={props.toggleSettings}
-        onExited={closeSetting}
+        onExited={exitSettings}
         scroll="paper"
         fullWidth={true}
         maxWidth={"sm"}
@@ -121,7 +120,7 @@ const SettingsDialog = (props) => {
         {!fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
             closeIcon={true}
-            leftIcon={props.toggleSettings}
+            arrowBackIcon={props.toggleSettings}
             helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html"
             title="Settings"
           />
@@ -151,7 +150,7 @@ const SettingsDialog = (props) => {
                 />
               </ListItemSecondaryAction>
             </ListItem>
-            <ListItem button onClick={openFontSizeSetting}>
+            <ListItem button onClick={toggleFontSizeSetting}>
               <ListItemIcon></ListItemIcon>
               <ListItemText
                 id="change-text-size"
@@ -171,7 +170,7 @@ const SettingsDialog = (props) => {
                 REVIEW PREFERENCES
               </Typography>
             </ListItem>
-            <ListItem button onClick={openShortcutSetting}>
+            <ListItem button onClick={toggleShortcutSetting}>
               <ListItemIcon></ListItemIcon>
               <ListItemText
                 id="switch-list-label-key"
@@ -235,7 +234,7 @@ const SettingsDialog = (props) => {
         {fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
             closeIcon={false}
-            leftIcon={backMainSetting}
+            arrowBackIcon={toggleFontSizeSetting}
             helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
             title="Font size"
           />
@@ -326,7 +325,7 @@ const SettingsDialog = (props) => {
                     step={1}
                     min={1}
                     max={4}
-                    onChange={onChangeFontSize}
+                    onChange={handleFontSize}
                   />
                 </Grid>
                 <Grid item xs>
@@ -347,7 +346,7 @@ const SettingsDialog = (props) => {
         {shortcutSetting && !fontSizeSetting && (
           <AppBarWithinDialog
             closeIcon={false}
-            leftIcon={backMainSetting}
+            arrowBackIcon={toggleShortcutSetting}
             helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
             title="Keyboard shortcuts"
           />

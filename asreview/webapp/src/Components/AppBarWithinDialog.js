@@ -22,7 +22,7 @@ const AppBarWithinDialog = (props) => {
   return (
     <AppBar className={classes.appBar}>
       <Toolbar>
-        <IconButton edge="start" color="inherit" onClick={props.leftIcon}>
+        <IconButton edge="start" color="inherit" onClick={props.arrowBackIcon}>
           {props.closeIcon ? <CloseIcon /> : <ArrowBackIcon />}
         </IconButton>
         <Typography variant="h6" className={classes.title}>
