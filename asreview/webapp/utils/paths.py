@@ -194,4 +194,5 @@ def get_state_path(project_id):
         The id of the current project.
     """
 
-    return Path(get_project_path(project_id), "result.json")
+    # return Path(get_project_path(project_id), "result.json")
+    return Path(get_project_path(project_id), f"{project_id}.asreview")

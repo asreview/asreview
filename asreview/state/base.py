@@ -89,6 +89,28 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def add_last_probabilities(self, probabilities):
+        """Save the probabilities produced by the last classifier.
+
+        Arguments
+        ---------
+        probabilities: list-like.
+            List containing the probabilities for every record.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_last_probabilities(self):
+        """Get the probabilities produced by the last classifier.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe with column 'proba' containing the probabilities.
+        """
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def current_queries(self):

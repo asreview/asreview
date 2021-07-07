@@ -1,6 +1,6 @@
 from pathlib import Path
 from sqlite3 import OperationalError
-
+import json
 import pytest
 
 import pandas as pd
@@ -30,6 +30,8 @@ TEST_LABELING_TIMES = [1621597506037183, 1621597506046369, 1621597506053114, 162
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
 TEST_STATE_FP = Path("tests", "v3_states", "test_converted_unzipped.asreview")
+with open(TEST_STATE_FP / 'test_probabilities.json', 'r') as f:
+    TEST_LAST_PROBABILITIES = json.load(f)
 
 
 @pytest.mark.xfail(
@@ -213,6 +215,33 @@ def test_record_table(tmpdir):
     with open_state(state_fp, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
         assert state.get_record_table()['record_ids'].to_list() == RECORD_IDS
+
+
+def test_get_last_probabilities():
+    with open_state(TEST_STATE_FP) as state:
+        last_probabilities = state.get_last_probabilities()
+        assert isinstance(last_probabilities, pd.DataFrame)
+        assert list(last_probabilities.columns) == ['proba']
+        assert last_probabilities['proba'].to_list() == TEST_LAST_PROBABILITIES
+
+
+@pytest.mark.xfail(
+    raises=ValueError,
+    reason=f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the database, "
+                             f"but 'probabilities' has length 3"
+)
+def test_add_last_probabilities_fail():
+    with open_state(TEST_STATE_FP) as state:
+        state.add_last_probabilities([1.0, 2.0, 3.0])
+
+
+def test_add_last_probabilities(tmpdir):
+    state_fp = Path(tmpdir, 'state.asreview')
+    probabilities = [float(num) for num in range(50)]
+    with open_state(state_fp, read_only=False) as state:
+        state.add_last_probabilities(probabilities)
+        state_probabilities = state.get_last_probabilities()['proba'].tolist()
+        assert state_probabilities == probabilities
 
 
 def test_add_labeling_data(tmpdir):

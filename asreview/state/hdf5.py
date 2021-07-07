@@ -37,7 +37,7 @@ RELATIVE_RESULTS_PATH = Path('results.sql')
 RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
 RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
 LATEST_HDF5STATE_VERSION = "1.1"
-REQUIRED_TABLES = ['results', 'record_table']
+REQUIRED_TABLES = ['results', 'record_table', 'last_probabilities']
 RESULTS_TABLE_COLUMNS = ['record_ids', 'labels', 'classifiers', 'query_strategies',
                          'balance_strategies', 'feature_extraction',
                          'training_sets', 'labeling_times']
@@ -71,6 +71,7 @@ class HDF5State(BaseState):
             con = sqlite3.connect(self._sql_fp)
         return con
 
+# TODO(State): Add file paths to routes section of webapp.
     @property
     def _sql_fp(self):
         """Path to the sql database."""
@@ -128,6 +129,10 @@ class HDF5State(BaseState):
             # Create the record_ids table.
             cur.execute('''CREATE TABLE record_table
                                 (record_ids INT)''')
+
+            # Create the last_probabilities table.
+            cur.execute('''CREATE TABLE last_probabilities
+                                (proba REAL)''')
 
             con.commit()
             con.close()
@@ -332,6 +337,26 @@ class HDF5State(BaseState):
                                             (?)""", record_sql_input)
         con.commit()
 
+    def add_last_probabilities(self, probabilities):
+        """Save the probabilities of the last model."""
+        proba_sql_input = [(proba,) for proba in probabilities]
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+
+        # Check that the number of rows in the table is 0 (if the table is not yet populated),
+        # or that it's equal to len(probabilities).
+        cur.execute("SELECT COUNT (*) FROM last_probabilities")
+        proba_length = cur.fetchone()[0]
+        if not ((proba_length == 0) or (proba_length == len(proba_sql_input))):
+            raise ValueError(f"There are {proba_length} probabilities in the database, "
+                             f"but 'probabilities' has length {len(probabilities)}")
+
+        cur.execute("""DELETE FROM last_probabilities""")
+        cur.executemany("""INSERT INTO last_probabilities VALUES
+                                            (?)""", proba_sql_input)
+        con.commit()
+
     def add_feature_matrix(self, feature_matrix):
         # Make sure the feature matrix is in csr format.
         if isinstance(feature_matrix, np.ndarray):
@@ -392,6 +417,19 @@ class HDF5State(BaseState):
         record_table = pd.read_sql_query('SELECT * FROM record_table', con)
         con.close()
         return record_table
+
+    def get_last_probabilities(self):
+        """Get the probabilities produced by the last classifier.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe with column 'proba' containing the probabilities.
+        """
+        con = self._connect_to_sql()
+        last_probabilities = pd.read_sql_query('SELECT * FROM last_probabilities', con)
+        con.close()
+        return last_probabilities
 
     def get_data_by_query_number(self, query, columns=None):
         """Get the data of a specific query from the results table.

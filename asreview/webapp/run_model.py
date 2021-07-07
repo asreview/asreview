@@ -47,19 +47,21 @@ def _get_diff_history(new_history, old_history):
 
 
 def _get_label_train_history(state):
-    label_idx = []
-    inclusions = []
-    for query_i in range(state.n_predictor_models):
-        try:
-            new_labels = state.get("label_idx", query_i=query_i)
-            new_inclusions = state.get("inclusions", query_i=query_i)
-        except KeyError:
-            new_labels = None
-        if new_labels is not None:
-            label_idx.extend(new_labels)
-            inclusions.extend(new_inclusions)
+    # label_idx = []
+    # inclusions = []
+    # for query_i in range(state.n_models):
+    #     try:
+    #         new_labels = state.get("label_idx", query_i=query_i)
+    #         new_inclusions = state.get("inclusions", query_i=query_i)
+    #     except KeyError:
+    #         new_labels = None
+    #     if new_labels is not None:
+    #         label_idx.extend(new_labels)
+    #         inclusions.extend(new_inclusions)
+    indices = state.get_order_of_labeling().tolist()
+    labels = state.get_labels().tolist()
 
-    return list(zip(label_idx, inclusions))
+    return list(zip(indices, labels))
 
 
 def train_model(project_id, label_method=None):
@@ -126,7 +128,7 @@ def train_model(project_id, label_method=None):
         query_idx = convert_id_to_idx(as_data, query_record_ids)
 
         # Classify the new labels, train and store the results.
-        with open_state(state_file) as state:
+        with open_state(state_file, read_only=False) as state:
             reviewer.classify(
                 query_idx, inclusions, state, method=label_method)
             reviewer.train()
@@ -135,10 +137,12 @@ def train_model(project_id, label_method=None):
             reviewer.log_current_query(state)
 
             # write the proba to a pandas dataframe with record_ids as index
-            proba = pd.DataFrame(
-                {"proba": state.pred_proba.tolist()},
-                index=pd.Index(as_data.record_ids, name="record_id")
-            )
+            proba = state.get_last_probabilities()
+            proba.index = pd.Index(as_data.record_ids, name="record_id")
+            # proba = pd.DataFrame(
+            #     {"proba": state.get_last_probabilities().values.tolist()},
+            #     index=pd.Index(as_data.record_ids, name="record_id")
+            # )
 
         # update the pool and output the proba's
         # important: pool is sorted on query

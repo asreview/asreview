@@ -191,7 +191,10 @@ class BaseReview(ABC):
                     self.y[startup_values['record_ids'].iloc[i]] = startup_values['labels'].iloc[i]
 
                 # Only used in BaseReview.statistics.
-                self.n_initial = startup_values['query_strategies'].value_counts()['initial']
+                try:
+                    self.n_initial = startup_values['query_strategies'].value_counts()['initial']
+                except KeyError:
+                    self.n_initial = 0
 
                 # TODO: Remove query_i_classified.
                 self.query_i = len(startup_values) - self.n_initial
@@ -314,7 +317,7 @@ class BaseReview(ABC):
 
         # train the algorithm with prior knowledge
         self.train()
-        # self.log_probabilities(state)
+        self.log_probabilities(state)
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
@@ -342,7 +345,7 @@ class BaseReview(ABC):
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
             self.train()
-            # self.log_probabilities(state)
+            self.log_probabilities(state)
 
     def review(self, *args, **kwargs):
         """Do the systematic review, writing the results to the state file.
@@ -358,22 +361,19 @@ class BaseReview(ABC):
         with open_state(self.state_file, read_only=False) as state:
             self._do_review(state, *args, **kwargs)
 
-    # def log_probabilities(self, state):
-    #     """Store the modeling probabilities of the training indices and
-    #        pool indices."""
-    #     if not self.model_trained:
-    #         return
-    #
-    #     pool_idx = get_pool_idx(self.X, self.train_idx)
-    #
-    #     # Log the probabilities of samples in the pool being included.
-    #     pred_proba = self.shared.get('pred_proba', np.array([]))
-    #     if len(pred_proba) == 0:
-    #         pred_proba = self.model.predict_proba(self.X)
-    #         self.shared['pred_proba'] = pred_proba
-    #
-    #     proba_1 = np.array([x[1] for x in pred_proba])
-    #     state.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
+    def log_probabilities(self, state):
+        """Store the modeling probabilities."""
+        if not self.model_trained:
+            return
+
+        # Log the probabilities of samples in the pool being included.
+        pred_proba = self.shared.get('pred_proba', np.array([]))
+        if len(pred_proba) == 0:
+            pred_proba = self.model.predict_proba(self.X)
+            self.shared['pred_proba'] = pred_proba
+
+        proba_1 = np.array([x[1] for x in pred_proba])
+        state.add_last_probabilities(proba_1)
 
     def log_current_query(self, state):
         state.current_queries = self.shared["current_queries"]
@@ -445,6 +445,10 @@ class BaseReview(ABC):
         """
         query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
+
+        # Inclusions should be slices just as query_idx is sliced.
+        inclusions = np.array(inclusions, dtype=np.int)
+        inclusions = inclusions[np.isin(query_idx, self.train_idx, invert=True)]
         query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
         self.train_idx = np.append(self.train_idx, query_idx)
         if method is None:
