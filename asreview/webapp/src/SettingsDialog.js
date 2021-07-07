@@ -216,7 +216,7 @@ const SettingsDialog = (props) => {
               <ListItemIcon></ListItemIcon>
               <ListItemText
                 id="switch-list-label-about"
-                primary="About ASReview Lab"
+                primary="About ASReview LAB"
                 secondary={"Version " + props.asreview_version}
               />
             </ListItem>
