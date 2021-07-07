@@ -47,8 +47,7 @@ const App = (props) => {
   const [exportResult, setExportResult] = React.useState(false);
   const [history, setHistory] = React.useState(false);
 
-  // Settings hooks
-  const [authors, setAuthors] = React.useState(false);
+  // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
   const [fontSize, handleFontSizeChange] = useFontSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
@@ -71,11 +70,6 @@ const App = (props) => {
 
   const toggleHistory = () => {
     setHistory((a) => !a);
-  };
-
-  // not in use
-  const toggleAuthors = () => {
-    setAuthors((a) => !a);
   };
 
   return (
@@ -114,7 +108,6 @@ const App = (props) => {
       {props.app_state === "review" && (
         <ReviewZone
           handleAppState={props.setAppState}
-          showAuthors={authors}
           fontSize={fontSize}
           undoEnabled={undoEnabled}
           keyPressEnabled={keyPressEnabled}
@@ -135,13 +128,11 @@ const App = (props) => {
         fontSize={fontSize}
         keyPressEnabled={keyPressEnabled}
         undoEnabled={undoEnabled}
-        showAuthors={authors}
         toggleSettings={toggleSettings}
         toggleDarkMode={toggleDarkMode}
         handleFontSizeChange={handleFontSizeChange}
         toggleKeyPressEnabled={toggleKeyPressEnabled}
         toggleUndoEnabled={toggleUndoEnabled}
-        toggleAuthors={toggleAuthors}
       />
       <ExitDialog toggleExit={toggleExit} exit={exit} />
       <ExportDialog

@@ -121,7 +121,7 @@ const MenuDrawer = (props) => {
             key="menu-button-settings"
             onClick={() => {
               props.setMenuDrawerState({ left: false });
-              props.handleSettingsOpen();
+              props.toggleSettings();
             }}
           >
             <ListItemIcon>

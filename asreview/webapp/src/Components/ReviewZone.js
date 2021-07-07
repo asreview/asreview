@@ -351,7 +351,6 @@ const ReviewZone = (props) => {
         {error.message === null && recordState["isloaded"] && (
           <ArticlePanel
             record={recordState["record"]}
-            showAuthors={props.showAuthors}
             fontSize={props.fontSize}
           />
         )}
