@@ -2,7 +2,7 @@ The Zen of Elas
 ---------------
 
 Elas is the mascotte of ASReview and your `Electronic Learning Assistant
-<https://asreview.nl/the-story-behind-elas/>`_ who will guide you through the
+<https://asreview.nl/blog/the-story-behind-elas/>`_ who will guide you through the
 interactive process  of making decisions using Artificial Intelligence in
 ASReview. Elas comes with some important principles:
 
