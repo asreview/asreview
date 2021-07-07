@@ -40,7 +40,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 const App = (props) => {
-
   // Dialog state
   const [settings, setSettings] = React.useState(false);
   const [exit, setExit] = React.useState(false);
