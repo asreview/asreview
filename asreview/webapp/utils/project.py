@@ -335,10 +335,6 @@ def get_paper_data(project_id,
     if return_doi and record.doi is not None:
         paper_data['doi'] = record.doi
 
-    # return the publication data if available
-    pub_time = record.extra_fields.get("publish_time", None)
-    paper_data['publish_time'] = pub_time if pd.notnull(pub_time) else None
-
     # return the debug label
     debug_label = record.extra_fields.get("debug_label", None)
     paper_data['_debug_label'] = \
