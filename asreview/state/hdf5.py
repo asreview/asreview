@@ -29,10 +29,6 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.errors import StateError
 
 
-# TODO (State): Time of labeling in sql.
-# TODO (State): Records id's should be identifiers.
-
-
 RELATIVE_RESULTS_PATH = Path('results.sql')
 RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
 RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
@@ -99,12 +95,11 @@ class HDF5State(BaseState):
         # create folder to state file if not exist
         self.fp.parent.mkdir(parents=True, exist_ok=True)
 
-        # TODO(State): Add software version.
-        # TODO: Add version/softwareversion to ASReviewSettings object.
         # Create settings_metadata.json
         self.settings_metadata = {
             'settings': None,
-            'version': LATEST_HDF5STATE_VERSION
+            'version': LATEST_HDF5STATE_VERSION,
+            'software_version': SOFTWARE_VERSION
         }
 
         with open(self._settings_metadata_fp, 'w') as f:
@@ -158,7 +153,7 @@ class HDF5State(BaseState):
 
         # Cache the settings.
         try:
-            with open(self._settings_metadata_fp, self.mode) as f:
+            with open(self._settings_metadata_fp, 'r') as f:
                 self.settings_metadata = json.load(f)
         except FileNotFoundError:
             raise AttributeError("'settings_metadata.json' not found in the state file.")
@@ -322,11 +317,12 @@ class HDF5State(BaseState):
 ### Features, settings_metadata
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
+        if self.read_only:
+            raise ValueError("Can't change settings in read only mode.")
         self.settings_metadata[key] = value
-        with open(self._settings_metadata_fp, self.mode) as f:
+        with open(self._settings_metadata_fp, 'w') as f:
             json.dump(self.settings_metadata, f)
 
-    # TODO(State): Input should be record table.
     def add_record_table(self, record_ids):
         # Add the record table to the sql.
         record_sql_input = [(int(record_id),) for record_id in record_ids]

@@ -23,7 +23,6 @@ class BaseState(ABC):
             Whether to open file in read only mode.
         """
         self.read_only = read_only
-        self.mode = 'r' if self.read_only else 'r+'
 
     def __enter__(self):
         return self

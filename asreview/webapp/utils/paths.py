@@ -185,6 +185,7 @@ def get_labeled_path(project_id):
     return Path(get_project_path(project_id), "labeled.json")
 
 
+# TODO (State): Fix state file location.
 def get_state_path(project_id):
     """Get the labeled file for the project and iteration.
 
