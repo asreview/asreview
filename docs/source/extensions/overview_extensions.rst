@@ -29,11 +29,10 @@ of the core project:
 
 
 
-
 .. _extensions-users:
 
-Offically Supported Extensions
-------------------------------
+Extensions Developed by Users
+-----------------------------
 
 The following extensions are developed by users:
 
