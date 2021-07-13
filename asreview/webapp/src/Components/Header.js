@@ -7,11 +7,10 @@ import {
   IconButton,
   Tooltip,
 } from "@material-ui/core";
+import { Menu, BarChart, History, GetApp } from "@material-ui/icons";
+
 import MenuDrawer from "./MenuDrawer";
 import { reviewDrawerWidth } from "../globals.js";
-
-import { Menu, BarChart, History, GetApp } from "@material-ui/icons";
-import SettingsIcon from "@material-ui/icons/Settings";
 
 import { connect } from "react-redux";
 
@@ -143,14 +142,6 @@ const Header = (props) => {
             </Tooltip>
           )}
 
-          <IconButton
-            aria-label="Settings"
-            onClick={props.handleClickOpen}
-            color="inherit"
-          >
-            <SettingsIcon />
-          </IconButton>
-
           {props.app_state === "review" && !props.reviewDrawerOpen ? (
             <IconButton
               color="inherit"
@@ -169,8 +160,8 @@ const Header = (props) => {
         state={state}
         setMenuDrawerState={setState}
         toggleDrawer={toggleDrawer}
+        toggleSettings={props.toggleSettings}
         toggleExit={props.toggleExit}
-        toggleExportResult={props.toggleExportResult}
       />
     </div>
   );

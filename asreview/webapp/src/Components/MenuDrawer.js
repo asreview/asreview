@@ -3,7 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   Drawer,
   List,
-  // ListSubheader,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -15,23 +14,22 @@ import {
   Feedback,
   ExitToApp,
   Payment,
-  Info,
+  Settings,
 } from "@material-ui/icons";
 
 // local imports
 import ElasIcon from "../ElasIcon";
 import ASReviewLogo from "../images/Wordmark_LAB_colour.svg";
 
-import { donateURL } from "../globals.js";
-
 import { connect } from "react-redux";
 
 // redux config
 import { setAppState } from "../redux/actions";
 
+import { donateURL } from "../globals.js";
+
 const mapStateToProps = (state) => {
   return {
-    asreview_version: state.asreview_version,
     app_state: state.app_state,
   };
 };
@@ -87,7 +85,6 @@ const MenuDrawer = (props) => {
                   className={classes.logo}
                 />
               }
-              secondary={props.asreview_version}
             />
           </ListItem>
           <Divider />
@@ -118,6 +115,19 @@ const MenuDrawer = (props) => {
               <Folder />
             </ListItemIcon>
             <ListItemText primary="Project Dashboard" />
+          </ListItem>
+          <ListItem
+            button
+            key="menu-button-settings"
+            onClick={() => {
+              props.setMenuDrawerState({ left: false });
+              props.toggleSettings();
+            }}
+          >
+            <ListItemIcon>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
           </ListItem>
 
           {/* Documentation */}
@@ -163,7 +173,6 @@ const MenuDrawer = (props) => {
             </ListItemIcon>
             <ListItemText primary="Feedback" />
           </ListItem>
-
           {donateURL !== undefined && (
             <ListItem
               button
@@ -176,22 +185,9 @@ const MenuDrawer = (props) => {
               <ListItemIcon>
                 <Payment />
               </ListItemIcon>
-              <ListItemText primary="Sponsor ASReview" />
+              <ListItemText primary="Donate" />
             </ListItem>
           )}
-          <ListItem
-            button
-            key="menu-button-about"
-            component={"a"}
-            color="inherit"
-            href="https://asreview.readthedocs.io/en/latest/intro/about.html"
-            target="_blank"
-          >
-            <ListItemIcon>
-              <Info />
-            </ListItemIcon>
-            <ListItemText primary="About ASReview" />
-          </ListItem>
           <ListItem
             button
             key="menu-button-exit"
