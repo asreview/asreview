@@ -40,7 +40,8 @@ Review Preferences
 Keyboard shortcuts
 ~~~~~~~~~~~~~~~~~~
 
-You can press a key (or a combination of keys) to label a record as relevant or irrelevant, or to return to the previous decision during screening.
+You can press a key (or a combination of keys) to label a record as relevant 
+or irrelevant, or to return to the previous decision during screening.
 By default, keyboard shortcuts are disabled.
 
 .. figure:: ../../images/asreview_settings_keyboard_shortcuts.png
