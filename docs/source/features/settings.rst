@@ -1,7 +1,11 @@
 Settings
 ========
 
-Click on Settings in the hamburger menu in the upper left cornor of ASReview LAB to configure your preferences.
+ASReview LAB offers the option to customize the screening appearance and functionality. 
+
+1. Open ASReview LAB.
+2. Click on Menu (top left).
+3. Click on Settings.
 
 .. figure:: ../../images/asreview_settings.png
    :alt: ASReview settings
