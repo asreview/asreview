@@ -139,7 +139,11 @@ class PaperRecord():
                 col = attr
             else:
                 col = None
-            setattr(self, attr, kwargs.pop(col, None))
+
+            attr_val = kwargs.pop(col, None)
+            if attr_val is not None and pd.isna(attr_val):
+                attr_val = None
+            setattr(self, attr, attr_val)
 
         self.record_id = record_id
         if self.included is None:
