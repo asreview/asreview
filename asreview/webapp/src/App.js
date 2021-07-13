@@ -12,7 +12,7 @@ import ExitDialog from "./ExitDialog";
 import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
-  useTextSize,
+  useFontSize,
   useUndoEnabled,
   useKeyPressEnabled,
 } from "./hooks/SettingsHooks";
@@ -40,29 +40,23 @@ function mapDispatchToProps(dispatch) {
 }
 
 const App = (props) => {
-  const [theme, toggleDarkMode] = useDarkMode();
-  const muiTheme = createMuiTheme(theme);
-
-  const [openSettings, setSettingsOpen] = React.useState(false);
+  // Dialog state
+  const [settings, setSettings] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
   const [history, setHistory] = React.useState(false);
-  const [authors, setAuthors] = React.useState(false);
 
-  const [textSize, handleTextSizeChange] = useTextSize();
+  // Settings hook
+  const [theme, toggleDarkMode] = useDarkMode();
+  const [fontSize, handleFontSizeChange] = useFontSize();
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
-  const toggleAuthors = () => {
-    setAuthors((a) => !a);
-  };
+  const muiTheme = createMuiTheme(theme);
 
-  const handleClickOpen = () => {
-    setSettingsOpen(true);
-  };
-
-  const handleClose = () => {
-    setSettingsOpen(false);
+  // Dialog toggle
+  const toggleSettings = () => {
+    setSettings((a) => !a);
   };
 
   const toggleExit = () => {
@@ -84,12 +78,10 @@ const App = (props) => {
       {props.app_state !== "boot" && (
         <Header
           /* Handle the app review drawer */
+          toggleSettings={toggleSettings}
+          toggleExit={toggleExit}
           toggleExportResult={toggleExportResult}
           toggleHistory={toggleHistory}
-          toggleDarkMode={toggleDarkMode}
-          handleClickOpen={handleClickOpen}
-          handleTextSizeChange={handleTextSizeChange}
-          toggleExit={toggleExit}
         />
       )}
 
@@ -115,8 +107,7 @@ const App = (props) => {
       {props.app_state === "review" && (
         <ReviewZone
           handleAppState={props.setAppState}
-          showAuthors={authors}
-          textSize={textSize}
+          fontSize={fontSize}
           undoEnabled={undoEnabled}
           keyPressEnabled={keyPressEnabled}
         />
@@ -131,18 +122,16 @@ const App = (props) => {
 
       {/* Dialogs */}
       <SettingsDialog
-        openSettings={openSettings}
-        handleClose={handleClose}
-        handleTextSizeChange={handleTextSizeChange}
-        textSize={textSize}
-        toggleDarkMode={toggleDarkMode}
-        toggleAuthors={toggleAuthors}
+        onSettings={settings}
         onDark={theme}
-        showAuthors={authors}
-        toggleUndoEnabled={toggleUndoEnabled}
-        undoEnabled={undoEnabled}
-        toggleKeyPressEnabled={toggleKeyPressEnabled}
+        fontSize={fontSize}
         keyPressEnabled={keyPressEnabled}
+        undoEnabled={undoEnabled}
+        toggleSettings={toggleSettings}
+        toggleDarkMode={toggleDarkMode}
+        handleFontSizeChange={handleFontSizeChange}
+        toggleKeyPressEnabled={toggleKeyPressEnabled}
+        toggleUndoEnabled={toggleUndoEnabled}
       />
       <ExitDialog toggleExit={toggleExit} exit={exit} />
       <ExportDialog

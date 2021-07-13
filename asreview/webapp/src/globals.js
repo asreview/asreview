@@ -18,6 +18,25 @@ export const reviewDrawerWidth = 250;
 export const decisionUndoBarDuration = 6000;
 export const decisionUndoBarMarginBottom = 56;
 
+export const fontSizeOptions = [
+  {
+    value: 1,
+    label: "Small",
+  },
+  {
+    value: 2,
+    label: "Default",
+  },
+  {
+    value: 3,
+    label: "Large",
+  },
+  {
+    value: 4,
+    label: "Largest",
+  },
+];
+
 // functions
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };

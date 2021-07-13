@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import brown from "@material-ui/core/colors/brown";
 import red from "@material-ui/core/colors/red";
 
+import { fontSizeOptions } from "../globals.js";
+
 const useDarkMode = () => {
   let lightTheme = {
     palette: {
@@ -98,22 +100,28 @@ const useDarkMode = () => {
   return [theme, toggleDarkMode];
 };
 
-const useTextSize = () => {
-  const [textSize, setTextSize] = useState("normal");
+const useFontSize = () => {
+  const [fontSize, setFontSize] = useState(fontSizeOptions[1]);
 
-  const handleTextSizeChange = (event) => {
-    window.localStorage.setItem("textSize", event.target.value);
-    setTextSize(event.target.value);
+  const handleFontSizeChange = (size) => {
+    window.localStorage.setItem(
+      "fontSize",
+      JSON.stringify([size.value, size.label])
+    );
+    setFontSize(size);
   };
 
   useEffect(() => {
-    const localTextSize = window.localStorage.getItem("textSize");
-    if (textSize !== localTextSize && localTextSize !== null) {
-      setTextSize(localTextSize);
+    const localFontSize = JSON.parse(window.localStorage.getItem("fontSize"));
+    if (localFontSize !== null && fontSize.value !== localFontSize[0]) {
+      setFontSize({
+        value: localFontSize[0],
+        label: localFontSize[1],
+      });
     }
-  }, [textSize]);
+  }, [fontSize]);
 
-  return [textSize, handleTextSizeChange];
+  return [fontSize, handleFontSizeChange];
 };
 
 const useUndoEnabled = () => {
@@ -157,4 +165,4 @@ const useKeyPressEnabled = () => {
   return [keyPressEnabled, toggleKeyPressEnabled];
 };
 
-export { useDarkMode, useTextSize, useUndoEnabled, useKeyPressEnabled };
+export { useDarkMode, useFontSize, useUndoEnabled, useKeyPressEnabled };

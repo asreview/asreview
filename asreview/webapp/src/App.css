@@ -18,18 +18,15 @@
   background-color: #df462e;
 }
 
-.textSizesmallest {
-  font-size: 80% !important;
-}
-.textSizesmall {
+.fontSizeSmall {
   font-size: 90% !important;
 }
-.textSizenormal {
+.fontSizeDefault {
   font-size: 100% !important;
 }
-.textSizelarge {
+.fontSizeLarge {
   font-size: 120% !important;
 }
-.textSizelargest {
+.fontSizeLargest {
   font-size: 140% !important;
 }
