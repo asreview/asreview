@@ -29,7 +29,7 @@ of the core project:
 
 
 
-.. _extensions-users:
+.. _extensions-community:
 
 Extensions Developed by Users
 -----------------------------
