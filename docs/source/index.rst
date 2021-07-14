@@ -60,15 +60,15 @@ University and is published under the `Apache 2.0 licence
 
 .. toctree::
    :maxdepth: 1
-   :caption: Plugins
+   :caption: Extensions
 
-   plugins/overview_plugins
+   extensions/overview_extensions
 
-   plugins/covid19
+   extensions/extension_covid19
 
-   plugins/plugin_visualization
+   extensions/extension_visualization
 
-   plugins/plugin_wordcloud
+   extensions/extension_wordcloud
 
 .. toctree::
    :maxdepth: 1
