@@ -11,8 +11,8 @@ It is possible to use your own dataset with unlabeled, partly labeled (where
 the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-`Benchmark Datasets`_. Also, a plugin with :doc:`Corona related
-publications <../plugins/covid19>` is available.
+`Benchmark Datasets`_. Also, an extension with :doc:`Covid19 related
+publications <../extensions/extension_covid19>` is available.
 
 .. warning::
 
