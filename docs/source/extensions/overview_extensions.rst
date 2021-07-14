@@ -36,7 +36,7 @@ Extensions Developed by Users
 
 The following extensions are developed and maintained by the ASReview community:
 
-- XXX
+Work in Progress
 
 
 If an extension is not on this list, or you made one and you would like it to be added to this
