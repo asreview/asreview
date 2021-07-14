@@ -11,7 +11,6 @@ import {
 import {
   Folder,
   Help,
-  Feedback,
   ExitToApp,
   Payment,
   Settings,
@@ -149,29 +148,16 @@ const MenuDrawer = (props) => {
 
           <ListItem
             button
-            key="menu-button-help"
-            component={"a"}
-            color="inherit"
-            href="https://asreview.readthedocs.io/"
-            target="_blank"
+            key="menu-button-helpfeedback"
+            onClick={() => {
+              props.setMenuDrawerState({ left: false });
+              props.toggleHelpFeedback();
+            }}
           >
             <ListItemIcon>
               <Help />
             </ListItemIcon>
-            <ListItemText primary="Help" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-feedback"
-            component={"a"}
-            color="inherit"
-            href="https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md"
-            target="_blank"
-          >
-            <ListItemIcon>
-              <Feedback />
-            </ListItemIcon>
-            <ListItemText primary="Feedback" />
+            <ListItemText primary="Help & Feedback" />
           </ListItem>
           {donateURL !== undefined && (
             <ListItem
