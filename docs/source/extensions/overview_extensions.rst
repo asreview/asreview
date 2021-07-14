@@ -34,7 +34,7 @@ of the core project:
 Extensions Developed by Users
 -----------------------------
 
-The following extensions are developed by users:
+The following extensions are developed and maintained by the ASReview community:
 
 - XXX
 
