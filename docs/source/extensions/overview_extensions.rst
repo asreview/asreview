@@ -31,7 +31,7 @@ of the core project:
 
 .. _extensions-community:
 
-Extensions Developed by Users
+Community-maintained extensions
 -----------------------------
 
 The following extensions are developed and maintained by the ASReview community:
