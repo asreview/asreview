@@ -157,7 +157,7 @@ const MenuDrawer = (props) => {
             <ListItemIcon>
               <Help />
             </ListItemIcon>
-            <ListItemText primary="Help & Feedback" />
+            <ListItemText primary="Help" />
           </ListItem>
           {donateURL !== undefined && (
             <ListItem

@@ -110,7 +110,7 @@ const HelpFeedbackDialog = (props) => {
           closeIcon={true}
           arrowBackIcon={props.toggleHelpFeedback}
           helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html"
-          title="Help & Feedback"
+          title="Help"
         />
         <List className={classes.root}>
           <ListItem>
@@ -118,7 +118,7 @@ const HelpFeedbackDialog = (props) => {
               className={classes.subhead}
               display="block"
             >
-              <b>Popular articles</b>
+              <b>Frequently asked questions</b>
             </Typography>
           </ListItem>
           {popularArticles.map((article, index) => (
@@ -196,7 +196,7 @@ const HelpFeedbackDialog = (props) => {
                   </Avatar>
                 }
                 title={<React.Fragment>Send Feedback <OpenInNewIcon className={classes.openInNewIcon} color="disabled" fontSize="small"/></React.Fragment>}
-                subheader="Report bugs or request features"
+                subheader="Report bugs or request features on GitHub"
               />
               </CardActionArea>
             </Card>
