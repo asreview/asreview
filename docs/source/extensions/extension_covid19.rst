@@ -28,12 +28,12 @@ transparent in the process.
 
 
 
-ASReview plugin
----------------
+ASReview Extension
+------------------
 
-To help combat the COVID-19 crisis, the ASReview team developed a plugin that
+To help combat the COVID-19 crisis, the ASReview team developed an extension that
 provides three datasets on COVID-19. These are automatically available in
-ASReview after installing the plugin, so reviewers can start
+ASReview after installing the extension, so reviewers can start
 reviewing the latest scientific literature on COVID-19 as soon as possible!
 
 CORD-19 dataset
@@ -55,7 +55,7 @@ In addition to the full dataset, there is a subset available of studies
 published after December 1st, 2019 to search for relevant papers published
 during the COVID-19 crisis.
 
-The datasets are updated in ASReview plugin shortly after a release by
+The datasets are updated in ASReview extension shortly after a release by
 the Allen Institute for AI.
 
 Pre-print dataset
@@ -75,7 +75,7 @@ especially if they want a quick way to screen preprints specifically.
 Installation and usage
 ----------------------
 
-The COVID-19 plug-in requires ASReview 0.8 or higher. Install ASReview
+The COVID-19 extension requires ASReview 0.8 or higher. Install ASReview
 by following the instructions in :doc:`../intro/installation`.
 
 Install the extension with pip:
@@ -99,7 +99,7 @@ more information on the usage of ASReview, have a look at the
 License
 -------
 
-The ASReview software and the plugin have an Apache 2.0 LICENSE. For the
+The ASReview software and the extensions have an Apache 2.0 LICENSE. For the
 datasets, see the license of the CORD-19 dataset
 https://www.semanticscholar.org/cord19.
 

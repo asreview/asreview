@@ -39,7 +39,7 @@ To select a dataset:
 
     If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>`
     has to offer.
 
@@ -59,10 +59,10 @@ From URL
 Fill in a link to a file on the Internet. For example, a link from this
 `dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
 
-From Plugin
-~~~~~~~~~~~
+From Extension
+~~~~~~~~~~~~~~
 
-Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
+Select a file available via an extension like the :doc:`COVID-19 extension <../extensions/extension_covid19>`.
 
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~

@@ -63,24 +63,6 @@ Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html).
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB Quick Tour")
 
-## Covid-19 plugin
-
-[![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
-
-The ASReview team developed a plugin for researchers and doctors to facilitate
-the reading of literature on the Coronavirus. The
-[plugin](https://github.com/asreview/asreview-covid19) makes the
-[CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset
-available in the ASReview software. A second database with studies published
-after December 1st 2019 is available as well (this dataset is more specific
-for publications on COVID-19).
-
-Install the plugin with the command below.
-
-```
-pip install asreview-covid19
-```
-
 ## Citation
 
 The following publication in [Nature Machine
