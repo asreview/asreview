@@ -1,19 +1,24 @@
 import React from "react";
 import {
   AppBar,
+  FormControl,
   IconButton,
   InputBase,
+  MenuItem,
+  Select,
   Toolbar,
   Typography,
 } from "@material-ui/core";
 import { fade, makeStyles } from "@material-ui/core/styles";
 
-import { ArrowBack, Close, Help, Search } from "@material-ui/icons";
+import {
+  ArrowBack,
+  Close,
+  HelpOutlineOutlined,
+  Search,
+} from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
-  appBar: {
-    position: "relative",
-  },
   toolBar: {
     marginRight: -12,
   },
@@ -21,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     flex: 1,
+  },
+  select: {
+    margin: theme.spacing(1),
   },
   search: {
     position: "relative",
@@ -66,29 +74,38 @@ const useStyles = makeStyles((theme) => ({
 const AppBarWithinDialog = (props) => {
   const classes = useStyles();
 
-  const onSearch = (event) => {
-    props.setSearchQuery(event.target.value);
-  };
-
   return (
-    <AppBar className={classes.appBar}>
+    <AppBar color="inherit" position="relative">
       <Toolbar className={classes.toolBar}>
         {/*Icon on the left*/}
-        <IconButton
-          edge="start"
-          color="inherit"
-          onClick={props.startIconAction}
-        >
+        <IconButton edge="start" color="inherit" onClick={props.onStartIcon}>
           {props.startIconIsClose ? <Close /> : <ArrowBack />}
         </IconButton>
 
         {/*Dialog title*/}
-        <Typography className={classes.title} variant="h6">
-          {props.title ? props.title : null}
-        </Typography>
+        {!props.select && props.title && (
+          <Typography className={classes.title} variant="h6">
+            {props.title}
+          </Typography>
+        )}
+
+        {/*Select*/}
+        {props.select && (
+          <FormControl className={classes.select}>
+            <Select value={props.selectValue} onChange={props.handleSelect}>
+              {props.selectOptions.map((element, index) => (
+                <MenuItem key={element.value} value={element.value}>
+                  {element.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+
+        <div style={{ flex: 1 }}></div>
 
         {/*Search field*/}
-        {props.searchField ? (
+        {props.searchField && (
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <Search />
@@ -100,21 +117,17 @@ const AppBarWithinDialog = (props) => {
                 input: classes.inputInput,
               }}
               inputProps={{ "aria-label": "search" }}
-              onChange={onSearch}
+              onChange={props.handleSearch}
             />
           </div>
-        ) : null}
+        )}
 
         {/*Help icon*/}
-        {props.helpIcon ? (
-          <IconButton
-            color="inherit"
-            href={props.helpIconAction}
-            target="_blank"
-          >
-            <Help />
+        {props.helpIcon && (
+          <IconButton color="inherit" href={props.onHelpIcon} target="_blank">
+            <HelpOutlineOutlined />
           </IconButton>
-        ) : null}
+        )}
       </Toolbar>
     </AppBar>
   );
