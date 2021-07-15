@@ -462,20 +462,17 @@ def export_to_string(project_id, export_type="csv"):
     # export the data to file
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
-<<<<<<< HEAD
 
-    if export_type == "tsv":
+    elif export_type == "tsv":
         return as_data.to_csv(
             fp=None, sep="\t", labels=labeled, ranking=ranking)
 
-    if export_type == "excel":
-=======
     elif export_type == "excel":
->>>>>>> rispy_inclusion
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
         return as_data.to_excel(
             fp=fp_tmp_export, labels=labeled, ranking=ranking)
+
     elif export_type == "ris":
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.ris")

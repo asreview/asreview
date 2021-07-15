@@ -760,7 +760,6 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.csv"
             })
-<<<<<<< HEAD
 
     elif file_type == "tsv":
         dataset_str = export_to_string(project_id, export_type="tsv")
@@ -773,9 +772,6 @@ def export_results(project_id):
                 f"attachment; filename=asreview_result_{project_id}.tsv"
             })
     else:  # excel
-=======
-    elif file_type == "xlsx":  # excel
->>>>>>> rispy_inclusion
 
         dataset_str = export_to_string(project_id, export_type="excel")
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
