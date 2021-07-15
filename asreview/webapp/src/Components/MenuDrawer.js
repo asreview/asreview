@@ -8,13 +8,7 @@ import {
   ListItemText,
   Divider,
 } from "@material-ui/core";
-import {
-  Folder,
-  Help,
-  ExitToApp,
-  Payment,
-  Settings,
-} from "@material-ui/icons";
+import { Folder, Help, ExitToApp, Payment, Settings } from "@material-ui/icons";
 
 // local imports
 import ElasIcon from "../ElasIcon";

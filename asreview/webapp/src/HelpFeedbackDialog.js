@@ -14,16 +14,15 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 
-import FeedbackIcon from '@material-ui/icons/Feedback';
-import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import DescriptionIcon from '@material-ui/icons/Description';
-import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import FeedbackIcon from "@material-ui/icons/Feedback";
+import DescriptionIcon from "@material-ui/icons/Description";
+import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 
-import { AppBarWithinDialog } from "./Components";
+import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 
-const popularArticles = [
+const faq = [
   {
     title: "Has the use of ASReview in systematic reviews been validated?",
     link: "https://github.com/asreview/asreview/discussions/556",
@@ -41,7 +40,8 @@ const popularArticles = [
     link: "https://github.com/asreview/asreview/discussions/553",
   },
   {
-    title: "How can I add more publications while I have already started screening in ASReview?",
+    title:
+      "How can I add more publications while I have already started screening in ASReview?",
     link: "https://github.com/asreview/asreview/discussions/562",
   },
 ];
@@ -55,12 +55,6 @@ const useStyles = makeStyles((theme) => ({
   },
   descriptionIcon: {
     justifyContent: "center",
-  },
-  openInNewIcon: {
-    display: "inline-flex",
-    alignSelf: "center",
-    top: ".125em",
-    position: "relative",
   },
   divider: {
     marginTop: 8,
@@ -80,7 +74,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const HelpFeedbackDialog = (props) => {
-
   const classes = useStyles();
   const descriptionElementRef = useRef(null);
   const theme = useTheme();
@@ -91,8 +84,8 @@ const HelpFeedbackDialog = (props) => {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
-      };
-    };
+      }
+    }
   }, [props.onHelpFeedback]);
 
   return (
@@ -114,19 +107,16 @@ const HelpFeedbackDialog = (props) => {
         />
         <List className={classes.root}>
           <ListItem>
-            <Typography
-              className={classes.subhead}
-              display="block"
-            >
+            <Typography className={classes.subhead} display="block">
               <b>Frequently asked questions</b>
             </Typography>
           </ListItem>
-          {popularArticles.map((article, index) => (
+          {faq.map((element, index) => (
             <ListItem
-              key={article.link}
+              key={element.link}
               button
               component={"a"}
-              href={article.link}
+              href={element.link}
               target="_blank"
               alignItems="flex-start"
             >
@@ -134,8 +124,12 @@ const HelpFeedbackDialog = (props) => {
                 <DescriptionIcon color="primary" />
               </ListItemIcon>
               <ListItemText
-                key={article.title}
-                primary={<React.Fragment>{article.title} <OpenInNewIcon className={classes.openInNewIcon} color="disabled" fontSize="small"/></React.Fragment>}
+                key={element.title}
+                primary={
+                  <React.Fragment>
+                    {element.title} <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
               />
             </ListItem>
           ))}
@@ -146,21 +140,15 @@ const HelpFeedbackDialog = (props) => {
             target="_blank"
           >
             <ListItemIcon></ListItemIcon>
-            <Typography
-              display="block"
-              color="primary"
-            >
-              <b>Browse the documentation</b> <OpenInNewIcon className={classes.openInNewIcon} color="disabled" fontSize="small"/>
+            <Typography display="block" color="primary">
+              <b>Browse the documentation</b> <OpenInNewIconStyled />
             </Typography>
           </ListItem>
 
-          <Divider className={classes.divider}/>
+          <Divider className={classes.divider} />
 
           <ListItem>
-            <Typography
-              className={classes.subhead}
-              display="block"
-            >
+            <Typography className={classes.subhead} display="block">
               <b>Need more help?</b>
             </Typography>
           </ListItem>
@@ -170,15 +158,19 @@ const HelpFeedbackDialog = (props) => {
                 href="https://github.com/asreview/asreview/discussions"
                 target="_blank"
               >
-              <CardHeader
-                avatar={
-                  <Avatar className={classes.avatar}>
-                    <QuestionAnswerIcon fontSize="small"/>
-                  </Avatar>
-                }
-                title={<React.Fragment>Ask the ASReview Community <OpenInNewIcon className={classes.openInNewIcon} color="disabled" fontSize="small"/></React.Fragment>}
-                subheader="Get answers from community experts"
-              />
+                <CardHeader
+                  avatar={
+                    <Avatar className={classes.avatar}>
+                      <QuestionAnswerIcon fontSize="small" />
+                    </Avatar>
+                  }
+                  title={
+                    <React.Fragment>
+                      Ask the ASReview Community <OpenInNewIconStyled />
+                    </React.Fragment>
+                  }
+                  subheader="Get answers from community experts"
+                />
               </CardActionArea>
             </Card>
           </ListItem>
@@ -189,20 +181,24 @@ const HelpFeedbackDialog = (props) => {
                 href="https://github.com/asreview/asreview/issues/new/choose"
                 target="_blank"
               >
-              <CardHeader
-                avatar={
-                  <Avatar className={classes.avatar}>
-                    <FeedbackIcon fontSize="small"/>
-                  </Avatar>
-                }
-                title={<React.Fragment>Send Feedback <OpenInNewIcon className={classes.openInNewIcon} color="disabled" fontSize="small"/></React.Fragment>}
-                subheader="Report bugs or request features on GitHub"
-              />
+                <CardHeader
+                  avatar={
+                    <Avatar className={classes.avatar}>
+                      <FeedbackIcon fontSize="small" />
+                    </Avatar>
+                  }
+                  title={
+                    <React.Fragment>
+                      Send Feedback <OpenInNewIconStyled />
+                    </React.Fragment>
+                  }
+                  subheader="Report bugs or request features on GitHub"
+                />
               </CardActionArea>
             </Card>
           </ListItem>
 
-          <Divider className={classes.divider}/>
+          <Divider className={classes.divider} />
         </List>
       </Dialog>
     </div>
