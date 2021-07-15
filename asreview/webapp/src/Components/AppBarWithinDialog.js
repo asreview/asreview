@@ -78,19 +78,23 @@ const AppBarWithinDialog = (props) => {
     <AppBar color="inherit" position="relative">
       <Toolbar className={classes.toolBar}>
         {/*Icon on the left*/}
-        <IconButton edge="start" color="inherit" onClick={props.onStartIcon}>
-          {props.startIconIsClose ? <Close /> : <ArrowBack />}
+        <IconButton
+          edge="start"
+          color="inherit"
+          onClick={props.handleStartIcon}
+        >
+          {props.onClose ? <Close /> : <ArrowBack />}
         </IconButton>
 
         {/*Dialog title*/}
-        {!props.select && props.title && (
+        {!props.onSelect && props.title && (
           <Typography className={classes.title} variant="h6">
             {props.title}
           </Typography>
         )}
 
         {/*Select*/}
-        {props.select && (
+        {props.onSelect && (
           <FormControl className={classes.select}>
             <Select value={props.selectValue} onChange={props.handleSelect}>
               {props.selectOptions.map((element, index) => (
@@ -105,7 +109,7 @@ const AppBarWithinDialog = (props) => {
         <div style={{ flex: 1 }}></div>
 
         {/*Search field*/}
-        {props.searchField && (
+        {props.onSearchField && (
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <Search />
@@ -123,8 +127,8 @@ const AppBarWithinDialog = (props) => {
         )}
 
         {/*Help icon*/}
-        {props.helpIcon && (
-          <IconButton color="inherit" href={props.onHelpIcon} target="_blank">
+        {props.onHelp && (
+          <IconButton color="inherit" href={props.handleHelp} target="_blank">
             <HelpOutlineOutlined />
           </IconButton>
         )}
