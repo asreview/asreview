@@ -5,15 +5,19 @@ Extensions
 
 ASReview has support for extensions, which enable you to integrate your
 programs with the ASReview framework seamlessly. These extensions can extend
-the software with new classifiers, query strategies, balance strategies, and
-feature extraction techniques. It is also possible to extend ASReview with a
-completely new subcommand (like ``lab`` or ``simulate``).
+the software with new :ref:`models <extensions-dev-model>` (i.e., classifiers,
+query strategies, balance strategies, or feature extraction techniques). It is
+also possible to extend ASReview with a completely new :ref:`subcommand
+<extensions-dev-subcommand>` (like ``lab`` or ``simulate``).
 
 The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with
 pip). If you have no experience with creating packages, look at the
 `visualization extension <https://github.com/asreview/ASReview-
 visualization>`__ and modify it to suit your needs.
+
+If you made an extension and you would like it to be added to the
+documentation, please initiate an issue on `Github <https://github.com/asreview/asreview/issues/new/choose>`_.
 
 Usage
 -----
@@ -32,33 +36,6 @@ Install the extension with
 After installation, the subcommand ``plot`` is available in the command line.
 See ``asreview -h`` for this option.
 
-.. code:: bash
-
-    $ asreview -h
-    usage: asreview [-h] [-V] [subcommand]
-
-    Automated Systematic Review (ASReview).
-
-    positional arguments:
-      subcommand     The subcommand to launch. Available commands:
-
-                     lab [asreview-0.13]
-                         Graphical user interface for ASReview.
-
-                     simulate [asreview-0.13]
-                         Simulate the performance of ASReview.
-
-                     simulate-batch [asreview-0.13]
-                         Parallel simulation for ASReview.
-
-                     plot [asreview-visualization-0.2.2]
-                         Plotting functionality for logging files produced by ASReview.
-
-    optional arguments:
-      -h, --help     show this help message and exit
-      -V, --version  print the ASR version number and exit
-
-
 With this extension installed, a plot can be made with an ASReview state
 file. The following example shows how a plot is made of the file
 ``example_run_1.h5``.
@@ -68,13 +45,16 @@ file. The following example shows how a plot is made of the file
     asreview plot example_run_1.h5
 
 
+
+.. _extensions-dev-subcommand:
+
 Create subcommand
 -----------------
 
-Extensions in ASReview are Python packages. Extension packages can extend the
-subcommands of asreview (see ``asreview -h``) or add new algorithms.
+Extensions in ASReview are Python packages and can extend the
+subcommands of asreview (see ``asreview -h``).
 
-The easiest way to create an extension is by defining a class that can be used
+The easiest way to create a new subcommand is by defining a class that can be used
 as a new entry point for ASReview. This class should inherit from
 :class:`asreview.entry_points.BaseEntryPoint`. Add the functionality to the
 class method ``execute``.
@@ -133,15 +113,18 @@ example`` subcommand.
 
 If you are willing to share your work, the easiest way is to upload your
 package to GitHub and/or PyPi. Users can directly install the extension from
-these sources.
+these sources. Also, if you would like it to be added to the
+documentation, please initiate an issue on `Github <https://github.com/asreview/asreview/issues/new/choose>`_.
+
+
+.. _extensions-dev-model:
 
 Add model
 ---------
 
-In the ASReview project, an active learning model consists of classifier,
+In the ASReview, an active learning model consists of classifier,
 query strategy, balance strategy, or feature extraction technique. The easiest
-way to extend ASReview with a new classifier, query strategy, balance
-strategy, or feature extraction technique is by using the template `Template
+way to extend ASReview with a model is by using the template `Template
 for extending ASReview <https://github.com/asreview/template- extension-new-
 model>`__. Create a copy of the template and add the new algorithms. It is
 advised to use the following structure of the package:
@@ -203,4 +186,7 @@ simulate command line.
     asreview simulate example_data_file.csv -m example
 
 
-
+If you are willing to share your work, the easiest way is to upload your
+extension to GitHub and/or PyPi. Users can directly install the extension from
+these sources. Also, if you would like it to be added to the
+documentation, please initiate an issue on `Github <https://github.com/asreview/asreview/issues/new/choose>`_.
