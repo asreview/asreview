@@ -100,9 +100,8 @@ const HelpFeedbackDialog = (props) => {
         aria-labelledby="scroll-dialog-helpfeedback"
       >
         <AppBarWithinDialog
-          closeIcon={true}
-          arrowBackIcon={props.toggleHelpFeedback}
-          helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html"
+          onClose={true}
+          handleStartIcon={props.toggleHelpFeedback}
           title="Help"
         />
         <List className={classes.root}>
