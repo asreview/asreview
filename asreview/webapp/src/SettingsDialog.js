@@ -20,7 +20,7 @@ import {
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 
-import { AppBarWithinDialog } from "./Components";
+import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 import { fontSizeOptions, donateURL } from "./globals.js";
 
 import { connect } from "react-redux";
@@ -119,11 +119,13 @@ const SettingsDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
+        {/*Main settings*/}
         {!fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
-            closeIcon={true}
-            arrowBackIcon={props.toggleSettings}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html"
+            onClose={true}
+            onHelp={true}
+            handleStartIcon={props.toggleSettings}
+            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html"
             title="Settings"
           />
         )}
@@ -217,7 +219,11 @@ const SettingsDialog = (props) => {
               <ListItemIcon></ListItemIcon>
               <ListItemText
                 id="switch-list-label-about"
-                primary="About ASReview LAB"
+                primary={
+                  <React.Fragment>
+                    About ASReview LAB <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
                 secondary={"Version " + props.asreview_version}
               />
             </ListItem>
@@ -226,22 +232,29 @@ const SettingsDialog = (props) => {
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   id="switch-list-label-about"
-                  primary="Donate to ASReview Development Fund"
+                  primary={
+                    <React.Fragment>
+                      Donate to ASReview Development Fund{" "}
+                      <OpenInNewIconStyled />
+                    </React.Fragment>
+                  }
                 />
               </ListItem>
             )}
           </List>
         )}
 
-        {fontSizeSetting && !shortcutSetting && (
+        {/*Font size setting*/}
+        {fontSizeSetting && (
           <AppBarWithinDialog
-            closeIcon={false}
-            arrowBackIcon={toggleFontSizeSetting}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
+            onClose={false}
+            onHelp={true}
+            handleStartIcon={toggleFontSizeSetting}
+            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
             title="Font size"
           />
         )}
-        {fontSizeSetting && !shortcutSetting && (
+        {fontSizeSetting && (
           <div>
             <Container
               className={classes.fontSizeSampleContainer}
@@ -345,15 +358,17 @@ const SettingsDialog = (props) => {
           </div>
         )}
 
-        {shortcutSetting && !fontSizeSetting && (
+        {/*Keyboard shortcut setting*/}
+        {shortcutSetting && (
           <AppBarWithinDialog
-            closeIcon={false}
-            arrowBackIcon={toggleShortcutSetting}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
+            onClose={false}
+            onHelp={true}
+            handleStartIcon={toggleShortcutSetting}
+            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
             title="Keyboard shortcuts"
           />
         )}
-        {shortcutSetting && !fontSizeSetting && (
+        {shortcutSetting && (
           <div>
             <List>
               <ListItem button onClick={props.toggleKeyPressEnabled}>
