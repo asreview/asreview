@@ -22,7 +22,7 @@ There are four ways to select a dataset:
 
 - Upload your own dataset. Read more about the format on :doc:`../intro/datasets`.
 - Import a dataset with an URL. Read more about the format on :doc:`../intro/datasets`.
-- Select a dataset from an :doc:`extension <../plugins/overview_plugins>` (for example to use the :doc:`COVID-19 extension <../plugins/covid19>`).
+- Select a dataset from an :doc:`extension <../extensions/overview_extensions>` (for example to use the :doc:`COVID-19 extension <../extensions/extension_covid19>`).
 - Choose one of the :doc:`benchmark data sets <exploration>`.
 
 .. figure:: ../../images/asreview_prescreening_datasets.png
