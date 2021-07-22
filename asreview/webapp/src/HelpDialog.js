@@ -28,6 +28,7 @@ import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: 20,
+    paddingBottom: 20,
   },
   subhead: {
     paddingLeft: 20,
@@ -202,8 +203,6 @@ const HelpDialog = (props) => {
               </CardActionArea>
             </Card>
           </ListItem>
-
-          <Divider className={classes.divider} />
         </List>
       </Dialog>
     </div>
