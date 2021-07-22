@@ -43,7 +43,7 @@ def get_long_description():
 DEPS = {
     "sbert": ['sentence_transformers'],
     "doc2vec": ['gensim<=3.8.2'],
-    "tensorflow": ['tensorflow'],
+    "tensorflow": ['tensorflow~=2.0'],
     "dev": ['check-manifest'],
     'test': ['coverage', 'pytest'],
 }
