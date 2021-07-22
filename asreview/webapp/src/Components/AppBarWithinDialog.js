@@ -19,6 +19,9 @@ import {
 } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    overflow: "hidden",
+  },
   toolBar: {
     marginRight: -12,
   },
@@ -75,7 +78,7 @@ const AppBarWithinDialog = (props) => {
   const classes = useStyles();
 
   return (
-    <AppBar color="inherit" position="relative">
+    <AppBar className={classes.root} color="inherit" position="relative">
       <Toolbar className={classes.toolBar}>
         {/*Icon on the left*/}
         <IconButton
