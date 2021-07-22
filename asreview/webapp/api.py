@@ -122,8 +122,8 @@ def api_get_faq():
             response = jsonify(res["items"])
 
     except Exception as err:
-       logging.error(err)
-       return jsonify(message="Failed to retrieve frequently asked questions."), 500
+        logging.error(err)
+        return jsonify(message="Failed to retrieve frequently asked questions."), 500
 
     return response
 
