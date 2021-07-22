@@ -47,17 +47,6 @@ def _get_diff_history(new_history, old_history):
 
 
 def _get_label_train_history(state):
-    # label_idx = []
-    # inclusions = []
-    # for query_i in range(state.n_models):
-    #     try:
-    #         new_labels = state.get("label_idx", query_i=query_i)
-    #         new_inclusions = state.get("inclusions", query_i=query_i)
-    #     except KeyError:
-    #         new_labels = None
-    #     if new_labels is not None:
-    #         label_idx.extend(new_labels)
-    #         inclusions.extend(new_inclusions)
     indices = state.get_order_of_labeling().tolist()
     labels = state.get_labels().tolist()
 

@@ -181,18 +181,6 @@ class BaseState(ABC):
 
     @property
     @abstractmethod
-    def n_models(self):
-        """Number of unique (classifier + training set) models used.
-
-        Returns
-        -------
-        int
-            Number of unique models used, priors counted as one.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
     def n_records_labeled(self):
         """Number labeled records.
 
@@ -311,18 +299,6 @@ class BaseState(ABC):
     #     """Delete the last query from the state object."""
     #     raise NotImplementedError
     #
-    #
-    # @property
-    # def pred_proba(self):
-    #     """Get last predicted probabilities."""
-    #     for query_i in reversed(range(self.n_models)):
-    #         try:
-    #             proba = self.get("proba", query_i=query_i)
-    #             if proba is not None:
-    #                 return proba
-    #         except KeyError:
-    #             pass
-    #     return None
 
     @abstractmethod
     def close(self):

@@ -185,6 +185,39 @@ def get_labeled_path(project_id):
     return Path(get_project_path(project_id), "labeled.json")
 
 
+def get_sql_path(project_id):
+    """Get the results sql file from the project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+    return Path(get_project_path(project_id), 'results.sql')
+
+
+def get_settings_metadata_path(project_id):
+    """Get the settings/metadata json file from the project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+    return Path(get_project_path(project_id), 'settings_metadata.json')
+
+
+def get_feature_matrix_path(project_id):
+    """Get the feature matrix file from the project.
+
+    Arguments
+    ---------
+    project_id: str
+        The id of the current project.
+    """
+    return Path(get_project_path(project_id), 'feature_matrix.npz')
+
+
 # TODO (State): Fix state file location.
 def get_state_path(project_id):
     """Get the labeled file for the project and iteration.

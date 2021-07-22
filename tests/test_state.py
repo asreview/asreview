@@ -18,18 +18,19 @@ TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
 TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
 TEST_RECORD_TABLE = list(range(1, 852))
-TEST_CLASSIFIERS = ['initial', 'initial', 'initial', 'initial', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb']
+TEST_CLASSIFIERS = ['prior', 'prior', 'prior', 'prior', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb']
 TEST_QUERY_STRATEGIES = ['prior', 'prior', 'prior', 'prior', 'max', 'max', 'max', 'max', 'max', 'max']
-TEST_BALANCE_STRATEGIES = ['initial', 'initial', 'initial', 'initial', 'double', 'double', 'double', 'double',
+TEST_BALANCE_STRATEGIES = ['prior', 'prior', 'prior', 'prior', 'double', 'double', 'double', 'double',
                                    'double', 'double']
-TEST_FEATURE_EXTRACTION = ['initial', 'initial', 'initial', 'initial', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
+TEST_FEATURE_EXTRACTION = ['prior', 'prior', 'prior', 'prior', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
                                      'tfidf', 'tfidf']
 TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
-TEST_LABELING_TIMES = [1621597506037183, 1621597506046369, 1621597506053114, 1621597506061950, 1621597506070351,
-                           1621597506072425, 1621597506073674, 1621597506077505, 1621597506079072, 1621597506084322]
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
 TEST_STATE_FP = Path("tests", "v3_states", "test_converted_unzipped.asreview")
+TEST_WITH_TIMES_FP = Path('tests', 'v3_states', 'test_with_times_unzipped.asreview')
+TEST_LABELING_TIMES = ['2021-07-22 12:10:17.316387', '2021-07-22 12:10:17.316387', '2021-07-22 12:10:22.258937', '2021-07-22 12:10:22.258937', '2021-07-22 12:10:23.240560', '2021-07-22 12:10:24.167310', '2021-07-22 12:10:25.139470', '2021-07-22 12:10:27.309526', '2021-07-22 12:10:29.100831', '2021-07-22 12:10:29.100831']
+
 with open(TEST_STATE_FP / 'test_probabilities.json', 'r') as f:
     TEST_LAST_PROBABILITIES = json.load(f)
 
@@ -87,12 +88,6 @@ def test_current_queries():
 def test_n_records_labeled():
     with open_state(TEST_STATE_FP) as state:
         assert state.n_records_labeled == len(TEST_LABELS)
-
-
-# # TODO (State): Test with n_instance > 1.
-def test_n_models():
-    with open_state(TEST_STATE_FP) as state:
-        assert state.n_models == TEST_N_MODELS
 
 
 def test_n_priors():
@@ -180,10 +175,10 @@ def test_get_labels():
         assert all(state.get_labels() == TEST_LABELS)
 
 
-# TODO(State): Get state file with labeling times.
 def test_get_labeling_times():
-    with open_state(TEST_STATE_FP) as state:
+    with open_state(TEST_WITH_TIMES_FP) as state:
         assert isinstance(state.get_labeling_times(), pd.Series)
+        assert all(state.get_labeling_times() == TEST_LABELING_TIMES)
 
 
 def test_create_empty_state(tmpdir):

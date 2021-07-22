@@ -192,7 +192,7 @@ class BaseReview(ABC):
 
                 # Only used in BaseReview.statistics.
                 try:
-                    self.n_initial = startup_values['query_strategies'].value_counts()['initial']
+                    self.n_initial = startup_values['query_strategies'].value_counts()['prior']
                 except KeyError:
                     self.n_initial = 0
 
@@ -207,7 +207,6 @@ class BaseReview(ABC):
                 }
             # state file doesnt exist
             else:
-                print("Empty")
                 # state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx,
@@ -426,7 +425,6 @@ class BaseReview(ABC):
         )
         return query_idx
 
-# TODO (State): Add labeling times, model, training_set
     def classify(self, query_idx, inclusions, state, method=None):
         """Classify new papers and update the training indices.
 
@@ -463,7 +461,7 @@ class BaseReview(ABC):
                     self.shared["query_src"][method].append(idx)
                 else:
                     self.shared["query_src"][method] = [idx]
-                if method == 'initial':
+                if method == 'prior':
                     self.n_initial += 1
         else:
             methods = np.full(len(query_idx), method)
@@ -471,7 +469,7 @@ class BaseReview(ABC):
                 self.shared["query_src"][method].extend(query_idx.tolist())
             else:
                 self.shared["query_src"][method] = query_idx.tolist()
-            if method == 'initial':
+            if method == 'prior':
                 self.n_initial += len(methods)
 
         # Set up the labeling data.
@@ -482,7 +480,10 @@ class BaseReview(ABC):
         query_strategies = methods
         balance_strategies = [self.balance_model.name for _ in range(n_records_labeled)]
         feature_extraction = [self.feature_model.name for _ in range(n_records_labeled)]
-        training_sets = [len(self.train_idx) for _ in range(n_records_labeled)]
+        # The training set on which a model was trained is empty if the query strategy was 'prior'.
+        # Otherwise the training set (all_training_indices - current_indices).
+        training_sets = [0 if query_strategies[i] == 'prior' else len(self.train_idx) - n_records_labeled
+                         for i in range(n_records_labeled)]
 
         state.add_labeling_data(record_ids=record_ids,
                                 labels=labels,
@@ -518,7 +519,7 @@ class BaseReview(ABC):
             self.query_i += 1
             self.query_i_classified = 0
 
-    # TODO(State): Get this from the state file itself.
+    # TODO(State): Should this exist? If so, get from the state file itself.
     def statistics(self):
         """Get statistics on the current state of the review.
 

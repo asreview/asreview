@@ -27,16 +27,19 @@ from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateNotFoundError
 from asreview.state.errors import StateError
+from asreview._version import get_versions
 
 
 RELATIVE_RESULTS_PATH = Path('results.sql')
 RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
 RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
 LATEST_HDF5STATE_VERSION = "1.1"
+SOFTWARE_VERSION = get_versions()['version']
 REQUIRED_TABLES = ['results', 'record_table', 'last_probabilities']
 RESULTS_TABLE_COLUMNS = ['record_ids', 'labels', 'classifiers', 'query_strategies',
                          'balance_strategies', 'feature_extraction',
                          'training_sets', 'labeling_times']
+SETTINGS_METADATA_KEYS = ['settings', 'state_version', 'software_version']
 
 
 class HDF5State(BaseState):
@@ -67,7 +70,7 @@ class HDF5State(BaseState):
             con = sqlite3.connect(self._sql_fp)
         return con
 
-# TODO(State): Add file paths to routes section of webapp.
+    # TODO(State): Should this be obtained from webapp/utils/paths, or viceversa?
     @property
     def _sql_fp(self):
         """Path to the sql database."""
@@ -98,7 +101,7 @@ class HDF5State(BaseState):
         # Create settings_metadata.json
         self.settings_metadata = {
             'settings': None,
-            'version': LATEST_HDF5STATE_VERSION,
+            'state_version': LATEST_HDF5STATE_VERSION,
             'software_version': SOFTWARE_VERSION
         }
 
@@ -134,7 +137,6 @@ class HDF5State(BaseState):
         except sqlite3.Error as e:
             con.close()
             raise e
-        # TODO (State): Models being trained.
 
     def _restore(self, fp):
         """Restore the state file.
@@ -170,7 +172,6 @@ class HDF5State(BaseState):
 
         self._is_valid_state()
 
-    # TODO(State): Check more things?
     def _is_valid_state(self):
         con = self._connect_to_sql()
         cur = con.cursor()
@@ -189,6 +190,12 @@ class HDF5State(BaseState):
             if column not in column_names:
                 raise StateError(f'The results table does not contain the column {column}.')
 
+        # Check settings_metadata contains the required keys.
+        settings_metadata_keys = self.settings_metadata.keys()
+        for key in SETTINGS_METADATA_KEYS:
+            if key not in settings_metadata_keys:
+                raise StateError(f'The key {key} was not found in settings_metadata.')
+
     def close(self):
         pass
 
@@ -201,9 +208,9 @@ class HDF5State(BaseState):
     def version(self):
         """Version number of the state file."""
         try:
-            return self.settings_metadata['version']
+            return self.settings_metadata['state_version']
         except KeyError:
-            raise AttributeError("'settings_metadata.json' does not contain 'version'.")
+            raise AttributeError("'settings_metadata.json' does not contain 'state_version'.")
 
     @property
     def settings(self):
@@ -276,23 +283,6 @@ class HDF5State(BaseState):
         n_rows = cur.fetchone()
         con.close()
         return n_rows[0]
-
-# TODO: Should this return 0 if it is empty?
-    @property
-    def n_models(self):
-        """Get the number of unique (classifier type + training set) models that were used. """
-        con = self._connect_to_sql()
-        cur = con.cursor()
-        cur.execute("SELECT classifiers, training_sets FROM results")
-        res = cur.fetchall()
-        con.close()
-
-        classifiers = [row[0] for row in res][self.n_priors:]
-        training_sets = [str(row[1]) for row in res][self.n_priors:]
-        # A model is uniquely determine by the string {classifier_code}{training_set}.
-        model_ids = [model + tr_set for (model, tr_set) in zip(classifiers, training_sets)]
-        # Return the number of unique model_ids, plus 1 for the priors.
-        return np.unique(model_ids).shape[0] + 1
 
     @property
     def n_priors(self):

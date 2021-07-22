@@ -33,7 +33,7 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 
 
-V3STATE_VERSION = "1.1"
+V3STATE_VERSION = "1.0"
 
 
 def _get_state_class(fp):
@@ -289,7 +289,7 @@ def convert_h5_to_v3(v3state_fp, old_h5_state_fp, basic, proba_gap=1):
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
-            sf_predictor_models = ['initial'] * n_priors + [
+            sf_predictor_models = ['prior'] * n_priors + [
                 f'{model}' for _ in sf_queries
             ]
             sf_predictor_models = np.array(sf_predictor_models, dtype='S')
@@ -446,7 +446,7 @@ def convert_json_to_v3(v3state_fp, jsonstate_fp, basic, proba_gap=1):
             # conversion from dtype='U'. Is it important to set a certain
             # length, like '|S20'?
             model = sf.settings.to_dict()['model']
-            sf_predictor_models = ['initial'] * n_priors + [
+            sf_predictor_models = ['prior'] * n_priors + [
                 f'{model}' for _ in sf_queries
             ]
             sf_predictor_models = np.array(sf_predictor_models, dtype='S')
