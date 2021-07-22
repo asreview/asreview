@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Avatar,
   Card,
@@ -20,31 +20,10 @@ import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 
-import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
+import { FunctionAPI } from "./api/index.js";
 
-const faq = [
-  {
-    title: "Has the use of ASReview in systematic reviews been validated?",
-    link: "https://github.com/asreview/asreview/discussions/556",
-  },
-  {
-    title: "What are the best ways to stop screening?",
-    link: "https://github.com/asreview/asreview/discussions/557",
-  },
-  {
-    title: "Can you do double screening in ASReview?",
-    link: "https://github.com/asreview/asreview/discussions/550",
-  },
-  {
-    title: "How to deal with records that do not have abstracts?",
-    link: "https://github.com/asreview/asreview/discussions/553",
-  },
-  {
-    title:
-      "How can I add more publications while I have already started screening in ASReview?",
-    link: "https://github.com/asreview/asreview/discussions/562",
-  },
-];
+import ErrorHandler from "./ErrorHandler";
+import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -73,35 +52,60 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const HelpFeedbackDialog = (props) => {
+const HelpDialog = (props) => {
   const classes = useStyles();
   const descriptionElementRef = useRef(null);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const [faq, setFaq] = useState(null);
+  const [error, setError] = useState({
+    code: null,
+    message: null,
+  });
+
+  const getFaq = useCallback(() => {
+    FunctionAPI.faq()
+      .then((result) => {
+        setFaq(result.data);
+      })
+      .catch((error) => {
+        setError({
+          code: error.code,
+          message: error.message,
+        });
+      });
+  }, []);
+
   useEffect(() => {
-    if (props.onHelpFeedback) {
+    if (props.onHelp) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.onHelpFeedback]);
+  }, [props.onHelp]);
+
+  useEffect(() => {
+    if (!error.message) {
+      getFaq();
+    }
+  }, [getFaq, error.message]);
 
   return (
     <div>
       <Dialog
         fullScreen={fullScreen}
-        open={props.onHelpFeedback}
-        onClose={props.toggleHelpFeedback}
+        open={props.onHelp}
+        onClose={props.toggleHelp}
         scroll="paper"
         fullWidth={true}
         maxWidth={"sm"}
-        aria-labelledby="scroll-dialog-helpfeedback"
+        aria-labelledby="scroll-dialog-help"
       >
         <AppBarWithinDialog
           onClose={true}
-          handleStartIcon={props.toggleHelpFeedback}
+          handleStartIcon={props.toggleHelp}
           title="Help"
         />
         <List className={classes.root}>
@@ -110,28 +114,30 @@ const HelpFeedbackDialog = (props) => {
               <b>Frequently asked questions</b>
             </Typography>
           </ListItem>
-          {faq.map((element, index) => (
-            <ListItem
-              key={element.link}
-              button
-              component={"a"}
-              href={element.link}
-              target="_blank"
-              alignItems="flex-start"
-            >
-              <ListItemIcon className={classes.descriptionIcon}>
-                <DescriptionIcon color="primary" />
-              </ListItemIcon>
-              <ListItemText
-                key={element.title}
-                primary={
-                  <React.Fragment>
-                    {element.title} <OpenInNewIconStyled />
-                  </React.Fragment>
-                }
-              />
-            </ListItem>
-          ))}
+          {faq &&
+            faq.map((element, index) => (
+              <ListItem
+                key={element.url}
+                button
+                component={"a"}
+                href={element.url}
+                target="_blank"
+                alignItems="flex-start"
+              >
+                <ListItemIcon className={classes.descriptionIcon}>
+                  <DescriptionIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  key={element.title}
+                  primary={
+                    <React.Fragment>
+                      {element.title} <OpenInNewIconStyled />
+                    </React.Fragment>
+                  }
+                />
+              </ListItem>
+            ))}
+          {!faq && <ErrorHandler error={error} setError={setError} />}
           <ListItem
             button
             component={"a"}
@@ -204,4 +210,4 @@ const HelpFeedbackDialog = (props) => {
   );
 };
 
-export default HelpFeedbackDialog;
+export default HelpDialog;

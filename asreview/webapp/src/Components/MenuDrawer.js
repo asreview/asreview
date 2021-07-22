@@ -142,10 +142,10 @@ const MenuDrawer = (props) => {
 
           <ListItem
             button
-            key="menu-button-helpfeedback"
+            key="menu-button-help"
             onClick={() => {
               props.setMenuDrawerState({ left: false });
-              props.toggleHelpFeedback();
+              props.toggleHelp();
             }}
           >
             <ListItemIcon>

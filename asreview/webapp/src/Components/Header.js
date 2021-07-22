@@ -161,7 +161,7 @@ const Header = (props) => {
         setMenuDrawerState={setState}
         toggleDrawer={toggleDrawer}
         toggleSettings={props.toggleSettings}
-        toggleHelpFeedback={props.toggleHelpFeedback}
+        toggleHelp={props.toggleHelp}
         toggleExit={props.toggleExit}
       />
     </div>
