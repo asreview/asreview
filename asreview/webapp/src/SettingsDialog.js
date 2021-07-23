@@ -33,17 +33,14 @@ const mapStateToProps = (state) => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: 0,
-  },
-  subhead: {
-    paddingTop: 20,
     paddingBottom: 10,
+  },
+  divider: {
+    marginTop: 8,
+    marginBottom: 8,
   },
   listAction: {
     right: 24,
-  },
-  fontSizeSetting: {
-    padding: 20,
   },
   fontSizeSampleContainer: {
     paddingTop: 10,
@@ -58,6 +55,15 @@ const useStyles = makeStyles((theme) => ({
   },
   fontSizeSampleAbstract: {
     whiteSpace: "pre-line",
+  },
+  fontSizeSlider: {
+    alignItems: "flex-end",
+  },
+  fontSizeDescription: {
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 10,
   },
 }));
 
@@ -134,7 +140,6 @@ const SettingsDialog = (props) => {
             <ListItem>
               <ListItemIcon></ListItemIcon>
               <Typography
-                className={classes.subhead}
                 color="textSecondary"
                 display="block"
                 variant="subtitle2"
@@ -162,11 +167,10 @@ const SettingsDialog = (props) => {
                 secondary={props.fontSize.label}
               />
             </ListItem>
-            <Divider />
+            <Divider className={classes.divider} />
             <ListItem>
               <ListItemIcon></ListItemIcon>
               <Typography
-                className={classes.subhead}
                 color="textSecondary"
                 display="block"
                 variant="subtitle2"
@@ -198,11 +202,10 @@ const SettingsDialog = (props) => {
                 />
               </ListItemSecondaryAction>
             </ListItem>
-            <Divider />
+            <Divider className={classes.divider} />
             <ListItem>
               <ListItemIcon></ListItemIcon>
               <Typography
-                className={classes.subhead}
                 color="textSecondary"
                 display="block"
                 variant="subtitle2"
@@ -255,7 +258,7 @@ const SettingsDialog = (props) => {
           />
         )}
         {fontSizeSetting && (
-          <div>
+          <div className={classes.root}>
             <Container
               className={classes.fontSizeSampleContainer}
               maxWidth="md"
@@ -327,7 +330,7 @@ const SettingsDialog = (props) => {
               </Typography>
             </div>
             <div>
-              <Grid container style={{ alignItems: "flex-end" }}>
+              <Grid container className={classes.fontSizeSlider}>
                 <Grid item xs>
                   <Typography align="center" variant="h6">
                     A
@@ -350,7 +353,7 @@ const SettingsDialog = (props) => {
                 </Grid>
               </Grid>
             </div>
-            <div className={classes.fontSizeSetting}>
+            <div className={classes.fontSizeDescription}>
               <Typography>
                 Make the text on the review screen smaller or larger.
               </Typography>
@@ -370,7 +373,7 @@ const SettingsDialog = (props) => {
         )}
         {shortcutSetting && (
           <div>
-            <List>
+            <List className={classes.root}>
               <ListItem button onClick={props.toggleKeyPressEnabled}>
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
@@ -387,7 +390,7 @@ const SettingsDialog = (props) => {
                   />
                 </ListItemSecondaryAction>
               </ListItem>
-              <Divider />
+              <Divider className={classes.divider} />
               <ListItem alignItems="flex-start">
                 <ListItemIcon>
                   <InfoOutlinedIcon />

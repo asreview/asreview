@@ -19,16 +19,20 @@ import {
 } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    overflow: "hidden",
+  },
   toolBar: {
     marginRight: -12,
   },
   title: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
-    flex: 1,
+    flexGrow: 1,
   },
   select: {
     margin: theme.spacing(1),
+    flexGrow: 1,
   },
   search: {
     position: "relative",
@@ -75,7 +79,7 @@ const AppBarWithinDialog = (props) => {
   const classes = useStyles();
 
   return (
-    <AppBar color="inherit" position="relative">
+    <AppBar className={classes.root} color="inherit" position="relative">
       <Toolbar className={classes.toolBar}>
         {/*Icon on the left*/}
         <IconButton
@@ -95,18 +99,18 @@ const AppBarWithinDialog = (props) => {
 
         {/*Select*/}
         {props.onSelect && (
-          <FormControl className={classes.select}>
-            <Select value={props.selectValue} onChange={props.handleSelect}>
-              {props.selectOptions.map((element, index) => (
-                <MenuItem key={element.value} value={element.value}>
-                  {element.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <div className={classes.select}>
+            <FormControl>
+              <Select value={props.selectValue} onChange={props.handleSelect}>
+                {props.selectOptions.map((element, index) => (
+                  <MenuItem key={element.value} value={element.value}>
+                    {element.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
         )}
-
-        <div style={{ flex: 1 }}></div>
 
         {/*Search field*/}
         {props.onSearchField && (
