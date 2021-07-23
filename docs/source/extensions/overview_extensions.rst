@@ -32,7 +32,7 @@ of the core project:
 .. _extensions-community:
 
 Community-maintained extensions
------------------------------
+-------------------------------
 
 The following extensions are developed and maintained by the ASReview community:
 

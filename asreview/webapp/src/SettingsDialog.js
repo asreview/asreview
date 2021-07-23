@@ -20,7 +20,7 @@ import {
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 
-import { AppBarWithinDialog } from "./Components";
+import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 import { fontSizeOptions, donateURL } from "./globals.js";
 
 import { connect } from "react-redux";
@@ -33,17 +33,14 @@ const mapStateToProps = (state) => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: 0,
-  },
-  subhead: {
-    paddingTop: 20,
     paddingBottom: 10,
+  },
+  divider: {
+    marginTop: 8,
+    marginBottom: 8,
   },
   listAction: {
     right: 24,
-  },
-  fontSizeSetting: {
-    padding: 20,
   },
   fontSizeSampleContainer: {
     paddingTop: 10,
@@ -58,6 +55,15 @@ const useStyles = makeStyles((theme) => ({
   },
   fontSizeSampleAbstract: {
     whiteSpace: "pre-line",
+  },
+  fontSizeSlider: {
+    alignItems: "flex-end",
+  },
+  fontSizeDescription: {
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 10,
   },
 }));
 
@@ -119,11 +125,13 @@ const SettingsDialog = (props) => {
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
       >
+        {/*Main settings*/}
         {!fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
-            closeIcon={true}
-            arrowBackIcon={props.toggleSettings}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html"
+            onClose={true}
+            onHelp={true}
+            handleStartIcon={props.toggleSettings}
+            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html"
             title="Settings"
           />
         )}
@@ -132,7 +140,6 @@ const SettingsDialog = (props) => {
             <ListItem>
               <ListItemIcon></ListItemIcon>
               <Typography
-                className={classes.subhead}
                 color="textSecondary"
                 display="block"
                 variant="subtitle2"
@@ -160,11 +167,10 @@ const SettingsDialog = (props) => {
                 secondary={props.fontSize.label}
               />
             </ListItem>
-            <Divider />
+            <Divider className={classes.divider} />
             <ListItem>
               <ListItemIcon></ListItemIcon>
               <Typography
-                className={classes.subhead}
                 color="textSecondary"
                 display="block"
                 variant="subtitle2"
@@ -196,11 +202,10 @@ const SettingsDialog = (props) => {
                 />
               </ListItemSecondaryAction>
             </ListItem>
-            <Divider />
+            <Divider className={classes.divider} />
             <ListItem>
               <ListItemIcon></ListItemIcon>
               <Typography
-                className={classes.subhead}
                 color="textSecondary"
                 display="block"
                 variant="subtitle2"
@@ -217,7 +222,11 @@ const SettingsDialog = (props) => {
               <ListItemIcon></ListItemIcon>
               <ListItemText
                 id="switch-list-label-about"
-                primary="About ASReview LAB"
+                primary={
+                  <React.Fragment>
+                    About ASReview LAB <OpenInNewIconStyled />
+                  </React.Fragment>
+                }
                 secondary={"Version " + props.asreview_version}
               />
             </ListItem>
@@ -226,23 +235,30 @@ const SettingsDialog = (props) => {
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   id="switch-list-label-about"
-                  primary="Donate to ASReview Development Fund"
+                  primary={
+                    <React.Fragment>
+                      Donate to ASReview Development Fund{" "}
+                      <OpenInNewIconStyled />
+                    </React.Fragment>
+                  }
                 />
               </ListItem>
             )}
           </List>
         )}
 
-        {fontSizeSetting && !shortcutSetting && (
+        {/*Font size setting*/}
+        {fontSizeSetting && (
           <AppBarWithinDialog
-            closeIcon={false}
-            arrowBackIcon={toggleFontSizeSetting}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
+            onClose={false}
+            onHelp={true}
+            handleStartIcon={toggleFontSizeSetting}
+            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
             title="Font size"
           />
         )}
-        {fontSizeSetting && !shortcutSetting && (
-          <div>
+        {fontSizeSetting && (
+          <div className={classes.root}>
             <Container
               className={classes.fontSizeSampleContainer}
               maxWidth="md"
@@ -314,7 +330,7 @@ const SettingsDialog = (props) => {
               </Typography>
             </div>
             <div>
-              <Grid container style={{ alignItems: "flex-end" }}>
+              <Grid container className={classes.fontSizeSlider}>
                 <Grid item xs>
                   <Typography align="center" variant="h6">
                     A
@@ -337,7 +353,7 @@ const SettingsDialog = (props) => {
                 </Grid>
               </Grid>
             </div>
-            <div className={classes.fontSizeSetting}>
+            <div className={classes.fontSizeDescription}>
               <Typography>
                 Make the text on the review screen smaller or larger.
               </Typography>
@@ -345,17 +361,19 @@ const SettingsDialog = (props) => {
           </div>
         )}
 
-        {shortcutSetting && !fontSizeSetting && (
+        {/*Keyboard shortcut setting*/}
+        {shortcutSetting && (
           <AppBarWithinDialog
-            closeIcon={false}
-            arrowBackIcon={toggleShortcutSetting}
-            helpIcon="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
+            onClose={false}
+            onHelp={true}
+            handleStartIcon={toggleShortcutSetting}
+            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
             title="Keyboard shortcuts"
           />
         )}
-        {shortcutSetting && !fontSizeSetting && (
+        {shortcutSetting && (
           <div>
-            <List>
+            <List className={classes.root}>
               <ListItem button onClick={props.toggleKeyPressEnabled}>
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
@@ -372,7 +390,7 @@ const SettingsDialog = (props) => {
                   />
                 </ListItemSecondaryAction>
               </ListItem>
-              <Divider />
+              <Divider className={classes.divider} />
               <ListItem alignItems="flex-start">
                 <ListItemIcon>
                   <InfoOutlinedIcon />
