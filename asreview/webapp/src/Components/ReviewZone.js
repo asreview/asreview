@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Link } from "@material-ui/core";
-import { Alert, AlertTitle } from "@material-ui/lab";
+import { Box } from "@material-ui/core";
+import { Banner } from "material-ui-banner";
 
 import ErrorHandler from "../ErrorHandler";
 import ReviewDrawer from "./ReviewDrawer";
@@ -45,21 +45,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const useStylesAlert = makeStyles((theme) => ({
-  alertFullWidth: {
-    width: "100%",
-    overflowY: "auto",
-  },
-  alertWithDrawer: {
-    width: "100%",
-    overflowY: "auto",
-    paddingRight: reviewDrawerWidth,
-  },
-  link: {
-    paddingLeft: "3px",
-  },
-}));
-
 const mapStateToProps = (state) => {
   return {
     project_id: state.project_id,
@@ -75,35 +60,13 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const ExplorationAlert = (props) => {
-  const classes = useStylesAlert();
-
-  return (
-    <div className={classes.alertFullWidth}>
-      <Alert severity="warning">
-        <AlertTitle>
-          You are screening through a manually pre-labeled dataset
-        </AlertTitle>
-        <div>
-          Relevant documents are displayed in green. Read more about
-          <Link
-            className={classes.link}
-            href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
-            target="_blank"
-          >
-            Exploration Mode
-          </Link>
-          .
-        </div>
-      </Alert>
-    </div>
-  );
-};
-
 const ReviewZone = (props) => {
   const classes = useStyles();
 
-  const [recordState, setRecordState] = React.useState({
+  const [explorationMode, setExplorationMode] = useState(false);
+  const [banner, setBanner] = useState(false);
+
+  const [recordState, setRecordState] = useState({
     isloaded: false,
     record: null,
     selection: null,
@@ -317,6 +280,25 @@ const ReviewZone = (props) => {
     }
   }, [props.project_id, recordState, props, error.message, sideStatsError]);
 
+  /**
+   * Display banner when in Exploration Mode
+   */
+  useEffect(() => {
+    if (
+      !explorationMode &&
+      recordState.record &&
+      recordState.record._debug_label !== null
+    ) {
+      setExplorationMode(true);
+    }
+  }, [explorationMode, recordState.record]);
+
+  useEffect(() => {
+    if (explorationMode) {
+      setBanner(true);
+    }
+  }, [explorationMode]);
+
   useEffect(() => {
     /**
      * Use keyboard shortcut
@@ -343,9 +325,22 @@ const ReviewZone = (props) => {
           [classes.contentShift]: props.reviewDrawerOpen,
         })}
       >
-        {/* Alert Exploration Mode */}
-        {recordState.record !== null &&
-          recordState.record._debug_label !== null && <ExplorationAlert />}
+        {/* Banner Exploration Mode */}
+        <Banner
+          open={banner}
+          onClose={() => setBanner(false)}
+          label="You are screening through a manually pre-labeled dataset. Relevant documents are displayed in green."
+          buttonLabel="read more"
+          buttonProps={{
+            color: "primary",
+            href: "https://asreview.readthedocs.io/en/latest/lab/exploration.html",
+            target: "_blank",
+          }}
+          dismissButtonProps={{
+            color: "primary",
+          }}
+          appBar
+        />
 
         {/* Article panel */}
         {error.message === null && recordState["isloaded"] && (
