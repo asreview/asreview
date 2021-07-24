@@ -1,14 +1,24 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box, Container, Typography, Link } from "@material-ui/core";
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Typography,
+  Link,
+} from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   boxFullWidth: {
     paddingTop: 40,
     paddingBottom: 30,
     padding: theme.spacing(3),
-    // height: 600,
     overflowY: "auto",
+  },
+  card: {
+    height: 500,
+    overflowY: "scroll",
   },
   title: {
     lineHeight: 1.2,
@@ -47,96 +57,110 @@ const ArticlePanel = (props) => {
 
   return (
     <Container maxWidth="md" className={classes.boxFullWidth}>
-      {/* Show the title */}
-      <Typography
-        className={isDebugInclusion() ? classes.titleDebug : classes.title}
-        variant="h5"
-        color="textSecondary"
-        component="div"
-        paragraph
-      >
-        {/* No title, inplace text */}
-        {(props.record.title === "" || props.record.title === null) && (
-          <Box className={"fontSize" + props.fontSize.label} fontStyle="italic">
-            This document doesn't have a title.
-          </Box>
+      <Card className={classes.card}>
+        {props.isloaded && (
+          <CardContent>
+            {/* Show the title */}
+            <Typography
+              className={
+                isDebugInclusion() ? classes.titleDebug : classes.title
+              }
+              variant="h5"
+              color="textSecondary"
+              component="div"
+              paragraph
+            >
+              {/* No title, inplace text */}
+              {(props.record.title === "" || props.record.title === null) && (
+                <Box
+                  className={"fontSize" + props.fontSize.label}
+                  fontStyle="italic"
+                >
+                  This document doesn't have a title.
+                </Box>
+              )}
+
+              {/* No title, inplace text */}
+              {!(props.record.title === "" || props.record.title === null) && (
+                <Box className={"fontSize" + props.fontSize.label}>
+                  {props.record.title}
+                </Box>
+              )}
+            </Typography>
+
+            {/* Show the publication date if available */}
+            {!(
+              props.record.publish_time === undefined ||
+              props.record.publish_time === null
+            ) && (
+              <Typography
+                className={
+                  (isDebugInclusion() ? classes.debug : classes.publish_time) +
+                  " fontSize" +
+                  props.fontSize.label
+                }
+                color="textSecondary"
+                component="p"
+                fontStyle="italic"
+                paragraph
+              >
+                {props.record.publish_time}
+              </Typography>
+            )}
+
+            {/* Show the publication date if available */}
+            {!(props.record.doi === undefined || props.record.doi === null) && (
+              <Typography
+                className={
+                  (isDebugInclusion() ? classes.debug : classes.doi) +
+                  " fontSize" +
+                  props.fontSize.label
+                }
+                color="textSecondary"
+                component="p"
+                fontStyle="italic"
+                paragraph
+              >
+                DOI:
+                <Link
+                  href={"https://doi.org/" + props.record.doi}
+                  className={classes.link}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {props.record.doi}
+                </Link>
+              </Typography>
+            )}
+
+            {/* Show the abstract */}
+            <Typography
+              className={
+                (isDebugInclusion() ? classes.debug : classes.abstract) +
+                " fontSize" +
+                props.fontSize.label
+              }
+              variant="body2"
+              color="textSecondary"
+              component="div"
+              paragraph
+            >
+              {/* No abstract, inplace text */}
+              {(props.record.abstract === "" ||
+                props.record.abstract === null) && (
+                <Box fontStyle="italic">
+                  This document doesn't have an abstract.
+                </Box>
+              )}
+
+              {/* No abstract, inplace text */}
+              {!(
+                props.record.abstract === "" || props.record.abstract === null
+              ) && <Box>{props.record.abstract}</Box>}
+            </Typography>
+          </CardContent>
         )}
-
-        {/* No title, inplace text */}
-        {!(props.record.title === "" || props.record.title === null) && (
-          <Box className={"fontSize" + props.fontSize.label}>
-            {props.record.title}
-          </Box>
-        )}
-      </Typography>
-
-      {/* Show the publication date if available */}
-      {!(
-        props.record.publish_time === undefined ||
-        props.record.publish_time === null
-      ) && (
-        <Typography
-          className={
-            (isDebugInclusion() ? classes.debug : classes.publish_time) +
-            " fontSize" +
-            props.fontSize.label
-          }
-          color="textSecondary"
-          component="p"
-          fontStyle="italic"
-          paragraph
-        >
-          {props.record.publish_time}
-        </Typography>
-      )}
-
-      {/* Show the publication date if available */}
-      {!(props.record.doi === undefined || props.record.doi === null) && (
-        <Typography
-          className={
-            (isDebugInclusion() ? classes.debug : classes.doi) +
-            " fontSize" +
-            props.fontSize.label
-          }
-          color="textSecondary"
-          component="p"
-          fontStyle="italic"
-          paragraph
-        >
-          DOI:
-          <Link
-            href={"https://doi.org/" + props.record.doi}
-            className={classes.link}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {props.record.doi}
-          </Link>
-        </Typography>
-      )}
-
-      {/* Show the abstract */}
-      <Typography
-        className={
-          (isDebugInclusion() ? classes.debug : classes.abstract) +
-          " fontSize" +
-          props.fontSize.label
-        }
-        variant="body2"
-        color="textSecondary"
-        component="div"
-        paragraph
-      >
-        {/* No abstract, inplace text */}
-        {(props.record.abstract === "" || props.record.abstract === null) && (
-          <Box fontStyle="italic">This document doesn't have an abstract.</Box>
-        )}
-
-        {/* No abstract, inplace text */}
-        {!(props.record.abstract === "" || props.record.abstract === null) && (
-          <Box>{props.record.abstract}</Box>
-        )}
-      </Typography>
+      </Card>
     </Container>
   );
 };

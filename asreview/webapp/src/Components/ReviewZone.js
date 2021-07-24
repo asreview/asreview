@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box } from "@material-ui/core";
+import { Box, Fab } from "@material-ui/core";
+
+import FavoriteIcon from "@material-ui/icons/Favorite";
+import CloseIcon from "@material-ui/icons/Close";
+
 import { Banner } from "material-ui-banner";
 
 import ErrorHandler from "../ErrorHandler";
 import ReviewDrawer from "./ReviewDrawer";
 import ArticlePanel from "./ArticlePanel";
-import DecisionBar from "./DecisionBar";
 import DecisionUndoBar from "./DecisionUndoBar";
 import { useKeyPress } from "../hooks/useKeyPress";
 
@@ -42,6 +45,13 @@ const useStyles = makeStyles((theme) => ({
   },
   link: {
     paddingLeft: "3px",
+  },
+  fab: {
+    "& > *": {
+      margin: theme.spacing(5),
+    },
+    width: "100%",
+    textAlign: "center",
   },
 }));
 
@@ -343,25 +353,31 @@ const ReviewZone = (props) => {
         />
 
         {/* Article panel */}
-        {error.message === null && recordState["isloaded"] && (
+        {error.message === null && (
           <ArticlePanel
             record={recordState["record"]}
+            isloaded={recordState["isloaded"]}
             fontSize={props.fontSize}
           />
         )}
+
+        <div className={classes.fab}>
+          <Fab onClick={() => makeDecision(0)} aria-label="irrelevant-record">
+            <CloseIcon />
+          </Fab>
+          <Fab
+            onClick={() => makeDecision(1)}
+            color="secondary"
+            aria-label="relevant-record"
+          >
+            <FavoriteIcon />
+          </Fab>
+        </div>
 
         {/* Article panel */}
         {error.message !== null && (
           <ErrorHandler error={error} setError={setError} />
         )}
-
-        {/* Decision bar */}
-        <DecisionBar
-          reviewDrawerOpen={props.reviewDrawerOpen}
-          makeDecision={makeDecision}
-          block={!recordState["isloaded"] || error.message !== null}
-          recordState={recordState}
-        />
 
         {/* Decision undo bar */}
         <DecisionUndoBar
