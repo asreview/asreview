@@ -4,6 +4,7 @@ import {
   Box,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Typography,
   Link,
@@ -46,6 +47,13 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     bottom: 0,
   },
+  circularProgress: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 const ArticlePanel = (props) => {
@@ -58,6 +66,11 @@ const ArticlePanel = (props) => {
   return (
     <Container maxWidth="md" className={classes.boxFullWidth}>
       <Card className={classes.card}>
+        {!props.isloaded && (
+          <div className={classes.circularProgress}>
+            <CircularProgress />
+          </div>
+        )}
         {props.isloaded && (
           <CardContent>
             {/* Show the title */}
