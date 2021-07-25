@@ -32,12 +32,12 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 0,
   },
   barWithReviewDrawer: {
-    width: `calc(100% - ${reviewDrawerWidth}px)`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: reviewDrawerWidth,
+    // width: `calc(100% - ${reviewDrawerWidth}px)`,
+    // transition: theme.transitions.create(["margin", "width"], {
+    //   easing: theme.transitions.easing.easeOut,
+    //   duration: theme.transitions.duration.enteringScreen,
+    // }),
+    // marginRight: reviewDrawerWidth,
   },
   appTitle: {
     flexGrow: 1,
@@ -52,17 +52,8 @@ const useStyles = makeStyles((theme) => ({
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
-    reviewDrawerOpen: state.reviewDrawerOpen,
   };
 };
-
-function mapDispatchToProps(dispatch) {
-  return {
-    toggleReviewDrawer: () => {
-      dispatch(toggleReviewDrawer());
-    },
-  };
-}
 
 const Header = (props) => {
   const classes = useStyles();
@@ -84,14 +75,7 @@ const Header = (props) => {
 
   return (
     <div className={classes.appBar}>
-      <AppBar
-        position="fixed"
-        className={
-          props.reviewDrawerOpen && props.app_state === "review"
-            ? classes.barWithReviewDrawer
-            : classes.barFullWidth
-        }
-      >
+      <AppBar position="fixed" className={classes.barFullWidth}>
         <Toolbar>
           <IconButton
             className={classes.menuButton}
@@ -114,45 +98,8 @@ const Header = (props) => {
         */}
 
           <Typography variant="h5" color="inherit" className={classes.appTitle}>
-            {props.app_state === "review" && "Review"}
             {props.app_state === "project-page" && "Project Dashboard"}
           </Typography>
-
-          {props.app_state === "review" && (
-            <Tooltip title="Download results">
-              <IconButton
-                aria-label="Export"
-                onClick={props.toggleExportResult}
-                color="inherit"
-              >
-                <GetApp />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {props.app_state === "review" && (
-            <Tooltip title="Review history">
-              <IconButton
-                aria-label="History"
-                onClick={props.toggleHistory}
-                color="inherit"
-              >
-                <History />
-              </IconButton>
-            </Tooltip>
-          )}
-
-          {props.app_state === "review" && !props.reviewDrawerOpen ? (
-            <IconButton
-              color="inherit"
-              className={classes.barChart}
-              onClick={props.toggleReviewDrawer}
-            >
-              <BarChart />
-            </IconButton>
-          ) : (
-            ""
-          )}
         </Toolbar>
       </AppBar>
       <Toolbar />
@@ -167,4 +114,4 @@ const Header = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect(mapStateToProps)(Header);

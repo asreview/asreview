@@ -3,7 +3,12 @@ import { CssBaseline, createMuiTheme } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
 
-import { Header, ReviewZone, ExportDialog, HistoryDialog } from "./Components";
+import {
+  Header,
+  ReviewDialog,
+  ExportDialog,
+  HistoryDialog,
+} from "./Components";
 import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
 import ReviewZoneComplete from "./PostReviewComponents/ReviewZoneComplete";
 import Projects from "./Projects";
@@ -45,6 +50,7 @@ const App = (props) => {
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
   const [history, setHistory] = React.useState(false);
+  const [review, setReview] = React.useState(false);
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -71,6 +77,10 @@ const App = (props) => {
     setHistory((a) => !a);
   };
 
+  const toggleReview = () => {
+    setReview((a) => !a);
+  };
+
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
@@ -80,8 +90,6 @@ const App = (props) => {
           /* Handle the app review drawer */
           toggleSettings={toggleSettings}
           toggleExit={toggleExit}
-          toggleExportResult={toggleExportResult}
-          toggleHistory={toggleHistory}
         />
       )}
 
@@ -92,6 +100,7 @@ const App = (props) => {
       {props.app_state === "project-page" && (
         <ProjectPage
           handleAppState={props.setAppState}
+          toggleReview={toggleReview}
           toggleExportResult={toggleExportResult}
         />
       )}
@@ -105,8 +114,11 @@ const App = (props) => {
       )}
 
       {props.app_state === "review" && (
-        <ReviewZone
+        <ReviewDialog
           handleAppState={props.setAppState}
+          onReview={review}
+          toggleReview={toggleReview}
+          toggleHistory={toggleHistory}
           fontSize={fontSize}
           undoEnabled={undoEnabled}
           keyPressEnabled={keyPressEnabled}
