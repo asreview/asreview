@@ -9,16 +9,16 @@ import {
   Typography,
   Link,
 } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   boxFullWidth: {
     paddingTop: 40,
     paddingBottom: 30,
-    padding: theme.spacing(3),
-    overflowY: "auto",
+    height: "100%",
   },
   card: {
-    height: 500,
+    height: "-webkit-fill-available",
     overflowY: "scroll",
   },
   title: {
@@ -56,12 +56,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ArticlePanel = (props) => {
+const ArticleCard = (props) => {
   const classes = useStyles();
 
   const isDebugInclusion = () => {
     return props.record._debug_label === 1;
   };
+
+  let alertInfo = "";
+  if (props.previousSelection === 0) {
+    alertInfo = "You marked this document as irrelevant.";
+  }
+  if (props.previousSelection === 1) {
+    alertInfo = "You marked this document as relevant.";
+  }
 
   return (
     <Container maxWidth="md" className={classes.boxFullWidth}>
@@ -71,6 +79,14 @@ const ArticlePanel = (props) => {
             <CircularProgress />
           </div>
         )}
+
+        {/* Previous decision alert */}
+        {props.previousSelection !== null && (
+          <div>
+            <Alert severity="info">{alertInfo}</Alert>
+          </div>
+        )}
+
         {props.isloaded && (
           <CardContent>
             {/* Show the title */}
@@ -178,4 +194,4 @@ const ArticlePanel = (props) => {
   );
 };
 
-export default ArticlePanel;
+export default ArticleCard;
