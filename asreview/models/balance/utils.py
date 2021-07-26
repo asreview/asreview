@@ -17,14 +17,19 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_balance_strategies():
-    """List available balancing strategies.
+    """List available balancing strategy classes.
 
     Returns
     -------
     list:
-        Names of available balance strategies in alphabetical order.
+        Classes of available balance strategies in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.balance")
+    model_class = [
+        get_balance_class(name)
+        for name in list_model_names(entry_name="asreview.models.balance")
+    ]
+
+    return model_class
 
 
 def get_balance_class(name):

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ from asreview.utils import _set_class_weight
 
 class RandomForestClassifier(BaseTrainClassifier):
     """
-    Random Forest classifier
+    Random forest classifier.
 
     The Random Forest classifier is an implementation based
     on the sklearn Random Forest classifier.
@@ -39,6 +39,7 @@ class RandomForestClassifier(BaseTrainClassifier):
         looking for the best split at each node.
     """
     name = "rf"
+    label = "Random forest"
 
     def __init__(self,
                  n_estimators=100,
