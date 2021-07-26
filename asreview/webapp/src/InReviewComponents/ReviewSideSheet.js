@@ -50,7 +50,7 @@ const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
 
-const ReviewSideStats = (props) => {
+const ReviewSideSheet = (props) => {
   const { window } = props;
   const classes = useStyles();
 
@@ -60,7 +60,7 @@ const ReviewSideStats = (props) => {
         <div>
           <Toolbar />
           <div className={classes.drawerHeader}>
-            <IconButton onClick={props.toggleSideStats}>
+            <IconButton onClick={props.toggleSideSheet}>
               <ChevronRight />
             </IconButton>
             <div className={classes.drawerTitle}>
@@ -80,8 +80,8 @@ const ReviewSideStats = (props) => {
           n_papers={props.statistics.n_papers}
           n_since_last_inclusion={props.statistics.n_since_last_inclusion}
           history={props.history}
-          sideStatsError={props.sideStatsError}
-          setSideStatsError={props.setSideStatsError}
+          sideSheetError={props.sideSheetError}
+          setSideSheetError={props.setSideSheetError}
         />
       </div>
     </div>
@@ -97,8 +97,8 @@ const ReviewSideStats = (props) => {
           container={container}
           variant="temporary"
           anchor="right"
-          open={props.mobile && props.onSideStats}
-          onClose={props.toggleSideStats}
+          open={props.mobile && props.onSideSheet}
+          onClose={props.toggleSideSheet}
           classes={{ paper: classes.drawerPaper }}
           ModalProps={{
             keepMounted: true, // Better open performance on mobile.
@@ -115,7 +115,7 @@ const ReviewSideStats = (props) => {
           }}
           variant="persistent"
           anchor="right"
-          open={!props.mobile && props.onSideStats}
+          open={!props.mobile && props.onSideSheet}
         >
           {drawer}
         </Drawer>
@@ -124,4 +124,4 @@ const ReviewSideStats = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ReviewSideStats);
+export default connect(mapStateToProps)(ReviewSideSheet);

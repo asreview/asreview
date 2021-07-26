@@ -40,12 +40,12 @@ const ProgressPanel = (props) => {
   const classes = useStyles();
 
   const handleClickRetry = () => {
-    props.setSideStatsError(false);
+    props.setSideSheetError(false);
   };
 
   return (
     <div>
-      {props.sideStatsError && (
+      {props.sideSheetError && (
         <Box>
           <Box className={classes.errorMessage}>
             <Typography>Failed to load statistics.</Typography>
@@ -72,7 +72,7 @@ const ProgressPanel = (props) => {
           </Box>
         </Box>
       )}
-      {!props.sideStatsError && (
+      {!props.sideSheetError && (
         <div>
           <ListSubheader component="div" id="list-subheader-progress">
             Progress

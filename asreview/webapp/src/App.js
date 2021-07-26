@@ -3,14 +3,10 @@ import { CssBaseline, createMuiTheme } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
 
-import {
-  Header,
-  ReviewDialog,
-  ExportDialog,
-  HistoryDialog,
-} from "./Components";
+import { Header, HistoryDialog, ExportDialog } from "./Components";
 import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
-import ReviewZoneComplete from "./PostReviewComponents/ReviewZoneComplete";
+import { ReviewDialog } from "./InReviewComponents";
+import { ReviewZoneComplete } from "./PostReviewComponents";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
 import ExitDialog from "./ExitDialog";

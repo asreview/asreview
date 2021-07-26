@@ -15,10 +15,12 @@ import CloseIcon from "@material-ui/icons/Close";
 import { Banner } from "material-ui-banner";
 
 import { AppBarWithinDialog } from "../Components";
-import DecisionUndoBar from "./DecisionUndoBar";
+import {
+  DecisionUndoBar,
+  RecordCard,
+  ReviewSideSheet,
+} from "../InReviewComponents";
 import ErrorHandler from "../ErrorHandler";
-import RecordCard from "./RecordCard";
-import ReviewSideStats from "./ReviewSideStats";
 import { useKeyPress } from "../hooks/useKeyPress";
 
 import { ProjectAPI } from "../api/index.js";
@@ -101,8 +103,8 @@ const ReviewDialog = (props) => {
   /**
    * Side statistics state
    */
-  const [sideStats, setSideStats] = useState(true);
-  const [sideStatsError, setSideStatsError] = useState(false);
+  const [sideSheet, setSideSheet] = useState(true);
+  const [sideSheetError, setSideSheetError] = useState(false);
   const [statistics, setStatistics] = useState({
     name: null,
     authors: null,
@@ -171,8 +173,8 @@ const ReviewDialog = (props) => {
   /**
    * Side statistics toggle
    */
-  const toggleSideStats = () => {
-    setSideStats((a) => !a);
+  const toggleSideSheet = () => {
+    setSideSheet((a) => !a);
   };
 
   /**
@@ -274,7 +276,7 @@ const ReviewDialog = (props) => {
           setStatistics(result.data);
         })
         .catch((error) => {
-          setSideStatsError(true);
+          setSideSheetError(true);
           console.log(error);
         });
     };
@@ -285,7 +287,7 @@ const ReviewDialog = (props) => {
           setHistory(result.data);
         })
         .catch((error) => {
-          setSideStatsError(true);
+          setSideSheetError(true);
           console.log(error);
         });
     };
@@ -321,7 +323,7 @@ const ReviewDialog = (props) => {
       getProgressInfo();
       getProgressHistory();
     }
-  }, [props.project_id, recordState, props, error.message, sideStatsError]);
+  }, [props.project_id, recordState, props, error.message, sideSheetError]);
 
   /**
    * Display banner when in Exploration Mode
@@ -346,9 +348,9 @@ const ReviewDialog = (props) => {
    */
   useEffect(() => {
     if (mobile) {
-      setSideStats(false);
+      setSideSheet(false);
     } else {
-      setSideStats(true);
+      setSideSheet(true);
     }
   }, [mobile]);
 
@@ -389,13 +391,13 @@ const ReviewDialog = (props) => {
           }}
           handleHelp="https://asreview.readthedocs.io/en/latest/features/screening.html"
           handleHistory={props.toggleHistory}
-          handleSideSheet={toggleSideStats}
+          handleSideSheet={toggleSideSheet}
         />
 
         {/* Banner Exploration Mode */}
         <div
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideStats,
+            [classes.contentShift]: !mobile && sideSheet,
           })}
         >
           <div>
@@ -421,11 +423,10 @@ const ReviewDialog = (props) => {
         <DialogContent
           style={{ height: "100%" }}
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideStats,
+            [classes.contentShift]: !mobile && sideSheet,
           })}
         >
           <RecordCard
-            onSideStats={sideStats}
             record={recordState["record"]}
             isloaded={recordState["isloaded"]}
             fontSize={props.fontSize}
@@ -436,7 +437,7 @@ const ReviewDialog = (props) => {
         {/* Decision button */}
         <DialogActions
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideStats,
+            [classes.contentShift]: !mobile && sideSheet,
           })}
         >
           <div className={classes.fab}>
@@ -461,7 +462,7 @@ const ReviewDialog = (props) => {
         {/* Decision undo bar */}
         <div
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideStats,
+            [classes.contentShift]: !mobile && sideSheet,
           })}
         >
           <DecisionUndoBar
@@ -472,16 +473,14 @@ const ReviewDialog = (props) => {
         </div>
 
         {/* Statistics drawer */}
-        <ReviewSideStats
+        <ReviewSideSheet
           mobile={mobile}
-          onSideStats={sideStats}
-          toggleSideStats={toggleSideStats}
-          state={props.reviewDrawerOpen}
-          handle={props.toggleReviewDrawer}
+          onSideSheet={sideSheet}
+          toggleSideSheet={toggleSideSheet}
           statistics={statistics}
           history={history}
-          sideStatsError={sideStatsError}
-          setSideStatsError={setSideStatsError}
+          sideSheetError={sideSheetError}
+          setSideSheetError={setSideSheetError}
         />
       </Dialog>
     </div>

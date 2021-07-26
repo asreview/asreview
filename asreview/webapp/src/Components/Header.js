@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { AppBar, Toolbar, Typography, IconButton } from "@material-ui/core";
 import { Menu } from "@material-ui/icons";
 
-import MenuDrawer from "./MenuDrawer";
+import { MenuDrawer } from "../Components";
 
 import { connect } from "react-redux";
 
