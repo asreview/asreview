@@ -1,21 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Tooltip,
-} from "@material-ui/core";
-import { Menu, BarChart, History, GetApp } from "@material-ui/icons";
+import { AppBar, Toolbar, Typography, IconButton } from "@material-ui/core";
+import { Menu } from "@material-ui/icons";
 
 import MenuDrawer from "./MenuDrawer";
-import { reviewDrawerWidth } from "../globals.js";
 
 import { connect } from "react-redux";
-
-// redux config
-import { toggleReviewDrawer } from "../redux/actions";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -24,25 +14,9 @@ const useStyles = makeStyles((theme) => ({
   appBar: {
     flexGrow: 1,
   },
-  barFullWidth: {
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: 0,
-  },
-  barWithReviewDrawer: {
-    // width: `calc(100% - ${reviewDrawerWidth}px)`,
-    // transition: theme.transitions.create(["margin", "width"], {
-    //   easing: theme.transitions.easing.easeOut,
-    //   duration: theme.transitions.duration.enteringScreen,
-    // }),
-    // marginRight: reviewDrawerWidth,
-  },
   appTitle: {
     flexGrow: 1,
   },
-  barChart: {},
   menuTitle: {
     marginLeft: 15,
     marginTop: 15,
@@ -58,9 +32,9 @@ const mapStateToProps = (state) => {
 const Header = (props) => {
   const classes = useStyles();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     left: false,
-    //    right: false
+    // right: false
   });
 
   const toggleDrawer = (side, isOpen) => (event) => {
@@ -75,7 +49,7 @@ const Header = (props) => {
 
   return (
     <div className={classes.appBar}>
-      <AppBar position="fixed" className={classes.barFullWidth}>
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             className={classes.menuButton}
