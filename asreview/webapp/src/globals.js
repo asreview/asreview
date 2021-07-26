@@ -11,6 +11,13 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
+// algorithm settings configs
+export const defaultAlgorithms = {
+  model: "nb",
+  query_strategy: "max",
+  feature_extraction: "tfidf",
+};
+
 // review drawer configs
 export const reviewDrawerWidth = 250;
 

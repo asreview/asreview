@@ -51,9 +51,6 @@ Query
 .. autoclass:: asreview.models.query.MaxQuery
    :members:
    :inherited-members:
-.. autoclass:: asreview.models.query.MixedQuery
-   :members:
-   :inherited-members:
 .. autoclass:: asreview.models.query.UncertaintyQuery
    :members:
    :inherited-members:
@@ -61,6 +58,12 @@ Query
    :members:
    :inherited-members:
 .. autoclass:: asreview.models.query.ClusterQuery
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.query.MaxRandomQuery
+   :members:
+   :inherited-members:
+.. autoclass:: asreview.models.query.MaxUncertaintyQuery
    :members:
    :inherited-members:
 .. autofunction:: asreview.models.query.list_query_strategies

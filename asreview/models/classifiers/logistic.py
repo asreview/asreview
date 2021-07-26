@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ from asreview.utils import _set_class_weight
 
 class LogisticClassifier(BaseTrainClassifier):
     """
-    Logistic regressions classifier
+    Logistic regression classifier.
 
     The Logistic regressions classifier is an implementation based
     on the sklearn Logistic regressions classifier.
@@ -40,6 +40,7 @@ class LogisticClassifier(BaseTrainClassifier):
     """
 
     name = "logistic"
+    label = "Logistic regression"
 
     def __init__(self, C=1.0, class_weight=1.0, random_state=None, n_jobs=1):
 
