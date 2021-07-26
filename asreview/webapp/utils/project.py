@@ -474,10 +474,8 @@ def export_to_string(project_id, export_type="csv"):
             fp=fp_tmp_export, labels=labeled, ranking=ranking)
 
     elif export_type == "ris":
-        get_tmp_path(project_id).mkdir(exist_ok=True)
-        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.ris")
-        return as_data.to_ris(
-            fp=fp_tmp_export, labels=labeled, ranking=ranking)
+        return as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
+        
     else:
         raise ValueError("This export type isn't implemented.")
 
