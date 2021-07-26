@@ -34,7 +34,7 @@ const DecisionUndoBar = (props) => {
 
   let anchorOrigin = {
     vertical: "bottom",
-    horizontal: "center",
+    horizontal: "left",
   };
 
   return (
