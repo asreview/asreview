@@ -77,7 +77,9 @@ const ProgressPanel = (props) => {
           <ListSubheader component="div" id="list-subheader-progress">
             Progress
           </ListSubheader>
-          {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
+          <ListItem style={{ marginBottom: 10 }} key="project-n-papers">
+            Total records: {props.n_papers}
+          </ListItem>
           <Box>
             <ProgressPieChart
               n_included={props.n_included}
@@ -91,13 +93,11 @@ const ProgressPanel = (props) => {
             ) / 100}
             %)
           </ListItem>
-
           <Box className={classes.areaChart}>
             <ProgressAreaChart history={props.history} />
           </Box>
-
           <ListItem className={classes.item} key="n_since_last_inclusion">
-            Since last relevant: {props.n_since_last_inclusion}
+            Records since last relevant: {props.n_since_last_inclusion}
           </ListItem>
         </div>
       )}

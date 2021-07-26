@@ -20,12 +20,8 @@ const ProjectPanel = (props) => {
       <ListSubheader component="div" id="list-subheader-project">
         Project
       </ListSubheader>
-      {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
-      <ListItem key="project-name">Name: {props.name}</ListItem>
-      <ListItem key="project-authors">Authors: {props.authors}</ListItem>
-      <ListItem key="project-n-papers">
-        Number of publications: {props.n_papers}
-      </ListItem>
+      <ListItem key="project-name">{props.name}</ListItem>
+      <ListItem key="project-authors">{props.authors}</ListItem>
     </div>
   );
 };
