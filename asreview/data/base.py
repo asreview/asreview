@@ -526,6 +526,33 @@ class ASReviewData():
         df = self.to_dataframe(labels=labels, ranking=ranking)
         return df.to_excel(fp, index=True)
 
-    def to_ris(self, fp, labels=None, ranking=None):
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        write_ris(df, fp)
+    def to_ris(self, fp, labels=None, ranking=None, subset="relevant"):
+        """Export to RIS (.ris) file.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, numpy.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+        subset: str
+            Based on three options (relevant, irrelevant, not seen), we have
+            three subsets of data. Default (and only implemented): relevant.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe of all available record data.
+        """
+        if subset == "relevant":
+            df = self.to_dataframe(labels=labels, ranking=ranking)
+            print("df: \n", df)
+            print("df columns: \n",list(df))
+            #df_relevant = df[]
+            write_ris(df, fp)
+        else:
+            raise NotImplementedError
