@@ -8,6 +8,7 @@ import {
   MenuItem,
   Select,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { fade, makeStyles } from "@material-ui/core/styles";
@@ -164,16 +165,20 @@ const AppBarWithinDialog = React.forwardRef(
 
           {/* History icon */}
           {onClickHistory && (
-            <IconButton color="inherit" onClick={onClickHistory}>
-              <History />
-            </IconButton>
+            <Tooltip title="Review history">
+              <IconButton color="inherit" onClick={onClickHistory}>
+                <History />
+              </IconButton>
+            </Tooltip>
           )}
 
           {/* Show chart icon */}
           {onClickShowChart && (
-            <IconButton color="inherit" onClick={onClickShowChart}>
-              <ShowChart />
-            </IconButton>
+            <Tooltip title="Statistics">
+              <IconButton color="inherit" onClick={onClickShowChart}>
+                <ShowChart />
+              </IconButton>
+            </Tooltip>
           )}
 
           {/* Help icon */}
