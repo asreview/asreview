@@ -65,10 +65,10 @@ const ArticleCard = (props) => {
 
   let alertInfo = "";
   if (props.previousSelection === 0) {
-    alertInfo = "You marked this document as irrelevant.";
+    alertInfo = "You marked this record as irrelevant.";
   }
   if (props.previousSelection === 1) {
-    alertInfo = "You marked this document as relevant.";
+    alertInfo = "You marked this record as relevant.";
   }
 
   return (
