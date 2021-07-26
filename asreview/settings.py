@@ -114,7 +114,16 @@ class ASReviewSettings(object):
         self.abstract_only = abstract_only
         self.as_data = as_data
         self.model_param = model_param
-        self.query_param = query_param
+        if query_strategy == "max_random":
+            query_param_copy = query_param.copy()
+            try:
+                del query_param_copy["strategy_1"]
+                del query_param_copy["strategy_2"]
+            except KeyError:
+                pass
+            self.query_param = query_param_copy
+        else:
+            self.query_param = query_param
         self.balance_param = balance_param
         self.feature_param = feature_param
 

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 
 
 class Tfidf(BaseFeatureExtraction):
-    """Class to apply TF-IDF to texts.
+    """TF-IDF feature extraction technique.
 
     Use the standard TF-IDF (Term Frequency-Inverse Document Frequency)
-    feature extraction from `SKLearn <https://scikit-learn.org/stable/modules/
+    feature extraction technique from `SKLearn <https://scikit-learn.org/stable/modules/
     generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`__. Gives
     a sparse matrix as output. Works well in combination with
     :class:`asreview.models.NBModel` and other fast training models (given
@@ -37,6 +37,7 @@ class Tfidf(BaseFeatureExtraction):
         do not use stop words.
     """
     name = "tfidf"
+    label = "TF-IDF"
 
     def __init__(self, *args, ngram_max=1, stop_words="english", **kwargs):
         """Initialize tfidf class.

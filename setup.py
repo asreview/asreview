@@ -174,6 +174,8 @@ setup(
             "random = asreview.models.query.random:RandomQuery",
             "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",
             "cluster = asreview.models.query.cluster:ClusterQuery",
+            "max_random = asreview.models.query.mixed:MaxRandomQuery",
+            "max_uncertainty = asreview.models.query.mixed:MaxUncertaintyQuery",
         ]
     },
     project_urls={
