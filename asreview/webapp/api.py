@@ -38,6 +38,10 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
+from asreview.models.balance import list_balance_strategies
+from asreview.models.classifiers import list_classifiers
+from asreview.models.feature_extraction import list_feature_extraction
+from asreview.models.query import list_query_strategies
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
@@ -57,6 +61,7 @@ from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.paths import get_data_file_path
+from asreview.webapp.utils.paths import get_state_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -603,6 +608,47 @@ def api_random_prior_papers(project_id):  # noqa: F401
     return response
 
 
+@bp.route('/algorithms', methods=["GET"])
+def api_list_algorithms():
+    """List the names and labels of available algorithms"""
+
+    try:
+        classes = [
+            list_balance_strategies(),
+            list_classifiers(),
+            list_feature_extraction(),
+            list_query_strategies()
+        ]
+
+        payload = {
+            "balance_strategy": [],
+            "classifier": [],
+            "feature_extraction": [],
+            "query_strategy": [],
+        }
+
+        for c, key in zip(classes, payload.keys()):
+            for method in c:
+                if hasattr(method, "label"):
+                    payload[key].append({
+                        "name": method.name,
+                        "label": method.label
+                    })
+                else:
+                    payload[key].append({
+                        "name": method.name,
+                        "label": method.name
+                    })
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to retrieve algorithms."), 500
+
+    response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 @bp.route('/project/<project_id>/algorithms', methods=["GET"])
 def api_get_algorithms(project_id):  # noqa: F401
 
@@ -670,18 +716,14 @@ def api_set_algorithms(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training the model
     """
-    try:
-        # start training the model
-        py_exe = _get_executable()
-        run_command = [
-            py_exe, "-m", "asreview", "web_run_model", project_id,
-            "--label_method", "prior"
-        ]
-        subprocess.Popen(run_command)
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to train the model."), 500
+    # start training the model
+    py_exe = _get_executable()
+    run_command = [
+        py_exe, "-m", "asreview", "web_run_model", project_id,
+        "--label_method", "prior"
+    ]
+    subprocess.Popen(run_command)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -695,35 +737,48 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     error_path = get_project_path(project_id) / "error.json"
     if error_path.exists():
-        logging.error("error on training")
+        logging.error("Error on training.")
         with open(error_path, "r") as f:
-            error_message = json.load(f)
-        return jsonify(message=error_message), 400
+            error = json.load(f)
+        return jsonify(message=error["message"]), 400
 
-    try:
+    if get_proba_path(project_id).exists():
 
-        if get_proba_path(project_id).exists():
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
 
-            # read the file with project info
-            with open(get_project_file_path(project_id), "r") as fp:
-                project_info = json.load(fp)
+        project_info["projectInitReady"] = True
 
-            project_info["projectInitReady"] = True
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
 
-            # update the file with project info
-            with open(get_project_file_path(project_id), "w") as fp:
-                json.dump(project_info, fp)
-
-            response = jsonify({'status': 1})
-        else:
-            response = jsonify({'status': 0})
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to initiate the project."), 500
+        response = jsonify({'status': 1})
+    else:
+        response = jsonify({'status': 0})
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+
+@bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
+def api_clear_model_error(project_id):
+    """Clear model training error"""
+
+    error_path = get_project_path(project_id) / "error.json"
+    state_path = get_state_path(project_id)
+
+    if error_path.exists() and state_path.exists():
+        os.remove(error_path)
+        os.remove(state_path)
+
+        response = jsonify({'success': True})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    response = jsonify(message="Failed to clear model training error.")
+    return response, 500
 
 
 @bp.route('/project/import_project', methods=["POST"])
