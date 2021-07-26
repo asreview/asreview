@@ -177,7 +177,7 @@ const ProjectPage = (props) => {
   const startReviewing = () => {
     props.handleAppState("review");
     props.toggleReview();
-  }
+  };
 
   const finishProject = () => {
     ProjectAPI.finish(props.project_id)
