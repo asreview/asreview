@@ -103,11 +103,7 @@ const HelpDialog = (props) => {
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-help"
       >
-        <AppBarWithinDialog
-          onClose={true}
-          handleStartIcon={props.toggleHelp}
-          title="Help"
-        />
+        <AppBarWithinDialog onClickStartIcon={props.toggleHelp} title="Help" />
         <List className={classes.root}>
           <ListItem>
             <Typography className={classes.subhead} display="block">
