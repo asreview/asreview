@@ -381,17 +381,15 @@ const ReviewDialog = (props) => {
         scroll="paper"
       >
         <AppBarWithinDialog
-          colorPrimary
-          onHistory
-          onHelp
-          onSideSheet
-          handleStartIcon={() => {
+          color="primary"
+          startIconIsClose={false}
+          onClickHelp="https://asreview.readthedocs.io/en/latest/features/screening.html"
+          onClickHistory={props.toggleHistory}
+          onClickShowChart={toggleSideSheet}
+          onClickStartIcon={() => {
             props.toggleReview();
             props.handleAppState("project-page");
           }}
-          handleHelp="https://asreview.readthedocs.io/en/latest/features/screening.html"
-          handleHistory={props.toggleHistory}
-          handleSideSheet={toggleSideSheet}
         />
 
         {/* Banner Exploration Mode */}
