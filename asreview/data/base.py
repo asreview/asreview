@@ -426,7 +426,7 @@ class ASReviewData():
             self.to_csv(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
             self.to_csv(fp, sep="\t", labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".ris", ".RIS"]:
+        elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
             self.to_ris(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".xlsx", ".XLSX"]:
             self.to_excel(fp, labels=labels, ranking=ranking)
