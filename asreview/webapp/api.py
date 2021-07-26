@@ -747,8 +747,12 @@ def api_import_project():
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
 
+
+
     # get the export args
     file_type = request.args.get('file_type', None)
+    print("file_type is", file_type)
+
 
     if file_type == "csv":
         dataset_str = export_to_string(project_id, export_type="csv")
@@ -771,7 +775,7 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.tsv"
             })
-    else:  # excel
+    elif file_type == "xlsx":  # excel
 
         dataset_str = export_to_string(project_id, export_type="excel")
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
@@ -782,17 +786,18 @@ def export_results(project_id):
             as_attachment=True,
             attachment_filename=f"asreview_result_{project_id}.xlsx",
             cache_timeout=0)
+
     else:  # ris
 
         dataset_str = export_to_string(project_id, export_type="ris")
-        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.ris")
 
-        return send_file(
-            fp_tmp_export,
-            mimetype="application/octet-stream",  # noqa
-            as_attachment=True,
-            attachment_filename=f"asreview_result_{project_id}.ris",
-            cache_timeout=0)
+        return Response(
+            dataset_str,
+            mimetype="application/octet-stream",
+            headers={
+                "Content-disposition":
+                f"attachment; filename=asreview_result_{project_id}.ris"
+            })
 
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
