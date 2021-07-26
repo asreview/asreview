@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { ChevronRight } from "@material-ui/icons";
+import { Close } from "@material-ui/icons";
 
 import { ProgressPanel, ProjectPanel } from "../SideStats";
 
@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     padding: theme.spacing(0, 1),
+    paddingLeft: 16,
     ...theme.mixins.toolbar,
     justifyContent: "flex-start",
   },
@@ -60,12 +61,14 @@ const ReviewSideSheet = (props) => {
         <div>
           <Toolbar />
           <div className={classes.drawerHeader}>
-            <IconButton onClick={props.toggleSideSheet}>
-              <ChevronRight />
-            </IconButton>
             <div className={classes.drawerTitle}>
-              <Typography variant="h6">Statistics</Typography>
+              <Typography variant="subtitle1">
+                <b>Statistics</b>
+              </Typography>
             </div>
+            <IconButton onClick={props.toggleSideSheet}>
+              <Close fontSize="small" />
+            </IconButton>
           </div>
         </div>
       )}
