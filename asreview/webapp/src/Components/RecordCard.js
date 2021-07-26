@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ArticleCard = (props) => {
+const RecordCard = (props) => {
   const classes = useStyles();
 
   const isDebugInclusion = () => {
@@ -194,4 +194,4 @@ const ArticleCard = (props) => {
   );
 };
 
-export default ArticleCard;
+export default RecordCard;
