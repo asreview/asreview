@@ -55,6 +55,11 @@ const useStyles = makeStyles((theme) => ({
   link: {
     paddingLeft: "3px",
   },
+  banner: {
+    [theme.breakpoints.down("sm")]: {
+      paddingTop: 8,
+    },
+  },
   fab: {
     "& > *": {
       marginLeft: theme.spacing(5),
@@ -410,6 +415,9 @@ const ReviewDialog = (props) => {
               }}
               dismissButtonProps={{
                 color: "primary",
+              }}
+              cardProps={{
+                className: classes.banner,
               }}
               appBar
             />
