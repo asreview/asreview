@@ -179,6 +179,20 @@ class ProjectAPI {
     });
   }
 
+  static algorithms_list() {
+    const url = api_url + `algorithms`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static algorithms(project_id, edit, data = null) {
     const url = api_url + `project/${project_id}/algorithms`;
     return new Promise((resolve, reject) => {
@@ -219,6 +233,20 @@ class ProjectAPI {
     return new Promise((resolve, reject) => {
       axios
         .get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static clear_error(project_id) {
+    const url = api_url + `project/${project_id}/model/clear_error`;
+    return new Promise((resolve, reject) => {
+      axios
+        .delete(url)
         .then((result) => {
           resolve(result);
         })

@@ -117,7 +117,7 @@ setup(
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
-        'flask>=1.1',
+        'flask>=2.0',
         'flask_cors',
         'openpyxl',
         'gevent',
@@ -174,6 +174,8 @@ setup(
             "random = asreview.models.query.random:RandomQuery",
             "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",
             "cluster = asreview.models.query.cluster:ClusterQuery",
+            "max_random = asreview.models.query.mixed:MaxRandomQuery",
+            "max_uncertainty = asreview.models.query.mixed:MaxUncertaintyQuery",
         ]
     },
     project_urls={
