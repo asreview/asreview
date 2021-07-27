@@ -24,7 +24,7 @@ const axiosErrorHandler = (error) => {
   return api_error;
 };
 
-class FunctionAPI {
+class UtilsAPI {
   static faq = () => {
     const url = api_url + `faq`;
     return new Promise(function (resolve, reject) {
@@ -40,4 +40,4 @@ class FunctionAPI {
   };
 }
 
-export default FunctionAPI;
+export default UtilsAPI;

@@ -20,7 +20,7 @@ import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 
-import { FunctionAPI } from "./api/index.js";
+import { UtilsAPI } from "./api/index.js";
 
 import ErrorHandler from "./ErrorHandler";
 import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
@@ -65,7 +65,7 @@ const HelpDialog = (props) => {
   });
 
   const getFaq = useCallback(() => {
-    FunctionAPI.faq()
+    UtilsAPI.faq()
       .then((result) => {
         setFaq(result.data);
       })
