@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
     height: "-webkit-fill-available",
     overflowY: "scroll",
   },
+  alert: {
+    borderRadius: 0,
+  },
   title: {
     lineHeight: 1.2,
   },
@@ -83,7 +86,9 @@ const RecordCard = (props) => {
         {/* Previous decision alert */}
         {props.previousSelection !== null && (
           <div>
-            <Alert severity="info">{alertInfo}</Alert>
+            <Alert className={classes.alert} severity="info">
+              {alertInfo}
+            </Alert>
           </div>
         )}
 
