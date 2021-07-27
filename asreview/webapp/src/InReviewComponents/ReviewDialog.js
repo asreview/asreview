@@ -383,7 +383,6 @@ const ReviewDialog = (props) => {
         <AppBarWithinDialog
           color="primary"
           startIconIsClose={false}
-          onClickHelp="https://asreview.readthedocs.io/en/latest/features/screening.html"
           onClickHistory={props.toggleHistory}
           onClickShowChart={toggleSideSheet}
           onClickStartIcon={() => {
