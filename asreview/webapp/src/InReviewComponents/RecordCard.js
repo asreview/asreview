@@ -12,10 +12,15 @@ import {
 import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
-  boxFullWidth: {
+  root: {
     paddingTop: 40,
     paddingBottom: 30,
     height: "100%",
+    [theme.breakpoints.down("sm")]: {
+      paddingTop: 16,
+      paddingRight: 0,
+      paddingLeft: 0,
+    },
   },
   card: {
     height: "-webkit-fill-available",
@@ -75,7 +80,7 @@ const RecordCard = (props) => {
   }
 
   return (
-    <Container maxWidth="md" className={classes.boxFullWidth}>
+    <Container maxWidth="md" className={classes.root}>
       <Card className={classes.card}>
         {!props.isloaded && (
           <div className={classes.circularProgress}>
