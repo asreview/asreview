@@ -117,7 +117,7 @@ setup(
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
-        'flask>=1.1',
+        'flask>=2.0',
         'flask_cors',
         'openpyxl',
         'gevent',
