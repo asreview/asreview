@@ -28,35 +28,40 @@ import pandas as pd
 from scipy.sparse import load_npz
 from scipy.sparse import csr_matrix
 
-from asreview.config import STATE_EXTENSIONS
+from asreview.state.hdf5 import HDF5State
 from asreview.state.errors import StateNotFoundError
+from asreview.state.errors import BadStateFileError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 
 
 V3STATE_VERSION = "1.0"
 
 
-def _get_state_class(fp):
-    """Get state class from file extension."""
+# TODO(State): Create an 'add_project_json' function.
+def is_zipped_project_file(fp):
+    """Check if it is a zipped asreview project file."""
+    if Path(fp).is_file():
+        state_ext = Path(fp).suffix
 
-    if fp is None:
-        from asreview.state.legacy.dict import DictState
-        return DictState
-
-    state_ext = Path(fp).suffix
-    if state_ext in ['.h5', '.hdf5', '.he5']:
-        from asreview.state.hdf5 import HDF5State
-        state_class = HDF5State
-    elif state_ext in ['.json']:
-        from asreview.state.legacy.json import JSONState
-        state_class = JSONState
-    elif state_ext in ['.asreview']:
-        from asreview.state.hdf5 import HDF5State
-        state_class = HDF5State
+        # TODO(State): Make link.
+        if state_ext in ['.h5', '.hdf5', '.he5', '.json']:
+            raise ValueError(
+                f'State file with extension {state_ext} is no longer supported. Migrate to the new format or '
+                'use an older version of ASReview. See LINK.')
+        elif state_ext == '.asreview':
+            return True
+        else:
+            raise ValueError(f'State file extension {state_ext} is not recognized.')
     else:
-        state_class = None
-    return state_class
+        return False
 
+
+def is_valid_project_folder(fp):
+    """Check of the folder contains an asreview project."""
+    if not Path(fp, 'project.json').is_file():
+        raise ValueError("There is no 'project.json' file.")
+    else:
+        return
 
 @contextmanager
 def open_state(fp, read_only=True):
@@ -71,39 +76,57 @@ def open_state(fp, read_only=True):
 
     Returns
     -------
-    Basestate:
-        Depending on the extension the appropriate state is
-        chosen:
-        - [.h5, .hdf5, .he5] -> HDF5state.
-        - None -> Dictstate (doesn't store anything permanently).
-        - Anything else -> JSONstate.
+    HDF5State
     """
-    state_class = _get_state_class(fp)
-
-    if state_class is None:
-        raise ValueError("State file extension not found, choose one of the"
-                         f" following:\n   {', '.join(STATE_EXTENSIONS)}")
-
-    # init state class
-    state = state_class(read_only=read_only)
-
-    try:
-        # Temporarily treat .asreview file as a folder instead of a zipped file.
-        if Path(fp).is_dir():
-            state._restore(fp)
-        elif not Path(fp).is_dir() and not read_only:
-            Path(fp).mkdir()
-            state._create_new_state_file(fp)
-        else:
-            raise StateNotFoundError("State file does not exist")
-        yield state
-    finally:
-
+    # If fp is a zipped project file, unzip it.
+    if is_zipped_project_file(fp):
+        print('Is zipped')
+        zip_fp = fp
         try:
-            state.close()
-        except AttributeError:
-            # file seems to be closed, do nothing
-            pass
+            # Unzip the project file
+            with zipfile.ZipFile(fp, "r") as zip_obj:
+                zip_filenames = zip_obj.namelist()
+
+                # raise error if no ASReview project file
+                if "project.json" not in zip_filenames:
+                    raise ValueError("File doesn't contain valid asreview project format.")
+
+                # extract all files to a temporary folder
+                tmpdir = tempfile.mkdtemp()
+                zip_obj.extractall(path=tmpdir)
+                working_dir = Path(tmpdir)
+
+        except zipfile.BadZipFile:
+            raise BadStateFileError("File is not an ASReview file.")
+    else:
+        print('Is not zipped')
+        working_dir = Path(fp)
+        zip_fp = None
+    print(working_dir)
+
+    # Check if file is a valid project folder.
+    if not Path(working_dir, 'project.json').is_file():
+        raise StateNotFoundError("There is no 'project.json' file.")
+    else:
+        # init state class
+        state = HDF5State(read_only=read_only)
+
+        # TODO(State): Check for 'history' folder instead of results.sql.
+        try:
+            if Path(working_dir, 'results.sql').is_file():
+                state._restore(working_dir, zip_fp)
+            elif not Path(working_dir, 'results.sql').is_file() and not read_only:
+                state._create_new_state_file(working_dir, zip_fp)
+            else:
+                raise StateNotFoundError("State file does not exist")
+            yield state
+        finally:
+            try:
+                #TODO(State): Do we need to zip now? We only want to zip once, at the end of a simulation.
+                state.close()
+            except AttributeError:
+                # file seems to be closed, do nothing
+                pass
 
 
 def states_from_dir(data_dir, prefix=""):

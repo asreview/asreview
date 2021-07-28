@@ -19,3 +19,7 @@ class StateNotFoundError(FileNotFoundError):
 
 class StateError(Exception):
     pass
+
+
+class BadStateFileError(Exception):
+    pass

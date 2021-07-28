@@ -218,7 +218,7 @@ def get_feature_matrix_path(project_id):
     return Path(get_project_path(project_id), 'feature_matrix.npz')
 
 
-# TODO (State): Fix state file location.
+# TODO(State): Merge with get_project_path.
 def get_state_path(project_id):
     """Get the labeled file for the project and iteration.
 
@@ -227,6 +227,4 @@ def get_state_path(project_id):
     project_id: str
         The id of the current project.
     """
-
-    # return Path(get_project_path(project_id), "result.json")
-    return Path(get_project_path(project_id), f"{project_id}.asreview")
+    return Path(get_project_path(project_id))

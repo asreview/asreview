@@ -30,6 +30,7 @@ V3STATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
 
 
+# TODO(State): Remove unnecessary files.
 # TODO(State): Allow basic/full (i.e. save probabilities).
 def convert_asreview(asreview_fp):
     """Convert a .asreview project file to a V3 state file.
