@@ -806,7 +806,7 @@ def export_results(project_id):
 
     # get the export args
     file_type = request.args.get('file_type', None)
-    print("file_type is", file_type)
+    #print("file_type is", file_type)
 
 
     if file_type == "csv":
