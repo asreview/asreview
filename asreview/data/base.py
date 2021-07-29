@@ -24,7 +24,7 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import write_ris
+from asreview.io.ris_writer import write_ris
 from asreview.io.utils import type_from_column
 from asreview.io.utils import convert_keywords
 from asreview.utils import is_iterable
@@ -548,11 +548,16 @@ class ASReviewData():
         pandas.DataFrame
             Dataframe of all available record data.
         """
-        if subset == "relevant":
-            df = self.to_dataframe(labels=labels, ranking=ranking)
-            print("df: \n", df)
-            print("df columns: \n",list(df))
-            #df_relevant = df[]
-            write_ris(df, fp)
-        else:
-            raise NotImplementedError
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+        #print("df type is: ", df.dtypes)
+        df_relevant = df[df.included.astype('str').str.contains('1')]
+        #print(df_relevant)
+        print("fp:", fp)
+        #write_ris(df_relevant, fp)
+        #return df_relevant.to_ris(fp)
+
+        
+        # if subset == "relevant":
+        #     write_ris(df, fp)
+        # else:
+        #     raise NotImplementedError
