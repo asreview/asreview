@@ -128,10 +128,8 @@ const SettingsDialog = (props) => {
         {/*Main settings*/}
         {!fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
-            onClose={true}
-            onHelp={true}
-            handleStartIcon={props.toggleSettings}
-            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html"
+            onClickHelp="https://asreview.readthedocs.io/en/latest/features/settings.html"
+            onClickStartIcon={props.toggleSettings}
             title="Settings"
           />
         )}
@@ -250,10 +248,9 @@ const SettingsDialog = (props) => {
         {/*Font size setting*/}
         {fontSizeSetting && (
           <AppBarWithinDialog
-            onClose={false}
-            onHelp={true}
-            handleStartIcon={toggleFontSizeSetting}
-            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
+            startIconIsClose={false}
+            onClickHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
+            onClickStartIcon={toggleFontSizeSetting}
             title="Font size"
           />
         )}
@@ -364,10 +361,9 @@ const SettingsDialog = (props) => {
         {/*Keyboard shortcut setting*/}
         {shortcutSetting && (
           <AppBarWithinDialog
-            onClose={false}
-            onHelp={true}
-            handleStartIcon={toggleShortcutSetting}
-            handleHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
+            startIconIsClose={false}
+            onClickHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
+            onClickStartIcon={toggleShortcutSetting}
             title="Keyboard shortcuts"
           />
         )}

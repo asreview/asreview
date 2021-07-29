@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import {
   AppBar,
   FormControl,
@@ -7,6 +8,7 @@ import {
   MenuItem,
   Select,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { fade, makeStyles } from "@material-ui/core/styles";
@@ -15,12 +17,15 @@ import {
   ArrowBack,
   Close,
   HelpOutlineOutlined,
+  History,
   Search,
+  ShowChart,
 } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     overflow: "hidden",
+    zIndex: theme.zIndex.drawer + 1,
   },
   toolBar: {
     marginRight: -12,
@@ -37,9 +42,17 @@ const useStyles = makeStyles((theme) => ({
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: [
+      theme.palette.type === "dark"
+        ? fade(theme.palette.common.white, 0.15)
+        : fade(theme.palette.common.black, 0.075),
+    ],
     "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
+      backgroundColor: [
+        theme.palette.type === "dark"
+          ? fade(theme.palette.common.white, 0.25)
+          : fade(theme.palette.common.black, 0.125),
+      ],
     },
     marginLeft: 0,
     width: "100%",
@@ -73,72 +86,132 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
+  divider: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: "auto",
+  },
 }));
 
-const AppBarWithinDialog = (props) => {
-  const classes = useStyles();
+const AppBarWithinDialog = React.forwardRef(
+  (
+    {
+      color,
+      onChangeSearch,
+      onChangeSelect,
+      onClickHelp,
+      onClickHistory,
+      onClickShowChart,
+      onClickStartIcon,
+      selectOptions,
+      selectedValue,
+      startIconIsClose,
+      title,
+    },
+    ref
+  ) => {
+    const classes = useStyles();
 
-  return (
-    <AppBar className={classes.root} color="inherit" position="relative">
-      <Toolbar className={classes.toolBar}>
-        {/*Icon on the left*/}
-        <IconButton
-          edge="start"
-          color="inherit"
-          onClick={props.handleStartIcon}
-        >
-          {props.onClose ? <Close /> : <ArrowBack />}
-        </IconButton>
-
-        {/*Dialog title*/}
-        {!props.onSelect && props.title && (
-          <Typography className={classes.title} variant="h6">
-            {props.title}
-          </Typography>
-        )}
-
-        {/*Select*/}
-        {props.onSelect && (
-          <div className={classes.select}>
-            <FormControl>
-              <Select value={props.selectValue} onChange={props.handleSelect}>
-                {props.selectOptions.map((element, index) => (
-                  <MenuItem key={element.value} value={element.value}>
-                    {element.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-        )}
-
-        {/*Search field*/}
-        {props.onSearchField && (
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <Search />
-            </div>
-            <InputBase
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ "aria-label": "search" }}
-              onChange={props.handleSearch}
-            />
-          </div>
-        )}
-
-        {/*Help icon*/}
-        {props.onHelp && (
-          <IconButton color="inherit" href={props.handleHelp} target="_blank">
-            <HelpOutlineOutlined />
+    return (
+      <AppBar className={classes.root} color={color} position="relative">
+        <Toolbar className={classes.toolBar}>
+          {/* Start icon */}
+          <IconButton edge="start" color="inherit" onClick={onClickStartIcon}>
+            {startIconIsClose ? <Close /> : <ArrowBack />}
           </IconButton>
-        )}
-      </Toolbar>
-    </AppBar>
-  );
+
+          {/* Dialog title */}
+          {!onChangeSelect && title && (
+            <Typography className={classes.title} variant="h6">
+              {title}
+            </Typography>
+          )}
+
+          {/* Select */}
+          {onChangeSelect && (
+            <div className={classes.select}>
+              <FormControl>
+                <Select value={selectedValue} onChange={onChangeSelect}>
+                  {selectOptions.map((element, index) => (
+                    <MenuItem key={element.value} value={element.value}>
+                      {element.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          )}
+
+          {/* Divider */}
+          {!title && <div className={classes.divider}></div>}
+
+          {/* Search field */}
+          {onChangeSearch && (
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <Search />
+              </div>
+              <InputBase
+                placeholder="Search…"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ "aria-label": "search" }}
+                onChange={onChangeSearch}
+              />
+            </div>
+          )}
+
+          {/* History icon */}
+          {onClickHistory && (
+            <Tooltip title="Review history">
+              <IconButton color="inherit" onClick={onClickHistory}>
+                <History />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Show chart icon */}
+          {onClickShowChart && (
+            <Tooltip title="Statistics">
+              <IconButton color="inherit" onClick={onClickShowChart}>
+                <ShowChart />
+              </IconButton>
+            </Tooltip>
+          )}
+
+          {/* Help icon */}
+          {onClickHelp && (
+            <IconButton color="inherit" href={onClickHelp} target="_blank">
+              <HelpOutlineOutlined />
+            </IconButton>
+          )}
+        </Toolbar>
+      </AppBar>
+    );
+  }
+);
+
+AppBarWithinDialog.propTypes = {
+  color: PropTypes.string,
+  onChangeSearch: PropTypes.func,
+  onChangeSelect: PropTypes.func,
+  onClickHelp: PropTypes.string,
+  onClickHistory: PropTypes.func,
+  onClickShowChart: PropTypes.func,
+  onClickStartIcon: PropTypes.func.isRequired,
+  selectOptions: PropTypes.array,
+  selectedValue: PropTypes.number,
+  startIconIsClose: PropTypes.bool,
+  title: PropTypes.string,
 };
+
+AppBarWithinDialog.defaultProps = {
+  color: "inherit",
+  startIconIsClose: true,
+};
+
+AppBarWithinDialog.displayName = "AppBarWithinDialog";
 
 export default AppBarWithinDialog;
