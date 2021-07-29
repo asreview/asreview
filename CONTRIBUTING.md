@@ -38,7 +38,7 @@ You can submit your changes to ASReview [by creating a pull request](https://git
 ## Discussions
 Got any questions for the ASReview community?
 Or perhaps you know the answer to a question asked? 💡
-Don't hesitate to post on our [discussion board](https://github.com/asreview/asreview/discussions).
+Don't hesitate to post on the [discussion board](https://github.com/asreview/asreview/discussions).
 
 ## First timer?
 Do you have little experience with contributing to open-source project and working with GitHub? :octocat: No worries! There are some amazing tutorials out there:
