@@ -119,4 +119,3 @@ def write_ris(df, fp):
 
     with open(fp, "w") as fp:
         rispy.dump(df, fp)
- 
