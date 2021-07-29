@@ -16,6 +16,9 @@ import json
 import logging
 from os.path import splitext
 from pathlib import PurePath
+from pathlib import Path
+import time
+import shutil
 
 import numpy as np
 
@@ -44,6 +47,7 @@ from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.state.utils import open_state
 from asreview.utils import get_random_state
+from asreview._version import get_versions
 
 
 ASCII_LOGO = """
@@ -298,6 +302,43 @@ def review(*args,
         model.model.save_weights(save_model_h5_fp, overwrite=True)
 
 
+# TODO(State): Merge with init_project from webapp.utils.project.py
+# TODO(State): Fix a structure for the project folder.
+def init_simulate_project(fp):
+    project_id = Path(fp).stem
+    asreview_version = get_versions()['version']
+
+    if not project_id and not isinstance(project_id, str) \
+            and len(project_id) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
+
+    if Path(fp).is_dir():
+        raise IsADirectoryError(f'Project folder {fp} already exists.')
+    try:
+        Path(fp).mkdir()
+        Path(fp, 'data').mkdir()
+
+        project_config = {
+            'version': asreview_version,  # todo: Fail without git?
+            'id': project_id,
+            'name': None,
+            'description': None,
+            'authors': None,
+            'created_at_unix': int(time.time()),
+
+            # project related variables
+            'projectInitReady': False,
+            'reviewFinished': False,
+        }
+
+        with open(Path(fp, 'project.json'), 'w') as f:
+            json.dump(project_config, f)
+    except Exception as err:
+        # remove all generated folders and raise error
+        shutil.rmtree(Path(fp))
+        raise err
+
+
 def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
 
@@ -323,5 +364,8 @@ def review_simulate(dataset, *args, **kwargs):
         print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
               "use 'benchmark:Hall_2012' instead.\n\n")
         dataset = "benchmark:Hall_2012"
+
+    project_fp = kwargs['state_file']
+    init_simulate_project(project_fp)
 
     review(dataset, *args, mode='simulate', **kwargs)

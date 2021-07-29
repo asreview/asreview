@@ -55,6 +55,47 @@ def is_zipped_project_file(fp):
     else:
         return False
 
+    # PROJECT UNZIPPING FUNCTION.
+    # # If fp is a zipped project file, unzip it.
+    # if is_zipped_project_file(fp):
+    #     zip_fp = fp
+    #     try:
+    #         # Unzip the project file
+    #         with zipfile.ZipFile(fp, "r") as zip_obj:
+    #             zip_filenames = zip_obj.namelist()
+    #
+    #             # raise error if no ASReview project file
+    #             if "project.json" not in zip_filenames:
+    #                 raise ValueError("File doesn't contain valid asreview project format.")
+    #
+    #             # extract all files to a temporary folder
+    #             tmpdir = tempfile.mkdtemp()
+    #             zip_obj.extractall(path=tmpdir)
+    #             working_dir = Path(tmpdir)
+    #
+    #     except zipfile.BadZipFile:
+    #         raise BadStateFileError("File is not an ASReview file.")
+    # else:
+    #     working_dir = Path(fp)
+    #     zip_fp = None
+
+    # PROJECT ZIPPING FUNCTION
+    # if zip_fp is not None:
+    #     # If the save_fp is not equal to the working directory, we need to zip the project.
+    #     project_id = Path(zip_fp).stem
+    #     # create a temp folder to zip
+    #     tmpdir = tempfile.TemporaryDirectory()
+    #
+    #     # create the archive
+    #     shutil.make_archive(
+    #         Path(tmpdir.name, project_id),
+    #         "zip",
+    #         root_dir=working_dir
+    #     )
+    #
+    #     # Overwrite the old zip file.
+    #     shutil.copyfile(Path(tmpdir.name, project_id), zip_fp)
+
 
 def is_valid_project_folder(fp):
     """Check of the folder contains an asreview project."""
@@ -63,70 +104,43 @@ def is_valid_project_folder(fp):
     else:
         return
 
+
 @contextmanager
-def open_state(fp, read_only=True):
-    """Open a state from a file.
+def open_state(working_dir, read_only=True):
+    """Initialize a state class instance from a project folder.
 
     Arguments
     ---------
     fp: str
-        File to open.
+        Project folder.
     read_only: bool
-        Whether to open the file in read_only mode.
+        Whether to open in read_only mode.
 
     Returns
     -------
     HDF5State
     """
-    # If fp is a zipped project file, unzip it.
-    if is_zipped_project_file(fp):
-        print('Is zipped')
-        zip_fp = fp
-        try:
-            # Unzip the project file
-            with zipfile.ZipFile(fp, "r") as zip_obj:
-                zip_filenames = zip_obj.namelist()
-
-                # raise error if no ASReview project file
-                if "project.json" not in zip_filenames:
-                    raise ValueError("File doesn't contain valid asreview project format.")
-
-                # extract all files to a temporary folder
-                tmpdir = tempfile.mkdtemp()
-                zip_obj.extractall(path=tmpdir)
-                working_dir = Path(tmpdir)
-
-        except zipfile.BadZipFile:
-            raise BadStateFileError("File is not an ASReview file.")
-    else:
-        print('Is not zipped')
-        working_dir = Path(fp)
-        zip_fp = None
-    print(working_dir)
-
     # Check if file is a valid project folder.
-    if not Path(working_dir, 'project.json').is_file():
-        raise StateNotFoundError("There is no 'project.json' file.")
-    else:
-        # init state class
-        state = HDF5State(read_only=read_only)
+    is_valid_project_folder(working_dir)
 
-        # TODO(State): Check for 'history' folder instead of results.sql.
+    # init state class
+    state = HDF5State(read_only=read_only)
+
+    # TODO(State): Check for 'history' folder instead of results.sql.
+    try:
+        if Path(working_dir, 'results.sql').is_file():
+            state._restore(working_dir)
+        elif not Path(working_dir, 'results.sql').is_file() and not read_only:
+            state._create_new_state_file(working_dir)
+        else:
+            raise StateNotFoundError("State file does not exist")
+        yield state
+    finally:
         try:
-            if Path(working_dir, 'results.sql').is_file():
-                state._restore(working_dir, zip_fp)
-            elif not Path(working_dir, 'results.sql').is_file() and not read_only:
-                state._create_new_state_file(working_dir, zip_fp)
-            else:
-                raise StateNotFoundError("State file does not exist")
-            yield state
-        finally:
-            try:
-                #TODO(State): Do we need to zip now? We only want to zip once, at the end of a simulation.
-                state.close()
-            except AttributeError:
-                # file seems to be closed, do nothing
-                pass
+            state.close()
+        except AttributeError:
+            # file seems to be closed, do nothing
+            pass
 
 
 def states_from_dir(data_dir, prefix=""):

@@ -27,27 +27,35 @@ TEST_FEATURE_EXTRACTION = ['prior', 'prior', 'prior', 'prior', 'tfidf', 'tfidf',
 TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
-TEST_STATE_FP = Path("tests", "v3_states", "test_converted.asreview")
+TEST_STATE_FP = Path("tests", "v3_states", "test_converted_unzipped.asreview")
 TEST_WITH_TIMES_FP = Path('tests', 'v3_states', 'test_with_times_unzipped.asreview')
 TEST_LABELING_TIMES = ['2021-07-22 12:10:17.316387', '2021-07-22 12:10:17.316387', '2021-07-22 12:10:22.258937', '2021-07-22 12:10:22.258937', '2021-07-22 12:10:23.240560', '2021-07-22 12:10:24.167310', '2021-07-22 12:10:25.139470', '2021-07-22 12:10:27.309526', '2021-07-22 12:10:29.100831', '2021-07-22 12:10:29.100831']
-
-# TODO(State): Test from zipped and unzipped state file.
 
 
 with open(Path('tests', 'v3_states', 'test_probabilities.json'), 'r') as f:
     TEST_LAST_PROBABILITIES = json.load(f)
 
+
 def add_empty_project_json(fp):
     with open(Path(fp, 'project.json'), 'w') as f:
         json.dump({}, f)
 
+@pytest.mark.xfail(
+    raises=ValueError,
+    reason="There is no 'project.json' file."
+)
+def test_invalid_project_folder():
+    with open_state('this_is_not_a_project') as state:
+        pass
 
 @pytest.mark.xfail(
     raises=StateNotFoundError,
-    reason="There is no 'project.json' file."
+    reason="State file does not exist"
 )
-def test_state_not_found():
-    with open_state("this_file_doesnt_exist.asreview") as state:
+def test_state_not_found(tmpdir):
+    state_fp = Path(tmpdir)
+    add_empty_project_json(state_fp)
+    with open_state(state_fp) as state:
         pass
 
 

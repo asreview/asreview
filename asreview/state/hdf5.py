@@ -14,8 +14,6 @@
 
 import json
 import sqlite3
-import tempfile
-import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -35,7 +33,7 @@ from asreview._version import get_versions
 RELATIVE_RESULTS_PATH = Path('results.sql')
 RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
 RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
-LATEST_HDF5STATE_VERSION = "1.1"
+LATEST_HDF5STATE_VERSION = "1.0"
 SOFTWARE_VERSION = get_versions()['version']
 REQUIRED_TABLES = ['results', 'record_table', 'last_probabilities']
 RESULTS_TABLE_COLUMNS = ['record_ids', 'labels', 'classifiers', 'query_strategies',
@@ -44,6 +42,7 @@ RESULTS_TABLE_COLUMNS = ['record_ids', 'labels', 'classifiers', 'query_strategie
 SETTINGS_METADATA_KEYS = ['settings', 'state_version', 'software_version']
 
 
+#TODO(State): Implement undo feature.
 class HDF5State(BaseState):
     """Class for storing the review state with HDF5 storage.
 
@@ -89,7 +88,7 @@ class HDF5State(BaseState):
         return self.working_dir / RELATIVE_FEATURE_MATRIX_PATH
 
 ### OPEN, CLOSE, SAVE, INIT
-    def _create_new_state_file(self, working_dir, zip_fp=None):
+    def _create_new_state_file(self, working_dir):
         """
         Create a new state file.
 
@@ -97,8 +96,6 @@ class HDF5State(BaseState):
         ---------
         working_dir: str, pathlib.Path
             File where the project files.
-        zip_fp: str, pathlib.Path
-            If not None, the zipped project will be saved at this location.
         """
         if self.read_only:
             raise ValueError(
@@ -106,7 +103,6 @@ class HDF5State(BaseState):
             )
 
         self.working_dir = Path(working_dir)
-        self.zip_fp = zip_fp
 
         # create folder to state file if not exist
         self.working_dir.parent.mkdir(parents=True, exist_ok=True)
@@ -151,7 +147,7 @@ class HDF5State(BaseState):
             con.close()
             raise e
 
-    def _restore(self, working_dir, zip_fp=None):
+    def _restore(self, working_dir):
         """
         Create a new state file.
 
@@ -159,8 +155,6 @@ class HDF5State(BaseState):
         ---------
         working_dir: str, pathlib.Path
             File where the project files.
-        zip_fp: str, pathlib.Path
-            If not None, the zipped project will be saved at this location.
         """
         # If state already exist
         if not Path(working_dir).is_dir():
@@ -168,7 +162,6 @@ class HDF5State(BaseState):
 
         # store filepath
         self.working_dir = Path(working_dir)
-        self.zip_fp = zip_fp
 
         # Cache the settings.
         try:
@@ -214,24 +207,7 @@ class HDF5State(BaseState):
                 raise StateError(f'The key {key} was not found in settings_metadata.')
 
     def close(self):
-        if self.read_only:
-            pass
-        else:
-            if self.zip_fp is not None:
-                # If the save_fp is not equal to the working directory, we need to zip the project.
-                project_id = Path(self.zip_fp).stem
-                # create a temp folder to zip
-                tmpdir = tempfile.TemporaryDirectory()
-
-                # create the archive
-                shutil.make_archive(
-                    Path(tmpdir.name, project_id),
-                    "zip",
-                    root_dir=self.working_dir
-                )
-
-                # Overwrite the old zip file.
-                shutil.copyfile(Path(tmpdir.name, project_id), self.zip_fp)
+        pass
 
 ### PROPERTIES
     def _is_valid_version(self):

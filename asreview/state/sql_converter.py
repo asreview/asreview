@@ -30,30 +30,34 @@ V3STATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
 
 
-# TODO(State): Remove unnecessary files.
+def is_old_project(fp):
+    """Check if state file is old version."""
+    if Path(fp, 'results.sql').is_file():
+        raise ValueError(f"There already is a 'results.sql' file at {fp}")
+    if not Path(fp, 'result.json').is_file():
+        raise ValueError(f"There is no 'result.json' file at {fp}")
+
 # TODO(State): Allow basic/full (i.e. save probabilities).
-def convert_asreview(asreview_fp):
-    """Convert a .asreview project file to a V3 state file.
+def convert_asreview(fp):
+    """Convert an old asreview project folder to the new format.
 
     Arguments
     ---------
-    asreview_fp: str/path
-        Location of the .asreview project file.
+    fp: str/path
+        Location of the (unzipped) project file.
 
     Returns
     -------
-    Converts the data in the .asreview file to the new format
-    and adds it to the file."""
-    # Extract the data in the .asreview file to a temporary folder.
-    with zipfile.ZipFile(asreview_fp, "r") as zipObj:
-        tmpdir = tempfile.TemporaryDirectory()
-        path = Path(tmpdir.name)
-        zipObj.extractall(path)
+    Converts the data in the project to the new format
+    and adds it to the folder in place."""
+    # Check if it is indeed an old format project.
+    is_old_project(fp)
 
+    fp = Path(fp)
     # Path to the json state file in the asreview file.
-    json_fp = path / 'result.json'
+    json_fp = fp / 'result.json'
     # Create sqlite table for results.
-    sql_fp = path / 'results.sql'
+    sql_fp = fp / 'results.sql'
     convert_json_results_to_sql(sql_fp, json_fp)
 
     # Create sqlite tables 'last_probabilities'.
@@ -64,18 +68,12 @@ def convert_asreview(asreview_fp):
     convert_json_record_table(sql_fp, json_fp)
 
     # Create json for settings.
-    settings_metadata_fp = path / 'settings_metadata.json'
+    settings_metadata_fp = fp / 'settings_metadata.json'
     convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
     # Create npz for feature matrix.
-    feature_matrix_fp = path / 'feature_matrix.npz'
+    feature_matrix_fp = fp / 'feature_matrix.npz'
     convert_json_feature_matrix(feature_matrix_fp, json_fp)
-
-    # Write the new files back to the .asreview file.
-    with zipfile.ZipFile(asreview_fp, "a") as zipObj:
-        zipObj.write(sql_fp, 'results.sql')
-        zipObj.write(settings_metadata_fp, 'settings_metadata.json')
-        zipObj.write(feature_matrix_fp, 'feature_matrix.npz')
 
 
 def convert_json_settings_metadata(fp, json_fp):
