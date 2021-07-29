@@ -84,38 +84,3 @@ def read_ris(fp):
         if key in df:
             df[key] = df[key].apply(converter)
     return standardize_dataframe(df)
-
-
-def write_ris(df, fp):
-    """Write dataframe to RIS file.
-
-    Arguments
-    ---------
-    df: pandas.Dataframe
-        Dataframe to export.
-    fp: str
-        RIS file to export to.
-    """
-    column_names = list(df)
-    column_key = []
-    for col in column_names:
-        try:
-            rev_mapping = _tag_key_mapping(reverse=True)
-            column_key.append(rev_mapping[col])
-        except KeyError:
-            column_key.append('UK')
-            logging.info(f"Cannot find column {col} in specification.")
-
-    n_row = df.shape[0]
-
-    # According to RIS specifications, a record should begin with TY.
-    # Thus, the column id is inserted before all the other.
-    col_order = []
-    for i, key in enumerate(column_key):
-        if key == 'TY':
-            col_order.insert(0, i)
-        else:
-            col_order.append(i)
-
-    with open(fp, "w") as fp:
-        rispy.dump(df, fp)

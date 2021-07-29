@@ -38,54 +38,6 @@ def _tag_key_mapping(reverse=False):
         return TAG_KEY_MAPPING
 
 
-def read_ris(fp):
-    """RIS file reader.
-
-    Parameters
-    ----------
-    fp: str, pathlib.Path
-        File path to the RIS file.
-    label: bool
-        Check for label. If None, this is automatic.
-
-    Returns
-    -------
-    pandas.DataFrame:
-        Dataframe with entries.
-
-    """
-
-    encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
-    entries = None
-    for encoding in encodings:
-        try:
-            with open(fp, 'r', encoding=encoding) as bibliography_file:
-                mapping = _tag_key_mapping(reverse=False)
-                entries = list(rispy.load(bibliography_file, mapping=mapping))
-                break
-        except UnicodeDecodeError:
-            pass
-        except IOError as e:
-            logging.warning(e)
-
-    if entries is None:
-        raise ValueError("Cannot find proper encoding for data file.")
-
-    df = pd.DataFrame(entries)
-
-    def converter(x):
-        try:
-            return ", ".join(x)
-        except TypeError:
-            return ""
-
-    for tag in LIST_TYPE_TAGS:
-        key = TAG_KEY_MAPPING[tag]
-        if key in df:
-            df[key] = df[key].apply(converter)
-    return standardize_dataframe(df)
-
-
 def write_ris(df, fp):
     """Write dataframe to RIS file.
 
