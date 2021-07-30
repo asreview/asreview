@@ -411,7 +411,7 @@ class ASReviewData():
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
 
-        RIS, CSV and Excel are supported file formats at the moment.
+        RIS, CSV, TSV and Excel are supported file formats at the moment.
 
         Arguments
         ---------
