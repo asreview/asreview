@@ -549,12 +549,15 @@ class ASReviewData():
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
-        #print("df type is: ", df.dtypes)
-        df_relevant = df[df.included.astype('str').str.contains('1')]
-        #print(df_relevant)
-        print("fp:", fp)
-        #write_ris(df_relevant, fp)
-        #return df_relevant.to_ris(fp)
+        # print("df 1 is:", df)
+        # #print("df type is: ", df.dtypes)
+        # df = df[df.included.astype('str').str.contains('1')]
+        # #print(df_relevant)
+        # print("df 2 is:", df)
+        # print("fp:", fp)
+        # write_ris(df, fp)
+        return write_ris(df, fp)
+        #return df.to_ris(fp)
 
         
         # if subset == "relevant":
