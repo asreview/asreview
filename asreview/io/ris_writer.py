@@ -12,62 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
-import pandas as pd
 import rispy
-from rispy import TAG_KEY_MAPPING
-from rispy.config import LIST_TYPE_TAGS
-
-from asreview.config import COLUMN_DEFINITIONS
-from asreview.io.utils import standardize_dataframe
-
-
-RIS_KEY_LABEL_INCLUDED = "LI"
-
-
-def _tag_key_mapping(reverse=False):
-    # Add label_included into the specification and create reverse mapping.
-    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
-    KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-    for label in COLUMN_DEFINITIONS["included"]:
-        KEY_TAG_MAPPING[label] = "LI"
-    if reverse:
-        return KEY_TAG_MAPPING
-    else:
-        return TAG_KEY_MAPPING
-
 
 def write_ris(df, fp):
-    """Write dataframe to RIS file.
-
-    Arguments
-    ---------
+    """RIS file writer
+    Parameters
+    ----------
     df: pandas.Dataframe
-        Dataframe to export.
-    fp: str
-        RIS file to export to.
+        Dataframe to convert and export.
+    fp: str, pathlib.Path
+        File path to the RIS file.
+    col_label: 
     """
-    column_names = list(df)
-    column_key = []
-    for col in column_names:
-        try:
-            rev_mapping = _tag_key_mapping(reverse=True)
-            column_key.append(rev_mapping[col])
-        except KeyError:
-            column_key.append('UK')
-            logging.info(f"Cannot find column {col} in specification.")
+    print("df 3:", df)
+    # # Check for the 'notes' column and
+    # # turn DF label into 'notes'
+    # if "notes" in list(df):
+    #     df["notes"] = df["notes"] + " " + df[col_label].replace({0: "ASReview_irrelevant", 1: 'ASReview_relevant'})
+    # else:
+    #     df["notes"] = df[col_label].replace({0: "ASReview_irrelevant", 1: 'ASReview_relevant'})
 
-    n_row = df.shape[0]
+    # # Delete the col_label
+    # del df[col_label]
 
-    # According to RIS specifications, a record should begin with TY.
-    # Thus, the column id is inserted before all the other.
-    col_order = []
-    for i, key in enumerate(column_key):
-        if key == 'TY':
-            col_order.insert(0, i)
-        else:
-            col_order.append(i)
+    # Only relevant records
+    df = df[df.included.astype('str').str.contains('1')]
 
-    with open(fp, "w") as fp:
-        rispy.dump(df, fp)
+    # Turn pandas DataFrame into list of dictionaries
+    d = df.T.to_dict().values()
+
+    # Buffered dataframe
+    if fp is None:
+        return rispy.dumps(d)
+    # IO dataframe
+    else:
+        # Export the RIS file
+        with open(fp, "w") as fp:
+            rispy.dump(d, fp)
