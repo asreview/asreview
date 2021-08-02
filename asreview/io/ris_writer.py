@@ -21,8 +21,7 @@ def write_ris(df, fp):
     df: pandas.Dataframe
         Dataframe to convert and export.
     fp: str, pathlib.Path
-        File path to the RIS file.
-    col_label: 
+        File path to the RIS file, if exists. 
     """
     print("df 3:", df)
     # # Check for the 'notes' column and
