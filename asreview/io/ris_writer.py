@@ -21,7 +21,7 @@ def write_ris(df, fp):
     df: pandas.Dataframe
         Dataframe to convert and export.
     fp: str, pathlib.Path
-        File path to the RIS file, if exists. 
+        File path to the RIS file, if exists.
     """
     # # Choose only "included" records
     # df = df[df.included.astype('str').str.contains('1')]
@@ -54,14 +54,14 @@ def write_ris(df, fp):
         # Check the keywords
         try:
             records[i]["keywords"] = eval(records[i]["keywords"])
-        except Exception: 
+        except Exception:
             records[i]["keywords"] = []
         # print("For this record, keywords:\n", records[i]["keywords"])
 
         # Check the notes
         try:
             records[i]["notes"] = eval(records[i]["notes"])
-        except Exception: 
+        except Exception:
             records[i]["notes"] = []
         # Update notes based on the label
         finally:
