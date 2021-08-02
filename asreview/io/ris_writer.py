@@ -34,7 +34,7 @@ def write_ris(df, fp):
 
     # Turn pandas DataFrame into records (list of dictionaries) for rispy
     records = df.to_dict('records')
-    print("records are:\n", records)
+    #print("records are:\n", records)
 
     ########################################################
     # For each record, update and verify RIS list type tags:
