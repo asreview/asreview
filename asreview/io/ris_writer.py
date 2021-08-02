@@ -23,28 +23,65 @@ def write_ris(df, fp):
     fp: str, pathlib.Path
         File path to the RIS file, if exists. 
     """
-    print("df 3:", df)
-    # # Check for the 'notes' column and
-    # # turn DF label into 'notes'
-    # if "notes" in list(df):
-    #     df["notes"] = df["notes"] + " " + df[col_label].replace({0: "ASReview_irrelevant", 1: 'ASReview_relevant'})
-    # else:
-    #     df["notes"] = df[col_label].replace({0: "ASReview_irrelevant", 1: 'ASReview_relevant'})
+    # # Choose only "included" records
+    # df = df[df.included.astype('str').str.contains('1')]
 
-    # # Delete the col_label
-    # del df[col_label]
+    # # Delete the included column for rispy
+    # del df["included"]
 
-    # Only relevant records
-    df = df[df.included.astype('str').str.contains('1')]
+    # # Delete the asreview_ranking for rispy
+    # del df["asreview_ranking"]
 
-    # Turn pandas DataFrame into list of dictionaries
-    d = df.T.to_dict().values()
+    # Turn pandas DataFrame into records (list of dictionaries) for rispy
+    records = df.to_dict('records')
+    print("records are:\n", records)
+
+    ########################################################
+    # For each record, update and verify RIS list type tags:
+    # AU - authors
+    # KW - keywords
+    # N1 - notes
+    ########################################################
+    for i in range(0, len(records)):
+
+        # Check the authors
+        try:
+            records[i]["authors"] = eval(records[i]["authors"])
+        except Exception:
+            records[i]["authors"] = []
+        print("For this record, authors:\n",records[i]["authors"],"\n",type(records[i]["authors"]))
+
+        # Check the keywords
+        try:
+            records[i]["keywords"] = eval(records[i]["keywords"])
+        except Exception: 
+            records[i]["keywords"] = []
+        print("For this record, keywords:\n", records[i]["keywords"],"\n",type(records[i]["keywords"]))
+
+        # Check the notes
+        try:
+            records[i]["notes"] = eval(records[i]["notes"])
+        except Exception: 
+            records[i]["notes"] = []
+        # Update notes based on the label
+        finally:
+            # Relevant records
+            if records[i]["included"] == 1:
+                records[i]["notes"].append("ASReview_relevant")
+            # Irelevant records
+            elif records[i]["included"] == 0:
+                records[i]["notes"].append("ASReview_irrelevant")
+            # Not seen records
+            else:
+                records[i]["notes"].append("ASReview_not_seen")
+        print("For this record, notes:\n", records[i]["notes"],"\n",type(records[i]["notes"]))
 
     # Buffered dataframe
     if fp is None:
-        return rispy.dumps(d)
+        # Export the RIS file from the buffer
+        return rispy.dumps(records)
     # IO dataframe
     else:
-        # Export the RIS file
+        # Export the RIS file on the path
         with open(fp, "w") as fp:
-            rispy.dump(d, fp)
+            rispy.dump(records, fp)
