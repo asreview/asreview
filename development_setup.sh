@@ -40,6 +40,9 @@ npm install
 echo "Beautifying front end code..."
 npx prettier --write .
 
+# Set Flask environment
+export FLASK_ENV=development
+
 # Start the front end
 echo "Starting front end server..."
 npm start &
