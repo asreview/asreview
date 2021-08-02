@@ -475,7 +475,7 @@ def export_to_string(project_id, export_type="csv"):
 
     elif export_type == "ris":
         return as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
-        
+
     else:
         raise ValueError("This export type isn't implemented.")
 
