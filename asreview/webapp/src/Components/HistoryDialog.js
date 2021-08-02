@@ -20,6 +20,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import CloseIcon from "@material-ui/icons/Close";
 
+import { AppBarWithinDialog } from "../Components";
 import { HistoryListCard } from "../Components";
 import ErrorHandler from "../ErrorHandler";
 
@@ -30,6 +31,21 @@ import { mapStateToProps } from "../globals.js";
 import { connect } from "react-redux";
 
 const DEFAULT_SELECTION = 1;
+
+const selectOptions = [
+  {
+    value: 1,
+    label: "All",
+  },
+  {
+    value: 2,
+    label: "Relevant",
+  },
+  {
+    value: 3,
+    label: "Irrelevant",
+  },
+];
 
 const useStyles = makeStyles((theme) => ({
   selectMenu: {
@@ -165,26 +181,12 @@ const HistoryDialog = (props) => {
       aria-describedby="scroll-dialog-description"
     >
       {state.index === null && (
-        <DialogTitle>
-          Review History
-          {state["data"] !== null && (
-            <FormControl className={classes.selectMenu}>
-              <Select value={state.select} onChange={handleSelectChange}>
-                <MenuItem value={1}>All ({state["data"].length})</MenuItem>
-                <MenuItem value={2}>
-                  Relevant (
-                  {state["data"].filter((value) => value.included === 1).length}
-                  )
-                </MenuItem>
-                <MenuItem value={3}>
-                  Irrelevant (
-                  {state["data"].filter((value) => value.included !== 1).length}
-                  )
-                </MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        </DialogTitle>
+        <AppBarWithinDialog
+          onClickStartIcon={closeHistory}
+          selectedValue={state["select"]}
+          onChangeSelect={handleSelectChange}
+          selectOptions={selectOptions}
+        />
       )}
 
       {state.index !== null && (
