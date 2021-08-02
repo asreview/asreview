@@ -73,14 +73,14 @@ def read_ris(fp):
 
     df = pd.DataFrame(entries)
 
-    def converter(x):
-        try:
-            return ", ".join(x)
-        except TypeError:
-            return ""
+    # def converter(x):
+    #     try:
+    #         return ", ".join(x)
+    #     except TypeError:
+    #         return ""
 
-    for tag in LIST_TYPE_TAGS:
-        key = TAG_KEY_MAPPING[tag]
-        if key in df:
-            df[key] = df[key].apply(converter)
+    # for tag in LIST_TYPE_TAGS:
+    #     key = TAG_KEY_MAPPING[tag]
+    #     if key in df:
+    #         df[key] = df[key].apply(converter)
     return standardize_dataframe(df)
