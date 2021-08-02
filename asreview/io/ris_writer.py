@@ -49,14 +49,14 @@ def write_ris(df, fp):
             records[i]["authors"] = eval(records[i]["authors"])
         except Exception:
             records[i]["authors"] = []
-        #print("For this record, authors:\n",records[i]["authors"],"\n",type(records[i]["authors"]))
+        #print("For this record, authors:\n",records[i]["authors"])
 
         # Check the keywords
         try:
             records[i]["keywords"] = eval(records[i]["keywords"])
         except Exception: 
             records[i]["keywords"] = []
-        #print("For this record, keywords:\n", records[i]["keywords"],"\n",type(records[i]["keywords"]))
+        #print("For this record, keywords:\n", records[i]["keywords"])
 
         # Check the notes
         try:
@@ -74,7 +74,7 @@ def write_ris(df, fp):
             # Not seen records
             else:
                 records[i]["notes"].append("ASReview_not_seen")
-        #print("For this record, notes:\n", records[i]["notes"],"\n",type(records[i]["notes"]))
+        #print("For this record, notes:\n", records[i]["notes"])
 
     # Buffered dataframe
     if fp is None:
