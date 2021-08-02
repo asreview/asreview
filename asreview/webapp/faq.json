@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "items": [
+    {
+      "title": "Has the use of ASReview in systematic reviews been validated?",
+      "url": "https://github.com/asreview/asreview/discussions/556"
+    },
+    {
+      "title": "What are the best ways to stop screening?",
+      "url": "https://github.com/asreview/asreview/discussions/557"
+    },
+    {
+      "title": "Can you do double screening in ASReview?",
+      "url": "https://github.com/asreview/asreview/discussions/550"
+    },
+    {
+      "title": "How to deal with records that do not have abstracts?",
+      "url": "https://github.com/asreview/asreview/discussions/553"
+    },
+    {
+      "title": "How can I add more publications while I have already started screening in ASReview?",
+      "url": "https://github.com/asreview/asreview/discussions/562"
+    }
+  ]
+}
