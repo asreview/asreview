@@ -1,27 +1,29 @@
 import React from "react";
-import { Box, ListItem, ListItemText, ListItemIcon } from "@material-ui/core";
+import { ListItem, ListItemText, ListItemIcon } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import FavoriteIcon from "@material-ui/icons/Favorite";
-import CloseIcon from "@material-ui/icons/Close";
+
+const useStyles = makeStyles((theme) => ({
+  icon: {
+    justifyContent: "center",
+  },
+}));
 
 const HistoryListCard = (props) => {
+  const classes = useStyles();
+
   return (
-    <Box>
-      <ListItem
-        button
-        onClick={() => {
-          props.handleClick(props.index);
-        }}
-      >
-        <ListItemIcon>
-          {props.value.included === 1 ? (
-            <FavoriteIcon color="secondary" />
-          ) : (
-            <CloseIcon />
-          )}
-        </ListItemIcon>
-        <ListItemText primary={props.value.title} />
-      </ListItem>
-    </Box>
+    <ListItem
+      button
+      onClick={() => {
+        props.handleClick(props.index);
+      }}
+    >
+      <ListItemIcon className={classes.icon}>
+        {props.value.included === 1 && <FavoriteIcon color="secondary" />}
+      </ListItemIcon>
+      <ListItemText primary={props.value.title} />
+    </ListItem>
   );
 };
 
