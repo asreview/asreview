@@ -526,7 +526,7 @@ class ASReviewData():
         df = self.to_dataframe(labels=labels, ranking=ranking)
         return df.to_excel(fp, index=True)
 
-    def to_ris(self, fp, labels=None, ranking=None, subset="relevant"):
+    def to_ris(self, fp, labels=None, ranking=None):
         """Export to RIS (.ris) file.
 
         Arguments
