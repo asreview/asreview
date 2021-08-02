@@ -539,9 +539,6 @@ class ASReviewData():
         ranking: list
             Reorder the dataframe according to these (internal) indices.
             Default ordering if ranking is None.
-        subset: str
-            Based on three options (relevant, irrelevant, not seen), we have
-            three subsets of data. Default (and only implemented): relevant.
 
         Returns
         -------
@@ -549,18 +546,4 @@ class ASReviewData():
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
-        # print("df 1 is:", df)
-        # #print("df type is: ", df.dtypes)
-        # df = df[df.included.astype('str').str.contains('1')]
-        # #print(df_relevant)
-        # print("df 2 is:", df)
-        # print("fp:", fp)
-        # write_ris(df, fp)
         return write_ris(df, fp)
-        #return df.to_ris(fp)
-
-        
-        # if subset == "relevant":
-        #     write_ris(df, fp)
-        # else:
-        #     raise NotImplementedError
