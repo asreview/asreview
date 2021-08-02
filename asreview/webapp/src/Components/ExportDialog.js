@@ -42,7 +42,7 @@ const mapStateToProps = (state) => {
 const ExportDialog = (props) => {
   const classes = useStyles();
 
-  const [exportFileType, setExportFileType] = React.useState("excel");
+  const [exportFileType, setExportFileType] = React.useState("ris");
 
   const handleExportFileTypeChange = (event) => {
     setExportFileType(event.target.value);
@@ -93,9 +93,9 @@ const ExportDialog = (props) => {
             onChange={handleExportFileTypeChange}
           >
             <MenuItem value={"ris"}>RIS (UTF-8)</MenuItem>
-            <MenuItem value={"excel"}>Excel</MenuItem>
             <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
             <MenuItem value={"tsv"}>TSV (UTF-8)</MenuItem>
+            <MenuItem value={"excel"}>Excel</MenuItem>
           </Select>
         </Box>
       </DialogContent>
