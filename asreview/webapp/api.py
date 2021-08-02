@@ -802,13 +802,10 @@ def api_import_project():
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
 
-
-
     # get the export args
     file_type = request.args.get('file_type', None)
-    #print("file_type is", file_type)
 
-
+    # CSV
     if file_type == "csv":
         dataset_str = export_to_string(project_id, export_type="csv")
 
@@ -820,6 +817,7 @@ def export_results(project_id):
                 f"attachment; filename=asreview_result_{project_id}.csv"
             })
 
+    # TSV
     elif file_type == "tsv":
         dataset_str = export_to_string(project_id, export_type="tsv")
 
@@ -830,7 +828,9 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.tsv"
             })
-    elif file_type == "xlsx":  # excel
+
+    # Excel
+    elif file_type == "xlsx":
 
         dataset_str = export_to_string(project_id, export_type="excel")
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
@@ -842,7 +842,8 @@ def export_results(project_id):
             download_name=f"asreview_result_{project_id}.xlsx",
             max_age=0)
 
-    else:  # ris
+    # RIS
+    else:
 
         dataset_str = export_to_string(project_id, export_type="ris")
 
