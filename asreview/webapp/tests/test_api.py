@@ -16,6 +16,7 @@ import os
 import time
 import pytest
 
+
 def test_get_faq(client):
     """Test get frequently asked questions"""
 
