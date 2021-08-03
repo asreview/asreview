@@ -35,7 +35,6 @@ const mapStateToProps = (state) => {
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: "0px 0px 10px 0px",
-    // paddingBottom: 10,
   },
   divider: {
     marginTop: 8,
