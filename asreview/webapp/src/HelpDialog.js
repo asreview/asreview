@@ -28,7 +28,7 @@ import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "0px, 0px, 20px, 0px",
+    padding: "0px 0px 20px 0px",
   },
   subhead: {
     paddingLeft: 20,
