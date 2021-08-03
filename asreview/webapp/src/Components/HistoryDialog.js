@@ -2,6 +2,7 @@ import React, { useCallback, useState, useRef, useEffect } from "react";
 import {
   Box,
   Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -51,8 +52,15 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 16,
   },
   action: {
-    padding: 24,
+    padding: "32px 24px 24px 24px",
     justifyContent: "flex-start",
+  },
+  circularProgress: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 }));
 
@@ -71,7 +79,10 @@ const HistoryDialog = (props) => {
   // second layer record state
   const [record, setRecord] = useState({
     index: null,
-    converted: false,
+    data: null,
+
+    converting: false,
+    converted: 0,
   });
 
   const [error, setError] = useState({
@@ -80,7 +91,12 @@ const HistoryDialog = (props) => {
   });
 
   const handleSelectChange = (event) => {
-    setState({ ...state, select: event.target.value });
+    setState((s) => {
+      return {
+        ...s,
+        select: event.target.value,
+      };
+    });
   };
 
   // second layer record toggle
@@ -90,14 +106,15 @@ const HistoryDialog = (props) => {
         return {
           ...s,
           index: index,
+          data: state.data[index],
         };
       });
     } else {
-      setRecord((s) => {
-        return {
-          ...s,
-          index: null,
-        };
+      setRecord({
+        index: null,
+        data: null,
+        converting: false,
+        converted: 0,
       });
     }
   };
@@ -105,12 +122,21 @@ const HistoryDialog = (props) => {
   const exitReviewHistory = () => {
     setRecord({
       index: null,
-      converted: false,
+      data: null,
+      converting: false,
+      converted: 0,
     });
   };
 
   // change decision of labeled records
   const updateInstance = (doc_id, label) => {
+    setRecord((s) => {
+      return {
+        ...s,
+        converting: true,
+      };
+    });
+
     // set up the form
     let body = new FormData();
     body.set("doc_id", doc_id);
@@ -118,12 +144,19 @@ const HistoryDialog = (props) => {
 
     ProjectAPI.classify_instance(props.project_id, doc_id, body, false)
       .then((response) => {
-        setRecord((s) => {
-          return {
-            ...s,
-            converted: true,
-          };
-        });
+        loadReviewHistory();
+        setTimeout(
+          () => {
+            setRecord((s) => {
+              return {
+                ...s,
+                converting: false,
+                converted: record.converted + 1,
+              };
+            });
+          },
+          record.converted % 2 === 0 ? 1500 : 0
+        );
         console.log(
           `${props.project_id} - add item ${doc_id} to ${
             label === 1 ? "exclusions" : "inclusions"
@@ -135,19 +168,13 @@ const HistoryDialog = (props) => {
       });
   };
 
-  const reloadReviewHistory = useCallback(() => {
+  const loadReviewHistory = useCallback(() => {
     ProjectAPI.prior(props.project_id)
       .then((result) => {
         setState((s) => {
           return {
             ...s,
             data: result.data["result"].reverse(),
-          };
-        });
-        setRecord((s) => {
-          return {
-            ...s,
-            converted: false,
           };
         });
       })
@@ -162,16 +189,9 @@ const HistoryDialog = (props) => {
   // refresh after toggle the dialog
   useEffect(() => {
     if (props.project_id !== null && props.history) {
-      reloadReviewHistory();
+      loadReviewHistory();
     }
-  }, [reloadReviewHistory, props.project_id, props.history, error.message]);
-
-  // refresh after decision change
-  useEffect(() => {
-    if (record.converted) {
-      reloadReviewHistory();
-    }
-  }, [reloadReviewHistory, record.converted]);
+  }, [loadReviewHistory, props.project_id, props.history, error.message]);
 
   useEffect(() => {
     if (props.history) {
@@ -181,6 +201,28 @@ const HistoryDialog = (props) => {
       }
     }
   }, [props.history]);
+
+  let convertLabel = record.data
+    ? record.data.included === 1
+      ? "Convert to irrelevant"
+      : "Convert to relevant"
+    : "";
+
+  if (record.converting) {
+    if (record.converted % 2 === 0) {
+      convertLabel =
+        record.data.included === 1
+          ? "Converting to irrelevant"
+          : "Converting to relevant";
+    }
+  } else {
+    if (record.converted && record.converted % 2 !== 0) {
+      convertLabel =
+        state.data[0].included === 0
+          ? "Converted to irrelevant"
+          : "Converted to relevant";
+    }
+  }
 
   return (
     <div>
@@ -222,6 +264,11 @@ const HistoryDialog = (props) => {
 
         {error.message === null && record.index === null && (
           <DialogContent className={classes.root}>
+            {!state.data && (
+              <div className={classes.circularProgress}>
+                <CircularProgress />
+              </div>
+            )}
             {state["data"] !== null && state["select"] === 1 && (
               <List>
                 {state["data"].map((value, index) => {
@@ -279,11 +326,11 @@ const HistoryDialog = (props) => {
           <DialogContent className={classes.record}>
             <Box>
               <Typography variant="h6" gutterBottom>
-                {state.data[record.index].title}
+                {record.data.title}
               </Typography>
 
-              {(state.data[record.index].abstract === "" ||
-                state.data[record.index].abstract === null) && (
+              {(record.data.abstract === "" ||
+                record.data.abstract === null) && (
                 <Box fontStyle="italic">
                   <Typography gutterBottom>
                     This record doesn't have an abstract.
@@ -292,33 +339,32 @@ const HistoryDialog = (props) => {
               )}
 
               {!(
-                state.data[record.index].abstract === "" ||
-                state.data[record.index].abstract === null
-              ) && <Typography>{state.data[record.index].abstract}</Typography>}
+                record.data.abstract === "" || record.data.abstract === null
+              ) && <Typography>{record.data.abstract}</Typography>}
             </Box>
           </DialogContent>
         )}
 
-        {record.index !== null && (
+        {error.message === null && record.index !== null && (
           <DialogActions className={classes.action}>
             <div>
               <Chip
+                disabled={record.converting}
                 icon={
-                  state.data[record.index].included === 1 ? (
+                  record.converting && record.converted % 2 === 0 ? (
+                    <CircularProgress size="1rem" thickness={5} />
+                  ) : state.data[record.converted ? 0 : record.index]
+                      .included === 1 ? (
                     <FavoriteIcon fontSize="small" />
                   ) : (
                     <FavoriteBorderIcon fontSize="small" />
                   )
                 }
-                label={
-                  state.data[record.index].included === 1
-                    ? "Convert to irrelevant"
-                    : "Convert to relevant"
-                }
+                label={convertLabel}
                 onClick={() => {
                   updateInstance(
-                    state.data[record.index].id,
-                    state.data[record.index].included
+                    state.data[record.converted ? 0 : record.index].id,
+                    state.data[record.converted ? 0 : record.index].included
                   );
                 }}
                 variant="outlined"

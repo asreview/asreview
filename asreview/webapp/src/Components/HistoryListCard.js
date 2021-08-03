@@ -20,7 +20,7 @@ const HistoryListCard = (props) => {
       }}
     >
       <ListItemIcon className={classes.icon}>
-        {props.value.included === 1 && <FavoriteIcon color="secondary" />}
+        {props.value.included === 1 && <FavoriteIcon />}
       </ListItemIcon>
       <ListItemText primary={props.value.title} />
     </ListItem>
