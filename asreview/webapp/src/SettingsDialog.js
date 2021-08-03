@@ -5,6 +5,7 @@ import {
   CardContent,
   Container,
   Dialog,
+  DialogContent,
   Divider,
   Grid,
   List,
@@ -33,7 +34,8 @@ const mapStateToProps = (state) => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingBottom: 10,
+    padding: "0px 0px 10px 0px",
+    // paddingBottom: 10,
   },
   divider: {
     marginTop: 8,
@@ -134,115 +136,122 @@ const SettingsDialog = (props) => {
           />
         )}
         {!fontSizeSetting && !shortcutSetting && (
-          <List className={classes.root}>
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
-              >
-                DISPLAY
-              </Typography>
-            </ListItem>
-            <ListItem button onClick={props.toggleDarkMode}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText id="switch-list-label-dark" primary="Dark mode" />
-              <ListItemSecondaryAction className={classes.listAction}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleDarkMode}
-                  checked={props.onDark.palette.type === "dark"}
-                  inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
+          <DialogContent className={classes.root}>
+            <List>
+              <ListItem>
+                <ListItemIcon></ListItemIcon>
+                <Typography
+                  color="textSecondary"
+                  display="block"
+                  variant="subtitle2"
+                >
+                  DISPLAY
+                </Typography>
+              </ListItem>
+              <ListItem button onClick={props.toggleDarkMode}>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText id="switch-list-label-dark" primary="Dark mode" />
+                <ListItemSecondaryAction className={classes.listAction}>
+                  <Switch
+                    edge="end"
+                    onChange={props.toggleDarkMode}
+                    checked={props.onDark.palette.type === "dark"}
+                    inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+              <ListItem button onClick={toggleFontSizeSetting}>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText
+                  id="change-text-size"
+                  primary="Font size"
+                  secondary={props.fontSize.label}
                 />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <ListItem button onClick={toggleFontSizeSetting}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="change-text-size"
-                primary="Font size"
-                secondary={props.fontSize.label}
-              />
-            </ListItem>
-            <Divider className={classes.divider} />
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
-              >
-                REVIEW PREFERENCES
-              </Typography>
-            </ListItem>
-            <ListItem button onClick={toggleShortcutSetting}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-key"
-                primary="Keyboard shortcuts"
-                secondary={props.keyPressEnabled ? "On" : "Off"}
-              />
-            </ListItem>
-            <ListItem button onClick={props.toggleUndoEnabled}>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-undo"
-                primary="Undo"
-                secondary="Allow returning to the previous decision"
-              />
-              <ListItemSecondaryAction className={classes.listAction}>
-                <Switch
-                  edge="end"
-                  onChange={props.toggleUndoEnabled}
-                  checked={props.undoEnabled}
-                  inputProps={{ "aria-labelledby": "switch-list-label-undo" }}
+              </ListItem>
+              <Divider className={classes.divider} />
+              <ListItem>
+                <ListItemIcon></ListItemIcon>
+                <Typography
+                  color="textSecondary"
+                  display="block"
+                  variant="subtitle2"
+                >
+                  REVIEW PREFERENCES
+                </Typography>
+              </ListItem>
+              <ListItem button onClick={toggleShortcutSetting}>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText
+                  id="switch-list-label-key"
+                  primary="Keyboard shortcuts"
+                  secondary={props.keyPressEnabled ? "On" : "Off"}
                 />
-              </ListItemSecondaryAction>
-            </ListItem>
-            <Divider className={classes.divider} />
-            <ListItem>
-              <ListItemIcon></ListItemIcon>
-              <Typography
-                color="textSecondary"
-                display="block"
-                variant="subtitle2"
+              </ListItem>
+              <ListItem button onClick={props.toggleUndoEnabled}>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText
+                  id="switch-list-label-undo"
+                  primary="Undo"
+                  secondary="Allow returning to the previous decision"
+                />
+                <ListItemSecondaryAction className={classes.listAction}>
+                  <Switch
+                    edge="end"
+                    onChange={props.toggleUndoEnabled}
+                    checked={props.undoEnabled}
+                    inputProps={{ "aria-labelledby": "switch-list-label-undo" }}
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+              <Divider className={classes.divider} />
+              <ListItem>
+                <ListItemIcon></ListItemIcon>
+                <Typography
+                  color="textSecondary"
+                  display="block"
+                  variant="subtitle2"
+                >
+                  OTHER
+                </Typography>
+              </ListItem>
+              <ListItem
+                button
+                component={"a"}
+                href="https://asreview.readthedocs.io/en/latest/intro/about.html"
+                target="_blank"
               >
-                OTHER
-              </Typography>
-            </ListItem>
-            <ListItem
-              button
-              component={"a"}
-              href="https://asreview.readthedocs.io/en/latest/intro/about.html"
-              target="_blank"
-            >
-              <ListItemIcon></ListItemIcon>
-              <ListItemText
-                id="switch-list-label-about"
-                primary={
-                  <React.Fragment>
-                    About ASReview LAB <OpenInNewIconStyled />
-                  </React.Fragment>
-                }
-                secondary={"Version " + props.asreview_version}
-              />
-            </ListItem>
-            {donateURL !== undefined && (
-              <ListItem button component={"a"} href={donateURL} target="_blank">
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
                   id="switch-list-label-about"
                   primary={
                     <React.Fragment>
-                      Donate to ASReview Development Fund{" "}
-                      <OpenInNewIconStyled />
+                      About ASReview LAB <OpenInNewIconStyled />
                     </React.Fragment>
                   }
+                  secondary={"Version " + props.asreview_version}
                 />
               </ListItem>
-            )}
-          </List>
+              {donateURL !== undefined && (
+                <ListItem
+                  button
+                  component={"a"}
+                  href={donateURL}
+                  target="_blank"
+                >
+                  <ListItemIcon></ListItemIcon>
+                  <ListItemText
+                    id="switch-list-label-about"
+                    primary={
+                      <React.Fragment>
+                        Donate to ASReview Development Fund{" "}
+                        <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+              )}
+            </List>
+          </DialogContent>
         )}
 
         {/*Font size setting*/}
@@ -255,7 +264,7 @@ const SettingsDialog = (props) => {
           />
         )}
         {fontSizeSetting && (
-          <div className={classes.root}>
+          <DialogContent className={classes.root}>
             <Container
               className={classes.fontSizeSampleContainer}
               maxWidth="md"
@@ -355,7 +364,7 @@ const SettingsDialog = (props) => {
                 Make the text on the review screen smaller or larger.
               </Typography>
             </div>
-          </div>
+          </DialogContent>
         )}
 
         {/*Keyboard shortcut setting*/}
@@ -368,8 +377,8 @@ const SettingsDialog = (props) => {
           />
         )}
         {shortcutSetting && (
-          <div>
-            <List className={classes.root}>
+          <DialogContent className={classes.root}>
+            <List>
               <ListItem button onClick={props.toggleKeyPressEnabled}>
                 <ListItemIcon></ListItemIcon>
                 <ListItemText
@@ -459,7 +468,7 @@ const SettingsDialog = (props) => {
                 </div>
               </ListItem>
             </List>
-          </div>
+          </DialogContent>
         )}
       </Dialog>
     </div>
