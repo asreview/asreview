@@ -5,6 +5,7 @@ import {
   CardActionArea,
   CardHeader,
   Dialog,
+  DialogContent,
   Divider,
   List,
   ListItem,
@@ -27,7 +28,7 @@ import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingBottom: 20,
+    padding: "0px, 0px, 20px, 0px",
   },
   subhead: {
     paddingLeft: 20,
@@ -104,101 +105,103 @@ const HelpDialog = (props) => {
         aria-labelledby="scroll-dialog-help"
       >
         <AppBarWithinDialog onClickStartIcon={props.toggleHelp} title="Help" />
-        <List className={classes.root}>
-          <ListItem>
-            <Typography className={classes.subhead} display="block">
-              <b>Frequently asked questions</b>
-            </Typography>
-          </ListItem>
-          {faq &&
-            faq.map((element, index) => (
-              <ListItem
-                key={element.url}
-                button
-                component={"a"}
-                href={element.url}
-                target="_blank"
-                alignItems="flex-start"
-              >
-                <ListItemIcon className={classes.descriptionIcon}>
-                  <DescriptionIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  key={element.title}
-                  primary={
-                    <React.Fragment>
-                      {element.title} <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-            ))}
-          {!faq && <ErrorHandler error={error} setError={setError} />}
-          <ListItem
-            button
-            component={"a"}
-            href="https://asreview.readthedocs.io/en/latest/"
-            target="_blank"
-          >
-            <ListItemIcon></ListItemIcon>
-            <Typography display="block" color="primary">
-              <b>Browse the documentation</b> <OpenInNewIconStyled />
-            </Typography>
-          </ListItem>
+        <DialogContent className={classes.root}>
+          <List>
+            <ListItem>
+              <Typography className={classes.subhead} display="block">
+                <b>Frequently asked questions</b>
+              </Typography>
+            </ListItem>
+            {faq &&
+              faq.map((element, index) => (
+                <ListItem
+                  key={element.url}
+                  button
+                  component={"a"}
+                  href={element.url}
+                  target="_blank"
+                  alignItems="flex-start"
+                >
+                  <ListItemIcon className={classes.descriptionIcon}>
+                    <DescriptionIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    key={element.title}
+                    primary={
+                      <React.Fragment>
+                        {element.title} <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+              ))}
+            {!faq && <ErrorHandler error={error} setError={setError} />}
+            <ListItem
+              button
+              component={"a"}
+              href="https://asreview.readthedocs.io/en/latest/"
+              target="_blank"
+            >
+              <ListItemIcon></ListItemIcon>
+              <Typography display="block" color="primary">
+                <b>Browse the documentation</b> <OpenInNewIconStyled />
+              </Typography>
+            </ListItem>
 
-          <Divider className={classes.divider} />
+            <Divider className={classes.divider} />
 
-          <ListItem>
-            <Typography className={classes.subhead} display="block">
-              <b>Need more help?</b>
-            </Typography>
-          </ListItem>
-          <ListItem>
-            <Card className={classes.card}>
-              <CardActionArea
-                href="https://github.com/asreview/asreview/discussions"
-                target="_blank"
-              >
-                <CardHeader
-                  avatar={
-                    <Avatar className={classes.avatar}>
-                      <QuestionAnswerIcon fontSize="small" />
-                    </Avatar>
-                  }
-                  title={
-                    <React.Fragment>
-                      Ask the ASReview Community <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                  subheader="Get answers from community experts"
-                />
-              </CardActionArea>
-            </Card>
-          </ListItem>
+            <ListItem>
+              <Typography className={classes.subhead} display="block">
+                <b>Need more help?</b>
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Card className={classes.card}>
+                <CardActionArea
+                  href="https://github.com/asreview/asreview/discussions"
+                  target="_blank"
+                >
+                  <CardHeader
+                    avatar={
+                      <Avatar className={classes.avatar}>
+                        <QuestionAnswerIcon fontSize="small" />
+                      </Avatar>
+                    }
+                    title={
+                      <React.Fragment>
+                        Ask the ASReview Community <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                    subheader="Get answers from community experts"
+                  />
+                </CardActionArea>
+              </Card>
+            </ListItem>
 
-          <ListItem>
-            <Card className={classes.card}>
-              <CardActionArea
-                href="https://github.com/asreview/asreview/issues/new/choose"
-                target="_blank"
-              >
-                <CardHeader
-                  avatar={
-                    <Avatar className={classes.avatar}>
-                      <FeedbackIcon fontSize="small" />
-                    </Avatar>
-                  }
-                  title={
-                    <React.Fragment>
-                      Send Feedback <OpenInNewIconStyled />
-                    </React.Fragment>
-                  }
-                  subheader="Report bugs or request features on GitHub"
-                />
-              </CardActionArea>
-            </Card>
-          </ListItem>
-        </List>
+            <ListItem>
+              <Card className={classes.card}>
+                <CardActionArea
+                  href="https://github.com/asreview/asreview/issues/new/choose"
+                  target="_blank"
+                >
+                  <CardHeader
+                    avatar={
+                      <Avatar className={classes.avatar}>
+                        <FeedbackIcon fontSize="small" />
+                      </Avatar>
+                    }
+                    title={
+                      <React.Fragment>
+                        Send Feedback <OpenInNewIconStyled />
+                      </React.Fragment>
+                    }
+                    subheader="Report bugs or request features on GitHub"
+                  />
+                </CardActionArea>
+              </Card>
+            </ListItem>
+          </List>
+        </DialogContent>
       </Dialog>
     </div>
   );
