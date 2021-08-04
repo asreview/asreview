@@ -4,7 +4,8 @@ import axios from "axios";
 
 class UtilsAPI {
   static faq = () => {
-    const url = "https://raw.githubusercontent.com/asreview/asreview/master/asreview/webapp/help.json";
+    const url =
+      "https://raw.githubusercontent.com/asreview/asreview/master/asreview/webapp/help.json";
     return new Promise(function (resolve, reject) {
       axios
         .get(url)
