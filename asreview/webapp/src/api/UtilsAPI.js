@@ -1,5 +1,4 @@
 import { axiosErrorHandler } from "./index.js";
-import { api_url } from "../globals.js";
 import axios from "axios";
 
 class UtilsAPI {
