@@ -93,8 +93,6 @@ const HelpDialog = (props) => {
     }
   }, [getFaq, error.message]);
 
-  // console.log(error)
-
   return (
     <div>
       <Dialog
