@@ -17,14 +17,6 @@ import time
 import pytest
 
 
-def test_get_faq(client):
-    """Test get frequently asked questions"""
-
-    response = client.get("/api/faq")
-    json_data = response.get_json()
-    assert isinstance(json_data, list)
-
-
 def test_get_projects(client):
     """Test get projects."""
 
