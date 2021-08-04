@@ -4,12 +4,12 @@ import axios from "axios";
 
 class UtilsAPI {
   static faq = () => {
-    const url = api_url + `faq`;
+    const url = "https://raw.githubusercontent.com/asreview/asreview/master/asreview/webapp/faq.json";
     return new Promise(function (resolve, reject) {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result.data["items"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

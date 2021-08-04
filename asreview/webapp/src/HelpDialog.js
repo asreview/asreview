@@ -68,7 +68,7 @@ const HelpDialog = (props) => {
   const getFaq = useCallback(() => {
     UtilsAPI.faq()
       .then((result) => {
-        setFaq(result.data);
+        setFaq(result);
       })
       .catch((error) => {
         setError({
@@ -92,6 +92,8 @@ const HelpDialog = (props) => {
       getFaq();
     }
   }, [getFaq, error.message]);
+
+  // console.log(error)
 
   return (
     <div>

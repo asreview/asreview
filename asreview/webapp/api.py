@@ -116,23 +116,6 @@ def error_500(e):
 
 
 # routes
-@bp.route('/faq', methods=["GET"])
-def api_get_faq():
-    """Get frequently asked questions"""
-
-    try:
-        with open(os.path.join(os.path.dirname(__file__), "faq.json"), "r") as f:
-            res = json.load(f)
-        if "items" in res:
-            response = jsonify(res["items"])
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to retrieve frequently asked questions."), 500
-
-    return response
-
-
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
