@@ -8,12 +8,11 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 
-import { Banner } from "material-ui-banner";
-
 import { AppBarWithinDialog } from "../Components";
 import {
   DecisionButton,
   DecisionUndoBar,
+  ExplorationModeBanner,
   RecordCard,
   ReviewSideSheet,
 } from "../InReviewComponents";
@@ -51,11 +50,6 @@ const useStyles = makeStyles((theme) => ({
   },
   link: {
     paddingLeft: "3px",
-  },
-  banner: {
-    [theme.breakpoints.down("sm")]: {
-      paddingTop: 8,
-    },
   },
 }));
 
@@ -259,6 +253,11 @@ const ReviewDialog = (props) => {
       });
   };
 
+  const exitReviewDialog = () => {
+    props.toggleReview();
+    props.handleAppState("project-page");
+  };
+
   useEffect(() => {
     /**
      * Get statistics for history dialog and side sheet
@@ -370,7 +369,7 @@ const ReviewDialog = (props) => {
       <Dialog
         fullScreen
         open={props.onReview}
-        onClose={props.toggleReview}
+        onClose={exitReviewDialog}
         scroll="paper"
       >
         <AppBarWithinDialog
@@ -378,10 +377,7 @@ const ReviewDialog = (props) => {
           startIconIsClose={false}
           onClickHistory={props.toggleHistory}
           onClickShowChart={toggleSideSheet}
-          onClickStartIcon={() => {
-            props.toggleReview();
-            props.handleAppState("project-page");
-          }}
+          onClickStartIcon={exitReviewDialog}
         />
 
         {/* Banner Exploration Mode */}
@@ -390,26 +386,7 @@ const ReviewDialog = (props) => {
             [classes.contentShift]: !mobile && sideSheet,
           })}
         >
-          <div>
-            <Banner
-              open={banner}
-              onClose={() => setBanner(false)}
-              label="You are screening through a manually pre-labeled dataset."
-              buttonLabel="read more"
-              buttonProps={{
-                color: "primary",
-                href: "https://asreview.readthedocs.io/en/latest/lab/exploration.html",
-                target: "_blank",
-              }}
-              dismissButtonProps={{
-                color: "primary",
-              }}
-              cardProps={{
-                className: classes.banner,
-              }}
-              appBar
-            />
-          </div>
+          <ExplorationModeBanner banner={banner} setBanner={setBanner} />
         </div>
 
         {/* Article card */}
