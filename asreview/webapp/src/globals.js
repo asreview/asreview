@@ -23,7 +23,7 @@ export const reviewDrawerWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 110;
+export const decisionUndoBarMarginBottom = 100;
 
 export const fontSizeOptions = [
   {

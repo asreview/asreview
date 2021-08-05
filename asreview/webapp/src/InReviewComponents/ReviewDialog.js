@@ -5,17 +5,14 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-  Fab,
   useMediaQuery,
 } from "@material-ui/core";
-
-import FavoriteIcon from "@material-ui/icons/Favorite";
-import CloseIcon from "@material-ui/icons/Close";
 
 import { Banner } from "material-ui-banner";
 
 import { AppBarWithinDialog } from "../Components";
 import {
+  DecisionButton,
   DecisionUndoBar,
   RecordCard,
   ReviewSideSheet,
@@ -59,15 +56,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: {
       paddingTop: 8,
     },
-  },
-  fab: {
-    "& > *": {
-      marginLeft: theme.spacing(5),
-      marginRight: theme.spacing(5),
-      marginBottom: theme.spacing(5),
-    },
-    width: "100%",
-    textAlign: "center",
   },
 }));
 
@@ -406,7 +394,7 @@ const ReviewDialog = (props) => {
             <Banner
               open={banner}
               onClose={() => setBanner(false)}
-              label="You are screening through a manually pre-labeled dataset. Relevant documents are displayed in green."
+              label="You are screening through a manually pre-labeled dataset."
               buttonLabel="read more"
               buttonProps={{
                 color: "primary",
@@ -445,18 +433,7 @@ const ReviewDialog = (props) => {
             [classes.contentShift]: !mobile && sideSheet,
           })}
         >
-          <div className={classes.fab}>
-            <Fab onClick={() => makeDecision(0)} aria-label="irrelevant-record">
-              <CloseIcon />
-            </Fab>
-            <Fab
-              onClick={() => makeDecision(1)}
-              color="secondary"
-              aria-label="relevant-record"
-            >
-              <FavoriteIcon />
-            </Fab>
-          </div>
+          <DecisionButton makeDecision={makeDecision} mobile={mobile} />
         </DialogActions>
 
         {/* Error Handler */}
