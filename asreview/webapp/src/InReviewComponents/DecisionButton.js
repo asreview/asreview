@@ -32,6 +32,18 @@ const useStyles = makeStyles((theme) => ({
 const DecisionButton = (props) => {
   const classes = useStyles();
 
+  let relevantLabel = "Relevant";
+  let irrelevantLabel = "Irrelevant";
+
+  if (props.recordState.selection === 0) {
+    relevantLabel = "Convert to relevant";
+    irrelevantLabel = "Keep irrelevant";
+  }
+  if (props.recordState.selection === 1) {
+    relevantLabel = "Keep relevant";
+    irrelevantLabel = "Convert to irrelevant";
+  }
+
   return (
     <div
       className={clsx(classes.root, {
@@ -44,7 +56,7 @@ const DecisionButton = (props) => {
         variant="extended"
       >
         <FavoriteBorder className={classes.extendedFab} />
-        Irrelevant
+        {irrelevantLabel}
       </Fab>
       <Fab
         onClick={() => props.makeDecision(1)}
@@ -53,7 +65,7 @@ const DecisionButton = (props) => {
         variant="extended"
       >
         <Favorite className={classes.extendedFab} />
-        Relevant
+        {relevantLabel}
       </Fab>
     </div>
   );

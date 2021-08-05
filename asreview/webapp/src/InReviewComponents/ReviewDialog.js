@@ -410,7 +410,11 @@ const ReviewDialog = (props) => {
             [classes.contentShift]: !mobile && sideSheet,
           })}
         >
-          <DecisionButton makeDecision={makeDecision} mobile={mobile} />
+          <DecisionButton
+            makeDecision={makeDecision}
+            mobile={mobile}
+            recordState={recordState}
+          />
         </DialogActions>
 
         {/* Error Handler */}
