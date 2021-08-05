@@ -116,6 +116,7 @@ def error_500(e):
 
 
 # routes
+
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
