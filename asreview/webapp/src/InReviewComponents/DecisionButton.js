@@ -48,7 +48,7 @@ const DecisionButton = (props) => {
       </Fab>
       <Fab
         onClick={() => props.makeDecision(1)}
-        color="secondary"
+        color="primary"
         size={props.mobile ? "small" : "large"}
         variant="extended"
       >
