@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
@@ -22,12 +23,25 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: 0,
     },
   },
+  rootAlert: {
+    paddingTop: 40,
+    paddingBottom: 30,
+    height: "calc(100% - 48px)",
+    [theme.breakpoints.down("sm")]: {
+      paddingTop: 16,
+      paddingRight: 0,
+      paddingLeft: 0,
+    },
+  },
   card: {
     height: "-webkit-fill-available",
     overflowY: "scroll",
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
   },
   alert: {
-    borderRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomLeftRadius: 0,
   },
   title: {
     lineHeight: 1.2,
@@ -67,23 +81,28 @@ const RecordCard = (props) => {
   };
 
   return (
-    <Container maxWidth="md" className={classes.root}>
+    <Container
+      maxWidth="md"
+      className={clsx(classes.root, {
+        [classes.rootAlert]: isDebugInclusion(),
+      })}
+    >
+      {!props.isloaded && (
+        <div className={classes.circularProgress}>
+          <CircularProgress />
+        </div>
+      )}
+
+      {/* Previous decision alert */}
+      {isDebugInclusion() && (
+        <div>
+          <Alert className={classes.alert} severity="info">
+            This record was pre-labeled as relevant.
+          </Alert>
+        </div>
+      )}
+
       <Card className={classes.card}>
-        {!props.isloaded && (
-          <div className={classes.circularProgress}>
-            <CircularProgress />
-          </div>
-        )}
-
-        {/* Previous decision alert */}
-        {isDebugInclusion() && (
-          <div>
-            <Alert className={classes.alert} severity="info">
-              This record was pre-labeled as relevant.
-            </Alert>
-          </div>
-        )}
-
         {props.isloaded && (
           <CardContent>
             {/* Show the title */}
