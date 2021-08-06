@@ -51,7 +51,7 @@ const mapStateToProps = (state) => {
   return { project_id: state.project_id };
 };
 
-const ReviewSideSheet = (props) => {
+const StatsSheet = (props) => {
   const { window } = props;
   const classes = useStyles();
 
@@ -127,4 +127,4 @@ const ReviewSideSheet = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ReviewSideSheet);
+export default connect(mapStateToProps)(StatsSheet);

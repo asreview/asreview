@@ -14,7 +14,7 @@ import {
   DecisionUndoBar,
   ExplorationModeBanner,
   RecordCard,
-  ReviewSideSheet,
+  StatsSheet,
 } from "../InReviewComponents";
 import ErrorHandler from "../ErrorHandler";
 import { useKeyPress } from "../hooks/useKeyPress";
@@ -434,8 +434,8 @@ const ReviewDialog = (props) => {
           />
         </div>
 
-        {/* Statistics drawer */}
-        <ReviewSideSheet
+        {/* Statistics side sheet */}
+        <StatsSheet
           mobile={mobile}
           onSideSheet={sideSheet}
           toggleSideSheet={toggleSideSheet}
