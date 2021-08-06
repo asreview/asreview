@@ -19,7 +19,7 @@ export const defaultAlgorithms = {
 };
 
 // review drawer configs
-export const reviewDrawerWidth = 250;
+export const statsSheetWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;

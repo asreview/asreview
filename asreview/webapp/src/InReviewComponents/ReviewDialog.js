@@ -23,7 +23,7 @@ import { ProjectAPI } from "../api/index.js";
 
 import { connect } from "react-redux";
 
-import { reviewDrawerWidth } from "../globals.js";
+import { statsSheetWidth } from "../globals.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    marginRight: reviewDrawerWidth,
+    marginRight: statsSheetWidth,
   },
   link: {
     paddingLeft: "3px",
