@@ -400,7 +400,6 @@ const ReviewDialog = (props) => {
             record={recordState["record"]}
             isloaded={recordState["isloaded"]}
             fontSize={props.fontSize}
-            previousSelection={recordState["selection"]}
           />
         </DialogContent>
 
@@ -413,7 +412,7 @@ const ReviewDialog = (props) => {
           <DecisionButton
             makeDecision={makeDecision}
             mobile={mobile}
-            recordState={recordState}
+            previousSelection={recordState["selection"]}
           />
         </DialogActions>
 

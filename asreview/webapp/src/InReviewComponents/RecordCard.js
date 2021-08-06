@@ -32,13 +32,6 @@ const useStyles = makeStyles((theme) => ({
   title: {
     lineHeight: 1.2,
   },
-  titleDebug: {
-    lineHeight: 1.2,
-    color: theme.overrides.debug.color,
-  },
-  debug: {
-    color: theme.overrides.debug.color,
-  },
   abstract: {
     whiteSpace: "pre-line",
   },
@@ -68,16 +61,10 @@ const RecordCard = (props) => {
   const classes = useStyles();
 
   const isDebugInclusion = () => {
-    return props.record._debug_label === 1;
+    if (props.record) {
+      return props.record._debug_label === 1;
+    }
   };
-
-  let alertInfo = "";
-  if (props.previousSelection === 0) {
-    alertInfo = "You marked this record as irrelevant.";
-  }
-  if (props.previousSelection === 1) {
-    alertInfo = "You marked this record as relevant.";
-  }
 
   return (
     <Container maxWidth="md" className={classes.root}>
@@ -89,10 +76,10 @@ const RecordCard = (props) => {
         )}
 
         {/* Previous decision alert */}
-        {props.previousSelection !== null && (
+        {isDebugInclusion() && (
           <div>
             <Alert className={classes.alert} severity="info">
-              {alertInfo}
+              This record was pre-labeled as relevant.
             </Alert>
           </div>
         )}
@@ -101,9 +88,7 @@ const RecordCard = (props) => {
           <CardContent>
             {/* Show the title */}
             <Typography
-              className={
-                isDebugInclusion() ? classes.titleDebug : classes.title
-              }
+              className={classes.title}
               variant="h5"
               color="textSecondary"
               component="div"
@@ -134,9 +119,7 @@ const RecordCard = (props) => {
             ) && (
               <Typography
                 className={
-                  (isDebugInclusion() ? classes.debug : classes.publish_time) +
-                  " fontSize" +
-                  props.fontSize.label
+                  classes.publish_time + " fontSize" + props.fontSize.label
                 }
                 color="textSecondary"
                 component="p"
@@ -150,11 +133,7 @@ const RecordCard = (props) => {
             {/* Show the publication date if available */}
             {!(props.record.doi === undefined || props.record.doi === null) && (
               <Typography
-                className={
-                  (isDebugInclusion() ? classes.debug : classes.doi) +
-                  " fontSize" +
-                  props.fontSize.label
-                }
+                className={classes.doi + " fontSize" + props.fontSize.label}
                 color="textSecondary"
                 component="p"
                 fontStyle="italic"
@@ -174,11 +153,7 @@ const RecordCard = (props) => {
 
             {/* Show the abstract */}
             <Typography
-              className={
-                (isDebugInclusion() ? classes.debug : classes.abstract) +
-                " fontSize" +
-                props.fontSize.label
-              }
+              className={classes.abstract + " fontSize" + props.fontSize.label}
               variant="body2"
               color="textSecondary"
               component="div"
