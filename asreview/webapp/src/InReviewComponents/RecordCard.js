@@ -1,12 +1,11 @@
 import React from "react";
-import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
   Card,
   CardContent,
   CircularProgress,
-  Container,
+  Grid,
   Typography,
   Link,
 } from "@material-ui/core";
@@ -14,34 +13,35 @@ import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: 40,
-    paddingBottom: 30,
-    height: "100%",
-    [theme.breakpoints.down("sm")]: {
-      paddingTop: 16,
-      paddingRight: 0,
-      paddingLeft: 0,
-    },
-  },
-  rootAlert: {
-    paddingTop: 40,
-    paddingBottom: 30,
-    height: "calc(100% - 48px)",
-    [theme.breakpoints.down("sm")]: {
-      paddingTop: 16,
-      paddingRight: 0,
-      paddingLeft: 0,
-    },
-  },
-  card: {
+    borderRadius: 4,
+    boxShadow:
+      "0px 2px 1px -1px rgb(0 0 0 / 20%), 0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%)",
+    flexDirection: "column",
     height: "-webkit-fill-available",
-    overflowY: "scroll",
-    borderTopRightRadius: 0,
-    borderTopLeftRadius: 0,
+    margin: "auto",
+    maxWidth: 960,
+    marginTop: 40,
+    marginBottom: 30,
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 16,
+      marginRight: 0,
+      marginLeft: 0,
+    },
   },
   alert: {
     borderBottomRightRadius: 0,
     borderBottomLeftRadius: 0,
+  },
+  recordGrid: {
+    flexGrow: 1,
+    overflowY: "scroll",
+  },
+  recordCard: {
+    border: "none",
+    borderBottomRightRadius: 4,
+    borderBottomLeftRadius: 4,
+    height: "100%",
+    overflowY: "scroll",
   },
   title: {
     lineHeight: 1.2,
@@ -57,16 +57,14 @@ const useStyles = makeStyles((theme) => ({
   authors: {
     fontWeight: "bolder",
   },
-  stickToBottom: {
-    width: "100%",
-    position: "fixed",
-    bottom: 0,
+  circularProgressGrid: {
+    height: "inherit",
   },
-  circularProgress: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
+  circularProgressCard: {
     alignItems: "center",
+    border: "none",
+    display: "flex",
+    height: "100%",
     justifyContent: "center",
   },
 }));
@@ -81,120 +79,127 @@ const RecordCard = (props) => {
   };
 
   return (
-    <Container
-      maxWidth="md"
-      className={clsx(classes.root, {
-        [classes.rootAlert]: isDebugInclusion(),
-      })}
-    >
+    <Grid container className={classes.root} wrap="nowrap">
       {!props.isloaded && (
-        <div className={classes.circularProgress}>
-          <CircularProgress />
-        </div>
+        <Grid item className={classes.circularProgressGrid}>
+          <Card className={classes.circularProgressCard} variant="outlined">
+            <CircularProgress />
+          </Card>
+        </Grid>
       )}
 
       {/* Previous decision alert */}
       {isDebugInclusion() && (
-        <div>
-          <Alert className={classes.alert} severity="info">
-            This record was pre-labeled as relevant.
-          </Alert>
-        </div>
+        <Grid item>
+          <div>
+            <Alert className={classes.alert} severity="info">
+              This record was pre-labeled as relevant.
+            </Alert>
+          </div>
+        </Grid>
       )}
 
-      <Card className={classes.card}>
-        {props.isloaded && (
-          <CardContent>
-            {/* Show the title */}
-            <Typography
-              className={classes.title}
-              variant="h5"
-              color="textSecondary"
-              component="div"
-              paragraph
-            >
-              {/* No title, inplace text */}
-              {(props.record.title === "" || props.record.title === null) && (
-                <Box
-                  className={"fontSize" + props.fontSize.label}
+      {props.isloaded && (
+        <Grid item className={classes.recordGrid}>
+          <Card className={classes.recordCard} square variant="outlined">
+            <CardContent>
+              {/* Show the title */}
+              <Typography
+                className={classes.title}
+                variant="h5"
+                color="textSecondary"
+                component="div"
+                paragraph
+              >
+                {/* No title, inplace text */}
+                {(props.record.title === "" || props.record.title === null) && (
+                  <Box
+                    className={"fontSize" + props.fontSize.label}
+                    fontStyle="italic"
+                  >
+                    This document doesn't have a title.
+                  </Box>
+                )}
+
+                {/* No title, inplace text */}
+                {!(
+                  props.record.title === "" || props.record.title === null
+                ) && (
+                  <Box className={"fontSize" + props.fontSize.label}>
+                    {props.record.title}
+                  </Box>
+                )}
+              </Typography>
+
+              {/* Show the publication date if available */}
+              {!(
+                props.record.publish_time === undefined ||
+                props.record.publish_time === null
+              ) && (
+                <Typography
+                  className={
+                    classes.publish_time + " fontSize" + props.fontSize.label
+                  }
+                  color="textSecondary"
+                  component="p"
                   fontStyle="italic"
+                  paragraph
                 >
-                  This document doesn't have a title.
-                </Box>
+                  {props.record.publish_time}
+                </Typography>
               )}
 
-              {/* No title, inplace text */}
-              {!(props.record.title === "" || props.record.title === null) && (
-                <Box className={"fontSize" + props.fontSize.label}>
-                  {props.record.title}
-                </Box>
+              {/* Show the publication date if available */}
+              {!(
+                props.record.doi === undefined || props.record.doi === null
+              ) && (
+                <Typography
+                  className={classes.doi + " fontSize" + props.fontSize.label}
+                  color="textSecondary"
+                  component="p"
+                  fontStyle="italic"
+                  paragraph
+                >
+                  DOI:
+                  <Link
+                    href={"https://doi.org/" + props.record.doi}
+                    className={classes.link}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {props.record.doi}
+                  </Link>
+                </Typography>
               )}
-            </Typography>
 
-            {/* Show the publication date if available */}
-            {!(
-              props.record.publish_time === undefined ||
-              props.record.publish_time === null
-            ) && (
+              {/* Show the abstract */}
               <Typography
                 className={
-                  classes.publish_time + " fontSize" + props.fontSize.label
+                  classes.abstract + " fontSize" + props.fontSize.label
                 }
+                variant="body2"
                 color="textSecondary"
-                component="p"
-                fontStyle="italic"
+                component="div"
                 paragraph
               >
-                {props.record.publish_time}
+                {/* No abstract, inplace text */}
+                {(props.record.abstract === "" ||
+                  props.record.abstract === null) && (
+                  <Box fontStyle="italic">
+                    This document doesn't have an abstract.
+                  </Box>
+                )}
+
+                {/* No abstract, inplace text */}
+                {!(
+                  props.record.abstract === "" || props.record.abstract === null
+                ) && <Box>{props.record.abstract}</Box>}
               </Typography>
-            )}
-
-            {/* Show the publication date if available */}
-            {!(props.record.doi === undefined || props.record.doi === null) && (
-              <Typography
-                className={classes.doi + " fontSize" + props.fontSize.label}
-                color="textSecondary"
-                component="p"
-                fontStyle="italic"
-                paragraph
-              >
-                DOI:
-                <Link
-                  href={"https://doi.org/" + props.record.doi}
-                  className={classes.link}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {props.record.doi}
-                </Link>
-              </Typography>
-            )}
-
-            {/* Show the abstract */}
-            <Typography
-              className={classes.abstract + " fontSize" + props.fontSize.label}
-              variant="body2"
-              color="textSecondary"
-              component="div"
-              paragraph
-            >
-              {/* No abstract, inplace text */}
-              {(props.record.abstract === "" ||
-                props.record.abstract === null) && (
-                <Box fontStyle="italic">
-                  This document doesn't have an abstract.
-                </Box>
-              )}
-
-              {/* No abstract, inplace text */}
-              {!(
-                props.record.abstract === "" || props.record.abstract === null
-              ) && <Box>{props.record.abstract}</Box>}
-            </Typography>
-          </CardContent>
-        )}
-      </Card>
-    </Container>
+            </CardContent>
+          </Card>
+        </Grid>
+      )}
+    </Grid>
   );
 };
 
