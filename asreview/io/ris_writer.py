@@ -93,6 +93,19 @@ def write_ris(df, fp):
                 rec_copy["notes"].append("ASReview_not_seen")
         # print("For this record, notes:\n", rec_copy["notes"])
 
+        # Delete "included" column as it is 
+        # not supported by the RIS standard
+        # try:
+        #     del rec_copy["included"]
+        # except Exception:
+        #     pass
+
+        # Delete "asreview_ranking" column as it
+        # is not supported by the RIS standard
+        # try:
+        #     del rec_copy["included"]
+        # except Exception:
+        #     pass
 
         # Append the deepcopied and updated record to a new array
         records_new.append(rec_copy)
