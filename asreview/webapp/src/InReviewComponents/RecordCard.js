@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
@@ -41,6 +42,11 @@ const useStyles = makeStyles((theme) => ({
   recordGrid: {
     flexGrow: 1,
     height: "calc(100% - 181px)",
+    overflowY: "scroll",
+  },
+  recordGridWithAlert: {
+    flexGrow: 1,
+    height: "calc(100% - 229px)",
     overflowY: "scroll",
   },
   recordCard: {
@@ -143,7 +149,12 @@ const RecordCard = (props) => {
       )}
 
       {props.isloaded && (
-        <Grid item className={classes.recordGrid}>
+        <Grid
+          item
+          className={clsx(classes.recordGrid, {
+            [classes.recordGridWithAlert]: isDebugInclusion(),
+          })}
+        >
           <Card className={classes.recordCard} square variant="outlined">
             <CardContent>
               {/* Show the title */}
