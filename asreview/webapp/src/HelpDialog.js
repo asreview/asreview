@@ -172,7 +172,7 @@ const HelpDialog = (props) => {
                         Ask the ASReview Community <OpenInNewIconStyled />
                       </React.Fragment>
                     }
-                    subheader="Get answers from community experts"
+                    subheader="Get answers from experts in the community"
                   />
                 </CardActionArea>
               </Card>
