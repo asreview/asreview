@@ -71,16 +71,23 @@ def read_ris(fp):
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
 
+    #print("Entries before turning into dataframe:\n",entries)
+
+    # Turn the entries dictionary into a Pandas dataframe
     df = pd.DataFrame(entries)
 
-    # def converter(x):
-    #     try:
-    #         return ", ".join(x)
-    #     except TypeError:
-    #         return ""
+    #print("Entries after turning them into a dataframe:\n",df)
+    #print("Notes from the dataframe:\n",df["notes"])
 
-    # for tag in LIST_TYPE_TAGS:
-    #     key = TAG_KEY_MAPPING[tag]
-    #     if key in df:
-    #         df[key] = df[key].apply(converter)
-    return standardize_dataframe(df)
+    # Check if "notes" column is present
+    if "notes" in df:
+        # Convert from "notes" to "included" field for internal representation
+        df["included"] = df["notes"].apply(_label_parser)
+        print("Included column is:\n",df["included"])
+        # Return the standardised dataframe with label
+        #print("NOTES: Standardised dataframe\n",df)
+        return standardize_dataframe(df)
+    else:
+        # Return the standardised dataframe
+        #print("NO NOTES: Standardised dataframe\n",df)
+        return standardize_dataframe(df)
