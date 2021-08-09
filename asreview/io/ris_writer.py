@@ -18,16 +18,22 @@ import copy as cp
 
 
 def write_ris(df, fp):
-    """RIS file writer
+    """RIS file writer.
+
     Parameters
     ----------
     df: pandas.Dataframe
         Dataframe to convert and export.
     fp: str, pathlib.Path
         File path to the RIS file, if exists.
+
+    Returns
+    -------
+    rispy.dumps:
+        Dataframe with entries is written into buffer.
+    rispy.dump:
+        Dataframe with entries is written into a file.
     """
-    # # Choose only "included" records
-    # df = df[df.included.astype('str').str.contains('1')]
 
     # print("Writer DF is:\n",df[["authors","keywords","included"]])
     # Turn pandas DataFrame into records (list of dictionaries) for rispy

@@ -45,14 +45,16 @@ def read_ris(fp):
     ----------
     fp: str, pathlib.Path
         File path to the RIS file.
-    label: bool
-        Check for label. If None, this is automatic.
 
     Returns
     -------
     pandas.DataFrame:
         Dataframe with entries.
 
+    Raises
+    ------
+    ValueError
+        when a file with unrecognised encoding is used as input.
     """
 
     encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
