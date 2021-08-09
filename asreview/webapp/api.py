@@ -843,7 +843,7 @@ def export_results(project_id):
             max_age=0)
 
     # RIS
-    else:
+    elif file_type == "ris":
 
         dataset_str = export_to_string(project_id, export_type="ris")
 
@@ -854,6 +854,9 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.ris"
             })
+        
+    else:
+        raise TypeError("File type should be: .csv/.tsv/.xlsx/.ris")
 
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
