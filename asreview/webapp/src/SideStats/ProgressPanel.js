@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import { ProgressPieChart, ProgressAreaChart } from "../SideStats";
+import { ProgressAreaChart } from "../SideStats";
 
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/core/styles";
@@ -80,12 +80,6 @@ const ProgressPanel = (props) => {
           <ListItem style={{ marginBottom: 10 }} key="project-n-papers">
             Total records: {props.n_papers}
           </ListItem>
-          <Box>
-            <ProgressPieChart
-              n_included={props.n_included}
-              n_excluded={props.n_excluded}
-            />
-          </Box>
           <ListItem className={classes.item} key="list-progress-total_labeled">
             Total reviewed: {props.n_included + props.n_excluded} (
             {Math.round(
@@ -93,12 +87,12 @@ const ProgressPanel = (props) => {
             ) / 100}
             %)
           </ListItem>
-          <Box className={classes.areaChart}>
-            <ProgressAreaChart history={props.history} />
-          </Box>
           <ListItem className={classes.item} key="n_since_last_inclusion">
             Records since last relevant: {props.n_since_last_inclusion}
           </ListItem>
+          <Box className={classes.areaChart}>
+            <ProgressAreaChart history={props.history} />
+          </Box>
         </div>
       )}
     </div>
