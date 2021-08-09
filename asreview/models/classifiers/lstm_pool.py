@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,13 +41,13 @@ from asreview.utils import _set_class_weight
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingIdf'.")
+            "Install tensorflow package to use"
+            " LSTM-pool.")
 
 
 class LSTMPoolClassifier(BaseTrainClassifier):
     """
-    LSTM pool classifier.
+    LSTM-pool classifier.
 
     LSTM model that consists of an embedding layer, LSTM layer with many
     outputs, max pooling layer, and a single sigmoid output node. Use the
@@ -90,6 +90,7 @@ class LSTMPoolClassifier(BaseTrainClassifier):
     """
 
     name = "lstm-pool"
+    label = "LSTM with a max pooling layer"
 
     def __init__(self,
                  embedding_matrix=None,

@@ -88,6 +88,16 @@ make html
 
 Open the file `docs/build/html/index.html` in your web browser.
 
+### Broken links
+
+Navigate into the `docs` folder and check for broken links with: 
+
+```
+make linkcheck
+```
+
+Extra information: https://www.writethedocs.org/guide/tools/testing/#link-testing
+
 ### Screenshots
 
 Screenshots are an important part of the ASReview documentation. When contributing screenshots,

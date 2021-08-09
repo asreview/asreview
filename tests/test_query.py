@@ -9,7 +9,6 @@ from asreview.models.query import list_query_strategies
 @mark.parametrize("query_strategy", [
     "max",
     "random",
-    "random_max",
     "max_random",
     "uncertainty",
     "max_uncertainty",

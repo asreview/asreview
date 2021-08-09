@@ -22,6 +22,8 @@ from asreview.models.balance import get_balance_model
 from asreview.models.query import get_query_model
 from asreview.models.feature_extraction import get_feature_model
 from asreview.utils import pretty_format
+from asreview.types import type_n_queries
+
 
 SETTINGS_TYPE_DICT = {
     "data_name": str,
@@ -31,7 +33,7 @@ SETTINGS_TYPE_DICT = {
     "feature_extraction": str,
     "n_papers": int,
     "n_instances": int,
-    "n_queries": int,
+    "n_queries": type_n_queries,
     "n_prior_included": int,
     "n_prior_excluded": int,
     "mode": str,
@@ -112,7 +114,16 @@ class ASReviewSettings(object):
         self.abstract_only = abstract_only
         self.as_data = as_data
         self.model_param = model_param
-        self.query_param = query_param
+        if query_strategy == "max_random":
+            query_param_copy = query_param.copy()
+            try:
+                del query_param_copy["strategy_1"]
+                del query_param_copy["strategy_2"]
+            except KeyError:
+                pass
+            self.query_param = query_param_copy
+        else:
+            self.query_param = query_param
         self.balance_param = balance_param
         self.feature_param = feature_param
 

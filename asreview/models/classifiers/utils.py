@@ -17,14 +17,19 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_classifiers():
-    """List available classifiers.
+    """List available classifier classes.
 
     Returns
     -------
     list:
-        Names of available classifiers in alphabetical order.
+        Classes of available classifiers in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.classifiers")
+    model_class = [
+        get_classifier_class(name)
+        for name in list_model_names(entry_name="asreview.models.classifiers")
+    ]
+
+    return model_class
 
 
 def get_classifier_class(name):

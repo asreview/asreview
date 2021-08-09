@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@ from asreview.models.balance.base import BaseBalance
 
 
 class SimpleBalance(BaseBalance):
-    """No balancing.
+    """Simple (no balancing) balance strategy.
 
     Use all training data.
     """
 
     name = "simple"
+    label = "Simple (no balancing)"
 
     def sample(self, X, y, train_idx, shared):
         """

@@ -17,16 +17,21 @@ from asreview.utils import _model_class_from_entry_point
 
 
 def list_query_strategies():
-    """List available query strategies.
+    """List available query strategy classes.
 
     This excludes all possible mixed query strategies.
 
     Returns
     -------
     list
-        Names of available query strategies in alphabetical order.
+        Classes of available query strategies in alphabetical order.
     """
-    return list_model_names(entry_name="asreview.models.query")
+    model_class = [
+        get_query_class(name)
+        for name in list_model_names(entry_name="asreview.models.query")
+    ]
+
+    return model_class
 
 
 def get_query_class(name):
@@ -52,9 +57,6 @@ def get_query_class(name):
             name,
             entry_name="asreview.models.query")
     except ValueError:
-        mix = name.split("_")
-        if len(mix) == 2:
-            return MixedQuery
         raise ValueError(f"Error: query name '{name}' is not implemented.")
 
 
@@ -75,17 +77,7 @@ def get_query_model(name, *args, random_state=None, **kwargs):
     asreview.query.base.BaseQueryModel
         Initialized instance of query strategy.
     """
-    from asreview.models.query.mixed import MixedQuery
     query_class = get_query_class(name)
-    if query_class == MixedQuery:
-        mix = name.split("_")
-        for i in range(2):
-            kwargs.pop("strategy_" + str(i + 1), None)
-        try:
-            return query_class(
-                mix[0], mix[1], *args, random_state=random_state, **kwargs)
-        except TypeError:
-            return query_class(mix[0], mix[1], *args, **kwargs)
     try:
         return query_class(*args, random_state=random_state, **kwargs)
     except TypeError:

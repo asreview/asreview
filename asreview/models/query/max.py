@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ from asreview.models.query.base import ProbaQueryStrategy
 
 
 class MaxQuery(ProbaQueryStrategy):
-    """Maximum sampling query strategy.
+    """Maximum query strategy.
 
     Choose the most likely samples to be included according to the model.
     """
 
     name = "max"
+    label = "Maximum"
 
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         proba = proba[pool_idx]
