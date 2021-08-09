@@ -109,3 +109,13 @@ follow the guidelines below.
 4. [OPTIONAL] Crop relevant part. Keep ratio if possible.
 5. Resize image to **1280x800** maximum and **960x600** minimum.
 6. [OPTIONAL] Use a red box to highlight relevant components.
+
+## EXPERIMENTAL: One Click Deploy for ASReview LAB
+
+You can deploy ASReview LAB right now in one click on any of these clouds providers:
+
+[<img src="https://aka.ms/deploytoazurebutton" height="30px">](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fasreview%2Fasreview%2Fmaster%2Fazuredeploy.json)
+[<img src="https://deploy.cloud.run/button.svg" height="30px">](https://deploy.cloud.run)
+[<img src="https://www.herokucdn.com/deploy/button.svg" height="30px">](https://heroku.com/deploy?template=https://github.com/asreview/asreview/tree/master)
+
+❗❗❗ ASReview doens't have builtin authentication. You are responsible for the authentication and security of the server yourself.
