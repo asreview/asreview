@@ -19,13 +19,16 @@ import rispy
 
 from asreview.io.utils import standardize_dataframe
 
+
 # Converter function for manipulating the internal "included" column
 def _label_parser(note_list):
-
     # Check the list for the label and return the proper value
-    if "ASReview_relevant" in note_list: return 1
-    elif "ASReview_irrelevant" in note_list: return 0
-    else: return None
+    if "ASReview_relevant" in note_list:
+        return 1
+    elif "ASReview_irrelevant" in note_list:
+        return 0
+    else:
+        return None
 
 
 def read_ris(fp):

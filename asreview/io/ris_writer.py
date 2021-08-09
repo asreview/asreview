@@ -49,7 +49,7 @@ def write_ris(df, fp):
         rec_copy = copy.deepcopy(rec)
 
         # Iterate over all the items for the deepcopied record
-        for k,v in rec_copy.items():
+        for k, v in rec_copy.items():
             # Find all items with a value
             if not pd.isnull(v):
                 # Assign the value to the key
@@ -72,7 +72,7 @@ def write_ris(df, fp):
             rec_copy["notes"] = eval(rec_copy["notes"])
         except Exception:
             rec_copy["notes"] = []
-        
+
         # Update "notes" column based on the "included" column label
         finally:
             # Relevant records
