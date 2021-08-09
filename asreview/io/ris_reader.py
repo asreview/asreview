@@ -19,20 +19,23 @@ import rispy
 
 from asreview.io.utils import standardize_dataframe
 
+# Converter function for manipulating the internal "included" column
+# ASReview: "included" column is to represent a record's label
+# RIS standard: "included" column not supported
+# ASReview: import from "notes" to "included", export from "included" to "notes"
+def _label_parser(note_list):
+    # print(note)
+    # try:
+    #     # Convert this note to a list (again)
+    #     note_list = eval(note)
+    #     print(note_list)
+    # except Exception:
+    #     return None
 
-RIS_KEY_LABEL_INCLUDED = "LI"
-
-
-def _tag_key_mapping(reverse=False):
-    # Add label_included into the specification and create reverse mapping.
-    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
-    KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-    for label in COLUMN_DEFINITIONS["included"]:
-        KEY_TAG_MAPPING[label] = "LI"
-    if reverse:
-        return KEY_TAG_MAPPING
-    else:
-        return TAG_KEY_MAPPING
+    # Check the list for the label
+    if "ASReview_relevant" in note_list: return 1
+    elif "ASReview_irrelevant" in note_list: return 0
+    else: return None
 
 
 def read_ris(fp):
