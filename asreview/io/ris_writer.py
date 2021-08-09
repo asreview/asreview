@@ -29,12 +29,7 @@ def write_ris(df, fp):
     # # Choose only "included" records
     # df = df[df.included.astype('str').str.contains('1')]
 
-    # # Delete the included column for rispy
-    # del df["included"]
-
-    # # Delete the asreview_ranking for rispy
-    # del df["asreview_ranking"]
-
+    # print("Writer DF is:\n",df[["authors","keywords","included"]])
     # Turn pandas DataFrame into records (list of dictionaries) for rispy
     records = df.to_dict('records')
     # print("records are:\n", records)
