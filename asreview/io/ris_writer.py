@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import rispy
+import pandas as pd
+import copy as cp
 
 
 def write_ris(df, fp):
