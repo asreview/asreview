@@ -20,7 +20,10 @@ LABEL_NA = -1
 KERAS_MODELS = ["lstm_base", "lstm_pool"]
 
 # project types
-PROJECT_MODES = ["oracle", "explore", "simulate"]
+PROJECT_MODE_ORACLE = "oracle"
+PROJECT_MODE_EXPLORE = "explore"
+PROJECT_MODE_SIMULATE = "simulate"
+PROJECT_MODES = [PROJECT_MODE_ORACLE, PROJECT_MODE_EXPLORE, PROJECT_MODE_SIMULATE]
 
 # CLI defaults
 DEFAULT_MODEL = "nb"

@@ -40,6 +40,7 @@ from werkzeug.exceptions import InternalServerError
 
 from asreview import __version__ as asreview_version
 from asreview.datasets import DatasetManager
+from asreview.data import ASReviewData
 from asreview.exceptions import BadFileFormatError
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
@@ -80,6 +81,7 @@ from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import PROJECT_MODE_EXPLORE
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
@@ -313,53 +315,31 @@ def api_demo_data_project():  # noqa: F401
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
 
+    # get the project config to modify behavior of dataset
     project_config = get_project_config(project_id)
 
     if request.form.get('plugin', None):
+        url = DatasetManager().find(request.form['plugin']).url
 
-        plugin_data = DatasetManager().find(request.form['plugin'])
+    if request.form.get('benchmark', None):
+        url = DatasetManager().find(request.form['benchmark']).url
 
-        url_parts = urllib.parse.urlparse(plugin_data.url)
-        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
+    if request.form.get('url', None):
+        url = request.form['url']
 
-        urlretrieve(plugin_data.url, get_data_path(project_id) / filename)
-
-    elif request.form.get('benchmark', None):
-
-        benchmark_dataset_id = DatasetManager().find(request.form['benchmark'])
-
-        # read dataset
-        df = pd.read_csv(benchmark_dataset_id.url)
-
-        # rename label column
-        df.rename({"label_included": "debug_label"}, axis=1, inplace=True)
-
-        # define export filepath
-        url_parts = urllib.parse.urlparse(benchmark_dataset_id.url)
-        filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
-        export_fp = get_data_path(project_id) / filename
-
-        # export file
-        df.to_csv(export_fp, index=False)
-
-    elif request.form.get('url', None):
-        # download file and save to folder
-
-        download_url = request.form['url']
-
+    if request.form.get('plugin', None) or request.form.get('benchmark', None)  or request.form.get('url', None):
         try:
-            url_parts = urllib.parse.urlparse(download_url)
+            url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(download_url, get_data_path(project_id) / filename)
+            urlretrieve(url, get_data_path(project_id) / filename)
 
         except ValueError as err:
 
             logging.error(err)
-            message = f"Invalid URL '{download_url}'."
+            message = f"Invalid URL '{url}'."
 
-            if isinstance(download_url, str) \
-                    and not download_url.startswith("http"):
+            if isinstance(url, str) and not url.startswith("http"):
                 message += " Usually, the URL starts with 'http' or 'https'."
 
             return jsonify(message=message), 400
@@ -367,7 +347,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         except Exception as err:
 
             logging.error(err)
-            message = f"Can't retrieve data from URL {download_url}."
+            message = f"Can't retrieve data from URL {url}."
 
             return jsonify(message=message), 400
 
@@ -376,7 +356,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         data_file = request.files['file']
 
         # check the file is file is in a correct format
-        check_dataset(data_file)  # TODO{qubixes}: implement val strategy
+        check_dataset(data_file)
         try:
 
             filename = secure_filename(data_file.filename)
@@ -397,10 +377,22 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         response = jsonify(message="No file or dataset found to upload.")
         return response, 400
 
-    try:
+    if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
+        data_path = get_data_path(project_id) / filename
+        data_path_csv = data_path.with_suffix('.csv')
+
+        data = ASReviewData.from_file(data_path)
+        data.df.rename(
+            {data.column_spec["included"]: "debug_label"},
+            axis=1,
+            inplace=True
+        )
+        data.to_csv(data_path_csv)
+
+    try:
         # add the file to the project
-        add_dataset_to_project(project_id, filename)
+        add_dataset_to_project(project_id, data_path_csv.name)
 
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
