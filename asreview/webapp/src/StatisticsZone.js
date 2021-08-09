@@ -3,21 +3,24 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Box,
-  Typography,
   CircularProgress,
-  Paper,
   Grid,
   IconButton,
   Link,
+  MobileStepper,
+  Paper,
   Tooltip,
+  Typography,
 } from "@material-ui/core";
-import RefreshIcon from "@material-ui/icons/Refresh";
-
 import {
-  ProgressPieChart,
-  ProgressAreaChart,
-  ProgressLineChart,
-} from "./SideStats";
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  Refresh,
+} from "@material-ui/icons";
+
+import SwipeableViews from "react-swipeable-views";
+
+import { ProgressAreaChart, ProgressLineChart } from "./SideStats";
 
 import { ProjectAPI } from "./api/index.js";
 
@@ -40,19 +43,17 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: -12,
   },
   paper: {
-    paddingTop: "24px",
-    paddingLeft: "40px",
-    paddingRight: "40px",
+    padding: "24px 40px 24px 40px",
   },
-  center: {
-    marginTop: -24,
-    textAlign: "center",
-  },
-  pieChart: {
-    width: "100%",
-    maxWidth: "245px",
+  text: {
     margin: "auto",
-    display: "block",
+  },
+  textLabel: {
+    width: 105,
+  },
+  chartStepper: {
+    background: "inherit",
+    padding: 0,
   },
   notAvailable: {
     paddingTop: "54px",
@@ -77,6 +78,7 @@ const StatisticsZone = (props) => {
   const classes = useStyles();
 
   const [statistics, setStatistics] = useState(null);
+  const [activeChart, setActiveChart] = React.useState(0);
   const [history, setHistory] = useState([]);
   const [efficiency, setEfficiency] = useState([]);
   const [error, setError] = useState({
@@ -85,6 +87,18 @@ const StatisticsZone = (props) => {
     history: null,
     efficiency: null,
   });
+
+  const handleChartChange = (chart) => {
+    setActiveChart(chart);
+  };
+
+  const handleNextChart = () => {
+    setActiveChart((prevActiveChart) => prevActiveChart + 1);
+  };
+
+  const handleBackChart = () => {
+    setActiveChart((prevActiveChart) => prevActiveChart - 1);
+  };
 
   const handleClickRetry = () => {
     setError({
@@ -191,7 +205,7 @@ const StatisticsZone = (props) => {
             <Box className={classes.retryButton} align="center">
               <Tooltip title="Refresh">
                 <IconButton color="primary" onClick={handleClickRetry}>
-                  <RefreshIcon />
+                  <Refresh />
                 </IconButton>
               </Tooltip>
             </Box>
@@ -202,37 +216,80 @@ const StatisticsZone = (props) => {
           error.efficiency === null &&
           statistics !== null && (
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={4}>
-                <Box className={classes.pieChart}>
-                  <ProgressPieChart
-                    n_included={statistics.n_included}
-                    n_excluded={statistics.n_excluded}
+              <Grid className={classes.text} item xs={12} sm={4}>
+                <Grid container>
+                  <Grid className={classes.textLabel} item>
+                    <Typography>Total records:</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography>{statistics.n_papers}</Typography>
+                  </Grid>
+                </Grid>
+                <Grid container>
+                  <Grid className={classes.textLabel} item>
+                    <Typography>Reviewed:</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography>
+                      {statistics.n_included + statistics.n_excluded} (
+                      {Math.round(
+                        ((statistics.n_included + statistics.n_excluded) /
+                          statistics.n_papers) *
+                          10000
+                      ) / 100}
+                      %)
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container>
+                  <Grid className={classes.textLabel} item>
+                    <Typography>Relevant:</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography>{statistics.n_included}</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} sm={8}>
+                <div>
+                  <SwipeableViews
+                    enableMouseEvents
+                    index={activeChart}
+                    onChangeIndex={handleChartChange}
+                  >
+                    <div>
+                      <ProgressAreaChart history={history} />
+                    </div>
+                    <div>
+                      <ProgressLineChart efficiency={efficiency} />
+                    </div>
+                  </SwipeableViews>
+                  <MobileStepper
+                    className={classes.chartStepper}
+                    variant="dots"
+                    steps={2}
+                    position="static"
+                    activeStep={activeChart}
+                    nextButton={
+                      <IconButton
+                        size="small"
+                        onClick={handleNextChart}
+                        disabled={activeChart === 1}
+                      >
+                        <KeyboardArrowRight />
+                      </IconButton>
+                    }
+                    backButton={
+                      <IconButton
+                        size="small"
+                        onClick={handleBackChart}
+                        disabled={activeChart === 0}
+                      >
+                        <KeyboardArrowLeft />
+                      </IconButton>
+                    }
                   />
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Box>
-                  <ProgressAreaChart history={history} />
-                </Box>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Box>
-                  <ProgressLineChart efficiency={efficiency} />
-                </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <Box className={classes.center}>
-                  <Typography>
-                    Total reviewed:{" "}
-                    {statistics.n_included + statistics.n_excluded} (
-                    {Math.round(
-                      ((statistics.n_included + statistics.n_excluded) /
-                        statistics.n_papers) *
-                        10000
-                    ) / 100}
-                    %)
-                  </Typography>
-                </Box>
+                </div>
               </Grid>
             </Grid>
           )}
