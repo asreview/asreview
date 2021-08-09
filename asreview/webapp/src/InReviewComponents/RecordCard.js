@@ -72,6 +72,7 @@ const useStyles = makeStyles((theme) => ({
     border: "none",
     borderBottomRightRadius: 4,
     borderBottomLeftRadius: 4,
+    padding: 8,
   },
   actions: {
     display: "flex",
