@@ -62,37 +62,40 @@ def write_ris(df, fp):
 
         # Check the authors
         try:
-            records[i]["authors"] = eval(records[i]["authors"])
+            rec_copy["authors"] = eval(rec_copy["authors"])
         except Exception:
-            records[i]["authors"] = []
-        # print("For this record, authors:\n",records[i]["authors"])
+            rec_copy["authors"] = []
+        # print("For this record, authors:\n",rec_copy["authors"])
 
         # Check the keywords
         try:
-            records[i]["keywords"] = eval(records[i]["keywords"])
+            rec_copy["keywords"] = eval(rec_copy["keywords"])
         except Exception:
-            records[i]["keywords"] = []
-        # print("For this record, keywords:\n", records[i]["keywords"])
+            rec_copy["keywords"] = []
+        # print("For this record, keywords:\n", rec_copy["keywords"])
 
         # Check the notes
         try:
-            records[i]["notes"] = eval(records[i]["notes"])
+            rec_copy["notes"] = eval(rec_copy["notes"])
         except Exception:
-            records[i]["notes"] = []
-        # Update notes based on the label
+            rec_copy["notes"] = []
+        
+        # Update "notes" column based on the "included" column label
         finally:
             # Relevant records
-            if records[i]["included"] == 1:
-                records[i]["notes"].append("ASReview_relevant")
+            if "included" in rec_copy and rec_copy["included"] == 1:
+                rec_copy["notes"].append("ASReview_relevant")
             # Irelevant records
-            elif records[i]["included"] == 0:
-                records[i]["notes"].append("ASReview_irrelevant")
+            elif "included" in rec_copy and rec_copy["included"] == 0:
+                rec_copy["notes"].append("ASReview_irrelevant")
             # Not seen records
             else:
-                records[i]["notes"].append("ASReview_not_seen")
-        # print("For this record, notes:\n", records[i]["notes"])
+                rec_copy["notes"].append("ASReview_not_seen")
+        # print("For this record, notes:\n", rec_copy["notes"])
 
-    # Buffered dataframe
+
+        # Append the deepcopied and updated record to a new array
+        records_new.append(rec_copy)
     if fp is None:
         # Export the RIS file from the buffer
         return rispy.dumps(records)
