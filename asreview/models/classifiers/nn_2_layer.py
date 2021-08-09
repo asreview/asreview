@@ -1,4 +1,4 @@
-# Copyright 2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,12 +41,12 @@ from asreview.utils import _set_class_weight
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingIdf'.")
+            "Install tensorflow package to use"
+            " Fully connected neural network (2 hidden layers).")
 
 
 class NN2LayerClassifier(BaseTrainClassifier):
-    """Dense neural network classifier.
+    """Fully connected neural network (2 hidden layers) classifier.
 
     Neural network with two hidden, dense layers of the same size.
 
@@ -87,6 +87,7 @@ class NN2LayerClassifier(BaseTrainClassifier):
     """
 
     name = "nn-2-layer"
+    label = "Fully connected neural network (2 hidden layers)"
 
     def __init__(self,
                  dense_width=128,

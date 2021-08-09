@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ from asreview.utils import get_random_state
 
 
 class ClusterQuery(ProbaQueryStrategy):
-    """Query strategy using clustering algorithms.
+    """Clustering query strategy.
 
     Use clustering after feature extraction on the dataset. Then the highest
     probabilities within random clusters are sampled.
@@ -38,6 +38,7 @@ class ClusterQuery(ProbaQueryStrategy):
     """
 
     name = "cluster"
+    label = "Clustering"
 
     def __init__(self,
                  cluster_size=350,

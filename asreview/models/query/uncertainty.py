@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ from asreview.models.query.base import ProbaQueryStrategy
 
 
 class UncertaintyQuery(ProbaQueryStrategy):
-    """Maximum uncertainty query strategy.
+    """Uncertainty query strategy.
 
     Choose the most uncertain samples according to the model (i.e. closest to
     0.5 probability). Doesn’t work very well in the case of LSTM’s, since the
@@ -28,6 +28,7 @@ class UncertaintyQuery(ProbaQueryStrategy):
     """
 
     name = "uncertainty"
+    label = "Uncertainty"
 
     def _query(self, X, pool_idx, n_instances=1, proba=None):
         uncertainty = 1 - np.max(proba[pool_idx], axis=1)

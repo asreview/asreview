@@ -12,29 +12,28 @@ guidelines to transparently support medical doctors. Medical guidelines rely
 on comprehensive systematic reviews. Such reviews entail several explicit and
 reproducible steps, including identifying all likely relevant papers in a
 standardized way, extracting data from eligible studies, and synthesizing the
-results into medical guidelines. They need to scan hundreds, or even thousands
-of COVID-19 related studies, by hand to find relevant papers to include in
-their overview. This is error prone and extremely time intensive; time we do
+results into medical guidelines. One might need to manually scan hundreds, or even thousands
+of COVID-19 related studies. This process is error prone and extremely time consuming; time we do
 not have right now!
 
 The software relies on :doc:`Active learning <../guides/activelearning>` which denotes the
 scenario in which the reviewer is labeling data that are presented by a
 machine learning model. The machine learns from the reviewers’ decisions and
 uses this knowledge in selecting the reference that will be presented to the
-reviewer next. In this way, the COVID-19 related papers are presented ordered
-from most to least relevant based on the input from the user. The goal of the
+reviewer next. In this way, the COVID-19 related papers are presented in an orderly manner,
+that is from most to least relevant based on the input from the user. The goal of the
 software is to help scholars and practitioners to get an overview of the most
 relevant papers for their work as efficiently as possible, while being
 transparent in the process.
 
 
 
-ASReview plugin
----------------
+ASReview Extension
+------------------
 
-To help combat the COVID-19 crisis, the ASReview team developed a plugin that
+To help combat the COVID-19 crisis, the ASReview team developed an extension that
 provides three datasets on COVID-19. These are automatically available in
-ASReview after installing the plugin, so reviewers can start
+ASReview after installing the extension, so reviewers can start
 reviewing the latest scientific literature on COVID-19 as soon as possible!
 
 CORD-19 dataset
@@ -56,7 +55,7 @@ In addition to the full dataset, there is a subset available of studies
 published after December 1st, 2019 to search for relevant papers published
 during the COVID-19 crisis.
 
-The datasets are updated in ASReview plugin shortly after the release by
+The datasets are updated in ASReview extension shortly after a release by
 the Allen Institute for AI.
 
 Pre-print dataset
@@ -69,14 +68,14 @@ since January 1, 2020. The preprint dataset is updated weekly by the
 maintainers (Nicholas Fraser and Bianca Kramer) and then automatically updated
 in ASReview as well. As this dataset is not readily available to researchers
 through regular search engines (e.g. PubMed), its inclusion in ASReview
-provided added value to researchers interested in COVID-19 research,
+provides added value to researchers interested in COVID-19 research,
 especially if they want a quick way to screen preprints specifically.
 
 
 Installation and usage
 ----------------------
 
-The COVID-19 plug-in requires ASReview 0.8 or higher. Install ASReview
+The COVID-19 extension requires ASReview 0.8 or higher. Install ASReview
 by following the instructions in :doc:`../intro/installation`.
 
 Install the extension with pip:
@@ -100,7 +99,7 @@ more information on the usage of ASReview, have a look at the
 License
 -------
 
-The ASReview software and the plugin have an Apache 2.0 LICENSE. For the
+The ASReview software and the extensions have an Apache 2.0 LICENSE. For the
 datasets, see the license of the CORD-19 dataset
 https://www.semanticscholar.org/cord19.
 

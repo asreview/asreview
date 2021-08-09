@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,20 +40,20 @@ else:
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingLSTM'.")
+            "Install tensorflow package to use"
+            " Embedding LSTM.")
 
 
 class EmbeddingLSTM(BaseFeatureExtraction):
-    """Class to create embedding matrices for LSTM models.
+    """Embedding LSTM feature extraction technique.
 
-    Feature extraction method for
+    Feature extraction technique for
     :class:`asreview.models.classifiers.LSTMBaseClassifier` and
     :class:`asreview.models.classifiers.LSTMPoolClassifier` models.
 
     .. note::
 
-        This feature extraction algorithm requires ``tensorflow`` to be
+        This feature extraction technique requires ``tensorflow`` to be
         installed. Use ``pip install tensorflow`` or install all optional
         ASReview dependencies with ``pip install asreview[all]``
 
@@ -75,6 +75,7 @@ class EmbeddingLSTM(BaseFeatureExtraction):
     """
 
     name = "embedding-lstm"
+    label = "Embedding LSTM"
 
     def __init__(self,
                  *args,

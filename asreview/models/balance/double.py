@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ from asreview.utils import get_random_state
 
 
 class DoubleBalance(BaseBalance):
-    """Dynamic Resampling balance strategy.
+    """Double balance strategy.
 
     Class to get the two way rebalancing function and arguments.
     It super samples ones depending on the number of 0's and total number
@@ -49,6 +49,7 @@ class DoubleBalance(BaseBalance):
     """
 
     name = "double"
+    label = "Dynamic resampling (Double)"
 
     def __init__(self,
                  a=2.155,

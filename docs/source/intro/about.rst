@@ -53,7 +53,7 @@ The Case of Systematic Reviewing
 
 ASReview is a generic tool for the screening  of :doc:`any type of
 text <datasets>`, but often use the case of systematic reviewing is ued to
-illustrate its usefulness, see also the blog post `ASReview Class 101 <https://asreview.nl/asreview-class-101/>`_.
+illustrate its usefulness, see also the blog post `ASReview Class 101 <https://asreview.nl/blog/asreview-class-101/>`_.
 
 With the emergence of online publishing, the number of scientific papers on
 any topic, e.g. COVID19, is skyrocketing. Simultaneously, the public press

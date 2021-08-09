@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -20,31 +20,15 @@ import { brown } from "@material-ui/core/colors";
 
 import HelpIcon from "@material-ui/icons/Help";
 import EditIcon from "@material-ui/icons/Edit";
+import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
 
 import { Help, useHelp } from "../PreReviewComponents";
 import { ProjectAPI } from "../api/index.js";
+import { defaultAlgorithms } from "../globals.js";
 
 import { makeStyles } from "@material-ui/core/styles";
 
 import "./ReviewZone.css";
-
-const algorithmsLabel = {
-  model: [
-    { value: "nb", label: "Naïve Bayes" },
-    { value: "svm", label: "Support vector machines" },
-    { value: "logistic", label: "Logistic regression" },
-    { value: "rf", label: "Random forest" },
-  ],
-  query_strategy: [
-    { value: "max", label: "Max" },
-    { value: "random", label: "Random" },
-    { value: "max_random", label: "Mixed" },
-  ],
-  feature_extraction: [
-    { value: "tfidf", label: "tf-idf" },
-    { value: "doc2vec", label: "Doc2Vec" },
-  ],
-};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -73,11 +57,12 @@ const useStyles = makeStyles((theme) => ({
 const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
   const classes = useStyles();
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     edit: false,
   });
 
-  const [algorithms, setAlgorithms] = React.useState(null);
+  const [algorithms, setAlgorithms] = useState(null);
+  const [algorithmsLabel, setAlgorithmsLabel] = useState(null);
 
   // help button
   const [help, openHelp, closeHelp] = useHelp();
@@ -88,13 +73,42 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
     });
   };
 
-  // algorithm change
-  const handleAlgorithmChange = (event) => {
-    // set the algorithms state
+  const restoreDefaultAlgorithms = () => {
     setAlgorithms({
       ...algorithms,
-      model: event.target.value,
+      model: defaultAlgorithms["model"],
+      query_strategy: defaultAlgorithms["query_strategy"],
+      feature_extraction: defaultAlgorithms["feature_extraction"],
     });
+    setState({
+      edit: false,
+    });
+  };
+
+  const handleClassifierChange = (event) => {
+    if (
+      event.target.value === "lstm-base" ||
+      event.target.value === "lstm-pool"
+    ) {
+      setAlgorithms({
+        ...algorithms,
+        model: event.target.value,
+        feature_extraction: "embedding-lstm",
+      });
+    } else {
+      if (algorithms["feature_extraction"] === "embedding-lstm") {
+        setAlgorithms({
+          ...algorithms,
+          model: event.target.value,
+          feature_extraction: defaultAlgorithms["feature_extraction"],
+        });
+      } else {
+        setAlgorithms({
+          ...algorithms,
+          model: event.target.value,
+        });
+      }
+    }
   };
 
   const handleQueryStrategyChange = (event) => {
@@ -111,42 +125,56 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
     });
   };
 
+  const fetchAlgorithmsList = useCallback(() => {
+    ProjectAPI.algorithms_list()
+      .then((result) => {
+        setAlgorithmsLabel(result.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+  const fetchAlgorithmsSettings = useCallback(async () => {
+    ProjectAPI.algorithms(project_id, false)
+      .then((result) => {
+        setAlgorithms(result.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [project_id]);
+
+  const updateAlgorithmsSettings = useCallback(() => {
+    var bodyFormData = new FormData();
+    bodyFormData.set("model", algorithms.model);
+    bodyFormData.set("query_strategy", algorithms.query_strategy);
+    bodyFormData.set("feature_extraction", algorithms.feature_extraction);
+
+    ProjectAPI.algorithms(project_id, true, bodyFormData)
+      .then((result) => {
+        // nothing to do
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [algorithms, project_id]);
+
   // send an update to the server on a model change
   useEffect(() => {
-    if (algorithms !== null) {
-      var bodyFormData = new FormData();
-      bodyFormData.set("model", algorithms.model);
-      bodyFormData.set("query_strategy", algorithms.query_strategy);
-      bodyFormData.set("feature_extraction", algorithms.feature_extraction);
-
-      ProjectAPI.algorithms(project_id, true, bodyFormData)
-        .then((result) => {
-          // nothing to do
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    if (algorithms) {
+      updateAlgorithmsSettings();
     }
-  }, [algorithms, project_id]);
+  }, [algorithms, updateAlgorithmsSettings]);
 
   // if the state is lock, then fetch the data
   useEffect(() => {
-    // fetch algorithms info
-    const fetchAlgorithmsSettings = async () => {
-      ProjectAPI.algorithms(project_id, false)
-        .then((result) => {
-          setAlgorithms(result.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-
-    // scroll into view
-    scrollToBottom();
-
-    fetchAlgorithmsSettings();
-  }, [project_id, scrollToBottom]);
+    if (!algorithmsLabel) {
+      fetchAlgorithmsList();
+    } else {
+      fetchAlgorithmsSettings();
+    }
+  }, [algorithmsLabel, fetchAlgorithmsList, fetchAlgorithmsSettings]);
 
   return (
     <Box>
@@ -169,7 +197,25 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                     </IconButton>
                   </Tooltip>
                 )}
-
+                {state.edit && (
+                  <Tooltip title="Restore default">
+                    <span>
+                      <IconButton
+                        onClick={restoreDefaultAlgorithms}
+                        aria-label="project-algorithms-restore-default"
+                        disabled={
+                          algorithms["model"] === defaultAlgorithms["model"] &&
+                          algorithms["query_strategy"] ===
+                            defaultAlgorithms["query_strategy"] &&
+                          algorithms["feature_extraction"] ===
+                            defaultAlgorithms["feature_extraction"]
+                        }
+                      >
+                        <SettingsBackupRestoreIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                )}
                 <Tooltip title="Help">
                   <IconButton
                     onClick={openHelp}
@@ -184,16 +230,82 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
 
           {state.edit && (
             <Box>
+              {/*Warning message*/}
+              <div className={classes.alert}>
+                <Alert severity="warning">
+                  Some combinations may have incompatibility issues.
+                </Alert>
+              </div>
+              {algorithms["model"] === "nn-2-layer" &&
+                algorithms["feature_extraction"] === "tfidf" && (
+                  <div className={classes.alert}>
+                    <Alert severity="warning">
+                      This combination might crash on some systems with limited
+                      memory.
+                    </Alert>
+                  </div>
+                )}
+              {algorithms["query_strategy"] === "random" && (
+                <div className={classes.alert}>
+                  <Alert severity="warning">
+                    Random query strategy means your review is not going to be
+                    accelerated by ASReview.
+                  </Alert>
+                </div>
+              )}
+
+              {/*Dependency info*/}
+              {(algorithms["model"] === "lstm-base" ||
+                algorithms["model"] === "lstm-pool" ||
+                algorithms["model"] === "nn-2-layer" ||
+                algorithms["feature_extraction"] === "embedding-idf" ||
+                algorithms["feature_extraction"] === "embedding-lstm") && (
+                <div className={classes.alert}>
+                  <Alert severity="info">
+                    <Link
+                      className={classes.link}
+                      href="https://www.tensorflow.org/"
+                      target="_blank"
+                    >
+                      <code>tensorflow</code>
+                    </Link>{" "}
+                    installation required (<code>pip install tensorflow</code>).
+                  </Alert>
+                </div>
+              )}
               {algorithms !== null &&
                 algorithms["feature_extraction"] === "doc2vec" && (
                   <div className={classes.alert}>
                     <Alert severity="info">
-                      Doc2Vec requires the gensim package. Tap the help icon for
-                      more information.
+                      <Link
+                        className={classes.link}
+                        href="https://radimrehurek.com/gensim/"
+                        target="_blank"
+                      >
+                        <code>gensim</code>
+                      </Link>{" "}
+                      installation required (<code>pip install gensim</code>).
+                    </Alert>
+                  </div>
+                )}
+              {algorithms !== null &&
+                algorithms["feature_extraction"] === "sbert" && (
+                  <div className={classes.alert}>
+                    <Alert severity="info">
+                      <Link
+                        className={classes.link}
+                        href="https://www.sbert.net/"
+                        target="_blank"
+                      >
+                        <code>sentence-transformers</code>
+                      </Link>{" "}
+                      installation required (
+                      <code>pip install sentence-transformers</code>).
                     </Alert>
                   </div>
                 )}
 
+              {/*Select active learning model*/}
               <CardContent className="cardHighlight">
                 {algorithms !== null && (
                   <Grid container spacing={2}>
@@ -209,42 +321,25 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             select
                             label="Classifier"
                             value={algorithms.model}
-                            onChange={handleAlgorithmChange}
+                            onChange={handleClassifierChange}
                           >
-                            <MenuItem
-                              checked={algorithms["model"] === "nb"}
-                              value="nb"
-                              color="default"
-                              disabled={
-                                algorithms["feature_extraction"] === "doc2vec"
-                              }
-                            >
-                              {"Naïve Bayes (default)"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={algorithms["model"] === "svm"}
-                              value="svm"
-                              color="default"
-                            >
-                              {"Support vector machines"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={algorithms["model"] === "logistic"}
-                              value="logistic"
-                              color="default"
-                            >
-                              {"Logistic regression"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={algorithms["model"] === "rf"}
-                              value="rf"
-                              color="default"
-                            >
-                              {"Random forest"}
-                            </MenuItem>
+                            {algorithmsLabel["classifier"].map((value) => {
+                              return (
+                                <MenuItem
+                                  key={`result-item-${value.name}`}
+                                  checked={algorithms["model"] === value.name}
+                                  value={value.name}
+                                  color="default"
+                                  disabled={
+                                    value.name === "nb" &&
+                                    algorithms["feature_extraction"] ===
+                                      "doc2vec"
+                                  }
+                                >
+                                  {value.label}
+                                </MenuItem>
+                              );
+                            })}
                           </TextField>
 
                           <TextField
@@ -254,33 +349,20 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             value={algorithms.query_strategy}
                             onChange={handleQueryStrategyChange}
                           >
-                            <MenuItem
-                              checked={algorithms["query_strategy"] === "max"}
-                              value="max"
-                              color="default"
-                            >
-                              {"Certainty-based (default)"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={
-                                algorithms["query_strategy"] === "random"
-                              }
-                              value="random"
-                              color="default"
-                            >
-                              {"Random"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={
-                                algorithms["query_strategy"] === "max_random"
-                              }
-                              value="max_random"
-                              color="default"
-                            >
-                              {"Mixed"}
-                            </MenuItem>
+                            {algorithmsLabel["query_strategy"].map((value) => {
+                              return (
+                                <MenuItem
+                                  key={`result-item-${value.name}`}
+                                  checked={
+                                    algorithms["query_strategy"] === value.name
+                                  }
+                                  value={value.name}
+                                  color="default"
+                                >
+                                  {value.label}
+                                </MenuItem>
+                              );
+                            })}
                           </TextField>
 
                           <TextField
@@ -290,26 +372,33 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                             value={algorithms.feature_extraction}
                             onChange={handleFeatureExtractionChange}
                           >
-                            <MenuItem
-                              checked={
-                                algorithms["feature_extraction"] === "tfidf"
+                            {algorithmsLabel["feature_extraction"].map(
+                              (value) => {
+                                return (
+                                  <MenuItem
+                                    key={`result-item-${value.name}`}
+                                    checked={
+                                      algorithms["feature_extraction"] ===
+                                      value.name
+                                    }
+                                    value={value.name}
+                                    color="default"
+                                    disabled={
+                                      (value.name === "doc2vec" &&
+                                        algorithms["model"] === "nb") ||
+                                      (algorithms["model"] !== "lstm-base" &&
+                                        algorithms["model"] !== "lstm-pool" &&
+                                        value.name === "embedding-lstm") ||
+                                      ((algorithms["model"] === "lstm-base" ||
+                                        algorithms["model"] === "lstm-pool") &&
+                                        value.name !== "embedding-lstm")
+                                    }
+                                  >
+                                    {value.label}
+                                  </MenuItem>
+                                );
                               }
-                              value="tfidf"
-                              color="default"
-                            >
-                              {"tf-idf (default)"}
-                            </MenuItem>
-
-                            <MenuItem
-                              checked={
-                                algorithms["feature_extraction"] === "doc2vec"
-                              }
-                              value="doc2vec"
-                              color="default"
-                              disabled={algorithms["model"] === "nb"}
-                            >
-                              {"Doc2Vec"}
-                            </MenuItem>
+                            )}
                           </TextField>
                         </div>
                       </form>
@@ -331,10 +420,10 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <Typography variant="h5" noWrap={true} align="left">
+                    <Typography variant="h5" align="left">
                       {
-                        algorithmsLabel.model.find(
-                          (m) => m.value === algorithms["model"]
+                        algorithmsLabel.classifier.find(
+                          (m) => m.name === algorithms["model"]
                         ).label
                       }
                     </Typography>
@@ -347,10 +436,10 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <Typography variant="h5" noWrap={true} align="left">
+                    <Typography variant="h5" align="left">
                       {
                         algorithmsLabel.query_strategy.find(
-                          (m) => m.value === algorithms["query_strategy"]
+                          (m) => m.name === algorithms["query_strategy"]
                         ).label
                       }
                     </Typography>
@@ -363,10 +452,10 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   </Grid>
 
                   <Grid item xs={6}>
-                    <Typography variant="h5" noWrap={true} align="left">
+                    <Typography variant="h5" align="left">
                       {
                         algorithmsLabel.feature_extraction.find(
-                          (m) => m.value === algorithms["feature_extraction"]
+                          (m) => m.name === algorithms["feature_extraction"]
                         ).label
                       }
                     </Typography>
@@ -393,21 +482,15 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
               >
                 active learning model
               </Link>{" "}
-              consists of a classifier, a feature extraction technique, a query
-              strategy, and a balance strategy. The default setup (Naïve Bayes,
-              tf-idf, Max) overall has fast and excellent performance.
+              consists of a classifier, a query strategy, a feature extraction
+              technique, and a balance strategy. The default setup (Naive Bayes,
+              TF-IDF, Maximum) overall has fast and excellent performance.
             </Typography>
             <Typography variant="body2" gutterBottom>
-              Note: Doc2Vec is provided by the gensim package which needs to be
-              installed manually. Follow the
-              <Link
-                className={classes.link}
-                href="https://radimrehurek.com/gensim/"
-                target="_blank"
-              >
-                instruction
-              </Link>{" "}
-              before using it.
+              Some classifiers and feature extraction techniques require
+              additional dependencies. Use{" "}
+              <code>pip install asreview[all]</code> to install all additional
+              dependencies at once.
             </Typography>
           </Box>
         }

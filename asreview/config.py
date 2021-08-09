@@ -49,4 +49,5 @@ COLUMN_DEFINITIONS = {
     "authors": ["authors", "author names", "first_authors"],
     "abstract": ["abstract", "abstract note", "notes_abstract"],
     "keywords": ["keywords"],
+    "doi": ["doi"],
 }

@@ -5,7 +5,7 @@ export { default as PriorKnowledgeRandom } from "../PreReviewComponents/PriorKno
 export { default as ListItemPaper } from "../PreReviewComponents/ListItemPaper";
 export { default as SearchResult } from "../PreReviewComponents/SearchResult";
 export { default as PaperCard } from "../PreReviewComponents/PaperCard";
-export { default as ProjectInit } from "../PreReviewComponents/ProjectInit";
+export { default as ProjectInfo } from "../PreReviewComponents/ProjectInfo";
 export { default as ProjectUpload } from "../PreReviewComponents/ProjectUpload";
 export { default as ProjectUploadFile } from "../PreReviewComponents/ProjectUploadFile";
 export { default as ProjectUploadBenchmarkDatasets } from "../PreReviewComponents/ProjectUploadBenchmarkDatasets";

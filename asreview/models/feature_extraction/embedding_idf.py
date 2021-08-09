@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,12 +38,12 @@ from asreview.utils import get_random_state
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingIdf'.")
+            "Install tensorflow package to use"
+            " Embedding IDF.")
 
 
 class EmbeddingIdf(BaseFeatureExtraction):
-    """Class for Embedding-Idf model.
+    """Embedding IDF feature extraction technique.
 
     This model averages the weighted word vectors of all the words in the
     text, in order to get a single feature vector for each text. The weights
@@ -51,7 +51,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
 
     .. note::
 
-        This feature extraction algorithm requires ``tensorflow`` to be
+        This feature extraction technique requires ``tensorflow`` to be
         installed. Use ``pip install tensorflow`` or install all optional
         ASReview dependencies with ``pip install asreview[all]``
 
@@ -63,6 +63,7 @@ class EmbeddingIdf(BaseFeatureExtraction):
     """
 
     name = "embedding-idf"
+    label = "Embedding IDF"
 
     def __init__(self, *args, embedding_fp=None, random_state=None, **kwargs):
         """Initialize the Embedding-Idf model."""

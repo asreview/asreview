@@ -10,7 +10,7 @@ import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
 import { ImportDialog, QuickTourDialog } from "./Components";
 
-import { ProjectInit } from "./PreReviewComponents";
+import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
 
@@ -154,7 +154,7 @@ const Projects = (props) => {
       </Container>
 
       {open.newProject && (
-        <ProjectInit
+        <ProjectInfo
           handleAppState={props.handleAppState}
           open={open.newProject}
           onClose={handleCloseNewProject}
