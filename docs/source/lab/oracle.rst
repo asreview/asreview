@@ -4,7 +4,7 @@ Oracle Mode
 This is a quick tour in using the ASReview LAB software in Oracle Mode, which
 is the user-friendly frontend for active learning in systematic reviews for
 unlabeled data with interaction by the user. A more elaborate instruction can
-be found in this `blogpost <https://asreview.nl/asreview-class-101/>`_ on the
+be found in this `blogpost <https://asreview.nl/blog/asreview-class-101/>`_ on the
 ASReview website.
 
 This tutorial assumes you have already installed Python and ASReview. If this
@@ -22,7 +22,7 @@ There are four ways to select a dataset:
 
 - Upload your own dataset. Read more about the format on :doc:`../intro/datasets`.
 - Import a dataset with an URL. Read more about the format on :doc:`../intro/datasets`.
-- Select a dataset from an :doc:`extension <../plugins/overview_plugins>` (for example to use the :doc:`COVID-19 extension <../plugins/covid19>`).
+- Select a dataset from an :doc:`extension <../extensions/overview_extensions>` (for example to use the :doc:`COVID-19 extension <../extensions/extension_covid19>`).
 - Choose one of the :doc:`benchmark data sets <exploration>`.
 
 .. figure:: ../../images/asreview_prescreening_datasets.png
@@ -37,7 +37,7 @@ After a successfull upload of the data, move to the next step.
 
     If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>`
     has to offer.
 
@@ -92,8 +92,8 @@ While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
 
 As you keep reviewing documents and providing more labels, the number of
-unlabeled docuemtns left in the dataset will decline. When to stop is left to
-the you. The `blogpost *ASReview Class 101* <https://asreview.nl/asreview-class-101/>`_
+unlabeled documents left in the dataset will decline. When to stop is left to
+the you. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
 provides some tips on stopping with screening.
 
 

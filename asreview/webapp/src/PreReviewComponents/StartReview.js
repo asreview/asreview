@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Box, Link, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { ProjectAPI } from "../api/index.js";
@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const StartReview = ({ project_id, onReady }) => {
+const StartReview = ({ project_id, onReady, notReady, trainingError }) => {
   const classes = useStyles();
 
   const [state, setState] = useState({
@@ -23,54 +23,55 @@ const StartReview = ({ project_id, onReady }) => {
     message: null,
   });
 
-  useEffect(() => {
-    const checkModelIsFitted = () => {
-      return ProjectAPI.init_ready(project_id)
-        .then((result) => {
-          if (result.data["status"] === 1) {
-            // model ready
-            onReady();
-          } else {
-            // not ready yet
-            setTimeout(checkModelIsFitted, 2000);
-          }
-        })
-        .catch((error) => {
-          setState({
-            status: "error",
-            message: error.message,
-          });
+  const checkModelIsFitted = useCallback(() => {
+    return ProjectAPI.init_ready(project_id)
+      .then((result) => {
+        if (result.data["status"] === 1) {
+          // model ready
+          onReady();
+        } else {
+          // not ready yet
+          setTimeout(checkModelIsFitted, 2000);
+        }
+      })
+      .catch((error) => {
+        setState({
+          status: "error",
+          message: error.message,
         });
-    };
-
-    const startTraining = () => {
-      // set the state to 'model training'
-      setState({
-        status: "training",
-        message: null,
+        notReady();
       });
+  }, [project_id, onReady, notReady]);
 
-      return ProjectAPI.start(project_id)
-        .then((result) => {
-          checkModelIsFitted();
-        })
-        .catch((error) => {
-          setState({
-            status: "error",
-            message: error.message,
-          });
+  const startTraining = useCallback(() => {
+    // set the state to 'model training'
+    setState({
+      status: "training",
+      message: null,
+    });
+
+    return ProjectAPI.start(project_id)
+      .then((result) => {
+        checkModelIsFitted();
+      })
+      .catch((error) => {
+        setState({
+          status: "error",
+          message: error.message,
         });
-    };
-    if (state.status === null) {
+      });
+  }, [checkModelIsFitted, project_id]);
+
+  useEffect(() => {
+    if (state.status === null && !trainingError) {
       setTimeout(startTraining, 3000);
     }
-  }, [state.status, project_id, onReady]);
+  }, [state.status, trainingError, startTraining]);
 
   return (
     <Box>
-      {(state["status"] === null || state["status"] === "training") && (
-        <Typography>(This can take some time)</Typography>
-      )}
+      {(state["status"] === null || state["status"] === "training") &&
+        !trainingError && <Typography>(This can take some time)</Typography>}
 
       {state["status"] === "error" && (
         <Box>

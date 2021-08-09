@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,26 +27,27 @@ from asreview.models.feature_extraction.base import BaseFeatureExtraction
 def _check_st():
     if not ST_AVAILABLE:
         raise ImportError(
-            "Install sentence_transformers package (`pip install "
-            "sentence_transformers`) to use 'SBERT' model.")
+            "Install sentence-transformers package"
+            " to use Sentence BERT.")
 
 
 class SBERT(BaseFeatureExtraction):
-    """Sentence BERT class for feature extraction.
+    """Sentence BERT feature extraction technique.
 
-    Feature extraction method based on Sentence BERT. Implementation based on
+    Feature extraction technique based on Sentence BERT. Implementation based on
     the `sentence_transformers <https://github.com/UKPLab/sentence-
     transformers>`__ package. It is relatively slow.
 
     .. note::
 
-        This feature extraction algorithm requires ``sentence_transformers``
+        This feature extraction technique requires ``sentence_transformers``
         to be installed. Use ``pip install sentence_transformers`` or install
         all optional ASReview dependencies with ``pip install asreview[all]``
 
     """
 
     name = "sbert"
+    label = "Sentence BERT"
 
     def transform(self, texts):
 

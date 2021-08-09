@@ -11,6 +11,8 @@ software developed by :ref:`researchers <intro/about:research team>` at Utrecht
 University and is published under the `Apache 2.0 licence
 <https://github.com/asreview/asreview/blob/master/LICENSE>`_.
 
+A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_. 
+
 .. toctree::
    :caption: Introduction
    :maxdepth: 1
@@ -60,15 +62,15 @@ University and is published under the `Apache 2.0 licence
 
 .. toctree::
    :maxdepth: 1
-   :caption: Plugins
+   :caption: Extensions
 
-   plugins/overview_plugins
+   extensions/overview_extensions
 
-   plugins/covid19
+   extensions/extension_covid19
 
-   plugins/plugin_visualization
+   extensions/extension_visualization
 
-   plugings/plugin_wordcloud
+   extensions/extension_wordcloud
 
 .. toctree::
    :maxdepth: 1

@@ -39,7 +39,7 @@ To select a dataset:
 
     If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>`
     has to offer.
 
@@ -59,10 +59,10 @@ From URL
 Fill in a link to a file on the Internet. For example, a link from this
 `dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
 
-From Plugin
-~~~~~~~~~~~
+From Extension
+~~~~~~~~~~~~~~
 
-Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
+Select a file available via an extension like the :doc:`COVID-19 extension <../extensions/extension_covid19>`.
 
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
@@ -76,7 +76,7 @@ Partly Labeled Data
 
 If you want to include decisions you've already made prior to setting up your
 project, you can upload a partly labeled dataset containg labels for part of
-the data and unlabeled recors you want to screen with ASReview. This might be
+the data and unlabeled records you want to screen with ASReview. This might be
 helpful if you switch from screening in another tool to screening with
 ASReview, or when updating an existing systematic review with more recent
 publications.
@@ -200,14 +200,13 @@ though relatively simplistic, it seems to work quite well on a wide range of
 datasets.
 
 The query strategy determines which document is shown after the model has
-computed the relevance scores. With certainty-based is selected the document
-with the highest relevance score is showed followed by the 2nd in line,
-etcetera, untill a new model is trained with new relevance scores. When
-uncertainty-based is selected, the most uncertain docuemtn is sampled
-according to the model (i.e. closest to 0.5 probability).  When random is
-selected, as it says, randomly select samples with no regard to model assigned
-probabilities. **Warning**: selecting this option means your review is not
-going to be accelerated by ASReview.
+computed the relevance scores. The three options are: certainty-based, mixed and 
+random. When certainty-based is selected, the documents are shown in the order of
+relevance score. The document most likely to be relevant is shown first. When 
+mixed is selected, the next document will be selected certainty-based 95% of the 
+time, and randomly chosen otherwise. When random is selected, documents are shown 
+in a random order (ignoring the model output completely). **Warning**: selecting 
+this option means your review is not going to be accelerated by using ASReview.
 
 The feature extraction technique determines the method how text is translated
 into a vector that can be used by the classifier. The default is TF-IDF (Term

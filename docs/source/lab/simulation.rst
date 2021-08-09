@@ -17,6 +17,6 @@ See the following resources for  information on running a simulation:
 
     If you upload your own data, make sure to remove duplicates and to retrieve 
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>` 
     has to offer. 

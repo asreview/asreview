@@ -40,14 +40,12 @@ const quickTourSteps = [
   {
     imgPath: Welcome,
     textTitle: "Quick Tour",
-    text:
-      "Take a quick tour to learn the basics of systematic reviewing with ASReview!",
+    text: "Take a quick tour to learn the basics of systematic reviewing with ASReview!",
   },
   {
     imgPath: SetUp,
     textTitle: "Easy project setup",
-    text:
-      "Supply a clean dataset, select prior knowledge, and choose a machine learning model (optional).",
+    text: "Supply a clean dataset, select prior knowledge, and choose a machine learning model (optional).",
   },
   {
     imgPath: Start,
@@ -57,26 +55,22 @@ const quickTourSteps = [
   {
     imgPath: Benefit,
     textTitle: "Benefit from AI-assisted reviewing",
-    text:
-      "After each decision, the predicted ranking of records is updated and you will see the most relevant record next (default).",
+    text: "After each decision, the predicted ranking of records is updated and you will see the most relevant record next (default).",
   },
   {
     imgPath: DontStress,
     textTitle: "Autosave",
-    text:
-      "Your screening decisions are automatically saved on your own device.",
+    text: "Your screening decisions are automatically saved on your own device.",
   },
   {
     imgPath: Done,
     textTitle: "Done screening? It's your choice!",
-    text:
-      "You decide when to stop the reviewing process (but hopefully before you have reached the end of your dataset).",
+    text: "You decide when to stop the reviewing process (but hopefully before you have reached the end of your dataset).",
   },
   {
     imgPath: Publish,
     textTitle: "Love Open Science",
-    text:
-      "Share the ASReview project file to enhance transparency and reproducibility.",
+    text: "Share the ASReview project file to enhance transparency and reproducibility.",
   },
 ];
 
