@@ -60,8 +60,8 @@ def read_ris(fp):
     for encoding in encodings:
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
-                mapping = _tag_key_mapping(reverse=False)
-                entries = list(rispy.load(bibliography_file, mapping=mapping))
+                #mapping = _tag_key_mapping(reverse=False)
+                entries = list(rispy.load(bibliography_file))
                 break
         except UnicodeDecodeError:
             pass
