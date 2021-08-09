@@ -8,6 +8,7 @@ import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
 import ReviewZoneComplete from "./PostReviewComponents/ReviewZoneComplete";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
+import HelpDialog from "./HelpDialog";
 import ExitDialog from "./ExitDialog";
 import WelcomeScreen from "./WelcomeScreen";
 import {
@@ -42,6 +43,7 @@ function mapDispatchToProps(dispatch) {
 const App = (props) => {
   // Dialog state
   const [settings, setSettings] = React.useState(false);
+  const [help, setHelp] = React.useState(false);
   const [exit, setExit] = React.useState(false);
   const [exportResult, setExportResult] = React.useState(false);
   const [history, setHistory] = React.useState(false);
@@ -57,6 +59,10 @@ const App = (props) => {
   // Dialog toggle
   const toggleSettings = () => {
     setSettings((a) => !a);
+  };
+
+  const toggleHelp = () => {
+    setHelp((a) => !a);
   };
 
   const toggleExit = () => {
@@ -79,6 +85,7 @@ const App = (props) => {
         <Header
           /* Handle the app review drawer */
           toggleSettings={toggleSettings}
+          toggleHelp={toggleHelp}
           toggleExit={toggleExit}
           toggleExportResult={toggleExportResult}
           toggleHistory={toggleHistory}
@@ -133,6 +140,7 @@ const App = (props) => {
         toggleKeyPressEnabled={toggleKeyPressEnabled}
         toggleUndoEnabled={toggleUndoEnabled}
       />
+      <HelpDialog onHelp={help} toggleHelp={toggleHelp} />
       <ExitDialog toggleExit={toggleExit} exit={exit} />
       <ExportDialog
         toggleExportResult={toggleExportResult}

@@ -8,14 +8,7 @@ import {
   ListItemText,
   Divider,
 } from "@material-ui/core";
-import {
-  Folder,
-  Help,
-  Feedback,
-  ExitToApp,
-  Payment,
-  Settings,
-} from "@material-ui/icons";
+import { Folder, Help, ExitToApp, Payment, Settings } from "@material-ui/icons";
 
 // local imports
 import ElasIcon from "../ElasIcon";
@@ -150,28 +143,15 @@ const MenuDrawer = (props) => {
           <ListItem
             button
             key="menu-button-help"
-            component={"a"}
-            color="inherit"
-            href="https://asreview.readthedocs.io/"
-            target="_blank"
+            onClick={() => {
+              props.setMenuDrawerState({ left: false });
+              props.toggleHelp();
+            }}
           >
             <ListItemIcon>
               <Help />
             </ListItemIcon>
             <ListItemText primary="Help" />
-          </ListItem>
-          <ListItem
-            button
-            key="menu-button-feedback"
-            component={"a"}
-            color="inherit"
-            href="https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md"
-            target="_blank"
-          >
-            <ListItemIcon>
-              <Feedback />
-            </ListItemIcon>
-            <ListItemText primary="Feedback" />
           </ListItem>
           {donateURL !== undefined && (
             <ListItem
