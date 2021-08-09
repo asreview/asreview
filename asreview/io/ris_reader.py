@@ -16,10 +16,7 @@ import logging
 
 import pandas as pd
 import rispy
-from rispy import TAG_KEY_MAPPING
-from rispy.config import LIST_TYPE_TAGS
 
-from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import standardize_dataframe
 
 
