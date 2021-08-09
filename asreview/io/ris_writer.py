@@ -40,7 +40,25 @@ def write_ris(df, fp):
     # KW - keywords
     # N1 - notes
     ########################################################
-    for i in range(0, len(records)):
+
+    # Create an array for storing modified records
+    records_new = []
+
+    # Iterate over all available records
+    for rec in records:
+
+        # Create a list to store the deepcopied record
+        rec_copy = {}
+
+        # Store the record as a deepcopy
+        rec_copy = cp.deepcopy(rec)
+
+        # Iterate over all the items for the deepcopied record
+        for k,v in rec_copy.items():
+            # Find all items with a value
+            if not pd.isnull(v):
+                # Assign the value to the key
+                rec_copy[k] = v
 
         # Check the authors
         try:
