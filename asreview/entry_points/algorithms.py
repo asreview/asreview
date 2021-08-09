@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.models.balance import list_balance_strategies
-from asreview.models import list_classifiers
+from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
 
@@ -26,7 +26,12 @@ def _format_algorithm(values, name, description):
     result = []
 
     for x in values:
-        result.append(" " * 22 + f"{x}")
+        if hasattr(x, "label"):
+            result.append(
+                " " * 22 + f"{x.name}" + " " * (16 - len(x.name)) + f"{x.label}"
+            )
+        else:
+            result.append(" " * 22 + f"{x.name}")
 
     s += "\n".join(result)
     s += "\n\n"

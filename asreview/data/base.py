@@ -322,6 +322,13 @@ class ASReviewData():
         except KeyError:
             return None
 
+    @property
+    def doi(self):
+        try:
+            return self.df[self.column_spec["doi"]].values
+        except KeyError:
+            return None
+
     def get(self, name):
         "Get column with name."
         try:

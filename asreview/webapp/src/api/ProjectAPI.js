@@ -1,28 +1,6 @@
+import { axiosErrorHandler } from "./index.js";
 import { api_url } from "../globals.js";
 import axios from "axios";
-
-const axiosErrorHandler = (error) => {
-  let api_error = {};
-
-  if (error.response) {
-    if (error.response.data["message"]) {
-      api_error["code"] = error.response["status"];
-      api_error["message"] = error.response.data["message"];
-    } else {
-      api_error["code"] = 500;
-      api_error["message"] = "Whoops, something went wrong.";
-    }
-  } else if (error.request) {
-    api_error["code"] = 503;
-    api_error["message"] =
-      "Failed to connect to server. Please restart the software.";
-  } else {
-    api_error["message"] = "Unexpected error.";
-    console.log(error);
-  }
-
-  return api_error;
-};
 
 class ProjectAPI {
   static projects() {
@@ -57,11 +35,14 @@ class ProjectAPI {
     });
   }
 
-  static info(project_id) {
+  static info(project_id, edit = false, data = null) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
-      axios
-        .get(url)
+      axios({
+        method: edit ? "put" : "get",
+        url: url,
+        data: data,
+      })
         .then((result) => {
           resolve(result);
         })
@@ -176,6 +157,20 @@ class ProjectAPI {
     });
   }
 
+  static algorithms_list() {
+    const url = api_url + `algorithms`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static algorithms(project_id, edit, data = null) {
     const url = api_url + `project/${project_id}/algorithms`;
     return new Promise((resolve, reject) => {
@@ -216,6 +211,20 @@ class ProjectAPI {
     return new Promise((resolve, reject) => {
       axios
         .get(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static clear_error(project_id) {
+    const url = api_url + `project/${project_id}/model/clear_error`;
+    return new Promise((resolve, reject) => {
+      axios
+        .delete(url)
         .then((result) => {
           resolve(result);
         })

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,12 +38,12 @@ from asreview.utils import _set_class_weight
 def _check_tensorflow():
     if not TF_AVAILABLE:
         raise ImportError(
-            "Install tensorflow package (`pip install tensorflow`) to use"
-            " 'EmbeddingIdf'.")
+            "Install tensorflow package to use"
+            " LSTM-base.")
 
 
 class LSTMBaseClassifier(BaseTrainClassifier):
-    """LSTM base classifier.
+    """LSTM-base classifier.
 
     LSTM model that consists of an embedding layer, LSTM layer with one
     output, dense layer, and a single sigmoid output node. Use the
@@ -86,6 +86,7 @@ class LSTMBaseClassifier(BaseTrainClassifier):
     """
 
     name = "lstm-base"
+    label = "LSTM classic"
 
     def __init__(self,
                  embedding_matrix=None,
@@ -236,13 +237,13 @@ def _create_lstm_base_model(embedding_matrix,
 def _get_optimizer(optimizer, lr_mult=1.0):
     "Get optimizer with correct learning rate."
     if optimizer == "sgd":
-        return optimizers.SGD(lr=0.01 * lr_mult)
+        return optimizers.SGD(learning_rate=0.01 * lr_mult)
     elif optimizer == "rmsprop":
-        return optimizers.RMSprop(lr=0.001 * lr_mult)
+        return optimizers.RMSprop(learning_rate=0.001 * lr_mult)
     elif optimizer == "adagrad":
-        return optimizers.Adagrad(lr=0.01 * lr_mult)
+        return optimizers.Adagrad(learning_rate=0.01 * lr_mult)
     elif optimizer == "adam":
-        return optimizers.Adam(lr=0.001 * lr_mult)
+        return optimizers.Adam(learning_rate=0.001 * lr_mult)
     elif optimizer == "nadam":
-        return optimizers.Nadam(lr=0.002 * lr_mult)
+        return optimizers.Nadam(learning_rate=0.002 * lr_mult)
     raise NotImplementedError

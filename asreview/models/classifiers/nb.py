@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ from asreview.models.classifiers.base import BaseTrainClassifier
 
 
 class NaiveBayesClassifier(BaseTrainClassifier):
-    """Naive Bayes classifier
+    """Naive Bayes classifier.
 
     Naive Bayes classifier. Only works in combination with the
     :class:`asreview.models.feature_extraction.Tfidf` feature extraction model.
@@ -38,6 +38,7 @@ class NaiveBayesClassifier(BaseTrainClassifier):
     """
 
     name = "nb"
+    label = "Naive Bayes"
 
     def __init__(self, alpha=3.822):
 

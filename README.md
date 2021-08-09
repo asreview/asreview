@@ -9,7 +9,7 @@
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fasreview%2Fasreview%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/asreview/asreview/goto?ref=master) [![Documentation Status](https://readthedocs.org/projects/asreview/badge/?version=latest)](https://asreview.readthedocs.io/en/latest/?badge=latest) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3345592.svg)](https://doi.org/10.5281/zenodo.3345592) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4755/badge)](https://bestpractices.coreinfrastructure.org/projects/4755)
 
 Systematic Reviews are “top of the bill” in research. The number of scientific
-studies is increasing exponentially in many scholarly fields. Performing a
+studies are increasing exponentially in many scholarly fields. Performing a
 sound systematic review is a time-consuming and sometimes boring task. The ASReview
 software is designed to accelerate the step of screening abstracts and titles
 with a minimum of papers to be read by a human with no or very few false
@@ -31,14 +31,14 @@ ASReview software implements two different modes:
 - **Simulate** :chart_with_upwards_trend: The simulation modus is used to measure
   the performance of the active learning software on the results of fully labeled systematic
   reviews. To use the simulation mode, knowledge on programming and bash/Command Prompt
-  is highly recommanded.
+  is highly recommended.
 
 ## Installation
 
 The ASReview software requires Python 3.6+. Detailed step-by-step instructions
 to install Python and ASReview are available for
 [Windows](https://asreview.nl/installation-guide-windows/) and
-[macOS](https://asreview.nl/installation-guide-mac/) users. The project is
+[macOS](https://asreview.nl/installation-guide-macos/) users. The project is
 available on [Pypi](https://pypi.org/project/asreview/). Install the project
 with (Windows users might have to use the prefix `python -m`):
 
@@ -52,6 +52,8 @@ Upgrade ASReview with the following command:
 pip install --upgrade asreview
 ```
 
+Instructions for usage with Docker are [here](docker/README.md).
+
 ## ASReview LAB
 
 ASReview LAB is a user-friendly interface for screening documents and
@@ -60,24 +62,6 @@ software in the [Quick
 Tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html).
 
 [![ASReview LAB](https://github.com/asreview/asreview/blob/master/images/ASReviewWebApp.png?raw=true)](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html "ASReview LAB Quick Tour")
-
-## Covid-19 plugin
-
-[![Covid-19 Plugin](https://github.com/asreview/asreview/blob/master/images/intro-covid19-small.png?raw=true)](https://github.com/asreview/asreview-covid19 "ASReview against COVID-19")
-
-The ASReview team developed a plugin for researchers and doctors to facilitate
-the reading of literature on the Coronavirus. The
-[plugin](https://github.com/asreview/asreview-covid19) makes the
-[CORD-19](https://pages.semanticscholar.org/coronavirus-research) dataset
-available in the ASReview software. A second database with studies published
-after December 1st 2019 is available as well (this dataset is more specific
-for publications on COVID-19).
-
-Install the plugin with the command below.
-
-```
-pip install asreview-covid19
-```
 
 ## Citation
 

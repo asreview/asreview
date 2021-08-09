@@ -8,18 +8,18 @@ Why run a simulation?
 
 Doing simulations can be a great way to assess how well ASReview performs for
 your particular purposes. The user can run simulations on previously labeled
-datasets to see how much time the user could have saved using ASReview.
+datasets to see how much time is saved by using ASReview.
 
 Doing the simulation
 --------------------
 
-The ASReview simulation mode works through the dataset exactly like an
-ASReview user would, using the inclusions and exclusions in the dataset to
+The ASReview simulation mode iterates through the dataset exactly like an
+ASReview user would, using the inclusions and exclusions as included in the dataset to
 learn in the active learning cycle. In this way, the entire screening process
 is replicated.
 
 You can use the simulation mode that is provided with the ASReview package. It
-can be accessed directly from the command line, for example:
+can be accessed directly from the command line, for example like:
 
 .. code-block:: bash
 
@@ -27,11 +27,11 @@ can be accessed directly from the command line, for example:
 
 This performs a simulation of a default active learning model, where
 ``MY_DATASET.csv`` is the path to the dataset you wish to simulate on and
-where ``myreview.h5`` is the file where the results will be stored.
+where ``myreview.h5`` is the file wherein the results will be stored.
 
 
-More detail on specific model and simulation settings can be found in the
-Simulation options section. For how to prepare your data, see
+More details on specific model and simulation settings can be found in the
+Simulation options section below. For how to prepare your data, see
 :doc:`../intro/datasets`.
 
 
@@ -61,7 +61,7 @@ performance of your review:
 	asreview plot myreview.h5
 	asreview plot DIR_WITH_MULTIPLE_SIMULATIONS
 
-For an example of results of a simulation study, see
+For an example of the results of a simulation study, see
 :doc:`simulation_study_results`.
 
 
@@ -86,7 +86,7 @@ specific set of starting papers, you can use ``--prior_idx`` to select the
 indices of the papers you want to start the simulation with.
 
 The ``--n_instances`` argument controls the number of records that have to be
-labeled before the model is retrained again and is set at 1 by default. If
+labeled before the model is retrained, and is set at 1 by default. If
 you want to reduce the number of training iterations, for example to limit the
 size of your state file and the time to simulate, you can increase
 ``--n_instances``.

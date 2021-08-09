@@ -181,8 +181,9 @@ Examples:
 
 .. option:: --n_queries N_QUERIES
 
-    The number of queries. By default, the program stops after all documents are reviewed
-    or is interrupted by the user.
+    The number of queries. Alternatively, entering :code:`min` will stop the simulation when all relevant
+    records have been found. By default, the program stops after all records are reviewed
+    or is interrupted by the user. 
 
 .. option:: -n N_PAPERS, --n_papers N_PAPERS
 
@@ -250,17 +251,21 @@ Classifiers
 Query Strategies
 ~~~~~~~~~~~~~~~~
 
-+-------------+---------------------------------------------------------+--------------+
-| Name        | Reference                                               | Requires     |
-+=============+=========================================================+==============+
-| max         | :class:`asreview.models.query.MaxQuery`                 |              |
-+-------------+---------------------------------------------------------+--------------+
-| random      | :class:`asreview.models.query.RandomQuery`              |              |
-+-------------+---------------------------------------------------------+--------------+
-| uncertainty | :class:`asreview.models.query.UncertaintyQuery`         |              |
-+-------------+---------------------------------------------------------+--------------+
-| cluster     | :class:`asreview.models.query.ClusterQuery`             |              |
-+-------------+---------------------------------------------------------+--------------+
++-----------------+---------------------------------------------------------+--------------+
+| Name            | Reference                                               | Requires     |
++=================+=========================================================+==============+
+| max             | :class:`asreview.models.query.MaxQuery`                 |              |
++-----------------+---------------------------------------------------------+--------------+
+| random          | :class:`asreview.models.query.RandomQuery`              |              |
++-----------------+---------------------------------------------------------+--------------+
+| uncertainty     | :class:`asreview.models.query.UncertaintyQuery`         |              |
++-----------------+---------------------------------------------------------+--------------+
+| cluster         | :class:`asreview.models.query.ClusterQuery`             |              |
++-----------------+---------------------------------------------------------+--------------+
+| max_random      | :class:`asreview.models.query.MaxRandomQuery`           |              |
++-----------------+---------------------------------------------------------+--------------+
+| max_uncertainty | :class:`asreview.models.query.MaxUncertaintyQuery`      |              |
++-----------------+---------------------------------------------------------+--------------+
 
 .. _balance-strategies-table:
 

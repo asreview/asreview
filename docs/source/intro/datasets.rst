@@ -4,21 +4,21 @@ Prepare your Data
 To perform a systematic review, ASReview requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
 search. To create such a dataset for a systematic review, typically an `online
-library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
+library search <https://asreview.nl/blog/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
 It is possible to use your own dataset with unlabeled, partly labeled (where
 the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-`Benchmark Datasets`_. Also, a plugin with :doc:`Corona related
-publications <../plugins/covid19>` is available.
+`Benchmark Datasets`_. Also, an extension with :doc:`Covid19 related
+publications <../extensions/extension_covid19>` is available.
 
 .. warning::
 
     If you upload your own data, make sure to remove duplicates and to
     retrieve  as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>`
     has to offer.
 
@@ -36,8 +36,8 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
- - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, ``.xlsx``,
-   or ``.xls``. CSV and TAB files are preferably comma, semicolon, or tab-delimited.
+ - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
+   CSV and TAB files are preferably comma, semicolon, or tab-delimited.
    The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
@@ -92,7 +92,7 @@ If a Digital Object Identifier ( ``DOI``) is available it will be displayed duri
 screening phase as a clickable hyperlink to the full text document. Note by
 using ASReview you do *not* automatically have access to full-text and if you do
 not have access you might want to read this `blog post
-<https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
+<https://asreview.nl/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
 **Included** A binary variable indicating the existing labeling decisions with
 ``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column

@@ -54,6 +54,18 @@ def test_nan_values_ris():
     assert as_data.record(0, by_index=True).abstract == ""
     assert as_data.record(2, by_index=True).abstract == ""
 
+    # check missing authors
+    assert as_data.record(0, by_index=True).authors is None
+    assert as_data.record(2, by_index=True).authors is None
+
+    # check missing keywords
+    assert as_data.record(0, by_index=True).keywords is None
+    assert as_data.record(2, by_index=True).keywords is None
+
+    # check missing doi
+    assert as_data.record(0, by_index=True).doi is None
+    assert as_data.record(2, by_index=True).doi is None
+
 
 def test_nan_values_csv():
 
@@ -67,6 +79,18 @@ def test_nan_values_csv():
     # check missing abstracts
     assert as_data.record(0, by_index=True).abstract == ""
     assert as_data.record(2, by_index=True).abstract == ""
+
+    # check missing authors
+    assert as_data.record(0, by_index=True).authors is None
+    assert as_data.record(2, by_index=True).authors is None
+
+    # check missing keywords
+    assert as_data.record(0, by_index=True).keywords is None
+    assert as_data.record(2, by_index=True).keywords is None
+
+    # check missing doi
+    assert as_data.record(0, by_index=True).doi is None
+    assert as_data.record(2, by_index=True).doi is None
 
 
 def test_csv_write_data():

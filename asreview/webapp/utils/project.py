@@ -14,6 +14,7 @@
 
 import json
 import os
+import re
 import shutil
 import zipfile
 import tempfile
@@ -36,6 +37,7 @@ from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import read_proba
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
+from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
@@ -109,6 +111,50 @@ def init_project(project_id,
         # remove all generated folders and raise error
         shutil.rmtree(get_project_path())
         raise err
+
+
+def update_project_info(project_id,
+                        project_name=None,
+                        project_description=None,
+                        project_authors=None):
+    '''Update project info'''
+
+    project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+
+    if not project_id_new and not isinstance(project_id_new, str) \
+            and len(project_id_new) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
+
+    if (project_id != project_id_new) & is_project(project_id_new):
+        raise ValueError("Project name already exists.")
+
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+
+        project_info["id"] = project_id_new
+        project_info["name"] = project_name
+        project_info["authors"] = project_authors
+        project_info["description"] = project_description
+
+        # # backwards support <0.10
+        # if "projectInitReady" not in project_info:
+        #     project_info["projectInitReady"] = True
+
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
+
+        # rename the folder
+        get_project_path(project_id) \
+            .rename(Path(asreview_path(), project_id_new))
+
+    except Exception as err:
+        raise err
+
+    return project_info["id"]
 
 
 def import_project_file(file_name):
@@ -321,29 +367,16 @@ def clean_all_project_tmp_files():
 
 def get_paper_data(project_id,
                    paper_id,
-                   return_title=True,
-                   return_authors=True,
-                   return_abstract=True,
                    return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
     record = as_data.record(int(paper_id), by_index=False)
 
     paper_data = {}
-    if return_title and record.title is not None:
-        paper_data['title'] = record.title
-    if return_authors and record.authors is not None:
-        paper_data['authors'] = record.authors
-    if return_abstract and record.abstract is not None:
-        paper_data['abstract'] = record.abstract
-
-    # return the publication data if available
-    pub_time = record.extra_fields.get("publish_time", None)
-    paper_data['publish_time'] = pub_time if pd.notnull(pub_time) else None
-
-    # return the doi if available
-    doi = record.extra_fields.get("doi", None)
-    paper_data['doi'] = doi if pd.notnull(doi) else None
+    paper_data['title'] = record.title
+    paper_data['authors'] = record.authors
+    paper_data['abstract'] = record.abstract
+    paper_data['doi'] = record.doi
 
     # return the debug label
     debug_label = record.extra_fields.get("debug_label", None)
