@@ -854,7 +854,7 @@ def export_results(project_id):
                 "Content-disposition":
                 f"attachment; filename=asreview_result_{project_id}.ris"
             })
-        
+
     else:
         raise TypeError("File type should be: .csv/.tsv/.xlsx/.ris")
 
