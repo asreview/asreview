@@ -77,7 +77,6 @@ def create_app(**kwargs):
     )
 
     # Get the ASReview arguments.
-    kwargs.pop("dataset", None)
     app.config['asr_kwargs'] = kwargs
 
     # Ensure the instance folder exists.
@@ -148,11 +147,7 @@ def main(argv):
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
 
-    app = create_app(
-        embedding_fp=args.embedding_fp,
-        config_file=args.config_file,
-        seed=args.seed
-    )
+    app = create_app(embedding_fp=args.embedding_fp)
     app.config['PROPAGATE_EXCEPTIONS'] = False
 
     # ssl certificate, key and protocol

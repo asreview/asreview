@@ -53,7 +53,6 @@ from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
-from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.paths import get_lock_path
 from asreview.webapp.utils.paths import get_proba_path
 from asreview.webapp.utils.paths import get_project_file_path
@@ -200,16 +199,6 @@ def api_get_project_info(project_id):  # noqa: F401
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False
-
-        # check if there is a prior knowledge (check if there is a model set),
-        # if this is the case, the reviewer past the prior knowledge screen.
-        project_info["projectHasPriorKnowledge"] = \
-            get_kwargs_path(project_id).exists()
-
-        # check if there is a prior knowledge (check if there is a model set),
-        # if this is the case, the reviewer past the prior knowledge screen.
-        project_info["projectHasAlgorithms"] = \
-            get_kwargs_path(project_id).exists()
 
         # backwards support <0.10
         if "projectInitReady" not in project_info:
@@ -654,9 +643,9 @@ def api_get_algorithms(project_id):  # noqa: F401
 
     # check if there is a kwargs file
     try:
-        # open the projects file
-        with open(get_kwargs_path(project_id), "r") as f_read:
-            kwargs_dict = json.load(f_read)
+
+        # TODO: load from state file or project file when returning to setup
+        raise FileNotFoundError
 
     except FileNotFoundError:
         # set the kwargs dict to setup kwargs
@@ -675,37 +664,40 @@ def api_get_algorithms(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/algorithms', methods=["POST"])
 def api_set_algorithms(project_id):  # noqa: F401
 
-    # check if there is a kwargs file
-    try:
-        # open the projects file
-        with open(get_kwargs_path(project_id), "r") as f_read:
-            kwargs_dict = json.load(f_read)
+    # # check if there is a kwargs file
+    # try:
+    #     # open the projects file
+    #     with open(get_kwargs_path(project_id), "r") as f_read:
+    #         kwargs_dict = json.load(f_read)
 
-    except FileNotFoundError:
-        # set the kwargs dict to setup kwargs
-        kwargs_dict = deepcopy(app.config['asr_kwargs'])
-        kwargs_dict = deepcopy(app.config['asr_kwargs'])
-        kwargs_dict["model"] = DEFAULT_MODEL
-        kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
-        kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
-        kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
-        kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
+    # except FileNotFoundError:
+    #     # set the kwargs dict to setup kwargs
+    #     kwargs_dict = deepcopy(app.config['asr_kwargs'])
+    #     kwargs_dict = deepcopy(app.config['asr_kwargs'])
+    #     kwargs_dict["model"] = DEFAULT_MODEL
+    #     kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
+    #     kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
+    #     kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
+    #     kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
 
-    # add the machine learning model to the kwargs
-    # TODO@{Jonathan} validate model choice on server side
-    ml_model = request.form.get("model", None)
-    ml_query_strategy = request.form.get("query_strategy", None)
-    ml_feature_extraction = request.form.get("feature_extraction", None)
-    if ml_model:
-        kwargs_dict["model"] = ml_model
-    if ml_query_strategy:
-        kwargs_dict["query_strategy"] = ml_query_strategy
-    if ml_feature_extraction:
-        kwargs_dict["feature_extraction"] = ml_feature_extraction
+    # # add the machine learning model to the kwargs
+    # # TODO@{Jonathan} validate model choice on server side
+    # ml_model = request.form.get("model", None)
+    # ml_query_strategy = request.form.get("query_strategy", None)
+    # ml_feature_extraction = request.form.get("feature_extraction", None)
+    # if ml_model:
+    #     kwargs_dict["model"] = ml_model
+    # if ml_query_strategy:
+    #     kwargs_dict["query_strategy"] = ml_query_strategy
+    # if ml_feature_extraction:
+    #     kwargs_dict["feature_extraction"] = ml_feature_extraction
 
-    # write the kwargs to a file
-    with open(get_kwargs_path(project_id), "w") as f_write:
-        json.dump(kwargs_dict, f_write)
+    # # write the kwargs to a file
+    # with open(get_kwargs_path(project_id), "w") as f_write:
+    #     json.dump(kwargs_dict, f_write)
+
+    # TODO{statev3} store those settings in the project file or metadata file
+    # TODO{state3} remove kwargs code
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
