@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Grid,
-  Paper,
-  Typography,
-} from '@material-ui/core';
+import React from "react";
+import { Grid, Paper, Typography } from "@material-ui/core";
 // import BuildIcon from '@material-ui/icons/Build';
 // import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 // import ArchiveIcon from '@material-ui/icons/Archive';
 
-import { makeStyles } from '@material-ui/core/styles';
-
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,19 +22,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProjectStatusGraphic = (props) => {
-
   const classes = useStyles();
 
-  const [statusCount, setStatusCount] = useState({
-    setup: null,
-    inReview: null,
-    finished: null,
-  });
+  // const [statusCount, setStatusCount] = useState({
+  //   setup: null,
+  //   inReview: null,
+  //   finished: null,
+  // });
 
   // useEffect(() => {
   //   if (props.projects["projects"].length) {
   //     props.projects["projects"].map((project) => {
-        
+
   //     })
   //   }
   // });
@@ -55,9 +49,7 @@ const ProjectStatusGraphic = (props) => {
               <Typography variant="h4" style={{ fontWeight: "bold" }}>
                 3
               </Typography>
-              <Typography>
-                Setup
-              </Typography>
+              <Typography>Setup</Typography>
             </div>
           </Paper>
         </Grid>
@@ -67,9 +59,7 @@ const ProjectStatusGraphic = (props) => {
               <Typography variant="h4" style={{ fontWeight: "bold" }}>
                 5
               </Typography>
-              <Typography>
-                In Review
-              </Typography>
+              <Typography>In Review</Typography>
             </div>
           </Paper>
         </Grid>
@@ -79,9 +69,7 @@ const ProjectStatusGraphic = (props) => {
               <Typography variant="h4" style={{ fontWeight: "bold" }}>
                 1
               </Typography>
-              <Typography>
-                Finished
-              </Typography>
+              <Typography>Finished</Typography>
             </div>
           </Paper>
         </Grid>

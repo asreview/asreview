@@ -118,9 +118,7 @@ const Projects = (props) => {
   return (
     <Box>
       <Container maxWidth="md" className={classes.root}>
-        <ProjectStatusGraphic 
-          projects={projects}
-        />
+        <ProjectStatusGraphic projects={projects} />
       </Container>
       <Container maxWidth="md" className={classes.root}>
         {error["message"] !== null && (
