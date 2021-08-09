@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { Box } from "@material-ui/core";
+import { Box, Link } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 
 import ErrorHandler from "../ErrorHandler";
@@ -82,9 +82,19 @@ const ExplorationAlert = (props) => {
     <div className={classes.alertFullWidth}>
       <Alert severity="warning">
         <AlertTitle>
-          Exploration Mode - You are screening through a manually pre-labeled
-          dataset.
+          You are screening through a manually pre-labeled dataset
         </AlertTitle>
+        <div>
+          Relevant documents are displayed in green. Read more about
+          <Link
+            className={classes.link}
+            href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
+            target="_blank"
+          >
+            Exploration Mode
+          </Link>
+          .
+        </div>
       </Alert>
     </div>
   );
@@ -341,8 +351,7 @@ const ReviewZone = (props) => {
         {error.message === null && recordState["isloaded"] && (
           <ArticlePanel
             record={recordState["record"]}
-            showAuthors={props.showAuthors}
-            textSize={props.textSize}
+            fontSize={props.fontSize}
           />
         )}
 

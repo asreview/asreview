@@ -1,11 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Box from "@material-ui/core/Box";
-import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
-import Chip from "@material-ui/core/Chip";
-import Avatar from "@material-ui/core/Avatar";
+import { Box, Container, Typography, Link } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   boxFullWidth: {
@@ -41,19 +36,20 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     bottom: 0,
   },
-  chipLabel: {
-    paddingBottom: theme.spacing(2.5),
-  }
 }));
 
 const ArticlePanel = (props) => {
   const classes = useStyles();
 
+  const isDebugInclusion = () => {
+    return props.record._debug_label === 1;
+  };
+
   return (
     <Container maxWidth="md" className={classes.boxFullWidth}>
       {/* Show the title */}
       <Typography
-        className={classes.title}
+        className={isDebugInclusion() ? classes.titleDebug : classes.title}
         variant="h5"
         color="textSecondary"
         component="div"
@@ -61,14 +57,14 @@ const ArticlePanel = (props) => {
       >
         {/* No title, inplace text */}
         {(props.record.title === "" || props.record.title === null) && (
-          <Box className={"textSize" + props.textSize} fontStyle="italic">
+          <Box className={"fontSize" + props.fontSize.label} fontStyle="italic">
             This document doesn't have a title.
           </Box>
         )}
 
         {/* No title, inplace text */}
         {!(props.record.title === "" || props.record.title === null) && (
-          <Box className={"textSize" + props.textSize}>
+          <Box className={"fontSize" + props.fontSize.label}>
             {props.record.title}
           </Box>
         )}
@@ -80,7 +76,11 @@ const ArticlePanel = (props) => {
         props.record.publish_time === null
       ) && (
         <Typography
-          className={classes.publish_time + " textSize" + props.textSize}
+          className={
+            (isDebugInclusion() ? classes.debug : classes.publish_time) +
+            " fontSize" +
+            props.fontSize.label
+          }
           color="textSecondary"
           component="p"
           fontStyle="italic"
@@ -93,7 +93,11 @@ const ArticlePanel = (props) => {
       {/* Show the publication date if available */}
       {!(props.record.doi === undefined || props.record.doi === null) && (
         <Typography
-          className={classes.doi + " textSize" + props.textSize}
+          className={
+            (isDebugInclusion() ? classes.debug : classes.doi) +
+            " fontSize" +
+            props.fontSize.label
+          }
           color="textSecondary"
           component="p"
           fontStyle="italic"
@@ -111,21 +115,13 @@ const ArticlePanel = (props) => {
         </Typography>
       )}
 
-      {/* Flag for Exploration mode */}
-      {props.record._debug_label === 1 && (
-        <Typography className={classes.chipLabel}>
-          <Chip label="Relevant" avatar={<Avatar>R</Avatar>} color="primary"/>
-        </Typography>
-      )}
-      {props.record._debug_label === 0 && (
-        <Typography className={classes.chipLabel}>
-          <Chip label="Irrelevant" avatar={<Avatar>I</Avatar>} color="secondary"/>
-        </Typography>
-      )}
-
       {/* Show the abstract */}
       <Typography
-        className={classes.abstract + " textSize" + props.textSize}
+        className={
+          (isDebugInclusion() ? classes.debug : classes.abstract) +
+          " fontSize" +
+          props.fontSize.label
+        }
         variant="body2"
         color="textSecondary"
         component="div"
