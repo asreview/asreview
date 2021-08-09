@@ -109,7 +109,7 @@ const HelpDialog = (props) => {
           <List>
             <ListItem>
               <Typography className={classes.subhead} display="block">
-                <b>Frequently asked questions</b>
+                <b>Frequently Asked Questions</b>
               </Typography>
             </ListItem>
             {faq &&
