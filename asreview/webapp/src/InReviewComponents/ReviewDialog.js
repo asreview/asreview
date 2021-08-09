@@ -88,6 +88,15 @@ const ReviewDialog = (props) => {
   });
 
   /**
+   * Record note state
+   */
+  const [recordNote, setRecordNote] = useState({
+    expand: false,
+    saved: true,
+    data: null,
+  });
+
+  /**
    * Side statistics state
    */
   const [sideSheet, setSideSheet] = useState(true);
@@ -122,6 +131,7 @@ const ReviewDialog = (props) => {
   const relevantPress = useKeyPress("r");
   const irrelevantPress = useKeyPress("i");
   const undoPress = useKeyPress("u");
+  const notePress = useKeyPress("n");
 
   /**
    * Current record state change
@@ -131,6 +141,11 @@ const ReviewDialog = (props) => {
       isloaded: false,
       record: null,
       selection: null,
+    });
+    setRecordNote({
+      expand: false,
+      saved: true,
+      data: null,
     });
   };
   const loadPreviousRecordState = () => {
@@ -350,7 +365,7 @@ const ReviewDialog = (props) => {
    * Use keyboard shortcuts
    */
   useEffect(() => {
-    if (props.keyPressEnabled) {
+    if (props.keyPressEnabled && !recordNote.expand) {
       if (relevantPress && recordState.isloaded) {
         makeDecision(1);
       }
@@ -360,9 +375,18 @@ const ReviewDialog = (props) => {
       if (undoPress && undoState.open && props.undoEnabled) {
         undoDecision();
       }
+      if (notePress && recordState.isloaded && recordNote.saved) {
+        setRecordNote((s) => {
+          return {
+            ...s,
+            expand: true,
+            saved: false,
+          };
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [relevantPress, irrelevantPress, undoPress]);
+  }, [relevantPress, irrelevantPress, undoPress, notePress]);
 
   return (
     <div className={classes.root}>
@@ -398,6 +422,8 @@ const ReviewDialog = (props) => {
         >
           <RecordCard
             record={recordState["record"]}
+            recordNote={recordNote}
+            setRecordNote={setRecordNote}
             isloaded={recordState["isloaded"]}
             fontSize={props.fontSize}
           />
