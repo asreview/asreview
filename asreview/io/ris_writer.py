@@ -96,11 +96,18 @@ def write_ris(df, fp):
 
         # Append the deepcopied and updated record to a new array
         records_new.append(rec_copy)
+
+    # print("Records to be sent to rispy are:\n", records_new)
+
+    # From buffered dataframe
     if fp is None:
         # Export the RIS file from the buffer
-        return rispy.dumps(records)
-    # IO dataframe
+        # return rispy.dumps(records_new, skip_unknown_tags=True)
+        return rispy.dumps(records_new)
+
+    # From IO dataframe
     else:
         # Export the RIS file on the path
         with open(fp, "w") as fp:
-            rispy.dump(records, fp)
+            # rispy.dump(records_new, fp, skip_unknown_tags=True)
+            rispy.dump(records_new, fp)
