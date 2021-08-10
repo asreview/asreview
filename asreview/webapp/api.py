@@ -88,6 +88,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_SIMULATE
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
@@ -232,36 +233,10 @@ def api_update_project_info(project_id):  # noqa: F401
 
     project_id_new = update_project_info(
         project_id,
+        project_mode=project_mode,
         project_name=project_name,
         project_description=project_description,
         project_authors=project_authors)
-
-    return jsonify(id=project_id_new)
-
-
-        project_info["id"] = project_id_new
-        project_info["name"] = project_name
-        project_info["mode"] = project_mode
-        project_info["authors"] = project_authors
-        project_info["description"] = project_description
-
-        # # backwards support <0.10
-        # if "projectInitReady" not in project_info:
-        #     project_info["projectInitReady"] = True
-
-        # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_info, fp)
-
-        # rename the folder
-        get_project_path(project_id) \
-            .rename(Path(asreview_path(), project_id_new))
-
-    except Exception as err:
-        logging.error(err)
-        response = jsonify(message="project-update-failure")
-
-        return response, 500
 
     return api_get_project_info(project_id_new)
 
@@ -386,20 +361,22 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
-        data_path = get_data_path(project_id) / filename
-        data_path_csv = data_path.with_suffix('.csv')
+        data_path_raw = get_data_path(project_id) / filename
+        data_path = data_path_raw.with_suffix('.csv')
 
-        data = ASReviewData.from_file(data_path)
+        data = ASReviewData.from_file(data_path_raw)
         data.df.rename(
             {data.column_spec["included"]: "debug_label"},
             axis=1,
             inplace=True
         )
-        data.to_csv(data_path_csv)
+        data.to_csv(data_path)
+    else:
+        data_path = get_data_path(project_id) / filename
 
     try:
         # add the file to the project
-        add_dataset_to_project(project_id, data_path_csv.name)
+        add_dataset_to_project(project_id, data_path.name)
 
     # Bad format. TODO{Jonathan} Return informative message with link.
     except BadFileFormatError as err:
@@ -731,7 +708,8 @@ def api_start(project_id):  # noqa: F401
 
     project_config = get_project_config(project_id)
 
-    if project_config["mode"] == "simulate":
+    # the project is a simulation project
+    if project_config["mode"] == PROJECT_MODE_SIMULATE:
 
         logging.info("Starting simulation")
 
@@ -758,6 +736,8 @@ def api_start(project_id):  # noqa: F401
             logging.error(err)
             message = f"Failed to get data file. {err}"
             return jsonify(message=message), 400
+
+    # the project is an oracle or explore project
     else:
 
         logging.info("Train first iteration of model")
@@ -786,26 +766,14 @@ def api_init_model_ready(project_id):  # noqa: F401
 
     project_config = get_project_config(project_id)
 
-    if project_config["mode"] == "simulate":
-        logging.info("checking if simulation is ready?")
+    if project_config["mode"] == PROJECT_MODE_SIMULATE:
+        logging.info("checking if simulation is ready")
 
         simulation_id = project_config["simulations"][0]["id"]
 
         if get_simulation_ready_path(project_id, simulation_id).exists():
             logging.info("simulation ready")
             update_simulation_in_project(project_id, simulation_id, "ready")
-
-            # read the file with project info
-            with open(get_project_file_path(project_id), "r") as fp:
-                project_info = json.load(fp)
-
-        # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
-            json.dump(project_info, fp)
-
-        response = jsonify({'status': 1})
-    else:
-        response = jsonify({'status': 0})
 
             response = jsonify({'status': 1})
         else:
