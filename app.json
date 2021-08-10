@@ -1,0 +1,26 @@
+{
+    "name": "ASReview",
+    "description": "Active learning for Systematic Reviews",
+    "keywords": [
+        "active learning",
+        "systematic reviews"
+    ],
+    "website": "https://asreview.nl/",
+    "repository": "https://github.com/asreview/asreview/docker/asreview-lab/",
+    "logo": "https://github.com/asreview/asreview/blob/master/images/RepoCardGithub-1280x640px.png",
+    "stack": "container",
+    "env": {
+        "ASREVIEW_ONE_CLICK_DEPLOY": {
+            "description": "ASReview One Click Deploy Environmental Flag",
+            "value": "1",
+            "required": false
+        }
+    },
+    "options": {
+        "allow-unauthenticated": false,
+        "memory": "512Mi",
+        "cpu": "2",
+        "port": "80",
+        "http2": false
+    }
+}
