@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
@@ -6,10 +7,16 @@ import {
   CardContent,
   CircularProgress,
   Grid,
+  IconButton,
+  Slide,
+  Tooltip,
   Typography,
   Link,
 } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
+import { NoteOutlined, NoteAddOutlined } from "@material-ui/icons";
+
+import { NoteSheet } from "../InReviewComponents";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,12 +41,16 @@ const useStyles = makeStyles((theme) => ({
   },
   recordGrid: {
     flexGrow: 1,
+    height: "calc(100% - 181px)",
+    overflowY: "scroll",
+  },
+  recordGridWithAlert: {
+    flexGrow: 1,
+    height: "calc(100% - 229px)",
     overflowY: "scroll",
   },
   recordCard: {
     border: "none",
-    borderBottomRightRadius: 4,
-    borderBottomLeftRadius: 4,
     height: "100%",
     overflowY: "scroll",
   },
@@ -56,6 +67,19 @@ const useStyles = makeStyles((theme) => ({
   },
   authors: {
     fontWeight: "bolder",
+  },
+  actionsCard: {
+    border: "none",
+    borderBottomRightRadius: 4,
+    borderBottomLeftRadius: 4,
+    padding: 8,
+  },
+  actions: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+  slideNote: {
+    overflowY: "hidden",
   },
   circularProgressGrid: {
     height: "inherit",
@@ -76,6 +100,32 @@ const RecordCard = (props) => {
     if (props.record) {
       return props.record._debug_label === 1;
     }
+  };
+
+  const toggleNoteSheet = () => {
+    props.setRecordNote((s) => {
+      return {
+        ...s,
+        expand: !props.recordNote.expand,
+        saved: false,
+      };
+    });
+  };
+
+  const onChangeNote = (event) => {
+    props.setRecordNote({
+      ...props.recordNote,
+      data: event.target.value,
+    });
+  };
+
+  const noteSaved = () => {
+    props.setRecordNote((s) => {
+      return {
+        ...s,
+        saved: true,
+      };
+    });
   };
 
   return (
@@ -100,7 +150,12 @@ const RecordCard = (props) => {
       )}
 
       {props.isloaded && (
-        <Grid item className={classes.recordGrid}>
+        <Grid
+          item
+          className={clsx(classes.recordGrid, {
+            [classes.recordGridWithAlert]: isDebugInclusion(),
+          })}
+        >
           <Card className={classes.recordCard} square variant="outlined">
             <CardContent>
               {/* Show the title */}
@@ -196,6 +251,43 @@ const RecordCard = (props) => {
                 ) && <Box>{props.record.abstract}</Box>}
               </Typography>
             </CardContent>
+          </Card>
+        </Grid>
+      )}
+
+      <div className={classes.slideNote}>
+        <Slide
+          direction="up"
+          in={props.recordNote.expand}
+          onExited={noteSaved}
+          mountOnEnter
+          unmountOnExit
+        >
+          <Grid item>
+            <NoteSheet
+              note={props.recordNote["data"]}
+              noteSaved={noteSaved}
+              onChangeNote={onChangeNote}
+              toggleNoteSheet={toggleNoteSheet}
+            />
+          </Grid>
+        </Slide>
+      </div>
+
+      {props.isloaded && props.recordNote.saved && (
+        <Grid item>
+          <Card className={classes.actionsCard} square variant="outlined">
+            <div className={classes.actions}>
+              <Tooltip title={props.recordNote["data"] ? "Note" : "Add note"}>
+                <IconButton aria-label="add note" onClick={toggleNoteSheet}>
+                  {props.recordNote["data"] ? (
+                    <NoteOutlined />
+                  ) : (
+                    <NoteAddOutlined />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </div>
           </Card>
         </Grid>
       )}
