@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
 import {
   Box,
   CircularProgress,
@@ -11,12 +9,16 @@ import {
   Paper,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@material-ui/core";
+import Pagination from "@material-ui/lab/Pagination";
 import {
   KeyboardArrowLeft,
   KeyboardArrowRight,
   Refresh,
 } from "@material-ui/icons";
+
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 
 import SwipeableViews from "react-swipeable-views";
 
@@ -51,8 +53,21 @@ const useStyles = makeStyles((theme) => ({
   textLabel: {
     width: 105,
   },
+  chart: {
+    overflow: "hidden",
+  },
+  chartPage: {
+    "& > *": {
+      justifyContent: "center",
+      "& > *": {
+        paddingLeft: 8,
+        paddingRight: 8,
+      },
+    },
+  },
   chartStepper: {
     background: "inherit",
+    justifyContent: "center",
     padding: 0,
   },
   notAvailable: {
@@ -76,6 +91,8 @@ const useStyles = makeStyles((theme) => ({
 
 const StatisticsZone = (props) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const mobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [statistics, setStatistics] = useState(null);
   const [activeChart, setActiveChart] = React.useState(0);
@@ -90,6 +107,10 @@ const StatisticsZone = (props) => {
 
   const handleChartChange = (chart) => {
     setActiveChart(chart);
+  };
+
+  const handleChartPageChange = (event, page) => {
+    setActiveChart(page - 1);
   };
 
   const handleNextChart = () => {
@@ -257,38 +278,35 @@ const StatisticsZone = (props) => {
                     index={activeChart}
                     onChangeIndex={handleChartChange}
                   >
-                    <div>
+                    <div className={classes.chart}>
                       <ProgressAreaChart history={history} />
                     </div>
-                    <div>
+                    <div className={classes.chart}>
                       <ProgressLineChart efficiency={efficiency} />
                     </div>
                   </SwipeableViews>
-                  <MobileStepper
-                    className={classes.chartStepper}
-                    variant="dots"
-                    steps={2}
-                    position="static"
-                    activeStep={activeChart}
-                    nextButton={
-                      <IconButton
-                        size="small"
-                        onClick={handleNextChart}
-                        disabled={activeChart === 1}
-                      >
-                        <KeyboardArrowRight />
-                      </IconButton>
-                    }
-                    backButton={
-                      <IconButton
-                        size="small"
-                        onClick={handleBackChart}
-                        disabled={activeChart === 0}
-                      >
-                        <KeyboardArrowLeft />
-                      </IconButton>
-                    }
-                  />
+                  {!mobile && (
+                    <Pagination
+                      className={classes.chartPage}
+                      color="primary"
+                      count={2}
+                      hidePrevButton
+                      hideNextButton
+                      onChange={handleChartPageChange}
+                      page={activeChart + 1}
+                      size="small"
+                      variant="outlined"
+                    />
+                  )}
+                  {mobile && (
+                    <MobileStepper
+                      className={classes.chartStepper}
+                      variant="dots"
+                      steps={2}
+                      position="static"
+                      activeStep={activeChart}
+                    />
+                  )}
                 </div>
               </Grid>
             </Grid>
