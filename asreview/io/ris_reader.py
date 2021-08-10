@@ -47,7 +47,7 @@ def read_ris(fp):
     Raises
     ------
     ValueError
-        when a file with unrecognised encoding is used as input.
+        File with unrecognized encoding is used as input.
     """
 
     encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
