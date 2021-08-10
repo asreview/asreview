@@ -12,11 +12,7 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import Pagination from "@material-ui/lab/Pagination";
-import {
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
-  Refresh,
-} from "@material-ui/icons";
+import { Refresh } from "@material-ui/icons";
 
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 
@@ -29,6 +25,9 @@ import { ProjectAPI } from "./api/index.js";
 const useStyles = makeStyles((theme) => ({
   title: {
     margin: "32px 12px 12px 12px",
+    // display: "inline-flex",
+    // alignItems: "center",
+    // marginBottom: 0,
   },
   continuButton: {
     marginTop: "24px",
@@ -113,14 +112,6 @@ const StatisticsZone = (props) => {
     setActiveChart(page - 1);
   };
 
-  const handleNextChart = () => {
-    setActiveChart((prevActiveChart) => prevActiveChart + 1);
-  };
-
-  const handleBackChart = () => {
-    setActiveChart((prevActiveChart) => prevActiveChart - 1);
-  };
-
   const handleClickRetry = () => {
     setError({
       error: false,
@@ -196,9 +187,14 @@ const StatisticsZone = (props) => {
 
   return (
     <Box>
-      <Typography variant="h6" className={classes.title}>
-        Statistics
-      </Typography>
+      <div className={classes.title}>
+        <Typography variant="h6">Statistics</Typography>
+        {/*
+        <IconButton>
+          <InfoOutlined fontSize="small" />
+        </IconButton>
+      */}
+      </div>
 
       <Paper className={classes.paper}>
         {(error.statistics !== null ||
