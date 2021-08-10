@@ -11,6 +11,11 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
+// project state color
+export const setupColor = "#706f6f";
+export const inReviewColor = "#aa6600";
+export const finishedColor = "#415f38";
+
 // algorithm settings configs
 export const defaultAlgorithms = {
   model: "nb",
