@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/core/styles";
-import { Box, Link } from "@material-ui/core";
-import { Alert, AlertTitle } from "@material-ui/lab";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import {
+  Dialog,
+  DialogContent,
+  DialogActions,
+  useMediaQuery,
+} from "@material-ui/core";
 
+import { AppBarWithinDialog } from "../Components";
+import {
+  DecisionButton,
+  DecisionUndoBar,
+  ExplorationModeBanner,
+  RecordCard,
+  StatsSheet,
+} from "../InReviewComponents";
 import ErrorHandler from "../ErrorHandler";
-import ReviewDrawer from "./ReviewDrawer";
-import ArticlePanel from "./ArticlePanel";
-import DecisionBar from "./DecisionBar";
-import DecisionUndoBar from "./DecisionUndoBar";
 import { useKeyPress } from "../hooks/useKeyPress";
 
 import { ProjectAPI } from "../api/index.js";
 
 import { connect } from "react-redux";
 
-import { reviewDrawerWidth } from "../globals.js";
-
-// redux config
-import { toggleReviewDrawer } from "../redux/actions";
+import { statsSheetWidth } from "../globals.js";
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+  },
   box: {
     paddingBottom: 30,
     overflowY: "auto",
@@ -38,22 +46,7 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    marginRight: reviewDrawerWidth,
-  },
-  link: {
-    paddingLeft: "3px",
-  },
-}));
-
-const useStylesAlert = makeStyles((theme) => ({
-  alertFullWidth: {
-    width: "100%",
-    overflowY: "auto",
-  },
-  alertWithDrawer: {
-    width: "100%",
-    overflowY: "auto",
-    paddingRight: reviewDrawerWidth,
+    marginRight: statsSheetWidth,
   },
   link: {
     paddingLeft: "3px",
@@ -63,69 +56,42 @@ const useStylesAlert = makeStyles((theme) => ({
 const mapStateToProps = (state) => {
   return {
     project_id: state.project_id,
-    reviewDrawerOpen: state.reviewDrawerOpen,
   };
 };
 
-function mapDispatchToProps(dispatch) {
-  return {
-    toggleReviewDrawer: () => {
-      dispatch(toggleReviewDrawer());
-    },
-  };
-}
-
-const ExplorationAlert = (props) => {
-  const classes = useStylesAlert();
-
-  return (
-    <div className={classes.alertFullWidth}>
-      <Alert severity="warning">
-        <AlertTitle>
-          You are screening through a manually pre-labeled dataset
-        </AlertTitle>
-        <div>
-          Relevant documents are displayed in green. Read more about
-          <Link
-            className={classes.link}
-            href="https://asreview.readthedocs.io/en/latest/lab/exploration.html"
-            target="_blank"
-          >
-            Exploration Mode
-          </Link>
-          .
-        </div>
-      </Alert>
-    </div>
-  );
-};
-
-const ReviewZone = (props) => {
+const ReviewDialog = (props) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const mobile = !useMediaQuery(theme.breakpoints.up("sm"));
 
-  const [recordState, setRecordState] = React.useState({
+  /**
+   * Exploration mode banner state
+   */
+  const [explorationMode, setExplorationMode] = useState(false);
+  const [banner, setBanner] = useState(false);
+
+  /**
+   * Record state
+   */
+  const [recordState, setRecordState] = useState({
     isloaded: false,
     record: null,
     selection: null,
   });
-
+  const [previousRecordState, setPreviousRecordState] = useState({
+    record: null,
+    decision: null,
+  });
   const [error, setError] = useState({
     code: null,
     message: null,
   });
 
-  const [sideStatsError, setSideStatsError] = useState(false);
-
-  const [undoState, setUndoState] = useState({
-    open: false,
-    message: null,
-  });
-
-  const [previousRecordState, setPreviousRecordState] = useState({
-    record: null,
-    decision: null,
-  });
-
+  /**
+   * Side statistics state
+   */
+  const [sideSheet, setSideSheet] = useState(true);
+  const [sideSheetError, setSideSheetError] = useState(false);
   const [statistics, setStatistics] = useState({
     name: null,
     authors: null,
@@ -137,26 +103,36 @@ const ReviewZone = (props) => {
     n_pool: null,
   });
 
+  /**
+   * Review history state
+   */
   const [history, setHistory] = useState([]);
 
+  /**
+   * Undo bar state
+   */
+  const [undoState, setUndoState] = useState({
+    open: false,
+    message: null,
+  });
+
+  /**
+   * Keyboard shortcuts hooks
+   */
   const relevantPress = useKeyPress("r");
   const irrelevantPress = useKeyPress("i");
   const undoPress = useKeyPress("u");
 
-  const storeRecordState = (label) => {
-    setPreviousRecordState({
-      record: recordState.record,
-      decision: label,
-    });
-  };
-
-  const resetPreviousRecordState = () => {
-    setPreviousRecordState({
+  /**
+   * Current record state change
+   */
+  const startLoadingNewDocument = () => {
+    setRecordState({
+      isloaded: false,
       record: null,
-      decision: null,
+      selection: null,
     });
   };
-
   const loadPreviousRecordState = () => {
     setRecordState({
       isloaded: true,
@@ -165,14 +141,38 @@ const ReviewZone = (props) => {
     });
   };
 
-  const startLoadingNewDocument = () => {
-    setRecordState({
-      isloaded: false,
+  /**
+   * Previous record state change
+   */
+  const storeRecordState = (label) => {
+    setPreviousRecordState({
+      record: recordState.record,
+      decision: label,
+    });
+  };
+  const resetPreviousRecordState = () => {
+    setPreviousRecordState({
       record: null,
-      selection: null,
+      decision: null,
     });
   };
 
+  /**
+   * Side statistics toggle
+   */
+  const toggleSideSheet = () => {
+    setSideSheet((a) => !a);
+  };
+
+  /**
+   * Undo bar handler
+   */
+  const showUndoBar = (message) => {
+    setUndoState({
+      open: true,
+      message: message,
+    });
+  };
   const showUndoBarIfNeeded = (label, initial) => {
     if (props.undoEnabled) {
       const mark = label === 0 ? "irrelevant" : "relevant";
@@ -180,14 +180,6 @@ const ReviewZone = (props) => {
       showUndoBar(message);
     }
   };
-
-  const showUndoBar = (message) => {
-    setUndoState({
-      open: true,
-      message: message,
-    });
-  };
-
   const closeUndoBar = () => {
     setUndoState({
       open: false,
@@ -195,22 +187,26 @@ const ReviewZone = (props) => {
     });
   };
 
+  /**
+   * Change a decision or not in undo mode
+   */
   const isUndoModeActive = () => {
     return recordState.record.doc_id === previousRecordState["record"]?.doc_id;
   };
-
   const needsClassification = (label) => {
     if (!isUndoModeActive()) {
       return true;
     }
     return label !== previousRecordState.decision;
   };
-
   const skipClassification = () => {
     resetPreviousRecordState();
     startLoadingNewDocument();
   };
 
+  /**
+   * Make or undo a decision
+   */
   const makeDecision = (label) => {
     closeUndoBar(); // hide potentially active undo bar
     if (!needsClassification(label)) {
@@ -220,7 +216,6 @@ const ReviewZone = (props) => {
     }
     storeRecordState(label);
   };
-
   const undoDecision = () => {
     closeUndoBar();
     loadPreviousRecordState();
@@ -258,9 +253,14 @@ const ReviewZone = (props) => {
       });
   };
 
+  const exitReviewDialog = () => {
+    props.toggleReview();
+    props.handleAppState("project-page");
+  };
+
   useEffect(() => {
     /**
-     * Get summary statistics
+     * Get statistics for history dialog and side sheet
      */
     const getProgressInfo = () => {
       ProjectAPI.progress(props.project_id)
@@ -268,7 +268,7 @@ const ReviewZone = (props) => {
           setStatistics(result.data);
         })
         .catch((error) => {
-          setSideStatsError(true);
+          setSideSheetError(true);
           console.log(error);
         });
     };
@@ -279,13 +279,13 @@ const ReviewZone = (props) => {
           setHistory(result.data);
         })
         .catch((error) => {
-          setSideStatsError(true);
+          setSideSheetError(true);
           console.log(error);
         });
     };
 
     /**
-     * Get next article
+     * Get next record
      */
     const getDocument = () => {
       ProjectAPI.get_document(props.project_id)
@@ -315,12 +315,41 @@ const ReviewZone = (props) => {
       getProgressInfo();
       getProgressHistory();
     }
-  }, [props.project_id, recordState, props, error.message, sideStatsError]);
+  }, [props.project_id, recordState, props, error.message, sideSheetError]);
 
+  /**
+   * Display banner when in Exploration Mode
+   */
   useEffect(() => {
-    /**
-     * Use keyboard shortcut
-     */
+    if (
+      !explorationMode &&
+      recordState.record &&
+      recordState.record._debug_label !== null
+    ) {
+      setExplorationMode(true);
+    }
+  }, [explorationMode, recordState.record]);
+  useEffect(() => {
+    if (explorationMode) {
+      setBanner(true);
+    }
+  }, [explorationMode]);
+
+  /**
+   * Hide side statistics on mobile screen
+   */
+  useEffect(() => {
+    if (mobile) {
+      setSideSheet(false);
+    } else {
+      setSideSheet(true);
+    }
+  }, [mobile]);
+
+  /**
+   * Use keyboard shortcuts
+   */
+  useEffect(() => {
     if (props.keyPressEnabled) {
       if (relevantPress && recordState.isloaded) {
         makeDecision(1);
@@ -336,57 +365,88 @@ const ReviewZone = (props) => {
   }, [relevantPress, irrelevantPress, undoPress]);
 
   return (
-    <Box className={classes.box}>
-      <Box
-        id="main-content-item"
-        className={clsx(classes.content, {
-          [classes.contentShift]: props.reviewDrawerOpen,
-        })}
+    <div className={classes.root}>
+      <Dialog
+        fullScreen
+        open={props.onReview}
+        onClose={exitReviewDialog}
+        scroll="paper"
       >
-        {/* Alert Exploration Mode */}
-        {recordState.record !== null &&
-          recordState.record._debug_label !== null && <ExplorationAlert />}
+        <AppBarWithinDialog
+          color="primary"
+          startIconIsClose={false}
+          onClickHistory={props.toggleHistory}
+          onClickShowChart={toggleSideSheet}
+          onClickStartIcon={exitReviewDialog}
+        />
 
-        {/* Article panel */}
-        {error.message === null && recordState["isloaded"] && (
-          <ArticlePanel
+        {/* Banner Exploration Mode */}
+        <div
+          className={clsx(classes.content, {
+            [classes.contentShift]: !mobile && sideSheet,
+          })}
+        >
+          <ExplorationModeBanner banner={banner} setBanner={setBanner} />
+        </div>
+
+        {/* Article card */}
+        <DialogContent
+          style={{ height: "100%" }}
+          className={clsx(classes.content, {
+            [classes.contentShift]: !mobile && sideSheet,
+          })}
+        >
+          <RecordCard
             record={recordState["record"]}
+            isloaded={recordState["isloaded"]}
             fontSize={props.fontSize}
           />
-        )}
+        </DialogContent>
 
-        {/* Article panel */}
+        {/* Decision button */}
+        <DialogActions
+          className={clsx(classes.content, {
+            [classes.contentShift]: !mobile && sideSheet,
+          })}
+        >
+          <DecisionButton
+            makeDecision={makeDecision}
+            mobile={mobile}
+            previousSelection={recordState["selection"]}
+          />
+        </DialogActions>
+
+        {/* Error Handler */}
         {error.message !== null && (
           <ErrorHandler error={error} setError={setError} />
         )}
 
-        {/* Decision bar */}
-        <DecisionBar
-          reviewDrawerOpen={props.reviewDrawerOpen}
-          makeDecision={makeDecision}
-          block={!recordState["isloaded"] || error.message !== null}
-          recordState={recordState}
-        />
-
         {/* Decision undo bar */}
-        <DecisionUndoBar
-          state={undoState}
-          undo={undoDecision}
-          close={closeUndoBar}
-        />
-      </Box>
+        <div
+          className={clsx(classes.content, {
+            [classes.contentShift]: !mobile && sideSheet,
+          })}
+        >
+          <DecisionUndoBar
+            state={undoState}
+            undo={undoDecision}
+            close={closeUndoBar}
+          />
+        </div>
 
-      {/* Statistics drawer */}
-      <ReviewDrawer
-        state={props.reviewDrawerOpen}
-        handle={props.toggleReviewDrawer}
-        statistics={statistics}
-        history={history}
-        sideStatsError={sideStatsError}
-        setSideStatsError={setSideStatsError}
-      />
-    </Box>
+        {/* Statistics side sheet */}
+        <StatsSheet
+          mobile={mobile}
+          onSideSheet={sideSheet}
+          toggleSideSheet={toggleSideSheet}
+          statistics={statistics}
+          history={history}
+          sideSheetError={sideSheetError}
+          setSideSheetError={setSideSheetError}
+        />
+      </Dialog>
+    </div>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReviewZone);
+export default connect(mapStateToProps)(ReviewDialog);

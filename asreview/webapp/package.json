@@ -11,6 +11,7 @@
     "classnames": "^2.2.6",
     "core-js": "^3.8.3",
     "cors": "^2.8.5",
+    "material-ui-banner": "^1.4.3",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-dropzone": "^10.2.2",
