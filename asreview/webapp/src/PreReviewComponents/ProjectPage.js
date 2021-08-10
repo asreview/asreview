@@ -174,6 +174,11 @@ const ProjectPage = (props) => {
       });
   };
 
+  const startReviewing = () => {
+    props.handleAppState("review");
+    props.toggleReview();
+  };
+
   const finishProject = () => {
     ProjectAPI.finish(props.project_id)
       .then((result) => {
@@ -319,7 +324,7 @@ const ProjectPage = (props) => {
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}
-                        onClick={() => props.handleAppState("review")}
+                        onClick={startReviewing}
                         disabled={state.finished}
                       >
                         Start reviewing

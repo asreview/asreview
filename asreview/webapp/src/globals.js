@@ -24,11 +24,11 @@ export const defaultAlgorithms = {
 };
 
 // review drawer configs
-export const reviewDrawerWidth = 250;
+export const statsSheetWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 56;
+export const decisionUndoBarMarginBottom = 80;
 
 export const fontSizeOptions = [
   {
