@@ -22,6 +22,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -97,6 +98,7 @@ def init_project(project_id,
             'created_at_unix': int(time.time()),
 
             # project related variables
+            'datetimeCreated': str(datetime.now()),
             'projectInitReady': False,
             'reviewFinished': False
         }

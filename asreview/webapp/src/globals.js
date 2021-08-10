@@ -11,6 +11,11 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
+// project state color
+export const setupColor = "#706f6f";
+export const inReviewColor = "#aa6600";
+export const finishedColor = "#415f38";
+
 // algorithm settings configs
 export const defaultAlgorithms = {
   model: "nb",
@@ -19,11 +24,11 @@ export const defaultAlgorithms = {
 };
 
 // review drawer configs
-export const reviewDrawerWidth = 250;
+export const statsSheetWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 56;
+export const decisionUndoBarMarginBottom = 80;
 
 export const fontSizeOptions = [
   {

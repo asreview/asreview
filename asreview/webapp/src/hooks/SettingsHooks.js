@@ -13,9 +13,6 @@ const useDarkMode = () => {
       },
     },
     overrides: {
-      debug: {
-        color: "#1E824C",
-      },
       MuiLink: {
         root: {
           color: "#DC004E",
@@ -40,9 +37,6 @@ const useDarkMode = () => {
       },
     },
     overrides: {
-      debug: {
-        color: "#65A665",
-      },
       MuiLink: {
         root: {
           color: "#F48FB1",

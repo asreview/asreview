@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@material-ui/core";
 
-import { ProgressPieChart, ProgressAreaChart } from "../SideStats";
+import { ProgressAreaChart } from "../SideStats";
 
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { makeStyles } from "@material-ui/core/styles";
@@ -40,12 +40,12 @@ const ProgressPanel = (props) => {
   const classes = useStyles();
 
   const handleClickRetry = () => {
-    props.setSideStatsError(false);
+    props.setSideSheetError(false);
   };
 
   return (
     <div>
-      {props.sideStatsError && (
+      {props.sideSheetError && (
         <Box>
           <Box className={classes.errorMessage}>
             <Typography>Failed to load statistics.</Typography>
@@ -72,18 +72,14 @@ const ProgressPanel = (props) => {
           </Box>
         </Box>
       )}
-      {!props.sideStatsError && (
+      {!props.sideSheetError && (
         <div>
           <ListSubheader component="div" id="list-subheader-progress">
             Progress
           </ListSubheader>
-          {/*<LinearProgress variant="determinate" value="10" color="primary" />*/}
-          <Box>
-            <ProgressPieChart
-              n_included={props.n_included}
-              n_excluded={props.n_excluded}
-            />
-          </Box>
+          <ListItem style={{ marginBottom: 10 }} key="project-n-papers">
+            Total records: {props.n_papers}
+          </ListItem>
           <ListItem className={classes.item} key="list-progress-total_labeled">
             Total reviewed: {props.n_included + props.n_excluded} (
             {Math.round(
@@ -91,14 +87,12 @@ const ProgressPanel = (props) => {
             ) / 100}
             %)
           </ListItem>
-
+          <ListItem className={classes.item} key="n_since_last_inclusion">
+            Records since last relevant: {props.n_since_last_inclusion}
+          </ListItem>
           <Box className={classes.areaChart}>
             <ProgressAreaChart history={props.history} />
           </Box>
-
-          <ListItem className={classes.item} key="n_since_last_inclusion">
-            Since last relevant: {props.n_since_last_inclusion}
-          </ListItem>
         </div>
       )}
     </div>

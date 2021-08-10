@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Backdrop, Box, Container, Grid, Typography } from "@material-ui/core";
+import { Backdrop, Box, Container, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
 import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
 import ErrorHandler from "./ErrorHandler";
-import ProjectCard from "./ProjectCard";
+import ProjectTable from "./ProjectTable";
+import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
 import { ImportDialog, QuickTourDialog } from "./Components";
 
@@ -117,6 +118,9 @@ const Projects = (props) => {
   return (
     <Box>
       <Container maxWidth="md" className={classes.root}>
+        <ProjectStatusGraphic projects={projects} />
+      </Container>
+      <Container maxWidth="md" className={classes.root}>
         {error["message"] !== null && (
           <ErrorHandler error={error} setError={setError} />
         )}
@@ -142,21 +146,10 @@ const Projects = (props) => {
         {error["message"] === null &&
           projects["loaded"] &&
           projects["projects"].length !== 0 && (
-            <Grid container spacing={3}>
-              {projects["projects"].map((project) => (
-                <Grid item xs={12} sm={6} key={project.id}>
-                  <ProjectCard
-                    className={classes.paper}
-                    id={project.id}
-                    name={project.name}
-                    description={project.description}
-                    projectInitReady={project.projectInitReady}
-                    handleAppState={props.handleAppState}
-                    refreshProjects={refreshProjects}
-                  />
-                </Grid>
-              ))}
-            </Grid>
+            <ProjectTable
+              projects={projects}
+              handleAppState={props.handleAppState}
+            />
           )}
       </Container>
 
