@@ -883,8 +883,7 @@ def export_results(project_id):
 
         return send_file(
             fp_tmp_export,
-            mimetype=
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             download_name=f"asreview_result_{project_id}.xlsx",
             max_age=0)
