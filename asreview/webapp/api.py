@@ -93,8 +93,8 @@ from asreview.config import PROJECT_MODE_SIMULATE
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
 
-
 # error handlers
+
 
 @bp.errorhandler(ProjectNotFoundError)
 def project_not_found(e):
@@ -119,6 +119,7 @@ def error_500(e):
 
 
 # routes
+
 
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
@@ -151,8 +152,7 @@ def api_get_projects():  # noqa: F401
     project_info = sorted(
         project_info,
         key=lambda y: (y["created_at_unix"] is not None, y["created_at_unix"]),
-        reverse=True
-    )
+        reverse=True)
 
     response = jsonify({"result": project_info})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -171,12 +171,11 @@ def api_init_project():  # noqa: F401
 
     project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
 
-    project_config = init_project(
-        project_id,
-        project_mode=project_mode,
-        project_name=project_name,
-        project_description=project_description,
-        project_authors=project_authors)
+    project_config = init_project(project_id,
+                                  project_mode=project_mode,
+                                  project_name=project_name,
+                                  project_description=project_description,
+                                  project_authors=project_authors)
 
     response = jsonify(project_config)
 
@@ -251,8 +250,7 @@ def api_demo_data_project():  # noqa: F401
 
         try:
             result_datasets = get_dataset_metadata(
-                exclude=["builtin", "benchmark"]
-            )
+                exclude=["builtin", "benchmark"])
 
         except Exception as err:
             logging.error(err)
@@ -262,20 +260,17 @@ def api_demo_data_project():  # noqa: F401
 
         try:
             # collect the datasets metadata
-            result_datasets = get_dataset_metadata(
-                include="benchmark"
-            )
+            result_datasets = get_dataset_metadata(include="benchmark")
 
             # mark the featured datasets
             featured_dataset_ids = [
-                "van_de_Schoot_2017",
-                "Hall_2012",
-                "Cohen_2006_ACEInhibitors",
+                "van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors",
                 "Kwok_2020"
             ]
             for featured_id in featured_dataset_ids:
                 for i, dataset in enumerate(result_datasets):
-                    if result_datasets[i]["dataset_id"] == f"benchmark:{featured_id}":
+                    if result_datasets[i][
+                            "dataset_id"] == f"benchmark:{featured_id}":
                         result_datasets[i]["featured"] = True
 
         except Exception as err:
@@ -309,8 +304,8 @@ def api_upload_data_to_project(project_id):  # noqa: F401
     if request.form.get('url', None):
         url = request.form['url']
 
-    if request.form.get('plugin', None) or request.form.get('benchmark', None)
-            or request.form.get('url', None):
+    if request.form.get('plugin', None) or request.form.get(
+            'benchmark', None) or request.form.get('url', None):
         try:
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
@@ -366,11 +361,9 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
-        data.df.rename(
-            {data.column_spec["included"]: "debug_label"},
-            axis=1,
-            inplace=True
-        )
+        data.df.rename({data.column_spec["included"]: "debug_label"},
+                       axis=1,
+                       inplace=True)
         data.to_csv(data_path)
     else:
         data_path = get_data_path(project_id) / filename
@@ -492,8 +485,10 @@ def api_get_prior(project_id):  # noqa: F401
     try:
 
         lock_fp = get_lock_path(project_id)
-        with SQLiteLock(
-                lock_fp, blocking=True, lock_name="active", project_id=project_id):
+        with SQLiteLock(lock_fp,
+                        blocking=True,
+                        lock_name="active",
+                        project_id=project_id):
             label_history = read_label_history(project_id, subset=subset)
 
         indices = [x[0] for x in label_history]
@@ -527,8 +522,10 @@ def api_get_prior_stats(project_id):  # noqa: F401
     """
     try:
         lock_fp = get_lock_path(project_id)
-        with SQLiteLock(
-                lock_fp, blocking=True, lock_name="active", project_id=project_id):
+        with SQLiteLock(lock_fp,
+                        blocking=True,
+                        lock_name="active",
+                        project_id=project_id):
             label_history = read_label_history(project_id)
 
         counter_prior = Counter([x[1] for x in label_history])
@@ -555,8 +552,10 @@ def api_random_prior_papers(project_id):  # noqa: F401
     """
 
     lock_fp = get_lock_path(project_id)
-    with SQLiteLock(
-            lock_fp, blocking=True, lock_name="active", project_id=project_id):
+    with SQLiteLock(lock_fp,
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
         pool = read_pool(project_id)
 
     #     with open(get_labeled_path(project_id, 0), "r") as f_label:
@@ -717,9 +716,7 @@ def api_start(project_id):  # noqa: F401
         try:
             simulation_id = uuid.uuid4().hex
             datafile = get_data_file_path(project_id)
-            state_file = get_simulation_ready_path(
-                project_id, simulation_id
-            )
+            state_file = get_simulation_ready_path(project_id, simulation_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
@@ -728,8 +725,8 @@ def api_start(project_id):  # noqa: F401
             # start simulation
             py_exe = _get_executable()
             run_command = [
-                py_exe, "-m", "asreview", "simulate",
-                datafile, "--state_file", state_file
+                py_exe, "-m", "asreview", "simulate", datafile, "--state_file",
+                state_file
             ]
             subprocess.Popen(run_command)
 
@@ -886,7 +883,8 @@ def export_results(project_id):
 
         return send_file(
             fp_tmp_export,
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+            mimetype=
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             download_name=f"asreview_result_{project_id}.xlsx",
             max_age=0)
@@ -906,25 +904,20 @@ def export_project(project_id):
     tmpdir = tempfile.TemporaryDirectory()
 
     # copy the source tree, but ignore pickle files
-    shutil.copytree(
-        get_project_path(project_id),
-        Path(tmpdir.name, project_id),
-        ignore=shutil.ignore_patterns('*.pickle')
-    )
+    shutil.copytree(get_project_path(project_id),
+                    Path(tmpdir.name, project_id),
+                    ignore=shutil.ignore_patterns('*.pickle'))
 
     # create the archive
-    shutil.make_archive(
-        Path(tmpdir.name, project_id),
-        "zip",
-        root_dir=Path(tmpdir.name, project_id)
-    )
+    shutil.make_archive(Path(tmpdir.name, project_id),
+                        "zip",
+                        root_dir=Path(tmpdir.name, project_id))
 
     # return the project file to the user
-    return send_file(
-        str(Path(tmpdir.name, f"{project_id}.zip")),
-        as_attachment=True,
-        download_name=f"{project_id}.asreview",
-        max_age=0)
+    return send_file(str(Path(tmpdir.name, f"{project_id}.zip")),
+                     as_attachment=True,
+                     download_name=f"{project_id}.asreview",
+                     max_age=0)
 
 
 @bp.route('/project/<project_id>/finish', methods=["GET"])
@@ -1002,9 +995,9 @@ def api_get_progress_history(project_id):
             data.append(value)
 
         # create a dataset with the rolling mean of every 10 papers
-        df = pd.DataFrame(
-            data, columns=["Relevant"]).rolling(
-                10, min_periods=1).mean()
+        df = pd.DataFrame(data,
+                          columns=["Relevant"]).rolling(10,
+                                                        min_periods=1).mean()
         df["Total"] = df.index + 1
 
         # transform mean(percentage) to number
@@ -1013,7 +1006,8 @@ def api_get_progress_history(project_id):
                 df.loc[i, "Irrelevant"] = (
                     1 - df.loc[i, "Relevant"]) * df.loc[i, "Total"]
                 df.loc[i,
-                       "Relevant"] = df.loc[i, "Total"] - df.loc[i, "Irrelevant"]
+                       "Relevant"] = df.loc[i, "Total"] - df.loc[i,
+                                                                 "Irrelevant"]
             else:
                 df.loc[i, "Irrelevant"] = (1 - df.loc[i, "Relevant"]) * 10
                 df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
@@ -1044,8 +1038,9 @@ def api_get_progress_efficiency(project_id):
         # create a dataset with the cumulative number of inclusions
         df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
         df["Total"] = df.index + 1
-        df["Random"] = (df["Total"] * (
-            df["Relevant"][-1:] / statistics["n_rows"]).values).round()
+        df["Random"] = (
+            df["Total"] *
+            (df["Relevant"][-1:] / statistics["n_rows"]).values).round()
 
         df = df.round(1).to_dict(orient="records")
 
@@ -1116,8 +1111,9 @@ def api_get_document(project_id):  # noqa: F401
             pool_empty = True
         else:
 
-            item = get_paper_data(
-                project_id, new_instance, return_debug_label=True)
+            item = get_paper_data(project_id,
+                                  new_instance,
+                                  return_debug_label=True)
             item["doc_id"] = new_instance
             pool_empty = False
 
