@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ def interleave(n_samples, n_strat_1, random_state):
 
 
 class MixedQuery(BaseQueryStrategy):
-    """Class for mixed query strategy.
+    """Mixed query strategy.
 
     The idea is to use two different query strategies at the same time with a
     ratio of one to the other. A mix of two query strategies is used. For
@@ -210,3 +210,53 @@ class MixedQuery(BaseQueryStrategy):
     @property
     def name(self):
         return "_".join([self.strategy_1, self.strategy_2])
+
+
+class MaxRandomQuery(MixedQuery):
+    """Mixed (95% Maximum and 5% Random) query strategy.
+
+    A mix of maximum and random query strategies with a mix ratio of 0.95.
+    At each query 95% of the instances would be sampled with the maximum
+    query strategy after which the remaining 5% would be sampled with
+    the random query strategy.
+    """
+
+    name = "max_random"
+    label = "Mixed (95% Maximum and 5% Random)"
+
+    def __init__(self,
+                 mix_ratio=0.95,
+                 random_state=None,
+                 **kwargs):
+        """Initialize the Mixed (Maximum and Random) query strategy."""
+        super(MaxRandomQuery, self).__init__(
+            strategy_1="max",
+            strategy_2="random",
+            mix_ratio=mix_ratio,
+            random_state=random_state,
+            **kwargs)
+
+
+class MaxUncertaintyQuery(MixedQuery):
+    """Mixed (95% Maximum and 5% Uncertainty) query strategy.
+
+    A mix of maximum and random query strategies with a mix ratio of 0.95.
+    At each query 95% of the instances would be sampled with the maximum
+    query strategy after which the remaining 5% would be sampled with
+    the uncertainty query strategy.
+    """
+
+    name = "max_uncertainty"
+    label = "Mixed (95% Maximum and 5% Uncertainty)"
+
+    def __init__(self,
+                 mix_ratio=0.95,
+                 random_state=None,
+                 **kwargs):
+        """Initialize the Mixed (Maximum and Uncertainty) query strategy."""
+        super(MaxUncertaintyQuery, self).__init__(
+            strategy_1="max",
+            strategy_2="uncertainty",
+            mix_ratio=mix_ratio,
+            random_state=random_state,
+            **kwargs)

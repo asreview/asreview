@@ -20,7 +20,7 @@ packaged versions of the software are available on the `Python Package Index
 If you encounter any issues during the process, first consult the
 :doc:`Frequently Asked Questions<../intro/faq>` or the Troubleshooting in the
 :doc:`installation manual <../intro/installation>`. If you cannot find your
-problem, we ask you to file an issue via `Github
+problem, file an issue via `Github
 <https://github.com/asreview/asreview/issues/new/choose>`__.
 
 

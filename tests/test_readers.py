@@ -8,8 +8,13 @@ from asreview import ASReviewData
 
 @mark.parametrize("test_file,n_lines,labels,ignore_col", [
     ("embase.csv", 6, None, ["keywords"]),
+    ("embase_newpage.csv", 6, None, ["keywords"]),
     ("embase.ris", 6, None, []),
     ("generic.csv", 2, None, []),
+    ("generic_semicolon.csv", 2, None, []),
+    ("generic_tab.csv", 2, None, []),
+    ("generic_tab.tab", 2, None, []),
+    ("generic_tab.tsv", 2, None, []),
     ("generic_labels.csv", 6, [1, 0, 1, 0, 1, 0], []),
     ("generic.ris", 2, None, []),
     ("generic_labels.ris", 2, [1, 0], []),
@@ -49,6 +54,18 @@ def test_nan_values_ris():
     assert as_data.record(0, by_index=True).abstract == ""
     assert as_data.record(2, by_index=True).abstract == ""
 
+    # check missing authors
+    assert as_data.record(0, by_index=True).authors is None
+    assert as_data.record(2, by_index=True).authors is None
+
+    # check missing keywords
+    assert as_data.record(0, by_index=True).keywords is None
+    assert as_data.record(2, by_index=True).keywords is None
+
+    # check missing doi
+    assert as_data.record(0, by_index=True).doi is None
+    assert as_data.record(2, by_index=True).doi is None
+
 
 def test_nan_values_csv():
 
@@ -62,6 +79,18 @@ def test_nan_values_csv():
     # check missing abstracts
     assert as_data.record(0, by_index=True).abstract == ""
     assert as_data.record(2, by_index=True).abstract == ""
+
+    # check missing authors
+    assert as_data.record(0, by_index=True).authors is None
+    assert as_data.record(2, by_index=True).authors is None
+
+    # check missing keywords
+    assert as_data.record(0, by_index=True).keywords is None
+    assert as_data.record(2, by_index=True).keywords is None
+
+    # check missing doi
+    assert as_data.record(0, by_index=True).doi is None
+    assert as_data.record(2, by_index=True).doi is None
 
 
 def test_csv_write_data():

@@ -1,24 +1,24 @@
 Prepare your Data
 =================
 
-To perform an systematic review, ASReview requires a dataset representing
+To perform a systematic review, ASReview requires a dataset representing
 all records (e.g., abstracts of scientific papers) obtained in a systematic
 search. To create such a dataset for a systematic review, typically an `online
-library search <https://asreview.nl/the-importance-of-abstracts/>`__ is
+library search <https://asreview.nl/blog/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
 It is possible to use your own dataset with unlabeled, partly labeled (where
 the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
-`Benchmark Datasets`_. Also, a plugin with :doc:`Corona related
-publications <../plugins/covid19>` is available.
+`Benchmark Datasets`_. Also, an extension with :doc:`Covid19 related
+publications <../extensions/extension_covid19>` is available.
 
 .. warning::
 
     If you upload your own data, make sure to remove duplicates and to
     retrieve  as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
     benefit most from what :doc:`active learning <../guides/activelearning>`
     has to offer.
 
@@ -36,8 +36,9 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
- - **Tabular datasets** with extensions ``.csv``, ``.xlsx``, or ``.xls``. CSV files should
-   be comma separated and UTF-8 encoded.
+ - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
+   CSV and TAB files are preferably comma, semicolon, or tab-delimited.
+   The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
 
@@ -77,10 +78,10 @@ used for the Simulation Mode to select prior knowledge.
 metadata on a paper. Mandatory metadata are only ``title`` or ``abstract``. If
 both title and abstract are available, the text is combined and used for
 training the model. If the column ``title`` is empty, the software will search
-for the next column ``primary_title`` and the same holds for ``bastract`` and
+for the next column ``primary_title`` and the same holds for ``abstract`` and
 ``abstract_note``.
 
-**Keywords, Authors** If ``keywords`` and/or ``author`` (or if the colum is
+**Keywords, Authors** If ``keywords`` and/or ``author`` (or if the column is
 empty: ``author names`` or ``first_authors``) are available it can be used for
 searching prior knowledge. Note the information is not shown during the
 screening phase and is also not used for training the model, but the
@@ -91,7 +92,7 @@ If a Digital Object Identifier ( ``DOI``) is available it will be displayed duri
 screening phase as a clickable hyperlink to the full text document. Note by
 using ASReview you do *not* automatically have access to full-text and if you do
 not have access you might want to read this `blog post
-<https://asreview.nl/tools-that-work-well-with-asreview-google-scholar-button/>`__.
+<https://asreview.nl/blog/tools-that-work-well-with-asreview-google-scholar-button/>`__.
 
 **Included** A binary variable indicating the existing labeling decisions with
 ``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column
@@ -134,9 +135,7 @@ managers  which are accepted by ASReview.
 +-------------------------------+----------+----------+----------+
 | **EndNote**                   | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
-| **Excel** comma-seperated     | N/A      | ✅       | ✅       |
-+-------------------------------+----------+----------+----------+
-| **Excel** semicolon-seperated | N/A      | X        | ✅       |
+| **Excel**                     | N/A      | ✅       | ✅       |
 +-------------------------------+----------+----------+----------+
 | **Mendeley**                  | ✅       | N/A      | N/A      |
 +-------------------------------+----------+----------+----------+
@@ -147,12 +146,12 @@ managers  which are accepted by ASReview.
 
 -  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not suported.
+-  X = Not supported.
 
 .. note::
 
   When using EndNote use the following steps to export a RIS file (.ris):
-  
+
   - In EndNote, click on the style selection dropdown menu from the main EndNote toolbar.
   - Click "Select Another Style".
   - Browse to RefMan (RIS) Export and click "Choose".
@@ -200,7 +199,7 @@ acceptance in ASReview:
 
 -  ✅ = The data can be exported from the search engine and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not suported.
+-  X = Not supported.
 
 .. warning::
 
@@ -237,7 +236,7 @@ ASReview.
 
 -  ✅ = The data can be exported from the third-party review software and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not suported.
+-  X = Not supported.
 
 \* When using Covidence it is possible to export articles in ``.ris`` format for different citation managers,
 such as EndNote, Mendeley, Refworks and Zotero. All of these are compatible with ASReview.
@@ -255,7 +254,7 @@ The ASReview software contains a large amount of benchmark datasets that can
 be used in the :doc:`exploration <../lab/exploration>` or :doc:`simulation
 <../lab/simulation>` mode. The labelled datasets are PRISMA-based reviews on
 various research topics, are available under an open licence and are
-automatically harvested from the `dataset reposisotory
+automatically harvested from the `dataset repository
 <https://github.com/asreview/systematic-review-datasets>`_. See `index.csv
 <https://github.com/asreview/systematic-review-datasets/blob/master/index.csv>`_
 for all available properties.

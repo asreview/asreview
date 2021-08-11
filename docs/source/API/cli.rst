@@ -23,17 +23,34 @@ Lab
 
 	The port the server will listen on.
 
-.. option:: --clean_project CLEAN_PROJECT
+.. option:: --port-retries NUMBER_RETRIES
 
-    Safe cleanup of temporary files in project.
+	The number of additional ports to try if the specified port is not
+        available.
 
-.. option:: --clean_all_projects CLEAN_ALL_PROJECTS
+.. option:: --no-browser NO_BROWSER
 
-    Safe cleanup of temporary files in all projects.
+	Do not open ASReview LAB in a browser after startup.
+
+.. option:: --certfile CERTFILE_FULL_PATH
+
+    The full path to an SSL/TLS certificate file.
+
+.. option:: --keyfile KEYFILE_FULL_PATH
+
+    The full path to a private key file for usage with SSL/TLS.
 
 .. option:: --embedding EMBEDDING_FP
 
     File path of embedding matrix. Required for LSTM models.
+
+.. option:: --clean-project CLEAN_PROJECT
+
+    Safe cleanup of temporary files in project.
+
+.. option:: --clean-all-projects CLEAN_ALL_PROJECTS
+
+    Safe cleanup of temporary files in all projects.
 
 .. option:: --seed SEED
 
@@ -164,8 +181,9 @@ Examples:
 
 .. option:: --n_queries N_QUERIES
 
-    The number of queries. By default, the program stops after all documents are reviewed
-    or is interrupted by the user.
+    The number of queries. Alternatively, entering :code:`min` will stop the simulation when all relevant
+    records have been found. By default, the program stops after all records are reviewed
+    or is interrupted by the user. 
 
 .. option:: -n N_PAPERS, --n_papers N_PAPERS
 
@@ -233,17 +251,21 @@ Classifiers
 Query Strategies
 ~~~~~~~~~~~~~~~~
 
-+-------------+---------------------------------------------------------+--------------+
-| Name        | Reference                                               | Requires     |
-+=============+=========================================================+==============+
-| max         | :class:`asreview.models.query.MaxQuery`                 |              |
-+-------------+---------------------------------------------------------+--------------+
-| random      | :class:`asreview.models.query.RandomQuery`              |              |
-+-------------+---------------------------------------------------------+--------------+
-| uncertainty | :class:`asreview.models.query.UncertaintyQuery`         |              |
-+-------------+---------------------------------------------------------+--------------+
-| cluster     | :class:`asreview.models.query.ClusterQuery`             |              |
-+-------------+---------------------------------------------------------+--------------+
++-----------------+---------------------------------------------------------+--------------+
+| Name            | Reference                                               | Requires     |
++=================+=========================================================+==============+
+| max             | :class:`asreview.models.query.MaxQuery`                 |              |
++-----------------+---------------------------------------------------------+--------------+
+| random          | :class:`asreview.models.query.RandomQuery`              |              |
++-----------------+---------------------------------------------------------+--------------+
+| uncertainty     | :class:`asreview.models.query.UncertaintyQuery`         |              |
++-----------------+---------------------------------------------------------+--------------+
+| cluster         | :class:`asreview.models.query.ClusterQuery`             |              |
++-----------------+---------------------------------------------------------+--------------+
+| max_random      | :class:`asreview.models.query.MaxRandomQuery`           |              |
++-----------------+---------------------------------------------------------+--------------+
+| max_uncertainty | :class:`asreview.models.query.MaxUncertaintyQuery`      |              |
++-----------------+---------------------------------------------------------+--------------+
 
 .. _balance-strategies-table:
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Box,
   Dialog,
@@ -8,29 +8,29 @@ import {
   IconButton,
   Paper,
   Typography,
-} from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close';
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+} from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
+import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
 
-import SwipeableViews from 'react-swipeable-views';
+import SwipeableViews from "react-swipeable-views";
 
-import semverValid from 'semver/functions/valid';
-import semverCoerce from 'semver/functions/coerce';
+import semverValid from "semver/functions/valid";
+import semverCoerce from "semver/functions/coerce";
 // import semverMajor from 'semver/functions/major';
 // import semverMinor from 'semver/functions/minor';
 
-import Welcome from '../images/QuickTour/1_Welcome.svg';
-import SetUp from '../images/QuickTour/2_SetUp.svg';
-import Start from '../images/QuickTour/3_StartReviewing.svg';
-import Benefit from '../images/QuickTour/4_BenefitFromAIAssisted.svg';
-import DontStress from '../images/QuickTour/5_DontStress.svg';
-import Done from '../images/QuickTour/6_DoneItsYourChoice.svg';
-import Publish from '../images/QuickTour/7_PublishYourWork.svg';
+import Welcome from "../images/QuickTour/1_Welcome.svg";
+import SetUp from "../images/QuickTour/2_SetUp.svg";
+import Start from "../images/QuickTour/3_StartReviewing.svg";
+import Benefit from "../images/QuickTour/4_BenefitFromAIAssisted.svg";
+import DontStress from "../images/QuickTour/5_DontStress.svg";
+import Done from "../images/QuickTour/6_DoneItsYourChoice.svg";
+import Publish from "../images/QuickTour/7_PublishYourWork.svg";
 
 import { connect } from "react-redux";
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     asreview_version: state.asreview_version,
   };
@@ -80,11 +80,11 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   header: {
-    display: 'flex',
+    display: "flex",
     height: 45,
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
     color: theme.palette.grey[500],
@@ -94,9 +94,9 @@ const useStyles = makeStyles((theme) => ({
   },
   img: {
     height: 270,
-    display: 'block',
-    overflow: 'hidden',
-    width: '100%',
+    display: "block",
+    overflow: "hidden",
+    width: "100%",
   },
   textTitle: {
     textAlign: "center",
@@ -106,24 +106,22 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 18,
   },
   text: {
-    display: 'flex',
+    display: "flex",
     textShadow: "0 0 0.5px",
-    justifyContent: 'center',
-    lineHeight: '18pt',
+    justifyContent: "center",
+    lineHeight: "18pt",
   },
   iconButtonBack: {
-    width: '94px',
-    textAlign: 'left',
+    width: "94px",
+    textAlign: "left",
   },
   iconButtonNext: {
-    width: '94px',
-    textAlign: 'right',
+    width: "94px",
+    textAlign: "right",
   },
 }));
 
-
 function QuickTourDialog(props) {
-
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const [quickTour, setQuickTour] = React.useState(false);
@@ -144,10 +142,9 @@ function QuickTourDialog(props) {
   // get current version of asreview (pre-release excluded)
   const asreviewVersion = semverValid(semverCoerce(props.asreview_version));
 
-  const closeQuickTour = (hard=false) => {
-
+  const closeQuickTour = (hard = false) => {
     // hard or soft close (permanent or not)
-    if (hard){
+    if (hard) {
       // set current version of asreview to local storage
       window.localStorage.setItem("quickTourLatestVersion", asreviewVersion);
     }
@@ -156,108 +153,123 @@ function QuickTourDialog(props) {
   };
 
   React.useEffect(() => {
-
     // get version stored in local storage
-    const localVersion = semverValid(window.localStorage.getItem("quickTourLatestVersion"));
+    const localVersion = semverValid(
+      window.localStorage.getItem("quickTourLatestVersion")
+    );
 
     if (asreviewVersion !== null && localVersion !== null) {
       // compare current version and version stored in local storage
       // see https://www.npmjs.com/package/semver#ranges
-
     } else if (localVersion === null) {
       // if no version stored in local storage, show quick tour
       setQuickTour(true);
-    };
-
+    }
   }, [asreviewVersion]);
 
   return (
-    <Dialog
-      open={quickTour}
-      onClose={closeQuickTour}
-      scroll="body"
-    >
+    <Dialog open={quickTour} onClose={closeQuickTour} scroll="body">
+      <div className={classes.root}>
+        <Paper square elevation={0} className={classes.header}>
+          <IconButton
+            size="small"
+            className={classes.closeButton}
+            onClick={closeQuickTour}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Paper>
 
-    <div className={classes.root}>
-      <Paper square elevation={0} className={classes.header}>
-        <IconButton
-          size="small"
-          className={classes.closeButton}
-          onClick={closeQuickTour}
-        >
-          <CloseIcon />
-        </IconButton>
-      </Paper>
+        <div className={classes.paper}>
+          <SwipeableViews
+            axis={"x"}
+            index={activeStep}
+            onChangeIndex={handleStepChange}
+            enableMouseEvents
+          >
+            {quickTourSteps.map((step, index) => (
+              <div key={step.textTitle} className={classes.textTitle}>
+                {Math.abs(activeStep - index) <= 2 ? (
+                  <img
+                    className={classes.img}
+                    src={step.imgPath}
+                    alt={step.textTitle}
+                  />
+                ) : null}
 
-      <div className={classes.paper}>
-        <SwipeableViews
-          axis={'x'}
-          index={activeStep}
-          onChangeIndex={handleStepChange}
-          enableMouseEvents
-        >
-          {quickTourSteps.map((step, index) => (
-            <div key={step.textTitle} className={classes.textTitle}>
-              {Math.abs(activeStep - index) <= 2 ? (
-                <img className={classes.img} src={step.imgPath} alt={step.textTitle}/>
-              ) : null}
+                <div className={classes.textTitleWrap}>
+                  <Typography variant="h6">
+                    {step.textTitle.split("\n").map((i, key) => {
+                      return (
+                        <div className={classes.text} key={key}>
+                          {i}
+                        </div>
+                      );
+                    })}
+                  </Typography>
+                </div>
 
-              <div className={classes.textTitleWrap}>
-                <Typography variant="h6">
-                  {step.textTitle.split("\n").map((i, key) => {
-                    return <div className={classes.text} key={key}>{i}</div>;
-                  })}
-                </Typography>
+                <div>
+                  <Typography variant="subtitle1">
+                    {step.text.split("\n").map((i, key) => {
+                      return (
+                        <div className={classes.text} key={key}>
+                          {i}
+                        </div>
+                      );
+                    })}
+                  </Typography>
+                </div>
               </div>
+            ))}
+          </SwipeableViews>
+        </div>
 
-              <div>
-                <Typography variant="subtitle1">
-                  {step.text.split("\n").map((i, key) => {
-                    return <div className={classes.text} key={key}>{i}</div>;
-                  })}
-                </Typography>
-              </div>
-            </div>
-          ))}
-        </SwipeableViews>
+        <MobileStepper
+          steps={maxSteps}
+          position="static"
+          variant="dots"
+          activeStep={activeStep}
+          nextButton={
+            <Box className={classes.iconButtonNext}>
+              {activeStep === maxSteps - 1 && (
+                <Button
+                  size="small"
+                  onClick={() => {
+                    closeQuickTour(true);
+                  }}
+                  disabled={activeStep === 0}
+                >
+                  Let's start!
+                </Button>
+              )}
+              {activeStep !== maxSteps - 1 && (
+                <IconButton size="small" onClick={handleNext}>
+                  <KeyboardArrowRight />
+                </IconButton>
+              )}
+            </Box>
+          }
+          backButton={
+            <Box className={classes.iconButtonBack}>
+              {activeStep === 0 && (
+                <Button size="small" onClick={closeQuickTour}>
+                  Skip
+                </Button>
+              )}
+              {activeStep !== 0 && (
+                <IconButton
+                  size="small"
+                  onClick={handleBack}
+                  disabled={activeStep === 0}
+                >
+                  <KeyboardArrowLeft />
+                </IconButton>
+              )}
+            </Box>
+          }
+        />
       </div>
-
-      <MobileStepper
-        steps={maxSteps}
-        position="static"
-        variant="dots"
-        activeStep={activeStep}
-        nextButton={
-          <Box className={classes.iconButtonNext}>
-            {activeStep === maxSteps - 1 &&
-              <Button size="small" onClick={() => {closeQuickTour(true)}} disabled={activeStep === 0}>
-                Let's start!
-              </Button>
-            }
-            {activeStep !== maxSteps - 1 &&
-              <IconButton size="small" onClick={handleNext}>
-                <KeyboardArrowRight />
-              </IconButton>
-            }
-
-          </Box>
-        }
-        backButton={
-          <Box className={classes.iconButtonBack}>
-            {activeStep === 0 &&
-              <Button size="small" onClick={closeQuickTour}>
-                Skip
-              </Button>
-            }
-            {activeStep !== 0 &&
-              <IconButton size="small" onClick={handleBack} disabled={activeStep === 0}>
-                <KeyboardArrowLeft />
-              </IconButton>
-            }
-          </Box>
-        }
-      />
-    </div>
     </Dialog>
   );
 }

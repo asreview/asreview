@@ -322,6 +322,13 @@ class ASReviewData():
         except KeyError:
             return None
 
+    @property
+    def doi(self):
+        try:
+            return self.df[self.column_spec["doi"]].values
+        except KeyError:
+            return None
+
     def get(self, name):
         "Get column with name."
         try:
@@ -420,6 +427,8 @@ class ASReviewData():
         """
         if Path(fp).suffix in [".csv", ".CSV"]:
             self.to_csv(fp, labels=labels, ranking=ranking)
+        elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
+            self.to_csv(fp, sep="\t", labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS"]:
             self.to_ris(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".xlsx", ".XLSX"]:
@@ -474,13 +483,15 @@ class ASReviewData():
 
         return result_df
 
-    def to_csv(self, fp, labels=None, ranking=None):
+    def to_csv(self, fp, sep=",", labels=None, ranking=None):
         """Export to csv.
 
         Arguments
         ---------
         fp: str, NoneType
             Filepath or None for buffer.
+        sep: str
+            Seperator of the file.
         labels: list, numpy.ndarray
             Current labels will be overwritten by these labels
             (including unlabelled). No effect if labels is None.
@@ -494,7 +505,7 @@ class ASReviewData():
             Dataframe of all available record data.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_csv(fp, index=True)
+        return df.to_csv(fp, sep=sep, index=True)
 
     def to_excel(self, fp, labels=None, ranking=None):
         """Export to Excel xlsx file.

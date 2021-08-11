@@ -18,7 +18,8 @@ and you will first be asked to initialize the setup.
 .. figure:: ../../images/asreview_project_page_start_setup.png
    :alt: ASReview project setup
 
-Already in this project dashboard some of the features are available which are
+
+Note: some of the features available in the project dashboard are
 described in the :doc:`post_screening` section.
 
 Select Dataset
@@ -36,11 +37,11 @@ To select a dataset:
 
 .. warning::
 
-    If you upload your own data, make sure to remove duplicates and to retrieve 
+    If you upload your own data, make sure to remove duplicates and to retrieve
     as many abstracts as possible (`don't know how?
-    <https://asreview.nl/the-importance-of-abstracts/>`_). With clean data you
-    benefit most from what :doc:`active learning <../guides/activelearning>` 
-    has to offer. 
+    <https://asreview.nl/blog/the-importance-of-abstracts/>`_). With clean data you
+    benefit most from what :doc:`active learning <../guides/activelearning>`
+    has to offer.
 
 
 From File
@@ -48,8 +49,8 @@ From File
 
 Upload your file by *Drag 'n' Drop*, or select your file via the browser.
 The data needs to adhere to a :doc:`specific format<../intro/datasets>`. If a
-file is uploaded and reckognized as one of the available formats, it will
-display the message *Successful upload* and provides the number of records in
+file is uploaded and recognized as one of the available formats, it will
+display the message *Successful upload* and state the number of records in
 the dataset.
 
 From URL
@@ -58,10 +59,10 @@ From URL
 Fill in a link to a file on the Internet. For example, a link from this
 `dataset repository <https://github.com/asreview/systematic-review-datasets>`__.
 
-From Plugin
-~~~~~~~~~~~
+From Extension
+~~~~~~~~~~~~~~
 
-Select a file available via a plug-in like the :doc:`COVID-19 plugin <../plugins/covid19>`.
+Select a file available via an extension like the :doc:`COVID-19 extension <../extensions/extension_covid19>`.
 
 Benchmark Datasets
 ~~~~~~~~~~~~~~~~~~
@@ -75,8 +76,8 @@ Partly Labeled Data
 
 If you want to include decisions you've already made prior to setting up your
 project, you can upload a partly labeled dataset containg labels for part of
-the data and unlabeled recors you want to screen with ASReview. This might be
-veru helpfull if you switch from screening in another tool to screening with
+the data and unlabeled records you want to screen with ASReview. This might be
+helpful if you switch from screening in another tool to screening with
 ASReview, or when updating an existing systematic review with more recent
 publications.
 
@@ -130,10 +131,10 @@ After selecting some prior information, you can click **Next**.
 Search
 ~~~~~~
 
-Let's start with finding a prior relevant document. Probabily the most
-efficient way to do this is by searching for a specific document you already
-know is relevant. Click the search button and search your dataset by authors,
-keywords or title, or a combination thereof. Enter your search terms (Use
+Let's start with finding a prior relevant document. The most efficient way 
+to do this is by searching for a specific document which you already know is 
+relevant. Click the search button and search your dataset by authors,
+keywords or title, or a combination thereof. Enter your search terms (press
 'enter' to start searching).
 
 
@@ -155,12 +156,12 @@ If you are done click **Next**.
 Random
 ~~~~~~
 
-You also need to provide at least one prior irrelevant document and we will
-use the random option. Given that the majority of documents in the dataset is
-probably irrelevant (extreme inbalanced data problem), the documents presented
-here will most probable be irrelevant for your study. Click on random to and a
-couple of random documents will be shown. Indicate for each document whether
-it is relevant or irrelevant.
+You also need to provide at least one prior irrelevant document. One way to
+find an irrelevant document is by labeling a set of random records from the
+dataset. Given that the majority of documents in the dataset are irrelevant 
+(extremely imbalanced data problem), the documents presented here are likely 
+to be irrelevant for your study. Click on random to show a few random 
+documents. Indicate for each document whether it is relevant or irrelevant.
 
 .. figure:: ../../images/asreview_prescreening_prior_random.png
    :alt: ASReview prior knowledge random
@@ -199,14 +200,13 @@ though relatively simplistic, it seems to work quite well on a wide range of
 datasets.
 
 The query strategy determines which document is shown after the model has
-computed the relevance scores. With certainty-based is selected the document
-with the highest relevance score is showed followed by the 2nd in line,
-etcetera, untill a new model is trained with new relevance scores. When
-uncertainty-based is selected, the most uncertain docuemtn is sampled
-according to the model (i.e. closest to 0.5 probability).  When random is
-selected, as it says, randomly select samples with no regard to model assigned
-probabilities. **Warning**: selecting this option means your review is not
-going to be accelerated by ASReview.
+computed the relevance scores. The three options are: certainty-based, mixed and 
+random. When certainty-based is selected, the documents are shown in the order of
+relevance score. The document most likely to be relevant is shown first. When 
+mixed is selected, the next document will be selected certainty-based 95% of the 
+time, and randomly chosen otherwise. When random is selected, documents are shown 
+in a random order (ignoring the model output completely). **Warning**: selecting 
+this option means your review is not going to be accelerated by using ASReview.
 
 The feature extraction technique determines the method how text is translated
 into a vector that can be used by the classifier. The default is TF-IDF (Term

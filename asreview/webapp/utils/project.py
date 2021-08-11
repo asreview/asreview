@@ -14,17 +14,21 @@
 
 import json
 import os
+import re
 import shutil
+import zipfile
+import tempfile
 import subprocess
 import sys
 import time
 from pathlib import Path
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 
 from asreview import __version__ as asreview_version
-from asreview.config import LABEL_NA
+from asreview.config import LABEL_NA, PROJECT_MODES
 from asreview.compat import convert_id_to_idx
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_current_labels
@@ -34,6 +38,7 @@ from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import read_proba
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
+from asreview.webapp.utils.paths import asreview_path
 from asreview.webapp.utils.paths import get_data_path
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_labeled_path
@@ -44,6 +49,10 @@ from asreview.webapp.utils.paths import get_project_path
 from asreview.webapp.utils.paths import get_tmp_path
 from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.validation import is_project
+
+
+class ProjectNotFoundError(Exception):
+    pass
 
 
 def _get_executable():
@@ -59,6 +68,7 @@ def _get_executable():
 
 
 def init_project(project_id,
+                 project_mode="oracle",
                  project_name=None,
                  project_description=None,
                  project_authors=None):
@@ -69,7 +79,10 @@ def init_project(project_id,
         raise ValueError("Project name should be at least 3 characters.")
 
     if is_project(project_id):
-        raise ValueError("Project already exists.")
+        raise ValueError("Project name already exists.")
+
+    if project_mode not in ["oracle", "explore", "simulate"]:
+        ValueError("Project mode should be oracle, explore, or simulate.")
 
     try:
         get_project_path(project_id).mkdir()
@@ -78,14 +91,16 @@ def init_project(project_id,
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
             'id': project_id,
+            'mode': project_mode,
             'name': project_name,
             'description': project_description,
             'authors': project_authors,
             'created_at_unix': int(time.time()),
 
             # project related variables
+            'datetimeCreated': str(datetime.now()),
             'projectInitReady': False,
-            'reviewFinished': False,
+            'reviewFinished': False
         }
 
         # create a file with project info
@@ -96,8 +111,115 @@ def init_project(project_id,
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(get_project_path())
+        shutil.rmtree(get_project_path(project_id))
         raise err
+
+
+def update_project_info(project_id,
+                        project_mode,
+                        project_name=None,
+                        project_description=None,
+                        project_authors=None):
+    '''Update project info'''
+
+    project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+
+    if not project_id_new and not isinstance(project_id_new, str) \
+            and len(project_id_new) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
+
+    if (project_id != project_id_new) & is_project(project_id_new):
+        raise ValueError("Project name already exists.")
+
+    # validate schema
+    # TODO{}
+    if project_mode not in PROJECT_MODES:
+        raise ValueError(f"Project mode '{project_mode}' not found.")
+
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+            project_info = json.load(fp)
+
+        project_info["id"] = project_id_new
+        project_info["mode"] = project_mode
+        project_info["name"] = project_name
+        project_info["authors"] = project_authors
+        project_info["description"] = project_description
+
+        # # backwards support <0.10
+        # if "projectInitReady" not in project_info:
+        #     project_info["projectInitReady"] = True
+
+        # update the file with project info
+        with open(get_project_file_path(project_id), "w") as fp:
+            json.dump(project_info, fp)
+
+        # rename the folder
+        get_project_path(project_id) \
+            .rename(Path(asreview_path(), project_id_new))
+
+    except Exception as err:
+        raise err
+
+    return project_info["id"]
+
+
+def import_project_file(file_name):
+    """Import .asreview project file"""
+
+    try:
+        # Unzip the project file
+        with zipfile.ZipFile(file_name, "r") as zip_obj:
+            zip_filenames = zip_obj.namelist()
+
+            # raise error if no ASReview project file
+            if "project.json" not in zip_filenames:
+                raise ValueError("File doesn't contain valid project format.")
+
+            # extract all files to a temporary folder
+            tmpdir = tempfile.mkdtemp()
+            zip_obj.extractall(path=tmpdir)
+
+    except zipfile.BadZipFile:
+        raise ValueError("File is not an ASReview file.")
+
+    try:
+        # Open the project file and check the id. The id needs to be
+        # unique, otherwise it is exended with -copy.
+        import_project = None
+        fp = Path(tmpdir, "project.json")
+        with open(fp, "r+") as f:
+
+            # load the project info in scope of function
+            import_project = json.load(f)
+
+            # If the uploaded project already exists,
+            # then overwrite project.json with a copy suffix.
+            while is_project(import_project["id"]):
+                # project update
+                import_project["id"] = f"{import_project['id']}-copy"
+                import_project["name"] = f"{import_project['name']} copy"
+            else:
+                # write to file
+                f.seek(0)
+                json.dump(import_project, f)
+                f.truncate()
+
+        # location to copy file to
+        fp_copy = get_project_path(import_project["id"])
+        # Move the project from the temp folder to the projects folder.
+        os.replace(tmpdir, fp_copy)
+
+    except Exception:
+        # Unknown error.
+        raise ValueError(
+            "Failed to import project "
+            f"'{file_name.filename}'."
+        )
+
+    return import_project["id"]
 
 
 def add_dataset_to_project(project_id, file_name):
@@ -119,13 +241,13 @@ def add_dataset_to_project(project_id, file_name):
     ):
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
+            project_config = json.load(f_read)
 
         # add path to dict (overwrite if already exists)
-        project_dict["dataset_path"] = file_name
+        project_config["dataset_path"] = file_name
 
         with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+            json.dump(project_config, f_write)
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
@@ -163,14 +285,14 @@ def remove_dataset_to_project(project_id, file_name):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
+            project_config = json.load(f_read)
 
         # remove the path from the project file
-        data_fn = project_dict["dataset_path"]
-        del project_dict["dataset_path"]
+        data_fn = project_config["dataset_path"]
+        del project_config["dataset_path"]
 
         with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+            json.dump(project_config, f_write)
 
         # files to remove
         data_path = get_data_file_path(project_id, data_fn)
@@ -180,6 +302,48 @@ def remove_dataset_to_project(project_id, file_name):
         os.remove(str(data_path))
         os.remove(str(pool_path))
         os.remove(str(labeled_path))
+
+
+def add_simulation_to_project(project_id, simulation_id):
+    update_simulation_in_project(project_id, simulation_id, "running")
+
+
+def update_simulation_in_project(project_id, simulation_id, state):
+
+    # read the file with project info
+    with open(get_project_file_path(project_id), "r") as fp:
+        project_info = json.load(fp)
+
+    if "simulations" not in project_info:
+        project_info["simulations"] = []
+
+    simulation = {
+        "id": simulation_id,
+        "state": state
+    }
+
+    project_info["simulations"].append(simulation)
+
+    # update the file with project info
+    with open(get_project_file_path(project_id), "w") as fp:
+        json.dump(project_info, fp)
+
+
+def get_project_config(project_id):
+
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+
+            project_info = json.load(fp)
+
+    except FileNotFoundError:
+        raise ProjectNotFoundError(
+            f"Project '{project_id}' not found"
+        )
+
+    return project_info
 
 
 def clean_project_tmp_files(project_id):
@@ -212,29 +376,16 @@ def clean_all_project_tmp_files():
 
 def get_paper_data(project_id,
                    paper_id,
-                   return_title=True,
-                   return_authors=True,
-                   return_abstract=True,
                    return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
     record = as_data.record(int(paper_id), by_index=False)
 
     paper_data = {}
-    if return_title and record.title is not None:
-        paper_data['title'] = record.title
-    if return_authors and record.authors is not None:
-        paper_data['authors'] = record.authors
-    if return_abstract and record.abstract is not None:
-        paper_data['abstract'] = record.abstract
-
-    # return the publication data if available
-    pub_time = record.extra_fields.get("publish_time", None)
-    paper_data['publish_time'] = pub_time if pd.notnull(pub_time) else None
-
-    # return the doi if available
-    doi = record.extra_fields.get("doi", None)
-    paper_data['doi'] = doi if pd.notnull(doi) else None
+    paper_data['title'] = record.title
+    paper_data['authors'] = record.authors
+    paper_data['abstract'] = record.abstract
+    paper_data['doi'] = record.doi
 
     # return the debug label
     debug_label = record.extra_fields.get("debug_label", None)
@@ -353,7 +504,7 @@ def export_to_string(project_id, export_type="csv"):
         pool_ordered = proba.loc[pool, :] \
             .sort_values("proba", ascending=False).index.values
     else:
-        pool_ordered = pool_ordered
+        pool_ordered = pool
 
     # get the ranking of the 3 subcategories
     ranking = np.concatenate(
@@ -371,6 +522,11 @@ def export_to_string(project_id, export_type="csv"):
     # export the data to file
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
+
+    if export_type == "tsv":
+        return as_data.to_csv(
+            fp=None, sep="\t", labels=labeled, ranking=ranking)
+
     if export_type == "excel":
         get_tmp_path(project_id).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")

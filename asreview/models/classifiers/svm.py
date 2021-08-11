@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2021 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ from asreview.utils import _set_class_weight
 
 class SVMClassifier(BaseTrainClassifier):
     """
-    Support Vector Machine classifier
+    Support vector machine classifier.
 
     The Support Vector Machine classifier is an implementation based
     on the sklearn Support Vector Machine classifier.
@@ -38,8 +38,9 @@ class SVMClassifier(BaseTrainClassifier):
     random_state: int, RandomState
         State of the RNG.
     """
-    "Support Vector Machine SKLearn model."
+
     name = "svm"
+    label = "Support vector machine"
 
     def __init__(self,
                  gamma="auto",

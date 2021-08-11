@@ -1,11 +1,10 @@
 Screening
 =========
 
-The screen in which you provide labels for records shown to you by the
-software is kept as simple as possible. This is because we want you to focus
-on the content of the text so that you can make your deicssion as a true
-Oracle. There are few features you can access during screening which we
-present below.
+The user interface in which you provide labels for records shown to you by the
+software is kept as simple as possible. This is because ASReview wants you to
+focus on the content of the text so that you can make your decision as a true
+Oracle. You can access the following features during screening.
 
 
 Autosave
@@ -27,7 +26,7 @@ To make a decision:
 
 1. Open ASReview LAB.
 2. Open a project.
-3. Click on either the button Relevant or Irrelevant.
+3. Click on either the *Relevant* or *Irrelevant* button.
 4. The next record is presented. Repeat the process of labeling.
 
 .. figure:: ../../images/asreview_screening_asreview_label.png
@@ -35,7 +34,7 @@ To make a decision:
 
 .. warning::
 
-  If you are in doubt, think harder and take your time to make a decision, you
+  If you are in doubt, take your time to think on the decision, you
   are the oracle. Based on your input, a new model will be trained in the
   background. If you make decisions faster than the model needs for computing
   new relevance scores, you will simply be presented with the record next in
@@ -107,7 +106,7 @@ of your screening process so far. To open the statistics panel:
 In the top of the statistics panel the project name, authors and total number
 of records in the dataset are displayed.
 
-The pie chart on the presents an overview of how many relevant (green) and
+The pie chart presents an overview of how many relevant (green) and
 irrelevant (orange) records have been screened so far. Also, the total number
 of records screened is displayed, as well as the percentage screened relative
 to the total number of records in the dataset.
@@ -145,7 +144,7 @@ Download Results
 ----------------
 
 
-A file containing all metadata including your decissions can be downloaded
+A file containing all metadata including your decisions can be downloaded
 any time during the screening process. To download your results:
 
 1. Open ASReview LAB.
@@ -169,8 +168,8 @@ Via the hamburger menu in the left-upper corner you can:
 2. You can access the :doc:`Project Dashboard <post_screening>`.
 3. Navigate to the documention via the `HELP <https://asreview.readthedocs.io/en/latest/>`_ button.
 4. Provide feedback or `contribute <https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md>`_ to the code.
-5. Donate some money via our `crowdfunding platform <https://asreview.nl/donate>`_
-6. Quit the software (your progress was saved automatically)
+5. Donate to the ASReview project via the `ASReview crowdfunding platform <https://asreview.nl/donate>`_.
+6. Quit the software (your progress is saved automatically).
 
 
 .. _keybord-shortcuts:

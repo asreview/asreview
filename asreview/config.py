@@ -19,6 +19,12 @@ LABEL_NA = -1
 
 KERAS_MODELS = ["lstm_base", "lstm_pool"]
 
+# project types
+PROJECT_MODE_ORACLE = "oracle"
+PROJECT_MODE_EXPLORE = "explore"
+PROJECT_MODE_SIMULATE = "simulate"
+PROJECT_MODES = [PROJECT_MODE_ORACLE, PROJECT_MODE_EXPLORE, PROJECT_MODE_SIMULATE]
+
 # CLI defaults
 DEFAULT_MODEL = "nb"
 DEFAULT_QUERY_STRATEGY = "max"
@@ -49,4 +55,5 @@ COLUMN_DEFINITIONS = {
     "authors": ["authors", "author names", "first_authors"],
     "abstract": ["abstract", "abstract note", "notes_abstract"],
     "keywords": ["keywords"],
+    "doi": ["doi"],
 }

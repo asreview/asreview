@@ -43,7 +43,7 @@ def get_long_description():
 DEPS = {
     "sbert": ['sentence_transformers'],
     "doc2vec": ['gensim<=3.8.2'],
-    "tensorflow": ['tensorflow'],
+    "tensorflow": ['tensorflow~=2.0'],
     "dev": ['check-manifest'],
     'test': ['coverage', 'pytest'],
 }
@@ -112,14 +112,15 @@ setup(
         'numpy',
         'sklearn',
         'pandas',
-        'rispy',
+        'rispy~=0.6.0',
         'dill',
         'h5py',
         'xlrd>=1.0.0',
         'setuptools',
-        'flask>=1.1',
+        'flask>=2.0',
         'flask_cors',
         'openpyxl',
+        'gevent',
     ],
     extras_require=DEPS,
     entry_points={
@@ -136,6 +137,8 @@ setup(
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
+            '.tab = asreview.io.csv_reader:read_csv',
+            '.tsv = asreview.io.csv_reader:read_csv',
             '.ris = asreview.io.ris_reader:read_ris',
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
@@ -171,6 +174,8 @@ setup(
             "random = asreview.models.query.random:RandomQuery",
             "uncertainty = asreview.models.query.uncertainty:UncertaintyQuery",
             "cluster = asreview.models.query.cluster:ClusterQuery",
+            "max_random = asreview.models.query.mixed:MaxRandomQuery",
+            "max_uncertainty = asreview.models.query.mixed:MaxUncertaintyQuery",
         ]
     },
     project_urls={

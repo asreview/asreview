@@ -1,68 +1,134 @@
-import { useEffect, useState } from 'react'
-import brown from '@material-ui/core/colors/brown';
+import { useEffect, useState } from "react";
+import brown from "@material-ui/core/colors/brown";
+import red from "@material-ui/core/colors/red";
 
+import { fontSizeOptions } from "../globals.js";
 
 const useDarkMode = () => {
-
-  let defaultTheme = {
+  let lightTheme = {
     palette: {
       type: "light",
-      primary: brown,
+      primary: {
+        main: brown[500],
+      },
+    },
+    overrides: {
+      MuiLink: {
+        root: {
+          color: "#DC004E",
+        },
+      },
+      MuiTypography: {
+        colorTextSecondary: {
+          color: "#555555",
+        },
+      },
     },
   };
 
-  const [theme, setTheme] = useState(defaultTheme);
+  let darkTheme = {
+    palette: {
+      type: "dark",
+      primary: {
+        main: brown[500],
+      },
+      secondary: {
+        main: red[500],
+      },
+    },
+    overrides: {
+      MuiLink: {
+        root: {
+          color: "#F48FB1",
+        },
+      },
+      MuiButton: {
+        textPrimary: {
+          color: "#CFA596",
+        },
+        outlinedPrimary: {
+          color: "#CFA596",
+        },
+      },
+      MuiTypography: {
+        colorPrimary: {
+          color: "#CFA596",
+        },
+      },
+      MuiFormLabel: {
+        root: {
+          "&$focused": {
+            color: "#CFA596",
+          },
+        },
+      },
+      MuiTab: {
+        textColorPrimary: {
+          "&$selected": {
+            color: "#CFA596",
+          },
+        },
+      },
+      MuiDialog: {
+        paper: {
+          backgroundColor: "#303030",
+        },
+      },
+    },
+  };
+
+  const [theme, setTheme] = useState(lightTheme);
 
   const toggleDarkMode = () => {
-
     if (theme.palette.type === "light") {
-      window.localStorage.setItem("themeType", "dark")
-      setTheme({palette: {...defaultTheme.palette, type: "dark"}})
+      window.localStorage.setItem("themeType", "dark");
+      setTheme(darkTheme);
     } else {
-      window.localStorage.setItem("themeType", "light")
-      setTheme(defaultTheme)
+      window.localStorage.setItem("themeType", "light");
+      setTheme(lightTheme);
     }
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
     if (theme.palette.type !== localTheme && localTheme !== null) {
-      setTheme({palette: {...defaultTheme.palette, type: "dark"}})
+      setTheme(darkTheme);
     }
-  }, [defaultTheme.palette, theme.palette.type]);
+  }, [darkTheme, theme.palette.type]);
 
-  return [theme, toggleDarkMode]
+  return [theme, toggleDarkMode];
 };
 
+const useFontSize = () => {
+  const [fontSize, setFontSize] = useState(fontSizeOptions[1]);
 
-const useTextSize = () => {
-
-  const [textSize, setTextSize] = useState("normal");
-
-  const handleTextSizeChange = (event) => {
-
-    window.localStorage.setItem("textSize", event.target.value)
-    setTextSize(event.target.value);
+  const handleFontSizeChange = (size) => {
+    window.localStorage.setItem(
+      "fontSize",
+      JSON.stringify([size.value, size.label])
+    );
+    setFontSize(size);
   };
 
   useEffect(() => {
-    const localTextSize = window.localStorage.getItem("textSize");
-    if (textSize !== localTextSize && localTextSize !== null) {
-      setTextSize(localTextSize)
+    const localFontSize = JSON.parse(window.localStorage.getItem("fontSize"));
+    if (localFontSize !== null && fontSize.value !== localFontSize[0]) {
+      setFontSize({
+        value: localFontSize[0],
+        label: localFontSize[1],
+      });
     }
-  }, [textSize]);
+  }, [fontSize]);
 
-  return [textSize, handleTextSizeChange]
+  return [fontSize, handleFontSizeChange];
 };
 
-
 const useUndoEnabled = () => {
-
   const [undoEnabled, setUndoEnabled] = useState(true);
 
   const toggleUndoEnabled = () => {
     window.localStorage.setItem("undoEnabled", !undoEnabled);
-    setUndoEnabled(a => (!a));
+    setUndoEnabled((a) => !a);
   };
 
   useEffect(() => {
@@ -70,32 +136,32 @@ const useUndoEnabled = () => {
     const localUndoEnabledIsTrue = localUndoEnabled === "true";
     if (undoEnabled !== localUndoEnabledIsTrue && localUndoEnabled !== null) {
       setUndoEnabled(localUndoEnabledIsTrue);
-    };
+    }
   }, [undoEnabled]);
 
-  return [undoEnabled, toggleUndoEnabled]
+  return [undoEnabled, toggleUndoEnabled];
 };
 
-
 const useKeyPressEnabled = () => {
-
   const [keyPressEnabled, setKeyPressEnabled] = useState(false);
 
   const toggleKeyPressEnabled = () => {
     window.localStorage.setItem("keyPressEnabled", !keyPressEnabled);
-    setKeyPressEnabled(a => (!a));
+    setKeyPressEnabled((a) => !a);
   };
 
   useEffect(() => {
     const localKeyPressEnabled = window.localStorage.getItem("keyPressEnabled");
     const localKeyPressEnabledIsTrue = localKeyPressEnabled === "true";
-    if (keyPressEnabled !== localKeyPressEnabledIsTrue && localKeyPressEnabled !== null) {
+    if (
+      keyPressEnabled !== localKeyPressEnabledIsTrue &&
+      localKeyPressEnabled !== null
+    ) {
       setKeyPressEnabled(localKeyPressEnabledIsTrue);
-    };
+    }
   }, [keyPressEnabled]);
 
-  return [keyPressEnabled, toggleKeyPressEnabled]
-}
+  return [keyPressEnabled, toggleKeyPressEnabled];
+};
 
-
-export { useDarkMode, useTextSize, useUndoEnabled, useKeyPressEnabled };
+export { useDarkMode, useFontSize, useUndoEnabled, useKeyPressEnabled };

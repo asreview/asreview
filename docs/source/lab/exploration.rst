@@ -4,12 +4,12 @@ Exploration Mode
 The exploration mode can be used to explore to performance of the active
 learning software and the performance of :ref:`different algorithms
 <feature-extraction-table>` on already labeled data. In this mode relevant
-records are displayed in green and a recall curce can be obtained.
+records are displayed in green and a recall curve can be obtained.
 
 It is assumed you have already installed Python and ASReview. If this
 is not the case, see :doc:`../intro/installation`. Also, you should
 have created a :doc:`project<launch>` - the name is not
-relevant, but is adviced to have a explore-prefix.
+relevant, but is advised to have a explore-prefix.
 
 
 Upload a Benchmark Dataset
@@ -74,21 +74,10 @@ START reviewing
 Start reviewing the first 50, 100 or even 200 papers. Abstracts in green are
 relevenant papers and abstracts in black are irrelevant.
 
-For the *PTSD Trajectories* dataset we expect you to find about 7 out of 38
-relevant papers after screening 50 papers, 19 after screening 100
-papers and 36 after 200 papers.
-
-For the *Virus Metagenomics* dataset we expect you to find 20 out of 120 relevant
-papers after screening 50 papers, 40 after screening 100 papers
-and 70 after 200 papers
-
-For the *Software Fault Prediction* dataset we expect you to find 25 out of 104 relevant
-papers after screening 50 papers, 48 after screening 100 papers
-and 88 after 200 papers.
-
-For the *ACEinhibitors* dataset we expect you to find 16 out of 41 relevant
-papers after screening 50 papers, 27 after screening 100 papers and 32 after
-200 papers.
+- For the *PTSD Trajectories* dataset you expect to find about 7 out of 38 relevant papers after screening 50 papers, 19 after screening 100 papers and 36 after 200 papers.
+- For the *Virus Metagenomics* dataset you expect to find 20 out of 120 relevant papers after screening 50 papers, 40 after screening 100 papers and 70 after 200 papers
+- For the *Software Fault Prediction* dataset you expect to find 25 out of 104 relevant papers after screening 50 papers, 48 after screening 100 papers and 88 after 200 papers.
+- For the *ACEinhibitors* dataset you expect to find 16 out of 41 relevant papers after screening 50 papers, 27 after screening 100 papers and 32 after 200 papers.
 
 
 Upload Your own Data for Exploration

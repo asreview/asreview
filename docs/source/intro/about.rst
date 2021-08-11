@@ -6,7 +6,7 @@ how labor intensive this can be. The future will be an interaction with
 machine learning algorithms to deal with the enormous increase of available
 text. Therefore, an open source machine learning-aided pipeline applying
 active learning was developed at `Utrecht University <https://www.uu.nl>`_, titled
-**ASReview**. The goal of ASReview is to help scholars and practitioners to
+**ASReview**. ASReview aims to help scholars and practitioners to
 get an overview of the most relevant records for their work as efficiently as
 possible, while being transparent in the process.
 
@@ -15,14 +15,14 @@ Research Team
 ~~~~~~~~~~~~~
 
 ASReview is a research project coordinated by `Rens van de Schoot
-<www.rensvandeschoot.com>`_ (full Professor at the Department of Methodology &
+<https://www.rensvandeschoot.com/>`_ (full Professor at the Department of Methodology &
 Statistics and ambassador of the focus area Applied Data Science at Utrecht
 University, The Netherlands), together with `Jonathan de Bruin
 <https://github.com/J535D165>`_, Lead engineer of the ASReview project and
 working at the Information and Technology Services department at Utrecht
 University.
 
-Our advisory board consists of machine learning expert `Daniel Oberski
+The advisory board consists of machine learning expert `Daniel Oberski
 <http://daob.nl/about-me/>`_, associate professor at Utrecht University’s
 Department of Methodology & Statistics, and the department of Biostatistics at
 the Julius Center, University Medical Center Utrecht),  full professor `Lars
@@ -33,22 +33,27 @@ the Utrecht University library), `Jan de Boer
 <https://www.uu.nl/staff/JdeBoer>`_ (Information specialist at the Utrecht
 university library), `Felix Weijdema <https://www.uu.nl/staff/FPWeijdema>`_
 (Systematic review specialist at the Utrecht University library), and `Martijn
-Hutijs <https://www.uu.nl/staff/MTIHuijts>`_ (UX-expert at the department Test
+Huijts <https://www.uu.nl/staff/MTIHuijts>`_ (UX-expert at the department Test
 and Quality Services at Utrecht University).
 
-The Art-Work of ASReview was developed by `Joukje Willemsen <http://www.statistics-illustrated.com/>`_.
+The artwork for the ASReview project is created by `Joukje Willemsen <http://www.statistics-illustrated.com/>`_.
 
-Moreover, many others helped the project, like researchers Gerbrich Ferdinands
+Moreover, many others contribute to the project, like researchers Gerbrich Ferdinands
 and Laura Hofstee, as well as many students like Yongchao Terry Ma, Sofie van
-den Brand, Sybren Hindriks, and Albert Harkema. Many thanks to all the
-`contributors <https://github.com/asreview/asreview/blob/master/CONTRIBUTORS.md>`_!
+den Brand, Sybren Hindriks, and Albert Harkema. See
+`ASReview project members <https://github.com/orgs/asreview/people/>`_ for an
+overview of the people involved in the project.
+
+ASReview thanks the community for their contributions. A full
+list of code contributors can be found on the
+`contributors' <https://github.com/asreview/asreview/graphs/contributors>`_ page on Github.
 
 The Case of Systematic Reviewing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ASReview is a generic tool for the screening  of :doc:`any type of
 text <datasets>`, but often use the case of systematic reviewing is ued to
-illustrate its usefulness, see also the blog post `ASReview Class 101 <https://asreview.nl/asreview-class-101/>`_.
+illustrate its usefulness, see also the blog post `ASReview Class 101 <https://asreview.nl/blog/asreview-class-101/>`_.
 
 With the emergence of online publishing, the number of scientific papers on
 any topic, e.g. COVID19, is skyrocketing. Simultaneously, the public press

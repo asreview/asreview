@@ -1,7 +1,7 @@
 Vocabulary
 ----------
 
-When we write about ASReview, we want to use a consistent vocabulary.
+The ASReview project makes use of standardized terminology for all communication regarding ASReview and its underlying technology. An overview of terms and usage can be found in the table below.  
 
 +------------------+-----------------------------------------------------------+
 | Term             | Usage                                                     |
@@ -11,21 +11,26 @@ When we write about ASReview, we want to use a consistent vocabulary.
 |                  | Avoid this explanation, only use as tagline.              |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
+| **ASReview       | Use ASReview project as an encompassing term for all work |
+| project**        | that is done by the ASReview team members and ASReview    |
+|                  | contributors.                                             |
+|                  |                                                           |
++------------------+-----------------------------------------------------------+
+| **ASReview LAB** | Use to indicate the user-friendly interface that has      |
+|                  | been developed for researchers to use.                    |
+|                  |                                                           |
++------------------+-----------------------------------------------------------+
+| **ASReview CLI** | Use to indicate the command line interface that has       |
+|                  | been developed for advanced options or for running        |
+|                  | simulations studies.                                      |
+|                  |                                                           |
++------------------+-----------------------------------------------------------+
 | **team members** | UU employees and students and who have permission to      |
 |                  | devote hours to the ASReview project.                     |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **contributors** | Everyone contributing to the ASReview project (through    |
 |                  | GitHub)                                                   |
-|                  |                                                           |
-+------------------+-----------------------------------------------------------+
-| **ASReview       | Use ASReview project as an encompassing term for all work |
-| project**        | that is done by the ASReview team members and ASReview    |
-|                  | contributors.                                             |
-|                  |                                                           |
-+------------------+-----------------------------------------------------------+
-| **ASReview LAB** | Use to indicate the GUI that has been developed for       |
-|                  | researchers to use.                                       |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Extension**    | Use to indicate additional elements to the ASReview       |
@@ -37,30 +42,29 @@ When we write about ASReview, we want to use a consistent vocabulary.
 |                  | Use for storytelling and to increase explainability.      |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
-| **User**         | The one who labels publications.                          |
+| **User**         | The human annotator who labels records.                   |
 |                  |                                                           |
-| **Screener**     | Replacement term when context is PRISMA.                  |
+| **Screener**     | Replacement term when context is PRISMA-based reviewing.  |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Records**      | The data points that need to be labeled.                  |
-|                  | The records contain both information that is used for     |
+|                  | The records can contain both information that is used for |
 |                  | training the active learning model, and information that  |
 |                  | is not used for this purpose.                             |
 |                  |                                                           |
-|                  | In the case of systematic reviews, a record is a          |
-|                  | scientific publication. Here, the information that is     |
-|                  | used for training purposes is the text in the title and   | 
-|                  | abstract of the publication. The information that is not  |            
-|                  | used for training typically consists of other metadata,   |      
-|                  | for example, the authors, journal, or DOI of the          |
-|                  | publication.                                              |
+|                  | In the case of systematic reviewing, a record is          |
+|                  | meta-data for a scientific publication. Here, the         |
+|                  | information that is used for training purposes is the     | 
+|                  | text in the title and abstract of the publication. The    |            
+|                  | information that is not used for training typically       |      
+|                  | consists of other metadata, for example, the authors,     |
+|                  | journal, or DOI of the publication.                       |
 |                  |                                                           |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Screening**    | All terms can be used to indicate the decision-making     |
 |                  | process on the relevancy of records ("irrelevant" or      |
 | **Labeling**     | "relevant").                                              |
-|                  |                                                           |
 |                  |                                                           |
 | **Reviewing**    |                                                           |
 |                  |                                                           |
@@ -76,10 +80,10 @@ When we write about ASReview, we want to use a consistent vocabulary.
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Finished**     | Whenever **the user decides** that the reviewing process  |
-|                  | has been completed **or all records are labeled**.        |
+|                  | has been completed or if **all records are labeled**.     |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
 | **Published**    | Whenever the data and **ASReview project file**           |
-|                  | are openly published on, for example, OSF.                |
+|                  | are openly published on, for example, the OSF.            |
 |                  |                                                           |
 +------------------+-----------------------------------------------------------+
