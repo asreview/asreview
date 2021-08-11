@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 
 from asreview import __version__ as asreview_version
-from asreview.config import LABEL_NA
+from asreview.config import LABEL_NA, PROJECT_MODES
 from asreview.compat import convert_id_to_idx
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_current_labels
@@ -111,11 +111,12 @@ def init_project(project_id,
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(get_project_path())
+        shutil.rmtree(get_project_path(project_id))
         raise err
 
 
 def update_project_info(project_id,
+                        project_mode,
                         project_name=None,
                         project_description=None,
                         project_authors=None):
@@ -130,6 +131,11 @@ def update_project_info(project_id,
     if (project_id != project_id_new) & is_project(project_id_new):
         raise ValueError("Project name already exists.")
 
+    # validate schema
+    # TODO{}
+    if project_mode not in PROJECT_MODES:
+        raise ValueError(f"Project mode '{project_mode}' not found.")
+
     try:
 
         # read the file with project info
@@ -137,6 +143,7 @@ def update_project_info(project_id,
             project_info = json.load(fp)
 
         project_info["id"] = project_id_new
+        project_info["mode"] = project_mode
         project_info["name"] = project_name
         project_info["authors"] = project_authors
         project_info["description"] = project_description

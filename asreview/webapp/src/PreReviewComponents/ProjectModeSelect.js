@@ -27,7 +27,7 @@ export default function ProjectModeSelect(props) {
 
   return (
     <div>
-      <FormControl variant="outlined" className={classes.formControl}>
+      <FormControl variant="outlined" className={classes.formControl} disabled={props.edit}>
         <InputLabel ref={inputLabel} id="mode-label">
           Project type
         </InputLabel>

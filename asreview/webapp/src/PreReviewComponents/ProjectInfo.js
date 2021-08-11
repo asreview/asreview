@@ -100,6 +100,13 @@ const ProjectInit = (props) => {
 
   const onChange = (evt) => {
 
+    if (error.code) {
+      setError({
+        code: null,
+        message: null,
+      });
+    }
+
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
@@ -115,22 +122,47 @@ const ProjectInit = (props) => {
     bodyFormData.set("authors", info.authors);
     bodyFormData.set("description", info.description);
 
-    ProjectAPI.init(bodyFormData)
-      .then((result) => {
-        // set the project_id in the redux store
-        props.setProjectId(result.data["id"]);
-
-        props.handleAppState("project-page");
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
+    // dialog is open in edit mode
+    if(props.edit){
+      ProjectAPI
+        .info(props.project_id, true, bodyFormData)
+        .then((result) => {
+          // set the project_id in the redux store
+          props.setProjectId(result.data["id"]);
+          // set editing state to false
+          props.onClose();
+          props.reloadProjectInfo();
+        })
+        .catch((error) => {
+          setError({
+            code: error.code,
+            message: error.message,
+          });
         });
-      });
+    }
+    else {
+
+      // dialog is open in init mode
+      ProjectAPI.init(bodyFormData)
+        .then((result) => {
+          // set the project_id in the redux store
+          props.setProjectId(result.data["id"]);
+          // set newProject state to false
+          props.onClose();
+          props.handleAppState("project-page");
+        })
+        .catch((error) => {
+          setError({
+            code: error.code,
+            message: error.message,
+          });
+        });
+    }
+
   };
 
   React.useEffect(() => {
+    // unlock simulation mode
     if (info.name === "elas" && !showSimulate){
 
       setInfo({
@@ -140,12 +172,20 @@ const ProjectInit = (props) => {
       });
       setShowSimulate(true)
     }
-  }, [info.name]);
+  }, [info.name, info, showSimulate]);
+
+  React.useEffect(() => {
+    // pre-fill project info in edit mode
+    if (props.edit) {
+      setInfo(props.info);
+    };
+  }, [props.edit, props.info]);
 
   return (
     <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
-      <DialogTitle>Create a new project</DialogTitle>
-
+      <DialogTitle>
+        {props.edit ? "Edit project info" : "Create a new project"}
+      </DialogTitle>
       {error.code === 503 && (
         <DialogContent dividers={true}>
           <ErrorHandler error={error} />
@@ -164,7 +204,12 @@ const ProjectInit = (props) => {
           {/* The actual form */}
           <form noValidate autoComplete="off">
             <div className={classes.textfieldItem}>
-              <ProjectModeSelect mode={info.mode} onModeChange={onModeChange} showSimulate={showSimulate} />
+              <ProjectModeSelect
+                mode={info.mode}
+                edit={props.edit}
+                onModeChange={onModeChange}
+                showSimulate={showSimulate}
+              />
             </div>
 
             { showSimulate &&
@@ -226,7 +271,7 @@ const ProjectInit = (props) => {
             color="primary"
             disabled={info.name.length < 3}
           >
-            Create
+            {props.edit ? "Update" : "Create"}
           </Button>
         </DialogActions>
       )}

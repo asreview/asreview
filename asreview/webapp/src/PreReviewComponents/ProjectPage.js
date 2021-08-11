@@ -423,9 +423,7 @@ const ProjectPage = (props) => {
           open={state.infoEditing}
           onClose={finishEditProjectInfo}
           reloadProjectInfo={reloadProjectInfo}
-          name={state.info.name}
-          authors={state.info.authors}
-          description={state.info.description}
+          info={state.info}
         />
       )}
     </Box>
