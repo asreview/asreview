@@ -46,8 +46,14 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     padding: "24px 40px 24px 40px",
   },
+  textGrid: {
+    marginTop: 16,
+    marginBottom: "auto",
+  },
   text: {
-    margin: "auto",
+    width: "auto",
+    display: "flex",
+    justifyContent: "space-between",
   },
   textLabel: {
     width: 105,
@@ -232,21 +238,15 @@ const StatisticsZone = (props) => {
           error.history === null &&
           error.efficiency === null &&
           statistics !== null && (
-            <Grid container spacing={3}>
-              <Grid className={classes.text} item xs={12} sm={4}>
-                <Grid container>
-                  <Grid className={classes.textLabel} item>
+            <Grid container spacing={5}>
+              <Grid className={classes.textGrid} item xs={12} sm={4}>
+                <div>
+                  <div className={classes.text}>
                     <Typography>Total records:</Typography>
-                  </Grid>
-                  <Grid item>
                     <Typography>{statistics.n_papers}</Typography>
-                  </Grid>
-                </Grid>
-                <Grid container>
-                  <Grid className={classes.textLabel} item>
+                  </div>
+                  <div className={classes.text}>
                     <Typography>Reviewed:</Typography>
-                  </Grid>
-                  <Grid item>
                     <Typography>
                       {statistics.n_included + statistics.n_excluded} (
                       {Math.round(
@@ -256,16 +256,12 @@ const StatisticsZone = (props) => {
                       ) / 100}
                       %)
                     </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container>
-                  <Grid className={classes.textLabel} item>
+                  </div>
+                  <div className={classes.text}>
                     <Typography>Relevant:</Typography>
-                  </Grid>
-                  <Grid item>
                     <Typography>{statistics.n_included}</Typography>
-                  </Grid>
-                </Grid>
+                  </div>
+                </div>
               </Grid>
               <Grid item xs={12} sm={8}>
                 <div>
