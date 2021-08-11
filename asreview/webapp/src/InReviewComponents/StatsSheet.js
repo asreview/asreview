@@ -57,7 +57,7 @@ const StatsSheet = (props) => {
 
   const drawer = (
     <div>
-      {!props.mobile && (
+      {!props.mobileScreen && (
         <div>
           <Toolbar />
           <div className={classes.drawerHeader}>
@@ -100,7 +100,7 @@ const StatsSheet = (props) => {
           container={container}
           variant="temporary"
           anchor="right"
-          open={props.mobile && props.onSideSheet}
+          open={props.mobileScreen && props.onSideSheet}
           onClose={props.toggleSideSheet}
           classes={{ paper: classes.drawerPaper }}
           ModalProps={{
@@ -118,7 +118,7 @@ const StatsSheet = (props) => {
           }}
           variant="persistent"
           anchor="right"
-          open={!props.mobile && props.onSideSheet}
+          open={!props.mobileScreen && props.onSideSheet}
         >
           {drawer}
         </Drawer>

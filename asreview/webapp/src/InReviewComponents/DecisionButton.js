@@ -47,12 +47,12 @@ const DecisionButton = (props) => {
   return (
     <div
       className={clsx(classes.root, {
-        [classes.rootMobile]: props.mobile,
+        [classes.rootMobile]: props.mobileScreen,
       })}
     >
       <Fab
         onClick={() => props.makeDecision(0)}
-        size={props.mobile ? "small" : "large"}
+        size={props.mobileScreen ? "small" : "large"}
         variant="extended"
       >
         <FavoriteBorder className={classes.extendedFab} />
@@ -61,7 +61,7 @@ const DecisionButton = (props) => {
       <Fab
         onClick={() => props.makeDecision(1)}
         color="primary"
-        size={props.mobile ? "small" : "large"}
+        size={props.mobileScreen ? "small" : "large"}
         variant="extended"
       >
         <Favorite className={classes.extendedFab} />
