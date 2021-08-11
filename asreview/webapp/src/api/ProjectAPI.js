@@ -207,7 +207,7 @@ class ProjectAPI {
   }
 
   static init_ready(project_id) {
-    const url = api_url + `project/${project_id}/model/init_ready`;
+    const url = api_url + `project/${project_id}/ready`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
