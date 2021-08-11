@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import {
-  Dialog,
-  DialogContent,
-  DialogActions,
-  useMediaQuery,
-} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { Dialog, DialogContent, DialogActions } from "@material-ui/core";
 
 import { AppBarWithinDialog } from "../Components";
 import {
@@ -61,8 +56,6 @@ const mapStateToProps = (state) => {
 
 const ReviewDialog = (props) => {
   const classes = useStyles();
-  const theme = useTheme();
-  const mobile = !useMediaQuery(theme.breakpoints.up("sm"));
 
   /**
    * Exploration mode banner state
@@ -354,12 +347,12 @@ const ReviewDialog = (props) => {
    * Hide side statistics on mobile screen
    */
   useEffect(() => {
-    if (mobile) {
+    if (props.mobileScreen) {
       setSideSheet(false);
     } else {
       setSideSheet(true);
     }
-  }, [mobile]);
+  }, [props.mobileScreen]);
 
   /**
    * Use keyboard shortcuts
@@ -407,7 +400,7 @@ const ReviewDialog = (props) => {
         {/* Banner Exploration Mode */}
         <div
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideSheet,
+            [classes.contentShift]: !props.mobileScreen && sideSheet,
           })}
         >
           <ExplorationModeBanner banner={banner} setBanner={setBanner} />
@@ -417,7 +410,7 @@ const ReviewDialog = (props) => {
         <DialogContent
           style={{ height: "100%" }}
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideSheet,
+            [classes.contentShift]: !props.mobileScreen && sideSheet,
           })}
         >
           <RecordCard
@@ -432,12 +425,12 @@ const ReviewDialog = (props) => {
         {/* Decision button */}
         <DialogActions
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideSheet,
+            [classes.contentShift]: !props.mobileScreen && sideSheet,
           })}
         >
           <DecisionButton
             makeDecision={makeDecision}
-            mobile={mobile}
+            mobileScreen={props.mobileScreen}
             previousSelection={recordState["selection"]}
           />
         </DialogActions>
@@ -450,7 +443,7 @@ const ReviewDialog = (props) => {
         {/* Decision undo bar */}
         <div
           className={clsx(classes.content, {
-            [classes.contentShift]: !mobile && sideSheet,
+            [classes.contentShift]: !props.mobileScreen && sideSheet,
           })}
         >
           <DecisionUndoBar
@@ -462,7 +455,7 @@ const ReviewDialog = (props) => {
 
         {/* Statistics side sheet */}
         <StatsSheet
-          mobile={mobile}
+          mobileScreen={props.mobileScreen}
           onSideSheet={sideSheet}
           toggleSideSheet={toggleSideSheet}
           statistics={statistics}

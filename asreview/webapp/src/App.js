@@ -1,5 +1,5 @@
 import React from "react";
-import { CssBaseline, createMuiTheme } from "@material-ui/core";
+import { CssBaseline, createMuiTheme, useMediaQuery } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
 
@@ -57,6 +57,7 @@ const App = (props) => {
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const muiTheme = createMuiTheme(theme);
+  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"));
 
   // Dialog toggle
   const toggleSettings = () => {
@@ -119,12 +120,20 @@ const App = (props) => {
       {props.app_state === "review" && (
         <ReviewDialog
           handleAppState={props.setAppState}
+          mobileScreen={mobileScreen}
           onReview={review}
           toggleReview={toggleReview}
           toggleHistory={toggleHistory}
           fontSize={fontSize}
           undoEnabled={undoEnabled}
           keyPressEnabled={keyPressEnabled}
+        />
+      )}
+      {props.app_state === "review" && (
+        <HistoryDialog
+          mobileScreen={mobileScreen}
+          toggleHistory={toggleHistory}
+          history={history}
         />
       )}
 
@@ -137,6 +146,7 @@ const App = (props) => {
 
       {/* Dialogs */}
       <SettingsDialog
+        mobileScreen={mobileScreen}
         onSettings={settings}
         onDark={theme}
         fontSize={fontSize}
@@ -148,15 +158,16 @@ const App = (props) => {
         toggleKeyPressEnabled={toggleKeyPressEnabled}
         toggleUndoEnabled={toggleUndoEnabled}
       />
-      <HelpDialog onHelp={help} toggleHelp={toggleHelp} />
+      <HelpDialog
+        mobileScreen={mobileScreen}
+        onHelp={help}
+        toggleHelp={toggleHelp}
+      />
       <ExitDialog toggleExit={toggleExit} exit={exit} />
       <ExportDialog
         toggleExportResult={toggleExportResult}
         exportResult={exportResult}
       />
-      {props.app_state === "review" && (
-        <HistoryDialog toggleHistory={toggleHistory} history={history} />
-      )}
     </ThemeProvider>
   );
 };
