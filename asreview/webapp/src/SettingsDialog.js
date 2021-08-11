@@ -16,9 +16,8 @@ import {
   Switch,
   Slider,
   Typography,
-  useMediaQuery,
 } from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
@@ -72,8 +71,6 @@ const SettingsDialog = (props) => {
   const classes = useStyles();
 
   const descriptionElementRef = useRef(null);
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   // second layer state
   const [fontSizeSetting, setFontSizeSetting] = useState(false);
@@ -116,7 +113,7 @@ const SettingsDialog = (props) => {
   return (
     <div>
       <Dialog
-        fullScreen={fullScreen}
+        fullScreen={props.mobileScreen}
         open={props.onSettings}
         onClose={props.toggleSettings}
         onExited={exitSettings}

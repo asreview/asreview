@@ -12,14 +12,13 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  useMediaQuery,
 } from "@material-ui/core";
 
 import FeedbackIcon from "@material-ui/icons/Feedback";
 import DescriptionIcon from "@material-ui/icons/Description";
 import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
 
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 import { UtilsAPI } from "./api/index.js";
 
@@ -56,8 +55,6 @@ const useStyles = makeStyles((theme) => ({
 const HelpDialog = (props) => {
   const classes = useStyles();
   const descriptionElementRef = useRef(null);
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [faq, setFaq] = useState(null);
   const [error, setError] = useState({
@@ -96,7 +93,7 @@ const HelpDialog = (props) => {
   return (
     <div>
       <Dialog
-        fullScreen={fullScreen}
+        fullScreen={props.mobileScreen}
         open={props.onHelp}
         onClose={props.toggleHelp}
         scroll="paper"
