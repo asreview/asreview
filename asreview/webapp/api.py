@@ -309,7 +309,8 @@ def api_upload_data_to_project(project_id):  # noqa: F401
     if request.form.get('url', None):
         url = request.form['url']
 
-    if request.form.get('plugin', None) or request.form.get('benchmark', None)  or request.form.get('url', None):
+    if request.form.get('plugin', None) or request.form.get('benchmark', None)
+            or request.form.get('url', None):
         try:
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
