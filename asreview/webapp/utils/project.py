@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 
 from asreview import __version__ as asreview_version
-from asreview.config import LABEL_NA
+from asreview.config import LABEL_NA, PROJECT_MODES
 from asreview.compat import convert_id_to_idx
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_current_labels
@@ -51,6 +51,10 @@ from asreview.webapp.utils.paths import list_asreview_project_paths
 from asreview.webapp.utils.validation import is_project
 
 
+class ProjectNotFoundError(Exception):
+    pass
+
+
 def _get_executable():
     """Get the Python executable"""
 
@@ -64,6 +68,7 @@ def _get_executable():
 
 
 def init_project(project_id,
+                 project_mode="oracle",
                  project_name=None,
                  project_description=None,
                  project_authors=None):
@@ -76,6 +81,9 @@ def init_project(project_id,
     if is_project(project_id):
         raise ValueError("Project name already exists.")
 
+    if project_mode not in ["oracle", "explore", "simulate"]:
+        ValueError("Project mode should be oracle, explore, or simulate.")
+
     try:
         get_project_path(project_id).mkdir()
         get_data_path(project_id).mkdir()
@@ -83,6 +91,7 @@ def init_project(project_id,
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
             'id': project_id,
+            'mode': project_mode,
             'name': project_name,
             'description': project_description,
             'authors': project_authors,
@@ -91,7 +100,7 @@ def init_project(project_id,
             # project related variables
             'datetimeCreated': str(datetime.now()),
             'projectInitReady': False,
-            'reviewFinished': False,
+            'reviewFinished': False
         }
 
         # create a file with project info
@@ -102,11 +111,12 @@ def init_project(project_id,
 
     except Exception as err:
         # remove all generated folders and raise error
-        shutil.rmtree(get_project_path())
+        shutil.rmtree(get_project_path(project_id))
         raise err
 
 
 def update_project_info(project_id,
+                        project_mode,
                         project_name=None,
                         project_description=None,
                         project_authors=None):
@@ -121,6 +131,11 @@ def update_project_info(project_id,
     if (project_id != project_id_new) & is_project(project_id_new):
         raise ValueError("Project name already exists.")
 
+    # validate schema
+    # TODO{}
+    if project_mode not in PROJECT_MODES:
+        raise ValueError(f"Project mode '{project_mode}' not found.")
+
     try:
 
         # read the file with project info
@@ -128,6 +143,7 @@ def update_project_info(project_id,
             project_info = json.load(fp)
 
         project_info["id"] = project_id_new
+        project_info["mode"] = project_mode
         project_info["name"] = project_name
         project_info["authors"] = project_authors
         project_info["description"] = project_description
@@ -225,13 +241,13 @@ def add_dataset_to_project(project_id, file_name):
     ):
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
+            project_config = json.load(f_read)
 
         # add path to dict (overwrite if already exists)
-        project_dict["dataset_path"] = file_name
+        project_config["dataset_path"] = file_name
 
         with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+            json.dump(project_config, f_write)
 
         # fill the pool of the first iteration
         as_data = read_data(project_id)
@@ -269,14 +285,14 @@ def remove_dataset_to_project(project_id, file_name):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
+            project_config = json.load(f_read)
 
         # remove the path from the project file
-        data_fn = project_dict["dataset_path"]
-        del project_dict["dataset_path"]
+        data_fn = project_config["dataset_path"]
+        del project_config["dataset_path"]
 
         with open(project_file_path, "w") as f_write:
-            json.dump(project_dict, f_write)
+            json.dump(project_config, f_write)
 
         # files to remove
         data_path = get_data_file_path(project_id, data_fn)
@@ -286,6 +302,48 @@ def remove_dataset_to_project(project_id, file_name):
         os.remove(str(data_path))
         os.remove(str(pool_path))
         os.remove(str(labeled_path))
+
+
+def add_simulation_to_project(project_id, simulation_id):
+    update_simulation_in_project(project_id, simulation_id, "running")
+
+
+def update_simulation_in_project(project_id, simulation_id, state):
+
+    # read the file with project info
+    with open(get_project_file_path(project_id), "r") as fp:
+        project_info = json.load(fp)
+
+    if "simulations" not in project_info:
+        project_info["simulations"] = []
+
+    simulation = {
+        "id": simulation_id,
+        "state": state
+    }
+
+    project_info["simulations"].append(simulation)
+
+    # update the file with project info
+    with open(get_project_file_path(project_id), "w") as fp:
+        json.dump(project_info, fp)
+
+
+def get_project_config(project_id):
+
+    try:
+
+        # read the file with project info
+        with open(get_project_file_path(project_id), "r") as fp:
+
+            project_info = json.load(fp)
+
+    except FileNotFoundError:
+        raise ProjectNotFoundError(
+            f"Project '{project_id}' not found"
+        )
+
+    return project_info
 
 
 def clean_project_tmp_files(project_id):
@@ -446,7 +504,7 @@ def export_to_string(project_id, export_type="csv"):
         pool_ordered = proba.loc[pool, :] \
             .sort_values("proba", ascending=False).index.values
     else:
-        pool_ordered = pool_ordered
+        pool_ordered = pool
 
     # get the ranking of the 3 subcategories
     ranking = np.concatenate(

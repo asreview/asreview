@@ -205,7 +205,7 @@ def test_init_model_ready(client):
     # wait the model ready
     time.sleep(8)
 
-    response = client.get("/api/project/project-id/model/init_ready")
+    response = client.get("/api/project/project-id/ready")
     json_data = response.get_json()
 
     assert json_data["status"] == 1

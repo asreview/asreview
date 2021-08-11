@@ -33,7 +33,7 @@ import SetUp from "../images/SetUp.svg";
 
 import { connect } from "react-redux";
 
-import { mapStateToProps } from "../globals.js";
+import { mapStateToProps, projectModes } from "../globals.js";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -320,14 +320,15 @@ const ProjectPage = (props) => {
                   {/* Project is ready, show button */}
                   {state.info.projectInitReady &&
                     !state.setup &&
-                    !state.training && (
+                    !state.training &&
+                    (state.info["mode"] !== projectModes.SIMULATION) && (
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}
                         onClick={startReviewing}
                         disabled={state.finished}
                       >
-                        Start reviewing
+                        Open review screen
                       </Button>
                     )}
 
@@ -404,9 +405,9 @@ const ProjectPage = (props) => {
             )}
 
             {/* Pre Review settings */}
-            {state.setup && (
+            {!state.infoLoading && state.setup && (
               <PreReviewZone
-                mode={"oracle"}
+                mode={state.info.mode}
                 finishProjectSetup={finishProjectSetup}
                 scrollToTop={scrollToTop}
                 setError={setError}
@@ -422,9 +423,7 @@ const ProjectPage = (props) => {
           open={state.infoEditing}
           onClose={finishEditProjectInfo}
           reloadProjectInfo={reloadProjectInfo}
-          name={state.info.name}
-          authors={state.info.authors}
-          description={state.info.description}
+          info={state.info}
         />
       )}
     </Box>

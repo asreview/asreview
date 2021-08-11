@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import {
+  Box,
   Button,
   TextField,
   DialogTitle,
   DialogContent,
   DialogActions,
   Dialog,
+  Typography,
 } from "@material-ui/core";
 
 import { brown } from "@material-ui/core/colors";
+
+// import useWindowSize from 'react-use/lib/useWindowSize'
+import Confetti from 'react-confetti'
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
@@ -18,7 +23,8 @@ import { ProjectAPI } from "../api/index.js";
 import { setProject } from "../redux/actions";
 
 import { connect } from "react-redux";
-import { mapStateToProps } from "../globals.js";
+import { mapStateToProps, projectModes } from "../globals.js";
+import ProjectModeSelect from "./ProjectModeSelect";
 
 import "./ReviewZone.css";
 
@@ -32,6 +38,9 @@ const useStyles = makeStyles((theme) => ({
   },
   input: {
     display: "none",
+  },
+  list: {
+    backgroundColor: theme.palette.warning.light,
   },
   textfieldItem: {
     marginTop: 0,
@@ -63,29 +72,41 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const ProjectInfo = (props) => {
+const ProjectInit = (props) => {
   const classes = useStyles();
 
-  // const [open, setOpen] = React.useState(props.open)
+  // const { width, height } = useWindowSize()
 
   // the state of the form data
-  const [info, setInfo] = useState({
+  const [info, setInfo] = React.useState({
     authors: "",
     name: "",
     description: "",
+    mode: projectModes.ORACLE,
   });
-  const [error, setError] = useState({
+  const [showSimulate, setShowSimulate] = React.useState(false);
+  const [error, setError] = React.useState({
     code: null,
     message: null,
   });
 
+  // handle project type/mode change
+  const onModeChange = (event) => {
+    setInfo({
+      ...info,
+      mode: event.target.value,
+    });
+  };
+
   const onChange = (evt) => {
+
     if (error.code) {
       setError({
         code: null,
         message: null,
       });
     }
+
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
@@ -96,52 +117,75 @@ const ProjectInfo = (props) => {
     evt.preventDefault();
 
     var bodyFormData = new FormData();
+    bodyFormData.set("mode", info.mode);
     bodyFormData.set("name", info.name);
     bodyFormData.set("authors", info.authors);
     bodyFormData.set("description", info.description);
 
-    (props.edit
-      ? ProjectAPI.info(props.project_id, true, bodyFormData)
-      : ProjectAPI.init(bodyFormData)
-    )
-      .then((result) => {
-        // set the project_id in the redux store
-        props.setProjectId(result.data["id"]);
-        // switch to project page if init
-        // reload project info if edit
-        if (!props.edit) {
-          props.onClose(); // set newProject state to false
-          props.handleAppState("project-page");
-        } else {
-          props.onClose(); // set editing state to false
+    // dialog is open in edit mode
+    if(props.edit){
+      ProjectAPI
+        .info(props.project_id, true, bodyFormData)
+        .then((result) => {
+          // set the project_id in the redux store
+          props.setProjectId(result.data["id"]);
+          // set editing state to false
+          props.onClose();
           props.reloadProjectInfo();
-        }
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
+        })
+        .catch((error) => {
+          setError({
+            code: error.code,
+            message: error.message,
+          });
         });
-      });
+    }
+    else {
+
+      // dialog is open in init mode
+      ProjectAPI.init(bodyFormData)
+        .then((result) => {
+          // set the project_id in the redux store
+          props.setProjectId(result.data["id"]);
+          // set newProject state to false
+          props.onClose();
+          props.handleAppState("project-page");
+        })
+        .catch((error) => {
+          setError({
+            code: error.code,
+            message: error.message,
+          });
+        });
+    }
+
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
+    // unlock simulation mode
+    if (info.name === "elas" && !showSimulate){
+
+      setInfo({
+        ...info,
+        "name": "",
+        "mode": projectModes.SIMULATION,
+      });
+      setShowSimulate(true)
+    }
+  }, [info.name, info, showSimulate]);
+
+  React.useEffect(() => {
     // pre-fill project info in edit mode
     if (props.edit) {
-      setInfo({
-        name: props.name,
-        authors: props.authors,
-        description: props.description,
-      });
-    }
-  }, [props.edit, props.name, props.authors, props.description]);
+      setInfo(props.info);
+    };
+  }, [props.edit, props.info]);
 
   return (
     <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
       <DialogTitle>
         {props.edit ? "Edit project info" : "Create a new project"}
       </DialogTitle>
-
       {error.code === 503 && (
         <DialogContent dividers={true}>
           <ErrorHandler error={error} />
@@ -159,6 +203,22 @@ const ProjectInfo = (props) => {
         <DialogContent dividers={true}>
           {/* The actual form */}
           <form noValidate autoComplete="off">
+            <div className={classes.textfieldItem}>
+              <ProjectModeSelect
+                mode={info.mode}
+                edit={props.edit}
+                onModeChange={onModeChange}
+                showSimulate={showSimulate}
+              />
+            </div>
+
+            { showSimulate &&
+              <Box>
+                <Typography color='error' className={classes.textfieldItem}>You unlocked the experimental simulation mode!</Typography>
+                <Confetti recycle={false} tweenDuration={50000} numberOfPieces={1000} />
+              </Box>
+            }
+
             <div className={classes.textfieldItem}>
               <TextField
                 fullWidth
@@ -219,4 +279,4 @@ const ProjectInfo = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInit);
