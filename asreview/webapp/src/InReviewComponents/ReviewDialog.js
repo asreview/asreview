@@ -61,7 +61,6 @@ const ReviewDialog = (props) => {
    * Exploration mode banner state
    */
   const [explorationMode, setExplorationMode] = useState(false);
-  const [banner, setBanner] = useState(false);
 
   /**
    * Record state
@@ -95,6 +94,7 @@ const ReviewDialog = (props) => {
   const [sideSheet, setSideSheet] = useState(true);
   const [sideSheetError, setSideSheetError] = useState(false);
   const [statistics, setStatistics] = useState({
+    mode: null,
     name: null,
     authors: null,
     decsription: null,
@@ -329,19 +329,10 @@ const ReviewDialog = (props) => {
    * Display banner when in Exploration Mode
    */
   useEffect(() => {
-    if (
-      !explorationMode &&
-      recordState.record &&
-      recordState.record._debug_label !== null
-    ) {
+    if (statistics.mode === "explore") {
       setExplorationMode(true);
     }
-  }, [explorationMode, recordState.record]);
-  useEffect(() => {
-    if (explorationMode) {
-      setBanner(true);
-    }
-  }, [explorationMode]);
+  }, [statistics.mode]);
 
   /**
    * Hide side statistics on mobile screen
@@ -403,7 +394,10 @@ const ReviewDialog = (props) => {
             [classes.contentShift]: !props.mobileScreen && sideSheet,
           })}
         >
-          <ExplorationModeBanner banner={banner} setBanner={setBanner} />
+          <ExplorationModeBanner
+            explorationMode={explorationMode}
+            setExplorationMode={setExplorationMode}
+          />
         </div>
 
         {/* Article card */}

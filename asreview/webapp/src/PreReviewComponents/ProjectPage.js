@@ -321,7 +321,7 @@ const ProjectPage = (props) => {
                   {state.info.projectInitReady &&
                     !state.setup &&
                     !state.training &&
-                    (state.info["mode"] !== projectModes.SIMULATION) && (
+                    state.info["mode"] !== projectModes.SIMULATION && (
                       <Button
                         className={classes.continuButton}
                         variant={"outlined"}

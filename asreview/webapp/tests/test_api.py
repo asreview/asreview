@@ -34,6 +34,7 @@ def test_init_project(tmp_path, client):
     os.environ["ASREVIEW_PATH"] = str(tmp_path)
 
     response = client.post("/api/project/info", data={
+        "mode": "explore",
         "name": "project_id",
         "authors": "name",
         "description": "hello world"
@@ -80,6 +81,7 @@ def test_update_project_info(client):
     """Test update project info"""
 
     response = client.put("/api/project/project-id/info", data={
+        "mode": "explore",
         "name": "project_id",
         "authors": "asreview team",
         "description": "hello world"
@@ -230,8 +232,8 @@ def test_clear_model_error(client):
 
     # wait the model ready
     time.sleep(8)
-    response_init_ready = client.get("/api/project/project-id/model/init_ready")
-    json_data = response_init_ready.get_json()
+    response_ready = client.get("/api/project/project-id/ready")
+    json_data = response_ready.get_json()
 
     assert "status" in json_data
     assert json_data["status"] == 1
