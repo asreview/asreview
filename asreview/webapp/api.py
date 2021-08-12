@@ -53,17 +53,17 @@ from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.paths import asreview_path
-from asreview.webapp.utils.paths import get_data_path
-from asreview.webapp.utils.paths import get_lock_path
-from asreview.webapp.utils.paths import get_proba_path
-from asreview.webapp.utils.paths import get_project_file_path
-from asreview.webapp.utils.paths import get_project_path
-from asreview.webapp.utils.paths import get_simulation_ready_path
-from asreview.webapp.utils.paths import get_tmp_path
-from asreview.webapp.utils.paths import list_asreview_project_paths
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_state_path
+from asreview.webapp.utils.project_path import asreview_path
+from asreview.webapp.utils.project_path import list_asreview_project_paths
+from asreview.webapp.utils.project_path import get_project_path
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_lock_path
+from asreview.state.paths import get_proba_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_simulation_ready_path
+from asreview.state.paths import get_tmp_path
+from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_state_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -184,14 +184,14 @@ def api_init_project():  # noqa: F401
 @bp.route('/project/<project_id>/info', methods=["GET"])
 def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
-
+    project_path = get_project_path(project_id)
     project_info = get_project_config(project_id)
 
     try:
 
         # check if there is a dataset
         try:
-            get_data_file_path(project_id)
+            get_data_file_path(project_path)
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False
@@ -280,6 +280,7 @@ def api_demo_data_project():  # noqa: F401
 @bp.route('/project/<project_id>/data', methods=["POST"])
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
+    project_path = get_project_path(project_id)
 
     # get the project config to modify behavior of dataset
     project_config = get_project_config(project_id)
@@ -299,7 +300,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(url, get_data_path(project_id) / filename)
+            urlretrieve(url, get_data_path(project_path) / filename)
 
         except ValueError as err:
 
@@ -327,7 +328,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         try:
 
             filename = secure_filename(data_file.filename)
-            fp_data = get_data_path(project_id) / filename
+            fp_data = get_data_path(project_path) / filename
 
             # save the file
             data_file.save(str(fp_data))
@@ -346,7 +347,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
-        data_path_raw = get_data_path(project_id) / filename
+        data_path_raw = get_data_path(project_path) / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -355,7 +356,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
                        inplace=True)
         data.to_csv(data_path)
     else:
-        data_path = get_data_path(project_id) / filename
+        data_path = get_data_path(project_path) / filename
 
     try:
         # add the file to the project
@@ -375,6 +376,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/data', methods=["GET"])
 def api_get_project_data(project_id):  # noqa: F401
     """Get info on the article"""
+    project_path = get_project_path(project_id)
 
     if not is_project(project_id):
         response = jsonify(message="Project not found.")
@@ -382,7 +384,7 @@ def api_get_project_data(project_id):  # noqa: F401
 
     try:
 
-        filename = get_data_file_path(project_id).stem
+        filename = get_data_file_path(project_path).stem
 
         # get statistics of the dataset
         statistics = get_data_statistics(project_id)
@@ -463,7 +465,7 @@ def api_label_item(project_id):  # noqa: F401
 def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
-
+    project_path = get_project_path(project_id)
     subset = request.args.get('subset', default=None, type=str)
 
     # check if the subset exists
@@ -473,7 +475,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     try:
 
-        lock_fp = get_lock_path(project_id)
+        lock_fp = get_lock_path(project_path)
         with SQLiteLock(lock_fp,
                         blocking=True,
                         lock_name="active",
@@ -509,8 +511,9 @@ def api_get_prior(project_id):  # noqa: F401
 def api_get_prior_stats(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+    project_path = get_project_path(project_id)
     try:
-        lock_fp = get_lock_path(project_id)
+        lock_fp = get_lock_path(project_path)
         with SQLiteLock(lock_fp,
                         blocking=True,
                         lock_name="active",
@@ -539,8 +542,8 @@ def api_random_prior_papers(project_id):  # noqa: F401
     This set of papers is extracted from the pool, but without
     the already labeled items.
     """
-
-    lock_fp = get_lock_path(project_id)
+    project_path = get_project_path(project_id)
+    lock_fp = get_lock_path(project_path)
     with SQLiteLock(lock_fp,
                     blocking=True,
                     lock_name="active",
@@ -697,7 +700,7 @@ def api_set_algorithms(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training of first model or simulation.
     """
-
+    project_path = get_project_path(project_id)
     project_config = get_project_config(project_id)
 
     # the project is a simulation project
@@ -707,8 +710,8 @@ def api_start(project_id):  # noqa: F401
 
         try:
             simulation_id = uuid.uuid4().hex
-            datafile = get_data_file_path(project_id)
-            state_file = get_simulation_ready_path(project_id, simulation_id)
+            datafile = get_data_file_path(project_path)
+            state_file = get_simulation_ready_path(project_path, simulation_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
@@ -753,6 +756,7 @@ def api_start(project_id):  # noqa: F401
 def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
+    project_path = get_project_path(project_id)
 
     project_config = get_project_config(project_id)
 
@@ -761,7 +765,7 @@ def api_init_model_ready(project_id):  # noqa: F401
 
         simulation_id = project_config["simulations"][0]["id"]
 
-        if get_simulation_ready_path(project_id, simulation_id).exists():
+        if get_simulation_ready_path(project_path, simulation_id).exists():
             logging.info("simulation ready")
             update_simulation_in_project(project_id, simulation_id, "ready")
 
@@ -780,16 +784,16 @@ def api_init_model_ready(project_id):  # noqa: F401
 
         try:
 
-            if get_proba_path(project_id).exists():
+            if get_proba_path(project_path).exists():
 
                 # read the file with project info
-                with open(get_project_file_path(project_id), "r") as fp:
+                with open(get_project_file_path(project_path), "r") as fp:
                     project_info = json.load(fp)
 
                 project_info["projectInitReady"] = True
 
                 # update the file with project info
-                with open(get_project_file_path(project_id), "w") as fp:
+                with open(get_project_file_path(project_path), "w") as fp:
                     json.dump(project_info, fp)
 
                 response = jsonify({'status': 1})
@@ -804,12 +808,14 @@ def api_init_model_ready(project_id):  # noqa: F401
     return response
 
 
+# TODO(State): Does this delete everything in the project?
 @bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
 def api_clear_model_error(project_id):
     """Clear model training error"""
 
     error_path = get_project_path(project_id) / "error.json"
-    state_path = get_state_path(project_id)
+    project_path = get_project_path(project_id)
+    state_path = get_state_path(project_path)
 
     if error_path.exists() and state_path.exists():
         os.remove(error_path)
@@ -843,6 +849,7 @@ def api_import_project():
 
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
+    project_path = get_project_path(project_id)
 
     # get the export args
     file_type = request.args.get('file_type', None)
@@ -871,7 +878,7 @@ def export_results(project_id):
     else:  # excel
 
         dataset_str = export_to_string(project_id, export_type="excel")
-        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+        fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
         return send_file(
             fp_tmp_export,
@@ -914,9 +921,10 @@ def export_project(project_id):
 @bp.route('/project/<project_id>/finish', methods=["GET"])
 def api_finish_project(project_id):
     """Mark a project as finished or not"""
+    project_path = get_project_path(project_id)
 
     # read the file with project info
-    with open(get_project_file_path(project_id), "r") as fp:
+    with open(get_project_file_path(project_path), "r") as fp:
         project_info = json.load(fp)
 
     try:
@@ -926,7 +934,7 @@ def api_finish_project(project_id):
         project_info["reviewFinished"] = True
 
     # update the file with project info
-    with open(get_project_file_path(project_id), "w") as fp:
+    with open(get_project_file_path(project_path), "w") as fp:
         json.dump(project_info, fp)
 
     response = jsonify({'success': True})
@@ -953,8 +961,8 @@ def api_finish_project(project_id):
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress info on the article"""
-
-    project_file_path = get_project_file_path(project_id)
+    project_path = get_project_path(project_id)
+    project_file_path = get_project_file_path(project_path)
 
     try:
         # open the projects file

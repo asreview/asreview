@@ -29,25 +29,22 @@ import pandas as pd
 
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA, PROJECT_MODES
-from asreview.compat import convert_id_to_idx
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_labeled_path
+from asreview.state.paths import get_lock_path
+from asreview.state.paths import get_pool_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_tmp_path
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils.io import read_current_labels
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import read_proba
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
-from asreview.webapp.utils.paths import asreview_path
-from asreview.webapp.utils.paths import get_data_path
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_labeled_path
-from asreview.webapp.utils.paths import get_lock_path
-from asreview.webapp.utils.paths import get_pool_path
-from asreview.webapp.utils.paths import get_project_file_path
-from asreview.webapp.utils.paths import get_project_path
-from asreview.webapp.utils.paths import get_tmp_path
-from asreview.webapp.utils.paths import list_asreview_project_paths
+from asreview.webapp.utils.project_path import asreview_path, \
+    list_asreview_project_paths, get_project_path
 from asreview.webapp.utils.validation import is_project
 
 
@@ -73,6 +70,7 @@ def init_project(project_id,
                  project_description=None,
                  project_authors=None):
     """Initialize the necessary files specific to the web app."""
+    project_path = get_project_path(project_id)
 
     if not project_id and not isinstance(project_id, str) \
             and len(project_id) >= 3:
@@ -85,8 +83,8 @@ def init_project(project_id,
         ValueError("Project mode should be oracle, explore, or simulate.")
 
     try:
-        get_project_path(project_id).mkdir()
-        get_data_path(project_id).mkdir()
+        get_project_path(project_path).mkdir()
+        get_data_path(project_path).mkdir()
 
         project_config = {
             'version': asreview_version,  # todo: Fail without git?
@@ -104,7 +102,8 @@ def init_project(project_id,
         }
 
         # create a file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
+        project_path = get_project_path(project_id)
+        with open(get_project_file_path(project_path), "w") as fp:
             json.dump(project_config, fp)
 
         return project_config
@@ -137,9 +136,10 @@ def update_project_info(project_id,
         raise ValueError(f"Project mode '{project_mode}' not found.")
 
     try:
+        project_path = get_project_path(project_id)
 
         # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
+        with open(get_project_file_path(project_path), "r") as fp:
             project_info = json.load(fp)
 
         project_info["id"] = project_id_new
@@ -153,11 +153,11 @@ def update_project_info(project_id,
         #     project_info["projectInitReady"] = True
 
         # update the file with project info
-        with open(get_project_file_path(project_id), "w") as fp:
+        with open(get_project_file_path(project_path), "w") as fp:
             json.dump(project_info, fp)
 
         # rename the folder
-        get_project_path(project_id) \
+        get_project_path(project_path) \
             .rename(Path(asreview_path(), project_id_new))
 
     except Exception as err:
@@ -227,14 +227,14 @@ def add_dataset_to_project(project_id, file_name):
 
     Add file to data subfolder and fill the pool of iteration 0.
     """
-
-    project_file_path = get_project_file_path(project_id)
+    project_path = get_project_path(project_id)
+    project_file_path = get_project_file_path(project_path)
 
     # clean temp project files
     clean_project_tmp_files(project_id)
 
     with SQLiteLock(
-            get_lock_path(project_id),
+            get_lock_path(project_path),
             blocking=True,
             lock_name="active",
             project_id=project_id
@@ -276,9 +276,9 @@ def remove_dataset_to_project(project_id, file_name):
     """Remove dataset from project
 
     """
-
-    project_file_path = get_project_file_path(project_id)
-    fp_lock = get_lock_path(project_id)
+    project_path = get_project_path(project_id)
+    project_file_path = get_project_file_path(project_path)
+    fp_lock = get_lock_path(project_path)
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):
@@ -295,9 +295,10 @@ def remove_dataset_to_project(project_id, file_name):
             json.dump(project_config, f_write)
 
         # files to remove
-        data_path = get_data_file_path(project_id, data_fn)
-        pool_path = get_pool_path(project_id)
-        labeled_path = get_labeled_path(project_id)
+        # TODO: This no longer works?
+        data_path = get_data_file_path(project_path, data_fn)
+        pool_path = get_pool_path(project_path)
+        labeled_path = get_labeled_path(project_path)
 
         os.remove(str(data_path))
         os.remove(str(pool_path))
@@ -309,9 +310,10 @@ def add_simulation_to_project(project_id, simulation_id):
 
 
 def update_simulation_in_project(project_id, simulation_id, state):
+    project_path = get_project_path(project_id)
 
     # read the file with project info
-    with open(get_project_file_path(project_id), "r") as fp:
+    with open(get_project_file_path(project_path), "r") as fp:
         project_info = json.load(fp)
 
     if "simulations" not in project_info:
@@ -325,16 +327,17 @@ def update_simulation_in_project(project_id, simulation_id, state):
     project_info["simulations"].append(simulation)
 
     # update the file with project info
-    with open(get_project_file_path(project_id), "w") as fp:
+    with open(get_project_file_path(project_path), "w") as fp:
         json.dump(project_info, fp)
 
 
 def get_project_config(project_id):
+    project_path = get_project_path(project_id)
 
     try:
 
         # read the file with project info
-        with open(get_project_file_path(project_id), "r") as fp:
+        with open(get_project_file_path(project_path), "r") as fp:
 
             project_info = json.load(fp)
 
@@ -403,8 +406,8 @@ def get_instance(project_id):
     project_id: str
         The id of the current project.
     """
-
-    fp_lock = get_lock_path(project_id)
+    project_path = get_project_path(project_id)
+    fp_lock = get_lock_path(project_path)
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):
@@ -452,7 +455,8 @@ def get_statistics(project_id):
     dict:
         Dictonary with statistics.
     """
-    fp_lock = get_lock_path(project_id)
+    project_path = get_project_path(project_id)
+    fp_lock = get_lock_path(project_path)
 
     with SQLiteLock(
             fp_lock,
@@ -479,12 +483,13 @@ def get_statistics(project_id):
 
 
 def export_to_string(project_id, export_type="csv"):
+    project_path = get_project_path(project_id)
 
     # read the dataset into a ASReview data object
     as_data = read_data(project_id)
 
     # set the lock to safely read labeled, pool, and proba
-    fp_lock = get_lock_path(project_id)
+    fp_lock = get_lock_path(project_path)
     with SQLiteLock(
             fp_lock,
             blocking=True,
@@ -528,8 +533,8 @@ def export_to_string(project_id, export_type="csv"):
             fp=None, sep="\t", labels=labeled, ranking=ranking)
 
     if export_type == "excel":
-        get_tmp_path(project_id).mkdir(exist_ok=True)
-        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+        get_tmp_path(project_path).mkdir(exist_ok=True)
+        fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
         return as_data.to_excel(
             fp=fp_tmp_export, labels=labeled, ranking=ranking)
     else:
@@ -544,7 +549,8 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
     paper_i = int(paper_i)
     label = int(label)
 
-    fp_lock = get_lock_path(project_id)
+    project_path = get_project_path(project_id)
+    fp_lock = get_lock_path(project_path)
 
     with SQLiteLock(
             fp_lock, blocking=True, lock_name="active", project_id=project_id):

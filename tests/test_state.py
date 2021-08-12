@@ -7,30 +7,44 @@ import pandas as pd
 from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
-from asreview.state import HDF5State
+from asreview.state import SqlStateV1
 from asreview.state import open_state
-from asreview.state.hdf5 import RESULTS_TABLE_COLUMNS
+from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 from asreview.state.errors import StateNotFoundError
 from asreview.settings import ASReviewSettings
-
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
 TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
 TEST_RECORD_TABLE = list(range(1, 852))
-TEST_CLASSIFIERS = ['prior', 'prior', 'prior', 'prior', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb']
-TEST_QUERY_STRATEGIES = ['prior', 'prior', 'prior', 'prior', 'max', 'max', 'max', 'max', 'max', 'max']
-TEST_BALANCE_STRATEGIES = ['prior', 'prior', 'prior', 'prior', 'double', 'double', 'double', 'double',
-                                   'double', 'double']
-TEST_FEATURE_EXTRACTION = ['prior', 'prior', 'prior', 'prior', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
-                                     'tfidf', 'tfidf']
+TEST_CLASSIFIERS = [
+    'prior', 'prior', 'prior', 'prior', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb'
+]
+TEST_QUERY_STRATEGIES = [
+    'prior', 'prior', 'prior', 'prior', 'max', 'max', 'max', 'max', 'max',
+    'max'
+]
+TEST_BALANCE_STRATEGIES = [
+    'prior', 'prior', 'prior', 'prior', 'double', 'double', 'double', 'double',
+    'double', 'double'
+]
+TEST_FEATURE_EXTRACTION = [
+    'prior', 'prior', 'prior', 'prior', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
+    'tfidf', 'tfidf'
+]
 TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
 TEST_STATE_FP = Path("tests", "v3_states", "test_converted_unzipped.asreview")
-TEST_WITH_TIMES_FP = Path('tests', 'v3_states', 'test_with_times_unzipped.asreview')
-TEST_LABELING_TIMES = ['2021-07-22 12:10:17.316387', '2021-07-22 12:10:17.316387', '2021-07-22 12:10:22.258937', '2021-07-22 12:10:22.258937', '2021-07-22 12:10:23.240560', '2021-07-22 12:10:24.167310', '2021-07-22 12:10:25.139470', '2021-07-22 12:10:27.309526', '2021-07-22 12:10:29.100831', '2021-07-22 12:10:29.100831']
-
+TEST_WITH_TIMES_FP = Path('tests', 'v3_states',
+                          'test_with_times_unzipped.asreview')
+TEST_LABELING_TIMES = [
+    '2021-07-22 12:10:17.316387', '2021-07-22 12:10:17.316387',
+    '2021-07-22 12:10:22.258937', '2021-07-22 12:10:22.258937',
+    '2021-07-22 12:10:23.240560', '2021-07-22 12:10:24.167310',
+    '2021-07-22 12:10:25.139470', '2021-07-22 12:10:27.309526',
+    '2021-07-22 12:10:29.100831', '2021-07-22 12:10:29.100831'
+]
 
 with open(Path('tests', 'v3_states', 'test_probabilities.json'), 'r') as f:
     TEST_LAST_PROBABILITIES = json.load(f)
@@ -40,18 +54,16 @@ def add_empty_project_json(fp):
     with open(Path(fp, 'project.json'), 'w') as f:
         json.dump({}, f)
 
-@pytest.mark.xfail(
-    raises=ValueError,
-    reason="There is no 'project.json' file."
-)
+
+@pytest.mark.xfail(raises=ValueError,
+                   reason="There is no 'project.json' file.")
 def test_invalid_project_folder():
     with open_state('this_is_not_a_project') as state:
         pass
 
-@pytest.mark.xfail(
-    raises=StateNotFoundError,
-    reason="State file does not exist"
-)
+
+@pytest.mark.xfail(raises=StateNotFoundError,
+                   reason="State file does not exist")
 def test_state_not_found(tmpdir):
     state_fp = Path(tmpdir)
     add_empty_project_json(state_fp)
@@ -61,7 +73,7 @@ def test_state_not_found(tmpdir):
 
 def test_read_basic_state():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state, HDF5State)
+        assert isinstance(state, SqlStateV1)
 
 
 def test_version_number_state():
@@ -69,19 +81,13 @@ def test_version_number_state():
         assert state.version[0] == "1"
 
 
-@pytest.mark.xfail(
-    raises=OperationalError,
-    reason="attempt to write a readonly database"
-)
+@pytest.mark.xfail(raises=OperationalError,
+                   reason="attempt to write a readonly database")
 def test_write_while_read_only_state():
     with open_state(TEST_STATE_FP, read_only=True) as state:
-        state.add_labeling_data(TEST_RECORD_IDS,
-                                TEST_LABELS,
-                                TEST_CLASSIFIERS,
-                                TEST_QUERY_STRATEGIES,
-                                TEST_BALANCE_STRATEGIES,
-                                TEST_FEATURE_EXTRACTION,
-                                TEST_TRAINING_SETS)
+        state.add_labeling_data(TEST_RECORD_IDS, TEST_LABELS, TEST_CLASSIFIERS,
+                                TEST_QUERY_STRATEGIES, TEST_BALANCE_STRATEGIES,
+                                TEST_FEATURE_EXTRACTION, TEST_TRAINING_SETS)
 
 
 def test_print_state():
@@ -119,32 +125,43 @@ def test_create_new_state_file(tmpdir):
 
 def test_get_dataset():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_dataset(['query_strategies']), pd.DataFrame)
+        assert isinstance(state.get_dataset(['query_strategies']),
+                          pd.DataFrame)
         assert isinstance(state.get_dataset(), pd.DataFrame)
 
         # Try getting a specific column.
-        assert state.get_dataset(['record_ids'])['record_ids'].to_list() == TEST_RECORD_IDS
-        assert state.get_dataset(['feature_extraction'])['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
+        assert state.get_dataset(['record_ids'
+                                  ])['record_ids'].to_list() == TEST_RECORD_IDS
+        assert state.get_dataset([
+            'feature_extraction'
+        ])['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
         # Try getting all columns and that picking the right column.
-        assert state.get_dataset()['balance_strategies'].to_list() == TEST_BALANCE_STRATEGIES
-        # Try getting a specific column with column name as string, instead of list containing column name.
-        assert state.get_dataset('training_sets')['training_sets'].to_list() == TEST_TRAINING_SETS
+        assert state.get_dataset()['balance_strategies'].to_list(
+        ) == TEST_BALANCE_STRATEGIES
+        # Try getting a specific column with column name as string, instead of
+        # list containing column name.
+        assert state.get_dataset(
+            'training_sets')['training_sets'].to_list() == TEST_TRAINING_SETS
 
 
 def test_get_data_by_query_number():
     with open_state(TEST_STATE_FP) as state:
         query = state.get_data_by_query_number(0)
         assert list(query.columns) == RESULTS_TABLE_COLUMNS
-        assert query['balance_strategies'].tolist() == TEST_BALANCE_STRATEGIES[:TEST_N_PRIORS]
-        assert query['classifiers'].tolist() == TEST_CLASSIFIERS[:TEST_N_PRIORS]
+        assert query['balance_strategies'].tolist(
+        ) == TEST_BALANCE_STRATEGIES[:TEST_N_PRIORS]
+        assert query['classifiers'].tolist(
+        ) == TEST_CLASSIFIERS[:TEST_N_PRIORS]
 
         for query_num in [1, 3, 5]:
             query_idx = query_num + TEST_N_PRIORS - 1
             query = state.get_data_by_query_number(query_num)
             assert isinstance(query, pd.DataFrame)
-            assert query['feature_extraction'].to_list()[0] == TEST_FEATURE_EXTRACTION[query_idx]
+            assert query['feature_extraction'].to_list(
+            )[0] == TEST_FEATURE_EXTRACTION[query_idx]
             assert query['labels'].to_list()[0] == TEST_LABELS[query_idx]
-            assert query['record_ids'].to_list()[0] == TEST_RECORD_IDS[query_idx]
+            assert query['record_ids'].to_list(
+            )[0] == TEST_RECORD_IDS[query_idx]
 
         columns = RESULTS_TABLE_COLUMNS[2:5]
         query = state.get_data_by_query_number(4, columns)
@@ -157,7 +174,8 @@ def test_get_data_by_record_id():
             record_id = TEST_RECORD_IDS[idx]
             query = state.get_data_by_record_id(record_id)
             assert isinstance(query, pd.DataFrame)
-            assert query['training_sets'].to_list()[0] == TEST_TRAINING_SETS[idx]
+            assert query['training_sets'].to_list(
+            )[0] == TEST_TRAINING_SETS[idx]
             assert query['record_ids'].to_list()[0] == TEST_RECORD_IDS[idx]
 
 
@@ -240,9 +258,9 @@ def test_get_last_probabilities():
 
 @pytest.mark.xfail(
     raises=ValueError,
-    reason=f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the database, "
-                             f"but 'probabilities' has length 3"
-)
+    reason=
+    f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the database, "
+    f"but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
         state.add_last_probabilities([1.0, 2.0, 3.0])
@@ -263,16 +281,14 @@ def test_add_labeling_data(tmpdir):
     add_empty_project_json(state_fp)
     with open_state(state_fp, read_only=False) as state:
         for i in range(3):
-            state.add_labeling_data([TEST_RECORD_IDS[i]],
-                                    [TEST_LABELS[i]],
+            state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]],
                                     [TEST_CLASSIFIERS[i]],
                                     [TEST_QUERY_STRATEGIES[i]],
                                     [TEST_BALANCE_STRATEGIES[i]],
                                     [TEST_FEATURE_EXTRACTION[i]],
                                     [TEST_TRAINING_SETS[i]])
 
-        state.add_labeling_data(TEST_RECORD_IDS[3:],
-                                TEST_LABELS[3:],
+        state.add_labeling_data(TEST_RECORD_IDS[3:], TEST_LABELS[3:],
                                 TEST_CLASSIFIERS[3:],
                                 TEST_QUERY_STRATEGIES[3:],
                                 TEST_BALANCE_STRATEGIES[3:],

@@ -24,15 +24,15 @@ from asreview.compat import convert_id_to_idx, convert_idx_to_id
 from asreview.review.factory import get_reviewer
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils import get_lock_path
-from asreview.webapp.utils import get_state_path
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.io import write_proba
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_project_path
+from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_lock_path
+from asreview.state.paths import get_state_path
 from asreview.webapp.utils.project import read_data
+from asreview.webapp.utils.project_path import get_project_path
 
 
 def _get_diff_history(new_history, old_history):
@@ -60,11 +60,11 @@ def train_model(project_id, label_method=None):
 
     It has one argument on the CLI, which is the base project directory.
     """
-
+    project_path = get_project_path(project_id)
     logging.info(f"Project {project_id} - Train a new model for project")
 
     # get file locations
-    lock_file = get_lock_path(project_id)
+    lock_file = get_lock_path(project_path)
 
     # Lock so that only one training run is running at the same time.
     # It doesn't lock the flask server/client.
@@ -89,9 +89,9 @@ def train_model(project_id, label_method=None):
             # Get the all labels since last run. If no new labels, quit.
             new_label_history = read_label_history(project_id)
 
-        data_fp = str(get_data_file_path(project_id))
+        data_fp = str(get_data_file_path(project_path))
         as_data = read_data(project_id)
-        state_file = get_state_path(project_id)
+        state_file = get_state_path(project_path)
 
         # collect command line arguments and pass them to the reviewer
         reviewer = get_reviewer(

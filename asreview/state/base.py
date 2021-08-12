@@ -145,7 +145,8 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_labeling_data(self, record_ids, labels, classifiers, query_strategies, balance_strategies,
+    def add_labeling_data(self, record_ids, labels, classifiers,
+                          query_strategies, balance_strategies,
                           feature_extraction, training_sets):
         """Add the data corresponding to a labeling action to the state file.
 
@@ -203,7 +204,8 @@ class BaseState(ABC):
         Returns
         -------
         pd.DataFrame:
-            Dataframe containing the data of the specified columns of the results table.
+            Dataframe containing the data of the specified columns of the
+            results table.
         """
         raise NotImplementedError
 
@@ -243,7 +245,8 @@ class BaseState(ABC):
         Returns
         -------
         pd.Series:
-            Series containing the query strategy used to get the record to query at each labeling moment.
+            Series containing the query strategy used to get the record to
+            query at each labeling moment.
         """
         raise NotImplementedError
 
@@ -253,7 +256,8 @@ class BaseState(ABC):
         Returns
         -------
         pd.Series:
-            Series containing the balance strategy used to get the training data at each labeling moment.
+            Series containing the balance strategy used to get the training
+            data at each labeling moment.
         """
         raise NotImplementedError
 
@@ -263,7 +267,8 @@ class BaseState(ABC):
         Returns
         -------
         pd.Series:
-            Series containing the feature extraction method used for the classifier input at each labeling moment.
+            Series containing the feature extraction method used for the
+            classifier input at each labeling moment.
         """
         raise NotImplementedError
 
@@ -273,7 +278,8 @@ class BaseState(ABC):
         Returns
         -------
         pd.Series:
-            Series containing the training set on which the classifier was fit at each labeling moment.
+            Series containing the training set on which the classifier was
+            fit at each labeling moment.
         """
         raise NotImplementedError
 
@@ -283,14 +289,14 @@ class BaseState(ABC):
         Arguments
         ---------
         time_format: 'int' or 'datetime'
-            Format of the return value. If it is 'int' you get a UTC timestamp ,
+            Format of the return value. If it is 'int' you get a UTC timestamp,
             if it is 'datetime' you get datetime instead of an integer.
 
         Returns
         -------
         pd.Series:
-            If format='int' you get a UTC timestamp (integer number of microseconds),
-            if it is 'datetime' you get datetime format.
+            If format='int' you get a UTC timestamp (integer number of
+            microseconds), if it is 'datetime' you get datetime format.
         """
         raise NotImplementedError
 

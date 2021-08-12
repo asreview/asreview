@@ -25,7 +25,6 @@ from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import decode_feature_matrix
 from asreview.state.errors import StateError
 
-
 V3STATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
 
@@ -36,6 +35,7 @@ def is_old_project(fp):
         raise ValueError(f"There already is a 'results.sql' file at {fp}")
     if not Path(fp, 'result.json').is_file():
         raise ValueError(f"There is no 'result.json' file at {fp}")
+
 
 # TODO(State): Allow basic/full (i.e. save probabilities).
 def convert_asreview(fp):
@@ -90,9 +90,11 @@ def convert_json_settings_metadata(fp, json_fp):
     data_dict = {}
     with open_state_legacy(json_fp) as json_state:
         data_dict['settings'] = json_state._state_dict['settings']
-        data_dict['current_queries'] = json_state._state_dict['current_queries']
+        data_dict['current_queries'] = json_state._state_dict[
+            'current_queries']
         data_dict['state_version'] = V3STATE_VERSION
-        data_dict['software_version'] = json_state._state_dict['software_version']
+        data_dict['software_version'] = json_state._state_dict[
+            'software_version']
     with open(fp, 'w') as f:
         json.dump(data_dict, f)
 
@@ -113,13 +115,14 @@ def convert_json_last_probabilities(sql_fp, json_fp):
         last_probabilities = json_state.pred_proba
 
         # Put them in the format for input in the sqlite database.
-        last_probabilities = [(proba,) for proba in last_probabilities]
+        last_probabilities = [(proba, ) for proba in last_probabilities]
 
         with sqlite3.connect(sql_fp) as con:
             cur = con.cursor()
             cur.execute("""CREATE TABLE last_probabilities
                             (proba REAL)""")
-            cur.executemany("""INSERT INTO last_probabilities VALUES
+            cur.executemany(
+                """INSERT INTO last_probabilities VALUES
                                         (?)""", last_probabilities)
             con.commit()
 
@@ -132,7 +135,8 @@ def get_json_state_data_hash(json_state):
 def get_json_record_table(json_state):
     """Get the record table from a json state."""
     data_hash = get_json_state_data_hash(json_state)
-    record_table = json_state._state_dict['data_properties'][data_hash]['record_table']
+    record_table = json_state._state_dict['data_properties'][data_hash][
+        'record_table']
     return record_table
 
 
@@ -176,7 +180,8 @@ def convert_json_record_table(sql_fp, json_fp):
     cur = con.cursor()
     cur.execute('''CREATE TABLE record_table
                     (record_ids INT)''')
-    cur.executemany("""INSERT INTO record_table VALUES
+    cur.executemany(
+        """INSERT INTO record_table VALUES
                                 (?)""", record_table)
     con.commit()
     con.close()
@@ -239,7 +244,8 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             ]
 
             # training set.
-            sf_training_sets = [-1] * n_priors + list(range(n_priors, n_records_labeled))
+            sf_training_sets = [-1] * n_priors + list(
+                range(n_priors, n_records_labeled))
 
             # feature extraction.
             feature_extraction = sf.settings.to_dict()['feature_extraction']
@@ -257,104 +263,28 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             sf_time = [0 for _ in range(n_records_labeled)]
 
             # Check that all datasets have the same number of entries.
-            lengths = [len(sf_record_ids), len(sf_labels), len(sf_classifiers), len(sf_training_sets),
-                       len(sf_query_strategy), len(sf_time), len(sf_feature_extraction),
-                       len(sf_balance_strategy)]
+            lengths = [
+                len(sf_record_ids),
+                len(sf_labels),
+                len(sf_classifiers),
+                len(sf_training_sets),
+                len(sf_query_strategy),
+                len(sf_time),
+                len(sf_feature_extraction),
+                len(sf_balance_strategy)
+            ]
             if not all([length == n_records_labeled for length in lengths]):
-                raise StateError("All datasets should have the same number of entries.")
+                raise StateError(
+                    "All datasets should have the same number of entries.")
 
             # Create the database rows.
-            db_rows = [(sf_record_ids[i], sf_labels[i], sf_classifiers[i], sf_query_strategy[i],
-                        sf_balance_strategy[i], sf_feature_extraction[i],
-                        sf_training_sets[i], sf_time[i]) for i in range(n_records_labeled)]
-            cur.executemany("""INSERT INTO results VALUES
+            db_rows = [
+                (sf_record_ids[i], sf_labels[i], sf_classifiers[i],
+                 sf_query_strategy[i], sf_balance_strategy[i],
+                 sf_feature_extraction[i], sf_training_sets[i], sf_time[i])
+                for i in range(n_records_labeled)
+            ]
+            cur.executemany(
+                """INSERT INTO results VALUES
                             (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
             con.commit()
-
-
-# def convert_h5_results_to_sql(sql_fp, h5_fp):
-#     """Convert the results of a h5 state file to a sqlite database."""
-#     with open_state_legacy(h5_fp, read_only=True) as sf:
-#         with sqlite3.connect(sql_fp) as con:
-#             cur = con.cursor()
-#
-#             # Create the results table.
-#             cur.execute('''CREATE TABLE results
-#                             (indices INTEGER,
-#                             labels INTEGER,
-#                             classifiers TEXT,
-#                             query_strategies TEXT,
-#                             balance_strategies TEXT,
-#                             feature_extraction TEXT,
-#                             training_sets INTEGER,
-#                             labeling_times TEXT)''')
-#             # TODO(State): models_training?
-#
-#             # Calculate the n_priors and the number of queries.
-#             sf_queries = range(1, len(sf.f['results'].keys()))
-#             n_priors = len(sf.f['results/0/new_labels/labels'][:])
-#             n_records_labeled = n_priors + len(sf_queries)
-#
-#             # Index (row number) of record being labeled.
-#             sf_indices = \
-#                 list(sf.f['results/0/new_labels/idx'][:]) + \
-#                 [sf.f[f'results/{i}/new_labels/idx'][0] for i in sf_queries]
-#             sf_indices = [int(idx) for idx in sf_indices]
-#
-#             # Label of record.
-#             sf_labels = \
-#                 list(sf.f['results/0/new_labels/labels'][:]) + \
-#                 [sf.f[f'results/{i}/new_labels/labels'][0]
-#                  for i in sf_queries]
-#             sf_labels = [int(label) for label in sf_labels]
-#
-#             # classifier.
-#             classifier = sf.settings.to_dict()['model']
-#             sf_classifiers = ['prior'] * n_priors + [
-#                 f'{classifier}' for _ in sf_queries
-#             ]
-#
-#             # training set.
-#             sf_training_sets = [-1] * n_priors + list(range(n_priors, n_records_labeled))
-#
-#             # query strategy.
-#             sf_query_strategy = \
-#                 list(sf.f['results/0/new_labels/methods'][:]) + \
-#                 [sf.f[f'results/{i}/new_labels/methods'][0]
-#                  for i in sf_queries]
-#             sf_query_strategy = [method.decode('utf-8') for method in sf_query_strategy]
-#
-#             # feature extraction.
-#             feature_extraction = sf.settings.to_dict()['feature_extraction']
-#             sf_feature_extraction = ['prior'] * n_priors + [
-#                 f'{feature_extraction}' for _ in sf_queries
-#             ]
-#
-#             # balance strategy.
-#             balance_strategy = sf.settings.to_dict()['balance_strategy']
-#             sf_balance_strategy = ['prior'] * n_priors + [
-#                 f'{balance_strategy}' for _ in sf_queries
-#             ]
-#
-#             # Labeling time.
-#             sf_time = [sf.f['results/0'].attrs['creation_time']] * n_priors + \
-#                       [sf.f[f'results/{i}'].attrs['creation_time']
-#                        for i in sf_queries]
-#             sf_time = [np.datetime64(labeling_time.decode('utf-8')).astype(np.int64) for labeling_time in sf_time]
-#             sf_time = [int(time) for time in sf_time]
-#
-#             # Check that all datasets have the same number of entries.
-#             lengths = [len(sf_indices), len(sf_labels), len(sf_classifiers),
-#                        len(sf_training_sets),
-#                        len(sf_query_strategy), len(sf_time), len(sf_feature_extraction),
-#                        len(sf_balance_strategy)]
-#             if not all([length == n_records_labeled for length in lengths]):
-#                 raise StateError("All datasets should have the same number of entries.")
-#
-#             # Create the database rows.
-#             db_rows = [(sf_indices[i], sf_labels[i], sf_classifiers[i], sf_query_strategy[i],
-#                         sf_balance_strategy[i], sf_feature_extraction[i],
-#                         sf_training_sets[i], sf_time[i]) for i in range(n_records_labeled)]
-#             cur.executemany("""INSERT INTO results VALUES
-#                             (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
-#             con.commit()

@@ -128,15 +128,13 @@ def state_from_file(data_fp):
     if Path(data_fp).suffix == ".asreview":
         base_state = state_from_asreview_file(data_fp)
     elif Path(data_fp).suffix in STATE_EXTENSIONS:
-        base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
+        base_state = _get_state_class(data_fp)(state_fp=data_fp,
+                                               read_only=True)
     else:
         raise ValueError(f"Expected ASReview file or file {data_fp} with "
                          f"extension {STATE_EXTENSIONS}.")
 
-    state = {
-        os.path.basename(os.path.normpath(data_fp)):
-        base_state
-    }
+    state = {os.path.basename(os.path.normpath(data_fp)): base_state}
     return state
 
 

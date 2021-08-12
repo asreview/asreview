@@ -174,25 +174,31 @@ class BaseReview(ABC):
         with open_state(self.state_file, read_only=False) as state:
             # state file exists
             if not state.is_empty():
-                startup_values = state.get_dataset(['labels', 'record_ids', 'query_strategies'])
+                startup_values = state.get_dataset(
+                    ['labels', 'record_ids', 'query_strategies'])
 
                 # If there are start indices not in the training add them.
                 if not set(startup_values['record_ids']) >= set(start_idx):
-                    new_idx = list(set(start_idx) - set(startup_values['record_ids']))
+                    new_idx = list(
+                        set(start_idx) - set(startup_values['record_ids']))
                     self.classify(new_idx,
                                   self.y[new_idx],
                                   state,
                                   method="initial")
-                    startup_values = state.get_dataset(['labels', 'record_ids', 'query_strategies'])
+                    startup_values = state.get_dataset(
+                        ['labels', 'record_ids', 'query_strategies'])
 
                 self.train_idx = startup_values['record_ids']
-                # Add the labels of the labelled records to the target vector self.y
+                # Add the labels of the labelled records to the
+                # target vector self.y
                 for i in range(len(startup_values)):
-                    self.y[startup_values['record_ids'].iloc[i]] = startup_values['labels'].iloc[i]
+                    self.y[startup_values['record_ids'].
+                           iloc[i]] = startup_values['labels'].iloc[i]
 
                 # Only used in BaseReview.statistics.
                 try:
-                    self.n_initial = startup_values['query_strategies'].value_counts()['prior']
+                    self.n_initial = startup_values[
+                        'query_strategies'].value_counts()['prior']
                 except KeyError:
                     self.n_initial = 0
 
@@ -200,9 +206,11 @@ class BaseReview(ABC):
                 self.query_i = len(startup_values) - self.n_initial
                 self.query_i_classified = int(self.query_i > 0)
 
-                # shared['query_src'] is only used in the 'triple' balance strategy.
+                # shared['query_src'] is only used in the 'triple'
+                # balance strategy.
                 self.shared['query_src'] = {
-                    method: startup_values['record_ids'][startup_values['query_strategies'] == method].to_list()
+                    method: startup_values['record_ids']
+                    [startup_values['query_strategies'] == method].to_list()
                     for method in startup_values['query_strategies'].unique()
                 }
             # state file doesnt exist
@@ -283,7 +291,8 @@ class BaseReview(ABC):
         if self.n_papers is not None and n_train >= self.n_papers:
             stop_iter = True
 
-        # If n_queries is set to min, stop when all relevant papers are included
+        # If n_queries is set to min, stop when all relevant papers
+        # are included
         if self.n_queries == 'min':
             n_included = np.count_nonzero(self.y[self.train_idx] == 1)
             n_total_relevant = np.count_nonzero(self.y == 1)
@@ -344,8 +353,8 @@ class BaseReview(ABC):
                 self.query_i_classified += len(query_idx)
 
             # Option to stop after the classification set instead of training.
-            if (stop_after_class and
-                    self._stop_iter(self.query_i, self.n_pool())):
+            if (stop_after_class
+                    and self._stop_iter(self.query_i, self.n_pool())):
                 break
 
             # STEP 3: Train the algorithm with new data
@@ -453,7 +462,8 @@ class BaseReview(ABC):
 
         # Inclusions should be slices just as query_idx is sliced.
         inclusions = np.array(inclusions, dtype=np.int)
-        inclusions = inclusions[np.isin(query_idx, self.train_idx, invert=True)]
+        inclusions = inclusions[np.isin(query_idx, self.train_idx,
+                                        invert=True)]
         query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
         self.train_idx = np.append(self.train_idx, query_idx)
         if method is None:
@@ -485,12 +495,19 @@ class BaseReview(ABC):
         labels = inclusions
         classifiers = [self.model.name for _ in range(n_records_labeled)]
         query_strategies = methods
-        balance_strategies = [self.balance_model.name for _ in range(n_records_labeled)]
-        feature_extraction = [self.feature_model.name for _ in range(n_records_labeled)]
-        # The training set on which a model was trained is empty if the query strategy was 'prior'.
-        # Otherwise the training set (all_training_indices - current_indices).
-        training_sets = [0 if query_strategies[i] == 'prior' else len(self.train_idx) - n_records_labeled
-                         for i in range(n_records_labeled)]
+        balance_strategies = [
+            self.balance_model.name for _ in range(n_records_labeled)
+        ]
+        feature_extraction = [
+            self.feature_model.name for _ in range(n_records_labeled)
+        ]
+        # The training set on which a model was trained is empty if the
+        # query strategy was 'prior'. Otherwise the training set
+        # (all_training_indices - current_indices).
+        training_sets = [
+            0 if query_strategies[i] == 'prior' else len(self.train_idx) -
+            n_records_labeled for i in range(n_records_labeled)
+        ]
 
         state.add_labeling_data(record_ids=record_ids,
                                 labels=labels,
@@ -537,7 +554,8 @@ class BaseReview(ABC):
             last_inclusion.
         """
         try:
-            if np.count_nonzero(self.y[self.train_idx[self.n_initial:]] == 1) == 0:
+            if np.count_nonzero(
+                    self.y[self.train_idx[self.n_initial:]] == 1) == 0:
                 last_inclusion = len(self.train_idx[self.n_initial:])
             else:
                 last_inclusion = np.nonzero(

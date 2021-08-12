@@ -15,9 +15,6 @@
 from asreview.state.base import BaseState
 from asreview.state.legacy.dict import DictState
 from asreview.state.legacy.hdf5 import HDF5StateLegacy
-from asreview.state.hdf5 import HDF5State
+from asreview.state.sqlstate import SqlStateV1
 from asreview.state.legacy.json import JSONState
 from asreview.state.utils import open_state
-from asreview.state.utils import states_from_dir
-from asreview.state.utils import state_from_asreview_file
-

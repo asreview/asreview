@@ -6,7 +6,6 @@ from asreview.state.sql_converter import convert_asreview
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import open_state
 
-
 OLD_STATE_FP = Path('tests', 'state_files', 'old-project.asreview')
 
 
@@ -29,11 +28,13 @@ def compare_state_to_converted(state_fp, converted_state_fp):
         for query in range(old_state.n_queries()):
             old_indices += old_state.get('label_idx', query_i=query).tolist()
             old_labels += old_state.get('inclusions', query_i=query).tolist()
-            old_query_strategies += old_state.get('label_methods', query_i=query).tolist()
+            old_query_strategies += old_state.get('label_methods',
+                                                  query_i=query).tolist()
 
         # Get the record ids corresponding to the indices.
         data_hash = list(old_state._state_dict['data_properties'].keys())[0]
-        old_record_table = old_state._state_dict['data_properties'][data_hash]['record_table']
+        old_record_table = old_state._state_dict['data_properties'][data_hash][
+            'record_table']
         old_record_ids = [old_record_table[i] for i in old_indices]
 
         old_feature_matrix = old_state.get_feature_matrix(data_hash)

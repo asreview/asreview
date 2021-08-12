@@ -29,21 +29,22 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.errors import StateError
 from asreview._version import get_versions
 
-
 RELATIVE_RESULTS_PATH = Path('results.sql')
 RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
 RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
-LATEST_HDF5STATE_VERSION = "1.0"
+LATEST_SQLSTATE_VERSION = "1.0"
 SOFTWARE_VERSION = get_versions()['version']
 REQUIRED_TABLES = ['results', 'record_table', 'last_probabilities']
-RESULTS_TABLE_COLUMNS = ['record_ids', 'labels', 'classifiers', 'query_strategies',
-                         'balance_strategies', 'feature_extraction',
-                         'training_sets', 'labeling_times']
+RESULTS_TABLE_COLUMNS = [
+    'record_ids', 'labels', 'classifiers', 'query_strategies',
+    'balance_strategies', 'feature_extraction', 'training_sets',
+    'labeling_times'
+]
 SETTINGS_METADATA_KEYS = ['settings', 'state_version', 'software_version']
 
 
 #TODO(State): Implement undo feature.
-class HDF5State(BaseState):
+class SqlStateV1(BaseState):
     """Class for storing the review state with HDF5 storage.
 
     Arguments
@@ -51,11 +52,11 @@ class HDF5State(BaseState):
     read_only: bool
         Open state in read only mode. Default False.
     """
-
     def __init__(self, read_only=True):
-        super(HDF5State, self).__init__(read_only=read_only)
+        super(SqlStateV1, self).__init__(read_only=read_only)
 
 ### INTERNAL PATHS AND CONNECTIONS
+
     def _connect_to_sql(self):
         """Get a connection to the sql database.
 
@@ -66,12 +67,13 @@ class HDF5State(BaseState):
             The connection is read only if self.read_only is true.
         """
         if self.read_only:
-            con = sqlite3.connect(f'file:{str(self._sql_fp)}?mode=ro', uri=True)
+            con = sqlite3.connect(f'file:{str(self._sql_fp)}?mode=ro',
+                                  uri=True)
         else:
             con = sqlite3.connect(self._sql_fp)
         return con
 
-    # TODO(State): Should this be obtained from webapp/utils/paths, or viceversa?
+    # TODO(State): Should this be obtained from webapp/utils/paths, viceversa?
     @property
     def _sql_fp(self):
         """Path to the sql database."""
@@ -88,6 +90,7 @@ class HDF5State(BaseState):
         return self.working_dir / RELATIVE_FEATURE_MATRIX_PATH
 
 ### OPEN, CLOSE, SAVE, INIT
+
     def _create_new_state_file(self, working_dir):
         """
         Create a new state file.
@@ -98,9 +101,7 @@ class HDF5State(BaseState):
             File where the project files.
         """
         if self.read_only:
-            raise ValueError(
-                "Can't create new state file in read_only mode."
-            )
+            raise ValueError("Can't create new state file in read_only mode.")
 
         self.working_dir = Path(working_dir)
 
@@ -110,7 +111,7 @@ class HDF5State(BaseState):
         # Create settings_metadata.json
         self.settings_metadata = {
             'settings': None,
-            'state_version': LATEST_HDF5STATE_VERSION,
+            'state_version': LATEST_SQLSTATE_VERSION,
             'software_version': SOFTWARE_VERSION
         }
 
@@ -158,7 +159,8 @@ class HDF5State(BaseState):
         """
         # If state already exist
         if not Path(working_dir).is_dir():
-            raise StateNotFoundError(f"State file {working_dir} doesn't exist.")
+            raise StateNotFoundError(
+                f"State file {working_dir} doesn't exist.")
 
         # store filepath
         self.working_dir = Path(working_dir)
@@ -168,7 +170,8 @@ class HDF5State(BaseState):
             with open(self._settings_metadata_fp, 'r') as f:
                 self.settings_metadata = json.load(f)
         except FileNotFoundError:
-            raise AttributeError("'settings_metadata.json' not found in the state file.")
+            raise AttributeError(
+                "'settings_metadata.json' not found in the state file.")
 
         try:
             if not self._is_valid_version():
@@ -177,8 +180,7 @@ class HDF5State(BaseState):
                     f"state file version {self.version}.")
         except AttributeError as err:
             raise ValueError(
-                f"Unexpected error when opening state file: {err}"
-            )
+                f"Unexpected error when opening state file: {err}")
 
         self._is_valid_state()
 
@@ -187,32 +189,37 @@ class HDF5State(BaseState):
         cur = con.cursor()
 
         # Check if all required tables are present.
-        table_names = cur.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        table_names = cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         table_names = [tup[0] for tup in table_names]
         for table in REQUIRED_TABLES:
             if table not in table_names:
-                raise StateError(f'The sql file should contain a table named "{table}".')
+                raise StateError(
+                    f'The sql file should contain a table named "{table}".')
 
         # Check if all required columns are present in results.
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         column_names = [tup[1] for tup in column_names]
         for column in RESULTS_TABLE_COLUMNS:
             if column not in column_names:
-                raise StateError(f'The results table does not contain the column {column}.')
+                raise StateError(
+                    f'The results table does not contain the column {column}.')
 
         # Check settings_metadata contains the required keys.
         settings_metadata_keys = self.settings_metadata.keys()
         for key in SETTINGS_METADATA_KEYS:
             if key not in settings_metadata_keys:
-                raise StateError(f'The key {key} was not found in settings_metadata.')
+                raise StateError(
+                    f'The key {key} was not found in settings_metadata.')
 
     def close(self):
         pass
 
 ### PROPERTIES
+
     def _is_valid_version(self):
         """Check compatibility of state version."""
-        return self.version[0] == LATEST_HDF5STATE_VERSION[0]
+        return self.version[0] == LATEST_SQLSTATE_VERSION[0]
 
     @property
     def version(self):
@@ -220,7 +227,8 @@ class HDF5State(BaseState):
         try:
             return self.settings_metadata['state_version']
         except KeyError:
-            raise AttributeError("'settings_metadata.json' does not contain 'state_version'.")
+            raise AttributeError(
+                "'settings_metadata.json' does not contain 'state_version'.")
 
     @property
     def settings(self):
@@ -243,9 +251,11 @@ class HDF5State(BaseState):
             n_prior_excluded  : 10
             mode              : simulate
             model_param       : {'alpha': 3.822}
-            query_param       : {'strategy_1': 'max', 'strategy_2': 'random', 'mix_ratio': 0.95}
+            query_param       : {'strategy_1': 'max', 'strategy_2': 'random',
+            'mix_ratio': 0.95}
             feature_param     : {}
-            balance_param     : {'a': 2.155, 'alpha': 0.94, ... 'gamma': 2.0, 'shuffle': True}
+            balance_param     : {'a': 2.155, 'alpha': 0.94, ... 'gamma': 2.0,
+            'shuffle': True}
             abstract_only     : False
 
         """
@@ -259,7 +269,8 @@ class HDF5State(BaseState):
         if isinstance(settings, ASReviewSettings):
             self._add_settings_metadata('settings', settings.to_dict())
         else:
-            raise ValueError("'settings' should be an ASReviewSettings object.")
+            raise ValueError(
+                "'settings' should be an ASReviewSettings object.")
 
     @property
     def current_queries(self):
@@ -286,7 +297,8 @@ class HDF5State(BaseState):
 
     @property
     def n_records_labeled(self):
-        """Get the number of labeled records, where each prior is counted individually."""
+        """Get the number of labeled records, where each prior is counted
+        individually."""
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM results")
@@ -305,7 +317,8 @@ class HDF5State(BaseState):
         """
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.execute("SELECT COUNT (*) FROM results WHERE query_strategies='prior'")
+        cur.execute(
+            "SELECT COUNT (*) FROM results WHERE query_strategies='prior'")
         n = cur.fetchone()
         con.close()
         n = n[0]
@@ -315,6 +328,7 @@ class HDF5State(BaseState):
         return n
 
 ### Features, settings_metadata
+
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
         if self.read_only:
@@ -325,31 +339,34 @@ class HDF5State(BaseState):
 
     def add_record_table(self, record_ids):
         # Add the record table to the sql.
-        record_sql_input = [(int(record_id),) for record_id in record_ids]
+        record_sql_input = [(int(record_id), ) for record_id in record_ids]
 
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.executemany("""INSERT INTO record_table VALUES
+        cur.executemany(
+            """INSERT INTO record_table VALUES
                                             (?)""", record_sql_input)
         con.commit()
 
     def add_last_probabilities(self, probabilities):
         """Save the probabilities of the last model."""
-        proba_sql_input = [(proba,) for proba in probabilities]
+        proba_sql_input = [(proba, ) for proba in probabilities]
 
         con = self._connect_to_sql()
         cur = con.cursor()
 
-        # Check that the number of rows in the table is 0 (if the table is not yet populated),
-        # or that it's equal to len(probabilities).
+        # Check that the number of rows in the table is 0 (if the table is not
+        # yet populated), or that it's equal to len(probabilities).
         cur.execute("SELECT COUNT (*) FROM last_probabilities")
         proba_length = cur.fetchone()[0]
         if not ((proba_length == 0) or (proba_length == len(proba_sql_input))):
-            raise ValueError(f"There are {proba_length} probabilities in the database, "
-                             f"but 'probabilities' has length {len(probabilities)}")
+            raise ValueError(
+                f"There are {proba_length} probabilities in the database, "
+                f"but 'probabilities' has length {len(probabilities)}")
 
         cur.execute("""DELETE FROM last_probabilities""")
-        cur.executemany("""INSERT INTO last_probabilities VALUES
+        cur.executemany(
+            """INSERT INTO last_probabilities VALUES
                                             (?)""", proba_sql_input)
         con.commit()
 
@@ -358,7 +375,10 @@ class HDF5State(BaseState):
         if isinstance(feature_matrix, np.ndarray):
             feature_matrix = csr_matrix(feature_matrix)
         if not isinstance(feature_matrix, csr_matrix):
-            raise ValueError("The feature matrix should be convertible to type scipy.sparse.csr.csr_matrix.")
+            raise ValueError(
+                "The feature matrix should be convertible to type "
+                "scipy.sparse.csr.csr_matrix."
+            )
 
         save_npz(self._feature_matrix_fp, feature_matrix)
 
@@ -366,15 +386,10 @@ class HDF5State(BaseState):
         return load_npz(self._feature_matrix_fp)
 
 # TODO (State): Add custom datasets.
-# TODO (State): Add models being trained (Start with only one model at the same time).
-    def add_labeling_data(self, 
-                          record_ids,
-                          labels, 
-                          classifiers, 
-                          query_strategies,
-                          balance_strategies,
-                          feature_extraction,
-                          training_sets):
+# TODO (State): Add models being trained.
+    def add_labeling_data(self, record_ids, labels, classifiers,
+                          query_strategies, balance_strategies,
+                          feature_extraction, training_sets):
         """Add all the data of one labeling action."""
         # Check if the state is still valid.
         self._is_valid_state()
@@ -382,21 +397,31 @@ class HDF5State(BaseState):
         labeling_times = [datetime.now()] * len(record_ids)
 
         # Check that all input data has the same length.
-        lengths = [len(record_ids), len(labels), len(classifiers), len(query_strategies), len(balance_strategies), 
-                   len(feature_extraction), len(training_sets), len(labeling_times)]
+        lengths = [
+            len(record_ids),
+            len(labels),
+            len(classifiers),
+            len(query_strategies),
+            len(balance_strategies),
+            len(feature_extraction),
+            len(training_sets),
+            len(labeling_times)
+        ]
         if len(set(lengths)) != 1:
             raise ValueError("Input data should be of the same length.")
         n_records_labeled = len(record_ids)
 
         # Create the database rows.
-        db_rows = [(int(record_ids[i]), int(labels[i]), classifiers[i], query_strategies[i],
-                    balance_strategies[i], feature_extraction[i],
-                    training_sets[i], labeling_times[i]) for i in range(n_records_labeled)]
+        db_rows = [(int(record_ids[i]), int(labels[i]), classifiers[i],
+                    query_strategies[i], balance_strategies[i],
+                    feature_extraction[i], training_sets[i], labeling_times[i])
+                   for i in range(n_records_labeled)]
 
         # Add the rows to the database.
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.executemany("""INSERT INTO results VALUES
+        cur.executemany(
+            """INSERT INTO results VALUES
                                     (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
         con.commit()
         con.close()
@@ -423,7 +448,8 @@ class HDF5State(BaseState):
             Dataframe with column 'proba' containing the probabilities.
         """
         con = self._connect_to_sql()
-        last_probabilities = pd.read_sql_query('SELECT * FROM last_probabilities', con)
+        last_probabilities = pd.read_sql_query(
+            'SELECT * FROM last_probabilities', con)
         con.close()
         return last_probabilities
 
@@ -433,14 +459,16 @@ class HDF5State(BaseState):
         Arguments
         ---------
         query: int
-            Number of the query of which you want the data. query=0 corresponds to all the prior records.
+            Number of the query of which you want the data. query=0 corresponds
+            to all the prior records.
         columns: list
             List of columns names of the results table.
 
         Returns
         -------
         pd.DataFrame
-            Dataframe containing the data from the results table with the given query number and columns.
+            Dataframe containing the data from the results table with the given
+            query number and columns.
         """
         if columns is not None:
             if not type(columns) == list:
@@ -448,10 +476,12 @@ class HDF5State(BaseState):
         col_query_string = '*' if columns is None else ','.join(columns)
 
         if query == 0:
-            sql_query = f"SELECT {col_query_string} FROM results WHERE query_strategies='prior'"
+            sql_query = f"SELECT {col_query_string} FROM results WHERE " \
+                        f"query_strategies='prior'"
         else:
             rowid = query + self.n_priors
-            sql_query = f"SELECT {col_query_string} FROM results WHERE rowid={rowid}"
+            sql_query = f"SELECT {col_query_string} FROM results WHERE " \
+                        f"rowid={rowid}"
 
         con = self._connect_to_sql()
         data = pd.read_sql_query(sql_query, con)
@@ -471,12 +501,15 @@ class HDF5State(BaseState):
         Returns
         -------
         pd.DataFrame
-            Dataframe containing the data from the results table with the given record_id and columns.
+            Dataframe containing the data from the results table with the given
+            record_id and columns.
         """
         query_string = '*' if columns is None else ','.join(columns)
 
         con = self._connect_to_sql()
-        data = pd.read_sql_query(f'SELECT {query_string} FROM results WHERE record_ids={record_id}', con)
+        data = pd.read_sql_query(
+            f'SELECT {query_string} FROM results WHERE record_ids={record_id}',
+            con)
         con.close()
         return data
 
@@ -486,12 +519,14 @@ class HDF5State(BaseState):
         Arguments
         ---------
         columns: list, str
-            List of columns names of the results table, or a string containing one column name.
+            List of columns names of the results table, or a string containing
+            one column name.
 
         Returns
         -------
         pd.DataFrame:
-            Dataframe containing the data of the specified columns of the results table.
+            Dataframe containing the data of the specified columns of the
+            results table.
         """
         if type(columns) == str:
             columns = [columns]
@@ -537,7 +572,8 @@ class HDF5State(BaseState):
         Returns
         -------
         pd.Series:
-            Series containing the query strategy used to get the record to query at each labeling moment.
+            Series containing the query strategy used to get the record to
+            query at each labeling moment.
         """
         return self.get_dataset('query_strategies')['query_strategies']
 
@@ -547,7 +583,8 @@ class HDF5State(BaseState):
         Returns
         -------
         pd.Series:
-            Series containing the balance strategy used to get the training data at each labeling moment.
+            Series containing the balance strategy used to get the training
+            data at each labeling moment.
         """
         return self.get_dataset('balance_strategies')['balance_strategies']
 
@@ -557,7 +594,8 @@ class HDF5State(BaseState):
         Returns
         -------
         pd.Series:
-            Series containing the feature extraction method used for the classifier input at each labeling moment.
+            Series containing the feature extraction method used for the
+            classifier input at each labeling moment.
         """
         return self.get_dataset('feature_extraction')['feature_extraction']
 
@@ -567,7 +605,8 @@ class HDF5State(BaseState):
         Returns
         -------
         pd.Series:
-            Series containing the training set on which the classifier was fit at each labeling moment.
+            Series containing the training set on which the classifier was fit
+            at each labeling moment.
         """
         return self.get_dataset('training_sets')['training_sets']
 
@@ -577,19 +616,20 @@ class HDF5State(BaseState):
         Arguments
         ---------
         time_format: 'int' or 'datetime'
-            Format of the return value. If it is 'int' you get a UTC timestamp ,
+            Format of the return value. If it is 'int' you get a UTC timestamp,
             if it is 'datetime' you get datetime instead of an integer.
 
         Returns
         -------
         pd.Series:
-            If format='int' you get a UTC timestamp (integer number of microseconds),
-            if it is 'datetime' you get datetime format.
+            If format='int' you get a UTC timestamp (integer number of
+            microseconds), if it is 'datetime' you get datetime format.
         """
         times = self.get_dataset('labeling_times')['labeling_times']
 
         # Convert time to datetime format.
         if time_format == 'datetime':
-            times = times.applymap(lambda x: datetime.utcfromtimestamp(x/10**6))
+            times = times.applymap(
+                lambda x: datetime.utcfromtimestamp(x / 10**6))
 
         return times

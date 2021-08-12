@@ -21,13 +21,14 @@ from scipy import stats
 
 from asreview.state import BaseState
 from asreview.state.utils import open_state
-from asreview.state.utils import states_from_dir
+from asreview.state.legacy.utils import states_from_dir
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
 from asreview.analysis.statistics import _get_last_proba_order
 
 
+# TODO(State): Remove states_from_dir
 class Analysis():
     """Analysis object to do statistical analysis on state files."""
 
