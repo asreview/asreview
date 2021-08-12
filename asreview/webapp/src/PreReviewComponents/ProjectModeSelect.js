@@ -27,7 +27,11 @@ export default function ProjectModeSelect(props) {
 
   return (
     <div>
-      <FormControl variant="outlined" className={classes.formControl} disabled={props.edit}>
+      <FormControl
+        variant="outlined"
+        className={classes.formControl}
+        disabled={props.edit}
+      >
         <InputLabel ref={inputLabel} id="mode-label">
           Project type
         </InputLabel>
@@ -46,15 +50,15 @@ export default function ProjectModeSelect(props) {
               />
             </ListItem>
           </MenuItem>
-            <MenuItem value={projectModes.EXPLORATION} component="div">
-              <ListItem>
-                <ListItemText
-                  primary="Exploration"
-                  secondary="Explore an existing, labeled dataset in an interactive way."
-                />
-              </ListItem>
-            </MenuItem>
-          {props.showSimulate &&
+          <MenuItem value={projectModes.EXPLORATION} component="div">
+            <ListItem>
+              <ListItemText
+                primary="Exploration"
+                secondary="Explore an existing, labeled dataset in an interactive way."
+              />
+            </ListItem>
+          </MenuItem>
+          {props.showSimulate && (
             <MenuItem value={projectModes.SIMULATION} component="div">
               <ListItem>
                 <ListItemText
@@ -63,7 +67,7 @@ export default function ProjectModeSelect(props) {
                 />
               </ListItem>
             </MenuItem>
-          }
+          )}
         </Select>
       </FormControl>
     </div>

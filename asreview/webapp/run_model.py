@@ -32,7 +32,6 @@ from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.io import write_proba
 from asreview.webapp.utils.paths import get_data_file_path
 from asreview.webapp.utils.paths import get_project_path
-from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.project import read_data
 
 
@@ -65,7 +64,6 @@ def train_model(project_id, label_method=None):
     logging.info(f"Project {project_id} - Train a new model for project")
 
     # get file locations
-    asr_kwargs_file = get_kwargs_path(project_id)
     lock_file = get_lock_path(project_id)
 
     # Lock so that only one training run is running at the same time.
@@ -96,16 +94,11 @@ def train_model(project_id, label_method=None):
         state_file = get_state_path(project_id)
 
         # collect command line arguments and pass them to the reviewer
-        with open(asr_kwargs_file, "r") as fp:
-            asr_kwargs = json.load(fp)
-
-        try:
-            del asr_kwargs["abstract_only"]
-        except KeyError:
-            pass
-
-        asr_kwargs['state_file'] = str(state_file)
-        reviewer = get_reviewer(dataset=data_fp, mode="minimal", **asr_kwargs)
+        reviewer = get_reviewer(
+            dataset=data_fp,
+            mode="minimal",
+            state_file=str(state_file)
+        )
 
         with open_state(state_file) as state:
             old_label_history = _get_label_train_history(state)
