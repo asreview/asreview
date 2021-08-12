@@ -134,10 +134,6 @@ def get_active_path(project_id):
     return Path(get_project_path(project_id), "active.json")
 
 
-def get_kwargs_path(project_id):
-    return Path(get_project_path(project_id), "kwargs.json")
-
-
 def get_lock_path(project_id):
     """Get the active file for the project.
 

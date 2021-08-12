@@ -152,6 +152,8 @@ def get_reviewer(dataset,
         raise ValueError("Supply at least one dataset"
                          " with at least one record.")
 
+    # create a new settings object from arguments
+    # only used if state file is not present
     cli_settings = ASReviewSettings(model=model,
                                     n_instances=n_instances,
                                     n_queries=n_queries,
@@ -165,6 +167,7 @@ def get_reviewer(dataset,
                                     data_fp=None)
     cli_settings.from_file(config_file)
 
+    # overwrite the settings by the setting of the state file
     if state_file is not None:
         with open_state(state_file) as state:
             if state.is_empty():
