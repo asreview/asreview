@@ -17,8 +17,8 @@ const ExplorationModeBanner = (props) => {
   return (
     <div>
       <Banner
-        open={props.banner}
-        onClose={() => props.setBanner(false)}
+        open={props.explorationMode}
+        onClose={() => props.setExplorationMode(false)}
         label="You are screening through a manually pre-labeled dataset."
         buttonLabel="read more"
         buttonProps={{
@@ -30,7 +30,7 @@ const ExplorationModeBanner = (props) => {
           color: "primary",
         }}
         cardProps={{
-          className: classes.banner,
+          className: classes.root,
         }}
         appBar
       />

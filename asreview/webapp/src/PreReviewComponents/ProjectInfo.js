@@ -15,7 +15,7 @@ import {
 import { brown } from "@material-ui/core/colors";
 
 // import useWindowSize from 'react-use/lib/useWindowSize'
-import Confetti from 'react-confetti'
+import Confetti from "react-confetti";
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
@@ -99,7 +99,6 @@ const ProjectInit = (props) => {
   };
 
   const onChange = (evt) => {
-
     if (error.code) {
       setError({
         code: null,
@@ -123,9 +122,8 @@ const ProjectInit = (props) => {
     bodyFormData.set("description", info.description);
 
     // dialog is open in edit mode
-    if(props.edit){
-      ProjectAPI
-        .info(props.project_id, true, bodyFormData)
+    if (props.edit) {
+      ProjectAPI.info(props.project_id, true, bodyFormData)
         .then((result) => {
           // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
@@ -139,9 +137,7 @@ const ProjectInit = (props) => {
             message: error.message,
           });
         });
-    }
-    else {
-
+    } else {
       // dialog is open in init mode
       ProjectAPI.init(bodyFormData)
         .then((result) => {
@@ -158,19 +154,17 @@ const ProjectInit = (props) => {
           });
         });
     }
-
   };
 
   React.useEffect(() => {
     // unlock simulation mode
-    if (info.name === "elas" && !showSimulate){
-
+    if (info.name === "elas" && !showSimulate) {
       setInfo({
         ...info,
-        "name": "",
-        "mode": projectModes.SIMULATION,
+        name: "",
+        mode: projectModes.SIMULATION,
       });
-      setShowSimulate(true)
+      setShowSimulate(true);
     }
   }, [info.name, info, showSimulate]);
 
@@ -178,7 +172,7 @@ const ProjectInit = (props) => {
     // pre-fill project info in edit mode
     if (props.edit) {
       setInfo(props.info);
-    };
+    }
   }, [props.edit, props.info]);
 
   return (
@@ -212,12 +206,18 @@ const ProjectInit = (props) => {
               />
             </div>
 
-            { showSimulate &&
+            {showSimulate && (
               <Box>
-                <Typography color='error' className={classes.textfieldItem}>You unlocked the experimental simulation mode!</Typography>
-                <Confetti recycle={false} tweenDuration={50000} numberOfPieces={1000} />
+                <Typography color="error" className={classes.textfieldItem}>
+                  You unlocked the experimental simulation mode!
+                </Typography>
+                <Confetti
+                  recycle={false}
+                  tweenDuration={50000}
+                  numberOfPieces={1000}
+                />
               </Box>
-            }
+            )}
 
             <div className={classes.textfieldItem}>
               <TextField
