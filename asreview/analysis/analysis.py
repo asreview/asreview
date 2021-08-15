@@ -165,8 +165,18 @@ class Analysis():
             x_norm /= len(labels)
             y_norm /= self.inc_found[fl]["inc_after_init"]
 
-        norm_xr = (np.arange(1,
-                             len(self.inc_found[fl]["avg"]) + 1) - dx) / x_norm
+        # extend the arrays if all relevant records have been found
+        total_inc_found = int(self.inc_found[fl]["avg"][-1])
+        if total_inc_found == self.inc_found[fl]["inc_after_init"]:
+            norm_xr = np.arange(1, 1 + len(labels) -
+                                self.inc_found[fl]["n_initial"]) / x_norm
+            missing_y = len(labels) - self.inc_found[fl]["n_initial"] - \
+                len(self.inc_found[fl]["avg"])
+            self.inc_found[fl]["avg"].extend([total_inc_found] * missing_y)
+        else:
+            norm_xr = (np.arange(1, len(self.inc_found[fl]["avg"]) + 1) - dx)\
+                      / x_norm
+
         norm_yr = (np.array(self.inc_found[fl]["avg"]) - dy) / y_norm
         norm_y_err = np.array(self.inc_found[fl]["err"]) / y_norm
 
