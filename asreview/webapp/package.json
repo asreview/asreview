@@ -16,6 +16,7 @@
     "react-confetti": "^6.0.1",
     "react-dom": "^16.14.0",
     "react-dropzone": "^10.2.2",
+    "react-query": "^3.19.6",
     "react-rotation": "^1.3.0",
     "react-scripts": "^3.4.4",
     "react-swipeable-views": "^0.13.9",
