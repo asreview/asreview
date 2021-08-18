@@ -3,10 +3,10 @@ import {
   Box,
   Chip,
   CircularProgress,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
-  List,
   Typography,
   useMediaQuery,
 } from "@material-ui/core";
@@ -47,6 +47,12 @@ const useStyles = makeStyles((theme) => ({
   root: {
     padding: 0,
   },
+  container: {
+    "& > *": {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+    },
+  },
   record: {
     paddingTop: 16,
     paddingBottom: 16,
@@ -54,6 +60,9 @@ const useStyles = makeStyles((theme) => ({
   action: {
     padding: "32px 24px 24px 24px",
     justifyContent: "flex-start",
+  },
+  chip: {
+    marginLeft: "auto",
   },
   circularProgress: {
     width: "100%",
@@ -100,7 +109,8 @@ const HistoryDialog = (props) => {
   };
 
   // second layer record toggle
-  const toggleRecord = (index) => {
+  const toggleRecord = (event, index) => {
+    event.preventDefault();
     if (record.index === null) {
       setRecord((s) => {
         return {
@@ -208,12 +218,19 @@ const HistoryDialog = (props) => {
       : "Convert to relevant"
     : "";
 
-  if (record.converting) {
+  let convertColor = record.data
+    ? record.data.included === 1
+      ? "secondary"
+      : "default"
+    : "";
+
+  if (record.converting && record.data) {
     if (record.converted % 2 === 0) {
       convertLabel =
         record.data.included === 1
           ? "Converting to irrelevant"
           : "Converting to relevant";
+      convertColor = record.data.included === 1 ? "secondary" : "default";
     }
   } else {
     if (record.converted && record.converted % 2 !== 0) {
@@ -221,6 +238,7 @@ const HistoryDialog = (props) => {
         state.data[0].included === 0
           ? "Converted to irrelevant"
           : "Converted to relevant";
+      convertColor = state.data[0].included === 0 ? "default" : "secondary";
     }
   }
 
@@ -270,21 +288,22 @@ const HistoryDialog = (props) => {
               </div>
             )}
             {state["data"] !== null && state["select"] === 1 && (
-              <List>
+              <Container className={classes.container}>
                 {state["data"].map((value, index) => {
                   return (
                     <HistoryListCard
                       value={value}
                       index={index}
                       handleClick={toggleRecord}
+                      updateInstance={updateInstance}
                       key={`result-item-${value.id}`}
                     />
                   );
                 })}
-              </List>
+              </Container>
             )}
             {state["data"] !== null && state["select"] === 2 && (
-              <List>
+              <Container className={classes.container}>
                 {state["data"].map((value, index) => {
                   if (value.included === 1) {
                     return (
@@ -292,6 +311,7 @@ const HistoryDialog = (props) => {
                         value={value}
                         index={index}
                         handleClick={toggleRecord}
+                        updateInstance={updateInstance}
                         key={`result-item-${value.id}`}
                       />
                     );
@@ -299,10 +319,10 @@ const HistoryDialog = (props) => {
                     return null;
                   }
                 })}
-              </List>
+              </Container>
             )}
             {state["data"] !== null && state["select"] === 3 && (
-              <List>
+              <Container className={classes.container}>
                 {state["data"].map((value, index) => {
                   if (value.included !== 1) {
                     return (
@@ -310,6 +330,7 @@ const HistoryDialog = (props) => {
                         value={value}
                         index={index}
                         handleClick={toggleRecord}
+                        updateInstance={updateInstance}
                         key={`result-item-${value.id}`}
                       />
                     );
@@ -317,7 +338,7 @@ const HistoryDialog = (props) => {
                     return null;
                   }
                 })}
-              </List>
+              </Container>
             )}
           </DialogContent>
         )}
@@ -347,9 +368,10 @@ const HistoryDialog = (props) => {
 
         {error.message === null && record.index !== null && (
           <DialogActions className={classes.action}>
-            <div>
+            <div className={classes.chip}>
               <Chip
                 disabled={record.converting}
+                color={convertColor}
                 icon={
                   record.converting && record.converted % 2 === 0 ? (
                     <CircularProgress size="1rem" thickness={5} />
