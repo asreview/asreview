@@ -161,7 +161,7 @@ const HistoryDialog = (props) => {
               return {
                 ...s,
                 converting: false,
-                converted: record.converted + 1,
+                converted: record.index ? record.converted + 1 : 0,
               };
             });
           },
