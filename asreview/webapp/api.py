@@ -496,6 +496,8 @@ def api_get_prior(project_id):  # noqa: F401
                 "included": int(label_history[i][1])
             })
 
+        payload["result"] = payload["result"][::-1]
+
     except Exception as err:
         logging.error(err)
         return jsonify(message="Failed to load labeled documents"), 500

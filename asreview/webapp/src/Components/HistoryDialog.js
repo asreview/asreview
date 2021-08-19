@@ -184,7 +184,7 @@ const HistoryDialog = (props) => {
         setState((s) => {
           return {
             ...s,
-            data: result.data["result"].reverse(),
+            data: result.data["result"],
           };
         });
       })
