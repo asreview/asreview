@@ -56,7 +56,7 @@ def add_empty_project_json(fp):
 @pytest.mark.xfail(raises=StateNotFoundError,
                    reason="Project folder does not exist")
 def test_invalid_project_folder():
-    with open_state('this_is_not_a_project') as state:
+    with open_state('this_is_not_a_project') as state:                          # noqa
         pass
 
 
@@ -65,7 +65,7 @@ def test_invalid_project_folder():
 def test_state_not_found(tmpdir):
     state_fp = Path(tmpdir)
     add_empty_project_json(state_fp)
-    with open_state(state_fp) as state:
+    with open_state(state_fp) as state:                                         # noqa
         pass
 
 

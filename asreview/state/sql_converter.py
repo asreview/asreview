@@ -14,8 +14,6 @@
 
 import json
 import sqlite3
-import zipfile
-import tempfile
 from pathlib import Path
 from uuid import uuid4
 
