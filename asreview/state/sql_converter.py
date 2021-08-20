@@ -284,7 +284,7 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             # Create the results table.
             cur.execute('''CREATE TABLE results
                             (record_ids INTEGER,
-                            labels INTEGER, 
+                            labels INTEGER,
                             classifiers TEXT,
                             query_strategies TEXT,
                             balance_strategies TEXT,
@@ -292,9 +292,6 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                             training_sets INTEGER,
                             labeling_times INTEGER)''')
             # TODO(State): models_training?
-
-            # Calculate the n_priors and the number of queries.
-            sf_queries = range(1, len(sf._state_dict['results']))
 
             # Index (row number) of record being labeled.
             sf_indices = [

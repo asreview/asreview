@@ -406,7 +406,8 @@ class ASReviewData():
         if "prior" not in state_data['query_strategies'].values:
             return np.array([], dtype=int)
 
-        initial_indices = state_data['record_ids'][state_data['query_strategies'] == 'prior'].to_list()
+        initial_indices = state_data['record_ids'][
+            state_data['query_strategies'] == 'prior'].to_list()
         if by_index:
             return np.array(initial_indices, dtype=int)
         return self.df.index.values[initial_indices]

@@ -353,8 +353,8 @@ class BaseReview(ABC):
                 self.query_i_classified += len(query_idx)
 
             # Option to stop after the classification set instead of training.
-            if (stop_after_class
-                    and self._stop_iter(self.query_i, self.n_pool())):
+            if (stop_after_class and
+                    self._stop_iter(self.query_i, self.n_pool())):
                 break
 
             # STEP 3: Train the algorithm with new data

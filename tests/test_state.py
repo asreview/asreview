@@ -256,9 +256,8 @@ def test_get_last_probabilities():
 
 @pytest.mark.xfail(
     raises=ValueError,
-    reason=
-    f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the database, "
-    f"but 'probabilities' has length 3")
+    reason=f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the"
+           f" database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
         state.add_last_probabilities([1.0, 2.0, 3.0])

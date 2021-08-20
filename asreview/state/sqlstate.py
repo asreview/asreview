@@ -47,7 +47,7 @@ RESULTS_TABLE_COLUMNS = [
 SETTINGS_METADATA_KEYS = ['settings', 'state_version', 'software_version']
 
 
-#TODO(State): Implement undo feature.
+# TODO(State): Implement undo feature.
 class SqlStateV1(BaseState):
     """Class for storing the review state with HDF5 storage.
 
@@ -59,7 +59,7 @@ class SqlStateV1(BaseState):
     def __init__(self, read_only=True):
         super(SqlStateV1, self).__init__(read_only=read_only)
 
-### INTERNAL PATHS AND CONNECTIONS
+# INTERNAL PATHS AND CONNECTIONS
 
     def _connect_to_sql(self):
         """Get a connection to the sql database.
@@ -96,7 +96,7 @@ class SqlStateV1(BaseState):
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-### OPEN, CLOSE, SAVE, INIT
+# OPEN, CLOSE, SAVE, INIT
 
     def _create_new_state_file(self, working_dir, review_id):
         """
@@ -151,7 +151,7 @@ class SqlStateV1(BaseState):
             # Create the results table.
             cur.execute('''CREATE TABLE results
                                 (record_ids INTEGER,
-                                labels INTEGER, 
+                                labels INTEGER,
                                 classifiers TEXT,
                                 query_strategies TEXT,
                                 balance_strategies TEXT,
@@ -246,7 +246,7 @@ class SqlStateV1(BaseState):
     def close(self):
         pass
 
-### PROPERTIES
+# PROPERTIES
 
     def _is_valid_version(self):
         """Check compatibility of state version."""
@@ -358,7 +358,7 @@ class SqlStateV1(BaseState):
             return None
         return n
 
-### Features, settings_metadata
+# Features, settings_metadata
 
     def _update_project_with_feature_extraction(self, feature_extraction):
         """If the feature extraction method is set, update the project.json."""
@@ -442,10 +442,8 @@ class SqlStateV1(BaseState):
     def get_feature_matrix(self):
         return load_npz(self._feature_matrix_fp)
 
-
 # TODO (State): Add custom datasets.
 # TODO (State): Add models being trained.
-
     def add_labeling_data(self, record_ids, labels, classifiers,
                           query_strategies, balance_strategies,
                           feature_extraction, training_sets):
