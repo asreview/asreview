@@ -64,10 +64,11 @@ from asreview.state.paths import get_simulation_ready_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
+from asreview.state.paths import get_settings_metadata_path
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.project import add_simulation_to_project
+from asreview.webapp.utils.project import add_review_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
@@ -77,7 +78,7 @@ from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
-from asreview.webapp.utils.project import update_simulation_in_project
+from asreview.webapp.utils.project import update_review_in_project
 from asreview.webapp.utils.project import get_project_config
 from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.validation import check_dataset
@@ -633,13 +634,16 @@ def api_list_algorithms():
 @bp.route('/project/<project_id>/algorithms', methods=["GET"])
 def api_get_algorithms(project_id):  # noqa: F401
 
-    # check if there is a kwargs file
+    # check if there is a settings_metadata file for the review.
     try:
+        project_path = get_project_path(project_id)
+        with open(get_settings_metadata_path(project_path), 'r') as f:
+            kwargs_dict = json.load(f)['settings']
 
-        # TODO: load from state file or project file when returning to setup
-        raise FileNotFoundError
-
-    except FileNotFoundError:
+    # If the project.json has no reviews yet, we get an IndexError. If the
+    # settings_metadata.json for the review has not been created, we get a
+    # FileNotFoundError.
+    except (FileNotFoundError, IndexError):
         # set the kwargs dict to setup kwargs
         kwargs_dict = deepcopy(app.config['asr_kwargs'])
         kwargs_dict["model"] = DEFAULT_MODEL
@@ -715,7 +719,7 @@ def api_start(project_id):  # noqa: F401
 
             logging.info("Project data file found: {}".format(datafile))
 
-            add_simulation_to_project(project_id, simulation_id)
+            add_review_to_project(project_id, simulation_id)
 
             # start simulation
             py_exe = _get_executable()
@@ -763,11 +767,11 @@ def api_init_model_ready(project_id):  # noqa: F401
     if project_config["mode"] == PROJECT_MODE_SIMULATE:
         logging.info("checking if simulation is ready")
 
-        simulation_id = project_config["simulations"][0]["id"]
+        simulation_id = project_config["reviews"][0]["id"]
 
         if get_simulation_ready_path(project_path, simulation_id).exists():
             logging.info("simulation ready")
-            update_simulation_in_project(project_id, simulation_id, "ready")
+            update_review_in_project(project_id, simulation_id, "ready")
 
             response = jsonify({'status': 1})
         else:
@@ -882,7 +886,8 @@ def export_results(project_id):
 
         return send_file(
             fp_tmp_export,
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+            mimetype=
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             download_name=f"asreview_result_{project_id}.xlsx",
             max_age=0)

@@ -34,24 +34,28 @@ class BaseState(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def _create_new_state_file(self, fp):
+    def _create_new_state_file(self, fp, review_id):
         """Create empty internal structure for state.
 
         Arguments
         ---------
         fp: str
-            Location of created file.
+            Location of project file.
+        review_id: str
+            Identifier of the review.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def _restore(self, fp):
+    def _restore(self, fp, review_id):
         """Restore state from a state file.
 
         Arguments
         ---------
         fp: str
-            Path to file to restore.
+            Path to project file.
+        review_id: str
+            Identifier of the review.
         """
         raise NotImplementedError
 

@@ -17,22 +17,25 @@ import sqlite3
 import zipfile
 import tempfile
 from pathlib import Path
+from uuid import uuid4
 
 import numpy as np
 from scipy.sparse import save_npz
+from scipy.sparse import issparse
 
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import decode_feature_matrix
 from asreview.state.errors import StateError
 
-V3STATE_VERSION = "1.0"
+SQLSTATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
 
 
 def is_old_project(fp):
     """Check if state file is old version."""
-    if Path(fp, 'results.sql').is_file():
-        raise ValueError(f"There already is a 'results.sql' file at {fp}")
+    if Path(fp, 'reviews').is_dir():
+        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
+                         f"This project seems to be in new format.")
     if not Path(fp, 'result.json').is_file():
         raise ValueError(f"There is no 'result.json' file at {fp}")
 
@@ -53,11 +56,21 @@ def convert_asreview(fp):
     # Check if it is indeed an old format project.
     is_old_project(fp)
 
+    # Current Paths
     fp = Path(fp)
-    # Path to the json state file in the asreview file.
-    json_fp = fp / 'result.json'
-    # Create sqlite table for results.
-    sql_fp = fp / 'results.sql'
+    json_fp = Path(fp, 'result.json')
+    project_fp = Path(fp, 'project.json')
+    review_id = str(uuid4().hex)
+
+    # Create the reviews folder and the paths for the results and settings.
+    Path(fp, 'reviews', review_id).mkdir(parents=True)
+    sql_fp = Path(fp, 'reviews', review_id, 'results.sql')
+    settings_metadata_fp = Path(fp, 'reviews',
+                                review_id, 'settings_metadata.json')
+
+    # Create the path for the feature matrix.
+
+    # Create sqlite table with the results of the review.
     convert_json_results_to_sql(sql_fp, json_fp)
 
     # Create sqlite tables 'last_probabilities'.
@@ -68,12 +81,66 @@ def convert_asreview(fp):
     convert_json_record_table(sql_fp, json_fp)
 
     # Create json for settings.
-    settings_metadata_fp = fp / 'settings_metadata.json'
     convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
-    # Create npz for feature matrix.
-    feature_matrix_fp = fp / 'feature_matrix.npz'
-    convert_json_feature_matrix(feature_matrix_fp, json_fp)
+    # Create file for the feature matrix.
+    with open(Path(fp, 'kwargs.json'), 'r') as f:
+        kwargs_dict = json.load(f)
+        feature_extraction_method = kwargs_dict['feature_extraction']
+    feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
+                                                    feature_extraction_method)
+
+    # Update the project.json file.
+    with open(json_fp, 'r') as f:
+        start_time = json.load(f)['time']['start_time']
+    convert_project_json(project_fp, review_id, start_time,
+                         feature_matrix_fp, feature_extraction_method)
+
+
+def convert_project_json(project_fp, review_id, start_time,
+                         feature_matrix_fp, feature_extraction_method):
+    """Update the project.json file to contain the review information , the
+    feature matrix information and the new state version number.
+
+    Arguments
+    ---------
+    project_fp: str/path
+        Path to the project json file.
+    review_id: str
+        Identifier of the review.
+    start_time: str
+        String containing start time of the review.
+    feature_matrix_fp: str/path
+        Location of the feature matrix.
+    feature_extraction_method: str
+        Name of the feature extraction method.
+    """
+    with open(project_fp, 'r') as f:
+        project_info = json.load(f)
+
+    # Add the feature matrix information.
+    feature_matrix_name = Path(feature_matrix_fp).name
+    project_info['feature_matrices'] = [
+        {
+            'id': feature_extraction_method,
+            'filename': feature_matrix_name
+        }
+    ]
+
+    # Add the review information.
+    project_info['reviews'] = [
+        {
+            'id': review_id,
+            'start_time': start_time,
+            'review_finished': project_info['reviewFinished']
+        }
+    ]
+
+    # Update the state version.
+    project_info['state_version'] = SQLSTATE_VERSION
+
+    with open(project_fp, 'w') as f:
+        json.dump(project_info, f)
 
 
 def convert_json_settings_metadata(fp, json_fp):
@@ -92,7 +159,7 @@ def convert_json_settings_metadata(fp, json_fp):
         data_dict['settings'] = json_state._state_dict['settings']
         data_dict['current_queries'] = json_state._state_dict[
             'current_queries']
-        data_dict['state_version'] = V3STATE_VERSION
+        data_dict['state_version'] = SQLSTATE_VERSION
         data_dict['software_version'] = json_state._state_dict[
             'software_version']
     with open(fp, 'w') as f:
@@ -140,22 +207,43 @@ def get_json_record_table(json_state):
     return record_table
 
 
-def convert_json_feature_matrix(feature_matrix_fp, json_fp):
-    """Get the feature matrix from a json state file as a sparse matrix
-        and save at the feature_matrix_fp as a .npz file.
+def convert_json_feature_matrix(fp,
+                                json_fp,
+                                feature_extraction_method):
+    """Get the feature matrix from a json state file. Save it in the feature
+    matrices folder. Format is .npz if the matrix is sparse and .npy if the
+    matrix is dense.
 
     Arguments
     ---------
-    feature_matrix_fp: str/path
-        Path where to save the feature matrix. If this string does not have the
-        .npz extension it will be added automatically.
+    fp: str/path
+        Project folder.
     json_fp: str/path
         Path to the json state file.
+    feature_extraction_method: str
+        Name of the feature extraction method.
+
+    Returns
+    -------
+    pathlib.Path
+        Path where the feature matrix is saved.
     """
+    feature_matrices_fp = Path(fp, 'feature_matrices')
+    feature_matrices_fp.mkdir()
+
     with open_state_legacy(json_fp) as json_state:
         data_hash = get_json_state_data_hash(json_state)
         feature_matrix = decode_feature_matrix(json_state, data_hash)
-        save_npz(feature_matrix_fp, feature_matrix)
+        if issparse(feature_matrix):
+            save_fp = Path(feature_matrices_fp,
+                           f'{feature_extraction_method}_feature_matrix.npz')
+            save_npz(save_fp, feature_matrix)
+        else:
+            save_fp = Path(feature_matrices_fp,
+                           f'{feature_extraction_method}_feature_matrix.npy')
+            np.save(save_fp, feature_matrix)
+
+    return save_fp
 
 
 def convert_json_record_table(sql_fp, json_fp):

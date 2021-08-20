@@ -36,6 +36,7 @@ from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_tmp_path
+from asreview.state.utils import init_project_folder_structure
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.io import read_label_history
@@ -79,39 +80,16 @@ def init_project(project_id,
     if is_project(project_id):
         raise ValueError("Project name already exists.")
 
-    if project_mode not in ["oracle", "explore", "simulate"]:
-        ValueError("Project mode should be oracle, explore, or simulate.")
+    if project_mode not in PROJECT_MODES:
+        raise ValueError(f"Project mode '{project_mode}' is not in "
+                         f"{PROJECT_MODES}.")
 
-    try:
-        get_project_path(project_path).mkdir()
-        get_data_path(project_path).mkdir()
+    project_config = init_project_folder_structure(project_path, project_id,
+                                                   project_mode, project_name,
+                                                   project_description,
+                                                   project_authors)
 
-        project_config = {
-            'version': asreview_version,  # todo: Fail without git?
-            'id': project_id,
-            'mode': project_mode,
-            'name': project_name,
-            'description': project_description,
-            'authors': project_authors,
-            'created_at_unix': int(time.time()),
-
-            # project related variables
-            'datetimeCreated': str(datetime.now()),
-            'projectInitReady': False,
-            'reviewFinished': False
-        }
-
-        # create a file with project info
-        project_path = get_project_path(project_id)
-        with open(get_project_file_path(project_path), "w") as fp:
-            json.dump(project_config, fp)
-
-        return project_config
-
-    except Exception as err:
-        # remove all generated folders and raise error
-        shutil.rmtree(get_project_path(project_id))
-        raise err
+    return project_config
 
 
 def update_project_info(project_id,
@@ -214,10 +192,8 @@ def import_project_file(file_name):
 
     except Exception:
         # Unknown error.
-        raise ValueError(
-            "Failed to import project "
-            f"'{file_name.filename}'."
-        )
+        raise ValueError("Failed to import project "
+                         f"'{file_name.filename}'.")
 
     return import_project["id"]
 
@@ -233,12 +209,10 @@ def add_dataset_to_project(project_id, file_name):
     # clean temp project files
     clean_project_tmp_files(project_id)
 
-    with SQLiteLock(
-            get_lock_path(project_path),
-            blocking=True,
-            lock_name="active",
-            project_id=project_id
-    ):
+    with SQLiteLock(get_lock_path(project_path),
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
         # open the projects file
         with open(project_file_path, "r") as f_read:
             project_config = json.load(f_read)
@@ -257,10 +231,9 @@ def add_dataset_to_project(project_id, file_name):
             pool_indices = as_data.record_ids[unlabeled]
 
             labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-            label_indices = list(zip(
-                as_data.record_ids[labeled_indices].tolist(),
-                as_data.labels[labeled_indices].tolist()
-            ))
+            label_indices = list(
+                zip(as_data.record_ids[labeled_indices].tolist(),
+                    as_data.labels[labeled_indices].tolist()))
         else:
             pool_indices = as_data.record_ids
             label_indices = []
@@ -280,8 +253,10 @@ def remove_dataset_to_project(project_id, file_name):
     project_file_path = get_project_file_path(project_path)
     fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
+    with SQLiteLock(fp_lock,
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
 
         # open the projects file
         with open(project_file_path, "r") as f_read:
@@ -305,26 +280,23 @@ def remove_dataset_to_project(project_id, file_name):
         os.remove(str(labeled_path))
 
 
-def add_simulation_to_project(project_id, simulation_id):
-    update_simulation_in_project(project_id, simulation_id, "running")
+def add_review_to_project(project_id, simulation_id):
+    update_review_in_project(project_id, simulation_id, True)
 
 
-def update_simulation_in_project(project_id, simulation_id, state):
+def update_review_in_project(project_id, review_id, review_finished):
     project_path = get_project_path(project_id)
 
     # read the file with project info
     with open(get_project_file_path(project_path), "r") as fp:
         project_info = json.load(fp)
 
-    if "simulations" not in project_info:
-        project_info["simulations"] = []
+    if "reviews" not in project_info:
+        project_info["reviews"] = []
 
-    simulation = {
-        "id": simulation_id,
-        "state": state
-    }
+    review = {"id": review_id, "state": review_finished}
 
-    project_info["simulations"].append(simulation)
+    project_info["reviews"].append(review)
 
     # update the file with project info
     with open(get_project_file_path(project_path), "w") as fp:
@@ -342,9 +314,7 @@ def get_project_config(project_id):
             project_info = json.load(fp)
 
     except FileNotFoundError:
-        raise ProjectNotFoundError(
-            f"Project '{project_id}' not found"
-        )
+        raise ProjectNotFoundError(f"Project '{project_id}' not found")
 
     return project_info
 
@@ -377,9 +347,7 @@ def clean_all_project_tmp_files():
         clean_project_tmp_files(project_path)
 
 
-def get_paper_data(project_id,
-                   paper_id,
-                   return_debug_label=False):
+def get_paper_data(project_id, paper_id, return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
     as_data = read_data(project_id)
     record = as_data.record(int(paper_id), by_index=False)
@@ -409,8 +377,10 @@ def get_instance(project_id):
     project_path = get_project_path(project_id)
     fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
+    with SQLiteLock(fp_lock,
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
         pool_idx = read_pool(project_id)
 
     if len(pool_idx) > 0:
@@ -458,12 +428,10 @@ def get_statistics(project_id):
     project_path = get_project_path(project_id)
     fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(
-            fp_lock,
-            blocking=True,
-            lock_name="active",
-            project_id=project_id
-    ):
+    with SQLiteLock(fp_lock,
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
         # get the index of the active iteration
         labeled = read_label_history(project_id)
         pool = read_pool(project_id)
@@ -490,12 +458,10 @@ def export_to_string(project_id, export_type="csv"):
 
     # set the lock to safely read labeled, pool, and proba
     fp_lock = get_lock_path(project_path)
-    with SQLiteLock(
-            fp_lock,
-            blocking=True,
-            lock_name="active",
-            project_id=project_id
-    ):
+    with SQLiteLock(fp_lock,
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
         proba = read_proba(project_id)
         pool = read_pool(project_id)
         labeled = read_label_history(project_id)
@@ -519,24 +485,25 @@ def export_to_string(project_id, export_type="csv"):
             # add the ordered pool second
             pool_ordered,
             # add the exclusions last
-            exclusion_record_id
-        ),
-        axis=None
-    )
+            exclusion_record_id),
+        axis=None)
 
     # export the data to file
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
 
     if export_type == "tsv":
-        return as_data.to_csv(
-            fp=None, sep="\t", labels=labeled, ranking=ranking)
+        return as_data.to_csv(fp=None,
+                              sep="\t",
+                              labels=labeled,
+                              ranking=ranking)
 
     if export_type == "excel":
         get_tmp_path(project_path).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-        return as_data.to_excel(
-            fp=fp_tmp_export, labels=labeled, ranking=ranking)
+        return as_data.to_excel(fp=fp_tmp_export,
+                                labels=labeled,
+                                ranking=ranking)
     else:
         raise ValueError("This export type isn't implemented.")
 
@@ -552,8 +519,10 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
     project_path = get_project_path(project_id)
     fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(
-            fp_lock, blocking=True, lock_name="active", project_id=project_id):
+    with SQLiteLock(fp_lock,
+                    blocking=True,
+                    lock_name="active",
+                    project_id=project_id):
 
         # get the index of the active iteration
         if int(label) in [0, 1]:

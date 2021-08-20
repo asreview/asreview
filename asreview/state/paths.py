@@ -115,37 +115,90 @@ def get_labeled_path(project_path):
     return Path(project_path, "labeled.json")
 
 
-def get_sql_path(project_path):
+def get_reviews_path(project_path):
+    """Get the reviews folder from the project.
+
+    Arguments
+    ---------
+    project_path: str
+        The path to the project.
+    """
+    return Path(project_path, 'reviews')
+
+
+def get_feature_matrices_path(project_path):
+    """Get the feature matrices folder from the project.
+
+    Arguments
+    ---------
+    project_path: str
+        The path to the project.
+    """
+    return Path(project_path, 'feature_matrices')
+
+
+def get_sql_path(project_path, review_id=None):
     """Get the results sql file from the project.
 
     Arguments
     ---------
     project_path: str
         The path to the project.
+    review_id: str
+        Identifier for the review from which to get the results sql file.
+        If none is given, pick the first id available.
     """
-    return Path(project_path, 'results.sql')
+    if review_id is None:
+        with open(get_project_file_path(project_path), 'r') as f:
+            project_config = json.load(f)
+        review_id = project_config['reviews'][0]['id']
+
+    return Path(get_reviews_path(project_path), review_id, 'results.sql')
 
 
-def get_settings_metadata_path(project_path):
+def get_settings_metadata_path(project_path, review_id=None):
     """Get the settings/metadata json file from the project.
 
     Arguments
     ---------
     project_path: str
         The path to the project.
+    review_id: str
+        Identifier for the review from which to get the settings json file.
+        If none is given, pick the first id available.
     """
-    return Path(project_path, 'settings_metadata.json')
+    if review_id is None:
+        with open(get_project_file_path(project_path), 'r') as f:
+            project_config = json.load(f)
+        review_id = project_config['reviews'][0]['id']
+
+    return Path(get_reviews_path(project_path), review_id,
+                'settings_metadata.json')
 
 
-def get_feature_matrix_path(project_path):
+def get_feature_matrix_path(project_path, feature_extraction=None):
     """Get the feature matrix file from the project.
 
     Arguments
     ---------
-    project_id: str
-        The id of the current project.
+    project_path: str
+        The path to the project.
+    feature_extraction: str
+        Identifier for the feature extraction method. If none is given,
+        the first available feature matrix is used.
     """
-    return Path(project_path, 'feature_matrix.npz')
+    with open(get_project_file_path(project_path), 'r') as f:
+        project_config = json.load(f)
+
+    # Get the filename for the matrix with the given feature extraction method.
+    if feature_extraction is None:
+        filename = project_config['feature_matrices'][0]['filename']
+    else:
+        filename = next(config['filename']
+                        for config in project_config['feature_matrices']
+                        if config['id'] == feature_extraction)
+
+    return Path(get_feature_matrices_path(project_path), filename)
 
 
 # TODO(State): Merge with get_project_path.
@@ -154,8 +207,8 @@ def get_state_path(project_path):
 
     Arguments
     ---------
-    project_id: str
-        The id of the current project.
+    project_path: str
+        The path to the project.
     """
 
     return project_path
@@ -166,14 +219,10 @@ def get_simulation_ready_path(project_path, simulation_id):
 
     Arguments
     ---------
-    project_id: str
-        The id of the current project.
+    project_path: str
+        The path to the project.
     simulation_id: str
         The id of the current simulation.
     """
 
-    return Path(
-        project_path,
-        "simulations",
-        simulation_id + ".json"
-    )
+    return Path(project_path, "reviews", simulation_id + ".json")

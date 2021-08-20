@@ -27,6 +27,10 @@ from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateNotFoundError
 from asreview.state.errors import StateError
+from asreview.state.paths import get_sql_path
+from asreview.state.paths import get_feature_matrix_path
+from asreview.state.paths import get_settings_metadata_path
+from asreview.state.paths import get_project_file_path
 from asreview._version import get_versions
 
 RELATIVE_RESULTS_PATH = Path('results.sql')
@@ -77,36 +81,57 @@ class SqlStateV1(BaseState):
     @property
     def _sql_fp(self):
         """Path to the sql database."""
-        return self.working_dir / RELATIVE_RESULTS_PATH
+        return get_sql_path(self.working_dir, self.review_id)
 
     @property
     def _settings_metadata_fp(self):
         """Path to the settings and metadata json file."""
-        return self.working_dir / RELATIVE_SETTINGS_METADATA_PATH
+        return get_settings_metadata_path(self.working_dir, self.review_id)
 
     @property
     def _feature_matrix_fp(self):
         """Path to the .npz file of the feature matrix"""
-        return self.working_dir / RELATIVE_FEATURE_MATRIX_PATH
+        with open(self._settings_metadata_fp, 'r') as f:
+            feature_extraction = json.load(f)['settings']['feature_extraction']
+
+        return get_feature_matrix_path(self.working_dir, feature_extraction)
 
 ### OPEN, CLOSE, SAVE, INIT
 
-    def _create_new_state_file(self, working_dir):
+    def _create_new_state_file(self, working_dir, review_id):
         """
-        Create a new state file.
+        Create the files for a new state.
 
         Arguments
         ---------
         working_dir: str, pathlib.Path
-            File where the project files.
+            Project file location.
+        review_id: str
+            Identifier of the review.
         """
         if self.read_only:
             raise ValueError("Can't create new state file in read_only mode.")
 
         self.working_dir = Path(working_dir)
+        self.review_id = review_id
+
+        # Add the review to the project json.
+        with open(get_project_file_path(self.working_dir), 'r') as f:
+            project_config = json.load(f)
+
+        review_config = {
+            'id': self.review_id,
+            'start_time': str(datetime.now()),
+            "review_finished": False
+        }
+
+        project_config['reviews'].append(review_config)
+
+        with open(get_project_file_path(self.working_dir), 'w') as f:
+            json.dump(project_config, f)
 
         # create folder to state file if not exist
-        self.working_dir.parent.mkdir(parents=True, exist_ok=True)
+        self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
 
         # Create settings_metadata.json
         self.settings_metadata = {
@@ -148,22 +173,28 @@ class SqlStateV1(BaseState):
             con.close()
             raise e
 
-    def _restore(self, working_dir):
+    def _restore(self, working_dir, review_id):
         """
-        Create a new state file.
+        Initialize a state from files.
 
         Arguments
         ---------
         working_dir: str, pathlib.Path
-            File where the project files.
+            Project file location.
+        review_id: str
+            Identifier of the review.
         """
-        # If state already exist
-        if not Path(working_dir).is_dir():
-            raise StateNotFoundError(
-                f"State file {working_dir} doesn't exist.")
-
         # store filepath
         self.working_dir = Path(working_dir)
+        self.review_id = review_id
+
+        # If state already exist
+        if not self.working_dir.is_dir():
+            raise StateNotFoundError(f"Project {working_dir} doesn't exist.")
+
+        if not self._sql_fp.parent.is_dir():
+            raise StateNotFoundError(
+                f"Review with id {review_id} doesn't exist.")
 
         # Cache the settings.
         try:
@@ -329,11 +360,38 @@ class SqlStateV1(BaseState):
 
 ### Features, settings_metadata
 
+    def _update_project_with_feature_extraction(self, feature_extraction):
+        """If the feature extraction method is set, update the project.json."""
+        # TODO(State): Should this always be .npz?
+        feature_matrix_filename = f'{feature_extraction}_feature_matrix.npz'
+
+        with open(get_project_file_path(self.working_dir), 'r') as f:
+            project_config = json.load(f)
+
+        # Update the feature matrices section.
+        all_matrices = [x['id'] for x in project_config['feature_matrices']]
+        if feature_extraction not in all_matrices:
+            project_config['feature_matrices'].append({
+                'id':
+                feature_extraction,
+                'filename':
+                feature_matrix_filename
+            })
+
+        with open(get_project_file_path(self.working_dir), 'w') as f:
+            json.dump(project_config, f)
+
     def _add_settings_metadata(self, key, value):
         """Add information to the settings_metadata dictionary."""
         if self.read_only:
             raise ValueError("Can't change settings in read only mode.")
         self.settings_metadata[key] = value
+
+        # If the feature extraction method is being set, update project.json
+        if key == 'settings':
+            self._update_project_with_feature_extraction(
+                value['feature_extraction'])
+
         with open(self._settings_metadata_fp, 'w') as f:
             json.dump(self.settings_metadata, f)
 
@@ -377,16 +435,17 @@ class SqlStateV1(BaseState):
         if not isinstance(feature_matrix, csr_matrix):
             raise ValueError(
                 "The feature matrix should be convertible to type "
-                "scipy.sparse.csr.csr_matrix."
-            )
+                "scipy.sparse.csr.csr_matrix.")
 
         save_npz(self._feature_matrix_fp, feature_matrix)
 
     def get_feature_matrix(self):
         return load_npz(self._feature_matrix_fp)
 
+
 # TODO (State): Add custom datasets.
 # TODO (State): Add models being trained.
+
     def add_labeling_data(self, record_ids, labels, classifiers,
                           query_strategies, balance_strategies,
                           feature_extraction, training_sets):

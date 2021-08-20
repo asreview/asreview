@@ -17,15 +17,25 @@ from pathlib import Path
 import sqlite3
 from io import BytesIO
 from base64 import b64decode
+import json
+import time
+from datetime import datetime
+import shutil
+from uuid import uuid4
 
 import pandas as pd
 from scipy.sparse import load_npz
 from scipy.sparse import csr_matrix
 
+from asreview._version import get_versions
 from asreview.state.sqlstate import SqlStateV1
 from asreview.state.errors import StateNotFoundError
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_reviews_path
+from asreview.state.paths import get_feature_matrices_path
+from asreview.state.paths import get_project_file_path
 
-
+asreview_version = get_versions()['version']
 V3STATE_VERSION = "1.0"
 
 
@@ -52,20 +62,87 @@ def is_zipped_project_file(fp):
 
 def is_valid_project_folder(fp):
     """Check of the folder contains an asreview project."""
-    if not Path(fp, 'project.json').is_file():
-        raise ValueError(f"There is no 'project.json' file at {fp}.")
+    if not Path(fp, 'reviews').is_dir() \
+            or not Path(fp, 'feature_matrices').is_dir():
+        raise ValueError(f"There does not seem to be a valid project folder"
+                         f" at {fp}. The 'reviews' or 'feature_matrices' "
+                         f"folder is missing.")
     else:
         return
 
 
+def init_project_folder_structure(project_path,
+                                  project_id,
+                                  project_mode="oracle",
+                                  project_name=None,
+                                  project_description=None,
+                                  project_authors=None):
+    """Initialize a project folder structure at the given filepath.
+
+    Arguments
+    ---------
+    project_path: pathlike
+        Filepath where to intialize the project folder structure.
+    project_id: str
+        Identifier of the project.
+    project_mode: str
+        Mode of the project. Should be 'oracle', 'explore' or 'simulate'.
+    project_name: str
+    project_description: str
+    project_authors: str
+
+    Returns
+    -------
+    dict
+        Project configuration dictionary.
+    """
+    try:
+        project_path = Path(project_path)
+        project_path.mkdir(exist_ok=True)
+        get_data_path(project_path).mkdir(exist_ok=True)
+        get_feature_matrices_path(project_path).mkdir(exist_ok=True)
+        get_reviews_path(project_path).mkdir(exist_ok=True)
+
+        project_config = {
+            'version': asreview_version,  # todo: Fail without git?
+            'id': project_id,
+            'mode': project_mode,
+            'name': project_name,
+            'description': project_description,
+            'authors': project_authors,
+            'created_at_unix': int(time.time()),
+
+            # project related variables
+            'datetimeCreated': str(datetime.now()),
+            'projectInitReady': False,
+            'reviewFinished': False,
+            'reviews': [],
+            'feature_matrices': []
+        }
+
+        # create a file with project info
+        with open(get_project_file_path(project_path), "w") as project_path:
+            json.dump(project_config, project_path)
+
+        return project_config
+
+    except Exception as err:
+        # remove all generated folders and raise error
+        shutil.rmtree(project_path)
+        raise err
+
+
 @contextmanager
-def open_state(working_dir, read_only=True):
+def open_state(working_dir, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
 
     Arguments
     ---------
-    fp: str
-        Project folder.
+    working_dir: str/pathlike
+        Filepath to the (unzipped) project folder.
+    review_id: str
+        Identifier of the review from which the state will be instantiated.
+        If none is given, the first review in the reviews folder will be taken.
     read_only: bool
         Whether to open in read_only mode.
 
@@ -73,18 +150,38 @@ def open_state(working_dir, read_only=True):
     -------
     SqlStateV1
     """
+    working_dir = Path(working_dir)
+
+    if not get_reviews_path(working_dir).is_dir():
+        if read_only:
+            raise StateNotFoundError(f"There is no valid project folder"
+                                     f" at {working_dir}")
+        else:
+            init_project_folder_structure(working_dir, working_dir.name)
+            review_id = uuid4().hex
+
     # Check if file is a valid project folder.
     is_valid_project_folder(working_dir)
+
+    # Get the review_id of the first review if none is given.
+    # If there is no review yet, create a review id.
+    if review_id is None:
+        reviews = list(get_reviews_path(working_dir).iterdir())
+        if reviews:
+            review_id = reviews[0].name
+        else:
+            review_id = uuid4().hex
 
     # init state class
     state = SqlStateV1(read_only=read_only)
 
     # TODO(State): Check for 'history' folder instead of results.sql.
     try:
-        if Path(working_dir, 'results.sql').is_file():
-            state._restore(working_dir)
-        elif not Path(working_dir, 'results.sql').is_file() and not read_only:
-            state._create_new_state_file(working_dir)
+        if Path(get_reviews_path(working_dir), review_id).is_dir():
+            state._restore(working_dir, review_id)
+        elif not Path(get_reviews_path(working_dir), review_id).is_dir() \
+                and not read_only:
+            state._create_new_state_file(working_dir, review_id)
         else:
             raise StateNotFoundError("State file does not exist")
         yield state
