@@ -809,24 +809,25 @@ def api_init_model_ready(project_id):  # noqa: F401
 
 
 # TODO(State): Does this delete everything in the project?
-@bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
-def api_clear_model_error(project_id):
-    """Clear model training error"""
+# TODO{Terry}: This may be deprecated when the new state file is in use.
+# @bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
+# def api_clear_model_error(project_id):
+#     """Clear model training error"""
 
-    error_path = get_project_path(project_id) / "error.json"
-    project_path = get_project_path(project_id)
-    state_path = get_state_path(project_path)
+#     error_path = get_project_path(project_id) / "error.json"
+#     project_path = get_project_path(project_id)
+#     state_path = get_state_path(project_path)
 
-    if error_path.exists() and state_path.exists():
-        os.remove(error_path)
-        os.remove(state_path)
+#     if error_path.exists() and state_path.exists():
+#         os.remove(error_path)
+#         os.remove(state_path)
 
-        response = jsonify({'success': True})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
+#         response = jsonify({'success': True})
+#         response.headers.add('Access-Control-Allow-Origin', '*')
+#         return response
 
-    response = jsonify(message="Failed to clear model training error.")
-    return response, 500
+#     response = jsonify(message="Failed to clear model training error.")
+#     return response, 500
 
 
 @bp.route('/project/import_project', methods=["POST"])
