@@ -23,6 +23,11 @@ const useDarkMode = () => {
           color: "#555555",
         },
       },
+      MuiDialog: {
+        paper: {
+          backgroundColor: "#fafafa",
+        },
+      },
     },
   };
 
