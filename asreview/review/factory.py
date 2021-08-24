@@ -81,40 +81,6 @@ def _add_defaults(set_param, default_param):
     })
 
 
-def create_as_data(dataset,
-                   included_dataset=[],
-                   excluded_dataset=[],
-                   prior_dataset=[],
-                   new=False):
-    """Create ASReviewData object from multiple datasets."""
-    if isinstance(dataset, (str, PurePath)):
-        dataset = [dataset]
-
-    if isinstance(included_dataset, (str, PurePath)):
-        included_dataset = [included_dataset]
-
-    if isinstance(excluded_dataset, (str, PurePath)):
-        excluded_dataset = [excluded_dataset]
-
-    if isinstance(prior_dataset, (str, PurePath)):
-        prior_dataset = [prior_dataset]
-
-    as_data = ASReviewData()
-    # Find the URL of the datasets if the dataset is a benchmark dataset.
-    for data in dataset:
-        as_data.append(load_data(data))
-
-    if new:
-        as_data.labels = np.full((len(as_data), ), LABEL_NA, dtype=int)
-    for data in included_dataset:
-        as_data.append(load_data(data, data_type="included"))
-    for data in excluded_dataset:
-        as_data.append(load_data(data, data_type="excluded"))
-    for data in prior_dataset:
-        as_data.append(load_data(data, data_type="prior"))
-    return as_data
-
-
 def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
 
@@ -195,11 +161,7 @@ def get_simulate_reviewer(
 
     See __main__.py for a description of the arguments.
     """
-    as_data = create_as_data(dataset,
-                             included_dataset,
-                             excluded_dataset,
-                             prior_dataset,
-                             new=new)
+    as_data = load_data(dataset)
 
     if len(as_data) == 0:
         raise ValueError("Supply at least one dataset"
