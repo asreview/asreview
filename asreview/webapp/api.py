@@ -202,10 +202,13 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # backwards support <0.10
         if "projectInitReady" not in project_info:
-            if project_info["projectHasPriorKnowledge"]:
-                project_info["projectInitReady"] = True
+            if "projectHasPriorKnowledge" not in project_info:
+                pass
             else:
-                project_info["projectInitReady"] = False
+                if project_info["projectHasPriorKnowledge"]:
+                    project_info["projectInitReady"] = True
+                else:
+                    project_info["projectInitReady"] = False
 
     except Exception as err:
         logging.error(err)

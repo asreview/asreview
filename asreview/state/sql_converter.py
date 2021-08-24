@@ -130,7 +130,7 @@ def convert_project_json(project_fp, review_id, start_time,
         {
             'id': review_id,
             'start_time': start_time,
-            'review_finished': project_info['reviewFinished']
+            'review_finished': project_info.get('reviewFinished', False)
         }
     ]
 
