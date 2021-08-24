@@ -523,7 +523,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         project_path = get_project_path(project_id)
         state_file = get_state_path(project_path)
 
-        with open_state(state_file, read_only=False) as state:
+        with open_state(state_file, read_only=False):
             pass
 
     project_path = get_project_path(project_id)
