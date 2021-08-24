@@ -99,29 +99,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="Prior indices by record_id."
     )
-    parser.add_argument(
-        "--included_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers that should be included"
-             "Can be used multiple times."
-    )
-    parser.add_argument(
-        "--excluded_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers that should be excluded"
-             "Can be used multiple times."
-    )
-    parser.add_argument(
-        "--prior_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers from prior studies."
-    )
     # logging and verbosity
     parser.add_argument(
         "--state_file", "-s", "--log_file", "-l",
