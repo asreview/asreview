@@ -37,6 +37,7 @@ import {
   useHelp,
 } from "../PreReviewComponents";
 import { ProjectAPI } from "../api/index.js";
+import { projectModes } from "../globals.js";
 
 import "./ReviewZone.css";
 
@@ -336,10 +337,12 @@ const ProjectUpload = ({
               >
                 <Tab label="From file" value="file" />
                 <Tab label="From url" value="url" />
-                {(mode === undefined || mode === "oracle") && (
+                {(mode === undefined || mode === projectModes.ORACLE) && (
                   <Tab label="From plugin" value="plugin" />
                 )}
+                {(mode === undefined || mode === projectModes.EXPLORATION) && (
                 <Tab label="Benchmark datasets" value="benchmark" />
+                )}
               </Tabs>
 
               <CardContent>
