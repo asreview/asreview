@@ -173,11 +173,10 @@ def get_reviewer(dataset,
 
     # overwrite the settings by the setting of the state file
     if state_file is not None:
-        with open_state(state_file, read_only=False) as state:
-            print(state.is_empty())
-            if state.is_empty():
-                print("Overwriting settings with default")
-                state.settings = cli_settings
+        with open_state(state_file) as state:
+            # if state.is_empty():
+            #     print("Overwriting settings with default")
+            #     state.settings = cli_settings
             settings = state.settings
     else:
         settings = cli_settings
