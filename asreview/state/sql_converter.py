@@ -62,7 +62,7 @@ def convert_asreview(fp):
 
     # Create the reviews folder and the paths for the results and settings.
     Path(fp, 'reviews', review_id).mkdir(parents=True)
-    sql_fp = Path(fp, 'reviews', review_id, 'results.sql')
+    sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
     settings_metadata_fp = Path(fp, 'reviews',
                                 review_id, 'settings_metadata.json')
 

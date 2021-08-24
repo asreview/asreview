@@ -74,7 +74,7 @@ class SqlStateV1(BaseState):
             con = sqlite3.connect(f'file:{str(self._sql_fp)}?mode=ro',
                                   uri=True)
         else:
-            con = sqlite3.connect(self._sql_fp)
+            con = sqlite3.connect(str(self._sql_fp))
         return con
 
     # TODO(State): Should this be obtained from webapp/utils/paths, viceversa?
