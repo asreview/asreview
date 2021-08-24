@@ -126,7 +126,6 @@ const SettingsDialog = (props) => {
         {/*Main settings*/}
         {!fontSizeSetting && !shortcutSetting && (
           <AppBarWithinDialog
-            onClickHelp="https://asreview.readthedocs.io/en/latest/features/settings.html"
             onClickStartIcon={props.toggleSettings}
             title="Settings"
           />
@@ -254,7 +253,6 @@ const SettingsDialog = (props) => {
         {fontSizeSetting && (
           <AppBarWithinDialog
             startIconIsClose={false}
-            onClickHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#font-size"
             onClickStartIcon={toggleFontSizeSetting}
             title="Font size"
           />
@@ -367,7 +365,6 @@ const SettingsDialog = (props) => {
         {shortcutSetting && (
           <AppBarWithinDialog
             startIconIsClose={false}
-            onClickHelp="https://asreview.readthedocs.io/en/latest/features/settings.html#keyboard-shortcuts"
             onClickStartIcon={toggleShortcutSetting}
             title="Keyboard shortcuts"
           />

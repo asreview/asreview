@@ -16,7 +16,7 @@ import { fade, makeStyles } from "@material-ui/core/styles";
 import {
   ArrowBack,
   Close,
-  HelpOutlineOutlined,
+  Help,
   History,
   Search,
   ShowChart,
@@ -184,7 +184,7 @@ const AppBarWithinDialog = React.forwardRef(
           {/* Help icon */}
           {onClickHelp && (
             <IconButton color="inherit" href={onClickHelp} target="_blank">
-              <HelpOutlineOutlined />
+              <Help />
             </IconButton>
           )}
         </Toolbar>
