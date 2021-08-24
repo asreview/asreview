@@ -115,33 +115,82 @@ def create_as_data(dataset,
     return as_data
 
 
-def get_reviewer(dataset,
-                 mode="simulate",
-                 model=DEFAULT_MODEL,
-                 query_strategy=DEFAULT_QUERY_STRATEGY,
-                 balance_strategy=DEFAULT_BALANCE_STRATEGY,
-                 feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-                 n_instances=DEFAULT_N_INSTANCES,
-                 n_papers=None,
-                 n_queries=None,
-                 embedding_fp=None,
-                 verbose=0,
-                 prior_idx=None,
-                 prior_record_id=None,
-                 n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
-                 n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
-                 config_file=None,
-                 state_file=None,
-                 model_param=None,
-                 query_param=None,
-                 balance_param=None,
-                 feature_param=None,
-                 seed=None,
-                 included_dataset=[],
-                 excluded_dataset=[],
-                 prior_dataset=[],
-                 new=False,
-                 **kwargs):
+def review_simulate(dataset, *args, **kwargs):
+    """CLI simulate mode."""
+
+    print(ASCII_LOGO + ASCII_MSG_SIMULATE)
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ptsd", "example_ptsd", "schoot"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:van_de_Schoot_2017' instead.\n\n")
+        dataset = "benchmark:van_de_Schoot_2017"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["ace", "example_cohen", "example_ace"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Cohen_2006_ACEInhibitors' instead.\n\n")
+        dataset = "benchmark:Cohen_2006_ACEInhibitors"
+
+    # backwards comp
+    if isinstance(dataset, list) and len(dataset) >= 1 and \
+            dataset[0] in ["hall", "example_hall", "example_software"]:
+        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
+              "use 'benchmark:Hall_2012' instead.\n\n")
+        dataset = "benchmark:Hall_2012"
+
+    project_fp = kwargs['state_file']
+    init_simulate_project(project_fp)
+
+    reviewer = get_simulate_reviewer(dataset, *args, mode=mode, model=model, **kwargs)
+
+    # output the prior indices
+    print("The following records are prior knowledge:\n")
+    for prior_record_id in reviewer.start_idx:
+        preview = preview_record(reviewer.as_data.record(prior_record_id))
+        print(f"{prior_record_id} - {preview}")
+
+    # Start the review process.
+    reviewer.review()
+
+    # If we're dealing with a keras model, we can save the last model weights.
+    if save_model_fp is not None and model in KERAS_MODELS:
+        save_model_h5_fp = splitext(save_model_fp)[0] + ".h5"
+        json_model = model.model.to_json()
+        with open(save_model_fp, "w") as f:
+            json.dump(json_model, f, indent=2)
+        model.model.save_weights(save_model_h5_fp, overwrite=True)
+
+
+def get_simulate_reviewer(
+        dataset,
+        model=DEFAULT_MODEL,
+        query_strategy=DEFAULT_QUERY_STRATEGY,
+        balance_strategy=DEFAULT_BALANCE_STRATEGY,
+        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+        n_instances=DEFAULT_N_INSTANCES,
+        n_papers=None,
+        n_queries=None,
+        embedding_fp=None,
+        verbose=0,
+        prior_idx=None,
+        prior_record_id=None,
+        n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
+        n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
+        config_file=None,
+        state_file=None,
+        model_param=None,
+        query_param=None,
+        balance_param=None,
+        feature_param=None,
+        seed=None,
+        included_dataset=[],
+        excluded_dataset=[],
+        prior_dataset=[],
+        new=False,
+        **kwargs):
     """Get a review object from arguments.
 
     See __main__.py for a description of the arguments.
@@ -195,13 +244,6 @@ def get_reviewer(dataset,
     if feature_param is not None:
         settings.feature_param = feature_param
 
-    # Check if mode is valid
-    if mode in AVAILABLE_REVIEW_CLASSES:
-        logging.info(f"Start review in '{mode}' mode.")
-    else:
-        raise ValueError(f"Unknown mode '{mode}'.")
-    logging.debug(settings)
-
     # Initialize models.
     random_state = get_random_state(seed)
     train_model = get_classifier(settings.model,
@@ -224,17 +266,16 @@ def get_reviewer(dataset,
             texts, embedding_fp)
 
     # continue with partly labeled dataset when in simulation mode.
-    if mode == "simulate":
-        labels = as_data.labels
-        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
-        if len(labeled_idx) != len(labels):
-            print("Simulating partial review, ignoring unlabeled"
-                  f" records (n={len(labels)-len(labeled_idx)}).\n")
-            as_data = as_data.slice(labeled_idx, by_index=True)
+    labels = as_data.labels
+    labeled_idx = np.where((labels == 0) | (labels == 1))[0]
+    if len(labeled_idx) != len(labels):
+        print("Simulating partial review, ignoring unlabeled"
+              f" records (n={len(labels)-len(labeled_idx)}).\n")
+        as_data = as_data.slice(labeled_idx, by_index=True)
 
-            if prior_idx is not None and len(prior_idx) > 0:
-                raise ValueError("Not possible to select prior knowledge by"
-                                 " row number for partly labeled data.")
+        if prior_idx is not None and len(prior_idx) > 0:
+            raise ValueError("Not possible to select prior knowledge by"
+                             " row number for partly labeled data.")
 
     # prior knowledge
     if prior_idx is not None and prior_record_id is not None and \
@@ -246,64 +287,21 @@ def get_reviewer(dataset,
         prior_idx = convert_id_to_idx(as_data, prior_record_id)
 
     # Initialize the review class.
-    if mode == "simulate":
-        reviewer = ReviewSimulate(as_data,
-                                  model=train_model,
-                                  query_model=query_model,
-                                  balance_model=balance_model,
-                                  feature_model=feature_model,
-                                  n_papers=settings.n_papers,
-                                  n_instances=settings.n_instances,
-                                  n_queries=settings.n_queries,
-                                  prior_idx=prior_idx,
-                                  n_prior_included=settings.n_prior_included,
-                                  n_prior_excluded=settings.n_prior_excluded,
-                                  state_file=state_file,
-                                  **kwargs)
-    elif mode == "minimal":
-        reviewer = MinimalReview(as_data,
-                                 model=train_model,
-                                 query_model=query_model,
-                                 balance_model=balance_model,
-                                 feature_model=feature_model,
-                                 n_papers=settings.n_papers,
-                                 n_instances=settings.n_instances,
-                                 n_queries=settings.n_queries,
-                                 state_file=state_file,
-                                 **kwargs)
-    else:
-        raise ValueError("Error finding mode, should never come here...")
+    reviewer = ReviewSimulate(as_data,
+                              model=train_model,
+                              query_model=query_model,
+                              balance_model=balance_model,
+                              feature_model=feature_model,
+                              n_papers=settings.n_papers,
+                              n_instances=settings.n_instances,
+                              n_queries=settings.n_queries,
+                              prior_idx=prior_idx,
+                              n_prior_included=settings.n_prior_included,
+                              n_prior_excluded=settings.n_prior_excluded,
+                              state_file=state_file,
+                              **kwargs)
 
     return reviewer
-
-
-def review(*args,
-           mode="simulate",
-           model=DEFAULT_MODEL,
-           save_model_fp=None,
-           **kwargs):
-    """Perform a review from arguments. Compatible with the CLI interface"""
-    if mode not in AVAILABLE_CLI_MODI:
-        raise ValueError(f"Unknown mode '{mode}'.")
-
-    reviewer = get_reviewer(*args, mode=mode, model=model, **kwargs)
-
-    # output the prior indices
-    print("The following records are prior knowledge:\n")
-    for prior_record_id in reviewer.start_idx:
-        preview = preview_record(reviewer.as_data.record(prior_record_id))
-        print(f"{prior_record_id} - {preview}")
-
-    # Start the review process.
-    reviewer.review()
-
-    # If we're dealing with a keras model, we can save the last model weights.
-    if save_model_fp is not None and model in KERAS_MODELS:
-        save_model_h5_fp = splitext(save_model_fp)[0] + ".h5"
-        json_model = model.model.to_json()
-        with open(save_model_fp, "w") as f:
-            json.dump(json_model, f, indent=2)
-        model.model.save_weights(save_model_h5_fp, overwrite=True)
 
 
 # TODO(State): Merge with init_project from webapp.utils.project.py
@@ -341,35 +339,3 @@ def init_simulate_project(fp):
         # remove all generated folders and raise error
         shutil.rmtree(Path(fp))
         raise err
-
-
-def review_simulate(dataset, *args, **kwargs):
-    """CLI simulate mode."""
-
-    print(ASCII_LOGO + ASCII_MSG_SIMULATE)
-
-    # backwards comp
-    if isinstance(dataset, list) and len(dataset) >= 1 and \
-            dataset[0] in ["ptsd", "example_ptsd", "schoot"]:
-        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
-              "use 'benchmark:van_de_Schoot_2017' instead.\n\n")
-        dataset = "benchmark:van_de_Schoot_2017"
-
-    # backwards comp
-    if isinstance(dataset, list) and len(dataset) >= 1 and \
-            dataset[0] in ["ace", "example_cohen", "example_ace"]:
-        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
-              "use 'benchmark:Cohen_2006_ACEInhibitors' instead.\n\n")
-        dataset = "benchmark:Cohen_2006_ACEInhibitors"
-
-    # backwards comp
-    if isinstance(dataset, list) and len(dataset) >= 1 and \
-            dataset[0] in ["hall", "example_hall", "example_software"]:
-        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
-              "use 'benchmark:Hall_2012' instead.\n\n")
-        dataset = "benchmark:Hall_2012"
-
-    project_fp = kwargs['state_file']
-    init_simulate_project(project_fp)
-
-    review(dataset, *args, mode='simulate', **kwargs)
