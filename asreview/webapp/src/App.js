@@ -16,9 +16,10 @@ import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
   useFontSize,
-  useUndoEnabled,
   useKeyPressEnabled,
+  useUndoEnabled,
 } from "./hooks/SettingsHooks";
+import { useToggle } from "./hooks/useToggle";
 
 import "typeface-roboto";
 
@@ -46,12 +47,12 @@ const queryClient = new QueryClient();
 
 const App = (props) => {
   // Dialog state
-  const [settings, setSettings] = React.useState(false);
-  const [help, setHelp] = React.useState(false);
-  const [exit, setExit] = React.useState(false);
-  const [exportResult, setExportResult] = React.useState(false);
-  const [history, setHistory] = React.useState(false);
-  const [review, setReview] = React.useState(false);
+  const [settings, setSettings] = useToggle();
+  const [help, setHelp] = useToggle();
+  const [exit, setExit] = useToggle();
+  const [exportResult, setExportResult] = useToggle();
+  const [history, setHistory] = useToggle();
+  const [review, setReview] = useToggle();
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -62,31 +63,6 @@ const App = (props) => {
   const muiTheme = createMuiTheme(theme);
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"));
 
-  // Dialog toggle
-  const toggleSettings = () => {
-    setSettings((a) => !a);
-  };
-
-  const toggleHelp = () => {
-    setHelp((a) => !a);
-  };
-
-  const toggleExit = () => {
-    setExit((a) => !a);
-  };
-
-  const toggleExportResult = () => {
-    setExportResult((a) => !a);
-  };
-
-  const toggleHistory = () => {
-    setHistory((a) => !a);
-  };
-
-  const toggleReview = () => {
-    setReview((a) => !a);
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={muiTheme}>
@@ -95,9 +71,9 @@ const App = (props) => {
         {props.app_state !== "boot" && (
           <Header
             /* Handle the app review drawer */
-            toggleSettings={toggleSettings}
-            toggleHelp={toggleHelp}
-            toggleExit={toggleExit}
+            toggleSettings={setSettings}
+            toggleHelp={setHelp}
+            toggleExit={setExit}
           />
         )}
 
@@ -108,8 +84,8 @@ const App = (props) => {
         {props.app_state === "project-page" && (
           <ProjectPage
             handleAppState={props.setAppState}
-            toggleReview={toggleReview}
-            toggleExportResult={toggleExportResult}
+            toggleReview={setReview}
+            toggleExportResult={setExportResult}
           />
         )}
 
@@ -126,8 +102,8 @@ const App = (props) => {
             handleAppState={props.setAppState}
             mobileScreen={mobileScreen}
             onReview={review}
-            toggleReview={toggleReview}
-            toggleHistory={toggleHistory}
+            toggleReview={setReview}
+            toggleHistory={setHistory}
             fontSize={fontSize}
             undoEnabled={undoEnabled}
             keyPressEnabled={keyPressEnabled}
@@ -136,7 +112,7 @@ const App = (props) => {
         {props.app_state === "review" && (
           <HistoryDialog
             mobileScreen={mobileScreen}
-            toggleHistory={toggleHistory}
+            toggleHistory={setHistory}
             history={history}
           />
         )}
@@ -144,7 +120,7 @@ const App = (props) => {
         {props.app_state === "review-complete" && (
           <ReviewZoneComplete
             handleAppState={props.setAppState}
-            toggleExportResult={toggleExportResult}
+            toggleExportResult={setExportResult}
           />
         )}
 
@@ -156,7 +132,7 @@ const App = (props) => {
           fontSize={fontSize}
           keyPressEnabled={keyPressEnabled}
           undoEnabled={undoEnabled}
-          toggleSettings={toggleSettings}
+          toggleSettings={setSettings}
           toggleDarkMode={toggleDarkMode}
           handleFontSizeChange={handleFontSizeChange}
           toggleKeyPressEnabled={toggleKeyPressEnabled}
@@ -165,11 +141,11 @@ const App = (props) => {
         <HelpDialog
           mobileScreen={mobileScreen}
           onHelp={help}
-          toggleHelp={toggleHelp}
+          toggleHelp={setHelp}
         />
-        <ExitDialog toggleExit={toggleExit} exit={exit} />
+        <ExitDialog toggleExit={setExit} exit={exit} />
         <ExportDialog
-          toggleExportResult={toggleExportResult}
+          toggleExportResult={setExportResult}
           exportResult={exportResult}
         />
       </ThemeProvider>
