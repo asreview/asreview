@@ -220,19 +220,19 @@ class ProjectAPI {
     });
   }
 
-  // static clear_error(project_id) {
-  //   const url = api_url + `project/${project_id}/model/clear_error`;
-  //   return new Promise((resolve, reject) => {
-  //     axios
-  //       .delete(url)
-  //       .then((result) => {
-  //         resolve(result);
-  //       })
-  //       .catch((error) => {
-  //         reject(axiosErrorHandler(error));
-  //       });
-  //   });
-  // }
+  static clear_error(project_id) {
+    const url = api_url + `project/${project_id}/model/clear_error`;
+    return new Promise((resolve, reject) => {
+      axios
+        .delete(url)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
 
   static import_project(data) {
     const url = api_url + `project/import_project`;

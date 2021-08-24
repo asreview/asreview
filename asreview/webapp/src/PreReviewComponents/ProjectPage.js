@@ -156,22 +156,22 @@ const ProjectPage = (props) => {
   };
 
   const retryProjectSetup = () => {
-    // ProjectAPI.clear_error(props.project_id)
-    //   .then((result) => {
-    //     setState((s) => {
-    //       return {
-    //         ...s,
-    //         setup: true,
-    //         trainingError: false,
-    //       };
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     setError({
-    //       code: error.code,
-    //       message: error.message,
-    //     });
-    //   });
+    ProjectAPI.clear_error(props.project_id)
+      .then((result) => {
+        setState((s) => {
+          return {
+            ...s,
+            setup: true,
+            trainingError: false,
+          };
+        });
+      })
+      .catch((error) => {
+        setError({
+          code: error.code,
+          message: error.message,
+        });
+      });
   };
 
   const startReviewing = () => {
