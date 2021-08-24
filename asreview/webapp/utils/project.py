@@ -35,8 +35,10 @@ from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.utils import init_project_folder_structure
+from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.io import read_label_history
@@ -515,6 +517,14 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
 
     paper_i = int(paper_i)
     label = int(label)
+
+    # create state file if there is no state file yet
+    if True:
+        project_path = get_project_path(project_id)
+        state_file = get_state_path(project_path)
+
+        with open_state(state_file, read_only=False) as state:
+            pass
 
     project_path = get_project_path(project_id)
     fp_lock = get_lock_path(project_path)

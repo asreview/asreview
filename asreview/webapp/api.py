@@ -56,6 +56,7 @@ from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.project_path import asreview_path
 from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.project_path import get_project_path
+from asreview.settings import ASReviewSettings
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_proba_path
@@ -65,6 +66,8 @@ from asreview.state.paths import get_tmp_path
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_settings_metadata_path
+from asreview.state.errors import StateNotFoundError
+from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -453,6 +456,7 @@ def api_label_item(project_id):  # noqa: F401
 
     retrain_model = False if is_prior == "1" else True
 
+    # label_instance will create state file if none.
     # [TODO]project_id, paper_i, label, is_prior=None
     label_instance(project_id, doc_id, label, retrain_model=retrain_model)
 
@@ -634,25 +638,31 @@ def api_list_algorithms():
 @bp.route('/project/<project_id>/algorithms', methods=["GET"])
 def api_get_algorithms(project_id):  # noqa: F401
 
-    # check if there is a settings_metadata file for the review.
+    default_payload = {
+        "model": DEFAULT_MODEL,
+        "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
+        "query_strategy": DEFAULT_QUERY_STRATEGY
+    }
+
+    # check if there were algorithms stored in the state file
     try:
+
         project_path = get_project_path(project_id)
-        with open(get_settings_metadata_path(project_path), 'r') as f:
-            kwargs_dict = json.load(f)['settings']
+        state_file = get_state_path(project_path)
 
-    # If the project.json has no reviews yet, we get an IndexError. If the
-    # settings_metadata.json for the review has not been created, we get a
-    # FileNotFoundError.
-    except (FileNotFoundError, IndexError):
-        # set the kwargs dict to setup kwargs
-        kwargs_dict = deepcopy(app.config['asr_kwargs'])
-        kwargs_dict["model"] = DEFAULT_MODEL
-        kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
-        kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
-        kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
-        kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
+        with open_state(state_file) as state:
+            if state.settings is not None:
+                payload = {
+                    "model": state.settings.model,
+                    "feature_extraction": state.settings.feature_extraction,
+                    "query_strategy": state.settings.query_strategy
+                }
+            else:
+                payload = default_payload
+    except (StateNotFoundError):
+        payload = default_payload
 
-    response = jsonify(kwargs_dict)
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -660,40 +670,26 @@ def api_get_algorithms(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/algorithms', methods=["POST"])
 def api_set_algorithms(project_id):  # noqa: F401
 
-    # # check if there is a kwargs file
-    # try:
-    #     # open the projects file
-    #     with open(get_kwargs_path(project_id), "r") as f_read:
-    #         kwargs_dict = json.load(f_read)
+    # TODO@{Jonathan} validate model choice on server side
+    ml_model = request.form.get("model", None)
+    ml_query_strategy = request.form.get("query_strategy", None)
+    ml_feature_extraction = request.form.get("feature_extraction", None)
 
-    # except FileNotFoundError:
-    #     # set the kwargs dict to setup kwargs
-    #     kwargs_dict = deepcopy(app.config['asr_kwargs'])
-    #     kwargs_dict = deepcopy(app.config['asr_kwargs'])
-    #     kwargs_dict["model"] = DEFAULT_MODEL
-    #     kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
-    #     kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
-    #     kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
-    #     kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
+    # create a new settings object from arguments
+    # only used if state file is not present
+    asreview_settings = ASReviewSettings(
+        mode="minimal",
+        model=ml_model,
+        query_strategy=ml_query_strategy,
+        balance_strategy=DEFAULT_BALANCE_STRATEGY,
+        feature_extraction=ml_feature_extraction)
 
-    # # add the machine learning model to the kwargs
-    # # TODO@{Jonathan} validate model choice on server side
-    # ml_model = request.form.get("model", None)
-    # ml_query_strategy = request.form.get("query_strategy", None)
-    # ml_feature_extraction = request.form.get("feature_extraction", None)
-    # if ml_model:
-    #     kwargs_dict["model"] = ml_model
-    # if ml_query_strategy:
-    #     kwargs_dict["query_strategy"] = ml_query_strategy
-    # if ml_feature_extraction:
-    #     kwargs_dict["feature_extraction"] = ml_feature_extraction
+    project_path = get_project_path(project_id)
+    state_file = get_state_path(project_path)
 
-    # # write the kwargs to a file
-    # with open(get_kwargs_path(project_id), "w") as f_write:
-    #     json.dump(kwargs_dict, f_write)
-
-    # TODO{statev3} store those settings in the project file or metadata file
-    # TODO{state3} remove kwargs code
+    # save the new settings to the state file
+    with open_state(state_file, read_only=False) as state:
+        state.settings = asreview_settings
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
