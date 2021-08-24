@@ -96,7 +96,7 @@ class SqlStateV1(BaseState):
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-    def _add_state_file_to_project(self, review_id, 
+    def _add_state_file_to_project(self, review_id,
                                    start_time=None, review_finished=False):
 
         if start_time is None:
