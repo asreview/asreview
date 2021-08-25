@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const HistoryListCard = (props) => {
+const LabeledRecordCard = (props) => {
   const classes = useStyles();
 
   const cardRef = useRef(null);
@@ -39,7 +39,9 @@ const HistoryListCard = (props) => {
     <Card>
       <CardContent ref={cardRef}>
         <Typography gutterBottom variant="h6">
-          {props.value.title}
+          {props.value.title
+            ? props.value.title
+            : "This record doesn't have a title."}
         </Typography>
         <Truncate
           lines={6}
@@ -57,7 +59,9 @@ const HistoryListCard = (props) => {
           }
           width={cardWidth + TRUNCATE_WIDTH_OFFSET}
         >
-          {props.value.abstract}
+          {props.value.abstract
+            ? props.value.abstract
+            : "This record doesn't have an abstract."}
         </Truncate>
       </CardContent>
       <CardActions>
@@ -86,4 +90,4 @@ const HistoryListCard = (props) => {
   );
 };
 
-export default HistoryListCard;
+export default LabeledRecordCard;

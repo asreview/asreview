@@ -1,7 +1,9 @@
 export { default as DecisionButton } from "./DecisionButton";
 export { default as DecisionUndoBar } from "./DecisionUndoBar";
 export { default as ExplorationModeBanner } from "./ExplorationModeBanner";
+export { default as LabeledRecordCard } from "./LabeledRecordCard";
 export { default as NoteSheet } from "./NoteSheet";
 export { default as RecordCard } from "./RecordCard";
 export { default as ReviewDialog } from "./ReviewDialog";
+export { default as ReviewHistoryDialog } from "./ReviewHistoryDialog";
 export { default as StatsSheet } from "./StatsSheet";

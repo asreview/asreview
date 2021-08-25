@@ -17,7 +17,7 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 
 import { AppBarWithinDialog } from "../Components";
-import { HistoryListCard } from "../Components";
+import { LabeledRecordCard } from "../InReviewComponents";
 import ErrorHandler from "../ErrorHandler";
 
 import { ProjectAPI } from "../api/index.js";
@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const HistoryDialog = (props) => {
+const ReviewHistoryDialog = (props) => {
   const classes = useStyles();
 
   const descriptionElementRef = useRef(null);
@@ -198,19 +198,24 @@ const HistoryDialog = (props) => {
 
   // refresh after toggle the dialog
   useEffect(() => {
-    if (props.project_id !== null && props.history) {
+    if (props.project_id !== null && props.onReviewHistory) {
       loadReviewHistory();
     }
-  }, [loadReviewHistory, props.project_id, props.history, error.message]);
+  }, [
+    loadReviewHistory,
+    props.project_id,
+    props.onReviewHistory,
+    error.message,
+  ]);
 
   useEffect(() => {
-    if (props.history) {
+    if (props.onReviewHistory) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.history]);
+  }, [props.onReviewHistory]);
 
   let convertLabel = record.data
     ? record.data.included === 1
@@ -246,8 +251,8 @@ const HistoryDialog = (props) => {
     <div>
       <Dialog
         fullScreen={fullScreen}
-        open={props.history}
-        onClose={props.toggleHistory}
+        open={props.onReviewHistory}
+        onClose={props.toggleReviewHistory}
         onExited={exitReviewHistory}
         scroll="paper"
         fullWidth={true}
@@ -260,7 +265,7 @@ const HistoryDialog = (props) => {
       >
         {record.index === null && (
           <AppBarWithinDialog
-            onClickStartIcon={props.toggleHistory}
+            onClickStartIcon={props.toggleReviewHistory}
             selectedValue={state["select"]}
             onChangeSelect={handleSelectChange}
             selectOptions={selectOptions}
@@ -291,7 +296,7 @@ const HistoryDialog = (props) => {
               <Container className={classes.container}>
                 {state["data"].map((value, index) => {
                   return (
-                    <HistoryListCard
+                    <LabeledRecordCard
                       value={value}
                       index={index}
                       handleClick={toggleRecord}
@@ -307,7 +312,7 @@ const HistoryDialog = (props) => {
                 {state["data"].map((value, index) => {
                   if (value.included === 1) {
                     return (
-                      <HistoryListCard
+                      <LabeledRecordCard
                         value={value}
                         index={index}
                         handleClick={toggleRecord}
@@ -326,7 +331,7 @@ const HistoryDialog = (props) => {
                 {state["data"].map((value, index) => {
                   if (value.included !== 1) {
                     return (
-                      <HistoryListCard
+                      <LabeledRecordCard
                         value={value}
                         index={index}
                         handleClick={toggleRecord}
@@ -399,4 +404,4 @@ const HistoryDialog = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(HistoryDialog);
+export default connect(mapStateToProps)(ReviewHistoryDialog);
