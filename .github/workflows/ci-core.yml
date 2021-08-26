@@ -25,10 +25,12 @@ jobs:
       with:
         python-version: '3.6'
         architecture: 'x64'
-    - name: Install packages and run tests
+    - name: Install packages
       run: |
         pip install pytest
         pip install --no-cache-dir .
+    - name: Run test suite
+      run: |
         pytest tests/
   test-full-deps:
     name: test-full-deps
@@ -39,9 +41,8 @@ jobs:
       with:
         python-version: '3.6'
         architecture: 'x64'
-    - name: Install packages and run tests
+    - name: Install packages
       run: |
-        df -h
         pip install pytest
         pip install --upgrade setuptools>=41.0.0
         pip install --no-cache-dir .[sbert]
@@ -49,6 +50,7 @@ jobs:
         pip install --no-cache-dir .[tensorflow]
         pip install --no-cache-dir .[dev]
         pip install --no-cache-dir .[test]
-        df -h
         pip install --no-cache-dir .
+    - name: Run test suite
+      run: |
         pytest tests/
