@@ -129,6 +129,21 @@ class ProjectAPI {
     });
   }
 
+  static fetchLabeledRecord({ queryKey }) {
+    const project_id = queryKey[1].project_id;
+    const url = api_url + `project/${project_id}/prior`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result.data["result"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static prior_stats(project_id) {
     const url = api_url + `project/${project_id}/prior_stats`;
     return new Promise((resolve, reject) => {
@@ -339,6 +354,34 @@ class ProjectAPI {
       })
         .then((result) => {
           resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateClassification(variables) {
+    let body = new FormData();
+    body.set("doc_id", variables.doc_id);
+    body.set("label", variables.label === 1 ? 0 : 1);
+
+    const url =
+      api_url + `project/${variables.project_id}/record/${variables.doc_id}`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: variables.initial ? "post" : "put",
+        url: url,
+        data: body,
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((result) => {
+          resolve(result);
+          console.log(
+            `${variables.project_id} - add item ${variables.doc_id} to ${
+              variables.label === 1 ? "exclusions" : "inclusions"
+            }`
+          );
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

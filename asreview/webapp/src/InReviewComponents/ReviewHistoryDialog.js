@@ -1,4 +1,5 @@
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   Box,
   Chip,
@@ -74,16 +75,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ReviewHistoryDialog = (props) => {
+  const queryClient = useQueryClient();
   const classes = useStyles();
 
   const descriptionElementRef = useRef(null);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [state, setState] = useState({
-    select: DEFAULT_SELECTION,
-    data: null,
-  });
+  const [select, setSelect] = useState(DEFAULT_SELECTION);
 
   // second layer record state
   const [record, setRecord] = useState({
@@ -94,18 +93,51 @@ const ReviewHistoryDialog = (props) => {
     converted: 0,
   });
 
-  const [error, setError] = useState({
-    code: null,
-    message: null,
+  const { data, error, isFetched, isLoading } = useQuery(
+    ["fetchLabeledRecord", { project_id: props.project_id }],
+    ProjectAPI.fetchLabeledRecord,
+    {
+      enabled: props.onReviewHistory && !record.converting,
+      refetchOnWindowFocus: false,
+      select: (data) =>
+        data.filter((record) =>
+          select === DEFAULT_SELECTION
+            ? record
+            : select === 2
+            ? record.included === 1
+            : record.included === 0
+        ),
+    }
+  );
+
+  const { mutate } = useMutation(ProjectAPI.mutateClassification, {
+    onMutate: () => {
+      setRecord((s) => {
+        return {
+          ...s,
+          converting: true,
+        };
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchLabeledRecord");
+      setTimeout(
+        () => {
+          setRecord((s) => {
+            return {
+              ...s,
+              converting: false,
+              converted: record.data ? record.converted + 1 : 0,
+            };
+          });
+        },
+        record.data && record.converted % 2 === 0 ? 1500 : 0
+      );
+    },
   });
 
   const handleSelectChange = (event) => {
-    setState((s) => {
-      return {
-        ...s,
-        select: event.target.value,
-      };
-    });
+    setSelect(event.target.value);
   };
 
   // second layer record toggle
@@ -116,7 +148,7 @@ const ReviewHistoryDialog = (props) => {
         return {
           ...s,
           index: index,
-          data: state.data[index],
+          data: data[index],
         };
       });
     } else {
@@ -137,76 +169,6 @@ const ReviewHistoryDialog = (props) => {
       converted: 0,
     });
   };
-
-  // change decision of labeled records
-  const updateInstance = (doc_id, label) => {
-    setRecord((s) => {
-      return {
-        ...s,
-        converting: true,
-      };
-    });
-
-    // set up the form
-    let body = new FormData();
-    body.set("doc_id", doc_id);
-    body.set("label", label === 1 ? 0 : 1);
-
-    ProjectAPI.classify_instance(props.project_id, doc_id, body, false)
-      .then((response) => {
-        loadReviewHistory();
-        setTimeout(
-          () => {
-            setRecord((s) => {
-              return {
-                ...s,
-                converting: false,
-                converted: record.index ? record.converted + 1 : 0,
-              };
-            });
-          },
-          record.converted % 2 === 0 ? 1500 : 0
-        );
-        console.log(
-          `${props.project_id} - add item ${doc_id} to ${
-            label === 1 ? "exclusions" : "inclusions"
-          }`
-        );
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const loadReviewHistory = useCallback(() => {
-    ProjectAPI.prior(props.project_id)
-      .then((result) => {
-        setState((s) => {
-          return {
-            ...s,
-            data: result.data["result"],
-          };
-        });
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
-        });
-      });
-  }, [props.project_id]);
-
-  // refresh after toggle the dialog
-  useEffect(() => {
-    if (props.project_id !== null && props.onReviewHistory) {
-      loadReviewHistory();
-    }
-  }, [
-    loadReviewHistory,
-    props.project_id,
-    props.onReviewHistory,
-    error.message,
-  ]);
 
   useEffect(() => {
     if (props.onReviewHistory) {
@@ -240,10 +202,10 @@ const ReviewHistoryDialog = (props) => {
   } else {
     if (record.converted && record.converted % 2 !== 0) {
       convertLabel =
-        state.data[0].included === 0
+        data[0].included === 0
           ? "Converted to irrelevant"
           : "Converted to relevant";
-      convertColor = state.data[0].included === 0 ? "default" : "secondary";
+      convertColor = data[0].included === 0 ? "default" : "secondary";
     }
   }
 
@@ -266,7 +228,7 @@ const ReviewHistoryDialog = (props) => {
         {record.index === null && (
           <AppBarWithinDialog
             onClickStartIcon={props.toggleReviewHistory}
-            selectedValue={state["select"]}
+            selectedValue={select}
             onChangeSelect={handleSelectChange}
             selectOptions={selectOptions}
           />
@@ -279,76 +241,39 @@ const ReviewHistoryDialog = (props) => {
           />
         )}
 
-        {error.message !== null && (
+        {error !== null && (
           <DialogContent className={classes.root}>
-            <ErrorHandler error={error} setError={setError} />
+            <ErrorHandler error={error} />
           </DialogContent>
         )}
 
-        {error.message === null && record.index === null && (
+        {error === null && record.index === null && (
           <DialogContent className={classes.root}>
-            {!state.data && (
+            {isLoading && (
               <div className={classes.circularProgress}>
                 <CircularProgress />
               </div>
             )}
-            {state["data"] !== null && state["select"] === 1 && (
+            {isFetched && (
               <Container className={classes.container}>
-                {state["data"].map((value, index) => {
+                {data.map((value, index) => {
                   return (
                     <LabeledRecordCard
                       value={value}
                       index={index}
                       handleClick={toggleRecord}
-                      updateInstance={updateInstance}
+                      mutate={mutate}
                       key={`result-item-${value.id}`}
                     />
                   );
                 })}
               </Container>
             )}
-            {state["data"] !== null && state["select"] === 2 && (
-              <Container className={classes.container}>
-                {state["data"].map((value, index) => {
-                  if (value.included === 1) {
-                    return (
-                      <LabeledRecordCard
-                        value={value}
-                        index={index}
-                        handleClick={toggleRecord}
-                        updateInstance={updateInstance}
-                        key={`result-item-${value.id}`}
-                      />
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
-              </Container>
-            )}
-            {state["data"] !== null && state["select"] === 3 && (
-              <Container className={classes.container}>
-                {state["data"].map((value, index) => {
-                  if (value.included !== 1) {
-                    return (
-                      <LabeledRecordCard
-                        value={value}
-                        index={index}
-                        handleClick={toggleRecord}
-                        updateInstance={updateInstance}
-                        key={`result-item-${value.id}`}
-                      />
-                    );
-                  } else {
-                    return null;
-                  }
-                })}
-              </Container>
-            )}
           </DialogContent>
         )}
 
-        {error.message === null && record.index !== null && (
+        {/* Record details */}
+        {error === null && record.index !== null && (
           <DialogContent className={classes.record}>
             <Box>
               <Typography variant="h6" gutterBottom>
@@ -371,7 +296,7 @@ const ReviewHistoryDialog = (props) => {
           </DialogContent>
         )}
 
-        {error.message === null && record.index !== null && (
+        {error === null && record.index !== null && (
           <DialogActions className={classes.action}>
             <div className={classes.chip}>
               <Chip
@@ -380,8 +305,8 @@ const ReviewHistoryDialog = (props) => {
                 icon={
                   record.converting && record.converted % 2 === 0 ? (
                     <CircularProgress size="1rem" thickness={5} />
-                  ) : state.data[record.converted ? 0 : record.index]
-                      .included === 1 ? (
+                  ) : data[record.converted ? 0 : record.index].included ===
+                    1 ? (
                     <FavoriteIcon fontSize="small" />
                   ) : (
                     <FavoriteBorderIcon fontSize="small" />
@@ -389,10 +314,12 @@ const ReviewHistoryDialog = (props) => {
                 }
                 label={convertLabel}
                 onClick={() => {
-                  updateInstance(
-                    state.data[record.converted ? 0 : record.index].id,
-                    state.data[record.converted ? 0 : record.index].included
-                  );
+                  mutate({
+                    project_id: props.project_id,
+                    doc_id: data[record.converted ? 0 : record.index].id,
+                    label: data[record.converted ? 0 : record.index].included,
+                    initial: false,
+                  });
                 }}
                 variant="outlined"
               />

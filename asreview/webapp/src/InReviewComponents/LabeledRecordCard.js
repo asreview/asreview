@@ -14,6 +14,9 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 
 import Truncate from "react-truncate";
+import { connect } from "react-redux";
+
+import { mapStateToProps } from "../globals.js";
 
 const TRUNCATE_WIDTH_OFFSET = -56;
 
@@ -75,7 +78,12 @@ const LabeledRecordCard = (props) => {
           <IconButton
             className={classes.icon}
             onClick={() => {
-              props.updateInstance(props.value.id, props.value.included);
+              props.mutate({
+                project_id: props.project_id,
+                doc_id: props.value.id,
+                label: props.value.included,
+                initial: false,
+              });
             }}
           >
             {props.value.included === 1 ? (
@@ -90,4 +98,4 @@ const LabeledRecordCard = (props) => {
   );
 };
 
-export default LabeledRecordCard;
+export default connect(mapStateToProps)(LabeledRecordCard);
