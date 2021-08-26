@@ -74,7 +74,7 @@ class SqlStateV1(BaseState):
             con = sqlite3.connect(f'file:{str(self._sql_fp)}?mode=ro',
                                   uri=True)
         else:
-            con = sqlite3.connect(self._sql_fp)
+            con = sqlite3.connect(str(self._sql_fp))
         return con
 
     # TODO(State): Should this be obtained from webapp/utils/paths, viceversa?
@@ -96,7 +96,8 @@ class SqlStateV1(BaseState):
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-    def _add_state_file_to_project(self, review_id, start_time=None, review_finished=False):
+    def _add_state_file_to_project(self, review_id,
+                                   start_time=None, review_finished=False):
 
         if start_time is None:
             start_time = datetime.now()
@@ -115,7 +116,6 @@ class SqlStateV1(BaseState):
 
         with open(get_project_file_path(self.working_dir), 'w') as f:
             json.dump(project_config, f)
-
 
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for a new state given an review_id.
