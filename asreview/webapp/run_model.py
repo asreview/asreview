@@ -21,7 +21,6 @@ import numpy as np
 import pandas as pd
 
 from asreview.compat import convert_id_to_idx, convert_idx_to_id
-from asreview.review.factory import get_reviewer
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_label_history
@@ -33,6 +32,13 @@ from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_state_path
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project_path import get_project_path
+
+from asreview.models.balance import get_balance_model
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.query import get_query_model
+
+from asreview.review.minimal import MinimalReview
 
 
 def _get_diff_history(new_history, old_history):
@@ -50,6 +56,56 @@ def _get_label_train_history(state):
     labels = state.get_labels().tolist()
 
     return list(zip(indices, labels))
+
+
+def get_lab_reviewer(as_data,
+                     state_file=None,
+                     embedding_fp=None,
+                     verbose=0,
+                     prior_idx=None,
+                     prior_record_id=None,
+                     seed=None,
+                     **kwargs):
+    """Get a review object from arguments.
+    """
+
+    if len(as_data) == 0:
+        raise ValueError("Supply at least one dataset"
+                         " with at least one record.")
+
+    with open_state(state_file) as state:
+        settings = state.settings
+
+    # Initialize models.
+    # random_state = get_random_state(seed)
+    classifier_model = get_classifier(settings.model)
+    query_model = get_query_model(settings.query_strategy)
+    balance_model = get_balance_model(settings.balance_strategy)
+    feature_model = get_feature_model(settings.feature_extraction)
+
+    # LSTM models need embedding matrices.
+    if classifier_model.name.startswith("lstm-"):
+        texts = as_data.texts
+        classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
+            texts, embedding_fp)
+
+    # prior knowledge
+    if prior_idx is not None and prior_record_id is not None and \
+            len(prior_idx) > 0 and len(prior_record_id) > 0:
+        raise ValueError(
+            "Not possible to provide both prior_idx and prior_record_id"
+        )
+    if prior_record_id is not None and len(prior_record_id) > 0:
+        prior_idx = convert_id_to_idx(as_data, prior_record_id)
+
+    reviewer = MinimalReview(as_data,
+                             model=classifier_model,
+                             query_model=query_model,
+                             balance_model=balance_model,
+                             feature_model=feature_model,
+                             state_file=state_file,
+                             **kwargs)
+    return reviewer
 
 
 def train_model(project_id, label_method=None):
@@ -89,14 +145,12 @@ def train_model(project_id, label_method=None):
             # Get the all labels since last run. If no new labels, quit.
             new_label_history = read_label_history(project_id)
 
-        data_fp = str(get_data_file_path(project_path))
         as_data = read_data(project_id)
         state_file = get_state_path(project_path)
 
         # collect command line arguments and pass them to the reviewer
-        reviewer = get_reviewer(
-            dataset=data_fp,
-            mode="minimal",
+        reviewer = get_lab_reviewer(
+            as_data=as_data,
             state_file=str(state_file)
         )
 

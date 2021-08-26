@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from asreview.review.factory import get_reviewer
+from asreview.review.factory import get_simulate_reviewer
 from asreview.data import ASReviewData
 
 data_fp = Path("tests", "demo_data", "generic_labels.csv")
@@ -17,7 +17,6 @@ def test_init_seed(tmpdir):
         all_start_idx = []
         for seed in seeds:
             reviewer = get_reviewer(data_fp,
-                                    mode="simulate",
                                     model="nb",
                                     state_file=Path(tmpdir,
                                                     "tmp_state.asreview"),
@@ -40,7 +39,6 @@ def test_no_seed(tmpdir):
 
     for _ in range(n_test_max):
         reviewer = get_reviewer(data_fp,
-                                mode="simulate",
                                 model="nb",
                                 state_file=Path(tmpdir, "tmp_state.asreview"),
                                 init_seed=None,
@@ -59,7 +57,6 @@ def test_model_seed(tmpdir):
     last_train_idx = None
     for _ in range(n_test):
         reviewer = get_reviewer(data_fp,
-                                mode="simulate",
                                 model="rf",
                                 query_strategy="random",
                                 state_file=Path(tmpdir, "tmp_state.asreview"),
