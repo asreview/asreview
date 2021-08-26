@@ -35,7 +35,7 @@ ASReview software implements two different modes:
 
 ## Installation
 
-The ASReview software requires Python 3.6+. Detailed step-by-step instructions
+The ASReview software requires Python 3.7+. Detailed step-by-step instructions
 to install Python and ASReview are available for
 [Windows](https://asreview.nl/installation-guide-windows/) and
 [macOS](https://asreview.nl/installation-guide-macos/) users. The project is
@@ -75,9 +75,9 @@ the project.
 
 For citing the software, please refer to the specific release of
 the ASReview software on Zenodo https://doi.org/10.5281/zenodo.3345592. The menu on the
-right can be used to find the citation format of prevalence. 
+right can be used to find the citation format of prevalence.
 
-For more scientific publications on the ASReview software, go to 
+For more scientific publications on the ASReview software, go to
 [asreview.nl/papers](https://asreview.nl/papers/).
 
 ## Contact
@@ -85,11 +85,11 @@ For more scientific publications on the ASReview software, go to
 ASReview is a research project coordinated by [Rens van de
 Schoot](www.rensvandeschoot.com) (full professor at the Department of
 Methodology & Statistics at [Utrecht University](https://www.uu.nl), The
-Netherlands), together with ASReview lead engineer 
+Netherlands), together with ASReview lead engineer
 [Jonathan de Bruin](https://github.com/J535D165). For an overview of the team working on
-ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team). 
+ASReview, see [ASReview Research Team](https://asreview.readthedocs.io/en/latest/intro/about.html#research-team).
 
-The best resources to find an answer to your question or ways to get in 
+The best resources to find an answer to your question or ways to get in
 contact with the team are:
 
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
