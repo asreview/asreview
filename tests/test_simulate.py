@@ -7,7 +7,7 @@ import pytest
 
 from asreview.models.classifiers import list_classifiers
 from asreview.state import open_state
-from asreview.review.factory import get_reviewer
+from asreview.review.factory import get_simulate_reviewer
 
 ADVANCED_DEPS = {"tensorflow": False}
 
@@ -30,14 +30,13 @@ JSON_STATE_FILE = Path(STATE_DIR, "test.json")
 
 
 def test_dataset_from_url():
-    reviewer = get_reviewer(DATA_FP_URL, mode="simulate")
+    reviewer = get_simulate_reviewer(DATA_FP_URL)
     reviewer.review()
 
 
 def test_dataset_from_benchmark_group():
-    reviewer = get_reviewer(
-        "benchmark:Cohen_2006_ACEInhibitors",
-        mode="simulate"
+    reviewer = get_simulate_reviewer(
+        "benchmark:Cohen_2006_ACEInhibitors"
     )
     reviewer.review()
 
@@ -47,7 +46,7 @@ def test_dataset_from_benchmark_group():
     reason="Dataset not found"
 )
 def test_dataset_not_found():
-    reviewer = get_reviewer("doesnt_exist.csv", mode="simulate")
+    reviewer = get_simulate_reviewer("doesnt_exist.csv")
     reviewer.review()
 
 
@@ -56,14 +55,14 @@ def test_state_continue_json(tmpdir):
     inter_file = Path(STATE_DIR, "test_1_inst.json")
 
     if not inter_file.is_file():
-        reviewer = get_reviewer(DATA_FP,
-                                mode="simulate",
-                                model="nb",
-                                embedding_fp=EMBEDDING_FP,
-                                prior_idx=[1, 2, 3, 4],
-                                state_file=inter_file,
-                                n_instances=1,
-                                n_queries=1)
+        reviewer = get_simulate_reviewer(
+            DATA_FP,
+            model="nb",
+            embedding_fp=EMBEDDING_FP,
+            prior_idx=[1, 2, 3, 4],
+            state_file=inter_file,
+            n_instances=1,
+            n_queries=1)
         reviewer.review()
 
     # copy state file to tmp dir for changes
@@ -82,14 +81,14 @@ def test_state_continue_h5(tmpdir):
     inter_file = Path(STATE_DIR, "test_1_inst.h5")
 
     if not inter_file.is_file():
-        reviewer = get_reviewer(DATA_FP,
-                                mode="simulate",
-                                model="nb",
-                                embedding_fp=EMBEDDING_FP,
-                                prior_idx=[1, 2, 3, 4],
-                                state_file=inter_file,
-                                n_instances=1,
-                                n_queries=1)
+        reviewer = get_simulate_reviewer(
+            DATA_FP,
+            model="nb",
+            embedding_fp=EMBEDDING_FP,
+            prior_idx=[1, 2, 3, 4],
+            state_file=inter_file,
+            n_instances=1,
+            n_queries=1)
         reviewer.review()
 
     # copy state file to tmp dir for changes
@@ -272,7 +271,6 @@ def check_model(monkeypatch=None,
                 use_granular=False,
                 state_file=None,
                 continue_from_state=False,
-                mode="simulate",
                 data_fp=DATA_FP,
                 state_checker=check_state,
                 prior_idx=[1, 2, 3, 4],
@@ -287,12 +285,12 @@ def check_model(monkeypatch=None,
         monkeypatch.setattr('builtins.input', lambda _: "0")
 
     # start the review process.
-    reviewer = get_reviewer(data_fp,
-                            mode=mode,
-                            embedding_fp=EMBEDDING_FP,
-                            prior_idx=prior_idx,
-                            state_file=state_file,
-                            **kwargs)
+    reviewer = get_simulate_reviewer(
+        data_fp,
+        embedding_fp=EMBEDDING_FP,
+        prior_idx=prior_idx,
+        state_file=state_file,
+        **kwargs)
 
     if use_granular:
         with open_state(state_file) as state:
