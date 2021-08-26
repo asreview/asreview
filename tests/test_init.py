@@ -16,13 +16,13 @@ def test_init_seed(tmpdir):
     for _ in range(n_test):
         all_start_idx = []
         for seed in seeds:
-            reviewer = get_reviewer(data_fp,
-                                    model="nb",
-                                    state_file=Path(tmpdir,
-                                                    "tmp_state.asreview"),
-                                    init_seed=seed,
-                                    n_prior_excluded=1,
-                                    n_prior_included=1)
+            reviewer = get_simulate_reviewer(data_fp,
+                                             model="nb",
+                                             state_file=Path(
+                                                 tmpdir, "tmp_state.asreview"),
+                                             init_seed=seed,
+                                             n_prior_excluded=1,
+                                             n_prior_included=1)
             assert len(reviewer.start_idx) == 2
             all_start_idx.append(reviewer.start_idx)
         if base_start_idx is None:
@@ -38,12 +38,13 @@ def test_no_seed(tmpdir):
     n_priored = np.zeros(len(as_data), dtype=int)
 
     for _ in range(n_test_max):
-        reviewer = get_reviewer(data_fp,
-                                model="nb",
-                                state_file=Path(tmpdir, "tmp_state.asreview"),
-                                init_seed=None,
-                                n_prior_excluded=1,
-                                n_prior_included=1)
+        reviewer = get_simulate_reviewer(data_fp,
+                                         model="nb",
+                                         state_file=Path(
+                                             tmpdir, "tmp_state.asreview"),
+                                         init_seed=None,
+                                         n_prior_excluded=1,
+                                         n_prior_included=1)
         assert len(reviewer.start_idx) == 2
         n_priored[reviewer.start_idx] += 1
         if np.all(n_priored > 0):
@@ -56,14 +57,15 @@ def test_model_seed(tmpdir):
     seed = 192874123
     last_train_idx = None
     for _ in range(n_test):
-        reviewer = get_reviewer(data_fp,
-                                model="rf",
-                                query_strategy="random",
-                                state_file=Path(tmpdir, "tmp_state.asreview"),
-                                init_seed=seed,
-                                seed=seed,
-                                n_prior_excluded=1,
-                                n_prior_included=1)
+        reviewer = get_simulate_reviewer(data_fp,
+                                         model="rf",
+                                         query_strategy="random",
+                                         state_file=Path(
+                                             tmpdir, "tmp_state.asreview"),
+                                         init_seed=seed,
+                                         seed=seed,
+                                         n_prior_excluded=1,
+                                         n_prior_included=1)
         reviewer.review()
         if last_train_idx is None:
             last_train_idx = reviewer.train_idx
