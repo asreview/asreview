@@ -142,6 +142,12 @@ def review_simulate(dataset, *args, **kwargs):
         dataset = "benchmark:Hall_2012"
 
     project_fp = kwargs['state_file']
+
+    if project_fp is None:
+        raise ValueError(
+            "Specify project file name (with .asreview extension)."
+        )
+
     init_simulate_project(project_fp)
 
     reviewer = get_simulate_reviewer(dataset, *args, **kwargs)
