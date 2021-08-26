@@ -8,7 +8,7 @@ jobs:
     - uses: actions/checkout@master
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.6'
+        python-version: '3.8'
         architecture: 'x64'
     - name: Install flake8
       run: |
@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@master
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.6'
+        python-version: '3.8'
         architecture: 'x64'
     - name: Install packages
       run: |
@@ -39,7 +39,7 @@ jobs:
     - uses: actions/checkout@master
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.6'
+        python-version: '3.8'
         architecture: 'x64'
     - name: Install packages
       run: |

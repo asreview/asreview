@@ -4,7 +4,7 @@ Installation
 Install ASReview
 ----------------
 
-ASReview software requires having Python 3.6 or higher installed. Detailed
+ASReview software requires having Python 3.7 or higher installed. Detailed
 step-by-step instructions to install Python (and ASReview) are available for
 `Windows <https://asreview.nl/download>`__ and
 `MacOS <https://asreview.nl/download/>`__ users.
@@ -121,7 +121,7 @@ First, check if Python is installed with the following command:
 
     python --version
 
-If this doesn't return 3.6 or higher, then Python isn't or not correctly
+If this doesn't return 3.7 or higher, then Python isn't or not correctly
 installed.
 
 Most likely, the enviroment variables aren't configured correctly. Follow
