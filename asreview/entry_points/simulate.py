@@ -24,7 +24,7 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import KERAS_MODELS
 from asreview.entry_points.base import BaseEntryPoint, _base_parser
-from asreview.review import get_simulate_reviewer
+from asreview.review import review_simulate
 from asreview.types import type_n_queries
 
 

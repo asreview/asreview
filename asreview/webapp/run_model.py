@@ -108,7 +108,6 @@ def get_lab_reviewer(as_data,
     return reviewer
 
 
-
 def train_model(project_id, label_method=None):
     """Add the new labels to the review and do the modeling.
 

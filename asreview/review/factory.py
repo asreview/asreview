@@ -144,7 +144,7 @@ def review_simulate(dataset, *args, **kwargs):
     project_fp = kwargs['state_file']
     init_simulate_project(project_fp)
 
-    reviewer = get_simulate_reviewer(dataset, *args, mode=mode, model=model, **kwargs)
+    reviewer = get_simulate_reviewer(dataset, *args, **kwargs)
 
     # output the prior indices
     print("The following records are prior knowledge:\n")
@@ -154,14 +154,6 @@ def review_simulate(dataset, *args, **kwargs):
 
     # Start the review process.
     reviewer.review()
-
-    # If we're dealing with a keras model, we can save the last model weights.
-    if save_model_fp is not None and model in KERAS_MODELS:
-        save_model_h5_fp = splitext(save_model_fp)[0] + ".h5"
-        json_model = model.model.to_json()
-        with open(save_model_fp, "w") as f:
-            json.dump(json_model, f, indent=2)
-        model.model.save_weights(save_model_h5_fp, overwrite=True)
 
 
 def get_simulate_reviewer(
@@ -216,7 +208,7 @@ def get_simulate_reviewer(
                                     query_strategy=query_strategy,
                                     balance_strategy=balance_strategy,
                                     feature_extraction=feature_extraction,
-                                    mode=mode,
+                                    mode="simulate",
                                     data_fp=None)
     cli_settings.from_file(config_file)
 
