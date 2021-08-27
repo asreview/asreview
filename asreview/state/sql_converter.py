@@ -62,7 +62,7 @@ def convert_asreview(fp):
 
     # Create the reviews folder and the paths for the results and settings.
     Path(fp, 'reviews', review_id).mkdir(parents=True)
-    sql_fp = Path(fp, 'reviews', review_id, 'results.sql')
+    sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
     settings_metadata_fp = Path(fp, 'reviews',
                                 review_id, 'settings_metadata.json')
 
@@ -130,7 +130,7 @@ def convert_project_json(project_fp, review_id, start_time,
         {
             'id': review_id,
             'start_time': start_time,
-            'review_finished': project_info['reviewFinished']
+            'review_finished': project_info.get('reviewFinished', False)
         }
     ]
 

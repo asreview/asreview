@@ -172,7 +172,8 @@ def test_set_algorithms(client):
 
     response = client.post("/api/project/project-id/algorithms", data={
         "model": "svm",
-        "query_strategy": "random_max"
+        "query_strategy": "random_max",
+        "feature_extraction": "tfidf"
     })
     assert response.status_code == 200
 
@@ -201,7 +202,7 @@ def test_start(client):
     raises=KeyError,
     reason="status"
 )
-def test_init_model_ready(client):
+def test_ready(client):
     """Test check if trained model is available"""
 
     # wait the model ready
@@ -213,30 +214,30 @@ def test_init_model_ready(client):
     assert json_data["status"] == 1
 
 
-def test_clear_model_error(client):
-    """Test clear model training error and retrain"""
+# def test_clear_model_error(client):
+#     """Test clear model training error and retrain"""
 
-    response_clear_error = client.delete("/api/project/project-id/model/clear_error")
-    assert response_clear_error.status_code == 200
+#     response_clear_error = client.delete("/api/project/project-id/model/clear_error")
+#     assert response_clear_error.status_code == 200
 
-    # reset active learning model
-    response_reset = client.post("/api/project/project-id/algorithms", data={
-        "model": "svm",
-        "query_strategy": "random"
-    })
-    assert response_reset.status_code == 200
+#     # reset active learning model
+#     response_reset = client.post("/api/project/project-id/algorithms", data={
+#         "model": "svm",
+#         "query_strategy": "random"
+#     })
+#     assert response_reset.status_code == 200
 
-    # retrain active learning model
-    response_retrain = client.post("/api/project/project-id/start")
-    assert response_retrain.status_code == 200
+#     # retrain active learning model
+#     response_retrain = client.post("/api/project/project-id/start")
+#     assert response_retrain.status_code == 200
 
-    # wait the model ready
-    time.sleep(8)
-    response_ready = client.get("/api/project/project-id/ready")
-    json_data = response_ready.get_json()
+#     # wait the model ready
+#     time.sleep(8)
+#     response_ready = client.get("/api/project/project-id/ready")
+#     json_data = response_ready.get_json()
 
-    assert "status" in json_data
-    assert json_data["status"] == 1
+#     assert "status" in json_data
+#     assert json_data["status"] == 1
 
 
 def test_export_result(client):

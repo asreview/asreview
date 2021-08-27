@@ -79,6 +79,11 @@ def init_project(project_id,
             and len(project_id) >= 3:
         raise ValueError("Project name should be at least 3 characters.")
 
+    if isinstance(project_id, str) and not project_id[0].isalnum():
+        raise ValueError(
+            "First character should be alphabet"
+            " letter (a-z) or number (0-9).")
+
     if is_project(project_id):
         raise ValueError("Project name already exists.")
 
@@ -523,7 +528,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         project_path = get_project_path(project_id)
         state_file = get_state_path(project_path)
 
-        with open_state(state_file, read_only=False) as state:
+        with open_state(state_file, read_only=False):
             pass
 
     project_path = get_project_path(project_id)
