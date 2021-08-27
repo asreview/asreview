@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import logging
-from os.path import splitext
 from pathlib import PurePath
 from pathlib import Path
-import time
-import shutil
+from datetime import datetime
+import json
 
 import numpy as np
 
 from asreview.models.balance.utils import get_balance_model
 from asreview.compat import convert_id_to_idx
-from asreview.config import AVAILABLE_CLI_MODI, LABEL_NA
-from asreview.config import AVAILABLE_REVIEW_CLASSES
+from asreview.config import LABEL_NA
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -35,7 +31,6 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
-from asreview.config import KERAS_MODELS
 from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.io.paper_record import preview_record
@@ -45,9 +40,10 @@ from asreview.models.query import get_query_model
 from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state.utils import open_state
+from asreview.state.utils import init_project_folder_structure
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_project_file_path
 from asreview.utils import get_random_state
-from asreview._version import get_versions
 
 
 ASCII_LOGO = """
@@ -141,16 +137,15 @@ def review_simulate(dataset, *args, **kwargs):
               "use 'benchmark:Hall_2012' instead.\n\n")
         dataset = "benchmark:Hall_2012"
 
-    project_fp = kwargs['state_file']
+    state_fp = kwargs.pop('state_file')
 
-    if project_fp is None:
+    if state_fp is None:
         raise ValueError(
-            "Specify project file name (with .asreview extension)."
-        )
+            "Specify project file name (with .asreview extension).")
 
-    init_simulate_project(project_fp)
+    init_project_folder_structure(state_fp, project_mode='simulate')
 
-    reviewer = get_simulate_reviewer(dataset, *args, **kwargs)
+    reviewer = get_simulate_reviewer(dataset, state_fp, *args, **kwargs)
 
     # output the prior indices
     print("The following records are prior knowledge:\n")
@@ -161,34 +156,36 @@ def review_simulate(dataset, *args, **kwargs):
     # Start the review process.
     reviewer.review()
 
+    # Mark review as finished.
+    review_finished(state_fp)
 
-def get_simulate_reviewer(
-        dataset,
-        model=DEFAULT_MODEL,
-        query_strategy=DEFAULT_QUERY_STRATEGY,
-        balance_strategy=DEFAULT_BALANCE_STRATEGY,
-        feature_extraction=DEFAULT_FEATURE_EXTRACTION,
-        n_instances=DEFAULT_N_INSTANCES,
-        n_papers=None,
-        n_queries=None,
-        embedding_fp=None,
-        verbose=0,
-        prior_idx=None,
-        prior_record_id=None,
-        n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
-        n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
-        config_file=None,
-        state_file=None,
-        model_param=None,
-        query_param=None,
-        balance_param=None,
-        feature_param=None,
-        seed=None,
-        included_dataset=[],
-        excluded_dataset=[],
-        prior_dataset=[],
-        new=False,
-        **kwargs):
+
+def get_simulate_reviewer(dataset,
+                          state_file,
+                          model=DEFAULT_MODEL,
+                          query_strategy=DEFAULT_QUERY_STRATEGY,
+                          balance_strategy=DEFAULT_BALANCE_STRATEGY,
+                          feature_extraction=DEFAULT_FEATURE_EXTRACTION,
+                          n_instances=DEFAULT_N_INSTANCES,
+                          n_papers=None,
+                          n_queries=None,
+                          embedding_fp=None,
+                          verbose=0,
+                          prior_idx=None,
+                          prior_record_id=None,
+                          n_prior_included=DEFAULT_N_PRIOR_INCLUDED,
+                          n_prior_excluded=DEFAULT_N_PRIOR_EXCLUDED,
+                          config_file=None,
+                          model_param=None,
+                          query_param=None,
+                          balance_param=None,
+                          feature_param=None,
+                          seed=None,
+                          included_dataset=[],
+                          excluded_dataset=[],
+                          prior_dataset=[],
+                          new=False,
+                          **kwargs):
     """Get a review object from arguments.
 
     See __main__.py for a description of the arguments.
@@ -203,30 +200,22 @@ def get_simulate_reviewer(
         raise ValueError("Supply at least one dataset"
                          " with at least one record.")
 
-    # create a new settings object from arguments
-    # only used if state file is not present
-    cli_settings = ASReviewSettings(model=model,
-                                    n_instances=n_instances,
-                                    n_queries=n_queries,
-                                    n_papers=n_papers,
-                                    n_prior_included=n_prior_included,
-                                    n_prior_excluded=n_prior_excluded,
-                                    query_strategy=query_strategy,
-                                    balance_strategy=balance_strategy,
-                                    feature_extraction=feature_extraction,
-                                    mode="simulate",
-                                    data_fp=None)
-    cli_settings.from_file(config_file)
+    # Add the dataset to the project file.
+    as_data.to_csv(Path(get_data_path(state_file), f'{as_data.data_name}.csv'))
 
-    # overwrite the settings by the setting of the state file
-    if state_file is not None:
-        with open_state(state_file) as state:
-            # if state.is_empty():
-            #     print("Overwriting settings with default")
-            #     state.settings = cli_settings
-            settings = state.settings
-    else:
-        settings = cli_settings
+    # create a new settings object from arguments
+    settings = ASReviewSettings(model=model,
+                                n_instances=n_instances,
+                                n_queries=n_queries,
+                                n_papers=n_papers,
+                                n_prior_included=n_prior_included,
+                                n_prior_excluded=n_prior_excluded,
+                                query_strategy=query_strategy,
+                                balance_strategy=balance_strategy,
+                                feature_extraction=feature_extraction,
+                                mode="simulate",
+                                data_fp=None)
+    settings.from_file(config_file)
 
     if n_queries is not None:
         settings.n_queries = n_queries
@@ -279,8 +268,7 @@ def get_simulate_reviewer(
     if prior_idx is not None and prior_record_id is not None and \
             len(prior_idx) > 0 and len(prior_record_id) > 0:
         raise ValueError(
-            "Not possible to provide both prior_idx and prior_record_id"
-        )
+            "Not possible to provide both prior_idx and prior_record_id")
     if prior_record_id is not None and len(prior_record_id) > 0:
         prior_idx = convert_id_to_idx(as_data, prior_record_id)
 
@@ -302,38 +290,29 @@ def get_simulate_reviewer(
     return reviewer
 
 
-# TODO(State): Merge with init_project from webapp.utils.project.py
-# TODO(State): Fix a structure for the project folder.
-def init_simulate_project(fp):
-    project_id = Path(fp).stem
-    asreview_version = get_versions()['version']
+def review_finished(project_path, review_id=None):
+    """Mark a review in the project as finished. If no review_id is given,
+    mark the first review as finished.
 
-    if not project_id and not isinstance(project_id, str) \
-            and len(project_id) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
+    Arguments
+    ---------
+    project_path: pathlike
+        Path to the project folder.
+    review_id: str
+        Identifier of the review to mark as finished.
+    """
+    project_path = Path(project_path)
+    with open(get_project_file_path(project_path), 'r') as f:
+        project_config = json.load(f)
 
-    if Path(fp).is_dir():
-        raise IsADirectoryError(f'Project folder {fp} already exists.')
-    try:
-        Path(fp).mkdir()
-        Path(fp, 'data').mkdir()
+    if review_id is None:
+        review_index = 0
+    else:
+        review_index = [x['id']
+                        for x in project_config['reviews']].index(review_id)
 
-        project_config = {
-            'version': asreview_version,  # todo: Fail without git?
-            'id': project_id,
-            'name': None,
-            'description': None,
-            'authors': None,
-            'created_at_unix': int(time.time()),
+    project_config['reviews'][review_index]['review_finished'] = True
+    project_config['reviews'][review_index]['end_time'] = str(datetime.now())
 
-            # project related variables
-            'projectInitReady': False,
-            'reviewFinished': False,
-        }
-
-        with open(Path(fp, 'project.json'), 'w') as f:
-            json.dump(project_config, f)
-    except Exception as err:
-        # remove all generated folders and raise error
-        shutil.rmtree(Path(fp))
-        raise err
+    with open(get_project_file_path(project_path), 'w') as f:
+        json.dump(project_config, f)

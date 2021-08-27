@@ -35,7 +35,6 @@ from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_feature_matrices_path
 from asreview.state.paths import get_project_file_path
 
-asreview_version = get_versions()['version']
 V3STATE_VERSION = "1.0"
 
 
@@ -72,7 +71,6 @@ def is_valid_project_folder(fp):
 
 
 def init_project_folder_structure(project_path,
-                                  project_id,
                                   project_mode="oracle",
                                   project_name=None,
                                   project_description=None,
@@ -83,8 +81,6 @@ def init_project_folder_structure(project_path,
     ---------
     project_path: pathlike
         Filepath where to intialize the project folder structure.
-    project_id: str
-        Identifier of the project.
     project_mode: str
         Mode of the project. Should be 'oracle', 'explore' or 'simulate'.
     project_name: str
@@ -96,8 +92,19 @@ def init_project_folder_structure(project_path,
     dict
         Project configuration dictionary.
     """
+    project_path = Path(project_path)
+    project_id = project_path.stem
+    asreview_version = get_versions()['version']
+
+    if not project_id and not isinstance(project_id, str) \
+            and len(project_id) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
+
+    if project_path.is_dir():
+        raise IsADirectoryError(
+            f'Project folder {project_path} already exists.')
+
     try:
-        project_path = Path(project_path)
         project_path.mkdir(exist_ok=True)
         get_data_path(project_path).mkdir(exist_ok=True)
         get_feature_matrices_path(project_path).mkdir(exist_ok=True)
@@ -157,7 +164,7 @@ def open_state(working_dir, review_id=None, read_only=True):
             raise StateNotFoundError(f"There is no valid project folder"
                                      f" at {working_dir}")
         else:
-            init_project_folder_structure(working_dir, working_dir.name)
+            init_project_folder_structure(working_dir)
             review_id = uuid4().hex
 
     # Check if file is a valid project folder.
@@ -175,7 +182,6 @@ def open_state(working_dir, review_id=None, read_only=True):
     # init state class
     state = SqlStateV1(read_only=read_only)
 
-    # TODO(State): Check for 'history' folder instead of results.sql.
     try:
         if Path(get_reviews_path(working_dir), review_id).is_dir():
             state._restore(working_dir, review_id)

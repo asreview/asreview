@@ -18,3 +18,4 @@ from asreview.state.legacy.hdf5 import HDF5StateLegacy
 from asreview.state.sqlstate import SqlStateV1
 from asreview.state.legacy.json import JSONState
 from asreview.state.utils import open_state
+from asreview.state.utils import init_project_folder_structure

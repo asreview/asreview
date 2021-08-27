@@ -9,6 +9,11 @@ from scipy.sparse.csr import csr_matrix
 from asreview import ASReviewData
 from asreview.state import SqlStateV1
 from asreview.state import open_state
+from asreview.state import init_project_folder_structure
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_feature_matrices_path
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 from asreview.state.errors import StateNotFoundError
 from asreview.settings import ASReviewSettings
@@ -53,19 +58,42 @@ def add_empty_project_json(fp):
         json.dump({}, f)
 
 
+def test_init_project_folder(tmpdir):
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+
+    assert get_project_file_path(project_path).is_file()
+    assert get_data_path(project_path).is_dir()
+    assert get_feature_matrices_path(project_path).is_dir()
+    assert get_reviews_path(project_path).is_dir()
+
+    with open(get_project_file_path(project_path), 'r') as f:
+        project_config = json.load(f)
+
+    assert project_config['id'] == 'test'
+
+
+@pytest.mark.xfail(raises=IsADirectoryError,
+                   reason="Project folder {project_path} already exists.")
+def test_init_project_already_exists(tmpdir):
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    init_project_folder_structure(project_path)
+
+
 @pytest.mark.xfail(raises=StateNotFoundError,
                    reason="Project folder does not exist")
 def test_invalid_project_folder():
-    with open_state('this_is_not_a_project') as state:                          # noqa
+    with open_state('this_is_not_a_project') as state:  # noqa
         pass
 
 
 @pytest.mark.xfail(raises=StateNotFoundError,
                    reason="State file does not exist")
 def test_state_not_found(tmpdir):
-    state_fp = Path(tmpdir)
-    add_empty_project_json(state_fp)
-    with open_state(state_fp) as state:                                         # noqa
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path) as state:  # noqa
         pass
 
 
@@ -115,9 +143,9 @@ def test_n_priors():
 
 
 def test_create_new_state_file(tmpdir):
-    state_fp = Path(tmpdir)
-    add_empty_project_json(state_fp)
-    with open_state(state_fp, read_only=False) as state:
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
         state._is_valid_state()
 
 
@@ -214,9 +242,9 @@ def test_get_labeling_times():
 
 
 def test_create_empty_state(tmpdir):
-    state_fp = Path(tmpdir)
-    add_empty_project_json(state_fp)
-    with open_state(state_fp, read_only=False) as state:
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
         assert state.is_empty()
 
 
@@ -237,11 +265,12 @@ def test_get_record_table():
 def test_record_table(tmpdir):
     data_fp = Path("tests", "demo_data", "record_id.csv")
     as_data = ASReviewData.from_file(data_fp)
-    state_fp = Path(tmpdir)
-    add_empty_project_json(state_fp)
+
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
     RECORD_IDS = list(range(12, 2, -1))
 
-    with open_state(state_fp, read_only=False) as state:
+    with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
         assert state.get_record_table()['record_ids'].to_list() == RECORD_IDS
 
@@ -257,26 +286,26 @@ def test_get_last_probabilities():
 @pytest.mark.xfail(
     raises=ValueError,
     reason=f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the"
-           f" database, but 'probabilities' has length 3")
+    f" database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
         state.add_last_probabilities([1.0, 2.0, 3.0])
 
 
 def test_add_last_probabilities(tmpdir):
-    state_fp = Path(tmpdir)
-    add_empty_project_json(state_fp)
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
     probabilities = [float(num) for num in range(50)]
-    with open_state(state_fp, read_only=False) as state:
+    with open_state(project_path, read_only=False) as state:
         state.add_last_probabilities(probabilities)
         state_probabilities = state.get_last_probabilities()['proba'].tolist()
         assert state_probabilities == probabilities
 
 
 def test_add_labeling_data(tmpdir):
-    state_fp = Path(tmpdir)
-    add_empty_project_json(state_fp)
-    with open_state(state_fp, read_only=False) as state:
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
         for i in range(3):
             state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]],
                                     [TEST_CLASSIFIERS[i]],

@@ -80,9 +80,8 @@ def init_project(project_id,
         raise ValueError("Project name should be at least 3 characters.")
 
     if isinstance(project_id, str) and not project_id[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet"
-            " letter (a-z) or number (0-9).")
+        raise ValueError("First character should be alphabet"
+                         " letter (a-z) or number (0-9).")
 
     if is_project(project_id):
         raise ValueError("Project name already exists.")
@@ -91,10 +90,12 @@ def init_project(project_id,
         raise ValueError(f"Project mode '{project_mode}' is not in "
                          f"{PROJECT_MODES}.")
 
-    project_config = init_project_folder_structure(project_path, project_id,
-                                                   project_mode, project_name,
-                                                   project_description,
-                                                   project_authors)
+    project_config = \
+        init_project_folder_structure(project_path,
+                                      project_mode=project_mode,
+                                      project_name=project_name,
+                                      project_description=project_description,
+                                      project_authors=project_authors)
 
     return project_config
 
