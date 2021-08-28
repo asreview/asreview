@@ -8,8 +8,11 @@ import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";
 import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
-import { ImportDialog, QuickTourDialog } from "./Components";
-
+import {
+  ImportDialog,
+  QuickTourDialog,
+  ProjectConverterDialog,
+} from "./Components";
 import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
@@ -201,6 +204,7 @@ const Projects = (props) => {
       </SpeedDial>
 
       <QuickTourDialog />
+      <ProjectConverterDialog handleAppState={props.handleAppState} />
     </Box>
   );
 };
