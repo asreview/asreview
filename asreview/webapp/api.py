@@ -66,6 +66,8 @@ from asreview.state.paths import get_tmp_path
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_settings_metadata_path
+from asreview.state.sql_converter import convert_asreview
+from asreview.state.sql_converter import is_old_project
 from asreview.state.errors import StateNotFoundError
 from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
@@ -183,6 +185,49 @@ def api_init_project():  # noqa: F401
     response = jsonify(project_config)
 
     return response, 201
+
+
+@bp.route('/project/<project_id>/is_old', methods=["GET"])
+def api_get_project_is_old(project_id):
+
+    project_path = get_project_path(project_id)
+
+    try:
+        is_old_project(project_path)
+
+    except ValueError:
+        response = jsonify({'success': False})
+
+    except Exception as err:
+        logging.error(err)
+        raise InternalServerError
+
+    else:
+        response = jsonify({'success': True})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/convert', methods=["GET"])
+def api_convert_project(project_id):
+
+    project_path = get_project_path(project_id)
+
+    try:
+        convert_asreview(project_path)
+
+    except ValueError as err:
+        logging.error(err)
+        return jsonify(message=str(err)), 400
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to convert this project."), 500
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @bp.route('/project/<project_id>/info', methods=["GET"])
