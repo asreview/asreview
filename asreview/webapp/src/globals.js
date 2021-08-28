@@ -1,6 +1,8 @@
 // When you're running the development server, the javascript code is always
 // pointing to localhost:5000. In all other configurations, the api url point to
 // the host domain.
+import { setProject } from "./redux/actions";
+
 export const base_url =
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1") &&
@@ -52,6 +54,13 @@ export const fontSizeOptions = [
 // functions
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
+};
+export const mapDispatchToProps = (dispatch) => {
+  return {
+    setProjectId: (project_id) => {
+      dispatch(setProject(project_id));
+    },
+  };
 };
 
 // enums

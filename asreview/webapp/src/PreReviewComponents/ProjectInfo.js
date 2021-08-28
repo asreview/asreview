@@ -20,10 +20,12 @@ import Confetti from "react-confetti";
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
-import { setProject } from "../redux/actions";
-
 import { connect } from "react-redux";
-import { mapStateToProps, projectModes } from "../globals.js";
+import {
+  mapStateToProps,
+  mapDispatchToProps,
+  projectModes,
+} from "../globals.js";
 import ProjectModeSelect from "./ProjectModeSelect";
 
 import "./ReviewZone.css";
@@ -63,14 +65,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey[500],
   },
 }));
-
-function mapDispatchToProps(dispatch) {
-  return {
-    setProjectId: (project_id) => {
-      dispatch(setProject(project_id));
-    },
-  };
-}
 
 const ProjectInit = (props) => {
   const classes = useStyles();

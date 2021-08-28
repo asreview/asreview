@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { connect } from "react-redux";
 import {
   Box,
   Chip,
@@ -14,9 +15,12 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import store from "./redux/store";
-import { setProject } from "./redux/actions";
-import { setupColor, inReviewColor, finishedColor } from "./globals";
+import {
+  finishedColor,
+  inReviewColor,
+  mapDispatchToProps,
+  setupColor,
+} from "./globals";
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
@@ -98,9 +102,7 @@ const ProjectTable = (props) => {
                   console.log("Opening existing project " + row.id);
 
                   // set the state in the redux store
-                  store.dispatch(setProject(row.id));
-
-                  props.handleAppState("project-page");
+                  props.setProjectId(row.id);
                 };
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
@@ -176,4 +178,4 @@ const ProjectTable = (props) => {
   );
 };
 
-export default ProjectTable;
+export default connect(null, mapDispatchToProps)(ProjectTable);
