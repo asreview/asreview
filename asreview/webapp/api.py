@@ -189,6 +189,7 @@ def api_init_project():  # noqa: F401
 
 @bp.route('/project/<project_id>/is_old', methods=["GET"])
 def api_get_project_is_old(project_id):
+    """Get if project is old"""
 
     project_path = get_project_path(project_id)
 
@@ -211,6 +212,7 @@ def api_get_project_is_old(project_id):
 
 @bp.route('/project/<project_id>/convert', methods=["GET"])
 def api_convert_project(project_id):
+    """Get if project is converted"""
 
     project_path = get_project_path(project_id)
 
