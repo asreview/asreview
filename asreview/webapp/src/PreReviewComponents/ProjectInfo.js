@@ -1,6 +1,7 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
+import Confetti from "react-confetti";
+import { connect } from "react-redux";
+// import useWindowSize from 'react-use/lib/useWindowSize'
 import {
   Box,
   Button,
@@ -11,22 +12,18 @@ import {
   Dialog,
   Typography,
 } from "@material-ui/core";
-
 import { brown } from "@material-ui/core/colors";
+import { makeStyles } from "@material-ui/core/styles";
 
-// import useWindowSize from 'react-use/lib/useWindowSize'
-import Confetti from "react-confetti";
+import { ProjectModeSelect } from "../PreReviewComponents";
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
-
-import { connect } from "react-redux";
 import {
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
 } from "../globals.js";
-import ProjectModeSelect from "./ProjectModeSelect";
 
 import "./ReviewZone.css";
 
