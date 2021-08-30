@@ -77,7 +77,7 @@ const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // convert old project
+  // convert project if old
   const { isLoading } = useQuery(
     ["fetchConvertProjectIfOld", { project_id: props.project_id }],
     ProjectAPI.fetchConvertProjectIfOld,

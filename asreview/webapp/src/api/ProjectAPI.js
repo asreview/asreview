@@ -249,16 +249,19 @@ class ProjectAPI {
     });
   }
 
-  static import_project(data) {
+  static mutateImportProject(variables) {
+    let body = new FormData();
+    body.append("file", variables.file);
+
     const url = api_url + `project/import_project`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
         url: url,
-        data: data,
+        data: body,
       })
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

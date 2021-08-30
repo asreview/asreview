@@ -8,7 +8,7 @@ import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";
 import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
-import { ImportDialog, QuickTourDialog } from "./Components";
+import { ProjectImportDialog, QuickTourDialog } from "./Components";
 import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
@@ -90,7 +90,7 @@ const Projects = (props) => {
     });
   };
 
-  const handleCloseImportProject = () => {
+  const handleCloseProjectImport = () => {
     setOpen({
       ...open,
       importProject: false,
@@ -161,10 +161,9 @@ const Projects = (props) => {
       )}
 
       {open.importProject && (
-        <ImportDialog
-          handleAppState={props.handleAppState}
-          open={open.importProject}
-          onClose={handleCloseImportProject}
+        <ProjectImportDialog
+          onProjectImport={open.importProject}
+          handleCloseProjectImport={handleCloseProjectImport}
         />
       )}
 
