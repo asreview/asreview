@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
   Chip,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -15,9 +17,11 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
+import { ProjectAPI } from "./api/index.js";
 import {
   finishedColor,
   inReviewColor,
+  mapStateToProps,
   mapDispatchToProps,
   setupColor,
 } from "./globals";
@@ -58,6 +62,13 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: finishedColor,
     display: "flex",
   },
+  circularProgress: {
+    display: "flex",
+    "& > * + *": {
+      marginLeft: theme.spacing(1),
+    },
+    alignItems: "center",
+  },
 }));
 
 const ProjectTable = (props) => {
@@ -65,6 +76,19 @@ const ProjectTable = (props) => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  // convert old project
+  const { isLoading } = useQuery(
+    ["fetchConvertProjectIfOld", { project_id: props.project_id }],
+    ProjectAPI.fetchConvertProjectIfOld,
+    {
+      enabled: props.project_id !== null,
+      onSuccess: () => {
+        props.handleAppState("project-page");
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -107,18 +131,23 @@ const ProjectTable = (props) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     <TableCell>
-                      <Box
-                        onClick={openExistingProject}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Typography
-                          className={classes.tableCell}
-                          variant="subtitle1"
-                          noWrap
+                      <div className={classes.circularProgress}>
+                        {isLoading && row.id === props.project_id && (
+                          <CircularProgress size="1rem" thickness={5} />
+                        )}
+                        <Box
+                          onClick={openExistingProject}
+                          style={{ cursor: "pointer" }}
                         >
-                          {row["name"]}
-                        </Typography>
-                      </Box>
+                          <Typography
+                            className={classes.tableCell}
+                            variant="subtitle1"
+                            noWrap
+                          >
+                            {row["name"]}
+                          </Typography>
+                        </Box>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Typography
@@ -178,4 +207,4 @@ const ProjectTable = (props) => {
   );
 };
 
-export default connect(null, mapDispatchToProps)(ProjectTable);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectTable);

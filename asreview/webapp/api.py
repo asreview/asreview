@@ -187,31 +187,8 @@ def api_init_project():  # noqa: F401
     return response, 201
 
 
-@bp.route('/project/<project_id>/is_old', methods=["GET"])
-def api_get_project_is_old(project_id):
-    """Get if project is old"""
-
-    project_path = get_project_path(project_id)
-
-    try:
-        is_old_project(project_path)
-
-    except ValueError:
-        response = jsonify({'success': False})
-
-    except Exception as err:
-        logging.error(err)
-        raise InternalServerError
-
-    else:
-        response = jsonify({'success': True})
-
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
-
-
-@bp.route('/project/<project_id>/convert', methods=["GET"])
-def api_convert_project(project_id):
+@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
+def api_convert_project_if_old(project_id):
     """Get if project is converted"""
 
     project_path = get_project_path(project_id)
@@ -219,13 +196,13 @@ def api_convert_project(project_id):
     try:
         convert_asreview(project_path)
 
-    except ValueError as err:
-        logging.error(err)
-        return jsonify(message=str(err)), 400
+    except ValueError:
+        pass
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to convert this project."), 500
+        message = "Failed to open the project in this version of ASReview LAB."
+        return jsonify(message=message), 500
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')

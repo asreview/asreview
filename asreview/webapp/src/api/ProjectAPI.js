@@ -35,24 +35,9 @@ class ProjectAPI {
     });
   }
 
-  static fetchProjectIsOld({ queryKey }) {
+  static fetchConvertProjectIfOld({ queryKey }) {
     const project_id = queryKey[1].project_id;
-    const url = api_url + `project/${project_id}/is_old`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url)
-        .then((result) => {
-          resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  static fetchProjectConverter({ queryKey }) {
-    const project_id = queryKey[1].project_id;
-    const url = api_url + `project/${project_id}/convert`;
+    const url = api_url + `project/${project_id}/convert_if_old`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
