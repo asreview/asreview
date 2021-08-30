@@ -7,4 +7,5 @@ export { default as HistoryListCard } from "./HistoryListCard";
 export { default as MenuDrawer } from "./MenuDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";
+export { default as ProjectTable } from "./ProjectTable";
 export { default as QuickTourDialog } from "./QuickTourDialog";

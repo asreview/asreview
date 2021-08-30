@@ -17,14 +17,14 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { ProjectAPI } from "./api/index.js";
+import { ProjectAPI } from "../api/index.js";
 import {
   finishedColor,
   inReviewColor,
   mapStateToProps,
   mapDispatchToProps,
   setupColor,
-} from "./globals";
+} from "../globals";
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
@@ -136,7 +136,7 @@ const ProjectTable = (props) => {
                           <CircularProgress size="1rem" thickness={5} />
                         )}
                         <Box
-                          onClick={openExistingProject}
+                          onClick={isLoading ? null : openExistingProject}
                           style={{ cursor: "pointer" }}
                         >
                           <Typography

@@ -5,10 +5,13 @@ import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
 import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
 import ErrorHandler from "./ErrorHandler";
-import ProjectTable from "./ProjectTable";
 import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
-import { ProjectImportDialog, QuickTourDialog } from "./Components";
+import {
+  ProjectImportDialog,
+  ProjectTable,
+  QuickTourDialog,
+} from "./Components";
 import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
