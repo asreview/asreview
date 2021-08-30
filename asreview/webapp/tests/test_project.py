@@ -49,13 +49,9 @@ def test_project_file(tmp_path, client, url):
     project_id = json_data_import["id"]
     api_url = f"/api/project/{project_id}"
 
-    # Test if project is old and test convert project if necessary
-    response_is_old = client.get(f"{api_url}/is_old")
-    if response_is_old.status_code == 200:
-        response_convert = client.get(f"{api_url}/convert")
-        assert response_convert.status_code == 200
-    else:
-        pass
+    # Test convert project if old
+    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
+    assert response_convert_if_old.status_code == 200
 
     # Test get projects
     response_projects = client.get("/api/projects")

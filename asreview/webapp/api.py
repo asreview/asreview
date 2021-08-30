@@ -67,7 +67,6 @@ from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_settings_metadata_path
 from asreview.state.sql_converter import convert_asreview
-from asreview.state.sql_converter import is_old_project
 from asreview.state.errors import StateNotFoundError
 from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
