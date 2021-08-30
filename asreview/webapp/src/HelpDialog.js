@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { connect } from "react-redux";
 import {
   Avatar,
   Card,
@@ -24,6 +25,23 @@ import { UtilsAPI } from "./api/index.js";
 
 import ErrorHandler from "./ErrorHandler";
 import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
+
+// redux config
+import { toggleHelpDialog } from "./redux/actions";
+
+const mapStateToProps = (state) => {
+  return {
+    onHelpDialog: state.onHelpDialog,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    toggleHelpDialog: () => {
+      dispatch(toggleHelpDialog());
+    },
+  };
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -76,13 +94,13 @@ const HelpDialog = (props) => {
   }, []);
 
   useEffect(() => {
-    if (props.onHelp) {
+    if (props.onHelpDialog) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.onHelp]);
+  }, [props.onHelpDialog]);
 
   useEffect(() => {
     if (!error.message) {
@@ -94,14 +112,17 @@ const HelpDialog = (props) => {
     <div>
       <Dialog
         fullScreen={props.mobileScreen}
-        open={props.onHelp}
-        onClose={props.toggleHelp}
+        open={props.onHelpDialog}
+        onClose={props.toggleHelpDialog}
         scroll="paper"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-help"
       >
-        <AppBarWithinDialog onClickStartIcon={props.toggleHelp} title="Help" />
+        <AppBarWithinDialog
+          onClickStartIcon={props.toggleHelpDialog}
+          title="Help"
+        />
         <DialogContent className={classes.root}>
           <List>
             <ListItem>
@@ -204,4 +225,4 @@ const HelpDialog = (props) => {
   );
 };
 
-export default HelpDialog;
+export default connect(mapStateToProps, mapDispatchToProps)(HelpDialog);
