@@ -82,7 +82,10 @@ const ProjectTable = (props) => {
     ["fetchConvertProjectIfOld", { project_id: props.project_id }],
     ProjectAPI.fetchConvertProjectIfOld,
     {
-      enabled: props.project_id !== null,
+      enabled: props.project_id !== null && !props.onCreateProject,
+      onError: () => {
+        props.handleAppState("projects");
+      },
       onSuccess: () => {
         props.handleAppState("project-page");
       },

@@ -149,8 +149,9 @@ const Projects = (props) => {
           projects["loaded"] &&
           projects["projects"].length !== 0 && (
             <ProjectTable
-              projects={projects}
               handleAppState={props.handleAppState}
+              onCreateProject={open.newProject}
+              projects={projects}
             />
           )}
       </Container>

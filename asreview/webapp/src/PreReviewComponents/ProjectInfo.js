@@ -116,9 +116,7 @@ const ProjectInit = (props) => {
     if (props.edit) {
       ProjectAPI.info(props.project_id, true, bodyFormData)
         .then((result) => {
-          // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
-          // set editing state to false
           props.onClose();
           props.reloadProjectInfo();
         })
@@ -132,10 +130,7 @@ const ProjectInit = (props) => {
       // dialog is open in init mode
       ProjectAPI.init(bodyFormData)
         .then((result) => {
-          // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
-          // set newProject state to false
-          props.onClose();
           props.handleAppState("project-page");
         })
         .catch((error) => {
