@@ -35,11 +35,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProjectImportDialog = ({
-  handleCloseProjectImport,
-  onProjectImport,
-  setProjectId,
-}) => {
+const ProjectImportDialog = (props) => {
   const classes = useStyles();
 
   const descriptionElementRef = useRef(null);
@@ -71,23 +67,23 @@ const ProjectImportDialog = ({
   // set project id once imported
   useEffect(() => {
     if (data) {
-      setProjectId(data["id"]);
+      props.setProjectId(data["id"]);
     }
-  }, [data, setProjectId]);
+  });
 
   useEffect(() => {
-    if (onProjectImport) {
+    if (props.onProjectImport) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [onProjectImport]);
+  }, [props.onProjectImport]);
 
   return (
     <Dialog
-      open={onProjectImport}
-      onClose={isLoadingConverting() ? null : handleCloseProjectImport}
+      open={props.onProjectImport}
+      onClose={isLoadingConverting() ? null : props.handleCloseProjectImport}
       scroll="body"
       fullWidth={true}
       maxWidth={"sm"}
@@ -133,7 +129,7 @@ const ProjectImportDialog = ({
 
       <DialogActions>
         <Button
-          onClick={handleCloseProjectImport}
+          onClick={props.handleCloseProjectImport}
           color="primary"
           disabled={isLoadingConverting()}
         >
