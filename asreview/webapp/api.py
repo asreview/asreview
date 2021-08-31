@@ -22,6 +22,7 @@ import tempfile
 import subprocess
 import urllib.parse
 import uuid
+from collections import Counter
 from copy import deepcopy
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -118,8 +119,6 @@ def error_500(e):
 
 
 # routes
-
-
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
@@ -154,6 +153,61 @@ def api_get_projects():  # noqa: F401
         reverse=True)
 
     response = jsonify({"result": project_info})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
+
+
+@bp.route('/projects/stats', methods=["GET"])
+def api_get_projects_stats():  # noqa: F401
+    """Get dashboard statistics of all projects"""
+
+    projects = list_asreview_project_paths()
+
+    stats_counter = Counter()
+
+    for proj in projects:
+
+        try:
+            with open(proj / "project.json", "r") as f:
+                res = json.load(f)
+
+            # backwards support <0.10
+            if "projectInitReady" not in res:
+                res["projectInitReady"] = True
+
+            # get dashboard statistics
+            statistics = get_statistics(res["id"])
+            statistics["n_reviewed"] = statistics["n_included"] \
+                + statistics["n_excluded"]
+
+            if res["projectInitReady"] is not True:
+                statistics["n_setup"] = 1
+                statistics["n_in_review"] = 0
+                statistics["n_finished"] = 0
+            elif res["reviewFinished"] is not True:
+                statistics["n_setup"] = 0
+                statistics["n_in_review"] = 1
+                statistics["n_finished"] = 0
+            else:
+                statistics["n_setup"] = 0
+                statistics["n_in_review"] = 0
+                statistics["n_finished"] = 1
+
+            statistics = {
+                x: statistics[x]
+                for x in ("n_reviewed", "n_included", "n_setup"
+                    , "n_in_review", "n_finished")
+            }
+            stats_counter.update(statistics)
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load dashboard statistics."), 500
+
+    project_stats = dict(stats_counter)
+
+    response = jsonify({"result": project_stats})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response

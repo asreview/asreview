@@ -1,10 +1,13 @@
 import React from "react";
+import { useQuery } from "react-query";
 import { Grid, Paper, Typography } from "@material-ui/core";
 // import BuildIcon from '@material-ui/icons/Build';
 // import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 // import ArchiveIcon from '@material-ui/icons/Archive';
 
 import { makeStyles } from "@material-ui/core/styles";
+
+import { ProjectAPI } from "../api/index.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,24 +24,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProjectStatusGraphic = (props) => {
+const DashboardStats = (props) => {
   const classes = useStyles();
 
-  // const [statusCount, setStatusCount] = useState({
-  //   setup: null,
-  //   inReview: null,
-  //   finished: null,
-  // });
-
-  // useEffect(() => {
-  //   if (props.projects["projects"].length) {
-  //     props.projects["projects"].map((project) => {
-
-  //     })
-  //   }
-  // });
-
-  // console.log(props.projects["projects"].length);
+  const { data, isFetched } = useQuery(
+    "fetchDashboardStats",
+    ProjectAPI.fetchDashboardStats,
+    { refetchOnWindowFocus: false }
+  );
 
   return (
     <div>
@@ -47,7 +40,7 @@ const ProjectStatusGraphic = (props) => {
           <Paper className={classes.root}>
             <div className={classes.number}>
               <Typography variant="h4" style={{ fontWeight: "bold" }}>
-                3
+                {isFetched ? data.n_setup : 0}
               </Typography>
               <Typography>Setup</Typography>
             </div>
@@ -57,7 +50,7 @@ const ProjectStatusGraphic = (props) => {
           <Paper className={classes.root}>
             <div className={classes.number}>
               <Typography variant="h4" style={{ fontWeight: "bold" }}>
-                5
+                {isFetched ? data.n_in_review : 0}
               </Typography>
               <Typography>In Review</Typography>
             </div>
@@ -67,7 +60,7 @@ const ProjectStatusGraphic = (props) => {
           <Paper className={classes.root}>
             <div className={classes.number}>
               <Typography variant="h4" style={{ fontWeight: "bold" }}>
-                1
+                {isFetched ? data.n_finished : 0}
               </Typography>
               <Typography>Finished</Typography>
             </div>
@@ -78,4 +71,4 @@ const ProjectStatusGraphic = (props) => {
   );
 };
 
-export default ProjectStatusGraphic;
+export default DashboardStats;

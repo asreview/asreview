@@ -7,4 +7,5 @@ export { default as HistoryListCard } from "./HistoryListCard";
 export { default as ImportDialog } from "./ImportDialog";
 export { default as MenuDrawer } from "./MenuDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
+export { default as DashboardStats } from "./DashboardStats";
 export { default as QuickTourDialog } from "./QuickTourDialog";

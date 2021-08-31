@@ -17,6 +17,20 @@ class ProjectAPI {
     });
   }
 
+  static fetchDashboardStats({ queryKey }) {
+    const url = api_url + `projects/stats`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result.data["result"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static init(data) {
     const url = api_url + `project/info`;
     return new Promise((resolve, reject) => {
