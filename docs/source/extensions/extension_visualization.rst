@@ -149,8 +149,8 @@ Plotting API
 ------------
 
 To make use of the more advanced features and/or incorporate plotting 
-into code, you can use the visualization package as a 
-library using the build-in API.
+into code, you can use the visualization package as a library using the 
+build-in API.
 
 Setting up a plot
 ~~~~~~~~~~~~~~~~~
@@ -168,11 +168,12 @@ code can be used:
 
 
 
-Multiple plots can be generated with the same code using ["myreview.h5", "myreview_2.h5"]
+Multiple plots can be generated at the same time by adding the files to an array; ["myreview.h5", "myreview_2.h5"].
 
 \*\*kwargs has the following options:
 
 .. option:: plot_type="type"
+
     *type* must be set to one or more of the available plot type; *inclusion*, *discovery*, *limit*, *progression*.
 
 .. option:: result_format="plot_format"
@@ -183,27 +184,27 @@ Multiple plots can be generated with the same code using ["myreview.h5", "myrevi
 Adding plot features
 ~~~~~~~~~~~~~~~~~~~~
 
-Adding a grid to the plot
+Adding a grid to the plot.
 
 .. code:: python
 
     my_plot.set_grid()
 
 
-Adding limits to the plot
+Adding limits to the plot.
 
 .. code:: python
 
     my_plot.set_xlim('lowerlimit', 'upperlimit')
     my_plot.set_ylim('lowerlimit', 'upperlimit')
 
-Adding a legend to the plot
+Adding a legend to the plot.
 
 .. code:: python
 
     my_plot.set_legend()
 
-Adding a wss or rrf line for one of the provided h5 files to the plot. Only available for inclusion-type plots.
+Adding a wss or rrf line to the plot. Only available for inclusion-type plots.
 
 .. code:: python
 
@@ -222,11 +223,11 @@ Add the random line to the plot. This dashed grey diagonal line corresponds to t
 
     my_plot.add_random(add_text=False)
 
-Save the plot to a specified location
+Save the plot to the disk.
 
 .. code:: python
 
-    my_plot.save("save\\location\\myreview_plot.png")
+    my_plot.save("myreview_plot.png")
 
 
-Examples using the API can be found in module `asreviewcontrib.visualization.quick`.
+Examples using the API can be found in module :code:`asreviewcontrib.visualization.quick`.
