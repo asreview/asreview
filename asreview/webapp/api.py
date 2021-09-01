@@ -22,7 +22,6 @@ import tempfile
 import subprocess
 import urllib.parse
 import uuid
-from collections import Counter
 from copy import deepcopy
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -196,8 +195,8 @@ def api_get_projects_stats():  # noqa: F401
 
             statistics = {
                 x: statistics[x]
-                for x in ("n_reviewed", "n_included", "n_setup"
-                    , "n_in_review", "n_finished")
+                for x in ("n_reviewed", "n_included", "n_setup",
+                          "n_in_review", "n_finished")
             }
             stats_counter.update(statistics)
 
