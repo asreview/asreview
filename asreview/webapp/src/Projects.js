@@ -7,7 +7,7 @@ import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";
 
-import { DashboardStats, ImportDialog, QuickTourDialog } from "./Components";
+import { DashboardStatsPaper, ImportDialog, QuickTourDialog } from "./Components";
 
 import { ProjectInfo } from "./PreReviewComponents";
 
@@ -117,7 +117,7 @@ const Projects = (props) => {
   return (
     <Box>
       <Container maxWidth="md" className={classes.root}>
-        <DashboardStats />
+        <DashboardStatsPaper />
       </Container>
       <Container maxWidth="md" className={classes.root}>
         {error["message"] !== null && (
