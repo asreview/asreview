@@ -108,7 +108,7 @@ setup(
     ]},
     python_requires='~=3.7',
     install_requires=[
-        'numpy<=1.20.0',
+        'numpy',
         'sklearn',
         'pandas',
         'rispy~=0.6.0',
