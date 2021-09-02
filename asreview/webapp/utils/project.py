@@ -115,7 +115,7 @@ def update_project_info(project_id,
                         project_authors=None):
     '''Update project info'''
 
-    project_id_new = re.sub('\s+', '-', project_name).lower()
+    project_id_new = re.sub(r'\s+', '-', project_name).lower()
 
     if not project_id_new and not isinstance(project_id_new, str) \
             and len(project_id_new) >= 3:
