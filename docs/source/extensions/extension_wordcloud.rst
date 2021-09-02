@@ -1,5 +1,5 @@
 ASReview-wordcloud
-========
+==================
 
 ASReview-wordcloud is an extension for the `ASReview`_ software
 software. It is an easy way to create a visual impression of the contents of
