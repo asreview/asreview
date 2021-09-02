@@ -165,7 +165,7 @@ def api_init_project():  # noqa: F401
     project_description = request.form['description']
     project_authors = request.form['authors']
 
-    project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+    project_id = re.sub('\s+', '-', project_name).lower()
 
     project_config = init_project(
         project_id,
