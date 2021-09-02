@@ -1,4 +1,4 @@
-Worcloud
+ASReview-wordcloud
 ========
 
 ASReview-wordcloud is an extension for the `ASReview`_ software

@@ -23,9 +23,10 @@ of the core project:
 - :doc:`extension_covid19`: Make literature on COVID-19 available in ASReview.
 - :doc:`extension_visualization`: Plotting functionality for state files produced by ASReview.
 - :doc:`extension_wordcloud`: Create a visual impression of the contents of datasets via a wordcloud.
-- ``asreview-statistics``: Tool to give some basic properties of a dataset, such as number of
-  papers, number of inclusions. `GitHub <https://github.com/asreview/asreview-statistics>`__
-- ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
+- `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__: Tool to give some basic properties of a dataset, such as number of
+  papers, number of inclusions. 
+
+.. - ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
 
 
 
@@ -34,9 +35,21 @@ of the core project:
 Community-maintained extensions
 -------------------------------
 
-The following extensions are developed and maintained by the ASReview community:
+ASReview has support for community-maintained extensions, that enable you to seemlessly integrate 
+your own code with the ASReview framework. These extensions can extend the software with new 
+classifiers, query strategies, balance strategies, and feature extraction techniques.
 
-Work in Progress
+A template for creating your own ASReview extension can be found here: `Template <https://github.com/asreview/template-extension-new-model>`__.
+
+The following extensions are developed and currently maintained by the ASReview community:
+
+* ASReview CNN classifier 
+    - This repository contains a extention for ASReview logo. This plugin adds a convolutional neural network (CNN) model, that has been shown to outperform classical algorithms.
+    - `Github <https://github.com/JTeijema/asreview-plugin-model-cnn-17-layer>`__
+
+* ASReview Model Switcher 
+    - This extention adds a model that switches between two models during runtime. It can be useful for when later stages of data classification require different models.
+    - `Github <https://github.com/JTeijema/asreview-plugin-model-switcher>`__
 
 
 If an extension is not on this list, or you made one and you would like it to be added to this
