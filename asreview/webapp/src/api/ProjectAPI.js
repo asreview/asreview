@@ -115,6 +115,7 @@ class ProjectAPI {
     });
   }
 
+  // TODO{Terry}: deprecating, replaced by fetchLabeledRecord
   static prior(project_id) {
     const url = api_url + `project/${project_id}/prior`;
     return new Promise((resolve, reject) => {
@@ -130,7 +131,7 @@ class ProjectAPI {
   }
 
   static fetchLabeledRecord({ queryKey }) {
-    const project_id = queryKey[1].project_id;
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/prior`;
     return new Promise((resolve, reject) => {
       axios
