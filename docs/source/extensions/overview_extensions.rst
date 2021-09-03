@@ -51,6 +51,10 @@ The following extensions are developed and currently maintained by the ASReview 
     - This extention adds a model that switches between two models during runtime. It can be useful for when later stages of data classification require different models.
     - `Github <https://github.com/JTeijema/asreview-plugin-model-switcher>`__
 
+* ASReview Vocab extractor
+    - This extention adds two feature extractors that extract vocabulary and vector matrices during simulation phases.
+    - `Github <https://github.com/asreview/asreview-extension-vocab-extractor>`__
+
 
 If an extension is not on this list, or you made one and you would like it to be added to this
 list, please initiate an issue on `Github
