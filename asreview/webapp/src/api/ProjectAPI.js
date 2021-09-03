@@ -36,7 +36,7 @@ class ProjectAPI {
   }
 
   static fetchConvertProjectIfOld({ queryKey }) {
-    const project_id = queryKey[1].project_id;
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/convert_if_old`;
     return new Promise((resolve, reject) => {
       axios
