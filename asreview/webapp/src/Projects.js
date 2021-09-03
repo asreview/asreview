@@ -7,7 +7,11 @@ import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";
 
-import { DashboardStatsPaper, ImportDialog, QuickTourDialog } from "./Components";
+import {
+  DashboardStatsPaper,
+  ImportDialog,
+  QuickTourDialog,
+} from "./Components";
 
 import { ProjectInfo } from "./PreReviewComponents";
 
