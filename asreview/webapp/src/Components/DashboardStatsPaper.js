@@ -1,4 +1,5 @@
 import React from "react";
+import NumberFormat from "react-number-format";
 import { useQuery } from "react-query";
 import { Grid, Paper, Typography } from "@material-ui/core";
 import {
@@ -65,7 +66,11 @@ const DashboardStatsPaper = (props) => {
               </div>
               <div className="textProjectsInReview">
                 <Typography className={classes.number} variant="h4">
-                  {isFetched && data.n_in_review ? data.n_in_review : 0}
+                  <NumberFormat
+                    value={isFetched && data.n_in_review ? data.n_in_review : 0}
+                    displayType="text"
+                    thousandSeparator
+                  />
                 </Typography>
                 <Typography className={classes.text} variant="body2">
                   Projects in Review
@@ -85,7 +90,11 @@ const DashboardStatsPaper = (props) => {
               </div>
               <div className="textProjectsFinished">
                 <Typography className={classes.number} variant="h4">
-                  {isFetched && data.n_finished ? data.n_finished : 0}
+                  <NumberFormat
+                    value={isFetched && data.n_finished ? data.n_finished : 0}
+                    displayType="text"
+                    thousandSeparator
+                  />
                 </Typography>
                 <Typography className={classes.text} variant="body2">
                   Projects Finished
@@ -105,7 +114,11 @@ const DashboardStatsPaper = (props) => {
               </div>
               <div className="textRecordsReviewed">
                 <Typography className={classes.number} variant="h4">
-                  {isFetched && data.n_reviewed ? data.n_reviewed : 0}
+                  <NumberFormat
+                    value={isFetched && data.n_reviewed ? data.n_reviewed : 0}
+                    displayType="text"
+                    thousandSeparator
+                  />
                 </Typography>
                 <Typography className={classes.text} variant="body2">
                   Records Reviewed
@@ -125,7 +138,11 @@ const DashboardStatsPaper = (props) => {
               </div>
               <div className="textRelevantRecords">
                 <Typography className={classes.number} variant="h4">
-                  {isFetched && data.n_included ? data.n_included : 0}
+                  <NumberFormat
+                    value={isFetched && data.n_included ? data.n_included : 0}
+                    displayType="text"
+                    thousandSeparator
+                  />
                 </Typography>
                 <Typography className={classes.text} variant="body2">
                   Relevant Records
