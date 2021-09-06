@@ -204,7 +204,7 @@ Adding a legend to the plot.
 
     my_plot.set_legend()
 
-Adding a wss or rrf line to the plot. Only available for inclusion-type plots.
+Add the Work Saved over Sampling (WSS) or Relevant References Found (RRF) line to the plot. Only available for inclusion-type plots (`plot_type="inclusion"`).
 
 .. code:: python
 
