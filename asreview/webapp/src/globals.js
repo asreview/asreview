@@ -23,8 +23,8 @@ export const defaultAlgorithms = {
   feature_extraction: "tfidf",
 };
 
-// review drawer configs
-export const statsSheetWidth = 250;
+// drawer configs
+export const drawerWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
