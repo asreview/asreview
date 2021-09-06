@@ -155,7 +155,7 @@ build-in API.
 Setting up a plot
 ~~~~~~~~~~~~~~~~~
 
-To set up a plot for a regerated h5 file (e.g. myreview.h5), this 
+To set up a plot for a generated HDF5 file (e.g. myreview.h5), this 
 code can be used:
 
 .. code:: python
