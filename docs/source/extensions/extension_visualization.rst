@@ -72,7 +72,8 @@ them expressed in absolute numbers:
 
     asreview plot ace ptsd --absolute-values
 
-Since version 0.15, you can plot project files (exported from asreview lab) as well. Use the following code:
+Since version 0.15, you can plot project files (exported from asreview lab)
+ as well. Use the following code:
 
 .. code:: bash
 
@@ -152,8 +153,8 @@ To make use of the more advanced features and/or incorporate plotting
 into code, you can use the visualization package as a library using the 
 build-in API.
 
-Setting up a plot
-~~~~~~~~~~~~~~~~~
+Basic usage
+~~~~~~~~~~~
 
 To set up a plot for a generated HDF5 file (e.g. myreview.h5), this 
 code can be used:
@@ -181,8 +182,8 @@ Multiple plots can be generated at the same time by adding the files to an array
     Can be set to "number" for absolute values or "percentage" (default) for percentages.
 
 
-Adding plot features
-~~~~~~~~~~~~~~~~~~~~
+Advanced usage
+~~~~~~~~~~~~~~
 
 Adding a grid to the plot.
 
