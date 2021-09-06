@@ -42,7 +42,7 @@ classifiers, query strategies, balance strategies, and feature extraction techni
 
 A template for creating your own ASReview extension can be found here: `Template <https://github.com/asreview/template-extension-new-model>`__.
 
-The following extensions are developed and currently maintained by the ASReview community:
+The following extensions are developed and maintained by the ASReview community:
 
 * ASReview CNN classifier 
     - This repository contains a extention for ASReview logo. This plugin adds a convolutional neural network (CNN) model, that has been shown to outperform classical algorithms.
