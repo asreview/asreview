@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import clsx from "clsx";
 import { Backdrop, Box, Container, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
@@ -13,10 +14,26 @@ import { ImportDialog, QuickTourDialog } from "./Components";
 import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
+import { drawerWidth } from "./globals.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: "24px",
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerWidth,
   },
   fab: {
     position: "fixed",
@@ -116,7 +133,11 @@ const Projects = (props) => {
   };
 
   return (
-    <Box>
+    <Box
+      className={clsx(classes.content, {
+        [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
+      })}
+    >
       <Container maxWidth="md" className={classes.root}>
         <ProjectStatusGraphic projects={projects} />
       </Container>
@@ -149,6 +170,8 @@ const Projects = (props) => {
             <ProjectTable
               projects={projects}
               handleAppState={props.handleAppState}
+              onNavDrawer={props.onNavDrawer}
+              toggleNavDrawer={props.toggleNavDrawer}
             />
           )}
       </Container>
@@ -174,7 +197,7 @@ const Projects = (props) => {
       <SpeedDial
         ariaLabel="add"
         className={classes.fab}
-        FabProps={{ color: "secondary" }}
+        FabProps={{ color: "primary" }}
         icon={<SpeedDialIcon />}
         onClose={handleClose}
         onOpen={handleOpen}

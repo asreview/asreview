@@ -11,7 +11,6 @@ import { ReviewZoneComplete } from "./PostReviewComponents";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
 import HelpDialog from "./HelpDialog";
-import ExitDialog from "./ExitDialog";
 import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
@@ -49,7 +48,6 @@ const App = (props) => {
   // Dialog state
   const [settings, setSettings] = useToggle();
   const [help, setHelp] = useToggle();
-  const [exit, setExit] = useToggle();
   const [exportResult, setExportResult] = useToggle();
   const [history, setHistory] = useToggle();
   const [review, setReview] = useToggle();
@@ -61,7 +59,12 @@ const App = (props) => {
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const muiTheme = createMuiTheme(theme);
-  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"));
+  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"), {
+    noSsr: true,
+  });
+
+  // Navigation drawer state
+  const [navDrawer, setNavDrawer] = useToggle(mobileScreen ? false : true);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -70,15 +73,22 @@ const App = (props) => {
         {props.app_state === "boot" && <WelcomeScreen />}
         {props.app_state !== "boot" && (
           <Header
-            /* Handle the app review drawer */
+            handleAppState={props.setAppState}
+            mobileScreen={mobileScreen}
+            onNavDrawer={navDrawer}
+            toggleNavDrawer={setNavDrawer}
             toggleSettings={setSettings}
             toggleHelp={setHelp}
-            toggleExit={setExit}
           />
         )}
 
         {props.app_state === "projects" && (
-          <Projects handleAppState={props.setAppState} />
+          <Projects
+            handleAppState={props.setAppState}
+            mobileScreen={mobileScreen}
+            onNavDrawer={navDrawer}
+            toggleNavDrawer={setNavDrawer}
+          />
         )}
 
         {props.app_state === "project-page" && (
@@ -143,7 +153,6 @@ const App = (props) => {
           onHelp={help}
           toggleHelp={setHelp}
         />
-        <ExitDialog toggleExit={setExit} exit={exit} />
         <ExportDialog
           toggleExportResult={setExportResult}
           exportResult={exportResult}

@@ -1,25 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
+import { connect } from "react-redux";
+import { AppBar, Button, Toolbar, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { AppBar, Toolbar, Typography, IconButton } from "@material-ui/core";
 import { Menu } from "@material-ui/icons";
 
-import { MenuDrawer } from "../Components";
-
-import { connect } from "react-redux";
+import { NavigationDrawer } from "../Components";
+import ASReviewLogo from "../images/Wordmark_LAB_colour.svg";
 
 const useStyles = makeStyles((theme) => ({
-  menuButton: {
-    marginRight: 10,
+  root: {
+    display: "flex",
   },
   appBar: {
-    flexGrow: 1,
+    zIndex: theme.zIndex.drawer + 1,
   },
-  appTitle: {
-    flexGrow: 1,
+  menuButton: {
+    marginRight: 4,
   },
-  menuTitle: {
-    marginLeft: 15,
-    marginTop: 15,
+  logo: {
+    width: 130,
   },
 }));
 
@@ -32,58 +31,40 @@ const mapStateToProps = (state) => {
 const Header = (props) => {
   const classes = useStyles();
 
-  const [state, setState] = useState({
-    left: false,
-    // right: false
-  });
-
-  const toggleDrawer = (side, isOpen) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
-    setState({ ...state, [side]: isOpen });
-  };
-
   return (
-    <div className={classes.appBar}>
-      <AppBar position="fixed">
+    <div className={classes.root}>
+      <AppBar color="inherit" position="fixed" className={classes.appBar}>
         <Toolbar>
           <IconButton
             className={classes.menuButton}
             edge="start"
             color="inherit"
-            onClick={toggleDrawer("left", true)}
+            onClick={props.toggleNavDrawer}
           >
             <Menu />
           </IconButton>
-
-          {/*
-          <ElasIcon/>
-          <Typography
-            variant="h5"
-            color="inherit"
-            className={classes.appTitle}
-          >
-             ASReview
-          </Typography>
-        */}
-
-          <Typography variant="h5" color="inherit" className={classes.appTitle}>
-            {props.app_state === "project-page" && "Project Dashboard"}
-          </Typography>
+          <Button disableRipple style={{ backgroundColor: "transparent" }}>
+            <img
+              className={classes.logo}
+              src={ASReviewLogo}
+              alt="ASReview LAB Dashboard"
+              onClick={() => {
+                props.handleAppState("projects");
+                if (!props.mobileScreen && props.app_state !== "projects") {
+                  props.toggleNavDrawer();
+                }
+              }}
+            />
+          </Button>
         </Toolbar>
       </AppBar>
       <Toolbar />
-      <MenuDrawer
-        state={state}
-        setMenuDrawerState={setState}
-        toggleDrawer={toggleDrawer}
+      <NavigationDrawer
+        mobileScreen={props.mobileScreen}
+        onNavDrawer={props.onNavDrawer}
+        toggleNavDrawer={props.toggleNavDrawer}
         toggleSettings={props.toggleSettings}
         toggleHelp={props.toggleHelp}
-        toggleExit={props.toggleExit}
       />
     </div>
   );
