@@ -40,7 +40,7 @@ ASReview has support for community-maintained extensions, that enable you to see
 your code with the ASReview framework. These extensions can extend the software with new 
 classifiers, query strategies, balance strategies, and feature extraction techniques.
 
-A template for creating your own ASReview extension can be found here: `Template <https://github.com/asreview/template-extension-new-model>`__.
+A template for creating an ASReview extension can be found here: `Template <https://github.com/asreview/template-extension-new-model>`__.
 
 The following extensions are developed and maintained by the ASReview community:
 
