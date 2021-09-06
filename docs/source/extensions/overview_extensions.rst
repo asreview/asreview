@@ -37,7 +37,7 @@ Community-maintained extensions
 -------------------------------
 
 ASReview has support for community-maintained extensions, that enable you to seemlessly integrate 
-your own code with the ASReview framework. These extensions can extend the software with new 
+your code with the ASReview framework. These extensions can extend the software with new 
 classifiers, query strategies, balance strategies, and feature extraction techniques.
 
 A template for creating your own ASReview extension can be found here: `Template <https://github.com/asreview/template-extension-new-model>`__.
