@@ -72,6 +72,11 @@ def init_project(project_id,
             and len(project_id) >= 3:
         raise ValueError("Project name should be at least 3 characters.")
 
+    if isinstance(project_id, str) and not project_id[0].isalnum():
+        raise ValueError(
+            "First character should be alphabet"
+            " letter (a-z) or number (0-9).")
+
     if is_project(project_id):
         raise ValueError("Project name already exists.")
 
