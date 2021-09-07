@@ -60,10 +60,7 @@ Query
 .. autoclass:: asreview.models.query.ClusterQuery
    :members:
    :inherited-members:
-.. autoclass:: asreview.models.query.MaxRandomQuery
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.query.MaxUncertaintyQuery
+.. autoclass:: asreview.models.query.MixedQuery
    :members:
    :inherited-members:
 .. autofunction:: asreview.models.query.list_query_strategies
@@ -120,6 +117,8 @@ Data
 
 .. autoclass:: asreview.ASReviewData
 	:members:
+   .. attribute::
+      
 
 Utils
 -----

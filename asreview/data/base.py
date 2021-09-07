@@ -46,6 +46,34 @@ class ASReviewData():
         Specification for which column corresponds to which standard
         specification. Key is the standard specification, key is which column
         it is actually in.
+
+    Attributes
+    ----------
+    record_ids: numpy.ndarray
+        Return an array representing the data in the Index.
+    texts: numpy.ndarray
+        Returns an array with either headings, bodies, or both.
+    headings: numpy.ndarray
+        Returns an array with dataset headings.
+    title: numpy.ndarray
+        Identical to headings.
+    bodies: numpy.ndarray
+        Returns an array with dataset bodies.
+    abstract: numpy.ndarray
+        Identical to bodies.
+    keywords: numpy.ndarray
+        Returns an array with dataset keywords.
+    authors: numpy.ndarray
+        Returns an array with dataset authors.
+    doi: numpy.ndarray
+        Returns an array with dataset DOI.
+    included: numpy.ndarray
+        Returns an array with document inclusion markers.
+    final_included: numpy.ndarray
+        Pending deprecation! Returns an array with document inclusion markers.
+    labels: numpy.ndarray
+        Identical to included.
+        
     """
 
     def __init__(self,
