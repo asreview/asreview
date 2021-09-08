@@ -174,11 +174,6 @@ Multiple plots can be generated at the same time by adding the state files to
 a list; ["myreview.h5", "myreview_2.h5"].
 
 
-.. option:: result_format="plot_format"
-
-    Can be set to "number" for absolute values or "percentage" (default) for percentages.
-
-
 API Advanced usage
 ~~~~~~~~~~~~~~~~~~
 
