@@ -117,7 +117,6 @@ Data
 
 .. autoclass:: asreview.ASReviewData
 	:members:
-   .. attribute::
       
 
 Utils
