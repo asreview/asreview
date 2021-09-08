@@ -28,6 +28,7 @@ of the core project:
 - `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__: 
   Tool to give some basic properties of a dataset, such as number of papers, 
   number of inclusions. 
+
 .. - `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: This extension adds two feature extractors that extract vocabulary and vector matrices during simulation phases.
 .. - ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
 
