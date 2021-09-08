@@ -194,7 +194,6 @@ def test_classifiers():
     assert len(list_classifiers()) >= 7
 
 
-
 def check_label_methods(label_methods, n_labels, methods):
     assert len(label_methods) == n_labels
     for method in label_methods:
