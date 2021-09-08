@@ -215,11 +215,6 @@ def get_reviewer(dataset,
         train_model.embedding_matrix = feature_model.get_embedding_matrix(
             texts, embedding_fp)
 
-    # continue with partly labeled dataset when in simulation mode.
-    if mode == "simulate":
-        labels = as_data.labels
-        labeled_idx = np.where((labels == 0) | (labels == 1))[0]
-
     # prior knowledge
     if prior_idx is not None and prior_record_id is not None and \
             len(prior_idx) > 0 and len(prior_record_id) > 0:
