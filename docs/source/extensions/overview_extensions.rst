@@ -28,9 +28,12 @@ of the core project:
 - `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__: 
   Tool to give some basic properties of a dataset, such as number of papers, 
   number of inclusions. 
-
-.. - `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: This extension adds two feature extractors that extract vocabulary and vector matrices during simulation phases.
-.. - ``asreview-hyperopt``: Optimize the hyperparameters of the models in ASReview. `GitHub <https://github.com/asreview/asreview-hyperopt>`__
+- `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: 
+  This extension adds two feature extractors that extract vocabulary and 
+  vector matrices during simulation phases. Might one day be integrated to the 
+  core.
+- `ASReview-hyperopt <https://github.com/asreview/asreview-hyperopt>`__: 
+  Optimize the hyperparameters of the models in ASReview.
 
 
 
@@ -55,6 +58,15 @@ The following extensions are developed and maintained by the ASReview community:
       runtime. It can be useful for when later stages of data classification 
       require different models.
     - `Github <https://github.com/JTeijema/asreview-plugin-model-switcher>`__
+
+* ASReview NB + CNN classifier with HPO
+    - This extension adds a model consisting out of two seperate classifiers 
+      for use during simulation mode. The first *X* amount of iterations 
+      (default = 500) are run with a Naïve Bayes model. After the switchpoint,
+      a switch to a CNN is made. Immediately at this switching point, and 
+      then after each 150 iterations, hyperparameter optimisation is conducted 
+      to find the most suitable CNN architecture for current iteration.
+    - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__ 
 
 
 If an extension is not on this list, or you made one and you would like it to 
