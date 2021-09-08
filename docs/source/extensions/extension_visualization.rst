@@ -165,10 +165,10 @@ code can be used:
     from asreviewcontrib.visualization.plot import Plot
 
     with Plot.from_paths(["myreview.h5"]) as plot:
-        my_plot = plot.new(plot_type="type")
+        my_plot = plot.new(plot_type="INSERT_PLOT_TYPE")
         inc_plot.show()
 
-*type* must be set to one or more of the available plot type; *inclusion*, *discovery*, *limit*, *progression*.
+`INSERT_PLOT_TYPE` must be set to one or more of the available plot type; *inclusion*, *discovery*, *limit*, *progression*.
 
 Multiple plots can be generated at the same time by adding the state files to 
 a list; ["myreview.h5", "myreview_2.h5"].
