@@ -62,13 +62,11 @@ The following extensions are developed and maintained by the ASReview community:
 * ASReview NB + CNN classifier with HPO
     - This extension adds a model consisting out of two seperate classifiers 
       for use during simulation mode. The first *X* amount of iterations 
-      (default = 500) are run with a Naïve Bayes model. After the switchpoint 
-      of 500 iterations, a switch to a CNN is made. Immediately at this 
-      switching point, and subsequently after each 150 iterations, 
-      hyperparamater optimisation is conducted in order to find the most 
-      suitable CNN architecture for the specific amount of data that is being 
-      utilised at that moment.
-    - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__
+      (default = 500) are run with a Naïve Bayes model. After the switchpoint,
+      a switch to a CNN is made. Immediately at this switching point, and 
+      then after each 150 iterations, hyperparameter optimisation is conducted 
+      to find the most suitable CNN architecture for current iteration.
+    - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__ 
 
 
 If an extension is not on this list, or you made one and you would like it to 
