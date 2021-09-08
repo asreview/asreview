@@ -228,13 +228,13 @@ Save the plot to the disk.
     my_plot.save("myreview_plot.png")
 
 To change the plot from relative to absolute values, an argument can be added 
-to the plot the following way. ``result_format`` can be set to "number" for 
+to the plot the following way. ``INSERT_RESULT_FORMAT`` can be set to "number" for 
 absolute values or "percentage" (default) for percentages.
 
 .. code:: python
 
     with Plot.from_paths(["myreview.h5"]) as plot:
-        my_plot = plot.new(plot_type="type", result_format="plot_format")
+        my_plot = plot.new(plot_type="type", result_format="INSERT_RESULT_FORMAT")
 
 
 Examples using the API can be found in module :code:`asreviewcontrib.visualization.quick`.
