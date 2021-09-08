@@ -103,28 +103,6 @@ class ASReviewData():
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
 
-    def slice(self, idx, by_index=True):
-        """Create a slice from itself.
-
-        Useful if some parts should be kept/thrown away.
-
-        Arguments
-        ---------
-        idx: list, numpy.ndarray
-            Record ids that should be kept.
-
-        Returns
-        -------
-        ASReviewData
-            Slice of itself.
-        """
-        if self.df is None:
-            raise ValueError("Cannot slice empty ASReviewData object.")
-
-        if by_index:
-            return ASReviewData(self.df.iloc[idx], data_name="sliced")
-        return ASReviewData(self.df.loc[idx, :], data_name="sliced")
-
     def append(self, as_data):
         """Append another ASReviewData object.
 
