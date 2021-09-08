@@ -73,7 +73,7 @@ class ASReviewData():
         Pending deprecation! Returns an array with document inclusion markers.
     labels: numpy.ndarray
         Identical to included.
-        
+
     """
 
     def __init__(self,
