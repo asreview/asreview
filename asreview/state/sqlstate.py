@@ -73,8 +73,6 @@ class SqlStateV1(BaseState):
 
     # TODO(State): Implement undo feature.
 
-    version = "1.0"
-
     def __init__(self, read_only=True):
         super(SqlStateV1, self).__init__(read_only=read_only)
 
@@ -196,7 +194,7 @@ class SqlStateV1(BaseState):
         # content of the settings is added later
         self.settings_metadata = {
             "settings": None,
-            "state_version": self.version,
+            "state_version": "1",
             "software_version": asreview_version
         }
 
@@ -283,7 +281,7 @@ class SqlStateV1(BaseState):
 
     def _is_valid_version(self):
         """Check compatibility of state version."""
-        return self.version[0] == LATEST_SQLSTATE_VERSION[0]
+        return self.version[0] == "1"
 
     @property
     def version(self):
