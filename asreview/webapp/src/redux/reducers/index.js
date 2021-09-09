@@ -2,12 +2,14 @@ import {
   SET_ASREVIEW_VERSION,
   SET_PROJECT,
   SET_APP_STATE,
+  TOGGLE_HELP_DIALOG,
 } from "../../constants/action-types";
 
 const initialState = {
   asreview_version: undefined,
   app_state: "boot",
   project_id: null,
+  onHelpDialog: false,
 };
 
 function rootReducer(state = initialState, action) {
@@ -31,6 +33,10 @@ function rootReducer(state = initialState, action) {
           app_state: action.app_state,
         });
       }
+    case TOGGLE_HELP_DIALOG:
+      return Object.assign({}, state, {
+        onHelpDialog: !state.onHelpDialog,
+      });
 
     default:
       return state;
