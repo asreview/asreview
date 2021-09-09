@@ -72,7 +72,9 @@ them expressed in absolute numbers:
 
     asreview plot ace ptsd --absolute-values
 
-Since version 0.15, you can plot project files (exported from asreview lab) as well. Use the following code:
+
+Since version 0.15, you can plot project files (exported from asreview lab) as 
+well. Use the following code:
 
 .. code:: bash
 
@@ -81,7 +83,7 @@ Since version 0.15, you can plot project files (exported from asreview lab) as w
 Plot types
 ----------
 
-There are currently four plot types implemented: *inclusion*,
+There are four plot types implemented: *inclusion*,
 *discovery*, *limit*, *progression*. They can be individually selected
 with the ``-t`` or ``--type`` switch. Multiple plots can be made by
 using ``,`` as a separator:
@@ -144,30 +146,95 @@ smoothing algorithm.
 .. figure:: https://raw.githubusercontent.com/asreview/asreview-visualization/master/docs/progression.png
    :alt: Progression
 
-API
----
 
-To make use of the more advanced features, you can also use the
-visualization package as a library. The advantage is that you can make
-more reproducible plots where text, etc. is in the place *you* want it.
-Examples can be found in module ``asreviewcontrib.visualization.quick``.
-Those are the scripts that are used for the command line interface.
+Plotting API
+------------
+
+To make use of the more advanced features and/or incorporate plotting 
+into code, you can use the visualization package as a library using the 
+build-in API.
+
+API basic usage
+~~~~~~~~~~~~~~~
+
+To set up a plot for a generated HDF5 file (e.g. myreview.h5), this 
+code can be used:
 
 .. code:: python
 
     from asreviewcontrib.visualization.plot import Plot
 
-    with Plot.from_paths(["PATH_1", "PATH_2"]) as plot:
-        inc_plot = plot.new("inclusion")
-        inc_plot.set_grid()
-        inc_plot.set_xlim(0, 30)
-        inc_plot.set_ylim(0, 101)
-        inc_plot.set_legend()
+    with Plot.from_paths(["myreview.h5"]) as plot:
+        my_plot = plot.new(plot_type="INSERT_PLOT_TYPE")
         inc_plot.show()
-        inc_plot.save("SOME_FILE.png")
 
-Of course fill in ``PATH_1`` and ``PATH_2`` as the files you would like
-to plot.
+`INSERT_PLOT_TYPE` must be set to one or more of the available plot type; *inclusion*, *discovery*, *limit*, *progression*.
 
-If the customization is not sufficient, you can also directly manipulate
-the ``self.ax`` and ``self.fig`` attributes of the plotting class.
+Multiple plots can be generated at the same time by adding the state files to 
+a list; ["myreview.h5", "myreview_2.h5"].
+
+
+API Advanced usage
+~~~~~~~~~~~~~~~~~~
+
+Add a grid to the plot.
+
+.. code:: python
+
+    my_plot.set_grid()
+
+
+Add limits to the plot.
+
+.. code:: python
+
+    my_plot.set_xlim('lowerlimit', 'upperlimit')
+    my_plot.set_ylim('lowerlimit', 'upperlimit')
+
+Add a legend to the plot.
+
+.. code:: python
+
+    my_plot.set_legend()
+
+Add the Work Saved over Sampling (WSS) or Relevant References Found (RRF) line 
+to the plot. Only available for inclusion-type plots (``plot_type="inclusion"``).
+
+The percentage value used for the WSS and RRF metric can be set to any number 
+from 0 to 100 (currently set to 95 and 10).
+
+.. code:: python
+
+    all_files = all(plot.is_file.values())
+
+    for key in list(plot.analyses):
+        if all_files or not plot.is_file[key]:
+            inc_plot.add_wss(
+                key, 95, add_text=show_metric_labels, add_value=True, add_text=True)
+            inc_plot.add_rrf(
+                key, 10, add_text=show_metric_labels, add_value=True, add_text=True)
+    
+Add the random line to the plot. This dashed grey diagonal line corresponds to 
+the expected recall curve when publications are screened in random order.
+
+.. code:: python
+
+    my_plot.add_random(add_text=False)
+
+Save the plot to the disk.
+
+.. code:: python
+
+    my_plot.save("myreview_plot.png")
+
+To change the plot from relative to absolute values, an argument can be added 
+to the plot the following way. ``INSERT_RESULT_FORMAT`` can be set to "number" for 
+absolute values or "percentage" (default) for percentages.
+
+.. code:: python
+
+    with Plot.from_paths(["myreview.h5"]) as plot:
+        my_plot = plot.new(plot_type="type", result_format="INSERT_RESULT_FORMAT")
+
+
+Examples using the API can be found in module :code:`asreviewcontrib.visualization.quick`.
