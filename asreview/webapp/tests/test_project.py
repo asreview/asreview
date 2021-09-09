@@ -17,7 +17,6 @@ import pytest
 from io import BytesIO
 from urllib.request import urlopen
 
-from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.webapp.tests.utils import retrieve_project_url_github
 
 
@@ -47,20 +46,12 @@ def test_project_file(tmp_path, client, url):
     json_data_import = response_import.get_json()
     assert response_import.status_code == 200
 
-    # Project file path
     project_id = json_data_import["id"]
-    project_fp = os.environ["ASREVIEW_PATH"] + f"/{project_id}"
-
-    # Convert old state file if necessary
-    try:
-        upgrade_asreview_project_file(
-            project_fp, from_version=0, to_version=1
-        )
-    except ValueError:
-        pass
-
-    # api url
     api_url = f"/api/project/{project_id}"
+
+    # Test convert project if old
+    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
+    assert response_convert_if_old.status_code == 200
 
     # Test get projects
     response_projects = client.get("/api/projects")

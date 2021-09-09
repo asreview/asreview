@@ -1,6 +1,7 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
+import Confetti from "react-confetti";
+import { connect } from "react-redux";
+// import useWindowSize from 'react-use/lib/useWindowSize'
 import {
   Box,
   Button,
@@ -11,20 +12,18 @@ import {
   Dialog,
   Typography,
 } from "@material-ui/core";
-
 import { brown } from "@material-ui/core/colors";
+import { makeStyles } from "@material-ui/core/styles";
 
-// import useWindowSize from 'react-use/lib/useWindowSize'
-import Confetti from "react-confetti";
+import { ProjectModeSelect } from "../PreReviewComponents";
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
-
-import { setProject } from "../redux/actions";
-
-import { connect } from "react-redux";
-import { mapStateToProps, projectModes } from "../globals.js";
-import ProjectModeSelect from "./ProjectModeSelect";
+import {
+  mapStateToProps,
+  mapDispatchToProps,
+  projectModes,
+} from "../globals.js";
 
 import "./ReviewZone.css";
 
@@ -63,14 +62,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey[500],
   },
 }));
-
-function mapDispatchToProps(dispatch) {
-  return {
-    setProjectId: (project_id) => {
-      dispatch(setProject(project_id));
-    },
-  };
-}
 
 const ProjectInit = (props) => {
   const classes = useStyles();
@@ -125,9 +116,7 @@ const ProjectInit = (props) => {
     if (props.edit) {
       ProjectAPI.info(props.project_id, true, bodyFormData)
         .then((result) => {
-          // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
-          // set editing state to false
           props.onClose();
           props.reloadProjectInfo();
         })
@@ -141,10 +130,7 @@ const ProjectInit = (props) => {
       // dialog is open in init mode
       ProjectAPI.init(bodyFormData)
         .then((result) => {
-          // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
-          // set newProject state to false
-          props.onClose();
           props.handleAppState("project-page");
         })
         .catch((error) => {

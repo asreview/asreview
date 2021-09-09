@@ -66,6 +66,7 @@ from asreview.state.paths import get_tmp_path
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_settings_metadata_path
+from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.errors import StateNotFoundError
 from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
@@ -183,6 +184,28 @@ def api_init_project():  # noqa: F401
     response = jsonify(project_config)
 
     return response, 201
+
+
+@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
+def api_convert_project_if_old(project_id):
+    """Get if project is converted"""
+
+    project_path = get_project_path(project_id)
+
+    try:
+        upgrade_asreview_project_file(project_path)
+
+    except ValueError:
+        pass
+
+    except Exception as err:
+        logging.error(err)
+        message = "Failed to open the project in this version of ASReview LAB."
+        return jsonify(message=message), 500
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @bp.route('/project/<project_id>/info', methods=["GET"])
