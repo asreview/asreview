@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppBar, Button, Toolbar, IconButton } from "@material-ui/core";
+import { AppBar, ButtonBase, Toolbar, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Menu } from "@material-ui/icons";
 
@@ -43,7 +43,7 @@ const Header = (props) => {
           >
             <Menu />
           </IconButton>
-          <Button disableRipple style={{ backgroundColor: "transparent" }}>
+          <ButtonBase disableRipple>
             <img
               className={classes.logo}
               src={ASReviewLogo}
@@ -55,7 +55,7 @@ const Header = (props) => {
                 }
               }}
             />
-          </Button>
+          </ButtonBase>
         </Toolbar>
       </AppBar>
       <Toolbar />
