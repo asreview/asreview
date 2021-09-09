@@ -72,6 +72,8 @@ from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
+from asreview.webapp.utils.project import add_simulation_to_project
+from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import add_review_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
@@ -173,7 +175,7 @@ def api_init_project():  # noqa: F401
     project_description = request.form['description']
     project_authors = request.form['authors']
 
-    project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+    project_id = create_project_id(project_name)
 
     project_config = init_project(project_id,
                                   project_mode=project_mode,
