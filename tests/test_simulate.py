@@ -58,8 +58,8 @@ def test_n_prior_included(tmpdir):
     with open_state(project_path) as state:
         result = state.get_dataset(['labels', 'query_strategies'])
 
-    prior_included = result['labels'] & \
-                     (result['query_strategies'] == 'initial')
+    prior_included = \
+        result['labels'] & (result['query_strategies'] == 'initial')
     assert sum(prior_included) == 2
 
     with open(get_settings_metadata_path(project_path), 'r') as f:
@@ -77,8 +77,8 @@ def test_n_prior_excluded(tmpdir):
     with open_state(project_path) as state:
         result = state.get_dataset(['labels', 'query_strategies'])
 
-    prior_excluded = ~result['labels'] & \
-                     (result['query_strategies'] == 'initial')
+    prior_excluded = \
+        ~result['labels'] & (result['query_strategies'] == 'initial')
     assert sum(prior_excluded) == 2
 
     with open(get_settings_metadata_path(project_path), 'r') as f:
