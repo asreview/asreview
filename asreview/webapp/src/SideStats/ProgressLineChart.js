@@ -34,7 +34,12 @@ const ProgressLineChart = (props) => {
     <ResponsiveContainer minHeight={130}>
       <LineChart data={props.efficiency}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="Total" type="number" domain={[1, "dataMax"]} />
+        <XAxis
+          dataKey="Total"
+          type="number"
+          domain={[1, "dataMax"]}
+          allowDecimals={false}
+        />
         <YAxis domain={[0, "dataMax"]} hide={true} />
         <Tooltip content={<CustomTooltip />} labelStyle={{ color: "black" }} />
         <Line
