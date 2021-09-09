@@ -2,7 +2,7 @@ from shutil import copyfile
 from zipfile import ZipFile
 from pathlib import Path
 
-from asreview.state.sql_converter import convert_asreview
+from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import open_state
 
@@ -69,7 +69,7 @@ def test_converter(tmpdir):
     converted_fp = unzipped_fp
     # -------------------------------------------------
     # Convert the old project file to a new state file.
-    convert_asreview(converted_fp)
+    upgrade_asreview_project_file(converted_fp, from_version=0, to_version=1)
 
     # Check that the contents are the same.
     compare_state_to_converted(converted_fp / 'result.json', converted_fp)

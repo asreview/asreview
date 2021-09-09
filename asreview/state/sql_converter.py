@@ -39,7 +39,7 @@ def is_old_project(fp):
 
 
 # TODO(State): Allow basic/full (i.e. save probabilities).
-def convert_asreview(fp):
+def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     """Convert an old asreview project folder to the new format.
 
     Arguments
@@ -51,6 +51,12 @@ def convert_asreview(fp):
     -------
     Converts the data in the project to the new format
     and adds it to the folder in place."""
+
+    if from_version != 0 and to_version != 1:
+        raise ValueError(
+            f"Not possible to upgrade from {from_version} to {to_version}."
+        )
+
     # Check if it is indeed an old format project.
     is_old_project(fp)
 
