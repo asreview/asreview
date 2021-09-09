@@ -31,23 +31,28 @@ from asreview.state.paths import get_sql_path
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_settings_metadata_path
 from asreview.state.paths import get_project_file_path
-from asreview._version import get_versions
+from asreview import __version__ as asreview_version
 
-RELATIVE_RESULTS_PATH = Path('results.sql')
-RELATIVE_SETTINGS_METADATA_PATH = Path('settings_metadata.json')
-RELATIVE_FEATURE_MATRIX_PATH = Path('feature_matrix.npz')
-LATEST_SQLSTATE_VERSION = "1.0"
-SOFTWARE_VERSION = get_versions()['version']
-REQUIRED_TABLES = ['results', 'record_table', 'last_probabilities']
+RELATIVE_RESULTS_PATH = Path("results.sql")
+RELATIVE_SETTINGS_METADATA_PATH = Path("settings_metadata.json")
+RELATIVE_FEATURE_MATRIX_PATH = Path("feature_matrix.npz")
+
+REQUIRED_TABLES = [
+    # the table with the labeling decisions and models trained
+    "results",
+    # the mapping of record identifiers to row numbers
+    "record_table",
+    # the latest probabilities.
+    "last_probabilities"]
+
 RESULTS_TABLE_COLUMNS = [
-    'record_ids', 'labels', 'classifiers', 'query_strategies',
-    'balance_strategies', 'feature_extraction', 'training_sets',
-    'labeling_times'
+    "record_ids", "labels", "classifiers", "query_strategies",
+    "balance_strategies", "feature_extraction", "training_sets",
+    "labeling_times"
 ]
-SETTINGS_METADATA_KEYS = ['settings', 'state_version', 'software_version']
+SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
 
 
-# TODO(State): Implement undo feature.
 class SqlStateV1(BaseState):
     """Class for storing the review state with HDF5 storage.
 
@@ -55,7 +60,24 @@ class SqlStateV1(BaseState):
     ---------
     read_only: bool
         Open state in read only mode. Default False.
+
+    Attributes
+    ----------
+    settings: asreview.settings.ASReviewSettings
+        Return an ASReview settings object with model settings and
+        active learning settings.
+    n_records_labeled: int
+        Get the number of labeled records, where each prior is counted
+        individually.
+    n_priors: int
+        Number of priors. If priors have not been selected returns None.
+
     """
+
+    # TODO(State): Implement undo feature.
+
+    version = "1.0"
+
     def __init__(self, read_only=True):
         super(SqlStateV1, self).__init__(read_only=read_only)
 
@@ -71,7 +93,7 @@ class SqlStateV1(BaseState):
             The connection is read only if self.read_only is true.
         """
         if self.read_only:
-            con = sqlite3.connect(f'file:{str(self._sql_fp)}?mode=ro',
+            con = sqlite3.connect(f"file:{str(self._sql_fp)}?mode=ro",
                                   uri=True)
         else:
             con = sqlite3.connect(str(self._sql_fp))
@@ -91,30 +113,32 @@ class SqlStateV1(BaseState):
     @property
     def _feature_matrix_fp(self):
         """Path to the .npz file of the feature matrix"""
-        with open(self._settings_metadata_fp, 'r') as f:
-            feature_extraction = json.load(f)['settings']['feature_extraction']
+        with open(self._settings_metadata_fp, "r") as f:
+            feature_extraction = json.load(f)["settings"]["feature_extraction"]
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-    def _add_state_file_to_project(self, review_id,
-                                   start_time=None, review_finished=False):
+    def _add_state_file_to_project(self,
+                                   review_id,
+                                   start_time=None,
+                                   review_finished=False):
 
         if start_time is None:
             start_time = datetime.now()
 
         # Add the review to the project json.
-        with open(get_project_file_path(self.working_dir), 'r') as f:
+        with open(get_project_file_path(self.working_dir), "r") as f:
             project_config = json.load(f)
 
         review_config = {
-            'id': review_id,
-            'start_time': str(start_time),
+            "id": review_id,
+            "start_time": str(start_time),
             "review_finished": review_finished
         }
 
-        project_config['reviews'].append(review_config)
+        project_config["reviews"].append(review_config)
 
-        with open(get_project_file_path(self.working_dir), 'w') as f:
+        with open(get_project_file_path(self.working_dir), "w") as f:
             json.dump(project_config, f)
 
     def _create_new_state_file(self, working_dir, review_id):
@@ -147,7 +171,7 @@ class SqlStateV1(BaseState):
             cur = con.cursor()
 
             # Create the results table.
-            cur.execute('''CREATE TABLE results
+            cur.execute("""CREATE TABLE results
                                 (record_ids INTEGER,
                                 labels INTEGER,
                                 classifiers TEXT,
@@ -155,15 +179,15 @@ class SqlStateV1(BaseState):
                                 balance_strategies TEXT,
                                 feature_extraction TEXT,
                                 training_sets INTEGER,
-                                labeling_times INTEGER)''')
+                                labeling_times INTEGER)""")
 
             # Create the record_ids table.
-            cur.execute('''CREATE TABLE record_table
-                                (record_ids INT)''')
+            cur.execute("""CREATE TABLE record_table
+                                (record_ids INT)""")
 
             # Create the last_probabilities table.
-            cur.execute('''CREATE TABLE last_probabilities
-                                (proba REAL)''')
+            cur.execute("""CREATE TABLE last_probabilities
+                                (proba REAL)""")
 
             con.commit()
             con.close()
@@ -174,12 +198,12 @@ class SqlStateV1(BaseState):
         # Create settings_metadata.json file
         # content of the settings is added later
         self.settings_metadata = {
-            'settings': None,
-            'state_version': LATEST_SQLSTATE_VERSION,
-            'software_version': SOFTWARE_VERSION
+            "settings": None,
+            "state_version": self.version,
+            "software_version": asreview_version
         }
 
-        with open(self._settings_metadata_fp, 'w') as f:
+        with open(self._settings_metadata_fp, "w") as f:
             json.dump(self.settings_metadata, f)
 
         # after succesfull init, add review_id to the project file
@@ -210,7 +234,7 @@ class SqlStateV1(BaseState):
 
         # Cache the settings.
         try:
-            with open(self._settings_metadata_fp, 'r') as f:
+            with open(self._settings_metadata_fp, "r") as f:
                 self.settings_metadata = json.load(f)
         except FileNotFoundError:
             raise AttributeError(
@@ -238,7 +262,7 @@ class SqlStateV1(BaseState):
         for table in REQUIRED_TABLES:
             if table not in table_names:
                 raise StateError(
-                    f'The sql file should contain a table named "{table}".')
+                    f"The sql file should contain a table named '{table}'.")
 
         # Check if all required columns are present in results.
         column_names = cur.execute("PRAGMA table_info(results)").fetchall()
@@ -246,14 +270,14 @@ class SqlStateV1(BaseState):
         for column in RESULTS_TABLE_COLUMNS:
             if column not in column_names:
                 raise StateError(
-                    f'The results table does not contain the column {column}.')
+                    f"The results table does not contain the column {column}.")
 
         # Check settings_metadata contains the required keys.
         settings_metadata_keys = self.settings_metadata.keys()
         for key in SETTINGS_METADATA_KEYS:
             if key not in settings_metadata_keys:
                 raise StateError(
-                    f'The key {key} was not found in settings_metadata.')
+                    f"The key {key} was not found in settings_metadata.")
 
     def close(self):
         pass
@@ -266,9 +290,16 @@ class SqlStateV1(BaseState):
 
     @property
     def version(self):
-        """Version number of the state file."""
+        """Version number of the state file.
+
+        Returns
+        -------
+        str:
+            Returns the version of the state file.
+
+        """
         try:
-            return self.settings_metadata['state_version']
+            return self.settings_metadata["state_version"]
         except KeyError:
             raise AttributeError(
                 "'settings_metadata.json' does not contain 'state_version'.")
@@ -310,7 +341,7 @@ class SqlStateV1(BaseState):
     @settings.setter
     def settings(self, settings):
         if isinstance(settings, ASReviewSettings):
-            self._add_settings_metadata('settings', settings.to_dict())
+            self._add_settings_metadata("settings", settings.to_dict())
         else:
             raise ValueError(
                 "'settings' should be an ASReviewSettings object.")
@@ -336,12 +367,11 @@ class SqlStateV1(BaseState):
             str(key): value
             for key, value in current_queries.items()
         }
-        self._add_settings_metadata('current_queries', str_queries)
+        self._add_settings_metadata("current_queries", str_queries)
 
     @property
     def n_records_labeled(self):
-        """Get the number of labeled records, where each prior is counted
-        individually."""
+
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM results")
@@ -351,13 +381,6 @@ class SqlStateV1(BaseState):
 
     @property
     def n_priors(self):
-        """Get the number of samples in the prior information.
-
-        Returns
-        -------
-        int:
-            Number of priors. If priors have not been selected returns None.
-        """
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute(
@@ -377,7 +400,7 @@ class SqlStateV1(BaseState):
         # TODO(State): Should this always be .npz?
         feature_matrix_filename = f'{feature_extraction}_feature_matrix.npz'
 
-        with open(get_project_file_path(self.working_dir), 'r') as f:
+        with open(get_project_file_path(self.working_dir), "r") as f:
             project_config = json.load(f)
 
         # Update the feature matrices section.
@@ -390,7 +413,7 @@ class SqlStateV1(BaseState):
                 feature_matrix_filename
             })
 
-        with open(get_project_file_path(self.working_dir), 'w') as f:
+        with open(get_project_file_path(self.working_dir), "w") as f:
             json.dump(project_config, f)
 
     def _add_settings_metadata(self, key, value):
@@ -404,7 +427,7 @@ class SqlStateV1(BaseState):
             self._update_project_with_feature_extraction(
                 value['feature_extraction'])
 
-        with open(self._settings_metadata_fp, 'w') as f:
+        with open(self._settings_metadata_fp, "w") as f:
             json.dump(self.settings_metadata, f)
 
     def add_record_table(self, record_ids):
@@ -441,6 +464,17 @@ class SqlStateV1(BaseState):
         con.commit()
 
     def add_feature_matrix(self, feature_matrix):
+        """Add feature matrix to project file.
+
+        Feature matrices are stored in the project file. See
+        asreview.state.SqlStateV1._feature_matrix_fp for the file
+        location.
+
+        Arguments
+        ---------
+        feature_matrix: numpy.ndarray, scipy.sparse.csr.csr_matrix
+            The feature matrix to add to the project file.
+        """
         # Make sure the feature matrix is in csr format.
         if isinstance(feature_matrix, np.ndarray):
             feature_matrix = csr_matrix(feature_matrix)
@@ -452,14 +486,23 @@ class SqlStateV1(BaseState):
         save_npz(self._feature_matrix_fp, feature_matrix)
 
     def get_feature_matrix(self):
+        """Get the feature matrix from the project file.
+
+        Returns
+        -------
+        numpy.ndarray:
+            Returns the feature matrix.
+        """
         return load_npz(self._feature_matrix_fp)
 
-# TODO (State): Add custom datasets.
-# TODO (State): Add models being trained.
     def add_labeling_data(self, record_ids, labels, classifiers,
                           query_strategies, balance_strategies,
                           feature_extraction, training_sets):
         """Add all the data of one labeling action."""
+
+        # TODO (State): Add custom datasets.
+        # TODO (State): Add models being trained.
+
         # Check if the state is still valid.
         self._is_valid_state()
 
