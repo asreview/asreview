@@ -23,6 +23,7 @@ from scipy.sparse.csr import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
+from asreview import __version__ as asreview_version
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateNotFoundError
@@ -31,11 +32,7 @@ from asreview.state.paths import get_sql_path
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_settings_metadata_path
 from asreview.state.paths import get_project_file_path
-from asreview import __version__ as asreview_version
 
-RELATIVE_RESULTS_PATH = Path("results.sql")
-RELATIVE_SETTINGS_METADATA_PATH = Path("settings_metadata.json")
-RELATIVE_FEATURE_MATRIX_PATH = Path("feature_matrix.npz")
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
