@@ -34,7 +34,7 @@ def test_init_project(tmp_path, client):
     os.environ["ASREVIEW_PATH"] = str(tmp_path)
 
     response = client.post("/api/project/info", data={
-        "name": "project_id",
+        "name": "project id",
         "authors": "name",
         "description": "hello world"
     })
@@ -80,7 +80,7 @@ def test_update_project_info(client):
     """Test update project info"""
 
     response = client.put("/api/project/project-id/info", data={
-        "name": "project_id",
+        "name": "project id",
         "authors": "asreview team",
         "description": "hello world"
     })
