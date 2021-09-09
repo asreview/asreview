@@ -22,14 +22,12 @@ import tempfile
 import subprocess
 import urllib.parse
 import uuid
-from copy import deepcopy
 from pathlib import Path
 from urllib.request import urlretrieve
 
 import numpy as np
 import pandas as pd
 from flask import Blueprint
-from flask import current_app as app
 from flask import request
 from flask import Response
 from flask import send_file
@@ -38,7 +36,6 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
 
-from asreview import __version__ as asreview_version
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
@@ -53,7 +50,6 @@ from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.project_path import asreview_path
 from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.project_path import get_project_path
 from asreview.settings import ASReviewSettings
@@ -65,14 +61,12 @@ from asreview.state.paths import get_simulation_ready_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
-from asreview.state.paths import get_settings_metadata_path
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.errors import StateNotFoundError
 from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.project import add_simulation_to_project
 from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import add_review_to_project
 from asreview.webapp.utils.project import export_to_string
@@ -92,7 +86,6 @@ from asreview.webapp.utils.validation import check_dataset
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 
