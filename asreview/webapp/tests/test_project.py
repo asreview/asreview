@@ -17,7 +17,7 @@ import pytest
 from io import BytesIO
 from urllib.request import urlopen
 
-from asreview.state.sql_converter import convert_asreview
+from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.webapp.tests.utils import retrieve_project_url_github
 
 
@@ -53,7 +53,9 @@ def test_project_file(tmp_path, client, url):
 
     # Convert old state file if necessary
     try:
-        convert_asreview(project_fp)
+        upgrade_asreview_project_file(
+            project_fp, from_version=0, to_version=1
+        )
     except ValueError:
         pass
 
