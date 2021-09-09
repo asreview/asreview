@@ -132,16 +132,7 @@ def update_project_info(project_id,
                         project_authors=None):
     '''Update project info'''
 
-    project_id_new = re.sub(r'\s+', '-', project_name).lower()
-
-    if not project_id_new and not isinstance(project_id_new, str) \
-            and len(project_id_new) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
-
-    if isinstance(project_id_new, str) and not project_id_new[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet"
-            " letter (a-z) or number (0-9).")
+    project_id_new = create_project_id(project_name)
 
     if (project_id != project_id_new) & is_project(project_id_new):
         raise ValueError("Project name already exists.")
