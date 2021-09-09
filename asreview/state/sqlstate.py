@@ -23,7 +23,7 @@ from scipy.sparse.csr import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
 
-from asreview import __version__ as asreview_version
+from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
 from asreview.state.errors import StateNotFoundError
@@ -195,7 +195,7 @@ class SqlStateV1(BaseState):
         self.settings_metadata = {
             "settings": None,
             "state_version": "1",
-            "software_version": asreview_version
+            "software_version": get_versions()['version']
         }
 
         with open(self._settings_metadata_fp, "w") as f:
