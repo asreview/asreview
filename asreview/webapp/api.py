@@ -856,7 +856,7 @@ def export_results(project_id):
             })
 
     else:
-        raise TypeError("File type should be: .csv/.tsv/.xlsx/.ris")
+        raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
 
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
