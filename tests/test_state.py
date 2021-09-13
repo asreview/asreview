@@ -51,8 +51,8 @@ TEST_LABELING_TIMES = [
     '2021-08-20 11:14:56.981117', '2021-08-20 11:14:59.810290'
 ]
 
-with open(Path('tests', 'v3_states', 'test_probabilities.json'), 'r') as f:
-    TEST_LAST_PROBABILITIES = json.load(f)
+TEST_FIRST_PROBS = [0.7107394917661797, 0.7291694332065035, 0.732624685298732, 0.7017866934752249, 0.7275304788204621, 0.7126109527686055, 0.7246720268636593, 0.7040374218528891, 0.7095665447517838, 0.7021937381372063]
+TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996, 0.7127075014419986, 0.7085644453092131, 0.7067520535764322, 0.7103161247883791, 0.7192568428839242, 0.7118104532649111, 0.7150387267232563]
 
 
 def add_empty_project_json(fp):
@@ -279,15 +279,16 @@ def test_record_table(tmpdir):
 
 def test_get_last_probabilities():
     with open_state(TEST_STATE_FP) as state:
-        last_probabilities = state.get_last_probabilities()
-        assert isinstance(last_probabilities, pd.DataFrame)
-        assert list(last_probabilities.columns) == ['proba']
-        assert last_probabilities['proba'].to_list() == TEST_LAST_PROBABILITIES
+        probabilities = state.get_last_probabilities()
+        assert isinstance(probabilities, pd.DataFrame)
+        assert list(probabilities.columns) == ['proba']
+        assert probabilities['proba'].to_list()[:10] == TEST_FIRST_PROBS
+        assert probabilities['proba'].to_list()[-10:] == TEST_LAST_PROBS
 
 
 @pytest.mark.xfail(
     raises=ValueError,
-    reason=f"There are {len(TEST_LAST_PROBABILITIES)} probabilities in the"
+    reason=f"There are 851 probabilities in the"
     f" database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
