@@ -8,7 +8,8 @@ from asreview.state import open_state
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
 
-DATASET_FP = Path('tests', 'demo_data', 'generic_labels.csv')
+TESTS_FOLDER = Path(__file__).parent
+DATASET_FP = Path(TESTS_FOLDER, 'demo_data', 'generic_labels.csv')
 
 
 @pytest.mark.xfail(raises=FileNotFoundError,
