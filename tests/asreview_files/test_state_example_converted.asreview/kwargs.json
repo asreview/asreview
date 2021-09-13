@@ -1,0 +1,1 @@
+{"embedding_fp": null, "config_file": null, "seed": null, "model": "nb", "feature_extraction": "tfidf", "query_strategy": "max", "balance_strategy": "double", "n_instances": 1}

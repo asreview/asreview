@@ -3,13 +3,11 @@ from pathlib import Path
 import json
 
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.models.classifiers.utils import list_classifiers
 from asreview.state import open_state
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
 
-TESTS_FOLDER = Path(__file__).parent
-DATASET_FP = Path(TESTS_FOLDER, 'demo_data', 'generic_labels.csv')
+DATASET_FP = Path('tests', 'demo_data', 'generic_labels.csv')
 
 
 @pytest.mark.xfail(raises=FileNotFoundError,
@@ -101,10 +99,12 @@ def test_n_prior_excluded(tmpdir):
 #     assert settings_metadata['random_seed'] == 42
 
 
-def test_non_lstm_models(tmpdir):
+def test_non_tf_models(tmpdir):
     models = [
-        classifier.name for classifier in list_classifiers()
-        if not classifier.name.startswith('lstm-')
+        'logistic',
+        'nb',
+        'rf',
+        'svm'
     ]
     for model in models:
         print(model)

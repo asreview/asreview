@@ -41,11 +41,9 @@ TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
 
-TESTS_FOLDER = Path(__file__).parent
-
-TEST_STATE_FP = Path(TESTS_FOLDER, "v3_states",
-                     "test_state_example_converted.asreview")
-TEST_WITH_TIMES_FP = Path(TESTS_FOLDER, 'v3_states',
+TEST_STATE_FP = Path('tests', 'asreview_files',
+                     'test_state_example_converted.asreview')
+TEST_WITH_TIMES_FP = Path('tests', 'asreview_files',
                           'test_state_example_with_times.asreview')
 TEST_LABELING_TIMES = [
     '2021-08-20 11:14:30.093919', '2021-08-20 11:14:30.093919',
@@ -62,16 +60,6 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7127075014419986, 0.7085644453092131, 0.7067520535764322,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
-
-
-def test_files_present():
-    print('root', Path('.').absolute())
-    print('exists', TEST_STATE_FP.exists())
-    print('is_dir', TEST_STATE_FP.is_dir())
-    print('is_file', TEST_STATE_FP.is_file())
-    print('contents', list(TEST_STATE_FP.iterdir()))
-    print('tests contents', list(TESTS_FOLDER.iterdir()))
-    raise Exception
 
 
 def test_init_project_folder(tmpdir):
@@ -279,7 +267,7 @@ def test_get_record_table():
 
 
 def test_record_table(tmpdir):
-    data_fp = Path(TESTS_FOLDER, "demo_data", "record_id.csv")
+    data_fp = Path('tests', "demo_data", "record_id.csv")
     as_data = ASReviewData.from_file(data_fp)
 
     project_path = Path(tmpdir, 'test.asreview')
