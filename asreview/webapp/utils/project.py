@@ -416,7 +416,7 @@ def stop_n_since_last_relevant(labeled):
     """Count n since last relevant"""
 
     n_since_last_inclusion = 0
-    for _, inclusion in reversed(labeled):
+    for inclusion in reversed(labeled.tolist()):
         if inclusion == 1:
             break
         n_since_last_inclusion += 1
@@ -426,12 +426,12 @@ def stop_n_since_last_relevant(labeled):
 
 def n_relevant(labeled):
 
-    return len(list(filter(lambda x: x[1] == 1, labeled)))
+    return len(labeled[labeled == 1])
 
 
 def n_irrelevant(labeled):
 
-    return len(list(filter(lambda x: x[1] == 0, labeled)))
+    return len(labeled[labeled == 0])
 
 
 def get_statistics(project_id):
@@ -448,27 +448,20 @@ def get_statistics(project_id):
         Dictonary with statistics.
     """
     project_path = get_project_path(project_id)
-    fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
-        # get the index of the active iteration
-        labeled = read_label_history(project_id)
-        pool = read_pool(project_id)
+    with open_state(project_path) as s:
+        labeled = s.get_labels()
+        n_records = len(s.get_record_table())
 
-    # compute metrics
     n_included = n_relevant(labeled)
     n_excluded = n_irrelevant(labeled)
-    n_pool = len(pool)
 
     return {
         "n_included": n_included,
         "n_excluded": n_excluded,
         "n_since_last_inclusion": stop_n_since_last_relevant(labeled),
-        "n_papers": n_pool + n_included + n_excluded,
-        "n_pool": n_pool
+        "n_papers": n_records,
+        "n_pool": n_records - n_excluded - n_included
     }
 
 
