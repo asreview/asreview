@@ -1,6 +1,7 @@
-State File
-==========
-The purpose of the state file is to save all relevant data of a project, while being as small as possible and while
+ASReview file
+=============
+
+The purpose of the ASReview file is to save all relevant data of a project, while being as small as possible and while
 allowing fast access. Of course, what is relevant data depends on the use case. If you are doing a systematic review,
 you want all your labelling actions to be stored, but if you are investigating the machine learning models behind
 ASReview, you want more data like model parameters. In order to keep the state file as small as possible in both cases,
