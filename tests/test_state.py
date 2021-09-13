@@ -38,6 +38,9 @@ TEST_FEATURE_EXTRACTION = [
     'tfidf', 'tfidf'
 ]
 TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
+TEST_NOTES = [None, None, None, 'random text', 'another random text', None,
+              None, 'A final random text', None, None]
+
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
 
@@ -290,7 +293,7 @@ def test_get_last_probabilities():
 
 @pytest.mark.xfail(
     raises=ValueError,
-    reason=f"There are 851 probabilities in the"
+    reason="There are 851 probabilities in the"
     f" database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
@@ -312,6 +315,7 @@ def test_add_labeling_data(tmpdir):
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
         for i in range(3):
+            # Test without specifying notes.
             state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]],
                                     [TEST_CLASSIFIERS[i]],
                                     [TEST_QUERY_STRATEGIES[i]],
@@ -319,12 +323,14 @@ def test_add_labeling_data(tmpdir):
                                     [TEST_FEATURE_EXTRACTION[i]],
                                     [TEST_TRAINING_SETS[i]])
 
+        # Test with specifying notes and with larger batch.
         state.add_labeling_data(TEST_RECORD_IDS[3:], TEST_LABELS[3:],
                                 TEST_CLASSIFIERS[3:],
                                 TEST_QUERY_STRATEGIES[3:],
                                 TEST_BALANCE_STRATEGIES[3:],
                                 TEST_FEATURE_EXTRACTION[3:],
-                                TEST_TRAINING_SETS[3:])
+                                TEST_TRAINING_SETS[3:],
+                                TEST_NOTES[3:])
 
         data = state.get_dataset()
         assert data['record_ids'].to_list() == TEST_RECORD_IDS
@@ -334,3 +340,23 @@ def test_add_labeling_data(tmpdir):
         assert data['balance_strategies'].to_list() == TEST_BALANCE_STRATEGIES
         assert data['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
         assert data['training_sets'].to_list() == TEST_TRAINING_SETS
+        assert data['notes'].to_list() == TEST_NOTES
+
+
+def test_add_note(tmpdir):
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3],
+                                TEST_CLASSIFIERS[:3],
+                                TEST_QUERY_STRATEGIES[:3],
+                                TEST_BALANCE_STRATEGIES[:3],
+                                TEST_FEATURE_EXTRACTION[:3],
+                                TEST_TRAINING_SETS[:3],
+                                TEST_NOTES[:3])
+
+        note = 'An added note'
+        record_id = TEST_RECORD_IDS[1]
+        state.add_note(note, record_id)
+        record_data = state.get_data_by_record_id(record_id)
+        assert record_data['notes'][0] == note

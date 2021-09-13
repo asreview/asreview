@@ -149,15 +149,28 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def add_note(self, note, record_id):
+        """Add a text note to save with a labeled record.
+
+        Arguments
+        ---------
+        note: str
+            Text note to save.
+        record_id: int
+            Identifier of the record to which the note should be added.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def add_labeling_data(self, record_ids, labels, classifiers,
                           query_strategies, balance_strategies,
-                          feature_extraction, training_sets):
+                          feature_extraction, training_sets, notes=None):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
         ---------
         record_ids: list, numpy.ndarray
-            A list of indices of the labeled records as int.
+            A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
             A list of labels of the labeled records as int.
         classifiers: list, numpy.ndarray
@@ -171,6 +184,8 @@ class BaseState(ABC):
         training_sets: list, numpy.ndarray
             A list of the training sets as integers.
             Each record in the prior data is counted individually.
+        notes: list of str/None
+            A list of text notes to save with the labeled records.
         """
         raise NotImplementedError
 

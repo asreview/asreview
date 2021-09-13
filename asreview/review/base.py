@@ -441,7 +441,7 @@ class BaseReview(ABC):
         )
         return query_idx
 
-    def classify(self, query_idx, inclusions, state, method=None):
+    def classify(self, query_idx, inclusions, state, method=None, notes=None):
         """Classify new papers and update the training indices.
 
         It automatically updates the state.
@@ -456,6 +456,8 @@ class BaseReview(ABC):
             Logger to store the classification in.
         method: str
             If not set to None, all inclusions have this query method.
+        notes: list of str
+            List of text notes to be saved, one for each labeled record.
         """
         query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
@@ -515,7 +517,8 @@ class BaseReview(ABC):
                                 query_strategies=query_strategies,
                                 balance_strategies=balance_strategies,
                                 feature_extraction=feature_extraction,
-                                training_sets=training_sets)
+                                training_sets=training_sets,
+                                notes=notes)
         # state.set_labels(self.y)
 
     def train(self):

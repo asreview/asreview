@@ -294,7 +294,8 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                             balance_strategies TEXT,
                             feature_extraction TEXT,
                             training_sets INTEGER,
-                            labeling_times INTEGER)''')
+                            labeling_times INTEGER,
+                            notes TEXT)''')
             # TODO(State): models_training?
 
             # Index (row number) of record being labeled.
@@ -351,6 +352,9 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             # Labeling time.
             sf_time = [0 for _ in range(n_records_labeled)]
 
+            # No notes were saved before.
+            sf_notes = [None for _ in range(n_records_labeled)]
+
             # Check that all datasets have the same number of entries.
             lengths = [
                 len(sf_record_ids),
@@ -360,7 +364,8 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                 len(sf_query_strategy),
                 len(sf_time),
                 len(sf_feature_extraction),
-                len(sf_balance_strategy)
+                len(sf_balance_strategy),
+                len(sf_notes)
             ]
             if not all([length == n_records_labeled for length in lengths]):
                 raise StateError(
@@ -370,10 +375,11 @@ def convert_json_results_to_sql(sql_fp, json_fp):
             db_rows = [
                 (sf_record_ids[i], sf_labels[i], sf_classifiers[i],
                  sf_query_strategy[i], sf_balance_strategy[i],
-                 sf_feature_extraction[i], sf_training_sets[i], sf_time[i])
+                 sf_feature_extraction[i], sf_training_sets[i], sf_time[i],
+                 sf_notes[i])
                 for i in range(n_records_labeled)
             ]
             cur.executemany(
                 """INSERT INTO results VALUES
-                            (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
+                            (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
             con.commit()

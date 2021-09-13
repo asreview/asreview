@@ -45,7 +45,7 @@ REQUIRED_TABLES = [
 RESULTS_TABLE_COLUMNS = [
     "record_ids", "labels", "classifiers", "query_strategies",
     "balance_strategies", "feature_extraction", "training_sets",
-    "labeling_times"
+    "labeling_times", "notes"
 ]
 SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
 
@@ -174,7 +174,8 @@ class SqlStateV1(BaseState):
                                 balance_strategies TEXT,
                                 feature_extraction TEXT,
                                 training_sets INTEGER,
-                                labeling_times INTEGER)""")
+                                labeling_times INTEGER,
+                                notes TEXT)""")
 
             # Create the record_ids table.
             cur.execute("""CREATE TABLE record_table
@@ -490,9 +491,20 @@ class SqlStateV1(BaseState):
         """
         return load_npz(self._feature_matrix_fp)
 
+    def add_note(self, note, record_id):
+        """Add a text note to save with a labeled record."""
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute(
+            "UPDATE results SET notes = ? WHERE record_ids = ?",
+            (note, record_id)
+        )
+        con.commit()
+        con.close()
+
     def add_labeling_data(self, record_ids, labels, classifiers,
                           query_strategies, balance_strategies,
-                          feature_extraction, training_sets):
+                          feature_extraction, training_sets, notes=None):
         """Add all the data of one labeling action."""
 
         # TODO (State): Add custom datasets.
@@ -503,6 +515,9 @@ class SqlStateV1(BaseState):
 
         labeling_times = [datetime.now()] * len(record_ids)
 
+        if notes is None:
+            notes = [None for _ in record_ids]
+
         # Check that all input data has the same length.
         lengths = [
             len(record_ids),
@@ -512,7 +527,8 @@ class SqlStateV1(BaseState):
             len(balance_strategies),
             len(feature_extraction),
             len(training_sets),
-            len(labeling_times)
+            len(labeling_times),
+            len(notes)
         ]
         if len(set(lengths)) != 1:
             raise ValueError("Input data should be of the same length.")
@@ -521,7 +537,8 @@ class SqlStateV1(BaseState):
         # Create the database rows.
         db_rows = [(int(record_ids[i]), int(labels[i]), classifiers[i],
                     query_strategies[i], balance_strategies[i],
-                    feature_extraction[i], training_sets[i], labeling_times[i])
+                    feature_extraction[i], training_sets[i],
+                    labeling_times[i], notes[i])
                    for i in range(n_records_labeled)]
 
         # Add the rows to the database.
@@ -529,7 +546,7 @@ class SqlStateV1(BaseState):
         cur = con.cursor()
         cur.executemany(
             """INSERT INTO results VALUES
-                                    (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
+                                    (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
         con.commit()
         con.close()
 
@@ -652,6 +669,16 @@ class SqlStateV1(BaseState):
             The record_id's in the order that they were labeled.
         """
         return self.get_dataset('record_ids')['record_ids']
+
+    def get_priors(self):
+        """Get the record ids of the priors.
+
+        Returns
+        -------
+        pd.Series:
+            The record_id's of the priors in the order they were added.
+        """
+        return self.get_order_of_labeling()[:self.n_priors]
 
     def get_labels(self):
         """Get the labels from the state file.
