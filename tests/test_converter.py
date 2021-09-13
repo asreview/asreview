@@ -6,7 +6,7 @@ from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import open_state
 
-OLD_STATE_FP = Path('tests', 'state_files', 'old-project.asreview')
+OLD_STATE_FP = Path('tests', 'state_files', 'test_converter_example.asreview')
 
 
 def compare_state_to_converted(state_fp, converted_state_fp):

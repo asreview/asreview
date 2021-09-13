@@ -40,8 +40,10 @@ TEST_FEATURE_EXTRACTION = [
 TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
 TEST_N_PRIORS = 4
 TEST_N_MODELS = 7
-TEST_STATE_FP = Path("tests", "v3_states", "test_converted_unzipped.asreview")
-TEST_WITH_TIMES_FP = Path('tests', 'v3_states', 'test_labeling_times.asreview')
+TEST_STATE_FP = Path("tests", "v3_states",
+                     "test_state_example_converted.asreview")
+TEST_WITH_TIMES_FP = Path('tests', 'v3_states',
+                          'test_state_example_with_times.asreview')
 TEST_LABELING_TIMES = [
     '2021-08-20 11:14:30.093919', '2021-08-20 11:14:30.093919',
     '2021-08-20 11:14:30.093919', '2021-08-20 11:14:30.093919',
