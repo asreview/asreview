@@ -64,6 +64,16 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7150387267232563]
 
 
+def test_files_present():
+    print('root', Path('.').absolute())
+    print('exists', TEST_STATE_FP.exists())
+    print('is_dir', TEST_STATE_FP.is_dir())
+    print('is_file', TEST_STATE_FP.is_file())
+    print('contents', list(TEST_STATE_FP.iterdir()))
+    print('tests contents', list(TESTS_FOLDER.iterdir()))
+    raise Exception
+
+
 def test_init_project_folder(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
