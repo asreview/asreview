@@ -47,7 +47,6 @@ const queryClient = new QueryClient();
 const App = (props) => {
   // Dialog state
   const [settings, setSettings] = useToggle();
-  const [help, setHelp] = useToggle();
   const [exportResult, setExportResult] = useToggle();
   const [history, setHistory] = useToggle();
   const [review, setReview] = useToggle();
@@ -78,7 +77,6 @@ const App = (props) => {
             onNavDrawer={navDrawer}
             toggleNavDrawer={setNavDrawer}
             toggleSettings={setSettings}
-            toggleHelp={setHelp}
           />
         )}
 
@@ -148,11 +146,7 @@ const App = (props) => {
           toggleKeyPressEnabled={toggleKeyPressEnabled}
           toggleUndoEnabled={toggleUndoEnabled}
         />
-        <HelpDialog
-          mobileScreen={mobileScreen}
-          onHelp={help}
-          toggleHelp={setHelp}
-        />
+        <HelpDialog mobileScreen={mobileScreen} />
         <ExportDialog
           toggleExportResult={setExportResult}
           exportResult={exportResult}

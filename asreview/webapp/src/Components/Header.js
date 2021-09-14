@@ -64,7 +64,6 @@ const Header = (props) => {
         onNavDrawer={props.onNavDrawer}
         toggleNavDrawer={props.toggleNavDrawer}
         toggleSettings={props.toggleSettings}
-        toggleHelp={props.toggleHelp}
       />
     </div>
   );
