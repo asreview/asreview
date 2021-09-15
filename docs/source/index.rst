@@ -66,6 +66,8 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
    extensions/overview_extensions
 
+   extensions/extension_development
+
    extensions/extension_covid19
 
    extensions/extension_visualization
@@ -74,21 +76,23 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
 .. toctree::
    :maxdepth: 1
-   :caption: API
+   :caption: Development
 
    API/overview_cli
 
    API/cli
 
-   API/extensions_dev
-
    API/reference
+
+   API/extension_api_reference
 
 .. toctree::
    :maxdepth: 1
    :caption: Guides
 
    guides/activelearning
+
+   guides/extension_guides
 
    guides/simulation_study_results
 
