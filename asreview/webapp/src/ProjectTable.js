@@ -95,9 +95,6 @@ const ProjectTable = (props) => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 const openExistingProject = () => {
-                  if (props.onNavDrawer) {
-                    props.toggleNavDrawer();
-                  }
                   console.log("Opening existing project " + row.id);
 
                   // set the state in the redux store

@@ -31,14 +31,12 @@
   font-size: 140% !important;
 }
 
-.navDrawerSelected::before {
-  top: 0px;
-  right: 0px;
-  width: 3px;
-  bottom: 0px;
-  content: "";
+.navDrawerSelected::after {
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  content: " ";
   position: absolute;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
   background-color: #91620b;
 }
