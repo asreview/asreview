@@ -131,11 +131,13 @@ After selecting some prior information, you can click **Next**.
 Search
 ~~~~~~
 
-Let's start with finding a prior relevant document. The most efficient way 
-to do this is by searching for a specific document which you already know is 
+Let's start with finding a prior relevant document. The most efficient way
+to do this is by searching for a specific document which you already know is
 relevant. Click the search button and search your dataset by authors,
-keywords or title, or a combination thereof. Enter your search terms (press
-'enter' to start searching).
+keywords or title, or a combination thereof. Make sure to be precise
+with the search terms, as only the first 10 results are shown to you.
+After entering your search terms, press 'enter' to start searching.
+
 
 
 .. figure:: ../../images/asreview_prescreening_prior_search.png
@@ -158,9 +160,9 @@ Random
 
 You also need to provide at least one prior irrelevant document. One way to
 find an irrelevant document is by labeling a set of random records from the
-dataset. Given that the majority of documents in the dataset are irrelevant 
-(extremely imbalanced data problem), the documents presented here are likely 
-to be irrelevant for your study. Click on random to show a few random 
+dataset. Given that the majority of documents in the dataset are irrelevant
+(extremely imbalanced data problem), the documents presented here are likely
+to be irrelevant for your study. Click on random to show a few random
 documents. Indicate for each document whether it is relevant or irrelevant.
 
 .. figure:: ../../images/asreview_prescreening_prior_random.png
@@ -200,12 +202,12 @@ though relatively simplistic, it seems to work quite well on a wide range of
 datasets.
 
 The query strategy determines which document is shown after the model has
-computed the relevance scores. The three options are: certainty-based, mixed and 
+computed the relevance scores. The three options are: certainty-based, mixed and
 random. When certainty-based is selected, the documents are shown in the order of
-relevance score. The document most likely to be relevant is shown first. When 
-mixed is selected, the next document will be selected certainty-based 95% of the 
-time, and randomly chosen otherwise. When random is selected, documents are shown 
-in a random order (ignoring the model output completely). **Warning**: selecting 
+relevance score. The document most likely to be relevant is shown first. When
+mixed is selected, the next document will be selected certainty-based 95% of the
+time, and randomly chosen otherwise. When random is selected, documents are shown
+in a random order (ignoring the model output completely). **Warning**: selecting
 this option means your review is not going to be accelerated by using ASReview.
 
 The feature extraction technique determines the method how text is translated
@@ -224,7 +226,3 @@ It takes relatively long to create a feature matrix with this method. However,
 this only has to be done once per simulation/review. The upside of this method
 is the dimension-reduction that generally takes place, which makes the
 modelling quicker.
-
-
-
-
