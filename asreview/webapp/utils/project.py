@@ -62,18 +62,40 @@ def _get_executable():
     return py_exe
 
 
+def create_project_id(name):
+    """Create project id from input name."""
+
+    if isinstance(name, str) \
+            and len(name) > 0 \
+            and not name[0].isalnum():
+        raise ValueError(
+            "First character should be alphabet"
+            " letter (a-z) or number (0-9).")
+
+    if not name \
+            and not isinstance(name, str) \
+            and len(name) >= 3:
+        raise ValueError(
+            "Project name should be at least 3 characters.")
+
+    project_id = ""
+    for c in name.lower():
+        if c.isalnum():
+            project_id += c
+        elif len(project_id) > 0 and project_id[-1] != "-":
+            project_id += "-"
+
+    return project_id
+
+
 def init_project(project_id,
                  project_name=None,
                  project_description=None,
                  project_authors=None):
     """Initialize the necessary files specific to the web app."""
 
-    if not project_id and not isinstance(project_id, str) \
-            and len(project_id) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
-
     if is_project(project_id):
-        raise ValueError("Project name already exists.")
+        raise ValueError("Project already exists.")
 
     try:
         get_project_path(project_id).mkdir()
@@ -110,11 +132,7 @@ def update_project_info(project_id,
                         project_authors=None):
     '''Update project info'''
 
-    project_id_new = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
-
-    if not project_id_new and not isinstance(project_id_new, str) \
-            and len(project_id_new) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
+    project_id_new = create_project_id(project_name)
 
     if (project_id != project_id_new) & is_project(project_id_new):
         raise ValueError("Project name already exists.")

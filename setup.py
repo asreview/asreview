@@ -42,7 +42,7 @@ def get_long_description():
 
 DEPS = {
     "sbert": ['sentence_transformers'],
-    "doc2vec": ['gensim<=3.8.2'],
+    "doc2vec": ['gensim'],
     "tensorflow": ['tensorflow~=2.0'],
     "dev": ['check-manifest'],
     'test': ['coverage', 'pytest'],
@@ -94,7 +94,6 @@ setup(
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
@@ -107,7 +106,7 @@ setup(
         'webapp/build/*',
         'webapp/build/static/*/*',
     ]},
-    python_requires='~=3.6',
+    python_requires='~=3.7',
     install_requires=[
         'numpy',
         'sklearn',

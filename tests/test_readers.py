@@ -93,8 +93,8 @@ def test_nan_values_csv():
     assert as_data.record(2, by_index=True).doi is None
 
 
-def test_csv_write_data():
+def test_csv_write_data(tmpdir):
     fp_in = Path("tests", "demo_data", "generic_labels.csv")
-    fp_out = Path("tests", "out_data", "generic_out.csv")
+    fp_out = Path(tmpdir, "generic_out.csv")
     asr_data = ASReviewData.from_file(fp_in)
     asr_data.to_csv(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
