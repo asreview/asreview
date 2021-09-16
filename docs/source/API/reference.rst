@@ -1,156 +1,385 @@
+.. _api_ref:
 
+=============
 API Reference
 =============
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-Low level API
--------------
-
-.. autoclass:: asreview.review.BaseReview
-   :members:
-
-.. autoclass:: asreview.ReviewSimulate
-   :members:
-   :inherited-members:
-
-Classifiers
------------
-
-.. autoclass:: asreview.models.classifiers.NaiveBayesClassifier
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.classifiers.RandomForestClassifier
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.classifiers.SVMClassifier
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.classifiers.LogisticClassifier
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.classifiers.LSTMBaseClassifier
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.classifiers.LSTMPoolClassifier
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.classifiers.NN2LayerClassifier
-   :members:
-   :inherited-members:
-.. autofunction:: asreview.models.classifiers.list_classifiers
-.. autofunction:: asreview.models.classifiers.get_classifier
-.. autofunction:: asreview.models.classifiers.get_classifier_class
-
-
-Query
------
-
-.. autoclass:: asreview.models.query.MaxQuery
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.query.UncertaintyQuery
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.query.RandomQuery
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.query.ClusterQuery
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.query.MaxRandomQuery
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.query.MaxUncertaintyQuery
-   :members:
-   :inherited-members:
-.. autofunction:: asreview.models.query.list_query_strategies
-.. autofunction:: asreview.models.query.get_query_model
-.. autofunction:: asreview.models.query.get_query_class
-
-
-Balance
--------
-
-.. autoclass:: asreview.models.balance.SimpleBalance
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.balance.DoubleBalance
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.balance.TripleBalance
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.balance.UndersampleBalance
-   :members:
-   :inherited-members:
-.. autofunction:: asreview.models.balance.list_balance_strategies
-.. autofunction:: asreview.models.balance.get_balance_model
-.. autofunction:: asreview.models.balance.get_balance_class
-
-
-Feature extraction
-------------------
-
-.. autoclass:: asreview.models.feature_extraction.Tfidf
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.feature_extraction.Doc2Vec
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.feature_extraction.EmbeddingIdf
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.feature_extraction.EmbeddingLSTM
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.models.feature_extraction.SBERT
-   :members:
-   :inherited-members:
-.. autofunction:: asreview.models.feature_extraction.list_feature_extraction
-.. autofunction:: asreview.models.feature_extraction.get_feature_model
-.. autofunction:: asreview.models.feature_extraction.get_feature_class
+This is the ASReview API Reference.
 
 
 
-Data
-----
 
-.. autoclass:: asreview.ASReviewData
-	:members:
+
+
+
+:mod:`asreview.analysis`
+======================
+This module deals with analysis.
+
+
+.. automodule:: asreview.analysis
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   analysis.Analysis
 
 Utils
 -----
+.. currentmodule:: asreview
 
-.. autofunction:: asreview.load_embedding
-.. autofunction:: asreview.sample_embedding
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
 
-State
+   analysis.statistics._find_inclusions
+   analysis.statistics._get_labeled_order
+   analysis.statistics._get_last_proba_order
+   analysis.statistics._get_proba_order
+   analysis.statistics._n_false_neg
+   analysis.statistics._get_limits
+
+
+
+
+
+
+
+:mod:`asreview.data`
+====================
+This module deals with handling data loading and storing.
+
+
+.. automodule:: asreview.data
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   data.base.ASReviewData
+
+Utils
+-----
+.. currentmodule:: asreview
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   data.statistics.n_records
+   data.statistics.n_relevant
+   data.statistics.n_irrelevant
+   data.statistics.n_unlabeled
+   data.statistics.n_missing_title
+   data.statistics.n_missing_abstract
+   data.statistics.title_length
+   data.statistics.abstract_length
+   data.statistics.n_keywords
+   data.utils.load_data
+
+
+
+
+
+
+
+:mod:`asreview.entry_points`
+======================
+This module deals with ASReview entry points.
+
+[todo]
+
+
+:mod:`asreview.io`
+======================
+This module deals with ASReview entry points.
+
+[todo]
+
+
+
+
+
+
+:mod:`asreview.models`
+======================
+This module contains the four model types.
+
+.. automodule:: asreview.models
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   models.base.BaseModel
+
+
+
+
+
+
+
+:mod:`asreview.models.balance`
+==================================
+This module contains all Balancers
+
+.. automodule:: asreview.models.classifiers
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   balance.base.BaseBalance
+
+Classes
 -------
+.. currentmodule:: asreview.models
 
-.. autofunction:: asreview.state.open_state
-.. autoclass:: asreview.state.BaseState
-	:members:
-.. autoclass:: asreview.state.HDF5State
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.state.JSONState
-   :members:
-   :inherited-members:
-.. autoclass:: asreview.state.DictState
-   :members:
-   :inherited-members:
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
 
-Analysis
---------
+   balance.SimpleBalance
+   balance.DoubleBalance
+   balance.TripleBalance
+   balance.UndersampleBalance
 
-.. autoclass:: asreview.analysis.Analysis
-	:members:
+Utils
+-----
+.. currentmodule:: asreview.models
 
-Extensions
-----------
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
 
-.. autoclass:: asreview.entry_points.BaseEntryPoint
-	:members:
+   balance.utils.list_balance_strategies
+   balance.utils.get_balance_model
+   balance.utils.get_balance_class
+
+
+
+
+
+
+
+:mod:`asreview.models.classifiers`
+==================================
+This module contains all classifiers.
+
+.. automodule:: asreview.models.classifiers
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   classifiers.base.BaseTrainClassifier
+
+Classes
+-------
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   classifiers.NaiveBayesClassifier
+   classifiers.RandomForestClassifier
+   classifiers.SVMClassifier
+   classifiers.LogisticClassifier
+   classifiers.LSTMBaseClassifier
+   classifiers.LSTMPoolClassifier
+   classifiers.NN2LayerClassifier
+
+Utils
+-----
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   classifiers.utils.list_classifiers
+   classifiers.utils.get_classifier
+   classifiers.utils.get_classifier_class
+
+
+
+
+
+
+
+:mod:`asreview.models.feature_extraction`
+=========================================
+This module contains all feature extractors.
+
+.. automodule:: asreview.models.feature_extraction
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview.models.feature_extraction
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   base.BaseFeatureExtraction
+
+Classes
+-------
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   feature_extraction.Tfidf
+   feature_extraction.Doc2Vec
+   feature_extraction.EmbeddingIdf
+   feature_extraction.EmbeddingLSTM
+   feature_extraction.SBERT
+
+
+:mod:`asreview.models.feature_extraction.utils`
+-----
+
+.. currentmodule:: asreview.models.feature_extraction
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   utils.list_feature_extraction
+   utils.get_feature_model
+   utils.get_feature_class
+
+
+
+
+
+
+
+:mod:`asreview.models.query`
+=========================================
+This Module contains all query strategies.
+
+.. automodule:: asreview.models.query
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   query.BaseQueryStrategy
+
+Classes
+-------
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   query.MaxQuery
+   query.UncertaintyQuery
+   query.RandomQuery
+   query.ClusterQuery
+   query.MaxRandomQuery
+   query.MaxUncertaintyQuery
+
+Utils
+-----
+.. currentmodule:: asreview.models
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   query.list_query_strategies
+   query.get_query_model
+   query.get_query_class
+
+
+
+
+
+
+
+:mod:`asreview.state`
+=====================
+This module handles the ASReview file
+
+.. automodule:: asreview.state
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+   state.BaseState
+
+Classes
+-------
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: class.rst
+
+	state.HDF5State
+   state.JSONState
+   state.DictState
+
+Utils
+-----
+.. currentmodule:: asreview
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   state._get_state_class
+   state.open_state
+   state.states_from_dir
+   state.state_from_file
+   state.state_from_asreview_file
+
