@@ -84,8 +84,6 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
    API/reference
 
-   API/extension_api_reference
-
 .. toctree::
    :maxdepth: 1
    :caption: Guides
