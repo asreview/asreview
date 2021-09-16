@@ -84,6 +84,9 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # 'record_table'.
     convert_json_record_table(sql_fp, json_fp)
 
+    # Create decision changes table.
+    create_decision_changes_table(sql_fp)
+
     # Create json for settings.
     convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
@@ -383,3 +386,18 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                 """INSERT INTO results VALUES
                             (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
             con.commit()
+
+
+def create_decision_changes_table(sql_fp):
+    """Create an emtpy table that will contain the record_ids and new labels
+    of the records whose label was changed after the original labeling action.
+    Also contains the time at which the label was changed."""
+    with sqlite3.connect(sql_fp) as con:
+        cur = con.cursor()
+
+        cur.execute('''CREATE TABLE decision_changes
+                                    (record_ids INTEGER,
+                                    new_labels INTEGER,
+                                    times INTEGER)''')
+
+        con.commit()

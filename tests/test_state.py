@@ -294,7 +294,7 @@ def test_get_last_probabilities():
 @pytest.mark.xfail(
     raises=ValueError,
     reason="There are 851 probabilities in the"
-    f" database, but 'probabilities' has length 3")
+    " database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
         state.add_last_probabilities([1.0, 2.0, 3.0])
@@ -360,3 +360,34 @@ def test_add_note(tmpdir):
         state.add_note(note, record_id)
         record_data = state.get_data_by_record_id(record_id)
         assert record_data['notes'][0] == note
+
+
+def test_change_decision(tmpdir):
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3],
+                                TEST_CLASSIFIERS[:3],
+                                TEST_QUERY_STRATEGIES[:3],
+                                TEST_BALANCE_STRATEGIES[:3],
+                                TEST_FEATURE_EXTRACTION[:3],
+                                TEST_TRAINING_SETS[:3],
+                                TEST_NOTES[:3])
+
+        for i in range(3):
+            state.change_decision(TEST_RECORD_IDS[i])
+            new_label = \
+                state.get_data_by_record_id(TEST_RECORD_IDS[i])['labels'][0]
+            assert new_label == 1 - TEST_LABELS[i]
+
+        state.change_decision(TEST_RECORD_IDS[1])
+        new_label = \
+            state.get_data_by_record_id(TEST_RECORD_IDS[1])['labels'][0]
+        assert new_label == TEST_LABELS[1]
+
+        change_table = state.get_decision_changes()
+        changed_records = TEST_RECORD_IDS[:3] + [TEST_RECORD_IDS[1]]
+        new_labels = [1 - x for x in TEST_LABELS[:3]] + [TEST_LABELS[1]]
+
+        assert change_table['record_ids'].to_list() == changed_records
+        assert change_table['new_labels'].to_list() == new_labels

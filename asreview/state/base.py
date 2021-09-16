@@ -189,6 +189,21 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    def change_decision(self, record_id):
+        """Change the label of a record from 0 to 1 or vice versa.
+
+        Arguments
+        ---------
+        record_id: int
+            Id of the record whose label should be changed.
+        """
+        raise NotImplementedError
+
+    def get_decision_changes(self):
+        """Get the record ids of the records whose labels have been changed
+        after the original labeling action."""
+        raise NotImplementedError
+
     def is_empty(self):
         """Check if state has no results.
 
