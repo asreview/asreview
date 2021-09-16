@@ -50,7 +50,7 @@ def read_ris(fp):
         File with unrecognized encoding is used as input.
     """
 
-    encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
+    encodings = ['utf-8', 'utf-8-sig', 'ISO-8859-1']
     entries = None
     for encoding in encodings:
         try:
