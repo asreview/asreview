@@ -13,96 +13,14 @@ This is the ASReview API Reference.
 
 
 :mod:`asreview.analysis`
-======================
-This module deals with analysis.
+========================
 
-
-.. automodule:: asreview.analysis
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
-   analysis.Analysis
-
-
-:mod:`asreview.analysis.statistics`
------------------------------------
-.. currentmodule:: asreview.analysis
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   statistics._find_inclusions
-   statistics._get_labeled_order
-   statistics._get_last_proba_order
-   statistics._get_proba_order
-   statistics._n_false_neg
-   statistics._get_limits
-
-
-
-
-
-
+[todo]
 
 :mod:`asreview.data`
 ====================
-This module deals with handling data loading and storing.
 
-
-.. automodule:: asreview.data
-   :no-members:
-   :no-inherited-members:
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
-   data.base.ASReviewData
-
-:mod:`asreview.data.statistics`
--------------------------------
-.. currentmodule:: asreview.data
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   statistics.n_records
-   statistics.n_relevant
-   statistics.n_irrelevant
-   statistics.n_unlabeled
-   statistics.n_missing_title
-   statistics.n_missing_abstract
-   statistics.title_length
-   statistics.abstract_length
-   statistics.n_keywords
-
-:mod:`asreview.data.utils`
---------------------------
-.. currentmodule:: asreview.data
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   utils.load_data
-
-
-
-
-
-
+[todo]
 
 :mod:`asreview.entry_points`
 ============================
@@ -115,13 +33,9 @@ This module deals with handling data loading and storing.
 
 [todo]
 
-
-
-
-
-
 :mod:`asreview.models`
 ======================
+
 This module contains the base model class.
 
 .. automodule:: asreview.models
@@ -133,18 +47,19 @@ This module contains the base model class.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: class.rst
 
-   models.base.BaseModel
+   models.base
 
-
-
-
-
+      .. autosummary::
+         :nosignatures:
+         :toctree: generated/
+         
+         models.base.BaseModel
 
 
 :mod:`asreview.models.balance`
 ------------------------------
+
 This module contains all Balancer models.
 
 .. automodule:: asreview.models.classifiers
@@ -156,41 +71,14 @@ This module contains all Balancer models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: class.rst
-
+   :recursive:
+   
    balance.base.BaseBalance
-
-Classes
-#######
-
-.. currentmodule:: asreview.models
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
    balance.SimpleBalance
    balance.DoubleBalance
    balance.TripleBalance
    balance.UndersampleBalance
-
-:mod:`asreview.models.balance.utils`
-####################################
-
-.. currentmodule:: asreview.models.balance
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   utils.list_balance_strategies
-   utils.get_balance_model
-   utils.get_balance_class
-
-
-
-
+   balance.utils
 
 
 
@@ -204,24 +92,13 @@ This module contains all classifier models.
     :no-inherited-members:
 
 .. currentmodule:: asreview.models
-
+     
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: class.rst
-
+   :recursive:
+   
    classifiers.base.BaseTrainClassifier
-
-Classes
-#######
-
-.. currentmodule:: asreview.models
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
    classifiers.NaiveBayesClassifier
    classifiers.RandomForestClassifier
    classifiers.SVMClassifier
@@ -229,23 +106,7 @@ Classes
    classifiers.LSTMBaseClassifier
    classifiers.LSTMPoolClassifier
    classifiers.NN2LayerClassifier
-
-:mod:`asreview.models.classifiers.utils`
-########################################
-
-.. currentmodule:: asreview.models.classifiers
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   utils.list_classifiers
-   utils.get_classifier
-   utils.get_classifier_class
-
-
-
-
+   classifiers.utils
 
 
 
@@ -259,47 +120,19 @@ This module contains all feature extractor models.
    :no-inherited-members:
 
 .. currentmodule:: asreview.models
-
+     
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: class.rst
-
+   :recursive:
+   
    feature_extraction.base.BaseFeatureExtraction
-
-Classes
-#######
-
-.. currentmodule:: asreview.models
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
    feature_extraction.Tfidf
    feature_extraction.Doc2Vec
    feature_extraction.EmbeddingIdf
    feature_extraction.EmbeddingLSTM
    feature_extraction.SBERT
-
-
-:mod:`asreview.models.feature_extraction.utils`
-###############################################
-
-.. currentmodule:: asreview.models.feature_extraction
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   utils.list_feature_extraction
-   utils.get_feature_model
-   utils.get_feature_class
-
-
-
-
+   feature_extraction.utils
 
 
 
@@ -317,45 +150,46 @@ This Module contains all query strategy models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: class.rst
-
+   :recursive:
+   
+   query.base
    query.base.BaseQueryStrategy
-
-Classes
-#######
-
-.. currentmodule:: asreview.models
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
+   query.base.ProbaQueryStrategy
+   query.base.NotProbaQueryStrategy
    query.MaxQuery
    query.UncertaintyQuery
    query.RandomQuery
    query.ClusterQuery
    query.MaxRandomQuery
    query.MaxUncertaintyQuery
-
-:mod:`asreview.models.query.utils`
-##################################
-
-.. currentmodule:: asreview.models.query
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   utils.list_query_strategies
-   utils.get_query_model
-   utils.get_query_class
+   query.utils
 
 
 
 :mod:`asreview.review`
 ======================
-[todo]
+
+[todo] idk what exactly this does
+
+.. automodule:: asreview.review
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :recursive:
+   
+   review.base
+   review.base.BaseReview
+   review.factory
+   review.minimal
+   review.minimal.MinimalReview
+   review.simulate
+   review.simulate.ReviewSimulate
+
 
 
 
@@ -373,44 +207,11 @@ This module handles the ASReview file
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: class.rst
-
+   :recursive:
+   
+   state.base
    state.base.BaseState
-
-Classes
--------
-
-.. currentmodule:: asreview
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: class.rst
-
 	state.HDF5State
    state.JSONState
    state.DictState
-
-:mod:`asreview.state.utils`
-----------------------------------
-.. currentmodule:: asreview.state
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   utils._get_state_class
-   utils.open_state
-   utils.states_from_dir
-   utils.state_from_file
-   utils.state_from_asreview_file
-
-autosummary recursive
-=====================
-Some words.
-
-.. autosummary::
-   :toctree: _autosummary
-   :recursive:
-
-   asreview
+   state.utils
