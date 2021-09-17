@@ -4,6 +4,8 @@
 
 .. autoclass:: {{ objname }}
    :members:
+   :undoc-members:
+   :private-members:
    :show-inheritance:
    :inherited-members:
    :special-members: __call__, __add__, __mul__

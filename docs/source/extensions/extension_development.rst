@@ -1,4 +1,4 @@
-:ref:`develop-extensions`
+.. _develop-extensions:
 
 Create an extension
 ===================
@@ -16,7 +16,7 @@ setuptools. You will need to create a package and install it (for example with
 pip).
 
 For more information on the ASReview API for creating an extension, a technical reference for
-development is found under the :doc:`../API/reference`.
+development is found under the :ref:`API reference<api_ref>`.
 
 
 Model extensions
@@ -24,14 +24,15 @@ Model extensions
 
 Model extensions extent the ASReview software with new classifiers, query
 strategies, balance strategies, or feature extraction techniques. These
-extensions extend the :class:`asreview.models.base.py` class, and the base class
-for the type of model.
+extensions extend one of the model base classes (:class:`asreview.models.balance.base`,
+:class:`asreview.models.classifiers.base`, :class:`asreview.models.feature_extraction.base`,
+:class:`asreview.models.query.base`).
 
-The easiest way to
-extend ASReview with a model is by using the template `Template for extending
-ASReview <https://github.com/asreview/template-extension-new-model>`__. Create a
-copy of the template and add the new algorithms. It is advised to use the
-following structure of the package:
+The easiest way to extend ASReview with a model is by using the template
+`Template for extending ASReview
+<https://github.com/asreview/template-extension-new-model>`__. Create a copy of
+the template and add the new algorithms. It is advised to use the following
+structure of the package:
 
 .. code:: bash
 
