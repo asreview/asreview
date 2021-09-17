@@ -1,3 +1,5 @@
+:ref:`develop-extensions`
+
 Create an extension
 ===================
 

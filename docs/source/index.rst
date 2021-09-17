@@ -13,7 +13,6 @@ University and is published under the `Apache 2.0 licence
 
 A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://doi.org/10.5281/zenodo.4287119>`_. 
 
-
 .. toctree::
    :caption: Introduction
    :maxdepth: 1
@@ -90,8 +89,6 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
    :caption: Guides
 
    guides/activelearning
-
-   guides/extension_guides
 
    guides/simulation_study_results
 

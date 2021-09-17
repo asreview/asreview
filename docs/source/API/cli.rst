@@ -328,5 +328,5 @@ strategies, and feature extraction algorithms) in ASReview.
 .. note::
 
     :program:`asreview algorithms` included models added via extensions.
-    See :doc:`../extensions/extension_development` for more information on extending ASReview with new
+    See :ref:`develop-extensions` for more information on extending ASReview with new
     models via extensions.
