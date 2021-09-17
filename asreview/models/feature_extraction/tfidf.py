@@ -24,7 +24,7 @@ class Tfidf(BaseFeatureExtraction):
     feature extraction technique from `SKLearn <https://scikit-learn.org/stable/modules/
     generated/sklearn.feature_extraction.text.TfidfVectorizer.html>`__. Gives
     a sparse matrix as output. Works well in combination with
-    :class:`asreview.models.NBModel` and other fast training models (given
+    :class:`asreview.models.classifiers.NaiveBayesClassifier` and other fast training models (given
     that the features vectors are relatively wide).
 
     Arguments
