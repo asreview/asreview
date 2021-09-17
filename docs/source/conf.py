@@ -88,6 +88,9 @@ extensions = [
 ]
 autosectionlabel_prefix_document = True
 
+# If no docstring, inherit from base class
+autodoc_inherit_docstrings = True
+
 # generate autosummary even if no references
 autosummary_generate = True
 

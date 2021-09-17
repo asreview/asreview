@@ -4,34 +4,104 @@
 API Reference
 =============
 
-This is the ASReview API Reference.
-
-
-
-
+Welcome to the ASReview API.
 
 
 
 :mod:`asreview.analysis`
 ========================
 
-[todo]
+This module contains the ASReview analysis functionality.
+
+.. automodule:: asreview.analysis
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+   :recursive:
+
+   analysis.analysis
+   analysis.statistics
+
+
 
 :mod:`asreview.data`
 ====================
 
-[todo]
+This module contains the data handling.
+
+.. automodule:: asreview.data
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+   :recursive:
+
+   data.base
+   data.statistics
+   data.utils
+
+
 
 :mod:`asreview.entry_points`
 ============================
 
-[todo]
+This module contains the ASReview entry point handling.
+
+.. automodule:: asreview.entry_points
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+   :recursive:
+
+   entry_points.base
+   entry_points.algorithms
+   entry_points.lab
+   entry_points.simulate
+
 
 
 :mod:`asreview.io`
 ==================
 
-[todo]
+This module contains the base model class.
+
+.. automodule:: asreview.io
+    :no-members:
+    :no-inherited-members:
+
+.. currentmodule:: asreview
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+   :recursive:
+
+   io.csv_reader
+   io.excel_reader
+   io.paper_record
+   io.pubmed_xml_reader
+   io.ris_reader
+   io.utils
+
+
 
 :mod:`asreview.models`
 ======================
@@ -47,14 +117,10 @@ This module contains the base model class.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
+   :recursive:
 
    models.base
-
-      .. autosummary::
-         :nosignatures:
-         :toctree: generated/
-         
-         models.base.BaseModel
 
 
 :mod:`asreview.models.balance`
@@ -62,7 +128,7 @@ This module contains the base model class.
 
 This module contains all Balancer models.
 
-.. automodule:: asreview.models.classifiers
+.. automodule:: asreview.models.balance
     :no-members:
     :no-inherited-members:
 
@@ -71,9 +137,10 @@ This module contains all Balancer models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
    :recursive:
    
-   balance.base.BaseBalance
+   balance.base
    balance.SimpleBalance
    balance.DoubleBalance
    balance.TripleBalance
@@ -96,9 +163,10 @@ This module contains all classifier models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
    :recursive:
    
-   classifiers.base.BaseTrainClassifier
+   classifiers.base
    classifiers.NaiveBayesClassifier
    classifiers.RandomForestClassifier
    classifiers.SVMClassifier
@@ -124,9 +192,10 @@ This module contains all feature extractor models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
    :recursive:
    
-   feature_extraction.base.BaseFeatureExtraction
+   feature_extraction.base
    feature_extraction.Tfidf
    feature_extraction.Doc2Vec
    feature_extraction.EmbeddingIdf
@@ -150,12 +219,10 @@ This Module contains all query strategy models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
    :recursive:
    
    query.base
-   query.base.BaseQueryStrategy
-   query.base.ProbaQueryStrategy
-   query.base.NotProbaQueryStrategy
    query.MaxQuery
    query.UncertaintyQuery
    query.RandomQuery
@@ -169,7 +236,7 @@ This Module contains all query strategy models.
 :mod:`asreview.review`
 ======================
 
-[todo] idk what exactly this does
+This module handles ASReview.
 
 .. automodule:: asreview.review
    :no-members:
@@ -180,15 +247,13 @@ This Module contains all query strategy models.
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
    :recursive:
    
    review.base
-   review.base.BaseReview
    review.factory
    review.minimal
-   review.minimal.MinimalReview
    review.simulate
-   review.simulate.ReviewSimulate
 
 
 
@@ -196,7 +261,7 @@ This Module contains all query strategy models.
 :mod:`asreview.state`
 =====================
 
-This module handles the ASReview file
+This module handles the ASReview file.
 
 .. automodule:: asreview.state
    :no-members:
@@ -207,10 +272,10 @@ This module handles the ASReview file
 .. autosummary::
    :nosignatures:
    :toctree: generated/
+   :template: custom-module-template.rst
    :recursive:
    
    state.base
-   state.base.BaseState
 	state.HDF5State
    state.JSONState
    state.DictState
