@@ -21,7 +21,6 @@ DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
-DATA_FP_PARTIAL = Path("tests", "demo_data", "generic_partial_labels.csv")
 EMBEDDING_FP = Path("tests", "demo_data", "generic.vec")
 CFG_DIR = Path("tests", "cfg_files")
 STATE_DIR = Path("tests", "state_files")
@@ -193,36 +192,6 @@ def test_logistic(tmpdir):
 
 def test_classifiers():
     assert len(list_classifiers()) >= 7
-
-
-def test_partial_simulation(tmpdir):
-
-    # copy state file to tmp dir for changes
-    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
-    copyfile(H5_STATE_FILE, tmp_h5_state_fp)
-
-    check_model(data_fp=DATA_FP_PARTIAL,
-                state_file=tmp_h5_state_fp,
-                n_prior_included=1,
-                n_prior_excluded=1,
-                prior_idx=None,
-                state_checker=check_partial_state)
-
-
-@pytest.mark.xfail(
-    raises=ValueError,
-    reason="prior_idx not available for partly labeled data"
-)
-def test_partial_simulation_2(tmpdir):
-
-    # copy state file to tmp dir for changes
-    tmp_h5_state_fp = Path(tmpdir, "tmp_state.h5")
-    copyfile(H5_STATE_FILE, tmp_h5_state_fp)
-
-    check_model(data_fp=DATA_FP_PARTIAL,
-                state_file=tmp_h5_state_fp,
-                prior_idx=[0, 5],
-                state_checker=check_partial_state)
 
 
 def check_label_methods(label_methods, n_labels, methods):
