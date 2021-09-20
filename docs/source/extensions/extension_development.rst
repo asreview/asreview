@@ -15,24 +15,27 @@ The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with
 pip).
 
-For more information on the ASReview API for creating an extension, a technical reference for
-development is found under the :ref:`API reference<api_ref>`.
+For more information on the ASReview API for creating an extension, a technical
+reference for development is found under the :ref:`API reference<api_ref>`. This
+technical reference contains functions for use in your extension, and an
+overview of all classes to extend on.
 
 
 Model extensions
 ----------------
+An extension of a :class:`asreview.models.base.BaseModel` type class.
 
 Model extensions extent the ASReview software with new classifiers, query
 strategies, balance strategies, or feature extraction techniques. These
-extensions extend one of the model base classes (:class:`asreview.models.balance.base`,
-:class:`asreview.models.classifiers.base`, :class:`asreview.models.feature_extraction.base`,
+extensions extend one of the model base classes
+(:class:`asreview.models.balance.base`,
+:class:`asreview.models.classifiers.base`,
+:class:`asreview.models.feature_extraction.base`,
 :class:`asreview.models.query.base`).
 
-The easiest way to extend ASReview with a model is by using the template
-`Template for extending ASReview
-<https://github.com/asreview/template-extension-new-model>`__. Create a copy of
-the template and add the new algorithms. It is advised to use the following
-structure of the package:
+The easiest way to extend ASReview with a model is by using the |template_link|.
+Create a copy of the template and add the new algorithm to a new model file. It
+is advised to use the following structure of the package:
 
 .. code:: bash
 
@@ -78,26 +81,23 @@ models.
 
 This code registers the model with name ``example``.
 
-Install the package with pip:
+.. |template_link| raw:: html
 
-.. code:: bash
-
-    pip install .
-
-The new classifier is now available and can be used, for example, in the
-simulate command line.
-
-.. code:: bash
-
-    asreview simulate example_data_file.csv -m example
+    <a href="https://github.com/asreview/template-extension-new-model"
+    target="_blank"> template for extending ASReview</a>
 
 
-An example of a model extension is the `model extension template
-<https://github.com/asreview/template-extension-new-model>`_
+
+
+
+
+
+
 
 
 Subcommand extensions 
 ---------------------
+An extension of the :class:`asreview.entry_points.base.BaseEntryPoint` class.
 
 Subcommand extensions are programs that create a new entry point for ASReview.
 From this entry point the Python API can be used in many ways (like ``plot`` or
@@ -108,7 +108,7 @@ subcommands of asreview (see ``asreview -h``).
 
 The easiest way to create a new subcommand is by defining a class that can be
 used as a new entry point for ASReview. This class should inherit from
-:class:`asreview.entry_points.BaseEntryPoint`. Add the functionality to the
+:class:`asreview.entry_points.base.BaseEntryPoint`. Add the functionality to the
 class method ``execute``.
 
 .. code:: python
@@ -166,15 +166,47 @@ example`` subcommand. See ``asreview -h`` for this option.
 An example of a subcommand extension is the `Visualization Extension
 <https://github.com/asreview/asreview-visualization>`_
 
+
+
+
+
+
+
+
+
+
+
+
 Dataset extensions
 ------------------
+An extension of the :class:`asreview.datasets.BaseDataSet` class.
 
 Dataset extensions integrate new datasets for use in ASReview. Adding datasets
-via extension provides quick access to the dataset via commandline.
+via extension provides quick access to the dataset via commandline or other user
+interface.
 
-[todo]
+It is advised to place the new dataset ``your_dataset`` in the
+following package structure:
 
-An example of a dataset extension is the `Covid-19 Extension
-<https://github.com/asreview/asreview-covid19>`_
+.. code:: bash
 
+    ├── README.md
+    ├── asreviewcontrib
+    │   └── dataset_name
+    │       ├── __init__.py
+    │       └── your_dataset.py
+    ├── config
+    │   └── your_dataset.json
+    ├── datasets
+    │   └── dataset_name
+    │       ├── __init__.py
+    │       └── your_dataset.csv
+    ├── setup.py
+    └── tests
 
+For minimal functionality, ``your_dataset.py`` should extent
+:class:`asreview.datasets.BaseDataSet`. Further functionality can be extensions
+of any other class in :mod:`asreview.datasets`. 
+
+For a good example of the implementation of a dataset extension, take a look at
+the `Covid-19 Extension <https://github.com/asreview/asreview-covid19>`_.

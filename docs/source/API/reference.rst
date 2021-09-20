@@ -23,7 +23,6 @@ This module contains the ASReview analysis functionality.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
 
    analysis.analysis
    analysis.statistics
@@ -45,7 +44,7 @@ This module contains the data handling.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
 
    data.base
    data.statistics
@@ -68,7 +67,7 @@ This module contains the ASReview entry point handling.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
 
    entry_points.base
    entry_points.algorithms
@@ -92,7 +91,7 @@ This module contains the base model class.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
 
    io.csv_reader
    io.excel_reader
@@ -101,6 +100,8 @@ This module contains the base model class.
    io.ris_reader
    io.utils
 
+
+.. the underlying part could also be done with :recursive:, but it turned out a bit unruly.
 
 
 :mod:`asreview.models`
@@ -118,8 +119,7 @@ This module contains the base model class.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
-
+   
    models.base
 
 
@@ -138,7 +138,7 @@ This module contains all Balancer models.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
    
    balance.base
    balance.SimpleBalance
@@ -164,7 +164,7 @@ This module contains all classifier models.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
    
    classifiers.base
    classifiers.NaiveBayesClassifier
@@ -193,7 +193,7 @@ This module contains all feature extractor models.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
    
    feature_extraction.base
    feature_extraction.Tfidf
@@ -220,7 +220,7 @@ This Module contains all query strategy models.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
    
    query.base
    query.MaxQuery
@@ -248,7 +248,7 @@ This module handles ASReview.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
    
    review.base
    review.factory
@@ -273,10 +273,32 @@ This module handles the ASReview file.
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   :recursive:
+   
    
    state.base
 	state.HDF5State
    state.JSONState
    state.DictState
    state.utils
+
+
+   
+:mod:`asreview`
+===============
+
+This contains separate ASReview modules.
+
+.. automodule:: asreview
+   :no-members:
+   :no-inherited-members:
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+   
+   asreview.datasets
+   asreview.init_sampling
+   asreview.search
+   asreview.types
+   asreview.utils
