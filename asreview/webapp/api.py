@@ -518,7 +518,9 @@ def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
 
-    subset = request.args.get('subset', default=None, type=str)
+    subset = request.args.get("subset", default=None, type=str)
+    page = request.args.get("page", default=None, type=int)
+    per_page = request.args.get("per_page", default=20, type=int)
 
     # check if the subset exists
     if subset is not None and subset not in ["included", "excluded"]:
@@ -533,12 +535,49 @@ def api_get_prior(project_id):  # noqa: F401
                         lock_name="active",
                         project_id=project_id):
             label_history = read_label_history(project_id, subset=subset)
+            label_history.reverse()
+
+        # count labeled records and max pages
+        count = len(label_history)
+        max_page_calc = divmod(count, per_page)
+        if max_page_calc[1] == 0:
+            max_page = max_page_calc[0]
+        else:
+            max_page = max_page_calc[0] + 1
+
+        if page is not None:
+            # slice out records on specific page
+            if page <= max_page:
+                idx_start = page * per_page - per_page
+                idx_end = page * per_page
+                label_history = label_history[idx_start : idx_end]
+            else:
+                raise ValueError(f"Page {page - 1} is the last page.")
+
+            # set next & previous page
+            if page < max_page:
+                next_page = page + 1
+                if page > 1:
+                    previous_page = page - 1
+                else:
+                    previous_page = None
+            else:
+                next_page = None
+                previous_page = page - 1
+        else:
+            next_page = None
+            previous_page = None
 
         indices = [x[0] for x in label_history]
 
         records = read_data(project_id).record(indices, by_index=False)
 
-        payload = {"result": []}
+        payload = {
+            "count": count,
+            "next_page": next_page,
+            "previous_page": previous_page,
+            "result": [],
+        }
         for i, record in enumerate(records):
 
             payload["result"].append({
@@ -550,11 +589,9 @@ def api_get_prior(project_id):  # noqa: F401
                 "included": int(label_history[i][1])
             })
 
-        payload["result"] = payload["result"][::-1]
-
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load labeled documents"), 500
+        return jsonify(message=f"Failed to load labeled documents. {err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

@@ -144,14 +144,16 @@ class ProjectAPI {
     });
   }
 
-  static fetchLabeledRecord({ queryKey }) {
-    const { project_id } = queryKey[1];
+  static fetchLabeledRecord({ pageParam = 1, queryKey }) {
+    const { project_id, select, per_page } = queryKey[1];
     const url = api_url + `project/${project_id}/prior`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url)
+        .get(url, {
+          params: { subset: select, page: pageParam, per_page: per_page },
+        })
         .then((result) => {
-          resolve(result.data["result"]);
+          resolve(result.data);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -358,6 +360,7 @@ class ProjectAPI {
     });
   }
 
+  // TODO{Terry}: deprecating, will be replaced by mutateClassification()
   static classify_instance(project_id, doc_id, data, initial) {
     const url = api_url + `project/${project_id}/record/${doc_id}`;
     return new Promise((resolve, reject) => {
