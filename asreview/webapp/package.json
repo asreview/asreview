@@ -23,7 +23,7 @@
     "react-scripts": "^3.4.4",
     "react-swipeable-views": "^0.13.9",
     "react-transition-group": "^4.4.1",
-    "react-truncate": "^2.4.0",
+    "react-truncate-markup": "^5.1.0",
     "recharts": "^1.8.5",
     "semver": "^7.3.4",
     "typeface-roboto": "0.0.75",
