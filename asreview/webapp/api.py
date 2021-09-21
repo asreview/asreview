@@ -550,7 +550,7 @@ def api_get_prior(project_id):  # noqa: F401
             if page <= max_page:
                 idx_start = page * per_page - per_page
                 idx_end = page * per_page
-                label_history = label_history[idx_start : idx_end]
+                label_history = label_history[idx_start:idx_end]
             else:
                 raise ValueError(f"Page {page - 1} is the last page.")
 
