@@ -17,7 +17,7 @@ import ASReviewLogo from "../images/Wordmark_LAB_colour.svg";
 import { connect } from "react-redux";
 
 // redux config
-import { setAppState } from "../redux/actions";
+import { setAppState, toggleHelpDialog } from "../redux/actions";
 
 import { donateURL } from "../globals.js";
 
@@ -31,6 +31,9 @@ function mapDispatchToProps(dispatch) {
   return {
     setAppState: (app_state) => {
       dispatch(setAppState(app_state));
+    },
+    toggleHelpDialog: () => {
+      dispatch(toggleHelpDialog());
     },
   };
 }
@@ -145,7 +148,7 @@ const MenuDrawer = (props) => {
             key="menu-button-help"
             onClick={() => {
               props.setMenuDrawerState({ left: false });
-              props.toggleHelp();
+              props.toggleHelpDialog();
             }}
           >
             <ListItemIcon>
