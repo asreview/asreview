@@ -1,6 +1,7 @@
 export { default as DecisionButton } from "./DecisionButton";
 export { default as DecisionUndoBar } from "./DecisionUndoBar";
 export { default as ExplorationModeBanner } from "./ExplorationModeBanner";
+export { default as LabeledRecord } from "./LabeledRecord";
 export { default as LabeledRecordCard } from "./LabeledRecordCard";
 export { default as NoteSheet } from "./NoteSheet";
 export { default as RecordCard } from "./RecordCard";

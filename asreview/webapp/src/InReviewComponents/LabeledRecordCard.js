@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
+import { connect } from "react-redux";
+import TruncateMarkup from "react-truncate-markup";
 import {
   Card,
   CardActions,
@@ -13,14 +15,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 
-import Truncate from "react-truncate";
-import { connect } from "react-redux";
-
 import { mapStateToProps } from "../globals.js";
 
-const TRUNCATE_WIDTH_OFFSET = -56;
-
 const useStyles = makeStyles((theme) => ({
+  root: {
+    borderRadius: 8,
+  },
   icon: {
     marginLeft: "auto",
   },
@@ -29,72 +29,66 @@ const useStyles = makeStyles((theme) => ({
 const LabeledRecordCard = (props) => {
   const classes = useStyles();
 
-  const cardRef = useRef(null);
-  const [cardWidth, setCardWidth] = useState(null);
-
-  useEffect(() => {
-    if (cardRef.current) {
-      setCardWidth(cardRef.current.offsetWidth);
-    }
-  }, []);
-
   return (
-    <Card>
-      <CardContent ref={cardRef}>
-        <Typography gutterBottom variant="h6">
-          {props.value.title
-            ? props.value.title
-            : "This record doesn't have a title."}
-        </Typography>
-        <Truncate
-          lines={6}
-          ellipsis={
-            <span>
-              ...{" "}
-              <Link
-                component="button"
-                underline="none"
-                onClick={(event) => props.handleClick(event, props.index)}
+    <React.Fragment>
+      {props.page.result.map((value) => (
+        <Card className={classes.root} key={value.id}>
+          <CardContent>
+            <Typography gutterBottom variant="h6">
+              {value.title ? value.title : "This record doesn't have a title."}
+            </Typography>
+            <TruncateMarkup
+              lines={6}
+              ellipsis={
+                <span>
+                  ...{" "}
+                  <Link
+                    component="button"
+                    underline="none"
+                    onClick={(event) => props.toggleRecord(event, value)}
+                  >
+                    read more
+                  </Link>
+                </span>
+              }
+            >
+              <div>
+                {value.abstract
+                  ? value.abstract
+                  : "This record doesn't have an abstract."}
+              </div>
+            </TruncateMarkup>
+          </CardContent>
+          <CardActions>
+            <Tooltip
+              title={
+                value.included === 1
+                  ? "Convert to irrelevant"
+                  : "Convert to relevant"
+              }
+            >
+              <IconButton
+                className={classes.icon}
+                onClick={() => {
+                  props.mutateClassification({
+                    project_id: props.project_id,
+                    doc_id: value.id,
+                    label: value.included,
+                    initial: false,
+                  });
+                }}
               >
-                read more
-              </Link>
-            </span>
-          }
-          width={cardWidth + TRUNCATE_WIDTH_OFFSET}
-        >
-          {props.value.abstract
-            ? props.value.abstract
-            : "This record doesn't have an abstract."}
-        </Truncate>
-      </CardContent>
-      <CardActions>
-        <Tooltip
-          title={
-            props.value.included === 1
-              ? "Convert to irrelevant"
-              : "Convert to relevant"
-          }
-        >
-          <IconButton
-            className={classes.icon}
-            onClick={() => {
-              props.mutate({
-                project_id: props.project_id,
-                doc_id: props.value.id,
-                label: props.value.included,
-                initial: false,
-              });
-            }}
-          >
-            {props.value.included === 1 ? (
-              <FavoriteIcon color="secondary" fontSize="small" />
-            ) : (
-              <FavoriteBorderIcon fontSize="small" />
-            )}
-          </IconButton>
-        </Tooltip>
-      </CardActions>
-    </Card>
+                {value.included === 1 ? (
+                  <FavoriteIcon color="secondary" fontSize="small" />
+                ) : (
+                  <FavoriteBorderIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+          </CardActions>
+        </Card>
+      ))}
+    </React.Fragment>
   );
 };
 
