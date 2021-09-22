@@ -42,6 +42,10 @@ def test_reader(test_file, n_lines, ignore_col):
         values = as_data.get(col)
         assert len(values) == n_lines
 
+@mark.parametrize("test_file", [
+    ("_baseline.ris"),
+    ("baseline_labeled.ris")
+])
 def test_internal_representation(test_file):
     fp = Path("tests", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)
