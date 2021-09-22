@@ -86,15 +86,6 @@ This code registers the model with name ``example``.
     <a href="https://github.com/asreview/template-extension-new-model"
     target="_blank"> template for extending ASReview</a>
 
-
-
-
-
-
-
-
-
-
 Subcommand extensions 
 ---------------------
 An extension of the :class:`asreview.entry_points.base.BaseEntryPoint` class.
