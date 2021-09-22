@@ -54,7 +54,7 @@ pip install --upgrade asreview
 
 Instructions for usage with Docker are [here](docker/README.md).
 
-Want to keep up-to-date with the latest version?
+Want to keep up-to-date with the latest ASReview updates?
 Sign up for the newsletter!
 <p align="left">
   <a href="https://mailings.uu.nl/hp/hdjCyLxhXRWN7RJr_9ahxQ/subscribe_newsletter_asreview">
