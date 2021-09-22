@@ -4,9 +4,9 @@ import { CssBaseline, createMuiTheme, useMediaQuery } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
 
-import { Header, HistoryDialog, ExportDialog } from "./Components";
+import { Header, ExportDialog } from "./Components";
 import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
-import { ReviewDialog } from "./InReviewComponents";
+import { ReviewDialog, ReviewHistoryDialog } from "./InReviewComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
@@ -50,8 +50,8 @@ const App = (props) => {
   const [settings, setSettings] = useToggle();
   const [exit, setExit] = useToggle();
   const [exportResult, setExportResult] = useToggle();
-  const [history, setHistory] = useToggle();
   const [review, setReview] = useToggle();
+  const [reviewHistory, setReviewHistory] = useToggle();
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -101,17 +101,17 @@ const App = (props) => {
             mobileScreen={mobileScreen}
             onReview={review}
             toggleReview={setReview}
-            toggleHistory={setHistory}
+            toggleReviewHistory={setReviewHistory}
             fontSize={fontSize}
             undoEnabled={undoEnabled}
             keyPressEnabled={keyPressEnabled}
           />
         )}
         {props.app_state === "review" && (
-          <HistoryDialog
+          <ReviewHistoryDialog
             mobileScreen={mobileScreen}
-            toggleHistory={setHistory}
-            history={history}
+            toggleReviewHistory={setReviewHistory}
+            onReviewHistory={reviewHistory}
           />
         )}
 
