@@ -53,7 +53,9 @@ possible to :ref:`search for specific records <features/pre_screening:Search>` w
 your dataset (for finding prior relevant papers), ask the software to present
 a couple of :ref:`random documents <features/pre_screening:Random>` (for prior
 irrelevant papers), or to upload :ref:`partly labeled data
-<partly-labeled-data>`.
+<partly-labeled-data>`. When searching for specific records be sure to be precise
+with the search terms (use the full title of an article for example),
+as only the first 10 results are shown to you.
 
 
 .. figure:: ../../images/asreview_prescreening_prior_next.png

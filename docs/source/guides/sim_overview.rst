@@ -7,7 +7,7 @@ Why run a simulation?
 ---------------------
 
 Doing simulations can be a great way to assess how well ASReview performs for
-your particular purposes. The user can run simulations on previously labeled
+your particular purposes. The user can run simulations on previously fully labeled
 datasets to see how much time is saved by using ASReview.
 
 Doing the simulation
@@ -26,8 +26,8 @@ can be accessed directly from the command line, for example like:
 	asreview simulate MY_DATASET.csv --state_file myreview.h5
 
 This performs a simulation of a default active learning model, where
-``MY_DATASET.csv`` is the path to the dataset you wish to simulate on and
-where ``myreview.h5`` is the file wherein the results will be stored.
+``MY_DATASET.csv`` is the path to the fully labeled dataset you wish to simulate on
+and where ``myreview.h5`` is the file wherein the results will be stored.
 
 
 More details on specific model and simulation settings can be found in the
@@ -103,4 +103,3 @@ details on the table for :ref:`feature-extraction-table`.
 
 The last element that can be changed is the :ref:`balance-strategies-table`,
 and is changed with the ``-b`` flag. Default is double balance.
-
