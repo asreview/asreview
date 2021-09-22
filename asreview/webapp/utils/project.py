@@ -485,7 +485,7 @@ def get_statistics(project_id):
     # compute metrics
     n_included = n_relevant(labeled)
     n_excluded = n_irrelevant(labeled)
-    n_pool = len(pool)
+    n_pool = len(pool) if pool is not None else 0
 
     return {
         "n_included": n_included,

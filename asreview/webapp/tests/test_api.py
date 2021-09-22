@@ -46,6 +46,19 @@ def test_init_project(tmp_path, client):
     assert isinstance(json_data, dict)
 
 
+def test_get_projects_stats(client):
+    """Test get dashboard statistics of all projects"""
+
+    response = client.get("/api/projects/stats")
+    json_data = response.get_json()
+
+    assert "n_in_review" in json_data["result"]
+    assert "n_finished" in json_data["result"]
+    assert "n_reviewed" in json_data["result"]
+    assert "n_included" in json_data["result"]
+    assert isinstance(json_data["result"], dict)
+
+
 def test_demo_data_project(client):
     """Test retrieve plugin and benchmark datasets"""
 
