@@ -123,7 +123,7 @@ def test_csv_write_data(tmpdir):
     assert list(asr_data.labels) == list(asr_data_diff.labels)
 
 def test_ris_write_data(tmpdir):
-     fp_in = Path("tests", "demo_data", "ris", "_baseline.ris")
+     fp_in = Path("tests", "demo_data", "_baseline.ris")
      asr_data = ASReviewData.from_file(fp_in)
 
      # tmp_ris_fp_out = Path(tmpdir, "tmp_generic_labels.ris")
