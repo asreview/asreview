@@ -34,7 +34,7 @@ ASReview software implements two different modes:
   is highly recommended.
   
 Want to keep up-to-date with the latest ASReview updates?
-[Sign up for the newsletter 📰](http://asreview.ai/newsletter)
+[Sign up for the newsletter 📰](https://asreview.ai/newsletter)
 
 ## Installation
 
@@ -96,7 +96,7 @@ The best resources to find an answer to your question or ways to get in
 contact with the team are:
 
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
-- Newsletter - [asreview.ai/newsletter](http://asreview.ai/newsletter)
+- Newsletter - [asreview.ai/newsletter](https://asreview.ai/newsletter)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
 - Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
 - FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
