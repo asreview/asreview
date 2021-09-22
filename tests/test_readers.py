@@ -7,6 +7,8 @@ from asreview import ASReviewData
 
 
 @mark.parametrize("test_file,n_lines,ignore_col", [
+    ("_baseline.ris", 100, []),
+    ("baseline_labeled.ris", 100, []),
     ("embase.csv", 6, ["keywords"]),
     ("embase_newpage.csv", 6, ["keywords"]),
     ("embase.ris", 6, []),
