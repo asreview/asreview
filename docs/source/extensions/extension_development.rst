@@ -197,8 +197,7 @@ following package structure:
     │       └── your_dataset.py
     ├── config
     │   └── your_dataset.json
-    ├── datasets
-    │   └── dataset_name
+    ├── data
     │       ├── __init__.py
     │       └── your_dataset.csv
     ├── setup.py
