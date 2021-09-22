@@ -282,7 +282,7 @@ const ReviewDialog = (props) => {
     };
 
     const getProgressHistory = () => {
-      ProjectAPI.progress_history(props.project_id)
+      ProjectAPI.progress_density(props.project_id)
         .then((result) => {
           setHistory(result.data);
         })
