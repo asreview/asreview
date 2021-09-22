@@ -182,8 +182,8 @@ Dataset extensions
 An extension of the :class:`asreview.datasets.BaseDataSet` class.
 
 Dataset extensions integrate new datasets for use in ASReview. Adding datasets
-via extension provides quick access to the dataset via commandline or other user
-interface.
+via extension provides quick access to the dataset via Command Line Interface or in
+ASReview LAB.
 
 It is advised to place the new dataset ``your_dataset`` in the
 following package structure:
