@@ -8,6 +8,28 @@ Welcome to the ASReview API.
 
 
 
+:mod:`asreview`
+===============
+
+This contains separate ASReview modules.
+
+.. automodule:: asreview
+   :no-members:
+   :no-inherited-members:
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-module-template.rst
+   
+   asreview.datasets
+   asreview.init_sampling
+   asreview.search
+   asreview.types
+   asreview.utils
+
+
+
 :mod:`asreview.analysis`
 ========================
 
@@ -141,10 +163,10 @@ This module contains all Balancer models.
    
    
    balance.base
-   balance.SimpleBalance
-   balance.DoubleBalance
-   balance.TripleBalance
-   balance.UndersampleBalance
+   balance.simple
+   balance.double
+   balance.triple
+   balance.undersample
    balance.utils
 
 
@@ -167,13 +189,13 @@ This module contains all classifier models.
    
    
    classifiers.base
-   classifiers.NaiveBayesClassifier
-   classifiers.RandomForestClassifier
-   classifiers.SVMClassifier
-   classifiers.LogisticClassifier
-   classifiers.LSTMBaseClassifier
-   classifiers.LSTMPoolClassifier
-   classifiers.NN2LayerClassifier
+   classifiers.nb
+   classifiers.rf
+   classifiers.svm
+   classifiers.logistic
+   classifiers.lstm_base
+   classifiers.lstm_pool
+   classifiers.nn_2_layer
    classifiers.utils
 
 
@@ -196,11 +218,11 @@ This module contains all feature extractor models.
    
    
    feature_extraction.base
-   feature_extraction.Tfidf
-   feature_extraction.Doc2Vec
-   feature_extraction.EmbeddingIdf
-   feature_extraction.EmbeddingLSTM
-   feature_extraction.SBERT
+   feature_extraction.tfidf
+   feature_extraction.doc2vec
+   feature_extraction.embedding_idf
+   feature_extraction.embedding_lstm
+   feature_extraction.sbert
    feature_extraction.utils
 
 
@@ -223,12 +245,11 @@ This Module contains all query strategy models.
    
    
    query.base
-   query.MaxQuery
-   query.UncertaintyQuery
-   query.RandomQuery
-   query.ClusterQuery
-   query.MaxRandomQuery
-   query.MaxUncertaintyQuery
+   query.max
+   query.mixed
+   query.random
+   query.cluster
+   query.uncertainty
    query.utils
 
 
@@ -276,29 +297,10 @@ This module handles the ASReview file.
    
    
    state.base
-	state.HDF5State
-   state.JSONState
-   state.DictState
+	state.dict
+   state.hdf5
+   state.dict
    state.utils
 
 
    
-:mod:`asreview`
-===============
-
-This contains separate ASReview modules.
-
-.. automodule:: asreview
-   :no-members:
-   :no-inherited-members:
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-module-template.rst
-   
-   asreview.datasets
-   asreview.init_sampling
-   asreview.search
-   asreview.types
-   asreview.utils
