@@ -32,6 +32,9 @@ ASReview software implements two different modes:
   the performance of the active learning software on the results of fully labeled systematic
   reviews. To use the simulation mode, knowledge on programming and bash/Command Prompt
   is highly recommended.
+  
+Want to keep up-to-date with the latest ASReview updates?
+[Sign up for the newsletter 📰](http://asreview.ai/newsletter)
 
 ## Installation
 
@@ -54,13 +57,6 @@ pip install --upgrade asreview
 
 Instructions for usage with Docker are [here](docker/README.md).
 
-Want to keep up-to-date with the latest ASReview updates?
-Sign up for the newsletter!
-<p align="left">
-  <a href="https://mailings.uu.nl/hp/hdjCyLxhXRWN7RJr_9ahxQ/subscribe_newsletter_asreview">
-    <img width="10%" height="10%" src="https://github.com/SagevdBrand/asreview/blob/newsletter-button/images/SignUpButton.svg">
-  </a>
-</p>
 
 ## ASReview LAB
 
@@ -101,6 +97,7 @@ The best resources to find an answer to your question or ways to get in
 contact with the team are:
 
 - Documentation - [asreview.readthedocs.io](https://asreview.readthedocs.io/)
+- Newsletter - [asreview.ai/newsletter](http://asreview.ai/newsletter)
 - Quick tour - [ASReview LAB quick tour](https://asreview.readthedocs.io/en/latest/lab/overview_lab.html)
 - Issues or feature requests - [ASReview issue tracker](https://github.com/asreview/asreview/issues)
 - FAQ - [ASReview Discussions](https://github.com/asreview/asreview/discussions?discussions_q=sort%3Atop)
