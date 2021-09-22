@@ -54,6 +54,9 @@ pip install --upgrade asreview
 
 Instructions for usage with Docker are [here](docker/README.md).
 
+Want to keep up-to-date with the latest version?
+Sign up for the newsletter [![Sign up]https://github.com/asreview/asreview/blob/master/images/SignUpButton.svg)](https://mailings.uu.nl/hp/hdjCyLxhXRWN7RJr_9ahxQ/subscribe_newsletter_asreview)
+
 ## ASReview LAB
 
 ASReview LAB is a user-friendly interface for screening documents and
