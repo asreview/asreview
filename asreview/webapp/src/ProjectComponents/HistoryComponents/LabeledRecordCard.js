@@ -15,7 +15,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 
-import { mapStateToProps } from "../globals.js";
+import { mapStateToProps } from "../../globals.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
 const LabeledRecordCard = (props) => {
   const classes = useStyles();
 
+  const [recordReadMore, setRecordReadMore] = React.useState(null);
+
   return (
     <React.Fragment>
       {props.page.result.map((value) => (
@@ -38,14 +40,14 @@ const LabeledRecordCard = (props) => {
               {value.title ? value.title : "This record doesn't have a title."}
             </Typography>
             <TruncateMarkup
-              lines={6}
+              lines={value.id === recordReadMore ? Infinity : 6}
               ellipsis={
                 <span>
                   ...{" "}
                   <Link
                     component="button"
                     underline="none"
-                    onClick={(event) => props.toggleRecord(event, value)}
+                    onClick={() => setRecordReadMore(value.id)}
                   >
                     read more
                   </Link>
