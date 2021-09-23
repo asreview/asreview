@@ -19,22 +19,21 @@ from pathlib import Path
 import zipfile
 import tempfile
 
-from asreview.config import STATE_EXTENSIONS
+from asreview.config import LEGACY_STATE_EXTENSIONS
 
 
 def _get_state_class(fp):
     "Get state class from file extension."
-    from asreview.state.legacy.hdf5 import HDF5StateLegacy
-    from asreview.state.legacy.json import JSONState
     from asreview.state.legacy.dict import DictState
-
     if fp is None:
         return DictState
 
     state_ext = Path(fp).suffix
     if state_ext in ['.h5', '.hdf5', '.he5']:
+        from asreview.state.legacy.hdf5 import HDF5StateLegacy
         state_class = HDF5StateLegacy
     elif state_ext in ['.json']:
+        from asreview.state.legacy.json import JSONState
         state_class = JSONState
     else:
         state_class = None
@@ -63,7 +62,8 @@ def open_state(fp, *args, read_only=False, **kwargs):
 
     if state_class is None:
         raise ValueError("Bad state file extension, choose one of the"
-                         f" following:\n   {', '.join(STATE_EXTENSIONS)}")
+                         f" following:\n   "
+                         f"{', '.join(LEGACY_STATE_EXTENSIONS)}")
 
     # init state class
     state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs)
@@ -127,12 +127,12 @@ def state_from_file(data_fp):
 
     if Path(data_fp).suffix == ".asreview":
         base_state = state_from_asreview_file(data_fp)
-    elif Path(data_fp).suffix in STATE_EXTENSIONS:
+    elif Path(data_fp).suffix in LEGACY_STATE_EXTENSIONS:
         base_state = _get_state_class(data_fp)(state_fp=data_fp,
                                                read_only=True)
     else:
         raise ValueError(f"Expected ASReview file or file {data_fp} with "
-                         f"extension {STATE_EXTENSIONS}.")
+                         f"extension {LEGACY_STATE_EXTENSIONS}.")
 
     state = {os.path.basename(os.path.normpath(data_fp)): base_state}
     return state

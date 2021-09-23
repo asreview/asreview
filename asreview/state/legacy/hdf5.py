@@ -16,7 +16,11 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import h5py
+try:
+    import h5py
+except ImportError:
+    raise ImportError("""To use the legacy hdf5 state file, downgrade ASReview 
+    to version 0.x and make sure package h5py is installed.""")
 import numpy as np
 from scipy.sparse.csr import csr_matrix
 
