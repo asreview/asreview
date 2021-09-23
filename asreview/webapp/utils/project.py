@@ -37,6 +37,7 @@ from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -49,6 +50,7 @@ from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.project_path import asreview_path, \
     list_asreview_project_paths, get_project_path
 from asreview.webapp.utils.validation import is_project
+from asreview.webapp.utils.validation import is_v0_project
 
 
 class ProjectNotFoundError(Exception):
@@ -434,6 +436,34 @@ def n_irrelevant(labeled):
     return len(labeled[labeled == 0])
 
 
+def get_legacy_statistics(json_fp):
+    """Return the data necessary for get_statistics from and old json state
+    file.
+
+    Arguments
+    ---------
+    json_fp: pathlike
+        File path of the json state file.
+    """
+    with open(json_fp, 'r') as f:
+        s = json.load(f)
+
+    # Get the labels.
+    labeled = np.array([
+        int(sample_data[1])
+        for query in range(len(s['results']))
+        for sample_data in s['results'][query]['labelled']
+    ])
+
+    # Get the record table.
+    data_hash = list(s['data_properties'].keys())[0]
+    record_table = s['data_properties'][data_hash][
+        'record_table']
+
+    n_records = len(record_table)
+    return labeled, n_records
+
+
 def get_statistics(project_id):
     """Get statistics from project files.
 
@@ -445,13 +475,23 @@ def get_statistics(project_id):
     Returns
     -------
     dict:
-        Dictonary with statistics.
+        Dictionary with statistics.
     """
     project_path = get_project_path(project_id)
 
-    with open_state(project_path) as s:
-        labeled = s.get_labels()
-        n_records = len(s.get_record_table())
+    if is_v0_project(project_id):
+        json_fp = Path(project_path, 'result.json')
+        labeled, n_records = get_legacy_statistics(json_fp)
+    else:
+        # Check if there is a review started in the project.
+        if list(get_reviews_path(project_path).iterdir()):
+            with open_state(project_path) as s:
+                labeled = s.get_labels()
+                n_records = len(s.get_record_table())
+        # No reviews found.
+        else:
+            labeled = np.array([])
+            n_records = 0
 
     n_included = n_relevant(labeled)
     n_excluded = n_irrelevant(labeled)

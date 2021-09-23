@@ -189,7 +189,8 @@ def open_state(working_dir, review_id=None, read_only=True):
                 and not read_only:
             state._create_new_state_file(working_dir, review_id)
         else:
-            raise StateNotFoundError("State file does not exist")
+            raise StateNotFoundError("State file does not exist, and in "
+                                     "read only mode.")
         yield state
     finally:
         try:
