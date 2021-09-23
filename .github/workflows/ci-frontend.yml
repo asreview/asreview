@@ -9,9 +9,10 @@ jobs:
         with:
           python-version: "3.8" # Version range or exact version of a Python version to use, using semvers version range syntax.
           architecture: "x64" # (x64 or x86)
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: "10.x"
+          node-version: '16'
+          cache: 'npm'
       - name: Compile assets
         run: |
           python setup.py compile_assets
