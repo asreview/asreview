@@ -605,6 +605,11 @@ class SqlStateV1(BaseState):
         con.close()
         return record_table
 
+    def get_pool_labeled(self):
+        """Return the unlabeled, and labeled record ids, in order."""
+        pass
+        # TODO(State) (See webapp/project, convert to SQL)
+
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
 

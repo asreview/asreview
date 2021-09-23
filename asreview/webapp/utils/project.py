@@ -44,7 +44,6 @@ from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.io import read_proba
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.project_path import asreview_path, \
@@ -511,37 +510,22 @@ def export_to_string(project_id, export_type="csv"):
     # read the dataset into a ASReview data object
     as_data = read_data(project_id)
 
-    # set the lock to safely read labeled, pool, and proba
-    fp_lock = get_lock_path(project_path)
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
-        proba = read_proba(project_id)
-        pool = read_pool(project_id)
-        labeled = read_label_history(project_id)
+    with open_state(project_path) as s:
+        proba = s.get_last_probabilities()
+        print(proba.shape)
+        labeled_data = s.get_dataset(['record_ids', 'labels'])
+        print(labeled_data.shape)
+        record_table = s.get_record_table()
+        print(record_table.shape)
 
-    # get the record_id of the inclusions and exclusions
-    inclusion_record_id = [int(x[0]) for x in labeled if x[1] == 1]
-    exclusion_record_id = [int(x[0]) for x in labeled if x[1] == 0]
+    prob_df = pd.concat([record_table, proba], axis=1)
+    print(prob_df)
+    ranking = pd. \
+        merge(prob_df, labeled_data, on='record_ids', how='left'). \
+        fillna(0.5). \
+        sort_values(['labels', 'proba'], ascending=False)['record_ids']
 
-    # order the pool from high to low proba
-    if proba is not None:
-        pool_ordered = proba.loc[pool, :] \
-            .sort_values("proba", ascending=False).index.values
-    else:
-        pool_ordered = pool
-
-    # get the ranking of the 3 subcategories
-    ranking = np.concatenate(
-        (
-            # add the inclusions first
-            inclusion_record_id,
-            # add the ordered pool second
-            pool_ordered,
-            # add the exclusions last
-            exclusion_record_id),
-        axis=None)
+    labeled = labeled_data.values.tolist()
 
     # export the data to file
     if export_type == "csv":

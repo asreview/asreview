@@ -141,64 +141,6 @@ def write_pool(project_id, pool):
         json.dump(pool, f)
 
 
-def read_proba_legacy(project_id):
-    """Read a project <0.15 proba values"""
-
-    # get the old json project file path
-    proba_fp = Path(get_project_path(project_id), "proba.json")
-
-    with open(proba_fp, "r") as f:
-
-        # read the JSON file and make a list of the proba's
-        proba = json.load(f)
-        proba = [float(x) for x in proba]
-
-    # make a dataframe that looks like the new structure
-    as_data = read_data(project_id)
-    proba = pd.DataFrame(
-        {
-            "proba": [float(x) for x in proba]
-        },
-        index=as_data.record_ids
-    )
-    proba.index.name = "record_id"
-    return proba
-
-
-def read_proba(project_id):
-    project_path = get_project_path(project_id)
-    proba_fp = get_proba_path(project_path)
-    try:
-        return pd.read_csv(proba_fp, index_col="record_id")
-    except FileNotFoundError:
-
-        # try to read the legacy file
-        try:
-            return read_proba_legacy(project_id)
-        except FileNotFoundError:
-            # no proba.csv or proba.json found.
-            pass
-
-    return None
-
-
-def write_proba(project_id, proba):
-
-    # get the proba file path location
-    project_path = get_project_path(project_id)
-    proba_fp = get_proba_path(project_path)
-
-    # validate object
-    if not isinstance(proba, pd.DataFrame):
-        raise ValueError("Expect pandas.DataFrame with proba values.")
-
-    if proba.index.name != "record_id":
-        raise ValueError("Expect index with name 'record_id'.")
-
-    # write the file to a csv file
-    proba.to_csv(proba_fp)
-
-
 def read_label_history(project_id, subset=None):
     """Get all the newly labeled papers from the file.
 
