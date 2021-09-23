@@ -17,6 +17,20 @@ class ProjectAPI {
     });
   }
 
+  static fetchDashboardStats({ queryKey }) {
+    const url = api_url + `projects/stats`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result.data["result"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static init(data) {
     const url = api_url + `project/info`;
     return new Promise((resolve, reject) => {
@@ -130,6 +144,7 @@ class ProjectAPI {
     });
   }
 
+  // TODO{Terry}: deprecating, replaced by fetchLabeledRecord
   static prior(project_id) {
     const url = api_url + `project/${project_id}/prior`;
     return new Promise((resolve, reject) => {
@@ -137,6 +152,23 @@ class ProjectAPI {
         .get(url)
         .then((result) => {
           resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchLabeledRecord({ pageParam = 1, queryKey }) {
+    const { project_id, select, per_page } = queryKey[1];
+    const url = api_url + `project/${project_id}/prior`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, {
+          params: { subset: select, page: pageParam, per_page: per_page },
+        })
+        .then((result) => {
+          resolve(result.data);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -346,6 +378,7 @@ class ProjectAPI {
     });
   }
 
+  // TODO{Terry}: deprecating, will be replaced by mutateClassification()
   static classify_instance(project_id, doc_id, data, initial) {
     const url = api_url + `project/${project_id}/record/${doc_id}`;
     return new Promise((resolve, reject) => {
@@ -357,6 +390,34 @@ class ProjectAPI {
       })
         .then((result) => {
           resolve(result);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateClassification(variables) {
+    let body = new FormData();
+    body.set("doc_id", variables.doc_id);
+    body.set("label", variables.label === 1 ? 0 : 1);
+
+    const url =
+      api_url + `project/${variables.project_id}/record/${variables.doc_id}`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: variables.initial ? "post" : "put",
+        url: url,
+        data: body,
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((result) => {
+          resolve(result);
+          console.log(
+            `${variables.project_id} - add item ${variables.doc_id} to ${
+              variables.label === 1 ? "exclusions" : "inclusions"
+            }`
+          );
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
