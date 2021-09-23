@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: '14'
           cache: 'npm'
+          cache-dependency-path: 'asreview/webapp/package-lock.json'
       - name: Compile assets
         run: |
           python setup.py compile_assets
