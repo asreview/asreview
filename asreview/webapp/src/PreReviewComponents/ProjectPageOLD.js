@@ -27,9 +27,9 @@ import KeyboardVoiceIcon from "@material-ui/icons/KeyboardVoice";
 import GetAppIcon from "@material-ui/icons/GetApp";
 import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
 
-import Finished from "../images/Finished.svg";
-import InReview from "../images/InReview.svg";
-import SetUp from "../images/SetUp.svg";
+import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
+import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
+import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
 import { connect } from "react-redux";
 
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProjectPage = (props) => {
+const ProjectPageOLD = (props) => {
   const classes = useStyles();
 
   const EndRef = useRef(null);
@@ -138,6 +138,7 @@ const ProjectPage = (props) => {
       training: false,
       info: { ...state.info, projectInitReady: true },
     });
+    props.handleAppState("project-page");
   };
 
   const failedProjectFirstTraining = () => {
@@ -430,4 +431,4 @@ const ProjectPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ProjectPage);
+export default connect(mapStateToProps)(ProjectPageOLD);

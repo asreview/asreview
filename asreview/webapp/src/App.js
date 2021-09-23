@@ -1,12 +1,18 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { connect } from "react-redux";
+import "typeface-roboto";
 import { CssBaseline, createMuiTheme, useMediaQuery } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
 
 import { Header, ExportDialog } from "./Components";
-import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
-import { ReviewDialog, ReviewHistoryDialog } from "./InReviewComponents";
+import {
+  PreReviewZone,
+  ProjectPageOLD,
+  StartReview,
+} from "./PreReviewComponents";
+import { ProjectPage } from "./ProjectComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
@@ -19,10 +25,6 @@ import {
   useUndoEnabled,
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
-
-import "typeface-roboto";
-
-import { connect } from "react-redux";
 
 // redux config
 import { setAppState } from "./redux/actions";
@@ -48,8 +50,6 @@ const App = (props) => {
   // Dialog state
   const [settings, setSettings] = useToggle();
   const [exportResult, setExportResult] = useToggle();
-  const [review, setReview] = useToggle();
-  const [reviewHistory, setReviewHistory] = useToggle();
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -73,10 +73,7 @@ const App = (props) => {
         {props.app_state !== "boot" && (
           <Header
             handleAppState={props.setAppState}
-            mobileScreen={mobileScreen}
-            onNavDrawer={navDrawer}
             toggleNavDrawer={setNavDrawer}
-            toggleSettings={setSettings}
           />
         )}
 
@@ -86,13 +83,27 @@ const App = (props) => {
             mobileScreen={mobileScreen}
             onNavDrawer={navDrawer}
             toggleNavDrawer={setNavDrawer}
+            toggleSettings={setSettings}
           />
         )}
 
         {props.app_state === "project-page" && (
           <ProjectPage
             handleAppState={props.setAppState}
-            toggleReview={setReview}
+            mobileScreen={mobileScreen}
+            onNavDrawer={navDrawer}
+            toggleNavDrawer={setNavDrawer}
+            toggleSettings={setSettings}
+            toggleExportResult={setExportResult}
+            fontSize={fontSize}
+            undoEnabled={undoEnabled}
+            keyPressEnabled={keyPressEnabled}
+          />
+        )}
+
+        {props.app_state === "project-page-old" && (
+          <ProjectPageOLD
+            handleAppState={props.setAppState}
             toggleExportResult={setExportResult}
           />
         )}
@@ -103,26 +114,6 @@ const App = (props) => {
 
         {props.app_state === "train-first-model" && (
           <StartReview handleAppState={props.setAppState} />
-        )}
-
-        {props.app_state === "review" && (
-          <ReviewDialog
-            handleAppState={props.setAppState}
-            mobileScreen={mobileScreen}
-            onReview={review}
-            toggleReview={setReview}
-            toggleReviewHistory={setReviewHistory}
-            fontSize={fontSize}
-            undoEnabled={undoEnabled}
-            keyPressEnabled={keyPressEnabled}
-          />
-        )}
-        {props.app_state === "review" && (
-          <ReviewHistoryDialog
-            mobileScreen={mobileScreen}
-            toggleReviewHistory={setReviewHistory}
-            onReviewHistory={reviewHistory}
-          />
         )}
 
         {props.app_state === "review-complete" && (
