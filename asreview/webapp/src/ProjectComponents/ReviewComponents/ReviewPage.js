@@ -1,50 +1,24 @@
 import React, { useState, useEffect } from "react";
-import clsx from "clsx";
+import { connect } from "react-redux";
+import { Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Dialog, DialogContent, DialogActions } from "@material-ui/core";
 
-import { AppBarWithinDialog } from "../Components";
 import {
   DecisionButton,
   DecisionUndoBar,
   ExplorationModeBanner,
   RecordCard,
-  StatsSheet,
-} from "../InReviewComponents";
-import ErrorHandler from "../ErrorHandler";
-import { useKeyPress } from "../hooks/useKeyPress";
+} from "../ReviewComponents";
+import ErrorHandler from "../../ErrorHandler";
 
-import { ProjectAPI } from "../api/index.js";
-
-import { connect } from "react-redux";
-
-import { drawerWidth } from "../globals.js";
+import { ProjectAPI } from "../../api/index.js";
+import { useKeyPress } from "../../hooks/useKeyPress";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-  },
-  box: {
-    paddingBottom: 30,
-    overflowY: "auto",
-  },
-  content: {
-    flexGrow: 1,
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginRight: 0,
-  },
-  contentShift: {
-    transition: theme.transitions.create("margin", {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: drawerWidth,
-  },
-  link: {
-    paddingLeft: "3px",
+    flexDirection: "column",
+    height: "100%",
   },
 }));
 
@@ -54,7 +28,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const ReviewDialog = (props) => {
+const ReviewPage = (props) => {
   const classes = useStyles();
 
   /**
@@ -84,31 +58,10 @@ const ReviewDialog = (props) => {
    */
   const [recordNote, setRecordNote] = useState({
     expand: false,
-    saved: true,
+    shrink: true,
+    saved: false,
     data: null,
   });
-
-  /**
-   * Side statistics state
-   */
-  const [sideSheet, setSideSheet] = useState(true);
-  const [sideSheetError, setSideSheetError] = useState(false);
-  const [statistics, setStatistics] = useState({
-    mode: null,
-    name: null,
-    authors: null,
-    decsription: null,
-    n_included: null,
-    n_excluded: null,
-    n_since_last_inclusion: null,
-    n_papers: null,
-    n_pool: null,
-  });
-
-  /**
-   * Review history state
-   */
-  const [history, setHistory] = useState([]);
 
   /**
    * Undo bar state
@@ -137,6 +90,7 @@ const ReviewDialog = (props) => {
     });
     setRecordNote({
       expand: false,
+      shrink: true,
       saved: true,
       data: null,
     });
@@ -163,13 +117,6 @@ const ReviewDialog = (props) => {
       record: null,
       decision: null,
     });
-  };
-
-  /**
-   * Side statistics toggle
-   */
-  const toggleSideSheet = () => {
-    setSideSheet((a) => !a);
   };
 
   /**
@@ -261,37 +208,7 @@ const ReviewDialog = (props) => {
       });
   };
 
-  const exitReviewDialog = () => {
-    props.toggleReview();
-    props.handleAppState("project-page");
-  };
-
   useEffect(() => {
-    /**
-     * Get statistics for history dialog and side sheet
-     */
-    const getProgressInfo = () => {
-      ProjectAPI.progress(props.project_id)
-        .then((result) => {
-          setStatistics(result.data);
-        })
-        .catch((error) => {
-          setSideSheetError(true);
-          console.log(error);
-        });
-    };
-
-    const getProgressHistory = () => {
-      ProjectAPI.progress_history(props.project_id)
-        .then((result) => {
-          setHistory(result.data);
-        })
-        .catch((error) => {
-          setSideSheetError(true);
-          console.log(error);
-        });
-    };
-
     /**
      * Get next record
      */
@@ -320,30 +237,17 @@ const ReviewDialog = (props) => {
 
     if (!recordState["isloaded"]) {
       getDocument();
-      getProgressInfo();
-      getProgressHistory();
     }
-  }, [props.project_id, recordState, props, error.message, sideSheetError]);
+  }, [props.project_id, recordState, props, error.message]);
 
   /**
    * Display banner when in Exploration Mode
    */
   useEffect(() => {
-    if (statistics.mode === "explore") {
+    if (props.projectMode === "explore") {
       setExplorationMode(true);
     }
-  }, [statistics.mode]);
-
-  /**
-   * Hide side statistics on mobile screen
-   */
-  useEffect(() => {
-    if (props.mobileScreen) {
-      setSideSheet(false);
-    } else {
-      setSideSheet(true);
-    }
-  }, [props.mobileScreen]);
+  }, [props.projectMode]);
 
   /**
    * Use keyboard shortcuts
@@ -373,91 +277,42 @@ const ReviewDialog = (props) => {
   }, [relevantPress, irrelevantPress, undoPress, notePress]);
 
   return (
-    <div className={classes.root}>
-      <Dialog
-        fullScreen
-        open={props.onReview}
-        onClose={exitReviewDialog}
-        scroll="paper"
-      >
-        <AppBarWithinDialog
-          onClickHistory={props.toggleHistory}
-          onClickShowChart={toggleSideSheet}
-          onClickStartIcon={exitReviewDialog}
-        />
+    <Box className={classes.root} aria-label="review page">
+      {/* Banner Exploration Mode */}
+      <ExplorationModeBanner
+        explorationMode={explorationMode}
+        setExplorationMode={setExplorationMode}
+      />
 
-        {/* Banner Exploration Mode */}
-        <div
-          className={clsx(classes.content, {
-            [classes.contentShift]: !props.mobileScreen && sideSheet,
-          })}
-        >
-          <ExplorationModeBanner
-            explorationMode={explorationMode}
-            setExplorationMode={setExplorationMode}
-          />
-        </div>
+      {/* Article card */}
+      <RecordCard
+        record={recordState["record"]}
+        recordNote={recordNote}
+        setRecordNote={setRecordNote}
+        isloaded={recordState["isloaded"]}
+        fontSize={props.fontSize}
+      />
 
-        {/* Article card */}
-        <DialogContent
-          style={{ height: "100%" }}
-          className={clsx(classes.content, {
-            [classes.contentShift]: !props.mobileScreen && sideSheet,
-          })}
-        >
-          <RecordCard
-            record={recordState["record"]}
-            recordNote={recordNote}
-            setRecordNote={setRecordNote}
-            isloaded={recordState["isloaded"]}
-            fontSize={props.fontSize}
-          />
-        </DialogContent>
+      {/* Decision button */}
+      <DecisionButton
+        makeDecision={makeDecision}
+        mobileScreen={props.mobileScreen}
+        previousSelection={recordState["selection"]}
+      />
 
-        {/* Decision button */}
-        <DialogActions
-          className={clsx(classes.content, {
-            [classes.contentShift]: !props.mobileScreen && sideSheet,
-          })}
-        >
-          <DecisionButton
-            makeDecision={makeDecision}
-            mobileScreen={props.mobileScreen}
-            previousSelection={recordState["selection"]}
-          />
-        </DialogActions>
+      {/* Decision undo bar */}
+      <DecisionUndoBar
+        state={undoState}
+        undo={undoDecision}
+        close={closeUndoBar}
+      />
 
-        {/* Error Handler */}
-        {error.message !== null && (
-          <ErrorHandler error={error} setError={setError} />
-        )}
-
-        {/* Decision undo bar */}
-        <div
-          className={clsx(classes.content, {
-            [classes.contentShift]: !props.mobileScreen && sideSheet,
-          })}
-        >
-          <DecisionUndoBar
-            state={undoState}
-            undo={undoDecision}
-            close={closeUndoBar}
-          />
-        </div>
-
-        {/* Statistics side sheet */}
-        <StatsSheet
-          mobileScreen={props.mobileScreen}
-          onSideSheet={sideSheet}
-          toggleSideSheet={toggleSideSheet}
-          statistics={statistics}
-          history={history}
-          sideSheetError={sideSheetError}
-          setSideSheetError={setSideSheetError}
-        />
-      </Dialog>
-    </div>
+      {/* Error Handler */}
+      {error.message !== null && (
+        <ErrorHandler error={error} setError={setError} />
+      )}
+    </Box>
   );
 };
 
-export default connect(mapStateToProps)(ReviewDialog);
+export default connect(mapStateToProps)(ReviewPage);
