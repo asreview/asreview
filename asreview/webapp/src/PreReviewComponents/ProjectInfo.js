@@ -129,7 +129,6 @@ const ProjectInit = (props) => {
           props.setProjectId(result.data["id"]);
           // set editing state to false
           props.onClose();
-          props.reloadProjectInfo();
         })
         .catch((error) => {
           setError({
@@ -145,7 +144,7 @@ const ProjectInit = (props) => {
           props.setProjectId(result.data["id"]);
           // set newProject state to false
           props.onClose();
-          props.handleAppState("project-page");
+          props.handleAppState("project-page-old");
         })
         .catch((error) => {
           setError({
