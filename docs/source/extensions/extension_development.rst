@@ -157,17 +157,6 @@ example`` subcommand. See ``asreview -h`` for this option.
 An example of a subcommand extension is the `Visualization Extension
 <https://github.com/asreview/asreview-visualization>`_
 
-
-
-
-
-
-
-
-
-
-
-
 Dataset extensions
 ------------------
 An extension of the :class:`asreview.datasets.BaseDataSet` class.
