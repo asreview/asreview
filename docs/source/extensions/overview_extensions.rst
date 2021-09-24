@@ -71,8 +71,8 @@ be added to this list, please initiate an issue on `Github
 <https://github.com/asreview/asreview/issues>`__.
 
 
-Usage
------
+Installation
+------------
 
 If an extension is uploaded to PyPI, it can be installed via command line. In
 this example, the `asreview-visualization
