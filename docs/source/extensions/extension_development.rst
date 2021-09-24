@@ -195,39 +195,9 @@ For minimal functionality, ``your_dataset.py`` should extent
 :class:`asreview.datasets.BaseDataSet` and
 :class:`asreview.datasets.BaseDataGroup`.
 
-An example of ``your_dataset.py``:
-
-.. code:: python
-
-    from asreview.datasets import BaseDataSet
-    from asreview.datasets import BaseDataGroup
-
-    class YourDataGroup(BaseDataGroup):
-        group_id = "your_data_group"
-        description = "A new data group with my awesome datasets."
-
-        def __init__(self):
-
-            dataset = BaseDataSet.from_config({
-                "dataset_id": "your_data_id",
-                "url": "",
-                "reference": "",
-                "link": "",
-                "license": "",
-                "title": "Your Data",
-                "authors": [
-                "Jane Doe",
-                "John Doe"
-                ],
-                "year": 2021,
-                "topic": "Your topic",
-                "final_inclusions": true,
-                "title_abstract_inclusions": false
-            }
-            )
-
-            super(YourDataGroup, self).__init__(dataset)
-            # pass multiple datasets to init if there are more datasets
+A working template to clone and use can be found at `Template for extending
+ASReview with a new dataset
+<https://github.com/asreview/template-extension-new-dataset>`_.
 
 
 Further functionality can be
