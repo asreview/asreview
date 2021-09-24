@@ -12,19 +12,19 @@ import { Close } from "@material-ui/icons";
 
 import { ProgressPanel, ProjectPanel } from "../SideStats";
 
-import { statsSheetWidth } from "../globals.js";
+import { drawerWidth } from "../globals.js";
 
 import { connect } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
     [theme.breakpoints.up("sm")]: {
-      width: statsSheetWidth,
+      width: drawerWidth,
       flexShrink: 0,
     },
   },
   drawerPaper: {
-    width: statsSheetWidth,
+    width: drawerWidth,
   },
   drawerHeader: {
     display: "flex",
