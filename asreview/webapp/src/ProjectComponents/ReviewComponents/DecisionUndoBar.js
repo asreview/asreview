@@ -5,7 +5,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   decisionUndoBarDuration,
   decisionUndoBarMarginBottom,
-} from "../globals.js";
+} from "../../globals.js";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,7 +34,7 @@ const DecisionUndoBar = (props) => {
 
   let anchorOrigin = {
     vertical: "bottom",
-    horizontal: "left",
+    horizontal: "right",
   };
 
   return (
