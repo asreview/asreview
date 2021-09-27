@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Box,
   Button,
@@ -11,8 +11,8 @@ import {
   Slide,
   Typography,
   Link,
-} from "@material-ui/core";
-import Alert from "@material-ui/lab/Alert";
+} from "@mui/material";
+import Alert from "@mui/material/Alert";
 
 import { NoteSheet } from "../ReviewComponents";
 
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 40,
     height: "50%",
     width: "100%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginTop: 0,
       marginBottom: 24,
     },
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       borderBottomRightRadius: 0,
       borderBottomLeftRadius: 0,
     },

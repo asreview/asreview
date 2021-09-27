@@ -1,13 +1,8 @@
 import React from "react";
 import { InView } from "react-intersection-observer";
-import {
-  Box,
-  ButtonBase,
-  CircularProgress,
-  Typography,
-} from "@material-ui/core";
-import grey from "@material-ui/core/colors/grey";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, ButtonBase, CircularProgress, Typography } from "@mui/material";
+import { grey } from "@mui/material/colors";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { LabeledRecordCard } from "../HistoryComponents";
 import ErrorHandler from "../../ErrorHandler";

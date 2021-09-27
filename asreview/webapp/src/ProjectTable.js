@@ -11,8 +11,8 @@ import {
   TablePagination,
   TableRow,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import store from "./redux/store";
 import { setProject } from "./redux/actions";
@@ -169,8 +169,8 @@ const ProjectTable = (props) => {
         rowsPerPage={rowsPerPage}
         labelRowsPerPage="Projects per page:"
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </Paper>
   );

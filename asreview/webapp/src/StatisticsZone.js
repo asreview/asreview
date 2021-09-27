@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Box,
@@ -10,8 +10,8 @@ import {
   IconButton,
   Link,
   Tooltip,
-} from "@material-ui/core";
-import RefreshIcon from "@material-ui/icons/Refresh";
+} from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import {
   ProgressPieChart,
@@ -190,7 +190,11 @@ const StatisticsZone = (props) => {
             </Box>
             <Box className={classes.retryButton} align="center">
               <Tooltip title="Refresh">
-                <IconButton color="primary" onClick={handleClickRetry}>
+                <IconButton
+                  color="primary"
+                  onClick={handleClickRetry}
+                  size="large"
+                >
                   <RefreshIcon />
                 </IconButton>
               </Tooltip>

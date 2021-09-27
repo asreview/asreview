@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Box,
@@ -12,8 +12,8 @@ import {
   Tabs,
   Tab,
   IconButton,
-} from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
@@ -135,6 +135,7 @@ const LabeledItems = (props) => {
                             onClick={() => {
                               props.resetItem(value.id, reloadItems);
                             }}
+                            size="large"
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -160,6 +161,7 @@ const LabeledItems = (props) => {
                             onClick={() => {
                               props.resetItem(value.id, reloadItems);
                             }}
+                            size="large"
                           >
                             <DeleteIcon />
                           </IconButton>

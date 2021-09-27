@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Box,
   Button,
@@ -14,13 +14,13 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-} from "@material-ui/core";
+} from "@mui/material";
 
-import HelpIcon from "@material-ui/icons/Help";
-import EditIcon from "@material-ui/icons/Edit";
-import CheckIcon from "@material-ui/icons/Check";
+import HelpIcon from "@mui/icons-material/Help";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
 
-import { green, brown } from "@material-ui/core/colors";
+import { green, brown } from "@mui/material/colors";
 
 import {
   PriorKnowledgeSearch,
@@ -215,6 +215,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                       <IconButton
                         aria-label="project-prior-edit"
                         onClick={openPriorKnowledge}
+                        size="large"
                       >
                         <EditIcon />
                       </IconButton>
@@ -224,6 +225,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                     <IconButton
                       onClick={openHelp}
                       aria-label="project-prior-help"
+                      size="large"
                     >
                       <HelpIcon />
                     </IconButton>

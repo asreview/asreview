@@ -1,14 +1,8 @@
 import React from "react";
-import {
-  Drawer,
-  Hidden,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Drawer, Hidden, IconButton, Toolbar, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
-import { Close } from "@material-ui/icons";
+import { Close } from "@mui/icons-material";
 
 import { ProgressPanel, ProjectPanel } from "../../SideStats";
 
@@ -41,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     "& > *": {
       marginBottom: theme.spacing(2),
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       marginTop: theme.spacing(2),
     },
   },
@@ -66,7 +60,7 @@ const StatsSheet = (props) => {
                 <b>Statistics</b>
               </Typography>
             </div>
-            <IconButton onClick={props.toggleSideSheet}>
+            <IconButton onClick={props.toggleSideSheet} size="large">
               <Close fontSize="small" />
             </IconButton>
           </div>
@@ -111,7 +105,7 @@ const StatsSheet = (props) => {
         </Drawer>
       </Hidden>
 
-      <Hidden xsDown implementation="css">
+      <Hidden smDown implementation="css">
         <Drawer
           classes={{
             paper: classes.drawerPaper,

@@ -12,21 +12,21 @@ import {
   Grow,
   TextField,
   MenuItem,
-} from "@material-ui/core";
+} from "@mui/material";
 
-import Alert from "@material-ui/lab/Alert";
+import Alert from "@mui/material/Alert";
 
-import { brown } from "@material-ui/core/colors";
+import { brown } from "@mui/material/colors";
 
-import HelpIcon from "@material-ui/icons/Help";
-import EditIcon from "@material-ui/icons/Edit";
-import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
+import HelpIcon from "@mui/icons-material/Help";
+import EditIcon from "@mui/icons-material/Edit";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 
 import { Help, useHelp } from "../PreReviewComponents";
 import { ProjectAPI } from "../api/index.js";
 import { defaultAlgorithms } from "../globals.js";
 
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import "./ReviewZone.css";
 
@@ -192,6 +192,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                     <IconButton
                       aria-label="project-algorithms-edit"
                       onClick={editAlgorithms}
+                      size="large"
                     >
                       <EditIcon />
                     </IconButton>
@@ -210,6 +211,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                           algorithms["feature_extraction"] ===
                             defaultAlgorithms["feature_extraction"]
                         }
+                        size="large"
                       >
                         <SettingsBackupRestoreIcon />
                       </IconButton>
@@ -220,6 +222,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   <IconButton
                     onClick={openHelp}
                     aria-label="project-algorithms-help"
+                    size="large"
                   >
                     <HelpIcon />
                   </IconButton>

@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Button,
   Dialog,
@@ -8,8 +8,8 @@ import {
   DialogTitle,
   Link,
   Typography,
-} from "@material-ui/core";
-import { Alert, AlertTitle } from "@material-ui/lab";
+} from "@mui/material";
+import { Alert, AlertTitle } from "@mui/material";
 
 import { ProjectAPI } from "../api/index.js";
 

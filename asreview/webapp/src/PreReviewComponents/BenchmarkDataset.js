@@ -9,9 +9,9 @@ import {
   Link,
   Grid,
   Typography,
-} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import makeStyles from "@mui/styles/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

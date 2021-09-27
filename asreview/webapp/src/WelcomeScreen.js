@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
-import brown from "@material-ui/core/colors/brown";
+import { brown } from "@mui/material/colors";
 
-import { Box, Fade, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Fade, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import "./WelcomeScreen.css";
 import { BaseAPI } from "./api/index.js";

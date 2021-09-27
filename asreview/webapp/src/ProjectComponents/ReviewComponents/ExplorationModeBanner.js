@@ -1,11 +1,11 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { Banner } from "material-ui-banner";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       paddingTop: 8,
     },
   },

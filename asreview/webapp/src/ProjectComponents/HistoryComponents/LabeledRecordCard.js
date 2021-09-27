@@ -9,11 +9,11 @@ import {
   Link,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
-import FavoriteIcon from "@material-ui/icons/Favorite";
-import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 import { mapStateToProps } from "../../globals.js";
 
@@ -79,6 +79,7 @@ const LabeledRecordCard = (props) => {
                     initial: false,
                   });
                 }}
+                size="large"
               >
                 {value.included === 1 ? (
                   <FavoriteIcon color="secondary" fontSize="small" />

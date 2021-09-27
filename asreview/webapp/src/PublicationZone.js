@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Box,
@@ -9,7 +9,7 @@ import {
   ListItemText,
   Divider,
   Paper,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { ProjectAPI } from "./api/index.js";
 

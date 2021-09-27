@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Link, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Link, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { ProjectAPI } from "../api/index.js";
 
 import "./ReviewZone.css";

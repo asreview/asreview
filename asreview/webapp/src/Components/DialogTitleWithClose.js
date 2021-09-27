@@ -1,9 +1,9 @@
 import React from "react";
-import { DialogTitle, IconButton } from "@material-ui/core";
+import { DialogTitle, IconButton } from "@mui/material";
 
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
-import CloseIcon from "@material-ui/icons/Close";
+import CloseIcon from "@mui/icons-material/Close";
 
 const useStyles = makeStyles((theme) => ({
   closeButton: {
@@ -25,6 +25,7 @@ const DialogTitleWithClose = (props) => {
           aria-label="close"
           className={classes.closeButton}
           onClick={props.onClose}
+          size="large"
         >
           <CloseIcon />
         </IconButton>

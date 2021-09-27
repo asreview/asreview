@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Box,
   Typography,
@@ -7,9 +7,9 @@ import {
   OutlinedInput,
   InputAdornment,
   IconButton,
-} from "@material-ui/core";
+} from "@mui/material";
 
-import SearchIcon from "@material-ui/icons/Search";
+import SearchIcon from "@mui/icons-material/Search";
 
 import { SearchResult } from "../PreReviewComponents";
 
@@ -96,7 +96,11 @@ const PriorKnowledgeSearch = (props) => {
             autoFocus
             endAdornment={
               <InputAdornment position="end">
-                <IconButton aria-label="search for papers" type="submit">
+                <IconButton
+                  aria-label="search for papers"
+                  type="submit"
+                  size="large"
+                >
                   <SearchIcon />
                 </IconButton>
               </InputAdornment>

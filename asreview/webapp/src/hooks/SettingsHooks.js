@@ -6,7 +6,7 @@ const useDarkMode = () => {
   const [theme, setTheme] = useState(lightTheme);
 
   const toggleDarkMode = () => {
-    if (theme.palette.type === "light") {
+    if (theme.palette.mode === "light") {
       window.localStorage.setItem("themeType", "dark");
       setTheme(darkTheme);
     } else {
@@ -17,10 +17,10 @@ const useDarkMode = () => {
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
-    if (theme.palette.type !== localTheme && localTheme !== null) {
+    if (theme.palette.mode !== localTheme && localTheme !== null) {
       setTheme(darkTheme);
     }
-  }, [theme.palette.type]);
+  }, [theme.palette.mode]);
 
   return [theme, toggleDarkMode];
 };

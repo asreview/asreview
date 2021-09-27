@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Box,
   Dialog,
@@ -8,10 +8,10 @@ import {
   IconButton,
   Paper,
   Typography,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 
 import SwipeableViews from "react-swipeable-views";
 

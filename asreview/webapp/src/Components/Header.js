@@ -1,14 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import {
-  AppBar,
-  ButtonBase,
-  Box,
-  Toolbar,
-  IconButton,
-} from "@material-ui/core";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { Menu } from "@material-ui/icons";
+import { AppBar, ButtonBase, Box, Toolbar, IconButton } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import makeStyles from "@mui/styles/makeStyles";
+import { Menu } from "@mui/icons-material";
 
 import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
@@ -36,7 +31,7 @@ const Header = (props) => {
   const theme = useTheme();
 
   const wordmarkState = () => {
-    if (theme.palette.type === "dark") {
+    if (theme.palette.mode === "dark") {
       return ASReviewLAB_white;
     } else {
       return ASReviewLAB_black;
@@ -52,6 +47,7 @@ const Header = (props) => {
             edge="start"
             color="inherit"
             onClick={props.toggleNavDrawer}
+            size="large"
           >
             <Menu />
           </IconButton>

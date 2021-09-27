@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { PaperCard } from "../PreReviewComponents";
 

@@ -13,13 +13,13 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 
-import FeedbackIcon from "@material-ui/icons/Feedback";
-import DescriptionIcon from "@material-ui/icons/Description";
-import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
+import FeedbackIcon from "@mui/icons-material/Feedback";
+import DescriptionIcon from "@mui/icons-material/Description";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { UtilsAPI } from "./api/index.js";
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { connect } from "react-redux";
 import clsx from "clsx";
-import { Box, Fade } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Fade } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { NavigationDrawer } from "../Components";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";

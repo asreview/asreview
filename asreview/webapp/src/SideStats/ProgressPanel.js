@@ -7,12 +7,12 @@ import {
   ListItem,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { ProgressAreaChart } from "../SideStats";
 
-import RefreshIcon from "@material-ui/icons/Refresh";
-import { makeStyles } from "@material-ui/core/styles";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import makeStyles from "@mui/styles/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   item: {
@@ -65,7 +65,11 @@ const ProgressPanel = (props) => {
           </Box>
           <Box className={classes.retryButton} align="center">
             <Tooltip title="Refresh">
-              <IconButton color="primary" onClick={handleClickRetry}>
+              <IconButton
+                color="primary"
+                onClick={handleClickRetry}
+                size="large"
+              >
                 <RefreshIcon />
               </IconButton>
             </Tooltip>

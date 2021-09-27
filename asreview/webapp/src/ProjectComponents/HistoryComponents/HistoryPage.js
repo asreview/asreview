@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
 import PropTypes from "prop-types";
-import { Box, Divider, Tab, Tabs } from "@material-ui/core";
+import { Box, Divider, Tab, Tabs } from "@mui/material";
 
 import { LabeledRecord } from "../HistoryComponents";
 

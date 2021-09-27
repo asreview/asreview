@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Box,
@@ -19,14 +19,14 @@ import {
   IconButton,
   CardContent,
   Grow,
-} from "@material-ui/core";
-import { Alert, AlertTitle } from "@material-ui/lab";
+} from "@mui/material";
+import { Alert, AlertTitle } from "@mui/material";
 
-import { green, brown } from "@material-ui/core/colors";
+import { green, brown } from "@mui/material/colors";
 
-import CheckIcon from "@material-ui/icons/Check";
-import EditIcon from "@material-ui/icons/Edit";
-import HelpIcon from "@material-ui/icons/Help";
+import CheckIcon from "@mui/icons-material/Check";
+import EditIcon from "@mui/icons-material/Edit";
+import HelpIcon from "@mui/icons-material/Help";
 
 import {
   ProjectUploadBenchmarkDatasets,
@@ -283,6 +283,7 @@ const ProjectUpload = ({
                     <IconButton
                       aria-label="project-info-edit"
                       onClick={editDataset}
+                      size="large"
                     >
                       <EditIcon />
                     </IconButton>
@@ -293,6 +294,7 @@ const ProjectUpload = ({
                   <IconButton
                     onClick={openHelp}
                     aria-label="project-dataset-help"
+                    size="large"
                   >
                     <HelpIcon />
                   </IconButton>
@@ -341,7 +343,7 @@ const ProjectUpload = ({
                   <Tab label="From plugin" value="plugin" />
                 )}
                 {(mode === undefined || mode === projectModes.EXPLORATION) && (
-                <Tab label="Benchmark datasets" value="benchmark" />
+                  <Tab label="Benchmark datasets" value="benchmark" />
                 )}
               </Tabs>
 

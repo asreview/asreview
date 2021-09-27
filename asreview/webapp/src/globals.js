@@ -1,8 +1,8 @@
 // When you're running the development server, the javascript code is always
 // pointing to localhost:5000. In all other configurations, the api url point to
 // the host domain.
-import brown from "@material-ui/core/colors/brown";
-import red from "@material-ui/core/colors/red";
+import { brown } from "@mui/material/colors";
+import { red } from "@mui/material/colors";
 
 export const base_url =
   (window.location.hostname === "localhost" ||
@@ -16,7 +16,7 @@ export const donateURL = "https://asreview.nl/donate";
 
 export const lightTheme = {
   palette: {
-    type: "light",
+    mode: "light",
     primary: {
       // main: brown[500],
       main: "#91620B",
@@ -51,7 +51,7 @@ export const lightTheme = {
 
 export const darkTheme = {
   palette: {
-    type: "dark",
+    mode: "dark",
     primary: {
       main: brown[500],
     },

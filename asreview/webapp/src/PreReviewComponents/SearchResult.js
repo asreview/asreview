@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { CircularProgress, Typography, List } from "@material-ui/core";
+import makeStyles from "@mui/styles/makeStyles";
+import { CircularProgress, Typography, List } from "@mui/material";
 
 import { ListItemPaper } from "../PreReviewComponents";
 import ErrorHandler from "../ErrorHandler";

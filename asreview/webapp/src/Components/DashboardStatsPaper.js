@@ -1,14 +1,14 @@
 import React from "react";
 import NumberFormat from "react-number-format";
 import { useQuery } from "react-query";
-import { Grid, Paper, Typography } from "@material-ui/core";
+import { Grid, Paper, Typography } from "@mui/material";
 import {
   Archive,
   Assignment,
   Favorite,
   LibraryBooks,
-} from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/icons-material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { ProjectAPI } from "../api/index.js";
 

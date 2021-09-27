@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   // DialogContentText,
   Typography,
   TextField,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { ProjectAPI } from "./api/index.js";
 

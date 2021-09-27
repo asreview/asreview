@@ -1,9 +1,9 @@
 import React from "react";
 import clsx from "clsx";
-import Fab from "@material-ui/core/Fab";
+import Fab from "@mui/material/Fab";
 
-import { Favorite, FavoriteBorder } from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
+import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import makeStyles from "@mui/styles/makeStyles";
 
 const useStyles = makeStyles((theme) => ({
   root: {

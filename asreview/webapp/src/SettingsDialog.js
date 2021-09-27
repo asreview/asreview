@@ -16,9 +16,9 @@ import {
   Switch,
   Slider,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import InfoOutlinedIcon from "@material-ui/icons/InfoOutlined";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 import { fontSizeOptions, donateURL } from "./globals.js";
@@ -116,12 +116,14 @@ const SettingsDialog = (props) => {
         fullScreen={props.mobileScreen}
         open={props.onSettings}
         onClose={props.toggleSettings}
-        onExited={exitSettings}
         scroll="paper"
         fullWidth={true}
         maxWidth={"sm"}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
+        TransitionProps={{
+          onExited: exitSettings,
+        }}
       >
         {/*Main settings*/}
         {!fontSizeSetting && !shortcutSetting && (
@@ -150,7 +152,7 @@ const SettingsDialog = (props) => {
                   <Switch
                     edge="end"
                     onChange={props.toggleDarkMode}
-                    checked={props.onDark.palette.type === "dark"}
+                    checked={props.onDark.palette.mode === "dark"}
                     inputProps={{ "aria-labelledby": "switch-list-label-dark" }}
                   />
                 </ListItemSecondaryAction>

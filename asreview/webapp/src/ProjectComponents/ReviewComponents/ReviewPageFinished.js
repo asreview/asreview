@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Link, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Link, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import ElasFinished from "../../images/ElasFinished.svg";
 
@@ -17,20 +17,20 @@ const useStyles = makeStyles((theme) => ({
   },
   img: {
     maxWidth: 350,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       maxWidth: 250,
     },
   },
   textTitle: {
     textAlign: "center",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       width: "80%",
     },
   },
   text: {
     textAlign: "center",
     width: "40%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       width: "80%",
     },
   },

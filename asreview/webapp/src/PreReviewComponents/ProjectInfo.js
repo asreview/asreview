@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Box,
@@ -10,9 +10,9 @@ import {
   DialogActions,
   Dialog,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 
-import { brown } from "@material-ui/core/colors";
+import { brown } from "@mui/material/colors";
 
 // import useWindowSize from 'react-use/lib/useWindowSize'
 import Confetti from "react-confetti";
@@ -249,7 +249,7 @@ const ProjectInit = (props) => {
                 fullWidth
                 multiline
                 rows={4}
-                rowsMax={6}
+                maxRows={6}
                 name="description"
                 id="project-description"
                 label="Description"

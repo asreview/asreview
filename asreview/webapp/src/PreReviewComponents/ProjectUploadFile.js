@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
-import { Button, Typography } from "@material-ui/core";
+import { Button, Typography } from "@mui/material";
 
 import { useDropzone } from "react-dropzone";
 

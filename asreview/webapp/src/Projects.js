@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import clsx from "clsx";
-import { Backdrop, Box, Container, Fade, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
-import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
+import { Backdrop, Box, Container, Fade, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@mui/material";
+import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
 import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";

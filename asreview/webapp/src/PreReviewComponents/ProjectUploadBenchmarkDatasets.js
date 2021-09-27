@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, CircularProgress } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Typography, CircularProgress } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { BenchmarkDataset } from "../PreReviewComponents";
 

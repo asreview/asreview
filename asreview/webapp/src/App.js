@@ -2,8 +2,13 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { connect } from "react-redux";
 import "typeface-roboto";
-import { CssBaseline, createMuiTheme, useMediaQuery } from "@material-ui/core";
-import { ThemeProvider } from "@material-ui/core/styles";
+import {
+  CssBaseline,
+  createTheme,
+  useMediaQuery,
+  adaptV4Theme,
+} from "@mui/material";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
 import { Header, ExportDialog } from "./Components";
@@ -57,8 +62,8 @@ const App = (props) => {
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
-  const muiTheme = createMuiTheme(theme);
-  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"), {
+  const muiTheme = createTheme(adaptV4Theme(theme));
+  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
     noSsr: true,
   });
 
@@ -67,82 +72,84 @@ const App = (props) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={muiTheme}>
-        <CssBaseline />
-        {props.app_state === "boot" && <WelcomeScreen />}
-        {props.app_state !== "boot" && (
-          <Header
-            handleAppState={props.setAppState}
-            toggleNavDrawer={setNavDrawer}
-          />
-        )}
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={muiTheme}>
+          <CssBaseline />
+          {props.app_state === "boot" && <WelcomeScreen />}
+          {props.app_state !== "boot" && (
+            <Header
+              handleAppState={props.setAppState}
+              toggleNavDrawer={setNavDrawer}
+            />
+          )}
 
-        {props.app_state === "projects" && (
-          <Projects
-            handleAppState={props.setAppState}
-            mobileScreen={mobileScreen}
-            onNavDrawer={navDrawer}
-            toggleNavDrawer={setNavDrawer}
-            toggleSettings={setSettings}
-          />
-        )}
+          {props.app_state === "projects" && (
+            <Projects
+              handleAppState={props.setAppState}
+              mobileScreen={mobileScreen}
+              onNavDrawer={navDrawer}
+              toggleNavDrawer={setNavDrawer}
+              toggleSettings={setSettings}
+            />
+          )}
 
-        {props.app_state === "project-page" && (
-          <ProjectPage
-            handleAppState={props.setAppState}
+          {props.app_state === "project-page" && (
+            <ProjectPage
+              handleAppState={props.setAppState}
+              mobileScreen={mobileScreen}
+              onNavDrawer={navDrawer}
+              toggleNavDrawer={setNavDrawer}
+              toggleSettings={setSettings}
+              toggleExportResult={setExportResult}
+              fontSize={fontSize}
+              undoEnabled={undoEnabled}
+              keyPressEnabled={keyPressEnabled}
+            />
+          )}
+
+          {props.app_state === "project-page-old" && (
+            <ProjectPageOLD
+              handleAppState={props.setAppState}
+              toggleExportResult={setExportResult}
+            />
+          )}
+
+          {props.app_state === "review-init" && (
+            <PreReviewZone handleAppState={props.setAppState} />
+          )}
+
+          {props.app_state === "train-first-model" && (
+            <StartReview handleAppState={props.setAppState} />
+          )}
+
+          {props.app_state === "review-complete" && (
+            <ReviewZoneComplete
+              handleAppState={props.setAppState}
+              toggleExportResult={setExportResult}
+            />
+          )}
+
+          {/* Dialogs */}
+          <SettingsDialog
             mobileScreen={mobileScreen}
-            onNavDrawer={navDrawer}
-            toggleNavDrawer={setNavDrawer}
-            toggleSettings={setSettings}
-            toggleExportResult={setExportResult}
+            onSettings={settings}
+            onDark={theme}
             fontSize={fontSize}
-            undoEnabled={undoEnabled}
             keyPressEnabled={keyPressEnabled}
+            undoEnabled={undoEnabled}
+            toggleSettings={setSettings}
+            toggleDarkMode={toggleDarkMode}
+            handleFontSizeChange={handleFontSizeChange}
+            toggleKeyPressEnabled={toggleKeyPressEnabled}
+            toggleUndoEnabled={toggleUndoEnabled}
           />
-        )}
-
-        {props.app_state === "project-page-old" && (
-          <ProjectPageOLD
-            handleAppState={props.setAppState}
+          <HelpDialog mobileScreen={mobileScreen} />
+          <ExportDialog
             toggleExportResult={setExportResult}
+            exportResult={exportResult}
           />
-        )}
-
-        {props.app_state === "review-init" && (
-          <PreReviewZone handleAppState={props.setAppState} />
-        )}
-
-        {props.app_state === "train-first-model" && (
-          <StartReview handleAppState={props.setAppState} />
-        )}
-
-        {props.app_state === "review-complete" && (
-          <ReviewZoneComplete
-            handleAppState={props.setAppState}
-            toggleExportResult={setExportResult}
-          />
-        )}
-
-        {/* Dialogs */}
-        <SettingsDialog
-          mobileScreen={mobileScreen}
-          onSettings={settings}
-          onDark={theme}
-          fontSize={fontSize}
-          keyPressEnabled={keyPressEnabled}
-          undoEnabled={undoEnabled}
-          toggleSettings={setSettings}
-          toggleDarkMode={toggleDarkMode}
-          handleFontSizeChange={handleFontSizeChange}
-          toggleKeyPressEnabled={toggleKeyPressEnabled}
-          toggleUndoEnabled={toggleUndoEnabled}
-        />
-        <HelpDialog mobileScreen={mobileScreen} />
-        <ExportDialog
-          toggleExportResult={setExportResult}
-          exportResult={exportResult}
-        />
-      </ThemeProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </QueryClientProvider>
   );
 };

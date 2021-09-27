@@ -1,7 +1,8 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
-import Snackbar from "@material-ui/core/Snackbar";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
+import { useTheme } from "@mui/material/styles";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   decisionUndoBarDuration,
   decisionUndoBarMarginBottom,

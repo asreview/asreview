@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import {
   Box,
@@ -10,7 +10,7 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-} from "@material-ui/core";
+} from "@mui/material";
 import {
   StartReview,
   PreReviewZone,
@@ -23,9 +23,9 @@ import PublicationZone from "../PublicationZone.js";
 import StatisticsZone from "../StatisticsZone.js";
 import { ProjectAPI } from "../api/index.js";
 
-import KeyboardVoiceIcon from "@material-ui/icons/KeyboardVoice";
-import GetAppIcon from "@material-ui/icons/GetApp";
-import EditOutlinedIcon from "@material-ui/icons/EditOutlined";
+import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -312,6 +312,7 @@ const ProjectPageOLD = (props) => {
                           aria-label="Export"
                           onClick={props.toggleExportResult}
                           color="inherit"
+                          size="large"
                         >
                           <GetAppIcon />
                         </IconButton>
