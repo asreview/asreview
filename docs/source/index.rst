@@ -66,8 +66,6 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
    extensions/overview_extensions
 
-   extensions/extension_development
-
    extensions/extension_covid19
 
    extensions/extension_visualization
@@ -83,6 +81,8 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
    API/cli
 
    API/reference
+
+   API/extension_dev
 
 .. toctree::
    :maxdepth: 1
