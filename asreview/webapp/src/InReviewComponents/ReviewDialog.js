@@ -382,7 +382,7 @@ const ReviewDialog = (props) => {
       >
         <AppBarWithinDialog
           color="primary"
-          onClickHistory={props.toggleHistory}
+          onClickHistory={props.toggleReviewHistory}
           onClickShowChart={toggleSideSheet}
           onClickStartIcon={exitReviewDialog}
         />

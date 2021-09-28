@@ -26,8 +26,6 @@ from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import write_pool
-from asreview.webapp.utils.io import write_proba
-from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_state_path
 from asreview.webapp.utils.project import read_data
@@ -207,7 +205,6 @@ def train_model(project_id, label_method=None):
 
             # write the pool and proba
             write_pool(project_id, new_pool)
-            write_proba(project_id, proba)
 
 
 def main(argv):

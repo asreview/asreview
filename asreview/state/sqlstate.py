@@ -40,7 +40,10 @@ REQUIRED_TABLES = [
     # the mapping of record identifiers to row numbers
     "record_table",
     # the latest probabilities.
-    "last_probabilities"]
+    "last_probabilities",
+    # the record ids whose labeling decision was changed.
+    "decision_changes"
+]
 
 RESULTS_TABLE_COLUMNS = [
     "record_ids", "labels", "classifiers", "query_strategies",
@@ -184,6 +187,11 @@ class SqlStateV1(BaseState):
             # Create the last_probabilities table.
             cur.execute("""CREATE TABLE last_probabilities
                                 (proba REAL)""")
+
+            cur.execute('''CREATE TABLE decision_changes
+                                (record_ids INTEGER,
+                                new_labels INTEGER,
+                                times INTEGER)''')
 
             con.commit()
             con.close()
@@ -550,6 +558,40 @@ class SqlStateV1(BaseState):
         con.commit()
         con.close()
 
+    def change_decision(self, record_id):
+        """Change the label of a record from 0 to 1 or vice versa."""
+        current_label = self.get_data_by_record_id(record_id)['labels'][0]
+
+        # New label should be of type int, not np.int, to insert into sql.
+        new_label = int(1 - current_label)
+        current_time = datetime.now()
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+
+        # Change the label.
+        cur.execute(
+            "UPDATE results SET labels = ? WHERE record_ids = ?",
+            (new_label, record_id)
+        )
+
+        # Add the change to the decision changes table.
+        cur.execute(
+            "INSERT INTO decision_changes VALUES (?,?, ?)",
+            (record_id, new_label, current_time)
+        )
+
+        con.commit()
+        con.close()
+
+    def get_decision_changes(self):
+        """Get the record ids of the records whose labels have been changed
+        after the original labeling action."""
+        con = self._connect_to_sql()
+        change_table = pd.read_sql_query('SELECT * FROM decision_changes', con)
+        con.close()
+        return change_table
+
     def get_record_table(self):
         """Get the record table of the state file.
 
@@ -562,6 +604,11 @@ class SqlStateV1(BaseState):
         record_table = pd.read_sql_query('SELECT * FROM record_table', con)
         con.close()
         return record_table
+
+    def get_pool_labeled(self):
+        """Return the unlabeled, and labeled record ids, in order."""
+        pass
+        # TODO(State) (See webapp/project, convert to SQL)
 
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.

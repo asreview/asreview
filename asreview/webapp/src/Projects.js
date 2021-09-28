@@ -5,13 +5,14 @@ import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
 import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
 import ErrorHandler from "./ErrorHandler";
-import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
 import {
+  DashboardStatsPaper,
   ProjectImportDialog,
   ProjectTable,
   QuickTourDialog,
 } from "./Components";
+
 import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
@@ -120,7 +121,7 @@ const Projects = (props) => {
   return (
     <Box>
       <Container maxWidth="md" className={classes.root}>
-        <ProjectStatusGraphic projects={projects} />
+        <DashboardStatsPaper />
       </Container>
       <Container maxWidth="md" className={classes.root}>
         {error["message"] !== null && (

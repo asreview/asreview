@@ -14,6 +14,7 @@
 
 # from asreview.dataset import ASReviewData
 from asreview.webapp.utils.project_path import get_project_path
+from asreview.state.paths import get_reviews_path
 
 
 def check_dataset(fp):
@@ -31,3 +32,10 @@ def is_project(project_id):
         return True
 
     return False
+
+
+def is_v0_project(project_id):
+    """Check if a project file is of a ASReview version 0 project."""
+    project_path = get_project_path(project_id)
+
+    return not get_reviews_path(project_path).exists()
