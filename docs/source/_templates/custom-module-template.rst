@@ -2,6 +2,7 @@
 
 .. automodule:: {{ fullname }}
 
+..
    {% block attributes %}
    {% if attributes %}
    .. rubric:: Module attributes
