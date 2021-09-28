@@ -29,11 +29,12 @@ class Tfidf(BaseFeatureExtraction):
 
     Arguments
     ---------
-    ngram_max: int 
-        Can use up to ngrams up to ngram_max. For example in the case
-        of ngram_max=2, monograms and bigrams could be used. stop_words: str
-        When set to 'english', use stopwords. If set to None or 'none', do not
-        use stop words.
+    ngram_max: int
+        Can use up to ngrams up to ngram_max. For example in the case of
+        ngram_max=2, monograms and bigrams could be used.
+    stop_words: str
+        When set to 'english', use stopwords. If set to None or 'none',
+        do not use stop words.
     """
     name = "tfidf"
     label = "TF-IDF"
