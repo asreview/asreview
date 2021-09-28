@@ -14,6 +14,7 @@
    {% endif %}
    {% endblock %}
 
+..
    {% block functions %}
    {% if functions %}
    .. rubric:: {{ _('Functions') }}
@@ -27,6 +28,7 @@
    {% endif %}
    {% endblock %}
 
+..
    {% block classes %}
    {% if classes %}
    .. rubric:: {{ _('Classes') }}
