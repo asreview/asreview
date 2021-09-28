@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 
-import { darkTheme, lightTheme, fontSizeOptions } from "../globals.js";
+import { fontSizeOptions, getDesignTokens } from "../globals.js";
 
 const useDarkMode = () => {
-  const [theme, setTheme] = useState(lightTheme);
+  const [theme, setTheme] = useState(getDesignTokens("light"));
 
   const toggleDarkMode = () => {
     if (theme.palette.mode === "light") {
       window.localStorage.setItem("themeType", "dark");
-      setTheme(darkTheme);
+      setTheme(getDesignTokens("dark"));
     } else {
       window.localStorage.setItem("themeType", "light");
-      setTheme(lightTheme);
+      setTheme(getDesignTokens("light"));
     }
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
     if (theme.palette.mode !== localTheme && localTheme !== null) {
-      setTheme(darkTheme);
+      setTheme(getDesignTokens("dark"));
     }
   }, [theme.palette.mode]);
 

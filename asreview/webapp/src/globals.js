@@ -1,8 +1,6 @@
 // When you're running the development server, the javascript code is always
 // pointing to localhost:5000. In all other configurations, the api url point to
 // the host domain.
-import { brown } from "@mui/material/colors";
-import { red } from "@mui/material/colors";
 
 export const base_url =
   (window.location.hostname === "localhost" ||
@@ -14,91 +12,126 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
-export const lightTheme = {
+export const getDesignTokens = (mode: PaletteMode) => ({
   palette: {
-    mode: "light",
-    primary: {
-      // main: brown[500],
-      main: "#91620B",
-    },
+    mode,
+    ...(mode === "light"
+      ? {
+          primary: {
+            main: "#7a4f01",
+          },
+          secondary: {
+            main: "#7a0c2e",
+          }
+        }
+      : {
+          primary: {
+            main: "#fff7cd",
+          },
+          secondary: {
+            main: "#ffe7d9",
+          },
+        }),
   },
-  overrides: {
-    MuiLink: {
-      root: {
-        // color: "#DC004E",
-      },
-    },
-    MuiTypography: {
-      colorTextSecondary: {
-        color: "#555555",
-      },
-    },
-    MuiDialog: {
-      paper: {
-        backgroundColor: "#fafafa",
-      },
-    },
-    MuiListItem: {
-      root: {
-        "&$selected": {
-          color: "#91620B",
-          backgroundColor: "#FFFBE7",
-        },
-      },
-    },
-  },
-};
+});
 
-export const darkTheme = {
-  palette: {
-    mode: "dark",
-    primary: {
-      main: brown[500],
-    },
-    secondary: {
-      main: red[500],
-    },
-  },
-  overrides: {
-    MuiLink: {
-      root: {
-        color: "#F48FB1",
-      },
-    },
-    MuiButton: {
-      textPrimary: {
-        color: "#CFA596",
-      },
-      outlinedPrimary: {
-        color: "#CFA596",
-      },
-    },
-    MuiTypography: {
-      colorPrimary: {
-        color: "#CFA596",
-      },
-    },
-    MuiFormLabel: {
-      root: {
-        "&$focused": {
-          color: "#CFA596",
-        },
-      },
-    },
-    MuiTab: {
-      textColorPrimary: {
-        "&$selected": {
-          color: "#CFA596",
-        },
-      },
-    },
-    MuiDialog: {
-      paper: {
-        backgroundColor: "#303030",
-      },
-    },
-  },
-};
+// export const lightTheme = {
+//   palette: {
+//     mode: "light",
+//     primary: {
+//       main: "#7a4f01",
+//     },
+//     secondary: {
+//       main: "#7a0c2e",
+//     }
+//   },
+//   props: {
+//     MuiAppBar: {
+//       color: 'transparent',
+//     },
+//   },
+  // overrides: {
+  //   MuiLink: {
+  //     root: {
+  //       // color: "#DC004E",
+  //     },
+  //   },
+  //   MuiTypography: {
+  //     colorTextSecondary: {
+  //       color: "#555555",
+  //     },
+  //   },
+  //   MuiDialog: {
+  //     paper: {
+  //       backgroundColor: "#fafafa",
+  //     },
+  //   },
+  //   MuiListItem: {
+  //     root: {
+  //       "&$selected": {
+  //         color: "#91620B",
+  //         backgroundColor: "#FFFBE7",
+  //       },
+  //     },
+  //   },
+  // },
+// };
+
+// export const darkTheme = {
+//   palette: {
+//     mode: "dark",
+//     primary: {
+//       main: "#fff7cd",
+//     },
+//     secondary: {
+//       main: "#ffe7d9",
+//     },
+//   },
+//   props: {
+//     MuiAppBar: {
+//       color: 'transparent',
+//     },
+//   },
+  // overrides: {
+  //   MuiLink: {
+  //     root: {
+  //       color: "#F48FB1",
+  //     },
+  //   },
+  //   MuiButton: {
+  //     textPrimary: {
+  //       color: "#CFA596",
+  //     },
+  //     outlinedPrimary: {
+  //       color: "#CFA596",
+  //     },
+  //   },
+  //   MuiTypography: {
+  //     colorPrimary: {
+  //       color: "#CFA596",
+  //     },
+  //   },
+  //   MuiFormLabel: {
+  //     root: {
+  //       "&$focused": {
+  //         color: "#CFA596",
+  //       },
+  //     },
+  //   },
+  //   MuiTab: {
+  //     textColorPrimary: {
+  //       "&$selected": {
+  //         color: "#CFA596",
+  //       },
+  //     },
+  //   },
+  //   MuiDialog: {
+  //     paper: {
+  //       backgroundColor: "#303030",
+  //     },
+  //   },
+  // },
+// };
 
 // project state color
 export const setupColor = "#706f6f";
