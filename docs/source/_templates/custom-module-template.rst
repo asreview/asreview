@@ -22,11 +22,28 @@
       :toctree:
       :nosignatures:
    {% for item in functions %}
+      {%- if not item.startswith('_') %}
       {{ item }}
+      {%- endif -%}
    {%- endfor %}
    {% endif %}
    {% endblock %}
 
+   {% block classes %}
+   {% if classes %}
+   .. rubric:: {{ _('Classes') }}
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   {% for item in classes %}
+      {%- if not item.startswith('_') %}
+      {{ item }}
+      {%- endif -%}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
 
 {% block modules %}
 {% if modules %}
