@@ -14,19 +14,19 @@
    {% endif %}
    {% endblock %}
 
-   {% block classes %}
-   {% if classes %}
-   .. rubric:: {{ _('Classes') }}
+   {% block functions %}
+   {% if functions %}
+   .. rubric:: {{ _('Functions') }}
 
    .. autosummary::
       :toctree:
-      :template: custom-class-template.rst
       :nosignatures:
-   {% for item in classes %}
+   {% for item in functions %}
       {{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
+
 
 {% block modules %}
 {% if modules %}
