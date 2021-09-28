@@ -41,6 +41,7 @@
    {% endif %}
    {% endblock %}
 
+..
    {% block exceptions %}
    {% if exceptions %}
    .. rubric:: {{ _('Exceptions') }}
