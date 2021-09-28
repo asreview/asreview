@@ -14,36 +14,14 @@
    {% endif %}
    {% endblock %}
 
-   {% block functions %}
-   {% if functions %}
-   {% if functions is defined and functions|length %}
-   .. rubric:: {{ ('Functions') }}
-
-   .. autosummary::
-      :toctree:
-      :nosignatures:
-   {% for item in functions %}
-      {{ item }}
-   {%- endfor %}
-   {% endif %}
-   {% endif %}
-   {% endblock %}
-
-
    {% block classes %}
    {% if classes %}
-   {% if classes is defined and classes|length %}
-   .. rubric:: {{ ('Classes') }}
-
-   .. autosummary::
-      :toctree:
-      :template: custom-class-template.rst
-      :nosignatures:
-   {% for item in classes %}
-      {{ item }}
-   {%- endfor %}
+   {{ classes }}
    {% endif %}
+   {% if functions %}
+   {{ functions }}
    {% endif %}
+   {{ test }}
    {% endblock %}
 
 {% block modules %}
