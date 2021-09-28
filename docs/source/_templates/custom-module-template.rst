@@ -14,14 +14,35 @@
    {% endif %}
    {% endblock %}
 
+   {% block functions %}
+   {% if functions %}
+   .. rubric:: {{ _('Functions') }}
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   {% for item in functions %}
+      {% if item is defined and item|length %}
+      {{ item }}
+      {% endif %}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
    {% block classes %}
    {% if classes %}
-   {{ classes }}
+   .. rubric:: {{ _('Classes') }}
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   {% for item in classes %}
+      {% if item is defined and item|length %}
+      {{ item }}
+      {% endif %}
+   {%- endfor %}
    {% endif %}
-   {% if functions %}
-   {{ functions }}
-   {% endif %}
-   {{ test }}
    {% endblock %}
 
 {% block modules %}
