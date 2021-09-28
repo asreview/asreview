@@ -1,5 +1,4 @@
-..
-   {{ fullname | escape | underline}}
+
 
 .. automodule:: {{ fullname }}
 
@@ -41,7 +40,6 @@
    {%- endfor %}
    {% endif %}
    {% endblock %}
-
 ..
    {% block exceptions %}
    {% if exceptions %}
