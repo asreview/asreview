@@ -17,7 +17,7 @@
    {% block functions %}
    {% if functions %}
    {% if functions is defined and functions|length %}
-   .. rubric:: {{ _('Functions') }}
+   .. rubric:: {{ ('Functions') }}
 
    .. autosummary::
       :toctree:
@@ -33,7 +33,7 @@
    {% block classes %}
    {% if classes %}
    {% if classes is defined and classes|length %}
-   .. rubric:: {{ _('Classes') }}
+   .. rubric:: {{ ('Classes') }}
 
    .. autosummary::
       :toctree:
