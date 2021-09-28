@@ -14,7 +14,6 @@
    {% endif %}
    {% endblock %}
 
-..
    {% block functions %}
    {% if functions %}
    .. rubric:: {{ _('Functions') }}
@@ -48,7 +47,7 @@
    :toctree:
    :template: custom-module-template.rst
    :recursive:
-{% for item in modules %}
+{%- if not item.startswith('_') %}
    {{ item }}
 {%- endfor %}
 {% endif %}
