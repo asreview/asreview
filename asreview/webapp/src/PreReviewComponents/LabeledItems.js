@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { connect } from "react-redux";
 import PropTypes from "prop-types";
-
-import makeStyles from "@mui/styles/makeStyles";
-
 import {
   Box,
   List,
@@ -13,12 +11,23 @@ import {
   Tab,
   IconButton,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
-import { connect } from "react-redux";
+const PREFIX = "LabeledItems";
+
+const classes = {
+  deleteIcon: `${PREFIX}-deleteIcon`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.deleteIcon}`]: {
+    paddingLeft: "28px",
+  },
+}));
 
 const mapStateToProps = (state) => {
   return {
@@ -26,17 +35,11 @@ const mapStateToProps = (state) => {
   };
 };
 
-const useStyles = makeStyles((theme) => ({
-  deleteIcon: {
-    paddingLeft: "28px",
-  },
-}));
-
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
+    <Root
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
@@ -44,7 +47,7 @@ function TabPanel(props) {
       {...other}
     >
       {value === index && <Box p={1}>{children}</Box>}
-    </div>
+    </Root>
   );
 }
 
@@ -55,8 +58,6 @@ TabPanel.propTypes = {
 };
 
 const LabeledItems = (props) => {
-  const classes = useStyles();
-
   // state of the item
   const [state, setState] = useState({
     tab: 0,

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
+import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -11,6 +10,11 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
+import GetAppIcon from "@mui/icons-material/GetApp";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+
 import {
   StartReview,
   PreReviewZone,
@@ -21,55 +25,71 @@ import ErrorHandler from "../ErrorHandler";
 import DangerZone from "../DangerZone.js";
 import PublicationZone from "../PublicationZone.js";
 import StatisticsZone from "../StatisticsZone.js";
-import { ProjectAPI } from "../api/index.js";
-
-import KeyboardVoiceIcon from "@mui/icons-material/KeyboardVoice";
-import GetAppIcon from "@mui/icons-material/GetApp";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
-import { connect } from "react-redux";
-
+import { ProjectAPI } from "../api/index.js";
 import { mapStateToProps, projectModes } from "../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  header: {
+const PREFIX = "ProjectPageOLD";
+
+const classes = {
+  header: `${PREFIX}-header`,
+  title: `${PREFIX}-title`,
+  continuButton: `${PREFIX}-continuButton`,
+  quickStartButtons: `${PREFIX}-quickStartButtons`,
+  wrapper: `${PREFIX}-wrapper`,
+  buttonProgress: `${PREFIX}-buttonProgress`,
+  dangerZone: `${PREFIX}-dangerZone`,
+  cardBox: `${PREFIX}-cardBox`,
+  stateElas: `${PREFIX}-stateElas`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.header}`]: {
     paddingTop: "128px",
     paddingBottom: "48px",
     textAlign: "center",
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     fontWeight: "300",
     letterSpacing: ".7rem",
   },
-  continuButton: {},
-  quickStartButtons: {
+
+  [`& .${classes.continuButton}`]: {},
+
+  [`& .${classes.quickStartButtons}`]: {
     marginTop: "24px",
   },
-  wrapper: {
+
+  [`& .${classes.wrapper}`]: {
     margin: theme.spacing(1),
     position: "relative",
   },
-  buttonProgress: {
+
+  [`& .${classes.buttonProgress}`]: {
     position: "absolute",
     top: "50%",
     left: "50%",
     marginTop: -12,
     marginLeft: -12,
   },
-  dangerZone: {
+
+  [`& .${classes.dangerZone}`]: {
     borderColor: "red",
     borderWidth: "2px",
     borderStyle: "solid",
     boxShadow: "none",
   },
-  cardBox: {
+
+  [`& .${classes.cardBox}`]: {
     paddingBottom: "24px",
   },
-  stateElas: {
+
+  [`& .${classes.stateElas}`]: {
     width: "100%",
     maxWidth: "200px",
     display: "block",
@@ -78,8 +98,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProjectPageOLD = (props) => {
-  const classes = useStyles();
-
   const EndRef = useRef(null);
 
   const [state, setState] = useState({
@@ -250,7 +268,7 @@ const ProjectPageOLD = (props) => {
   }, [fetchProjectInfo, state.infoLoading, error.message]);
 
   return (
-    <Box>
+    <StyledBox>
       {error.message !== null && (
         <ErrorHandler error={error} setError={setError} />
       )}
@@ -428,7 +446,7 @@ const ProjectPageOLD = (props) => {
           info={state.info}
         />
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 
 import { BenchmarkDataset } from "../PreReviewComponents";
-
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
-const useStyles = makeStyles((theme) => ({
-  accordion: {
+const PREFIX = "ProjectUploadBenchmarkDatasets";
+
+const classes = {
+  accordion: `${PREFIX}-accordion`,
+  title: `${PREFIX}-title`,
+  loading: `${PREFIX}-loading`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.accordion}`]: {
     marginBottom: "20px",
     margin: 0,
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginTop: "20px",
     marginLeft: "13px",
     marginBottom: "20px",
   },
-  loading: {
+
+  [`& .${classes.loading}`]: {
     marginBottom: "20px",
     textAlign: "center",
     margin: 0,
@@ -34,8 +43,6 @@ const formatCitation = (authors, year) => {
 };
 
 const ProjectUploadBenchmarkDatasets = (props) => {
-  const classes = useStyles();
-
   const [state, setState] = useState({
     datasets: null,
     loaded: false,
@@ -81,7 +88,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
   }, [props.subset, state.loaded, error.message]);
 
   return (
-    <Box className={classes.accordion}>
+    <StyledBox className={classes.accordion}>
       {state.loaded && error.message === null && (
         <Box>
           <Typography className={classes.title} variant="h6">
@@ -155,7 +162,7 @@ const ProjectUploadBenchmarkDatasets = (props) => {
           <ErrorHandler error={error} setError={setError} />
         )}
       </Box>
-    </Box>
+    </StyledBox>
   );
 };
 

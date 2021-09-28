@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
 import {
+  Alert,
+  AlertTitle,
   Box,
   Button,
   Dialog,
@@ -20,10 +20,8 @@ import {
   CardContent,
   Grow,
 } from "@mui/material";
-import { Alert, AlertTitle } from "@mui/material";
-
 import { green, brown } from "@mui/material/colors";
-
+import { styled } from "@mui/material/styles";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import HelpIcon from "@mui/icons-material/Help";
@@ -41,39 +39,61 @@ import { projectModes } from "../globals.js";
 
 import "./ReviewZone.css";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ProjectUpload";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  rootPaper: `${PREFIX}-rootPaper`,
+  title: `${PREFIX}-title`,
+  divider: `${PREFIX}-divider`,
+  clear: `${PREFIX}-clear`,
+  nextButton: `${PREFIX}-nextButton`,
+  datasets: `${PREFIX}-datasets`,
+  avatar: `${PREFIX}-avatar`,
+  link: `${PREFIX}-link`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.root}`]: {
     flexGrow: 1,
     width: "100%",
     backgroundColor: theme.palette.background.paper,
     marginBottom: "32px",
     minHeight: "200px",
   },
-  rootPaper: {
+
+  [`& .${classes.rootPaper}`]: {
     padding: "20px",
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: "20px",
   },
-  divider: {
+
+  [`& .${classes.divider}`]: {
     textAlign: "center",
     margin: "20px 0px 20px 0px",
   },
-  clear: {
+
+  [`& .${classes.clear}`]: {
     right: "clear",
   },
-  nextButton: {
+
+  [`& .${classes.nextButton}`]: {
     margin: "36px 0px 24px 12px",
     float: "right",
   },
-  datasets: {
+
+  [`& .${classes.datasets}`]: {
     maxWidth: theme.spacing(2) * 4 + 390,
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
 }));
@@ -88,8 +108,6 @@ const ProjectUpload = ({
   setNext,
   scrollToBottom,
 }) => {
-  const classes = useStyles();
-
   // the state contains new attribute to check for old data
   // or not as well as an edit attribute.
   // IMPORTANT: upload always implies edit mode
@@ -268,7 +286,7 @@ const ProjectUpload = ({
   }, [project_id, state.edit, state.upload]);
 
   return (
-    <Box minHeight={"100%"}>
+    <StyledBox minHeight={"100%"}>
       <Grow in={true}>
         <Paper className={classes.root}>
           <CardHeader
@@ -495,7 +513,7 @@ const ProjectUpload = ({
           </Box>
         }
       />
-    </Box>
+    </StyledBox>
   );
 };
 

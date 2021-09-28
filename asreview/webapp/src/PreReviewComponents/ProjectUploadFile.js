@@ -1,9 +1,24 @@
 import React, { useCallback, useMemo } from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
-import { Button, Typography } from "@mui/material";
-
 import { useDropzone } from "react-dropzone";
+import { Button, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
+const PREFIX = "ProjectUploadFile";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  uploadButton: `${PREFIX}-uploadButton`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
+    paddingTop: "24px",
+  },
+
+  [`& .${classes.uploadButton}`]: {
+    marginTop: "26px",
+  },
+}));
 
 const baseStyle = {
   flex: 1,
@@ -31,18 +46,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingTop: "24px",
-  },
-  uploadButton: {
-    marginTop: "26px",
-  },
-}));
-
 const ProjectUploadFile = (props) => {
-  const classes = useStyles();
-
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles.length !== 1) {
@@ -83,7 +87,7 @@ const ProjectUploadFile = (props) => {
   );
 
   return (
-    <div>
+    <Root>
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Typography>Drag 'n' drop a file here, or click to a file</Typography>
@@ -103,7 +107,7 @@ const ProjectUploadFile = (props) => {
           </Button>
         </div>
       )}
-    </div>
+    </Root>
   );
 };
 

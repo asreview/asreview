@@ -1,6 +1,7 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
+import Confetti from "react-confetti";
+import { connect } from "react-redux";
+// import useWindowSize from 'react-use/lib/useWindowSize'
 import {
   Box,
   Button,
@@ -11,52 +12,69 @@ import {
   Dialog,
   Typography,
 } from "@mui/material";
-
 import { brown } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
 
-// import useWindowSize from 'react-use/lib/useWindowSize'
-import Confetti from "react-confetti";
-
-import ErrorHandler from "../ErrorHandler";
-import { ProjectAPI } from "../api/index.js";
-
-import { setProject } from "../redux/actions";
-
-import { connect } from "react-redux";
-import { mapStateToProps, projectModes } from "../globals.js";
 import ProjectModeSelect from "./ProjectModeSelect";
+import ErrorHandler from "../ErrorHandler";
+
+import { ProjectAPI } from "../api/index.js";
+import { setProject } from "../redux/actions";
+import { mapStateToProps, projectModes } from "../globals.js";
 
 import "./ReviewZone.css";
 
-const useStyles = makeStyles((theme) => ({
-  title: {
+const PREFIX = "ProjectInfo";
+
+const classes = {
+  title: `${PREFIX}-title`,
+  button: `${PREFIX}-button`,
+  input: `${PREFIX}-input`,
+  list: `${PREFIX}-list`,
+  textfieldItem: `${PREFIX}-textfieldItem`,
+  clear: `${PREFIX}-clear`,
+  editButton: `${PREFIX}-editButton`,
+  avatar: `${PREFIX}-avatar`,
+  closeButton: `${PREFIX}-closeButton`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.title}`]: {
     marginBottom: "20px",
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: "36px 0px 0px 12px",
     float: "right",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     display: "none",
   },
-  list: {
+
+  [`& .${classes.list}`]: {
     backgroundColor: theme.palette.warning.light,
   },
-  textfieldItem: {
+
+  [`& .${classes.textfieldItem}`]: {
     marginTop: 0,
     marginBottom: 40,
   },
-  clear: {
+
+  [`& .${classes.clear}`]: {
     overflow: "auto",
   },
-  editButton: {
+
+  [`& .${classes.editButton}`]: {
     float: "right",
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
   },
-  closeButton: {
+
+  [`& .${classes.closeButton}`]: {
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
@@ -73,8 +91,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 const ProjectInit = (props) => {
-  const classes = useStyles();
-
   // const { width, height } = useWindowSize()
 
   // the state of the form data
@@ -175,7 +191,7 @@ const ProjectInit = (props) => {
   }, [props.edit, props.info]);
 
   return (
-    <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
+    <StyledDialog open={props.open} onClose={props.onClose} fullWidth={true}>
       <DialogTitle>
         {props.edit ? "Edit project info" : "Create a new project"}
       </DialogTitle>
@@ -274,7 +290,7 @@ const ProjectInit = (props) => {
           </Button>
         </DialogActions>
       )}
-    </Dialog>
+    </StyledDialog>
   );
 };
 

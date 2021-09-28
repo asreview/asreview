@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useCallback } from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
+import { connect } from "react-redux";
 import { Box, Button, Container } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
 import {
   PriorKnowledge,
   ProjectUpload,
@@ -9,22 +10,33 @@ import {
 } from "../PreReviewComponents";
 // import ProjectUpload from './ProjectUpload.js'
 import { ProjectAPI } from "../api/index.js";
-
-import { connect } from "react-redux";
-
 import { mapStateToProps } from "../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  box: {
+const PREFIX = "PreReviewZone";
+
+const classes = {
+  box: `${PREFIX}-box`,
+  grid: `${PREFIX}-grid`,
+  loader: `${PREFIX}-loader`,
+  root: `${PREFIX}-root`,
+  backButton: `${PREFIX}-backButton`,
+  instructions: `${PREFIX}-instructions`,
+  nextButton: `${PREFIX}-nextButton`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.box}`]: {
     marginTop: 20,
     // marginBottom: 30,
     // height: 600,
   },
-  grid: {
+
+  [`& .${classes.grid}`]: {
     minHeight: "100vh",
     padding: 6,
   },
-  loader: {
+
+  [`& .${classes.loader}`]: {
     // display: 'flex',
     // '& > * + *': {
     //   marginLeft: theme.spacing(2),
@@ -33,26 +45,28 @@ const useStyles = makeStyles((theme) => ({
     display: "block",
     marginTop: 12,
   },
-  root: {
+
+  [`& .${classes.root}`]: {
     // maxWidth: '1200px',
     margin: "24px 0px 24px 0px",
   },
-  backButton: {
+
+  [`& .${classes.backButton}`]: {
     marginRight: theme.spacing(1),
   },
-  instructions: {
+
+  [`& .${classes.instructions}`]: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
-  nextButton: {
+
+  [`& .${classes.nextButton}`]: {
     margin: "36px 0px 24px 12px",
     float: "right",
   },
 }));
 
 const PreReviewZone = (props) => {
-  const classes = useStyles();
-
   const EndRef = useRef(null);
 
   const [state, setState] = React.useState({
@@ -126,7 +140,7 @@ const PreReviewZone = (props) => {
   }, [state.new, props]);
 
   return (
-    <Box className={classes.box}>
+    <StyledBox className={classes.box}>
       {state.step !== 5 && (
         <Container maxWidth="md">
           {state.step >= 1 && state.step < 4 && (
@@ -192,7 +206,7 @@ const PreReviewZone = (props) => {
           )}
         </Container>
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

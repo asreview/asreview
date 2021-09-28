@@ -1,23 +1,29 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-import InputLabel from "@mui/material/InputLabel";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import {
+  FormControl,
+  InputLabel,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Select,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { projectModes } from "../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  formControl: {
+const PREFIX = "ProjectModeSelect";
+
+const classes = {
+  formControl: `${PREFIX}-formControl`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.formControl}`]: {
     width: "100%",
   },
 }));
 
 export default function ProjectModeSelect(props) {
-  const classes = useStyles();
-
   // variables for styling the menu
   const inputLabel = React.useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
@@ -26,7 +32,7 @@ export default function ProjectModeSelect(props) {
   }, []);
 
   return (
-    <div>
+    <Root>
       <FormControl
         variant="outlined"
         className={classes.formControl}
@@ -70,6 +76,6 @@ export default function ProjectModeSelect(props) {
           )}
         </Select>
       </FormControl>
-    </div>
+    </Root>
   );
 }

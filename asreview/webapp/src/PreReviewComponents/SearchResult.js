@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import makeStyles from "@mui/styles/makeStyles";
 import { CircularProgress, Typography, List } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { ListItemPaper } from "../PreReviewComponents";
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "SearchResultDialog";
+
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     width: "100%",
     display: "flex",
     justifyContent: "center",
@@ -19,8 +25,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const SearchResultDialog = (props) => {
-  const classes = useStyles();
-
   const [searchResult, setSearchResult] = useState(null);
 
   const [error, setError] = useState({
@@ -54,7 +58,7 @@ const SearchResultDialog = (props) => {
   }, [props.searchQuery, props.project_id, error.message]);
 
   return (
-    <div>
+    <Root>
       <Typography>Search result: {props.searchQuery}</Typography>
       {error.message !== null && (
         <div className={classes.root}>
@@ -89,7 +93,7 @@ const SearchResultDialog = (props) => {
           })}
         </List>
       )}
-    </div>
+    </Root>
   );
 };
 

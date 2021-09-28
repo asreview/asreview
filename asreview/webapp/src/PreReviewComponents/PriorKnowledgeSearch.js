@@ -1,5 +1,4 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
 import {
   Box,
   Typography,
@@ -8,48 +7,64 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
-
+import { styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 
 import { SearchResult } from "../PreReviewComponents";
 
-const useStyles = makeStyles((theme) => ({
-  paperRoot: {
+const PREFIX = "PriorKnowledgeSearch";
+
+const classes = {
+  paperRoot: `${PREFIX}-paperRoot`,
+  inputSearch: `${PREFIX}-inputSearch`,
+  button: `${PREFIX}-button`,
+  root: `${PREFIX}-root`,
+  input: `${PREFIX}-input`,
+  iconButton: `${PREFIX}-iconButton`,
+  divider: `${PREFIX}-divider`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.paperRoot}`]: {
     flexGrow: 1,
     width: "100%",
     backgroundColor: theme.palette.background.paper,
     marginBottom: "32px",
     minHeight: "200px",
   },
-  inputSearch: {
+
+  [`&.${classes.inputSearch}`]: {
     margin: "20px 0px 0px 0px",
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: "36px 0px 24px 12px",
     float: "right",
   },
-  root: {
+
+  [`& .${classes.root}`]: {
     display: "flex",
     alignItems: "center",
     width: "100%",
     padding: "12px 0px 36px 0px",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     marginLeft: theme.spacing(1),
     flex: 1,
   },
-  iconButton: {
+
+  [`& .${classes.iconButton}`]: {
     padding: 10,
   },
-  divider: {
+
+  [`& .${classes.divider}`]: {
     height: 28,
     margin: 4,
   },
 }));
 
 const PriorKnowledgeSearch = (props) => {
-  const classes = useStyles();
-
   const [searchDialog, setSearchDialog] = React.useState({
     open: false,
     query: "",
@@ -79,7 +94,7 @@ const PriorKnowledgeSearch = (props) => {
   };
 
   return (
-    <Box style={{ clear: "both" }} className={classes.inputSearch}>
+    <StyledBox style={{ clear: "both" }} className={classes.inputSearch}>
       <Typography>Search for a document to use as prior knowledge.</Typography>
       <form
         className={classes.root}
@@ -121,7 +136,7 @@ const PriorKnowledgeSearch = (props) => {
           closeSearchResult={closeSearchResult}
         />
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

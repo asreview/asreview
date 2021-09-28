@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import makeStyles from "@mui/styles/makeStyles";
 import {
   Box,
   Button,
@@ -15,74 +14,98 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-
+import { green, brown } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
 import HelpIcon from "@mui/icons-material/Help";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
-
-import { green, brown } from "@mui/material/colors";
 
 import {
   PriorKnowledgeSearch,
   PriorKnowledgeRandom,
   LabeledItems,
 } from "../PreReviewComponents";
-
 import { DialogTitleWithClose } from "../Components";
-
 import { Help, useHelp } from "../PreReviewComponents";
-
 import { ProjectAPI } from "../api/index.js";
 
 import "./ReviewZone.css";
 
-const useStyles = makeStyles((theme) => ({
-  paperRoot: {
+const PREFIX = "PriorKnowledge";
+
+const classes = {
+  paperRoot: `${PREFIX}-paperRoot`,
+  button: `${PREFIX}-button`,
+  margin: `${PREFIX}-margin`,
+  helpertext: `${PREFIX}-helpertext`,
+  root: `${PREFIX}-root`,
+  input: `${PREFIX}-input`,
+  iconButton: `${PREFIX}-iconButton`,
+  divider: `${PREFIX}-divider`,
+  help: `${PREFIX}-help`,
+  helptext: `${PREFIX}-helptext`,
+  avatar: `${PREFIX}-avatar`,
+  navButton: `${PREFIX}-navButton`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.paperRoot}`]: {
     flexGrow: 1,
     width: "100%",
     backgroundColor: theme.palette.background.paper,
     marginBottom: "32px",
     minHeight: "200px",
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: "36px 0px 24px 12px",
     float: "right",
   },
-  margin: {
+
+  [`& .${classes.margin}`]: {
     marginTop: 20,
   },
-  helpertext: {
+
+  [`& .${classes.helpertext}`]: {
     color: "#FF0000",
   },
-  root: {
+
+  [`& .${classes.root}`]: {
     padding: "2px 4px",
     marginBottom: "14px",
     display: "flex",
     alignItems: "center",
     width: "100%",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     marginLeft: theme.spacing(1),
     flex: 1,
   },
-  iconButton: {
+
+  [`& .${classes.iconButton}`]: {
     padding: 10,
   },
-  divider: {
+
+  [`& .${classes.divider}`]: {
     height: 28,
     margin: 4,
   },
-  help: {
+
+  [`& .${classes.help}`]: {
     textAlign: "right",
   },
-  helptext: {
+
+  [`& .${classes.helptext}`]: {
     padding: "12px 0px",
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
   },
-  navButton: {
+
+  [`& .${classes.navButton}`]: {
     margin: "0px 12px",
   },
 }));
@@ -105,8 +128,6 @@ export const labelPriorItem = (project_id, doc_id, label, callbk = null) => {
 };
 
 const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
-  const classes = useStyles();
-
   const [state, setState] = React.useState({
     method: null,
     loading: true,
@@ -198,7 +219,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
   }, [priorStats, setNext]);
 
   return (
-    <Box style={{ clear: "both" }}>
+    <StyledBox style={{ clear: "both" }}>
       {/* Display the prior info once loaded */}
       {priorStats.n_prior !== null && (
         <Grow in={true}>
@@ -395,7 +416,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
           </Box>
         }
       />
-    </Box>
+    </StyledBox>
   );
 };
 
