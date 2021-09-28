@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { Box } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 
 import {
   DecisionButton,
@@ -14,8 +14,14 @@ import ErrorHandler from "../../ErrorHandler";
 import { ProjectAPI } from "../../api/index.js";
 import { useKeyPress } from "../../hooks/useKeyPress";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ReviewPage";
+
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.root}`]: {
     display: "flex",
     flexDirection: "column",
     height: "100%",
@@ -29,8 +35,6 @@ const mapStateToProps = (state) => {
 };
 
 const ReviewPage = (props) => {
-  const classes = useStyles();
-
   /**
    * Exploration mode banner state
    */
@@ -277,7 +281,7 @@ const ReviewPage = (props) => {
   }, [relevantPress, irrelevantPress, undoPress, notePress]);
 
   return (
-    <Box className={classes.root} aria-label="review page">
+    <StyledBox className={classes.root} aria-label="review page">
       {/* Banner Exploration Mode */}
       <ExplorationModeBanner
         explorationMode={explorationMode}
@@ -311,7 +315,7 @@ const ReviewPage = (props) => {
       {error.message !== null && (
         <ErrorHandler error={error} setError={setError} />
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

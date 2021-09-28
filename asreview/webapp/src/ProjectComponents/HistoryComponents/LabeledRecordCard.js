@@ -10,29 +10,36 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 import { mapStateToProps } from "../../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "LabeledRecordCard";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  icon: `${PREFIX}-icon`,
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     borderRadius: 8,
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     marginLeft: "auto",
   },
 }));
 
 const LabeledRecordCard = (props) => {
-  const classes = useStyles();
-
   const [recordReadMore, setRecordReadMore] = React.useState(null);
 
   return (
-    <React.Fragment>
+    <Root>
       {props.page.result.map((value) => (
         <Card className={classes.root} key={value.id}>
           <CardContent>
@@ -91,7 +98,7 @@ const LabeledRecordCard = (props) => {
           </CardActions>
         </Card>
       ))}
-    </React.Fragment>
+    </Root>
   );
 };
 

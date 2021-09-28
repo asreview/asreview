@@ -1,12 +1,19 @@
 import React from "react";
 import clsx from "clsx";
 import Fab from "@mui/material/Fab";
-
+import { styled } from "@mui/material/styles";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
-import makeStyles from "@mui/styles/makeStyles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "DecisionButton";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  rootMobile: `${PREFIX}-rootMobile`,
+  extendedFab: `${PREFIX}-extendedFab`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`&.${classes.root}`]: {
     "& > *": {
       marginLeft: theme.spacing(5),
       marginRight: theme.spacing(5),
@@ -16,21 +23,21 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     textAlign: "center",
   },
-  rootMobile: {
+
+  [`&.${classes.rootMobile}`]: {
     "& > *": {
       marginLeft: theme.spacing(2),
       marginRight: theme.spacing(2),
       marginBottom: theme.spacing(3),
     },
   },
-  extendedFab: {
+
+  [`& .${classes.extendedFab}`]: {
     marginRight: theme.spacing(1),
   },
 }));
 
 const DecisionButton = (props) => {
-  const classes = useStyles();
-
   let relevantLabel = "Relevant";
   let irrelevantLabel = "Irrelevant";
 
@@ -44,7 +51,7 @@ const DecisionButton = (props) => {
   }
 
   return (
-    <div
+    <Root
       className={clsx(classes.root, {
         [classes.rootMobile]: props.mobileScreen,
       })}
@@ -66,7 +73,7 @@ const DecisionButton = (props) => {
         <Favorite className={classes.extendedFab} />
         {relevantLabel}
       </Fab>
-    </div>
+    </Root>
   );
 };
 

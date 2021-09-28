@@ -1,26 +1,36 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Drawer, Hidden, IconButton, Toolbar, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-
+import { styled } from "@mui/material/styles";
 import { Close } from "@mui/icons-material";
 
 import { ProgressPanel, ProjectPanel } from "../../SideStats";
 
 import { drawerWidth } from "../../globals.js";
 
-import { connect } from "react-redux";
+const PREFIX = "StatsSheet";
 
-const useStyles = makeStyles((theme) => ({
-  drawer: {
+const classes = {
+  drawer: `${PREFIX}-drawer`,
+  drawerPaper: `${PREFIX}-drawerPaper`,
+  drawerHeader: `${PREFIX}-drawerHeader`,
+  drawerTitle: `${PREFIX}-drawerTitle`,
+  drawerItems: `${PREFIX}-drawerItems`,
+};
+
+const Root = styled("nav")(({ theme }) => ({
+  [`&.${classes.drawer}`]: {
     [theme.breakpoints.up("sm")]: {
       width: drawerWidth,
       flexShrink: 0,
     },
   },
-  drawerPaper: {
+
+  [`& .${classes.drawerPaper}`]: {
     width: drawerWidth,
   },
-  drawerHeader: {
+
+  [`& .${classes.drawerHeader}`]: {
     display: "flex",
     alignItems: "center",
     padding: theme.spacing(0, 1),
@@ -28,10 +38,12 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
     justifyContent: "flex-start",
   },
-  drawerTitle: {
+
+  [`& .${classes.drawerTitle}`]: {
     width: "100%",
   },
-  drawerItems: {
+
+  [`& .${classes.drawerItems}`]: {
     "& > *": {
       marginBottom: theme.spacing(2),
     },
@@ -47,7 +59,6 @@ const mapStateToProps = (state) => {
 
 const StatsSheet = (props) => {
   const { window } = props;
-  const classes = useStyles();
 
   const drawer = (
     <div>
@@ -88,7 +99,7 @@ const StatsSheet = (props) => {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <nav className={classes.drawer}>
+    <Root className={classes.drawer}>
       <Hidden smUp implementation="css">
         <Drawer
           container={container}
@@ -117,7 +128,7 @@ const StatsSheet = (props) => {
           {drawer}
         </Drawer>
       </Hidden>
-    </nav>
+    </Root>
   );
 };
 

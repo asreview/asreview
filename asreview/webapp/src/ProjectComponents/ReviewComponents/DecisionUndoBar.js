@@ -1,30 +1,36 @@
 import React from "react";
-import Button from "@mui/material/Button";
-import Snackbar from "@mui/material/Snackbar";
-import { useTheme } from "@mui/material/styles";
-import makeStyles from "@mui/styles/makeStyles";
+import { Button, Snackbar } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   decisionUndoBarDuration,
   decisionUndoBarMarginBottom,
 } from "../../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "DecisionUndoBar";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  snackbar: `${PREFIX}-snackbar`,
+  undoButton: `${PREFIX}-undoButton`,
+};
+
+// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
   },
-  snackbar: {
+
+  [`& .${classes.snackbar}`]: {
     marginBottom: decisionUndoBarMarginBottom,
   },
-  undoButton: {
+
+  [`& .${classes.undoButton}`]: {
     color: theme.palette.secondary.light,
   },
 }));
 
 const DecisionUndoBar = (props) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
-
   const handleClose = (event, reason) => {
     props.close();
   };
@@ -46,7 +52,7 @@ const DecisionUndoBar = (props) => {
       onClose={handleClose}
       message={props.state.message}
       action={
-        <React.Fragment>
+        <Root>
           <Button
             className={classes.undoButton}
             size="small"
@@ -54,7 +60,7 @@ const DecisionUndoBar = (props) => {
           >
             UNDO
           </Button>
-        </React.Fragment>
+        </Root>
       }
       ContentProps={{
         className: classes.root,

@@ -1,10 +1,15 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
 import { Banner } from "material-ui-banner";
+import { styled } from "@mui/material/styles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ExplorationModeBanner";
+
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     [theme.breakpoints.down("md")]: {
       paddingTop: 8,
     },
@@ -12,10 +17,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ExplorationModeBanner = (props) => {
-  const classes = useStyles();
-
   return (
-    <div aria-label="exploration mode banner">
+    <Root aria-label="exploration mode banner">
       <Banner
         open={props.explorationMode}
         onClose={() => props.setExplorationMode(false)}
@@ -34,7 +37,7 @@ const ExplorationModeBanner = (props) => {
         }}
         appBar
       />
-    </div>
+    </Root>
   );
 };
 

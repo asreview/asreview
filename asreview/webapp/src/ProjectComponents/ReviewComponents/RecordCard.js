@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
-import makeStyles from "@mui/styles/makeStyles";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -12,12 +12,29 @@ import {
   Typography,
   Link,
 } from "@mui/material";
-import Alert from "@mui/material/Alert";
+import { styled } from "@mui/material/styles";
 
 import { NoteSheet } from "../ReviewComponents";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "RecordCard";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  loadedCard: `${PREFIX}-loadedCard`,
+  loadingCard: `${PREFIX}-loadingCard`,
+  alert: `${PREFIX}-alert`,
+  titleAbstract: `${PREFIX}-titleAbstract`,
+  title: `${PREFIX}-title`,
+  abstract: `${PREFIX}-abstract`,
+  doi: `${PREFIX}-doi`,
+  publish_time: `${PREFIX}-publish_time`,
+  link: `${PREFIX}-link`,
+  authors: `${PREFIX}-authors`,
+  note: `${PREFIX}-note`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.root}`]: {
     display: "flex",
     flex: "1 0 auto",
     margin: "auto",
@@ -31,7 +48,8 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: 24,
     },
   },
-  loadedCard: {
+
+  [`& .${classes.loadedCard}`]: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
@@ -40,40 +58,47 @@ const useStyles = makeStyles((theme) => ({
       borderBottomLeftRadius: 0,
     },
   },
-  loadingCard: {
+
+  [`& .${classes.loadingCard}`]: {
     justifyContent: "center",
     alignItems: "center",
   },
-  alert: {
+
+  [`& .${classes.alert}`]: {
     borderBottomRightRadius: 0,
     borderBottomLeftRadius: 0,
   },
-  titleAbstract: {
+
+  [`& .${classes.titleAbstract}`]: {
     height: "100%",
     overflowY: "scroll",
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     lineHeight: 1.2,
   },
-  abstract: {
+
+  [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
   },
-  doi: {},
-  publish_time: {},
-  link: {
+
+  [`& .${classes.doi}`]: {},
+  [`& .${classes.publish_time}`]: {},
+
+  [`& .${classes.link}`]: {
     marginLeft: "6px",
   },
-  authors: {
+
+  [`& .${classes.authors}`]: {
     fontWeight: "bolder",
   },
-  note: {
+
+  [`& .${classes.note}`]: {
     justifyContent: "flex-end",
   },
 }));
 
 const RecordCard = (props) => {
-  const classes = useStyles();
-
   const isDebugInclusion = () => {
     if (props.record) {
       return props.record._debug_label === 1;
@@ -127,7 +152,7 @@ const RecordCard = (props) => {
   };
 
   return (
-    <Box className={classes.root} aria-label="record card container">
+    <StyledBox className={classes.root} aria-label="record card container">
       {!props.isloaded && (
         <Card className={clsx(classes.loadedCard, classes.loadingCard)}>
           <CardContent aria-label="record loading">
@@ -269,7 +294,7 @@ const RecordCard = (props) => {
           )}
         </Card>
       )}
-    </Box>
+    </StyledBox>
   );
 };
 
