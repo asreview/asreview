@@ -1,6 +1,6 @@
 {{ fullname | escape | underline}}
-
-.. automodule:: {{ fullname }}
+..
+   .. automodule:: {{ fullname }}
 
 ..
    {% block attributes %}
