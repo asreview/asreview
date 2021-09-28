@@ -16,21 +16,23 @@
 
    {% block functions %}
    {% if functions %}
+   {% if functions is defined and functions|length %}
    .. rubric:: {{ _('Functions') }}
 
    .. autosummary::
       :toctree:
       :nosignatures:
    {% for item in functions %}
-      {%- if not item.startswith('_') %}
       {{ item }}
-      {%- endif -%}
    {%- endfor %}
+   {% endif %}
    {% endif %}
    {% endblock %}
 
+
    {% block classes %}
    {% if classes %}
+   {% if classes is defined and classes|length %}
    .. rubric:: {{ _('Classes') }}
 
    .. autosummary::
@@ -38,10 +40,9 @@
       :template: custom-class-template.rst
       :nosignatures:
    {% for item in classes %}
-      {%- if not item.startswith('_') %}
       {{ item }}
-      {%- endif -%}
    {%- endfor %}
+   {% endif %}
    {% endif %}
    {% endblock %}
 
