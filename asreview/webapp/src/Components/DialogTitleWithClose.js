@@ -1,12 +1,16 @@
 import React from "react";
 import { DialogTitle, IconButton } from "@mui/material";
-
-import makeStyles from "@mui/styles/makeStyles";
-
+import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 
-const useStyles = makeStyles((theme) => ({
-  closeButton: {
+const PREFIX = "DialogTitleWithClose";
+
+const classes = {
+  closeButton: `${PREFIX}-closeButton`,
+};
+
+const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
+  [`& .${classes.closeButton}`]: {
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
@@ -15,10 +19,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const DialogTitleWithClose = (props) => {
-  const classes = useStyles();
-
   return (
-    <DialogTitle>
+    <StyledDialogTitle>
       {props.title}
       {props.onClose ? (
         <IconButton
@@ -30,7 +32,7 @@ const DialogTitleWithClose = (props) => {
           <CloseIcon />
         </IconButton>
       ) : null}
-    </DialogTitle>
+    </StyledDialogTitle>
   );
 };
 

@@ -1,6 +1,8 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
+import { connect } from "react-redux";
 import {
+  Alert,
+  AlertTitle,
   Button,
   Dialog,
   DialogActions,
@@ -9,30 +11,41 @@ import {
   Link,
   Typography,
 } from "@mui/material";
-import { Alert, AlertTitle } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../api/index.js";
-
+import { mapStateToProps } from "../globals.js";
 import { setProject } from "../redux/actions";
 
-import { connect } from "react-redux";
-import { mapStateToProps } from "../globals.js";
+const PREFIX = "ImportDialog";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const classes = {
+  root: `${PREFIX}-root`,
+  dialog: `${PREFIX}-dialog`,
+  input: `${PREFIX}-input`,
+  uploadButton: `${PREFIX}-uploadButton`,
+  link: `${PREFIX}-link`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.root}`]: {
     width: "100%",
     marginTop: "16px",
   },
-  dialog: {
+
+  [`& .${classes.dialog}`]: {
     width: "100%",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     marginTop: "16px",
   },
-  uploadButton: {
+
+  [`& .${classes.uploadButton}`]: {
     marginTop: "26px",
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
 }));
@@ -46,8 +59,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 const ImportDialog = (props) => {
-  const classes = useStyles();
-
   const [file, setFile] = React.useState(null);
   const [upload, setUpload] = React.useState(false);
   const [selection, setSelection] = React.useState(null);
@@ -104,7 +115,7 @@ const ImportDialog = (props) => {
   };
 
   return (
-    <Dialog
+    <StyledDialog
       open={props.open}
       onClose={props.onClose}
       scroll="body"
@@ -164,7 +175,7 @@ const ImportDialog = (props) => {
           {upload ? "Importing..." : "Import"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 };
 

@@ -17,8 +17,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled, useTheme } from "@mui/material/styles";
 import {
   ArrowBack,
   Assignment,
@@ -35,10 +34,127 @@ import {
 
 import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
-
 import { donateURL, drawerWidth } from "../globals.js";
-
 import { setAppState, toggleHelpDialog } from "../redux/actions";
+
+const PREFIX = "NavigationDrawer";
+
+const classes = {
+  drawer: `${PREFIX}-drawer`,
+  drawerOpen: `${PREFIX}-drawerOpen`,
+  drawerClose: `${PREFIX}-drawerClose`,
+  drawerPaper: `${PREFIX}-drawerPaper`,
+  drawerContainer: `${PREFIX}-drawerContainer`,
+  menuIcon: `${PREFIX}-menuIcon`,
+  logo: `${PREFIX}-logo`,
+  topSection: `${PREFIX}-topSection`,
+  bottomSection: `${PREFIX}-bottomSection`,
+  icon: `${PREFIX}-icon`,
+  selectedIcon: `${PREFIX}-selectedIcon`,
+  selectedText: `${PREFIX}-selectedText`,
+  projectInfo: `${PREFIX}-projectInfo`,
+  yourProject: `${PREFIX}-yourProject`,
+  projectTitle: `${PREFIX}-projectTitle`,
+  stateElas: `${PREFIX}-stateElas`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.drawer}`]: {
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+  },
+
+  [`& .${classes.drawerOpen}`]: {
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+
+  [`& .${classes.drawerClose}`]: {
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: "hidden",
+    width: theme.spacing(7) + 1,
+    [theme.breakpoints.up("sm")]: {
+      width: theme.spacing(9) + 1,
+    },
+  },
+
+  [`& .${classes.drawerPaper}`]: {
+    width: drawerWidth,
+  },
+
+  [`& .${classes.drawerContainer}`]: {
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+  },
+
+  [`& .${classes.menuIcon}`]: {
+    marginRight: 4,
+  },
+
+  [`& .${classes.logo}`]: {
+    width: 130,
+  },
+
+  [`& .${classes.topSection}`]: {
+    overflowX: "hidden",
+    overflowY: "auto",
+    flex: "1 1 auto",
+  },
+
+  [`& .${classes.bottomSection}`]: {
+    overflow: "hidden",
+    flex: "0 0 auto",
+  },
+
+  [`& .${classes.icon}`]: {
+    paddingLeft: 8,
+  },
+
+  [`& .${classes.selectedIcon}`]: {
+    paddingLeft: 8,
+    color: "#91620B",
+  },
+
+  [`& .${classes.selectedText}`]: {
+    fontWeight: 600,
+  },
+
+  [`& .${classes.projectInfo}`]: {
+    display: "block",
+    "& > *": {
+      marginTop: theme.spacing(2),
+    },
+  },
+
+  [`& .${classes.yourProject}`]: {
+    paddingLeft: 12,
+    paddingRight: 12,
+  },
+
+  [`& .${classes.projectTitle}`]: {
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 2,
+    whiteSpace: "pre-line",
+    overflow: "hidden",
+  },
+
+  [`& .${classes.stateElas}`]: {
+    width: "100%",
+    maxWidth: "140px",
+    display: "block",
+    margin: "auto",
+  },
+}));
 
 const mapStateToProps = (state) => {
   return {
@@ -58,92 +174,9 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
-    },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  drawerContainer: {
-    overflow: "hidden",
-    display: "flex",
-    flexDirection: "column",
-    flexGrow: 1,
-  },
-  menuIcon: {
-    marginRight: 4,
-  },
-  logo: {
-    width: 130,
-  },
-  topSection: {
-    overflowX: "hidden",
-    overflowY: "auto",
-    flex: "1 1 auto",
-  },
-  bottomSection: {
-    overflow: "hidden",
-    flex: "0 0 auto",
-  },
-  icon: {
-    paddingLeft: 8,
-  },
-  selectedIcon: {
-    paddingLeft: 8,
-    color: "#91620B",
-  },
-  selectedText: {
-    fontWeight: 600,
-  },
-  projectInfo: {
-    display: "block",
-    "& > *": {
-      marginTop: theme.spacing(2),
-    },
-  },
-  yourProject: {
-    paddingLeft: 12,
-    paddingRight: 12,
-  },
-  projectTitle: {
-    display: "-webkit-box",
-    WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 2,
-    whiteSpace: "pre-line",
-    overflow: "hidden",
-  },
-  stateElas: {
-    width: "100%",
-    maxWidth: "140px",
-    display: "block",
-    margin: "auto",
-  },
-}));
-
 const NavigationDrawer = (props) => {
   const { window } = props;
-  const classes = useStyles();
+
   const theme = useTheme();
 
   const wordmarkState = () => {
@@ -458,7 +491,7 @@ const NavigationDrawer = (props) => {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box
+    <StyledBox
       component="nav"
       className={classes.drawer}
       aria-label="navigation drawer"
@@ -525,7 +558,7 @@ const NavigationDrawer = (props) => {
           {drawer}
         </Drawer>
       </Hidden>
-    </Box>
+    </StyledBox>
   );
 };
 

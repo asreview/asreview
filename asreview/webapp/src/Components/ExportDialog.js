@@ -1,5 +1,5 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
+import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -13,22 +13,30 @@ import {
   MenuItem,
   Link,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../api/index.js";
-
 import { donateURL } from "../globals.js";
-
-import { connect } from "react-redux";
 import store from "../redux/store";
 
-const useStyles = makeStyles((theme) => ({
-  button: {
+const PREFIX = "ExportDialog";
+
+const classes = {
+  button: `${PREFIX}-button`,
+  link: `${PREFIX}-link`,
+  file_type: `${PREFIX}-file_type`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.button}`]: {
     marginTop: "16px",
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
-  file_type: {
+
+  [`& .${classes.file_type}`]: {
     margin: theme.spacing(1),
     width: "100%",
     padding: "12px 0px",
@@ -40,8 +48,6 @@ const mapStateToProps = (state) => {
 };
 
 const ExportDialog = (props) => {
-  const classes = useStyles();
-
   const [exportFileType, setExportFileType] = React.useState("excel");
 
   const handleExportFileTypeChange = (event) => {
@@ -69,7 +75,7 @@ const ExportDialog = (props) => {
   };
 
   return (
-    <Dialog
+    <StyledDialog
       open={props.exportResult}
       onClose={props.toggleExportResult}
       scroll="body"
@@ -115,7 +121,7 @@ const ExportDialog = (props) => {
         <Button onClick={props.toggleExportResult}>Cancel</Button>
         <Button onClick={downloadResult}>Download</Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 };
 

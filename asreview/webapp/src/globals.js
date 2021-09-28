@@ -22,7 +22,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
           },
           secondary: {
             main: "#7a0c2e",
-          }
+          },
         }
       : {
           primary: {
@@ -50,31 +50,31 @@ export const getDesignTokens = (mode: PaletteMode) => ({
 //       color: 'transparent',
 //     },
 //   },
-  // overrides: {
-  //   MuiLink: {
-  //     root: {
-  //       // color: "#DC004E",
-  //     },
-  //   },
-  //   MuiTypography: {
-  //     colorTextSecondary: {
-  //       color: "#555555",
-  //     },
-  //   },
-  //   MuiDialog: {
-  //     paper: {
-  //       backgroundColor: "#fafafa",
-  //     },
-  //   },
-  //   MuiListItem: {
-  //     root: {
-  //       "&$selected": {
-  //         color: "#91620B",
-  //         backgroundColor: "#FFFBE7",
-  //       },
-  //     },
-  //   },
-  // },
+// overrides: {
+//   MuiLink: {
+//     root: {
+//       // color: "#DC004E",
+//     },
+//   },
+//   MuiTypography: {
+//     colorTextSecondary: {
+//       color: "#555555",
+//     },
+//   },
+//   MuiDialog: {
+//     paper: {
+//       backgroundColor: "#fafafa",
+//     },
+//   },
+//   MuiListItem: {
+//     root: {
+//       "&$selected": {
+//         color: "#91620B",
+//         backgroundColor: "#FFFBE7",
+//       },
+//     },
+//   },
+// },
 // };
 
 // export const darkTheme = {
@@ -92,45 +92,45 @@ export const getDesignTokens = (mode: PaletteMode) => ({
 //       color: 'transparent',
 //     },
 //   },
-  // overrides: {
-  //   MuiLink: {
-  //     root: {
-  //       color: "#F48FB1",
-  //     },
-  //   },
-  //   MuiButton: {
-  //     textPrimary: {
-  //       color: "#CFA596",
-  //     },
-  //     outlinedPrimary: {
-  //       color: "#CFA596",
-  //     },
-  //   },
-  //   MuiTypography: {
-  //     colorPrimary: {
-  //       color: "#CFA596",
-  //     },
-  //   },
-  //   MuiFormLabel: {
-  //     root: {
-  //       "&$focused": {
-  //         color: "#CFA596",
-  //       },
-  //     },
-  //   },
-  //   MuiTab: {
-  //     textColorPrimary: {
-  //       "&$selected": {
-  //         color: "#CFA596",
-  //       },
-  //     },
-  //   },
-  //   MuiDialog: {
-  //     paper: {
-  //       backgroundColor: "#303030",
-  //     },
-  //   },
-  // },
+// overrides: {
+//   MuiLink: {
+//     root: {
+//       color: "#F48FB1",
+//     },
+//   },
+//   MuiButton: {
+//     textPrimary: {
+//       color: "#CFA596",
+//     },
+//     outlinedPrimary: {
+//       color: "#CFA596",
+//     },
+//   },
+//   MuiTypography: {
+//     colorPrimary: {
+//       color: "#CFA596",
+//     },
+//   },
+//   MuiFormLabel: {
+//     root: {
+//       "&$focused": {
+//         color: "#CFA596",
+//       },
+//     },
+//   },
+//   MuiTab: {
+//     textColorPrimary: {
+//       "&$selected": {
+//         color: "#CFA596",
+//       },
+//     },
+//   },
+//   MuiDialog: {
+//     paper: {
+//       backgroundColor: "#303030",
+//     },
+//   },
+// },
 // };
 
 // project state color

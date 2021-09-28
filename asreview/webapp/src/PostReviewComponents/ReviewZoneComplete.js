@@ -1,29 +1,35 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
-import { Container, Button, Typography } from "@mui/material";
-
 import { connect } from "react-redux";
+import { Container, Button, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { mapStateToProps } from "../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ReviewZoneComplete";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  title: `${PREFIX}-title`,
+  button: `${PREFIX}-button`,
+};
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  [`&.${classes.root}`]: {
     paddingTop: "24px",
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginBottom: "20px",
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: "20px 0px",
   },
 }));
 
 const ReviewZoneComplete = (props) => {
-  const classes = useStyles();
-
   return (
-    <Container maxWidth="md" className={classes.root}>
+    <StyledContainer maxWidth="md" className={classes.root}>
       <Typography variant="h5" className={classes.title}>
         Congratulations, you completed your Systematic Review
       </Typography>
@@ -46,7 +52,7 @@ const ReviewZoneComplete = (props) => {
         Back to projects
       </Button>
       <Typography>We would love to hear your feedback.</Typography>
-    </Container>
+    </StyledContainer>
   );
 };
 
