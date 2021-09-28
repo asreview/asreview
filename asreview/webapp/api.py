@@ -1050,8 +1050,8 @@ def api_get_progress_density(project_id):
 def api_get_progress_recall(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
+    project_path = get_project_path(project_id)
     try:
-
         with open_state(project_path) as s:
             data = s.get_labels()
             n_records = len(s.get_record_table())
