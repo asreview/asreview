@@ -12,11 +12,58 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 
 import store from "./redux/store";
 import { setProject } from "./redux/actions";
 import { setupColor, inReviewColor, finishedColor } from "./globals";
+
+const PREFIX = "ProjectTable";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  table: `${PREFIX}-table`,
+  tableCell: `${PREFIX}-tableCell`,
+  chipSetup: `${PREFIX}-chipSetup`,
+  chipInReview: `${PREFIX}-chipInReview`,
+  chipFinished: `${PREFIX}-chipFinished`,
+};
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  [`&.${classes.root}`]: {
+    width: "100%",
+    marginBottom: "100px",
+  },
+
+  [`& .${classes.table}`]: {
+    minWidth: 700,
+  },
+
+  [`& .${classes.tableCell}`]: {
+    letterSpacing: "0.25px",
+  },
+
+  [`& .${classes.chipSetup}`]: {
+    color: "white",
+    backgroundColor: setupColor,
+    fontWeight: 500,
+    display: "flex",
+  },
+
+  [`& .${classes.chipInReview}`]: {
+    color: "white",
+    fontWeight: 500,
+    backgroundColor: inReviewColor,
+    display: "flex",
+  },
+
+  [`& .${classes.chipFinished}`]: {
+    color: "white",
+    fontWeight: 500,
+    backgroundColor: finishedColor,
+    display: "flex",
+  },
+}));
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
@@ -25,40 +72,7 @@ const columns = [
   { id: "reviewFinished", label: "Status", width: "15%" },
 ];
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    marginBottom: "100px",
-  },
-  table: {
-    minWidth: 700,
-  },
-  tableCell: {
-    letterSpacing: "0.25px",
-  },
-  chipSetup: {
-    color: "white",
-    backgroundColor: setupColor,
-    fontWeight: 500,
-    display: "flex",
-  },
-  chipInReview: {
-    color: "white",
-    fontWeight: 500,
-    backgroundColor: inReviewColor,
-    display: "flex",
-  },
-  chipFinished: {
-    color: "white",
-    fontWeight: 500,
-    backgroundColor: finishedColor,
-    display: "flex",
-  },
-}));
-
 const ProjectTable = (props) => {
-  const classes = useStyles();
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -78,7 +92,7 @@ const ProjectTable = (props) => {
   };
 
   return (
-    <Paper className={classes.root}>
+    <StyledPaper className={classes.root}>
       <TableContainer>
         <Table className={classes.table} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -172,7 +186,7 @@ const ProjectTable = (props) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+    </StyledPaper>
   );
 };
 

@@ -14,20 +14,60 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import DescriptionIcon from "@mui/icons-material/Description";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 
-import makeStyles from "@mui/styles/makeStyles";
-
-import { UtilsAPI } from "./api/index.js";
-
 import ErrorHandler from "./ErrorHandler";
 import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 
-// redux config
+import { UtilsAPI } from "./api/index.js";
 import { toggleHelpDialog } from "./redux/actions";
+
+const PREFIX = "HelpDialog";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  subhead: `${PREFIX}-subhead`,
+  descriptionIcon: `${PREFIX}-descriptionIcon`,
+  divider: `${PREFIX}-divider`,
+  card: `${PREFIX}-card`,
+  avatar: `${PREFIX}-avatar`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
+    padding: "0px 0px 20px 0px",
+  },
+
+  [`& .${classes.subhead}`]: {
+    paddingLeft: 20,
+  },
+
+  [`& .${classes.descriptionIcon}`]: {
+    justifyContent: "center",
+  },
+
+  [`& .${classes.divider}`]: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+
+  [`& .${classes.card}`]: {
+    width: "100%",
+    marginLeft: 20,
+    marginRight: 20,
+  },
+
+  [`& .${classes.avatar}`]: {
+    width: theme.spacing(4),
+    height: theme.spacing(4),
+    color: theme.palette.getContrastText(theme.palette.primary.main),
+    backgroundColor: theme.palette.primary.main,
+  },
+}));
 
 const mapStateToProps = (state) => {
   return {
@@ -43,35 +83,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: "0px 0px 20px 0px",
-  },
-  subhead: {
-    paddingLeft: 20,
-  },
-  descriptionIcon: {
-    justifyContent: "center",
-  },
-  divider: {
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  card: {
-    width: "100%",
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  avatar: {
-    width: theme.spacing(4),
-    height: theme.spacing(4),
-    color: theme.palette.getContrastText(theme.palette.primary.main),
-    backgroundColor: theme.palette.primary.main,
-  },
-}));
-
 const HelpDialog = (props) => {
-  const classes = useStyles();
   const descriptionElementRef = useRef(null);
 
   const [faq, setFaq] = useState(null);
@@ -109,7 +121,7 @@ const HelpDialog = (props) => {
   }, [getFaq, error.message]);
 
   return (
-    <div>
+    <Root>
       <Dialog
         fullScreen={props.mobileScreen}
         open={props.onHelpDialog}
@@ -221,7 +233,7 @@ const HelpDialog = (props) => {
           </List>
         </DialogContent>
       </Dialog>
-    </div>
+    </Root>
   );
 };
 

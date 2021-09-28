@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { connect } from "react-redux";
 import {
   Box,
   Card,
@@ -17,49 +18,63 @@ import {
   Slider,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { styled } from "@mui/material/styles";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "./Components";
 import { fontSizeOptions, donateURL } from "./globals.js";
 
-import { connect } from "react-redux";
+const PREFIX = "SettingsDialog";
 
-const mapStateToProps = (state) => {
-  return {
-    asreview_version: state.asreview_version,
-  };
+const classes = {
+  root: `${PREFIX}-root`,
+  divider: `${PREFIX}-divider`,
+  listAction: `${PREFIX}-listAction`,
+  fontSizeSampleContainer: `${PREFIX}-fontSizeSampleContainer`,
+  fontSizeSampleCard: `${PREFIX}-fontSizeSampleCard`,
+  fontSizeSampleTitle: `${PREFIX}-fontSizeSampleTitle`,
+  fontSizeSampleAbstract: `${PREFIX}-fontSizeSampleAbstract`,
+  fontSizeSlider: `${PREFIX}-fontSizeSlider`,
+  fontSizeDescription: `${PREFIX}-fontSizeDescription`,
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     padding: "0px 0px 10px 0px",
   },
-  divider: {
+
+  [`& .${classes.divider}`]: {
     marginTop: 8,
     marginBottom: 8,
   },
-  listAction: {
+
+  [`& .${classes.listAction}`]: {
     right: 24,
   },
-  fontSizeSampleContainer: {
+
+  [`& .${classes.fontSizeSampleContainer}`]: {
     paddingTop: 10,
     paddingBottom: 10,
   },
-  fontSizeSampleCard: {
+
+  [`& .${classes.fontSizeSampleCard}`]: {
     height: 500,
     overflowY: "scroll",
   },
-  fontSizeSampleTitle: {
+
+  [`& .${classes.fontSizeSampleTitle}`]: {
     lineHeight: 1.2,
   },
-  fontSizeSampleAbstract: {
+
+  [`& .${classes.fontSizeSampleAbstract}`]: {
     whiteSpace: "pre-line",
   },
-  fontSizeSlider: {
+
+  [`& .${classes.fontSizeSlider}`]: {
     alignItems: "flex-end",
   },
-  fontSizeDescription: {
+
+  [`& .${classes.fontSizeDescription}`]: {
     paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 20,
@@ -67,9 +82,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SettingsDialog = (props) => {
-  const classes = useStyles();
+const mapStateToProps = (state) => {
+  return {
+    asreview_version: state.asreview_version,
+  };
+};
 
+const SettingsDialog = (props) => {
   const descriptionElementRef = useRef(null);
 
   // second layer state
@@ -111,7 +130,7 @@ const SettingsDialog = (props) => {
   }, [props.onSettings]);
 
   return (
-    <div>
+    <Root>
       <Dialog
         fullScreen={props.mobileScreen}
         open={props.onSettings}
@@ -466,7 +485,7 @@ const SettingsDialog = (props) => {
           </DialogContent>
         )}
       </Dialog>
-    </div>
+    </Root>
   );
 };
 

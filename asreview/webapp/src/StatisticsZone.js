@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
 import {
   Box,
   Typography,
@@ -11,6 +9,7 @@ import {
   Link,
   Tooltip,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
 import {
@@ -21,52 +20,78 @@ import {
 
 import { ProjectAPI } from "./api/index.js";
 
-const useStyles = makeStyles((theme) => ({
-  title: {
+const PREFIX = "StatisticsZone";
+
+const classes = {
+  title: `${PREFIX}-title`,
+  continuButton: `${PREFIX}-continuButton`,
+  wrapper: `${PREFIX}-wrapper`,
+  buttonProgress: `${PREFIX}-buttonProgress`,
+  paper: `${PREFIX}-paper`,
+  center: `${PREFIX}-center`,
+  pieChart: `${PREFIX}-pieChart`,
+  notAvailable: `${PREFIX}-notAvailable`,
+  errorMessage: `${PREFIX}-errorMessage`,
+  link: `${PREFIX}-link`,
+  retryButton: `${PREFIX}-retryButton`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.title}`]: {
     margin: "32px 12px 12px 12px",
   },
-  continuButton: {
+
+  [`& .${classes.continuButton}`]: {
     marginTop: "24px",
   },
-  wrapper: {
+
+  [`& .${classes.wrapper}`]: {
     margin: theme.spacing(1),
     position: "relative",
   },
-  buttonProgress: {
+
+  [`& .${classes.buttonProgress}`]: {
     position: "absolute",
     top: "50%",
     left: "50%",
     marginTop: 0,
     marginLeft: -12,
   },
-  paper: {
+
+  [`& .${classes.paper}`]: {
     paddingTop: "24px",
     paddingLeft: "40px",
     paddingRight: "40px",
   },
-  center: {
+
+  [`& .${classes.center}`]: {
     marginTop: -24,
     textAlign: "center",
   },
-  pieChart: {
+
+  [`& .${classes.pieChart}`]: {
     width: "100%",
     maxWidth: "245px",
     margin: "auto",
     display: "block",
   },
-  notAvailable: {
+
+  [`& .${classes.notAvailable}`]: {
     paddingTop: "54px",
     paddingBottom: "74px",
     textAlign: "center",
   },
-  errorMessage: {
+
+  [`& .${classes.errorMessage}`]: {
     paddingTop: "38px",
     textAlign: "center",
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
-  retryButton: {
+
+  [`& .${classes.retryButton}`]: {
     position: "relative",
     top: "8px",
     paddingBottom: "28px",
@@ -74,8 +99,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const StatisticsZone = (props) => {
-  const classes = useStyles();
-
   const [statistics, setStatistics] = useState(null);
   const [history, setHistory] = useState([]);
   const [efficiency, setEfficiency] = useState([]);
@@ -160,7 +183,7 @@ const StatisticsZone = (props) => {
   }, [props.projectInitReady, props.training, props.project_id, error.error]);
 
   return (
-    <Box>
+    <StyledBox>
       <Typography variant="h6" className={classes.title}>
         Statistics
       </Typography>
@@ -255,7 +278,7 @@ const StatisticsZone = (props) => {
           </Box>
         )}
       </Paper>
-    </Box>
+    </StyledBox>
   );
 };
 

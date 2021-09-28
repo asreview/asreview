@@ -1,16 +1,78 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { brown } from "@mui/material/colors";
-
+import { connect } from "react-redux";
 import { Box, Fade, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { brown } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
+
+import { BaseAPI } from "./api/index.js";
+import { setAppState, setASReviewVersion } from "./redux/actions";
 
 import "./WelcomeScreen.css";
-import { BaseAPI } from "./api/index.js";
 
-import { connect } from "react-redux";
+const PREFIX = "WelcomeScreen";
 
-// redux config
-import { setAppState, setASReviewVersion } from "./redux/actions";
+const classes = {
+  background: `${PREFIX}-background`,
+  root: `${PREFIX}-root`,
+  logo_single: `${PREFIX}-logo_single`,
+  logo: `${PREFIX}-logo`,
+  plusicon: `${PREFIX}-plusicon`,
+  title: `${PREFIX}-title`,
+  error: `${PREFIX}-error`,
+  title_small: `${PREFIX}-title_small`,
+};
+
+const StyledFade = styled(Fade)(({ theme }) => ({
+  [`& .${classes.background}`]: {
+    backgroundColor: brown[500],
+    height: "100%",
+    width: "100%",
+    position: "absolute",
+  },
+
+  [`& .${classes.root}`]: {
+    // width: 380,
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+  },
+
+  [`& .${classes.logo_single}`]: {
+    margin: "auto",
+    width: 160,
+    fill: "white",
+  },
+
+  [`& .${classes.logo}`]: {
+    margin: "auto",
+    width: 380,
+    fill: "white",
+  },
+
+  [`& .${classes.plusicon}`]: {
+    marginTop: "50px",
+    marginBottom: "50px",
+  },
+
+  [`& .${classes.title}`]: {
+    textAlign: "center",
+    marginTop: "18px",
+    fontSize: "30px",
+    color: "white",
+  },
+
+  [`& .${classes.error}`]: {
+    textAlign: "center",
+    marginTop: "18px",
+    fontSize: "30px",
+    backgroundColor: "#FFF",
+  },
+
+  [`& .${classes.title_small}`]: {
+    fontSize: "20px",
+  },
+}));
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -23,54 +85,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
-  background: {
-    backgroundColor: brown[500],
-    height: "100%",
-    width: "100%",
-    position: "absolute",
-  },
-  root: {
-    // width: 380,
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-  },
-  logo_single: {
-    margin: "auto",
-    width: 160,
-    fill: "white",
-  },
-  logo: {
-    margin: "auto",
-    width: 380,
-    fill: "white",
-  },
-  plusicon: {
-    marginTop: "50px",
-    marginBottom: "50px",
-  },
-  title: {
-    textAlign: "center",
-    marginTop: "18px",
-    fontSize: "30px",
-    color: "white",
-  },
-  error: {
-    textAlign: "center",
-    marginTop: "18px",
-    fontSize: "30px",
-    backgroundColor: "#FFF",
-  },
-  title_small: {
-    fontSize: "20px",
-  },
-}));
-
 const WelcomeScreen = ({ setASReviewVersion, setAppState }) => {
-  const classes = useStyles();
-
   const [state, setState] = useState({
     loading: true,
     bootInfo: null,
@@ -151,7 +166,7 @@ const WelcomeScreen = ({ setASReviewVersion, setAppState }) => {
   /* no errors, continue with bootloading */
   if (!state.loading && !state.error) {
     return (
-      <Fade
+      <StyledFade
         in={state.animation}
         timeout={{ enter: 0, exit: 600 }}
         mountOnEnter
@@ -219,7 +234,7 @@ const WelcomeScreen = ({ setASReviewVersion, setAppState }) => {
             </Typography>
           </Box>
         </Box>
-      </Fade>
+      </StyledFade>
     );
   }
 };

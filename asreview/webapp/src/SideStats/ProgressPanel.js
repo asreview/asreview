@@ -8,28 +8,41 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import { ProgressAreaChart } from "../SideStats";
 
-import RefreshIcon from "@mui/icons-material/Refresh";
-import makeStyles from "@mui/styles/makeStyles";
+const PREFIX = "ProgressPanel";
 
-const useStyles = makeStyles((theme) => ({
-  item: {
+const classes = {
+  item: `${PREFIX}-item`,
+  areaChart: `${PREFIX}-areaChart`,
+  errorMessage: `${PREFIX}-errorMessage`,
+  link: `${PREFIX}-link`,
+  retryButton: `${PREFIX}-retryButton`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.item}`]: {
     margin: "10px 0px 10px 0px",
   },
-  areaChart: {
+
+  [`& .${classes.areaChart}`]: {
     paddingRight: "40px",
     paddingLeft: "40px",
   },
-  errorMessage: {
+
+  [`& .${classes.errorMessage}`]: {
     paddingTop: "38px",
     textAlign: "center",
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
-  retryButton: {
+
+  [`& .${classes.retryButton}`]: {
     position: "relative",
     top: "8px",
     paddingBottom: "28px",
@@ -37,14 +50,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProgressPanel = (props) => {
-  const classes = useStyles();
-
   const handleClickRetry = () => {
     props.setSideSheetError(false);
   };
 
   return (
-    <div>
+    <Root>
       {props.sideSheetError && (
         <Box>
           <Box className={classes.errorMessage}>
@@ -99,7 +110,7 @@ const ProgressPanel = (props) => {
           </Box>
         </div>
       )}
-    </div>
+    </Root>
   );
 };
 

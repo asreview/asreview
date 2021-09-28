@@ -1,6 +1,4 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
 import {
   Box,
   Typography,
@@ -9,26 +7,35 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import ProjectSettings from "./ProjectSettings.js";
 
-const useStyles = makeStyles((theme) => ({
-  title: {
+const PREFIX = "DangerZone";
+
+const classes = {
+  title: `${PREFIX}-title`,
+  wrapper: `${PREFIX}-wrapper`,
+  dangerZone: `${PREFIX}-dangerZone`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.title}`]: {
     color: "red",
     margin: "32px 12px 12px 12px",
   },
-  wrapper: {
+
+  [`& .${classes.wrapper}`]: {
     margin: theme.spacing(1),
     position: "relative",
   },
-  dangerZone: {
+
+  [`& .${classes.dangerZone}`]: {
     color: "red",
   },
 }));
 
 const DangerZone = (props) => {
-  const classes = useStyles();
-
   const [settings, setDelete] = React.useState(false);
 
   const toggleProjectDelete = () => {
@@ -36,7 +43,7 @@ const DangerZone = (props) => {
   };
 
   return (
-    <Box>
+    <StyledBox>
       <Typography variant="h6" className={classes.title}>
         Danger Zone
       </Typography>
@@ -72,7 +79,7 @@ const DangerZone = (props) => {
           handleAppState={props.handleAppState}
         />
       </Paper>
-    </Box>
+    </StyledBox>
   );
 };
 

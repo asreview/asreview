@@ -1,30 +1,37 @@
 import React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  // DialogContentText,
   Typography,
   TextField,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "./api/index.js";
 
-const useStyles = makeStyles({
-  root: {
+const PREFIX = "ProjectSettings";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  deleteButton: `${PREFIX}-deleteButton`,
+  header: `${PREFIX}-header`,
+  inputDelete: `${PREFIX}-inputDelete`,
+};
+
+const StyledDialog = styled(Dialog)({
+  [`& .${classes.root}`]: {
     maxWidth: "100%",
   },
-  deleteButton: {
+  [`& .${classes.deleteButton}`]: {
     margin: 5,
   },
-  header: {
+  [`& .${classes.header}`]: {
     marginBottom: 10,
   },
-  inputDelete: {
+  [`& .${classes.inputDelete}`]: {
     marginBottom: 10,
     marginTop: 10,
   },
@@ -32,7 +39,6 @@ const useStyles = makeStyles({
 
 export default function ProjectSettings(props) {
   // set the styles
-  const classes = useStyles();
 
   // state variables
   const [deleteInput, setDeleteInput] = React.useState("");
@@ -67,7 +73,7 @@ export default function ProjectSettings(props) {
   };
 
   return (
-    <Dialog
+    <StyledDialog
       open={props.settings}
       onClose={props.toggleProjectDelete}
       scroll="paper"
@@ -99,6 +105,6 @@ export default function ProjectSettings(props) {
           Yes, Delete project
         </Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 }
