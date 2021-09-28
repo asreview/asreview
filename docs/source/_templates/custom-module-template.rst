@@ -47,8 +47,10 @@
    :toctree:
    :template: custom-module-template.rst
    :recursive:
-{%- if not item.startswith('_') %}
+{% for item in modules %}
+   {%- if not item.startswith('_') %}
    {{ item }}
+   {%- endif -%}
 {%- endfor %}
 {% endif %}
 {% endblock %}
