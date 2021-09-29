@@ -15,33 +15,29 @@
    {% endblock %}
 
    {% block functions %}
-   {% if functions is defined and functions|length > 0 %}
-   .. rubric:: {{ _("Functions") }}
+   {% if functions %}
+   .. rubric:: {{ _('Functions') }}
 
    .. autosummary::
       :toctree:
       :nosignatures:
-   {% for item in functions %}
-      {% if item|length > 1 %}
+      {% for item in functions %}
          {{ item }}
-      {% endif %}
-   {%- endfor %}
+      {%- endfor %}
    {% endif %}
    {% endblock %}
 
    {% block classes %}
-   {% if classes is defined and classes|length > 0 %}
-   .. rubric:: {{ _("Classes") }}
+   {% if classes %}
+   .. rubric:: {{ _('Classes') }}
 
    .. autosummary::
       :toctree:
       :template: custom-class-template.rst
       :nosignatures:
-   {% for item in classes %}
-      {% if item|length > 1 %}
+      {% for item in classes %}
          {{ item }}
-      {% endif %}
-   {%- endfor %}
+      {%- endfor %}
    {% endif %}
    {% endblock %}
 
@@ -57,3 +53,8 @@
 {%- endfor %}
 {% endif %}
 {% endblock %}
+
+
+{% macro _() %}
+   <p>THIS IS CALLED IDK WHY</p>
+{% endmacro %}
