@@ -31,9 +31,10 @@ def _label_parser(note_list):
     else:
         return None
 
+
 # Converter function for removing the XHTML <p></p> tags from Zotero export
 def _strip_zotero_p_tags(note_list):
-    if isinstance(note_list,list):
+    if isinstance(note_list, list):
         for v in note_list:
 
             new_notes = []
@@ -44,7 +45,7 @@ def _strip_zotero_p_tags(note_list):
         return new_notes
     else:
         return note_list
-            
+
 
 def read_ris(fp):
     """RIS file reader.
