@@ -74,15 +74,15 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
 
 .. toctree::
    :maxdepth: 1
-   :caption: API
+   :caption: Development
 
    API/overview_cli
 
    API/cli
 
-   API/extensions_dev
-
    API/reference
+
+   API/extension_dev
 
 .. toctree::
    :maxdepth: 1
