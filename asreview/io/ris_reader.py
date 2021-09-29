@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import logging
+import re
 
 import pandas
 import rispy
@@ -30,6 +31,20 @@ def _label_parser(note_list):
     else:
         return None
 
+# Converter function for removing the XHTML <p></p> tags from Zotero export
+def _strip_zotero_p_tags(note_list):
+    if isinstance(note_list,list):
+        for v in note_list:
+
+            new_notes = []
+            try:
+                new_notes.append(re.sub(r'^<p>|<\/p>$', '', v))
+            except Exception:
+                new_notes.append(v)
+        return new_notes
+    else:
+        return note_list
+            
 
 def read_ris(fp):
     """RIS file reader.
@@ -70,6 +85,8 @@ def read_ris(fp):
 
     # Check if "notes" column is present
     if "notes" in df:
+        # Strip Zotero XHTML <p> tags on "notes"
+        df["notes"] = df["notes"].apply(_strip_zotero_p_tags)
         # Convert from "notes" to "included" field for internal representation
         df["included"] = df["notes"].apply(_label_parser)
         # Return the standardised dataframe with label
