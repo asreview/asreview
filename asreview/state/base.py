@@ -14,21 +14,15 @@
 
 from abc import ABC, abstractmethod
 
-import numpy as np
-
 
 class BaseState(ABC):
-    def __init__(self, state_fp, read_only=False):
-        """Initialize State instance.
+    def __init__(self, read_only=False):
+        """Abstract Base Class for state.
 
-        state_fp: str
-            Path to state file.
         read_only: bool
             Whether to open file in read only mode.
         """
-        self.state_fp = state_fp
         self.read_only = read_only
-        self.restore(state_fp)
 
     def __enter__(self):
         return self
@@ -40,62 +34,89 @@ class BaseState(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def set_labels(self, y):
-        """Add/set labels to state
-
-        If the labels do not exist, add it to the state.
+    def _create_new_state_file(self, fp, review_id):
+        """Create empty internal structure for state.
 
         Arguments
         ---------
-        y: numpy.ndarray
-            One dimensional integer numpy array with inclusion labels.
+        fp: str
+            Location of project file.
+        review_id: str
+            Identifier of the review.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def set_final_labels(self, y):
-        """Add/set final labels to state.
-
-        If final_labels does not exist yet, add it.
+    def _restore(self, fp, review_id):
+        """Restore state from a state file.
 
         Arguments
         ---------
-        y: numpy.ndarray
-            One dimensional integer numpy array with final inclusion labels.
+        fp: str
+            Path to project file.
+        review_id: str
+            Identifier of the review.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def _add_as_data(self, as_data, feature_matrix=None):
+    def add_record_table(self, record_table):
         """Add properties from as_data to the state.
 
         Arguments
         ---------
-        as_data: ASReviewData
-            Data file from which the review is run.
+        record_table: list-like
+            List containing all record ids of the dataset.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_feature_matrix(self, feature_matrix):
+        """Add feature matrix to the state file.
+
+        Arguments
+        ---------
         feature_matrix: np.ndarray, sklearn.sparse.csr_matrix
             Feature matrix computed by the feature extraction model.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get_feature_matrix(self, data_hash):
+    def get_feature_matrix(self):
         """Get feature matrix out of the state.
-
-        Arguments
-        ---------
-        data_hash: str
-            Hash of as_data object from which the matrix is derived.
 
         Returns
         -------
-        np.ndarray, sklearn.sparse.csr_matrix:
+        sklearn.sparse.csr_matrix:
             Feature matrix as computed by the feature extraction model.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get_current_queries(self):
+    def add_last_probabilities(self, probabilities):
+        """Save the probabilities produced by the last classifier.
+
+        Arguments
+        ---------
+        probabilities: list-like.
+            List containing the probabilities for every record.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_last_probabilities(self):
+        """Get the probabilities produced by the last classifier.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe with column 'proba' containing the probabilities.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def current_queries(self):
         """Get the current queries made by the model.
 
         This is useful to get back exactly to the state it was in before
@@ -108,8 +129,9 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
+    @current_queries.setter
     @abstractmethod
-    def set_current_queries(self, current_queries):
+    def current_queries(self, current_queries):
         """Set the current queries made by the model.
 
         Arguments
@@ -127,33 +149,59 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_classification(self, idx, labels, methods, query_i):
-        """Add training indices and their labels.
+    def add_note(self, note, record_id):
+        """Add a text note to save with a labeled record.
 
         Arguments
         ---------
-        indices: list, numpy.ndarray
-            A list of indices used for training.
-        labels: list
-            A list of labels corresponding with the training indices.
-        i: int
-            The query number.
+        note: str
+            Text note to save.
+        record_id: int
+            Identifier of the record to which the note should be added.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def add_proba(self, pool_idx, train_idx, proba, query_i):
-        """Add inverse pool indices and their labels.
+    def add_labeling_data(self, record_ids, labels, classifiers,
+                          query_strategies, balance_strategies,
+                          feature_extraction, training_sets, notes=None):
+        """Add the data corresponding to a labeling action to the state file.
 
         Arguments
         ---------
-        indices: list, numpy.ndarray
-            A list of indices used for unlabeled pool.
-        pred: numpy.ndarray
-            Array of prediction probabilities for unlabeled pool.
-        i: int
-            The query number.
+        record_ids: list, numpy.ndarray
+            A list of ids of the labeled records as int.
+        labels: list, numpy.ndarray
+            A list of labels of the labeled records as int.
+        classifiers: list, numpy.ndarray
+            A list of the names of the classifier models as string.
+        query_strategies: list, numpy.ndarray
+            A list of the names of the query strategies as string.
+        balance_strategies: list, numpy.ndarray
+            A list of the balance strategies as string.
+        feature_extraction: list, numpy.ndarray
+            A list of the feature extraction methods as string.
+        training_sets: list, numpy.ndarray
+            A list of the training sets as integers.
+            Each record in the prior data is counted individually.
+        notes: list of str/None
+            A list of text notes to save with the labeled records.
         """
+        raise NotImplementedError
+
+    def change_decision(self, record_id):
+        """Change the label of a record from 0 to 1 or vice versa.
+
+        Arguments
+        ---------
+        record_id: int
+            Id of the record whose label should be changed.
+        """
+        raise NotImplementedError
+
+    def get_decision_changes(self):
+        """Get the record ids of the records whose labels have been changed
+        after the original labeling action."""
         raise NotImplementedError
 
     def is_empty(self):
@@ -164,155 +212,139 @@ class BaseState(ABC):
         bool
             True if empty.
         """
-        return self.n_queries() == 0
+        return self.n_records_labeled == 0
 
+    @property
     @abstractmethod
-    def n_queries(self):
-        """Number of queries saved in the state.
+    def n_records_labeled(self):
+        """Number labeled records.
 
         Returns
         -------
         int
-            Number of queries.
+            Number of labeled records, priors counted individually.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, variable, query_i=None, default=None, idx=None):
-        """Get data from the state object.
-
-        This is universal accessor method of the State classes. It can be used
-        to get a variable from one specific query. In theory, it should get the
-        whole data set if query_i=None, but this is not currently implemented
-        in any of the States.
+    def get_dataset(self, columns=None):
+        """Get a column from the results table.
 
         Arguments
         ---------
-        variable: str
-            Name of the variable/data to get. Options are:
-            label_idx, inclusions, label_methods, labels, final_labels, proba
-            , train_idx, pool_idx.
-        query_i: int
-            Query number, should be between 0 and self.n_queries().
-        idx: int, numpy.ndarray,list
-            Indices to get in the returned array.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def delete_last_query(self):
-        """Delete the last query from the state object."""
-        raise NotImplementedError
-
-    def startup_vals(self):
-        """Get variables for reviewer to continue review.
+        columns: list
+            List of columns names of the results table.
 
         Returns
         -------
-        numpy.ndarray:
-            Current labels of dataset.
-        numpy.ndarray:
-            Current training indices.
-        dict:
-            Dictionary containing the sources of the labels.
-        query_i:
-            Currenty query number (starting from 0).
+        pd.DataFrame:
+            Dataframe containing the data of the specified columns of the
+            results table.
         """
-        labels = self.get("labels")
-
-        train_idx = []
-        query_src = {}
-        for query_i in range(self.n_queries()):
-            try:
-                label_idx = self.get("label_idx", query_i)
-                labelled = self.get("inclusions", query_i)
-                label_methods = self.get("label_methods", query_i)
-            except (KeyError, IndexError):
-                continue
-
-            for i, meth in enumerate(label_methods):
-                if meth not in query_src:
-                    query_src[meth] = []
-                query_src[meth].append(label_idx[i])
-                labels[label_idx[i]] = labelled[i]
-            train_idx.extend(label_idx)
-
-        if query_i > 0:
-            n_queries = self.n_queries()
-            last_inclusions = None
-            try:
-                last_inclusions = self.get("inclusions", n_queries - 1)
-            except KeyError:
-                last_inclusions = []
-            if last_inclusions is None:
-                last_inclusions = []
-            query_i_classified = len(last_inclusions)
-        else:
-            query_i_classified = 0
-
-        train_idx = np.array(train_idx, dtype=np.int)
-        startup_vals = {
-            "labels": labels,
-            "train_idx": np.unique(train_idx),
-            "query_src": query_src,
-            "query_i": query_i,
-            "query_i_classified": query_i_classified,
-        }
-        return startup_vals
-
-    def review_state(self):
-        startup = self.startup_vals()
-        return (startup["labals"], startup["train_idx"], startup["query_src"],
-                startup["query_i"])
-
-    @property
-    def pred_proba(self):
-        """Get last predicted probabilities."""
-        for query_i in reversed(range(self.n_queries())):
-            try:
-                proba = self.get("proba", query_i=query_i)
-                if proba is not None:
-                    return proba
-            except KeyError:
-                pass
-        return None
-
-    @abstractmethod
-    def initialize_structure(self):
-        """Create empty internal structure for state"""
         raise NotImplementedError
+
+    def get_order_of_labeling(self):
+        """Get full array of record id's in order that they were labeled.
+
+        Returns
+        -------
+        pd.Series:
+            The record_id's in the order that they were labeled.
+        """
+        raise NotImplementedError
+
+    def get_labels(self):
+        """Get the labels from the state file.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the labels at each labelling moment.
+        """
+        raise NotImplementedError
+
+    def get_classifiers(self):
+        """Get the classifiers from the state file.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the classifier used at each labeling moment.
+        """
+        raise NotImplementedError
+
+    def get_query_strategies(self):
+        """Get the query strategies from the state file.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the query strategy used to get the record to
+            query at each labeling moment.
+        """
+        raise NotImplementedError
+
+    def get_balance_strategies(self):
+        """Get the balance strategies from the state file.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the balance strategy used to get the training
+            data at each labeling moment.
+        """
+        raise NotImplementedError
+
+    def get_feature_extraction(self):
+        """Get the query strategies from the state file.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the feature extraction method used for the
+            classifier input at each labeling moment.
+        """
+        raise NotImplementedError
+
+    def get_training_sets(self):
+        """Get the training_sets from the state file.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the training set on which the classifier was
+            fit at each labeling moment.
+        """
+        raise NotImplementedError
+
+    def get_labeling_times(self, time_format='int'):
+        """Get the time of labeling the state file.
+
+        Arguments
+        ---------
+        time_format: 'int' or 'datetime'
+            Format of the return value. If it is 'int' you get a UTC timestamp,
+            if it is 'datetime' you get datetime instead of an integer.
+
+        Returns
+        -------
+        pd.Series:
+            If format='int' you get a UTC timestamp (integer number of
+            microseconds), if it is 'datetime' you get datetime format.
+        """
+        raise NotImplementedError
+
+    # @abstractmethod
+    # def delete_last_query(self):
+    #     """Delete the last query from the state object."""
+    #     raise NotImplementedError
+    #
 
     @abstractmethod
     def close(self):
         """Close the files opened by the state.
 
         Also sets the end time if not in read-only mode.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def save(self):
-        """Save state to file.
-
-        Arguments
-        ---------
-        fp: str
-            The file path to export the results to.
-
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def restore(self, fp):
-        """Restore or create state from a state file.
-
-        If the state file doesn't exist, creates and empty state that is ready
-        for storage.
-
-        Arguments
-        ---------
-        fp: str
-            Path to file to restore/create.
         """
         raise NotImplementedError
 
@@ -324,27 +356,9 @@ class BaseState(ABC):
         dict:
             Dictionary with all relevant variables.
         """
-        state_dict = {}
-        state_dict["settings"] = vars(self.settings)
-
-        global_datasets = ["labels", "final_labels"]
-        for dataset in global_datasets:
-            try:
-                state_dict[dataset] = self.get(dataset).tolist()
-            except KeyError:
-                pass
-
-        query_datasets = [
-            "label_methods", "label_idx", "inclusions", "proba", "pool_idx",
-            "train_idx"
-        ]
-        state_dict["results"] = []
-        for query_i in range(self.n_queries()):
-            state_dict["results"].append({})
-            for dataset in query_datasets:
-                try:
-                    state_dict["results"][query_i][dataset] = self.get(
-                        dataset, query_i).tolist()
-                except (KeyError, IndexError):
-                    pass
+        state_data = self.get_dataset()
+        state_dict = {
+            'settings': vars(self.settings),
+            'data': state_data.to_dict()
+        }
         return state_dict

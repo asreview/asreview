@@ -4,6 +4,8 @@
 import brown from "@material-ui/core/colors/brown";
 import red from "@material-ui/core/colors/red";
 
+import { setProject } from "./redux/actions";
+
 export const base_url =
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1") &&
@@ -141,6 +143,13 @@ export const fontSizeOptions = [
 // functions
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
+};
+export const mapDispatchToProps = (dispatch) => {
+  return {
+    setProjectId: (project_id) => {
+      dispatch(setProject(project_id));
+    },
+  };
 };
 
 // enums

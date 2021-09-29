@@ -113,7 +113,6 @@ setup(
         'pandas',
         'rispy~=0.6.0',
         'dill',
-        'h5py',
         'xlrd>=1.0.0',
         'setuptools',
         'flask>=2.0',

@@ -416,7 +416,7 @@ class ASReviewData():
             self.df["abstract_included"] = abstract_included
 
     def prior_labels(self, state, by_index=True):
-        """Get the labels that are marked as 'initial'.
+        """Get the labels that are marked as 'prior'.
 
         state: BaseState
             Open state that contains the label information.
@@ -427,14 +427,18 @@ class ASReviewData():
         Returns
         -------
         numpy.ndarray
-            Array of indices that have the 'initial' property.
+            Array of indices that have the 'prior' property.
         """
-        query_src = state.startup_vals()["query_src"]
-        if "initial" not in query_src:
+        state_data = state.get_dataset(['record_ids', 'query_strategies'])
+
+        if "prior" not in state_data['query_strategies'].values:
             return np.array([], dtype=int)
+
+        initial_indices = state_data['record_ids'][
+            state_data['query_strategies'] == 'prior'].to_list()
         if by_index:
-            return np.array(query_src["initial"], dtype=int)
-        return self.df.index.values[query_src["initial"]]
+            return np.array(initial_indices, dtype=int)
+        return self.df.index.values[initial_indices]
 
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.

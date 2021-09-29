@@ -15,6 +15,7 @@
 from abc import ABC
 from abc import abstractmethod
 import warnings
+from datetime import datetime
 
 import numpy as np
 
@@ -151,6 +152,7 @@ class BaseReview(ABC):
 
         self.n_papers = n_papers
         self.n_instances = n_instances
+        self.n_initial = 0
         self.n_queries = n_queries
         self.start_idx = start_idx
 
@@ -169,26 +171,51 @@ class BaseReview(ABC):
         self.model_trained = False
 
         # Restore the state from a file or initialize said file.
-        with open_state(self.state_file) as state:
-            # From file
+        with open_state(self.state_file, read_only=False) as state:
+            # state file exists
             if not state.is_empty():
-                startup = state.startup_vals()
+                startup_values = state.get_dataset(
+                    ['labels', 'record_ids', 'query_strategies'])
+
                 # If there are start indices not in the training add them.
-                if not set(startup["train_idx"]) >= set(start_idx):
-                    new_idx = list(set(start_idx) - set(startup["train_idx"]))
+                if not set(startup_values['record_ids']) >= set(start_idx):
+                    new_idx = list(
+                        set(start_idx) - set(startup_values['record_ids']))
                     self.classify(new_idx,
                                   self.y[new_idx],
                                   state,
                                   method="initial")
-                    startup = state.startup_vals()
-                self.train_idx = startup["train_idx"]
-                self.y = startup["labels"]
-                self.shared["query_src"] = startup["query_src"]
-                self.query_i = startup["query_i"]
-                self.query_i_classified = startup["query_i_classified"]
-            # From scratch
+                    startup_values = state.get_dataset(
+                        ['labels', 'record_ids', 'query_strategies'])
+
+                self.train_idx = startup_values['record_ids']
+                # Add the labels of the labelled records to the
+                # target vector self.y
+                for i in range(len(startup_values)):
+                    self.y[startup_values['record_ids'].
+                           iloc[i]] = startup_values['labels'].iloc[i]
+
+                # Only used in BaseReview.statistics.
+                try:
+                    self.n_initial = startup_values[
+                        'query_strategies'].value_counts()['prior']
+                except KeyError:
+                    self.n_initial = 0
+
+                # TODO: Remove query_i_classified.
+                self.query_i = len(startup_values) - self.n_initial
+                self.query_i_classified = int(self.query_i > 0)
+
+                # shared['query_src'] is only used in the 'triple'
+                # balance strategy.
+                self.shared['query_src'] = {
+                    method: startup_values['record_ids']
+                    [startup_values['query_strategies'] == method].to_list()
+                    for method in startup_values['query_strategies'].unique()
+                }
+            # state file doesnt exist
             else:
-                state.set_labels(self.y)
+                # state.set_labels(self.y)
                 state.settings = self.settings
                 self.classify(start_idx,
                               self.y[start_idx],
@@ -196,19 +223,25 @@ class BaseReview(ABC):
                               method="initial")
                 self.query_i_classified = len(start_idx)
 
-            # Try to retrieve feature matrix from the state file.
+            # Retrieve feature matrix from the state file or create
+            # one from scratch. Check if the number of records in the
+            # feature matrix matches the length of the labels.
             try:
-                self.X = state.get_feature_matrix(as_data.hash())
-            except KeyError:
+                self.X = state.get_feature_matrix()
+            except FileNotFoundError:
                 self.X = feature_model.fit_transform(as_data.texts,
                                                      as_data.headings,
                                                      as_data.bodies,
                                                      as_data.keywords)
-                state._add_as_data(as_data, feature_matrix=self.X)
+                state.add_record_table(as_data.record_ids)
+                state.add_feature_matrix(self.X)
+
             if self.X.shape[0] != len(self.y):
                 raise ValueError("The state file does not correspond to the "
                                  "given data file, please use another state "
                                  "file or dataset.")
+
+            #
             self.load_current_query(state)
 
     @property
@@ -258,7 +291,8 @@ class BaseReview(ABC):
         if self.n_papers is not None and n_train >= self.n_papers:
             stop_iter = True
 
-        # If n_queries is set to min, stop when all relevant papers are included
+        # If n_queries is set to min, stop when all relevant papers
+        # are included
         if self.n_queries == 'min':
             n_included = np.count_nonzero(self.y[self.train_idx] == 1)
             n_total_relevant = np.count_nonzero(self.y == 1)
@@ -339,16 +373,13 @@ class BaseReview(ABC):
         instant_save: bool
             If True, save results after each single classification.
         """
-        with open_state(self.state_file) as state:
+        with open_state(self.state_file, read_only=False) as state:
             self._do_review(state, *args, **kwargs)
 
     def log_probabilities(self, state):
-        """Store the modeling probabilities of the training indices and
-           pool indices."""
+        """Store the modeling probabilities."""
         if not self.model_trained:
             return
-
-        pool_idx = get_pool_idx(self.X, self.train_idx)
 
         # Log the probabilities of samples in the pool being included.
         pred_proba = self.shared.get('pred_proba', np.array([]))
@@ -357,14 +388,15 @@ class BaseReview(ABC):
             self.shared['pred_proba'] = pred_proba
 
         proba_1 = np.array([x[1] for x in pred_proba])
-        state.add_proba(pool_idx, self.train_idx, proba_1, self.query_i)
+        state.add_last_probabilities(proba_1)
 
     def log_current_query(self, state):
-        state.set_current_queries(self.shared["current_queries"])
+        state.current_queries = self.shared["current_queries"]
 
     def load_current_query(self, state):
+        """Load the latest query."""
         try:
-            self.shared["current_queries"] = state.get_current_queries()
+            self.shared["current_queries"] = state.current_queries
         except KeyError:
             self.shared["current_queries"] = {}
 
@@ -409,10 +441,10 @@ class BaseReview(ABC):
         )
         return query_idx
 
-    def classify(self, query_idx, inclusions, state, method=None):
+    def classify(self, query_idx, inclusions, state, method=None, notes=None):
         """Classify new papers and update the training indices.
 
-        It automaticaly updates the state.
+        It automatically updates the state.
 
         Arguments
         ---------
@@ -424,9 +456,16 @@ class BaseReview(ABC):
             Logger to store the classification in.
         method: str
             If not set to None, all inclusions have this query method.
+        notes: list of str
+            List of text notes to be saved, one for each labeled record.
         """
         query_idx = np.array(query_idx, dtype=np.int)
         self.y[query_idx] = inclusions
+
+        # Inclusions should be slices just as query_idx is sliced.
+        inclusions = np.array(inclusions, dtype=np.int)
+        inclusions = inclusions[np.isin(query_idx, self.train_idx,
+                                        invert=True)]
         query_idx = query_idx[np.isin(query_idx, self.train_idx, invert=True)]
         self.train_idx = np.append(self.train_idx, query_idx)
         if method is None:
@@ -441,18 +480,46 @@ class BaseReview(ABC):
                     self.shared["query_src"][method].append(idx)
                 else:
                     self.shared["query_src"][method] = [idx]
+                if method == 'prior':
+                    self.n_initial += 1
         else:
             methods = np.full(len(query_idx), method)
             if method in self.shared["query_src"]:
                 self.shared["query_src"][method].extend(query_idx.tolist())
             else:
                 self.shared["query_src"][method] = query_idx.tolist()
+            if method == 'prior':
+                self.n_initial += len(methods)
 
-        state.add_classification(query_idx,
-                                 inclusions,
-                                 methods=methods,
-                                 query_i=self.query_i)
-        state.set_labels(self.y)
+        # Set up the labeling data.
+        n_records_labeled = len(query_idx)
+        record_ids = query_idx
+        labels = inclusions
+        classifiers = [self.model.name for _ in range(n_records_labeled)]
+        query_strategies = methods
+        balance_strategies = [
+            self.balance_model.name for _ in range(n_records_labeled)
+        ]
+        feature_extraction = [
+            self.feature_model.name for _ in range(n_records_labeled)
+        ]
+        # The training set on which a model was trained is empty if the
+        # query strategy was 'prior'. Otherwise the training set
+        # (all_training_indices - current_indices).
+        training_sets = [
+            0 if query_strategies[i] == 'prior' else len(self.train_idx) -
+            n_records_labeled for i in range(n_records_labeled)
+        ]
+
+        state.add_labeling_data(record_ids=record_ids,
+                                labels=labels,
+                                classifiers=classifiers,
+                                query_strategies=query_strategies,
+                                balance_strategies=balance_strategies,
+                                feature_extraction=feature_extraction,
+                                training_sets=training_sets,
+                                notes=notes)
+        # state.set_labels(self.y)
 
     def train(self):
         """Train the model."""
@@ -479,6 +546,7 @@ class BaseReview(ABC):
             self.query_i += 1
             self.query_i_classified = 0
 
+    # TODO(State): Should this exist? If so, get from the state file itself.
     def statistics(self):
         """Get statistics on the current state of the review.
 
@@ -489,16 +557,12 @@ class BaseReview(ABC):
             last_inclusion.
         """
         try:
-            n_initial = len(self.shared['query_src']['initial'])
-        except KeyError:
-            n_initial = 0
-
-        try:
-            if np.count_nonzero(self.y[self.train_idx[n_initial:]] == 1) == 0:
-                last_inclusion = len(self.train_idx[n_initial:])
+            if np.count_nonzero(
+                    self.y[self.train_idx[self.n_initial:]] == 1) == 0:
+                last_inclusion = len(self.train_idx[self.n_initial:])
             else:
                 last_inclusion = np.nonzero(
-                    self.y[self.train_idx[n_initial:]][::-1] == 1)[0][0]
+                    self.y[self.train_idx[self.n_initial:]][::-1] == 1)[0][0]
         except ValueError:
             last_inclusion = 0
 
@@ -509,6 +573,6 @@ class BaseReview(ABC):
             "n_reviewed": len(self.train_idx),
             "n_pool": self.n_pool(),
             "last_inclusion": last_inclusion,
-            "n_initial": n_initial,
+            "n_initial": self.n_initial,
         }
         return stats
