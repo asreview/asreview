@@ -77,65 +77,10 @@ def _add_defaults(set_param, default_param):
     })
 
 
-def create_as_data(dataset,
-                   included_dataset=[],
-                   excluded_dataset=[],
-                   prior_dataset=[],
-                   new=False):
-    """Create ASReviewData object from multiple datasets."""
-    if isinstance(dataset, (str, PurePath)):
-        dataset = [dataset]
-
-    if isinstance(included_dataset, (str, PurePath)):
-        included_dataset = [included_dataset]
-
-    if isinstance(excluded_dataset, (str, PurePath)):
-        excluded_dataset = [excluded_dataset]
-
-    if isinstance(prior_dataset, (str, PurePath)):
-        prior_dataset = [prior_dataset]
-
-    as_data = ASReviewData()
-    # Find the URL of the datasets if the dataset is a benchmark dataset.
-    for data in dataset:
-        as_data.append(load_data(data))
-
-    if new:
-        as_data.labels = np.full((len(as_data), ), LABEL_NA, dtype=int)
-    for data in included_dataset:
-        as_data.append(load_data(data, data_type="included"))
-    for data in excluded_dataset:
-        as_data.append(load_data(data, data_type="excluded"))
-    for data in prior_dataset:
-        as_data.append(load_data(data, data_type="prior"))
-    return as_data
-
-
 def review_simulate(dataset, *args, **kwargs):
     """CLI simulate mode."""
 
     print(ASCII_LOGO + ASCII_MSG_SIMULATE)
-
-    # backwards comp
-    if isinstance(dataset, list) and len(dataset) >= 1 and \
-            dataset[0] in ["ptsd", "example_ptsd", "schoot"]:
-        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
-              "use 'benchmark:van_de_Schoot_2017' instead.\n\n")
-        dataset = "benchmark:van_de_Schoot_2017"
-
-    # backwards comp
-    if isinstance(dataset, list) and len(dataset) >= 1 and \
-            dataset[0] in ["ace", "example_cohen", "example_ace"]:
-        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
-              "use 'benchmark:Cohen_2006_ACEInhibitors' instead.\n\n")
-        dataset = "benchmark:Cohen_2006_ACEInhibitors"
-
-    # backwards comp
-    if isinstance(dataset, list) and len(dataset) >= 1 and \
-            dataset[0] in ["hall", "example_hall", "example_software"]:
-        print(f"\n\nWarning '{dataset[0]}' will deprecate in the future,",
-              "use 'benchmark:Hall_2012' instead.\n\n")
-        dataset = "benchmark:Hall_2012"
 
     state_fp = kwargs.pop('state_file')
 
@@ -190,11 +135,7 @@ def get_simulate_reviewer(dataset,
 
     See __main__.py for a description of the arguments.
     """
-    as_data = create_as_data(dataset,
-                             included_dataset,
-                             excluded_dataset,
-                             prior_dataset,
-                             new=new)
+    as_data = load_data(dataset)
 
     if len(as_data) == 0:
         raise ValueError("Supply at least one dataset"
