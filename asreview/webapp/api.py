@@ -185,7 +185,7 @@ def api_get_projects_stats():  # noqa: F401
                 statistics["n_setup"] = 1
                 statistics["n_in_review"] = 0
                 statistics["n_finished"] = 0
-            elif res["reviewFinished"] is not True:
+            elif "reviewFinished" not in res or res["reviewFinished"] is not True:
                 statistics["n_setup"] = 0
                 statistics["n_in_review"] = 1
                 statistics["n_finished"] = 0
