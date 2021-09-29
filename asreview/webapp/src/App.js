@@ -1,17 +1,22 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { connect } from "react-redux";
+import "typeface-roboto";
 import { CssBaseline, createMuiTheme, useMediaQuery } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/core/styles";
 import "./App.css";
 
 import { Header, ExportDialog } from "./Components";
-import { PreReviewZone, StartReview, ProjectPage } from "./PreReviewComponents";
-import { ReviewDialog, ReviewHistoryDialog } from "./InReviewComponents";
+import {
+  PreReviewZone,
+  ProjectPageOLD,
+  StartReview,
+} from "./PreReviewComponents";
+import { ProjectPage } from "./ProjectComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
 import Projects from "./Projects";
 import SettingsDialog from "./SettingsDialog";
 import HelpDialog from "./HelpDialog";
-import ExitDialog from "./ExitDialog";
 import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
@@ -20,10 +25,6 @@ import {
   useUndoEnabled,
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
-
-import "typeface-roboto";
-
-import { connect } from "react-redux";
 
 // redux config
 import { setAppState } from "./redux/actions";
@@ -48,10 +49,7 @@ const queryClient = new QueryClient();
 const App = (props) => {
   // Dialog state
   const [settings, setSettings] = useToggle();
-  const [exit, setExit] = useToggle();
   const [exportResult, setExportResult] = useToggle();
-  const [review, setReview] = useToggle();
-  const [reviewHistory, setReviewHistory] = useToggle();
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -60,7 +58,12 @@ const App = (props) => {
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
   const muiTheme = createMuiTheme(theme);
-  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"));
+  const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("sm"), {
+    noSsr: true,
+  });
+
+  // Navigation drawer state
+  const [navDrawer, setNavDrawer] = useToggle(mobileScreen ? false : true);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -69,20 +72,38 @@ const App = (props) => {
         {props.app_state === "boot" && <WelcomeScreen />}
         {props.app_state !== "boot" && (
           <Header
-            /* Handle the app review drawer */
-            toggleSettings={setSettings}
-            toggleExit={setExit}
+            handleAppState={props.setAppState}
+            toggleNavDrawer={setNavDrawer}
           />
         )}
 
         {props.app_state === "projects" && (
-          <Projects handleAppState={props.setAppState} />
+          <Projects
+            handleAppState={props.setAppState}
+            mobileScreen={mobileScreen}
+            onNavDrawer={navDrawer}
+            toggleNavDrawer={setNavDrawer}
+            toggleSettings={setSettings}
+          />
         )}
 
         {props.app_state === "project-page" && (
           <ProjectPage
             handleAppState={props.setAppState}
-            toggleReview={setReview}
+            mobileScreen={mobileScreen}
+            onNavDrawer={navDrawer}
+            toggleNavDrawer={setNavDrawer}
+            toggleSettings={setSettings}
+            toggleExportResult={setExportResult}
+            fontSize={fontSize}
+            undoEnabled={undoEnabled}
+            keyPressEnabled={keyPressEnabled}
+          />
+        )}
+
+        {props.app_state === "project-page-old" && (
+          <ProjectPageOLD
+            handleAppState={props.setAppState}
             toggleExportResult={setExportResult}
           />
         )}
@@ -93,26 +114,6 @@ const App = (props) => {
 
         {props.app_state === "train-first-model" && (
           <StartReview handleAppState={props.setAppState} />
-        )}
-
-        {props.app_state === "review" && (
-          <ReviewDialog
-            handleAppState={props.setAppState}
-            mobileScreen={mobileScreen}
-            onReview={review}
-            toggleReview={setReview}
-            toggleReviewHistory={setReviewHistory}
-            fontSize={fontSize}
-            undoEnabled={undoEnabled}
-            keyPressEnabled={keyPressEnabled}
-          />
-        )}
-        {props.app_state === "review" && (
-          <ReviewHistoryDialog
-            mobileScreen={mobileScreen}
-            toggleReviewHistory={setReviewHistory}
-            onReviewHistory={reviewHistory}
-          />
         )}
 
         {props.app_state === "review-complete" && (
@@ -137,7 +138,6 @@ const App = (props) => {
           toggleUndoEnabled={toggleUndoEnabled}
         />
         <HelpDialog mobileScreen={mobileScreen} />
-        <ExitDialog toggleExit={setExit} exit={exit} />
         <ExportDialog
           toggleExportResult={setExportResult}
           exportResult={exportResult}

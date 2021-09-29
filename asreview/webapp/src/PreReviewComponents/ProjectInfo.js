@@ -118,7 +118,6 @@ const ProjectInit = (props) => {
         .then((result) => {
           props.setProjectId(result.data["id"]);
           props.onClose();
-          props.reloadProjectInfo();
         })
         .catch((error) => {
           setError({
@@ -131,7 +130,9 @@ const ProjectInit = (props) => {
       ProjectAPI.init(bodyFormData)
         .then((result) => {
           props.setProjectId(result.data["id"]);
-          props.handleAppState("project-page");
+          // set newProject state to false
+          props.onClose();
+          props.handleAppState("project-page-old");
         })
         .catch((error) => {
           setError({

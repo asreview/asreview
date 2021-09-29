@@ -11,7 +11,7 @@ export { default as PriorKnowledgeSearch } from "../PreReviewComponents/PriorKno
 export { default as ProjectAlgorithms } from "../PreReviewComponents/ProjectAlgorithms";
 export { default as ProjectInfo } from "../PreReviewComponents/ProjectInfo";
 export { default as ProjectModeSelect } from "../PreReviewComponents/ProjectModeSelect";
-export { default as ProjectPage } from "../PreReviewComponents/ProjectPage";
+export { default as ProjectPageOLD } from "../PreReviewComponents/ProjectPageOLD";
 export { default as ProjectUpload } from "../PreReviewComponents/ProjectUpload";
 export { default as ProjectUploadBenchmarkDatasets } from "../PreReviewComponents/ProjectUploadBenchmarkDatasets";
 export { default as ProjectUploadFile } from "../PreReviewComponents/ProjectUploadFile";

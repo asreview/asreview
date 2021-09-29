@@ -1,17 +1,31 @@
 import React from "react";
 import { InView } from "react-intersection-observer";
-import { ButtonBase, Container, Typography } from "@material-ui/core";
+import {
+  Box,
+  ButtonBase,
+  CircularProgress,
+  Typography,
+} from "@material-ui/core";
 import grey from "@material-ui/core/colors/grey";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { LabeledRecordCard } from "../InReviewComponents";
-import ErrorHandler from "../ErrorHandler";
+import { LabeledRecordCard } from "../HistoryComponents";
+import ErrorHandler from "../../ErrorHandler";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 0,
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
   },
-  container: {
+  circularProgress: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "5%",
+  },
+  recordCard: {
+    width: "100%",
+    maxWidth: 960,
     "& > *": {
       marginTop: theme.spacing(2),
       marginBottom: theme.spacing(2),
@@ -28,15 +42,19 @@ const LabeledRecord = (props) => {
   const classes = useStyles();
 
   return (
-    <div>
+    <Box className={classes.root} aria-label="labeled record container">
       {props.query.isError && <ErrorHandler error={props.query.error} />}
-      {!props.query.isError && (
-        <Container className={classes.container}>
+      {props.query.isLoading && (
+        <Box className={classes.circularProgress}>
+          <CircularProgress />
+        </Box>
+      )}
+      {!props.query.isError && !props.query.isLoading && (
+        <Box className={classes.recordCard} aria-label="labeled record card">
           {props.query.isFetched &&
             props.query.data.pages.map((page, index) => (
               <LabeledRecordCard
                 page={page}
-                toggleRecord={props.toggleRecord}
                 mutateClassification={props.mutateClassification}
                 key={`result-page-${index}`}
               />
@@ -68,9 +86,9 @@ const LabeledRecord = (props) => {
               </Typography>
             </ButtonBase>
           </InView>
-        </Container>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
