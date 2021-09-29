@@ -81,6 +81,8 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
    API/cli
 
    API/extensions_dev
+   
+   API/asreview_file
 
    API/reference
 

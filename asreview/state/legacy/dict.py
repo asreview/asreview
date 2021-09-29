@@ -23,7 +23,7 @@ from scipy.sparse import save_npz, load_npz
 
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_last_proba_order
-from asreview.state.base import BaseState
+from asreview.state.legacy.base import BaseState
 from asreview.settings import ASReviewSettings
 
 

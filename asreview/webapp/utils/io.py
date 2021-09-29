@@ -24,11 +24,10 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_labeled_path
-from asreview.webapp.utils.paths import get_pool_path
-from asreview.webapp.utils.paths import get_proba_path
-from asreview.webapp.utils.paths import get_project_path
+from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_labeled_path
+from asreview.state.paths import get_pool_path
+from asreview.webapp.utils.project_path import get_project_path
 
 
 class CacheDataError(Exception):
@@ -36,10 +35,10 @@ class CacheDataError(Exception):
 
 
 def _get_cache_data_path(project_id):
+    project_path = get_project_path(project_id)
+    fp_data = get_data_file_path(project_path)
 
-    fp_data = get_data_file_path(project_id)
-
-    return get_data_file_path(project_id) \
+    return get_data_file_path(project_path) \
         .with_suffix(fp_data.suffix + ".pickle")
 
 
@@ -102,6 +101,7 @@ def read_data(project_id, use_cache=True, save_cache=True):
         The data object for internal use in ASReview.
 
     """
+    project_path = get_project_path(project_id)
 
     # use cache file
     if use_cache:
@@ -111,7 +111,7 @@ def read_data(project_id, use_cache=True, save_cache=True):
             pass
 
     # load from file
-    fp_data = get_data_file_path(project_id)
+    fp_data = get_data_file_path(project_path)
     data_obj = ASReviewData.from_file(fp_data)
 
     # save a pickle version
@@ -122,7 +122,8 @@ def read_data(project_id, use_cache=True, save_cache=True):
 
 
 def read_pool(project_id):
-    pool_fp = get_pool_path(project_id)
+    project_path = get_project_path(project_id)
+    pool_fp = get_pool_path(project_path)
     try:
         with open(pool_fp, "r") as f:
             pool = json.load(f)
@@ -133,66 +134,10 @@ def read_pool(project_id):
 
 
 def write_pool(project_id, pool):
-    pool_fp = get_pool_path(project_id)
+    project_path = get_project_path(project_id)
+    pool_fp = get_pool_path(project_path)
     with open(pool_fp, "w") as f:
         json.dump(pool, f)
-
-
-def read_proba_legacy(project_id):
-    """Read a project <0.15 proba values"""
-
-    # get the old json project file path
-    proba_fp = Path(get_project_path(project_id), "proba.json")
-
-    with open(proba_fp, "r") as f:
-
-        # read the JSON file and make a list of the proba's
-        proba = json.load(f)
-        proba = [float(x) for x in proba]
-
-    # make a dataframe that looks like the new structure
-    as_data = read_data(project_id)
-    proba = pd.DataFrame(
-        {
-            "proba": [float(x) for x in proba]
-        },
-        index=as_data.record_ids
-    )
-    proba.index.name = "record_id"
-    return proba
-
-
-def read_proba(project_id):
-
-    proba_fp = get_proba_path(project_id)
-    try:
-        return pd.read_csv(proba_fp, index_col="record_id")
-    except FileNotFoundError:
-
-        # try to read the legacy file
-        try:
-            return read_proba_legacy(project_id)
-        except FileNotFoundError:
-            # no proba.csv or proba.json found.
-            pass
-
-    return None
-
-
-def write_proba(project_id, proba):
-
-    # get the proba file path location
-    proba_fp = get_proba_path(project_id)
-
-    # validate object
-    if not isinstance(proba, pd.DataFrame):
-        raise ValueError("Expect pandas.DataFrame with proba values.")
-
-    if proba.index.name != "record_id":
-        raise ValueError("Expect index with name 'record_id'.")
-
-    # write the file to a csv file
-    proba.to_csv(proba_fp)
 
 
 def read_label_history(project_id, subset=None):
@@ -200,9 +145,9 @@ def read_label_history(project_id, subset=None):
 
     Make sure to lock the "active" lock.
     """
-
+    project_path = get_project_path(project_id)
     try:
-        with open(get_labeled_path(project_id), "r") as fp:
+        with open(get_labeled_path(project_path), "r") as fp:
             labeled = json.load(fp)
 
         if subset is None:
@@ -224,7 +169,8 @@ def read_label_history(project_id, subset=None):
 
 
 def write_label_history(project_id, label_history):
-    label_fp = get_labeled_path(project_id)
+    project_path = get_project_path(project_id)
+    label_fp = get_labeled_path(project_path)
 
     with open(label_fp, "w") as f:
         json.dump(label_history, f)

@@ -22,14 +22,12 @@ import tempfile
 import subprocess
 import urllib.parse
 import uuid
-from copy import deepcopy
 from pathlib import Path
 from urllib.request import urlretrieve
 
 import numpy as np
 import pandas as pd
 from flask import Blueprint
-from flask import current_app as app
 from flask import request
 from flask import Response
 from flask import send_file
@@ -38,7 +36,6 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
 
-from asreview import __version__ as asreview_version
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
@@ -53,22 +50,24 @@ from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.paths import asreview_path
-from asreview.webapp.utils.paths import get_data_path
-from asreview.webapp.utils.paths import get_lock_path
-from asreview.webapp.utils.paths import get_proba_path
-from asreview.webapp.utils.paths import get_project_file_path
-from asreview.webapp.utils.paths import get_project_path
-from asreview.webapp.utils.paths import get_simulation_ready_path
-from asreview.webapp.utils.paths import get_tmp_path
-from asreview.webapp.utils.paths import list_asreview_project_paths
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_state_path
+from asreview.webapp.utils.project_path import list_asreview_project_paths
+from asreview.webapp.utils.project_path import get_project_path
+from asreview.settings import ASReviewSettings
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_lock_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_simulation_ready_path
+from asreview.state.paths import get_tmp_path
+from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_state_path
+from asreview.state.sql_converter import upgrade_asreview_project_file
+from asreview.state.errors import StateNotFoundError
+from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.project import add_simulation_to_project
 from asreview.webapp.utils.project import create_project_id
+from asreview.webapp.utils.project import add_review_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
@@ -78,7 +77,7 @@ from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
-from asreview.webapp.utils.project import update_simulation_in_project
+from asreview.webapp.utils.project import update_review_in_project
 from asreview.webapp.utils.project import get_project_config
 from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.validation import check_dataset
@@ -86,7 +85,6 @@ from asreview.webapp.utils.validation import check_dataset
 from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 
@@ -235,27 +233,52 @@ def api_init_project():  # noqa: F401
     return response, 201
 
 
+@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
+def api_convert_project_if_old(project_id):
+    """Get if project is converted"""
+
+    project_path = get_project_path(project_id)
+
+    try:
+        upgrade_asreview_project_file(project_path)
+
+    except ValueError:
+        pass
+
+    except Exception as err:
+        logging.error(err)
+        message = "Failed to open the project in this version of ASReview LAB."
+        return jsonify(message=message), 500
+
+    response = jsonify({'success': True})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 @bp.route('/project/<project_id>/info', methods=["GET"])
 def api_get_project_info(project_id):  # noqa: F401
     """Get info on the article"""
-
+    project_path = get_project_path(project_id)
     project_info = get_project_config(project_id)
 
     try:
 
         # check if there is a dataset
         try:
-            get_data_file_path(project_id)
+            get_data_file_path(project_path)
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False
 
         # backwards support <0.10
         if "projectInitReady" not in project_info:
-            if project_info["projectHasPriorKnowledge"]:
-                project_info["projectInitReady"] = True
+            if "projectHasPriorKnowledge" not in project_info:
+                pass
             else:
-                project_info["projectInitReady"] = False
+                if project_info["projectHasPriorKnowledge"]:
+                    project_info["projectInitReady"] = True
+                else:
+                    project_info["projectInitReady"] = False
 
     except Exception as err:
         logging.error(err)
@@ -334,6 +357,7 @@ def api_demo_data_project():  # noqa: F401
 @bp.route('/project/<project_id>/data', methods=["POST"])
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
+    project_path = get_project_path(project_id)
 
     # get the project config to modify behavior of dataset
     project_config = get_project_config(project_id)
@@ -353,7 +377,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
             url_parts = urllib.parse.urlparse(url)
             filename = secure_filename(url_parts.path.rsplit('/', 1)[-1])
 
-            urlretrieve(url, get_data_path(project_id) / filename)
+            urlretrieve(url, get_data_path(project_path) / filename)
 
         except ValueError as err:
 
@@ -381,7 +405,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         try:
 
             filename = secure_filename(data_file.filename)
-            fp_data = get_data_path(project_id) / filename
+            fp_data = get_data_path(project_path) / filename
 
             # save the file
             data_file.save(str(fp_data))
@@ -400,7 +424,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
     if project_config["mode"] == PROJECT_MODE_EXPLORE:
 
-        data_path_raw = get_data_path(project_id) / filename
+        data_path_raw = get_data_path(project_path) / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -409,7 +433,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
                        inplace=True)
         data.to_csv(data_path)
     else:
-        data_path = get_data_path(project_id) / filename
+        data_path = get_data_path(project_path) / filename
 
     try:
         # add the file to the project
@@ -429,6 +453,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/data', methods=["GET"])
 def api_get_project_data(project_id):  # noqa: F401
     """Get info on the article"""
+    project_path = get_project_path(project_id)
 
     if not is_project(project_id):
         response = jsonify(message="Project not found.")
@@ -436,7 +461,7 @@ def api_get_project_data(project_id):  # noqa: F401
 
     try:
 
-        filename = get_data_file_path(project_id).stem
+        filename = get_data_file_path(project_path).stem
 
         # get statistics of the dataset
         statistics = get_data_statistics(project_id)
@@ -504,6 +529,7 @@ def api_label_item(project_id):  # noqa: F401
 
     retrain_model = False if is_prior == "1" else True
 
+    # label_instance will create state file if none.
     # [TODO]project_id, paper_i, label, is_prior=None
     label_instance(project_id, doc_id, label, retrain_model=retrain_model)
 
@@ -521,6 +547,7 @@ def api_get_prior(project_id):  # noqa: F401
     subset = request.args.get("subset", default=None, type=str)
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
+    project_path = get_project_path(project_id)
 
     # check if the subset exists
     if subset is not None and subset not in ["included", "excluded"]:
@@ -529,7 +556,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     try:
 
-        lock_fp = get_lock_path(project_id)
+        lock_fp = get_lock_path(project_path)
         with SQLiteLock(lock_fp,
                         blocking=True,
                         lock_name="active",
@@ -602,8 +629,9 @@ def api_get_prior(project_id):  # noqa: F401
 def api_get_prior_stats(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+    project_path = get_project_path(project_id)
     try:
-        lock_fp = get_lock_path(project_id)
+        lock_fp = get_lock_path(project_path)
         with SQLiteLock(lock_fp,
                         blocking=True,
                         lock_name="active",
@@ -632,8 +660,8 @@ def api_random_prior_papers(project_id):  # noqa: F401
     This set of papers is extracted from the pool, but without
     the already labeled items.
     """
-
-    lock_fp = get_lock_path(project_id)
+    project_path = get_project_path(project_id)
+    lock_fp = get_lock_path(project_path)
     with SQLiteLock(lock_fp,
                     blocking=True,
                     lock_name="active",
@@ -723,22 +751,31 @@ def api_list_algorithms():
 @bp.route('/project/<project_id>/algorithms', methods=["GET"])
 def api_get_algorithms(project_id):  # noqa: F401
 
-    # check if there is a kwargs file
+    default_payload = {
+        "model": DEFAULT_MODEL,
+        "feature_extraction": DEFAULT_FEATURE_EXTRACTION,
+        "query_strategy": DEFAULT_QUERY_STRATEGY
+    }
+
+    # check if there were algorithms stored in the state file
     try:
 
-        # TODO: load from state file or project file when returning to setup
-        raise FileNotFoundError
+        project_path = get_project_path(project_id)
+        state_file = get_state_path(project_path)
 
-    except FileNotFoundError:
-        # set the kwargs dict to setup kwargs
-        kwargs_dict = deepcopy(app.config['asr_kwargs'])
-        kwargs_dict["model"] = DEFAULT_MODEL
-        kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
-        kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
-        kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
-        kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
+        with open_state(state_file) as state:
+            if state.settings is not None:
+                payload = {
+                    "model": state.settings.model,
+                    "feature_extraction": state.settings.feature_extraction,
+                    "query_strategy": state.settings.query_strategy
+                }
+            else:
+                payload = default_payload
+    except (StateNotFoundError):
+        payload = default_payload
 
-    response = jsonify(kwargs_dict)
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -746,40 +783,26 @@ def api_get_algorithms(project_id):  # noqa: F401
 @bp.route('/project/<project_id>/algorithms', methods=["POST"])
 def api_set_algorithms(project_id):  # noqa: F401
 
-    # # check if there is a kwargs file
-    # try:
-    #     # open the projects file
-    #     with open(get_kwargs_path(project_id), "r") as f_read:
-    #         kwargs_dict = json.load(f_read)
+    # TODO@{Jonathan} validate model choice on server side
+    ml_model = request.form.get("model", None)
+    ml_query_strategy = request.form.get("query_strategy", None)
+    ml_feature_extraction = request.form.get("feature_extraction", None)
 
-    # except FileNotFoundError:
-    #     # set the kwargs dict to setup kwargs
-    #     kwargs_dict = deepcopy(app.config['asr_kwargs'])
-    #     kwargs_dict = deepcopy(app.config['asr_kwargs'])
-    #     kwargs_dict["model"] = DEFAULT_MODEL
-    #     kwargs_dict["feature_extraction"] = DEFAULT_FEATURE_EXTRACTION
-    #     kwargs_dict["query_strategy"] = DEFAULT_QUERY_STRATEGY
-    #     kwargs_dict["balance_strategy"] = DEFAULT_BALANCE_STRATEGY
-    #     kwargs_dict["n_instances"] = DEFAULT_N_INSTANCES
+    # create a new settings object from arguments
+    # only used if state file is not present
+    asreview_settings = ASReviewSettings(
+        mode="minimal",
+        model=ml_model,
+        query_strategy=ml_query_strategy,
+        balance_strategy=DEFAULT_BALANCE_STRATEGY,
+        feature_extraction=ml_feature_extraction)
 
-    # # add the machine learning model to the kwargs
-    # # TODO@{Jonathan} validate model choice on server side
-    # ml_model = request.form.get("model", None)
-    # ml_query_strategy = request.form.get("query_strategy", None)
-    # ml_feature_extraction = request.form.get("feature_extraction", None)
-    # if ml_model:
-    #     kwargs_dict["model"] = ml_model
-    # if ml_query_strategy:
-    #     kwargs_dict["query_strategy"] = ml_query_strategy
-    # if ml_feature_extraction:
-    #     kwargs_dict["feature_extraction"] = ml_feature_extraction
+    project_path = get_project_path(project_id)
+    state_file = get_state_path(project_path)
 
-    # # write the kwargs to a file
-    # with open(get_kwargs_path(project_id), "w") as f_write:
-    #     json.dump(kwargs_dict, f_write)
-
-    # TODO{statev3} store those settings in the project file or metadata file
-    # TODO{state3} remove kwargs code
+    # save the new settings to the state file
+    with open_state(state_file, read_only=False) as state:
+        state.settings = asreview_settings
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -790,7 +813,7 @@ def api_set_algorithms(project_id):  # noqa: F401
 def api_start(project_id):  # noqa: F401
     """Start training of first model or simulation.
     """
-
+    project_path = get_project_path(project_id)
     project_config = get_project_config(project_id)
 
     # the project is a simulation project
@@ -800,12 +823,12 @@ def api_start(project_id):  # noqa: F401
 
         try:
             simulation_id = uuid.uuid4().hex
-            datafile = get_data_file_path(project_id)
-            state_file = get_simulation_ready_path(project_id, simulation_id)
+            datafile = get_data_file_path(project_path)
+            state_file = get_simulation_ready_path(project_path, simulation_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
-            add_simulation_to_project(project_id, simulation_id)
+            add_review_to_project(project_id, simulation_id)
 
             # start simulation
             py_exe = _get_executable()
@@ -846,17 +869,18 @@ def api_start(project_id):  # noqa: F401
 def api_init_model_ready(project_id):  # noqa: F401
     """Check if trained model is available
     """
+    project_path = get_project_path(project_id)
 
     project_config = get_project_config(project_id)
 
     if project_config["mode"] == PROJECT_MODE_SIMULATE:
         logging.info("checking if simulation is ready")
 
-        simulation_id = project_config["simulations"][0]["id"]
+        simulation_id = project_config["reviews"][0]["id"]
 
-        if get_simulation_ready_path(project_id, simulation_id).exists():
+        if get_simulation_ready_path(project_path, simulation_id).exists():
             logging.info("simulation ready")
-            update_simulation_in_project(project_id, simulation_id, "ready")
+            update_review_in_project(project_id, simulation_id, "ready")
 
             response = jsonify({'status': 1})
         else:
@@ -872,17 +896,18 @@ def api_init_model_ready(project_id):  # noqa: F401
             return jsonify(message=error_message), 400
 
         try:
-
-            if get_proba_path(project_id).exists():
+            with open_state(project_path) as state:
+                proba = state.get_last_probabilities()
+            if not proba.empty:
 
                 # read the file with project info
-                with open(get_project_file_path(project_id), "r") as fp:
+                with open(get_project_file_path(project_path), "r") as fp:
                     project_info = json.load(fp)
 
                 project_info["projectInitReady"] = True
 
                 # update the file with project info
-                with open(get_project_file_path(project_id), "w") as fp:
+                with open(get_project_file_path(project_path), "w") as fp:
                     json.dump(project_info, fp)
 
                 response = jsonify({'status': 1})
@@ -897,23 +922,26 @@ def api_init_model_ready(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
-def api_clear_model_error(project_id):
-    """Clear model training error"""
+# TODO(State): Does this delete everything in the project?
+# TODO{Terry}: This may be deprecated when the new state file is in use.
+# @bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
+# def api_clear_model_error(project_id):
+#     """Clear model training error"""
 
-    error_path = get_project_path(project_id) / "error.json"
-    state_path = get_state_path(project_id)
+#     error_path = get_project_path(project_id) / "error.json"
+#     project_path = get_project_path(project_id)
+#     state_path = get_state_path(project_path)
 
-    if error_path.exists() and state_path.exists():
-        os.remove(error_path)
-        os.remove(state_path)
+#     if error_path.exists() and state_path.exists():
+#         os.remove(error_path)
+#         os.remove(state_path)
 
-        response = jsonify({'success': True})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
+#         response = jsonify({'success': True})
+#         response.headers.add('Access-Control-Allow-Origin', '*')
+#         return response
 
-    response = jsonify(message="Failed to clear model training error.")
-    return response, 500
+#     response = jsonify(message="Failed to clear model training error.")
+#     return response, 500
 
 
 @bp.route('/project/import_project', methods=["POST"])
@@ -936,6 +964,7 @@ def api_import_project():
 
 @bp.route('/project/<project_id>/export', methods=["GET"])
 def export_results(project_id):
+    project_path = get_project_path(project_id)
 
     # get the export args
     file_type = request.args.get('file_type', None)
@@ -964,11 +993,12 @@ def export_results(project_id):
     else:  # excel
 
         dataset_str = export_to_string(project_id, export_type="excel")
-        fp_tmp_export = Path(get_tmp_path(project_id), "export_result.xlsx")
+        fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
         return send_file(
             fp_tmp_export,
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+            mimetype=   # noqa
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             download_name=f"asreview_result_{project_id}.xlsx",
             max_age=0)
@@ -1007,9 +1037,10 @@ def export_project(project_id):
 @bp.route('/project/<project_id>/finish', methods=["GET"])
 def api_finish_project(project_id):
     """Mark a project as finished or not"""
+    project_path = get_project_path(project_id)
 
     # read the file with project info
-    with open(get_project_file_path(project_id), "r") as fp:
+    with open(get_project_file_path(project_path), "r") as fp:
         project_info = json.load(fp)
 
     try:
@@ -1019,7 +1050,7 @@ def api_finish_project(project_id):
         project_info["reviewFinished"] = True
 
     # update the file with project info
-    with open(get_project_file_path(project_id), "w") as fp:
+    with open(get_project_file_path(project_path), "w") as fp:
         json.dump(project_info, fp)
 
     response = jsonify({'success': True})
@@ -1046,8 +1077,8 @@ def api_finish_project(project_id):
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress info on the article"""
-
-    project_file_path = get_project_file_path(project_id)
+    project_path = get_project_path(project_id)
+    project_file_path = get_project_file_path(project_path)
 
     try:
         # open the projects file
@@ -1067,21 +1098,22 @@ def api_get_progress_info(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/progress_history', methods=["GET"])
-def api_get_progress_history(project_id):
+@bp.route('/project/<project_id>/progress_density', methods=["GET"])
+def api_get_progress_density(project_id):
     """Get progress history on the article"""
 
     try:
         # get label history
-        labeled = read_label_history(project_id)
-        data = []
-        for [key, value] in labeled:
-            data.append(value)
+        project_path = get_project_path(project_id)
+
+        with open_state(project_path) as s:
+            data = s.get_labels()
 
         # create a dataset with the rolling mean of every 10 papers
-        df = pd.DataFrame(data,
-                          columns=["Relevant"]).rolling(10,
-                                                        min_periods=1).mean()
+        df = data \
+            .to_frame(name="Relevant") \
+            .rolling(10, min_periods=1) \
+            .mean()
         df["Total"] = df.index + 1
 
         # transform mean(percentage) to number
@@ -1108,23 +1140,24 @@ def api_get_progress_history(project_id):
     return response
 
 
-@bp.route('/project/<project_id>/progress_efficiency', methods=["GET"])
-def api_get_progress_efficiency(project_id):
+@bp.route('/project/<project_id>/progress_recall', methods=["GET"])
+def api_get_progress_recall(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
+    project_path = get_project_path(project_id)
     try:
-        statistics = get_data_statistics(project_id)
-        labeled = read_label_history(project_id)
-        data = []
-        for [key, value] in labeled:
-            data.append(value)
+        with open_state(project_path) as s:
+            data = s.get_labels()
+            n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
-        df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+        df = data \
+            .to_frame(name="Relevant") \
+            .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (
             df["Total"] *
-            (df["Relevant"][-1:] / statistics["n_rows"]).values).round()
+            (df["Relevant"][-1:] / n_records).values).round()
 
         df = df.round(1).to_dict(orient="records")
 

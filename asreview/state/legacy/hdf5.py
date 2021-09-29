@@ -16,12 +16,16 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import h5py
+try:
+    import h5py
+except ImportError:
+    raise ImportError("To use the legacy hdf5 state file, downgrade ASReview "
+                      "to version 0.x and make sure package h5py is installed.")
 import numpy as np
 from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
-from asreview.state.base import BaseState
+from asreview.state.legacy.base import BaseState
 
 
 def _append_to_dataset(name, values, g, dtype):
@@ -45,12 +49,12 @@ def _result_group(f, query_i):
     return g
 
 
-class HDF5State(BaseState):
+class HDF5StateLegacy(BaseState):
     """Class for storing the review state with HDF5 storage."""
     version = "1.1"
 
     def __init__(self, state_fp, read_only=False):
-        super(HDF5State, self).__init__(state_fp, read_only=read_only)
+        super(HDF5StateLegacy, self).__init__(state_fp, read_only=read_only)
 
     def set_labels(self, y):
         if "labels" not in self.f:

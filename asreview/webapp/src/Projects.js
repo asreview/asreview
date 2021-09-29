@@ -7,11 +7,11 @@ import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
 import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
 import ErrorHandler from "./ErrorHandler";
-import ProjectTable from "./ProjectTable";
 
 import {
   DashboardStatsPaper,
-  ImportDialog,
+  ProjectImportDialog,
+  ProjectTable,
   NavigationDrawer,
   QuickTourDialog,
 } from "./Components";
@@ -131,7 +131,7 @@ const Projects = (props) => {
     });
   };
 
-  const handleCloseImportProject = () => {
+  const handleCloseProjectImport = () => {
     setOpen({
       ...open,
       importProject: false,
@@ -203,6 +203,7 @@ const Projects = (props) => {
                 projects["projects"].length !== 0 && (
                   <ProjectTable
                     projects={projects}
+                    onCreateProject={open.newProject}
                     handleAppState={props.handleAppState}
                     onNavDrawer={props.onNavDrawer}
                     toggleNavDrawer={props.toggleNavDrawer}
@@ -219,10 +220,10 @@ const Projects = (props) => {
             )}
 
             {open.importProject && (
-              <ImportDialog
+              <ProjectImportDialog
                 handleAppState={props.handleAppState}
                 open={open.importProject}
-                onClose={handleCloseImportProject}
+                onClose={handleCloseProjectImport}
               />
             )}
 

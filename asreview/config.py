@@ -37,8 +37,7 @@ DEFAULT_N_PRIOR_EXCLUDED = 1
 GITHUB_PAGE = "https://github.com/asreview/asreview"
 EMAIL_ADDRESS = "asreview@uu.nl"
 
-STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
-LOGGER_EXTENSIONS = STATE_EXTENSIONS
+LEGACY_STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
 
 COLUMN_DEFINITIONS = {
     # included

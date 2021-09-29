@@ -49,6 +49,21 @@ class ProjectAPI {
     });
   }
 
+  static fetchConvertProjectIfOld({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/convert_if_old`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static info(project_id, edit = false, data = null) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
@@ -266,16 +281,19 @@ class ProjectAPI {
     });
   }
 
-  static import_project(data) {
+  static mutateImportProject(variables) {
+    let body = new FormData();
+    body.append("file", variables.file);
+
     const url = api_url + `project/import_project`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
         url: url,
-        data: data,
+        data: body,
       })
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -332,8 +350,8 @@ class ProjectAPI {
     });
   }
 
-  static progress_history(project_id) {
-    const url = api_url + `project/${project_id}/progress_history`;
+  static progress_density(project_id) {
+    const url = api_url + `project/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -346,8 +364,8 @@ class ProjectAPI {
     });
   }
 
-  static progress_efficiency(project_id) {
-    const url = api_url + `project/${project_id}/progress_efficiency`;
+  static progress_recall(project_id) {
+    const url = api_url + `project/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
