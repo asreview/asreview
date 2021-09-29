@@ -65,7 +65,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "dataset",
         type=str,
-        nargs="*",
         help="File path to the dataset or one of the benchmark datasets."
     )
     # Initial data (prior knowledge)
@@ -98,29 +97,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         nargs="*",
         type=int,
         help="Prior indices by record_id."
-    )
-    parser.add_argument(
-        "--included_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers that should be included"
-             "Can be used multiple times."
-    )
-    parser.add_argument(
-        "--excluded_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers that should be excluded"
-             "Can be used multiple times."
-    )
-    parser.add_argument(
-        "--prior_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers from prior studies."
     )
     # logging and verbosity
     parser.add_argument(
