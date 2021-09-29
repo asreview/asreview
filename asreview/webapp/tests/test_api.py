@@ -287,18 +287,18 @@ def test_get_progress_info(client):
     assert isinstance(json_data, dict)
 
 
-def test_get_progress_history(client):
+def test_get_progress_density(client):
     """Test get progress history on the article"""
 
-    response = client.get("/api/project/project-id/progress_history")
+    response = client.get("/api/project/project-id/progress_density")
     json_data = response.get_json()
     assert isinstance(json_data, list)
 
 
-def test_get_progress_efficiency(client):
+def test_get_progress_recall(client):
     """Test get cumulative number of inclusions by ASReview/at random"""
 
-    response = client.get("/api/project/project-id/progress_efficiency")
+    response = client.get("/api/project/project-id/progress_recall")
     json_data = response.get_json()
     assert isinstance(json_data, list)
 

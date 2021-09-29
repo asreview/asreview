@@ -21,14 +21,7 @@ from asreview.webapp.tests.utils import retrieve_project_url_github
 
 
 # Retrieve urls to .asreview files exported from previous versions
-project_urls = retrieve_project_url_github()
-
-
-def test_retrieve_project_file():
-    """Test retrieve project files from GitHub"""
-
-    if not project_urls:
-        assert False
+project_urls = retrieve_project_url_github(major=1)
 
 
 @pytest.mark.parametrize("url", project_urls)

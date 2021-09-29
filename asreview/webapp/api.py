@@ -1098,21 +1098,22 @@ def api_get_progress_info(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/progress_history', methods=["GET"])
-def api_get_progress_history(project_id):
+@bp.route('/project/<project_id>/progress_density', methods=["GET"])
+def api_get_progress_density(project_id):
     """Get progress history on the article"""
 
     try:
         # get label history
-        labeled = read_label_history(project_id)
-        data = []
-        for [key, value] in labeled:
-            data.append(value)
+        project_path = get_project_path(project_id)
+
+        with open_state(project_path) as s:
+            data = s.get_labels()
 
         # create a dataset with the rolling mean of every 10 papers
-        df = pd.DataFrame(data,
-                          columns=["Relevant"]).rolling(10,
-                                                        min_periods=1).mean()
+        df = data \
+            .to_frame(name="Relevant") \
+            .rolling(10, min_periods=1) \
+            .mean()
         df["Total"] = df.index + 1
 
         # transform mean(percentage) to number
@@ -1139,23 +1140,24 @@ def api_get_progress_history(project_id):
     return response
 
 
-@bp.route('/project/<project_id>/progress_efficiency', methods=["GET"])
-def api_get_progress_efficiency(project_id):
+@bp.route('/project/<project_id>/progress_recall', methods=["GET"])
+def api_get_progress_recall(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
+    project_path = get_project_path(project_id)
     try:
-        statistics = get_data_statistics(project_id)
-        labeled = read_label_history(project_id)
-        data = []
-        for [key, value] in labeled:
-            data.append(value)
+        with open_state(project_path) as s:
+            data = s.get_labels()
+            n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
-        df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+        df = data \
+            .to_frame(name="Relevant") \
+            .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (
             df["Total"] *
-            (df["Relevant"][-1:] / statistics["n_rows"]).values).round()
+            (df["Relevant"][-1:] / n_records).values).round()
 
         df = df.round(1).to_dict(orient="records")
 

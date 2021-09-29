@@ -350,8 +350,8 @@ class ProjectAPI {
     });
   }
 
-  static progress_history(project_id) {
-    const url = api_url + `project/${project_id}/progress_history`;
+  static progress_density(project_id) {
+    const url = api_url + `project/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -364,8 +364,8 @@ class ProjectAPI {
     });
   }
 
-  static progress_efficiency(project_id) {
-    const url = api_url + `project/${project_id}/progress_efficiency`;
+  static progress_recall(project_id) {
+    const url = api_url + `project/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
