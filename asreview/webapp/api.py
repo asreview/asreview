@@ -55,7 +55,6 @@ from asreview.webapp.utils.project_path import get_project_path
 from asreview.settings import ASReviewSettings
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_lock_path
-from asreview.state.paths import get_proba_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_simulation_ready_path
 from asreview.state.paths import get_tmp_path
@@ -897,8 +896,9 @@ def api_init_model_ready(project_id):  # noqa: F401
             return jsonify(message=error_message), 400
 
         try:
-
-            if get_proba_path(project_path).exists():
+            with open_state(project_path) as state:
+                proba = state.get_last_probabilities()
+            if not proba.empty:
 
                 # read the file with project info
                 with open(get_project_file_path(project_path), "r") as fp:
