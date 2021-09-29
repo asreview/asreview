@@ -85,6 +85,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosectionlabel',
+    'sphinxcontrib.jinja',
 ]
 autosectionlabel_prefix_document = True
 

@@ -32,7 +32,3 @@
    {%- endfor %}
    {% endif %}
    {% endblock %}
-
-{% macro _() %}
-   <p>THIS IS CALLED IDK WHY</p>
-{% endmacro %}
