@@ -72,18 +72,18 @@ const ProjectImportDialog = (props) => {
   });
 
   useEffect(() => {
-    if (props.onProjectImport) {
+    if (props.open) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
         descriptionElement.focus();
       }
     }
-  }, [props.onProjectImport]);
+  }, [props.open]);
 
   return (
     <Dialog
-      open={props.onProjectImport}
-      onClose={isLoadingConverting() ? null : props.handleCloseProjectImport}
+      open={props.open}
+      onClose={isLoadingConverting() ? null : props.onClose}
       scroll="body"
       fullWidth={true}
       maxWidth={"sm"}
@@ -129,7 +129,7 @@ const ProjectImportDialog = (props) => {
 
       <DialogActions>
         <Button
-          onClick={props.handleCloseProjectImport}
+          onClick={props.onClose}
           color="primary"
           disabled={isLoadingConverting()}
         >
