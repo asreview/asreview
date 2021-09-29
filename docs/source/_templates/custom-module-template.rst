@@ -15,19 +15,28 @@
    {% endblock %}
 
    {% block functions %}
-   {% if functions %}
-   .. rubric:: {{ _('Functions') }}
 
-      {{test}}
-   {% endif %}
+
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   {% for item in functions %}
+      {{ item }}
+   {%- endfor %}
+
    {% endblock %}
 
    {% block classes %}
-   {% if classes %}
-   .. rubric:: {{ _('Classes') }}
 
-      {{test}}
-   {% endif %}
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   {% for item in classes %}
+      {{ item }}
+   {%- endfor %}
+
    {% endblock %}
 
 
