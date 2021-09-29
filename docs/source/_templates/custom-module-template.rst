@@ -14,7 +14,21 @@
    {% endif %}
    {% endblock %}
 
+   {% block functions %}
+   {% if functions %}
+   .. rubric:: {{ _('Functions') }}
 
+      {{test}}
+   {% endif %}
+   {% endblock %}
+
+   {% block classes %}
+   {% if classes %}
+   .. rubric:: {{ _('Classes') }}
+
+      {{test}}
+   {% endif %}
+   {% endblock %}
 
 
 {% block modules %}
