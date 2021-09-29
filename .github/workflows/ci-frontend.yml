@@ -11,7 +11,7 @@ jobs:
           architecture: "x64" # (x64 or x86)
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
           cache: 'npm'
           cache-dependency-path: 'asreview/webapp/package-lock.json'
       - name: Compile assets
