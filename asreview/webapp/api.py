@@ -1110,9 +1110,10 @@ def api_get_progress_density(project_id):
             data = s.get_labels()
 
         # create a dataset with the rolling mean of every 10 papers
-        df = pd.DataFrame(data,
-                          columns=["Relevant"]).rolling(10,
-                                                        min_periods=1).mean()
+        df = data \
+            .to_frame(name="Relevant") \
+            .rolling(10, min_periods=1) \
+            .mean()
         df["Total"] = df.index + 1
 
         # transform mean(percentage) to number
@@ -1150,7 +1151,9 @@ def api_get_progress_recall(project_id):
             n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
-        df = pd.DataFrame(data, columns=["Relevant"]).cumsum()
+        df = data \
+            .to_frame(name="Relevant") \
+            .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (
             df["Total"] *
