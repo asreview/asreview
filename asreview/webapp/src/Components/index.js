@@ -3,7 +3,7 @@ export { default as DashboardStatsPaper } from "./DashboardStatsPaper";
 export { default as DialogTitleWithClose } from "./DialogTitleWithClose";
 export { default as ExportDialog } from "./ExportDialog";
 export { default as Header } from "./Header";
-export { default as MenuDrawer } from "./MenuDrawer";
+export { default as NavigationDrawer } from "./NavigationDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";
 export { default as ProjectTable } from "./ProjectTable";

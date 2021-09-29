@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
       marginRight: theme.spacing(5),
       marginBottom: theme.spacing(5),
     },
+    flexShrink: 0,
     width: "100%",
     textAlign: "center",
   },
@@ -21,8 +22,6 @@ const useStyles = makeStyles((theme) => ({
       marginRight: theme.spacing(2),
       marginBottom: theme.spacing(3),
     },
-    width: "100%",
-    textAlign: "center",
   },
   extendedFab: {
     marginRight: theme.spacing(1),

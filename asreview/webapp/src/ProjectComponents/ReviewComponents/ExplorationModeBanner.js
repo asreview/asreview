@@ -15,7 +15,7 @@ const ExplorationModeBanner = (props) => {
   const classes = useStyles();
 
   return (
-    <div>
+    <div aria-label="exploration mode banner">
       <Banner
         open={props.explorationMode}
         onClose={() => props.setExplorationMode(false)}

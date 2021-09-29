@@ -1,14 +1,12 @@
 import React from "react";
 import {
+  Box,
+  Button,
   Card,
+  CardActions,
   CardContent,
-  Divider,
-  IconButton,
   TextField,
-  Tooltip,
-  Typography,
 } from "@material-ui/core";
-import SaveIcon from "@material-ui/icons/Save";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles({
@@ -16,12 +14,12 @@ const useStyles = makeStyles({
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
   },
-  cardContent: {
-    paddingTop: 0,
+  note: {
+    paddingTop: 32,
   },
-  action: {
-    display: "flex",
-    justifyContent: "space-between",
+  button: {
+    // display: "flex",
+    justifyContent: "flex-end",
   },
   title: {
     display: "flex",
@@ -34,23 +32,11 @@ const NoteSheet = (props) => {
 
   return (
     <Card className={classes.root} variant="outlined">
-      <CardContent className={classes.cardContent}>
-        <div className={classes.action}>
-          <Typography className={classes.title} variant="subtitle1">
-            Note
-          </Typography>
-          <div>
-            <Tooltip title="Save">
-              <IconButton onClick={props.toggleNoteSheet}>
-                <SaveIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </div>
-        </div>
-        <Divider />
-        <form>
+      <CardContent className={classes.note}>
+        <Box>
           <TextField
-            id="note"
+            id="multiline-note"
+            label="Note"
             autoFocus
             fullWidth
             multiline
@@ -60,8 +46,21 @@ const NoteSheet = (props) => {
             value={props.note ? props.note : ""}
             variant="outlined"
           />
-        </form>
+        </Box>
       </CardContent>
+      <CardActions className={classes.button}>
+        <Button color="primary" size="small" onClick={props.discardNote}>
+          Discard Changes
+        </Button>
+        <Button
+          color="primary"
+          disabled={!props.note}
+          size="small"
+          onClick={props.saveNote}
+        >
+          Save
+        </Button>
+      </CardActions>
     </Card>
   );
 };
