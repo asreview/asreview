@@ -1,294 +1,235 @@
 ﻿TY  - GEN
-AU  - Lorem Ipsum
 N1  - Reference Type: Generic
 ER  - 
 
 TY  - ABST
-AU  - Lorem Ipsum
 N1  - Reference Type: Abstract
 ER  - 
 
 TY  - AGGR
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Aggregated Database
 ER  - 
 
 TY  - ANCIENT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Ancient Text
 ER  - 
 
 TY  - ART
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Artwork
 ER  - 
 
 TY  - ADVS
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Audiovisual Material
 ER  - 
 
 TY  - BILL
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Bill
 ER  - 
 
 TY  - BLOG
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Blog
 ER  - 
 
 TY  - BOOK
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Book
 ER  - 
 
 TY  - CHAP
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Book Section
 ER  - 
 
 TY  - CASE
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Case
 ER  - 
 
 TY  - CTLG
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Catalog
 ER  - 
 
 TY  - CHART
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Chart
 ER  - 
 
 TY  - CLSWK
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Classical Work
 ER  - 
 
 TY  - COMP
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Computer Program
 ER  - 
 
 TY  - CPAPER
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Conference Paper
 ER  - 
 
 TY  - CONF
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Conference Proceeding
 ER  - 
 
 TY  - DATA
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Dataset
 ER  - 
 
 TY  - DICT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Dictionary
 ER  - 
 
 TY  - EDBOOK
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Edited Book
 ER  - 
 
 TY  - EBOOK
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Electronic Book
 ER  - 
 
 TY  - ECHAP
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Electronic Book Section
 ER  - 
 
 TY  - EJOUR
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Electronic Article
 ER  - 
 
 TY  - ENCYC
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Encyclopedia
 ER  - 
 
 TY  - EQUA
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Equation
 ER  - 
 
 TY  - FIGURE
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Figure
 ER  - 
 
 TY  - MPCT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Film or Broadcast
 ER  - 
 
 TY  - JFULL
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Full Journal
 ER  - 
 
 TY  - GOVDOC
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Government Document
 ER  - 
 
 TY  - GRNT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Grant
 ER  - 
 
 TY  - HEAR
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Hearing
 ER  - 
 
 TY  - INPR
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: In Press Article
 ER  - 
 
 TY  - ICOMM
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Internet Communication
 ER  - 
 
 TY  - INTV
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Interview
 ER  - 
 
 TY  - JOUR
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Journal Article
 ER  - 
 
 TY  - LEGAL
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Legal Rule
 ER  - 
 
 TY  - MGZN
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Magazine Article
 ER  - 
 
 TY  - MANSCPT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Manuscript
 ER  - 
 
 TY  - MAP
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Map
 ER  - 
 
 TY  - MUSIC
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Music
 ER  - 
 
 TY  - NEWS
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Newspaper Article
 ER  - 
 
 TY  - DBASE
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Online Database
 ER  - 
 
 TY  - MULTI
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Online Multimedia
 ER  - 
 
 TY  - PAMP
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Pamphlet
 ER  - 
 
 TY  - PAT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Patent
 ER  - 
 
 TY  - PCOMM
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Personal Communication
 ER  - 
 
 TY  - POD
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Podcast
 ER  - 
 
 TY  - PRESS
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Press Release
 ER  - 
 
 TY  - RPRT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Report
 ER  - 
 
 TY  - SER
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Serial
 ER  - 
 
 TY  - SLIDE
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Slide
 ER  - 
 
 TY  - SOUND
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Sound Recording
 ER  - 
 
 TY  - STAND
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Standard
 ER  - 
 
 TY  - STAT
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Statute
 ER  - 
 
 TY  - THES
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Thesis
 ER  - 
 
 TY  - UNBILL
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Unenacted Bill
 ER  - 
 
 TY  - UNPD
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Unpublished Work
 ER  - 
 
 TY  - VIDEO
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Video Recording
 ER  - 
 
 TY  - WEB
-AU  - Lorem Ipsum
-N1  - Reference Type:
+N1  - Reference Type: Web Page
 ER  - 
