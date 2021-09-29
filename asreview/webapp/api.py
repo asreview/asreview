@@ -71,6 +71,8 @@ from asreview.state.utils import open_state
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
+from asreview.webapp.utils.project import add_simulation_to_project
+from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import add_review_to_project
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
@@ -122,8 +124,6 @@ def error_500(e):
 
 
 # routes
-
-
 @bp.route('/projects', methods=["GET"])
 def api_get_projects():  # noqa: F401
     """Get info on the article"""
@@ -163,6 +163,61 @@ def api_get_projects():  # noqa: F401
     return response
 
 
+@bp.route('/projects/stats', methods=["GET"])
+def api_get_projects_stats():  # noqa: F401
+    """Get dashboard statistics of all projects"""
+
+    projects = list_asreview_project_paths()
+
+    stats_counter = Counter()
+
+    for proj in projects:
+
+        try:
+            with open(proj / "project.json", "r") as f:
+                res = json.load(f)
+
+            # backwards support <0.10
+            if "projectInitReady" not in res:
+                res["projectInitReady"] = True
+
+            # get dashboard statistics
+            statistics = get_statistics(res["id"])
+            statistics["n_reviewed"] = statistics["n_included"] \
+                + statistics["n_excluded"]
+
+            if res["projectInitReady"] is not True:
+                statistics["n_setup"] = 1
+                statistics["n_in_review"] = 0
+                statistics["n_finished"] = 0
+            elif res["reviewFinished"] is not True:
+                statistics["n_setup"] = 0
+                statistics["n_in_review"] = 1
+                statistics["n_finished"] = 0
+            else:
+                statistics["n_setup"] = 0
+                statistics["n_in_review"] = 0
+                statistics["n_finished"] = 1
+
+            statistics = {
+                x: statistics[x]
+                for x in ("n_reviewed", "n_included", "n_setup",
+                          "n_in_review", "n_finished")
+            }
+            stats_counter.update(statistics)
+
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load dashboard statistics."), 500
+
+    project_stats = dict(stats_counter)
+
+    response = jsonify({"result": project_stats})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+
+    return response
+
+
 @bp.route('/project/info', methods=["POST"])
 def api_init_project():  # noqa: F401
     """Get info on the article"""
@@ -172,7 +227,7 @@ def api_init_project():  # noqa: F401
     project_description = request.form['description']
     project_authors = request.form['authors']
 
-    project_id = re.sub('[^A-Za-z0-9]+', '-', project_name).lower()
+    project_id = create_project_id(project_name)
 
     project_config = init_project(project_id,
                                   project_mode=project_mode,
@@ -470,8 +525,11 @@ def api_label_item(project_id):  # noqa: F401
 def api_get_prior(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
+
+    subset = request.args.get("subset", default=None, type=str)
+    page = request.args.get("page", default=None, type=int)
+    per_page = request.args.get("per_page", default=20, type=int)
     project_path = get_project_path(project_id)
-    subset = request.args.get('subset', default=None, type=str)
 
     # check if the subset exists
     if subset is not None and subset not in ["included", "excluded"]:
@@ -486,12 +544,49 @@ def api_get_prior(project_id):  # noqa: F401
                         lock_name="active",
                         project_id=project_id):
             label_history = read_label_history(project_id, subset=subset)
+            label_history.reverse()
+
+        # count labeled records and max pages
+        count = len(label_history)
+        max_page_calc = divmod(count, per_page)
+        if max_page_calc[1] == 0:
+            max_page = max_page_calc[0]
+        else:
+            max_page = max_page_calc[0] + 1
+
+        if page is not None:
+            # slice out records on specific page
+            if page <= max_page:
+                idx_start = page * per_page - per_page
+                idx_end = page * per_page
+                label_history = label_history[idx_start:idx_end]
+            else:
+                raise ValueError(f"Page {page - 1} is the last page.")
+
+            # set next & previous page
+            if page < max_page:
+                next_page = page + 1
+                if page > 1:
+                    previous_page = page - 1
+                else:
+                    previous_page = None
+            else:
+                next_page = None
+                previous_page = page - 1
+        else:
+            next_page = None
+            previous_page = None
 
         indices = [x[0] for x in label_history]
 
         records = read_data(project_id).record(indices, by_index=False)
 
-        payload = {"result": []}
+        payload = {
+            "count": count,
+            "next_page": next_page,
+            "previous_page": previous_page,
+            "result": [],
+        }
         for i, record in enumerate(records):
 
             payload["result"].append({
@@ -505,7 +600,7 @@ def api_get_prior(project_id):  # noqa: F401
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load labeled documents"), 500
+        return jsonify(message=f"Failed to load labeled documents. {err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')

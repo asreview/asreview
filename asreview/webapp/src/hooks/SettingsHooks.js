@@ -1,87 +1,8 @@
 import { useEffect, useState } from "react";
-import brown from "@material-ui/core/colors/brown";
-import red from "@material-ui/core/colors/red";
 
-import { fontSizeOptions } from "../globals.js";
+import { darkTheme, lightTheme, fontSizeOptions } from "../globals.js";
 
 const useDarkMode = () => {
-  let lightTheme = {
-    palette: {
-      type: "light",
-      primary: {
-        main: brown[500],
-      },
-    },
-    overrides: {
-      MuiLink: {
-        root: {
-          color: "#DC004E",
-        },
-      },
-      MuiTypography: {
-        colorTextSecondary: {
-          color: "#555555",
-        },
-      },
-      MuiDialog: {
-        paper: {
-          backgroundColor: "#fafafa",
-        },
-      },
-    },
-  };
-
-  let darkTheme = {
-    palette: {
-      type: "dark",
-      primary: {
-        main: brown[500],
-      },
-      secondary: {
-        main: red[500],
-      },
-    },
-    overrides: {
-      MuiLink: {
-        root: {
-          color: "#F48FB1",
-        },
-      },
-      MuiButton: {
-        textPrimary: {
-          color: "#CFA596",
-        },
-        outlinedPrimary: {
-          color: "#CFA596",
-        },
-      },
-      MuiTypography: {
-        colorPrimary: {
-          color: "#CFA596",
-        },
-      },
-      MuiFormLabel: {
-        root: {
-          "&$focused": {
-            color: "#CFA596",
-          },
-        },
-      },
-      MuiTab: {
-        textColorPrimary: {
-          "&$selected": {
-            color: "#CFA596",
-          },
-        },
-      },
-      MuiDialog: {
-        paper: {
-          backgroundColor: "#303030",
-        },
-      },
-    },
-  };
-
   const [theme, setTheme] = useState(lightTheme);
 
   const toggleDarkMode = () => {
@@ -99,7 +20,7 @@ const useDarkMode = () => {
     if (theme.palette.type !== localTheme && localTheme !== null) {
       setTheme(darkTheme);
     }
-  }, [darkTheme, theme.palette.type]);
+  }, [theme.palette.type]);
 
   return [theme, toggleDarkMode];
 };

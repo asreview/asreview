@@ -1,22 +1,62 @@
 import React, { useState, useEffect } from "react";
-import { Backdrop, Box, Container, Typography } from "@material-ui/core";
+import { connect } from "react-redux";
+import clsx from "clsx";
+import { Backdrop, Box, Container, Fade, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
 import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
 
 import ErrorHandler from "./ErrorHandler";
 import ProjectTable from "./ProjectTable";
-import ProjectStatusGraphic from "./ProjectStatusGraphic";
 
-import { ImportDialog, QuickTourDialog } from "./Components";
+import {
+  DashboardStatsPaper,
+  ImportDialog,
+  NavigationDrawer,
+  QuickTourDialog,
+} from "./Components";
 
 import { ProjectInfo } from "./PreReviewComponents";
 
 import { ProjectAPI } from "./api/index.js";
+import { drawerWidth } from "./globals.js";
+
+const mapStateToProps = (state) => {
+  return {
+    app_state: state.app_state,
+  };
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: "24px",
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowY: "scroll",
+    height: `calc(100vh - 56px)`,
+    // WebkitOverflowScrolling: "touch",
+    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
+      height: `calc(100vh - 48px)`,
+    },
+    [theme.breakpoints.up("sm")]: {
+      height: `calc(100vh - 64px)`,
+    },
+    [theme.breakpoints.up("md")]: {
+      marginLeft: 72,
+    },
+  },
+  contentShift: {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: drawerWidth,
   },
   fab: {
     position: "fixed",
@@ -116,93 +156,113 @@ const Projects = (props) => {
   };
 
   return (
-    <Box>
-      <Container maxWidth="md" className={classes.root}>
-        <ProjectStatusGraphic projects={projects} />
-      </Container>
-      <Container maxWidth="md" className={classes.root}>
-        {error["message"] !== null && (
-          <ErrorHandler error={error} setError={setError} />
-        )}
-
-        {/* Project loaded, but no projects found */}
-        {error["message"] === null &&
-          projects["loaded"] &&
-          projects["projects"].length === 0 && (
-            <Box className={classes.noProjects}>
-              <Typography variant="h5" align="center">
-                You don't have any projects yet.
-              </Typography>
-              <Box fontStyle="italic">
-                <Typography align="center">
-                  Start a review by clicking on the red button in the bottom
-                  right corner.
-                </Typography>
-              </Box>
-            </Box>
-          )}
-
-        {/* Project loaded and projects found */}
-        {error["message"] === null &&
-          projects["loaded"] &&
-          projects["projects"].length !== 0 && (
-            <ProjectTable
-              projects={projects}
-              handleAppState={props.handleAppState}
-            />
-          )}
-      </Container>
-
-      {open.newProject && (
-        <ProjectInfo
-          handleAppState={props.handleAppState}
-          open={open.newProject}
-          onClose={handleCloseNewProject}
-        />
-      )}
-
-      {open.importProject && (
-        <ImportDialog
-          handleAppState={props.handleAppState}
-          open={open.importProject}
-          onClose={handleCloseImportProject}
-        />
-      )}
-
-      {/* Add button for new or importing project */}
-      <Backdrop open={open.dial} className={classes.backdropZ} />
-      <SpeedDial
-        ariaLabel="add"
-        className={classes.fab}
-        FabProps={{ color: "secondary" }}
-        icon={<SpeedDialIcon />}
-        onClose={handleClose}
-        onOpen={handleOpen}
-        open={open.dial}
+    <Box aria-label="nav-main">
+      <NavigationDrawer
+        mobileScreen={props.mobileScreen}
+        onNavDrawer={props.onNavDrawer}
+        toggleNavDrawer={props.toggleNavDrawer}
+        toggleSettings={props.toggleSettings}
+      />
+      <Box
+        component="main"
+        className={clsx(classes.content, {
+          [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
+        })}
+        aria-label="dashboard"
       >
-        <SpeedDialAction
-          key={"Import\u00A0project"}
-          icon=<CreateNewFolderOutlined />
-          tooltipTitle={"Import\u00A0project"}
-          tooltipOpen
-          onClick={(event) => {
-            handleClickAdd(event, "importProject");
-          }}
-        />
-        <SpeedDialAction
-          key={"New\u00A0project"}
-          icon=<AddOutlined />
-          tooltipTitle={"New\u00A0project"}
-          tooltipOpen
-          onClick={(event) => {
-            handleClickAdd(event, "newProject");
-          }}
-        />
-      </SpeedDial>
+        <Fade in={props.app_state === "projects"}>
+          <div>
+            <Container maxWidth="md" className={classes.root}>
+              <DashboardStatsPaper />
+            </Container>
+            <Container maxWidth="md" className={classes.root}>
+              {error["message"] !== null && (
+                <ErrorHandler error={error} setError={setError} />
+              )}
 
-      <QuickTourDialog />
+              {/* Project loaded, but no projects found */}
+              {error["message"] === null &&
+                projects["loaded"] &&
+                projects["projects"].length === 0 && (
+                  <Box className={classes.noProjects}>
+                    <Typography variant="h5" align="center">
+                      You don't have any projects yet.
+                    </Typography>
+                    <Box fontStyle="italic">
+                      <Typography align="center">
+                        Start a review by clicking on the red button in the
+                        bottom right corner.
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
+
+              {/* Project loaded and projects found */}
+              {error["message"] === null &&
+                projects["loaded"] &&
+                projects["projects"].length !== 0 && (
+                  <ProjectTable
+                    projects={projects}
+                    handleAppState={props.handleAppState}
+                    onNavDrawer={props.onNavDrawer}
+                    toggleNavDrawer={props.toggleNavDrawer}
+                  />
+                )}
+            </Container>
+
+            {open.newProject && (
+              <ProjectInfo
+                handleAppState={props.handleAppState}
+                open={open.newProject}
+                onClose={handleCloseNewProject}
+              />
+            )}
+
+            {open.importProject && (
+              <ImportDialog
+                handleAppState={props.handleAppState}
+                open={open.importProject}
+                onClose={handleCloseImportProject}
+              />
+            )}
+
+            {/* Add button for new or importing project */}
+            <Backdrop open={open.dial} className={classes.backdropZ} />
+            <SpeedDial
+              ariaLabel="add"
+              className={classes.fab}
+              FabProps={{ color: "primary" }}
+              icon={<SpeedDialIcon />}
+              onClose={handleClose}
+              onOpen={handleOpen}
+              open={open.dial}
+            >
+              <SpeedDialAction
+                key={"Import\u00A0project"}
+                icon=<CreateNewFolderOutlined />
+                tooltipTitle={"Import\u00A0project"}
+                tooltipOpen
+                onClick={(event) => {
+                  handleClickAdd(event, "importProject");
+                }}
+              />
+              <SpeedDialAction
+                key={"New\u00A0project"}
+                icon=<AddOutlined />
+                tooltipTitle={"New\u00A0project"}
+                tooltipOpen
+                onClick={(event) => {
+                  handleClickAdd(event, "newProject");
+                }}
+              />
+            </SpeedDial>
+
+            <QuickTourDialog />
+          </div>
+        </Fade>
+      </Box>
     </Box>
   );
 };
 
-export default Projects;
+export default connect(mapStateToProps)(Projects);
