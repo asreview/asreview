@@ -8,3 +8,15 @@
    :show-inheritance:
    :inherited-members:
 
+   {% block methods %}
+   {% if methods %}
+   .. rubric:: {{ ('Methods') }}
+
+   .. autosummary::
+      :nosignatures:
+      {% for item in methods %}
+         ~{{ name }}.{{ item }}
+      {%- endfor %}
+   {% endif %}
+   {% endblock %}
+
