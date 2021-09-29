@@ -92,17 +92,6 @@ def get_pool_path(project_path):
     return Path(project_path, "pool.json")
 
 
-def get_proba_path(project_path):
-    """Get the proba file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-    return Path(project_path, "proba.csv")
-
-
 def get_labeled_path(project_path):
     """Get the labeled file for the project and iteration.
 
