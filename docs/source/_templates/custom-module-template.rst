@@ -15,14 +15,33 @@
    {% endblock %}
 
    {% block functions %}
-   {% if functions %}
+   {% if functions is defined and functions|length > 0 %}
+   .. rubric:: {{ _("Functions") }}
 
+   .. autosummary::
+      :toctree:
+      :nosignatures:
+   {% for item in functions %}
+      {% if item|length > 1 %}
+         {{ item }}
+      {% endif %}
+   {%- endfor %}
    {% endif %}
    {% endblock %}
 
    {% block classes %}
-   {% if classes %}
+   {% if classes is defined and classes|length > 0 %}
+   .. rubric:: {{ _("Classes") }}
 
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+      :nosignatures:
+   {% for item in classes %}
+      {% if item|length > 1 %}
+         {{ item }}
+      {% endif %}
+   {%- endfor %}
    {% endif %}
    {% endblock %}
 
