@@ -512,14 +512,11 @@ def export_to_string(project_id, export_type="csv"):
 
     with open_state(project_path) as s:
         proba = s.get_last_probabilities()
-        print(proba.shape)
         labeled_data = s.get_dataset(['record_ids', 'labels'])
-        print(labeled_data.shape)
         record_table = s.get_record_table()
-        print(record_table.shape)
 
     prob_df = pd.concat([record_table, proba], axis=1)
-    print(prob_df)
+
     ranking = pd. \
         merge(prob_df, labeled_data, on='record_ids', how='left'). \
         fillna(0.5). \
