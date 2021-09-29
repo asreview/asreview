@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 const DashboardStatsPaper = (props) => {
   const classes = useStyles();
 
-  const { data, isFetched } = useQuery(
+  const { data, isSuccess } = useQuery(
     "fetchDashboardStats",
     ProjectAPI.fetchDashboardStats,
     { refetchOnWindowFocus: false }
@@ -67,7 +67,7 @@ const DashboardStatsPaper = (props) => {
               <div className="textProjectsInReview">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_in_review ? data.n_in_review : 0}
+                    value={(isSuccess && data.n_in_review) ? data.n_in_review : "-"}
                     displayType="text"
                     thousandSeparator
                   />
@@ -91,7 +91,7 @@ const DashboardStatsPaper = (props) => {
               <div className="textProjectsFinished">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_finished ? data.n_finished : 0}
+                    value={isSuccess && data.n_finished ? data.n_finished : "-"}
                     displayType="text"
                     thousandSeparator
                   />
@@ -115,7 +115,7 @@ const DashboardStatsPaper = (props) => {
               <div className="textRecordsReviewed">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_reviewed ? data.n_reviewed : 0}
+                    value={isSuccess && data.n_reviewed ? data.n_reviewed : "-"}
                     displayType="text"
                     thousandSeparator
                   />
@@ -139,7 +139,7 @@ const DashboardStatsPaper = (props) => {
               <div className="textRelevantRecords">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_included ? data.n_included : 0}
+                    value={isSuccess && data.n_included ? data.n_included : "-"}
                     displayType="text"
                     thousandSeparator
                   />
