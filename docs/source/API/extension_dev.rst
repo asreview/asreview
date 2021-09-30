@@ -1,6 +1,6 @@
 .. _develop-extensions:
 
-Create an extension
+Create an Extension
 ===================
 
 ASReview extensions enable you to integrate your programs with the ASReview
@@ -15,13 +15,17 @@ The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with
 pip).
 
+To add the extension to the documentation on :ref:`extensions-community`,
+please initiate an issue on `Github
+<https://github.com/asreview/asreview/issues>`__.
+
 For more information on the ASReview API for creating an extension, a technical
 reference for development is found under the :ref:`API reference<api_ref>`. This
 technical reference contains functions for use in your extension, and an
 overview of all classes to extend on.
 
 
-Model extensions
+Model Extensions
 ----------------
 An extension of a :class:`asreview.models.base.BaseModel` type class.
 
@@ -86,7 +90,7 @@ This code registers the model with name ``example``.
     <a href="https://github.com/asreview/template-extension-new-model"
     target="_blank"> template for extending ASReview</a>
 
-Subcommand extensions 
+Subcommand Extensions 
 ---------------------
 An extension of the :class:`asreview.entry_points.base.BaseEntryPoint` class.
 
@@ -95,7 +99,10 @@ From this entry point the Python API can be used in many ways (like ``plot`` or
 ``simulate``).
 
 Extensions in ASReview are Python packages and can extend the
-subcommands of asreview (see ``asreview -h``).
+subcommands of asreview (see ``asreview -h``). 
+
+An example of a subcommand extension is the `Visualization Extension
+<https://github.com/asreview/asreview-visualization>`_
 
 The easiest way to create a new subcommand is by defining a class that can be
 used as a new entry point for ASReview. This class should inherit from
@@ -154,10 +161,8 @@ the root of the package, and set the keyword argument `entry_points` of
 After installing this package, ASReview is extended with the ``asreview
 example`` subcommand. See ``asreview -h`` for this option.
 
-An example of a subcommand extension is the `Visualization Extension
-<https://github.com/asreview/asreview-visualization>`_
 
-Dataset extensions
+Dataset Extensions
 ------------------
 An extension of the :class:`asreview.datasets.BaseDataSet` class.
 
