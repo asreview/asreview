@@ -1,0 +1,32 @@
+﻿TY  - GEN
+N1  - Start with a regular notes field.
+ER  -
+
+TY  - GEN
+N1  - What about
+N1  - multiline notes?
+ER  -
+
+TY  - GEN
+N1  - Let us
+N1  - get
+N1  - even crazier!
+ER  -
+
+TY  - GEN
+N1  - Seriously,
+N1  - this is
+N1  - the last
+N1  - multiline notes test.
+ER  -
+
+TY  - GEN
+N1  - These notes are very long. These notes are very long. These notes are very long. These notes are very long. These notes are very long. These notes are very long. These notes are very long. These notes are very long. These notes are very long. These notes are very long.
+ER  -
+
+TY  - GEN
+N1  - These notes have all the accepted ANSI characters (32 - 255), separated by space.
+N1  - ASCII Characters (32-126):   ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z { | } ~
+N1  - ANSI Characters (128-159): € ‚ ƒ „ … † ‡ ˆ ‰ Š ‹ Œ Ž ‘ ’ “ ” • – — ˜ ™ š › œ ž Ÿ
+N1  - ANSI Characters (160-255):   ¡ ¢ £ ¤ ¥ ¦ § ¨ © ª « ¬ ­­® ¯ ° ± ² ³ ´ µ ¶ · ¸ ¹ º » ¼ ½ ¾ ¿ À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ó Ô Õ Ö × Ø Ù Ú Û Ü Ý Þ ß à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ÷ ø ù ú û ü ý þ ÿ
+ER  -
