@@ -121,6 +121,6 @@ be done with:
 
     pip install git@github.com:{USER_NAME}/{REPO_NAME}.github
 
-To develop your own extenstion go to :ref:`develop-extensions`. 
+See :ref:`develop-extensions` for information about developing your own extension. 
 
 
