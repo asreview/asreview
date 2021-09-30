@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 
 from asreview.settings import ASReviewSettings
-from asreview.state.dict import DictState
+from asreview.state.legacy.dict import DictState
 
 
 class JSONState(DictState):

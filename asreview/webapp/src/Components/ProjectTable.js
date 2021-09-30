@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { useQuery } from "react-query";
+import { connect } from "react-redux";
 import {
   Box,
   Chip,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -14,9 +17,14 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import store from "./redux/store";
-import { setProject } from "./redux/actions";
-import { setupColor, inReviewColor, finishedColor } from "./globals";
+import { ProjectAPI } from "../api/index.js";
+import {
+  finishedColor,
+  inReviewColor,
+  mapStateToProps,
+  mapDispatchToProps,
+  setupColor,
+} from "../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -63,6 +71,13 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     backgroundColor: finishedColor,
     display: "flex",
   },
+  circularProgress: {
+    display: "flex",
+    "& > * + *": {
+      marginLeft: theme.spacing(1),
+    },
+    alignItems: "center",
+  },
 }));
 
 const columns = [
@@ -75,6 +90,22 @@ const columns = [
 const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  // convert project if old
+  const { isLoading } = useQuery(
+    ["fetchConvertProjectIfOld", { project_id: props.project_id }],
+    ProjectAPI.fetchConvertProjectIfOld,
+    {
+      enabled: props.project_id !== null && !props.onCreateProject,
+      onError: () => {
+        props.handleAppState("projects");
+      },
+      onSuccess: () => {
+        props.handleAppState("project-page");
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -112,25 +143,28 @@ const ProjectTable = (props) => {
                   console.log("Opening existing project " + row.id);
 
                   // set the state in the redux store
-                  store.dispatch(setProject(row.id));
-
-                  props.handleAppState("project-page");
+                  props.setProjectId(row.id);
                 };
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     <TableCell>
-                      <Box
-                        onClick={openExistingProject}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <Typography
-                          className={classes.tableCell}
-                          variant="subtitle1"
-                          noWrap
+                      <div className={classes.circularProgress}>
+                        {isLoading && row.id === props.project_id && (
+                          <CircularProgress size="1rem" thickness={5} />
+                        )}
+                        <Box
+                          onClick={isLoading ? null : openExistingProject}
+                          style={{ cursor: "pointer" }}
                         >
-                          {row["name"]}
-                        </Typography>
-                      </Box>
+                          <Typography
+                            className={classes.tableCell}
+                            variant="subtitle1"
+                            noWrap
+                          >
+                            {row["name"]}
+                          </Typography>
+                        </Box>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Typography
@@ -190,4 +224,4 @@ const ProjectTable = (props) => {
   );
 };
 
-export default ProjectTable;
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectTable);

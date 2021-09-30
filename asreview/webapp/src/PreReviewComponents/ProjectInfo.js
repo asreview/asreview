@@ -19,8 +19,11 @@ import ProjectModeSelect from "./ProjectModeSelect";
 import ErrorHandler from "../ErrorHandler";
 
 import { ProjectAPI } from "../api/index.js";
-import { setProject } from "../redux/actions";
-import { mapStateToProps, projectModes } from "../globals.js";
+import {
+  mapStateToProps,
+  mapDispatchToProps,
+  projectModes,
+} from "../globals.js";
 
 import "./ReviewZone.css";
 
@@ -82,14 +85,6 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-function mapDispatchToProps(dispatch) {
-  return {
-    setProjectId: (project_id) => {
-      dispatch(setProject(project_id));
-    },
-  };
-}
-
 const ProjectInit = (props) => {
   // const { width, height } = useWindowSize()
 
@@ -141,9 +136,7 @@ const ProjectInit = (props) => {
     if (props.edit) {
       ProjectAPI.info(props.project_id, true, bodyFormData)
         .then((result) => {
-          // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
-          // set editing state to false
           props.onClose();
         })
         .catch((error) => {
@@ -156,7 +149,6 @@ const ProjectInit = (props) => {
       // dialog is open in init mode
       ProjectAPI.init(bodyFormData)
         .then((result) => {
-          // set the project_id in the redux store
           props.setProjectId(result.data["id"]);
           // set newProject state to false
           props.onClose();

@@ -139,7 +139,7 @@ const StatisticsZone = (props) => {
     };
 
     const getProgressHistory = () => {
-      ProjectAPI.progress_history(props.project_id)
+      ProjectAPI.progress_density(props.project_id)
         .then((result) => {
           if (isMounted) setHistory(result.data);
         })
@@ -155,7 +155,7 @@ const StatisticsZone = (props) => {
     };
 
     const getProgressEfficiency = () => {
-      ProjectAPI.progress_efficiency(props.project_id)
+      ProjectAPI.progress_recall(props.project_id)
         .then((result) => {
           if (isMounted) setEfficiency(result.data);
         })

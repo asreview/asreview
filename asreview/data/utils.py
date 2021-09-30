@@ -35,7 +35,7 @@ def load_data(name, *args, **kwargs):
     """
 
     # check is file or URL
-    if Path(name).exists() or is_url(name):
+    if is_url(name) or Path(name).exists():
         return ASReviewData.from_file(name, *args, **kwargs)
 
     # check if dataset is plugin dataset\

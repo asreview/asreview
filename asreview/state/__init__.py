@@ -13,10 +13,6 @@
 # limitations under the License.
 
 from asreview.state.base import BaseState
-from asreview.state.dict import DictState
-from asreview.state.hdf5 import HDF5State
-from asreview.state.json import JSONState
+from asreview.state.sqlstate import SqlStateV1
 from asreview.state.utils import open_state
-from asreview.state.utils import states_from_dir
-from asreview.state.utils import state_from_file
-from asreview.state.utils import state_from_asreview_file
+from asreview.state.utils import init_project_folder_structure
