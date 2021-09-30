@@ -555,7 +555,7 @@ def api_get_labeled(project_id):  # noqa: F401
         return jsonify(message=message), 400
 
     try:
-  
+
         with open_state(project_path) as s:
             data = s.get_dataset(["record_ids", "labels", "query_strategies"])
             data["prior"] = (data["query_strategies"] == "prior").astype(int)
@@ -629,7 +629,7 @@ def api_get_labeled_stats(project_id):  # noqa: F401
 
         with open_state(project_path) as s:
             data = s.get_dataset(["labels", "query_strategies"])
-            
+
         data_prior = data[data["query_strategies"] == "prior"].copy()
 
         counter_prior = Counter([x for x in data_prior["labels"].tolist()])
