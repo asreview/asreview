@@ -105,7 +105,7 @@ def test_project_file(tmp_path, client, url):
     assert response_update_classify.status_code == 200
 
     # Test retrieve review history
-    response_prior = client.get(f"{api_url}/prior")
+    response_prior = client.get(f"{api_url}/labeled")
     json_data_prior = response_prior.get_json()
     assert "result" in json_data_prior
     assert isinstance(json_data_prior["result"], list)

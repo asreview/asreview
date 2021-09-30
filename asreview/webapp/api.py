@@ -539,9 +539,9 @@ def api_label_item(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/prior', methods=["GET"])
-def api_get_prior(project_id):  # noqa: F401
-    """Get all papers classified as prior documents
+@bp.route('/project/<project_id>/labeled', methods=["GET"])
+def api_get_labeled(project_id):  # noqa: F401
+    """Get all papers classified as labeled documents
     """
 
     subset = request.args.get("subset", default=None, type=str)
@@ -555,17 +555,13 @@ def api_get_prior(project_id):  # noqa: F401
         return jsonify(message=message), 400
 
     try:
-
-        lock_fp = get_lock_path(project_path)
-        with SQLiteLock(lock_fp,
-                        blocking=True,
-                        lock_name="active",
-                        project_id=project_id):
-            label_history = read_label_history(project_id, subset=subset)
-            label_history.reverse()
+  
+        with open_state(project_path) as s:
+            data = s.get_dataset(["record_ids", "labels", "query_strategies"])
+            data["prior"] = (data["query_strategies"] == "prior").astype(int)
 
         # count labeled records and max pages
-        count = len(label_history)
+        count = len(data)
         max_page_calc = divmod(count, per_page)
         if max_page_calc[1] == 0:
             max_page = max_page_calc[0]
@@ -577,7 +573,7 @@ def api_get_prior(project_id):  # noqa: F401
             if page <= max_page:
                 idx_start = page * per_page - per_page
                 idx_end = page * per_page
-                label_history = label_history[idx_start:idx_end]
+                data = data.iloc[idx_start:idx_end, :].copy()
             else:
                 raise ValueError(f"Page {page - 1} is the last page.")
 
@@ -595,9 +591,7 @@ def api_get_prior(project_id):  # noqa: F401
             next_page = None
             previous_page = None
 
-        indices = [x[0] for x in label_history]
-
-        records = read_data(project_id).record(indices, by_index=False)
+        records = read_data(project_id).record(data["record_ids"], by_index=False)
 
         payload = {
             "count": count,
@@ -613,7 +607,8 @@ def api_get_prior(project_id):  # noqa: F401
                 "abstract": record.abstract,
                 "authors": record.authors,
                 "keywords": record.keywords,
-                "included": int(label_history[i][1])
+                "included": int(data.loc[i, "labels"]),
+                "prior": int(data.loc[i, "prior"])
             })
 
     except Exception as err:
@@ -625,30 +620,43 @@ def api_get_prior(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/prior_stats', methods=["GET"])
-def api_get_prior_stats(project_id):  # noqa: F401
+@bp.route('/project/<project_id>/labeled_stats', methods=["GET"])
+def api_get_labeled_stats(project_id):  # noqa: F401
     """Get all papers classified as prior documents
     """
     project_path = get_project_path(project_id)
     try:
-        lock_fp = get_lock_path(project_path)
-        with SQLiteLock(lock_fp,
-                        blocking=True,
-                        lock_name="active",
-                        project_id=project_id):
-            label_history = read_label_history(project_id)
 
-        counter_prior = Counter([x[1] for x in label_history])
+        with open_state(project_path) as s:
+            data = s.get_dataset(["labels", "query_strategies"])
+            
+        data_prior = data[data["query_strategies"] == "prior"].copy()
+
+        counter_prior = Counter([x for x in data_prior["labels"].tolist()])
+        counter = Counter([x for x in data["labels"].tolist()])
+
+        response = jsonify({
+            "n": len(data),
+            "n_inclusions": counter[1],
+            "n_exclusions": counter[0],
+            "n_prior": len(data_prior),
+            "n_prior_inclusions": counter_prior[1],
+            "n_prior_exclusions": counter_prior[0]
+        })
+    except StateNotFoundError:
+        response = jsonify({
+            "n": 0,
+            "n_inclusions": 0,
+            "n_exclusions": 0,
+            "n_prior": 0,
+            "n_prior_inclusions": 0,
+            "n_prior_exclusions": 0
+        })
 
     except Exception as err:
         logging.error(err)
         return jsonify(message="Failed to load prior information."), 500
 
-    response = jsonify({
-        "n_prior": len(label_history),
-        "n_inclusions": counter_prior[1],
-        "n_exclusions": counter_prior[0]
-    })
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 

@@ -115,8 +115,8 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
   const [priorDialog, setPriorDialog] = React.useState(false);
 
   const [priorStats, setPriorStats] = React.useState({
-    n_exclusions: null,
-    n_inclusions: null,
+    n_prior_exclusions: null,
+    n_prior_inclusions: null,
     n_prior: null,
   });
   const [help, openHelp, closeHelp] = useHelp();
@@ -171,7 +171,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
 
   useEffect(() => {
     if (state.loading) {
-      ProjectAPI.prior_stats(project_id)
+      ProjectAPI.labeled_stats(project_id)
         .then((result) => {
           setState((s) => {
             return {
@@ -190,7 +190,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
 
   // check if there is enough prior knowledge
   useEffect(() => {
-    if (priorStats["n_inclusions"] > 0 && priorStats["n_exclusions"] > 0) {
+    if (priorStats["n_prior_inclusions"] > 0 && priorStats["n_prior_exclusions"] > 0) {
       setNext(true);
     } else {
       setNext(false);
@@ -234,15 +234,15 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
 
             <CardContent className="cardHighlight">
               <Typography variant="h4" noWrap={true}>
-                {priorStats["n_inclusions"]} relevant documents
+                {priorStats["n_prior_inclusions"]} relevant documents
               </Typography>
               <Typography variant="h4" noWrap={true}>
-                {priorStats["n_exclusions"]} irrelevant documents
+                {priorStats["n_prior_exclusions"]} irrelevant documents
               </Typography>
               <Box>
                 {/* nothing */}
-                {priorStats["n_inclusions"] === 0 &&
-                  priorStats["n_exclusions"] === 0 && (
+                {priorStats["n_prior_inclusions"] === 0 &&
+                  priorStats["n_prior_exclusions"] === 0 && (
                     <Typography>
                       You don't have prior knowledge yet. Find yourself prior
                       knowledge by searching relevant documents and label some
@@ -251,8 +251,8 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                   )}
 
                 {/* only inclusions, no exclusions */}
-                {priorStats["n_inclusions"] > 0 &&
-                  priorStats["n_exclusions"] === 0 && (
+                {priorStats["n_prior_inclusions"] > 0 &&
+                  priorStats["n_prior_exclusions"] === 0 && (
                     <Typography>
                       Find yourself irrelevant documents. Tip: label some random
                       documents. Random documents are usually exclusions because
@@ -261,8 +261,8 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                   )}
 
                 {/* only exclusions, no inclusions */}
-                {priorStats["n_inclusions"] === 0 &&
-                  priorStats["n_exclusions"] > 0 && (
+                {priorStats["n_prior_inclusions"] === 0 &&
+                  priorStats["n_prior_exclusions"] > 0 && (
                     <Typography>
                       Find yourself relevant documents. Tip: use the search
                       function and find some relevant documents you know of.
@@ -270,10 +270,10 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                   )}
 
                 {/* bare minimum was met */}
-                {priorStats["n_inclusions"] > 0 &&
-                  priorStats["n_exclusions"] > 0 &&
-                  (priorStats["n_exclusions"] < 3 ||
-                    priorStats["n_inclusions"] < 3) && (
+                {priorStats["n_prior_inclusions"] > 0 &&
+                  priorStats["n_prior_exclusions"] > 0 &&
+                  (priorStats["n_prior_exclusions"] < 3 ||
+                    priorStats["n_prior_inclusions"] < 3) && (
                     <Typography>
                       <CheckIcon />
                       Enough prior knowledge, however a bit more would help!
@@ -281,8 +281,8 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                   )}
 
                 {/* ready */}
-                {priorStats["n_inclusions"] >= 3 &&
-                  priorStats["n_exclusions"] >= 3 && (
+                {priorStats["n_prior_inclusions"] >= 3 &&
+                  priorStats["n_prior_exclusions"] >= 3 && (
                     <Typography style={{ color: green[500] }}>
                       <CheckIcon />
                       Enough prior knowledge, feel free to go to the next step.
