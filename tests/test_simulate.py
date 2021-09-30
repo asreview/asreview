@@ -1,16 +1,29 @@
+import json
+import os
 import pytest
 from pathlib import Path
-import json
+from shutil import copyfile
+
+import numpy as np
 
 from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.state import open_state
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
+from asreview.models.classifiers import list_classifiers
+from asreview.review.factory import get_reviewer
 
-DATASET_FP = Path('tests', 'demo_data', 'generic_labels.csv')
+
+ADVANCED_DEPS = {"tensorflow": False}
+
+try:
+    import tensorflow  # noqa
+    ADVANCED_DEPS["tensorflow"] = True
+except ImportError:
+    pass
 
 
-DATA_FP = Path("tests", "demo_data", "generic_labels.csv")
+DATA_FP = Path('tests', 'demo_data', 'generic_labels.csv')
 DATA_FP_URL = "https://raw.githubusercontent.com/asreview/asreview/master/tests/demo_data/generic_labels.csv"  # noqa
 DATA_FP_NO_ABS = Path("tests", "demo_data", "generic_labels_no_abs.csv")
 DATA_FP_NO_TITLE = Path("tests", "demo_data", "generic_labels_no_title.csv")
@@ -19,6 +32,8 @@ CFG_DIR = Path("tests", "cfg_files")
 STATE_DIR = Path("tests", "state_files")
 H5_STATE_FILE = Path(STATE_DIR, "test.h5")
 JSON_STATE_FILE = Path(STATE_DIR, "test.json")
+
+
 @pytest.mark.xfail(raises=FileNotFoundError,
                    reason="File, URL, or dataset does not exist: "
                    "'this_doesnt_exist.csv'")
@@ -31,7 +46,7 @@ def test_dataset_not_found(tmpdir):
 
 def test_simulate(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATASET_FP)} -s {project_path}'.split()
+    argv = f'{str(DATA_FP)} -s {project_path}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
@@ -43,7 +58,7 @@ def test_simulate(tmpdir):
 
 def test_prior_idx(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATASET_FP)} -s {project_path} --prior_idx 1 3'.split()
+    argv = f'{str(DATA_FP)} -s {project_path} --prior_idx 1 3'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
@@ -59,7 +74,7 @@ def test_prior_idx(tmpdir):
 
 def test_n_prior_included(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATASET_FP)} -s {project_path} --n_prior_included 2'.split()
+    argv = f'{str(DATA_FP)} -s {project_path} --n_prior_included 2'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
@@ -78,7 +93,7 @@ def test_n_prior_included(tmpdir):
 
 def test_n_prior_excluded(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATASET_FP)} -s {project_path} --n_prior_excluded 2'.split()
+    argv = f'{str(DATA_FP)} -s {project_path} --n_prior_excluded 2'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
@@ -98,7 +113,7 @@ def test_n_prior_excluded(tmpdir):
 # TODO: Add random seed to settings.
 # def test_seed(tmpdir):
 #     project_path = Path(tmpdir, 'test.asreview')
-#     argv = f'{str(DATASET_FP)} -s {project_path} --seed 42'.split()
+#     argv = f'{str(DATA_FP)} -s {project_path} --seed 42'.split()
 #     entry_point = SimulateEntryPoint()
 #     entry_point.execute(argv)
 #
@@ -118,7 +133,7 @@ def test_non_tf_models(tmpdir):
     for model in models:
         print(model)
         project_path = Path(tmpdir, f'test_{model}.asreview')
-        argv = f'{str(DATASET_FP)} -s {project_path} -m {model}'.split()
+        argv = f'{str(DATA_FP)} -s {project_path} -m {model}'.split()
         entry_point = SimulateEntryPoint()
         entry_point.execute(argv)
 
