@@ -51,7 +51,7 @@ and other coronavirus research (e.g. SARS, MERS, etc.) from PubMed Central,
 the WHO COVID-19 database of publications, the preprint servers bioRxiv and
 medRxiv and papers contributed by specific publishers.
 
-The dataset is updated shortly after a release by the Allen Institute for AI.
+The dataset is available shortly after a release by the Allen Institute for AI.
 
 Pre-print dataset
 -----------------
