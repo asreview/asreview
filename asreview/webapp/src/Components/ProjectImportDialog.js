@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useIsFetching, useMutation } from "react-query";
 import { connect } from "react-redux";
 import {
+  Alert,
+  AlertTitle,
   Button,
   Dialog,
   DialogActions,
@@ -9,34 +11,51 @@ import {
   DialogTitle,
   Link,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Alert, AlertTitle } from "@material-ui/lab";
+} from "@mui/material";
+import { styled } from '@mui/material/styles';
 
 import { ProjectAPI } from "../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = 'ProjectImportDialog';
+
+const classes = {
+  root: `${PREFIX}-root`,
+  dialog: `${PREFIX}-dialog`,
+  input: `${PREFIX}-input`,
+  uploadButton: `${PREFIX}-uploadButton`,
+  link: `${PREFIX}-link`
+};
+
+const StyledDialog = styled(Dialog)((
+  {
+    theme
+  }
+) => ({
+  [`& .${classes.root}`]: {
     width: "100%",
     marginTop: "16px",
   },
-  dialog: {
+
+  [`& .${classes.dialog}`]: {
     width: "100%",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     marginTop: "16px",
   },
-  uploadButton: {
+
+  [`& .${classes.uploadButton}`]: {
     marginTop: "26px",
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
-  },
+  }
 }));
 
 const ProjectImportDialog = (props) => {
-  const classes = useStyles();
+
 
   const descriptionElementRef = useRef(null);
   const [file, setFile] = useState(null);
@@ -81,7 +100,7 @@ const ProjectImportDialog = (props) => {
   }, [props.open]);
 
   return (
-    <Dialog
+    <StyledDialog
       open={props.open}
       onClose={isLoadingConverting() ? null : props.onClose}
       scroll="body"
@@ -145,7 +164,7 @@ const ProjectImportDialog = (props) => {
           {isLoadingConverting() ? "Importing..." : "Import"}
         </Button>
       </DialogActions>
-    </Dialog>
+    </StyledDialog>
   );
 };
 
