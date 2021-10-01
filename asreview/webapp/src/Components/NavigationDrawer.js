@@ -11,6 +11,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Toolbar,
@@ -18,19 +19,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import {
-  ArrowBack,
-  Assignment,
-  Assessment,
-  Dashboard,
-  Edit,
-  GetApp,
-  Help,
-  History,
-  Menu,
-  Payment,
-  Settings,
-} from "@mui/icons-material";
+import { Help, Menu, Payment, Settings } from "@mui/icons-material";
+
+import { StyledDrawerItem } from "../Components";
 
 import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
@@ -117,11 +108,15 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
   [`& .${classes.icon}`]: {
     paddingLeft: 8,
-  },
-
-  [`& .${classes.selectedIcon}`]: {
-    paddingLeft: 8,
-    color: "#91620B",
+    [`& :after`]: {
+      top: 0,
+      left: 0,
+      width: 4,
+      height: "100%",
+      content: "' '",
+      position: "absolute",
+      backgroundColor: "#91620b",
+    },
   },
 
   [`& .${classes.selectedText}`]: {
@@ -187,43 +182,48 @@ const NavigationDrawer = (props) => {
     }
   };
 
+  /**
+   * Drawer items on project page
+   * Any change here requires change in StyledDrawerItem
+   */
+  const drawerItemsProjectPage = [
+    {
+      value: "analytics",
+      label: "Analytics",
+    },
+    {
+      value: "review",
+      label: "Review",
+    },
+    {
+      value: "history",
+      label: "History",
+    },
+    {
+      value: "export",
+      label: "Export",
+    },
+    {
+      value: "details",
+      label: "Details",
+    },
+  ];
+
   const drawer = (
     <List className={classes.drawerContainer}>
       {/* Top Section: Top level drawer */}
-      {props.app_state === "projects" && (
-        <Fade in={props.app_state === "projects"}>
+      {props.app_state === "dashboard" && (
+        <Fade in={props.app_state === "dashboard"}>
           <div className={classes.topSection}>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="Dashboard">
-              <ListItem
-                button
-                selected={props.app_state === "projects"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.setAppState("projects");
-                }}
-              >
-                <ListItemIcon
-                  className={
-                    props.app_state === "projects"
-                      ? clsx(classes.selectedIcon, "navDrawerSelected")
-                      : classes.icon
-                  }
-                >
-                  <Dashboard />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Dashboard"
-                  primaryTypographyProps={{
-                    className:
-                      props.app_state === "projects"
-                        ? classes.selectedText
-                        : null,
-                  }}
-                />
-              </ListItem>
-            </Tooltip>
+            <StyledDrawerItem
+              mobileScreen={props.mobileScreen}
+              label="Dashboard"
+              value="dashboard"
+              onNavDrawer={props.onNavDrawer}
+              toggleNavDrawer={props.toggleNavDrawer}
+              state={props.app_state}
+              setState={props.setAppState}
+            />
           </div>
         </Fade>
       )}
@@ -234,23 +234,15 @@ const NavigationDrawer = (props) => {
           in={props.app_state === "project-page" && props.projectInfo !== null}
         >
           <div className={classes.topSection}>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="Dashboard">
-              <ListItem
-                button
-                selected={props.app_state === "projects"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.setAppState("projects");
-                }}
-              >
-                <ListItemIcon className={classes.icon}>
-                  <ArrowBack />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItem>
-            </Tooltip>
+            <StyledDrawerItem
+              mobileScreen={props.mobileScreen}
+              label="Dashboard"
+              value="dashboard"
+              onNavDrawer={props.onNavDrawer}
+              toggleNavDrawer={props.toggleNavDrawer}
+              state={props.app_state}
+              setState={props.setAppState}
+            />
             <ListItem className={classes.projectInfo}>
               <img
                 src={props.returnElasState()}
@@ -270,161 +262,20 @@ const NavigationDrawer = (props) => {
                 </div>
               </Fade>
             </ListItem>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="Analytics">
-              <ListItem
-                button
-                selected={props.nav_state === "analytics"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.handleNavState("analytics");
-                }}
-              >
-                <ListItemIcon
-                  className={
-                    props.nav_state === "analytics"
-                      ? clsx(classes.selectedIcon, "navDrawerSelected")
-                      : classes.icon
-                  }
-                >
-                  <Assessment />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Analytics"
-                  primaryTypographyProps={{
-                    className:
-                      props.nav_state === "analytics"
-                        ? classes.selectedText
-                        : null,
-                  }}
+            {drawerItemsProjectPage.map((element, index) => {
+              return (
+                <StyledDrawerItem
+                  key={index}
+                  value={element.value}
+                  label={element.label}
+                  mobileScreen={props.mobileScreen}
+                  onNavDrawer={props.onNavDrawer}
+                  toggleNavDrawer={props.toggleNavDrawer}
+                  state={props.nav_state}
+                  setState={props.handleNavState}
                 />
-              </ListItem>
-            </Tooltip>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="Review">
-              <ListItem
-                button
-                selected={props.nav_state === "review"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.handleNavState("review");
-                }}
-              >
-                <ListItemIcon
-                  className={
-                    props.nav_state === "review"
-                      ? clsx(classes.selectedIcon, "navDrawerSelected")
-                      : classes.icon
-                  }
-                >
-                  <Assignment />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Review"
-                  primaryTypographyProps={{
-                    className:
-                      props.nav_state === "review"
-                        ? classes.selectedText
-                        : null,
-                  }}
-                />
-              </ListItem>
-            </Tooltip>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="History">
-              <ListItem
-                button
-                selected={props.nav_state === "history"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.handleNavState("history");
-                }}
-              >
-                <ListItemIcon
-                  className={
-                    props.nav_state === "history"
-                      ? clsx(classes.selectedIcon, "navDrawerSelected")
-                      : classes.icon
-                  }
-                >
-                  <History />
-                </ListItemIcon>
-                <ListItemText
-                  primary="History"
-                  primaryTypographyProps={{
-                    className:
-                      props.nav_state === "history"
-                        ? classes.selectedText
-                        : null,
-                  }}
-                />
-              </ListItem>
-            </Tooltip>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="Export">
-              <ListItem
-                button
-                selected={props.nav_state === "export"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.handleNavState("export");
-                }}
-              >
-                <ListItemIcon
-                  className={
-                    props.nav_state === "export"
-                      ? clsx(classes.selectedIcon, "navDrawerSelected")
-                      : classes.icon
-                  }
-                >
-                  <GetApp />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Export"
-                  primaryTypographyProps={{
-                    className:
-                      props.nav_state === "export"
-                        ? classes.selectedText
-                        : null,
-                  }}
-                />
-              </ListItem>
-            </Tooltip>
-            <Tooltip disableHoverListener={props.onNavDrawer} title="Details">
-              <ListItem
-                button
-                selected={props.nav_state === "details"}
-                onClick={() => {
-                  if (props.mobileScreen) {
-                    props.toggleNavDrawer();
-                  }
-                  props.handleNavState("details");
-                }}
-              >
-                <ListItemIcon
-                  className={
-                    props.nav_state === "details"
-                      ? clsx(classes.selectedIcon, "navDrawerSelected")
-                      : classes.icon
-                  }
-                >
-                  <Edit />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Details"
-                  primaryTypographyProps={{
-                    className:
-                      props.nav_state === "details"
-                        ? classes.selectedText
-                        : null,
-                  }}
-                />
-              </ListItem>
-            </Tooltip>
+              );
+            })}
           </div>
         </Fade>
       )}
@@ -434,9 +285,7 @@ const NavigationDrawer = (props) => {
         <Divider />
         {donateURL !== undefined && (
           <Tooltip disableHoverListener={props.onNavDrawer} title="Donate">
-            <ListItem
-              button
-              key="menu-button-donate"
+            <ListItemButton
               component={"a"}
               color="inherit"
               href={donateURL}
@@ -446,13 +295,11 @@ const NavigationDrawer = (props) => {
                 <Payment />
               </ListItemIcon>
               <ListItemText primary="Donate" />
-            </ListItem>
+            </ListItemButton>
           </Tooltip>
         )}
         <Tooltip disableHoverListener={props.onNavDrawer} title="Settings">
-          <ListItem
-            button
-            key="menu-button-settings"
+          <ListItemButton
             onClick={() => {
               if (props.mobileScreen) {
                 props.toggleNavDrawer();
@@ -464,12 +311,10 @@ const NavigationDrawer = (props) => {
               <Settings />
             </ListItemIcon>
             <ListItemText primary="Settings" />
-          </ListItem>
+          </ListItemButton>
         </Tooltip>
         <Tooltip disableHoverListener={props.onNavDrawer} title="Help">
-          <ListItem
-            button
-            key="menu-button-help"
+          <ListItemButton
             onClick={() => {
               if (props.mobileScreen) {
                 props.toggleNavDrawer();
@@ -481,7 +326,7 @@ const NavigationDrawer = (props) => {
               <Help />
             </ListItemIcon>
             <ListItemText primary="Help" />
-          </ListItem>
+          </ListItemButton>
         </Tooltip>
       </div>
     </List>
@@ -528,7 +373,7 @@ const NavigationDrawer = (props) => {
                 alt="ASReview LAB Dashboard"
                 onClick={() => {
                   props.toggleNavDrawer();
-                  props.setAppState("projects");
+                  props.setAppState("dashboard");
                 }}
               />
             </ButtonBase>
