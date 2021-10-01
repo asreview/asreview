@@ -4,11 +4,8 @@ Overview
 ASReview has support for extensions, which are a nice way to extend the
 functionality of the :doc:`ASReview LAB <../lab/overview_lab>` software or the
 :doc:`command line interface <../API/cli>`. There are :ref:`officially
-supported extensions<extensions-official>` and :ref:`community'<extensions-community>`
-contributions. There is extensive documentation on how to add new :ref:`models
-<extensions-dev-model>` (i.e., classifiers, query strategies, balance
-strategies, or feature extraction techniques) or completely new
-:ref:`subcommands <extensions-dev-subcommand>`.
+supported extensions<extensions-official>` and :ref:`community<extensions-community>`
+contributions.
 
 
 .. _extensions-official:
@@ -20,33 +17,57 @@ Offically Supported Extensions
 The following extensions are officially supported and were developed as part
 of the core project:
 
-- :doc:`extension_covid19`: Make literature on COVID-19 available in ASReview.
-- :doc:`extension_visualization`: Plotting functionality for state files 
-  produced by ASReview.
-- :doc:`extension_wordcloud`: Create a visual impression of the contents of 
-  datasets via a wordcloud.
-- `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__: 
-  Tool to give some basic properties of a dataset, such as number of papers, 
-  number of inclusions. 
-- `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: 
-  This extension adds two feature extractors that extract vocabulary and 
-  vector matrices during simulation phases. Might one day be integrated to the 
-  core.
-- `ASReview-hyperopt <https://github.com/asreview/asreview-hyperopt>`__: 
-  Optimize the hyperparameters of the models in ASReview.
+
+Model extensions
+~~~~~~~~~~~~~~~~
+
+* Feature Extraction
+    - `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: 
+      This extension adds two feature extractors that extract vocabulary and 
+      vector matrices during simulation phases. Might one day be integrated to the 
+      core.
+
+Subcommand extensions
+~~~~~~~~~~~~~~~~~~~~~
+
+* Visualisation
+    - :doc:`extension_visualization`: Plotting functionality for state files 
+      produced by ASReview.
+
+* Wordcloud
+    - :doc:`extension_wordcloud`: Creates a visual impression of the contents of 
+      datasets via a wordcloud.
+
+* Statistics
+    - `ASReview-statistics <https://github.com/asreview/asreview-statistics>`__: 
+      Tool to give some basic properties of a dataset, such as number of papers, 
+      number of inclusions.
+
+
+* Hyperparameter Optimization 
+    - `ASReview-hyperopt <https://github.com/asreview/asreview-hyperopt>`__: Optimize the
+      hyperparameters of the models in ASReview.
+
+
+Dataset extensions 
+~~~~~~~~~~~~~~~~~~
+
+* COVID-19
+    - :doc:`extension_covid19`: Makes the literature on COVID-19
 
 
 
 .. _extensions-community:
 
-Community-maintained extensions
+Community-Maintained Extensions
 -------------------------------
 
 ASReview has support for community-maintained extensions, that enable you to 
 seemlessly integrate your code with the ASReview framework. These extensions 
-can extend the software with new subcommands, models, and datasets.
+can extend the software with new models, subcommands, and datasets.
 
 The following extensions are developed and maintained by the ASReview community:
+
 
 * ASReview CNN classifier 
     - This ASReview extension adds a convolutional neural network (CNN) model 
@@ -54,7 +75,7 @@ The following extensions are developed and maintained by the ASReview community:
     - `Github <https://github.com/JTeijema/asreview-plugin-model-cnn-17-layer>`__
 
 * ASReview Model Switcher 
-    - This extention adds a model that switches between two models during 
+    - This extension adds a model that switches between two models during 
       runtime. It can be useful for when later stages of data classification 
       require different models.
     - `Github <https://github.com/JTeijema/asreview-plugin-model-switcher>`__
@@ -76,4 +97,31 @@ The following extensions are developed and maintained by the ASReview community:
 
 If an extension is not on this list, or you made one and you would like it to 
 be added to this list, please initiate an issue on `Github
-<https://github.com/asreview/asreview/issues>`__.
+<https://github.com/asreview/asreview/issues/new/choose>`__.
+
+
+Installation
+------------
+
+If an extension is uploaded to PyPI, it can be installed via command line. In
+this example, the `asreview-visualization
+<https://github.com/asreview/ASReview-visualization>`__ extension is used. The
+extension extends ASReview with functionality for creating plots from the
+ASReview file.
+
+Install the extension with:
+
+.. code:: bash
+
+    pip install asreview-visualization
+
+If the extension is published on Github, installing directly from the repo can
+be done with:
+
+.. code:: bash
+
+    pip install git@github.com:{USER_NAME}/{REPO_NAME}.github
+
+See :ref:`develop-extensions` for information about developing your own extension. 
+
+
