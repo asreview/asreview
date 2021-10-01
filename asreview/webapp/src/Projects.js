@@ -192,7 +192,7 @@ const Projects = (props) => {
         })}
         aria-label="dashboard"
       >
-        <Fade in={props.app_state === "projects"}>
+        <Fade in={props.app_state === "dashboard"}>
           <div>
             <Container maxWidth="md" className={classes.root}>
               <DashboardStatsPaper />
@@ -243,7 +243,6 @@ const Projects = (props) => {
 
             {open.importProject && (
               <ProjectImportDialog
-                handleAppState={props.handleAppState}
                 open={open.importProject}
                 onClose={handleCloseProjectImport}
               />

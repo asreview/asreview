@@ -47,7 +47,7 @@ const ReviewZoneComplete = (props) => {
         variant="contained"
         color="primary"
         className={classes.button}
-        onClick={() => props.handleAppState("projects")}
+        onClick={() => props.handleAppState("dashboard")}
       >
         Back to projects
       </Button>

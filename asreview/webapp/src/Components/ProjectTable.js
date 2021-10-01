@@ -98,7 +98,7 @@ const ProjectTable = (props) => {
     {
       enabled: props.project_id !== null && !props.onCreateProject,
       onError: () => {
-        props.handleAppState("projects");
+        props.handleAppState("dashboard");
       },
       onSuccess: () => {
         props.handleAppState("project-page");

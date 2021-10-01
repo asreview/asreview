@@ -83,7 +83,7 @@ const App = (props) => {
             />
           )}
 
-          {props.app_state === "projects" && (
+          {props.app_state === "dashboard" && (
             <Projects
               handleAppState={props.setAppState}
               mobileScreen={mobileScreen}
@@ -114,13 +114,9 @@ const App = (props) => {
             />
           )}
 
-          {props.app_state === "review-init" && (
-            <PreReviewZone handleAppState={props.setAppState} />
-          )}
+          {props.app_state === "review-init" && <PreReviewZone />}
 
-          {props.app_state === "train-first-model" && (
-            <StartReview handleAppState={props.setAppState} />
-          )}
+          {props.app_state === "train-first-model" && <StartReview />}
 
           {props.app_state === "review-complete" && (
             <ReviewZoneComplete

@@ -60,7 +60,7 @@ export default function ProjectSettings(props) {
     if (deleteInput === props.id) {
       ProjectAPI.delete(props.id)
         .then((result) => {
-          props.handleAppState("projects");
+          props.handleAppState("dashboard");
         })
         .catch((error) => {
           console.log(error);
