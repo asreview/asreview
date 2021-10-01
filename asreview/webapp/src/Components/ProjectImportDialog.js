@@ -12,26 +12,22 @@ import {
   Link,
   Typography,
 } from "@mui/material";
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../globals.js";
 
-const PREFIX = 'ProjectImportDialog';
+const PREFIX = "ProjectImportDialog";
 
 const classes = {
   root: `${PREFIX}-root`,
   dialog: `${PREFIX}-dialog`,
   input: `${PREFIX}-input`,
   uploadButton: `${PREFIX}-uploadButton`,
-  link: `${PREFIX}-link`
+  link: `${PREFIX}-link`,
 };
 
-const StyledDialog = styled(Dialog)((
-  {
-    theme
-  }
-) => ({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.root}`]: {
     width: "100%",
     marginTop: "16px",
@@ -51,12 +47,10 @@ const StyledDialog = styled(Dialog)((
 
   [`& .${classes.link}`]: {
     paddingLeft: "3px",
-  }
+  },
 }));
 
 const ProjectImportDialog = (props) => {
-
-
   const descriptionElementRef = useRef(null);
   const [file, setFile] = useState(null);
 
