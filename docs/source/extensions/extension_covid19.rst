@@ -70,7 +70,7 @@ screen preprints specifically.
 Installation and usage
 ======================
 
-The COVID-19 extension requires ASReview 0.8 or higher. Install ASReview
+The COVID-19 extension requires ASReview 0.9.4 or higher. Install ASReview
 by following the instructions in :doc:`../intro/installation`.
 
 Install the extension with pip:
