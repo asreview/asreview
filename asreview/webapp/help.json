@@ -5,24 +5,24 @@
       "title": "Frequently asked questions",
       "items": [
         {
-          "title": "Has the use of ASReview in systematic reviews been validated?",
-          "url": "https://github.com/asreview/asreview/discussions/556"
+          "title": "What is the idea behind active learning?",
+          "url": "https://asreview.nl/blog/asreview-class-101/"
+        },        
+        {
+          "title": "Has the use of ASReview been validated?",
+          "url": "https://asreview.nl/blog/project/intro_paper_asreview/"
         },
         {
-          "title": "What are the best ways to stop screening?",
-          "url": "https://github.com/asreview/asreview/discussions/557"
-        },
-        {
-          "title": "Can you do double screening in ASReview?",
-          "url": "https://github.com/asreview/asreview/discussions/550"
+          "title": "How to prepare your data?",
+          "url": "https://asreview.readthedocs.io/en/latest/intro/datasets.html"
         },
         {
           "title": "How to deal with records that do not have abstracts?",
-          "url": "https://github.com/asreview/asreview/discussions/553"
+          "url": "https://asreview.nl/blog/the-importance-of-abstracts/"
         },
         {
-          "title": "How can I add more publications while I have already started screening in ASReview?",
-          "url": "https://github.com/asreview/asreview/discussions/562"
+          "title": "How to contribute to the Open Source Project?",
+          "url": "https://github.com/asreview/asreview/blob/master/CONTRIBUTING.md"
         }
       ]
     }
