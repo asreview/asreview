@@ -1,13 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
-import clsx from "clsx";
 import {
   ButtonBase,
-  Box,
   Divider,
   Drawer,
   Fade,
-  Hidden,
   IconButton,
   List,
   ListItem,
@@ -32,8 +29,6 @@ const PREFIX = "NavigationDrawer";
 
 const classes = {
   drawer: `${PREFIX}-drawer`,
-  drawerOpen: `${PREFIX}-drawerOpen`,
-  drawerClose: `${PREFIX}-drawerClose`,
   drawerPaper: `${PREFIX}-drawerPaper`,
   drawerContainer: `${PREFIX}-drawerContainer`,
   menuIcon: `${PREFIX}-menuIcon`,
@@ -49,31 +44,11 @@ const classes = {
   stateElas: `${PREFIX}-stateElas`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`&.${classes.drawer}`]: {
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: "nowrap",
-  },
-
-  [`& .${classes.drawerOpen}`]: {
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-
-  [`& .${classes.drawerClose}`]: {
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up("sm")]: {
-      width: theme.spacing(9) + 1,
-    },
   },
 
   [`& .${classes.drawerPaper}`]: {
@@ -158,7 +133,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-function mapDispatchToProps(dispatch) {
+const mapDispatchToProps = (dispatch) => {
   return {
     setAppState: (app_state) => {
       dispatch(setAppState(app_state));
@@ -167,7 +142,45 @@ function mapDispatchToProps(dispatch) {
       dispatch(toggleHelpDialog());
     },
   };
-}
+};
+
+const openedMixin = (theme) => ({
+  width: drawerWidth,
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: "hidden",
+});
+
+const closedMixin = (theme) => ({
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: "hidden",
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up("sm")]: {
+    width: `calc(${theme.spacing(9)} + 1px)`,
+  },
+});
+
+const NavigationRail = styled(Drawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  ...(open && {
+    ...openedMixin(theme),
+    "& .MuiDrawer-paper": openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
+}));
 
 const NavigationDrawer = (props) => {
   const { window } = props;
@@ -336,74 +349,66 @@ const NavigationDrawer = (props) => {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <StyledBox
+    <Root
       component="nav"
       className={classes.drawer}
       aria-label="navigation drawer"
     >
       {/* Temporary drawer on mobile screen */}
-      <Hidden mdUp implementation="css">
-        <Drawer
-          container={container}
-          variant="temporary"
-          anchor="left"
-          open={props.mobileScreen && props.onNavDrawer}
-          onClose={props.toggleNavDrawer}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-        >
-          <Toolbar>
-            <IconButton
-              className={classes.menuIcon}
-              edge="start"
-              color="inherit"
-              onClick={props.toggleNavDrawer}
-              size="large"
-            >
-              <Menu />
-            </IconButton>
-            <ButtonBase disableRipple>
-              <img
-                className={classes.logo}
-                src={wordmarkState()}
-                alt="ASReview LAB Dashboard"
-                onClick={() => {
-                  props.toggleNavDrawer();
-                  props.setAppState("dashboard");
-                }}
-              />
-            </ButtonBase>
-          </Toolbar>
-          {drawer}
-        </Drawer>
-      </Hidden>
+      <Drawer
+        container={container}
+        variant="temporary"
+        anchor="left"
+        open={props.mobileScreen && props.onNavDrawer}
+        onClose={props.toggleNavDrawer}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            className={classes.menuIcon}
+            edge="start"
+            color="inherit"
+            onClick={props.toggleNavDrawer}
+            size="large"
+          >
+            <Menu />
+          </IconButton>
+          <ButtonBase disableRipple>
+            <img
+              className={classes.logo}
+              src={wordmarkState()}
+              alt="ASReview LAB Dashboard"
+              onClick={() => {
+                props.toggleNavDrawer();
+                props.setAppState("dashboard");
+              }}
+            />
+          </ButtonBase>
+        </Toolbar>
+        {drawer}
+      </Drawer>
 
       {/* Permanent drawer on desktop screen */}
-      <Hidden mdDown implementation="css">
-        <Drawer
-          className={clsx({
-            [classes.drawerOpen]: props.onNavDrawer,
-            [classes.drawerClose]: !props.onNavDrawer,
-          })}
-          variant="permanent"
-          anchor="left"
-          classes={{
-            paper: clsx({
-              [classes.drawerOpen]: props.onNavDrawer,
-              [classes.drawerClose]: !props.onNavDrawer,
-            }),
-          }}
-          open
-        >
-          <Toolbar />
-          {drawer}
-        </Drawer>
-      </Hidden>
-    </StyledBox>
+      <NavigationRail
+        variant="permanent"
+        open={props.onNavDrawer}
+        sx={{
+          display: { xs: "none", md: "block" },
+        }}
+      >
+        <Toolbar />
+        {drawer}
+      </NavigationRail>
+    </Root>
   );
 };
 
