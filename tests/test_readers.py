@@ -4,6 +4,15 @@ from pytest import mark
 import numpy as np
 
 from asreview import ASReviewData
+# ToDo:
+# 0. Make labeled RIS file, add to repo demo_data!!
+# 0,5. Make different col fills for RIS files (no labels (labels == None), partly labeled, incorrectly labeled (TypeError), uppercase/lowercase, partly notes (no notes, multiple notes in one column, one note in one column, multiple notes in all records), partly keywords)
+# 1. Use labeled RIS file as input for int/rep test
+# 2. Verify that int/rep of the read in file is indeed 0/1
+# 2,5. debug if necessary in the reader
+# 3. Move to testing RIS import/export circle
+# 4. Use 1 labeled RIS file + 1 unlabeled RIS file for import/export circle
+# 5.
 
 
 @mark.parametrize("test_file,n_lines,ignore_col", [
@@ -42,16 +51,16 @@ def test_reader(test_file, n_lines, ignore_col):
         values = as_data.get(col)
         assert len(values) == n_lines
 
-@mark.parametrize("test_file", [
-    ("_baseline.ris"),
-    ("baseline_labeled.ris")
-])
+
+@mark.parametrize("test_file", [("_baseline.ris"), ("baseline_labeled.ris")])
+# Test input file with labels to have int rep of 1,0 in labels
 def test_internal_representation(test_file):
     fp = Path("tests", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)
-
+    print(as_data.column_spec)
+    print(as_data.included)
     # Check the internal representation labels
-    assert list(as_data.labels) == [1,0]
+    assert list(as_data.included) == ["1.0", "0", "-1.0"]
 
 
 def test_nan_values_ris():
@@ -122,26 +131,28 @@ def test_csv_write_data(tmpdir):
     # Check if export file includes labels [1,0]
     assert list(asr_data.labels) == list(asr_data_diff.labels)
 
+
 def test_ris_write_data(tmpdir):
-     fp_in = Path("tests", "demo_data", "_baseline.ris")
-     asr_data = ASReviewData.from_file(fp_in)
+    #fp_in = Path("https://raw.githubusercontent.com/asreview/citation-file-formatting/main/Datasets/RIS/_baseline.ris")
+    fp_in = Path("tests", "demo_data", "_baseline.ris")
+    asr_data = ASReviewData.from_file(fp_in)
 
-     # tmp_ris_fp_out = Path(tmpdir, "tmp_generic_labels.ris")
-     tmp_ris_fp_out = Path("tmp_generic_labels.ris")
-     asr_data.to_ris(tmp_ris_fp_out)
+    # tmp_ris_fp_out = Path(tmpdir, "tmp_generic_labels.ris")
+    tmp_ris_fp_out = Path("tmp_generic_labels.ris")
+    asr_data.to_ris(tmp_ris_fp_out)
 
-     asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
+    asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
 
-     # Check if input file matches the export file
-     assert list(asr_data.title) == list(asr_data_diff.title)
-     assert list(asr_data.abstract) == list(asr_data_diff.abstract)
-     assert list(asr_data.authors) == list(asr_data_diff.authors)
-     assert list(asr_data.keywords) == list(asr_data_diff.keywords)
-     #assert list(asr_data.notes) == list(asr_data_diff.notes)
-     assert list(asr_data.doi) == list(asr_data_diff.doi)
+    # Check if input file matches the export file
+    assert list(asr_data.title) == list(asr_data_diff.title)
+    assert list(asr_data.abstract) == list(asr_data_diff.abstract)
+    assert list(asr_data.authors) == list(asr_data_diff.authors)
+    assert list(asr_data.keywords) == list(asr_data_diff.keywords)
+    #assert list(asr_data.notes) == list(asr_data_diff.notes)
+    assert list(asr_data.doi) == list(asr_data_diff.doi)
 
-     # Check if export file includes labels [1,0]
-     # assert list(asr_data_diff.labels) == [1,0]
+    # Check if export file includes labels [1,0]
+    # assert list(asr_data_diff.labels) == [1,0]
 
-     # Break for debugging
-     # assert False
+    # Break for debugging
+    # assert False
