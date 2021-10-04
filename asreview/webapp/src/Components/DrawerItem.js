@@ -16,7 +16,7 @@ import {
   History,
 } from "@mui/icons-material";
 
-const PREFIX = "StyledDrawerItem";
+const PREFIX = "DrawerItem";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -47,7 +47,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledDrawerItem = (props) => {
+const DrawerItem = (props) => {
   const returnSelectedState = () => {
     return props.state === props.value;
   };
@@ -108,4 +108,4 @@ const StyledDrawerItem = (props) => {
   );
 };
 
-export default StyledDrawerItem;
+export default DrawerItem;

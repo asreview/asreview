@@ -2,12 +2,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { connect } from "react-redux";
 import "typeface-roboto";
-import {
-  CssBaseline,
-  createTheme,
-  useMediaQuery,
-  adaptV4Theme,
-} from "@mui/material";
+import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
@@ -62,7 +57,7 @@ const App = (props) => {
   const [undoEnabled, toggleUndoEnabled] = useUndoEnabled();
   const [keyPressEnabled, toggleKeyPressEnabled] = useKeyPressEnabled();
 
-  const muiTheme = createTheme(adaptV4Theme(theme));
+  const muiTheme = createTheme(theme);
   const mobileScreen = useMediaQuery(muiTheme.breakpoints.down("md"), {
     noSsr: true,
   });

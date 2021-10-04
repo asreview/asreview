@@ -40,7 +40,7 @@ const classes = {
   backdropZ: `${PREFIX}-backdropZ`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     paddingTop: "24px",
   },
@@ -178,7 +178,7 @@ const Projects = (props) => {
   };
 
   return (
-    <StyledBox aria-label="nav-main">
+    <Root aria-label="nav-main">
       <NavigationDrawer
         mobileScreen={props.mobileScreen}
         onNavDrawer={props.onNavDrawer}
@@ -283,7 +283,7 @@ const Projects = (props) => {
           </div>
         </Fade>
       </Box>
-    </StyledBox>
+    </Root>
   );
 };
 

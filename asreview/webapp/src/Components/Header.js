@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppBar, ButtonBase, Box, Toolbar, IconButton } from "@mui/material";
+import { AppBar, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
@@ -15,9 +15,11 @@ const classes = {
   logo: `${PREFIX}-logo`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.appBar}`]: {
-    zIndex: theme.zIndex.drawer + 1,
+    [theme.breakpoints.up("md")]: {
+      zIndex: theme.zIndex.drawer + 1,
+    },
   },
 
   [`& .${classes.menuButton}`]: {
@@ -47,7 +49,7 @@ const Header = (props) => {
   };
 
   return (
-    <StyledBox aria-label="appbar-toolbar">
+    <Root aria-label="appbar-toolbar">
       <AppBar color="inherit" position="fixed" className={classes.appBar}>
         <Toolbar>
           <IconButton
@@ -72,7 +74,7 @@ const Header = (props) => {
         </Toolbar>
       </AppBar>
       <Toolbar aria-label="placeholder toolbar" />
-    </StyledBox>
+    </Root>
   );
 };
 
