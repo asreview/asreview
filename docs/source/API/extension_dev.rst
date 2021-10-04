@@ -15,9 +15,9 @@ The extensibility of the framework is provided by the entrypoints of
 setuptools. You will need to create a package and install it (for example with
 pip).
 
-To add the extension to the documentation on :ref:`extensions-community`,
-please initiate an issue on `Github
-<https://github.com/asreview/asreview/issues>`__.
+Did you develop a useful extension to ASReview and want to list it on
+:ref:`extensions-community`? Create a Pull Request or open an issue on
+`GitHub <https://github.com/asreview/asreview/issues>`__.
 
 For more information on the ASReview API for creating an extension, a technical
 reference for development is found under the :ref:`API reference<api_ref>`. This
