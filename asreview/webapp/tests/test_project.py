@@ -21,7 +21,7 @@ from asreview.webapp.tests.utils import retrieve_project_url_github
 
 
 # Retrieve urls to .asreview files exported from previous versions
-project_urls = retrieve_project_url_github(major=1)
+project_urls = retrieve_project_url_github()
 
 
 @pytest.mark.parametrize("url", project_urls)
@@ -75,14 +75,14 @@ def test_project_file(tmp_path, client, url):
     assert isinstance(json_data_progress, dict)
 
     # Test get progress history on the article
-    response_progress_history = client.get(f"{api_url}/progress_history")
-    json_data_progress_history = response_progress_history.get_json()
-    assert isinstance(json_data_progress_history, list)
+    response_progress_density = client.get(f"{api_url}/progress_density")
+    json_data_progress_density = response_progress_density.get_json()
+    assert isinstance(json_data_progress_density, list)
 
     # Test get cumulative number of inclusions by ASReview/at random
-    response_progress_efficiency = client.get(f"{api_url}/progress_efficiency")
-    json_data_progress_efficiency = response_progress_efficiency.get_json()
-    assert isinstance(json_data_progress_efficiency, list)
+    response_progress_recall = client.get(f"{api_url}/progress_recall")
+    json_data_progress_recall = response_progress_recall.get_json()
+    assert isinstance(json_data_progress_recall, list)
 
     # Test retrieve documents in order of review
     response_get_document = client.get(f"{api_url}/get_document")
