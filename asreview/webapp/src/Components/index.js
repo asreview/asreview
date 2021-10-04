@@ -10,3 +10,4 @@ export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";
 export { default as ProjectTable } from "./ProjectTable";
 export { default as QuickTourDialog } from "./QuickTourDialog";
+export { default as SettingsDialog } from "./SettingsDialog";
