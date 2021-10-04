@@ -204,6 +204,21 @@ class BaseState(ABC):
         after the original labeling action."""
         raise NotImplementedError
 
+    @abstractmethod
+    def get_pool_labeled(self):
+        """Return the labeled and unlabeled records.
+
+        Returns
+        -------
+        tuple (pd.DataFrame, pd.DataFrame):
+            Returns a tuple (pool, labeled). Pool is a dataframe
+            containing the unlabeled record_ids, ordered by the last predicted
+            probabilities of the model. Labeled is a dataframe containing
+            the record_ids and labels of the labeled records, in the order
+            that they were labeled.
+        """
+        raise NotImplementedError
+
     def is_empty(self):
         """Check if state has no results.
 

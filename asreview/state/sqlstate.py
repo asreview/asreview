@@ -46,9 +46,9 @@ REQUIRED_TABLES = [
 ]
 
 RESULTS_TABLE_COLUMNS = [
-    "record_ids", "labels", "classifiers", "query_strategies",
-    "balance_strategies", "feature_extraction", "training_sets",
-    "labeling_times", "notes"
+    "record_id", "label", "classifier", "query_strategy",
+    "balance_strategy", "feature_extraction", "training_set",
+    "labeling_time", "notes"
 ]
 SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
 
@@ -170,28 +170,28 @@ class SqlStateV1(BaseState):
 
             # Create the results table.
             cur.execute("""CREATE TABLE results
-                                (record_ids INTEGER,
-                                labels INTEGER,
-                                classifiers TEXT,
-                                query_strategies TEXT,
-                                balance_strategies TEXT,
+                                (record_id INTEGER,
+                                label INTEGER,
+                                classifier TEXT,
+                                query_strategy TEXT,
+                                balance_strategy TEXT,
                                 feature_extraction TEXT,
-                                training_sets INTEGER,
-                                labeling_times INTEGER,
+                                training_set INTEGER,
+                                labeling_time INTEGER,
                                 notes TEXT)""")
 
-            # Create the record_ids table.
+            # Create the record table.
             cur.execute("""CREATE TABLE record_table
-                                (record_ids INT)""")
+                                (record_id INT)""")
 
             # Create the last_probabilities table.
             cur.execute("""CREATE TABLE last_probabilities
                                 (proba REAL)""")
 
             cur.execute('''CREATE TABLE decision_changes
-                                (record_ids INTEGER,
-                                new_labels INTEGER,
-                                times INTEGER)''')
+                                (record_id INTEGER,
+                                new_label INTEGER,
+                                time INTEGER)''')
 
             con.commit()
             con.close()
@@ -388,7 +388,7 @@ class SqlStateV1(BaseState):
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute(
-            "SELECT COUNT (*) FROM results WHERE query_strategies='prior'")
+            "SELECT COUNT (*) FROM results WHERE query_strategy='prior'")
         n = cur.fetchone()
         con.close()
         n = n[0]
@@ -504,7 +504,7 @@ class SqlStateV1(BaseState):
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute(
-            "UPDATE results SET notes = ? WHERE record_ids = ?",
+            "UPDATE results SET notes = ? WHERE record_id = ?",
             (note, record_id)
         )
         con.commit()
@@ -560,7 +560,7 @@ class SqlStateV1(BaseState):
 
     def change_decision(self, record_id):
         """Change the label of a record from 0 to 1 or vice versa."""
-        current_label = self.get_data_by_record_id(record_id)['labels'][0]
+        current_label = self.get_data_by_record_id(record_id)['label'][0]
 
         # New label should be of type int, not np.int, to insert into sql.
         new_label = int(1 - current_label)
@@ -571,7 +571,7 @@ class SqlStateV1(BaseState):
 
         # Change the label.
         cur.execute(
-            "UPDATE results SET labels = ? WHERE record_ids = ?",
+            "UPDATE results SET label = ? WHERE record_id = ?",
             (new_label, record_id)
         )
 
@@ -598,7 +598,7 @@ class SqlStateV1(BaseState):
         Returns
         -------
         pd.DataFrame:
-            Dataframe with column 'record_ids' containing the record ids.
+            Dataframe with column 'record_id' containing the record ids.
         """
         con = self._connect_to_sql()
         record_table = pd.read_sql_query('SELECT * FROM record_table', con)
@@ -606,9 +606,37 @@ class SqlStateV1(BaseState):
         return record_table
 
     def get_pool_labeled(self):
-        """Return the unlabeled, and labeled record ids, in order."""
-        pass
-        # TODO(State) (See webapp/project, convert to SQL)
+        """Return the labeled and unlabeled records.
+
+        Returns
+        -------
+        tuple (pd.DataFrame, pd.DataFrame):
+            Returns a tuple (pool, labeled). Pool is a dataframe
+            containing the unlabeled record_ids, ordered by the last predicted
+            probabilities of the model. Labeled is a dataframe containing
+            the record_ids and labels of the labeled records, in the order
+            that they were labeled.
+        """
+        con = self._connect_to_sql()
+        query = """SELECT record_table.record_id, results.label,
+                results.rowid AS label_order, last_probabilities.proba
+                FROM record_table
+                LEFT JOIN results
+                ON results.record_id=record_table.record_id
+                LEFT JOIN last_probabilities
+                ON record_table.rowid=last_probabilities.rowid
+                """
+        df = pd.read_sql_query(query, con)
+        con.close()
+        labeled = df.loc[~df['label'].isna()] \
+            .sort_values('label_order') \
+            .loc[:, ['record_id', 'label']] \
+            .astype(int)
+        pool = df.loc[df['label'].isna()] \
+            .sort_values('proba', ascending=False) \
+            .loc[:, ['record_id']] \
+            .astype(int)
+        return pool, labeled
 
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
@@ -648,7 +676,7 @@ class SqlStateV1(BaseState):
 
         if query == 0:
             sql_query = f"SELECT {col_query_string} FROM results WHERE " \
-                        f"query_strategies='prior'"
+                        f"query_strategy='prior'"
         else:
             rowid = query + self.n_priors
             sql_query = f"SELECT {col_query_string} FROM results WHERE " \
@@ -679,7 +707,7 @@ class SqlStateV1(BaseState):
 
         con = self._connect_to_sql()
         data = pd.read_sql_query(
-            f'SELECT {query_string} FROM results WHERE record_ids={record_id}',
+            f'SELECT {query_string} FROM results WHERE record_id={record_id}',
             con)
         con.close()
         return data
@@ -715,7 +743,7 @@ class SqlStateV1(BaseState):
         pd.Series:
             The record_id's in the order that they were labeled.
         """
-        return self.get_dataset('record_ids')['record_ids']
+        return self.get_dataset('record_id')['record_id']
 
     def get_priors(self):
         """Get the record ids of the priors.
@@ -735,7 +763,7 @@ class SqlStateV1(BaseState):
         pd.Series:
             Series containing the labels at each labelling moment.
         """
-        return self.get_dataset('labels')['labels']
+        return self.get_dataset('label')['label']
 
     def get_classifiers(self):
         """Get the classifiers from the state file.
@@ -745,7 +773,7 @@ class SqlStateV1(BaseState):
         pd.Series:
             Series containing the classifier used at each labeling moment.
         """
-        return self.get_dataset('classifiers')['classifiers']
+        return self.get_dataset('classifier')['classifier']
 
     def get_query_strategies(self):
         """Get the query strategies from the state file.
@@ -756,7 +784,7 @@ class SqlStateV1(BaseState):
             Series containing the query strategy used to get the record to
             query at each labeling moment.
         """
-        return self.get_dataset('query_strategies')['query_strategies']
+        return self.get_dataset('query_strategy')['query_strategy']
 
     def get_balance_strategies(self):
         """Get the balance strategies from the state file.
@@ -767,7 +795,7 @@ class SqlStateV1(BaseState):
             Series containing the balance strategy used to get the training
             data at each labeling moment.
         """
-        return self.get_dataset('balance_strategies')['balance_strategies']
+        return self.get_dataset('balance_strategy')['balance_strategy']
 
     def get_feature_extraction(self):
         """Get the query strategies from the state file.
@@ -789,7 +817,7 @@ class SqlStateV1(BaseState):
             Series containing the training set on which the classifier was fit
             at each labeling moment.
         """
-        return self.get_dataset('training_sets')['training_sets']
+        return self.get_dataset('training_set')['training_set']
 
     def get_labeling_times(self, time_format='int'):
         """Get the time of labeling the state file.
@@ -806,7 +834,7 @@ class SqlStateV1(BaseState):
             If format='int' you get a UTC timestamp (integer number of
             microseconds), if it is 'datetime' you get datetime format.
         """
-        times = self.get_dataset('labeling_times')['labeling_times']
+        times = self.get_dataset('labeling_time')['labeling_time']
 
         # Convert time to datetime format.
         if time_format == 'datetime':

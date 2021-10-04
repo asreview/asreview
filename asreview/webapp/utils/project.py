@@ -518,15 +518,15 @@ def export_to_string(project_id, export_type="csv"):
 
     with open_state(project_path) as s:
         proba = s.get_last_probabilities()
-        labeled_data = s.get_dataset(['record_ids', 'labels'])
+        labeled_data = s.get_dataset(['record_id', 'label'])
         record_table = s.get_record_table()
 
     prob_df = pd.concat([record_table, proba], axis=1)
 
     ranking = pd. \
-        merge(prob_df, labeled_data, on='record_ids', how='left'). \
+        merge(prob_df, labeled_data, on='record_id', how='left'). \
         fillna(0.5). \
-        sort_values(['labels', 'proba'], ascending=False)['record_ids']
+        sort_values(['label', 'proba'], ascending=False)['record_id']
 
     labeled = labeled_data.values.tolist()
 

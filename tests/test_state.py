@@ -49,10 +49,11 @@ TEST_STATE_FP = Path('tests', 'asreview_files',
 TEST_WITH_TIMES_FP = Path('tests', 'asreview_files',
                           'test_state_example_with_times.asreview')
 TEST_LABELING_TIMES = [
-    '2021-08-20 11:14:30.093919', '2021-08-20 11:14:30.093919',
-    '2021-08-20 11:14:30.093919', '2021-08-20 11:14:30.093919',
-    '2021-08-20 11:14:51.307699', '2021-08-20 11:14:54.328311',
-    '2021-08-20 11:14:56.981117', '2021-08-20 11:14:59.810290'
+    '2021-09-30 17:54:07.569255', '2021-09-30 17:54:07.569255',
+    '2021-09-30 17:54:28.860270', '2021-09-30 17:54:28.860270',
+    '2021-09-30 17:54:28.860270', '2021-09-30 17:54:31.689389',
+    '2021-09-30 17:54:33.505257', '2021-09-30 17:54:35.842416',
+    '2021-09-30 17:54:38.245108'
 ]
 
 TEST_FIRST_PROBS = [0.7107394917661797, 0.7291694332065035, 0.732624685298732,
@@ -63,6 +64,9 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7127075014419986, 0.7085644453092131, 0.7067520535764322,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
+TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
+TEST_LABELED_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
+TEST_LABELED_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 
 
 def test_init_project_folder(tmpdir):
@@ -158,32 +162,32 @@ def test_create_new_state_file(tmpdir):
 
 def test_get_dataset():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.get_dataset(['query_strategies']),
+        assert isinstance(state.get_dataset(['query_strategy']),
                           pd.DataFrame)
         assert isinstance(state.get_dataset(), pd.DataFrame)
 
         # Try getting a specific column.
-        assert state.get_dataset(['record_ids'
-                                  ])['record_ids'].to_list() == TEST_RECORD_IDS
+        assert state.get_dataset(['record_id'
+                                  ])['record_id'].to_list() == TEST_RECORD_IDS
         assert state.get_dataset([
             'feature_extraction'
         ])['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
         # Try getting all columns and that picking the right column.
-        assert state.get_dataset()['balance_strategies'].to_list(
+        assert state.get_dataset()['balance_strategy'].to_list(
         ) == TEST_BALANCE_STRATEGIES
         # Try getting a specific column with column name as string, instead of
         # list containing column name.
         assert state.get_dataset(
-            'training_sets')['training_sets'].to_list() == TEST_TRAINING_SETS
+            'training_set')['training_set'].to_list() == TEST_TRAINING_SETS
 
 
 def test_get_data_by_query_number():
     with open_state(TEST_STATE_FP) as state:
         query = state.get_data_by_query_number(0)
         assert list(query.columns) == RESULTS_TABLE_COLUMNS
-        assert query['balance_strategies'].tolist(
+        assert query['balance_strategy'].tolist(
         ) == TEST_BALANCE_STRATEGIES[:TEST_N_PRIORS]
-        assert query['classifiers'].tolist(
+        assert query['classifier'].tolist(
         ) == TEST_CLASSIFIERS[:TEST_N_PRIORS]
 
         for query_num in [1, 3, 5]:
@@ -192,8 +196,8 @@ def test_get_data_by_query_number():
             assert isinstance(query, pd.DataFrame)
             assert query['feature_extraction'].to_list(
             )[0] == TEST_FEATURE_EXTRACTION[query_idx]
-            assert query['labels'].to_list()[0] == TEST_LABELS[query_idx]
-            assert query['record_ids'].to_list(
+            assert query['label'].to_list()[0] == TEST_LABELS[query_idx]
+            assert query['record_id'].to_list(
             )[0] == TEST_RECORD_IDS[query_idx]
 
         columns = RESULTS_TABLE_COLUMNS[2:5]
@@ -207,9 +211,9 @@ def test_get_data_by_record_id():
             record_id = TEST_RECORD_IDS[idx]
             query = state.get_data_by_record_id(record_id)
             assert isinstance(query, pd.DataFrame)
-            assert query['training_sets'].to_list(
+            assert query['training_set'].to_list(
             )[0] == TEST_TRAINING_SETS[idx]
-            assert query['record_ids'].to_list()[0] == TEST_RECORD_IDS[idx]
+            assert query['record_id'].to_list()[0] == TEST_RECORD_IDS[idx]
 
 
 def test_get_query_strategies():
@@ -265,8 +269,8 @@ def test_get_record_table():
     with open_state(TEST_STATE_FP) as state:
         record_table = state.get_record_table()
         assert isinstance(record_table, pd.DataFrame)
-        assert list(record_table.columns) == ['record_ids']
-        assert record_table['record_ids'].to_list() == TEST_RECORD_TABLE
+        assert list(record_table.columns) == ['record_id']
+        assert record_table['record_id'].to_list() == TEST_RECORD_TABLE
 
 
 def test_record_table(tmpdir):
@@ -279,7 +283,7 @@ def test_record_table(tmpdir):
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
-        assert state.get_record_table()['record_ids'].to_list() == RECORD_IDS
+        assert state.get_record_table()['record_id'].to_list() == RECORD_IDS
 
 
 def test_get_last_probabilities():
@@ -333,13 +337,13 @@ def test_add_labeling_data(tmpdir):
                                 TEST_NOTES[3:])
 
         data = state.get_dataset()
-        assert data['record_ids'].to_list() == TEST_RECORD_IDS
-        assert data['labels'].to_list() == TEST_LABELS
-        assert data['classifiers'].to_list() == TEST_CLASSIFIERS
-        assert data['query_strategies'].to_list() == TEST_QUERY_STRATEGIES
-        assert data['balance_strategies'].to_list() == TEST_BALANCE_STRATEGIES
+        assert data['record_id'].to_list() == TEST_RECORD_IDS
+        assert data['label'].to_list() == TEST_LABELS
+        assert data['classifier'].to_list() == TEST_CLASSIFIERS
+        assert data['query_strategy'].to_list() == TEST_QUERY_STRATEGIES
+        assert data['balance_strategy'].to_list() == TEST_BALANCE_STRATEGIES
         assert data['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
-        assert data['training_sets'].to_list() == TEST_TRAINING_SETS
+        assert data['training_set'].to_list() == TEST_TRAINING_SETS
         assert data['notes'].to_list() == TEST_NOTES
 
 
@@ -377,17 +381,31 @@ def test_change_decision(tmpdir):
         for i in range(3):
             state.change_decision(TEST_RECORD_IDS[i])
             new_label = \
-                state.get_data_by_record_id(TEST_RECORD_IDS[i])['labels'][0]
+                state.get_data_by_record_id(TEST_RECORD_IDS[i])['label'][0]
             assert new_label == 1 - TEST_LABELS[i]
 
         state.change_decision(TEST_RECORD_IDS[1])
         new_label = \
-            state.get_data_by_record_id(TEST_RECORD_IDS[1])['labels'][0]
+            state.get_data_by_record_id(TEST_RECORD_IDS[1])['label'][0]
         assert new_label == TEST_LABELS[1]
 
         change_table = state.get_decision_changes()
         changed_records = TEST_RECORD_IDS[:3] + [TEST_RECORD_IDS[1]]
         new_labels = [1 - x for x in TEST_LABELS[:3]] + [TEST_LABELS[1]]
 
-        assert change_table['record_ids'].to_list() == changed_records
-        assert change_table['new_labels'].to_list() == new_labels
+        assert change_table['record_id'].to_list() == changed_records
+        assert change_table['new_label'].to_list() == new_labels
+
+
+def test_get_pool_labeled():
+    with open_state(TEST_STATE_FP) as state:
+        pool, labeled = state.get_pool_labeled()
+
+    assert isinstance(pool, pd.DataFrame)
+    assert list(pool.columns) == ['record_id']
+    assert isinstance(labeled, pd.DataFrame)
+    assert list(labeled.columns) == ['record_id', 'label']
+
+    assert pool['record_id'].to_list()[:10] == TEST_POOL_START
+    assert labeled['record_id'].to_list() == TEST_LABELED_RECORD_IDS
+    assert labeled['label'].to_list() == TEST_LABELED_LABELS
