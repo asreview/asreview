@@ -618,10 +618,10 @@ class SqlStateV1(BaseState):
             that they were labeled.
         """
         con = self._connect_to_sql()
-        query = """SELECT record_table.record_id, results.label, 
+        query = """SELECT record_table.record_id, results.label,
                 results.rowid AS label_order, last_probabilities.proba
-                FROM record_table 
-                LEFT JOIN results 
+                FROM record_table
+                LEFT JOIN results
                 ON results.record_id=record_table.record_id
                 LEFT JOIN last_probabilities
                 ON record_table.rowid=last_probabilities.rowid
