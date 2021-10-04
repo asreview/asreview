@@ -71,10 +71,6 @@ extend the software with new models, subcommands, and datasets.
 The following extensions are developed and maintained by the ASReview community:
 
 
-Model extensions
-~~~~~~~~~~~~~~~~
-
-
 * ASReview CNN classifier 
     - This ASReview extension adds a convolutional neural network (CNN) model 
       for use during the simulation phase.
