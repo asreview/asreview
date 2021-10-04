@@ -94,12 +94,6 @@ Model extensions
       then after each 150 iterations, hyperparameter optimization is conducted 
       to find the most suitable CNN architecture for current iteration.
     - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__ 
-    
-* ASReview matrix and vocabulary extractor for TF-IDF and Doc2Vec
-    - An extension for ASReview that adds a tf-idf extractor that saves the
-      matrix and the vocabulary to pickle and JSON respectively, and a doc2vec
-      extractor that grabs the entire doc2vec model. 
-    - `Github <https://github.com/asreview/asreview-extension-vocab-extractor>`__ 
 
 
 If an extension is not on this list, or you made one and you would like it to 
