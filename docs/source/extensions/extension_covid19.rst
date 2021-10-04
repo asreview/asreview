@@ -29,7 +29,7 @@ while being transparent in the process.
 
 
 ASReview Extension
-==================
+------------------
 
 To help combat the COVID-19 crisis, the ASReview team developed an extension
 that provides two different datasets on COVID-19. These are automatically
@@ -68,7 +68,7 @@ screen preprints specifically.
 
 
 Installation and usage
-======================
+----------------------
 
 The COVID-19 extension requires ASReview 0.9.4 or higher. Install ASReview
 by following the instructions in :doc:`../intro/installation`.
