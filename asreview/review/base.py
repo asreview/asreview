@@ -175,30 +175,30 @@ class BaseReview(ABC):
             # state file exists
             if not state.is_empty():
                 startup_values = state.get_dataset(
-                    ['labels', 'record_ids', 'query_strategies'])
+                    ['label', 'record_id', 'query_strategy'])
 
                 # If there are start indices not in the training add them.
-                if not set(startup_values['record_ids']) >= set(start_idx):
+                if not set(startup_values['record_id']) >= set(start_idx):
                     new_idx = list(
-                        set(start_idx) - set(startup_values['record_ids']))
+                        set(start_idx) - set(startup_values['record_id']))
                     self.classify(new_idx,
                                   self.y[new_idx],
                                   state,
                                   method="initial")
                     startup_values = state.get_dataset(
-                        ['labels', 'record_ids', 'query_strategies'])
+                        ['label', 'record_id', 'query_strategy'])
 
-                self.train_idx = startup_values['record_ids']
+                self.train_idx = startup_values['record_id']
                 # Add the labels of the labelled records to the
                 # target vector self.y
                 for i in range(len(startup_values)):
-                    self.y[startup_values['record_ids'].
-                           iloc[i]] = startup_values['labels'].iloc[i]
+                    self.y[startup_values['record_id'].
+                           iloc[i]] = startup_values['label'].iloc[i]
 
                 # Only used in BaseReview.statistics.
                 try:
                     self.n_initial = startup_values[
-                        'query_strategies'].value_counts()['prior']
+                        'query_strategy'].value_counts()['prior']
                 except KeyError:
                     self.n_initial = 0
 
@@ -209,9 +209,9 @@ class BaseReview(ABC):
                 # shared['query_src'] is only used in the 'triple'
                 # balance strategy.
                 self.shared['query_src'] = {
-                    method: startup_values['record_ids']
-                    [startup_values['query_strategies'] == method].to_list()
-                    for method in startup_values['query_strategies'].unique()
+                    method: startup_values['record_id']
+                    [startup_values['query_strategy'] == method].to_list()
+                    for method in startup_values['query_strategy'].unique()
                 }
             # state file doesnt exist
             else:
