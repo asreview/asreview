@@ -3,7 +3,7 @@
 
 
 ASReview against COVID-19
-#########################
+=========================
 
 For many questions from medical doctors, journalists, policy makers the
 scientific literature on COVID-19 needs to be checked in a systematic way to
