@@ -99,7 +99,7 @@ From this entry point the Python API can be used in many ways (like ``plot`` or
 ``simulate``).
 
 Extensions in ASReview are Python packages and can extend the
-subcommands of asreview (see ``asreview -h``). 
+subcommands of asreview (see ``asreview -h``).
 
 An example of a subcommand extension is the `Visualization Extension
 <https://github.com/asreview/asreview-visualization>`_
