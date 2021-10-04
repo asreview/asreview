@@ -274,7 +274,7 @@ def convert_json_record_table(sql_fp, json_fp):
     con = sqlite3.connect(sql_fp)
     cur = con.cursor()
     cur.execute('''CREATE TABLE record_table
-                    (record_ids INT)''')
+                    (record_id INT)''')
     cur.executemany(
         """INSERT INTO record_table VALUES
                                 (?)""", record_table)
@@ -290,14 +290,14 @@ def convert_json_results_to_sql(sql_fp, json_fp):
 
             # Create the results table.
             cur.execute('''CREATE TABLE results
-                            (record_ids INTEGER,
-                            labels INTEGER,
-                            classifiers TEXT,
-                            query_strategies TEXT,
-                            balance_strategies TEXT,
+                            (record_id INTEGER,
+                            label INTEGER,
+                            classifier TEXT,
+                            query_strategy TEXT,
+                            balance_strategy TEXT,
                             feature_extraction TEXT,
-                            training_sets INTEGER,
-                            labeling_times INTEGER,
+                            training_set INTEGER,
+                            labeling_time INTEGER,
                             notes TEXT)''')
             # TODO(State): models_training?
 
@@ -396,8 +396,8 @@ def create_decision_changes_table(sql_fp):
         cur = con.cursor()
 
         cur.execute('''CREATE TABLE decision_changes
-                                    (record_ids INTEGER,
-                                    new_labels INTEGER,
-                                    times INTEGER)''')
+                                    (record_id INTEGER,
+                                    new_label INTEGER,
+                                    time INTEGER)''')
 
         con.commit()

@@ -407,13 +407,13 @@ class ASReviewData():
         numpy.ndarray
             Array of indices that have the 'prior' property.
         """
-        state_data = state.get_dataset(['record_ids', 'query_strategies'])
+        state_data = state.get_dataset(['record_id', 'query_strategy'])
 
-        if "prior" not in state_data['query_strategies'].values:
+        if "prior" not in state_data['query_strategy'].values:
             return np.array([], dtype=int)
 
-        initial_indices = state_data['record_ids'][
-            state_data['query_strategies'] == 'prior'].to_list()
+        initial_indices = state_data['record_id'][
+            state_data['query_strategy'] == 'prior'].to_list()
         if by_index:
             return np.array(initial_indices, dtype=int)
         return self.df.index.values[initial_indices]
