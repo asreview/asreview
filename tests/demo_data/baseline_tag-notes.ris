@@ -30,3 +30,81 @@ N1  - ASCII Characters (32-126):   ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7
 N1  - ANSI Characters (128-159): € ‚ ƒ „ … † ‡ ˆ ‰ Š ‹ Œ Ž ‘ ’ “ ” • – — ˜ ™ š › œ ž Ÿ
 N1  - ANSI Characters (160-255):   ¡ ¢ £ ¤ ¥ ¦ § ¨ © ª « ¬ ­­® ¯ ° ± ² ³ ´ µ ¶ · ¸ ¹ º » ¼ ½ ¾ ¿ À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ó Ô Õ Ö × Ø Ù Ú Û Ü Ý Þ ß à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ÷ ø ù ú û ü ý þ ÿ
 ER  -
+
+TY  - GEN
+N1  - "Notes with quotes."
+N1  - ""And notes with double quotes, why not.""
+ER  -
+
+TY  - GEN
+N1  - Oops, there is an empty line
+
+N1  - in this record's notes section.
+ER  -
+
+TY  - GEN
+N1  - This record comes with None.
+N1  - None
+ER  -
+
+TY  - GEN
+N1  - this record has notes with a lowercase start.
+ER  -
+
+TY  - GEN
+N1  - THIS RECORD HAS VERY LOUD NOTES IN ALL CAPS.
+ER  -
+
+TY  - GEN
+N1  - Let's test software-specific cases, starting from the next record.
+ER  -
+
+TY  - GEN
+N1  - ASReview: record which is labeled "relevant" by the researcher.
+N1  - ASReview_relevant
+ER  -
+
+TY  - GEN
+N1  - ASReview: record which was labeled "relevant" by the researcher; in the old format for backward compatibility.
+LI  - 1
+ER  -
+
+TY  - GEN
+N1  - ASReview: record which is labeled "irrelevant" by the researcher.
+N1  - ASReview_irrelevant
+ER  -
+
+TY  - GEN
+N1  - ASReview: record which was labeled "relevant" by the researcher; in the old format for backward compatibility.
+LI  - 0
+ER  -
+
+TY  - GEN
+N1  - ASReview: record which is not seen by the researcher.
+N1  - ASReview_not_seen
+ER  -
+
+TY  - GEN
+N1  - ASReview: record which is partly labeled.
+N1  - ASReview_
+ER  -
+
+TY  - GEN
+N1  - Zotero: notes in records come with XHTML tags around them.
+N1  - <p>XHTML</p> tags should be stripped, leaving content intact.
+ER  -
+
+TY  - GEN
+N1  - Zotero: notes in records come with XHTML tags around them.
+N1  - <p>XHTML tags should be stripped, leaving content intact.</p>
+ER  -
+
+TY  - GEN
+N1  - Zotero: notes in records come with XHTML tags around them.
+N1  - XHTML tags should be stripped, leaving content <p>intact.</p>
+ER  -
+
+TY  - GEN
+N1  - Zotero: notes in records come with XHTML tags around them.
+N1  - <p>XHTML</p>tags should be stripped, leaving content <p>intact.</p>
+ER  -
