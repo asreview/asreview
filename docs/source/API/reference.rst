@@ -4,7 +4,10 @@
 API Reference
 =============
 
-Welcome to the ASReview API.
+Welcome to the ASReview API. This API reference documents the modules, classes,
+and functions of the ASReview software. 
+
+If there exists documentation on it, you will find it here.
 
 
 
