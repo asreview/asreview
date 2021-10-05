@@ -6,7 +6,7 @@ import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { ExportDialog, Header, SettingsDialog } from "./Components";
+import { ExportDialog, Header, HelpDialog, SettingsDialog } from "./Components";
 import {
   PreReviewZone,
   ProjectPageOLD,
@@ -15,7 +15,6 @@ import {
 import { ProjectPage } from "./ProjectComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
 import Projects from "./Projects";
-import HelpDialog from "./HelpDialog";
 import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
