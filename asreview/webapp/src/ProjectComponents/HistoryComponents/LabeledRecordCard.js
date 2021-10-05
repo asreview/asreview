@@ -28,6 +28,8 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 8,
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 
   [`& .${classes.icon}`]: {
@@ -41,7 +43,7 @@ const LabeledRecordCard = (props) => {
   return (
     <Root>
       {props.page.result.map((value) => (
-        <Card className={classes.root} key={value.id}>
+        <Card elevation={2} className={classes.root} key={value.id}>
           <CardContent>
             <Typography gutterBottom variant="h6">
               {value.title ? value.title : "This record doesn't have a title."}
@@ -89,7 +91,7 @@ const LabeledRecordCard = (props) => {
                 size="large"
               >
                 {value.included === 1 ? (
-                  <FavoriteIcon color="secondary" fontSize="small" />
+                  <FavoriteIcon color="error" fontSize="small" />
                 ) : (
                   <FavoriteBorderIcon fontSize="small" />
                 )}

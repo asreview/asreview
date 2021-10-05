@@ -16,7 +16,7 @@ const classes = {
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`&.${classes.root}`]: {
     alignItems: "center",
     display: "flex",
@@ -32,10 +32,6 @@ const StyledBox = styled(Box)(({ theme }) => ({
   [`& .${classes.recordCard}`]: {
     width: "100%",
     maxWidth: 960,
-    "& > *": {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    },
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -47,7 +43,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 const LabeledRecord = (props) => {
   return (
-    <StyledBox className={classes.root} aria-label="labeled record container">
+    <Root className={classes.root} aria-label="labeled record container">
       {props.query.isError && <ErrorHandler error={props.query.error} />}
       {props.query.isLoading && (
         <Box className={classes.circularProgress}>
@@ -93,7 +89,7 @@ const LabeledRecord = (props) => {
           </InView>
         </Box>
       )}
-    </StyledBox>
+    </Root>
   );
 };
 
