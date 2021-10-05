@@ -43,8 +43,8 @@ const Root = styled("div")(({ theme }) => ({
     borderRadius: "50%",
     alignItems: "center",
     justifyContent: "center",
-    "-webkit-box-align": "center",
-    "-webkit-box-pack": "center",
+    WebkitBoxAlign: "center",
+    WebkitBoxPack: "center",
   },
 
   [`& .${classes.number}`]: {
