@@ -78,5 +78,5 @@ project dashboard are described in the :doc:`features section
 <../features/post_screening>`.
 
 
-.. figure:: ../../images/v0.14_03_project_dashboard_empty.png
+.. figure:: ../../images/v0.18_03_project_dashboard_empty.png
    :alt: Project dashboard in setup stage
