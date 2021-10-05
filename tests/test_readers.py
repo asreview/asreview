@@ -136,7 +136,6 @@ def test_csv_write_data(tmpdir):
 
 
 def test_ris_write_data(tmpdir):
-    #fp_in = Path("https://raw.githubusercontent.com/asreview/citation-file-formatting/main/Datasets/RIS/_baseline.ris")
     fp_in = Path("tests", "demo_data", "_baseline.ris")
     asr_data = ASReviewData.from_file(fp_in)
 
