@@ -104,7 +104,7 @@ class BaseReview(ABC):
         Start the simulation/review with these indices. They are assumed to
         be already labeled. Failing to do so might result bad behaviour.
     state_file: str
-        Path to state file. Replaces log_file argument.
+        Path to state file.
     """
 
     name = "base"
@@ -121,7 +121,6 @@ class BaseReview(ABC):
         n_queries=None,
         start_idx=[],
         state_file=None,
-        log_file=None,
     ):
         """Initialize base class for systematic reviews."""
         super(BaseReview, self).__init__()
@@ -156,14 +155,7 @@ class BaseReview(ABC):
         self.n_queries = n_queries
         self.start_idx = start_idx
 
-        if log_file is not None:
-            warnings.warn(
-                "The log_file argument for BaseReview will be"
-                " replaced by state_file.",
-                category=FutureWarning)
-            self.state_file = log_file
-        else:
-            self.state_file = state_file
+        self.state_file = state_file
 
         self.query_i = 0
         self.query_i_classified = 0

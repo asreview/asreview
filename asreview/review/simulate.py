@@ -65,7 +65,7 @@ class ReviewSimulate(BaseReview):
         not used. If the option prior_idx is used with one or more
         index, this option is ignored.
     state_file: str
-        Path to state file. Replaces log_file argument.
+        Path to state file.
     """
 
     name = "simulate"
