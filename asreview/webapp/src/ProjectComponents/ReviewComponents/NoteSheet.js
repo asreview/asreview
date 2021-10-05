@@ -6,32 +6,39 @@ import {
   CardActions,
   CardContent,
   TextField,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const useStyles = makeStyles({
-  root: {
+const PREFIX = "NoteSheet";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  note: `${PREFIX}-note`,
+  button: `${PREFIX}-button`,
+  title: `${PREFIX}-title`,
+};
+
+const StyledCard = styled(Card)({
+  [`&.${classes.root}`]: {
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
   },
-  note: {
+  [`& .${classes.note}`]: {
     paddingTop: 32,
   },
-  button: {
+  [`& .${classes.button}`]: {
     // display: "flex",
     justifyContent: "flex-end",
   },
-  title: {
+  [`& .${classes.title}`]: {
     display: "flex",
     alignItems: "center",
   },
 });
 
 const NoteSheet = (props) => {
-  const classes = useStyles();
-
   return (
-    <Card className={classes.root} variant="outlined">
+    <StyledCard className={classes.root} variant="outlined">
       <CardContent className={classes.note}>
         <Box>
           <TextField
@@ -61,7 +68,7 @@ const NoteSheet = (props) => {
           Save
         </Button>
       </CardActions>
-    </Card>
+    </StyledCard>
   );
 };
 

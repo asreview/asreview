@@ -10,9 +10,8 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import { fade, makeStyles } from "@material-ui/core/styles";
-
+} from "@mui/material";
+import { alpha, styled } from "@mui/material/styles";
 import {
   ArrowBack,
   Close,
@@ -20,38 +19,56 @@ import {
   History,
   Search,
   ShowChart,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "AppBarWithinDialog";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  toolBar: `${PREFIX}-toolBar`,
+  title: `${PREFIX}-title`,
+  select: `${PREFIX}-select`,
+  search: `${PREFIX}-search`,
+  searchIcon: `${PREFIX}-searchIcon`,
+  inputRoot: `${PREFIX}-inputRoot`,
+  inputInput: `${PREFIX}-inputInput`,
+  divider: `${PREFIX}-divider`,
+};
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  [`&.${classes.root}`]: {
     overflow: "hidden",
     zIndex: theme.zIndex.drawer + 1,
   },
-  toolBar: {
+
+  [`& .${classes.toolBar}`]: {
     marginRight: -12,
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
     flexGrow: 1,
   },
-  select: {
+
+  [`& .${classes.select}`]: {
     margin: theme.spacing(1),
     flexGrow: 1,
   },
-  search: {
+
+  [`& .${classes.search}`]: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
     backgroundColor: [
-      theme.palette.type === "dark"
-        ? fade(theme.palette.common.white, 0.15)
-        : fade(theme.palette.common.black, 0.075),
+      theme.palette.mode === "dark"
+        ? alpha(theme.palette.common.white, 0.15)
+        : alpha(theme.palette.common.black, 0.075),
     ],
     "&:hover": {
       backgroundColor: [
-        theme.palette.type === "dark"
-          ? fade(theme.palette.common.white, 0.25)
-          : fade(theme.palette.common.black, 0.125),
+        theme.palette.mode === "dark"
+          ? alpha(theme.palette.common.white, 0.25)
+          : alpha(theme.palette.common.black, 0.125),
       ],
     },
     marginLeft: 0,
@@ -61,7 +78,8 @@ const useStyles = makeStyles((theme) => ({
       width: "auto",
     },
   },
-  searchIcon: {
+
+  [`& .${classes.searchIcon}`]: {
     padding: theme.spacing(0, 2),
     height: "100%",
     position: "absolute",
@@ -70,13 +88,15 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  inputRoot: {
+
+  [`& .${classes.inputRoot}`]: {
     color: "inherit",
   },
-  inputInput: {
+
+  [`& .${classes.inputInput}`]: {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("sm")]: {
@@ -86,7 +106,8 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
-  divider: {
+
+  [`& .${classes.divider}`]: {
     flexGrow: 1,
     flexShrink: 1,
     flexBasis: "auto",
@@ -110,13 +131,16 @@ const AppBarWithinDialog = React.forwardRef(
     },
     ref
   ) => {
-    const classes = useStyles();
-
     return (
-      <AppBar className={classes.root} color={color} position="relative">
+      <StyledAppBar className={classes.root} color={color} position="relative">
         <Toolbar className={classes.toolBar}>
           {/* Start icon */}
-          <IconButton edge="start" color="inherit" onClick={onClickStartIcon}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={onClickStartIcon}
+            size="large"
+          >
             {startIconIsClose ? <Close /> : <ArrowBack />}
           </IconButton>
 
@@ -166,7 +190,7 @@ const AppBarWithinDialog = React.forwardRef(
           {/* History icon */}
           {onClickHistory && (
             <Tooltip title="Review history">
-              <IconButton color="inherit" onClick={onClickHistory}>
+              <IconButton color="inherit" onClick={onClickHistory} size="large">
                 <History />
               </IconButton>
             </Tooltip>
@@ -175,7 +199,11 @@ const AppBarWithinDialog = React.forwardRef(
           {/* Show chart icon */}
           {onClickShowChart && (
             <Tooltip title="Statistics">
-              <IconButton color="inherit" onClick={onClickShowChart}>
+              <IconButton
+                color="inherit"
+                onClick={onClickShowChart}
+                size="large"
+              >
                 <ShowChart />
               </IconButton>
             </Tooltip>
@@ -183,12 +211,17 @@ const AppBarWithinDialog = React.forwardRef(
 
           {/* Help icon */}
           {onClickHelp && (
-            <IconButton color="inherit" href={onClickHelp} target="_blank">
+            <IconButton
+              color="inherit"
+              href={onClickHelp}
+              target="_blank"
+              size="large"
+            >
               <Help />
             </IconButton>
           )}
         </Toolbar>
-      </AppBar>
+      </StyledAppBar>
     );
   }
 );

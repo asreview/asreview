@@ -14,8 +14,8 @@ import {
   TablePagination,
   TableRow,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../api/index.js";
 import {
@@ -26,6 +26,58 @@ import {
   setupColor,
 } from "../globals";
 
+const PREFIX = "ProjectTable";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  table: `${PREFIX}-table`,
+  tableCell: `${PREFIX}-tableCell`,
+  chipSetup: `${PREFIX}-chipSetup`,
+  chipInReview: `${PREFIX}-chipInReview`,
+  chipFinished: `${PREFIX}-chipFinished`,
+  circularProgress: `${PREFIX}-circularProgress`,
+};
+
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  [`&.${classes.root}`]: {
+    width: "100%",
+    marginBottom: "100px",
+  },
+
+  [`& .${classes.table}`]: {
+    minWidth: 700,
+  },
+
+  [`& .${classes.tableCell}`]: {
+    letterSpacing: "0.25px",
+  },
+
+  [`& .${classes.chipSetup}`]: {
+    color: "white",
+    backgroundColor: setupColor,
+    fontWeight: 500,
+    display: "flex",
+  },
+
+  [`& .${classes.chipInReview}`]: {
+    color: "white",
+    fontWeight: 500,
+    backgroundColor: inReviewColor,
+    display: "flex",
+  },
+
+  [`& .${classes.chipFinished}`]: {
+    color: "white",
+    fontWeight: 500,
+    backgroundColor: finishedColor,
+    display: "flex",
+  },
+  [`& .${classes.circularProgress}`]: {
+    display: "flex",
+    alignItems: "center",
+  },
+}));
+
 const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "datetimeCreated", label: "Date Created", width: "15%" },
@@ -33,47 +85,7 @@ const columns = [
   { id: "reviewFinished", label: "Status", width: "15%" },
 ];
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    marginBottom: "100px",
-  },
-  table: {
-    minWidth: 700,
-  },
-  tableCell: {
-    letterSpacing: "0.25px",
-  },
-  chipSetup: {
-    color: "white",
-    backgroundColor: setupColor,
-    fontWeight: 500,
-    display: "flex",
-  },
-  chipInReview: {
-    color: "white",
-    fontWeight: 500,
-    backgroundColor: inReviewColor,
-    display: "flex",
-  },
-  chipFinished: {
-    color: "white",
-    fontWeight: 500,
-    backgroundColor: finishedColor,
-    display: "flex",
-  },
-  circularProgress: {
-    display: "flex",
-    "& > * + *": {
-      marginLeft: theme.spacing(1),
-    },
-    alignItems: "center",
-  },
-}));
-
 const ProjectTable = (props) => {
-  const classes = useStyles();
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -84,7 +96,7 @@ const ProjectTable = (props) => {
     {
       enabled: props.project_id !== null && !props.onCreateProject,
       onError: () => {
-        props.handleAppState("projects");
+        props.handleAppState("dashboard");
       },
       onSuccess: () => {
         props.handleAppState("project-page");
@@ -109,7 +121,7 @@ const ProjectTable = (props) => {
   };
 
   return (
-    <Paper className={classes.root}>
+    <StyledPaper className={classes.root}>
       <TableContainer>
         <Table className={classes.table} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -136,7 +148,11 @@ const ProjectTable = (props) => {
                     <TableCell>
                       <div className={classes.circularProgress}>
                         {isLoading && row.id === props.project_id && (
-                          <CircularProgress size="1rem" thickness={5} />
+                          <CircularProgress
+                            size="1rem"
+                            thickness={5}
+                            sx={{ marginRight: "8px" }}
+                          />
                         )}
                         <Box
                           onClick={isLoading ? null : openExistingProject}
@@ -203,10 +219,10 @@ const ProjectTable = (props) => {
         rowsPerPage={rowsPerPage}
         labelRowsPerPage="Projects per page:"
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+    </StyledPaper>
   );
 };
 

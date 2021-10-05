@@ -1,29 +1,38 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
-import Snackbar from "@material-ui/core/Snackbar";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { Button, Snackbar } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   decisionUndoBarDuration,
   decisionUndoBarMarginBottom,
 } from "../../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "DecisionUndoBar";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  snackbar: `${PREFIX}-snackbar`,
+  undoButton: `${PREFIX}-undoButton`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
   },
-  snackbar: {
+
+  [`& .${classes.snackbar}`]: {
     marginBottom: decisionUndoBarMarginBottom,
+    [theme.breakpoints.down("md")]: {
+      marginBottom: 70,
+    },
   },
-  undoButton: {
-    color: theme.palette.secondary.light,
+
+  [`& .${classes.undoButton}`]: {
+    color: theme.palette.primary.main,
   },
 }));
 
 const DecisionUndoBar = (props) => {
-  const theme = useTheme();
-  const classes = useStyles(theme);
-
   const handleClose = (event, reason) => {
     props.close();
   };
@@ -38,28 +47,30 @@ const DecisionUndoBar = (props) => {
   };
 
   return (
-    <Snackbar
-      anchorOrigin={anchorOrigin}
-      open={props.state.open}
-      autoHideDuration={decisionUndoBarDuration}
-      onClose={handleClose}
-      message={props.state.message}
-      action={
-        <React.Fragment>
-          <Button
-            className={classes.undoButton}
-            size="small"
-            onClick={handleUndo}
-          >
-            UNDO
-          </Button>
-        </React.Fragment>
-      }
-      ContentProps={{
-        className: classes.root,
-      }}
-      className={classes.snackbar}
-    />
+    <Root>
+      <Snackbar
+        anchorOrigin={anchorOrigin}
+        open={props.state.open}
+        autoHideDuration={decisionUndoBarDuration}
+        onClose={handleClose}
+        message={props.state.message}
+        action={
+          <div>
+            <Button
+              className={classes.undoButton}
+              size="small"
+              onClick={handleUndo}
+            >
+              UNDO
+            </Button>
+          </div>
+        }
+        ContentProps={{
+          className: classes.root,
+        }}
+        className={classes.snackbar}
+      />
+    </Root>
   );
 };
 

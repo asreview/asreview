@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Box, CircularProgress } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, CircularProgress } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { PluginDataset } from "../PreReviewComponents";
-
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
-const useStyles = makeStyles((theme) => ({
-  cards: {
+const PREFIX = "ProjectUploadPluginDatasets";
+
+const classes = {
+  cards: `${PREFIX}-cards`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.cards}`]: {
     marginBottom: "20px",
     textAlign: "center",
     margin: 0,
@@ -16,8 +21,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProjectUploadPluginDatasets = (props) => {
-  const classes = useStyles();
-
   const [state, setState] = useState({
     datasets: null,
     loaded: false,
@@ -56,7 +59,7 @@ const ProjectUploadPluginDatasets = (props) => {
   }, [props.subset, state.loaded, error.message]);
 
   return (
-    <Box className={classes.cards}>
+    <StyledBox className={classes.cards}>
       {state.loaded && error.message === null && (
         <Box>
           {state.datasets.map((dataset) => (
@@ -77,7 +80,7 @@ const ProjectUploadPluginDatasets = (props) => {
           <ErrorHandler error={error} setError={setError} />
         )}
       </Box>
-    </Box>
+    </StyledBox>
   );
 };
 

@@ -1,37 +1,40 @@
 import React from "react";
 import { InView } from "react-intersection-observer";
-import {
-  Box,
-  ButtonBase,
-  CircularProgress,
-  Typography,
-} from "@material-ui/core";
-import grey from "@material-ui/core/colors/grey";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, ButtonBase, CircularProgress, Typography } from "@mui/material";
+import { grey } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
 
 import { LabeledRecordCard } from "../HistoryComponents";
 import ErrorHandler from "../../ErrorHandler";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "LabeledRecord";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  circularProgress: `${PREFIX}-circularProgress`,
+  recordCard: `${PREFIX}-recordCard`,
+  loadMoreInView: `${PREFIX}-loadMoreInView`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`&.${classes.root}`]: {
     alignItems: "center",
     display: "flex",
     flexDirection: "column",
   },
-  circularProgress: {
+
+  [`& .${classes.circularProgress}`]: {
     display: "flex",
     justifyContent: "center",
     marginTop: "5%",
   },
-  recordCard: {
+
+  [`& .${classes.recordCard}`]: {
     width: "100%",
     maxWidth: 960,
-    "& > *": {
-      marginTop: theme.spacing(2),
-      marginBottom: theme.spacing(2),
-    },
   },
-  loadMoreInView: {
+
+  [`& .${classes.loadMoreInView}`]: {
     color: grey[500],
     display: "flex",
     justifyContent: "center",
@@ -39,10 +42,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const LabeledRecord = (props) => {
-  const classes = useStyles();
-
   return (
-    <Box className={classes.root} aria-label="labeled record container">
+    <Root className={classes.root} aria-label="labeled record container">
       {props.query.isError && <ErrorHandler error={props.query.error} />}
       {props.query.isLoading && (
         <Box className={classes.circularProgress}>
@@ -88,7 +89,7 @@ const LabeledRecord = (props) => {
           </InView>
         </Box>
       )}
-    </Box>
+    </Root>
   );
 };
 

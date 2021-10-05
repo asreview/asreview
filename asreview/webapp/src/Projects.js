@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import clsx from "clsx";
-import { Backdrop, Box, Container, Fade, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
-import { AddOutlined, CreateNewFolderOutlined } from "@material-ui/icons";
+import {
+  Backdrop,
+  Box,
+  Container,
+  Fade,
+  SpeedDial,
+  SpeedDialIcon,
+  SpeedDialAction,
+  Typography,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
 import ErrorHandler from "./ErrorHandler";
 
@@ -21,17 +29,23 @@ import { ProjectInfo } from "./PreReviewComponents";
 import { ProjectAPI } from "./api/index.js";
 import { drawerWidth } from "./globals.js";
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-  };
+const PREFIX = "Projects";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  content: `${PREFIX}-content`,
+  contentShift: `${PREFIX}-contentShift`,
+  fab: `${PREFIX}-fab`,
+  noProjects: `${PREFIX}-noProjects`,
+  backdropZ: `${PREFIX}-backdropZ`,
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     paddingTop: "24px",
   },
-  content: {
+
+  [`& .${classes.content}`]: {
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create("margin", {
@@ -51,29 +65,37 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: 72,
     },
   },
-  contentShift: {
+
+  [`& .${classes.contentShift}`]: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: drawerWidth,
   },
-  fab: {
+
+  [`& .${classes.fab}`]: {
     position: "fixed",
     right: theme.spacing(3),
     bottom: theme.spacing(3),
   },
-  noProjects: {
+
+  [`& .${classes.noProjects}`]: {
     opacity: 0.5,
   },
-  backdropZ: {
+
+  [`& .${classes.backdropZ}`]: {
     zIndex: 1000,
   },
 }));
 
-const Projects = (props) => {
-  const classes = useStyles();
+const mapStateToProps = (state) => {
+  return {
+    app_state: state.app_state,
+  };
+};
 
+const Projects = (props) => {
   const [open, setOpen] = useState({
     dial: false,
     newProject: false,
@@ -156,7 +178,7 @@ const Projects = (props) => {
   };
 
   return (
-    <Box aria-label="nav-main">
+    <Root aria-label="nav-main">
       <NavigationDrawer
         mobileScreen={props.mobileScreen}
         onNavDrawer={props.onNavDrawer}
@@ -170,7 +192,7 @@ const Projects = (props) => {
         })}
         aria-label="dashboard"
       >
-        <Fade in={props.app_state === "projects"}>
+        <Fade in={props.app_state === "dashboard"}>
           <div>
             <Container maxWidth="md" className={classes.root}>
               <DashboardStatsPaper />
@@ -221,7 +243,6 @@ const Projects = (props) => {
 
             {open.importProject && (
               <ProjectImportDialog
-                handleAppState={props.handleAppState}
                 open={open.importProject}
                 onClose={handleCloseProjectImport}
               />
@@ -262,7 +283,7 @@ const Projects = (props) => {
           </div>
         </Fade>
       </Box>
-    </Box>
+    </Root>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { ListSubheader, ListItem } from "@material-ui/core";
+import { ListSubheader, ListItem } from "@mui/material";
 
 const ProjectPanel = (props) => {
   return (

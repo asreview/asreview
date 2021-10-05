@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { connect } from "react-redux";
 import clsx from "clsx";
-import { Box, Fade } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Fade } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { NavigationDrawer } from "../Components";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
@@ -15,23 +15,24 @@ import ErrorHandler from "../ErrorHandler";
 import DangerZone from "../DangerZone.js";
 import PublicationZone from "../PublicationZone.js";
 import StatisticsZone from "../StatisticsZone.js";
-import { ProjectAPI } from "../api/index.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
+import { ProjectAPI } from "../api/index.js";
 import { drawerWidth } from "../globals.js";
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    project_id: state.project_id,
-  };
+const PREFIX = "ProjectPage";
+
+const classes = {
+  content: `${PREFIX}-content`,
+  contentShift: `${PREFIX}-contentShift`,
+  container: `${PREFIX}-container`,
 };
 
-const useStyles = makeStyles((theme) => ({
-  content: {
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.content}`]: {
     flexGrow: 1,
     padding: 0,
     transition: theme.transitions.create("margin", {
@@ -51,21 +52,28 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: 72,
     },
   },
-  contentShift: {
+
+  [`& .${classes.contentShift}`]: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: drawerWidth,
   },
-  container: {
+
+  [`& .${classes.container}`]: {
     height: "100%",
   },
 }));
 
-const ProjectPage = (props) => {
-  const classes = useStyles();
+const mapStateToProps = (state) => {
+  return {
+    app_state: state.app_state,
+    project_id: state.project_id,
+  };
+};
 
+const ProjectPage = (props) => {
   const [nav_state, setNav_state] = useState("analytics");
 
   const [state, setState] = useState({
@@ -153,7 +161,7 @@ const ProjectPage = (props) => {
   });
 
   return (
-    <Box aria-label="project page">
+    <StyledBox aria-label="project page">
       <NavigationDrawer
         mobileScreen={props.mobileScreen}
         onNavDrawer={props.onNavDrawer}
@@ -250,7 +258,7 @@ const ProjectPage = (props) => {
           </Box>
         </Fade>
       </Box>
-    </Box>
+    </StyledBox>
   );
 };
 
