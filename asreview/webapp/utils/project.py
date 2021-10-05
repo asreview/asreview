@@ -232,40 +232,60 @@ def add_dataset_to_project(project_id, file_name):
     # clean temp project files
     clean_project_tmp_files(project_id)
 
-    with SQLiteLock(get_lock_path(project_path),
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_config = json.load(f_read)
+    # open the projects file
+    with open(project_file_path, "r") as f_read:
+        project_dict = json.load(f_read)
 
-        # add path to dict (overwrite if already exists)
-        project_config["dataset_path"] = file_name
+    # add path to dict (overwrite if already exists)
+    project_dict["dataset_path"] = file_name
 
-        with open(project_file_path, "w") as f_write:
-            json.dump(project_config, f_write)
+    with open(project_file_path, "w") as f_write:
+        json.dump(project_dict, f_write)
 
-        # fill the pool of the first iteration
-        as_data = read_data(project_id)
+    # fill the pool of the first iteration
+    as_data = read_data(project_id)
 
+    # if as_data.labels is not None:
+    #     unlabeled = np.where(as_data.labels == LABEL_NA)[0]
+    #     pool_indices = as_data.record_ids[unlabeled]
+
+    #     labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
+    #     label_indices = list(zip(
+    #         as_data.record_ids[labeled_indices].tolist(),
+    #         as_data.labels[labeled_indices].tolist()
+    #     ))
+    # else:
+    #     pool_indices = as_data.record_ids
+    #     label_indices = []
+
+    # np.random.shuffle(pool_indices)
+    # write_pool(project_id, pool_indices.tolist())
+
+    # # make a empty qeue for the items to label
+    # write_label_history(project_id, label_indices)
+
+    with open_state(self.state_file, read_only=False) as state:
+
+        # save the record ids in the state file
+        state.add_record_table(as_data.record_ids)
+
+        # if the data contains labels, add them to the state file
         if as_data.labels is not None:
-            unlabeled = np.where(as_data.labels == LABEL_NA)[0]
-            pool_indices = as_data.record_ids[unlabeled]
 
             labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-            label_indices = list(
-                zip(as_data.record_ids[labeled_indices].tolist(),
-                    as_data.labels[labeled_indices].tolist()))
-        else:
-            pool_indices = as_data.record_ids
-            label_indices = []
+            labels = as_data.labels[labeled_indices].tolist()
+            labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
-        np.random.shuffle(pool_indices)
-        write_pool(project_id, pool_indices.tolist())
+            # add the labels as prior data
+            state.add_labeling_data(record_ids=labeled_indices,
+                                    labels=labels,
+                                    classifiers=None,
+                                    query_strategies="prior",
+                                    balance_strategies=None,
+                                    feature_extraction=None,
+                                    training_sets=None,
+                                    notes=None)
 
-        # make a empty qeue for the items to label
-        write_label_history(project_id, label_indices)
 
 
 def remove_dataset_to_project(project_id, file_name):
