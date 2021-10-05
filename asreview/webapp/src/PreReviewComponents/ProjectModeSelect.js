@@ -24,13 +24,6 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 export default function ProjectModeSelect(props) {
-  // variables for styling the menu
-  const inputLabel = React.useRef(null);
-  const [labelWidth, setLabelWidth] = React.useState(0);
-  React.useEffect(() => {
-    setLabelWidth(inputLabel.current.offsetWidth);
-  }, []);
-
   return (
     <Root>
       <FormControl
@@ -38,15 +31,13 @@ export default function ProjectModeSelect(props) {
         className={classes.formControl}
         disabled={props.edit}
       >
-        <InputLabel ref={inputLabel} id="mode-label">
-          Project type
-        </InputLabel>
+        <InputLabel id="mode-label">Mode</InputLabel>
         <Select
           labelId="mode-label"
           id="demo-simple-select-outlined"
           value={props.mode}
+          label="Mode"
           onChange={props.onModeChange}
-          labelWidth={labelWidth}
         >
           <MenuItem value={projectModes.ORACLE} component="div">
             <ListItem>

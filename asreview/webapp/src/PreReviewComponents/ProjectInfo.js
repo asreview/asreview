@@ -233,8 +233,8 @@ const ProjectInit = (props) => {
                 autoFocus={true}
                 required
                 name="name"
-                id="project-name"
-                label="Project name"
+                id="project-title"
+                label="Title"
                 onChange={onChange}
                 value={info.name}
                 helperText={error.code !== 503 && error.message}
@@ -246,7 +246,7 @@ const ProjectInit = (props) => {
                 fullWidth
                 name="authors"
                 id="project-author"
-                label="Your name"
+                label="Author(s)"
                 onChange={onChange}
                 value={info.authors}
               />
@@ -257,7 +257,6 @@ const ProjectInit = (props) => {
                 fullWidth
                 multiline
                 rows={4}
-                maxRows={6}
                 name="description"
                 id="project-description"
                 label="Description"
