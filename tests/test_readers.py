@@ -20,7 +20,6 @@ from asreview import ASReviewData
 
 @mark.parametrize("test_file,n_lines,ignore_col", [
     ("_baseline.ris", 100, []),
-    ("baseline_labeled.ris", 100, []),
     ("embase.csv", 6, ["keywords"]),
     ("embase_newpage.csv", 6, ["keywords"]),
     ("embase.ris", 6, []),
@@ -36,8 +35,7 @@ from asreview import ASReviewData
     ("pubmed_endnote.txt", 6, []),
     ("scopus.ris", 6, []),
     ("ovid_zotero.ris", 6, []),
-    ("proquest.ris", 6, []),
-    ("pubmed.xml", 10, []),
+    ("proquest.ris", 6, [])
 ])
 def test_reader(test_file, n_lines, ignore_col):
     fp = Path("tests", "demo_data", test_file)
