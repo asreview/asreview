@@ -264,7 +264,9 @@ def add_dataset_to_project(project_id, file_name):
     # # make a empty qeue for the items to label
     # write_label_history(project_id, label_indices)
 
-    with open_state(self.state_file, read_only=False) as state:
+    state_file = get_state_path(project_path)
+
+    with open_state(state_file, read_only=False) as state:
 
         # save the record ids in the state file
         state.add_record_table(as_data.record_ids)
