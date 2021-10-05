@@ -2,7 +2,7 @@ Overview
 ========
 
 The development section is meant for the more advanced user of ASReview. It
-contains information on technical aspects of usage, instructions for developing
+contains information on the technical aspects of usage, instructions for developing
 extensions, and an extensive API reference.
 
 ASReview structure
