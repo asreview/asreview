@@ -1,6 +1,6 @@
 .. _develop-extensions:
 
-Create an extension
+Create an Extension
 ===================
 
 ASReview extensions enable you to integrate your programs with the ASReview
