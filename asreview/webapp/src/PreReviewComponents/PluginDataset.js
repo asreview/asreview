@@ -6,25 +6,31 @@ import {
   CardContent,
   Typography,
   CircularProgress,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const useStyles = makeStyles((theme) => ({
-  cardRoot: {
+const PREFIX = "PluginDataset";
+
+const classes = {
+  cardRoot: `${PREFIX}-cardRoot`,
+  media: `${PREFIX}-media`,
+};
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  [`&.${classes.cardRoot}`]: {
     width: 360,
     height: 250,
     display: "inline-block",
     margin: theme.spacing(2),
   },
-  media: {
+
+  [`& .${classes.media}`]: {
     height: 140,
     backgroundColor: "#A3A3A3",
   },
 }));
 
 const PluginDataset = (props) => {
-  const classes = useStyles();
-
   const [state, setState] = useState(false);
 
   const uploadDataset = () => {
@@ -40,7 +46,7 @@ const PluginDataset = (props) => {
   };
 
   return (
-    <Card
+    <StyledCard
       className={classes.cardRoot}
       key={props.dataset_id}
       onClick={!state ? uploadDataset : undefined}
@@ -78,7 +84,7 @@ const PluginDataset = (props) => {
           </CardContent>
         </div>
       )}
-    </Card>
+    </StyledCard>
   );
 };
 

@@ -1,25 +1,33 @@
 import React from "react";
-import { Box, Button, Link, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Button, Link, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const useStyles = makeStyles((theme) => ({
-  errorMessage: {
+const PREFIX = "ErrorHandler";
+
+const classes = {
+  errorMessage: `${PREFIX}-errorMessage`,
+  link: `${PREFIX}-link`,
+  retryButton: `${PREFIX}-retryButton`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.errorMessage}`]: {
     paddingTop: "24px",
     paddingBottom: "24px",
     opacity: 0.5,
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
-  retryButton: {
+
+  [`& .${classes.retryButton}`]: {
     position: "relative",
     paddingBottom: "24px",
   },
 }));
 
 const ErrorHandler = (props) => {
-  const classes = useStyles();
-
   const handleClickRetry = () => {
     props.setError({
       code: null,
@@ -28,7 +36,7 @@ const ErrorHandler = (props) => {
   };
 
   return (
-    <Box>
+    <StyledBox>
       <Box className={classes.errorMessage}>
         <Typography variant="h5" align="center">
           {props.error.message}
@@ -58,7 +66,7 @@ const ErrorHandler = (props) => {
           </Button>
         </Box>
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

@@ -1,10 +1,15 @@
 import React from "react";
-import OpenInNewIcon from "@material-ui/icons/OpenInNew";
+import { styled } from "@mui/material/styles";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
-import { makeStyles } from "@material-ui/core/styles";
+const PREFIX = "OpenInNewIconStyled";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
+const StyledOpenInNewIcon = styled(OpenInNewIcon)(({ theme }) => ({
+  [`&.${classes.root}`]: {
     display: "inline-flex",
     alignSelf: "center",
     top: ".125em",
@@ -13,10 +18,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const OpenInNewIconStyled = (props) => {
-  const classes = useStyles();
-
   return (
-    <OpenInNewIcon className={classes.root} color="disabled" fontSize="small" />
+    <StyledOpenInNewIcon
+      className={classes.root}
+      color="disabled"
+      fontSize="small"
+    />
   );
 };
 

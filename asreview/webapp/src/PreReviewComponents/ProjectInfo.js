@@ -11,13 +11,13 @@ import {
   DialogActions,
   Dialog,
   Typography,
-} from "@material-ui/core";
-import { brown } from "@material-ui/core/colors";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { brown } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
 
-import { ProjectModeSelect } from "../PreReviewComponents";
-
+import ProjectModeSelect from "./ProjectModeSelect";
 import ErrorHandler from "../ErrorHandler";
+
 import { ProjectAPI } from "../api/index.js";
 import {
   mapStateToProps,
@@ -27,35 +27,57 @@ import {
 
 import "./ReviewZone.css";
 
-const useStyles = makeStyles((theme) => ({
-  title: {
+const PREFIX = "ProjectInfo";
+
+const classes = {
+  title: `${PREFIX}-title`,
+  button: `${PREFIX}-button`,
+  input: `${PREFIX}-input`,
+  list: `${PREFIX}-list`,
+  textfieldItem: `${PREFIX}-textfieldItem`,
+  clear: `${PREFIX}-clear`,
+  editButton: `${PREFIX}-editButton`,
+  avatar: `${PREFIX}-avatar`,
+  closeButton: `${PREFIX}-closeButton`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.title}`]: {
     marginBottom: "20px",
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: "36px 0px 0px 12px",
     float: "right",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     display: "none",
   },
-  list: {
+
+  [`& .${classes.list}`]: {
     backgroundColor: theme.palette.warning.light,
   },
-  textfieldItem: {
+
+  [`& .${classes.textfieldItem}`]: {
     marginTop: 0,
     marginBottom: 40,
   },
-  clear: {
+
+  [`& .${classes.clear}`]: {
     overflow: "auto",
   },
-  editButton: {
+
+  [`& .${classes.editButton}`]: {
     float: "right",
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
   },
-  closeButton: {
+
+  [`& .${classes.closeButton}`]: {
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
@@ -64,8 +86,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ProjectInit = (props) => {
-  const classes = useStyles();
-
   // const { width, height } = useWindowSize()
 
   // the state of the form data
@@ -163,7 +183,7 @@ const ProjectInit = (props) => {
   }, [props.edit, props.info]);
 
   return (
-    <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
+    <StyledDialog open={props.open} onClose={props.onClose} fullWidth={true}>
       <DialogTitle>
         {props.edit ? "Edit project info" : "Create a new project"}
       </DialogTitle>
@@ -213,8 +233,8 @@ const ProjectInit = (props) => {
                 autoFocus={true}
                 required
                 name="name"
-                id="project-name"
-                label="Project name"
+                id="project-title"
+                label="Title"
                 onChange={onChange}
                 value={info.name}
                 helperText={error.code !== 503 && error.message}
@@ -226,7 +246,7 @@ const ProjectInit = (props) => {
                 fullWidth
                 name="authors"
                 id="project-author"
-                label="Your name"
+                label="Author(s)"
                 onChange={onChange}
                 value={info.authors}
               />
@@ -237,7 +257,6 @@ const ProjectInit = (props) => {
                 fullWidth
                 multiline
                 rows={4}
-                rowsMax={6}
                 name="description"
                 id="project-description"
                 label="Description"
@@ -262,7 +281,7 @@ const ProjectInit = (props) => {
           </Button>
         </DialogActions>
       )}
-    </Dialog>
+    </StyledDialog>
   );
 };
 

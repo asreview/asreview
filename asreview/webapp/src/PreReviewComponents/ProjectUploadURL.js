@@ -1,19 +1,25 @@
 import React, { useState } from "react";
-import { Button, TextField } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Button, TextField } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ProjectUploadURL";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  uploadButton: `${PREFIX}-uploadButton`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     paddingTop: "24px",
   },
-  uploadButton: {
+
+  [`& .${classes.uploadButton}`]: {
     marginTop: "26px",
   },
 }));
 
 const ProjectUploadURL = (props) => {
-  const classes = useStyles();
-
   const [url, setURL] = useState("");
 
   const onChangeURL = (evt) => {
@@ -29,7 +35,7 @@ const ProjectUploadURL = (props) => {
   };
 
   return (
-    <div>
+    <Root>
       <div className={classes.input}>
         <form
           className={classes.root}
@@ -61,7 +67,7 @@ const ProjectUploadURL = (props) => {
           </div>
         )}
       </div>
-    </div>
+    </Root>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  Alert,
   Box,
   Typography,
   Grid,
@@ -12,51 +13,58 @@ import {
   Grow,
   TextField,
   MenuItem,
-} from "@material-ui/core";
-
-import Alert from "@material-ui/lab/Alert";
-
-import { brown } from "@material-ui/core/colors";
-
-import HelpIcon from "@material-ui/icons/Help";
-import EditIcon from "@material-ui/icons/Edit";
-import SettingsBackupRestoreIcon from "@material-ui/icons/SettingsBackupRestore";
+} from "@mui/material";
+import { brown } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
+import HelpIcon from "@mui/icons-material/Help";
+import EditIcon from "@mui/icons-material/Edit";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 
 import { Help, useHelp } from "../PreReviewComponents";
 import { ProjectAPI } from "../api/index.js";
 import { defaultAlgorithms } from "../globals.js";
 
-import { makeStyles } from "@material-ui/core/styles";
-
 import "./ReviewZone.css";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ProjectAlgorithms";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  alert: `${PREFIX}-alert`,
+  listTitle: `${PREFIX}-listTitle`,
+  avatar: `${PREFIX}-avatar`,
+  link: `${PREFIX}-link`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.root}`]: {
     "& .MuiTextField-root": {
       margin: theme.spacing(1),
       width: "30ch",
     },
   },
-  alert: {
+
+  [`& .${classes.alert}`]: {
     // marginTop: theme.spacing(1),
     marginLeft: theme.spacing(7),
     marginRight: theme.spacing(7),
   },
-  listTitle: {
+
+  [`& .${classes.listTitle}`]: {
     paddingLeft: "18px",
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
 }));
 
 const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
-  const classes = useStyles();
-
   const [state, setState] = useState({
     edit: false,
   });
@@ -177,7 +185,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
   }, [algorithmsLabel, fetchAlgorithmsList, fetchAlgorithmsSettings]);
 
   return (
-    <Box>
+    <StyledBox>
       <Grow in={true}>
         <Paper className="Card">
           <CardHeader
@@ -192,6 +200,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                     <IconButton
                       aria-label="project-algorithms-edit"
                       onClick={editAlgorithms}
+                      size="large"
                     >
                       <EditIcon />
                     </IconButton>
@@ -210,6 +219,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                           algorithms["feature_extraction"] ===
                             defaultAlgorithms["feature_extraction"]
                         }
+                        size="large"
                       >
                         <SettingsBackupRestoreIcon />
                       </IconButton>
@@ -220,6 +230,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
                   <IconButton
                     onClick={openHelp}
                     aria-label="project-algorithms-help"
+                    size="large"
                   >
                     <HelpIcon />
                   </IconButton>
@@ -495,7 +506,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
           </Box>
         }
       />
-    </Box>
+    </StyledBox>
   );
 };
 

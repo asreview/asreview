@@ -1,6 +1,4 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
 import {
   Box,
   Typography,
@@ -9,35 +7,52 @@ import {
   ListItemText,
   Divider,
   Paper,
-} from "@material-ui/core";
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "./api/index.js";
 
-const useStyles = makeStyles((theme) => ({
-  header: {
+const PREFIX = "PublicationZone";
+
+const classes = {
+  header: `${PREFIX}-header`,
+  title: `${PREFIX}-title`,
+  continuButton: `${PREFIX}-continuButton`,
+  wrapper: `${PREFIX}-wrapper`,
+  buttonProgress: `${PREFIX}-buttonProgress`,
+  mediumDangerZone: `${PREFIX}-mediumDangerZone`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.header}`]: {
     paddingTop: "128px",
     paddingBottom: "84px",
     textAlign: "center",
   },
-  title: {
+
+  [`& .${classes.title}`]: {
     color: "orange",
     margin: "32px 12px 12px 12px",
   },
-  continuButton: {
+
+  [`& .${classes.continuButton}`]: {
     marginTop: "24px",
   },
-  wrapper: {
+
+  [`& .${classes.wrapper}`]: {
     margin: theme.spacing(1),
     position: "relative",
   },
-  buttonProgress: {
+
+  [`& .${classes.buttonProgress}`]: {
     position: "absolute",
     top: "50%",
     left: "50%",
     marginTop: 0,
     marginLeft: -12,
   },
-  mediumDangerZone: {
+
+  [`& .${classes.mediumDangerZone}`]: {
     // borderColor: "orange",
     // borderWidth: "2px",
     // borderStyle: "solid",
@@ -46,8 +61,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const PublicationZone = (props) => {
-  const classes = useStyles();
-
   /*
   Download the project file
   */
@@ -56,7 +69,7 @@ const PublicationZone = (props) => {
   };
 
   return (
-    <Box>
+    <StyledBox>
       <Typography variant="h6" className={classes.title}>
         Publication and export
       </Typography>
@@ -114,7 +127,7 @@ const PublicationZone = (props) => {
           </ListItem>
         </List>
       </Paper>
-    </Box>
+    </StyledBox>
   );
 };
 

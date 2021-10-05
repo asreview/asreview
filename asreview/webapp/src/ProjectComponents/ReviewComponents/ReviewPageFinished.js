@@ -1,11 +1,20 @@
 import React from "react";
-import { Box, Link, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Box, Link, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import ElasFinished from "../../images/ElasFinished.svg";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "ReviewPageFinished";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  img: `${PREFIX}-img`,
+  textTitle: `${PREFIX}-textTitle`,
+  text: `${PREFIX}-text`,
+};
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`&.${classes.root}`]: {
     alignItems: "center",
     display: "flex",
     flexDirection: "column",
@@ -15,32 +24,33 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(1),
     },
   },
-  img: {
+
+  [`& .${classes.img}`]: {
     maxWidth: 350,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       maxWidth: 250,
     },
   },
-  textTitle: {
+
+  [`& .${classes.textTitle}`]: {
     textAlign: "center",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       width: "80%",
     },
   },
-  text: {
+
+  [`& .${classes.text}`]: {
     textAlign: "center",
     width: "40%",
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       width: "80%",
     },
   },
 }));
 
 const ReviewPageFinished = (props) => {
-  const classes = useStyles();
-
   return (
-    <Box className={classes.root} aria-label="project review finished">
+    <StyledBox className={classes.root} aria-label="project review finished">
       <img src={ElasFinished} alt="ElasFinished" className={classes.img} />
       <Typography className={classes.textTitle} variant="h5">
         Congratulations! You have finished this project.
@@ -49,7 +59,7 @@ const ReviewPageFinished = (props) => {
         You have stopped reviewing and marked this project as finished. If you
         want to resume the review, please <Link>update project status</Link>.
       </Typography>
-    </Box>
+    </StyledBox>
   );
 };
 

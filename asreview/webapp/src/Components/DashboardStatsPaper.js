@@ -1,28 +1,40 @@
 import React from "react";
 import NumberFormat from "react-number-format";
 import { useQuery } from "react-query";
-import { Grid, Paper, Typography } from "@material-ui/core";
+import { Grid, Paper, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   Archive,
   Assignment,
   Favorite,
   LibraryBooks,
-} from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/icons-material";
 
 import { ProjectAPI } from "../api/index.js";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "DashboardStatsPaper";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  content: `${PREFIX}-content`,
+  icon: `${PREFIX}-icon`,
+  number: `${PREFIX}-number`,
+  text: `${PREFIX}-text`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.root}`]: {
     borderRadius: 16,
     padding: "24px 0px",
     display: "flex",
   },
-  content: {
+
+  [`& .${classes.content}`]: {
     textAlign: "center",
     margin: "auto",
   },
-  icon: {
+
+  [`& .${classes.icon}`]: {
     width: 56,
     height: 56,
     margin: "auto",
@@ -31,21 +43,21 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "50%",
     alignItems: "center",
     justifyContent: "center",
-    "-webkit-box-align": "center",
-    "-webkit-box-pack": "center",
+    WebkitBoxAlign: "center",
+    WebkitBoxPack: "center",
   },
-  number: {
+
+  [`& .${classes.number}`]: {
     fontWeight: 700,
   },
-  text: {
+
+  [`& .${classes.text}`]: {
     fontWeight: 600,
     opacity: 0.72,
   },
 }));
 
 const DashboardStatsPaper = (props) => {
-  const classes = useStyles();
-
   const { data, isFetched } = useQuery(
     "fetchDashboardStats",
     ProjectAPI.fetchDashboardStats,
@@ -53,7 +65,7 @@ const DashboardStatsPaper = (props) => {
   );
 
   return (
-    <div>
+    <Root>
       <Grid container spacing={2}>
         <Grid item xs={6} sm={3}>
           <Paper
@@ -152,7 +164,7 @@ const DashboardStatsPaper = (props) => {
           </Paper>
         </Grid>
       </Grid>
-    </div>
+    </Root>
   );
 };
 

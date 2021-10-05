@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Link, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { connect } from "react-redux";
+import { Box, Link, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
 import { ProjectAPI } from "../api/index.js";
+import { mapStateToProps } from "../globals.js";
 
 import "./ReviewZone.css";
 
-import { connect } from "react-redux";
+const PREFIX = "StartReview";
 
-import { mapStateToProps } from "../globals.js";
+const classes = {
+  link: `${PREFIX}-link`,
+};
 
-const useStyles = makeStyles((theme) => ({
-  link: {
+const StyledBox = styled(Box)(({ theme }) => ({
+  [`& .${classes.link}`]: {
     paddingLeft: "3px",
   },
 }));
 
 const StartReview = ({ project_id, onReady, notReady, trainingError }) => {
-  const classes = useStyles();
-
   const [state, setState] = useState({
     status: null,
     message: null,
@@ -69,7 +72,7 @@ const StartReview = ({ project_id, onReady, notReady, trainingError }) => {
   }, [state.status, trainingError, startTraining]);
 
   return (
-    <Box>
+    <StyledBox>
       {(state["status"] === null || state["status"] === "training") &&
         !trainingError && <Typography>(This can take some time)</Typography>}
 
@@ -91,7 +94,7 @@ const StartReview = ({ project_id, onReady, notReady, trainingError }) => {
           </Typography>
         </Box>
       )}
-    </Box>
+    </StyledBox>
   );
 };
 

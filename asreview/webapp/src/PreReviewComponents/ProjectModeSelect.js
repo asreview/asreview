@@ -1,46 +1,43 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
+import {
+  FormControl,
+  InputLabel,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Select,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import { projectModes } from "../globals.js";
 
-const useStyles = makeStyles((theme) => ({
-  formControl: {
+const PREFIX = "ProjectModeSelect";
+
+const classes = {
+  formControl: `${PREFIX}-formControl`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.formControl}`]: {
     width: "100%",
   },
 }));
 
 export default function ProjectModeSelect(props) {
-  const classes = useStyles();
-
-  // variables for styling the menu
-  const inputLabel = React.useRef(null);
-  const [labelWidth, setLabelWidth] = React.useState(0);
-  React.useEffect(() => {
-    setLabelWidth(inputLabel.current.offsetWidth);
-  }, []);
-
   return (
-    <div>
+    <Root>
       <FormControl
         variant="outlined"
         className={classes.formControl}
         disabled={props.edit}
       >
-        <InputLabel ref={inputLabel} id="mode-label">
-          Project type
-        </InputLabel>
+        <InputLabel id="mode-label">Mode</InputLabel>
         <Select
           labelId="mode-label"
           id="demo-simple-select-outlined"
           value={props.mode}
+          label="Mode"
           onChange={props.onModeChange}
-          labelWidth={labelWidth}
         >
           <MenuItem value={projectModes.ORACLE} component="div">
             <ListItem>
@@ -70,6 +67,6 @@ export default function ProjectModeSelect(props) {
           )}
         </Select>
       </FormControl>
-    </div>
+    </Root>
   );
 }
