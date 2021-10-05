@@ -210,20 +210,39 @@ This module contains all feature extractor models.
    :no-inherited-members:
 
 .. currentmodule:: asreview.models
-     
+
+Modules
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
    
-   
    feature_extraction.base
-   feature_extraction.tfidf
-   feature_extraction.doc2vec
-   feature_extraction.embedding_idf
-   feature_extraction.embedding_lstm
-   feature_extraction.sbert
-   feature_extraction.utils
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+	feature_extraction.Tfidf
+	feature_extraction.Doc2Vec
+	feature_extraction.EmbeddingIdf
+	feature_extraction.EmbeddingLSTM
+	feature_extraction.SBERT
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+	feature_extraction.get_feature_model
+	feature_extraction.get_feature_class
+	feature_extraction.list_feature_extraction
 
 
 
@@ -238,19 +257,40 @@ This Module contains all query strategy models.
 
 .. currentmodule:: asreview.models
 
+Modules
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
    
-   
    query.base
-   query.max
-   query.mixed
-   query.random
-   query.cluster
-   query.uncertainty
-   query.utils
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   query.MaxQuery
+   query.MixedQuery
+   query.MaxRandomQuery
+   query.MaxUncertaintyQuery
+   query.UncertaintyQuery
+   query.RandomQuery
+   query.ClusterQuery
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   query.get_query_model
+   query.get_query_class
+   query.list_query_strategies
 
 
 
@@ -265,16 +305,33 @@ This module handles ASReview.
 
 .. currentmodule:: asreview
 
+Modules
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
    
-   
    review.base
    review.factory
-   review.minimal
-   review.simulate
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+   
+   review.simulate.ReviewSimulate
+   asreview.review.MinimalReview
+
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
 
 
 
