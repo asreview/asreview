@@ -71,16 +71,18 @@ extend the software with new models, subcommands, and datasets.
 The following extensions are developed and maintained by the ASReview community:
 
 
-* ASReview CNN classifier 
-    - This ASReview extension adds a convolutional neural network (CNN) model 
-      for use during the simulation phase.
-    - `Github <https://github.com/JTeijema/asreview-plugin-model-cnn-17-layer>`__
+* ASReview 17 layer CNN classifier 
+    - This ASReview extension adds a 17 layer deep convolutional neural network
+      (CNN) model for use in ASReview.
+    - `Github <https://github.com/JTeijema/asreview-plugin-model-cnn-17-layer>`__ 
+    - `DOI 10.5281/zenodo.5084887 <https://doi.org/10.5281/zenodo.5084887>`__ 
 
 * ASReview Model Switcher 
     - This extension adds a model that switches between two models during 
-      runtime. It can be useful for when later stages of data classification 
-      require different models.
+      simulation runtime. It can be useful for when later stages of data
+      classification require different models.
     - `Github <https://github.com/JTeijema/asreview-plugin-model-switcher>`__
+    - `DOI 10.5281/zenodo.5084863 <https://doi.org/10.5281/zenodo.5084863>`__ 
 
 * ASReview NB + CNN classifier with HPO
     - This extension adds a model consisting out of two separate classifiers 
@@ -89,7 +91,15 @@ The following extensions are developed and maintained by the ASReview community:
       a switch to a CNN is made. Immediately at this switching point, and 
       then after each 150 iterations, hyperparameter optimization is conducted 
       to find the most suitable CNN architecture for current iteration.
-    - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__ 
+    - `Github <https://github.com/BartJanBoverhof/asreview-cnn-hpo>`__
+    - `DOI 10.5281/zenodo.5482149 <https://doi.org/10.5281/zenodo.5482149>`__ 
+
+* ASReview Wide Doc2Vec
+    - This small plugin adds a new feature extractor based on doc2vec with a
+      wider vector. In combination with a convolutional neural network model,
+      that has been shown to outperform classical algorithms in some situations.
+    - `Github <https://github.com/JTeijema/asreview-plugin-wide-doc2vec>`__ 
+    - `DOI 10.5281/zenodo.5084877 <https://doi.org/10.5281/zenodo.5084877>`__ 
 
 * ASReview matrix and vocabulary extractor for TF-IDF and Doc2Vec
     - An extension for ASReview that adds a tf-idf extractor that saves the
