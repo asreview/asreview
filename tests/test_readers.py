@@ -150,7 +150,7 @@ def test_ris_write_data(tmpdir):
     assert list(asr_data.abstract) == list(asr_data_diff.abstract)
     assert list(asr_data.authors) == list(asr_data_diff.authors)
     assert list(asr_data.keywords) == list(asr_data_diff.keywords)
-    #assert list(asr_data.notes) == list(asr_data_diff.notes)
+    # assert list(asr_data.notes) == list(asr_data_diff.notes)
     assert list(asr_data.doi) == list(asr_data_diff.doi)
 
     # Check if export file includes labels [1,0]
