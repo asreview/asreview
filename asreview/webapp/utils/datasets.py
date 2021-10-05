@@ -73,7 +73,7 @@ def get_dataset_metadata(exclude=None, include=None):
             include = [include]
 
         # pop items
-        for group_id in groups:
+        for group_id in groups.copy():
             if group_id not in include:
                 groups.remove(group_id)
 
