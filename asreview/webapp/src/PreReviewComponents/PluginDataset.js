@@ -39,47 +39,55 @@ const PluginDataset = (props) => {
     // setState(false);
   };
 
-  return (
-    <Card
-      className={classes.cardRoot}
-      key={props.dataset_id}
-      onClick={!state ? uploadDataset : undefined}
-    >
-      {!state ? (
-        <CardActionArea>
-          <CardMedia
-            className={classes.media}
-            image={props.img_url}
-            title={props.title}
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2">
-              {props.title}
-            </Typography>
-            <Typography
-              noWrap
-              variant="body2"
-              color="textSecondary"
-              component="p"
-            >
-              {props.description}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-      ) : (
-        <div>
-          <CardMedia
-            className={classes.media}
-            image={props.img_url}
-            title={props.title}
-          />
-          <CardContent>
-            <CircularProgress />
-          </CardContent>
-        </div>
-      )}
-    </Card>
-  );
+  function DataSetCard(dataset) {
+    return (
+      <Card
+        className={classes.cardRoot}
+        key={dataset.dataset_id}
+        onClick={!state ? uploadDataset : undefined}
+      >
+        {!state ? (
+          <CardActionArea>
+            <CardMedia
+              className={classes.media}
+              image={dataset.img_url}
+              title={dataset.title}
+            />
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="h2">
+                {dataset.title}
+              </Typography>
+              <Typography
+                noWrap
+                variant="body2"
+                color="textSecondary"
+                component="p"
+              >
+                {dataset.description}
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        ) : (
+          <div>
+            <CardMedia
+              className={classes.media}
+              image={dataset.img_url}
+              title={dataset.title}
+            />
+            <CardContent>
+              <CircularProgress />
+            </CardContent>
+          </div>
+        )}
+      </Card>
+    );
+  }
+
+  if (props.dataset.constructor === Array) {
+    return DataSetCard(props.dataset[props.dataset.length - 1]);
+  } else {
+    return DataSetCard(props.dataset);
+  }
 };
 
 export default PluginDataset;

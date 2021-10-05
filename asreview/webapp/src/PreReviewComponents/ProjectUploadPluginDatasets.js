@@ -61,11 +61,7 @@ const ProjectUploadPluginDatasets = (props) => {
         <Box>
           {state.datasets.map((dataset) => (
             <PluginDataset
-              key={dataset[dataset.length - 1].dataset_id}
-              dataset_id={dataset[dataset.length - 1].dataset_id}
-              title={dataset[dataset.length - 1].title}
-              description={dataset[dataset.length - 1].description}
-              img_url={dataset[dataset.length - 1].img_url}
+              dataset={dataset}
               onUploadHandler={props.onUploadHandler}
             />
           ))}
