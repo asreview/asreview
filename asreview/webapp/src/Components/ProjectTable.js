@@ -35,6 +35,7 @@ const classes = {
   chipSetup: `${PREFIX}-chipSetup`,
   chipInReview: `${PREFIX}-chipInReview`,
   chipFinished: `${PREFIX}-chipFinished`,
+  circularProgress: `${PREFIX}-circularProgress`,
 };
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -71,11 +72,8 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     backgroundColor: finishedColor,
     display: "flex",
   },
-  circularProgress: {
+  [`& .${classes.circularProgress}`]: {
     display: "flex",
-    "& > * + *": {
-      marginLeft: theme.spacing(1),
-    },
     alignItems: "center",
   },
 }));
@@ -150,7 +148,11 @@ const ProjectTable = (props) => {
                     <TableCell>
                       <div className={classes.circularProgress}>
                         {isLoading && row.id === props.project_id && (
-                          <CircularProgress size="1rem" thickness={5} />
+                          <CircularProgress
+                            size="1rem"
+                            thickness={5}
+                            sx={{ marginRight: "8px" }}
+                          />
                         )}
                         <Box
                           onClick={isLoading ? null : openExistingProject}
