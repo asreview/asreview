@@ -6,8 +6,8 @@ import numpy as np
 from asreview import ASReviewData
 # ToDo:
 # 0. Make labeled RIS file, add to repo demo_data!!
-# 0,5. Make different col fills for RIS files (no labels (labels == None), 
-#  partly labeled, incorrectly labeled (TypeError), uppercase/lowercase, 
+# 0,5. Make different col fills for RIS files (no labels (labels == None),
+#  partly labeled, incorrectly labeled (TypeError), uppercase/lowercase,
 #  partly notes (no notes, multiple notes in one column, one note in one column,
 #  multiple notes in all records), partly keywords)
 # 1. Use labeled RIS file as input for int/rep test
