@@ -555,8 +555,8 @@ def api_get_labeled(project_id):  # noqa: F401
     try:
 
         with open_state(project_path) as s:
-            data = s.get_dataset(["record_ids", "labels", "query_strategies"])
-            data["prior"] = (data["query_strategies"] == "prior").astype(int)
+            data = s.get_dataset(["record_id", "label", "query_strategy"])
+            data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
         # count labeled records and max pages
         count = len(data)
@@ -589,7 +589,7 @@ def api_get_labeled(project_id):  # noqa: F401
             next_page = None
             previous_page = None
 
-        records = read_data(project_id).record(data["record_ids"], by_index=False)
+        records = read_data(project_id).record(data["record_id"], by_index=False)
 
         payload = {
             "count": count,
@@ -605,7 +605,7 @@ def api_get_labeled(project_id):  # noqa: F401
                 "abstract": record.abstract,
                 "authors": record.authors,
                 "keywords": record.keywords,
-                "included": int(data.loc[i, "labels"]),
+                "included": int(data.loc[i, "label"]),
                 "prior": int(data.loc[i, "prior"])
             })
 
@@ -626,12 +626,12 @@ def api_get_labeled_stats(project_id):  # noqa: F401
     try:
 
         with open_state(project_path) as s:
-            data = s.get_dataset(["labels", "query_strategies"])
+            data = s.get_dataset(["label", "query_strategy"])
 
-        data_prior = data[data["query_strategies"] == "prior"].copy()
+        data_prior = data[data["query_strategy"] == "prior"].copy()
 
-        counter_prior = Counter([x for x in data_prior["labels"].tolist()])
-        counter = Counter([x for x in data["labels"].tolist()])
+        counter_prior = Counter([x for x in data_prior["label"].tolist()])
+        counter = Counter([x for x in data["label"].tolist()])
 
         response = jsonify({
             "n": len(data),
