@@ -22,6 +22,9 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.snackbar}`]: {
     marginBottom: decisionUndoBarMarginBottom,
+    [theme.breakpoints.down("md")]: {
+      marginBottom: 70,
+    },
   },
 
   [`& .${classes.undoButton}`]: {

@@ -161,7 +161,11 @@ const RecordCard = (props) => {
         </Card>
       )}
       {props.isloaded && (
-        <Card className={classes.loadedCard} aria-label="record card">
+        <Card
+          elevation={2}
+          className={classes.loadedCard}
+          aria-label="record card"
+        >
           {/* Previous decision alert */}
           {isDebugInclusion() && (
             <Box aria-label="pre-labeled record alert">
