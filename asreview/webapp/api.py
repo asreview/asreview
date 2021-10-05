@@ -48,7 +48,6 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.datasets import search_data
-from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.project_path import get_project_path
 from asreview.settings import ASReviewSettings
