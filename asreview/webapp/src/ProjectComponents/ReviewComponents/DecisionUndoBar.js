@@ -14,7 +14,6 @@ const classes = {
   undoButton: `${PREFIX}-undoButton`,
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     backgroundColor: theme.palette.background.paper,
@@ -26,7 +25,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.undoButton}`]: {
-    color: theme.palette.secondary.light,
+    color: theme.palette.primary.main,
   },
 }));
 
@@ -45,28 +44,30 @@ const DecisionUndoBar = (props) => {
   };
 
   return (
-    <Snackbar
-      anchorOrigin={anchorOrigin}
-      open={props.state.open}
-      autoHideDuration={decisionUndoBarDuration}
-      onClose={handleClose}
-      message={props.state.message}
-      action={
-        <Root>
-          <Button
-            className={classes.undoButton}
-            size="small"
-            onClick={handleUndo}
-          >
-            UNDO
-          </Button>
-        </Root>
-      }
-      ContentProps={{
-        className: classes.root,
-      }}
-      className={classes.snackbar}
-    />
+    <Root>
+      <Snackbar
+        anchorOrigin={anchorOrigin}
+        open={props.state.open}
+        autoHideDuration={decisionUndoBarDuration}
+        onClose={handleClose}
+        message={props.state.message}
+        action={
+          <div>
+            <Button
+              className={classes.undoButton}
+              size="small"
+              onClick={handleUndo}
+            >
+              UNDO
+            </Button>
+          </div>
+        }
+        ContentProps={{
+          className: classes.root,
+        }}
+        className={classes.snackbar}
+      />
+    </Root>
   );
 };
 
