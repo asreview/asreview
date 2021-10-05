@@ -572,13 +572,14 @@ def export_to_string(project_id, export_type="csv"):
         raise ValueError("This export type isn't implemented.")
 
 
-def label_instance(project_id, paper_i, label, retrain_model=True):
+def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
 
     paper_i = int(paper_i)
     label = int(label)
+    prior_label = ["prior"] if prior else [None]
 
     # create state file if there is no state file yet
     if True:
@@ -600,7 +601,7 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
             state.add_labeling_data(record_ids=[paper_i],
                                     labels=[label],
                                     classifiers=[None],
-                                    query_strategies=[None],
+                                    query_strategies=prior_label,
                                     balance_strategies=[None],
                                     feature_extraction=[None],
                                     training_sets=[None],
