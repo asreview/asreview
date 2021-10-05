@@ -589,16 +589,23 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
             pass
 
     project_path = get_project_path(project_id)
-    fp_lock = get_lock_path(project_path)
+    state_file = get_state_path(project_path)
 
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
+    with open_state(state_file, read_only=False) as state:
 
         # get the index of the active iteration
         if int(label) in [0, 1]:
-            move_label_from_pool_to_labeled(project_id, paper_i, label)
+
+            # add the labels as prior data
+            state.add_labeling_data(record_ids=[paper_i],
+                                    labels=[label],
+                                    classifiers=[None],
+                                    query_strategies=[None],
+                                    balance_strategies=[None],
+                                    feature_extraction=[None],
+                                    training_sets=[None],
+                                    notes=[None])
+
         else:
             move_label_from_labeled_to_pool(project_id, paper_i)
 
@@ -608,25 +615,6 @@ def label_instance(project_id, paper_i, label, retrain_model=True):
         py_exe = _get_executable()
         run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
         subprocess.Popen(run_command)
-
-
-def move_label_from_pool_to_labeled(project_id, paper_i, label):
-
-    # load the papers from the pool
-    pool_idx = read_pool(project_id)
-
-    # Remove the paper from the pool.
-    try:
-        pool_idx.remove(int(paper_i))
-    except (IndexError, ValueError):
-        return
-
-    write_pool(project_id, pool_idx)
-
-    # Add the paper to the reviewed papers.
-    labeled = read_label_history(project_id)
-    labeled.append([int(paper_i), int(label)])
-    write_label_history(project_id, labeled)
 
 
 def move_label_from_labeled_to_pool(project_id, paper_i):
