@@ -149,20 +149,20 @@ def test_label_item(client):
     assert response_relevant.status_code == 200
 
 
-def test_get_prior(client):
-    """Test get all papers classified as prior documents"""
+def test_get_labeled(client):
+    """Test get all papers classified as labeled documents"""
 
-    response = client.get("/api/project/project-id/prior")
+    response = client.get("/api/project/project-id/labeled")
     json_data = response.get_json()
 
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
 
 
-def test_get_prior_stat(client):
+def test_get_labeled_stats(client):
     """Test get all papers classified as prior documents"""
 
-    response = client.get("/api/project/project-id/prior_stats")
+    response = client.get("/api/project/project-id/labeled_stats")
     json_data = response.get_json()
 
     assert "n_prior" in json_data
