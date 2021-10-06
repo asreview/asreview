@@ -16,7 +16,7 @@ jobs:
         pip install --no-cache-dir .
     - name: Install extension
       run: |
-        git clone git@github.com:asreview/asreview-statistics.git
+        git clone https://github.com/asreview/asreview-statistics
         cd asreview-statistics
         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
         git cechkout $latestTag
@@ -39,7 +39,7 @@ jobs:
         pip install --no-cache-dir .
     - name: Install extension
       run: |
-        git clone git@github.com:asreview/asreview-visualization.git
+        git clone https://github.com/asreview/asreview-visualization
         cd asreview-visualization
         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
         git cechkout $latestTag
