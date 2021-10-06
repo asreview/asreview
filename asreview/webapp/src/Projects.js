@@ -17,7 +17,7 @@ import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 import ErrorHandler from "./ErrorHandler";
 
 import {
-  DashboardStatsPaper,
+  DashboardStats,
   ProjectImportDialog,
   ProjectTable,
   NavigationDrawer,
@@ -195,7 +195,7 @@ const Projects = (props) => {
         <Fade in={props.app_state === "dashboard"}>
           <div>
             <Container maxWidth="md" className={classes.root}>
-              <DashboardStatsPaper />
+              <DashboardStats />
             </Container>
             <Container maxWidth="md" className={classes.root}>
               {error["message"] !== null && (
