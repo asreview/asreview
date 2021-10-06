@@ -19,6 +19,7 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../api/index.js";
+import { useRowsPerPage } from "../hooks/SettingsHooks";
 import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
 
 import { mapStateToProps, mapDispatchToProps } from "../globals";
@@ -101,7 +102,7 @@ const columns = [
 
 const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
 
   /**
    * Fetch projects
@@ -130,19 +131,33 @@ const ProjectTable = (props) => {
     }
   );
 
-  const handleChangePage = (event, newPage) => {
+  const handlePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
+  const setRowsPerPage = (event) => {
+    handleRowsPerPage(+event.target.value);
     setPage(0);
   };
 
   const formatDate = (datetime) => {
     let date = new Date(datetime);
     let dateString = date.toDateString().slice(4);
-    return dateString;
+    let dateDisplay =
+      dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
+    return dateDisplay;
+  };
+
+  const formMode = (mode) => {
+    if (mode === "oracle") {
+      return "Oracle";
+    }
+    if (mode === "explore") {
+      return "Exploration";
+    }
+    if (mode === "simulate") {
+      return "Simulation";
+    }
   };
 
   return (
@@ -211,7 +226,7 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["mode"] ? row["mode"] : "N/A"}
+                          {row["mode"] ? formMode(row["mode"]) : "N/A"}
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
@@ -273,8 +288,8 @@ const ProjectTable = (props) => {
           rowsPerPage={rowsPerPage}
           labelRowsPerPage="Projects per page:"
           page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onPageChange={handlePage}
+          onRowsPerPageChange={setRowsPerPage}
         />
       )}
     </StyledPaper>
