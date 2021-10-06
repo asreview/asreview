@@ -3,6 +3,7 @@ import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
+  Button,
   Chip,
   CircularProgress,
   Paper,
@@ -18,6 +19,8 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../api/index.js";
+import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
+
 import {
   finishedColor,
   inReviewColor,
@@ -36,12 +39,13 @@ const classes = {
   chipInReview: `${PREFIX}-chipInReview`,
   chipFinished: `${PREFIX}-chipFinished`,
   circularProgress: `${PREFIX}-circularProgress`,
+  noProject: `${PREFIX}-noProject`,
+  img: `${PREFIX}-img`,
 };
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: "100%",
-    marginBottom: "100px",
   },
 
   [`& .${classes.table}`]: {
@@ -72,15 +76,33 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     backgroundColor: finishedColor,
     display: "flex",
   },
+
   [`& .${classes.circularProgress}`]: {
     display: "flex",
     alignItems: "center",
+  },
+
+  [`&. ${classes.noProject}`]: {
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    justifyContent: "center",
+    "& > *": {
+      margin: theme.spacing(1),
+    },
+  },
+
+  [`& .${classes.img}`]: {
+    maxWidth: 140,
+    marginTop: 8,
+    marginBottom: 64,
   },
 }));
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
-  { id: "datetimeCreated", label: "Date Created", width: "15%" },
+  { id: "datetimeCreated", label: "Date", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
   { id: "reviewFinished", label: "Status", width: "15%" },
 ];
@@ -89,7 +111,18 @@ const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // convert project if old
+  /**
+   * Fetch projects
+   */
+  const { data, isFetched } = useQuery(
+    "fetchProjects",
+    ProjectAPI.fetchProjects,
+    { refetchOnWindowFocus: false }
+  );
+
+  /**
+   * When open a project, convert if old
+   */
   const { isLoading } = useQuery(
     ["fetchConvertProjectIfOld", { project_id: props.project_id }],
     ProjectAPI.fetchConvertProjectIfOld,
@@ -134,94 +167,122 @@ const ProjectTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.projects["projects"]
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                const openExistingProject = () => {
-                  console.log("Opening existing project " + row.id);
+            {isFetched &&
+              data
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  const openExistingProject = () => {
+                    console.log("Opening existing project " + row.id);
 
-                  // set the state in the redux store
-                  props.setProjectId(row.id);
-                };
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    <TableCell>
-                      <div className={classes.circularProgress}>
-                        {isLoading && row.id === props.project_id && (
-                          <CircularProgress
-                            size="1rem"
-                            thickness={5}
-                            sx={{ marginRight: "8px" }}
-                          />
-                        )}
-                        <Box
-                          onClick={isLoading ? null : openExistingProject}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <Typography
-                            className={classes.tableCell}
-                            variant="subtitle1"
-                            noWrap
+                    // set the state in the redux store
+                    props.setProjectId(row.id);
+                  };
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                      <TableCell>
+                        <div className={classes.circularProgress}>
+                          {isLoading && row.id === props.project_id && (
+                            <CircularProgress
+                              size="1rem"
+                              thickness={5}
+                              sx={{ marginRight: "8px" }}
+                            />
+                          )}
+                          <Box
+                            onClick={isLoading ? null : openExistingProject}
+                            style={{ cursor: "pointer" }}
                           >
-                            {row["name"]}
-                          </Typography>
-                        </Box>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        className={classes.tableCell}
-                        variant="subtitle1"
-                        noWrap
-                      >
-                        {row["datetimeCreated"]
-                          ? formatDate(row["datetimeCreated"])
-                          : "N/A"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        className={classes.tableCell}
-                        variant="subtitle1"
-                        noWrap
-                      >
-                        {row["mode"] ? row["mode"] : "N/A"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell className={classes.tableCell}>
-                      <Chip
-                        className={
-                          row["projectInitReady"]
-                            ? row["reviewFinished"]
-                              ? classes.chipFinished
-                              : classes.chipInReview
-                            : classes.chipSetup
-                        }
-                        label={
-                          row["projectInitReady"]
-                            ? row["reviewFinished"]
-                              ? "FINISHED"
-                              : "IN REVIEW"
-                            : "SETUP"
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                            <Typography
+                              className={classes.tableCell}
+                              variant="subtitle1"
+                              noWrap
+                            >
+                              {row["name"]}
+                            </Typography>
+                          </Box>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          className={classes.tableCell}
+                          variant="subtitle1"
+                          noWrap
+                        >
+                          {row["datetimeCreated"]
+                            ? formatDate(row["datetimeCreated"])
+                            : "N/A"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          className={classes.tableCell}
+                          variant="subtitle1"
+                          noWrap
+                        >
+                          {row["mode"] ? row["mode"] : "N/A"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell className={classes.tableCell}>
+                        <Chip
+                          className={
+                            row["projectInitReady"]
+                              ? row["reviewFinished"]
+                                ? classes.chipFinished
+                                : classes.chipInReview
+                              : classes.chipSetup
+                          }
+                          label={
+                            row["projectInitReady"]
+                              ? row["reviewFinished"]
+                                ? "FINISHED"
+                                : "IN REVIEW"
+                              : "SETUP"
+                          }
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
           </TableBody>
         </Table>
+        {isFetched && data.length === 0 && (
+          <Box
+            sx={{
+              alignItems: "center",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Typography sx={{ marginTop: "64px" }}>
+              Your projects will show up here
+            </Typography>
+            <Button
+              onClick={(event) => {
+                props.handleClickAdd(event, "newProject");
+              }}
+            >
+              Get Started
+            </Button>
+            <img
+              src={ElasArrowRightAhead}
+              alt="ElasArrowRightAhead"
+              className={classes.img}
+            />
+          </Box>
+        )}
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 15]}
-        component="div"
-        count={props.projects["projects"].length}
-        rowsPerPage={rowsPerPage}
-        labelRowsPerPage="Projects per page:"
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {isFetched && data.length !== 0 && (
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 15]}
+          component="div"
+          count={data.length}
+          rowsPerPage={rowsPerPage}
+          labelRowsPerPage="Projects per page:"
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      )}
     </StyledPaper>
   );
 };
