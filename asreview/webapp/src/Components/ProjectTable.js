@@ -90,6 +90,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     maxWidth: 140,
     marginTop: 8,
     marginBottom: 64,
+    marginLeft: 100,
   },
 }));
 
