@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pytest import mark
 import numpy as np
+import rispy
 
 from asreview import ASReviewData
 # ToDo:
@@ -91,6 +92,11 @@ def test_asreview_labels_ris(record_i, included):
     as_data = ASReviewData.from_file(fp)
     assert as_data.record(record_i, by_index=True).included == included
 
+def test_multiline_tags_ris():
+
+    fp = Path("tests", "demo_data", "baseline_tag_and_field_definitions_lists.ris")
+    entries = rispy.load(fp, encoding='utf-8')
+    assert entries[0]["notes"] == ["Notes 1","Notes 2"]
 
 def test_nan_values_ris():
 
