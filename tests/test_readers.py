@@ -53,15 +53,43 @@ def test_reader(test_file, n_lines, ignore_col):
         assert len(values) == n_lines
 
 
-@mark.parametrize("test_file", [("_baseline.ris"), ("baseline_labeled.ris")])
-# Test input file with labels to have int rep of 1,0 in labels
-def test_internal_representation(test_file):
-    fp = Path("tests", "demo_data", test_file)
+@mark.parametrize("record_i,included", [
+    # Single line record
+    (0, 1),
+    (1, 0),
+    (2, -1),
+    (3, -1),
+    # Single line record with additional notes, label first
+    (4, 1),
+    (5, 0),
+    (6, -1),
+    # Single line record with additional notes, label in the middle
+    (7, 1),
+    (8, 0),
+    (9, -1),
+    # Single line record with additional notes, label last
+    (10, 1),
+    (11, 0),
+    (12, -1),
+    # Multiline record, label first
+    (13, 1),
+    (14, 0),
+    (15, -1),
+    # Multiline record, label in the middle
+    (16, 1),
+    (17, 0),
+    (18, -1),
+    # Multiline record, label last
+    (19, 1),
+    (20, 0),
+    (21, -1),
+    # No notes tag present
+    (22, -1)
+])
+def test_asreview_labels_ris(record_i, included):
+    fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
     as_data = ASReviewData.from_file(fp)
-    print(as_data.column_spec)
-    print(as_data.included)
-    # Check the internal representation labels
-    assert list(as_data.included) == ["1.0", "0", "-1.0"]
+    assert as_data.record(record_i, by_index=True).included == included
 
 
 def test_nan_values_ris():
