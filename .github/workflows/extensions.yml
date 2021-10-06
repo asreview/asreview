@@ -19,7 +19,7 @@ jobs:
         git clone https://github.com/asreview/asreview-statistics
         cd asreview-statistics
         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-        git cechkout $latestTag
+        git checkout $latestTag
         pip install .
     - name: Run test on asreview-statistics
       run: |
@@ -42,7 +42,7 @@ jobs:
         git clone https://github.com/asreview/asreview-visualization
         cd asreview-visualization
         latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-        git cechkout $latestTag
+        git checkout $latestTag
         pip install .
     - name: Run test on asreview-visualization
       run: |
