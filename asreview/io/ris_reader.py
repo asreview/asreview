@@ -23,6 +23,9 @@ from asreview.io.utils import standardize_dataframe
 
 # Converter function for manipulating the internal "included" column
 def _label_parser(note_list):
+    # Check whether note_list is actually a list and not NaN
+    if not isinstance(note_list, list):
+        return None
     # Check the list for the label and return the proper value
     if "ASReview_relevant" in note_list:
         return 1
@@ -35,9 +38,8 @@ def _label_parser(note_list):
 # Converter function for removing the XHTML <p></p> tags from Zotero export
 def _strip_zotero_p_tags(note_list):
     if isinstance(note_list, list):
+        new_notes = []
         for v in note_list:
-
-            new_notes = []
             try:
                 new_notes.append(re.sub(r'^<p>|<\/p>$', '', v))
             except Exception:
@@ -71,19 +73,17 @@ def read_ris(fp):
     for encoding in encodings:
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
-                entries = list(rispy.load(bibliography_file))
+                entries = list(rispy.load(bibliography_file, skip_unknown_tags=True))
                 break
         except UnicodeDecodeError:
             pass
         except IOError as e:
             logging.warning(e)
-
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
 
     # Turn the entries dictionary into a Pandas dataframe
     df = pandas.DataFrame(entries)
-
     # Check if "notes" column is present
     if "notes" in df:
         # Strip Zotero XHTML <p> tags on "notes"
