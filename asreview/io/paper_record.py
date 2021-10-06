@@ -154,7 +154,7 @@ class PaperRecord():
         self.extra_fields = kwargs
 
         for attr, val in self.extra_fields.items():
-            if pd.isna(val):
+            if not isinstance(val, list) and pd.isna(val):
                 self.extra_fields[attr] = None
 
     def __str__(self):
