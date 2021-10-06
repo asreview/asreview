@@ -21,13 +21,7 @@ import { styled } from "@mui/material/styles";
 import { ProjectAPI } from "../api/index.js";
 import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
 
-import {
-  finishedColor,
-  inReviewColor,
-  mapStateToProps,
-  mapDispatchToProps,
-  setupColor,
-} from "../globals";
+import { mapStateToProps, mapDispatchToProps } from "../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -46,6 +40,7 @@ const classes = {
 const StyledPaper = styled(Paper)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: "100%",
+    borderRadius: 16,
   },
 
   [`& .${classes.table}`]: {
@@ -57,24 +52,21 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   },
 
   [`& .${classes.chipSetup}`]: {
-    color: "white",
-    backgroundColor: setupColor,
+    color: "#424242",
+    backgroundColor: "#bdbdbd",
     fontWeight: 500,
-    display: "flex",
   },
 
   [`& .${classes.chipInReview}`]: {
-    color: "white",
+    color: "#91620B",
+    backgroundColor: "#FFFBE7",
     fontWeight: 500,
-    backgroundColor: inReviewColor,
-    display: "flex",
   },
 
   [`& .${classes.chipFinished}`]: {
-    color: "white",
+    color: "rgb(0, 123, 85)",
+    backgroundColor: "#E1FAE3",
     fontWeight: 500,
-    backgroundColor: finishedColor,
-    display: "flex",
   },
 
   [`& .${classes.circularProgress}`]: {
@@ -154,7 +146,7 @@ const ProjectTable = (props) => {
   };
 
   return (
-    <StyledPaper className={classes.root}>
+    <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
         <Table className={classes.table} stickyHeader aria-label="sticky table">
           <TableHead>
@@ -224,6 +216,7 @@ const ProjectTable = (props) => {
                       </TableCell>
                       <TableCell className={classes.tableCell}>
                         <Chip
+                          size="small"
                           className={
                             row["projectInitReady"]
                               ? row["reviewFinished"]
@@ -234,9 +227,9 @@ const ProjectTable = (props) => {
                           label={
                             row["projectInitReady"]
                               ? row["reviewFinished"]
-                                ? "FINISHED"
-                                : "IN REVIEW"
-                              : "SETUP"
+                                ? "Finished"
+                                : "In Review"
+                              : "Setup"
                           }
                         />
                       </TableCell>
@@ -253,10 +246,11 @@ const ProjectTable = (props) => {
               flexDirection: "column",
             }}
           >
-            <Typography sx={{ marginTop: "64px" }}>
+            <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
               Your projects will show up here
             </Typography>
             <Button
+              color="secondary"
               onClick={(event) => {
                 props.handleClickAdd(event, "newProject");
               }}
