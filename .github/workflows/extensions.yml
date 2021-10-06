@@ -1,0 +1,49 @@
+name: test-extensions
+on: [push, pull_request]
+jobs:
+  test-asreview-statistics:
+    name: test-asreview-statistics
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.8'
+        architecture: 'x64'
+    - name: Install packages
+      run: |
+        pip install pytest
+        pip install --no-cache-dir .
+    - name: Install extension
+      run: |
+        git clone git@github.com:asreview/asreview-statistics.git
+        cd asreview-statistics
+        latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        git cechkout $latestTag
+        pip install .
+    - name: Run test on asreview-statistics
+      run: |
+        pytest tests/
+  test-asreview-visualization:
+    name: test-asreview-visualization
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.8'
+        architecture: 'x64'
+    - name: Install packages
+      run: |
+        pip install pytest
+        pip install --no-cache-dir .
+    - name: Install extension
+      run: |
+        git clone git@github.com:asreview/asreview-visualization.git
+        cd asreview-visualization
+        latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        git cechkout $latestTag
+        pip install .
+    - name: Run test on asreview-visualization
+      run: |
+        pytest tests/
