@@ -6,7 +6,13 @@ import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { ExportDialog, Header, HelpDialog, SettingsDialog } from "./Components";
+import {
+  Dashboard,
+  ExportDialog,
+  Header,
+  HelpDialog,
+  SettingsDialog,
+} from "./Components";
 import {
   PreReviewZone,
   ProjectPageOLD,
@@ -14,7 +20,6 @@ import {
 } from "./PreReviewComponents";
 import { ProjectPage } from "./ProjectComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
-import Projects from "./Projects";
 import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
@@ -77,7 +82,7 @@ const App = (props) => {
           )}
 
           {props.app_state === "dashboard" && (
-            <Projects
+            <Dashboard
               handleAppState={props.setAppState}
               mobileScreen={mobileScreen}
               onNavDrawer={navDrawer}

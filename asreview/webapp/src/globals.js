@@ -23,7 +23,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
             main: "#7a4f01",
           },
           secondary: {
-            main: "#7a0c2e",
+            main: "#065fd4",
           },
         }
       : {
@@ -31,16 +31,11 @@ export const getDesignTokens = (mode: PaletteMode) => ({
             main: "#fff7cd",
           },
           secondary: {
-            main: "#ffe7d9",
+            main: "#3ea6ff",
           },
         }),
   },
 });
-
-// project state color
-export const setupColor = "#706f6f";
-export const inReviewColor = "#aa6600";
-export const finishedColor = "#415f38";
 
 // algorithm settings configs
 export const defaultAlgorithms = {

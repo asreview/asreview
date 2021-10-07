@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import clsx from "clsx";
 import {
@@ -9,12 +9,9 @@ import {
   SpeedDial,
   SpeedDialIcon,
   SpeedDialAction,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
-
-import ErrorHandler from "./ErrorHandler";
 
 import {
   DashboardStats,
@@ -22,14 +19,12 @@ import {
   ProjectTable,
   NavigationDrawer,
   QuickTourDialog,
-} from "./Components";
+} from "../Components";
+import { ProjectInfo } from "../PreReviewComponents";
 
-import { ProjectInfo } from "./PreReviewComponents";
+import { drawerWidth } from "../globals.js";
 
-import { ProjectAPI } from "./api/index.js";
-import { drawerWidth } from "./globals.js";
-
-const PREFIX = "Projects";
+const PREFIX = "Dashboard";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -80,10 +75,6 @@ const Root = styled("div")(({ theme }) => ({
     bottom: theme.spacing(3),
   },
 
-  [`& .${classes.noProjects}`]: {
-    opacity: 0.5,
-  },
-
   [`& .${classes.backdropZ}`]: {
     zIndex: 1000,
   },
@@ -95,42 +86,12 @@ const mapStateToProps = (state) => {
   };
 };
 
-const Projects = (props) => {
+const Dashboard = (props) => {
   const [open, setOpen] = useState({
     dial: false,
     newProject: false,
     importProject: false,
   });
-
-  const [projects, setProjects] = useState({
-    projects: [],
-    loaded: false,
-  });
-
-  const [error, setError] = useState({
-    code: null,
-    message: null,
-  });
-
-  useEffect(() => {
-    refreshProjects();
-  }, [error.message]);
-
-  const refreshProjects = () => {
-    ProjectAPI.projects()
-      .then((result) => {
-        setProjects({
-          projects: result.data["result"],
-          loaded: true,
-        });
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
-        });
-      });
-  };
 
   const handleOpen = () => {
     setOpen({
@@ -198,39 +159,13 @@ const Projects = (props) => {
               <DashboardStats />
             </Container>
             <Container maxWidth="md" className={classes.root}>
-              {error["message"] !== null && (
-                <ErrorHandler error={error} setError={setError} />
-              )}
-
-              {/* Project loaded, but no projects found */}
-              {error["message"] === null &&
-                projects["loaded"] &&
-                projects["projects"].length === 0 && (
-                  <Box className={classes.noProjects}>
-                    <Typography variant="h5" align="center">
-                      You don't have any projects yet.
-                    </Typography>
-                    <Box fontStyle="italic">
-                      <Typography align="center">
-                        Start a review by clicking on the red button in the
-                        bottom right corner.
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-
-              {/* Project loaded and projects found */}
-              {error["message"] === null &&
-                projects["loaded"] &&
-                projects["projects"].length !== 0 && (
-                  <ProjectTable
-                    projects={projects}
-                    onCreateProject={open.newProject}
-                    handleAppState={props.handleAppState}
-                    onNavDrawer={props.onNavDrawer}
-                    toggleNavDrawer={props.toggleNavDrawer}
-                  />
-                )}
+              <ProjectTable
+                handleClickAdd={handleClickAdd}
+                onCreateProject={open.newProject}
+                handleAppState={props.handleAppState}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
             </Container>
 
             {open.newProject && (
@@ -287,4 +222,4 @@ const Projects = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(Projects);
+export default connect(mapStateToProps)(Dashboard);

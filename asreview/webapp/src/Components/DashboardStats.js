@@ -61,7 +61,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 export default function DashboardStats(props) {
-  const { data, error, isError, isFetched } = useQuery(
+  const { data, error, isError, isFetched, isSuccess } = useQuery(
     "fetchDashboardStats",
     ProjectAPI.fetchDashboardStats,
     { refetchOnWindowFocus: false }
@@ -84,7 +84,7 @@ export default function DashboardStats(props) {
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
                     value={
-                      !isError && isFetched && data.n_in_review
+                      !isError && isFetched && isSuccess && data.n_in_review
                         ? data.n_in_review
                         : 0
                     }
@@ -112,7 +112,7 @@ export default function DashboardStats(props) {
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
                     value={
-                      !isError && isFetched && data.n_finished
+                      !isError && isFetched && isSuccess && data.n_finished
                         ? data.n_finished
                         : 0
                     }
@@ -140,7 +140,7 @@ export default function DashboardStats(props) {
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
                     value={
-                      !isError && isFetched && data.n_reviewed
+                      !isError && isFetched && isSuccess && data.n_reviewed
                         ? data.n_reviewed
                         : 0
                     }
@@ -168,7 +168,7 @@ export default function DashboardStats(props) {
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
                     value={
-                      !isError && isFetched && data.n_included
+                      !isError && isFetched && isSuccess && data.n_included
                         ? data.n_included
                         : 0
                     }

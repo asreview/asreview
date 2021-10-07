@@ -13,7 +13,7 @@ const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
     backgroundColor: "rgba(255, 255, 255, 0.8)",
   }),
   ...(theme.palette.mode === "dark" && {
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    backgroundColor: "rgba(18, 18, 18, 0.8)",
   }),
 }));
 
@@ -28,7 +28,7 @@ export default function DashboardStatsError(props) {
       <Typography variant="h6" align="center" sx={{ color: "text.secondary" }}>
         {props.error ? props.error.message : null}
       </Typography>
-      <Button variant="outlined" onClick={resetQuery}>
+      <Button color="secondary" variant="outlined" onClick={resetQuery}>
         Try to Refresh
       </Button>
     </StyledBackdrop>
