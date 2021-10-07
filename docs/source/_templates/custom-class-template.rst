@@ -12,7 +12,7 @@
    .. rubric:: {{ ('Methods') }}
 
    .. autosummary::
-      :nosignatures:
+
       {% for item in methods %}
          ~{{ name }}.{{ item }}
       {%- endfor %}

@@ -11,29 +11,55 @@ Welcome to the ASReview API.
 :mod:`asreview`
 ===============
 
-This contains separate ASReview modules.
-
 .. automodule:: asreview
    :no-members:
    :no-inherited-members:
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   asreview.datasets.BaseDataGroup
+   asreview.datasets.BaseDataSet
+   asreview.datasets.BaseVersionedDataSet
+   asreview.datasets.BenchmarkDataGroup
+   asreview.datasets.DatasetManager
+   asreview.settings.ASReviewSettings
+
+
+Functions
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
    :template: custom-module-template.rst
-   
-   asreview.datasets
-   asreview.init_sampling
-   asreview.search
-   asreview.types
-   asreview.utils
+
+   asreview.batch.batch_simulate
+   asreview.batch.create_jobs
+   asreview.compat.convert_id_to_idx
+   asreview.compat.convert_idx_to_id
+   asreview.datasets.dataset_from_url
+   asreview.datasets.download_from_metadata
+   asreview.init_sampling.sample_prior_knowledge
+   asreview.search.fuzzy_find
+   asreview.types.type_n_queries
+   asreview.utils.format_to_str
+   asreview.utils.get_data_home
+   asreview.utils.get_entry_points
+   asreview.utils.get_random_state
+   asreview.utils.is_iterable
+   asreview.utils.is_url
+   asreview.utils.list_model_names
+   asreview.utils.pretty_format
 
 
 
 :mod:`asreview.analysis`
 ========================
 
-This module contains the ASReview analysis functionality.
 
 .. automodule:: asreview.analysis
     :no-members:
@@ -41,14 +67,14 @@ This module contains the ASReview analysis functionality.
 
 .. currentmodule:: asreview
 
+Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
+   :template: custom-class-template.rst
 
-   analysis.analysis
-   analysis.statistics
-
+   analysis.Analysis
 
 
 :mod:`asreview.data`
@@ -62,22 +88,38 @@ This module contains the data handling.
 
 .. currentmodule:: asreview
 
+Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
+   :template: custom-class-template.rst
 
-   data.base
-   data.statistics
-   data.utils
+   data.ASReviewData
 
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   data.load_data
+   data.statistics.abstract_length
+   data.statistics.n_irrelevant
+   data.statistics.n_keywords
+   data.statistics.n_missing_abstract
+   data.statistics.n_missing_title
+   data.statistics.n_records
+   data.statistics.n_relevant
+   data.statistics.n_unlabeled
+   data.statistics.title_length
 
 
 :mod:`asreview.entry_points`
 ============================
 
-This module contains the ASReview entry point handling.
 
 .. automodule:: asreview.entry_points
     :no-members:
@@ -85,23 +127,35 @@ This module contains the ASReview entry point handling.
 
 .. currentmodule:: asreview
 
+Base Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
+   :template: custom-class-template.rst
 
-   entry_points.base
-   entry_points.algorithms
-   entry_points.lab
-   entry_points.simulate
+   entry_points.BaseEntryPoint
+
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   entry_points.AlgorithmsEntryPoint
+   entry_points.BatchEntryPoint
+   entry_points.LABEntryPoint
+   entry_points.OracleEntryPoint
+   entry_points.SimulateEntryPoint
+   entry_points.WebRunModelEntryPoint
 
 
 
 :mod:`asreview.io`
 ==================
 
-This module contains the base model class.
 
 .. automodule:: asreview.io
     :no-members:
@@ -109,27 +163,40 @@ This module contains the base model class.
 
 .. currentmodule:: asreview
 
+
+Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
+   :template: custom-class-template.rst
 
-   io.csv_reader
-   io.excel_reader
-   io.paper_record
-   io.pubmed_xml_reader
-   io.ris_reader
-   io.utils
+   io.PaperRecord
 
 
-.. the underlying part could also be done with :recursive:, but it turned out a bit unruly.
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   io.read_csv
+   io.read_excel
+   io.paper_record.preview_record
+   io.paper_record.format_record
+   io.read_pubmed_xml
+   io.read_ris
+   io.ris_reader.write_ris
+   io.utils.type_from_column
+   io.utils.convert_keywords
+   io.utils.type_from_column_spec
+   io.utils.standardize_dataframe
 
 
 :mod:`asreview.models`
 ======================
 
-This module contains the base model class.
 
 .. automodule:: asreview.models
     :no-members:
@@ -137,18 +204,29 @@ This module contains the base model class.
 
 .. currentmodule:: asreview
 
+   
+Base Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
-   models.base
+   :template: custom-class-template.rst
+
+   models.base.BaseModel
+
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   models.base.sig_to_param
 
 
 :mod:`asreview.models.balance`
 ------------------------------
-
-This module contains all Balancer models.
 
 .. automodule:: asreview.models.balance
     :no-members:
@@ -156,54 +234,90 @@ This module contains all Balancer models.
 
 .. currentmodule:: asreview.models
 
+Base Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
-   
-   balance.base
-   balance.simple
-   balance.double
-   balance.triple
-   balance.undersample
-   balance.utils
+   :template: custom-class-template.rst
+
+   balance.base.BaseBalance
+
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   balance.SimpleBalance
+   balance.DoubleBalance
+   balance.TripleBalance
+   balance.UndersampleBalance
+
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   balance.get_balance_model
+   balance.get_balance_class
+   balance.list_balance_strategies
 
 
 
 :mod:`asreview.models.classifiers`
 ----------------------------------
 
-This module contains all classifier models.
-
 .. automodule:: asreview.models.classifiers
     :no-members:
     :no-inherited-members:
 
 .. currentmodule:: asreview.models
-     
+
+Base Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
-   
-   classifiers.base
-   classifiers.nb
-   classifiers.rf
-   classifiers.svm
-   classifiers.logistic
-   classifiers.lstm_base
-   classifiers.lstm_pool
-   classifiers.nn_2_layer
-   classifiers.utils
+   :template: custom-class-template.rst
+
+   classifiers.base.BaseTrainClassifier
+
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   classifiers.NaiveBayesClassifier
+   classifiers.RandomForestClassifier
+   classifiers.SVMClassifier
+   classifiers.LogisticClassifier
+   classifiers.LSTMBaseClassifier
+   classifiers.LSTMPoolClassifier
+   classifiers.NN2LayerClassifier
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   classifiers.get_classifier
+   classifiers.get_classifier_class
+   classifiers.list_classifiers
 
 
 
 :mod:`asreview.models.feature_extraction`
 -----------------------------------------
-
-This module contains all feature extractor models.
 
 .. automodule:: asreview.models.feature_extraction
    :no-members:
@@ -211,14 +325,14 @@ This module contains all feature extractor models.
 
 .. currentmodule:: asreview.models
 
-Modules
+Base Classes
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
+   :template: custom-class-template.rst
    
-   feature_extraction.base
+   feature_extraction.base.BaseFeatureExtraction
 
 Classes
 
@@ -249,22 +363,22 @@ Functions
 :mod:`asreview.models.query`
 ----------------------------
 
-This Module contains all query strategy models.
-
 .. automodule:: asreview.models.query
    :no-members:
    :no-inherited-members:
 
 .. currentmodule:: asreview.models
 
-Modules
+Base Classes
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
+   :template: custom-class-template.rst
    
-   query.base
+   query.base.BaseQueryStrategy
+   query.base.ProbaQueryStrategy
+   query.base.NotProbaQueryStrategy
 
 Classes
 
@@ -297,23 +411,20 @@ Functions
 :mod:`asreview.review`
 ======================
 
-This module handles ASReview.
-
 .. automodule:: asreview.review
    :no-members:
    :no-inherited-members:
 
 .. currentmodule:: asreview
 
-Modules
+Base Classes
 
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
+   :template: custom-class-template.rst
    
-   review.base
-   review.factory
+   review.BaseReview
 
 Classes
 
@@ -321,9 +432,9 @@ Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-   
-   review.simulate.ReviewSimulate
-   asreview.review.MinimalReview
+
+   review.MinimalReview
+   review.ReviewSimulate
 
 
 Functions
@@ -333,13 +444,16 @@ Functions
    :toctree: generated/
    :template: custom-class-template.rst
 
+   review.get_reviewer
+   review.review
+   review.review_simulate
+   review.base.get_pool_idx
+   review.factory.create_as_data
 
 
 
 :mod:`asreview.state`
 =====================
-
-This module handles the ASReview file.
 
 .. automodule:: asreview.state
    :no-members:
@@ -347,17 +461,37 @@ This module handles the ASReview file.
 
 .. currentmodule:: asreview
 
+Base Classes
+
 .. autosummary::
    :nosignatures:
    :toctree: generated/
-   :template: custom-module-template.rst
-   
-   
-   state.base
-	state.dict
-   state.hdf5
-   state.dict
-   state.utils
+   :template: custom-class-template.rst
+
+   state.BaseState
 
 
+Classes
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
    
+   state.DictState
+   state.HDF5State
+   state.JSONState
+
+
+Functions
+
+.. autosummary::
+   :nosignatures:
+   :toctree: generated/
+   :template: custom-class-template.rst
+
+   state.open_state
+   state.states_from_dir
+   state.state_from_file
+   state.state_from_asreview_file
+   state.dict.get_serial_list
