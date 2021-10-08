@@ -21,17 +21,13 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from asreview.state import BaseState
 from asreview.state.utils import open_state
-from asreview.state.legacy.utils import states_from_dir
-from asreview.analysis.statistics import _get_labeled_order
-from asreview.analysis.statistics import _get_limits
-from asreview.analysis.statistics import _find_inclusions
-from asreview.analysis.statistics import _get_last_proba_order
+from asreview.metrics.utils import _get_inclusions_from_state
+from asreview.state import SqlStateV1
 
 
 def rrf(inclusions, val=0.1):
-    """Get the RRF (Relevant References Found).
+    """Compute RRF (Relevant References Found).
 
     Arguments
     ---------
@@ -45,19 +41,35 @@ def rrf(inclusions, val=0.1):
 
     """
 
+    # if inclusions is state file
+    if isinstance(inclusions, SqlStateV1):
+        inclusions = _get_inclusions_from_state(inclusions)
+
     recall = pd.Series(inclusions).cumsum()
     intersect = floor(len(inclusions)*val)
 
     return recall.values[intersect-1]
 
-rrf([0,1,0,1,0,0,1,0,0,1]) == 0
-rrf([0,1,0,1,0,0,1,0,0,1], 0.10) == 0
-rrf([0,1,0,1,0,0,1,0,0,1], 0.20) == 1
-rrf([0,1,0,1,0,0,1,0,0,1], 0.50) == 1
-rrf([0,1,0,1,0,0,1,0,0,1], 1) == 4
-
 
 def wss(inclusions, val=0.9):
+    """Compute WSS (Work Saved Sampled) value.
+
+    Arguments
+    ---------
+    val:
+        At which recall, between 0 and 100.
+    x_format:
+        Format for position of WSS value in graph.
+
+    Returns
+    -------
+    tuple:
+        Tuple consisting of WSS value, x_positions, y_positions of WSS bar.
+    """
+
+    # if inclusions is state file
+    if isinstance(inclusions, SqlStateV1):
+        inclusions = _get_inclusions_from_state(inclusions)
 
 	# get the recall curve and maximum values
     recall = pd.Series(inclusions).cumsum()
@@ -84,10 +96,19 @@ def wss(inclusions, val=0.9):
     return recall[n_screened] - recall_random[n_screened]
 
 
-print(wss([1,1,0,1,0,1,0,0,0,0]))
-# print(wss([0,1,0,1,0,0,1,0,0,1], 0.10))
-# print(wss([0,1,0,1,0,0,1,0,0,1], 0.20))
-# print(wss([0,1,0,1,0,0,1,0,0,1], 0.50))
-# print(wss([0,1,0,1,0,0,1,0,0,1], 1))
+def avg_time_to_discovery(inclusions, result_format="number"):
+    """Estimate the Time to Discovery (TD) for each paper.
 
+    Get the best/last estimate on how long it takes to find a paper.
 
+    Arguments
+    ---------
+    result_format: str
+        Desired output format: "number", "fraction" or "percentage".
+
+    Returns
+    -------
+    dict:
+        For each inclusion, key=paper_id, value=avg time.
+    """
+    pass

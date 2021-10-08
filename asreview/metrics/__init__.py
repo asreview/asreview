@@ -12,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.analysis.analysis import Analysis
+from asreview.metrics.metrics import rrf
+from asreview.metrics.metrics import wss
+from asreview.metrics.metrics import avg_time_to_discovery
