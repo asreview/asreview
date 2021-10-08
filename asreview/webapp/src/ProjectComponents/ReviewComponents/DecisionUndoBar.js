@@ -11,7 +11,6 @@ const PREFIX = "DecisionUndoBar";
 const classes = {
   root: `${PREFIX}-root`,
   snackbar: `${PREFIX}-snackbar`,
-  undoButton: `${PREFIX}-undoButton`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -25,10 +24,6 @@ const Root = styled("div")(({ theme }) => ({
     [theme.breakpoints.down("md")]: {
       marginBottom: 70,
     },
-  },
-
-  [`& .${classes.undoButton}`]: {
-    color: theme.palette.primary.main,
   },
 }));
 

@@ -20,7 +20,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
     ...(mode === "light"
       ? {
           primary: {
-            main: "#7a4f01",
+            main: "#816700",
           },
           secondary: {
             main: "#065fd4",
@@ -28,7 +28,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         }
       : {
           primary: {
-            main: "#fff7cd",
+            main: "#FFCD00",
           },
           secondary: {
             main: "#3ea6ff",
@@ -49,7 +49,7 @@ export const drawerWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 90;
+export const decisionUndoBarMarginBottom = 100;
 
 export const fontSizeOptions = [
   {
