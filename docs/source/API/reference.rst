@@ -37,6 +37,14 @@ Functions
    :toctree: generated/
    :template: custom-module-template.rst
 
+   asreview.batch.batch_simulate
+   asreview.batch.create_jobs
+   asreview.compat.convert_id_to_idx
+   asreview.compat.convert_idx_to_id
+   asreview.datasets.dataset_from_url
+   asreview.datasets.download_from_metadata
+   asreview.init_sampling.sample_prior_knowledge
+   asreview.search.fuzzy_find
 
 
 :mod:`asreview.analysis`
@@ -87,6 +95,7 @@ Functions
    :toctree: generated/
    :template: custom-class-template.rst
 
+   data.load_data
    data.statistics.abstract_length
    data.statistics.n_irrelevant
    data.statistics.n_keywords
