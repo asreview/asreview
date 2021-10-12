@@ -126,7 +126,7 @@ Examples:
 
 .. option:: --config_file CONFIG_FILE
 
-    Configuration file with model settingsand parameter values.
+    Configuration file with model settings and parameter values.
 
 .. option:: --seed SEED
 
