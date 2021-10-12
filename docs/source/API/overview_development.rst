@@ -13,6 +13,10 @@ machinery. This provides researchers an interface to study the behavior of
 algorithms and develop custom workflows. The following figure shows the
 available interfaces for interacting with the ASReview software:
 
+..
+  Source file of image can be found at
+  https://github.com/asreview/asreview-artwork/tree/master/LayerOverview
+
 .. figure:: ../../figures/asreview_layers_light_no_BG.png
    :alt: ASReview API
 
