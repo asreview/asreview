@@ -4,7 +4,6 @@
 
 .. autoclass:: {{ objname }}
    :members:
-   :private-members:
    :show-inheritance:
    :inherited-members:
 
@@ -13,7 +12,7 @@
    .. rubric:: {{ ('Methods') }}
 
    .. autosummary::
-      :nosignatures:
+
       {% for item in methods %}
          ~{{ name }}.{{ item }}
       {%- endfor %}
