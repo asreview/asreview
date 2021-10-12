@@ -37,24 +37,6 @@ Functions
    :toctree: generated/
    :template: custom-module-template.rst
 
-   asreview.batch.batch_simulate
-   asreview.batch.create_jobs
-   asreview.compat.convert_id_to_idx
-   asreview.compat.convert_idx_to_id
-   asreview.datasets.dataset_from_url
-   asreview.datasets.download_from_metadata
-   asreview.init_sampling.sample_prior_knowledge
-   asreview.search.fuzzy_find
-   asreview.types.type_n_queries
-   asreview.utils.format_to_str
-   asreview.utils.get_data_home
-   asreview.utils.get_entry_points
-   asreview.utils.get_random_state
-   asreview.utils.is_iterable
-   asreview.utils.is_url
-   asreview.utils.list_model_names
-   asreview.utils.pretty_format
-
 
 
 :mod:`asreview.analysis`
@@ -105,7 +87,6 @@ Functions
    :toctree: generated/
    :template: custom-class-template.rst
 
-   data.load_data
    data.statistics.abstract_length
    data.statistics.n_irrelevant
    data.statistics.n_keywords
@@ -147,51 +128,7 @@ Classes
    entry_points.AlgorithmsEntryPoint
    entry_points.BatchEntryPoint
    entry_points.LABEntryPoint
-   entry_points.OracleEntryPoint
    entry_points.SimulateEntryPoint
-   entry_points.WebRunModelEntryPoint
-
-
-
-:mod:`asreview.io`
-==================
-
-
-.. automodule:: asreview.io
-    :no-members:
-    :no-inherited-members:
-
-.. currentmodule:: asreview
-
-
-Classes
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   io.PaperRecord
-
-
-Functions
-
-.. autosummary::
-   :nosignatures:
-   :toctree: generated/
-   :template: custom-class-template.rst
-
-   io.read_csv
-   io.read_excel
-   io.paper_record.preview_record
-   io.paper_record.format_record
-   io.read_pubmed_xml
-   io.read_ris
-   io.ris_reader.write_ris
-   io.utils.type_from_column
-   io.utils.convert_keywords
-   io.utils.type_from_column_spec
-   io.utils.standardize_dataframe
 
 
 :mod:`asreview.models`
@@ -221,8 +158,6 @@ Functions
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-
-   models.base.sig_to_param
 
 
 :mod:`asreview.models.balance`
@@ -447,9 +382,6 @@ Functions
    review.get_reviewer
    review.review
    review.review_simulate
-   review.base.get_pool_idx
-   review.factory.create_as_data
-
 
 
 :mod:`asreview.state`
@@ -494,4 +426,3 @@ Functions
    state.states_from_dir
    state.state_from_file
    state.state_from_asreview_file
-   state.dict.get_serial_list
