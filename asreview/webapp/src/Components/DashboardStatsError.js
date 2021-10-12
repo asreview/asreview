@@ -25,10 +25,10 @@ export default function DashboardStatsError(props) {
 
   return (
     <StyledBackdrop open={props.isError}>
-      <Typography variant="h6" align="center" sx={{ color: "text.secondary" }}>
+      <Typography align="center" sx={{ color: "text.secondary" }}>
         {props.error ? props.error.message : null}
       </Typography>
-      <Button color="secondary" variant="outlined" onClick={resetQuery}>
+      <Button variant="outlined" onClick={resetQuery}>
         Try to Refresh
       </Button>
     </StyledBackdrop>

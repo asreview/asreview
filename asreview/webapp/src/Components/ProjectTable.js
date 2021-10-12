@@ -266,7 +266,6 @@ const ProjectTable = (props) => {
               Your projects will show up here
             </Typography>
             <Button
-              color="secondary"
               onClick={(event) => {
                 props.handleClickAdd(event, "newProject");
               }}

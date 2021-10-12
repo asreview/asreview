@@ -143,8 +143,6 @@ const HistoryPage = (props) => {
       <Tabs
         value={tab}
         onChange={handleTabChange}
-        textColor="secondary"
-        indicatorColor="secondary"
         aria-label="history selection"
       >
         <Tab label="All" {...a11yProps(0)} />
