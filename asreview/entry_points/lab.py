@@ -94,17 +94,6 @@ class LABEntryPoint(BaseEntryPoint):
         main(argv)
 
 
-# deprecated oracle class
-class OracleEntryPoint(LABEntryPoint):
-    description = "Graphical user interface for ASReview. (Deprecated)"
-
-    def execute(self, argv):
-
-        logging.warning("Warning: subcommmand 'oracle' is replaced by 'lab'.")
-
-        super(OracleEntryPoint, self).execute(argv)
-
-
 class WebRunModelEntryPoint(BaseEntryPoint):
     description = "Internal use only."
 
