@@ -84,8 +84,20 @@ def test_reader(test_file, n_lines, ignore_col):
     (19, 1),
     (20, 0),
     (21, -1),
+    # Multiline record, with additional notes, label first
+    (22, 1),
+    (23, 0),
+    (24, -1),
+    # Multiline record, with additional notes, label in the middle
+    (25, 1),
+    (26, 0),
+    (27, -1),
+    # Multiline record, with additional notes, label last
+    (28, 1),
+    (29, 0),
+    (30, -1),
     # No notes tag present
-    (22, -1)
+    (31, -1)
 ])
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")

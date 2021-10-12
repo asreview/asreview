@@ -135,5 +135,65 @@ ER  -
 
 
 TY  - GEN
+TI  - Record which is labeled "relevant" by the researcher using ASReview.
+N1  - Additional notes
+N1  - ASReview_relevant. Additional notes
+ER  -
+
+TY  - GEN
+TI  - Record which is labeled "irrelevant" by the researcher using ASReview.
+N1  - Additional notes
+N1  - ASReview_irrelevant. Additional notes
+ER  -
+
+TY  - GEN
+TI  - Record which has not been labeled (is "not seen") by the researcher using ASReview.
+N1  - Additional notes
+N1  - ASReview_not_seen. Additional notes
+ER  -
+
+
+
+TY  - GEN
+TI  - Record which is labeled "relevant" by the researcher using ASReview.
+N1  - Additional notes
+N1  - Additional notes. ASReview_relevant. Additional notes
+ER  -
+
+TY  - GEN
+TI  - Record which is labeled "irrelevant" by the researcher using ASReview.
+N1  - Additional notes
+N1  - Additional notes. ASReview_irrelevant. Additional notes
+ER  -
+
+TY  - GEN
+TI  - Record which has not been labeled (is "not seen") by the researcher using ASReview.
+N1  - Additional notes
+N1  - Additional notes. ASReview_not_seen. Additional notes
+ER  -
+
+
+
+TY  - GEN
+TI  - Record which is labeled "relevant" by the researcher using ASReview.
+N1  - Additional notes
+N1  - Additional notes. ASReview_relevant
+ER  -
+
+TY  - GEN
+TI  - Record which is labeled "irrelevant" by the researcher using ASReview.
+N1  - Additional notes
+N1  - Additional notes. ASReview_irrelevant
+ER  -
+
+TY  - GEN
+TI  - Record which has not been labeled (is "not seen") by the researcher using ASReview.
+N1  - Additional notes
+N1  - Additional notes. ASReview_not_seen
+ER  -
+
+
+
+TY  - GEN
 TI  - Record without a notes field.
 ER  -
