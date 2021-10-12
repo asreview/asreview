@@ -16,8 +16,8 @@ const PREFIX = "ProgressDensityChart";
 
 const classes = {
   root: `${PREFIX}-root`,
+  legendText: `${PREFIX}-legendText`,
   tooltip: `${PREFIX}-tooltip`,
-  tooltipText: `${PREFIX}-tooltipText`,
   tooltipNumber: `${PREFIX}-tooltipNumber`,
 };
 
@@ -29,6 +29,13 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingTop: 24,
     paddingLeft: 32,
     paddingRight: 32,
+  },
+
+  [`& .${classes.legendText}`]: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    letterSpacing: "0.00714em",
+    lineHeight: 1.57,
   },
 
   [`& .${classes.tooltip}`]: {
@@ -55,6 +62,10 @@ function ordinal_suffix_of(i) {
   }
   return i + "th";
 }
+
+const renderLegendText = (value: string, entry: any) => {
+  return <span className={classes.legendText}>{value}</span>;
+};
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active) {
@@ -105,9 +116,10 @@ export default function ProgressDensityChart(props) {
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           <Typography variant="h6">Progress Density</Typography>
-          <ResponsiveContainer minHeight={190}>
+          <ResponsiveContainer minHeight={180}>
             <AreaChart data={props.progressDensityQuery["data"]}>
               <XAxis
+                hide
                 type="number"
                 dataKey="Total"
                 domain={["dataMin", "dataMax"]}
@@ -131,6 +143,7 @@ export default function ProgressDensityChart(props) {
                 height={36}
                 iconType="square"
                 iconSize={8}
+                formatter={renderLegendText}
               />
               <Area
                 type="monotone"

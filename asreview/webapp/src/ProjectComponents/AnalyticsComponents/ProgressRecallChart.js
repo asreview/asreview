@@ -12,12 +12,11 @@ import {
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
-// import "./RechartsTooltip.css";
-
 const PREFIX = "ProgressRecallChart";
 
 const classes = {
   root: `${PREFIX}-root`,
+  legendText: `${PREFIX}-legendText`,
   tooltip: `${PREFIX}-tooltip`,
   tooltipText: `${PREFIX}-tooltipText`,
   tooltipNumber: `${PREFIX}-tooltipNumber`,
@@ -31,6 +30,13 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingTop: 24,
     paddingLeft: 32,
     paddingRight: 32,
+  },
+
+  [`& .${classes.legendText}`]: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    letterSpacing: "0.00714em",
+    lineHeight: 1.57,
   },
 
   [`& .${classes.tooltip}`]: {
@@ -47,6 +53,10 @@ const StyledCard = styled(Card)(({ theme }) => ({
     marginLeft: 32,
   },
 }));
+
+const renderLegendText = (value: string, entry: any) => {
+  return <span className={classes.legendText}>{value}</span>;
+};
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active) {
@@ -77,7 +87,7 @@ const CustomTooltip = ({ active, payload, label }) => {
           <Divider sx={{ margin: "8px 0px" }} />
           <div className={classes.tooltip}>
             <div>
-              <Typography variant="subtitle2" sx={{ color: "text.primary" }}>
+              <Typography variant="subtitle2" sx={{ color: "secondary.main" }}>
                 Random inclusions
               </Typography>
               <Typography className={classes.tooltipText} variant="body2">
@@ -85,7 +95,11 @@ const CustomTooltip = ({ active, payload, label }) => {
                 records
               </Typography>
             </div>
-            <Typography className={classes.tooltipNumber} variant="h6">
+            <Typography
+              className={classes.tooltipNumber}
+              variant="h6"
+              sx={{ color: "secondary.main" }}
+            >
               {payload ? payload[1].value : 0}
             </Typography>
           </div>
@@ -105,7 +119,7 @@ export default function ProgressRecallChart(props) {
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           <Typography variant="h6">Progress Recall</Typography>
-          <ResponsiveContainer minHeight={190}>
+          <ResponsiveContainer minHeight={360}>
             <LineChart data={props.progressRecallQuery["data"]}>
               <XAxis
                 dataKey="Total"
@@ -130,6 +144,7 @@ export default function ProgressRecallChart(props) {
                 verticalAlign="top"
                 height={36}
                 iconType="plainline"
+                formatter={renderLegendText}
               />
               <Line
                 type="monotone"
@@ -144,7 +159,7 @@ export default function ProgressRecallChart(props) {
                 type="linear"
                 dataKey="Random"
                 name="Random inclusions"
-                stroke={theme.palette.text.primary}
+                stroke={theme.palette.secondary.main}
                 strokeWidth="1"
                 animationEasing="ease-in"
                 dot={false}
