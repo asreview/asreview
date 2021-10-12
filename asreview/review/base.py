@@ -29,7 +29,7 @@ from asreview.settings import ASReviewSettings
 from asreview.state.utils import open_state
 
 
-def get_pool_idx(X, train_idx):
+def _get_pool_idx(X, train_idx):
     "Return pool indices from training indices."
     return np.delete(np.arange(X.shape[0]), train_idx, axis=0)
 
@@ -417,7 +417,7 @@ class BaseReview(ABC):
             Indices of records queried.
         """
 
-        pool_idx = get_pool_idx(self.X, self.train_idx)
+        pool_idx = _get_pool_idx(self.X, self.train_idx)
 
         n_instances = min(n_instances, len(pool_idx))
 
