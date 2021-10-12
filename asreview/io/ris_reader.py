@@ -20,7 +20,7 @@ from rispy import TAG_KEY_MAPPING
 from rispy.config import LIST_TYPE_TAGS
 
 from asreview.config import COLUMN_DEFINITIONS
-from asreview.io.utils import standardize_dataframe
+from asreview.io.utils import _standardize_dataframe
 
 
 RIS_KEY_LABEL_INCLUDED = "LI"
@@ -83,7 +83,7 @@ def read_ris(fp):
         key = TAG_KEY_MAPPING[tag]
         if key in df:
             df[key] = df[key].apply(converter)
-    return standardize_dataframe(df)
+    return _standardize_dataframe(df)
 
 
 def write_ris(df, ris_fp):

@@ -14,7 +14,7 @@
 
 import pandas as pd
 import xml.etree.ElementTree as ET
-from asreview.io.utils import standardize_dataframe
+from asreview.io.utils import _standardize_dataframe
 
 
 def read_pubmed_xml(fp):
@@ -63,4 +63,4 @@ def read_pubmed_xml(fp):
             "keywords": keywords,
         }
         records.append(new_record)
-    return standardize_dataframe(pd.DataFrame(records))
+    return _standardize_dataframe(pd.DataFrame(records))
