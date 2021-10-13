@@ -23,7 +23,6 @@ from asreview import ASReviewData
     ("scopus.ris", 6, None, []),
     ("ovid_zotero.ris", 6, None, []),
     ("proquest.ris", 6, None, []),
-    ("pubmed.xml", 10, None, []),
 ])
 def test_reader(test_file, n_lines, labels, ignore_col):
     fp = Path("tests", "demo_data", test_file)
