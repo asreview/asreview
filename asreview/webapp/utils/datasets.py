@@ -14,7 +14,6 @@
 
 from asreview.datasets import BaseVersionedDataSet
 from asreview.datasets import DatasetManager
-from asreview.search import fuzzy_find
 from asreview.utils import is_iterable
 from asreview.webapp.utils.io import read_data
 

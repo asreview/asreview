@@ -43,6 +43,7 @@ from asreview.models.query import list_query_strategies
 from asreview.datasets import DatasetManager
 from asreview.data import ASReviewData
 from asreview.exceptions import BadFileFormatError
+from asreview.search import fuzzy_find
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
