@@ -20,27 +20,22 @@ export const getDesignTokens = (mode: PaletteMode) => ({
     ...(mode === "light"
       ? {
           primary: {
-            main: "#7a4f01",
+            main: "#816700",
           },
           secondary: {
-            main: "#7a0c2e",
+            main: "#065fd4",
           },
         }
       : {
           primary: {
-            main: "#fff7cd",
+            main: "#FFCD00",
           },
           secondary: {
-            main: "#ffe7d9",
+            main: "#3ea6ff",
           },
         }),
   },
 });
-
-// project state color
-export const setupColor = "#706f6f";
-export const inReviewColor = "#aa6600";
-export const finishedColor = "#415f38";
 
 // algorithm settings configs
 export const defaultAlgorithms = {
@@ -54,7 +49,7 @@ export const drawerWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 90;
+export const decisionUndoBarMarginBottom = 100;
 
 export const fontSizeOptions = [
   {

@@ -26,9 +26,6 @@ const classes = {
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
-  doi: `${PREFIX}-doi`,
-  publish_time: `${PREFIX}-publish_time`,
-  link: `${PREFIX}-link`,
   authors: `${PREFIX}-authors`,
   note: `${PREFIX}-note`,
 };
@@ -80,13 +77,6 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
   [`& .${classes.abstract}`]: {
     whiteSpace: "pre-line",
-  },
-
-  [`& .${classes.doi}`]: {},
-  [`& .${classes.publish_time}`]: {},
-
-  [`& .${classes.link}`]: {
-    marginLeft: "6px",
   },
 
   [`& .${classes.authors}`]: {
@@ -206,24 +196,6 @@ const RecordCard = (props) => {
             </Typography>
 
             {/* Show the publication date if available */}
-            {!(
-              props.record.publish_time === undefined ||
-              props.record.publish_time === null
-            ) && (
-              <Typography
-                className={
-                  classes.publish_time + " fontSize" + props.fontSize.label
-                }
-                color="textSecondary"
-                component="p"
-                fontStyle="italic"
-                paragraph
-              >
-                {props.record.publish_time}
-              </Typography>
-            )}
-
-            {/* Show the publication date if available */}
             {!(props.record.doi === undefined || props.record.doi === null) && (
               <Typography
                 className={classes.doi + " fontSize" + props.fontSize.label}
@@ -232,10 +204,9 @@ const RecordCard = (props) => {
                 fontStyle="italic"
                 paragraph
               >
-                DOI:
+                DOI:{" "}
                 <Link
                   href={"https://doi.org/" + props.record.doi}
-                  className={classes.link}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -287,7 +258,6 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
-                color="primary"
                 size="small"
                 onClick={expandNoteSheet}
                 aria-label="add note"

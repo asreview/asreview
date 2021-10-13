@@ -127,7 +127,6 @@ setup(
         ],
         'asreview.entry_points': [
             'lab=asreview.entry_points:LABEntryPoint',
-            'oracle=asreview.entry_points:OracleEntryPoint',  # deprecated (use lab)
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
             'simulate=asreview.entry_points:SimulateEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
@@ -140,7 +139,6 @@ setup(
             '.ris = asreview.io.ris_reader:read_ris',
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
-            '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
         ],
         'asreview.datasets': [
             'benchmark = asreview.datasets:BenchmarkDataGroup',

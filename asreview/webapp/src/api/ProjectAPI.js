@@ -3,13 +3,13 @@ import { api_url } from "../globals.js";
 import axios from "axios";
 
 class ProjectAPI {
-  static projects() {
+  static fetchProjects({ queryKey }) {
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result.data["result"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

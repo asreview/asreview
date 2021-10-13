@@ -43,11 +43,13 @@ from asreview.models.query import list_query_strategies
 from asreview.datasets import DatasetManager
 from asreview.data import ASReviewData
 from asreview.exceptions import BadFileFormatError
+from asreview.search import fuzzy_find
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
-from asreview.webapp.utils.datasets import search_data
+from asreview.webapp.utils.io import read_label_history
+from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.project_path import get_project_path
 from asreview.settings import ASReviewSettings
@@ -61,6 +63,7 @@ from asreview.state.paths import get_state_path
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.errors import StateNotFoundError
 from asreview.state.utils import open_state
+from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -73,7 +76,6 @@ from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import label_instance
-from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
 from asreview.webapp.utils.project import update_review_in_project
 from asreview.webapp.utils.project import get_project_config
@@ -489,9 +491,15 @@ def api_search_data(project_id):  # noqa: F401
     try:
         payload = {"result": []}
         if q:
-            result_search = search_data(project_id, q=q, n_max=max_results)
 
-            for paper in result_search:
+            # read the dataset
+            as_data = read_data(project_id)
+
+            # search for the keywords
+            result_idx = fuzzy_find(
+                as_data, q, max_return=max_results, exclude=[], by_index=True)
+
+            for paper in as_data.record(result_idx, by_index=True):
                 payload["result"].append({
                     "id": int(paper.record_id),
                     "title": paper.title,

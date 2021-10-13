@@ -83,7 +83,7 @@ def _is_record_id_int(s):
         raise ValueError("Column 'record_id' should contain integer values.")
 
 
-def standardize_dataframe(df, column_spec={}):
+def _standardize_dataframe(df, column_spec={}):
     """Create a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;

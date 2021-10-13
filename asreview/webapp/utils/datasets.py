@@ -14,23 +14,8 @@
 
 from asreview.datasets import BaseVersionedDataSet
 from asreview.datasets import DatasetManager
-from asreview.search import fuzzy_find
 from asreview.utils import is_iterable
 from asreview.webapp.utils.io import read_data
-
-
-def search_data(project_id, q, n_max=100):
-    """Get the title/authors/abstract for a paper."""
-
-    # read the dataset
-    as_data = read_data(project_id)
-
-    # search for the keywords
-    result_idx = fuzzy_find(
-        as_data, q, max_return=n_max, exclude=[], by_index=True)
-
-    # return full information on the records
-    return as_data.record(result_idx, by_index=True)
 
 
 def get_data_statistics(project_id):
@@ -73,7 +58,7 @@ def get_dataset_metadata(exclude=None, include=None):
             include = [include]
 
         # pop items
-        for group_id in groups:
+        for group_id in groups.copy():
             if group_id not in include:
                 groups.remove(group_id)
 

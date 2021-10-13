@@ -29,7 +29,7 @@ from asreview.settings import ASReviewSettings
 from asreview.state.utils import open_state
 
 
-def get_pool_idx(X, train_idx):
+def _get_pool_idx(X, train_idx):
     "Return pool indices from training indices."
     return np.delete(np.arange(X.shape[0]), train_idx, axis=0)
 
@@ -409,7 +409,7 @@ class BaseReview(ABC):
             Indices of records queried.
         """
 
-        pool_idx = get_pool_idx(self.X, self.train_idx)
+        pool_idx = _get_pool_idx(self.X, self.train_idx)
 
         n_instances = min(n_instances, len(pool_idx))
 
@@ -537,34 +537,3 @@ class BaseReview(ABC):
         if self.query_i_classified > 0:
             self.query_i += 1
             self.query_i_classified = 0
-
-    # TODO(State): Should this exist? If so, get from the state file itself.
-    def statistics(self):
-        """Get statistics on the current state of the review.
-
-        Returns
-        -------
-        dict:
-            A dictonary with statistics like n_included and
-            last_inclusion.
-        """
-        try:
-            if np.count_nonzero(
-                    self.y[self.train_idx[self.n_initial:]] == 1) == 0:
-                last_inclusion = len(self.train_idx[self.n_initial:])
-            else:
-                last_inclusion = np.nonzero(
-                    self.y[self.train_idx[self.n_initial:]][::-1] == 1)[0][0]
-        except ValueError:
-            last_inclusion = 0
-
-        stats = {
-            "n_included": np.count_nonzero(self.y[self.train_idx] == 1),
-            "n_excluded": np.count_nonzero(self.y[self.train_idx] == 0),
-            "n_papers": len(self.y),
-            "n_reviewed": len(self.train_idx),
-            "n_pool": self.n_pool(),
-            "last_inclusion": last_inclusion,
-            "n_initial": self.n_initial,
-        }
-        return stats

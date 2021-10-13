@@ -10,9 +10,11 @@ import {
   LibraryBooks,
 } from "@mui/icons-material";
 
+import { DashboardStatsError } from "../Components";
+
 import { ProjectAPI } from "../api/index.js";
 
-const PREFIX = "DashboardStatsPaper";
+const PREFIX = "DashboardStats";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -23,6 +25,7 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
+  position: "relative",
   [`& .${classes.root}`]: {
     borderRadius: 16,
     padding: "24px 0px",
@@ -57,8 +60,8 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const DashboardStatsPaper = (props) => {
-  const { data, isFetched } = useQuery(
+export default function DashboardStats(props) {
+  const { data, error, isError, isFetched, isSuccess } = useQuery(
     "fetchDashboardStats",
     ProjectAPI.fetchDashboardStats,
     { refetchOnWindowFocus: false }
@@ -66,6 +69,7 @@ const DashboardStatsPaper = (props) => {
 
   return (
     <Root>
+      <DashboardStatsError error={error} isError={isError} />
       <Grid container spacing={2}>
         <Grid item xs={6} sm={3}>
           <Paper
@@ -79,7 +83,11 @@ const DashboardStatsPaper = (props) => {
               <div className="textProjectsInReview">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_in_review ? data.n_in_review : 0}
+                    value={
+                      !isError && isFetched && isSuccess && data.n_in_review
+                        ? data.n_in_review
+                        : 0
+                    }
                     displayType="text"
                     thousandSeparator
                   />
@@ -103,7 +111,11 @@ const DashboardStatsPaper = (props) => {
               <div className="textProjectsFinished">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_finished ? data.n_finished : 0}
+                    value={
+                      !isError && isFetched && isSuccess && data.n_finished
+                        ? data.n_finished
+                        : 0
+                    }
                     displayType="text"
                     thousandSeparator
                   />
@@ -127,7 +139,11 @@ const DashboardStatsPaper = (props) => {
               <div className="textRecordsReviewed">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_reviewed ? data.n_reviewed : 0}
+                    value={
+                      !isError && isFetched && isSuccess && data.n_reviewed
+                        ? data.n_reviewed
+                        : 0
+                    }
                     displayType="text"
                     thousandSeparator
                   />
@@ -151,7 +167,11 @@ const DashboardStatsPaper = (props) => {
               <div className="textRelevantRecords">
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
-                    value={isFetched && data.n_included ? data.n_included : 0}
+                    value={
+                      !isError && isFetched && isSuccess && data.n_included
+                        ? data.n_included
+                        : 0
+                    }
                     displayType="text"
                     thousandSeparator
                   />
@@ -166,6 +186,4 @@ const DashboardStatsPaper = (props) => {
       </Grid>
     </Root>
   );
-};
-
-export default DashboardStatsPaper;
+}
