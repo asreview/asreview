@@ -139,7 +139,6 @@ setup(
             '.ris = asreview.io.ris_reader:read_ris',
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
-            '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
         ],
         'asreview.datasets': [
             'benchmark = asreview.datasets:BenchmarkDataGroup',
