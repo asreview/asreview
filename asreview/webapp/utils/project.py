@@ -576,23 +576,14 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
+    project_path = get_project_path(project_id)
+    state_path = get_state_path(project_path)
 
     paper_i = int(paper_i)
     label = int(label)
     prior_label = ["prior"] if prior else [None]
 
-    # create state file if there is no state file yet
-    if True:
-        project_path = get_project_path(project_id)
-        state_file = get_state_path(project_path)
-
-        with open_state(state_file, read_only=False):
-            pass
-
-    project_path = get_project_path(project_id)
-    state_file = get_state_path(project_path)
-
-    with open_state(state_file, read_only=False) as state:
+    with open_state(state_path, read_only=False) as state:
 
         # get the index of the active iteration
         if int(label) in [0, 1]:

@@ -93,13 +93,17 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_last_probabilities(self, probabilities):
+    def add_last_probabilities(self, probabilities, classifier, training_set):
         """Save the probabilities produced by the last classifier.
 
         Arguments
         ---------
         probabilities: list-like.
             List containing the probabilities for every record.
+        classifier: str
+            Name of the classifier model that produced the probabilities.
+        training_set: int
+            Number of records on which the classifier model was trained.
         """
         raise NotImplementedError
 

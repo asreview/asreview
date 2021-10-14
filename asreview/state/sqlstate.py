@@ -41,6 +41,8 @@ REQUIRED_TABLES = [
     "record_table",
     # the latest probabilities.
     "last_probabilities",
+    # the latest classifier + training_set.
+    "last_training_set",
     # the record ids whose labeling decision was changed.
     "decision_changes"
 ]
@@ -53,6 +55,7 @@ RESULTS_TABLE_COLUMNS = [
 SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
 
 
+# TODO(State): Update docstring.
 class SqlStateV1(BaseState):
     """Class for storing the review state with HDF5 storage.
 
@@ -73,9 +76,6 @@ class SqlStateV1(BaseState):
         Number of priors. If priors have not been selected returns None.
 
     """
-
-    # TODO(State): Implement undo feature.
-
     def __init__(self, read_only=True):
         super(SqlStateV1, self).__init__(read_only=read_only)
 
@@ -188,6 +188,12 @@ class SqlStateV1(BaseState):
             cur.execute("""CREATE TABLE last_probabilities
                                 (proba REAL)""")
 
+            # Create the last_training_set table.
+            cur.execute("""CREATE TABLE last_training_set
+                                (classifier TEXT,
+                                training_set INT)""")
+
+            # Create the table of changed decisions.
             cur.execute('''CREATE TABLE decision_changes
                                 (record_id INTEGER,
                                 new_label INTEGER,
@@ -375,7 +381,6 @@ class SqlStateV1(BaseState):
 
     @property
     def n_records_labeled(self):
-
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute("SELECT COUNT (*) FROM results")
@@ -396,6 +401,13 @@ class SqlStateV1(BaseState):
         if n == 0:
             return None
         return n
+
+    @property
+    def exist_new_labeled_records(self):
+        """Return True if there were records labeled since the last time the
+        probabilities of the model were saved."""
+        _, training_set = self.get_last_training_set()
+        return self.n_records_labeled > training_set
 
 # Features, settings_metadata
 
@@ -445,7 +457,7 @@ class SqlStateV1(BaseState):
                                             (?)""", record_sql_input)
         con.commit()
 
-    def add_last_probabilities(self, probabilities):
+    def add_last_probabilities(self, probabilities, classifier, training_set):
         """Save the probabilities of the last model."""
         proba_sql_input = [(proba, ) for proba in probabilities]
 
@@ -465,6 +477,9 @@ class SqlStateV1(BaseState):
         cur.executemany(
             """INSERT INTO last_probabilities VALUES
                                             (?)""", proba_sql_input)
+        cur.execute("""DELETE FROM last_training_set""")
+        cur.execute("""INSERT INTO last_training_set VALUES (?, ?)""",
+                    (classifier, training_set))
         con.commit()
 
     def add_feature_matrix(self, feature_matrix):
@@ -651,6 +666,27 @@ class SqlStateV1(BaseState):
             'SELECT * FROM last_probabilities', con)
         con.close()
         return last_probabilities
+
+    def get_last_training_set(self):
+        """Get the classifier model name, and number of labeled records when the
+        model was trained, for the last probabilities.
+
+        Returns
+        -------
+        (str, int)
+            Tuple (classifier name, training set).
+        """
+        con = self._connect_to_sql()
+        last_training_set = pd.read_sql_query(
+            'SELECT * FROM last_training_set', con)
+        con.close()
+        if last_training_set.empty:
+            classifier = None
+            training_set = 0
+        else:
+            classifier = str(last_training_set['classifier'][0])
+            training_set = int(last_training_set['training_set'][0])
+        return classifier, training_set
 
     def get_data_by_query_number(self, query, columns=None):
         """Get the data of a specific query from the results table.

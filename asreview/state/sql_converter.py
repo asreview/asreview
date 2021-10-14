@@ -176,6 +176,7 @@ def convert_json_settings_metadata(fp, json_fp):
 def convert_json_last_probabilities(sql_fp, json_fp):
     """Get the last ranking from a json state and save it as the table
     'last_probabilities' in the .sql file at the location of sql_fp.
+    Also create the table 'last_training_set'
 
     Arguments
     ---------
@@ -186,7 +187,17 @@ def convert_json_last_probabilities(sql_fp, json_fp):
     """
     with open_state_legacy(json_fp) as json_state:
         # Get the last predicted probabilities from the state file.
+        # Also get the number of record labeled and the classifier.
         last_probabilities = json_state.pred_proba
+
+        sf_indices = [
+            int(sample_data[0])
+            for query in range(len(json_state._state_dict['results']))
+            for sample_data in
+            json_state._state_dict['results'][query]['labelled']
+        ]
+        n_records_labeled = len(sf_indices)
+        classifier = json_state.settings.to_dict()['model']
 
         # Put them in the format for input in the sqlite database.
         last_probabilities = [(proba, ) for proba in last_probabilities]
@@ -198,6 +209,14 @@ def convert_json_last_probabilities(sql_fp, json_fp):
             cur.executemany(
                 """INSERT INTO last_probabilities VALUES
                                         (?)""", last_probabilities)
+
+            cur.execute("""CREATE TABLE last_training_set
+                                (classifier TEXT,
+                                training_set INT)""")
+
+            cur.executemany("""INSERT INTO last_training_set VALUES (?, ?)""",
+                            [(classifier, n_records_labeled)])
+
             con.commit()
 
 

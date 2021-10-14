@@ -557,15 +557,9 @@ def api_get_labeled(project_id):  # noqa: F401
     """Get all papers classified as labeled documents
     """
 
-    subset = request.args.get("subset", default=None, type=str)
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
     project_path = get_project_path(project_id)
-
-    # check if the subset exists
-    if subset is not None and subset not in ["included", "excluded"]:
-        message = "Unkown subset parameter"
-        return jsonify(message=message), 400
 
     try:
 
@@ -1223,7 +1217,7 @@ def api_get_document(project_id):  # noqa: F401
 
     After these documents were retrieved, the queue on the client side is
     updated.
-    This resuest can get triggered after each document classification.
+    This request can get triggered after each document classification.
     Although it might be better to call this function after 20 requests on the
     client side.
     """
