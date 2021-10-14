@@ -1,24 +1,50 @@
 import React from "react";
 import { useQuery } from "react-query";
+import {
+  EmailIcon,
+  TwitterIcon,
+  FacebookIcon,
+  WeiboIcon,
+  WhatsappIcon,
+} from "react-share";
+import { SpeedDial, SpeedDialAction } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Share } from "@mui/icons-material";
 
 import {
   NumberCard,
+  ShareFabAction,
   ProgressDensityChart,
   ProgressRecallChart,
 } from "../AnalyticsComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 
+const PREFIX = "AnalyticsPage";
+
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
 const Root = styled("div")(({ theme }) => ({
-  alignItems: "center",
-  display: "flex",
-  flexDirection: "column",
-  padding: 24,
-  "& > *": {
-    margin: theme.spacing(2),
+  [`& .${classes.root}`]: {
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    padding: 24,
+    "& > *": {
+      margin: theme.spacing(2),
+    },
   },
 }));
+
+const actions = [
+  { icon: <TwitterIcon round />, name: "Twitter" },
+  { icon: <FacebookIcon round />, name: "Facebook" },
+  { icon: <WeiboIcon round />, name: "Weibo" },
+  { icon: <WhatsappIcon round />, name: "WhatsApp" },
+  { icon: <EmailIcon round />, name: "Email" },
+];
 
 export default function AnalyticsPage(props) {
   const progressQuery = useQuery(
@@ -37,11 +63,61 @@ export default function AnalyticsPage(props) {
     { refetchOnWindowFocus: false }
   );
 
+  const twitterRef = React.useRef(null);
+  const facebookRef = React.useRef(null);
+  const weiboRef = React.useRef(null);
+  const whatsappRef = React.useRef(null);
+  const emailRef = React.useRef(null);
+
+  const handleShare = (platform) => {
+    if (platform === "Twitter") {
+      twitterRef.current?.click();
+    }
+    if (platform === "Facebook") {
+      facebookRef.current?.click();
+    }
+    if (platform === "Weibo") {
+      weiboRef.current?.click();
+    }
+    if (platform === "WhatsApp") {
+      whatsappRef.current?.click();
+    }
+    if (platform === "Email") {
+      emailRef.current?.click();
+    }
+  };
+
   return (
     <Root>
-      <NumberCard progressQuery={progressQuery} />
-      <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
-      <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
+      <div className={classes.root}>
+        <NumberCard progressQuery={progressQuery} />
+        <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
+        <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
+      </div>
+      <SpeedDial
+        ariaLabel="share project analytics"
+        sx={{ position: "absolute", bottom: 24, right: 24 }}
+        icon={<Share />}
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            onClick={() => {
+              handleShare(action.name);
+            }}
+          />
+        ))}
+      </SpeedDial>
+      <ShareFabAction
+        progressQueryData={progressQuery.data}
+        twitterRef={twitterRef}
+        facebookRef={facebookRef}
+        weiboRef={weiboRef}
+        whatsappRef={whatsappRef}
+        emailRef={emailRef}
+      />
     </Root>
   );
 }
