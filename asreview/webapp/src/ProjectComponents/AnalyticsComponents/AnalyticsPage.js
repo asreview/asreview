@@ -7,13 +7,14 @@ import {
   WeiboIcon,
   WhatsappIcon,
 } from "react-share";
-import { SpeedDial, SpeedDialAction } from "@mui/material";
+import { Box, Grid, SpeedDial, SpeedDialAction } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
 import {
   NumberCard,
   ShareFabAction,
+  ProgressChart,
   ProgressDensityChart,
   ProgressRecallChart,
 } from "../AnalyticsComponents";
@@ -89,11 +90,22 @@ export default function AnalyticsPage(props) {
 
   return (
     <Root>
-      <div className={classes.root}>
-        <NumberCard progressQuery={progressQuery} />
+      <Box className={classes.root}>
+        <Box sx={{ width: "100%", maxWidth: 960 }}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={5}>
+              {progressQuery.data && (
+                <ProgressChart progressQuery={progressQuery} />
+              )}
+            </Grid>
+            <Grid item xs={12} sm={7}>
+              <NumberCard progressQuery={progressQuery} />
+            </Grid>
+          </Grid>
+        </Box>
         <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
         <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
-      </div>
+      </Box>
       <SpeedDial
         ariaLabel="share project analytics"
         sx={{ position: "absolute", bottom: 24, right: 24 }}
