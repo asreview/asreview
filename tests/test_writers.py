@@ -6,7 +6,10 @@ import rispy
 
 from asreview import ASReviewData
 
-def test_ris_write_data(test_file,tmpdir):
+@mark.parametrize("test_file", [
+    ("baseline_tag-notes_labels.ris")
+])
+def test_asreview_labels_ris(test_file,tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     asr_data = ASReviewData.from_file(fp_in)
 
@@ -18,14 +21,7 @@ def test_ris_write_data(test_file,tmpdir):
 
     # Check if input file matches the export file
     assert list(asr_data.title) == list(asr_data_diff.title)
-    assert list(asr_data.abstract) == list(asr_data_diff.abstract)
-    assert list(asr_data.authors) == list(asr_data_diff.authors)
-    assert list(asr_data.keywords) == list(asr_data_diff.keywords)
-    # assert list(asr_data.notes) == list(asr_data_diff.notes)
-    assert list(asr_data.doi) == list(asr_data_diff.doi)
-
-    # Check if export file includes labels [1,0]
-    # assert list(asr_data_diff.labels) == [1,0]
+    assert list(asr_data.labels) == list(asr_data_diff.labels)
 
     # Break for debugging
     # assert False
