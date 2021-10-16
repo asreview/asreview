@@ -29,3 +29,9 @@ def test_ris_write_data(test_file,tmpdir):
 
     # Break for debugging
     # assert False
+
+def test_write_numpy_arrays():
+    # This test should catch cases where two numpy arrays are to be evaluated in boolean context
+    # "The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()"
+    # For ris writer, a relevant bug was fixed with commit 70d9497
+    pass
