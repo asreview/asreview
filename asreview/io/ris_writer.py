@@ -51,7 +51,7 @@ def write_ris(df, fp):
         # Iterate over all the items for the deepcopied record
         for k, v in rec_copy.items():
             # Find all items with a value
-            if not pd.isnull(v):
+            if not isinstance(v, list) and pd.isnull(v):
                 # Assign the value to the key
                 rec_copy[k] = v
 
