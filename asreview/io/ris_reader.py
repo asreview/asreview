@@ -27,9 +27,9 @@ def _label_parser(note_list):
     if not isinstance(note_list, list):
         return None
     # Check the list for the label and return the proper value
-    if "ASReview_relevant" in note_list or "ASReview_relevant" in note_list[0]:
+    if any("ASReview_relevant" in note for note in note_list):
         return 1
-    elif "ASReview_irrelevant" in note_list or "ASReview_irrelevant" in note_list[0]:
+    elif any("ASReview_irrelevant" in note for note in note_list):
         return 0
     else:
         return None
