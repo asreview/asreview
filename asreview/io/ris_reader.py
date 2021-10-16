@@ -23,8 +23,10 @@ from asreview.io.utils import standardize_dataframe
 
 # Converter function for notes where label is buried between additional notes
 def _get_notes_substrings(input_string):
-  length = len(input_string)
-  return [input_string[i:j+1] for i in range(length) for j in range(i,length)]
+    length = len(input_string)
+    return [
+        input_string[i:j + 1] for i in range(length) for j in range(i, length)
+    ]
 
 
 # Converter function for manipulating the internal "included" column
@@ -79,7 +81,8 @@ def read_ris(fp):
     for encoding in encodings:
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
-                entries = list(rispy.load(bibliography_file, skip_unknown_tags=True))
+                entries = list(
+                    rispy.load(bibliography_file, skip_unknown_tags=True))
                 break
         except UnicodeDecodeError:
             pass

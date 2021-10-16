@@ -6,25 +6,18 @@ import rispy
 
 from asreview import ASReviewData
 
-@mark.parametrize("test_file,n_lines,ignore_col", [
-    ("_baseline.ris", 100, []),
-    ("embase.csv", 6, ["keywords"]),
-    ("embase_newpage.csv", 6, ["keywords"]),
-    ("embase.ris", 6, []),
-    ("generic.csv", 2, []),
-    ("generic_semicolon.csv", 2, []),
-    ("generic_tab.csv", 2, []),
-    ("generic_tab.tab", 2, []),
-    ("generic_tab.tsv", 2, []),
-    ("generic_labels.csv", 6, []),
-    ("generic.ris", 2, []),
-    ("generic_labels.ris", 2, []),
-    ("pubmed_zotero.ris", 6, []),
-    ("pubmed_endnote.txt", 6, []),
-    ("scopus.ris", 6, []),
-    ("ovid_zotero.ris", 6, []),
-    ("proquest.ris", 6, [])
-])
+
+@mark.parametrize("test_file,n_lines,ignore_col",
+                  [("_baseline.ris", 100, []), ("embase.csv", 6, ["keywords"]),
+                   ("embase_newpage.csv", 6, ["keywords"]),
+                   ("embase.ris", 6, []), ("generic.csv", 2, []),
+                   ("generic_semicolon.csv", 2, []),
+                   ("generic_tab.csv", 2, []), ("generic_tab.tab", 2, []),
+                   ("generic_tab.tsv", 2, []), ("generic_labels.csv", 6, []),
+                   ("generic.ris", 2, []), ("generic_labels.ris", 2, []),
+                   ("pubmed_zotero.ris", 6, []), ("pubmed_endnote.txt", 6, []),
+                   ("scopus.ris", 6, []), ("ovid_zotero.ris", 6, []),
+                   ("proquest.ris", 6, [])])
 def test_reader(test_file, n_lines, ignore_col):
     fp = Path("tests", "demo_data", test_file)
     as_data = ASReviewData.from_file(fp)
@@ -41,61 +34,66 @@ def test_reader(test_file, n_lines, ignore_col):
         assert len(values) == n_lines
 
 
-@mark.parametrize("record_i,included", [
-    # Single line record
-    (0, 1),
-    (1, 0),
-    (2, -1),
-    (3, -1),
-    # Single line record with additional notes, label first
-    (4, 1),
-    (5, 0),
-    (6, -1),
-    # Single line record with additional notes, label in the middle
-    (7, 1),
-    (8, 0),
-    (9, -1),
-    # Single line record with additional notes, label last
-    (10, 1),
-    (11, 0),
-    (12, -1),
-    # Multiline record, label first
-    (13, 1),
-    (14, 0),
-    (15, -1),
-    # Multiline record, label in the middle
-    (16, 1),
-    (17, 0),
-    (18, -1),
-    # Multiline record, label last
-    (19, 1),
-    (20, 0),
-    (21, -1),
-    # Multiline record, with additional notes, label first
-    (22, 1),
-    (23, 0),
-    (24, -1),
-    # Multiline record, with additional notes, label in the middle
-    (25, 1),
-    (26, 0),
-    (27, -1),
-    # Multiline record, with additional notes, label last
-    (28, 1),
-    (29, 0),
-    (30, -1),
-    # No notes tag present
-    (31, -1)
-])
+@mark.parametrize(
+    "record_i,included",
+    [
+        # Single line record
+        (0, 1),
+        (1, 0),
+        (2, -1),
+        (3, -1),
+        # Single line record with additional notes, label first
+        (4, 1),
+        (5, 0),
+        (6, -1),
+        # Single line record with additional notes, label in the middle
+        (7, 1),
+        (8, 0),
+        (9, -1),
+        # Single line record with additional notes, label last
+        (10, 1),
+        (11, 0),
+        (12, -1),
+        # Multiline record, label first
+        (13, 1),
+        (14, 0),
+        (15, -1),
+        # Multiline record, label in the middle
+        (16, 1),
+        (17, 0),
+        (18, -1),
+        # Multiline record, label last
+        (19, 1),
+        (20, 0),
+        (21, -1),
+        # Multiline record, with additional notes, label first
+        (22, 1),
+        (23, 0),
+        (24, -1),
+        # Multiline record, with additional notes, label in the middle
+        (25, 1),
+        (26, 0),
+        (27, -1),
+        # Multiline record, with additional notes, label last
+        (28, 1),
+        (29, 0),
+        (30, -1),
+        # No notes tag present
+        (31, -1)
+    ])
 def test_asreview_labels_ris(record_i, included):
     fp = Path("tests", "demo_data", "baseline_tag-notes_labels.ris")
     as_data = ASReviewData.from_file(fp)
     assert as_data.record(record_i, by_index=True).included == included
 
+
 def test_multiline_tags_ris():
 
-    fp = Path("tests", "demo_data", "baseline_tag_and_field_definitions_lists.ris")
+    fp = Path("tests", "demo_data",
+              "baseline_tag_and_field_definitions_lists.ris")
     entries = rispy.load(fp, encoding='utf-8')
-    assert entries[0]["notes"] == ["Notes 1","Notes 2"]
+    assert entries[0]["notes"] == ["Notes 1", "Notes 2"]
+
 
 def test_nan_values_ris():
 
