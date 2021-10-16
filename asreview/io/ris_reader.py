@@ -21,6 +21,12 @@ import rispy
 from asreview.io.utils import standardize_dataframe
 
 
+# Converter function for notes where label is buried between additional notes
+def _get_notes_substrings(input_string):
+  length = len(input_string)
+  return [input_string[i:j+1] for i in range(length) for j in range(i,length)]
+
+
 # Converter function for manipulating the internal "included" column
 def _label_parser(note_list):
     # Check whether note_list is actually a list and not NaN
