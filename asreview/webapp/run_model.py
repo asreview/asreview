@@ -20,23 +20,22 @@ import sys
 import numpy as np
 import pandas as pd
 
-from asreview.compat import convert_id_to_idx, convert_idx_to_id
+from asreview.compat import convert_id_to_idx
+from asreview.compat import convert_idx_to_id
+from asreview.models.balance import get_balance_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.query import get_query_model
+from asreview.review.minimal import MinimalReview
+from asreview.state.paths import get_lock_path
+from asreview.state.paths import get_state_path
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import write_pool
-from asreview.state.paths import get_lock_path
-from asreview.state.paths import get_state_path
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project_path import get_project_path
-
-from asreview.models.balance import get_balance_model
-from asreview.models.feature_extraction import get_feature_model
-from asreview.models.classifiers import get_classifier
-from asreview.models.query import get_query_model
-
-from asreview.review.minimal import MinimalReview
 
 
 def _get_diff_history(new_history, old_history):

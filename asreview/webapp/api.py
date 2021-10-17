@@ -12,81 +12,81 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import Counter
 import json
 import logging
 import os
 import re
 import shutil
-import tempfile
 import subprocess
+import tempfile
 import urllib.parse
 import uuid
+from collections import Counter
 from pathlib import Path
 from urllib.request import urlretrieve
 
 import numpy as np
 import pandas as pd
 from flask import Blueprint
-from flask import request
 from flask import Response
-from flask import send_file
 from flask import jsonify
+from flask import request
+from flask import send_file
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
 from werkzeug.exceptions import InternalServerError
+from werkzeug.utils import secure_filename
 
+from asreview.config import DEFAULT_BALANCE_STRATEGY
+from asreview.config import DEFAULT_FEATURE_EXTRACTION
+from asreview.config import DEFAULT_MODEL
+from asreview.config import DEFAULT_QUERY_STRATEGY
+from asreview.config import PROJECT_MODE_EXPLORE
+from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.data import ASReviewData
+from asreview.datasets import DatasetManager
+from asreview.exceptions import BadFileFormatError
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
-from asreview.datasets import DatasetManager
-from asreview.data import ASReviewData
-from asreview.exceptions import BadFileFormatError
 from asreview.search import fuzzy_find
-from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.types import is_project
-from asreview.webapp.utils.datasets import get_data_statistics
-from asreview.webapp.utils.datasets import get_dataset_metadata
-from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.project_path import list_asreview_project_paths
-from asreview.webapp.utils.project_path import get_project_path
 from asreview.settings import ASReviewSettings
+from asreview.state.errors import StateNotFoundError
+from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_simulation_ready_path
-from asreview.state.paths import get_tmp_path
-from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_state_path
+from asreview.state.paths import get_tmp_path
 from asreview.state.sql_converter import upgrade_asreview_project_file
-from asreview.state.errors import StateNotFoundError
 from asreview.state.utils import open_state
+from asreview.webapp.sqlock import SQLiteLock
+from asreview.webapp.types import is_project
+from asreview.webapp.utils.datasets import get_data_statistics
+from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
+from asreview.webapp.utils.io import read_label_history
+from asreview.webapp.utils.io import read_pool
+from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.project import _get_executable
-from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import add_dataset_to_project
-from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import add_review_to_project
+from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
+from asreview.webapp.utils.project import get_project_config
 from asreview.webapp.utils.project import get_statistics
+from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import init_project
-from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import label_instance
 from asreview.webapp.utils.project import move_label_from_labeled_to_pool
+from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import update_review_in_project
-from asreview.webapp.utils.project import get_project_config
-from asreview.webapp.utils.project import ProjectNotFoundError
+from asreview.webapp.utils.project_path import get_project_path
+from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.validation import check_dataset
-
-from asreview.config import DEFAULT_MODEL, DEFAULT_FEATURE_EXTRACTION
-from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.config import DEFAULT_BALANCE_STRATEGY
-from asreview.config import PROJECT_MODE_EXPLORE
-from asreview.config import PROJECT_MODE_SIMULATE
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
