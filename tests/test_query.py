@@ -1,5 +1,5 @@
-from pytest import mark
 import numpy as np
+from pytest import mark
 
 from asreview.models.classifiers import get_classifier
 from asreview.models.query import get_query_model
