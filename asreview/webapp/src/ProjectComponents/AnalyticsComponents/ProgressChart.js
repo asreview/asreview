@@ -58,7 +58,8 @@ export default function ProgressChart(props) {
   const optionsChart = React.useCallback(() => {
     return {
       chart: {
-        id: "progressChart",
+        background: "transparent",
+        id: "ASReviewLABprogressChart",
         type: "radialBar",
       },
       plotOptions: {
@@ -75,7 +76,6 @@ export default function ProgressChart(props) {
               fontSize: theme.typography.h5.fontSize,
               fontFamily: theme.typography.h5.fontFamily,
               fontWeight: theme.typography.fontWeightBold,
-              color: theme.palette.text.primary,
             },
             total: {
               show: true,
@@ -90,7 +90,14 @@ export default function ProgressChart(props) {
           },
         },
       },
-      colors: [theme.palette.secondary.main, theme.palette.primary.main],
+      colors: [
+        theme.palette.mode === "light"
+          ? theme.palette.secondary.light
+          : theme.palette.secondary.main,
+        theme.palette.mode === "light"
+          ? theme.palette.primary.light
+          : theme.palette.primary.main,
+      ],
       labels: ["Labeled", "Relevant"],
       legend: {
         show: true,
@@ -102,6 +109,8 @@ export default function ProgressChart(props) {
           colors: theme.palette.text.secondary,
         },
         markers: {
+          width: 8,
+          height: 8,
           offsetX: -4,
         },
         itemMargin: {
@@ -122,6 +131,9 @@ export default function ProgressChart(props) {
       },
       stroke: {
         lineCap: "round",
+      },
+      theme: {
+        mode: theme.palette.mode,
       },
     };
   }, [theme, n_papers]);
