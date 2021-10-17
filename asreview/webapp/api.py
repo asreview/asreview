@@ -1172,12 +1172,24 @@ def api_get_progress_recall(project_id):
             (df["Relevant"][-1:] / n_records).values).round()
 
         df = df.round(1).to_dict(orient="records")
+        for d in df:
+            d["x"] = d.pop("Total")
+
+        df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
+        for d in df_asreview:
+            d["y"] = d.pop("Relevant")
+
+        df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+        for d in df_random:
+            d["y"] = d.pop("Random")
+
+        payload = {"asreview": df_asreview, "random": df_random}
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load efficiency plot."), 500
+        return jsonify(message="Failed to load progress recall."), 500
 
-    response = jsonify(df)
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response

@@ -1,28 +1,24 @@
 import React from "react";
-import {
-  CartesianGrid,
-  Legend,
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
+import Chart from "react-apexcharts";
+import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 const PREFIX = "ProgressRecallChart";
 
 const classes = {
   root: `${PREFIX}-root`,
-  legendText: `${PREFIX}-legendText`,
-  tooltip: `${PREFIX}-tooltip`,
-  tooltipText: `${PREFIX}-tooltipText`,
-  tooltipNumber: `${PREFIX}-tooltipNumber`,
+  tooltipCardColor: `${PREFIX}-tooltip-card-color`,
+  tooltipLabelContainer: `${PREFIX}-tooltip-label-container`,
+  tooltipLabelMarkerASReviewColor: `${PREFIX}-tooltip-label-marker-asreview-color`,
+  tooltipLabelMarkerRandomColor: `${PREFIX}-tooltip-label-marker-random-color`,
+  tooltipLabelASReviewNumber: `${PREFIX}-tooltip-label-asreview-number`,
+  tooltipLabelRandomNumber: `${PREFIX}-tooltip-label-random-number`,
+  tooltipLabelTextSecondaryColor: `${PREFIX}-tooltip-label-text-secondary-color`,
+  tooltipDividerColor: `${PREFIX}-tooltip-divider-color`,
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
+  borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
   width: "100%",
@@ -32,140 +28,231 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingRight: 32,
   },
 
-  [`& .${classes.legendText}`]: {
-    fontSize: "0.875rem",
-    fontWeight: 500,
-    letterSpacing: "0.00714em",
-    lineHeight: 1.57,
+  [`& .${classes.tooltipCardColor}`]: {
+    color: theme.palette.text.primary,
+    background: theme.palette.background.paper,
   },
 
-  [`& .${classes.tooltip}`]: {
+  [`& .${classes.tooltipLabelContainer}`]: {
     display: "flex",
     justifyContent: "space-between",
   },
 
-  [`& .${classes.tooltipText}`]: {
-    color: theme.palette.text.secondary,
-    maxWidth: 240,
+  [`& .${classes.tooltipLabelMarkerASReviewColor}`]: {
+    ...(theme.palette.mode === "light" && {
+      color: theme.palette.primary.light,
+      background: theme.palette.primary.light,
+    }),
+    ...(theme.palette.mode === "dark" && {
+      color: theme.palette.primary.main,
+      background: theme.palette.primary.main,
+    }),
   },
 
-  [`& .${classes.tooltipNumber}`]: {
+  [`& .${classes.tooltipLabelMarkerRandomColor}`]: {
+    ...(theme.palette.mode === "light" && {
+      color: theme.palette.secondary.light,
+      background: theme.palette.secondary.light,
+    }),
+    ...(theme.palette.mode === "dark" && {
+      color: theme.palette.secondary.main,
+      background: theme.palette.secondary.main,
+    }),
+  },
+
+  [`& .${classes.tooltipLabelASReviewNumber}`]: {
     marginLeft: 32,
+    ...(theme.palette.mode === "dark" && {
+      color: theme.palette.primary.main,
+    }),
+  },
+
+  [`& .${classes.tooltipLabelRandomNumber}`]: {
+    marginLeft: 32,
+    ...(theme.palette.mode === "dark" && {
+      color: "#CED4DC",
+    }),
+  },
+
+  [`& .${classes.tooltipLabelTextSecondaryColor}`]: {
+    color: theme.palette.text.secondary,
+  },
+
+  [`& .${classes.tooltipDividerColor}`]: {
+    borderColor: theme.palette.divider,
   },
 }));
 
-const renderLegendText = (value: string, entry: any) => {
-  return <span className={classes.legendText}>{value}</span>;
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active) {
-    return (
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle2" sx={{ marginBottom: "8px" }}>
-            {label} Records reviewed
-          </Typography>
-          <div className={classes.tooltip}>
-            <div>
-              <Typography variant="subtitle2" sx={{ color: "primary.main" }}>
-                Inclusions by ASReview LAB
-              </Typography>
-              <Typography className={classes.tooltipText} variant="body2">
-                Relevant records you labeled assisted by the active learning
-                model
-              </Typography>
-            </div>
-            <Typography
-              className={classes.tooltipNumber}
-              variant="h6"
-              sx={{ color: "primary.main" }}
-            >
-              {payload ? payload[0].value : 0}
-            </Typography>
-          </div>
-          <Divider sx={{ margin: "8px 0px" }} />
-          <div className={classes.tooltip}>
-            <div>
-              <Typography variant="subtitle2" sx={{ color: "secondary.main" }}>
-                Random inclusions
-              </Typography>
-              <Typography className={classes.tooltipText} variant="body2">
-                Relevant records you may find so far if you screen all the
-                records
-              </Typography>
-            </div>
-            <Typography
-              className={classes.tooltipNumber}
-              variant="h6"
-              sx={{ color: "secondary.main" }}
-            >
-              {payload ? payload[1].value : 0}
-            </Typography>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return null;
+const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
+  let total = dataPointIndex + 1;
+  return (
+    `<div class="tooltip-card ProgressRecallChart-tooltip-card-color">` +
+    `<div class="tooltip-card-content">` +
+    '<h6 class="tooltip-title">' +
+    total +
+    ` Records reviewed` +
+    "</h6>" +
+    '<div class="ProgressRecallChart-tooltip-label-container">' +
+    "<div>" +
+    "<div>" +
+    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressRecallChart-tooltip-label-marker-asreview-color">` +
+    "</span>" +
+    `<span class="apexcharts-legend-text tooltip-label-text">` +
+    "Inclusions by ASReview LAB" +
+    "</span>" +
+    "</div>" +
+    `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
+    "Relevant records you labeled assisted by the active learning model" +
+    "</p>" +
+    "</div>" +
+    `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-asreview-number">` +
+    series[0][dataPointIndex] +
+    "</h6>" +
+    "</div>" +
+    `<hr class="tooltip-divider ProgressRecallChart-tooltip-divider-color">` +
+    '<div class="ProgressRecallChart-tooltip-label-container">' +
+    "<div>" +
+    "<div>" +
+    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressRecallChart-tooltip-label-marker-random-color">` +
+    "</span>" +
+    `<span class="apexcharts-legend-text tooltip-label-text">` +
+    "Random inclusions" +
+    "</span>" +
+    "</div>" +
+    `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
+    "Relevant records you may find so far if you review all the records" +
+    "</p>" +
+    "</div>" +
+    `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-random-number">` +
+    series[1][dataPointIndex] +
+    "</h6>" +
+    "</div>" +
+    "</div>" +
+    "</div>"
+  );
 };
 
 export default function ProgressRecallChart(props) {
   const theme = useTheme();
+
+  const lightModePrimaryColor = React.useCallback(() => {
+    return theme.palette.mode === "light"
+      ? theme.palette.primary.light
+      : theme.palette.primary.main;
+  }, [theme.palette.mode, theme.palette.primary]);
+
+  const lightModeSecondaryColor = React.useCallback(() => {
+    return theme.palette.mode === "light"
+      ? theme.palette.secondary.light
+      : theme.palette.secondary.main;
+  }, [theme.palette.mode, theme.palette.secondary]);
+
+  /**
+   * Chart data array
+   */
+  const seriesArray = React.useCallback(() => {
+    return [
+      {
+        name: "Inclusions by ASReview LAB",
+        data: props.progressRecallQuery.data?.asreview,
+      },
+      {
+        name: "Random inclusions",
+        data: props.progressRecallQuery.data?.random,
+      },
+    ];
+  }, [props.progressRecallQuery.data]);
+
+  /**
+   * Chart options
+   */
+  const optionsChart = React.useCallback(() => {
+    return {
+      chart: {
+        background: "transparent",
+        id: "ASReviewLABprogressRecall",
+        type: "line",
+        zoom: {
+          enabled: false,
+        },
+      },
+      colors: [lightModePrimaryColor(), lightModeSecondaryColor()],
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        position: "top",
+        horizontalAlign: "left",
+        fontSize: "14px",
+        fontFamily: theme.typography.subtitle2.fontFamily,
+        fontWeight: theme.typography.subtitle2.fontWeight,
+        labels: {
+          colors: theme.palette.text.secondary,
+        },
+        markers: {
+          width: 8,
+          height: 8,
+          offsetX: -4,
+        },
+        itemMargin: {
+          horizontal: 16,
+        },
+      },
+      stroke: {
+        curve: "smooth",
+        lineCap: "round",
+        width: 2,
+      },
+      theme: {
+        mode: theme.palette.mode,
+      },
+      tooltip: {
+        custom: customTooltip,
+      },
+      xaxis: {
+        type: "numeric",
+        axisTicks: {
+          show: false,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      yaxis: {
+        showAlways: false,
+        max: Math.max.apply(
+          Math,
+          seriesArray()[0]?.data.map((element) => {
+            return element.y;
+          })
+        ),
+        forceNiceScale: false,
+        opposite: true,
+        tickAmount: 6,
+      },
+    };
+  }, [theme, lightModePrimaryColor, lightModeSecondaryColor, seriesArray]);
+
+  const [series, setSeries] = React.useState(seriesArray());
+  const [options, setOptions] = React.useState(optionsChart());
+
+  React.useEffect(() => {
+    setSeries(seriesArray());
+    setOptions(optionsChart());
+  }, [seriesArray, optionsChart]);
 
   return (
     <StyledCard elevation={2}>
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           <Typography variant="h6">Progress Recall</Typography>
-          <ResponsiveContainer minHeight={360}>
-            <LineChart data={props.progressRecallQuery["data"]}>
-              <XAxis
-                dataKey="Total"
-                type="number"
-                domain={[1, "dataMax"]}
-                interval="preserveStartEnd"
-                allowDecimals={false}
-                tickMargin={8}
-              />
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                domain={[0, "dataMax"]}
-                orientation="right"
-                tickLine={false}
-                tickMargin={12}
-              />
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                align="left"
-                verticalAlign="top"
-                height={36}
-                iconType="plainline"
-                formatter={renderLegendText}
-              />
-              <Line
-                type="monotone"
-                dataKey="Relevant"
-                name="Inclusions by ASReview LAB"
-                stroke={theme.palette.primary.main}
-                strokeWidth="1.75"
-                animationEasing="ease-out"
-                dot={false}
-              />
-              <Line
-                type="linear"
-                dataKey="Random"
-                name="Random inclusions"
-                stroke={theme.palette.secondary.main}
-                strokeWidth="1"
-                animationEasing="ease-in"
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <Chart
+            options={options}
+            series={series}
+            type="line"
+            height={400}
+            width="100%"
+          />
         </Stack>
       </CardContent>
     </StyledCard>

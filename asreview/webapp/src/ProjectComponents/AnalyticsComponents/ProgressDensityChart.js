@@ -18,8 +18,13 @@ const PREFIX = "ProgressDensityChart";
 
 const classes = {
   root: `${PREFIX}-root`,
-  tooltip: `${PREFIX}-tooltip`,
   title: `${PREFIX}-title`,
+  tooltipCardColor: `${PREFIX}-tooltip-card-color`,
+  tooltipLabelContainer: `${PREFIX}-tooltip-label-container`,
+  tooltipLabelMarkerRelevantColor: `${PREFIX}-tooltip-label-marker-relevant-color`,
+  tooltipLabelMarkerIrrelevantColor: `${PREFIX}-tooltip-label-marker-irrelevant-color`,
+  tooltipLabelRelevantNumber: `${PREFIX}-tooltip-label-relevant-number`,
+  tooltipLabelIrrelevantNumber: `${PREFIX}-tooltip-label-irrelevant-number`,
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -33,19 +38,52 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingRight: 32,
   },
 
-  [`& .${classes.tooltip}`]: {
+  [`& .${classes.title}`]: {
+    display: "flex",
+    alignItems: "baseline",
+  },
+
+  [`& .${classes.tooltipCardColor}`]: {
+    color: theme.palette.text.primary,
+    background: theme.palette.background.paper,
+  },
+
+  [`& .${classes.tooltipLabelContainer}`]: {
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
   },
 
-  [`& .${classes.title}`]: {
-    display: "flex",
-    alignItems: "baseline",
+  [`& .${classes.tooltipLabelMarkerRelevantColor}`]: {
+    ...(theme.palette.mode === "light" && {
+      color: theme.palette.primary.light,
+      background: theme.palette.primary.light,
+    }),
+    ...(theme.palette.mode === "dark" && {
+      color: theme.palette.primary.main,
+      background: theme.palette.primary.main,
+    }),
+  },
+
+  [`& .${classes.tooltipLabelMarkerIrrelevantColor}`]: {
+    color: "#CED4DC",
+    background: "#CED4DC",
+  },
+
+  [`& .${classes.tooltipLabelRelevantNumber}`]: {
+    marginLeft: 20,
+    ...(theme.palette.mode === "dark" && {
+      color: theme.palette.primary.main,
+    }),
+  },
+
+  [`& .${classes.tooltipLabelIrrelevantNumber}`]: {
+    marginLeft: 20,
+    ...(theme.palette.mode === "dark" && {
+      color: "#CED4DC",
+    }),
   },
 }));
-
-const irrelevantColor = "#CED4DC";
 
 function ordinal_suffix_of(i) {
   var j = i % 10,
@@ -74,60 +112,49 @@ const StyledTooltip = styled(({ className, ...props }) => (
   },
 }));
 
+const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
+  let from = ordinal_suffix_of(Math.max(dataPointIndex - 8, 1));
+  let to = ordinal_suffix_of(dataPointIndex + 1);
+  return (
+    `<div class="tooltip-card ProgressDensityChart-tooltip-card-color">` +
+    '<div class="tooltip-card-content">' +
+    '<h6 class="tooltip-title" style="margin-bottom: 8px;">' +
+    from +
+    ` to ` +
+    to +
+    ` records reviewed` +
+    "</h6>" +
+    `<div class="ProgressDensityChart-tooltip-label-container">` +
+    "<div>" +
+    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressDensityChart-tooltip-label-marker-relevant-color">` +
+    "</span>" +
+    `<span class="apexcharts-legend-text tooltip-label-text">` +
+    "Relevant records" +
+    "</span>" +
+    "</div>" +
+    `<h6 class="tooltip-label-number ProgressDensityChart-tooltip-label-relevant-number">` +
+    series[0][dataPointIndex] +
+    "</h6>" +
+    "</div>" +
+    `<div class="ProgressDensityChart-tooltip-label-container">` +
+    "<div>" +
+    `<span class="apexcharts-legend-marker tooltip-label-marker ProgressDensityChart-tooltip-label-marker-irrelevant-color">` +
+    "</span>" +
+    `<span class="apexcharts-legend-text tooltip-label-text">` +
+    "Irrelevant records" +
+    "</span>" +
+    "</div>" +
+    `<h6 class="tooltip-label-number ProgressDensityChart-tooltip-label-irrelevant-number">` +
+    series[1][dataPointIndex] +
+    "</h6>" +
+    "</div>" +
+    "</div>" +
+    "</div>"
+  );
+};
+
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
-
-  const lightModePrimaryColor = React.useCallback(() => {
-    return theme.palette.mode === "light"
-      ? theme.palette.primary.light
-      : theme.palette.primary.main;
-  }, [theme.palette.mode, theme.palette.primary]);
-
-  const customTooltip = React.useCallback(
-    ({ series, seriesIndex, dataPointIndex, w }) => {
-      let from = ordinal_suffix_of(Math.max(dataPointIndex - 8, 1));
-      let to = ordinal_suffix_of(dataPointIndex + 1);
-      return (
-        `<div class="tooltip-container" style="background-color: ${theme.palette.background.paper}">` +
-        '<h6 class="tooltip-title">' +
-        from +
-        ` to ` +
-        to +
-        ` records reviewed` +
-        "</h6>" +
-        '<div class="tooltip-label">' +
-        "<div>" +
-        `<span class="apexcharts-legend-marker tooltip-label-marker" style="background: ${lightModePrimaryColor()} !important; color: ${lightModePrimaryColor()}">` +
-        "</span>" +
-        `<span class="apexcharts-legend-text tooltip-label-text" style="color: ${theme.palette.text.secondary}">` +
-        "Relevant records" +
-        "</span>" +
-        "</div>" +
-        `<h6 class="tooltip-label-number" style="color: ${
-          theme.palette.mode === "light" ? "inherit" : lightModePrimaryColor()
-        };">` +
-        series[0][dataPointIndex] +
-        "</h6>" +
-        "</div>" +
-        '<div class="tooltip-label">' +
-        "<div>" +
-        `<span class="apexcharts-legend-marker tooltip-label-marker" style="background: ${irrelevantColor} !important; color: ${irrelevantColor}">` +
-        "</span>" +
-        `<span class="apexcharts-legend-text tooltip-label-text" style="color: ${theme.palette.text.secondary};">` +
-        "Irrelevant records" +
-        "</span>" +
-        "</div>" +
-        `<h6 class="tooltip-label-number" style="color: ${
-          theme.palette.mode === "light" ? "inherit" : irrelevantColor
-        };">` +
-        series[1][dataPointIndex] +
-        "</h6>" +
-        "</div>" +
-        "</div>"
-      );
-    },
-    [theme.palette, lightModePrimaryColor]
-  );
 
   /**
    * Chart data array
@@ -156,7 +183,12 @@ export default function ProgressDensityChart(props) {
         type: "area",
         stacked: true,
       },
-      colors: [lightModePrimaryColor(), "#CED4DC"],
+      colors: [
+        theme.palette.mode === "light"
+          ? theme.palette.primary.light
+          : theme.palette.primary.main,
+        "#CED4DC",
+      ],
       dataLabels: {
         enabled: false,
       },
@@ -164,7 +196,7 @@ export default function ProgressDensityChart(props) {
         type: "gradient",
         gradient: {
           shadeIntensity: theme.palette.mode === "light" ? 0.9 : 0.2,
-          opacityFrom: 0.7,
+          opacityFrom: 0.5,
           opacityTo: 0.9,
         },
       },
@@ -216,7 +248,7 @@ export default function ProgressDensityChart(props) {
         tickAmount: 3,
       },
     };
-  }, [theme, lightModePrimaryColor, customTooltip]);
+  }, [theme]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState(optionsChart());
@@ -273,7 +305,7 @@ export default function ProgressDensityChart(props) {
             options={options}
             series={series}
             type="area"
-            height={230}
+            height={200}
             width="100%"
           />
         </Stack>

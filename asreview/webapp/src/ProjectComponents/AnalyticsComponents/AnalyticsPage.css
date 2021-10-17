@@ -1,4 +1,16 @@
-.tooltip-container {
+.tooltip-card {
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-radius: 4px;
+  box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+    0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+  background-image: linear-gradient(
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.05)
+  );
+  overflow: hidden;
+}
+
+.tooltip-card-content {
   padding: 16px;
   padding-bottom: 24px;
 }
@@ -10,28 +22,10 @@
   font-size: 0.875rem;
   line-height: 1.57;
   letter-spacing: 0.00714em;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
-.tooltip-label {
-  display: flex;
-  align-items: baseline;
-  -webkit-box-align: baseline;
-  -webkit-box-pack: justify;
-  justify-content: space-between;
-}
-
-.tooltip-label-number {
-  margin: 0;
-  margin-left: 20px;
-  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
-  font-weight: 500;
-  font-size: 1.25rem;
-  line-height: 1.6;
-  letter-spacing: 0.0075em;
-}
-
-.apexcharts-legend-marker.tooltip-label-marker {
+.tooltip-label-marker {
   height: 8px;
   width: 8px;
   border-width: 0px;
@@ -39,9 +33,38 @@
   border-radius: 12px;
 }
 
-.apexcharts-legend-text.tooltip-label-text {
+.tooltip-label-text {
   left: 4px;
   font-size: 14px;
   font-weight: 500;
   font-family: Roboto, Helvetica, Arial, sans-serif;
+}
+
+.tooltip-label-number {
+  margin: 0;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  letter-spacing: 0.0075em;
+}
+
+.tooltip-label-text-secondary {
+  margin: 0;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+  max-width: 240px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.tooltip-divider {
+  flex-shrink: 0;
+  border-width: 0;
+  border-style: solid;
+  border-bottom-width: thin;
+  margin: 16px 0px;
 }
