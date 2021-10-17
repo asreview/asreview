@@ -21,12 +21,22 @@ import rispy
 from asreview.io.utils import standardize_dataframe
 
 
-# Converter function for notes where label is buried between additional notes
-def _get_notes_substrings(input_string):
-    length = len(input_string)
-    return [
-        input_string[i:j + 1] for i in range(length) for j in range(i, length)
-    ]
+# Converter function for splitting labels from notes
+def _get_notes_labels(note_list):
+    if isinstance(note_list, list):
+        new_notes = []
+        labels = []
+        for v in note_list:
+         label = re.search(r'(ASReview\w+)', v)
+         if label is None:
+            return None
+         else:
+             labels.append(label.group())
+         new_notes.append(re.sub(r'(ASReview\w+)', '', v))
+        return new_notes, labels
+
+    else:
+        return note_list
 
 
 # Converter function for manipulating the internal "included" column
