@@ -28,7 +28,6 @@
     "react-swipeable-views": "^0.14.0",
     "react-transition-group": "^4.4.1",
     "react-truncate-markup": "^5.1.0",
-    "recharts": "^2.1.4",
     "semver": "^7.3.4",
     "typeface-roboto": "0.0.75",
     "typescript": "^4.4.3",
