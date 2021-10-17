@@ -1129,12 +1129,24 @@ def api_get_progress_density(project_id):
                 df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
 
         df = df.round(1).to_dict(orient="records")
+        for d in df:
+            d["x"] = d.pop("Total")
+
+        df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
+        for d in df_relevant:
+            d["y"] = d.pop("Relevant")
+
+        df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+        for d in df_irrelevant:
+            d["y"] = d.pop("Irrelevant")
+
+        payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load progress plot."), 500
+        return jsonify(message="Failed to load progress density."), 500
 
-    response = jsonify(df)
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response

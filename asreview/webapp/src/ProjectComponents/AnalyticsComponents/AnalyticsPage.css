@@ -1,0 +1,47 @@
+.tooltip-container {
+  padding: 16px;
+  padding-bottom: 24px;
+}
+
+.tooltip-title {
+  margin: 0;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.57;
+  letter-spacing: 0.00714em;
+  margin-bottom: 8px;
+}
+
+.tooltip-label {
+  display: flex;
+  align-items: baseline;
+  -webkit-box-align: baseline;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+}
+
+.tooltip-label-number {
+  margin: 0;
+  margin-left: 20px;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  letter-spacing: 0.0075em;
+}
+
+.apexcharts-legend-marker.tooltip-label-marker {
+  height: 8px;
+  width: 8px;
+  border-width: 0px;
+  border-color: rgb(255, 255, 255);
+  border-radius: 12px;
+}
+
+.apexcharts-legend-text.tooltip-label-text {
+  left: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+}

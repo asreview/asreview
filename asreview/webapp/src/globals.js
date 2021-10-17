@@ -21,9 +21,11 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       ? {
           primary: {
             main: "#816700",
+            light: "#FFCD00",
           },
           secondary: {
             main: "#076AED",
+            light: "#3ea6ff",
           },
         }
       : {

@@ -1,27 +1,29 @@
 import React from "react";
+import Chart from "react-apexcharts";
 import {
-  AreaChart,
-  Area,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
+  Box,
+  Card,
+  CardContent,
+  Stack,
   Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+  tooltipClasses,
+  Typography,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
+import { HelpOutline } from "@mui/icons-material";
+
+import "./AnalyticsPage.css";
 
 const PREFIX = "ProgressDensityChart";
 
 const classes = {
   root: `${PREFIX}-root`,
-  legendText: `${PREFIX}-legendText`,
   tooltip: `${PREFIX}-tooltip`,
-  tooltipNumber: `${PREFIX}-tooltipNumber`,
+  title: `${PREFIX}-title`,
 };
 
 const StyledCard = styled(Card)(({ theme }) => ({
+  borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
   width: "100%",
@@ -31,22 +33,19 @@ const StyledCard = styled(Card)(({ theme }) => ({
     paddingRight: 32,
   },
 
-  [`& .${classes.legendText}`]: {
-    fontSize: "0.875rem",
-    fontWeight: 500,
-    letterSpacing: "0.00714em",
-    lineHeight: 1.57,
-  },
-
   [`& .${classes.tooltip}`]: {
     display: "flex",
     alignItems: "baseline",
+    justifyContent: "space-between",
   },
 
-  [`& .${classes.tooltipNumber}`]: {
-    marginRight: 8,
+  [`& .${classes.title}`]: {
+    display: "flex",
+    alignItems: "baseline",
   },
 }));
+
+const irrelevantColor = "#CED4DC";
 
 function ordinal_suffix_of(i) {
   var j = i % 10,
@@ -63,106 +62,220 @@ function ordinal_suffix_of(i) {
   return i + "th";
 }
 
-const renderLegendText = (value: string, entry: any) => {
-  return <span className={classes.legendText}>{value}</span>;
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active) {
-    return (
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle2" sx={{ marginBottom: "8px" }}>
-            Of the {ordinal_suffix_of(Math.max(label - 9, 1))} to{" "}
-            {ordinal_suffix_of(label)} records reviewed
-          </Typography>
-          <div className={classes.tooltip}>
-            <Typography
-              className={classes.tooltipNumber}
-              variant="h6"
-              sx={{ color: "primary.main" }}
-            >
-              {payload ? payload[0].value : 0}
-            </Typography>
-            <Typography variant="subtitle2" sx={{ color: "primary.main" }}>
-              Relevant
-            </Typography>
-          </div>
-          <div className={classes.tooltip}>
-            <Typography
-              className={classes.tooltipNumber}
-              variant="h6"
-              sx={{ color: "secondary.main" }}
-            >
-              {payload ? payload[1].value : 0}
-            </Typography>
-            <Typography variant="subtitle2" sx={{ color: "secondary.main" }}>
-              Irrelevant
-            </Typography>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return null;
-};
+const StyledTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
+    padding: 0,
+    maxWidth: 300,
+    fontSize: theme.typography.pxToRem(12),
+  },
+}));
 
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
+
+  const lightModePrimaryColor = React.useCallback(() => {
+    return theme.palette.mode === "light"
+      ? theme.palette.primary.light
+      : theme.palette.primary.main;
+  }, [theme.palette.mode, theme.palette.primary]);
+
+  const customTooltip = React.useCallback(
+    ({ series, seriesIndex, dataPointIndex, w }) => {
+      let from = ordinal_suffix_of(Math.max(dataPointIndex - 8, 1));
+      let to = ordinal_suffix_of(dataPointIndex + 1);
+      return (
+        `<div class="tooltip-container" style="background-color: ${theme.palette.background.paper}">` +
+        '<h6 class="tooltip-title">' +
+        from +
+        ` to ` +
+        to +
+        ` records reviewed` +
+        "</h6>" +
+        '<div class="tooltip-label">' +
+        "<div>" +
+        `<span class="apexcharts-legend-marker tooltip-label-marker" style="background: ${lightModePrimaryColor()} !important; color: ${lightModePrimaryColor()}">` +
+        "</span>" +
+        `<span class="apexcharts-legend-text tooltip-label-text" style="color: ${theme.palette.text.secondary}">` +
+        "Relevant records" +
+        "</span>" +
+        "</div>" +
+        `<h6 class="tooltip-label-number" style="color: ${
+          theme.palette.mode === "light" ? "inherit" : lightModePrimaryColor()
+        };">` +
+        series[0][dataPointIndex] +
+        "</h6>" +
+        "</div>" +
+        '<div class="tooltip-label">' +
+        "<div>" +
+        `<span class="apexcharts-legend-marker tooltip-label-marker" style="background: ${irrelevantColor} !important; color: ${irrelevantColor}">` +
+        "</span>" +
+        `<span class="apexcharts-legend-text tooltip-label-text" style="color: ${theme.palette.text.secondary};">` +
+        "Irrelevant records" +
+        "</span>" +
+        "</div>" +
+        `<h6 class="tooltip-label-number" style="color: ${
+          theme.palette.mode === "light" ? "inherit" : irrelevantColor
+        };">` +
+        series[1][dataPointIndex] +
+        "</h6>" +
+        "</div>" +
+        "</div>"
+      );
+    },
+    [theme.palette, lightModePrimaryColor]
+  );
+
+  /**
+   * Chart data array
+   */
+  const seriesArray = React.useCallback(() => {
+    return [
+      {
+        name: "Relevant records",
+        data: props.progressDensityQuery.data?.relevant,
+      },
+      {
+        name: "Irrelevant records",
+        data: props.progressDensityQuery.data?.irrelevant,
+      },
+    ];
+  }, [props.progressDensityQuery.data]);
+
+  /**
+   * Chart options
+   */
+  const optionsChart = React.useCallback(() => {
+    return {
+      chart: {
+        background: "transparent",
+        id: "ASReviewLABprogressDensity",
+        type: "area",
+        stacked: true,
+      },
+      colors: [lightModePrimaryColor(), "#CED4DC"],
+      dataLabels: {
+        enabled: false,
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          shadeIntensity: theme.palette.mode === "light" ? 0.9 : 0.2,
+          opacityFrom: 0.7,
+          opacityTo: 0.9,
+        },
+      },
+      legend: {
+        position: "top",
+        horizontalAlign: "left",
+        fontSize: "14px",
+        fontFamily: theme.typography.subtitle2.fontFamily,
+        fontWeight: theme.typography.subtitle2.fontWeight,
+        labels: {
+          colors: theme.palette.text.secondary,
+        },
+        markers: {
+          width: 8,
+          height: 8,
+          offsetX: -4,
+        },
+        itemMargin: {
+          horizontal: 16,
+        },
+      },
+      stroke: {
+        curve: "smooth",
+        lineCap: "round",
+        width: 2,
+      },
+      theme: {
+        mode: theme.palette.mode,
+      },
+      tooltip: {
+        custom: customTooltip,
+      },
+      xaxis: {
+        type: "numeric",
+        labels: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      yaxis: {
+        showAlways: false,
+        opposite: true,
+        max: 10,
+        tickAmount: 3,
+      },
+    };
+  }, [theme, lightModePrimaryColor, customTooltip]);
+
+  const [series, setSeries] = React.useState(seriesArray());
+  const [options, setOptions] = React.useState(optionsChart());
+
+  React.useEffect(() => {
+    setSeries(seriesArray());
+    setOptions(optionsChart());
+  }, [seriesArray, optionsChart]);
 
   return (
     <StyledCard elevation={2}>
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Typography variant="h6">Progress Density</Typography>
-          <ResponsiveContainer minHeight={180}>
-            <AreaChart data={props.progressDensityQuery["data"]}>
-              <XAxis
-                hide
-                type="number"
-                dataKey="Total"
-                domain={["dataMin", "dataMax"]}
-                interval="preserveStartEnd"
-                allowDecimals={false}
-                tickMargin={8}
+          <Box className={classes.title}>
+            <Typography variant="h6">Progress Density</Typography>
+            <StyledTooltip
+              title={
+                <React.Fragment>
+                  <Card>
+                    <CardContent>
+                      <Stack spacing={2}>
+                        <Box>
+                          <Typography variant="subtitle2">
+                            Presence of relevant records
+                          </Typography>
+                          <Typography variant="body2">
+                            More relevant records may appear. Continue reviewing
+                            to discover more.
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="subtitle2">
+                            Persistent irrelevant records
+                          </Typography>
+                          <Typography variant="body2">
+                            More relevant records might not appear. Refer to
+                            your stopping rules to decide if you want to
+                            continue reviewing.
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </React.Fragment>
+              }
+            >
+              <HelpOutline
+                fontSize="small"
+                sx={{ color: "text.secondary", marginLeft: "8px" }}
               />
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                domain={[0, 10]}
-                orientation="right"
-                tickLine={false}
-                tickMargin={12}
-              />
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                align="left"
-                verticalAlign="top"
-                height={36}
-                iconType="square"
-                iconSize={8}
-                formatter={renderLegendText}
-              />
-              <Area
-                type="monotone"
-                dataKey="Relevant"
-                stackId="1"
-                stroke={theme.palette.primary.main}
-                fill={theme.palette.primary.main}
-                opacity={0.5}
-              />
-              <Area
-                type="monotone"
-                dataKey="Irrelevant"
-                stackId="1"
-                stroke={theme.palette.secondary.main}
-                fill={theme.palette.secondary.main}
-                opacity={0.5}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+            </StyledTooltip>
+          </Box>
+          <Chart
+            options={options}
+            series={series}
+            type="area"
+            height={230}
+            width="100%"
+          />
         </Stack>
       </CardContent>
     </StyledCard>
