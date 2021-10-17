@@ -41,14 +41,38 @@ def _get_notes_labels(note_list):
 
 # Converter function for manipulating the internal "included" column
 def _label_parser(note_list):
+    print("Beginning note_list is: ", note_list)
+    label = 0
+    notes = []
     # Check whether note_list is actually a list and not NaN
     if not isinstance(note_list, list):
         return None
     # Check the list for the label and return the proper value
     if any("ASReview_relevant" in note for note in note_list):
-        return 1
+        label = 1
+        print("IF note_list is: ", note_list)
+        for note in note_list:
+            note = re.sub(r'(ASReview\w+)', '', note)
+            print("note is: ",note)
+            #notes = notes.append(re.sub(r'(ASReview\w+)', '', note))
+            
+        return label
     elif any("ASReview_irrelevant" in note for note in note_list):
-        return 0
+        label = 0
+        print("IF note_list is: ", note_list)
+        for note in note_list:
+            note = re.sub(r'(ASReview\w+)', '', note)
+            print("note is: ",note)
+            #notes = notes.append(re.sub(r'(ASReview\w+)', '', note))
+        return label
+
+    elif any("ASReview_not_seen" in note for note in note_list):
+        print("IF note_list is: ", note_list)
+        for note in note_list:
+            note = re.sub(r'(ASReview\w+)', '', note)
+            print("note is: ",note)
+            #notes = notes.append(re.sub(r'(ASReview\w+)', '', note))
+        return note
     else:
         return None
 
