@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pathlib import PurePath
-from pathlib import Path
-from datetime import datetime
 import json
+from datetime import datetime
+from pathlib import Path
+from pathlib import PurePath
 
 import numpy as np
 
-from asreview.models.balance.utils import get_balance_model
 from asreview.compat import convert_id_to_idx
-from asreview.config import LABEL_NA
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -31,20 +29,21 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
+from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.io.paper_record import preview_record
-from asreview.models.feature_extraction import get_feature_model
+from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
+from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state.utils import init_project_folder_structure
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_project_file_path
+from asreview.state.utils import init_project_folder_structure
 from asreview.utils import get_random_state
-
 
 ASCII_LOGO = """
             _____ _____            _

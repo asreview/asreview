@@ -15,8 +15,8 @@
 from pathlib import Path
 
 from asreview.data.base import ASReviewData
-from asreview.datasets import DataSetNotFoundError
 from asreview.datasets import DatasetManager
+from asreview.datasets import DataSetNotFoundError
 from asreview.utils import is_url
 
 
