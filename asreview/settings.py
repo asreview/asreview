@@ -26,7 +26,6 @@ from asreview.types import type_n_queries
 
 
 SETTINGS_TYPE_DICT = {
-    "data_name": str,
     "model": str,
     "query_strategy": str,
     "balance_strategy": str,
@@ -98,7 +97,6 @@ class ASReviewSettings(object):
                  query_param={},
                  balance_param={},
                  feature_param={},
-                 data_name=None,
                  data_fp=None):
 
         self.mode = mode
@@ -126,13 +124,6 @@ class ASReviewSettings(object):
             self.query_param = query_param
         self.balance_param = balance_param
         self.feature_param = feature_param
-
-        if data_name:
-            self.data_name = data_name
-        elif data_fp:
-            self.data_name = os.path.basename(data_fp)
-        else:
-            self.data_name = "unknown"
 
     def __str__(self):
         return pretty_format(self.to_dict())
