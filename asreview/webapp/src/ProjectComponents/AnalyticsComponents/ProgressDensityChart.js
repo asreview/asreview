@@ -12,6 +12,11 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import { HelpOutline } from "@mui/icons-material";
 
+import tooltipRelevantLight from "../../images/progress_density_relevant_light.png";
+import tooltipRelevantDark from "../../images/progress_density_relevant_dark.png";
+import tooltipIrrelevantLight from "../../images/progress_density_irrelevant_light.png";
+import tooltipIrrelevantDark from "../../images/progress_density_irrelevant_dark.png";
+
 import "./AnalyticsPage.css";
 
 const PREFIX = "ProgressDensityChart";
@@ -107,7 +112,7 @@ const StyledTooltip = styled(({ className, ...props }) => (
     backgroundColor: theme.palette.background.paper,
     color: theme.palette.text.primary,
     padding: 0,
-    maxWidth: 300,
+    maxWidth: 410,
     fontSize: theme.typography.pxToRem(12),
   },
 }));
@@ -122,7 +127,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     from +
     ` to ` +
     to +
-    ` records reviewed` +
+    ` reviewed records` +
     "</h6>" +
     `<div class="ProgressDensityChart-tooltip-label-container">` +
     "<div>" +
@@ -156,6 +161,24 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
 export default function ProgressDensityChart(props) {
   const theme = useTheme();
 
+  const returnTooltipRelevantImg = () => {
+    if (theme.palette.mode === "light") {
+      return tooltipRelevantLight;
+    }
+    if (theme.palette.mode === "dark") {
+      return tooltipRelevantDark;
+    }
+  };
+
+  const returnTooltipIrrelevantImg = () => {
+    if (theme.palette.mode === "light") {
+      return tooltipIrrelevantLight;
+    }
+    if (theme.palette.mode === "dark") {
+      return tooltipIrrelevantDark;
+    }
+  };
+
   /**
    * Chart data array
    */
@@ -178,6 +201,9 @@ export default function ProgressDensityChart(props) {
   const optionsChart = React.useCallback(() => {
     return {
       chart: {
+        animations: {
+          enabled: false,
+        },
         background: "transparent",
         id: "ASReviewLABprogressDensity",
         type: "area",
@@ -217,6 +243,9 @@ export default function ProgressDensityChart(props) {
         itemMargin: {
           horizontal: 16,
         },
+      },
+      markers: {
+        size: 0,
       },
       stroke: {
         curve: "smooth",
@@ -267,27 +296,45 @@ export default function ProgressDensityChart(props) {
             <StyledTooltip
               title={
                 <React.Fragment>
-                  <Card>
+                  <Card sx={{ backgroundImage: "none" }}>
                     <CardContent>
                       <Stack spacing={2}>
-                        <Box>
-                          <Typography variant="subtitle2">
-                            Presence of relevant records
-                          </Typography>
-                          <Typography variant="body2">
-                            More relevant records may appear. Continue reviewing
-                            to discover more.
-                          </Typography>
+                        <Box sx={{ display: "flex" }}>
+                          <Stack direction="row" spacing={2}>
+                            <img
+                              src={returnTooltipRelevantImg()}
+                              alt="tooltip relevant"
+                              class="tooltip-img"
+                            />
+                            <Box>
+                              <Typography variant="subtitle2">
+                                Presence of relevant records
+                              </Typography>
+                              <Typography variant="body2">
+                                More relevant records may appear. Continue
+                                reviewing to discover more.
+                              </Typography>
+                            </Box>
+                          </Stack>
                         </Box>
-                        <Box>
-                          <Typography variant="subtitle2">
-                            Persistent irrelevant records
-                          </Typography>
-                          <Typography variant="body2">
-                            More relevant records might not appear. Refer to
-                            your stopping rules to decide if you want to
-                            continue reviewing.
-                          </Typography>
+                        <Box sx={{ display: "flex" }}>
+                          <Stack direction="row" spacing={2}>
+                            <img
+                              src={returnTooltipIrrelevantImg()}
+                              alt="tooltip irrelevant"
+                              class="tooltip-img"
+                            />
+                            <Box>
+                              <Typography variant="subtitle2">
+                                Persistent irrelevant records
+                              </Typography>
+                              <Typography variant="body2">
+                                More relevant records might not appear. Refer to
+                                your stopping rules to decide if you want to
+                                continue reviewing.
+                              </Typography>
+                            </Box>
+                          </Stack>
                         </Box>
                       </Stack>
                     </CardContent>
