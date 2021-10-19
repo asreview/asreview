@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from pytest import mark
 import numpy as np
+from pytest import mark
 
 from asreview import ASReviewData
 
