@@ -57,7 +57,7 @@ export default function NumberCard(props) {
                   variant="subtitle1"
                   sx={{ color: "text.secondary" }}
                 >
-                  Records Labeled
+                  Labeled Records
                 </Typography>
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
@@ -84,7 +84,7 @@ export default function NumberCard(props) {
                   variant="subtitle1"
                   sx={{ color: "text.secondary" }}
                 >
-                  Records Relevant
+                  Relevant Records
                 </Typography>
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
@@ -108,7 +108,7 @@ export default function NumberCard(props) {
                   variant="subtitle1"
                   sx={{ color: "text.secondary" }}
                 >
-                  Records Reviewed Since Last Relevant
+                  Reviewed Records Since Last Relevant
                 </Typography>
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat

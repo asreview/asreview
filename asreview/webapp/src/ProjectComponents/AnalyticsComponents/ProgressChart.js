@@ -58,6 +58,9 @@ export default function ProgressChart(props) {
   const optionsChart = React.useCallback(() => {
     return {
       chart: {
+        animations: {
+          enabled: false,
+        },
         background: "transparent",
         id: "ASReviewLABprogressChart",
         type: "radialBar",
@@ -98,6 +101,9 @@ export default function ProgressChart(props) {
           ? theme.palette.primary.light
           : theme.palette.primary.main,
       ],
+      dataLabels: {
+        enabled: false,
+      },
       labels: ["Labeled", "Relevant"],
       legend: {
         show: true,
@@ -128,6 +134,9 @@ export default function ProgressChart(props) {
           opacityTo: 0.9,
           stops: [0, 100],
         },
+      },
+      markers: {
+        size: 0,
       },
       stroke: {
         lineCap: "round",

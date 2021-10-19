@@ -90,7 +90,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     `<div class="tooltip-card-content">` +
     '<h6 class="tooltip-title">' +
     total +
-    ` Records reviewed` +
+    ` reviewed records` +
     "</h6>" +
     '<div class="ProgressRecallChart-tooltip-label-container">' +
     "<div>" +
@@ -120,7 +120,7 @@ const customTooltip = ({ series, seriesIndex, dataPointIndex, w }) => {
     "</span>" +
     "</div>" +
     `<p class="tooltip-label-text-secondary ProgressRecallChart-tooltip-label-text-secondary-color">` +
-    "Relevant records you may find so far if you review all the records" +
+    "Relevant records you may find so far if you manually review all the records" +
     "</p>" +
     "</div>" +
     `<h6 class="tooltip-label-number ProgressRecallChart-tooltip-label-random-number">` +
@@ -169,6 +169,9 @@ export default function ProgressRecallChart(props) {
   const optionsChart = React.useCallback(() => {
     return {
       chart: {
+        animations: {
+          enabled: false,
+        },
         background: "transparent",
         id: "ASReviewLABprogressRecall",
         type: "line",
@@ -197,6 +200,9 @@ export default function ProgressRecallChart(props) {
         itemMargin: {
           horizontal: 16,
         },
+      },
+      markers: {
+        size: 0,
       },
       stroke: {
         curve: "smooth",
