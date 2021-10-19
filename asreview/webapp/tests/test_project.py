@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import os
-import pytest
 from io import BytesIO
 from urllib.request import urlopen
 
-from asreview.webapp.tests.utils import retrieve_project_url_github
+import pytest
 
+from asreview.webapp.tests.utils import retrieve_project_url_github
 
 # Retrieve urls to .asreview files exported from previous versions
 project_urls = retrieve_project_url_github()

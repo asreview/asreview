@@ -1,5 +1,5 @@
-from pytest import mark
 import numpy as np
+from pytest import mark
 
 from asreview.models.balance import get_balance_model
 from asreview.models.balance import list_balance_strategies

@@ -18,12 +18,12 @@ from pathlib import Path
 from uuid import uuid4
 
 import numpy as np
-from scipy.sparse import save_npz
 from scipy.sparse import issparse
+from scipy.sparse import save_npz
 
+from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import decode_feature_matrix
-from asreview.state.errors import StateError
 
 SQLSTATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'

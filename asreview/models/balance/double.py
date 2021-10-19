@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from math import log, floor
+from math import floor
+from math import log
 
 import numpy as np
 

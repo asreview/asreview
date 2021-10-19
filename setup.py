@@ -19,9 +19,10 @@ import re
 import subprocess
 from io import open
 from os import path
-from setuptools import setup
-from setuptools import find_packages
+
 from setuptools import Command
+from setuptools import find_packages
+from setuptools import setup
 
 import versioneer
 
