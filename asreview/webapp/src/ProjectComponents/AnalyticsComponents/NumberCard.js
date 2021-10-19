@@ -3,6 +3,8 @@ import NumberFormat from "react-number-format";
 import { Card, CardContent, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { CardErrorHandler } from "../../Components";
+
 const PREFIX = "NumberCard";
 
 const classes = {
@@ -14,6 +16,7 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   maxWidth: 960,
+  position: "relative",
   width: "100%",
   [`& .${classes.root}`]: {
     borderRadius: 16,
@@ -47,6 +50,11 @@ export default function NumberCard(props) {
 
   return (
     <Root>
+      <CardErrorHandler
+        queryKey={"fetchProgress"}
+        error={props.progressQuery.error}
+        isError={props.progressQuery.isError}
+      />
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>
           <Card className={classes.root} elevation={2}>

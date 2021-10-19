@@ -32,6 +32,7 @@ const Root = styled("div")(({ theme }) => ({
     alignItems: "center",
     display: "flex",
     flexDirection: "column",
+    height: "100%",
     padding: 24,
     "& > *": {
       margin: theme.spacing(2),
@@ -90,30 +91,22 @@ export default function AnalyticsPage(props) {
 
   return (
     <Root>
-      {progressQuery.isFetched &&
-        progressDensityQuery.isFetched &&
-        progressRecallQuery.isFetched && (
-          <Fade in>
-            <Box className={classes.root}>
-              <Box sx={{ width: "100%", maxWidth: 960 }}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} sm={5}>
-                    {progressQuery.data && (
-                      <ProgressChart progressQuery={progressQuery} />
-                    )}
-                  </Grid>
-                  <Grid item xs={12} sm={7}>
-                    <NumberCard progressQuery={progressQuery} />
-                  </Grid>
-                </Grid>
-              </Box>
-              <ProgressDensityChart
-                progressDensityQuery={progressDensityQuery}
-              />
-              <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
-            </Box>
-          </Fade>
-        )}
+      <Fade in>
+        <Box className={classes.root}>
+          <Box sx={{ width: "100%", maxWidth: 960 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={5}>
+                <ProgressChart progressQuery={progressQuery} />
+              </Grid>
+              <Grid item xs={12} sm={7}>
+                <NumberCard progressQuery={progressQuery} />
+              </Grid>
+            </Grid>
+          </Box>
+          <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
+          <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
+        </Box>
+      </Fade>
       <SpeedDial
         ariaLabel="share project analytics"
         sx={{ position: "absolute", bottom: 24, right: 24 }}

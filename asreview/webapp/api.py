@@ -1076,7 +1076,7 @@ def api_finish_project(project_id):
 
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
-    """Get progress info on the article"""
+    """Get progress statistics of a project"""
     project_path = get_project_path(project_id)
     project_file_path = get_project_file_path(project_path)
 
@@ -1089,7 +1089,7 @@ def api_get_progress_info(project_id):  # noqa: F401
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load pie chart."), 500
+        return jsonify(message="Failed to load progress statistics."), 500
 
     response = jsonify({**project_dict, **statistics})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1100,7 +1100,7 @@ def api_get_progress_info(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/progress_density', methods=["GET"])
 def api_get_progress_density(project_id):
-    """Get progress history on the article"""
+    """Get progress density of a project"""
 
     try:
         # get label history

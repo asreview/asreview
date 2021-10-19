@@ -38,6 +38,10 @@ export default function ProgressChart(props) {
     ? props.progressQuery.data["n_papers"]
     : null;
 
+  const formattedTotal = React.useCallback(() => {
+    return n_papers ? numberWithCommas(n_papers) : 0;
+  }, [n_papers]);
+
   /**
    * Chart data array
    */
@@ -86,9 +90,7 @@ export default function ProgressChart(props) {
               fontSize: theme.typography.subtitle1.fontSize,
               fontFamily: theme.typography.subtitle1.fontFamily,
               color: theme.palette.text.secondary,
-              formatter: (w) => {
-                return n_papers ? numberWithCommas(n_papers) : 0;
-              },
+              formatter: formattedTotal,
             },
           },
         },
@@ -138,6 +140,9 @@ export default function ProgressChart(props) {
       markers: {
         size: 0,
       },
+      noData: {
+        text: "No data available",
+      },
       stroke: {
         lineCap: "round",
       },
@@ -145,10 +150,10 @@ export default function ProgressChart(props) {
         mode: theme.palette.mode,
       },
     };
-  }, [theme, n_papers]);
+  }, [theme, formattedTotal]);
 
   const [series, setSeries] = React.useState(seriesArray());
-  const [options, setOptions] = React.useState(optionsChart());
+  const [options, setOptions] = React.useState({});
 
   React.useEffect(() => {
     setSeries(seriesArray());

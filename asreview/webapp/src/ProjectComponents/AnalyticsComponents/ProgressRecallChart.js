@@ -3,6 +3,8 @@ import Chart from "react-apexcharts";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
+import { CardErrorHandler } from "../../Components";
+
 const PREFIX = "ProgressRecallChart";
 
 const classes = {
@@ -21,6 +23,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
+  position: "relative",
   width: "100%",
   [`& .${classes.root}`]: {
     paddingTop: 24,
@@ -151,17 +154,34 @@ export default function ProgressRecallChart(props) {
    * Chart data array
    */
   const seriesArray = React.useCallback(() => {
-    return [
-      {
-        name: "Inclusions by ASReview LAB",
-        data: props.progressRecallQuery.data?.asreview,
-      },
-      {
-        name: "Random inclusions",
-        data: props.progressRecallQuery.data?.random,
-      },
-    ];
+    if (props.progressRecallQuery.data) {
+      return [
+        {
+          name: "Inclusions by ASReview LAB",
+          data: props.progressRecallQuery.data?.asreview,
+        },
+        {
+          name: "Random inclusions",
+          data: props.progressRecallQuery.data?.random,
+        },
+      ];
+    } else {
+      return [];
+    }
   }, [props.progressRecallQuery.data]);
+
+  const maxY = React.useCallback(() => {
+    if (seriesArray()[0]?.data !== undefined) {
+      return Math.max.apply(
+        Math,
+        seriesArray()[0]?.data.map((element) => {
+          return element.y;
+        })
+      );
+    } else {
+      return undefined;
+    }
+  }, [seriesArray]);
 
   /**
    * Chart options
@@ -204,6 +224,9 @@ export default function ProgressRecallChart(props) {
       markers: {
         size: 0,
       },
+      noData: {
+        text: "No data available",
+      },
       stroke: {
         curve: "smooth",
         lineCap: "round",
@@ -226,18 +249,13 @@ export default function ProgressRecallChart(props) {
       },
       yaxis: {
         showAlways: false,
-        max: Math.max.apply(
-          Math,
-          seriesArray()[0]?.data.map((element) => {
-            return element.y;
-          })
-        ),
+        max: maxY(),
         forceNiceScale: false,
         opposite: true,
         tickAmount: 6,
       },
     };
-  }, [theme, lightModePrimaryColor, lightModeSecondaryColor, seriesArray]);
+  }, [theme, lightModePrimaryColor, lightModeSecondaryColor, maxY]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState(optionsChart());
@@ -249,6 +267,11 @@ export default function ProgressRecallChart(props) {
 
   return (
     <StyledCard elevation={2}>
+      <CardErrorHandler
+        queryKey={"fetchProgressRecall"}
+        error={props.progressRecallQuery.error}
+        isError={props.progressRecallQuery.isError}
+      />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           <Typography variant="h6">Progress Recall</Typography>

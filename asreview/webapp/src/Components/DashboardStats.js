@@ -10,7 +10,7 @@ import {
   LibraryBooks,
 } from "@mui/icons-material";
 
-import { DashboardStatsError } from "../Components";
+import { CardErrorHandler } from "../Components";
 
 import { ProjectAPI } from "../api/index.js";
 
@@ -69,7 +69,11 @@ export default function DashboardStats(props) {
 
   return (
     <Root>
-      <DashboardStatsError error={error} isError={isError} />
+      <CardErrorHandler
+        queryKey={"fetchDashboardStats"}
+        error={error}
+        isError={isError}
+      />
       <Grid container spacing={2}>
         <Grid item xs={6} sm={3}>
           <Paper
@@ -149,7 +153,7 @@ export default function DashboardStats(props) {
                   />
                 </Typography>
                 <Typography className={classes.text} variant="body2">
-                  Records Reviewed
+                  Labeled Records
                 </Typography>
               </div>
             </div>

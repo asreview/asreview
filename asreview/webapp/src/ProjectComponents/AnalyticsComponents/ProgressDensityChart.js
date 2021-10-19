@@ -12,6 +12,8 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import { HelpOutline } from "@mui/icons-material";
 
+import { CardErrorHandler } from "../../Components";
+
 import tooltipRelevantLight from "../../images/progress_density_relevant_light.png";
 import tooltipRelevantDark from "../../images/progress_density_relevant_dark.png";
 import tooltipIrrelevantLight from "../../images/progress_density_irrelevant_light.png";
@@ -36,6 +38,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: 16,
   maxWidth: 960,
   overflow: "visible",
+  position: "relative",
   width: "100%",
   [`& .${classes.root}`]: {
     paddingTop: 24,
@@ -183,16 +186,20 @@ export default function ProgressDensityChart(props) {
    * Chart data array
    */
   const seriesArray = React.useCallback(() => {
-    return [
-      {
-        name: "Relevant records",
-        data: props.progressDensityQuery.data?.relevant,
-      },
-      {
-        name: "Irrelevant records",
-        data: props.progressDensityQuery.data?.irrelevant,
-      },
-    ];
+    if (props.progressDensityQuery.data) {
+      return [
+        {
+          name: "Relevant records",
+          data: props.progressDensityQuery.data?.relevant,
+        },
+        {
+          name: "Irrelevant records",
+          data: props.progressDensityQuery.data?.irrelevant,
+        },
+      ];
+    } else {
+      return [];
+    }
   }, [props.progressDensityQuery.data]);
 
   /**
@@ -247,6 +254,9 @@ export default function ProgressDensityChart(props) {
       markers: {
         size: 0,
       },
+      noData: {
+        text: "No data available",
+      },
       stroke: {
         curve: "smooth",
         lineCap: "round",
@@ -289,6 +299,11 @@ export default function ProgressDensityChart(props) {
 
   return (
     <StyledCard elevation={2}>
+      <CardErrorHandler
+        queryKey={"fetchProgressDensity"}
+        error={props.progressDensityQuery.error}
+        isError={props.progressDensityQuery.isError}
+      />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           <Box className={classes.title}>
