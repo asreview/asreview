@@ -1,9 +1,9 @@
+from pathlib import Path
 from shutil import copyfile
 from zipfile import ZipFile
-from pathlib import Path
 
-from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.legacy.utils import open_state as open_state_legacy
+from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.utils import open_state
 
 OLD_STATE_FP = Path('tests', 'asreview_files',

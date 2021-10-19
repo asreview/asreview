@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from contextlib import contextmanager
 import logging
 import os
-from pathlib import Path
-import zipfile
 import tempfile
+import zipfile
+from contextlib import contextmanager
+from pathlib import Path
 
 from asreview.config import LEGACY_STATE_EXTENSIONS
 

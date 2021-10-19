@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import queue
 from copy import deepcopy
+from multiprocessing import Process
 from multiprocessing import Queue
 from multiprocessing import cpu_count
-from multiprocessing import Process
 from pathlib import Path
-import queue
 
 import numpy as np
 
