@@ -21,62 +21,6 @@ import rispy
 from asreview.io.utils import standardize_dataframe
 
 
-# Converter function for splitting labels from notes
-def _get_notes_labels(note_list):
-    if isinstance(note_list, list):
-        new_notes = []
-        labels = []
-        for v in note_list:
-         label = re.search(r'(ASReview\w+)', v)
-         if label is None:
-            return None
-         else:
-             labels.append(label.group())
-         new_notes.append(re.sub(r'(ASReview\w+)', '', v))
-        return new_notes, labels
-
-    else:
-        return note_list
-
-
-# Converter function for manipulating the internal "included" column
-def _label_parser(note_list):
-    print("Beginning note_list is: ", note_list)
-    label = 0
-    notes = []
-    # Check whether note_list is actually a list and not NaN
-    if not isinstance(note_list, list):
-        return None
-    # Check the list for the label and return the proper value
-    if any("ASReview_relevant" in note for note in note_list):
-        label = 1
-        print("IF note_list is: ", note_list)
-        for note in note_list:
-            note = re.sub(r'(ASReview\w+)', '', note)
-            print("note is: ",note)
-            #notes = notes.append(re.sub(r'(ASReview\w+)', '', note))
-            
-        return label
-    elif any("ASReview_irrelevant" in note for note in note_list):
-        label = 0
-        print("IF note_list is: ", note_list)
-        for note in note_list:
-            note = re.sub(r'(ASReview\w+)', '', note)
-            print("note is: ",note)
-            #notes = notes.append(re.sub(r'(ASReview\w+)', '', note))
-        return label
-
-    elif any("ASReview_not_seen" in note for note in note_list):
-        print("IF note_list is: ", note_list)
-        for note in note_list:
-            note = re.sub(r'(ASReview\w+)', '', note)
-            print("note is: ",note)
-            #notes = notes.append(re.sub(r'(ASReview\w+)', '', note))
-        return note
-    else:
-        return None
-
-
 # Converter function for removing the XHTML <p></p> tags from Zotero export
 def _strip_zotero_p_tags(note_list):
     if isinstance(note_list, list):
@@ -89,6 +33,34 @@ def _strip_zotero_p_tags(note_list):
         return new_notes
     else:
         return note_list
+
+
+# Converter function for manipulating the internal "included" and "notes" columns
+def _label_parser(note_list):
+    regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen"
+
+    # Check whether note_list is actually a list and not NaN
+    if not isinstance(note_list, list):
+        return -1, None
+
+    # Create lists of lists for ASReview references
+    asreview_refs = [re.findall(regex, note) for note in note_list]
+    asreview_refs_list = [item for sublist in asreview_refs for item in sublist]
+
+    if len(asreview_refs_list) > 0:
+        # Create lists of lists for notes without references
+        asreview_new_notes = [re.sub(regex, '', note) for note in note_list]
+        label = asreview_refs_list[-1]
+
+        # Check for the label and return proper values for internal representation
+        if label == "ASReview_relevant":
+            return 1, asreview_new_notes
+        elif label == "ASReview_irrelevant":
+            return 0, asreview_new_notes
+        elif label == "ASReview_not_seen":
+            return -1, asreview_new_notes
+    else:
+        return -1, note_list
 
 
 def read_ris(fp):
@@ -127,13 +99,14 @@ def read_ris(fp):
 
     # Turn the entries dictionary into a Pandas dataframe
     df = pandas.DataFrame(entries)
+
     # Check if "notes" column is present
     if "notes" in df:
         # Strip Zotero XHTML <p> tags on "notes"
         df["notes"] = df["notes"].apply(_strip_zotero_p_tags)
-        # Convert from "notes" to "included" field for internal representation
-        df["included"] = df["notes"].apply(_label_parser)
-        # Return the standardised dataframe with label
+        # Split "included" from "notes"
+        df[["included","notes"]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(), columns=["included","notes"])
+        # Return the standardised dataframe with label and notes separated
         return standardize_dataframe(df)
     else:
         # Return the standardised dataframe
