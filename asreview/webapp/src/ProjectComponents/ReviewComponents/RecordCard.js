@@ -19,7 +19,6 @@ import { NoteSheet } from "../ReviewComponents";
 const PREFIX = "RecordCard";
 
 const classes = {
-  root: `${PREFIX}-root`,
   loadedCard: `${PREFIX}-loadedCard`,
   loadingCard: `${PREFIX}-loadingCard`,
   alert: `${PREFIX}-alert`,
@@ -30,22 +29,19 @@ const classes = {
   note: `${PREFIX}-note`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    display: "flex",
-    flex: "1 0 auto",
-    margin: "auto",
-    maxWidth: 960,
-    marginTop: 40,
-    marginBottom: 40,
-    height: "50%",
-    width: "100%",
-    [theme.breakpoints.down("md")]: {
-      marginTop: 0,
-      marginBottom: 24,
-    },
+const Root = styled("div")(({ theme }) => ({
+  display: "flex",
+  flex: "1 0 auto",
+  margin: "auto",
+  maxWidth: 960,
+  marginTop: 40,
+  marginBottom: 40,
+  height: "50%",
+  width: "100%",
+  [theme.breakpoints.down("md")]: {
+    marginTop: 0,
+    marginBottom: 24,
   },
-
   [`& .${classes.loadedCard}`]: {
     display: "flex",
     flexDirection: "column",
@@ -90,8 +86,8 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 const RecordCard = (props) => {
   const isDebugInclusion = () => {
-    if (props.record) {
-      return props.record._debug_label === 1;
+    if (props.recordQuery.data.result) {
+      return props.recordQuery.data.result._debug_label === 1;
     }
   };
 
@@ -142,15 +138,15 @@ const RecordCard = (props) => {
   };
 
   return (
-    <StyledBox className={classes.root} aria-label="record card container">
-      {!props.isloaded && (
+    <Root aria-label="record card">
+      {!props.activeRecord && (
         <Card className={clsx(classes.loadedCard, classes.loadingCard)}>
           <CardContent aria-label="record loading">
             <CircularProgress />
           </CardContent>
         </Card>
       )}
-      {props.isloaded && (
+      {props.activeRecord && (
         <Card
           elevation={2}
           className={classes.loadedCard}
@@ -178,7 +174,8 @@ const RecordCard = (props) => {
               paragraph
             >
               {/* No title, inplace text */}
-              {(props.record.title === "" || props.record.title === null) && (
+              {(props.activeRecord.title === "" ||
+                props.activeRecord.title === null) && (
                 <Box
                   className={"fontSize" + props.fontSize.label}
                   fontStyle="italic"
@@ -188,15 +185,21 @@ const RecordCard = (props) => {
               )}
 
               {/* No title, inplace text */}
-              {!(props.record.title === "" || props.record.title === null) && (
+              {!(
+                props.activeRecord.title === "" ||
+                props.activeRecord.title === null
+              ) && (
                 <Box className={"fontSize" + props.fontSize.label}>
-                  {props.record.title}
+                  {props.activeRecord.title}
                 </Box>
               )}
             </Typography>
 
             {/* Show the publication date if available */}
-            {!(props.record.doi === undefined || props.record.doi === null) && (
+            {!(
+              props.activeRecord.doi === undefined ||
+              props.activeRecord.doi === null
+            ) && (
               <Typography
                 className={classes.doi + " fontSize" + props.fontSize.label}
                 color="textSecondary"
@@ -206,11 +209,11 @@ const RecordCard = (props) => {
               >
                 DOI:{" "}
                 <Link
-                  href={"https://doi.org/" + props.record.doi}
+                  href={"https://doi.org/" + props.activeRecord.doi}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {props.record.doi}
+                  {props.activeRecord.doi}
                 </Link>
               </Typography>
             )}
@@ -224,8 +227,8 @@ const RecordCard = (props) => {
               paragraph
             >
               {/* No abstract, inplace text */}
-              {(props.record.abstract === "" ||
-                props.record.abstract === null) && (
+              {(props.activeRecord.abstract === "" ||
+                props.activeRecord.abstract === null) && (
                 <Box fontStyle="italic">
                   This document doesn't have an abstract.
                 </Box>
@@ -233,8 +236,9 @@ const RecordCard = (props) => {
 
               {/* No abstract, inplace text */}
               {!(
-                props.record.abstract === "" || props.record.abstract === null
-              ) && <Box>{props.record.abstract}</Box>}
+                props.activeRecord.abstract === "" ||
+                props.activeRecord.abstract === null
+              ) && <Box>{props.activeRecord.abstract}</Box>}
             </Typography>
           </CardContent>
 
@@ -268,7 +272,7 @@ const RecordCard = (props) => {
           )}
         </Card>
       )}
-    </StyledBox>
+    </Root>
   );
 };
 
