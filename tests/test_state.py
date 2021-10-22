@@ -301,7 +301,7 @@ def test_get_last_probabilities():
     " database, but 'probabilities' has length 3")
 def test_add_last_probabilities_fail():
     with open_state(TEST_STATE_FP) as state:
-        state.add_last_probabilities([1.0, 2.0, 3.0], 'classifier', 0)
+        state.add_last_probabilities([1.0, 2.0, 3.0])
 
 
 def test_add_last_probabilities(tmpdir):
@@ -309,14 +309,9 @@ def test_add_last_probabilities(tmpdir):
     init_project_folder_structure(project_path)
     probabilities = [float(num) for num in range(50)]
     with open_state(project_path, read_only=False) as state:
-        state.add_last_probabilities(probabilities, 'random', 0)
+        state.add_last_probabilities(probabilities)
         state_probabilities = state.get_last_probabilities()['proba'].tolist()
         assert state_probabilities == probabilities
-
-        classifier, training_set = state.get_last_training_set()
-        print(classifier)
-        assert classifier == 'random'
-        assert training_set == 0
 
 
 def test_add_labeling_data(tmpdir):

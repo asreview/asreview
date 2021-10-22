@@ -279,15 +279,16 @@ def add_dataset_to_project(project_id, file_name):
             labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
             # add the labels as prior data
-            state.add_labeling_data(record_ids=labeled_indices,
-                                    labels=labels,
-                                    classifiers=None,
-                                    query_strategies="prior",
-                                    balance_strategies=None,
-                                    feature_extraction=None,
-                                    training_sets=None,
-                                    notes=None)
-
+            state.add_labeling_data(
+                record_ids=labeled_indices,
+                labels=labels,
+                classifiers=[None for _ in labeled_indices],
+                query_strategies=["prior" for _ in labeled_indices],
+                balance_strategies=[None for _ in labeled_indices],
+                feature_extraction=[None for _ in labeled_indices],
+                training_sets=[None for _ in labeled_indices],
+                notes=[None for _ in labeled_indices]
+            )
 
 
 def remove_dataset_to_project(project_id, file_name):
@@ -581,7 +582,7 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
 
     paper_i = int(paper_i)
     label = int(label)
-    prior_label = ["prior"] if prior else [None]
+    prior_label = "prior" if prior else None
 
     with open_state(state_path, read_only=False) as state:
 
@@ -592,7 +593,7 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
             state.add_labeling_data(record_ids=[paper_i],
                                     labels=[label],
                                     classifiers=[None],
-                                    query_strategies=prior_label,
+                                    query_strategies=[prior_label],
                                     balance_strategies=[None],
                                     feature_extraction=[None],
                                     training_sets=[None],

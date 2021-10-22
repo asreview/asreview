@@ -323,10 +323,8 @@ class BaseReview(ABC):
             return
 
         # train the algorithm with prior knowledge
-        n_records_labeled = state.n_records_labeled
-        classifier = self.model.name
         self.train()
-        self.log_probabilities(state, classifier, n_records_labeled)
+        self.log_probabilities(state)
 
         n_pool = self.X.shape[0] - len(self.train_idx)
 
@@ -353,10 +351,8 @@ class BaseReview(ABC):
 
             # STEP 3: Train the algorithm with new data
             # Update the training data and pool afterwards
-            n_records_labeled = state.n_records_labeled
-            classifier = self.model.name
             self.train()
-            self.log_probabilities(state, classifier, n_records_labeled)
+            self.log_probabilities(state)
 
     def review(self, *args, **kwargs):
         """Do the systematic review, writing the results to the state file.
@@ -372,7 +368,7 @@ class BaseReview(ABC):
         with open_state(self.state_file, read_only=False) as state:
             self._do_review(state, *args, **kwargs)
 
-    def log_probabilities(self, state, classifier, n_records_labeled):
+    def log_probabilities(self, state):
         """Store the modeling probabilities."""
         if not self.model_trained:
             return
@@ -384,7 +380,7 @@ class BaseReview(ABC):
             self.shared['pred_proba'] = pred_proba
 
         proba_1 = np.array([x[1] for x in pred_proba])
-        state.add_last_probabilities(proba_1, classifier, n_records_labeled)
+        state.add_last_probabilities(proba_1)
 
     def log_current_query(self, state):
         state.current_queries = self.shared["current_queries"]

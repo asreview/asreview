@@ -80,6 +80,9 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Create sqlite tables 'last_probabilities'.
     convert_json_last_probabilities(sql_fp, json_fp)
 
+    # Create teh table for the last ranking of the model.
+    create_last_ranking_table(sql_fp)
+
     # Add the record table to the sqlite database as the table
     # 'record_table'.
     convert_json_record_table(sql_fp, json_fp)
@@ -173,10 +176,35 @@ def convert_json_settings_metadata(fp, json_fp):
         json.dump(data_dict, f)
 
 
+def create_last_ranking_table(sql_fp):
+    """Create the table which will contain the ranking of the last iteration of
+    the model. The converter will leave the table empty. It will be filled the
+    first time a new model is trained.
+
+    Arguments
+    ---------
+    sql_fp: str/path
+        Path where to save the record table. Should be a .sql file.
+    """
+    with sqlite3.connect(sql_fp) as con:
+        cur = con.cursor()
+
+        # Create the last_ranking table.
+        cur.execute('''CREATE TABLE last_ranking
+                        (record_id INTEGER,
+                        ranking INT,
+                        classifier TEXT,
+                        query_strategy TEXT,
+                        balance_strategy TEXT,
+                        feature_extraction TEXT,
+                        training_set INTEGER,
+                        time INTEGER)''')
+        con.commit()
+
+
 def convert_json_last_probabilities(sql_fp, json_fp):
     """Get the last ranking from a json state and save it as the table
     'last_probabilities' in the .sql file at the location of sql_fp.
-    Also create the table 'last_training_set'
 
     Arguments
     ---------
@@ -209,13 +237,6 @@ def convert_json_last_probabilities(sql_fp, json_fp):
             cur.executemany(
                 """INSERT INTO last_probabilities VALUES
                                         (?)""", last_probabilities)
-
-            cur.execute("""CREATE TABLE last_training_set
-                                (classifier TEXT,
-                                training_set INT)""")
-
-            cur.executemany("""INSERT INTO last_training_set VALUES (?, ?)""",
-                            [(classifier, n_records_labeled)])
 
             con.commit()
 

@@ -93,17 +93,38 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_last_probabilities(self, probabilities, classifier, training_set):
+    def add_last_probabilities(self, probabilities):
         """Save the probabilities produced by the last classifier.
 
         Arguments
         ---------
         probabilities: list-like.
             List containing the probabilities for every record.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def add_last_ranking(self, record_ids, ranking, classifier,
+                         query_strategy, balance_strategy, feature_extraction,
+                         training_set):
+        """Save the ranking of the last iteration of the model.
+
+        Arguments
+        ---------
+        record_ids: list, numpy.ndarray
+            A list of ids of the labeled records as int.
+        ranking: list, numpy.ndarray
+            A list of the rank (int) as output by the model.
         classifier: str
-            Name of the classifier model that produced the probabilities.
+            Name of the classifier of the model.
+        query_strategy: str
+            Name of the query strategy of the model.
+        balance_strategy: str
+            Name of the balance strategy of the model.
+        feature_extraction: str
+            Name of the feature extraction method of the model.
         training_set: int
-            Number of records on which the classifier model was trained.
+            Number of labeled records available at the time of training.
         """
         raise NotImplementedError
 

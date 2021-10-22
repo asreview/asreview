@@ -49,6 +49,14 @@ class BaseQueryStrategy(BaseModel):
             It is mainly used to store the current class probabilities,
             and the source of the queries; which query strategy has produced
             which index.
+
+        Returns
+        -------
+        (numpy.ndarray, numpy.ndarray)
+            The first is an array of shape (n_instances,) containing the row
+            indices of the new instances in query order. The second is an array
+            of shape (n_instances, n_feature_matrix_columns), containing the
+            feature vectors of the new instances.
         """
         raise NotImplementedError
 
