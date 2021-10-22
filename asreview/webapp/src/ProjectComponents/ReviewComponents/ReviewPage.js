@@ -33,8 +33,7 @@ const ReviewPage = (props) => {
   });
   const [recordNote, setRecordNote] = useState({
     expand: false,
-    shrink: true,
-    saved: false,
+    shrink: true, // for smooth transition
     data: null,
   });
   const [undoState, setUndoState] = useState({
@@ -73,6 +72,7 @@ const ReviewPage = (props) => {
           : 1,
         show: false,
       });
+      resetNote();
       setActiveRecord(null);
       closeUndoBar(); // hide potentially active undo bar
     },
@@ -82,6 +82,9 @@ const ReviewPage = (props) => {
     },
   });
 
+  /**
+   * Previous record config
+   */
   const loadPreviousRecord = () => {
     setPreviousRecord((s) => {
       return {
@@ -100,6 +103,9 @@ const ReviewPage = (props) => {
     });
   };
 
+  /**
+   * Undo bar config
+   */
   const showUndoBar = (message) => {
     setUndoState({
       open: true,
@@ -133,6 +139,14 @@ const ReviewPage = (props) => {
     return activeRecord.doc_id === previousRecord["record"]?.doc_id;
   };
 
+  const undoDecision = () => {
+    closeUndoBar();
+    loadPreviousRecord();
+  };
+
+  /**
+   * Decision button config
+   */
   const needsClassification = (label) => {
     if (!isUndoModeActive()) {
       return true;
@@ -141,7 +155,6 @@ const ReviewPage = (props) => {
   };
 
   const skipClassification = () => {
-    setActiveRecord(null);
     setActiveRecord(recordQuery.data["result"]);
     resetPreviousRecord();
     resetNote();
@@ -160,18 +173,19 @@ const ReviewPage = (props) => {
     }
   };
 
-  const undoDecision = () => {
-    closeUndoBar();
-    loadPreviousRecord();
-  };
-
+  /**
+   * Note field config
+   */
   const resetNote = () => {
     setRecordNote({
       expand: false,
       shrink: true,
-      saved: true,
       data: null,
     });
+  };
+
+  const noteFieldAutoFocus = () => {
+    return !notePress;
   };
 
   /**
@@ -197,12 +211,12 @@ const ReviewPage = (props) => {
       if (undoPress && undoState.open && props.undoEnabled) {
         undoDecision();
       }
-      if (notePress && activeRecord && recordNote.saved) {
+      if (notePress && activeRecord) {
         setRecordNote((s) => {
           return {
             ...s,
             expand: true,
-            saved: false,
+            shrink: false,
           };
         });
       }
@@ -221,10 +235,10 @@ const ReviewPage = (props) => {
       {/* Article card */}
       <RecordCard
         activeRecord={activeRecord}
-        recordQuery={recordQuery}
         recordNote={recordNote}
         setRecordNote={setRecordNote}
         fontSize={props.fontSize}
+        noteFieldAutoFocus={noteFieldAutoFocus}
       />
 
       {/* Decision button */}

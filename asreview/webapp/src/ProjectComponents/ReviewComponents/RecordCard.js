@@ -86,8 +86,8 @@ const Root = styled("div")(({ theme }) => ({
 
 const RecordCard = (props) => {
   const isDebugInclusion = () => {
-    if (props.recordQuery.data.result) {
-      return props.recordQuery.data.result._debug_label === 1;
+    if (props.activeRecord) {
+      return props.activeRecord._debug_label === 1;
     }
   };
 
@@ -106,33 +106,6 @@ const RecordCard = (props) => {
       return {
         ...s,
         shrink: true,
-      };
-    });
-  };
-
-  const onChangeNote = (event) => {
-    props.setRecordNote({
-      ...props.recordNote,
-      data: event.target.value,
-    });
-  };
-
-  const discardNote = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: false,
-        data: null,
-      };
-    });
-  };
-
-  const saveNote = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: false,
-        saved: true,
       };
     });
   };
@@ -252,9 +225,8 @@ const RecordCard = (props) => {
             <Box>
               <NoteSheet
                 note={props.recordNote["data"]}
-                discardNote={discardNote}
-                saveNote={saveNote}
-                onChangeNote={onChangeNote}
+                setRecordNote={props.setRecordNote}
+                noteFieldAutoFocus={props.noteFieldAutoFocus}
               />
             </Box>
           </Slide>
