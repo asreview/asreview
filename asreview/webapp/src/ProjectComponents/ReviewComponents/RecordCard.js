@@ -142,7 +142,6 @@ const RecordCard = (props) => {
             <Typography
               className={classes.title}
               variant="h5"
-              color="textSecondary"
               component="div"
               paragraph
             >
@@ -153,7 +152,7 @@ const RecordCard = (props) => {
                   className={"fontSize" + props.fontSize.label}
                   fontStyle="italic"
                 >
-                  This document doesn't have a title.
+                  This record doesn't have a title.
                 </Box>
               )}
 
@@ -203,7 +202,7 @@ const RecordCard = (props) => {
               {(props.activeRecord.abstract === "" ||
                 props.activeRecord.abstract === null) && (
                 <Box fontStyle="italic">
-                  This document doesn't have an abstract.
+                  This record doesn't have an abstract.
                 </Box>
               )}
 
