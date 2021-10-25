@@ -43,12 +43,12 @@ const Root = styled("div")(({ theme }) => ({
     marginBottom: 24,
   },
   [`& .${classes.loadedCard}`]: {
+    borderRadius: 16,
     display: "flex",
     flexDirection: "column",
     width: "100%",
     [theme.breakpoints.down("md")]: {
-      borderBottomRightRadius: 0,
-      borderBottomLeftRadius: 0,
+      borderRadius: 0,
     },
   },
 
@@ -60,6 +60,9 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.alert}`]: {
     borderBottomRightRadius: 0,
     borderBottomLeftRadius: 0,
+    [theme.breakpoints.down("md")]: {
+      borderRadius: 0,
+    },
   },
 
   [`& .${classes.titleAbstract}`]: {
