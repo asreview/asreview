@@ -27,9 +27,10 @@ const classes = {
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
-    borderRadius: 8,
+    borderRadius: 16,
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    maxWidth: 960,
   },
 
   [`& .${classes.icon}`]: {
@@ -63,11 +64,11 @@ const LabeledRecordCard = (props) => {
                 </span>
               }
             >
-              <div>
+              <Typography color="textSecondary">
                 {value.abstract
                   ? value.abstract
                   : "This record doesn't have an abstract."}
-              </div>
+              </Typography>
             </TruncateMarkup>
           </CardContent>
           <CardActions>
