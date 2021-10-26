@@ -6,7 +6,6 @@ import { styled } from "@mui/material/styles";
 const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   borderRadius: 16,
   flexDirection: "column",
-  marginTop: theme.spacing(2),
   position: "absolute",
   zIndex: 1,
   ...(theme.palette.mode === "light" && {
@@ -17,10 +16,10 @@ const StyledBackdrop = styled(Backdrop)(({ theme }) => ({
   }),
 }));
 
-export default function DashboardStatsError(props) {
+export default function CardErrorHandler(props) {
   const queryClient = useQueryClient();
   const resetQuery = () => {
-    queryClient.resetQueries("fetchDashboardStats");
+    queryClient.resetQueries(props.queryKey);
   };
 
   return (

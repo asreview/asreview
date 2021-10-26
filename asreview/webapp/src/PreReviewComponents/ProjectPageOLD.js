@@ -24,7 +24,6 @@ import {
 import ErrorHandler from "../ErrorHandler";
 import DangerZone from "../DangerZone.js";
 import PublicationZone from "../PublicationZone.js";
-import StatisticsZone from "../StatisticsZone.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -401,11 +400,6 @@ const ProjectPageOLD = (props) => {
             {/* Cards on the project board */}
             {!state.setup && (
               <Box className={classes.cardBox}>
-                <StatisticsZone
-                  project_id={props.project_id}
-                  projectInitReady={state.info.projectInitReady}
-                  training={state.training}
-                />
                 <PublicationZone
                   project_id={props.project_id}
                   showExportResult={

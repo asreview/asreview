@@ -5,6 +5,7 @@ import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { NavigationDrawer } from "../Components";
+import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import {
   ReviewPage,
@@ -13,7 +14,6 @@ import {
 import { ProjectInfo } from "../PreReviewComponents";
 import DangerZone from "../DangerZone.js";
 import PublicationZone from "../PublicationZone.js";
-import StatisticsZone from "../StatisticsZone.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -189,7 +189,7 @@ const ProjectPage = (props) => {
               >
                 {/* Analytics */}
                 {props.nav_state === "analytics" && (
-                  <StatisticsZone
+                  <AnalyticsPage
                     project_id={props.project_id}
                     projectInitReady={state.info.projectInitReady}
                   />
