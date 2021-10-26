@@ -1083,7 +1083,7 @@ def api_finish_project(project_id):
 
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
-    """Get progress info on the article"""
+    """Get progress statistics of a project"""
     project_path = get_project_path(project_id)
     project_file_path = get_project_file_path(project_path)
 
@@ -1096,7 +1096,7 @@ def api_get_progress_info(project_id):  # noqa: F401
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load pie chart."), 500
+        return jsonify(message="Failed to load progress statistics."), 500
 
     response = jsonify({**project_dict, **statistics})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1107,7 +1107,7 @@ def api_get_progress_info(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/progress_density', methods=["GET"])
 def api_get_progress_density(project_id):
-    """Get progress history on the article"""
+    """Get progress density of a project"""
 
     try:
         # get label history
@@ -1136,12 +1136,24 @@ def api_get_progress_density(project_id):
                 df.loc[i, "Relevant"] = 10 - df.loc[i, "Irrelevant"]
 
         df = df.round(1).to_dict(orient="records")
+        for d in df:
+            d["x"] = d.pop("Total")
+
+        df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
+        for d in df_relevant:
+            d["y"] = d.pop("Relevant")
+
+        df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+        for d in df_irrelevant:
+            d["y"] = d.pop("Irrelevant")
+
+        payload = {"relevant": df_relevant, "irrelevant": df_irrelevant}
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load progress plot."), 500
+        return jsonify(message="Failed to load progress density."), 500
 
-    response = jsonify(df)
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
@@ -1167,12 +1179,24 @@ def api_get_progress_recall(project_id):
             (df["Relevant"][-1:] / n_records).values).round()
 
         df = df.round(1).to_dict(orient="records")
+        for d in df:
+            d["x"] = d.pop("Total")
+
+        df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
+        for d in df_asreview:
+            d["y"] = d.pop("Relevant")
+
+        df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+        for d in df_random:
+            d["y"] = d.pop("Random")
+
+        payload = {"asreview": df_asreview, "random": df_random}
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message="Failed to load efficiency plot."), 500
+        return jsonify(message="Failed to load progress recall."), 500
 
-    response = jsonify(df)
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     return response
