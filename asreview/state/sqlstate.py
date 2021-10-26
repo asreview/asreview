@@ -387,12 +387,8 @@ class SqlStateV1(BaseState):
 
     @property
     def n_records_labeled(self):
-        con = self._connect_to_sql()
-        cur = con.cursor()
-        cur.execute("SELECT COUNT (*) FROM results")
-        n_rows = cur.fetchone()
-        con.close()
-        return n_rows[0]
+        _, labeled, _ = self.get_pool_labeled_pending()
+        return len(labeled)
 
     @property
     def n_priors(self):
@@ -411,13 +407,19 @@ class SqlStateV1(BaseState):
     @property
     def exist_new_labeled_records(self):
         """Return True if there were records labeled since the last time the
-        model training data was saved in the state."""
-        # TODO(State): Add function.
+        model training data was saved in the state. Also returns True if no
+        model was trained yet, but priors have been added."""
+        _, labeled, _ = self.get_pool_labeled_pending()
+        last_training_set = self.get_last_ranking()['training_set']
+        if last_training_set.empty:
+            return len(labeled) > 0
+        else:
+            return len(labeled) > last_training_set.iloc[0]
 
     @property
     def model_has_trained(self):
         """Return True if there is data of a trained model in the state."""
-        return len(self.get_last_ranking()) > 0
+        return not self.get_last_ranking().empty
 
 # Features, settings_metadata
 
@@ -515,8 +517,8 @@ class SqlStateV1(BaseState):
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.executemany(
-            """INSERT INTO results VALUES
-                                    (?, ?, ?, ?, ?, ?, ?, ?, )""", db_rows)
+            """INSERT INTO last_ranking VALUES
+                                    (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
         con.commit()
         con.close()
 
@@ -563,9 +565,8 @@ class SqlStateV1(BaseState):
         con.commit()
         con.close()
 
-    def add_labeling_data(self, record_ids, labels, classifiers,
-                          query_strategies, balance_strategies,
-                          feature_extraction, training_sets, notes=None):
+    def add_labeling_data(self, record_ids, labels, notes=None,
+                          prior=False):
         """Add all the data of one labeling action."""
 
         # TODO (State): Add custom datasets.
@@ -579,35 +580,54 @@ class SqlStateV1(BaseState):
         if notes is None:
             notes = [None for _ in record_ids]
 
-        # Check that all input data has the same length.
         lengths = [
             len(record_ids),
             len(labels),
-            len(classifiers),
-            len(query_strategies),
-            len(balance_strategies),
-            len(feature_extraction),
-            len(training_sets),
-            len(labeling_times),
             len(notes)
         ]
+        # Check that all input data has the same length.
         if len(set(lengths)) != 1:
             raise ValueError("Input data should be of the same length.")
         n_records_labeled = len(record_ids)
 
-        # Create the database rows.
-        db_rows = [(int(record_ids[i]), int(labels[i]), classifiers[i],
-                    query_strategies[i], balance_strategies[i],
-                    feature_extraction[i], training_sets[i],
-                    labeling_times[i], notes[i])
-                   for i in range(n_records_labeled)]
+        pool, _, pending = self.get_pool_labeled_pending()
+
+        if prior:
+            # Check that the record_ids are in the pool.
+            if not all(record_id in pool.values for record_id in record_ids):
+                raise ValueError("Labeling priors, but not all "
+                                 "record_ids were found in the pool.")
+
+            query_strategies = ['prior' for _ in record_ids]
+            training_sets = [-1 for _ in record_ids]
+            data = [(int(record_ids[i]), int(labels[i]),
+                     query_strategies[i], training_sets[i],
+                     labeling_times[i], notes[i])
+                    for i in range(n_records_labeled)]
+
+            # If prior, we need to insert new records into the database.
+            query = """INSERT INTO results (record_id, label, query_strategy, 
+                    training_set, labeling_time, notes) 
+                    VALUES (?, ?, ?, ?, ?, ?)"""
+
+        else:
+            # Check that the record_ids are pending.
+            if not all(record_id in pending.values for record_id in record_ids):
+                raise ValueError("Labeling records, but not all "
+                                 "record_ids were pending.")
+
+            data = [(int(labels[i]), labeling_times[i],
+                     notes[i], int(record_ids[i]))
+                    for i in range(n_records_labeled)]
+
+            # If not prior, we need to update records.
+            query = """UPDATE results SET label=?, labeling_time=?, 
+                    notes=? WHERE record_id=?"""
 
         # Add the rows to the database.
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.executemany(
-            """INSERT INTO results VALUES
-                                    (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
+        cur.executemany(query, data)
         con.commit()
         con.close()
 
@@ -672,27 +692,34 @@ class SqlStateV1(BaseState):
             order that they were labeled. Pending is a series containing the
             record_ids of the records whose label is pending.
         """
-        # TODO(State) Add function
         con = self._connect_to_sql()
+
         query = """SELECT record_table.record_id, results.label,
-                results.rowid AS label_order, last_probabilities.proba
+                results.rowid AS label_order, results.classifier,
+                last_ranking.ranking
                 FROM record_table
                 LEFT JOIN results
                 ON results.record_id=record_table.record_id
-                LEFT JOIN last_probabilities
-                ON record_table.rowid=last_probabilities.rowid
+                LEFT JOIN last_ranking
+                ON record_table.rowid=last_ranking.rowid
                 """
+
         df = pd.read_sql_query(query, con)
         con.close()
         labeled = df.loc[~df['label'].isna()] \
             .sort_values('label_order') \
             .loc[:, ['record_id', 'label']] \
             .astype(int)
-        pool = df.loc[df['label'].isna()] \
-            .sort_values('proba', ascending=False) \
-            .loc[:, ['record_id']] \
+        pool = df.loc[df['classifier'].isna()] \
+            .sort_values('ranking') \
+            .loc[:, 'record_id'] \
             .astype(int)
-        return pool, labeled
+        pending = df.loc[df['label'].isna() & ~df['classifier'].isna()] \
+            .sort_values('label_order') \
+            .loc[:, 'record_id'] \
+            .astype(int)
+
+        return pool, labeled, pending
 
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
@@ -755,18 +782,18 @@ class SqlStateV1(BaseState):
 
         Returns
         -------
-        np.ndarray:
-            record_ids of the top n instances.
+        list
+            List of record_ids of the top n ranked records.
         """
         if self.model_has_trained:
-            # TODO(State): Add this function.
-            top_record_ids = None
-            self._move_ranking_data_to_results(top_record_ids)
+            pool, _, _ = self.get_pool_labeled_pending()
+            top_n_records = pool[:n].to_list()
+            self._move_ranking_data_to_results(top_n_records)
         else:
             raise StateError("Save trained model data "
                              "before using this function.")
 
-        return np.ndarray(top_record_ids)
+        return top_n_records
 
     def get_data_by_query_number(self, query, columns=None):
         """Get the data of a specific query from the results table.

@@ -679,7 +679,7 @@ def api_random_prior_papers(project_id):  # noqa: F401
     state_file = get_state_path(project_path)
 
     with open_state(state_file) as state:
-        pool, _ = state.get_pool_labeled()
+        pool, _, _= state.get_pool_labeled_pending()
 
     try:
         pool_random = np.random.choice(pool["record_id"], 1, replace=False)[0]

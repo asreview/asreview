@@ -372,7 +372,7 @@ def convert_json_results_to_sql(sql_fp, json_fp):
 
             # classifier.
             classifier = sf.settings.to_dict()['model']
-            sf_classifiers = ['prior'] * n_priors + [
+            sf_classifiers = [None] * n_priors + [
                 f'{classifier}' for _ in range(n_non_prior_records)
             ]
 
@@ -382,13 +382,13 @@ def convert_json_results_to_sql(sql_fp, json_fp):
 
             # feature extraction.
             feature_extraction = sf.settings.to_dict()['feature_extraction']
-            sf_feature_extraction = ['prior'] * n_priors + [
+            sf_feature_extraction = [None] * n_priors + [
                 f'{feature_extraction}' for _ in range(n_non_prior_records)
             ]
 
             # balance strategy.
             balance_strategy = sf.settings.to_dict()['balance_strategy']
-            sf_balance_strategy = ['prior'] * n_priors + [
+            sf_balance_strategy = [None] * n_priors + [
                 f'{balance_strategy}' for _ in range(n_non_prior_records)
             ]
 
