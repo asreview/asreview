@@ -6,6 +6,7 @@ import {
   Button,
   Chip,
   CircularProgress,
+  // IconButton,
   Paper,
   Table,
   TableBody,
@@ -17,12 +18,26 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+// import {
+  // Assignment,
+  // Assessment,
+  // Download,
+// } from "@mui/icons-material";
 
-import { ProjectAPI } from "../api/index.js";
-import { useRowsPerPage } from "../hooks/SettingsHooks";
-import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
+import { ProjectAPI } from "../../api/index.js";
+import { useRowsPerPage } from "../../hooks/SettingsHooks";
+import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapStateToProps, mapDispatchToProps } from "../globals";
+// import { setProject } from "../../redux/actions";
+import { mapStateToProps, mapDispatchToProps } from "../../globals";
+
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     setProjectId: (project_id) => {
+//       dispatch(setProject(project_id));
+//     },
+//   };
+// };
 
 const PREFIX = "ProjectTable";
 
@@ -36,6 +51,9 @@ const classes = {
   circularProgress: `${PREFIX}-circularProgress`,
   noProject: `${PREFIX}-noProject`,
   img: `${PREFIX}-img`,
+  // title: `${PREFIX}-title`,
+  // titleWrapper: `${PREFIX}-title-wrapper`,
+  // projectAction: `${PREFIX}-project-action`,
 };
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -92,6 +110,30 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     marginBottom: 64,
     marginLeft: 100,
   },
+
+  // [`& .${classes.title}`]: {
+  //   flex: 1,
+  //   display: "-webkit-box",
+  //   letterSpacing: "0.25px",
+  //   WebkitBoxOrient: "vertical",
+  //   WebkitLineClamp: 1,
+  //   whiteSpace: "pre-line",
+  //   overflow: "hidden",
+  // },
+
+  // [`& .${classes.titleWrapper}`]: {
+  //   display: "flex",
+  //   alignItems: "center",
+  //   cursor: "pointer",
+  //   width: "100%",
+  // },
+
+  // [`& .${classes.projectAction}`]: {
+  //   padding: 0,
+  //   [`:hover`]: {
+  //     backgroundColor: "transparent",
+  //   },
+  // },
 }));
 
 const columns = [
@@ -103,6 +145,7 @@ const columns = [
 
 const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
+  // const [hoverRowId, setHoverRowId] = useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
 
   /**
@@ -161,6 +204,14 @@ const ProjectTable = (props) => {
     }
   };
 
+  // const hoverOnProject = (project_id) => {
+  //   setHoverRowId(project_id);
+  // };
+
+  // const hoverOffProject = () => {
+  //   setHoverRowId(null);
+  // };
+
   return (
     <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
@@ -179,16 +230,22 @@ const ProjectTable = (props) => {
               data
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  const openExistingProject = () => {
+                  const onClickProject = () => {
                     console.log("Opening existing project " + row.id);
 
                     // set the state in the redux store
                     props.setProjectId(row.id);
+                    // props.handleNavState("analytics");
                   };
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell>
-                        <div className={classes.circularProgress}>
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.id}
+                    >
+                      <TableCell sx={{ display: "flex" }}>
+                        <Box className={classes.circularProgress}>
                           {isLoading && row.id === props.project_id && (
                             <CircularProgress
                               size="1rem"
@@ -196,19 +253,17 @@ const ProjectTable = (props) => {
                               sx={{ marginRight: "8px" }}
                             />
                           )}
-                          <Box
-                            onClick={isLoading ? null : openExistingProject}
-                            style={{ cursor: "pointer" }}
+                        </Box>
+                        <Box className={classes.titleWrapper}>
+                          <Typography
+                            component="a"
+                            onClick={isLoading ? null : onClickProject}
+                            className={classes.title}
+                            variant="subtitle1"
                           >
-                            <Typography
-                              className={classes.tableCell}
-                              variant="subtitle1"
-                              noWrap
-                            >
-                              {row["name"]}
-                            </Typography>
-                          </Box>
-                        </div>
+                            {row["name"]}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Typography

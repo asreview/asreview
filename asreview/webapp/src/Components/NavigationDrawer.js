@@ -16,20 +16,17 @@ import { DrawerItemContainer } from "../Components";
 import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
 import { drawerWidth } from "../globals.js";
-import { setAppState, toggleHelpDialog } from "../redux/actions";
+import { toggleHelpDialog } from "../redux/actions";
 
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
-    project_id: state.project_id,
+    nav_state: state.nav_state,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setAppState: (app_state) => {
-      dispatch(setAppState(app_state));
-    },
     toggleHelpDialog: () => {
       dispatch(toggleHelpDialog());
     },
@@ -127,22 +124,20 @@ const NavigationDrawer = (props) => {
               alt="ASReview LAB Dashboard"
               onClick={() => {
                 props.toggleNavDrawer();
-                props.setAppState("dashboard");
+                props.handleAppState("home");
               }}
               sx={{ width: 130 }}
             />
           </ButtonBase>
         </Toolbar>
         <DrawerItemContainer
-          app_state={props.app_state}
-          nav_state={props.nav_state}
+          handleAppState={props.handleAppState}
+          handleNavState={props.handleNavState}
           mobileScreen={props.mobileScreen}
           onNavDrawer={props.onNavDrawer}
           toggleNavDrawer={props.toggleNavDrawer}
-          setAppState={props.setAppState}
           projectInfo={props.projectInfo}
           returnElasState={props.returnElasState}
-          handleNavState={props.handleNavState}
           toggleSettings={props.toggleSettings}
           toggleHelpDialog={props.toggleHelpDialog}
         />
@@ -158,15 +153,13 @@ const NavigationDrawer = (props) => {
       >
         <Toolbar />
         <DrawerItemContainer
-          app_state={props.app_state}
-          nav_state={props.nav_state}
+          handleAppState={props.handleAppState}
+          handleNavState={props.handleNavState}
           mobileScreen={props.mobileScreen}
           onNavDrawer={props.onNavDrawer}
           toggleNavDrawer={props.toggleNavDrawer}
-          setAppState={props.setAppState}
           projectInfo={props.projectInfo}
           returnElasState={props.returnElasState}
-          handleNavState={props.handleNavState}
           toggleSettings={props.toggleSettings}
           toggleHelpDialog={props.toggleHelpDialog}
         />

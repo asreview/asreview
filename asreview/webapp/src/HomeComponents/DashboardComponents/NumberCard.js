@@ -10,9 +10,9 @@ import {
   LibraryBooks,
 } from "@mui/icons-material";
 
-import { DashboardStatsError } from "../Components";
+import { DashboardStatsError } from "../../Components";
 
-import { ProjectAPI } from "../api/index.js";
+import { ProjectAPI } from "../../api/index.js";
 
 const PREFIX = "DashboardStats";
 
@@ -60,7 +60,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-export default function DashboardStats(props) {
+export default function NumberCard(props) {
   const { data, error, isError, isFetched, isSuccess } = useQuery(
     "fetchDashboardStats",
     ProjectAPI.fetchDashboardStats,

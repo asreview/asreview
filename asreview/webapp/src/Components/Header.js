@@ -67,7 +67,7 @@ const Header = (props) => {
               src={wordmarkState()}
               alt="ASReview LAB Dashboard"
               onClick={() => {
-                props.handleAppState("dashboard");
+                props.handleAppState("home");
               }}
             />
           </ButtonBase>
