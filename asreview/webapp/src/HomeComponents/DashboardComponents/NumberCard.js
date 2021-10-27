@@ -14,7 +14,7 @@ import { CardErrorHandler } from "../../Components";
 
 import { ProjectAPI } from "../../api/index.js";
 
-const PREFIX = "DashboardStats";
+const PREFIX = "NumberCard";
 
 const classes = {
   root: `${PREFIX}-root`,

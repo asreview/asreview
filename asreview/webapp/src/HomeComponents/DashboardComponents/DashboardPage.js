@@ -15,7 +15,7 @@ import { ProjectImportDialog, QuickTourDialog } from "../../Components";
 import { NumberCard, ProjectTable } from "../DashboardComponents";
 import { ProjectInfo } from "../../PreReviewComponents";
 
-const PREFIX = "Dashboard";
+const PREFIX = "DashboardPage";
 
 const classes = {
   root: `${PREFIX}-root`,
