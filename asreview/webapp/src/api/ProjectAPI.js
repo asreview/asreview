@@ -336,13 +336,14 @@ class ProjectAPI {
     });
   }
 
-  static progress(project_id) {
+  static fetchProgress({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/progress`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -350,13 +351,14 @@ class ProjectAPI {
     });
   }
 
-  static progress_density(project_id) {
+  static fetchProgressDensity({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -364,13 +366,14 @@ class ProjectAPI {
     });
   }
 
-  static progress_recall(project_id) {
+  static fetchProgressRecall({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

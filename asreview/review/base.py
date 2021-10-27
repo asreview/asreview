@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from abc import ABC
 from abc import abstractmethod
-import warnings
 from datetime import datetime
 
 import numpy as np
 
+from asreview.config import DEFAULT_N_INSTANCES
+from asreview.config import LABEL_NA
 from asreview.models.balance.simple import SimpleBalance
-from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
-from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.classifiers import NaiveBayesClassifier
+from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max import MaxQuery
 from asreview.models.query.random import RandomQuery
 from asreview.settings import ASReviewSettings

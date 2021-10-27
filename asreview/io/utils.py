@@ -14,10 +14,11 @@
 
 import logging
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 
 

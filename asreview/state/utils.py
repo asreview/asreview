@@ -12,28 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from contextlib import contextmanager
-from pathlib import Path
-import sqlite3
-from io import BytesIO
-from base64 import b64decode
 import json
-import time
-from datetime import datetime
 import shutil
+import sqlite3
+import time
+from base64 import b64decode
+from contextlib import contextmanager
+from datetime import datetime
+from io import BytesIO
+from pathlib import Path
 from uuid import uuid4
 
 import pandas as pd
-from scipy.sparse import load_npz
 from scipy.sparse import csr_matrix
+from scipy.sparse import load_npz
 
 from asreview._version import get_versions
-from asreview.state.sqlstate import SqlStateV1
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_feature_matrices_path
 from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
+from asreview.state.sqlstate import SqlStateV1
 
 V3STATE_VERSION = "1.0"
 

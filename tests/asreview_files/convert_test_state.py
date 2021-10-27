@@ -1,6 +1,6 @@
+from pathlib import Path
 from shutil import rmtree
 from zipfile import ZipFile
-from pathlib import Path
 
 from asreview.state.sql_converter import upgrade_asreview_project_file
 

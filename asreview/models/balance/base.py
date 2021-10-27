@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from abc import abstractmethod
+
 from asreview.models.base import BaseModel
 
 

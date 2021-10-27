@@ -1,18 +1,17 @@
 import json
 import os
-import pytest
 from pathlib import Path
 from shutil import copyfile
 
 import numpy as np
+import pytest
 
 from asreview.entry_points.simulate import SimulateEntryPoint
+from asreview.models.classifiers import list_classifiers
+from asreview.review.factory import get_simulate_reviewer
 from asreview.state import open_state
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
-from asreview.models.classifiers import list_classifiers
-from asreview.review.factory import get_simulate_reviewer
-
 
 ADVANCED_DEPS = {"tensorflow": False}
 

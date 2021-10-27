@@ -13,20 +13,20 @@
 # limitations under the License.
 
 import hashlib
-import pkg_resources
 from pathlib import Path
 from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
+import pkg_resources
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io.paper_record import PaperRecord
 from asreview.io.ris_reader import write_ris
-from asreview.io.utils import type_from_column
 from asreview.io.utils import convert_keywords
+from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -45,7 +45,7 @@ class ASReviewData():
     column_spec: dict
         Specification for which column corresponds to which standard
         specification. Key is the standard specification, key is which column
-        it is actually in.
+        it is actually in. Default: None.
 
     Attributes
     ----------
@@ -77,16 +77,13 @@ class ASReviewData():
     """
 
     def __init__(self,
-                 df=None,
+                 df,
                  data_name="empty",
                  data_type="standard",
                  column_spec=None):
         self.df = df
         self.data_name = data_name
         self.prior_idx = np.array([], dtype=int)
-        if df is None:
-            self.column_spec = {}
-            return
 
         self.max_idx = max(df.index.values) + 1
 
@@ -130,55 +127,6 @@ class ASReviewData():
             texts = " ".join(self.texts)
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
-
-    def append(self, as_data):
-        """Append another ASReviewData object.
-
-        It puts the training data at the end.
-
-        Arguments
-        ---------
-        as_data: ASReviewData
-            Dataset to append.
-        """
-        if as_data.df is None:
-            return
-        if len(self) == 0:
-            self.df = as_data.df
-            self.data_name = as_data.data_name
-            self.prior_idx = as_data.prior_idx
-            self.max_idx = as_data.max_idx
-            self.column_spec = as_data.column_spec
-            return
-
-        reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
-        new_index = np.append(self.df.index.values,
-                              as_data.df.index.values + reindex_val)
-        new_priors = np.append(self.prior_idx, as_data.prior_idx + reindex_val)
-        new_df = self.df.append(as_data.df, sort=False)
-        new_df.index = new_index
-
-        new_labels = None
-        if self.labels is None and as_data.labels is not None:
-            new_labels = np.append(np.full(len(self), LABEL_NA, dtype=int),
-                                   as_data.labels)
-        elif self.labels is not None and as_data.labels is None:
-            new_labels = np.append(self.labels,
-                                   np.full(len(as_data), LABEL_NA, dtype=int))
-        self.max_idx = max(self.max_idx, as_data.max_idx, max(new_index))
-        self.df = new_df
-        if new_labels is not None:
-            self.labels = new_labels
-        self.prior_idx = new_priors
-        self.data_name += "_" + as_data.data_name
-        for data_type, col in as_data.column_spec.items():
-            if data_type in self.column_spec:
-                if self.column_spec[data_type] != col:
-                    raise ValueError(
-                        "Error merging dataframes: column specifications "
-                        f"differ: {self.column_spec} vs {as_data.column_spec}")
-            else:
-                self.column_spec[data_type] = col
 
     @classmethod
     def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):

@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import os
-import pytest
 from io import BytesIO
 from urllib.request import urlopen
 
-from asreview.webapp.tests.utils import retrieve_project_url_github
+import pytest
 
+from asreview.webapp.tests.utils import retrieve_project_url_github
 
 # Retrieve urls to .asreview files exported from previous versions
 project_urls = retrieve_project_url_github()
@@ -74,15 +74,19 @@ def test_project_file(tmp_path, client, url):
     json_data_progress = response_progress.get_json()
     assert isinstance(json_data_progress, dict)
 
-    # Test get progress history on the article
+    # Test get progress density of the project
     response_progress_density = client.get(f"{api_url}/progress_density")
     json_data_progress_density = response_progress_density.get_json()
-    assert isinstance(json_data_progress_density, list)
+    assert "relevant" in json_data_progress_density
+    assert "irrelevant" in json_data_progress_density
+    assert isinstance(json_data_progress_density, dict)
 
     # Test get cumulative number of inclusions by ASReview/at random
     response_progress_recall = client.get(f"{api_url}/progress_recall")
     json_data_progress_recall = response_progress_recall.get_json()
-    assert isinstance(json_data_progress_recall, list)
+    assert "asreview" in json_data_progress_recall
+    assert "random" in json_data_progress_recall
+    assert isinstance(json_data_progress_recall, dict)
 
     # Test retrieve documents in order of review
     response_get_document = client.get(f"{api_url}/get_document")

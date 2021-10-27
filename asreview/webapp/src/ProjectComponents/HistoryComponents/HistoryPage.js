@@ -1,63 +1,31 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
-import PropTypes from "prop-types";
-import { Box, Divider, Tab, Tabs } from "@mui/material";
+import { Chip, Divider, Stack } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-import { LabeledRecord } from "../HistoryComponents";
+import { Filter, LabeledRecord } from "../HistoryComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
-const DEFAULT_SELECTION = 0;
+const PREFIX = "HistoryPage";
 
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box p={3}>{children}</Box>}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.any.isRequired,
-  value: PropTypes.any.isRequired,
+const classes = {
+  labelChip: `${PREFIX}-label-chip`,
 };
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
+const Root = styled("div")(({ theme }) => ({
+  height: "100%",
+  overflowY: "hidden",
+  [`& .${classes.labelChip}`]: {
+    padding: "16px 24px 8px 24px",
+  },
+}));
 
 const HistoryPage = (props) => {
   const queryClient = useQueryClient();
-
-  const [tab, setTab] = useState(DEFAULT_SELECTION);
-
-  const allQuery = useInfiniteQuery(
-    [
-      "fetchAllLabeledRecord",
-      {
-        project_id: props.project_id,
-      },
-    ],
-    ProjectAPI.fetchLabeledRecord,
-    {
-      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-      refetchOnWindowFocus: false,
-    }
-  );
+  const [label, setLabel] = useState("relevant");
 
   const relevantQuery = useInfiniteQuery(
     [
@@ -94,19 +62,12 @@ const HistoryPage = (props) => {
       // update cached data
       queryClient.setQueryData(
         [
-          tab === DEFAULT_SELECTION
-            ? "fetchAllLabeledRecord"
-            : tab === 1
+          label === "relevant"
             ? "fetchRelevantLabeledRecord"
             : "fetchIrrelevantLabeledRecord",
           {
             project_id: props.project_id,
-            select:
-              tab === DEFAULT_SELECTION
-                ? undefined
-                : tab === 1
-                ? "included"
-                : "excluded",
+            select: label === "relevant" ? "included" : "excluded",
           },
         ],
         (prev) => {
@@ -134,34 +95,40 @@ const HistoryPage = (props) => {
     },
   });
 
-  const handleTabChange = (event, newValue) => {
-    setTab(newValue);
+  const handleClickRelevant = () => {
+    setLabel("relevant");
+  };
+
+  const handleClickIrrelevant = () => {
+    setLabel("irrelevant");
   };
 
   return (
-    <Box aria-label="history page">
-      <Tabs
-        value={tab}
-        onChange={handleTabChange}
-        aria-label="history selection"
-      >
-        <Tab label="All" {...a11yProps(0)} />
-        <Tab label="Relevant" {...a11yProps(1)} />
-        <Tab label="Irrelevant" {...a11yProps(2)} />
-      </Tabs>
+    <Root aria-label="history page">
+      <Stack className={classes.labelChip} direction="row" spacing={2}>
+        <Chip
+          label="Relevant"
+          color="primary"
+          variant={label === "relevant" ? "filled" : "outlined"}
+          onClick={handleClickRelevant}
+        />
+        <Chip
+          label="Irrelevant"
+          color="primary"
+          variant={label === "irrelevant" ? "filled" : "outlined"}
+          onClick={handleClickIrrelevant}
+        />
+      </Stack>
       <Divider />
-      <TabPanel value={tab} index={0}>
-        <LabeledRecord query={allQuery} mutateClassification={mutate} />
-      </TabPanel>
-      <TabPanel value={tab} index={1}>
+      <Filter />
+      <Divider />
+      {label === "relevant" && (
         <LabeledRecord query={relevantQuery} mutateClassification={mutate} />
-      </TabPanel>
-      <TabPanel value={tab} index={2}>
+      )}
+      {label === "irrelevant" && (
         <LabeledRecord query={irrelevantQuery} mutateClassification={mutate} />
-      </TabPanel>
-
-      {/* Error handler to be added */}
-    </Box>
+      )}
+    </Root>
   );
 };
 

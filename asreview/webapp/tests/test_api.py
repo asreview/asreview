@@ -14,6 +14,7 @@
 
 import os
 import time
+
 import pytest
 
 
@@ -288,11 +289,13 @@ def test_get_progress_info(client):
 
 
 def test_get_progress_density(client):
-    """Test get progress history on the article"""
+    """Test get progress density on the article"""
 
     response = client.get("/api/project/project-id/progress_density")
     json_data = response.get_json()
-    assert isinstance(json_data, list)
+    assert "relevant" in json_data
+    assert "irrelevant" in json_data
+    assert isinstance(json_data, dict)
 
 
 def test_get_progress_recall(client):
@@ -300,7 +303,9 @@ def test_get_progress_recall(client):
 
     response = client.get("/api/project/project-id/progress_recall")
     json_data = response.get_json()
-    assert isinstance(json_data, list)
+    assert "asreview" in json_data
+    assert "random" in json_data
+    assert isinstance(json_data, dict)
 
 
 def test_classify_instance(client):

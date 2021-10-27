@@ -16,28 +16,29 @@ import json
 import os
 import re
 import shutil
-import zipfile
-import tempfile
 import subprocess
 import sys
+import tempfile
 import time
-from pathlib import Path
+import zipfile
 from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from asreview import __version__ as asreview_version
-from asreview.config import LABEL_NA, PROJECT_MODES
-from asreview.state.paths import get_data_path
+from asreview.config import LABEL_NA
+from asreview.config import PROJECT_MODES
 from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_data_path
 from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -46,8 +47,9 @@ from asreview.webapp.utils.io import read_label_history
 from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.io import write_label_history
 from asreview.webapp.utils.io import write_pool
-from asreview.webapp.utils.project_path import asreview_path, \
-    list_asreview_project_paths, get_project_path
+from asreview.webapp.utils.project_path import asreview_path
+from asreview.webapp.utils.project_path import get_project_path
+from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.validation import is_project
 from asreview.webapp.utils.validation import is_v0_project
 

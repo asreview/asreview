@@ -2,9 +2,9 @@ from pathlib import Path
 
 import numpy as np
 
-from asreview.state.utils import init_project_folder_structure
-from asreview.review.factory import get_simulate_reviewer
 from asreview.data import ASReviewData
+from asreview.review.factory import get_simulate_reviewer
+from asreview.state.utils import init_project_folder_structure
 
 data_fp = Path('tests', "demo_data", "generic_labels.csv")
 

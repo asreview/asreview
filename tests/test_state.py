@@ -1,23 +1,23 @@
+import json
 from pathlib import Path
 from sqlite3 import OperationalError
-import json
-import pytest
 
 import numpy as np
 import pandas as pd
+import pytest
 from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
+from asreview.settings import ASReviewSettings
 from asreview.state import SqlStateV1
-from asreview.state import open_state
 from asreview.state import init_project_folder_structure
-from asreview.state.paths import get_project_file_path
-from asreview.state.paths import get_reviews_path
+from asreview.state import open_state
+from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
-from asreview.state.errors import StateNotFoundError
-from asreview.settings import ASReviewSettings
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]

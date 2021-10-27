@@ -18,11 +18,11 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ProjectAPI } from "../api/index.js";
-import { useRowsPerPage } from "../hooks/SettingsHooks";
-import ElasArrowRightAhead from "../images/ElasArrowRightAhead.png";
+import { ProjectAPI } from "../../api/index.js";
+import { useRowsPerPage } from "../../hooks/SettingsHooks";
+import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapStateToProps, mapDispatchToProps } from "../globals";
+import { mapStateToProps, mapDispatchToProps } from "../../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -184,6 +184,7 @@ const ProjectTable = (props) => {
 
                     // set the state in the redux store
                     props.setProjectId(row.id);
+                    props.handleNavState("analytics");
                   };
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>

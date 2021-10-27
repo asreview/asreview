@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import {
   Divider,
   Fade,
@@ -77,7 +78,24 @@ const StyledList = styled(List)(({ theme }) => ({
   },
 }));
 
+const mapStateToProps = (state) => {
+  return {
+    app_state: state.app_state,
+    nav_state: state.nav_state,
+  };
+};
+
 const DrawerItemContainer = (props) => {
+  /**
+   * Drawer items on home page
+   * Any change here requires change in StyledDrawerItem
+   */
+  const drawerItemsHomePage = [
+    {
+      value: "dashboard",
+      label: "Dashboard",
+    },
+  ];
   /**
    * Drawer items on project page
    * Any change here requires change in StyledDrawerItem
@@ -107,19 +125,24 @@ const DrawerItemContainer = (props) => {
 
   return (
     <StyledList aria-label="drawer item container">
-      {/* Top Section: Top level drawer */}
-      {props.app_state === "dashboard" && (
-        <Fade in={props.app_state === "dashboard"}>
+      {/* Top Section: Home page drawer */}
+      {props.app_state === "home" && (
+        <Fade in={props.app_state === "home"}>
           <div className={classes.topSection}>
-            <DrawerItem
-              mobileScreen={props.mobileScreen}
-              label="Dashboard"
-              value="dashboard"
-              onNavDrawer={props.onNavDrawer}
-              toggleNavDrawer={props.toggleNavDrawer}
-              state={props.app_state}
-              setState={props.setAppState}
-            />
+            {drawerItemsHomePage.map((element, index) => {
+              return (
+                <DrawerItem
+                  key={index}
+                  value={element.value}
+                  label={element.label}
+                  mobileScreen={props.mobileScreen}
+                  onNavDrawer={props.onNavDrawer}
+                  toggleNavDrawer={props.toggleNavDrawer}
+                  state={props.nav_state}
+                  setState={props.handleNavState}
+                />
+              );
+            })}
           </div>
         </Fade>
       )}
@@ -137,7 +160,7 @@ const DrawerItemContainer = (props) => {
               onNavDrawer={props.onNavDrawer}
               toggleNavDrawer={props.toggleNavDrawer}
               state={props.app_state}
-              setState={props.setAppState}
+              setState={props.handleAppState}
             />
             <ListItem className={classes.projectInfo}>
               <img
@@ -229,4 +252,4 @@ const DrawerItemContainer = (props) => {
   );
 };
 
-export default DrawerItemContainer;
+export default connect(mapStateToProps)(DrawerItemContainer);
