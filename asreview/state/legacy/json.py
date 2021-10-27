@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 from collections import OrderedDict
 from datetime import datetime
-import json
 from pathlib import Path
 
 from asreview.settings import ASReviewSettings

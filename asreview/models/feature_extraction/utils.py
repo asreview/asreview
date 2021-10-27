@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.utils import list_model_names
 from asreview.utils import _model_class_from_entry_point
+from asreview.utils import list_model_names
 
 
 def list_feature_extraction():

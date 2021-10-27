@@ -17,10 +17,10 @@ import logging
 try:
     import tensorflow as tf
     from tensorflow.keras.constraints import MaxNorm
+    from tensorflow.keras.layers import LSTM
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.layers import Embedding
     from tensorflow.keras.layers import Flatten
-    from tensorflow.keras.layers import LSTM
     from tensorflow.keras.layers import MaxPooling1D
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
