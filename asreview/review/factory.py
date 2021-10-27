@@ -37,7 +37,6 @@ from asreview.io.paper_record import preview_record
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.query import get_query_model
-from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.state.utils import init_project_folder_structure

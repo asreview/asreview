@@ -710,7 +710,7 @@ class SqlStateV1(BaseState):
             .sort_values('label_order') \
             .loc[:, ['record_id', 'label']] \
             .astype(int)
-        pool = df.loc[df['classifier'].isna()] \
+        pool = df.loc[df['label_order'].isna()] \
             .sort_values('ranking') \
             .loc[:, 'record_id'] \
             .astype(int)
@@ -754,16 +754,16 @@ class SqlStateV1(BaseState):
             to the results table.
         """
         if self.model_has_trained:
-            place_holders = ','.join(['?'] * len(record_ids))
+            record_list = [(record_id,) for record_id in record_ids]
             con = self._connect_to_sql()
             cur = con.cursor()
-            cur.execute(
+            cur.executemany(
                 f"""INSERT INTO results (record_id, classifier, query_strategy,
                 balance_strategy, feature_extraction, training_set)
                 SELECT record_id, classifier, query_strategy,
                 balance_strategy, feature_extraction, training_set
                 FROM last_ranking
-                WHERE record_id IN ({place_holders})""", record_ids
+                WHERE record_id=?""", record_list
             )
             con.commit()
             con.close()

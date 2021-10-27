@@ -119,13 +119,8 @@ def train_model(project_id):
                 state_file=project_path
             )
 
-            # Classify the new labels, train and store the results.
-            with open_state(project_path, read_only=False) as state:
-                n_records_labeled = state.n_records_labeled
-                classifier = reviewer.model.name
-                reviewer.train()
-                reviewer.log_probabilities(state, classifier, n_records_labeled)
-                reviewer.log_current_query(state)
+            # Train the model.
+            reviewer.train()
         else:
             logging.info(
                 f"Project {project_id} - No new labels since last run.")
