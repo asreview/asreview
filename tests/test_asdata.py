@@ -46,6 +46,7 @@ def test_asdata_init():
 
     # data via pandas 
     df = pd.read_csv(data_fp)
+    df.index.name = "record_id"
     as_data_init = ASReviewData(df)
 
     # data via classmethod
