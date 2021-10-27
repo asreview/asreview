@@ -319,7 +319,7 @@ export default function ProgressDensityChart(props) {
                             <img
                               src={returnTooltipRelevantImg()}
                               alt="tooltip relevant"
-                              class="tooltip-img"
+                              className="tooltip-img"
                             />
                             <Box>
                               <Typography variant="subtitle2">
@@ -337,7 +337,7 @@ export default function ProgressDensityChart(props) {
                             <img
                               src={returnTooltipIrrelevantImg()}
                               alt="tooltip irrelevant"
-                              class="tooltip-img"
+                              className="tooltip-img"
                             />
                             <Box>
                               <Typography variant="subtitle2">
