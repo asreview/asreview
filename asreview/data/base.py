@@ -45,7 +45,7 @@ class ASReviewData():
     column_spec: dict
         Specification for which column corresponds to which standard
         specification. Key is the standard specification, key is which column
-        it is actually in.
+        it is actually in. Default: None.
 
     Attributes
     ----------
@@ -77,16 +77,13 @@ class ASReviewData():
     """
 
     def __init__(self,
-                 df=None,
+                 df,
                  data_name="empty",
                  data_type="standard",
                  column_spec=None):
         self.df = df
         self.data_name = data_name
         self.prior_idx = np.array([], dtype=int)
-        if df is None:
-            self.column_spec = {}
-            return
 
         self.max_idx = max(df.index.values) + 1
 
