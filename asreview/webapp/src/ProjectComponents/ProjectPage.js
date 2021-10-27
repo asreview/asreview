@@ -30,7 +30,7 @@ const classes = {
   container: `${PREFIX}-container`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
     flexGrow: 1,
     padding: 0,
@@ -159,7 +159,7 @@ const ProjectPage = (props) => {
   });
 
   return (
-    <StyledBox aria-label="project page">
+    <Root aria-label="project page">
       <NavigationDrawer
         handleAppState={props.handleAppState}
         handleNavState={props.handleNavState}
@@ -252,7 +252,7 @@ const ProjectPage = (props) => {
           </Box>
         </Fade>
       </Box>
-    </StyledBox>
+    </Root>
   );
 };
 
