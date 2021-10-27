@@ -6,18 +6,13 @@ import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import {
-  Dashboard,
-  ExportDialog,
-  Header,
-  HelpDialog,
-  SettingsDialog,
-} from "./Components";
+import { ExportDialog, Header, HelpDialog, SettingsDialog } from "./Components";
 import {
   PreReviewZone,
   ProjectPageOLD,
   StartReview,
 } from "./PreReviewComponents";
+import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
 import WelcomeScreen from "./WelcomeScreen";
@@ -30,12 +25,11 @@ import {
 import { useToggle } from "./hooks/useToggle";
 
 // redux config
-import { setAppState } from "./redux/actions";
+import { setAppState, setNavState } from "./redux/actions";
 
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
-    project_id: state.project_id,
   };
 };
 
@@ -43,6 +37,9 @@ function mapDispatchToProps(dispatch) {
   return {
     setAppState: (app_state) => {
       dispatch(setAppState(app_state));
+    },
+    setNavState: (nav_state) => {
+      dispatch(setNavState(nav_state));
     },
   };
 }
@@ -81,9 +78,10 @@ const App = (props) => {
             />
           )}
 
-          {props.app_state === "dashboard" && (
-            <Dashboard
+          {props.app_state === "home" && (
+            <HomePage
               handleAppState={props.setAppState}
+              handleNavState={props.setNavState}
               mobileScreen={mobileScreen}
               onNavDrawer={navDrawer}
               toggleNavDrawer={setNavDrawer}
@@ -94,6 +92,7 @@ const App = (props) => {
           {props.app_state === "project-page" && (
             <ProjectPage
               handleAppState={props.setAppState}
+              handleNavState={props.setNavState}
               mobileScreen={mobileScreen}
               onNavDrawer={navDrawer}
               toggleNavDrawer={setNavDrawer}
