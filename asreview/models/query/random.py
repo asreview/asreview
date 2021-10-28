@@ -15,11 +15,11 @@
 
 import numpy as np
 
-from asreview.models.query.base import NotProbaQueryStrategy
+from asreview.models.query.base import BaseQueryStrategy
 from asreview.utils import get_random_state
 
 
-class RandomQuery(NotProbaQueryStrategy):
+class RandomQuery(BaseQueryStrategy):
     """Random query strategy.
 
     Randomly select samples with no regard to model assigned probabilities.
@@ -36,8 +36,11 @@ class RandomQuery(NotProbaQueryStrategy):
         super(RandomQuery, self).__init__()
         self._random_state = get_random_state(random_state)
 
-    def _query(self, X, pool_idx, n_instances=1):
-        n_samples = len(pool_idx)
+    def query(self, X, classifier=None, n_instances=None, **kwargs):
+        if n_instances is None:
+            n_instances = X.shape[0]
+
         query_idx = self._random_state.choice(
-            np.arange(n_samples), n_instances, replace=False)
-        return pool_idx[query_idx], X[pool_idx[query_idx]]
+            np.arange(X.shape[0]), n_instances, replace=False)
+
+        return query_idx

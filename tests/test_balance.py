@@ -52,8 +52,7 @@ def test_balance(balance_strategy,
             num_one = np.count_nonzero(y[train_idx] == 1)
             if num_zero > 0 and num_one > 0:
                 break
-        shared = {"query_src": {}, "current_queries": {}}
-        X_train, y_train = model.sample(X, y, train_idx, shared)
+        X_train, y_train = model.sample(X, y, train_idx)
         check_partition(X, y, X_train, y_train, train_idx)
 
 

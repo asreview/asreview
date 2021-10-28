@@ -74,6 +74,9 @@ class TripleBalance(BaseBalance):
                  shuffle=True,
                  random_state=None):
         """Initialize the triple balance strategy."""
+        # TODO: Remove use of shared in triple balance strategy.
+        raise NotImplementedError("Triple balance strategy needs to be fixed.")
+
         super(TripleBalance, self).__init__()
         self.a = a
         self.alpha = alpha

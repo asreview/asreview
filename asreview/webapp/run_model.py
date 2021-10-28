@@ -23,8 +23,12 @@ from asreview.state.paths import get_lock_path
 from asreview.webapp.utils.project import read_data
 from asreview.webapp.utils.project_path import get_project_path
 
+from asreview.models.balance import get_balance_model
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.query import get_query_model
 
-from asreview.review.minimal import MinimalReview
+from asreview.review.base import BaseReview
 
 
 def get_lab_reviewer(as_data,
@@ -66,13 +70,13 @@ def get_lab_reviewer(as_data,
             "Not possible to provide both prior_idx and prior_record_id"
         )
 
-    reviewer = MinimalReview(as_data,
-                             model=classifier_model,
-                             query_model=query_model,
-                             balance_model=balance_model,
-                             feature_model=feature_model,
-                             state_file=state_file,
-                             **kwargs)
+    reviewer = BaseReview(as_data,
+                          state_file,
+                          model=classifier_model,
+                          query_model=query_model,
+                          balance_model=balance_model,
+                          feature_model=feature_model,
+                          **kwargs)
     return reviewer
 
 

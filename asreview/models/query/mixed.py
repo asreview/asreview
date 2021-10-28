@@ -136,10 +136,9 @@ class MixedQuery(BaseQueryStrategy):
                 strategy_2, **kwargs_2, random_state=self._random_state)
         self.mix_ratio = mix_ratio
 
-    def query(self, X, classifier, pool_idx=None, n_instances=1, shared={}):
+    def query(self, X, classifier, n_instances=None, **kwargs):
         n_samples = X.shape[0]
-        if pool_idx is None:
-            pool_idx = np.arange(n_samples)
+        # pool_idx = np.arange(n_samples)
 
         # Split the number of instances for the query strategies.
         n_instances_1 = floor(n_instances * self.mix_ratio)
@@ -148,6 +147,7 @@ class MixedQuery(BaseQueryStrategy):
             n_instances_1 += 1
         n_instances_2 = n_instances - n_instances_1
 
+        # TODO: Fix Mixed query strategy.
         # Perform the query with strategy 1.
         query_idx_1, X_1 = self.query_model1.query(
             X,
@@ -171,20 +171,10 @@ class MixedQuery(BaseQueryStrategy):
 
         query_idx = np.append(query_idx_1, query_idx_2)
 
-        if n_instances_1 == 0:
-            X = X_2
-        elif n_instances_2 == 0:
-            X = X_1
-        else:
-            if issparse(X_1) and issparse(X_2):
-                X = vstack([X_1, X_2]).tocsr()
-            else:
-                X = np.concatenate((X_1, X_2), axis=0)
-
         # Remix the two strategies without changing the order within.
         new_order = interleave(
             len(query_idx), len(query_idx_1), self._random_state)
-        return query_idx[new_order], X[new_order]
+        return query_idx[new_order]
 
     def full_hyper_space(self):
         from hyperopt import hp

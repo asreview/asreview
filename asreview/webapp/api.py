@@ -67,8 +67,6 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
-from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool
 from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
@@ -680,10 +678,10 @@ def api_random_prior_papers(project_id):  # noqa: F401
     state_file = get_state_path(project_path)
 
     with open_state(state_file) as state:
-        pool, _, _= state.get_pool_labeled_pending()
+        pool, _, _ = state.get_pool_labeled_pending()
 
     try:
-        pool_random = np.random.choice(pool["record_id"], 1, replace=False)[0]
+        pool_random = np.random.choice(pool, 1, replace=False)[0]
     except Exception:
         raise ValueError("Not enough random indices to sample from.")
 

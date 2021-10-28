@@ -43,10 +43,6 @@ from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_data
-from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.io import write_label_history
-from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.project_path import asreview_path
 from asreview.webapp.utils.project_path import get_project_path
 from asreview.webapp.utils.project_path import list_asreview_project_paths
@@ -423,16 +419,11 @@ def get_instance(project_id):
         The id of the current project.
     """
     project_path = get_project_path(project_id)
-    fp_lock = get_lock_path(project_path)
+    with open_state(project_path) as state:
+        record_ids = state.query_top_ranked(1)
 
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
-        pool_idx = read_pool(project_id)
-
-    if len(pool_idx) > 0:
-        return pool_idx[0]
+    if len(record_ids) > 0:
+        return record_ids[0]
     else:
         # end of pool
         return None
@@ -594,12 +585,8 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
             # add the labels as prior data
             state.add_labeling_data(record_ids=[paper_i],
                                     labels=[label],
-                                    classifiers=[None],
-                                    query_strategies=[prior_label],
-                                    balance_strategies=[None],
-                                    feature_extraction=[None],
-                                    training_sets=[None],
-                                    notes=[None])
+                                    notes=[None],
+                                    prior=prior)
 
         else:
             move_label_from_labeled_to_pool(project_id, paper_i)
@@ -613,28 +600,28 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
 
 
 def move_label_from_labeled_to_pool(project_id, paper_i):
-
+    pass
     # load the papers from the pool
-    pool_list = read_pool(project_id)
+    # pool_list = read_pool(project_id)
 
     # Add the paper to the reviewed papers.
-    labeled_list = read_label_history(project_id)
-
-    labeled_list_new = []
-
-    for item_id, item_label in labeled_list:
-
-        item_id = int(item_id)
-        item_label = int(item_label)
-        paper_i = int(paper_i)
-
-        if paper_i == item_id:
-            pool_list.append(item_id)
-        else:
-            labeled_list_new.append([item_id, item_label])
-
-    # write the papers to the label dataset
-    write_pool(project_id, pool_list)
-
-    # load the papers from the pool
-    write_label_history(project_id, labeled_list_new)
+    # labeled_list = read_label_history(project_id)
+    #
+    # labeled_list_new = []
+    #
+    # for item_id, item_label in labeled_list:
+    #
+    #     item_id = int(item_id)
+    #     item_label = int(item_label)
+    #     paper_i = int(paper_i)
+    #
+    #     if paper_i == item_id:
+    #         pool_list.append(item_id)
+    #     else:
+    #         labeled_list_new.append([item_id, item_label])
+    #
+    # # write the papers to the label dataset
+    # write_pool(project_id, pool_list)
+    #
+    # # load the papers from the pool
+    # write_label_history(project_id, labeled_list_new)

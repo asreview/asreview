@@ -490,14 +490,15 @@ class SqlStateV1(BaseState):
                                             (?)""", proba_sql_input)
         con.commit()
 
-    def add_last_ranking(self, record_ids, ranking, classifier,
+    def add_last_ranking(self, ranking, classifier,
                          query_strategy, balance_strategy, feature_extraction,
                          training_set):
         """Save the ranking of the last iteration of the model."""
+        record_ids = self.get_record_table()
 
         if len(record_ids) != len(ranking):
-            raise ValueError("The len(record_ids) should be the same as "
-                             "len(ranking).")
+            raise ValueError("The ranking should have the same length as the "
+                             "record table.")
 
         classifiers = [classifier for _ in record_ids]
         query_strategies = [query_strategy for _ in record_ids]
@@ -669,11 +670,12 @@ class SqlStateV1(BaseState):
 
         Returns
         -------
-        pd.DataFrame:
-            Dataframe with column 'record_id' containing the record ids.
+        pd.Series:
+            Series with name 'record_id' containing the record ids.
         """
         con = self._connect_to_sql()
         record_table = pd.read_sql_query('SELECT * FROM record_table', con)
+        record_table = record_table['record_id']
         con.close()
         return record_table
 

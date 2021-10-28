@@ -11,12 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import logging
-
 import numpy as np
 
-from asreview.compat import convert_id_to_idx
 from asreview.init_sampling import sample_prior_knowledge
 from asreview.review import BaseReview
 
@@ -46,7 +42,7 @@ class ReviewSimulate(BaseReview):
         Sample n prior included papers.
     n_prior_excluded: int
         Sample n prior excluded papers.
-    prior_idx: int
+    prior_indices: int
         Prior indices by row number.
     n_papers: int
         Number of papers to review during the active learning process,
@@ -75,7 +71,7 @@ class ReviewSimulate(BaseReview):
                  *args,
                  n_prior_included=0,
                  n_prior_excluded=0,
-                 prior_idx=None,
+                 prior_indices=None,
                  init_seed=None,
                  **kwargs):
 
@@ -88,8 +84,8 @@ class ReviewSimulate(BaseReview):
         if len(labeled_idx) != len(labels):
             raise ValueError("Expected fully labeled dataset.")
 
-        if prior_idx is not None and len(prior_idx) != 0:
-            start_idx = prior_idx
+        if prior_indices is not None and len(prior_indices) != 0:
+            start_idx = prior_indices
         else:
             start_idx = as_data.prior_data_idx
             if len(start_idx) == 0 and n_prior_included + n_prior_excluded > 0:

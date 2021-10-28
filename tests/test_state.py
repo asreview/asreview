@@ -267,9 +267,9 @@ def test_get_feature_matrix():
 def test_get_record_table():
     with open_state(TEST_STATE_FP) as state:
         record_table = state.get_record_table()
-        assert isinstance(record_table, pd.DataFrame)
-        assert list(record_table.columns) == ['record_id']
-        assert record_table['record_id'].to_list() == TEST_RECORD_TABLE
+        assert isinstance(record_table, pd.Series)
+        assert record_table.name == 'record_id'
+        assert record_table.to_list() == TEST_RECORD_TABLE
 
 
 def test_record_table(tmpdir):
@@ -282,7 +282,7 @@ def test_record_table(tmpdir):
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
-        assert state.get_record_table()['record_id'].to_list() == RECORD_IDS
+        assert state.get_record_table().to_list() == RECORD_IDS
 
 
 def test_get_last_probabilities():
@@ -318,8 +318,7 @@ def test_move_ranking_data_to_results(tmpdir):
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
-        state.add_last_ranking(TEST_RECORD_TABLE,
-                               range(1, len(TEST_RECORD_TABLE) + 1), 'nb',
+        state.add_last_ranking(range(1, len(TEST_RECORD_TABLE) + 1), 'nb',
                                'max', 'double', 'tfidf', 4)
         state._move_ranking_data_to_results([4, 6, 5, 7])
 
@@ -335,7 +334,7 @@ def test_query_top_ranked(tmpdir):
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
-        state.add_last_ranking(TEST_RECORD_TABLE, test_ranking, 'nb',
+        state.add_last_ranking(test_ranking, 'nb',
                                'max', 'double', 'tfidf', 4)
         top_ranked = state.query_top_ranked(5)
 
@@ -355,8 +354,7 @@ def test_add_labeling_data(tmpdir):
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
-        state.add_last_ranking(TEST_RECORD_TABLE, test_ranking,
-                               'nb', 'max', 'double', 'tfidf', 4)
+        state.add_last_ranking(test_ranking, 'nb', 'max', 'double', 'tfidf', 4)
         for i in range(3):
             # Test without specifying notes.
             state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]],
@@ -403,7 +401,7 @@ def test_pool_labeled_pending(tmpdir):
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_table)
-        state.add_last_ranking(record_table, test_ranking, 'nb',
+        state.add_last_ranking(test_ranking, 'nb',
                                'max', 'double', 'tfidf', 4)
         state.add_labeling_data([4, 5, 6], [1, 0, 1],
                                 prior=True)
@@ -436,7 +434,7 @@ def test_exist_new_labeled_records(tmpdir):
         state.add_labeling_data([4, 5, 6], [1, 0, 1],
                                 prior=True)
         assert state.exist_new_labeled_records
-        state.add_last_ranking(record_table, test_ranking, 'nb',
+        state.add_last_ranking(test_ranking, 'nb',
                                'max', 'double', 'tfidf', 3)
         assert not state.exist_new_labeled_records
         state.query_top_ranked(3)
@@ -514,7 +512,8 @@ def test_last_ranking(tmpdir):
     training_set = 2
 
     with open_state(project_path, read_only=False) as state:
-        state.add_last_ranking(record_ids, ranking, classifier,
+        state.add_record_table(record_ids)
+        state.add_last_ranking(ranking, classifier,
                                query_strategy, balance_strategy,
                                feature_extraction, training_set)
 
