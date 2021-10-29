@@ -141,7 +141,7 @@ const LabeledRecord = (props) => {
                 filteredQuery().data.pages.map((page, index) => (
                   <LabeledRecordCard
                     page={page}
-                    mutateClassification={props.mutateClassification}
+                    label={props.label}
                     key={`result-page-${index}`}
                   />
                 ))}

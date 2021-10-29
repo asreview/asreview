@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { useMutation, useQueryClient } from "react-query";
 import { Box, Chip, Divider, Fade, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { Filter, LabeledRecord } from "../HistoryComponents";
 
-import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "HistoryPage";
 
 const classes = {
   labelChip: `${PREFIX}-label-chip`,
-  loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -22,55 +19,10 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.labelChip}`]: {
     padding: "16px 24px 8px 24px",
   },
-
-  [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
-    padding: 64,
-  },
 }));
 
 const HistoryPage = (props) => {
-  const queryClient = useQueryClient();
   const [label, setLabel] = useState("relevant");
-
-  const { mutate } = useMutation(ProjectAPI.mutateClassification, {
-    onSuccess: (data, variables) => {
-      // update cached data
-      queryClient.setQueryData(
-        [
-          label === "relevant"
-            ? "fetchRelevantLabeledRecord"
-            : "fetchIrrelevantLabeledRecord",
-          {
-            project_id: props.project_id,
-            select: label === "relevant" ? "included" : "excluded",
-          },
-        ],
-        (prev) => {
-          return {
-            ...prev,
-            pages: prev.pages.map((page) => {
-              return {
-                ...page,
-                result: page.result.map((value) => {
-                  return {
-                    ...value,
-                    included:
-                      value.id === variables.doc_id
-                        ? value.included === 1
-                          ? 0
-                          : 1
-                        : value.included,
-                  };
-                }),
-              };
-            }),
-          };
-        }
-      );
-    },
-  });
 
   const handleClickRelevant = () => {
     setLabel("relevant");
@@ -103,7 +55,7 @@ const HistoryPage = (props) => {
           <Divider />
         </Box>
       </Fade>
-      <LabeledRecord label={label} mutateClassification={mutate} />
+      <LabeledRecord label={label} />
     </Root>
   );
 };
