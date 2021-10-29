@@ -1,25 +1,35 @@
 import React from "react";
+import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
-import { Box, ButtonBase, CircularProgress, Typography } from "@mui/material";
+import { useInfiniteQuery } from "react-query";
+import {
+  Box,
+  ButtonBase,
+  CircularProgress,
+  Fade,
+  Typography,
+} from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 
+import { BoxErrorHandler } from "../../Components";
 import { LabeledRecordCard } from "../HistoryComponents";
-import ErrorHandler from "../../ErrorHandler";
+import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "LabeledRecord";
 
 const classes = {
-  circularProgress: `${PREFIX}-circularProgress`,
+  loading: `${PREFIX}-loading`,
   recordCard: `${PREFIX}-recordCard`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.circularProgress}`]: {
+  [`& .${classes.loading}`]: {
     display: "flex",
     justifyContent: "center",
-    marginTop: "5%",
+    padding: 64,
   },
 
   [`& .${classes.recordCard}`]: {
@@ -40,55 +50,134 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
+  const relevantQuery = useInfiniteQuery(
+    [
+      "fetchRelevantLabeledRecord",
+      {
+        project_id: props.project_id,
+        select: "included",
+      },
+    ],
+    ProjectAPI.fetchLabeledRecord,
+    {
+      enabled: props.label === "relevant",
+      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const irrelevantQuery = useInfiniteQuery(
+    [
+      "fetchIrrelevantLabeledRecord",
+      {
+        project_id: props.project_id,
+        select: "excluded",
+      },
+    ],
+    ProjectAPI.fetchLabeledRecord,
+    {
+      enabled: props.label === "irrelevant",
+      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const filteredQuery = () => {
+    if (props.label === "relevant") {
+      return relevantQuery;
+    }
+    if (props.label === "irrelevant") {
+      return irrelevantQuery;
+    }
+  };
+
+  const filteredQueryKey = () => {
+    if (props.label === "relevant") {
+      return "fetchRelevantLabeledRecord";
+    }
+    if (props.label === "irrelevant") {
+      return "fetchIrrelevantLabeledRecord";
+    }
+  };
+
+  /**
+   * Check if this component is mounted
+   */
+  const mounted = React.useRef(false);
+  React.useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   return (
     <Root aria-label="labeled record container">
-      {props.query.isError && <ErrorHandler error={props.query.error} />}
-      {props.query.isLoading && (
-        <Box className={classes.circularProgress}>
-          <CircularProgress />
-        </Box>
+      {filteredQuery().isError && (
+        <BoxErrorHandler
+          error={filteredQuery().error}
+          queryKey={filteredQueryKey()}
+        />
       )}
-      {!props.query.isError && !props.query.isLoading && (
-        <Box className={classes.recordCard} aria-label="labeled record card">
-          {props.query.isFetched &&
-            props.query.data.pages.map((page, index) => (
-              <LabeledRecordCard
-                page={page}
-                mutateClassification={props.mutateClassification}
-                key={`result-page-${index}`}
-              />
-            ))}
-          <InView
-            as="div"
-            onChange={(inView, entry) => {
-              if (
-                inView &&
-                props.query.hasNextPage &&
-                !props.query.isFetchingNextPage
-              ) {
-                props.query.fetchNextPage();
-              }
-            }}
-            className={classes.loadMoreInView}
+      {!filteredQuery().isError &&
+        (filteredQuery().isLoading || !mounted.current) && (
+          <Box className={classes.loading}>
+            <CircularProgress />
+          </Box>
+        )}
+      {!filteredQuery().isError &&
+        !(filteredQuery().isLoading || !mounted.current) && (
+          <Fade
+            in={
+              !filteredQuery().isError &&
+              !(filteredQuery().isLoading || !mounted.current)
+            }
           >
-            <ButtonBase
-              disabled={
-                !props.query.hasNextPage || props.query.isFetchingNextPage
-              }
+            <Box
+              className={classes.recordCard}
+              aria-label="labeled record card"
             >
-              <Typography gutterBottom variant="button">
-                {props.query.isFetchingNextPage
-                  ? "Loading more..."
-                  : props.query.hasNextPage
-                  ? "Load More"
-                  : "Nothing more to load"}
-              </Typography>
-            </ButtonBase>
-          </InView>
-        </Box>
-      )}
+              {filteredQuery().isFetched &&
+                filteredQuery().data.pages.map((page, index) => (
+                  <LabeledRecordCard
+                    page={page}
+                    mutateClassification={props.mutateClassification}
+                    key={`result-page-${index}`}
+                  />
+                ))}
+              <InView
+                as="div"
+                onChange={(inView, entry) => {
+                  if (
+                    inView &&
+                    filteredQuery().hasNextPage &&
+                    !filteredQuery().isFetchingNextPage
+                  ) {
+                    filteredQuery().fetchNextPage();
+                  }
+                }}
+                className={classes.loadMoreInView}
+              >
+                <ButtonBase
+                  disabled={
+                    !filteredQuery().hasNextPage ||
+                    filteredQuery().isFetchingNextPage
+                  }
+                >
+                  <Typography gutterBottom variant="button">
+                    {filteredQuery().isFetchingNextPage
+                      ? "Loading more..."
+                      : filteredQuery().hasNextPage
+                      ? "Load More"
+                      : "Nothing more to load"}
+                  </Typography>
+                </ButtonBase>
+              </InView>
+            </Box>
+          </Fade>
+        )}
     </Root>
   );
 };
 
-export default LabeledRecord;
+export default connect(mapStateToProps)(LabeledRecord);

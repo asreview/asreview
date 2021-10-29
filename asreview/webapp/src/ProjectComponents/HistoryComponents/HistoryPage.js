@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
-import { useInfiniteQuery, useMutation, useQueryClient } from "react-query";
-import { Chip, Divider, Stack } from "@mui/material";
+import { useMutation, useQueryClient } from "react-query";
+import { Box, Chip, Divider, Fade, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { Filter, LabeledRecord } from "../HistoryComponents";
@@ -13,6 +13,7 @@ const PREFIX = "HistoryPage";
 
 const classes = {
   labelChip: `${PREFIX}-label-chip`,
+  loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -21,41 +22,17 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.labelChip}`]: {
     padding: "16px 24px 8px 24px",
   },
+
+  [`& .${classes.loading}`]: {
+    display: "flex",
+    justifyContent: "center",
+    padding: 64,
+  },
 }));
 
 const HistoryPage = (props) => {
   const queryClient = useQueryClient();
   const [label, setLabel] = useState("relevant");
-
-  const relevantQuery = useInfiniteQuery(
-    [
-      "fetchRelevantLabeledRecord",
-      {
-        project_id: props.project_id,
-        select: "included",
-      },
-    ],
-    ProjectAPI.fetchLabeledRecord,
-    {
-      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-      refetchOnWindowFocus: false,
-    }
-  );
-
-  const irrelevantQuery = useInfiniteQuery(
-    [
-      "fetchIrrelevantLabeledRecord",
-      {
-        project_id: props.project_id,
-        select: "excluded",
-      },
-    ],
-    ProjectAPI.fetchLabeledRecord,
-    {
-      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-      refetchOnWindowFocus: false,
-    }
-  );
 
   const { mutate } = useMutation(ProjectAPI.mutateClassification, {
     onSuccess: (data, variables) => {
@@ -105,29 +82,28 @@ const HistoryPage = (props) => {
 
   return (
     <Root aria-label="history page">
-      <Stack className={classes.labelChip} direction="row" spacing={2}>
-        <Chip
-          label="Relevant"
-          color="primary"
-          variant={label === "relevant" ? "filled" : "outlined"}
-          onClick={handleClickRelevant}
-        />
-        <Chip
-          label="Irrelevant"
-          color="primary"
-          variant={label === "irrelevant" ? "filled" : "outlined"}
-          onClick={handleClickIrrelevant}
-        />
-      </Stack>
-      <Divider />
-      <Filter />
-      <Divider />
-      {label === "relevant" && (
-        <LabeledRecord query={relevantQuery} mutateClassification={mutate} />
-      )}
-      {label === "irrelevant" && (
-        <LabeledRecord query={irrelevantQuery} mutateClassification={mutate} />
-      )}
+      <Fade in>
+        <Box>
+          <Stack className={classes.labelChip} direction="row" spacing={2}>
+            <Chip
+              label="Relevant"
+              color="primary"
+              variant={label === "relevant" ? "filled" : "outlined"}
+              onClick={handleClickRelevant}
+            />
+            <Chip
+              label="Irrelevant"
+              color="primary"
+              variant={label === "irrelevant" ? "filled" : "outlined"}
+              onClick={handleClickIrrelevant}
+            />
+          </Stack>
+          <Divider />
+          <Filter />
+          <Divider />
+        </Box>
+      </Fade>
+      <LabeledRecord label={label} mutateClassification={mutate} />
     </Root>
   );
 };
