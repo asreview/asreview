@@ -34,11 +34,11 @@ const classes = {
   chipSetup: `${PREFIX}-chipSetup`,
   chipInReview: `${PREFIX}-chipInReview`,
   chipFinished: `${PREFIX}-chipFinished`,
-  circularProgress: `${PREFIX}-circularProgress`,
-  noProject: `${PREFIX}-noProject`,
+  converting: `${PREFIX}-converting`,
   img: `${PREFIX}-img`,
   title: `${PREFIX}-title`,
   titleWrapper: `${PREFIX}-title-wrapper`,
+  loadingProjects: `${PREFIX}-loading-projects`,
 };
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -73,20 +73,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     fontWeight: 500,
   },
 
-  [`& .${classes.circularProgress}`]: {
+  [`& .${classes.converting}`]: {
     display: "flex",
     alignItems: "center",
-  },
-
-  [`&. ${classes.noProject}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    justifyContent: "center",
-    "& > *": {
-      margin: theme.spacing(1),
-    },
   },
 
   [`& .${classes.img}`]: {
@@ -111,6 +100,13 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     alignItems: "center",
     width: "100%",
   },
+
+  [`& .${classes.loadingProjects}`]: {
+    display: "flex",
+    justifyContent: "center",
+    paddingTop: 64,
+    paddingBottom: 248,
+  },
 }));
 
 const columns = [
@@ -128,16 +124,19 @@ const ProjectTable = (props) => {
   /**
    * Fetch projects
    */
-  const { data, isFetched } = useQuery(
-    "fetchProjects",
-    ProjectAPI.fetchProjects,
-    { refetchOnWindowFocus: false }
-  );
+  const {
+    data,
+    isFetched,
+    isLoading: isLoadingProjects,
+    isSuccess,
+  } = useQuery("fetchProjects", ProjectAPI.fetchProjects, {
+    refetchOnWindowFocus: false,
+  });
 
   /**
    * When open a project, convert if old
    */
-  const { isLoading } = useQuery(
+  const { isLoading: isConverting } = useQuery(
     ["fetchConvertProjectIfOld", { project_id: props.project_id }],
     ProjectAPI.fetchConvertProjectIfOld,
     {
@@ -174,7 +173,7 @@ const ProjectTable = (props) => {
     return dateDisplay;
   };
 
-  const formMode = (mode) => {
+  const formatMode = (mode) => {
     if (mode === "oracle") {
       return "Oracle";
     }
@@ -183,6 +182,33 @@ const ProjectTable = (props) => {
     }
     if (mode === "simulate") {
       return "Simulation";
+    }
+  };
+
+  /**
+   * Return status label and style
+   */
+  const statusLabel = (row) => {
+    if (row["projectInitReady"]) {
+      if (row["reviewFinished"]) {
+        return "Finished";
+      } else {
+        return "In Review";
+      }
+    } else {
+      return "Setup";
+    }
+  };
+
+  const statusStyle = (row) => {
+    if (row["projectInitReady"]) {
+      if (row["reviewFinished"]) {
+        return classes.chipFinished;
+      } else {
+        return classes.chipInReview;
+      }
+    } else {
+      return classes.chipSetup;
     }
   };
 
@@ -212,7 +238,9 @@ const ProjectTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isFetched &&
+            {!isLoadingProjects &&
+              isFetched &&
+              isSuccess &&
               data
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
@@ -245,8 +273,8 @@ const ProjectTable = (props) => {
                       onMouseLeave={() => hoverOffProject()}
                     >
                       <TableCell sx={{ display: "flex" }}>
-                        <Box className={classes.circularProgress}>
-                          {isLoading && row.id === props.project_id && (
+                        <Box className={classes.converting}>
+                          {isConverting && row.id === props.project_id && (
                             <CircularProgress
                               size="1rem"
                               thickness={5}
@@ -256,7 +284,9 @@ const ProjectTable = (props) => {
                         </Box>
                         <Box className={classes.titleWrapper}>
                           <Typography
-                            onClick={isLoading ? null : onClickProjectAnalytics}
+                            onClick={
+                              isConverting ? null : onClickProjectAnalytics
+                            }
                             className={classes.title}
                             variant="subtitle1"
                           >
@@ -265,7 +295,7 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
-                              isConverting={isLoading}
+                              isConverting={isConverting}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
@@ -291,26 +321,14 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["mode"] ? formMode(row["mode"]) : "N/A"}
+                          {row["mode"] ? formatMode(row["mode"]) : "N/A"}
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
                         <Chip
                           size="small"
-                          className={
-                            row["projectInitReady"]
-                              ? row["reviewFinished"]
-                                ? classes.chipFinished
-                                : classes.chipInReview
-                              : classes.chipSetup
-                          }
-                          label={
-                            row["projectInitReady"]
-                              ? row["reviewFinished"]
-                                ? "Finished"
-                                : "In Review"
-                              : "Setup"
-                          }
+                          className={statusStyle(row)}
+                          label={statusLabel(row)}
                         />
                       </TableCell>
                     </TableRow>
@@ -318,7 +336,12 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {isFetched && data?.length === 0 && (
+        {isLoadingProjects && (
+          <Box className={classes.loadingProjects}>
+            <CircularProgress />
+          </Box>
+        )}
+        {!isLoadingProjects && isFetched && isSuccess && data?.length === 0 && (
           <Box
             sx={{
               alignItems: "center",
@@ -344,7 +367,7 @@ const ProjectTable = (props) => {
           </Box>
         )}
       </TableContainer>
-      {isFetched && data?.length !== 0 && (
+      {!isLoadingProjects && isFetched && isSuccess && data?.length !== 0 && (
         <TablePagination
           rowsPerPageOptions={[5, 10, 15]}
           component="div"
