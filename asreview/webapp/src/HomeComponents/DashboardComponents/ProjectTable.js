@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
@@ -36,6 +37,8 @@ const classes = {
   circularProgress: `${PREFIX}-circularProgress`,
   noProject: `${PREFIX}-noProject`,
   img: `${PREFIX}-img`,
+  title: `${PREFIX}-title`,
+  titleWrapper: `${PREFIX}-title-wrapper`,
 };
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -92,6 +95,22 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     marginBottom: 64,
     marginLeft: 100,
   },
+
+  [`& .${classes.title}`]: {
+    cursor: "pointer",
+    display: "-webkit-box",
+    letterSpacing: "0.25px",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 1,
+    whiteSpace: "pre-line",
+    overflow: "hidden",
+  },
+
+  [`& .${classes.titleWrapper}`]: {
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+  },
 }));
 
 const columns = [
@@ -103,6 +122,7 @@ const columns = [
 
 const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
+  const [hoverRowId, setHoverRowId] = useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
 
   /**
@@ -123,7 +143,7 @@ const ProjectTable = (props) => {
     {
       enabled: props.project_id !== null && !props.onCreateProject,
       onError: () => {
-        props.handleAppState("dashboard");
+        props.handleAppState("home");
       },
       onSuccess: () => {
         props.handleAppState("project-page");
@@ -132,15 +152,20 @@ const ProjectTable = (props) => {
     }
   );
 
-  const handlePage = (event, newPage) => {
-    setPage(newPage);
+  /**
+   * Show buttons when hovering over project title
+   */
+  const hoverOnProject = (project_id) => {
+    setHoverRowId(project_id);
   };
 
-  const setRowsPerPage = (event) => {
-    handleRowsPerPage(+event.target.value);
-    setPage(0);
+  const hoverOffProject = () => {
+    setHoverRowId(null);
   };
 
+  /**
+   * Format date and mode
+   */
   const formatDate = (datetime) => {
     let date = new Date(datetime);
     let dateString = date.toDateString().slice(4);
@@ -161,6 +186,18 @@ const ProjectTable = (props) => {
     }
   };
 
+  /**
+   * Table pagination & rows per page setting
+   */
+  const handlePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const setRowsPerPage = (event) => {
+    handleRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
   return (
     <StyledPaper elevation={2} className={classes.root}>
       <TableContainer>
@@ -177,19 +214,38 @@ const ProjectTable = (props) => {
           <TableBody>
             {isFetched &&
               data
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  const openExistingProject = () => {
-                    console.log("Opening existing project " + row.id);
+                  const showAnalyticsButton = () => {
+                    return row["projectInitReady"];
+                  };
 
-                    // set the state in the redux store
+                  const showReviewButton = () => {
+                    return row["projectInitReady"] && !row["reviewFinished"];
+                  };
+
+                  const onClickProjectAnalytics = () => {
+                    console.log("Opening existing project " + row.id);
                     props.setProjectId(row.id);
                     props.handleNavState("analytics");
                   };
+
+                  const onClickProjectReview = () => {
+                    console.log("Opening existing project " + row.id);
+                    props.setProjectId(row.id);
+                    props.handleNavState("review");
+                  };
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell>
-                        <div className={classes.circularProgress}>
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.id}
+                      onMouseEnter={() => hoverOnProject(row.id)}
+                      onMouseLeave={() => hoverOffProject()}
+                    >
+                      <TableCell sx={{ display: "flex" }}>
+                        <Box className={classes.circularProgress}>
                           {isLoading && row.id === props.project_id && (
                             <CircularProgress
                               size="1rem"
@@ -197,19 +253,26 @@ const ProjectTable = (props) => {
                               sx={{ marginRight: "8px" }}
                             />
                           )}
-                          <Box
-                            onClick={isLoading ? null : openExistingProject}
-                            style={{ cursor: "pointer" }}
+                        </Box>
+                        <Box className={classes.titleWrapper}>
+                          <Typography
+                            onClick={isLoading ? null : onClickProjectAnalytics}
+                            className={classes.title}
+                            variant="subtitle1"
                           >
-                            <Typography
-                              className={classes.tableCell}
-                              variant="subtitle1"
-                              noWrap
-                            >
-                              {row["name"]}
-                            </Typography>
-                          </Box>
-                        </div>
+                            {row["name"]}
+                          </Typography>
+                          <Box sx={{ flex: 1 }}></Box>
+                          {hoverRowId === row.id && (
+                            <TableRowButton
+                              isConverting={isLoading}
+                              showAnalyticsButton={showAnalyticsButton}
+                              showReviewButton={showReviewButton}
+                              onClickProjectAnalytics={onClickProjectAnalytics}
+                              onClickProjectReview={onClickProjectReview}
+                            />
+                          )}
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Typography
@@ -255,7 +318,7 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {isFetched && data.length === 0 && (
+        {isFetched && data?.length === 0 && (
           <Box
             sx={{
               alignItems: "center",
@@ -281,11 +344,11 @@ const ProjectTable = (props) => {
           </Box>
         )}
       </TableContainer>
-      {isFetched && data.length !== 0 && (
+      {isFetched && data?.length !== 0 && (
         <TablePagination
           rowsPerPageOptions={[5, 10, 15]}
           component="div"
-          count={data.length}
+          count={data?.length}
           rowsPerPage={rowsPerPage}
           labelRowsPerPage="Projects per page:"
           page={page}
