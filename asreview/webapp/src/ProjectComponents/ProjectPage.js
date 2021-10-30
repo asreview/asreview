@@ -5,16 +5,15 @@ import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { NavigationDrawer } from "../Components";
+import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
 import { ProjectInfo } from "../PreReviewComponents";
-import ErrorHandler from "../ErrorHandler";
 import DangerZone from "../DangerZone.js";
 import PublicationZone from "../PublicationZone.js";
-import StatisticsZone from "../StatisticsZone.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -31,7 +30,7 @@ const classes = {
   container: `${PREFIX}-container`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
     flexGrow: 1,
     padding: 0,
@@ -69,13 +68,12 @@ const StyledBox = styled(Box)(({ theme }) => ({
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
+    nav_state: state.nav_state,
     project_id: state.project_id,
   };
 };
 
 const ProjectPage = (props) => {
-  const [nav_state, setNav_state] = useState("analytics");
-
   const [state, setState] = useState({
     // info-header
     infoLoading: true,
@@ -91,7 +89,7 @@ const ProjectPage = (props) => {
   });
 
   const finishEditProjectInfo = () => {
-    setNav_state("analytics");
+    props.handleNavState("analytics");
   };
 
   const finishProject = () => {
@@ -161,14 +159,14 @@ const ProjectPage = (props) => {
   });
 
   return (
-    <StyledBox aria-label="project page">
+    <Root aria-label="project page">
       <NavigationDrawer
+        handleAppState={props.handleAppState}
+        handleNavState={props.handleNavState}
         mobileScreen={props.mobileScreen}
         onNavDrawer={props.onNavDrawer}
-        nav_state={nav_state}
         toggleNavDrawer={props.toggleNavDrawer}
         toggleSettings={props.toggleSettings}
-        handleNavState={setNav_state}
         returnElasState={returnElasState}
         projectInfo={state.info}
       />
@@ -184,25 +182,21 @@ const ProjectPage = (props) => {
             className={classes.container}
             aria-label="project page content transition"
           >
-            {error.message !== null && (
-              <ErrorHandler error={error} setError={setError} />
-            )}
-
             {error.message === null && !state.infoLoading && !state.setup && (
               <Box
                 className={classes.container}
                 aria-label="project page content loaded"
               >
                 {/* Analytics */}
-                {nav_state === "analytics" && (
-                  <StatisticsZone
+                {props.nav_state === "analytics" && (
+                  <AnalyticsPage
                     project_id={props.project_id}
                     projectInitReady={state.info.projectInitReady}
                   />
                 )}
 
                 {/* Review page */}
-                {nav_state === "review" && !state.finished && (
+                {props.nav_state === "review" && !state.finished && (
                   <ReviewPage
                     handleAppState={props.handleAppState}
                     mobileScreen={props.mobileScreen}
@@ -214,17 +208,17 @@ const ProjectPage = (props) => {
                 )}
 
                 {/* Review page when marked as finished */}
-                {nav_state === "review" && state.finished && (
+                {props.nav_state === "review" && state.finished && (
                   <ReviewPageFinished mobileScreen={props.mobileScreen} />
                 )}
 
                 {/* History page */}
-                {nav_state === "history" && (
+                {props.nav_state === "history" && (
                   <HistoryPage mobileScreen={props.mobileScreen} />
                 )}
 
                 {/* Export page */}
-                {nav_state === "export" && (
+                {props.nav_state === "export" && (
                   <Box>
                     <PublicationZone
                       project_id={props.project_id}
@@ -245,10 +239,10 @@ const ProjectPage = (props) => {
                 )}
 
                 {/* Details page */}
-                {nav_state === "details" && (
+                {props.nav_state === "details" && (
                   <ProjectInfo
                     edit={true}
-                    open={nav_state === "details"}
+                    open={props.nav_state === "details"}
                     onClose={finishEditProjectInfo}
                     info={state.info}
                   />
@@ -258,7 +252,7 @@ const ProjectPage = (props) => {
           </Box>
         </Fade>
       </Box>
-    </StyledBox>
+    </Root>
   );
 };
 

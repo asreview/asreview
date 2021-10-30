@@ -10,19 +10,12 @@ import ErrorHandler from "../../ErrorHandler";
 const PREFIX = "LabeledRecord";
 
 const classes = {
-  root: `${PREFIX}-root`,
   circularProgress: `${PREFIX}-circularProgress`,
   recordCard: `${PREFIX}-recordCard`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-  },
-
   [`& .${classes.circularProgress}`]: {
     display: "flex",
     justifyContent: "center",
@@ -30,8 +23,13 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.recordCard}`]: {
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    height: "calc(100vh - 168px)",
     width: "100%",
-    maxWidth: 960,
+    overflowY: "scroll",
+    padding: "16px 0px",
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -43,7 +41,7 @@ const Root = styled("div")(({ theme }) => ({
 
 const LabeledRecord = (props) => {
   return (
-    <Root className={classes.root} aria-label="labeled record container">
+    <Root aria-label="labeled record container">
       {props.query.isError && <ErrorHandler error={props.query.error} />}
       {props.query.isLoading && (
         <Box className={classes.circularProgress}>
