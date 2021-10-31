@@ -1,43 +1,30 @@
 import React from "react";
 import { Banner } from "material-ui-banner";
-import { styled } from "@mui/material/styles";
-
-const PREFIX = "ExplorationModeBanner";
-
-const classes = {
-  root: `${PREFIX}-root`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.root}`]: {
-    [theme.breakpoints.down("md")]: {
-      paddingTop: 8,
-    },
-  },
-}));
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const ExplorationModeBanner = (props) => {
   return (
-    <Root aria-label="exploration mode banner">
+    <div aria-label="exploration mode banner">
       <Banner
         open={props.explorationMode}
         onClose={() => props.setExplorationMode(false)}
         label="You are screening through a manually pre-labeled dataset."
+        icon={<InfoOutlinedIcon sx={{ color: "text.secondary" }} />}
+        iconProps={{
+          sx: { bgcolor: "transparent" },
+        }}
         buttonLabel="read more"
         buttonProps={{
-          color: "primary",
           href: "https://asreview.readthedocs.io/en/latest/lab/exploration.html",
           target: "_blank",
+          sx: { color: "text.secondary" },
         }}
         dismissButtonProps={{
-          color: "primary",
-        }}
-        cardProps={{
-          className: classes.root,
+          sx: { color: "text.secondary" },
         }}
         appBar
       />
-    </Root>
+    </div>
   );
 };
 

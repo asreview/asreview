@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import {
@@ -9,122 +9,102 @@ import {
   ExplorationModeBanner,
   RecordCard,
 } from "../ReviewComponents";
-import ErrorHandler from "../../ErrorHandler";
 
 import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 import { useKeyPress } from "../../hooks/useKeyPress";
 
-const PREFIX = "ReviewPage";
+import "./ReviewPage.css";
 
-const classes = {
-  root: `${PREFIX}-root`,
-};
-
-const StyledBox = styled(Box)(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-  },
+const Root = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    project_id: state.project_id,
-  };
-};
-
 const ReviewPage = (props) => {
-  /**
-   * Exploration mode banner state
-   */
+  const queryClient = useQueryClient();
   const [explorationMode, setExplorationMode] = useState(false);
-
-  /**
-   * Record state
-   */
-  const [recordState, setRecordState] = useState({
-    isloaded: false,
+  const [activeRecord, setActiveRecord] = useState(null);
+  const [previousRecord, setPreviousRecord] = useState({
     record: null,
-    selection: null,
+    label: null,
+    show: false,
   });
-  const [previousRecordState, setPreviousRecordState] = useState({
-    record: null,
-    decision: null,
-  });
-  const [error, setError] = useState({
-    code: null,
-    message: null,
-  });
-
-  /**
-   * Record note state
-   */
   const [recordNote, setRecordNote] = useState({
     expand: false,
-    shrink: true,
-    saved: false,
+    shrink: true, // for smooth transition
     data: null,
   });
-
-  /**
-   * Undo bar state
-   */
   const [undoState, setUndoState] = useState({
     open: false,
     message: null,
   });
 
-  /**
-   * Keyboard shortcuts hooks
-   */
   const relevantPress = useKeyPress("r");
   const irrelevantPress = useKeyPress("i");
   const undoPress = useKeyPress("u");
   const notePress = useKeyPress("n");
 
+  const recordQuery = useQuery(
+    ["fetchRecord", { project_id: props.project_id }],
+    ProjectAPI.fetchRecord,
+    {
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        if (data["pool_empty"]) {
+          props.handleAppState("review-complete");
+        } else {
+          setActiveRecord(data["result"]);
+        }
+      },
+    }
+  );
+
+  const { mutate } = useMutation(ProjectAPI.mutateClassification, {
+    onMutate: (variables) => {
+      setPreviousRecord({
+        record: activeRecord,
+        label: variables.initial
+          ? variables.label
+          : variables.label === 1
+          ? 0
+          : 1,
+        show: false,
+      });
+      resetNote();
+      setActiveRecord(null);
+      closeUndoBar(); // hide potentially active undo bar
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries("fetchRecord");
+      showUndoBarIfNeeded(variables.label, variables.initial);
+    },
+  });
+
   /**
-   * Current record state change
+   * Previous record config
    */
-  const startLoadingNewDocument = () => {
-    setRecordState({
-      isloaded: false,
-      record: null,
-      selection: null,
+  const loadPreviousRecord = () => {
+    setPreviousRecord((s) => {
+      return {
+        ...s,
+        show: true,
+      };
     });
-    setRecordNote({
-      expand: false,
-      shrink: true,
-      saved: true,
-      data: null,
-    });
+    setActiveRecord(previousRecord.record);
   };
-  const loadPreviousRecordState = () => {
-    setRecordState({
-      isloaded: true,
-      record: previousRecordState.record,
-      selection: previousRecordState.decision,
+
+  const resetPreviousRecord = () => {
+    setPreviousRecord({
+      record: null,
+      label: null,
+      show: false,
     });
   };
 
   /**
-   * Previous record state change
-   */
-  const storeRecordState = (label) => {
-    setPreviousRecordState({
-      record: recordState.record,
-      decision: label,
-    });
-  };
-  const resetPreviousRecordState = () => {
-    setPreviousRecordState({
-      record: null,
-      decision: null,
-    });
-  };
-
-  /**
-   * Undo bar handler
+   * Undo bar config
    */
   const showUndoBar = (message) => {
     setUndoState({
@@ -132,13 +112,22 @@ const ReviewPage = (props) => {
       message: message,
     });
   };
+
   const showUndoBarIfNeeded = (label, initial) => {
     if (props.undoEnabled) {
-      const mark = label === 0 ? "irrelevant" : "relevant";
+      const mark =
+        label === 0
+          ? initial
+            ? "irrelevant"
+            : "relevant"
+          : initial
+          ? "relevant"
+          : "irrelevant";
       const message = `${initial ? "Marked as" : "Converted to"} ${mark}`;
       showUndoBar(message);
     }
   };
+
   const closeUndoBar = () => {
     setUndoState({
       open: false,
@@ -146,103 +135,58 @@ const ReviewPage = (props) => {
     });
   };
 
-  /**
-   * Change a decision or not in undo mode
-   */
   const isUndoModeActive = () => {
-    return recordState.record.doc_id === previousRecordState["record"]?.doc_id;
+    return activeRecord.doc_id === previousRecord["record"]?.doc_id;
   };
+
+  const undoDecision = () => {
+    closeUndoBar();
+    loadPreviousRecord();
+  };
+
+  /**
+   * Decision button config
+   */
   const needsClassification = (label) => {
     if (!isUndoModeActive()) {
       return true;
     }
-    return label !== previousRecordState.decision;
-  };
-  const skipClassification = () => {
-    resetPreviousRecordState();
-    startLoadingNewDocument();
+    return label !== previousRecord.label;
   };
 
-  /**
-   * Make or undo a decision
-   */
+  const skipClassification = () => {
+    setActiveRecord(recordQuery.data["result"]);
+    resetPreviousRecord();
+    resetNote();
+  };
+
   const makeDecision = (label) => {
-    closeUndoBar(); // hide potentially active undo bar
     if (!needsClassification(label)) {
       skipClassification();
     } else {
-      classifyInstance(label, !isUndoModeActive());
+      mutate({
+        project_id: props.project_id,
+        doc_id: activeRecord.doc_id,
+        label: !isUndoModeActive() ? label : previousRecord.label,
+        initial: !isUndoModeActive(),
+      });
     }
-    storeRecordState(label);
-  };
-  const undoDecision = () => {
-    closeUndoBar();
-    loadPreviousRecordState();
   };
 
   /**
-   * Include (accept) or exclude (reject) current article
-   *
-   * @param label  1=include, 0=exclude
-   * @param initial   true=initial classification, false=update previous classification
+   * Note field config
    */
-  const classifyInstance = (label, initial) => {
-    // set up the form
-    let body = new FormData();
-    body.set("doc_id", recordState["record"].doc_id);
-    body.set("label", label);
-
-    ProjectAPI.classify_instance(
-      props.project_id,
-      recordState.record.doc_id,
-      body,
-      initial
-    )
-      .then((response) => {
-        console.log(
-          `${props.project_id} - add item ${recordState["record"].doc_id} to ${
-            label ? "inclusions" : "exclusions"
-          }`
-        );
-        startLoadingNewDocument();
-        showUndoBarIfNeeded(label, initial);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const resetNote = () => {
+    setRecordNote({
+      expand: false,
+      shrink: true,
+      data: null,
+    });
   };
 
-  useEffect(() => {
-    /**
-     * Get next record
-     */
-    const getDocument = () => {
-      ProjectAPI.get_document(props.project_id)
-        .then((result) => {
-          /* Check for last paper */
-          if (result.data["pool_empty"]) {
-            props.handleAppState("review-complete");
-          } else {
-            /* New article found and set */
-            setRecordState({
-              record: result.data["result"],
-              isloaded: true,
-              selection: null,
-            });
-          }
-        })
-        .catch((error) => {
-          setError({
-            code: error.code,
-            message: error.message,
-          });
-        });
-    };
-
-    if (!recordState["isloaded"]) {
-      getDocument();
-    }
-  }, [props.project_id, recordState, props, error.message]);
+  const noteFieldAutoFocus = () => {
+    return !notePress;
+  };
 
   /**
    * Display banner when in Exploration Mode
@@ -258,21 +202,21 @@ const ReviewPage = (props) => {
    */
   useEffect(() => {
     if (props.keyPressEnabled && !recordNote.expand) {
-      if (relevantPress && recordState.isloaded) {
+      if (relevantPress && activeRecord) {
         makeDecision(1);
       }
-      if (irrelevantPress && recordState.isloaded) {
+      if (irrelevantPress && activeRecord) {
         makeDecision(0);
       }
       if (undoPress && undoState.open && props.undoEnabled) {
         undoDecision();
       }
-      if (notePress && recordState.isloaded && recordNote.saved) {
+      if (notePress && activeRecord) {
         setRecordNote((s) => {
           return {
             ...s,
             expand: true,
-            saved: false,
+            shrink: false,
           };
         });
       }
@@ -281,7 +225,7 @@ const ReviewPage = (props) => {
   }, [relevantPress, irrelevantPress, undoPress, notePress]);
 
   return (
-    <StyledBox className={classes.root} aria-label="review page">
+    <Root aria-label="review page">
       {/* Banner Exploration Mode */}
       <ExplorationModeBanner
         explorationMode={explorationMode}
@@ -290,18 +234,18 @@ const ReviewPage = (props) => {
 
       {/* Article card */}
       <RecordCard
-        record={recordState["record"]}
+        activeRecord={activeRecord}
         recordNote={recordNote}
         setRecordNote={setRecordNote}
-        isloaded={recordState["isloaded"]}
         fontSize={props.fontSize}
+        noteFieldAutoFocus={noteFieldAutoFocus}
       />
 
       {/* Decision button */}
       <DecisionButton
         makeDecision={makeDecision}
         mobileScreen={props.mobileScreen}
-        previousSelection={recordState["selection"]}
+        previousRecord={previousRecord}
       />
 
       {/* Decision undo bar */}
@@ -310,12 +254,7 @@ const ReviewPage = (props) => {
         undo={undoDecision}
         close={closeUndoBar}
       />
-
-      {/* Error Handler */}
-      {error.message !== null && (
-        <ErrorHandler error={error} setError={setError} />
-      )}
-    </StyledBox>
+    </Root>
   );
 };
 

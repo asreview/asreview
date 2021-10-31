@@ -381,29 +381,14 @@ class ProjectAPI {
     });
   }
 
-  // TODO{Terry}: deprecating, will be replaced by mutateClassification()
-  static classify_instance(project_id, doc_id, data, initial) {
-    const url = api_url + `project/${project_id}/record/${doc_id}`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: initial ? "post" : "put",
-        url: url,
-        data: data,
-        headers: { "Content-Type": "application/json" },
-      })
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   static mutateClassification(variables) {
     let body = new FormData();
     body.set("doc_id", variables.doc_id);
-    body.set("label", variables.label === 1 ? 0 : 1);
+    if (!variables.initial) {
+      body.set("label", variables.label === 1 ? 0 : 1);
+    } else {
+      body.set("label", variables.label);
+    }
 
     const url =
       api_url + `project/${variables.project_id}/record/${variables.doc_id}`;
@@ -418,7 +403,13 @@ class ProjectAPI {
           resolve(result);
           console.log(
             `${variables.project_id} - add item ${variables.doc_id} to ${
-              variables.label === 1 ? "exclusions" : "inclusions"
+              variables.label === 1
+                ? variables.initial
+                  ? "inclusions"
+                  : "exclusions"
+                : variables.initial
+                ? "exclusions"
+                : "inclusions"
             }`
           );
         })
@@ -428,13 +419,14 @@ class ProjectAPI {
     });
   }
 
-  static get_document(project_id) {
+  static fetchRecord({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/get_document`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
