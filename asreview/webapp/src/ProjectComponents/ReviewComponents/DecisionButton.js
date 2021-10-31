@@ -41,13 +41,15 @@ const DecisionButton = (props) => {
   let relevantLabel = "Relevant";
   let irrelevantLabel = "Irrelevant";
 
-  if (props.previousSelection === 0) {
-    relevantLabel = "Convert to relevant";
-    irrelevantLabel = "Keep irrelevant";
-  }
-  if (props.previousSelection === 1) {
-    relevantLabel = "Keep relevant";
-    irrelevantLabel = "Convert to irrelevant";
+  if (props.previousRecord.show) {
+    if (props.previousRecord.label === 0) {
+      relevantLabel = "Convert to relevant";
+      irrelevantLabel = "Keep irrelevant";
+    }
+    if (props.previousRecord.label === 1) {
+      relevantLabel = "Keep relevant";
+      irrelevantLabel = "Convert to irrelevant";
+    }
   }
 
   return (
