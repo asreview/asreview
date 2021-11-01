@@ -269,6 +269,18 @@ const ProjectTable = (props) => {
                     props.setProjectId(row.id);
                     props.handleNavState("review");
                   };
+
+                  const onClickProjectExport = () => {
+                    console.log("Opening existing project " + row.id);
+                    props.setProjectId(row.id);
+                    props.handleNavState("export");
+                  };
+
+                  const onClickProjectDetails = () => {
+                    console.log("Opening existing project " + row.id);
+                    props.setProjectId(row.id);
+                    props.handleNavState("details");
+                  };
                   return (
                     <TableRow
                       hover
@@ -308,6 +320,8 @@ const ProjectTable = (props) => {
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
                               onClickProjectReview={onClickProjectReview}
+                              onClickProjectExport={onClickProjectExport}
+                              onClickProjectDetails={onClickProjectDetails}
                               toggleDeleteDialog={toggleDeleteDialog}
                             />
                           )}

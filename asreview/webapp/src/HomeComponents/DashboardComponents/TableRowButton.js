@@ -1,7 +1,12 @@
 import * as React from "react";
 import { IconButton, Menu, MenuItem, Stack, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Assignment, Assessment, MoreVert } from "@mui/icons-material";
+import {
+  Assignment,
+  Assessment,
+  Download,
+  MoreVert,
+} from "@mui/icons-material";
 
 const PREFIX = "TableRowButton";
 
@@ -23,11 +28,23 @@ const Root = styled("div")(({ theme }) => ({
 export default function TableRowButton(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const onRowMenu = Boolean(anchorEl);
+
   const handleClickRowMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleCloseRowMenu = () => {
     setAnchorEl(null);
+  };
+
+  const handleClickEditDetails = () => {
+    handleCloseRowMenu();
+    props.onClickProjectDetails();
+  };
+
+  const handleClickDelete = () => {
+    handleCloseRowMenu();
+    props.toggleDeleteDialog();
   };
 
   return (
@@ -55,6 +72,14 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
+        <Tooltip title="Export">
+          <IconButton
+            className={classes.button}
+            onClick={props.isConverting ? null : props.onClickProjectExport}
+          >
+            <Download />
+          </IconButton>
+        </Tooltip>
         <div>
           <Tooltip title="Options">
             <IconButton className={classes.button} onClick={handleClickRowMenu}>
@@ -66,15 +91,12 @@ export default function TableRowButton(props) {
             open={onRowMenu}
             onClose={handleCloseRowMenu}
           >
-            <MenuItem>Edit details</MenuItem>
             <MenuItem
-              onClick={() => {
-                handleCloseRowMenu();
-                props.toggleDeleteDialog();
-              }}
+              onClick={props.isConverting ? null : handleClickEditDetails}
             >
-              Delete forever
+              Edit details
             </MenuItem>
+            <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
           </Menu>
         </div>
       </Stack>
