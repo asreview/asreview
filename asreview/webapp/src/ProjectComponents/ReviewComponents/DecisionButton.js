@@ -22,6 +22,8 @@ const Root = styled("div")(({ theme }) => ({
     flexShrink: 0,
     width: "100%",
     textAlign: "center",
+    position: "absolute",
+    bottom: 0,
   },
 
   [`&.${classes.rootMobile}`]: {

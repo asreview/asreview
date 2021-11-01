@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import {
@@ -16,10 +17,20 @@ import { useKeyPress } from "../../hooks/useKeyPress";
 
 import "./ReviewPage.css";
 
+const PREFIX = "ReviewPage";
+
+const classes = {
+  root: `${PREFIX}-root`,
+};
+
 const Root = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   height: "100%",
+  [`& .${classes.root}`]: {
+    height: "-webkit-fill-available",
+    position: "relative",
+  },
 }));
 
 const ReviewPage = (props) => {
@@ -231,29 +242,32 @@ const ReviewPage = (props) => {
         explorationMode={explorationMode}
         setExplorationMode={setExplorationMode}
       />
+      <Fade in>
+        <Box className={classes.root}>
+          {/* Article card */}
+          <RecordCard
+            activeRecord={activeRecord}
+            recordNote={recordNote}
+            setRecordNote={setRecordNote}
+            fontSize={props.fontSize}
+            noteFieldAutoFocus={noteFieldAutoFocus}
+          />
 
-      {/* Article card */}
-      <RecordCard
-        activeRecord={activeRecord}
-        recordNote={recordNote}
-        setRecordNote={setRecordNote}
-        fontSize={props.fontSize}
-        noteFieldAutoFocus={noteFieldAutoFocus}
-      />
+          {/* Decision button */}
+          <DecisionButton
+            makeDecision={makeDecision}
+            mobileScreen={props.mobileScreen}
+            previousRecord={previousRecord}
+          />
 
-      {/* Decision button */}
-      <DecisionButton
-        makeDecision={makeDecision}
-        mobileScreen={props.mobileScreen}
-        previousRecord={previousRecord}
-      />
-
-      {/* Decision undo bar */}
-      <DecisionUndoBar
-        state={undoState}
-        undo={undoDecision}
-        close={closeUndoBar}
-      />
+          {/* Decision undo bar */}
+          <DecisionUndoBar
+            state={undoState}
+            undo={undoDecision}
+            close={closeUndoBar}
+          />
+        </Box>
+      </Fade>
     </Root>
   );
 };

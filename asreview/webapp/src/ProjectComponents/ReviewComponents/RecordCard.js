@@ -34,13 +34,13 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  marginTop: 40,
-  marginBottom: 40,
-  height: "50%",
+  paddingTop: 40,
+  paddingBottom: 40,
   width: "100%",
+  height: "calc(100% - 88px)",
   [theme.breakpoints.down("md")]: {
-    marginTop: 0,
-    marginBottom: 24,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   [`& .${classes.loadedCard}`]: {
     borderRadius: 16,
@@ -126,7 +126,7 @@ const RecordCard = (props) => {
         <Card
           elevation={2}
           className={classes.loadedCard}
-          aria-label="record card"
+          aria-label="record loaded"
         >
           {/* Previous decision alert */}
           {isDebugInclusion() && (
