@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/asreview/asreview">
-    <img width="60%" height="60%" src="https://github.com/asreview/asreview-artwork/blob/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg">
+    <img width="60%" height="60%" src="https://raw.githubusercontent.com/asreview/asreview-artwork/master/LogoASReview/SVG/GitHub_Repo_Card_Transparent.svg">
   </a>
 </p>
 
