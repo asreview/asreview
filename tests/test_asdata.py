@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from pandas.testing import assert_frame_equal
 import pytest
 
@@ -37,4 +38,22 @@ def test_column_names_with_spaces():
     assert_frame_equal(
         as_data.df[["title", "abstract"]],
         as_data_bad_cols.df[["title", "abstract"]]
+    )
+
+
+def test_asdata_init():
+
+    data_fp = Path("tests", "demo_data", "generic.csv")
+
+    # data via pandas
+    df = pd.read_csv(data_fp)
+    df.index.name = "record_id"
+    as_data_init = ASReviewData(df)
+
+    # data via classmethod
+    as_data = ASReviewData.from_file(data_fp)
+
+    assert_frame_equal(
+        as_data_init.df,
+        as_data.df
     )
