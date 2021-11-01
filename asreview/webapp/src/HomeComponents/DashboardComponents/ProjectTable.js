@@ -18,9 +18,10 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { TableRowButton } from "../DashboardComponents";
+import { ProjectDeleteDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
+import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
 import { mapStateToProps, mapDispatchToProps } from "../../globals";
@@ -119,7 +120,10 @@ const columns = [
 const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
   const [hoverRowId, setHoverRowId] = useState(null);
+  const [hoverRowIdPersistent, setHoverRowIdPersistent] = useState(null);
+  const [hoverRowTitle, setHoverRowTitle] = useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+  const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
   /**
    * Fetch projects
@@ -154,8 +158,10 @@ const ProjectTable = (props) => {
   /**
    * Show buttons when hovering over project title
    */
-  const hoverOnProject = (project_id) => {
+  const hoverOnProject = (project_id, project_title) => {
     setHoverRowId(project_id);
+    setHoverRowIdPersistent(project_id);
+    setHoverRowTitle(project_title);
   };
 
   const hoverOffProject = () => {
@@ -269,7 +275,9 @@ const ProjectTable = (props) => {
                       role="checkbox"
                       tabIndex={-1}
                       key={row.id}
-                      onMouseEnter={() => hoverOnProject(row.id)}
+                      onMouseEnter={() =>
+                        hoverOnProject(row["id"], row["name"])
+                      }
                       onMouseLeave={() => hoverOffProject()}
                     >
                       <TableCell sx={{ display: "flex" }}>
@@ -300,6 +308,7 @@ const ProjectTable = (props) => {
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
                               onClickProjectReview={onClickProjectReview}
+                              toggleDeleteDialog={toggleDeleteDialog}
                             />
                           )}
                         </Box>
@@ -379,6 +388,12 @@ const ProjectTable = (props) => {
           onRowsPerPageChange={setRowsPerPage}
         />
       )}
+      <ProjectDeleteDialog
+        onDeleteDialog={onDeleteDialog}
+        toggleDeleteDialog={toggleDeleteDialog}
+        projectTitle={hoverRowTitle}
+        project_id={hoverRowIdPersistent}
+      />
     </StyledPaper>
   );
 };

@@ -67,7 +67,14 @@ export default function TableRowButton(props) {
             onClose={handleCloseRowMenu}
           >
             <MenuItem>Edit details</MenuItem>
-            <MenuItem>Delete forever</MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleCloseRowMenu();
+                props.toggleDeleteDialog();
+              }}
+            >
+              Delete forever
+            </MenuItem>
           </Menu>
         </div>
       </Stack>

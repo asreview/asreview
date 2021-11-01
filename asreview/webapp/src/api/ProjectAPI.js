@@ -442,8 +442,8 @@ class ProjectAPI {
     });
   }
 
-  static delete(project_id) {
-    const url = api_url + `project/${project_id}/delete`;
+  static mutateDeleteProject(variables) {
+    const url = api_url + `project/${variables.project_id}/delete`;
     return new Promise((resolve, reject) => {
       axios
         .delete(url)
