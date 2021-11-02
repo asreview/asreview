@@ -107,7 +107,7 @@ def read_ris(fp):
         # Strip Zotero XHTML <p> tags on "notes"
         df["notes"] = df["notes"].apply(_strip_zotero_p_tags)
         # Split "included" from "notes"
-        df[["included","notes"
+        df[["included", "notes"
             ]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(),
                                   columns=["included", "notes"])
         # Return the standardised dataframe with label and notes separated
