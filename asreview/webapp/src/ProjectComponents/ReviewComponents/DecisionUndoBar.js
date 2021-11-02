@@ -53,6 +53,7 @@ const DecisionUndoBar = (props) => {
           <div>
             <Button
               className={classes.undoButton}
+              disabled={props.disableDecisionButton()}
               size="small"
               onClick={handleUndo}
             >

@@ -64,6 +64,22 @@ class ProjectAPI {
     });
   }
 
+  static fetchInfo({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/info`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  // TODO{Terry}: deprecating
   static info(project_id, edit = false, data = null) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
