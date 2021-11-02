@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
 
 const PREFIX = "RecordCard";
@@ -34,13 +35,13 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  marginTop: 40,
-  marginBottom: 40,
-  height: "50%",
+  paddingTop: 40,
+  paddingBottom: 40,
   width: "100%",
+  height: "calc(100% - 88px)",
   [theme.breakpoints.down("md")]: {
-    marginTop: 0,
-    marginBottom: 24,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   [`& .${classes.loadedCard}`]: {
     borderRadius: 16,
@@ -115,18 +116,30 @@ const RecordCard = (props) => {
 
   return (
     <Root aria-label="record card">
-      {!props.activeRecord && (
-        <Card className={clsx(classes.loadedCard, classes.loadingCard)}>
+      {!props.isError && !props.activeRecord && (
+        <Card
+          elevation={2}
+          className={clsx(classes.loadedCard, classes.loadingCard)}
+        >
           <CardContent aria-label="record loading">
             <CircularProgress />
           </CardContent>
+        </Card>
+      )}
+      {props.isError && (
+        <Card
+          elevation={2}
+          className={clsx(classes.loadedCard, classes.loadingCard)}
+          aria-label="record loaded failure"
+        >
+          <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
         </Card>
       )}
       {props.activeRecord && (
         <Card
           elevation={2}
           className={classes.loadedCard}
-          aria-label="record card"
+          aria-label="record loaded"
         >
           {/* Previous decision alert */}
           {isDebugInclusion() && (
