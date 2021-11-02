@@ -22,7 +22,6 @@ import {
 } from "../PreReviewComponents";
 
 import ErrorHandler from "../ErrorHandler";
-import DangerZone from "../DangerZone.js";
 import PublicationZone from "../PublicationZone.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
@@ -410,10 +409,6 @@ const ProjectPageOLD = (props) => {
                   toggleExportResult={props.toggleExportResult}
                   reviewFinished={state.finished}
                   finishProject={finishProject}
-                />
-                <DangerZone
-                  project_id={props.project_id}
-                  handleAppState={props.handleAppState}
                 />
               </Box>
             )}

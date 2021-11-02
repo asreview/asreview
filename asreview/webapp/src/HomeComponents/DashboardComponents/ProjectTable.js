@@ -18,8 +18,10 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { ProjectDeleteDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
+import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
 import { mapStateToProps, mapDispatchToProps } from "../../globals";
@@ -33,9 +35,11 @@ const classes = {
   chipSetup: `${PREFIX}-chipSetup`,
   chipInReview: `${PREFIX}-chipInReview`,
   chipFinished: `${PREFIX}-chipFinished`,
-  circularProgress: `${PREFIX}-circularProgress`,
-  noProject: `${PREFIX}-noProject`,
+  converting: `${PREFIX}-converting`,
   img: `${PREFIX}-img`,
+  title: `${PREFIX}-title`,
+  titleWrapper: `${PREFIX}-title-wrapper`,
+  loadingProjects: `${PREFIX}-loading-projects`,
 };
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -70,20 +74,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     fontWeight: 500,
   },
 
-  [`& .${classes.circularProgress}`]: {
+  [`& .${classes.converting}`]: {
     display: "flex",
     alignItems: "center",
-  },
-
-  [`&. ${classes.noProject}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    justifyContent: "center",
-    "& > *": {
-      margin: theme.spacing(1),
-    },
   },
 
   [`& .${classes.img}`]: {
@@ -91,6 +84,29 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     marginTop: 8,
     marginBottom: 64,
     marginLeft: 100,
+  },
+
+  [`& .${classes.title}`]: {
+    cursor: "pointer",
+    display: "-webkit-box",
+    letterSpacing: "0.25px",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 1,
+    whiteSpace: "pre-line",
+    overflow: "hidden",
+  },
+
+  [`& .${classes.titleWrapper}`]: {
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+  },
+
+  [`& .${classes.loadingProjects}`]: {
+    display: "flex",
+    justifyContent: "center",
+    paddingTop: 64,
+    paddingBottom: 248,
   },
 }));
 
@@ -103,27 +119,34 @@ const columns = [
 
 const ProjectTable = (props) => {
   const [page, setPage] = useState(0);
+  const [hoverRowId, setHoverRowId] = useState(null);
+  const [hoverRowIdPersistent, setHoverRowIdPersistent] = useState(null);
+  const [hoverRowTitle, setHoverRowTitle] = useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+  const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
   /**
    * Fetch projects
    */
-  const { data, isFetched } = useQuery(
-    "fetchProjects",
-    ProjectAPI.fetchProjects,
-    { refetchOnWindowFocus: false }
-  );
+  const {
+    data,
+    isFetched,
+    isLoading: isLoadingProjects,
+    isSuccess,
+  } = useQuery("fetchProjects", ProjectAPI.fetchProjects, {
+    refetchOnWindowFocus: false,
+  });
 
   /**
    * When open a project, convert if old
    */
-  const { isLoading } = useQuery(
+  const { isLoading: isConverting } = useQuery(
     ["fetchConvertProjectIfOld", { project_id: props.project_id }],
     ProjectAPI.fetchConvertProjectIfOld,
     {
       enabled: props.project_id !== null && !props.onCreateProject,
       onError: () => {
-        props.handleAppState("dashboard");
+        props.handleAppState("home");
       },
       onSuccess: () => {
         props.handleAppState("project-page");
@@ -132,15 +155,22 @@ const ProjectTable = (props) => {
     }
   );
 
-  const handlePage = (event, newPage) => {
-    setPage(newPage);
+  /**
+   * Show buttons when hovering over project title
+   */
+  const hoverOnProject = (project_id, project_title) => {
+    setHoverRowId(project_id);
+    setHoverRowIdPersistent(project_id);
+    setHoverRowTitle(project_title);
   };
 
-  const setRowsPerPage = (event) => {
-    handleRowsPerPage(+event.target.value);
-    setPage(0);
+  const hoverOffProject = () => {
+    setHoverRowId(null);
   };
 
+  /**
+   * Format date and mode
+   */
   const formatDate = (datetime) => {
     let date = new Date(datetime);
     let dateString = date.toDateString().slice(4);
@@ -149,7 +179,7 @@ const ProjectTable = (props) => {
     return dateDisplay;
   };
 
-  const formMode = (mode) => {
+  const formatMode = (mode) => {
     if (mode === "oracle") {
       return "Oracle";
     }
@@ -159,6 +189,45 @@ const ProjectTable = (props) => {
     if (mode === "simulate") {
       return "Simulation";
     }
+  };
+
+  /**
+   * Return status label and style
+   */
+  const statusLabel = (row) => {
+    if (row["projectInitReady"]) {
+      if (row["reviewFinished"]) {
+        return "Finished";
+      } else {
+        return "In Review";
+      }
+    } else {
+      return "Setup";
+    }
+  };
+
+  const statusStyle = (row) => {
+    if (row["projectInitReady"]) {
+      if (row["reviewFinished"]) {
+        return classes.chipFinished;
+      } else {
+        return classes.chipInReview;
+      }
+    } else {
+      return classes.chipSetup;
+    }
+  };
+
+  /**
+   * Table pagination & rows per page setting
+   */
+  const handlePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const setRowsPerPage = (event) => {
+    handleRowsPerPage(+event.target.value);
+    setPage(0);
   };
 
   return (
@@ -175,41 +244,88 @@ const ProjectTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isFetched &&
+            {!isLoadingProjects &&
+              isFetched &&
+              isSuccess &&
               data
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
-                  const openExistingProject = () => {
-                    console.log("Opening existing project " + row.id);
+                  const showAnalyticsButton = () => {
+                    return row["projectInitReady"];
+                  };
 
-                    // set the state in the redux store
+                  const showReviewButton = () => {
+                    return row["projectInitReady"] && !row["reviewFinished"];
+                  };
+
+                  const onClickProjectAnalytics = () => {
+                    console.log("Opening existing project " + row.id);
                     props.setProjectId(row.id);
                     props.handleNavState("analytics");
                   };
+
+                  const onClickProjectReview = () => {
+                    console.log("Opening existing project " + row.id);
+                    props.setProjectId(row.id);
+                    props.handleNavState("review");
+                  };
+
+                  const onClickProjectExport = () => {
+                    console.log("Opening existing project " + row.id);
+                    props.setProjectId(row.id);
+                    props.handleNavState("export");
+                  };
+
+                  const onClickProjectDetails = () => {
+                    console.log("Opening existing project " + row.id);
+                    props.setProjectId(row.id);
+                    props.handleNavState("details");
+                  };
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                      <TableCell>
-                        <div className={classes.circularProgress}>
-                          {isLoading && row.id === props.project_id && (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.id}
+                      onMouseEnter={() =>
+                        hoverOnProject(row["id"], row["name"])
+                      }
+                      onMouseLeave={() => hoverOffProject()}
+                    >
+                      <TableCell sx={{ display: "flex" }}>
+                        <Box className={classes.converting}>
+                          {isConverting && row.id === props.project_id && (
                             <CircularProgress
                               size="1rem"
                               thickness={5}
                               sx={{ marginRight: "8px" }}
                             />
                           )}
-                          <Box
-                            onClick={isLoading ? null : openExistingProject}
-                            style={{ cursor: "pointer" }}
+                        </Box>
+                        <Box className={classes.titleWrapper}>
+                          <Typography
+                            onClick={
+                              isConverting ? null : onClickProjectAnalytics
+                            }
+                            className={classes.title}
+                            variant="subtitle1"
                           >
-                            <Typography
-                              className={classes.tableCell}
-                              variant="subtitle1"
-                              noWrap
-                            >
-                              {row["name"]}
-                            </Typography>
-                          </Box>
-                        </div>
+                            {row["name"]}
+                          </Typography>
+                          <Box sx={{ flex: 1 }}></Box>
+                          {hoverRowId === row.id && (
+                            <TableRowButton
+                              isConverting={isConverting}
+                              showAnalyticsButton={showAnalyticsButton}
+                              showReviewButton={showReviewButton}
+                              onClickProjectAnalytics={onClickProjectAnalytics}
+                              onClickProjectReview={onClickProjectReview}
+                              onClickProjectExport={onClickProjectExport}
+                              onClickProjectDetails={onClickProjectDetails}
+                              toggleDeleteDialog={toggleDeleteDialog}
+                            />
+                          )}
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Typography
@@ -228,26 +344,14 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["mode"] ? formMode(row["mode"]) : "N/A"}
+                          {row["mode"] ? formatMode(row["mode"]) : "N/A"}
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
                         <Chip
                           size="small"
-                          className={
-                            row["projectInitReady"]
-                              ? row["reviewFinished"]
-                                ? classes.chipFinished
-                                : classes.chipInReview
-                              : classes.chipSetup
-                          }
-                          label={
-                            row["projectInitReady"]
-                              ? row["reviewFinished"]
-                                ? "Finished"
-                                : "In Review"
-                              : "Setup"
-                          }
+                          className={statusStyle(row)}
+                          label={statusLabel(row)}
                         />
                       </TableCell>
                     </TableRow>
@@ -255,7 +359,12 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {isFetched && data.length === 0 && (
+        {isLoadingProjects && (
+          <Box className={classes.loadingProjects}>
+            <CircularProgress />
+          </Box>
+        )}
+        {!isLoadingProjects && isFetched && isSuccess && data?.length === 0 && (
           <Box
             sx={{
               alignItems: "center",
@@ -281,11 +390,11 @@ const ProjectTable = (props) => {
           </Box>
         )}
       </TableContainer>
-      {isFetched && data.length !== 0 && (
+      {!isLoadingProjects && isFetched && isSuccess && data?.length !== 0 && (
         <TablePagination
           rowsPerPageOptions={[5, 10, 15]}
           component="div"
-          count={data.length}
+          count={data?.length}
           rowsPerPage={rowsPerPage}
           labelRowsPerPage="Projects per page:"
           page={page}
@@ -293,6 +402,12 @@ const ProjectTable = (props) => {
           onRowsPerPageChange={setRowsPerPage}
         />
       )}
+      <ProjectDeleteDialog
+        onDeleteDialog={onDeleteDialog}
+        toggleDeleteDialog={toggleDeleteDialog}
+        projectTitle={hoverRowTitle}
+        project_id={hoverRowIdPersistent}
+      />
     </StyledPaper>
   );
 };
