@@ -57,19 +57,19 @@ def write_ris(df, fp):
 
         # Check the "authors" - AU
         try:
-            rec_copy["authors"] = rec_copy["authors"]
+            rec_copy["authors"] = eval(rec_copy["authors"])
         except Exception:
             rec_copy["authors"] = []
 
         # Check the "keywords" - KW
         try:
-            rec_copy["keywords"] = rec_copy["keywords"]
+            rec_copy["keywords"] = eval(rec_copy["keywords"])
         except Exception:
             rec_copy["keywords"] = []
 
         # Check the "notes" - N1
         try:
-            rec_copy["notes"] = rec_copy["notes"]
+            rec_copy["notes"] = eval(rec_copy["notes"])
         except Exception:
             rec_copy["notes"] = []
 
