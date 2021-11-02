@@ -45,7 +45,9 @@ def _label_parser(note_list):
 
     # Create lists of lists for ASReview references
     asreview_refs = [re.findall(regex, note) for note in note_list]
-    asreview_refs_list = [item for sublist in asreview_refs for item in sublist]
+    asreview_refs_list = [
+        item for sublist in asreview_refs for item in sublist
+    ]
 
     if len(asreview_refs_list) > 0:
         # Create lists of lists for notes without references
@@ -105,7 +107,9 @@ def read_ris(fp):
         # Strip Zotero XHTML <p> tags on "notes"
         df["notes"] = df["notes"].apply(_strip_zotero_p_tags)
         # Split "included" from "notes"
-        df[["included","notes"]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(), columns=["included","notes"])
+        df[["included","notes"
+            ]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(),
+                                  columns=["included", "notes"])
         # Return the standardised dataframe with label and notes separated
         return standardize_dataframe(df)
     else:
