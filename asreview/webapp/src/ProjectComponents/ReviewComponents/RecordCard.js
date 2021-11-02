@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
 
 const PREFIX = "RecordCard";
@@ -115,11 +116,23 @@ const RecordCard = (props) => {
 
   return (
     <Root aria-label="record card">
-      {!props.activeRecord && (
-        <Card className={clsx(classes.loadedCard, classes.loadingCard)}>
+      {!props.isError && !props.activeRecord && (
+        <Card
+          elevation={2}
+          className={clsx(classes.loadedCard, classes.loadingCard)}
+        >
           <CardContent aria-label="record loading">
             <CircularProgress />
           </CardContent>
+        </Card>
+      )}
+      {props.isError && (
+        <Card
+          elevation={2}
+          className={clsx(classes.loadedCard, classes.loadingCard)}
+          aria-label="record loaded failure"
+        >
+          <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
         </Card>
       )}
       {props.activeRecord && (
