@@ -61,6 +61,8 @@ class ASReviewData():
         Returns an array with dataset bodies.
     abstract: numpy.ndarray
         Identical to bodies.
+    notes: numpy.ndarray
+        Returns an array with dataset notes.
     keywords: numpy.ndarray
         Returns an array with dataset keywords.
     authors: numpy.ndarray
@@ -102,6 +104,9 @@ class ASReviewData():
 
         if "included" not in self.column_spec:
             self.column_spec["included"] = "included"
+        
+        if "notes" not in self.column_spec:
+            self.column_spec["notes"] = "notes"
 
         if data_type == "included":
             self.labels = np.ones(len(self), dtype=int)
@@ -310,6 +315,13 @@ class ASReviewData():
     def abstract(self):
         try:
             return self.df[self.column_spec["abstract"]].values
+        except KeyError:
+            return None
+
+    @property
+    def notes(self):
+        try:
+            return self.df[self.column_spec["notes"]].values
         except KeyError:
             return None
 
