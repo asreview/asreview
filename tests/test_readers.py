@@ -100,27 +100,27 @@ def test_nan_values_ris():
     fp = Path("tests", "demo_data", "baseline_empty_values.ris")
     as_data = ASReviewData.from_file(fp)
 
-    # Check empty titles
+    # Check missing titles
     assert as_data.record(1, by_index=True).title == ""
     assert as_data.record(3, by_index=True).title == ""
 
-    # Check empty abstracts
+    # Check missing abstracts
     assert as_data.record(0, by_index=True).abstract == ""
     assert as_data.record(2, by_index=True).abstract == ""
 
-    # Check empty authors
+    # Check missing authors
     assert as_data.record(0, by_index=True).authors is None
     assert as_data.record(2, by_index=True).authors is None
 
-    # Check empty keywords
+    # Check missing keywords
     assert as_data.record(0, by_index=True).keywords is None
     assert as_data.record(2, by_index=True).keywords is None
 
-    # Check empty notes
+    # Check missing notes
     assert as_data.record(0, by_index=True).notes is None
     assert as_data.record(2, by_index=True).notes is None
 
-    # check empty doi
+    # check missing doi
     assert as_data.record(0, by_index=True).doi is None
     assert as_data.record(2, by_index=True).doi is None
 
@@ -130,23 +130,23 @@ def test_nan_values_csv():
     fp = Path("tests", "demo_data", "missing_values.csv")
     as_data = ASReviewData.from_file(fp)
 
-    # Check empty titles
+    # Check missing titles
     assert as_data.record(1, by_index=True).title == ""
     assert as_data.record(3, by_index=True).title == ""
 
-    # Check empty abstracts
+    # Check missing abstracts
     assert as_data.record(0, by_index=True).abstract == ""
     assert as_data.record(2, by_index=True).abstract == ""
 
-    # Check empty authors
+    # Check missing authors
     assert as_data.record(0, by_index=True).authors is None
     assert as_data.record(2, by_index=True).authors is None
 
-    # Check empty keywords
+    # Check missing keywords
     assert as_data.record(0, by_index=True).keywords is None
     assert as_data.record(2, by_index=True).keywords is None
 
-    # Check empty doi
+    # Check missing doi
     assert as_data.record(0, by_index=True).doi is None
     assert as_data.record(2, by_index=True).doi is None
 

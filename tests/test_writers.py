@@ -18,9 +18,6 @@ def test_asreview_labels_ris(test_file, tmpdir):
     assert list(asr_data.title) == list(asr_data_diff.title)
     assert list(asr_data.labels) == list(asr_data_diff.labels)
 
-    # Break for debugging
-    # assert False
-
 
 @mark.parametrize("test_file", [("baseline_tag-notes_labels.ris")])
 def test_asreview_notes_ris(test_file, tmpdir):
@@ -34,11 +31,7 @@ def test_asreview_notes_ris(test_file, tmpdir):
 
     # Check if input file matches the export file
     assert list(asr_data.title) == list(asr_data_diff.title)
-    print(asr_data.column_spec)
-    # assert list(asr_data.notes) == list(asr_data_diff.notes)
-
-    # Break for debugging
-    assert False
+    assert list(asr_data.notes) == list(asr_data_diff.notes)
 
 
 def test_write_numpy_arrays():
