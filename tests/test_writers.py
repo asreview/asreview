@@ -19,7 +19,7 @@ def test_asreview_labels_ris(test_file, tmpdir):
     assert list(asr_data.labels) == list(asr_data_diff.labels)
 
 
-@mark.parametrize("test_file", [("baseline_tag-notes_labels.ris")])
+@mark.parametrize("test_file", [("baseline_tag-notes.ris")])
 def test_asreview_notes_ris(test_file, tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     asr_data = ASReviewData.from_file(fp_in)
