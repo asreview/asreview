@@ -69,7 +69,7 @@ def write_ris(df, fp):
 
         # Check the "notes" - N1
         try:
-            rec_copy["notes"] = eval(rec_copy["notes"])
+            rec_copy["notes"] = eval(str(rec_copy["notes"]))
         except Exception:
             rec_copy["notes"] = []
 
