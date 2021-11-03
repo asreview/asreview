@@ -8,13 +8,13 @@ from asreview import ASReviewData
 
 
 @mark.parametrize("test_file,n_lines,ignore_col",
-                  [("_baseline.ris", 100, []), ("embase.csv", 6, ["keywords"]),
+                  [("_baseline.ris", 100, []),
+                   ("embase.csv", 6, ["keywords"]),
                    ("embase_newpage.csv", 6, ["keywords"]),
                    ("embase.ris", 6, []), ("generic.csv", 2, []),
                    ("generic_semicolon.csv", 2, []),
                    ("generic_tab.csv", 2, []), ("generic_tab.tab", 2, []),
                    ("generic_tab.tsv", 2, []), ("generic_labels.csv", 6, []),
-                   ("generic.ris", 2, []), ("generic_labels.ris", 2, []),
                    ("pubmed_zotero.ris", 6, []), ("pubmed_endnote.txt", 6, []),
                    ("scopus.ris", 6, []), ("ovid_zotero.ris", 6, []),
                    ("proquest.ris", 6, [])])
