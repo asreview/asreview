@@ -40,8 +40,9 @@ def _label_parser(note_list):
     regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen"
 
     # Check whether note_list is actually a list and not NaN
+    # Return -1 and an empty list
     if not isinstance(note_list, list):
-        return -1, None
+        return -1, []
 
     # Create lists of lists for ASReview references
     asreview_refs = [re.findall(regex, note) for note in note_list]
