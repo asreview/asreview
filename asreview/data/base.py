@@ -104,7 +104,7 @@ class ASReviewData():
 
         if "included" not in self.column_spec:
             self.column_spec["included"] = "included"
-        
+
         if "notes" not in self.column_spec:
             self.column_spec["notes"] = "notes"
 
