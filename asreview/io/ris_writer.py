@@ -82,6 +82,8 @@ def write_ris(df, fp):
             elif "included" in rec_copy and rec_copy["included"] == 0:
                 rec_copy["notes"].append("ASReview_irrelevant")
             # Not seen records
+            elif "included" in rec_copy and rec_copy["included"] == -1:
+                rec_copy["notes"].append("ASReview_not_seen")
             else:
                 rec_copy["notes"].append("ASReview_not_seen")
 
