@@ -21,8 +21,21 @@ import rispy
 from asreview.io.utils import standardize_dataframe
 
 
-# Converter function for removing the XHTML <p></p> tags from Zotero export
 def _strip_zotero_p_tags(note_list):
+    """Converter function for removing the XHTML <p></p> tags from Zotero export.
+
+    Parameters
+    ----------
+    note_list: list
+        A list of notes, coming from the Dataframe's "notes" column.
+
+    Returns
+    -------
+    new_notes: list
+        A list of updated notes, where XHTML <p></p> tags have been stripped.
+    note_list: list
+        The original note_list, when no XHTML <p></p> tags have been found.
+    """
     if isinstance(note_list, list):
         new_notes = []
         for v in note_list:
@@ -35,8 +48,23 @@ def _strip_zotero_p_tags(note_list):
         return note_list
 
 
-# Converter function for manipulating the internal "included" and "notes" columns
 def _label_parser(note_list):
+    """Converter function for manipulating the internal "included" and "notes" columns.
+
+    Parameters
+    ----------
+    note_list: list
+        A list of notes, coming from the Dataframe's "notes" column.
+
+    Returns
+    -------
+    asreview_new_notes: list
+        A list of updated notes, where internal label has been added.
+    note_list: list
+        The original note_list, when no labels have been found.
+    1,0,-1: int
+        Labels in case they are still needed from the internal representation.
+    """
     regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen"
 
     # Check whether note_list is actually a list and not NaN
