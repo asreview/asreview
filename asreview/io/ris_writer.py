@@ -98,5 +98,5 @@ def write_ris(df, fp):
     # From IO dataframe
     else:
         # Write the whole content to a file
-        with open(fp, "w") as fp:
+        with open(fp, "w", encoding="utf8") as fp:
             rispy.dump(records_new, fp)
