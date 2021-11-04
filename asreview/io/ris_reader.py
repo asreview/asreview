@@ -82,7 +82,9 @@ def _label_parser(note_list):
         # Create lists of lists for notes without references
         asreview_new_notes = [re.sub(regex, "", note) for note in note_list]
         # Remove empty elements from list
-        asreview_new_notes[:] = [item for item in asreview_new_notes if item != ""]
+        asreview_new_notes[:] = [
+            item for item in asreview_new_notes if item != ""
+        ]
         label = asreview_refs_list[-1]
 
         # Check for the label and return proper values for internal representation
