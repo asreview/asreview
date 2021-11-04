@@ -463,6 +463,7 @@ class SqlStateV1(BaseState):
 
         con = self._connect_to_sql()
         cur = con.cursor()
+        cur.execute("DELETE FROM record_table")
         cur.executemany(
             """INSERT INTO record_table VALUES
                                             (?)""", record_sql_input)
@@ -516,6 +517,7 @@ class SqlStateV1(BaseState):
 
         con = self._connect_to_sql()
         cur = con.cursor()
+        cur.execute("DELETE FROM last_ranking")
         cur.executemany(
             """INSERT INTO last_ranking VALUES
                                     (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
@@ -654,6 +656,22 @@ class SqlStateV1(BaseState):
             (record_id, new_label, current_time)
         )
 
+        con.commit()
+        con.close()
+
+    def delete_record_labeling_data(self, record_id):
+        """Delete the labeling data for the given record id."""
+        current_time = datetime.now()
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute('DELETE FROM results WHERE record_id=?"', (record_id,))
+
+        # Add the change to the decision changes table.
+        cur.execute(
+            "INSERT INTO decision_changes VALUES (?,?, ?)",
+            (record_id, None, current_time)
+        )
         con.commit()
         con.close()
 
@@ -907,7 +925,7 @@ class SqlStateV1(BaseState):
         pd.Series:
             Series containing the labels at each labelling moment.
         """
-        return self.get_dataset('label')['label']
+        return self.get_dataset('label')['label'].dropna()
 
     def get_classifiers(self):
         """Get the classifiers from the state file.
@@ -978,7 +996,7 @@ class SqlStateV1(BaseState):
             If format='int' you get a UTC timestamp (integer number of
             microseconds), if it is 'datetime' you get datetime format.
         """
-        times = self.get_dataset('labeling_time')['labeling_time']
+        times = self.get_dataset('labeling_time')['labeling_time'].dropna()
 
         # Convert time to datetime format.
         if time_format == 'datetime':

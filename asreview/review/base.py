@@ -3,6 +3,7 @@ from abc import abstractmethod
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from asreview.models.balance.simple import SimpleBalance
 from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
@@ -84,14 +85,20 @@ class BaseReview(ABC):
         self.prior_indices = start_idx
 
         # Get the known labels.
-        self.y = as_data.labels
-        if self.y is None:
-            self.y = np.full(len(as_data), LABEL_NA)
+        self.data_labels = as_data.labels
+        if self.data_labels is None:
+            self.data_labels = np.full(len(as_data), LABEL_NA)
 
         with open_state(self.state_fp, read_only=False) as state:
             # If the state is empty, add the settings.
             if state.is_empty():
                 state.settings = self.settings
+
+            # Add the record table to the state if it is not already there.
+            self.record_table = state.get_record_table()
+            if self.record_table.empty:
+                state.add_record_table(as_data.record_ids)
+                self.record_table = state.get_record_table()
 
             # Retrieve feature matrix from the state file or create
             # one from scratch.
@@ -104,12 +111,11 @@ class BaseReview(ABC):
                     as_data.bodies,
                     as_data.keywords
                 )
-                state.add_record_table(as_data.record_ids)
                 state.add_feature_matrix(self.X)
 
             # Check if the number or records in the feature matrix matches the
             # length of the dataset.
-            if self.X.shape[0] != len(self.y):
+            if self.X.shape[0] != len(self.data_labels):
                 raise ValueError("The state file does not correspond to the "
                                  "given data file, please use another state "
                                  "file or dataset.")
@@ -187,7 +193,7 @@ class BaseReview(ABC):
 
         # If n_queries is set to min, stop when all papers in the pool are
         # irrelevant.
-        if self.n_queries == 'min' and (self.y[pool] == 0).all():
+        if self.n_queries == 'min' and (self.data_labels[pool] == 0).all():
             stop = True
         # Otherwise, stop when reaching n_queries (if provided)
         elif self.n_queries is not None:
@@ -229,7 +235,7 @@ class BaseReview(ABC):
         prior: bool
             Whether the records priors or not.
         """
-        labels = self.y[record_ids]
+        labels = self.data_labels[record_ids]
         with open_state(self.state_fp, read_only=False) as s:
             s.add_labeling_data(record_ids, labels, prior=prior)
 
@@ -244,13 +250,19 @@ class BaseReview(ABC):
                 raise ValueError('Not both labels available. '
                                  'Stopped training the model')
 
+        # TODO: Simplify balance model input.
         # Use the balance model to sample the trainings data.
-            query_strategies = state.get_query_strategies()
+        y_sample_input = pd.DataFrame(self.record_table).\
+            merge(labeled, how='left', on='record_id').\
+            loc[:, 'label'].\
+            fillna(LABEL_NA).\
+            to_numpy()
+        train_idx = np.where(y_sample_input != LABEL_NA)[0]
 
         X_train, y_train = self.balance_model.sample(
             self.X,
-            self.y,
-            labeled['record_id'].to_numpy()
+            y_sample_input,
+            train_idx
         )
 
         # Fit the classifier on the trainings data.

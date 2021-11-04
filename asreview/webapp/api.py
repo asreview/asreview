@@ -80,7 +80,7 @@ from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
-from asreview.webapp.utils.project import move_label_from_labeled_to_pool
+from asreview.webapp.utils.project import update_instance
 from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import update_review_in_project
 from asreview.webapp.utils.project_path import get_project_path
@@ -517,6 +517,8 @@ def api_search_data(project_id):  # noqa: F401
     return response
 
 
+# TODO: Have only one labeling function and one update function. (Update the
+#  routes in the frontend.)
 @bp.route('/project/<project_id>/labelitem', methods=["POST"])
 def api_label_item(project_id):  # noqa: F401
     """Label item
@@ -635,19 +637,15 @@ def api_get_labeled_stats(project_id):  # noqa: F401
 
         with open_state(project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
-
-        data_prior = data[data["query_strategy"] == "prior"].copy()
-
-        counter_prior = Counter([x for x in data_prior["label"].tolist()])
-        counter = Counter([x for x in data["label"].tolist()])
+            data_prior = data[data["query_strategy"] == "prior"]
 
         response = jsonify({
             "n": len(data),
-            "n_inclusions": counter[1],
-            "n_exclusions": counter[0],
+            "n_inclusions": sum(data['label'] == 1),
+            "n_exclusions": sum(data['label'] == 0),
             "n_prior": len(data_prior),
-            "n_prior_inclusions": counter_prior[1],
-            "n_prior_exclusions": counter_prior[0]
+            "n_prior_inclusions": sum(data_prior['label'] == 1),
+            "n_prior_exclusions": sum(data_prior['label'] == 0)
         })
     except StateNotFoundError:
         response = jsonify({
@@ -898,22 +896,20 @@ def api_init_model_ready(project_id):  # noqa: F401
 
         try:
             with open_state(project_path) as state:
-                proba = state.get_last_probabilities()
-            if not proba.empty:
+                if state.model_has_trained:
+                    # read the file with project info
+                    with open(get_project_file_path(project_path), "r") as fp:
+                        project_info = json.load(fp)
 
-                # read the file with project info
-                with open(get_project_file_path(project_path), "r") as fp:
-                    project_info = json.load(fp)
+                    project_info["projectInitReady"] = True
 
-                project_info["projectInitReady"] = True
+                    # update the file with project info
+                    with open(get_project_file_path(project_path), "w") as fp:
+                        json.dump(project_info, fp)
 
-                # update the file with project info
-                with open(get_project_file_path(project_path), "w") as fp:
-                    json.dump(project_info, fp)
-
-                response = jsonify({'status': 1})
-            else:
-                response = jsonify({'status': 0})
+                    response = jsonify({'status': 1})
+                else:
+                    response = jsonify({'status': 0})
 
         except Exception as err:
             logging.error(err)
@@ -923,7 +919,6 @@ def api_init_model_ready(project_id):  # noqa: F401
     return response
 
 
-# TODO(State): Does this delete everything in the project?
 # TODO{Terry}: This may be deprecated when the new state file is in use.
 # @bp.route('/project/<project_id>/model/clear_error', methods=["DELETE"])
 # def api_clear_model_error(project_id):
@@ -1226,8 +1221,7 @@ def api_update_classify_instance(project_id, doc_id):
     doc_id = request.form['doc_id']
     label = request.form['label']
 
-    move_label_from_labeled_to_pool(project_id, doc_id)
-    label_instance(project_id, doc_id, label, retrain_model=True)
+    update_instance(project_id, doc_id, label, retrain_model=True)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1244,9 +1238,9 @@ def api_get_document(project_id):  # noqa: F401
     Although it might be better to call this function after 20 requests on the
     client side.
     """
-    new_instance = get_instance(project_id)
-
     try:
+        new_instance = get_instance(project_id)
+
         if new_instance is None:  # don't use 'if not new_instance:'
 
             item = None

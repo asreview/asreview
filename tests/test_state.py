@@ -383,9 +383,7 @@ def test_add_labeling_data(tmpdir):
         state.add_labeling_data([2], [1])
         labels = state.get_labels()
         assert labels.to_list()[:6] == TEST_LABELS[:6]
-        assert np.isnan(labels[6])
         assert labels[7] == 1
-        assert np.isnan(labels[8])
 
         state.add_labeling_data([1, 3], [0, 1], notes=['note1', 'note3'])
         data = state.get_dataset()
