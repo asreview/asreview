@@ -1,4 +1,4 @@
-import { axiosErrorHandler } from "./index.js";
+import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "../globals.js";
 import axios from "axios";
 
@@ -317,25 +317,86 @@ class ProjectAPI {
     });
   }
 
-  static export_results(project_id, exportFileType) {
-    const exportUrl =
-      api_url + `project/${project_id}/export?file_type=${exportFileType}`;
-    setTimeout(() => {
-      const response = {
-        file: exportUrl,
-      };
-      window.location.href = response.file;
-    }, 100);
+  static fetchExportDataset({ queryKey }) {
+    const { project_id, fileFormat } = queryKey[1];
+    const url =
+      api_url + `project/${project_id}/export?file_type=${fileFormat}`;
+    return new Promise((resolve, reject) => {
+      axios({
+        url: url,
+        method: "get",
+        responseType: "blob",
+      })
+        .then((result) => {
+          const url = window.URL.createObjectURL(new Blob([result.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute(
+            "download",
+            `asreview_result_${project_id}.${fileFormat}`
+          );
+          document.body.appendChild(link);
+          link.click();
+          resolve(result);
+        })
+        .catch((error) => {
+          if (
+            error.request.responseType === "blob" &&
+            error.response.data instanceof Blob &&
+            error.response.data.type &&
+            error.response.data.type.toLowerCase().indexOf("json") !== -1
+          ) {
+            let reader = new FileReader();
+            reader.onload = () => {
+              error.response.data = JSON.parse(reader.result);
+              resolve(Promise.reject(axiosErrorHandler(error)));
+            };
+            reader.onerror = () => {
+              reject(axiosErrorHandler(error));
+            };
+            reader.readAsText(error.response.data);
+          }
+        });
+    });
   }
 
-  static export_project(project_id) {
-    const exportUrl = api_url + `project/${project_id}/export_project`;
-    setTimeout(() => {
-      const response = {
-        file: exportUrl,
-      };
-      window.location.href = response.file;
-    }, 100);
+  static fetchExportProject({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/export_project`;
+    return new Promise((resolve, reject) => {
+      axios({
+        url: url,
+        method: "get",
+        responseType: "blob",
+      })
+        .then((result) => {
+          const url = window.URL.createObjectURL(new Blob([result.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `${project_id}.asreview`);
+          document.body.appendChild(link);
+          link.click();
+          resolve(result);
+        })
+        .catch((error) => {
+          if (
+            error.request.responseType === "blob" &&
+            error.response.data instanceof Blob &&
+            error.response.data.type &&
+            error.response.data.type.toLowerCase().indexOf("json") !== -1
+          ) {
+            let reader = new FileReader();
+            reader.onload = () => {
+              error.response.data = JSON.parse(reader.result);
+              resolve(Promise.reject(axiosErrorHandler(error)));
+            };
+            reader.onerror = () => {
+              reject(axiosErrorHandler(error));
+            };
+            reader.readAsText(error.response.data);
+          }
+        });
+    });
   }
 
   static finish(project_id) {

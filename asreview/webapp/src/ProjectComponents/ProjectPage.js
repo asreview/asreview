@@ -8,12 +8,12 @@ import { styled } from "@mui/material/styles";
 import { DialogErrorHandler, NavigationDrawer } from "../Components";
 import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
+import { ExportPage } from "../ProjectComponents/ExportComponents";
 import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
 import { ProjectInfo } from "../PreReviewComponents";
-import PublicationZone from "../PublicationZone.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -167,14 +167,7 @@ const ProjectPage = (props) => {
 
           {/* Export page */}
           {props.nav_state === "export" && (
-            <Box>
-              <PublicationZone
-                project_id={props.project_id}
-                showExportResult={data?.projectInitReady}
-                toggleExportResult={props.toggleExportResult}
-                reviewFinished={data?.reviewFinished}
-              />
-            </Box>
+            <ExportPage enableExportDataset={data?.projectInitReady} />
           )}
 
           {/* Details page */}
