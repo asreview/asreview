@@ -349,7 +349,7 @@ class ProjectAPI {
             let reader = new FileReader();
             reader.onload = () => {
               error.response.data = JSON.parse(reader.result);
-              resolve(Promise.reject(axiosErrorHandler(error)));
+              resolve(reject(axiosErrorHandler(error)));
             };
             reader.onerror = () => {
               reject(axiosErrorHandler(error));
@@ -388,7 +388,7 @@ class ProjectAPI {
             let reader = new FileReader();
             reader.onload = () => {
               error.response.data = JSON.parse(reader.result);
-              resolve(Promise.reject(axiosErrorHandler(error)));
+              resolve(reject(axiosErrorHandler(error)));
             };
             reader.onerror = () => {
               reject(axiosErrorHandler(error));
