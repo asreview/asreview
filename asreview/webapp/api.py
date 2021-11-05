@@ -1074,20 +1074,15 @@ def api_finish_project(project_id):
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress statistics of a project"""
     project_path = get_project_path(project_id)
-    project_file_path = get_project_file_path(project_path)
 
     try:
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
-
         statistics = get_statistics(project_id)
 
     except Exception as err:
         logging.error(err)
         return jsonify(message="Failed to load progress statistics."), 500
 
-    response = jsonify({**project_dict, **statistics})
+    response = jsonify(statistics)
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
