@@ -176,7 +176,7 @@ const DrawerItemContainer = (props) => {
                     variant="body2"
                     color="textSecondary"
                   >
-                    {props.projectInfo ? props.projectInfo.name : null}
+                    {props.projectInfo ? props.projectInfo.name : "Null"}
                   </Typography>
                 </div>
               </Fade>

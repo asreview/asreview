@@ -1,5 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
+import { connect } from "react-redux";
 import {
   EmailIcon,
   TwitterIcon,
@@ -7,7 +8,14 @@ import {
   WeiboIcon,
   WhatsappIcon,
 } from "react-share";
-import { Box, Fade, Grid, SpeedDial, SpeedDialAction } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Fade,
+  Grid,
+  SpeedDial,
+  SpeedDialAction,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
@@ -20,11 +28,13 @@ import {
 } from "../AnalyticsComponents";
 
 import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "AnalyticsPage";
 
 const classes = {
   root: `${PREFIX}-root`,
+  loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -38,6 +48,12 @@ const Root = styled("div")(({ theme }) => ({
       margin: theme.spacing(2),
     },
   },
+
+  [`& .${classes.loading}`]: {
+    display: "flex",
+    justifyContent: "center",
+    padding: 64,
+  },
 }));
 
 const actions = [
@@ -48,7 +64,7 @@ const actions = [
   { icon: <EmailIcon round />, name: "Email" },
 ];
 
-export default function AnalyticsPage(props) {
+const AnalyticsPage = (props) => {
   const progressQuery = useQuery(
     ["fetchProgress", { project_id: props.project_id }],
     ProjectAPI.fetchProgress,
@@ -89,40 +105,57 @@ export default function AnalyticsPage(props) {
     }
   };
 
+  const allQueriesReady = () => {
+    return (
+      !progressQuery.isFetching &&
+      !progressDensityQuery.isFetching &&
+      !progressRecallQuery.isFetching
+    );
+  };
+
   return (
     <Root>
-      <Fade in>
-        <Box className={classes.root}>
-          <Box sx={{ width: "100%", maxWidth: 960 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={5}>
-                <ProgressChart progressQuery={progressQuery} />
-              </Grid>
-              <Grid item xs={12} sm={7}>
-                <NumberCard progressQuery={progressQuery} />
-              </Grid>
-            </Grid>
-          </Box>
-          <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
-          <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
+      {!allQueriesReady() && (
+        <Box className={classes.loading}>
+          <CircularProgress />
         </Box>
-      </Fade>
-      <SpeedDial
-        ariaLabel="share project analytics"
-        sx={{ position: "absolute", bottom: 24, right: 24 }}
-        icon={<Share />}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            onClick={() => {
-              handleShare(action.name);
-            }}
-          />
-        ))}
-      </SpeedDial>
+      )}
+      {allQueriesReady() && (
+        <Fade in={allQueriesReady()}>
+          <Box className={classes.root}>
+            <Box sx={{ width: "100%", maxWidth: 960 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={5}>
+                  <ProgressChart progressQuery={progressQuery} />
+                </Grid>
+                <Grid item xs={12} sm={7}>
+                  <NumberCard progressQuery={progressQuery} />
+                </Grid>
+              </Grid>
+            </Box>
+            <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
+            <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
+          </Box>
+        </Fade>
+      )}
+      {allQueriesReady() && (
+        <SpeedDial
+          ariaLabel="share project analytics"
+          sx={{ position: "absolute", bottom: 24, right: 24 }}
+          icon={<Share />}
+        >
+          {actions.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              onClick={() => {
+                handleShare(action.name);
+              }}
+            />
+          ))}
+        </SpeedDial>
+      )}
       <ShareFabAction
         progressQueryData={progressQuery.data}
         twitterRef={twitterRef}
@@ -133,4 +166,6 @@ export default function AnalyticsPage(props) {
       />
     </Root>
   );
-}
+};
+
+export default connect(mapStateToProps)(AnalyticsPage);

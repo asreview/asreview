@@ -22,6 +22,8 @@ const Root = styled("div")(({ theme }) => ({
     flexShrink: 0,
     width: "100%",
     textAlign: "center",
+    position: "absolute",
+    bottom: 0,
   },
 
   [`&.${classes.rootMobile}`]: {
@@ -41,13 +43,15 @@ const DecisionButton = (props) => {
   let relevantLabel = "Relevant";
   let irrelevantLabel = "Irrelevant";
 
-  if (props.previousSelection === 0) {
-    relevantLabel = "Convert to relevant";
-    irrelevantLabel = "Keep irrelevant";
-  }
-  if (props.previousSelection === 1) {
-    relevantLabel = "Keep relevant";
-    irrelevantLabel = "Convert to irrelevant";
+  if (props.previousRecord.show) {
+    if (props.previousRecord.label === 0) {
+      relevantLabel = "Convert to relevant";
+      irrelevantLabel = "Keep irrelevant";
+    }
+    if (props.previousRecord.label === 1) {
+      relevantLabel = "Keep relevant";
+      irrelevantLabel = "Convert to irrelevant";
+    }
   }
 
   return (
@@ -57,6 +61,7 @@ const DecisionButton = (props) => {
       })}
     >
       <Fab
+        disabled={props.disableDecisionButton()}
         onClick={() => props.makeDecision(0)}
         size={props.mobileScreen ? "small" : "large"}
         variant="extended"
@@ -67,6 +72,7 @@ const DecisionButton = (props) => {
       <Fab
         onClick={() => props.makeDecision(1)}
         color="primary"
+        disabled={props.disableDecisionButton()}
         size={props.mobileScreen ? "small" : "large"}
         variant="extended"
       >
