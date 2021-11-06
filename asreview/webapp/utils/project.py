@@ -30,13 +30,14 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
+from asreview.state.errors import StateError
+from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.utils import init_project_folder_structure
@@ -466,18 +467,22 @@ def get_statistics(project_id):
             n_records = 0
     else:
         # Check if there is a review started in the project.
-        if list(get_reviews_path(project_path).iterdir()):
+        try:
             with open_state(project_path) as s:
                 labels = s.get_labels()
                 n_records = len(s.get_record_table())
-        # No reviews found.
-        else:
+        # No state file found or not init.
+        except (StateNotFoundError, StateError):
             labels = np.array([])
             n_records = 0
 
     n_included = sum(labels == 1)
     n_excluded = sum(labels == 0)
-    n_since_last_relevant = labels.tolist()[::-1].index(1)
+
+    if len(labels) > 0:
+        n_since_last_relevant = labels.tolist()[::-1].index(1)
+    else:
+        n_since_last_relevant = 0
 
     return {
         "n_included": n_included,
