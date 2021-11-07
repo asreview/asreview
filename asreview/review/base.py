@@ -1,14 +1,13 @@
 from abc import ABC
-from abc import abstractmethod
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from asreview.models.balance.simple import SimpleBalance
 from asreview.config import DEFAULT_N_INSTANCES, LABEL_NA
-from asreview.models.feature_extraction.tfidf import Tfidf
+from asreview.models.balance.simple import SimpleBalance
 from asreview.models.classifiers import NaiveBayesClassifier
+from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max import MaxQuery
 from asreview.settings import ASReviewSettings
 from asreview.state.utils import open_state

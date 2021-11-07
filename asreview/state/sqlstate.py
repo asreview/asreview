@@ -47,9 +47,8 @@ REQUIRED_TABLES = [
 ]
 
 RESULTS_TABLE_COLUMNS = [
-    "record_id", "label", "classifier", "query_strategy",
-    "balance_strategy", "feature_extraction", "training_set",
-    "labeling_time", "notes"
+    "record_id", "label", "classifier", "query_strategy", "balance_strategy",
+    "feature_extraction", "training_set", "labeling_time", "notes"
 ]
 SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
 
@@ -420,8 +419,6 @@ class SqlStateV1(BaseState):
         """Return True if there is data of a trained model in the state."""
         return not self.get_last_ranking().empty
 
-# Features, settings_metadata
-
     def _update_project_with_feature_extraction(self, feature_extraction):
         """If the feature extraction method is set, update the project.json."""
         # TODO(State): Should this always be .npz?
@@ -491,9 +488,8 @@ class SqlStateV1(BaseState):
                                             (?)""", proba_sql_input)
         con.commit()
 
-    def add_last_ranking(self, ranking, classifier,
-                         query_strategy, balance_strategy, feature_extraction,
-                         training_set):
+    def add_last_ranking(self, ranking, classifier, query_strategy,
+                         balance_strategy, feature_extraction, training_set):
         """Save the ranking of the last iteration of the model."""
         record_ids = self.get_record_table()
 
@@ -511,8 +507,7 @@ class SqlStateV1(BaseState):
         # Create the database rows.
         db_rows = [(int(record_ids[i]), int(ranking[i]), classifiers[i],
                     query_strategies[i], balance_strategies[i],
-                    feature_extractions[i], training_sets[i],
-                    ranking_times[i])
+                    feature_extractions[i], training_sets[i], ranking_times[i])
                    for i in range(len(record_ids))]
 
         con = self._connect_to_sql()
@@ -560,15 +555,12 @@ class SqlStateV1(BaseState):
         """Add a text note to save with a labeled record."""
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.execute(
-            "UPDATE results SET notes = ? WHERE record_id = ?",
-            (note, record_id)
-        )
+        cur.execute("UPDATE results SET notes = ? WHERE record_id = ?",
+                    (note, record_id))
         con.commit()
         con.close()
 
-    def add_labeling_data(self, record_ids, labels, notes=None,
-                          prior=False):
+    def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
         """Add all the data of one labeling action."""
 
         # TODO (State): Add custom datasets.
@@ -582,11 +574,7 @@ class SqlStateV1(BaseState):
         if notes is None:
             notes = [None for _ in record_ids]
 
-        lengths = [
-            len(record_ids),
-            len(labels),
-            len(notes)
-        ]
+        lengths = [len(record_ids), len(labels), len(notes)]
         # Check that all input data has the same length.
         if len(set(lengths)) != 1:
             raise ValueError("Input data should be of the same length.")
@@ -602,29 +590,28 @@ class SqlStateV1(BaseState):
 
             query_strategies = ['prior' for _ in record_ids]
             training_sets = [-1 for _ in record_ids]
-            data = [(int(record_ids[i]), int(labels[i]),
-                     query_strategies[i], training_sets[i],
-                     labeling_times[i], notes[i])
+            data = [(int(record_ids[i]), int(labels[i]), query_strategies[i],
+                     training_sets[i], labeling_times[i], notes[i])
                     for i in range(n_records_labeled)]
 
             # If prior, we need to insert new records into the database.
-            query = """INSERT INTO results (record_id, label, query_strategy, 
-                    training_set, labeling_time, notes) 
-                    VALUES (?, ?, ?, ?, ?, ?)"""
+            query = ("INSERT INTO results (record_id, label, query_strategy, "
+                     "training_set, labeling_time, notes) "
+                     "VALUES (?, ?, ?, ?, ?, ?)")
 
         else:
             # Check that the record_ids are pending.
-            if not all(record_id in pending.values for record_id in record_ids):
+            if not all(record_id in pending.values
+                       for record_id in record_ids):
                 raise ValueError("Labeling records, but not all "
                                  "record_ids were pending.")
 
-            data = [(int(labels[i]), labeling_times[i],
-                     notes[i], int(record_ids[i]))
-                    for i in range(n_records_labeled)]
+            data = [(int(labels[i]), labeling_times[i], notes[i],
+                     int(record_ids[i])) for i in range(n_records_labeled)]
 
             # If not prior, we need to update records.
-            query = """UPDATE results SET label=?, labeling_time=?, 
-                    notes=? WHERE record_id=?"""
+            query = ("UPDATE results SET label=?, labeling_time=?, "
+                     "notes=? WHERE record_id=?")
 
         # Add the rows to the database.
         con = self._connect_to_sql()
@@ -645,16 +632,12 @@ class SqlStateV1(BaseState):
         cur = con.cursor()
 
         # Change the label.
-        cur.execute(
-            "UPDATE results SET label = ? WHERE record_id = ?",
-            (new_label, record_id)
-        )
+        cur.execute("UPDATE results SET label = ? WHERE record_id = ?",
+                    (new_label, record_id))
 
         # Add the change to the decision changes table.
-        cur.execute(
-            "INSERT INTO decision_changes VALUES (?,?, ?)",
-            (record_id, new_label, current_time)
-        )
+        cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
+                    (record_id, new_label, current_time))
 
         con.commit()
         con.close()
@@ -665,13 +648,11 @@ class SqlStateV1(BaseState):
 
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.execute('DELETE FROM results WHERE record_id=?"', (record_id,))
+        cur.execute('DELETE FROM results WHERE record_id=?"', (record_id, ))
 
         # Add the change to the decision changes table.
-        cur.execute(
-            "INSERT INTO decision_changes VALUES (?,?, ?)",
-            (record_id, None, current_time)
-        )
+        cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
+                    (record_id, None, current_time))
         con.commit()
         con.close()
 
@@ -757,8 +738,7 @@ class SqlStateV1(BaseState):
     def get_last_ranking(self):
         """Get the ranking from the state."""
         con = self._connect_to_sql()
-        last_ranking = pd.read_sql_query(
-            'SELECT * FROM last_ranking', con)
+        last_ranking = pd.read_sql_query('SELECT * FROM last_ranking', con)
         con.close()
         return last_ranking
 
@@ -773,17 +753,16 @@ class SqlStateV1(BaseState):
             to the results table.
         """
         if self.model_has_trained:
-            record_list = [(record_id,) for record_id in record_ids]
+            record_list = [(record_id, ) for record_id in record_ids]
             con = self._connect_to_sql()
             cur = con.cursor()
             cur.executemany(
-                f"""INSERT INTO results (record_id, classifier, query_strategy,
+                """INSERT INTO results (record_id, classifier, query_strategy,
                 balance_strategy, feature_extraction, training_set)
                 SELECT record_id, classifier, query_strategy,
                 balance_strategy, feature_extraction, training_set
                 FROM last_ranking
-                WHERE record_id=?""", record_list
-            )
+                WHERE record_id=?""", record_list)
             con.commit()
             con.close()
         else:
