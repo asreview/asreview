@@ -35,7 +35,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.select}`]: {
-    minWidth: 300,
+    minWidth: 310,
     padding: "40px 0px",
   },
 }));
@@ -152,7 +152,7 @@ const ExportPage = (props) => {
                       gutterBottom
                       sx={{ color: "text.secondary" }}
                     >
-                      Including data and configuration
+                      Including data and model configuration
                     </Typography>
                   </Box>
                 </MenuItem>
