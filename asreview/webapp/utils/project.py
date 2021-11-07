@@ -460,10 +460,10 @@ def get_statistics(project_id):
         json_fp = Path(project_path, 'result.json')
         # Check if the v0 project is in review.
         if json_fp.exists():
-            labeled, n_records = get_legacy_statistics(json_fp)
+            labels, n_records = get_legacy_statistics(json_fp)
         # No result found.
         else:
-            labeled = np.array([])
+            labels = np.array([])
             n_records = 0
     else:
         # Check if there is a review started in the project.
