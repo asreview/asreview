@@ -25,7 +25,6 @@ from collections import Counter
 from pathlib import Path
 from urllib.request import urlretrieve
 
-
 from flask import Blueprint
 from flask import Response
 from flask import jsonify
@@ -182,7 +181,8 @@ def api_get_projects_stats():  # noqa: F401
                 statistics["n_setup"] = 1
                 statistics["n_in_review"] = 0
                 statistics["n_finished"] = 0
-            elif "reviewFinished" not in res or res["reviewFinished"] is not True:
+            elif "reviewFinished" not in res or res[
+                    "reviewFinished"] is not True:
                 statistics["n_setup"] = 0
                 statistics["n_in_review"] = 1
                 statistics["n_finished"] = 0
@@ -193,8 +193,8 @@ def api_get_projects_stats():  # noqa: F401
 
             statistics = {
                 x: statistics[x]
-                for x in ("n_reviewed", "n_included", "n_setup",
-                          "n_in_review", "n_finished")
+                for x in ("n_reviewed", "n_included", "n_setup", "n_in_review",
+                          "n_finished")
             }
             stats_counter.update(statistics)
 
@@ -495,8 +495,11 @@ def api_search_data(project_id):  # noqa: F401
             as_data = read_data(project_id)
 
             # search for the keywords
-            result_idx = fuzzy_find(
-                as_data, q, max_return=max_results, exclude=[], by_index=True)
+            result_idx = fuzzy_find(as_data,
+                                    q,
+                                    max_return=max_results,
+                                    exclude=[],
+                                    by_index=True)
 
             for paper in as_data.record(result_idx, by_index=True):
                 payload["result"].append({
@@ -539,13 +542,11 @@ def api_label_item(project_id):  # noqa: F401
 
     # label_instance will create state file if none.
     # [TODO]project_id, paper_i, label, is_prior=None
-    label_instance(
-        project_id, 
-        doc_id, 
-        label, 
-        prior=prior, 
-        retrain_model=retrain_model
-    )
+    label_instance(project_id,
+                   doc_id,
+                   label,
+                   prior=prior,
+                   retrain_model=retrain_model)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -993,7 +994,7 @@ def export_results(project_id):
 
         return send_file(
             fp_tmp_export,
-            mimetype=   # noqa
+            mimetype=  # noqa
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
             as_attachment=True,
             download_name=f"asreview_result_{project_id}.xlsx",
@@ -1073,7 +1074,6 @@ def api_finish_project(project_id):
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 def api_get_progress_info(project_id):  # noqa: F401
     """Get progress statistics of a project"""
-    project_path = get_project_path(project_id)
 
     try:
         statistics = get_statistics(project_id)
@@ -1123,11 +1123,15 @@ def api_get_progress_density(project_id):
         for d in df:
             d["x"] = d.pop("Total")
 
-        df_relevant = [{k: v for k, v in d.items() if k != "Irrelevant"} for d in df]
+        df_relevant = [{k: v
+                        for k, v in d.items() if k != "Irrelevant"}
+                       for d in df]
         for d in df_relevant:
             d["y"] = d.pop("Relevant")
 
-        df_irrelevant = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+        df_irrelevant = [{k: v
+                          for k, v in d.items() if k != "Relevant"}
+                         for d in df]
         for d in df_irrelevant:
             d["y"] = d.pop("Irrelevant")
 
@@ -1158,19 +1162,20 @@ def api_get_progress_recall(project_id):
             .to_frame(name="Relevant") \
             .cumsum()
         df["Total"] = df.index + 1
-        df["Random"] = (
-            df["Total"] *
-            (df["Relevant"][-1:] / n_records).values).round()
+        df["Random"] = (df["Total"] *
+                        (df["Relevant"][-1:] / n_records).values).round()
 
         df = df.round(1).to_dict(orient="records")
         for d in df:
             d["x"] = d.pop("Total")
 
-        df_asreview = [{k: v for k, v in d.items() if k != "Random"} for d in df]
+        df_asreview = [{k: v
+                        for k, v in d.items() if k != "Random"} for d in df]
         for d in df_asreview:
             d["y"] = d.pop("Relevant")
 
-        df_random = [{k: v for k, v in d.items() if k != "Relevant"} for d in df]
+        df_random = [{k: v
+                      for k, v in d.items() if k != "Relevant"} for d in df]
         for d in df_random:
             d["y"] = d.pop("Random")
 
