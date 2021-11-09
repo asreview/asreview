@@ -10,7 +10,11 @@ import {
 import { styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 
+import { useMutation } from "react-query";
+
 import { SearchResult } from "../PreReviewComponents";
+import { ProjectAPI } from "../api/index.js";
+
 
 const PREFIX = "PriorKnowledgeSearch";
 
@@ -71,6 +75,8 @@ const PriorKnowledgeSearch = (props) => {
   });
 
   const closeSearchResult = () => {
+
+    console.log("close")
     setSearchDialog({
       ...searchDialog,
       open: false,
@@ -90,6 +96,51 @@ const PriorKnowledgeSearch = (props) => {
     setSearchDialog({
       open: true,
       query: searchDialog.query,
+    });
+  };
+
+  const { mutate } = useMutation(ProjectAPI.mutateClassification, {
+    onSuccess: (data, variables) => {
+
+      // close the search results
+      closeSearchResult();
+
+      // update the prior stats on the home screen
+      props.updatePriorStats();
+    },
+  });
+
+
+  // include the item in the card
+  const includeItem = (doc_id) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: doc_id,
+      label: 1,
+      is_prior: 1,
+      initial: true,
+    });
+  };
+
+  // exclude the item in the card
+  const excludeItem = (doc_id) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: doc_id,
+      label: 0,
+      is_prior: 1,
+      initial: true,
+    });
+  };
+
+  // reset the item (for search and revert)
+  const resetItem = (doc_id) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: doc_id,
+      label: -1,
+      is_prior: 1,
+      initial: true,
     });
   };
 
@@ -128,11 +179,10 @@ const PriorKnowledgeSearch = (props) => {
         <SearchResult
           project_id={props.project_id}
           searchQuery={searchDialog.query}
-          updatePriorStats={props.updatePriorStats}
           onRevertInclude={props.removeIncluded}
-          includeItem={props.includeItem}
-          excludeItem={props.excludeItem}
-          resetItem={props.resetItem}
+          includeItem={includeItem}
+          excludeItem={excludeItem}
+          resetItem={resetItem}
           closeSearchResult={closeSearchResult}
         />
       )}

@@ -648,7 +648,7 @@ class SqlStateV1(BaseState):
 
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.execute('DELETE FROM results WHERE record_id=?"', (record_id, ))
+        cur.execute('DELETE FROM results WHERE record_id=?', (record_id, ))
 
         # Add the change to the decision changes table.
         cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
