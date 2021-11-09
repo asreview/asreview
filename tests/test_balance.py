@@ -57,4 +57,4 @@ def test_balance(balance_strategy,
 
 
 def test_balance_general():
-    assert len(list_balance_strategies()) >= 4
+    assert len(list_balance_strategies()) >= 3
