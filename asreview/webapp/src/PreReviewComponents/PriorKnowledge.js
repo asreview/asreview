@@ -110,22 +110,6 @@ const StyledBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const labelPriorItem = (project_id, doc_id, label, callbk = null) => {
-  let body = new FormData();
-  body.set("doc_id", doc_id);
-  body.set("label", label);
-  body.set("is_prior", 1);
-
-  ProjectAPI.labelitem(project_id, body)
-    .then((result) => {
-      if (callbk !== null) {
-        callbk();
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-};
 
 const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
   const [state, setState] = React.useState({
@@ -157,25 +141,6 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
   const closePriorKnowledge = () => {
     // open resultdialog
     setPriorDialog(false);
-  };
-
-  // include the item in the card
-  const includeItem = (doc_id, callbk = null) => {
-    console.log(`${project_id} - add item ${doc_id} to prior inclusions`);
-    labelPriorItem(project_id, doc_id, 1, callbk);
-  };
-
-  // exclude the item in the card
-  const excludeItem = (doc_id, callbk = null) => {
-    console.log(`${project_id} - add item ${doc_id} to prior exclusions`);
-    labelPriorItem(project_id, doc_id, 0, callbk);
-  };
-
-  // reset the item (for search and revert)
-  const resetItem = (doc_id, callbk = null) => {
-    console.log(`${project_id} - remove item ${doc_id} from prior knowledge`);
-    labelPriorItem(project_id, doc_id, -1, callbk);
-    updatePriorStats();
   };
 
   /* Skeleton to extend later on */
@@ -359,9 +324,6 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
                   <PriorKnowledgeSearch
                     project_id={project_id}
                     updatePriorStats={updatePriorStats}
-                    includeItem={includeItem}
-                    excludeItem={excludeItem}
-                    resetItem={resetItem}
                   />
                 </CardContent>
               </Box>
@@ -370,12 +332,10 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
             {state.method === "random" && (
               <PriorKnowledgeRandom
                 project_id={project_id}
+                updatePriorStats={updatePriorStats}
                 onClose={() => {
                   changeMethod(null);
                 }}
-                updatePriorStats={updatePriorStats}
-                includeItem={includeItem}
-                excludeItem={excludeItem}
               />
             )}
           </Paper>
@@ -389,7 +349,9 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
           onClose={closePriorKnowledge}
         />
         <DialogContent dividers={true}>
-          <LabeledItems resetItem={resetItem} />
+          <LabeledItems 
+            updatePriorStats={updatePriorStats}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={closePriorKnowledge} color="primary">

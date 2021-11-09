@@ -520,40 +520,6 @@ def api_search_data(project_id):  # noqa: F401
     return response
 
 
-# TODO: Have only one labeling function and one update function. (Update the
-#  routes in the frontend.)
-@bp.route('/project/<project_id>/labelitem', methods=["POST"])
-def api_label_item(project_id):  # noqa: F401
-    """Label item
-
-    This request handles the document identifier and the corresponding label.
-    The result is stored in a temp location. If this storage exceeds a certain
-    amount of values, then the model is triggered. The values of the location
-    are passed to the model and the storaged is cleared. This model will run
-    in the background.
-    """
-    # return the combination of document_id and label.
-    doc_id = request.form.get('doc_id')
-    label = request.form.get('label')
-    is_prior = request.form.get('is_prior', default=False)
-
-    retrain_model = False if is_prior == "1" else True
-    prior = True if is_prior == "1" else False
-
-    # label_instance will create state file if none.
-    # [TODO]project_id, paper_i, label, is_prior=None
-    label_instance(project_id,
-                   doc_id,
-                   label,
-                   prior=prior,
-                   retrain_model=retrain_model)
-
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-
-    return response
-
-
 @bp.route('/project/<project_id>/labeled', methods=["GET"])
 def api_get_labeled(project_id):  # noqa: F401
     """Get all papers classified as labeled documents
@@ -1191,10 +1157,9 @@ def api_get_progress_recall(project_id):
     return response
 
 
-# I think we don't need this one
-@bp.route('/project/<project_id>/record/<doc_id>', methods=["POST"])
+@bp.route('/project/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
 def api_classify_instance(project_id, doc_id):  # noqa: F401
-    """Retrieve classification result.
+    """Label item
 
     This request handles the document identifier and the corresponding label.
     The result is stored in a temp location. If this storage exceeds a certain
@@ -1203,28 +1168,24 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     in the background.
     """
     # return the combination of document_id and label.
-    doc_id = request.form['doc_id']
-    label = request.form['label']
+    doc_id = request.form.get('doc_id')
+    label = request.form.get('label')
+    is_prior = request.form.get('is_prior', default=False)
 
-    label_instance(project_id, doc_id, label, retrain_model=True)
+    retrain_model = False if is_prior == "1" else True
+    prior = True if is_prior == "1" else False
 
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-
-    return response
-
-
-@bp.route('/project/<project_id>/record/<doc_id>', methods=["PUT"])
-def api_update_classify_instance(project_id, doc_id):
-    """Update classification result."""
-
-    doc_id = request.form['doc_id']
-    label = request.form['label']
-
-    update_instance(project_id, doc_id, label, retrain_model=True)
+    # label_instance will create state file if none.
+    # [TODO]project_id, paper_i, label, is_prior=None
+    label_instance(project_id,
+                   doc_id,
+                   label,
+                   prior=prior,
+                   retrain_model=retrain_model)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 
