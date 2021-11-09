@@ -76,7 +76,6 @@ const PriorKnowledgeSearch = (props) => {
 
   const closeSearchResult = () => {
 
-    console.log("close")
     setSearchDialog({
       ...searchDialog,
       open: false,
