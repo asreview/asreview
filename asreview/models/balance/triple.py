@@ -28,6 +28,8 @@ from asreview.utils import get_random_state
 class TripleBalance(BaseBalance):
     """Triple balance strategy.
 
+    Broken. Only for internal and experimental use.
+
     This divides the training data into three sets: included papers, excluded
     papers found with random sampling and papers found with max sampling. They
     are balanced according to formulas depending on the percentage of papers
@@ -74,8 +76,6 @@ class TripleBalance(BaseBalance):
                  shuffle=True,
                  random_state=None):
         """Initialize the triple balance strategy."""
-        # TODO: Remove use of shared in triple balance strategy.
-        raise NotImplementedError("Triple balance strategy needs to be fixed.")
 
         super(TripleBalance, self).__init__()
         self.a = a
