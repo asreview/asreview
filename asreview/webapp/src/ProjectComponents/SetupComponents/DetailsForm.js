@@ -1,0 +1,121 @@
+import * as React from "react";
+import Confetti from "react-confetti";
+import { useQueryClient } from "react-query";
+import {
+  Box,
+  CircularProgress,
+  Link,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { Warning } from "@mui/icons-material";
+
+import { DetailsModeSelect } from "../SetupComponents";
+
+const PREFIX = "DetailsForm";
+
+const classes = {
+  loading: `${PREFIX}-loading`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.loading}`]: {
+    display: "flex",
+    justifyContent: "center",
+  },
+}));
+
+const DetailsForm = (props) => {
+  const queryClient = useQueryClient();
+
+  const refetchDetails = () => {
+    queryClient.resetQueries("fetchInfo");
+  };
+
+  return (
+    <Root>
+      <Stack spacing={3}>
+        <Typography className={classes.title} variant="h6">
+          Details
+        </Typography>
+        {props.isFetchingDetails && (
+          <Box className={classes.loading}>
+            <CircularProgress />
+          </Box>
+        )}
+        {!props.isFetchingDetails && !props.isFetchDetailsError && (
+          <Box component="form" noValidate autoComplete="off">
+            <Stack direction="column" spacing={3}>
+              <DetailsModeSelect
+                mode={props.details.mode}
+                handleMode={props.handleChange}
+                showSimulate={props.showSimulate}
+              />
+              {props.showSimulate && (
+                <Box>
+                  <Typography color="error">
+                    You unlocked the experimental simulation mode!
+                  </Typography>
+                  <Confetti
+                    recycle={false}
+                    tweenDuration={50000}
+                    numberOfPieces={1000}
+                  />
+                </Box>
+              )}
+              <TextField
+                fullWidth
+                autoFocus
+                error={props.isError}
+                required
+                name="title"
+                id="project-title"
+                label="Title"
+                onChange={props.handleChange}
+                value={props.details.title}
+                helperText={props.error?.message}
+              />
+              <TextField
+                fullWidth
+                name="authors"
+                id="project-author"
+                label="Author(s)"
+                onChange={props.handleChange}
+                value={props.details.authors}
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                name="description"
+                id="project-description"
+                label="Description"
+                onChange={props.handleChange}
+                value={props.details.description}
+              />
+            </Stack>
+          </Box>
+        )}
+        {props.isFetchDetailsError && (
+          <Stack direction="row" spacing={1} sx={{ justifyContent: "center" }}>
+            <Warning color="error" fontSize="small" />
+            <Typography variant="body2">
+              {props.fetchDetailsError?.message}{" "}
+              <Link
+                component="button"
+                underline="none"
+                onClick={refetchDetails}
+              >
+                Try to refresh
+              </Link>
+            </Typography>
+          </Stack>
+        )}
+      </Stack>
+    </Root>
+  );
+};
+
+export default DetailsForm;
