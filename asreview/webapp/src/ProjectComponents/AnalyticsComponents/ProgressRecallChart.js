@@ -73,7 +73,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   [`& .${classes.tooltipLabelRandomNumber}`]: {
     marginLeft: 32,
     ...(theme.palette.mode === "dark" && {
-      color: "#CED4DC",
+      color: theme.palette.secondary.main,
     }),
   },
 
