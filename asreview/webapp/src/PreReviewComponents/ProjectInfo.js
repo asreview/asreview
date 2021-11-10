@@ -15,7 +15,7 @@ import {
 import { brown } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 
-import ProjectModeSelect from "./ProjectModeSelect";
+// import ProjectModeSelect from "./ProjectModeSelect";
 import ErrorHandler from "../ErrorHandler";
 
 import { ProjectAPI } from "../api/index.js";
@@ -204,6 +204,7 @@ const ProjectInit = (props) => {
         <DialogContent dividers={true}>
           {/* The actual form */}
           <form noValidate autoComplete="off">
+            {/*
             <div className={classes.textfieldItem}>
               <ProjectModeSelect
                 mode={info.mode}
@@ -212,7 +213,7 @@ const ProjectInit = (props) => {
                 showSimulate={showSimulate}
               />
             </div>
-
+            */}
             {showSimulate && (
               <Box>
                 <Typography color="error" className={classes.textfieldItem}>

@@ -27,10 +27,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import HelpIcon from "@mui/icons-material/Help";
 
 import {
-  ProjectUploadBenchmarkDatasets,
-  ProjectUploadPluginDatasets,
-  ProjectUploadURL,
-  ProjectUploadFile,
+  // ProjectUploadBenchmarkDatasets,
+  // ProjectUploadPluginDatasets,
+  // ProjectUploadURL,
+  // ProjectUploadFile,
   Help,
   useHelp,
 } from "../PreReviewComponents";
@@ -364,7 +364,7 @@ const ProjectUpload = ({
                   <Tab label="Benchmark datasets" value="benchmark" />
                 )}
               </Tabs>
-
+              {/*
               <CardContent>
                 {value === "file" && (
                   <div>
@@ -403,6 +403,7 @@ const ProjectUpload = ({
                   </div>
                 )}
               </CardContent>
+              */}
             </Box>
           )}
 
