@@ -12,71 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-from math import floor
-
 import numpy as np
-from scipy.sparse import issparse
-from scipy.sparse import vstack
 
 from asreview.models.query.base import BaseQueryStrategy
 from asreview.models.query.utils import get_query_model
 from asreview.utils import get_random_state
 
 
-def interleave(n_samples, n_strat_1, random_state):
-    """Interleave the order of the samples of two different strategies.
+def _parse_mixed_kwargs(kwargs, strategy_name):
 
-    While the decisions of which indices to sample are made one after
-    the other, it is nicer if the order of the actual samples is mixed up.
-    Instead of mixing it the easy way, I decided it should be as nice as
-    possible.
+    kwargs_new = {}
+    for key, value in kwargs.items():
+        if key.startswith(strategy_name):
+            new_key = key[len(strategy_name) + 1:]
+            kwargs_new[new_key] = value
 
-    Parameters
-    ----------
-    n_samples: int
-        Total number of samples to mix.
-    n_strat_1: int
-        Number of samples of the first strategy.
-    random_state: int, numpy.RandomState
-        RNG.
-
-    Returns
-    -------
-    numpy.array:
-        Order of samples, [0, n_samples).
-    """
-    n_strat_2 = n_samples - n_strat_1
-
-    # Determine which of the strategies has more samples.
-    if n_strat_1 >= n_strat_2:
-        max_idx = np.arange(n_strat_1)
-        min_idx = n_strat_1 + np.arange(n_strat_2)
-    else:
-        max_idx = n_strat_1 + np.arange(n_strat_2)
-        min_idx = np.arange(n_strat_1)
-
-    # Insert the strategy with less samples at these positions.
-    insert_positions = np.sort(
-        random_state.choice(
-            np.arange(len(max_idx)), len(min_idx), replace=False))
-
-    # Actually do the inserts.
-    new_positions = np.zeros(n_samples, dtype=int)
-    i_strat_min = 0
-    for i_strat_max in range(len(max_idx)):
-        new_positions[i_strat_max + i_strat_min] = max_idx[i_strat_max]
-        if (i_strat_min < len(min_idx) and
-                insert_positions[i_strat_min] == i_strat_max):
-            new_positions[i_strat_min + i_strat_max + 1] = min_idx[i_strat_min]
-            i_strat_min += 1
-    return new_positions
+    return kwargs_new
 
 
 class MixedQuery(BaseQueryStrategy):
     """Mixed query strategy.
 
-    The idea is to use two different query strategies at the same time with a
+    Use two different query strategies at the same time with a
     ratio of one to the other. A mix of two query strategies is used. For
     example mixing max and random sampling with a mix ratio of 0.95 would mean
     that at each query 95% of the instances would be sampled with the max
@@ -87,13 +44,16 @@ class MixedQuery(BaseQueryStrategy):
     Arguments
     ---------
     strategy_1: str
-        Name of the first query strategy.
+        Name of the first query strategy. Default 'max'.
     strategy_2: str
-        Name of the second query strategy.
+        Name of the second query strategy. Default 'random'
     mix_ratio: float
-        Portion of queries done by the first strategy. So a mix_ratio of
-        0.95 means that 95% of the time query strategy 1 is used and 5% of
-        the time query strategy 2.
+        Sampling from strategy_1 and strategy_2 according a Bernoulli
+        distribution. E.g. for mix_ratio=0.95, this implies strategy_1
+        with probability 0.95 and strategy_2 with probability 0.05.
+        Default 0.95.
+    random_state: float
+        Seed for the numpy random number generator.
     **kwargs: dict
         Keyword arguments for the two strategy. To specify which of the
         strategies the argument is for, prepend with the name of the query
@@ -108,73 +68,70 @@ class MixedQuery(BaseQueryStrategy):
                  **kwargs):
         """Initialize the Mixed query strategy."""
         super(MixedQuery, self).__init__()
-        kwargs_1 = {}
-        kwargs_2 = {}
-        for key, value in kwargs.items():
-            if key.startswith(strategy_1):
-                new_key = key[len(strategy_1) + 1:]
-                kwargs_1[new_key] = value
-            elif key.starts_with(strategy_2):
-                new_key = key[len(strategy_2) + 1:]
-                kwargs_2[new_key] = value
-            else:
-                logging.warn(f"Key {key} is being ignored for the mixed "
-                             "({strategy_1}, {strategy_2}) query strategy.")
 
         self.strategy_1 = strategy_1
         self.strategy_2 = strategy_2
 
-        self.query_model1 = get_query_model(strategy_1, **kwargs_1)
-        self.query_model2 = get_query_model(strategy_2, **kwargs_2)
+        self.mix_ratio = mix_ratio
+        self.random_state = get_random_state(random_state)
 
-        self._random_state = get_random_state(random_state)
+        self.kwargs_1 = _parse_mixed_kwargs(kwargs, strategy_1)
+        self.kwargs_2 = _parse_mixed_kwargs(kwargs, strategy_2)
+
+        self.query_model1 = get_query_model(strategy_1, **self.kwargs_1)
         if "random_state" in self.query_model1.default_param:
             self.query_model1 = get_query_model(
-                strategy_1, **kwargs_1, random_state=self._random_state)
+                strategy_1, random_state=self.random_state, **self.kwargs_1)
+
+        self.query_model2 = get_query_model(strategy_2, **self.kwargs_2)
         if "random_state" in self.query_model2.default_param:
             self.query_model2 = get_query_model(
-                strategy_2, **kwargs_2, random_state=self._random_state)
-        self.mix_ratio = mix_ratio
+                strategy_2, random_state=self.random_state, **self.kwargs_2)
 
     def query(self, X, classifier, n_instances=None, **kwargs):
-        n_samples = X.shape[0]
-        # pool_idx = np.arange(n_samples)
 
-        # Split the number of instances for the query strategies.
-        n_instances_1 = floor(n_instances * self.mix_ratio)
-        leftovers = n_instances * self.mix_ratio - n_instances_1
-        if self._random_state.random_sample() < leftovers:
-            n_instances_1 += 1
-        n_instances_2 = n_instances - n_instances_1
+        # set the number of instances to len(X) if None
+        if n_instances is None:
+            n_instances = X.shape[0]
 
-        # TODO: Fix Mixed query strategy.
+        # compute the predictions
+        predictions = classifier.predict_proba(X)
+
         # Perform the query with strategy 1.
-        query_idx_1, X_1 = self.query_model1.query(
-            X,
-            classifier,
-            pool_idx=pool_idx,
-            n_instances=n_instances_1,
-            shared=shared)
-
-        # Remove the query indices from the pool.
-        train_idx = np.delete(np.arange(n_samples), pool_idx, axis=0)
-        train_idx = np.append(train_idx, query_idx_1)
-        new_pool_idx = np.delete(np.arange(n_samples), train_idx, axis=0)
+        try:
+            query_idx_1 = self.query_model1._query(
+                predictions,
+                n_instances=n_instances)
+        except AttributeError:
+            # for random for example
+            query_idx_1 = self.query_model1.query(
+                X, classifier, n_instances)
 
         # Perform the query with strategy 2.
-        query_idx_2, X_2 = self.query_model2.query(
-            X,
-            classifier,
-            pool_idx=new_pool_idx,
-            n_instances=n_instances_2,
-            shared=shared)
+        try:
+            query_idx_2 = self.query_model2._query(
+                predictions,
+                n_instances=n_instances)
+        except AttributeError:
+            # for random for example
+            query_idx_2 = self.query_model2.query(
+                X, classifier, n_instances)
 
-        query_idx = np.append(query_idx_1, query_idx_2)
+        # mix the 2 query strategies into one list
+        query_idx_mix = []
+        i = 0
+        j = 0
 
-        # Remix the two strategies without changing the order within.
-        new_order = interleave(
-            len(query_idx), len(query_idx_1), self._random_state)
-        return query_idx[new_order]
+        while i < len(query_idx_1) and j < len(query_idx_2):
+
+            if self.random_state.rand() < self.mix_ratio:
+                query_idx_mix.append(query_idx_1[i])
+                i = i + 1
+            else:
+                query_idx_mix.append(query_idx_2[j])
+                j = j + 1
+
+        return np.unique(query_idx_mix)[0:n_instances]
 
     def full_hyper_space(self):
         from hyperopt import hp
