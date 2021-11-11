@@ -131,10 +131,10 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project_id", type=str, help="Project id")
     parser.add_argument(
-        "--label_method",
-        type=str,
-        default=None,
-        help="Label method (for example 'prior')")
+        "--output_error",
+        dest='output_error', 
+        action='store_true'
+        help="Save training error message to file.")
     args = parser.parse_args(argv)
 
     try:
@@ -144,7 +144,7 @@ def main(argv):
         logging.error(f"Project {args.project_id} - {err_type}: {err}")
 
         # write error to file if label method is prior (first iteration)
-        if args.label_method == "prior":
+        if args.output_error:
             message = {"message": f"{err_type}: {err}"}
 
             fp = get_project_path(args.project_id) / "error.json"

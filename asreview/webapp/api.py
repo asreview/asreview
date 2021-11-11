@@ -817,8 +817,16 @@ def api_start(project_id):  # noqa: F401
             # start training the model
             py_exe = _get_executable()
             run_command = [
-                py_exe, "-m", "asreview", "web_run_model", project_id,
-                "--label_method", "prior"
+                # get executable
+                py_exe,
+                # get module
+                "-m", "asreview",
+                # train the model via cli
+                "web_run_model",
+                # specify project id
+                project_id,
+                # output the error of the first model
+                "--output_error"
             ]
             subprocess.Popen(run_command)
 
