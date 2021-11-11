@@ -103,7 +103,7 @@ const DashboardPage = (props) => {
   return (
     <Root aria-label="dashboard page">
       <Container maxWidth="md">
-        <Stack spacing={3}>
+        <Stack spacing={5}>
           <NumberCard />
           <ProjectTable
             handleClickAdd={handleClickAdd}
