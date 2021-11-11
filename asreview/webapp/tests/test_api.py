@@ -135,12 +135,12 @@ def test_random_prior_papers(client):
 def test_label_item(client):
     """Test label item"""
 
-    response_irrelevant = client.post("/api/project/project-id/labelitem", data={
+    response_irrelevant = client.post("/api/project/project-id/record/5509", data={
         "doc_id": 5509,
         "label": 0,
         "is_prior": 1
     })
-    response_relevant = client.post("/api/project/project-id/labelitem", data={
+    response_relevant = client.post("/api/project/project-id/record/58", data={
         "doc_id": 58,
         "label": 1,
         "is_prior": 1
@@ -166,8 +166,9 @@ def test_get_labeled_stats(client):
     response = client.get("/api/project/project-id/labeled_stats")
     json_data = response.get_json()
 
-    assert "n_prior" in json_data
     assert isinstance(json_data, dict)
+    assert "n_prior" in json_data
+    assert json_data["n_prior"] == 2
 
 
 def test_list_algorithms(client):
@@ -212,10 +213,6 @@ def test_start(client):
     assert response.status_code == 200
 
 
-@pytest.mark.xfail(
-    raises=KeyError,
-    reason="status"
-)
 def test_ready(client):
     """Test check if trained model is available"""
 
@@ -308,6 +305,14 @@ def test_get_progress_recall(client):
     assert isinstance(json_data, dict)
 
 
+def test_get_document(client):
+    """Test retrieve documents in order of review"""
+
+    response = client.get("/api/project/project-id/get_document")
+    json_data = response.get_json()
+
+    assert "result" in json_data
+    assert isinstance(json_data, dict)
 def test_classify_instance(client):
     """Test retrieve classification result"""
 
@@ -326,16 +331,6 @@ def test_update_classify_instance(client):
         "label": 0,
     })
     assert response.status_code == 200
-
-
-def test_get_document(client):
-    """Test retrieve documents in order of review"""
-
-    response = client.get("/api/project/project-id/get_document")
-    json_data = response.get_json()
-
-    assert "result" in json_data
-    assert isinstance(json_data, dict)
 
 
 def test_delete_project(client):
