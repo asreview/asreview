@@ -33,7 +33,7 @@ def _parse_mixed_kwargs(kwargs, strategy_name):
 class MixedQuery(BaseQueryStrategy):
     """Mixed query strategy.
 
-    The idea is to use two different query strategies at the same time with a
+    Use two different query strategies at the same time with a
     ratio of one to the other. A mix of two query strategies is used. For
     example mixing max and random sampling with a mix ratio of 0.95 would mean
     that at each query 95% of the instances would be sampled with the max
@@ -44,13 +44,16 @@ class MixedQuery(BaseQueryStrategy):
     Arguments
     ---------
     strategy_1: str
-        Name of the first query strategy.
+        Name of the first query strategy. Default 'max'.
     strategy_2: str
-        Name of the second query strategy.
+        Name of the second query strategy. Default 'random'
     mix_ratio: float
-        Portion of queries done by the first strategy. So a mix_ratio of
-        0.95 means that 95% of the time query strategy 1 is used and 5% of
-        the time query strategy 2.
+        Sampling from strategy_1 and strategy_2 according a Bernoulli
+        distribution. E.g. for mix_ratio=0.95, this implies strategy_1
+        with probability 0.95 and strategy_2 with probability 0.05.
+        Default 0.95.
+    random_state: float
+        Seed for the numpy random number generator.
     **kwargs: dict
         Keyword arguments for the two strategy. To specify which of the
         strategies the argument is for, prepend with the name of the query
