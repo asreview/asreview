@@ -132,8 +132,8 @@ def main(argv):
     parser.add_argument("project_id", type=str, help="Project id")
     parser.add_argument(
         "--output_error",
-        dest='output_error', 
-        action='store_true'
+        dest='output_error',
+        action='store_true',
         help="Save training error message to file.")
     args = parser.parse_args(argv)
 
