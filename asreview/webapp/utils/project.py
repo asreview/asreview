@@ -533,6 +533,12 @@ def export_to_string(project_id, export_type="csv"):
         raise ValueError("This export type isn't implemented.")
 
 
+def train_model(project_id):
+    py_exe = _get_executable()
+    run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
+    subprocess.Popen(run_command)
+
+
 def update_instance(project_id, paper_i, label, retrain_model=True):
     """Update a labeling decision."""
     project_path = get_project_path(project_id)
@@ -558,11 +564,7 @@ def update_instance(project_id, paper_i, label, retrain_model=True):
                 state.change_decision(record_id)
 
     if retrain_model:
-        # Update the model (if it isn't busy).
-
-        py_exe = _get_executable()
-        run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
-        subprocess.Popen(run_command)
+        train_model(project_id)
 
 
 def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
@@ -578,7 +580,7 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
     with open_state(state_path, read_only=False) as state:
 
         # get the index of the active iteration
-        if int(label) in [0, 1]:
+        if label in [0, 1]:
 
             # add the labels as prior data
             state.add_labeling_data(record_ids=[paper_i],
@@ -586,21 +588,9 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
                                     notes=[None],
                                     prior=prior)
 
-        else:
-            move_label_from_labeled_to_pool(project_id, paper_i)
+        elif label == -1:
+            with open_state(state_path, read_only=False) as state:
+                state.delete_record_labeling_data(paper_id)
 
     if retrain_model:
-        # Update the model (if it isn't busy).
-
-        py_exe = _get_executable()
-        run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
-        subprocess.Popen(run_command)
-
-
-def move_label_from_labeled_to_pool(project_id, paper_i):
-    """Remove a record from the labeled data."""
-    record_id = int(paper_i)
-    project_path = get_project_path(project_id)
-    state_path = get_state_path(project_path)
-    with open_state(state_path, read_only=False) as state:
-        state.delete_record_labeling_data(record_id)
+        train_model(project_id)

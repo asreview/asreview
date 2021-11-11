@@ -1192,13 +1192,17 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
-    # label_instance will create state file if none.
-    # [TODO]project_id, paper_i, label, is_prior=None
-    label_instance(project_id,
-                   doc_id,
-                   label,
-                   prior=prior,
-                   retrain_model=retrain_model)
+    if request.method == 'POST':
+        label_instance(project_id,
+                       doc_id,
+                       label,
+                       prior=prior,
+                       retrain_model=retrain_model)
+    elif request.method == 'PUT':
+        update_instance(project_id,
+                        doc_id,
+                        label,
+                        retrain_model=retrain_model)
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
