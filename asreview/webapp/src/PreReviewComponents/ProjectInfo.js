@@ -102,12 +102,12 @@ const ProjectInit = (props) => {
   });
 
   // handle project type/mode change
-  const onModeChange = (event) => {
-    setInfo({
-      ...info,
-      mode: event.target.value,
-    });
-  };
+  // const onModeChange = (event) => {
+  //   setInfo({
+  //     ...info,
+  //     mode: event.target.value,
+  //   });
+  // };
 
   const onChange = (evt) => {
     if (error.code) {
