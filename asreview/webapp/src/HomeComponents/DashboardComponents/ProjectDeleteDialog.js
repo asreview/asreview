@@ -23,6 +23,7 @@ export default function ProjectDeleteDialog(props) {
     {
       onSuccess: () => {
         queryClient.invalidateQueries("fetchProjects");
+        queryClient.invalidateQueries("fetchDashboardStats");
         props.toggleDeleteDialog();
       },
     }

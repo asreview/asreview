@@ -22,7 +22,6 @@ import {
 } from "../PreReviewComponents";
 
 import ErrorHandler from "../ErrorHandler";
-import PublicationZone from "../PublicationZone.js";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -194,21 +193,6 @@ const ProjectPageOLD = (props) => {
   const startReviewing = () => {
     props.handleAppState("review");
     props.toggleReview();
-  };
-
-  const finishProject = () => {
-    ProjectAPI.finish(props.project_id)
-      .then((result) => {
-        setState((s) => {
-          return {
-            ...s,
-            finished: !s.finished,
-          };
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   };
 
   const returnElasState = () => {
@@ -397,21 +381,6 @@ const ProjectPageOLD = (props) => {
             </Grid>
 
             {/* Cards on the project board */}
-            {!state.setup && (
-              <Box className={classes.cardBox}>
-                <PublicationZone
-                  project_id={props.project_id}
-                  showExportResult={
-                    state.info.projectInitReady &&
-                    !state.setup &&
-                    !state.training
-                  }
-                  toggleExportResult={props.toggleExportResult}
-                  reviewFinished={state.finished}
-                  finishProject={finishProject}
-                />
-              </Box>
-            )}
 
             {/* Pre Review settings */}
             {!state.infoLoading && state.setup && (
