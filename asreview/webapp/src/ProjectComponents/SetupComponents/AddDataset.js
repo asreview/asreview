@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   DialogContent,
   Fade,
@@ -12,19 +14,46 @@ import {
   Typography,
 } from "@mui/material";
 
+import { InlineErrorHandler } from "../../Components";
 import {
   DatasetFromBenchmark,
   DatasetFromExtension,
   DatasetFromFile,
   DatasetFromURL,
 } from "../SetupComponents";
-import { projectModes } from "../../globals.js";
+import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps, projectModes } from "../../globals.js";
 
-export default function AddDataset(props) {
+const AddDataset = (props) => {
+  const queryClient = useQueryClient();
+
+  const { data, error, isError, isFetched, isSuccess } = useQuery(
+    ["fetchData", { project_id: props.project_id }],
+    ProjectAPI.fetchData,
+    { refetchOnWindowFocus: false }
+  );
+
+  const refetchData = () => {
+    queryClient.resetQueries("fetchData");
+  };
+
   return (
     <Fade in>
       <DialogContent sx={{ padding: "24px 48px 48px 48px" }}>
         <Stack spacing={3}>
+          {!props.isAddingDataset && isError && (
+            <InlineErrorHandler
+              message={error?.message}
+              refetch={refetchData}
+              button="Try to refresh"
+            />
+          )}
+          {!props.isAddingDataset && !isError && isFetched && isSuccess && (
+            <Typography variant="subtitle2">
+              Dataset <i>{data?.filename}</i> with <i>{data?.n_rows}</i> records
+              is added. Editing the dataset removes the prior knowledge.
+            </Typography>
+          )}
           <FormControl disabled={props.isAddingDataset} component="fieldset">
             <FormLabel component="legend">Add a dataset from</FormLabel>
             <RadioGroup
@@ -150,4 +179,6 @@ export default function AddDataset(props) {
       </DialogContent>
     </Fade>
   );
-}
+};
+
+export default connect(mapStateToProps)(AddDataset);

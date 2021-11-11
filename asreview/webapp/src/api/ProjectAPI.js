@@ -155,16 +155,14 @@ class ProjectAPI {
     });
   }
 
-  static data(project_id, edit, data = null) {
+  static fetchData({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/data`;
     return new Promise((resolve, reject) => {
-      axios({
-        method: edit ? "post" : "get",
-        url: url,
-        data: data,
-      })
+      axios
+        .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
