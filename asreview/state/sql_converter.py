@@ -218,12 +218,12 @@ def convert_json_last_probabilities(sql_fp, json_fp):
         # Also get the number of record labeled and the classifier.
         last_probabilities = json_state.pred_proba
 
-        sf_indices = [
-            int(sample_data[0])
-            for query in range(len(json_state._state_dict['results']))
-            for sample_data in
-            json_state._state_dict['results'][query]['labelled']
-        ]
+        # sf_indices = [
+        #     int(sample_data[0])
+        #     for query in range(len(json_state._state_dict['results']))
+        #     for sample_data in
+        #     json_state._state_dict['results'][query]['labelled']
+        # ]
         # n_records_labeled = len(sf_indices)
         # classifier = json_state.settings.to_dict()['model']
 

@@ -62,7 +62,7 @@ def test_model_seed(tmpdir):
 
     n_test = 4
     seed = 192874123
-    last_train_idx = None
+    # last_train_idx = None
     for _ in range(n_test):
         reviewer = get_simulate_reviewer(data_fp,
                                          model="rf",
