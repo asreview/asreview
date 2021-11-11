@@ -6,7 +6,7 @@ import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { ExportDialog, Header, HelpDialog, SettingsDialog } from "./Components";
+import { Header, HelpDialog, SettingsDialog } from "./Components";
 import {
   PreReviewZone,
   ProjectPageOLD,
@@ -49,7 +49,6 @@ const queryClient = new QueryClient();
 const App = (props) => {
   // Dialog state
   const [settings, setSettings] = useToggle();
-  const [exportResult, setExportResult] = useToggle();
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -97,7 +96,6 @@ const App = (props) => {
               onNavDrawer={navDrawer}
               toggleNavDrawer={setNavDrawer}
               toggleSettings={setSettings}
-              toggleExportResult={setExportResult}
               fontSize={fontSize}
               undoEnabled={undoEnabled}
               keyPressEnabled={keyPressEnabled}
@@ -105,10 +103,7 @@ const App = (props) => {
           )}
 
           {props.app_state === "project-page-old" && (
-            <ProjectPageOLD
-              handleAppState={props.setAppState}
-              toggleExportResult={setExportResult}
-            />
+            <ProjectPageOLD handleAppState={props.setAppState} />
           )}
 
           {props.app_state === "review-init" && <PreReviewZone />}
@@ -116,10 +111,7 @@ const App = (props) => {
           {props.app_state === "train-first-model" && <StartReview />}
 
           {props.app_state === "review-complete" && (
-            <ReviewZoneComplete
-              handleAppState={props.setAppState}
-              toggleExportResult={setExportResult}
-            />
+            <ReviewZoneComplete handleAppState={props.setAppState} />
           )}
 
           {/* Dialogs */}
@@ -137,10 +129,6 @@ const App = (props) => {
             toggleUndoEnabled={toggleUndoEnabled}
           />
           <HelpDialog mobileScreen={mobileScreen} />
-          <ExportDialog
-            toggleExportResult={setExportResult}
-            exportResult={exportResult}
-          />
         </ThemeProvider>
       </StyledEngineProvider>
     </QueryClientProvider>
