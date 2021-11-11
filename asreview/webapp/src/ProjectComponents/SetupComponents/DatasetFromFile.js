@@ -9,7 +9,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
-import { FileUpload, Warning } from "@mui/icons-material";
+import { FileUpload } from "@mui/icons-material";
+
+import { InlineErrorHandler } from "../../Components";
 
 const PREFIX = "DatasetFromFile";
 
@@ -25,7 +27,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const baseStyle = {
-  height: 416,
+  height: 400,
   flex: 1,
   display: "flex",
   flexDirection: "column",
@@ -105,7 +107,7 @@ const DatasetFromFile = ({
     <Root>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
-        <Stack className={classes.root} spacing={3}>
+        <Stack className={classes.root} spacing={2}>
           <ButtonBase disabled={isAddingDataset} disableRipple onClick={open}>
             <Avatar
               sx={{
@@ -120,19 +122,16 @@ const DatasetFromFile = ({
               />
             </Avatar>
           </ButtonBase>
-          <Typography>Drag and drop a dataset file to import</Typography>
+          <Typography>Drag and drop a dataset file to add</Typography>
           {file && (
             <Typography>
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
           {isAddDatasetError && (
-            <Stack direction="row" spacing={1}>
-              <Warning color="error" fontSize="small" />
-              <Typography variant="body2">
-                {addDatasetError?.message} Please try again.
-              </Typography>
-            </Stack>
+            <InlineErrorHandler
+              message={addDatasetError?.message + " Please try again."}
+            />
           )}
           <Button disabled={isAddingDataset} variant="contained" onClick={open}>
             Select File

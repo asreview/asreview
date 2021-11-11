@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Stack, TextField, Typography } from "@mui/material";
+import { Box, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Warning } from "@mui/icons-material";
+
+import { InlineErrorHandler } from "../../Components";
 
 const PREFIX = "DatasetFromURL";
 
@@ -31,7 +32,12 @@ const DatasetFromURL = (props) => {
   return (
     <Root>
       <Stack spacing={3}>
-        <Box component="form" noValidate autoComplete="off">
+        <Box
+          component="form"
+          noValidate
+          autoComplete="off"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <TextField
             disabled={props.isAddingDataset}
             fullWidth
@@ -42,12 +48,9 @@ const DatasetFromURL = (props) => {
           />
         </Box>
         {props.isAddDatasetError && (
-          <Stack direction="row" spacing={1}>
-            <Warning color="error" fontSize="small" />
-            <Typography variant="body2">
-              {props.addDatasetError?.message} Please try again.
-            </Typography>
-          </Stack>
+          <InlineErrorHandler
+            message={props.addDatasetError?.message + " Please try again."}
+          />
         )}
       </Stack>
     </Root>

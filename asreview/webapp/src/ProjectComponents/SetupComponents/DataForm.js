@@ -5,12 +5,13 @@ import {
   Button,
   Card,
   CardContent,
-  Link,
   Stack,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Check, Warning } from "@mui/icons-material";
+import { Check } from "@mui/icons-material";
+
+import { InlineErrorHandler } from "../../Components";
 
 const PREFIX = "DataForm";
 
@@ -54,7 +55,7 @@ const DataForm = (props) => {
               <Box>
                 <Typography variant="subtitle1">Add a dataset</Typography>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Import a systematic review dataset
+                  Contain all records related to a particular topic
                 </Typography>
               </Box>
               <Stack direction="row" sx={{ alignItems: "center" }}>
@@ -70,8 +71,8 @@ const DataForm = (props) => {
               <Box>
                 <Typography variant="subtitle1">Add prior knowledge</Typography>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Label at least 1 relevant and 1 irrelevant records to indicate
-                  your preference
+                  Indicate your preference with at least 1 relevant and 1
+                  irrelevant records
                 </Typography>
               </Box>
               <Box>
@@ -82,23 +83,11 @@ const DataForm = (props) => {
             </CardContent>
           </Card>
           {props.isError && (
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ justifyContent: "center" }}
-            >
-              <Warning color="error" fontSize="small" />
-              <Typography variant="body2">
-                {props.error?.message}{" "}
-                <Link
-                  component="button"
-                  underline="none"
-                  onClick={refetchPriorStats}
-                >
-                  Try to refresh
-                </Link>
-              </Typography>
-            </Stack>
+            <InlineErrorHandler
+              message={props.error?.message}
+              refetch={refetchPriorStats}
+              button="Try to refresh"
+            />
           )}
         </Stack>
       </Box>

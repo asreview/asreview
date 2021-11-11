@@ -4,14 +4,13 @@ import { useQueryClient } from "react-query";
 import {
   Box,
   CircularProgress,
-  Link,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Warning } from "@mui/icons-material";
 
+import { InlineErrorHandler } from "../../Components";
 import { DetailsModeSelect } from "../SetupComponents";
 
 const PREFIX = "DetailsForm";
@@ -99,19 +98,11 @@ const DetailsForm = (props) => {
           </Box>
         )}
         {props.isFetchDetailsError && (
-          <Stack direction="row" spacing={1} sx={{ justifyContent: "center" }}>
-            <Warning color="error" fontSize="small" />
-            <Typography variant="body2">
-              {props.fetchDetailsError?.message}{" "}
-              <Link
-                component="button"
-                underline="none"
-                onClick={refetchDetails}
-              >
-                Try to refresh
-              </Link>
-            </Typography>
-          </Stack>
+          <InlineErrorHandler
+            message={props.fetchDetailsError?.message}
+            refetch={refetchDetails}
+            button="Try to refresh"
+          />
         )}
       </Stack>
     </Root>

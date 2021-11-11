@@ -8,6 +8,7 @@ export { default as DrawerItemContainer } from "./DrawerItemContainer";
 export { default as ExportDialog } from "./ExportDialog";
 export { default as Header } from "./Header";
 export { default as HelpDialog } from "./HelpDialog";
+export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as NavigationDrawer } from "./NavigationDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";

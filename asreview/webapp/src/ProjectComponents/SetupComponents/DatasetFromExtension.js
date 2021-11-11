@@ -1,9 +1,9 @@
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { Box, CircularProgress, Link, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Warning } from "@mui/icons-material";
 
+import { InlineErrorHandler } from "../../Components";
 import { ExtensionDataset } from "../SetupComponents";
 import { ProjectAPI } from "../../api/index.js";
 
@@ -62,15 +62,11 @@ const DatasetFromExtension = (props) => {
         </Box>
       )}
       {(isFetchDatasetsError || props.isAddDatasetError) && (
-        <Stack direction="row" spacing={1} sx={{ justifyContent: "center" }}>
-          <Warning color="error" fontSize="small" />
-          <Typography variant="body2">
-            {returnError()}{" "}
-            <Link component="button" underline="none" onClick={refetchDatasets}>
-              {!props.isAddDatasetError ? "Try to refresh" : null}
-            </Link>
-          </Typography>
-        </Stack>
+        <InlineErrorHandler
+          message={returnError()}
+          refetch={refetchDatasets}
+          button={!props.isAddDatasetError ? "Try to refresh" : null}
+        />
       )}
       {!isFetchingDatasets && isSuccess && isFetched && (
         <Box className={classes.card}>
