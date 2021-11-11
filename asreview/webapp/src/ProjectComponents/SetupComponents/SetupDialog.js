@@ -72,6 +72,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 
 const SetupDialog = (props) => {
   const queryClient = useQueryClient();
+  const descriptionElementRef = React.useRef(null);
   const [showSimulate, setShowSimulate] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
 
@@ -306,7 +307,14 @@ const SetupDialog = (props) => {
     }
   }, [details, showSimulate]);
 
-  console.log(file);
+  React.useEffect(() => {
+    if (props.open) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
+      }
+    }
+  }, [props.open]);
 
   return (
     <StyledDialog
