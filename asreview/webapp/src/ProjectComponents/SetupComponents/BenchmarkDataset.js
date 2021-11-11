@@ -5,19 +5,11 @@ import {
   AccordionSummary,
   AccordionActions,
   Button,
-  Divider,
   Link,
-  Grid,
   Stack,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import {
-  CheckCircleOutline,
-  ExpandMore,
-  RadioButtonUnchecked,
-} from "@mui/icons-material";
+import { CheckCircleOutline, ExpandMore } from "@mui/icons-material";
 
 const DOILink = (doi) => {
   if (doi !== undefined && doi.startsWith("http")) {
@@ -33,14 +25,14 @@ const BenchmarkDataset = (props) => {
       if (featured) {
         props.setExpanded((s) => {
           return {
-            all: false,
+            other: false,
             featured: isExpanded ? index : false,
           };
         });
       } else {
         props.setExpanded((s) => {
           return {
-            all: isExpanded ? index : false,
+            other: isExpanded ? index : false,
             featured: false,
           };
         });
@@ -54,7 +46,7 @@ const BenchmarkDataset = (props) => {
     }
     if (!props.isAddingDataset) {
       props.setExpanded({
-        all: false,
+        other: false,
         featured: false,
       });
       props.setBenchmark(props.dataset_id);
@@ -78,6 +70,7 @@ const BenchmarkDataset = (props) => {
 
   return (
     <Accordion
+      elevation={3}
       expanded={props.expanded === props.index}
       onChange={handleAccordion(props.index, props.featured)}
     >

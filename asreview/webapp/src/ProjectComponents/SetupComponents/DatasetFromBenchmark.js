@@ -1,30 +1,39 @@
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { Box, Stack, Typography, CircularProgress } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
+import StarIcon from "@mui/icons-material/Star";
 
+import { InlineErrorHandler } from "../../Components";
 import { BenchmarkDataset } from "../SetupComponents";
 import { ProjectAPI } from "../../api/index.js";
 
 const PREFIX = "DatasetFromBenchmark";
 
 const classes = {
-  accordion: `${PREFIX}-accordion`,
-  title: `${PREFIX}-title`,
   loading: `${PREFIX}-loading`,
+  featuredTitle: `${PREFIX}-featured-title`,
+  container: `${PREFIX}-container`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.title}`]: {
-    marginTop: "20px",
-    marginLeft: "13px",
-    marginBottom: "20px",
+  [`& .${classes.loading}`]: {
+    textAlign: "center",
   },
 
-  [`& .${classes.loading}`]: {
-    marginBottom: "20px",
-    textAlign: "center",
-    margin: 0,
+  [`& .${classes.featuredTitle}`]: {
+    alignItems: "center",
+  },
+
+  [`& .${classes.container}`]: {
+    paddingLeft: 24,
+    paddingRight: 24,
   },
 }));
 
@@ -39,6 +48,11 @@ const formatCitation = (authors, year) => {
 
 const DatasetFromBenchmark = (props) => {
   const queryClient = useQueryClient();
+
+  const [expanded, setExpanded] = React.useState({
+    featured: false,
+    other: false,
+  });
 
   const {
     data,
@@ -62,14 +76,9 @@ const DatasetFromBenchmark = (props) => {
       return fetchDatasetsError?.message;
     }
     if (props.isAddDatasetError) {
-      return props.addDatasetError?.message;
+      return props.addDatasetError?.message + " Please try again";
     }
   };
-
-  const [expanded, setExpanded] = React.useState({
-    featured: false,
-    all: false,
-  });
 
   return (
     <Root>
@@ -78,11 +87,27 @@ const DatasetFromBenchmark = (props) => {
           <CircularProgress />
         </Box>
       )}
+      {(isFetchDatasetsError || props.isAddDatasetError) && (
+        <InlineErrorHandler
+          message={returnError()}
+          refetch={refetchDatasets}
+          button={!props.isAddDatasetError ? "Try to refresh" : null}
+        />
+      )}
       {!isFetchingDatasets && isSuccess && isFetched && (
-        <Stack spacing={3}>
-          <Stack spacing={3}>
-            <Typography variant="h6">Featured benchmark datasets</Typography>
-            <Box>
+        <Stack spacing={5}>
+          <Stack spacing={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              className={classes.featuredTitle}
+            >
+              <StarIcon color="primary" fontSize="small" />
+              <Typography variant="subtitle1" sx={{ color: "primary.main" }}>
+                <b>Featured</b>
+              </Typography>
+            </Stack>
+            <Box className={classes.container}>
               {data?.result
                 .filter(function (dataset) {
                   return dataset.featured;
@@ -117,17 +142,20 @@ const DatasetFromBenchmark = (props) => {
                 ))}
             </Box>
           </Stack>
-          <Stack spacing={3}>
-            <Typography variant="h6">All benchmark datasets</Typography>
-            <Box>
-              {data?.result.map((dataset, index) => (
+          <Divider />
+          <Box className={classes.container}>
+            {data?.result
+              .filter(function (dataset) {
+                return !dataset.featured;
+              })
+              .map((dataset, index) => (
                 <BenchmarkDataset
                   authors={formatCitation(dataset.authors, dataset.year)}
                   benchmark={props.benchmark}
                   dataset_id={dataset.dataset_id}
                   description={dataset.topic}
                   doi={dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
-                  expanded={expanded.all}
+                  expanded={expanded.other}
                   index={index}
                   isAddingDataset={props.isAddingDataset}
                   isAddDatasetError={props.isAddDatasetError}
@@ -141,8 +169,7 @@ const DatasetFromBenchmark = (props) => {
                   title={dataset.title}
                 />
               ))}
-            </Box>
-          </Stack>
+          </Box>
         </Stack>
       )}
     </Root>
