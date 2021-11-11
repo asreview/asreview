@@ -187,7 +187,7 @@ def test_set_algorithms(client):
 
     response = client.post("/api/project/project-id/algorithms", data={
         "model": "svm",
-        "query_strategy": "random_max",
+        "query_strategy": "max_random",
         "feature_extraction": "tfidf"
     })
     assert response.status_code == 200
