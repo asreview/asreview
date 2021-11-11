@@ -21,4 +21,4 @@ const axiosErrorHandler = (error) => {
   return api_error;
 };
 
-export default axiosErrorHandler;
+export { axiosErrorHandler };

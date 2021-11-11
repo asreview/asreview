@@ -976,39 +976,44 @@ def export_results(project_id):
     # get the export args
     file_type = request.args.get('file_type', None)
 
-    if file_type == "csv":
-        dataset_str = export_to_string(project_id, export_type="csv")
+    try:
+        if file_type == "csv":
+            dataset_str = export_to_string(project_id, export_type="csv")
 
-        return Response(
-            dataset_str,
-            mimetype="text/csv",
-            headers={
-                "Content-disposition":
-                f"attachment; filename=asreview_result_{project_id}.csv"
-            })
+            return Response(
+                dataset_str,
+                mimetype="text/csv",
+                headers={
+                    "Content-disposition":
+                    f"attachment; filename=asreview_result_{project_id}.csv"
+                })
 
-    elif file_type == "tsv":
-        dataset_str = export_to_string(project_id, export_type="tsv")
+        elif file_type == "tsv":
+            dataset_str = export_to_string(project_id, export_type="tsv")
 
-        return Response(
-            dataset_str,
-            mimetype="text/tab-separated-values",
-            headers={
-                "Content-disposition":
-                f"attachment; filename=asreview_result_{project_id}.tsv"
-            })
-    else:  # excel
+            return Response(
+                dataset_str,
+                mimetype="text/tab-separated-values",
+                headers={
+                    "Content-disposition":
+                    f"attachment; filename=asreview_result_{project_id}.tsv"
+                })
+        else:  # excel
 
-        dataset_str = export_to_string(project_id, export_type="excel")
-        fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
+            dataset_str = export_to_string(project_id, export_type="excel")
+            fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
-        return send_file(
-            fp_tmp_export,
-            mimetype=   # noqa
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
-            as_attachment=True,
-            download_name=f"asreview_result_{project_id}.xlsx",
-            max_age=0)
+            return send_file(
+                fp_tmp_export,
+                mimetype=   # noqa
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
+                as_attachment=True,
+                download_name=f"asreview_result_{project_id}.xlsx",
+                max_age=0)
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message=f"Failed to export the {file_type} dataset."), 500
 
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
@@ -1034,11 +1039,16 @@ def export_project(project_id):
                         "zip",
                         root_dir=Path(tmpdir.name, project_id))
 
-    # return the project file to the user
-    return send_file(str(Path(tmpdir.name, f"{project_id}.zip")),
-                     as_attachment=True,
-                     download_name=f"{project_id}.asreview",
-                     max_age=0)
+    try:
+        # return the project file to the user
+        return send_file(str(Path(tmpdir.name, f"{project_id}.zip")),
+                         as_attachment=True,
+                         download_name=f"{project_id}.asreview",
+                         max_age=0)
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message="Failed to export the project."), 500
 
 
 @bp.route('/project/<project_id>/finish', methods=["GET"])
