@@ -313,23 +313,27 @@ def test_get_document(client):
 
     assert "result" in json_data
     assert isinstance(json_data, dict)
-def test_classify_instance(client):
-    """Test retrieve classification result"""
 
-    response = client.post("/api/project/project-id/record/<doc_id>", data={
-        "doc_id": 8208,
-        "label": 1,
-    })
+    doc_id = json_data["result"]['doc_id']
+
+    # Test retrieve classification result
+    response = client.post(
+        f"/api/project/project-id/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": 1,
+        }
+    )
     assert response.status_code == 200
 
-
-def test_update_classify_instance(client):
-    """Test update classification result"""
-
-    response = client.put("/api/project/project-id/record/<doc_id>", data={
-        "doc_id": 8208,
-        "label": 0,
-    })
+    # Test update classification result
+    response = client.put(
+        f"/api/project/project-id/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": 0,
+        }
+    )
     assert response.status_code == 200
 
 
