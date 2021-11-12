@@ -110,7 +110,6 @@ const StyledBox = styled(Box)(({ theme }) => ({
   },
 }));
 
-
 const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
   const [state, setState] = React.useState({
     method: null,
@@ -176,7 +175,10 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
 
   // check if there is enough prior knowledge
   useEffect(() => {
-    if (priorStats["n_prior_inclusions"] > 0 && priorStats["n_prior_exclusions"] > 0) {
+    if (
+      priorStats["n_prior_inclusions"] > 0 &&
+      priorStats["n_prior_exclusions"] > 0
+    ) {
       setNext(true);
     } else {
       setNext(false);
@@ -349,9 +351,7 @@ const PriorKnowledge = ({ project_id, setNext, scrollToBottom }) => {
           onClose={closePriorKnowledge}
         />
         <DialogContent dividers={true}>
-          <LabeledItems 
-            updatePriorStats={updatePriorStats}
-          />
+          <LabeledItems updatePriorStats={updatePriorStats} />
         </DialogContent>
         <DialogActions>
           <Button onClick={closePriorKnowledge} color="primary">

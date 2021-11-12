@@ -124,7 +124,7 @@ const ProjectUpload = ({
   const [statistics, setStatistics] = React.useState(null);
 
   // set the file
-  const [file, setFile] = React.useState(null);
+  // const [file, setFile] = React.useState(null);
 
   // raise error (Maybe merge this state with other states)
   const [error, setError] = React.useState(null);
@@ -135,92 +135,92 @@ const ProjectUpload = ({
   // help dialog
   const [help, openHelp, closeHelp] = useHelp();
 
-  const onUploadHandler = (data, callback) => {
-    // // disable the buttons and show loader
-    // setUpload(true)
+  // const onUploadHandler = (data, callback) => {
+  //   // // disable the buttons and show loader
+  //   // setUpload(true)
 
-    // remove selection
-    setState({
-      init: state.init,
-      edit: false,
-      upload: true,
-    });
+  //   // remove selection
+  //   setState({
+  //     init: state.init,
+  //     edit: false,
+  //     upload: true,
+  //   });
 
-    ProjectAPI.data(project_id, true, data)
-      .then(function (res) {
-        // remove accepted files
-        setFile(null);
+  //   ProjectAPI.data(project_id, true, data)
+  //     .then(function (res) {
+  //       // remove accepted files
+  //       setFile(null);
 
-        // set state to lock such that it triggers the fetch stats call
-        setState({
-          init: false,
-          edit: false,
-          upload: false,
-        });
+  //       // set state to lock such that it triggers the fetch stats call
+  //       setState({
+  //         init: false,
+  //         edit: false,
+  //         upload: false,
+  //       });
 
-        // set next button ready
-        setNext(true);
+  //       // set next button ready
+  //       setNext(true);
 
-        // callback
-        if (callback !== undefined) {
-          callback();
-        }
-      })
-      .catch(function (error) {
-        // // set upload to false
-        // setUpload(false);
+  //       // callback
+  //       if (callback !== undefined) {
+  //         callback();
+  //       }
+  //     })
+  //     .catch(function (error) {
+  //       // // set upload to false
+  //       // setUpload(false);
 
-        // remove accepted files
-        setFile(null);
+  //       // remove accepted files
+  //       setFile(null);
 
-        // set state to lock such that it triggers the fetch stats call
-        setState({
-          init: state.init,
-          edit: true,
-          upload: false,
-        });
+  //       // set state to lock such that it triggers the fetch stats call
+  //       setState({
+  //         init: state.init,
+  //         edit: true,
+  //         upload: false,
+  //       });
 
-        // set error to state
-        setError(error.message);
+  //       // set error to state
+  //       setError(error.message);
 
-        // callback
-        if (callback !== undefined) {
-          callback();
-        }
-      });
-  };
+  //       // callback
+  //       if (callback !== undefined) {
+  //         callback();
+  //       }
+  //     });
+  // };
 
-  /* Upload file */
-  const onUploadHandlerFile = (callback) => {
-    const data = new FormData();
-    data.append("file", file);
+  // /* Upload file */
+  // const onUploadHandlerFile = (callback) => {
+  //   const data = new FormData();
+  //   data.append("file", file);
 
-    return onUploadHandler(data, callback);
-  };
+  //   return onUploadHandler(data, callback);
+  // };
 
-  /* Upload demo dataset */
-  const onUploadHandlerPluginDataset = (demo_data_id, callback) => {
-    const data = new FormData();
-    data.append("plugin", demo_data_id);
+  // /* Upload demo dataset */
+  // const onUploadHandlerPluginDataset = (demo_data_id, callback) => {
+  //   const data = new FormData();
+  //   data.append("plugin", demo_data_id);
 
-    return onUploadHandler(data, callback);
-  };
+  //   return onUploadHandler(data, callback);
+  // };
 
-  /* Upload benchmark dataset */
-  const onUploadHandlerBenchmarkDataset = (demo_data_id, callback) => {
-    const data = new FormData();
-    data.append("benchmark", demo_data_id);
+  //  Upload benchmark dataset
+  // const onUploadHandlerBenchmarkDataset = (demo_data_id, callback) => {
+  //   const data = new FormData();
+  //   data.append("benchmark", demo_data_id);
 
-    return onUploadHandler(data, callback);
-  };
+  //   return onUploadHandler(data, callback);
+  // };
 
-  /* Upload demo dataset */
-  const onUploadHandlerURL = (url, callback) => {
-    const data = new FormData();
-    data.append("url", url);
+  // /* Upload demo dataset */
+  // const onUploadHandlerURL = (url, callback) => {
+  //   const data = new FormData();
+  //   data.append("url", url);
 
-    return onUploadHandler(data, callback);
-  };
+  //   return onUploadHandler(data, callback);
+  // };
 
   const [value, setValue] = React.useState("file");
 
@@ -260,7 +260,7 @@ const ProjectUpload = ({
 
   useEffect(() => {
     setError(null);
-    setFile(null);
+    // setFile(null);
   }, [value]);
 
   useEffect(() => {

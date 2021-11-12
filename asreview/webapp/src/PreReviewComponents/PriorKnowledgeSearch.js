@@ -15,7 +15,6 @@ import { useMutation } from "react-query";
 import { SearchResult } from "../PreReviewComponents";
 import { ProjectAPI } from "../api/index.js";
 
-
 const PREFIX = "PriorKnowledgeSearch";
 
 const classes = {
@@ -75,7 +74,6 @@ const PriorKnowledgeSearch = (props) => {
   });
 
   const closeSearchResult = () => {
-
     setSearchDialog({
       ...searchDialog,
       open: false,
@@ -100,7 +98,6 @@ const PriorKnowledgeSearch = (props) => {
 
   const { mutate } = useMutation(ProjectAPI.mutateClassification, {
     onSuccess: (data, variables) => {
-
       // close the search results
       closeSearchResult();
 
@@ -108,7 +105,6 @@ const PriorKnowledgeSearch = (props) => {
       props.updatePriorStats();
     },
   });
-
 
   // include the item in the card
   const includeItem = (doc_id) => {

@@ -17,7 +17,6 @@ import { ProjectAPI } from "../api/index.js";
 
 import { useMutation } from "react-query";
 
-
 const PREFIX = "PriorKnowledgeRandom";
 
 const classes = {
@@ -95,11 +94,9 @@ const PriorKnowledgeRandom = (props) => {
     });
   };
 
-
   const { mutate } = useMutation(ProjectAPI.mutateClassification, {
     onSuccess: (data, variables) => {
-
-      if (variables.label === 1){
+      if (variables.label === 1) {
         setState({
           count_inclusions: state["count_inclusions"] + 1,
           count_exclusions: state["count_exclusions"],
@@ -108,7 +105,7 @@ const PriorKnowledgeRandom = (props) => {
         });
       }
 
-      if (variables.label === 0){
+      if (variables.label === 0) {
         setState({
           count_inclusions: state["count_inclusions"],
           count_exclusions: state["count_exclusions"] + 1,

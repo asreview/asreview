@@ -155,7 +155,9 @@ const LabeledItems = (props) => {
                         <ListItemIcon className={classes.deleteIcon}>
                           <IconButton
                             aria-label="delete"
-                            onClick={() => { resetItem(value.id) }}
+                            onClick={() => {
+                              resetItem(value.id);
+                            }}
                             size="large"
                           >
                             <DeleteIcon />
@@ -179,7 +181,9 @@ const LabeledItems = (props) => {
                         <ListItemIcon className={classes.deleteIcon}>
                           <IconButton
                             aria-label="delete"
-                            onClick={() => { resetItem(value.id) }}
+                            onClick={() => {
+                              resetItem(value.id);
+                            }}
                             size="large"
                           >
                             <DeleteIcon />
