@@ -590,7 +590,7 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
 
         elif label == -1:
             with open_state(state_path, read_only=False) as state:
-                state.delete_record_labeling_data(paper_id)
+                state.delete_record_labeling_data(paper_i)
 
     if retrain_model:
         train_model(project_id)
