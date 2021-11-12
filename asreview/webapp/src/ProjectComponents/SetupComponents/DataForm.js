@@ -22,7 +22,7 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.title}`]: {
-    paddingBottom: 16,
+    paddingBottom: 24,
   },
   [`& .${classes.cardContent}`]: {
     display: "flex",
@@ -59,7 +59,9 @@ const DataForm = (props) => {
                 </Typography>
               </Box>
               <Stack direction="row" sx={{ alignItems: "center" }}>
-                {props.details?.projectHasDataset && <Check color="success" />}
+                {props.details?.projectHasDataset && (
+                  <Check color="success" sx={{ mr: 1 }} />
+                )}
                 <Button onClick={props.toggleAddDataset}>
                   {!props.details?.projectHasDataset ? "Add" : "Edit"}
                 </Button>
@@ -76,7 +78,10 @@ const DataForm = (props) => {
                 </Typography>
               </Box>
               <Box>
-                <Button disabled={!props.details?.projectHasDataset}>
+                <Button
+                  disabled={!props.details?.projectHasDataset}
+                  onClick={props.toggleAddPriorKnowledge}
+                >
                   Add
                 </Button>
               </Box>

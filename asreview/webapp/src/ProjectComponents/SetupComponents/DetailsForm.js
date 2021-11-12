@@ -16,10 +16,15 @@ import { DetailsModeSelect } from "../SetupComponents";
 const PREFIX = "DetailsForm";
 
 const classes = {
+  title: `${PREFIX}-title`,
   loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.title}`]: {
+    paddingBottom: 24,
+  },
+
   [`& .${classes.loading}`]: {
     display: "flex",
     justifyContent: "center",
@@ -35,10 +40,10 @@ const DetailsForm = (props) => {
 
   return (
     <Root>
+      <Box className={classes.title}>
+        <Typography variant="h6">Details</Typography>
+      </Box>
       <Stack spacing={3}>
-        <Typography className={classes.title} variant="h6">
-          Details
-        </Typography>
         {props.isFetchingDetails && (
           <Box className={classes.loading}>
             <CircularProgress />

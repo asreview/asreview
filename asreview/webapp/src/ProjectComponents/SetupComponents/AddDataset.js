@@ -30,7 +30,10 @@ const AddDataset = (props) => {
   const { data, error, isError, isFetched, isSuccess } = useQuery(
     ["fetchData", { project_id: props.project_id }],
     ProjectAPI.fetchData,
-    { refetchOnWindowFocus: false }
+    {
+      enabled: props.datasetAdded,
+      refetchOnWindowFocus: false,
+    }
   );
 
   const refetchData = () => {

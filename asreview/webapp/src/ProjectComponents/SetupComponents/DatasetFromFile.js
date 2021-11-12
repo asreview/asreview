@@ -8,7 +8,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
@@ -61,7 +61,6 @@ const DatasetFromFile = ({
   isAddingDataset,
   reset,
 }) => {
-  const theme = useTheme();
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles.length !== 1) {
@@ -113,7 +112,7 @@ const DatasetFromFile = ({
               sx={{
                 height: "136px",
                 width: "136px",
-                bgcolor:
+                bgcolor: (theme) =>
                   theme.palette.mode === "dark" ? "grey.800" : "grey.100",
               }}
             >
