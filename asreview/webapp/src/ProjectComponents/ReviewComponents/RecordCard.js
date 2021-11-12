@@ -168,7 +168,7 @@ const RecordCard = (props) => {
                   className={"fontSize" + props.fontSize.label}
                   fontStyle="italic"
                 >
-                  This record doesn't have a title.
+                  No title available.
                 </Box>
               )}
 
@@ -218,7 +218,7 @@ const RecordCard = (props) => {
               {(props.activeRecord.abstract === "" ||
                 props.activeRecord.abstract === null) && (
                 <Box fontStyle="italic">
-                  This record doesn't have an abstract.
+                  No abstract available.
                 </Box>
               )}
 
