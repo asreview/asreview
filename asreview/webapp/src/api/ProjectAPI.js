@@ -245,13 +245,50 @@ class ProjectAPI {
     });
   }
 
-  static algorithms_list() {
+  static fetchModelOptions({ queryKey }) {
     const url = api_url + `algorithms`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchModelConfig({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/algorithms`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static mutateModelConfig(variables) {
+    let body = new FormData();
+    body.set("model", variables.classifier);
+    body.set("query_strategy", variables.query_strategy);
+    body.set("feature_extraction", variables.feature_extraction);
+
+    const url = api_url + `project/${variables.project_id}/algorithms`;
+    return new Promise((resolve, reject) => {
+      axios({
+        method: "post",
+        url: url,
+        data: body,
+      })
+        .then((result) => {
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -494,7 +531,7 @@ class ProjectAPI {
     }
 
     // prior items should be labeled as such
-    if (variables.is_prior === 1){
+    if (variables.is_prior === 1) {
       body.set("is_prior", 1);
     }
 

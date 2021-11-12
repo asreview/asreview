@@ -20,7 +20,13 @@ import {
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { AddDataset, DataForm, DetailsForm } from "../SetupComponents";
+import {
+  AddDataset,
+  AddPriorKnowledge,
+  DataForm,
+  DetailsForm,
+  ModelForm,
+} from "../SetupComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
@@ -83,7 +89,13 @@ const SetupDialog = (props) => {
   const [extension, setExtension] = React.useState(null);
   const [benchmark, setBenchmark] = React.useState(null);
 
-  // const [addPriors, setAddPriors] = useToggle();
+  const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
+
+  const [model, setModel] = React.useState({
+    classifier: null,
+    query_strategy: null,
+    feature_extraction: null,
+  });
 
   // the state of the form data
   const [details, setDetails] = React.useState({
@@ -164,6 +176,39 @@ const SetupDialog = (props) => {
   /**
    * Step 2: Data
    */
+  const {
+    error: addDatasetError,
+    isError: isAddDatasetError,
+    isLoading: isAddingDataset,
+    mutate: mutateDataset,
+    reset: resetMutateDataset,
+  } = useMutation(ProjectAPI.mutateData, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("fetchInfo");
+      toggleAddDataset();
+      setDatasetSource("file");
+    },
+    onSettled: () => {
+      setFile(null);
+      setURL("");
+      setExtension(null);
+      setBenchmark(null);
+    },
+  });
+
+  const {
+    data: labeledStats,
+    error: fetchLabeledStatsError,
+    isError: isFetchLabeledStatsError,
+  } = useQuery(
+    ["fetchLabeledStats", { project_id: props.project_id }],
+    ProjectAPI.fetchLabeledStats,
+    {
+      enabled: props.project_id !== null && activeStep === 1,
+      refetchOnWindowFocus: false,
+    }
+  );
+
   const handleDatasetSource = (event) => {
     setDatasetSource(event.target.value);
     resetMutateDataset();
@@ -189,7 +234,7 @@ const SetupDialog = (props) => {
     });
   };
 
-  const disableSaveButton = () => {
+  const disableSaveDataset = () => {
     if (datasetSource === "file") {
       return !file;
     }
@@ -204,36 +249,25 @@ const SetupDialog = (props) => {
     }
   };
 
-  const {
-    error: addDatasetError,
-    isError: isAddDatasetError,
-    isLoading: isAddingDataset,
-    mutate: mutateDataset,
-    reset: resetMutateDataset,
-  } = useMutation(ProjectAPI.mutateData, {
-    onSuccess: () => {
-      queryClient.invalidateQueries("fetchInfo");
-      toggleAddDataset();
-      setDatasetSource("file");
-    },
-    onSettled: () => {
-      setFile(null);
-      setURL("");
-      setExtension(null);
-      setBenchmark(null);
-    },
-  });
+  const handleDiscardPriorKnowledge = () => {
+    toggleAddPriorKnowledge();
+  };
 
-  const {
-    data: priorStats,
-    error: fetchLabeledStatsError,
-    isError: isFetchLabeledStatsError,
-  } = useQuery(
-    ["fetchLabeledStats", { project_id: props.project_id }],
-    ProjectAPI.fetchLabeledStats,
+  const handleSavePriorKnowledge = () => {};
+
+  const disableSavePriorKnowledge = () => {
+    return false;
+  };
+
+  /**
+   * Step3: Model
+   */
+  const { mutate: mutateModelConfig } = useMutation(
+    ProjectAPI.mutateModelConfig,
     {
-      enabled: props.project_id !== null && activeStep === 1,
-      refetchOnWindowFocus: false,
+      onSuccess: () => {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      },
     }
   );
 
@@ -267,7 +301,8 @@ const SetupDialog = (props) => {
       return details.title.length < 3;
     }
     if (activeStep === 1) {
-      return !priorStats?.n_priors;
+      // return !labeledStats?.n_priors;
+      return false; // temporary
     }
   };
 
@@ -287,6 +322,18 @@ const SetupDialog = (props) => {
         title: details.title,
         authors: details.authors,
         description: details.description,
+      });
+    }
+    if (activeStep === 1) {
+      // temporaray
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (activeStep === 2) {
+      mutateModelConfig({
+        project_id: props.project_id,
+        classifier: model["classifier"],
+        query_strategy: model["query_strategy"],
+        feature_extraction: model["feature_extraction"],
       });
     }
   };
@@ -326,7 +373,7 @@ const SetupDialog = (props) => {
         sx: { height: "calc(100% - 96px)" },
       }}
     >
-      {!addDataset && (
+      {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <Box className={classes.title}>
             <DialogTitle>Create a new project</DialogTitle>
@@ -347,7 +394,7 @@ const SetupDialog = (props) => {
                 Discard Changes
               </Button>
               <LoadingButton
-                disabled={disableSaveButton()}
+                disabled={disableSaveDataset()}
                 loading={isAddingDataset}
                 variant="contained"
                 onClick={handleSaveDataset}
@@ -358,8 +405,27 @@ const SetupDialog = (props) => {
           </Box>
         </Fade>
       )}
+      {addPriorKnowledge && (
+        <Fade in={addPriorKnowledge}>
+          <Box className={classes.title}>
+            <DialogTitle>Prior knowledge</DialogTitle>
+            <Stack direction="row" spacing={2} className={classes.closeButton}>
+              <Button onClick={handleDiscardPriorKnowledge}>
+                Discard Changes
+              </Button>
+              <LoadingButton
+                disabled={disableSavePriorKnowledge()}
+                variant="contained"
+                onClick={handleSavePriorKnowledge}
+              >
+                Save
+              </LoadingButton>
+            </Stack>
+          </Box>
+        </Fade>
+      )}
       <Divider />
-      {!addDataset && (
+      {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <DialogContent className={classes.content}>
             <Box className={classes.stepper}>
@@ -388,9 +454,13 @@ const SetupDialog = (props) => {
                 <DataForm
                   details={fetchedDetails}
                   toggleAddDataset={toggleAddDataset}
+                  toggleAddPriorKnowledge={toggleAddPriorKnowledge}
                   error={fetchLabeledStatsError}
                   isError={isFetchLabeledStatsError}
                 />
+              )}
+              {activeStep === 2 && (
+                <ModelForm model={model} setModel={setModel} />
               )}
             </Box>
           </DialogContent>
@@ -399,26 +469,29 @@ const SetupDialog = (props) => {
 
       {addDataset && (
         <AddDataset
-          datasetSource={datasetSource}
-          file={file}
-          url={url}
-          extension={extension}
+          addDatasetError={addDatasetError}
           benchmark={benchmark}
+          datasetAdded={fetchedDetails?.projectHasDataset}
+          datasetSource={datasetSource}
+          extension={extension}
+          file={file}
           handleDatasetSource={handleDatasetSource}
+          isAddDatasetError={isAddDatasetError}
+          isAddingDataset={isAddingDataset}
+          mode={details["mode"]}
+          reset={resetMutateDataset}
           setFile={setFile}
           setURL={setURL}
           setExtension={setExtension}
           setBenchmark={setBenchmark}
-          mode={details["mode"]}
           toggleAddDataset={toggleAddDataset}
-          addDatasetError={addDatasetError}
-          isAddDatasetError={isAddDatasetError}
-          isAddingDataset={isAddingDataset}
-          reset={resetMutateDataset}
+          url={url}
         />
       )}
-      {!addDataset && <Divider />}
-      {!addDataset && (
+
+      {addPriorKnowledge && <AddPriorKnowledge />}
+      {!addDataset && !addPriorKnowledge && <Divider />}
+      {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <DialogActions>
             {activeStep !== 0 && (
