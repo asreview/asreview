@@ -38,8 +38,6 @@ const ListItemPaper = (props) => {
 
       // Close the search results
       props.closeSearchResult();
-
-      props.updatePriorStats();
     });
   };
 
@@ -50,8 +48,6 @@ const ListItemPaper = (props) => {
 
       // Close the search results
       props.closeSearchResult();
-
-      props.updatePriorStats();
     });
   };
 

@@ -165,7 +165,6 @@ This module contains all Balancer models.
    balance.base
    balance.simple
    balance.double
-   balance.triple
    balance.undersample
    balance.utils
 

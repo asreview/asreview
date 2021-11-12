@@ -15,6 +15,9 @@ import { DialogTitleWithClose } from "../Components";
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
+import { useMutation } from "react-query";
+
+
 const PREFIX = "PriorKnowledgeRandom";
 
 const classes = {
@@ -83,38 +86,61 @@ const PriorKnowledgeRandom = (props) => {
     message: null,
   });
 
-  const includeRandomDocument = () => {
-    props.includeItem(state["records"].id, () => {
-      setState({
-        count_inclusions: state["count_inclusions"] + 1,
-        count_exclusions: state["count_exclusions"],
-        records: null,
-        loaded: false,
-      });
-
-      props.updatePriorStats();
-    });
-  };
-
-  const excludeRandomDocument = () => {
-    props.excludeItem(state["records"].id, () => {
-      setState({
-        count_inclusions: state["count_inclusions"],
-        count_exclusions: state["count_exclusions"] + 1,
-        records: null,
-        loaded: false,
-      });
-
-      props.updatePriorStats();
-    });
-  };
-
   const resetCount = () => {
     setState({
       count_inclusions: 0,
       count_exclusions: 0,
       records: null,
       loaded: false,
+    });
+  };
+
+
+  const { mutate } = useMutation(ProjectAPI.mutateClassification, {
+    onSuccess: (data, variables) => {
+
+      if (variables.label === 1){
+        setState({
+          count_inclusions: state["count_inclusions"] + 1,
+          count_exclusions: state["count_exclusions"],
+          records: null,
+          loaded: false,
+        });
+      }
+
+      if (variables.label === 0){
+        setState({
+          count_inclusions: state["count_inclusions"],
+          count_exclusions: state["count_exclusions"] + 1,
+          records: null,
+          loaded: false,
+        });
+      }
+
+      // update the prior stats on the home screen
+      props.updatePriorStats();
+    },
+  });
+
+  // include the item in the card
+  const includeRandomDocument = (doc_id) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: doc_id,
+      label: 1,
+      is_prior: 1,
+      initial: true,
+    });
+  };
+
+  // exclude the item in the card
+  const excludeRandomDocument = (doc_id) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: doc_id,
+      label: 0,
+      is_prior: 1,
+      initial: true,
     });
   };
 
@@ -181,13 +207,13 @@ const PriorKnowledgeRandom = (props) => {
       {error.message === null && state["count_exclusions"] < n_items && (
         <DialogActions>
           <Button
-            onClick={() => excludeRandomDocument(props.id)}
+            onClick={() => excludeRandomDocument(state["records"].id)}
             color="primary"
           >
             Irrelevant
           </Button>
           <Button
-            onClick={() => includeRandomDocument(props.id)}
+            onClick={() => includeRandomDocument(state["records"].id)}
             color="primary"
           >
             Relevant

@@ -57,7 +57,7 @@ def test_simulate(tmpdir):
 
 def test_prior_idx(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATA_FP)} -s {project_path} --prior_idx 1 3'.split()
+    argv = f'{str(DATA_FP)} -s {project_path} --prior_idx 1 4'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
@@ -66,9 +66,9 @@ def test_prior_idx(tmpdir):
         query_strategies = state.get_query_strategies()
 
     assert labeling_order[0] == 1
-    assert labeling_order[1] == 3
-    assert all(query_strategies[:1] == 'initial')
-    assert all(query_strategies[2:] != 'initial')
+    assert labeling_order[1] == 4
+    assert all(query_strategies[:1] == 'prior')
+    assert all(query_strategies[2:] != 'prior')
 
 
 def test_n_prior_included(tmpdir):
@@ -81,7 +81,7 @@ def test_n_prior_included(tmpdir):
         result = state.get_dataset(['label', 'query_strategy'])
 
     prior_included = \
-        result['label'] & (result['query_strategy'] == 'initial')
+        result['label'] & (result['query_strategy'] == 'prior')
     assert sum(prior_included) == 2
 
     with open(get_settings_metadata_path(project_path), 'r') as f:
@@ -100,7 +100,7 @@ def test_n_prior_excluded(tmpdir):
         result = state.get_dataset(['label', 'query_strategy'])
 
     prior_excluded = \
-        ~result['label'] & (result['query_strategy'] == 'initial')
+        ~result['label'] & (result['query_strategy'] == 'prior')
     assert sum(prior_excluded) == 2
 
     with open(get_settings_metadata_path(project_path), 'r') as f:
@@ -138,7 +138,8 @@ def test_non_tf_models(tmpdir):
 
         with open_state(project_path) as state:
             classifiers = state.get_classifiers()
-        assert all(classifiers == model)
+        default_n_priors = 2
+        assert all(classifiers[default_n_priors:] == model)
 
         with open(get_settings_metadata_path(project_path), 'r') as f:
             settings_metadata = json.load(f)
