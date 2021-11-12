@@ -54,8 +54,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
 
     if from_version != 0 and to_version != 1:
         raise ValueError(
-            f"Not possible to upgrade from {from_version} to {to_version}."
-        )
+            f"Not possible to upgrade from {from_version} to {to_version}.")
 
     # Check if it is indeed an old format project.
     is_old_project(fp)
@@ -64,13 +63,15 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     fp = Path(fp)
     json_fp = Path(fp, 'result.json')
     project_fp = Path(fp, 'project.json')
+    pool_fp = Path(fp, 'pool.json')
+    kwargs_fp = Path(fp, 'kwargs.json')
     review_id = str(uuid4().hex)
 
     # Create the reviews folder and the paths for the results and settings.
     Path(fp, 'reviews', review_id).mkdir(parents=True)
     sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
-    settings_metadata_fp = Path(fp, 'reviews',
-                                review_id, 'settings_metadata.json')
+    settings_metadata_fp = Path(fp, 'reviews', review_id,
+                                'settings_metadata.json')
 
     # Create the path for the feature matrix.
 
@@ -81,7 +82,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     convert_json_last_probabilities(sql_fp, json_fp)
 
     # Create teh table for the last ranking of the model.
-    create_last_ranking_table(sql_fp)
+    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp)
 
     # Add the record table to the sqlite database as the table
     # 'record_table'.
@@ -103,12 +104,12 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Update the project.json file.
     with open(json_fp, 'r') as f:
         start_time = json.load(f)['time']['start_time']
-    convert_project_json(project_fp, review_id, start_time,
-                         feature_matrix_fp, feature_extraction_method)
+    convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
+                         feature_extraction_method)
 
 
-def convert_project_json(project_fp, review_id, start_time,
-                         feature_matrix_fp, feature_extraction_method):
+def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
+                         feature_extraction_method):
     """Update the project.json file to contain the review information , the
     feature matrix information and the new state version number.
 
@@ -130,21 +131,20 @@ def convert_project_json(project_fp, review_id, start_time,
 
     # Add the feature matrix information.
     feature_matrix_name = Path(feature_matrix_fp).name
-    project_info['feature_matrices'] = [
-        {
-            'id': feature_extraction_method,
-            'filename': feature_matrix_name
-        }
-    ]
+    project_info['feature_matrices'] = [{
+        'id': feature_extraction_method,
+        'filename': feature_matrix_name
+    }]
 
     # Add the review information.
-    project_info['reviews'] = [
-        {
-            'id': review_id,
-            'start_time': start_time,
-            'review_finished': project_info.get('reviewFinished', False)
-        }
-    ]
+    project_info['reviews'] = [{
+        'id':
+        review_id,
+        'start_time':
+        start_time,
+        'review_finished':
+        project_info.get('reviewFinished', False)
+    }]
 
     # Update the state version.
     project_info['state_version'] = SQLSTATE_VERSION
@@ -176,7 +176,7 @@ def convert_json_settings_metadata(fp, json_fp):
         json.dump(data_dict, f)
 
 
-def create_last_ranking_table(sql_fp):
+def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp):
     """Create the table which will contain the ranking of the last iteration of
     the model. The converter will leave the table empty. It will be filled the
     first time a new model is trained.
@@ -186,6 +186,18 @@ def create_last_ranking_table(sql_fp):
     sql_fp: str/path
         Path where to save the record table. Should be a .sql file.
     """
+
+    with open(pool_fp) as f_pool:
+        pool_ranking = json.load(f_pool)
+
+    with open(kwargs_fp, 'r') as f_kwargs:
+        kwargs_dict = json.load(f_kwargs)
+
+    last_ranking = [(v, i, kwargs_dict['model'], kwargs_dict['query_strategy'],
+                     kwargs_dict['balance_strategy'],
+                     kwargs_dict['feature_extraction'], None, None)
+                    for i, v in enumerate(pool_ranking)]
+
     with sqlite3.connect(sql_fp) as con:
         cur = con.cursor()
 
@@ -199,6 +211,9 @@ def create_last_ranking_table(sql_fp):
                         feature_extraction TEXT,
                         training_set INTEGER,
                         time INTEGER)''')
+        cur.executemany(
+            """INSERT INTO last_ranking VALUES
+                                    (?, ?, ?, ?, ?, ?, ?, ?)""", last_ranking)
         con.commit()
 
 
@@ -254,9 +269,7 @@ def get_json_record_table(json_state):
     return record_table
 
 
-def convert_json_feature_matrix(fp,
-                                json_fp,
-                                feature_extraction_method):
+def convert_json_feature_matrix(fp, json_fp, feature_extraction_method):
     """Get the feature matrix from a json state file. Save it in the feature
     matrices folder. Format is .npz if the matrix is sparse and .npy if the
     matrix is dense.
@@ -415,13 +428,11 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                     "All datasets should have the same number of entries.")
 
             # Create the database rows.
-            db_rows = [
-                (sf_record_ids[i], sf_labels[i], sf_classifiers[i],
-                 sf_query_strategy[i], sf_balance_strategy[i],
-                 sf_feature_extraction[i], sf_training_sets[i], sf_time[i],
-                 sf_notes[i])
-                for i in range(n_records_labeled)
-            ]
+            db_rows = [(sf_record_ids[i], sf_labels[i], sf_classifiers[i],
+                        sf_query_strategy[i], sf_balance_strategy[i],
+                        sf_feature_extraction[i], sf_training_sets[i],
+                        sf_time[i], sf_notes[i])
+                       for i in range(n_records_labeled)]
             cur.executemany(
                 """INSERT INTO results VALUES
                             (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
