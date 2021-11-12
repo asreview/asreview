@@ -30,23 +30,20 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
+from asreview.state.errors import StateError
+from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.utils.io import read_data
-from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.io import write_label_history
-from asreview.webapp.utils.io import write_pool
 from asreview.webapp.utils.project_path import asreview_path
 from asreview.webapp.utils.project_path import get_project_path
 from asreview.webapp.utils.project_path import list_asreview_project_paths
@@ -234,40 +231,40 @@ def add_dataset_to_project(project_id, file_name):
     # clean temp project files
     clean_project_tmp_files(project_id)
 
-    with SQLiteLock(get_lock_path(project_path),
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_config = json.load(f_read)
+    # open the projects file
+    with open(project_file_path, "r") as f_read:
+        project_dict = json.load(f_read)
 
-        # add path to dict (overwrite if already exists)
-        project_config["dataset_path"] = file_name
+    # add path to dict (overwrite if already exists)
+    project_dict["dataset_path"] = file_name
 
-        with open(project_file_path, "w") as f_write:
-            json.dump(project_config, f_write)
+    with open(project_file_path, "w") as f_write:
+        json.dump(project_dict, f_write)
 
-        # fill the pool of the first iteration
-        as_data = read_data(project_id)
+    # fill the pool of the first iteration
+    as_data = read_data(project_id)
 
+    state_file = get_state_path(project_path)
+
+    with open_state(state_file, read_only=False) as state:
+
+        # save the record ids in the state file
+        state.add_record_table(as_data.record_ids)
+
+        # if the data contains labels, add them to the state file
         if as_data.labels is not None:
-            unlabeled = np.where(as_data.labels == LABEL_NA)[0]
-            pool_indices = as_data.record_ids[unlabeled]
 
             labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-            label_indices = list(
-                zip(as_data.record_ids[labeled_indices].tolist(),
-                    as_data.labels[labeled_indices].tolist()))
-        else:
-            pool_indices = as_data.record_ids
-            label_indices = []
+            labels = as_data.labels[labeled_indices].tolist()
+            labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
 
-        np.random.shuffle(pool_indices)
-        write_pool(project_id, pool_indices.tolist())
-
-        # make a empty qeue for the items to label
-        write_label_history(project_id, label_indices)
+            # add the labels as prior data
+            state.add_labeling_data(
+                record_ids=labeled_record_ids,
+                labels=labels,
+                notes=[None for _ in labeled_record_ids],
+                prior=True
+            )
 
 
 def remove_dataset_to_project(project_id, file_name):
@@ -400,41 +397,20 @@ def get_instance(project_id):
         The id of the current project.
     """
     project_path = get_project_path(project_id)
-    fp_lock = get_lock_path(project_path)
+    with open_state(project_path, read_only=False) as state:
+        # First check if there is a pending record.
+        _, _, pending = state.get_pool_labeled_pending()
+        if not pending.empty:
+            record_ids = pending.to_list()
+        # Else query for a new record.
+        else:
+            record_ids = state.query_top_ranked(1)
 
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
-        pool_idx = read_pool(project_id)
-
-    if len(pool_idx) > 0:
-        return pool_idx[0]
+    if len(record_ids) > 0:
+        return record_ids[0]
     else:
         # end of pool
         return None
-
-
-def stop_n_since_last_relevant(labeled):
-    """Count n since last relevant"""
-
-    n_since_last_inclusion = 0
-    for inclusion in reversed(labeled.tolist()):
-        if inclusion == 1:
-            break
-        n_since_last_inclusion += 1
-
-    return n_since_last_inclusion
-
-
-def n_relevant(labeled):
-
-    return len(labeled[labeled == 1])
-
-
-def n_irrelevant(labeled):
-
-    return len(labeled[labeled == 0])
 
 
 def get_legacy_statistics(json_fp):
@@ -484,29 +460,34 @@ def get_statistics(project_id):
         json_fp = Path(project_path, 'result.json')
         # Check if the v0 project is in review.
         if json_fp.exists():
-            labeled, n_records = get_legacy_statistics(json_fp)
+            labels, n_records = get_legacy_statistics(json_fp)
         # No result found.
         else:
-            labeled = np.array([])
+            labels = np.array([])
             n_records = 0
     else:
         # Check if there is a review started in the project.
-        if list(get_reviews_path(project_path).iterdir()):
+        try:
             with open_state(project_path) as s:
-                labeled = s.get_labels()
+                labels = s.get_labels()
                 n_records = len(s.get_record_table())
-        # No reviews found.
-        else:
-            labeled = np.array([])
+        # No state file found or not init.
+        except (StateNotFoundError, StateError):
+            labels = np.array([])
             n_records = 0
 
-    n_included = n_relevant(labeled)
-    n_excluded = n_irrelevant(labeled)
+    n_included = sum(labels == 1)
+    n_excluded = sum(labels == 0)
+
+    if len(labels) > 0:
+        n_since_last_relevant = labels.tolist()[::-1].index(1)
+    else:
+        n_since_last_relevant = 0
 
     return {
         "n_included": n_included,
         "n_excluded": n_excluded,
-        "n_since_last_inclusion": stop_n_since_last_relevant(labeled),
+        "n_since_last_inclusion": n_since_last_relevant,
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included
     }
@@ -552,86 +533,64 @@ def export_to_string(project_id, export_type="csv"):
         raise ValueError("This export type isn't implemented.")
 
 
-def label_instance(project_id, paper_i, label, retrain_model=True):
+def train_model(project_id):
+    py_exe = _get_executable()
+    run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
+    subprocess.Popen(run_command)
+
+
+def update_instance(project_id, paper_i, label, retrain_model=True):
+    """Update a labeling decision."""
+    project_path = get_project_path(project_id)
+    state_path = get_state_path(project_path)
+
+    record_id = int(paper_i)
+    label = int(label)
+
+    with open_state(state_path, read_only=False) as state:
+        record_info = state.get_data_by_record_id(record_id)
+
+        # Check if the record is actually labeled.
+        if record_info.empty:
+            raise ValueError(f"Tried to update record_id {record_id}, "
+                             f"but it has not been labeled yet.")
+        else:
+            # If the current label is the same as the updated label, do nothing.
+            current_label = record_info['label'][0]
+            if current_label == label:
+                pass
+            # Else change the labeling decision.
+            else:
+                state.change_decision(record_id)
+
+    if retrain_model:
+        train_model(project_id)
+
+
+def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
+    project_path = get_project_path(project_id)
+    state_path = get_state_path(project_path)
 
     paper_i = int(paper_i)
     label = int(label)
 
-    # create state file if there is no state file yet
-    if True:
-        project_path = get_project_path(project_id)
-        state_file = get_state_path(project_path)
-
-        with open_state(state_file, read_only=False):
-            pass
-
-    project_path = get_project_path(project_id)
-    fp_lock = get_lock_path(project_path)
-
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
+    with open_state(state_path, read_only=False) as state:
 
         # get the index of the active iteration
-        if int(label) in [0, 1]:
-            move_label_from_pool_to_labeled(project_id, paper_i, label)
-        else:
-            move_label_from_labeled_to_pool(project_id, paper_i)
+        if label in [0, 1]:
+
+            # add the labels as prior data
+            state.add_labeling_data(record_ids=[paper_i],
+                                    labels=[label],
+                                    notes=[None],
+                                    prior=prior)
+
+        elif label == -1:
+            with open_state(state_path, read_only=False) as state:
+                state.delete_record_labeling_data(paper_i)
 
     if retrain_model:
-        # Update the model (if it isn't busy).
-
-        py_exe = _get_executable()
-        run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
-        subprocess.Popen(run_command)
-
-
-def move_label_from_pool_to_labeled(project_id, paper_i, label):
-
-    # load the papers from the pool
-    pool_idx = read_pool(project_id)
-
-    # Remove the paper from the pool.
-    try:
-        pool_idx.remove(int(paper_i))
-    except (IndexError, ValueError):
-        return
-
-    write_pool(project_id, pool_idx)
-
-    # Add the paper to the reviewed papers.
-    labeled = read_label_history(project_id)
-    labeled.append([int(paper_i), int(label)])
-    write_label_history(project_id, labeled)
-
-
-def move_label_from_labeled_to_pool(project_id, paper_i):
-
-    # load the papers from the pool
-    pool_list = read_pool(project_id)
-
-    # Add the paper to the reviewed papers.
-    labeled_list = read_label_history(project_id)
-
-    labeled_list_new = []
-
-    for item_id, item_label in labeled_list:
-
-        item_id = int(item_id)
-        item_label = int(item_label)
-        paper_i = int(paper_i)
-
-        if paper_i == item_id:
-            pool_list.append(item_id)
-        else:
-            labeled_list_new.append([item_id, item_label])
-
-    # write the papers to the label dataset
-    write_pool(project_id, pool_list)
-
-    # load the papers from the pool
-    write_label_history(project_id, labeled_list_new)
+        train_model(project_id)

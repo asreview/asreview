@@ -81,7 +81,6 @@ const SearchResultDialog = (props) => {
                 abstract={value.abstract}
                 included={value.included}
                 onRevertInclude={props.onRevertInclude}
-                updatePriorStats={props.updatePriorStats}
                 includeItem={props.includeItem}
                 excludeItem={props.excludeItem}
                 resetItem={props.resetItem}

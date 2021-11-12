@@ -18,5 +18,6 @@ from asreview.entry_points.lab import LABEntryPoint
 from asreview.entry_points.lab import WebRunModelEntryPoint
 from asreview.entry_points.simulate import BatchEntryPoint
 from asreview.entry_points.simulate import SimulateEntryPoint
+from asreview.entry_points.state_inspect import StateInspectEntryPoint
 
 """Default entry points for asreview."""

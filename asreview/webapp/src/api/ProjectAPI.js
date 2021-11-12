@@ -142,27 +142,9 @@ class ProjectAPI {
     });
   }
 
-  static labelitem(project_id, data) {
-    const url = api_url + `project/${project_id}/labelitem`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: data,
-        headers: { "Content-type": "application/x-www-form-urlencoded" },
-      })
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
   // TODO{Terry}: deprecating, replaced by fetchLabeledRecord
   static prior(project_id) {
-    const url = api_url + `project/${project_id}/prior`;
+    const url = api_url + `project/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -177,7 +159,7 @@ class ProjectAPI {
 
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
     const { project_id, select, per_page } = queryKey[1];
-    const url = api_url + `project/${project_id}/prior`;
+    const url = api_url + `project/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, {
@@ -192,8 +174,8 @@ class ProjectAPI {
     });
   }
 
-  static prior_stats(project_id) {
-    const url = api_url + `project/${project_id}/prior_stats`;
+  static labeled_stats(project_id) {
+    const url = api_url + `project/${project_id}/labeled_stats`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -461,10 +443,16 @@ class ProjectAPI {
   static mutateClassification(variables) {
     let body = new FormData();
     body.set("doc_id", variables.doc_id);
-    if (!variables.initial) {
+
+    if (!variables.initial && variables.label !== -1) {
       body.set("label", variables.label === 1 ? 0 : 1);
     } else {
       body.set("label", variables.label);
+    }
+
+    // prior items should be labeled as such
+    if (variables.is_prior === 1){
+      body.set("is_prior", 1);
     }
 
     const url =

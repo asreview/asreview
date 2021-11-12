@@ -105,6 +105,29 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def add_last_ranking(self, ranking, classifier,
+                         query_strategy, balance_strategy, feature_extraction,
+                         training_set):
+        """Save the ranking of the last iteration of the model.
+
+        Arguments
+        ---------
+        ranking: list, numpy.ndarray
+            A list of the rank (int) as output by the model.
+        classifier: str
+            Name of the classifier of the model.
+        query_strategy: str
+            Name of the query strategy of the model.
+        balance_strategy: str
+            Name of the balance strategy of the model.
+        feature_extraction: str
+            Name of the feature extraction method of the model.
+        training_set: int
+            Number of labeled records available at the time of training.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
 
@@ -163,9 +186,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_labeling_data(self, record_ids, labels, classifiers,
-                          query_strategies, balance_strategies,
-                          feature_extraction, training_sets, notes=None):
+    def add_labeling_data(self, record_ids, labels, notes=None):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -174,17 +195,6 @@ class BaseState(ABC):
             A list of ids of the labeled records as int.
         labels: list, numpy.ndarray
             A list of labels of the labeled records as int.
-        classifiers: list, numpy.ndarray
-            A list of the names of the classifier models as string.
-        query_strategies: list, numpy.ndarray
-            A list of the names of the query strategies as string.
-        balance_strategies: list, numpy.ndarray
-            A list of the balance strategies as string.
-        feature_extraction: list, numpy.ndarray
-            A list of the feature extraction methods as string.
-        training_sets: list, numpy.ndarray
-            A list of the training sets as integers.
-            Each record in the prior data is counted individually.
         notes: list of str/None
             A list of text notes to save with the labeled records.
         """
@@ -206,17 +216,19 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_pool_labeled(self):
-        """Return the labeled and unlabeled records.
+    def get_pool_labeled_pending(self):
+        """Return the labeled and unlabeled records and the records pending a
+        labeling decision.
 
         Returns
         -------
-        tuple (pd.DataFrame, pd.DataFrame):
-            Returns a tuple (pool, labeled). Pool is a dataframe
-            containing the unlabeled record_ids, ordered by the last predicted
-            probabilities of the model. Labeled is a dataframe containing
-            the record_ids and labels of the labeled records, in the order
-            that they were labeled.
+        tuple (pd.Series, pd.DataFrame, pd.Series):
+            Returns a tuple (pool, labeled, pending). Pool is a series
+            containing the unlabeled, not pending record_ids, ordered by the
+            last predicted ranking of the model. Labeled is a dataframe
+            containing the record_ids and labels of the labeled records, in the
+            order that they were labeled. Pending is a series containing the
+            record_ids of the records whose label is pending.
         """
         raise NotImplementedError
 

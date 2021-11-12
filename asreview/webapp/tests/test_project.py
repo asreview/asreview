@@ -94,22 +94,25 @@ def test_project_file(tmp_path, client, url):
     assert "result" in json_data_get_document
     assert isinstance(json_data_get_document, dict)
 
+    # get doc_id from the queue and label the item
+    doc_id = json_data_get_document["result"]["doc_id"]
+
     # Test retrieve classification result
-    response_classify_instance = client.post(f"{api_url}/record/<doc_id>", data={
-        "doc_id": 99,
+    response_classify_instance = client.post(f"{api_url}/record/{doc_id}", data={
+        "doc_id": doc_id,
         "label": 1,
     })
     assert response_classify_instance.status_code == 200
 
     # Test update classification result
-    response_update_classify = client.put(f"{api_url}/record/<doc_id>", data={
-        "doc_id": 99,
+    response_update_classify = client.put(f"{api_url}/record/{doc_id}", data={
+        "doc_id": doc_id,
         "label": 0,
     })
     assert response_update_classify.status_code == 200
 
     # Test retrieve review history
-    response_prior = client.get(f"{api_url}/prior")
+    response_prior = client.get(f"{api_url}/labeled")
     json_data_prior = response_prior.get_json()
     assert "result" in json_data_prior
     assert isinstance(json_data_prior["result"], list)

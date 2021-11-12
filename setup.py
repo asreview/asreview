@@ -132,6 +132,7 @@ setup(
             'simulate=asreview.entry_points:SimulateEntryPoint',
             'simulate-batch = asreview.entry_points:BatchEntryPoint',
             'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
+            'state-inspect = asreview.entry_points:StateInspectEntryPoint'
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
@@ -163,7 +164,7 @@ setup(
         'asreview.models.balance': [
             "simple = asreview.models.balance:SimpleBalance",
             "double = asreview.models.balance:DoubleBalance",
-            "triple = asreview.models.balance:TripleBalance",
+            # "triple = asreview.models.balance:TripleBalance",  # Broken, only via API
             "undersample = asreview.models.balance:UndersampleBalance",
         ],
         'asreview.models.query': [
