@@ -35,8 +35,8 @@ const Root = styled("div")(({ theme }) => ({
 const DataForm = (props) => {
   const queryClient = useQueryClient();
 
-  const refetchPriorStats = () => {
-    queryClient.resetQueries("fetchPriorStats");
+  const refetchLabeledStats = () => {
+    queryClient.resetQueries("fetchLabeledStats");
   };
   return (
     <Root>
@@ -85,7 +85,7 @@ const DataForm = (props) => {
           {props.isError && (
             <InlineErrorHandler
               message={props.error?.message}
-              refetch={refetchPriorStats}
+              refetch={refetchLabeledStats}
               button="Try to refresh"
             />
           )}

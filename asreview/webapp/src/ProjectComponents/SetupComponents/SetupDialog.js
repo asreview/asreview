@@ -226,11 +226,11 @@ const SetupDialog = (props) => {
 
   const {
     data: priorStats,
-    error: fetchPriorStatsError,
-    isError: isFetchPriorStatsError,
+    error: fetchLabeledStatsError,
+    isError: isFetchLabeledStatsError,
   } = useQuery(
-    ["fetchPriorStats", { project_id: props.project_id }],
-    ProjectAPI.fetchPriorStats,
+    ["fetchLabeledStats", { project_id: props.project_id }],
+    ProjectAPI.fetchLabeledStats,
     {
       enabled: props.project_id !== null && activeStep === 1,
       refetchOnWindowFocus: false,
@@ -388,8 +388,8 @@ const SetupDialog = (props) => {
                 <DataForm
                   details={fetchedDetails}
                   toggleAddDataset={toggleAddDataset}
-                  error={fetchPriorStatsError}
-                  isError={isFetchPriorStatsError}
+                  error={fetchLabeledStatsError}
+                  isError={isFetchLabeledStatsError}
                 />
               )}
             </Box>
