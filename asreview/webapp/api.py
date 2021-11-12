@@ -534,6 +534,7 @@ def api_get_labeled(project_id):  # noqa: F401
         with open_state(project_path) as s:
             data = s.get_dataset(["record_id", "label", "query_strategy"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
+            data = data.loc[~data['label'].isnull()]
 
         # count labeled records and max pages
         count = len(data)
