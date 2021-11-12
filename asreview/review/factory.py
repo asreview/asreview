@@ -37,7 +37,6 @@ from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
-from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
 from asreview.state.paths import get_data_path
@@ -93,7 +92,7 @@ def review_simulate(dataset, *args, **kwargs):
 
     # output the prior indices
     print("The following records are prior knowledge:\n")
-    for prior_record_id in reviewer.start_idx:
+    for prior_record_id in reviewer.prior_indices:
         preview = preview_record(reviewer.as_data.record(prior_record_id))
         print(f"{prior_record_id} - {preview}")
 
@@ -209,7 +208,7 @@ def get_simulate_reviewer(dataset,
                               n_papers=settings.n_papers,
                               n_instances=settings.n_instances,
                               n_queries=settings.n_queries,
-                              prior_idx=prior_idx,
+                              prior_indices=prior_idx,
                               n_prior_included=settings.n_prior_included,
                               n_prior_excluded=settings.n_prior_excluded,
                               state_file=state_file,

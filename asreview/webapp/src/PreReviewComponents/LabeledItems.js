@@ -17,6 +17,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ErrorHandler from "../ErrorHandler";
 import { ProjectAPI } from "../api/index.js";
 
+import { useMutation } from "react-query";
+
 const PREFIX = "LabeledItems";
 
 const classes = {
@@ -81,6 +83,26 @@ const LabeledItems = (props) => {
     });
   };
 
+  const { mutate } = useMutation(ProjectAPI.mutateClassification, {
+    onSuccess: (data, variables) => {
+      reloadItems();
+
+      // update prior stats
+      props.updatePriorStats();
+    },
+  });
+
+  // reset the item (for search and revert)
+  const resetItem = (doc_id) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: doc_id,
+      label: -1,
+      is_prior: 1,
+      initial: false,
+    });
+  };
+
   useEffect(() => {
     if (state.loading) {
       ProjectAPI.prior(props.project_id)
@@ -133,9 +155,7 @@ const LabeledItems = (props) => {
                         <ListItemIcon className={classes.deleteIcon}>
                           <IconButton
                             aria-label="delete"
-                            onClick={() => {
-                              props.resetItem(value.id, reloadItems);
-                            }}
+                            onClick={() => { resetItem(value.id) }}
                             size="large"
                           >
                             <DeleteIcon />
@@ -159,9 +179,7 @@ const LabeledItems = (props) => {
                         <ListItemIcon className={classes.deleteIcon}>
                           <IconButton
                             aria-label="delete"
-                            onClick={() => {
-                              props.resetItem(value.id, reloadItems);
-                            }}
+                            onClick={() => { resetItem(value.id) }}
                             size="large"
                           >
                             <DeleteIcon />
