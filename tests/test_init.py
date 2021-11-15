@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from asreview.data import ASReviewData
-from asreview.review.factory import get_simulate_reviewer
+from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.state.utils import init_project_folder_structure
 
 data_fp = Path('tests', "demo_data", "generic_labels.csv")
@@ -19,12 +19,18 @@ def test_init_seed(tmpdir):
     for _ in range(n_test):
         all_start_idx = []
         for seed in seeds:
-            reviewer = get_simulate_reviewer(data_fp,
-                                             model="nb",
-                                             state_file=project_fp,
-                                             init_seed=seed,
-                                             n_prior_excluded=1,
-                                             n_prior_included=1)
+
+            entry_point = SimulateEntryPoint()
+            argv = f'{data_fp} -s {project_fp} -m nb --init_seed' \
+                f' {seed} --n_prior_excluded 1 --n_prior_included 1'.split()
+            entry_point.execute(argv)
+
+            # reviewer = get_simulate_reviewer(data_fp,
+            #                                  model="nb",
+            #                                  state_file=project_fp,
+            #                                  init_seed=seed,
+            #                                  n_prior_excluded=1,
+            #                                  n_prior_included=1)
             assert len(reviewer.prior_indices) == 2
             all_start_idx.append(reviewer.prior_indices)
         if base_start_idx is None:
