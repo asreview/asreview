@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+from pandas.testing import assert_frame_equal
 import pytest
 
 from asreview.data import ASReviewData
@@ -66,24 +67,37 @@ def test_no_seed(tmpdir):
     raise ValueError(f"Error getting all priors in {n_test_max} iterations.")
 
 
-def test_model_seed(tmpdir):
-    project_fp = Path(tmpdir, 'tmp_state.asreview')
-    init_project_folder_structure(project_fp)
+@pytest.mark.parametrize("seed", [
+    (535),
+    (165),
+    (42),
+])
+def test_model_seed(tmpdir, seed):
 
-    n_test = 4
-    seed = 192874123
-    # last_train_idx = None
-    for _ in range(n_test):
-        reviewer = get_simulate_reviewer(DATA_FP,
-                                         model="rf",
-                                         query_strategy="random",
-                                         state_file=project_fp,
-                                         init_seed=seed,
-                                         seed=seed,
-                                         n_prior_excluded=1,
-                                         n_prior_included=1)
-        reviewer.review()
-        # TODO: What is being tested here? Review no longer has train_idx.
-        # if last_train_idx is None:
-        #     last_train_idx = reviewer.train_idx
-        # assert np.all(last_train_idx == reviewer.train_idx)
+    project1_fp = Path(tmpdir, 'tmp_state1.asreview')
+    project2_fp = Path(tmpdir, 'tmp_state2.asreview')
+
+    entry_point = SimulateEntryPoint()
+
+    # simulate run 1
+    argv1 = f'{DATA_FP} -s {project1_fp} -m rf --init_seed {seed}' \
+        f' --seed {seed}' \
+        f' --n_prior_excluded 1 --n_prior_included 1'.split()
+
+    # simulate run 2
+    argv2 = f'{DATA_FP} -s {project2_fp} -m rf --init_seed {seed}' \
+        f' --seed {seed}' \
+        f' --n_prior_excluded 1 --n_prior_included 1'.split()
+
+    # run the simulations
+    entry_point.execute(argv1)
+    entry_point.execute(argv2)
+
+    # open the state file and extract the priors
+    with open_state(project1_fp) as s1:
+        record_table1 = s1.get_dataset().drop("labeling_time", axis=1)
+
+    with open_state(project2_fp) as s2:
+        record_table2 = s2.get_dataset().drop("labeling_time", axis=1)
+
+    assert_frame_equal(record_table1, record_table2)
