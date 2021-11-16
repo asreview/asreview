@@ -6,7 +6,6 @@ import pytest
 
 from asreview.data import ASReviewData
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.state.utils import init_project_folder_structure
 from asreview.state import open_state
 
 DATA_FP = Path('tests', "demo_data", "generic_labels.csv")
