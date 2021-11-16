@@ -46,25 +46,23 @@ def test_init_seed(tmpdir, seed):
 
 
 def test_no_seed(tmpdir):
-    project_fp = Path(tmpdir, 'tmp_state.asreview')
-    init_project_folder_structure(project_fp)
 
-    n_test_max = 100
-    as_data = ASReviewData.from_file(DATA_FP)
-    n_priored = np.zeros(len(as_data), dtype=int)
+    priors = []
+    for i in range(20):
 
-    for _ in range(n_test_max):
-        reviewer = get_simulate_reviewer(DATA_FP,
-                                         model="nb",
-                                         state_file=project_fp,
-                                         init_seed=None,
-                                         n_prior_excluded=1,
-                                         n_prior_included=1)
-        assert len(reviewer.prior_indices) == 2
-        n_priored[reviewer.prior_indices] += 1
-        if np.all(n_priored > 0):
-            return
-    raise ValueError(f"Error getting all priors in {n_test_max} iterations.")
+        # get project url
+        project_fp = Path(tmpdir, f'tmp_state_{i}.asreview')
+
+        entry_point = SimulateEntryPoint()
+        argv = f'{DATA_FP} -s {project_fp} -m nb ' \
+            f'--n_prior_excluded 1 --n_prior_included 1 -n 2'.split()
+        entry_point.execute(argv)
+
+        # open the state file and extract the priors
+        with open_state(project_fp) as s:
+            priors.extend(s.get_priors().tolist())
+
+    assert len(set(priors)) > 2
 
 
 @pytest.mark.parametrize("seed", [
