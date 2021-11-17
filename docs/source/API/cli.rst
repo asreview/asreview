@@ -153,11 +153,11 @@ Examples:
 
 .. option:: --included_dataset [INCLUDED_DATASET [INCLUDED_DATASET ...]]
 
-    A dataset with papers that should be includedCan be used multiple times.
+    A dataset with papers that should be included.
 
 .. option:: --excluded_dataset [EXCLUDED_DATASET [EXCLUDED_DATASET ...]]
 
-    A dataset with papers that should be excludedCan be used multiple times.
+    A dataset with papers that should be excluded.
 
 .. option:: --prior_dataset [PRIOR_DATASET [PRIOR_DATASET ...]]
 
