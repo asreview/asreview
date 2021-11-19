@@ -845,6 +845,8 @@ def export_results(project_id):
 
     # RIS
     elif file_type == "ris":
+        if get_data_file_path(project_id).suffix not in [".ris",".RIS",".txt",".TXT"]:
+            raise ValueError("RIS file can be exported only when RIS file was imported.")
 
         dataset_str = export_to_string(project_id, export_type="ris")
 
