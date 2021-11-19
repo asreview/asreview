@@ -19,7 +19,6 @@ const PREFIX = "DatasetFromBenchmark";
 const classes = {
   loading: `${PREFIX}-loading`,
   featuredTitle: `${PREFIX}-featured-title`,
-  container: `${PREFIX}-container`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -29,11 +28,6 @@ const Root = styled("div")(({ theme }) => ({
 
   [`& .${classes.featuredTitle}`]: {
     alignItems: "center",
-  },
-
-  [`& .${classes.container}`]: {
-    paddingLeft: 24,
-    paddingRight: 24,
   },
 }));
 
@@ -107,7 +101,7 @@ const DatasetFromBenchmark = (props) => {
                 <b>Featured</b>
               </Typography>
             </Stack>
-            <Box className={classes.container}>
+            <Box>
               {data?.result
                 .filter(function (dataset) {
                   return dataset.featured;
@@ -143,7 +137,7 @@ const DatasetFromBenchmark = (props) => {
             </Box>
           </Stack>
           <Divider />
-          <Box className={classes.container}>
+          <Box>
             {data?.result
               .filter(function (dataset) {
                 return !dataset.featured;
