@@ -1,79 +1,100 @@
 from pathlib import Path
 
 import numpy as np
+from pandas.testing import assert_frame_equal
+import pytest
 
 from asreview.data import ASReviewData
-from asreview.review.factory import get_simulate_reviewer
-from asreview.state.utils import init_project_folder_structure
+from asreview.entry_points.simulate import SimulateEntryPoint
+from asreview.state import open_state
 
-data_fp = Path('tests', "demo_data", "generic_labels.csv")
+DATA_FP = Path('tests', "demo_data", "generic_labels.csv")
 
 
-def test_init_seed(tmpdir):
-    project_fp = Path(tmpdir, 'tmp_state.asreview')
-    init_project_folder_structure(project_fp)
+@pytest.mark.parametrize("seed", [
+    (535),
+    (165),
+    (42),
+])
+def test_init_seed(tmpdir, seed):
+    project1_fp = Path(tmpdir, 'tmp_state1.asreview')
+    project2_fp = Path(tmpdir, 'tmp_state2.asreview')
 
-    base_start_idx = None
-    n_test = 4
-    seeds = np.random.randint(0, 2**63, 5, dtype=np.int64)
-    for _ in range(n_test):
-        all_start_idx = []
-        for seed in seeds:
-            reviewer = get_simulate_reviewer(data_fp,
-                                             model="nb",
-                                             state_file=project_fp,
-                                             init_seed=seed,
-                                             n_prior_excluded=1,
-                                             n_prior_included=1)
-            assert len(reviewer.prior_indices) == 2
-            all_start_idx.append(reviewer.prior_indices)
-        if base_start_idx is None:
-            base_start_idx = all_start_idx
-            continue
+    entry_point = SimulateEntryPoint()
 
-        assert np.all(np.array(base_start_idx) == np.array(all_start_idx))
+    # simulate run 1
+    argv1 = f'{DATA_FP} -s {project1_fp} -m nb --init_seed' \
+        f' {seed} --n_prior_excluded 1 --n_prior_included 1 -n 2'.split()
+
+    # simulate run 2
+    argv2 = f'{DATA_FP} -s {project2_fp} -m nb --init_seed' \
+        f' {seed} --n_prior_excluded 1 --n_prior_included 1  -n 2'.split()
+
+    # run the simulations
+    entry_point.execute(argv1)
+    entry_point.execute(argv2)
+
+    # open the state file and extract the priors
+    with open_state(project1_fp) as s1:
+        record_ids1 = s1.get_priors()
+
+    with open_state(project2_fp) as s2:
+        record_ids2 = s2.get_priors()
+
+    assert record_ids1.tolist() == record_ids2.tolist()
 
 
 def test_no_seed(tmpdir):
-    project_fp = Path(tmpdir, 'tmp_state.asreview')
-    init_project_folder_structure(project_fp)
 
-    n_test_max = 100
-    as_data = ASReviewData.from_file(data_fp)
-    n_priored = np.zeros(len(as_data), dtype=int)
+    priors = []
+    for i in range(20):
 
-    for _ in range(n_test_max):
-        reviewer = get_simulate_reviewer(data_fp,
-                                         model="nb",
-                                         state_file=project_fp,
-                                         init_seed=None,
-                                         n_prior_excluded=1,
-                                         n_prior_included=1)
-        assert len(reviewer.prior_indices) == 2
-        n_priored[reviewer.prior_indices] += 1
-        if np.all(n_priored > 0):
-            return
-    raise ValueError(f"Error getting all priors in {n_test_max} iterations.")
+        # get project url
+        project_fp = Path(tmpdir, f'tmp_state_{i}.asreview')
+
+        entry_point = SimulateEntryPoint()
+        argv = f'{DATA_FP} -s {project_fp} -m nb ' \
+            f'--n_prior_excluded 1 --n_prior_included 1 -n 2'.split()
+        entry_point.execute(argv)
+
+        # open the state file and extract the priors
+        with open_state(project_fp) as s:
+            priors.extend(s.get_priors().tolist())
+
+    assert len(set(priors)) > 2
 
 
-def test_model_seed(tmpdir):
-    project_fp = Path(tmpdir, 'tmp_state.asreview')
-    init_project_folder_structure(project_fp)
+@pytest.mark.parametrize("seed", [
+    (535),
+    (165),
+    (42),
+])
+def test_model_seed(tmpdir, seed):
 
-    n_test = 4
-    seed = 192874123
-    # last_train_idx = None
-    for _ in range(n_test):
-        reviewer = get_simulate_reviewer(data_fp,
-                                         model="rf",
-                                         query_strategy="random",
-                                         state_file=project_fp,
-                                         init_seed=seed,
-                                         seed=seed,
-                                         n_prior_excluded=1,
-                                         n_prior_included=1)
-        reviewer.review()
-        # TODO: What is being tested here? Review no longer has train_idx.
-        # if last_train_idx is None:
-        #     last_train_idx = reviewer.train_idx
-        # assert np.all(last_train_idx == reviewer.train_idx)
+    project1_fp = Path(tmpdir, 'tmp_state1.asreview')
+    project2_fp = Path(tmpdir, 'tmp_state2.asreview')
+
+    entry_point = SimulateEntryPoint()
+
+    # simulate run 1
+    argv1 = f'{DATA_FP} -s {project1_fp} -m rf --init_seed {seed}' \
+        f' --seed {seed}' \
+        f' --n_prior_excluded 1 --n_prior_included 1'.split()
+
+    # simulate run 2
+    argv2 = f'{DATA_FP} -s {project2_fp} -m rf --init_seed {seed}' \
+        f' --seed {seed}' \
+        f' --n_prior_excluded 1 --n_prior_included 1'.split()
+
+    # run the simulations
+    entry_point.execute(argv1)
+    entry_point.execute(argv2)
+
+    # open the state file and extract the priors
+    with open_state(project1_fp) as s1:
+        record_table1 = s1.get_dataset().drop("labeling_time", axis=1)
+
+    with open_state(project2_fp) as s2:
+        record_table2 = s2.get_dataset().drop("labeling_time", axis=1)
+
+    assert_frame_equal(record_table1, record_table2)

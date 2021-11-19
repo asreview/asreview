@@ -130,7 +130,6 @@ setup(
             'lab=asreview.entry_points:LABEntryPoint',
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
             'simulate=asreview.entry_points:SimulateEntryPoint',
-            'simulate-batch = asreview.entry_points:BatchEntryPoint',
             'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
             'state-inspect = asreview.entry_points:StateInspectEntryPoint'
         ],
