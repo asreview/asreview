@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Card, Box, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 export default function InfoCard(props) {
