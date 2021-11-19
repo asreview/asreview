@@ -18,6 +18,7 @@ import { styled } from "@mui/material/styles";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 import { InlineErrorHandler } from "../../Components";
+import { SelectItem } from "../SetupComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../globals.js";
 
@@ -55,7 +56,6 @@ const PREFIX = "ModelForm";
 const classes = {
   title: `${PREFIX}-title`,
   loading: `${PREFIX}-loading`,
-  select: `${PREFIX}-select`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -66,10 +66,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.loading}`]: {
     display: "flex",
     justifyContent: "center",
-  },
-
-  [`& .${classes.select}`]: {
-    width: 450,
   },
 }));
 
@@ -262,7 +258,7 @@ const ModelForm = (props) => {
           sx={{
             mb: 3,
             bgcolor: (theme) =>
-              theme.palette.mode === "dark" ? "grey.800" : "grey.100",
+              theme.palette.mode === "dark" ? "grey.900" : "grey.100",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
@@ -290,13 +286,8 @@ const ModelForm = (props) => {
           isFetchedModelConfig &&
           isSuccessModelOptions &&
           isSuccessModelConfig && (
-            <Box
-              component="form"
-              noValidate
-              autoComplete="off"
-              className={classes.loading}
-            >
-              <Stack direction="column" spacing={3} className={classes.select}>
+            <Box component="form" noValidate autoComplete="off">
+              <Stack direction="column" spacing={3}>
                 <FormControl fullWidth>
                   <InputLabel id="classifier-select-label">
                     Classifier
@@ -317,7 +308,10 @@ const ModelForm = (props) => {
                           value={value.name}
                           disabled={disableClassifierItem(value.name)}
                         >
-                          {value.label}
+                          <SelectItem
+                            primary={value.label}
+                            secondary={value.description}
+                          />
                         </MenuItem>
                       );
                     })}
@@ -341,7 +335,10 @@ const ModelForm = (props) => {
                           checked={props.model["query_strategy"] === value.name}
                           value={value.name}
                         >
-                          {value.label}
+                          <SelectItem
+                            primary={value.label}
+                            secondary={value.description}
+                          />
                         </MenuItem>
                       );
                     })}
@@ -371,7 +368,10 @@ const ModelForm = (props) => {
                           value={value.name}
                           disabled={disableFeatureExtractionItem(value.name)}
                         >
-                          {value.label}
+                          <SelectItem
+                            primary={value.label}
+                            secondary={value.description}
+                          />
                         </MenuItem>
                       );
                     })}

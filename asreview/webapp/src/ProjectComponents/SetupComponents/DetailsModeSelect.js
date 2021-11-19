@@ -1,14 +1,8 @@
 import React from "react";
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { SelectItem } from "../SetupComponents";
 import { projectModes } from "../../globals.js";
 
 const PREFIX = "DetailsModeSelect";
@@ -32,47 +26,28 @@ export default function DetailsModeSelect(props) {
           labelId="mode-select-label"
           id="mode-select"
           name="mode"
-          label="Mode *"
+          label="Mode"
           value={props.mode}
           onChange={props.handleMode}
         >
           <MenuItem value={projectModes.ORACLE} divider>
-            <Box>
-              <Typography variant="subtitle1">Oracle</Typography>
-              <Typography
-                variant="body2"
-                gutterBottom
-                sx={{ color: "text.secondary" }}
-              >
-                Start an interactive AI-aided screening with an unlabeled
-                dataset.
-              </Typography>
-            </Box>
+            <SelectItem
+              primary="Oracle"
+              secondary="Start interactive AI-assisted screening with an unlabeled dataset"
+            />
           </MenuItem>
           <MenuItem value={projectModes.EXPLORATION}>
-            <Box>
-              <Typography variant="subtitle1">Exploration</Typography>
-              <Typography
-                variant="body2"
-                gutterBottom
-                sx={{ color: "text.secondary" }}
-              >
-                Explore an existing, labeled dataset in an interactive way.
-              </Typography>
-            </Box>
+            <SelectItem
+              primary="Exploration"
+              secondary="Explore the power of ASReview LAB with an existing labeled dataset"
+            />
           </MenuItem>
           {props.showSimulate && (
             <MenuItem value={projectModes.SIMULATION}>
-              <Box>
-                <Typography variant="subtitle1">Simulation</Typography>
-                <Typography
-                  variant="body2"
-                  gutterBottom
-                  sx={{ color: "text.secondary" }}
-                >
-                  Simulate the performance of ASReview on a labeled dataset.
-                </Typography>
-              </Box>
+              <SelectItem
+                primary="Simulation"
+                secondary="Simulate screening on a labeled dataset to understand the performance of an active learning model"
+              />
             </MenuItem>
           )}
         </Select>
