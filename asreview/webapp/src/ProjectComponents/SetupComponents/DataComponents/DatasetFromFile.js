@@ -11,7 +11,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../../Components";
+import { InlineErrorHandler } from "../../../Components";
 
 const PREFIX = "DatasetFromFile";
 

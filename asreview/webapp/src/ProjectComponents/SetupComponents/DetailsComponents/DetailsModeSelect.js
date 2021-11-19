@@ -2,8 +2,8 @@ import React from "react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { SelectItem } from "../SetupComponents";
-import { projectModes } from "../../globals.js";
+import { SelectItem } from "../../SetupComponents";
+import { projectModes } from "../../../globals.js";
 
 const PREFIX = "DetailsModeSelect";
 

@@ -4,10 +4,10 @@ import { connect } from "react-redux";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../Components";
-import { DataFormCard } from "../SetupComponents";
-import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { InlineErrorHandler } from "../../../Components";
+import { DataFormCard } from "../DataComponents";
+import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "DataForm";
 
@@ -92,9 +92,7 @@ const DataForm = (props) => {
                 </React.Fragment>
               }
               secondaryDefault="Contain all records related to a particular topic"
-              secondaryAdded={
-                <React.Fragment>Contain {data?.n_rows} records</React.Fragment>
-              }
+              secondaryAdded={`Contain ${data?.n_rows} records`}
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard
@@ -103,12 +101,7 @@ const DataForm = (props) => {
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
               secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant records"
-              secondaryAdded={
-                <React.Fragment>
-                  {props.labeledStats?.n_prior_inclusions} relevant and{" "}
-                  {props.labeledStats?.n_prior_exclusions} irrelevant records
-                </React.Fragment>
-              }
+              secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
               toggleAddCard={props.toggleAddPriorKnowledge}
             />
           </Stack>

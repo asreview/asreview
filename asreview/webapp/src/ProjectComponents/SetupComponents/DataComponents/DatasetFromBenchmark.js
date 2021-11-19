@@ -10,9 +10,9 @@ import {
 import { styled } from "@mui/material/styles";
 import StarIcon from "@mui/icons-material/Star";
 
-import { InlineErrorHandler } from "../../Components";
-import { BenchmarkDataset } from "../SetupComponents";
-import { ProjectAPI } from "../../api/index.js";
+import { InlineErrorHandler } from "../../../Components";
+import { BenchmarkDataset } from "../DataComponents";
+import { ProjectAPI } from "../../../api/index.js";
 
 const PREFIX = "DatasetFromBenchmark";
 

@@ -3,9 +3,9 @@ import { useQuery, useQueryClient } from "react-query";
 import { Box, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../Components";
-import { ExtensionDataset } from "../SetupComponents";
-import { ProjectAPI } from "../../api/index.js";
+import { InlineErrorHandler } from "../../../Components";
+import { ExtensionDataset } from "../DataComponents";
+import { ProjectAPI } from "../../../api/index.js";
 
 const PREFIX = "DatasetFromExtension";
 

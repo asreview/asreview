@@ -15,10 +15,10 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../Components";
-import { InfoCard, SelectItem } from "../SetupComponents";
-import { ProjectAPI } from "../../api/index.js";
-import { defaultAlgorithms, mapStateToProps } from "../../globals.js";
+import { InlineErrorHandler } from "../../../Components";
+import { InfoCard, SelectItem } from "../../SetupComponents";
+import { ProjectAPI } from "../../../api/index.js";
+import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 
 const requirements = [
   {

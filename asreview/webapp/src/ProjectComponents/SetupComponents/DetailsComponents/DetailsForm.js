@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../Components";
-import { DetailsModeSelect } from "../SetupComponents";
+import { InlineErrorHandler } from "../../../Components";
+import { DetailsModeSelect } from "../DetailsComponents";
 
 const PREFIX = "DetailsForm";
 

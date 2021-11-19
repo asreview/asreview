@@ -13,14 +13,14 @@ import {
   Typography,
 } from "@mui/material";
 
+import { InfoCard } from "../../SetupComponents";
 import {
   DatasetFromBenchmark,
   DatasetFromExtension,
   DatasetFromFile,
   DatasetFromURL,
-  InfoCard,
-} from "../SetupComponents";
-import { mapStateToProps, projectModes } from "../../globals.js";
+} from "../DataComponents";
+import { mapStateToProps, projectModes } from "../../../globals.js";
 
 const AddDataset = (props) => {
   return (

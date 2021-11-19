@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { InlineErrorHandler } from "../../Components";
+import { InlineErrorHandler } from "../../../Components";
 
 const PREFIX = "DatasetFromURL";
 

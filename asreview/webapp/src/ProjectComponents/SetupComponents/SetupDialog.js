@@ -16,17 +16,19 @@ import {
   Step,
   StepLabel,
   Stepper,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 
+import { DetailsForm } from "../SetupComponents/DetailsComponents";
 import {
   AddDataset,
   AddPriorKnowledge,
   DataForm,
-  DetailsForm,
-  ModelForm,
-} from "../SetupComponents";
+} from "../SetupComponents/DataComponents";
+import { ModelForm } from "../SetupComponents/ModelComponents";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
@@ -35,6 +37,13 @@ import {
   projectModes,
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
+
+const StyledIconButton = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  [`:hover`]: {
+    backgroundColor: "transparent",
+  },
+}));
 
 const steps = ["Details", "Data", "Model", "Check"];
 
@@ -185,6 +194,7 @@ const SetupDialog = (props) => {
   } = useMutation(ProjectAPI.mutateData, {
     onSuccess: () => {
       queryClient.invalidateQueries("fetchInfo");
+      queryClient.invalidateQueries("fetchLabeledStats");
       toggleAddDataset();
       setDatasetSource("file");
     },
@@ -200,6 +210,7 @@ const SetupDialog = (props) => {
     data: labeledStats,
     error: fetchLabeledStatsError,
     isError: isFetchLabeledStatsError,
+    isFetching: isFetchingLabeledStats,
   } = useQuery(
     ["fetchLabeledStats", { project_id: props.project_id }],
     ProjectAPI.fetchLabeledStats,
@@ -249,14 +260,8 @@ const SetupDialog = (props) => {
     }
   };
 
-  const handleDiscardPriorKnowledge = () => {
+  const handleClosePriorKnowledge = () => {
     toggleAddPriorKnowledge();
-  };
-
-  const handleSavePriorKnowledge = () => {};
-
-  const disableSavePriorKnowledge = () => {
-    return false;
   };
 
   /**
@@ -301,8 +306,8 @@ const SetupDialog = (props) => {
       return details.title.length < 3;
     }
     if (activeStep === 1) {
-      // return !labeledStats?.n_priors;
-      return false; // temporary
+      return !labeledStats?.n_prior;
+      // return false; // temporary
     }
   };
 
@@ -378,9 +383,11 @@ const SetupDialog = (props) => {
           <Box className={classes.title}>
             <DialogTitle>Create a new project</DialogTitle>
             <Box className={classes.closeButton}>
-              <IconButton onClick={handleClose}>
-                <CloseIcon />
-              </IconButton>
+              <Tooltip title="Save and close">
+                <StyledIconButton onClick={handleClose}>
+                  <CloseIcon />
+                </StyledIconButton>
+              </Tooltip>
             </Box>
           </Box>
         </Fade>
@@ -409,17 +416,18 @@ const SetupDialog = (props) => {
         <Fade in={addPriorKnowledge}>
           <Box className={classes.title}>
             <DialogTitle>Prior knowledge</DialogTitle>
-            <Stack direction="row" spacing={2} className={classes.closeButton}>
-              <Button onClick={handleDiscardPriorKnowledge}>
-                Discard Changes
-              </Button>
-              <LoadingButton
-                disabled={disableSavePriorKnowledge()}
-                variant="contained"
-                onClick={handleSavePriorKnowledge}
-              >
-                Save
-              </LoadingButton>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <Box sx={{ bgcolor: "rgba(0, 0, 0, 0.06)", pl: 1, pr: 1 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ color: "text.secondary" }}
+                >
+                  Saved
+                </Typography>
+              </Box>
+              <Box className={classes.closeButton}>
+                <Button onClick={handleClosePriorKnowledge}>Close</Button>
+              </Box>
             </Stack>
           </Box>
         </Fade>
@@ -453,10 +461,12 @@ const SetupDialog = (props) => {
               {activeStep === 1 && (
                 <DataForm
                   details={fetchedDetails}
+                  labeledStats={labeledStats}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
                   fetchLabeledStatsError={fetchLabeledStatsError}
                   isFetchLabeledStatsError={isFetchLabeledStatsError}
+                  isFetchingLabeledStats={isFetchingLabeledStats}
                 />
               )}
               {activeStep === 2 && (
