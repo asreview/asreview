@@ -1,10 +1,12 @@
 import * as React from "react";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   Box,
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Stack,
   Typography,
 } from "@mui/material";
@@ -12,32 +14,78 @@ import { styled } from "@mui/material/styles";
 import { Check } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
+import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "DataForm";
 
 const classes = {
   title: `${PREFIX}-title`,
   cardContent: `${PREFIX}-card-content`,
+  cardOverlay: `${PREFIX}-card-overlay`,
+  singleLine: `${PREFIX}-single-line`,
+  loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.title}`]: {
     paddingBottom: 24,
   },
+
   [`& .${classes.cardContent}`]: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: 24,
+    paddingRight: 8,
+    position: "relative",
+  },
+
+  [`& .${classes.cardOverlay}`]: {
+    height: "100%",
+    width: "100%",
+    left: 0,
+    pointerEvents: "none",
+    position: "absolute",
+    zIndex: 1,
+  },
+
+  [`& .${classes.singleLine}`]: {
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 1,
+    whiteSpace: "pre-line",
+    overflow: "hidden",
+  },
+
+  [`& .${classes.loading}`]: {
+    display: "flex",
+    justifyContent: "center",
   },
 }));
 
 const DataForm = (props) => {
   const queryClient = useQueryClient();
 
+  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
+    ["fetchData", { project_id: props.project_id }],
+    ProjectAPI.fetchData,
+    {
+      enabled:
+        props.details?.projectHasDataset !== undefined &&
+        props.details?.projectHasDataset,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const refetchData = () => {
+    queryClient.resetQueries("fetchData");
+  };
+
   const refetchLabeledStats = () => {
     queryClient.resetQueries("fetchLabeledStats");
   };
+
   return (
     <Root>
       <Box className={classes.title}>
@@ -48,38 +96,138 @@ const DataForm = (props) => {
           preferences.
         </Typography>
       </Box>
-      <Box>
+      {isFetching && (
+        <Box className={classes.loading}>
+          <CircularProgress />
+        </Box>
+      )}
+      {!isFetching && isError && (
+        <InlineErrorHandler
+          message={error?.message}
+          refetch={refetchData}
+          button="Try to refresh"
+        />
+      )}
+      {!isFetching && !isError && (
         <Stack direction="column" spacing={3}>
-          <Card elevation={3}>
+          <Card
+            elevation={0}
+            sx={{
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark" ? "grey.900" : "grey.100",
+            }}
+          >
             <CardContent className={classes.cardContent}>
-              <Box>
-                <Typography variant="subtitle1">Add a dataset</Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  Contain all records related to a particular topic
-                </Typography>
-              </Box>
+              {(!props.details?.projectHasDataset || isError) && (
+                <Stack spacing={1}>
+                  <Typography
+                    variant="subtitle1"
+                    className={classes.singleLine}
+                    sx={{
+                      fontWeight: (theme) => theme.typography.fontWeightMedium,
+                    }}
+                  >
+                    Add a dataset
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className={classes.singleLine}
+                    sx={{ color: "text.secondary" }}
+                  >
+                    Contain all records related to a particular topic
+                  </Typography>
+                </Stack>
+              )}
+              {props.details?.projectHasDataset &&
+                !isError &&
+                isFetched &&
+                isSuccess && (
+                  <Stack spacing={1}>
+                    <Typography
+                      variant="subtitle1"
+                      className={classes.singleLine}
+                      sx={{
+                        fontWeight: (theme) =>
+                          theme.typography.fontWeightMedium,
+                      }}
+                    >
+                      Dataset <i>{data?.filename}</i> added
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      className={classes.singleLine}
+                      sx={{ color: "text.secondary" }}
+                    >
+                      Contain {data?.n_rows} records
+                    </Typography>
+                  </Stack>
+                )}
               <Stack direction="row" sx={{ alignItems: "center" }}>
-                {props.details?.projectHasDataset && (
+                {props.details?.projectHasDataset && !isError && (
                   <Check color="success" sx={{ mr: 1 }} />
                 )}
-                <Button onClick={props.toggleAddDataset}>
-                  {!props.details?.projectHasDataset ? "Add" : "Edit"}
+                <Button disabled={isError} onClick={props.toggleAddDataset}>
+                  {!props.details?.projectHasDataset || isError
+                    ? "Add"
+                    : "Edit"}
                 </Button>
               </Stack>
             </CardContent>
           </Card>
-          <Card elevation={3}>
+          <Card
+            elevation={0}
+            sx={{
+              bgcolor: (theme) => {
+                if (theme.palette.mode === "dark") {
+                  return "grey.900";
+                }
+                if (theme.palette.mode === "light") {
+                  return "grey.100";
+                }
+              },
+            }}
+          >
             <CardContent className={classes.cardContent}>
-              <Box>
-                <Typography variant="subtitle1">Add prior knowledge</Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              <Box
+                className={classes.cardOverlay}
+                sx={{
+                  bgcolor: (theme) => {
+                    if (!props.details?.projectHasDataset || isError) {
+                      if (theme.palette.mode === "dark") {
+                        return "rgba(40, 40, 40, 0.6)";
+                      } else {
+                        return "rgba(255, 255, 255, 0.5)";
+                      }
+                    } else {
+                      return "transparent";
+                    }
+                  },
+                }}
+              />
+              <Stack spacing={1}>
+                <Typography
+                  variant="subtitle1"
+                  className={classes.singleLine}
+                  sx={{
+                    fontWeight: (theme) => theme.typography.fontWeightMedium,
+                  }}
+                >
+                  Add prior knowledge
+                </Typography>
+                <Typography
+                  variant="body2"
+                  className={classes.singleLine}
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   Indicate your preference with at least 1 relevant and 1
                   irrelevant records
                 </Typography>
-              </Box>
+              </Stack>
               <Box>
                 <Button
-                  disabled={!props.details?.projectHasDataset}
+                  disabled={!props.details?.projectHasDataset || isError}
                   onClick={props.toggleAddPriorKnowledge}
                 >
                   Add
@@ -87,17 +235,17 @@ const DataForm = (props) => {
               </Box>
             </CardContent>
           </Card>
-          {props.isError && (
+          {props.isFetchLabeledStatsError && (
             <InlineErrorHandler
-              message={props.error?.message}
+              message={props.fetchLabeledStatsError?.message}
               refetch={refetchLabeledStats}
               button="Try to refresh"
             />
           )}
         </Stack>
-      </Box>
+      )}
     </Root>
   );
 };
 
-export default DataForm;
+export default connect(mapStateToProps)(DataForm);

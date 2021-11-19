@@ -455,8 +455,8 @@ const SetupDialog = (props) => {
                   details={fetchedDetails}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
-                  error={fetchLabeledStatsError}
-                  isError={isFetchLabeledStatsError}
+                  fetchLabeledStatsError={fetchLabeledStatsError}
+                  isFetchLabeledStatsError={isFetchLabeledStatsError}
                 />
               )}
               {activeStep === 2 && (
