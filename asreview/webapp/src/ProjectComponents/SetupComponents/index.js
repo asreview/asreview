@@ -9,6 +9,7 @@ export { default as DatasetFromURL } from "./DatasetFromURL";
 export { default as DetailsForm } from "./DetailsForm";
 export { default as DetailsModeSelect } from "./DetailsModeSelect";
 export { default as ExtensionDataset } from "./ExtensionDataset";
+export { default as InfoCard } from "./InfoCard";
 export { default as ModelForm } from "./ModelForm";
 export { default as SelectItem } from "./SelectItem";
 export { default as SetupDialog } from "./SetupDialog";

@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
-  Card,
   CircularProgress,
   FormControl,
   FormHelperText,
@@ -15,10 +14,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 import { InlineErrorHandler } from "../../Components";
-import { SelectItem } from "../SetupComponents";
+import { InfoCard, SelectItem } from "../SetupComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { defaultAlgorithms, mapStateToProps } from "../../globals.js";
 
@@ -252,27 +250,8 @@ const ModelForm = (props) => {
           </Link>
         </Typography>
       </Box>
-      {returnRequirement() && (
-        <Card
-          elevation={0}
-          sx={{
-            mb: 3,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark" ? "grey.900" : "grey.100",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
-            <InfoOutlinedIcon
-              fontSize="small"
-              sx={{ color: "text.secondary", mr: 1 }}
-            />
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {returnRequirement()}
-            </Typography>
-          </Box>
-        </Card>
-      )}
-      <Stack spacing={3}>
+      {returnRequirement() && <InfoCard info={returnRequirement()} />}
+      <Stack spacing={3} sx={{ mt: 3 }}>
         {(isFetchingModelOptions || isFetchingModelConfig) && (
           <Box className={classes.loading}>
             <CircularProgress />
