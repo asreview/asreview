@@ -280,7 +280,9 @@ const SetupDialog = (props) => {
    * Dialog actions
    */
   const handleClose = () => {
+    props.setNewProjectTitle(details["title"]);
     props.onClose();
+    props.toggleInfoBar();
     setDetails({
       mode: projectModes.ORACLE,
       title: "",

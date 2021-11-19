@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import {
   Backdrop,
@@ -13,7 +13,11 @@ import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
 import { ProjectImportDialog, QuickTourDialog } from "../../Components";
 import { NumberCard, ProjectTable } from "../DashboardComponents";
-import { SetupDialog } from "../../ProjectComponents/SetupComponents";
+import {
+  CloseSetupInfoBar,
+  SetupDialog,
+} from "../../ProjectComponents/SetupComponents";
+import { useToggle } from "../../hooks/useToggle";
 
 const PREFIX = "DashboardPage";
 
@@ -50,11 +54,14 @@ const mapStateToProps = (state) => {
 };
 
 const DashboardPage = (props) => {
-  const [open, setOpen] = useState({
+  const [open, setOpen] = React.useState({
     dial: false,
     newProject: false,
     importProject: false,
   });
+
+  const [newProjectTitle, setNewProjectTitle] = React.useState("");
+  const [infoBar, toggleInfoBar] = useToggle();
 
   const handleOpen = () => {
     setOpen({
@@ -135,6 +142,14 @@ const DashboardPage = (props) => {
         handleAppState={props.handleAppState}
         open={open.newProject}
         onClose={handleCloseNewProject}
+        setNewProjectTitle={setNewProjectTitle}
+        toggleInfoBar={toggleInfoBar}
+      />
+      <CloseSetupInfoBar
+        onClose={toggleInfoBar}
+        open={infoBar}
+        setNewProjectTitle={setNewProjectTitle}
+        info={`Your project ${newProjectTitle} has been saved as draft`}
       />
 
       {/* Add button for new or importing project */}
