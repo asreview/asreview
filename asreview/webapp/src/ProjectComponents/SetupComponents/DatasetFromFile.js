@@ -17,12 +17,21 @@ const PREFIX = "DatasetFromFile";
 
 const classes = {
   root: `${PREFIX}-root`,
+  singleLine: `${PREFIX}-single-line`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     display: "flex",
     alignItems: "center",
+  },
+
+  [`& .${classes.singleLine}`]: {
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 1,
+    whiteSpace: "pre-line",
+    overflow: "hidden",
   },
 }));
 
@@ -123,7 +132,7 @@ const DatasetFromFile = ({
           </ButtonBase>
           <Typography>Drag and drop a dataset file to add</Typography>
           {file && (
-            <Typography>
+            <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
