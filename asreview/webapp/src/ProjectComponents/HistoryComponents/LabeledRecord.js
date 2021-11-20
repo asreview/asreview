@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
@@ -22,6 +23,7 @@ const PREFIX = "LabeledRecord";
 const classes = {
   loading: `${PREFIX}-loading`,
   recordCard: `${PREFIX}-recordCard`,
+  priorRecordCard: `${PREFIX}-prior-record-card`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
@@ -42,6 +44,12 @@ const Root = styled("div")(({ theme }) => ({
     padding: "16px 0px",
   },
 
+  [`& .${classes.priorRecordCard}`]: {
+    height: "calc(100vh - 224px)",
+    paddingLeft: 32,
+    paddingRight: 24,
+  },
+
   [`& .${classes.loadMoreInView}`]: {
     color: grey[500],
     display: "flex",
@@ -60,7 +68,9 @@ const LabeledRecord = (props) => {
     ],
     ProjectAPI.fetchLabeledRecord,
     {
-      enabled: props.label === "relevant",
+      enabled:
+        props.label === "relevant" &&
+        (!props.priorLabeled ? true : !props.n_prior ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -76,7 +86,9 @@ const LabeledRecord = (props) => {
     ],
     ProjectAPI.fetchLabeledRecord,
     {
-      enabled: props.label === "irrelevant",
+      enabled:
+        props.label === "irrelevant" &&
+        (!props.priorLabeled ? true : !props.n_prior ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -119,13 +131,15 @@ const LabeledRecord = (props) => {
           queryKey={filteredQueryKey()}
         />
       )}
-      {!filteredQuery().isError &&
+      {props.n_prior !== 0 &&
+        !filteredQuery().isError &&
         (filteredQuery().isLoading || !mounted.current) && (
           <Box className={classes.loading}>
             <CircularProgress />
           </Box>
         )}
-      {!filteredQuery().isError &&
+      {props.n_prior !== 0 &&
+        !filteredQuery().isError &&
         !(filteredQuery().isLoading || !mounted.current) && (
           <Fade
             in={
@@ -134,7 +148,10 @@ const LabeledRecord = (props) => {
             }
           >
             <Box
-              className={classes.recordCard}
+              className={clsx({
+                [classes.recordCard]: true,
+                [classes.priorRecordCard]: props.priorLabeled,
+              })}
               aria-label="labeled record card"
             >
               {filteredQuery().isFetched &&

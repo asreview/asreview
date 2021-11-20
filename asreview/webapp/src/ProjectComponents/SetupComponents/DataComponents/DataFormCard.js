@@ -53,7 +53,7 @@ const DataFormCard = (props) => {
         elevation={0}
         sx={{
           bgcolor: (theme) =>
-            theme.palette.mode === "dark" ? "grey.900" : "grey.100",
+            theme.palette.mode === "dark" ? "background.paper" : "grey.100",
         }}
       >
         <CardContent className={classes.cardContent}>
@@ -66,7 +66,7 @@ const DataFormCard = (props) => {
                   !props.projectHasDataset
                 ) {
                   if (theme.palette.mode === "dark") {
-                    return "rgba(40, 40, 40, 0.6)";
+                    return "rgba(40, 40, 40, 0.7)";
                   } else {
                     return "rgba(255, 255, 255, 0.5)";
                   }

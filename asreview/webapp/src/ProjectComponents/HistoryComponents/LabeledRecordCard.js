@@ -85,7 +85,7 @@ const LabeledRecordCard = (props) => {
   return (
     <Root>
       {props.page.result.map((value) => (
-        <Card elevation={2} className={classes.root} key={value.id}>
+        <Card elevation={3} className={classes.root} key={value.id}>
           <CardContent>
             <Typography gutterBottom variant="h6">
               {value.title ? value.title : "This record doesn't have a title."}

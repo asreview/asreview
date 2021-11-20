@@ -501,7 +501,9 @@ const SetupDialog = (props) => {
         />
       )}
 
-      {addPriorKnowledge && <AddPriorKnowledge />}
+      {addPriorKnowledge && (
+        <AddPriorKnowledge n_prior={labeledStats?.n_prior} />
+      )}
       {!addDataset && !addPriorKnowledge && <Divider />}
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>

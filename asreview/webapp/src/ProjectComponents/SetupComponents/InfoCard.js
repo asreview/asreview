@@ -8,7 +8,7 @@ export default function InfoCard(props) {
       elevation={0}
       sx={{
         bgcolor: (theme) =>
-          theme.palette.mode === "dark" ? "grey.900" : "grey.100",
+          theme.palette.mode === "dark" ? "background.paper" : "grey.100",
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", p: 2 }}>
