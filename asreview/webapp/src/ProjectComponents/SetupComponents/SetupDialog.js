@@ -262,6 +262,7 @@ const SetupDialog = (props) => {
 
   const handleClosePriorKnowledge = () => {
     toggleAddPriorKnowledge();
+    queryClient.invalidateQueries("fetchLabeledStats");
   };
 
   /**
@@ -308,7 +309,7 @@ const SetupDialog = (props) => {
       return details.title.length < 3;
     }
     if (activeStep === 1) {
-      return !labeledStats?.n_prior;
+      return !labeledStats?.n_inclusions || !labeledStats?.n_exclusions;
       // return false; // temporary
     }
   };

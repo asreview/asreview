@@ -170,28 +170,14 @@ class ProjectAPI {
     });
   }
 
-  static search(project_id, searchQuery) {
+  static fetchPriorSearch({ queryKey }) {
+    const { project_id, keyword } = queryKey[1];
     const url = api_url + `project/${project_id}/search`;
     return new Promise((resolve, reject) => {
       axios
-        .get(url, { params: { q: searchQuery, n_max: 10 } })
+        .get(url, { params: { q: keyword, n_max: 10 } })
         .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  // TODO{Terry}: deprecating, replaced by fetchLabeledRecord
-  static prior(project_id) {
-    const url = api_url + `project/${project_id}/labeled`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url)
-        .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

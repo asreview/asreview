@@ -96,7 +96,10 @@ const DataForm = (props) => {
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard
-              added={props.labeledStats?.n_prior !== 0}
+              added={
+                props.labeledStats?.n_inclusions !== 0 &&
+                props.labeledStats?.n_exclusions !== 0
+              }
               projectHasDataset={props.details?.projectHasDataset}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"

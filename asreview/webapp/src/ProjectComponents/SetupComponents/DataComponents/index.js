@@ -9,3 +9,5 @@ export { default as DatasetFromFile } from "./DatasetFromFile";
 export { default as DatasetFromURL } from "./DatasetFromURL";
 export { default as ExtensionDataset } from "./ExtensionDataset";
 export { default as PriorLabeled } from "./PriorLabeled";
+export { default as PriorSearch } from "./PriorSearch";
+export { default as PriorSearchRecord } from "./PriorSearchRecord";
