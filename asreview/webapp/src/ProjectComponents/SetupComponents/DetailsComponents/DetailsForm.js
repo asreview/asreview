@@ -106,7 +106,7 @@ const DetailsForm = (props) => {
           <InlineErrorHandler
             message={props.fetchDetailsError?.message}
             refetch={refetchDetails}
-            button="Try to refresh"
+            button={true}
           />
         )}
       </Stack>

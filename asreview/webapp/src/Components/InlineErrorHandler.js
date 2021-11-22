@@ -9,7 +9,7 @@ export default function InlineErrorHandler(props) {
       <Typography variant="body2">
         {props.message}{" "}
         <Link component="button" underline="none" onClick={props.refetch}>
-          {props.button}
+          {props.button ? "Try to refresh" : ""}
         </Link>
       </Typography>
     </Stack>

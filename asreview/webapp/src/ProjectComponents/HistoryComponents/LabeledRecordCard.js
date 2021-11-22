@@ -26,7 +26,6 @@ const classes = {
   icon: `${PREFIX}-icon`,
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 16,
@@ -88,7 +87,7 @@ const LabeledRecordCard = (props) => {
         <Card elevation={3} className={classes.root} key={value.id}>
           <CardContent>
             <Typography gutterBottom variant="h6">
-              {value.title ? value.title : "This record doesn't have a title."}
+              {value.title ? value.title : "No title available."}
             </Typography>
             <TruncateMarkup
               lines={value.id === recordReadMore ? Infinity : 6}
@@ -106,9 +105,7 @@ const LabeledRecordCard = (props) => {
               }
             >
               <Typography color="textSecondary">
-                {value.abstract
-                  ? value.abstract
-                  : "This record doesn't have an abstract."}
+                {value.abstract ? value.abstract : "No abstract available."}
               </Typography>
             </TruncateMarkup>
           </CardContent>

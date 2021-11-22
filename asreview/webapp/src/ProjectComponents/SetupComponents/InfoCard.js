@@ -16,7 +16,10 @@ export default function InfoCard(props) {
           fontSize="small"
           sx={{ color: "text.secondary", mr: 1 }}
         />
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary", fontSize: "13px" }}
+        >
           {props.info}
         </Typography>
       </Box>

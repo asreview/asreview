@@ -45,8 +45,8 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.priorRecordCard}`]: {
-    height: "calc(100vh - 224px)",
-    paddingLeft: 32,
+    height: "calc(100vh - 208px)",
+    paddingLeft: 24,
     paddingRight: 24,
   },
 

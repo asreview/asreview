@@ -28,7 +28,7 @@ const AddDataset = (props) => {
       <DialogContent sx={{ padding: "24px 48px 48px 48px" }}>
         <Stack spacing={3}>
           {!props.isAddingDataset && props.datasetAdded && (
-            <InfoCard info="Editing the dataset removes the prior knowledge." />
+            <InfoCard info="Editing the dataset removes the added prior knowledge." />
           )}
           <FormControl disabled={props.isAddingDataset} component="fieldset">
             <FormLabel component="legend">Add a dataset from</FormLabel>

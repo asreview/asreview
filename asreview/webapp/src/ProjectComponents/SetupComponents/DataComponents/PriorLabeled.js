@@ -52,7 +52,9 @@ export default function PriorLabeled(props) {
         />
         {props.n_prior === 0 && (
           <Box className={classes.noPrior}>
-            <Typography>No prior knowledge found.</Typography>
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              You have not provided prior knowledge
+            </Typography>
           </Box>
         )}
       </Card>

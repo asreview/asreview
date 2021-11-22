@@ -85,7 +85,7 @@ const DatasetFromBenchmark = (props) => {
         <InlineErrorHandler
           message={returnError()}
           refetch={refetchDatasets}
-          button={!props.isAddDatasetError ? "Try to refresh" : null}
+          button={!props.isAddDatasetError}
         />
       )}
       {!isFetchingDatasets && isSuccess && isFetched && (

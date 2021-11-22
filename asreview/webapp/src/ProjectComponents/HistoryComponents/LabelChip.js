@@ -11,7 +11,7 @@ export default function LabelChip(props) {
   };
 
   return (
-    <Stack direction="row" spacing={2} sx={{ padding: "16px 24px 8px 24px" }}>
+    <Stack direction="row" spacing={2} sx={{ padding: "8px 24px" }}>
       <Chip
         label="Relevant"
         color="primary"

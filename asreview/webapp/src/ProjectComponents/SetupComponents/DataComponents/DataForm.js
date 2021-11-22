@@ -68,14 +68,14 @@ const DataForm = (props) => {
         <InlineErrorHandler
           message={error?.message}
           refetch={refetchData}
-          button="Try to refresh"
+          button={true}
         />
       )}
       {!props.isFetchingLabeledStats && props.isFetchLabeledStatsError && (
         <InlineErrorHandler
           message={props.fetchLabeledStatsError?.message}
           refetch={refetchLabeledStats}
-          button="Try to refresh"
+          button={true}
         />
       )}
       {!isFetching &&

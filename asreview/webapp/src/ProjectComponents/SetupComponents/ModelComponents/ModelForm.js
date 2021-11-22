@@ -363,7 +363,7 @@ const ModelForm = (props) => {
           <InlineErrorHandler
             message={returnModelError()}
             refetch={refetchModel}
-            button="Try to refresh"
+            button={true}
           />
         )}
       </Stack>
