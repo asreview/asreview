@@ -185,6 +185,21 @@ class ProjectAPI {
     });
   }
 
+  static fetchPriorRandom({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/prior_random`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
     const { project_id, select, per_page } = queryKey[1];
     const url = api_url + `project/${project_id}/labeled`;
@@ -210,20 +225,6 @@ class ProjectAPI {
         .get(url)
         .then((result) => {
           resolve(result["data"]);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  static prior_random(project_id) {
-    const url = api_url + `project/${project_id}/prior_random`;
-    return new Promise((resolve, reject) => {
-      axios
-        .get(url)
-        .then((result) => {
-          resolve(result);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
