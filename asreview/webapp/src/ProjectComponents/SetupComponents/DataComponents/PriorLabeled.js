@@ -43,12 +43,18 @@ export default function PriorLabeled(props) {
             theme.palette.mode === "dark" ? "background.paper" : "grey.100",
         }}
       >
-        <LabelChip label={label} setLabel={setLabel} />
+        <LabelChip
+          label={label}
+          setLabel={setLabel}
+          n_exclusions={props.n_exclusions}
+          n_inclusions={props.n_inclusions}
+        />
         <Divider />
         <LabeledRecord
           label={label}
-          priorLabeled={true}
+          is_prior={true}
           n_prior={props.n_prior}
+          setSavingPriorKnowledge={props.setSavingPriorKnowledge}
         />
         {props.n_prior === 0 && (
           <Box className={classes.noPrior}>

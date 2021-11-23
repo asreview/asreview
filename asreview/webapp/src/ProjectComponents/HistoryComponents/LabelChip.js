@@ -13,13 +13,19 @@ export default function LabelChip(props) {
   return (
     <Stack direction="row" spacing={2} sx={{ padding: "8px 24px" }}>
       <Chip
-        label="Relevant"
+        label={
+          !props.n_inclusions ? "Relevant" : `Relevant (${props.n_inclusions})`
+        }
         color="primary"
         variant={props.label === "relevant" ? "filled" : "outlined"}
         onClick={handleClickRelevant}
       />
       <Chip
-        label="Irrelevant"
+        label={
+          !props.n_exclusions
+            ? "Irrelevant"
+            : `Irrelevant (${props.n_exclusions})`
+        }
         color="primary"
         variant={props.label === "irrelevant" ? "filled" : "outlined"}
         onClick={handleClickIrrelevant}

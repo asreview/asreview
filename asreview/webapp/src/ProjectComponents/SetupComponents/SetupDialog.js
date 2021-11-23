@@ -99,6 +99,7 @@ const SetupDialog = (props) => {
   const [benchmark, setBenchmark] = React.useState(null);
 
   const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
+  const [savingPriorKnowledge, setSavingPriorKnowledge] = React.useState(false);
 
   const [model, setModel] = React.useState({
     classifier: null,
@@ -260,9 +261,8 @@ const SetupDialog = (props) => {
     }
   };
 
-  const handleClosePriorKnowledge = () => {
-    toggleAddPriorKnowledge();
-    queryClient.invalidateQueries("fetchLabeledStats");
+  const isEnoughPriorKnowledge = () => {
+    return labeledStats?.n_exclusions > 4 && labeledStats?.n_inclusions > 4;
   };
 
   /**
@@ -420,16 +420,39 @@ const SetupDialog = (props) => {
           <Box className={classes.title}>
             <DialogTitle>Prior knowledge</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <Box sx={{ bgcolor: "rgba(0, 0, 0, 0.06)", pl: 1, pr: 1 }}>
+              {isEnoughPriorKnowledge() && (
+                <Typography variant="body2" sx={{ color: "secondary.main" }}>
+                  Enough prior knowledge. Click CLOSE to move on to the next
+                  step.
+                </Typography>
+              )}
+              <Box
+                sx={{
+                  bgcolor: (theme) => {
+                    if (theme.palette.mode === "dark") {
+                      return "#282828";
+                    } else {
+                      return "rgba(0, 0, 0, 0.06)";
+                    }
+                  },
+                  pl: 1,
+                  pr: 1,
+                }}
+              >
                 <Typography
                   variant="subtitle2"
                   sx={{ color: "text.secondary" }}
                 >
-                  Saved
+                  {!savingPriorKnowledge ? "Saved" : "Saving..."}
                 </Typography>
               </Box>
               <Box className={classes.closeButton}>
-                <Button onClick={handleClosePriorKnowledge}>Close</Button>
+                <Button
+                  variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
+                  onClick={toggleAddPriorKnowledge}
+                >
+                  Close
+                </Button>
               </Box>
             </Stack>
           </Box>
@@ -503,7 +526,12 @@ const SetupDialog = (props) => {
       )}
 
       {addPriorKnowledge && (
-        <AddPriorKnowledge n_prior={labeledStats?.n_prior} />
+        <AddPriorKnowledge
+          n_prior={labeledStats?.n_prior}
+          n_exclusions={labeledStats?.n_exclusions}
+          n_inclusions={labeledStats?.n_inclusions}
+          setSavingPriorKnowledge={setSavingPriorKnowledge}
+        />
       )}
       {!addDataset && !addPriorKnowledge && <Divider />}
       {!addDataset && !addPriorKnowledge && (

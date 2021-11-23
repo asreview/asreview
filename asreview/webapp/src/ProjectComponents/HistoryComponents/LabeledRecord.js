@@ -70,7 +70,7 @@ const LabeledRecord = (props) => {
     {
       enabled:
         props.label === "relevant" &&
-        (!props.priorLabeled ? true : !props.n_prior ? false : true),
+        (!props.is_prior ? true : !props.n_prior ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -88,7 +88,7 @@ const LabeledRecord = (props) => {
     {
       enabled:
         props.label === "irrelevant" &&
-        (!props.priorLabeled ? true : !props.n_prior ? false : true),
+        (!props.is_prior ? true : !props.n_prior ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -150,7 +150,7 @@ const LabeledRecord = (props) => {
             <Box
               className={clsx({
                 [classes.recordCard]: true,
-                [classes.priorRecordCard]: props.priorLabeled,
+                [classes.priorRecordCard]: props.is_prior,
               })}
               aria-label="labeled record card"
             >
@@ -160,6 +160,8 @@ const LabeledRecord = (props) => {
                     page={page}
                     label={props.label}
                     key={`result-page-${index}`}
+                    is_prior={props.is_prior}
+                    setSavingPriorKnowledge={props.setSavingPriorKnowledge}
                   />
                 ))}
               <InView

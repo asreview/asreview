@@ -18,7 +18,7 @@ import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../../Components";
-import { PriorSearchRecord } from "../DataComponents";
+import { PriorUnlabeled } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
@@ -151,16 +151,17 @@ const PriorSearch = (props) => {
           {!isError && isFetched && isSuccess && (
             <Box
               className={classes.recordCard}
-              aria-label="labeled record card"
+              aria-label="unlabeled record card"
             >
               {data?.result
                 .filter((record) => record?.included === -1)
                 .map((record, index) => (
-                  <PriorSearchRecord
+                  <PriorUnlabeled
                     keyword={keyword}
                     record={record}
                     n_prior={props.n_prior}
                     key={`result-page-${index}`}
+                    setSavingPriorKnowledge={props.setSavingPriorKnowledge}
                   />
                 ))}
             </Box>
