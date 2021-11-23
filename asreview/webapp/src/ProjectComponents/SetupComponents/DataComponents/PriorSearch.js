@@ -1,10 +1,11 @@
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Divider,
   Fade,
   IconButton,
@@ -16,24 +17,19 @@ import {
 import { styled } from "@mui/material/styles";
 import { ArrowBack } from "@mui/icons-material";
 
-// import { InlineErrorHandler } from "../../../Components";
+import { InlineErrorHandler } from "../../../Components";
 import { PriorSearchRecord } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  [`:hover`]: {
-    backgroundColor: "transparent",
-  },
-}));
-
 const PREFIX = "PriorSearch";
 
 const classes = {
   recordCard: `${PREFIX}-record-card`,
+  icon: `${PREFIX}-icon`,
   empty: `${PREFIX}-empty`,
+  loading: `${PREFIX}-loading`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -47,14 +43,21 @@ const Root = styled("div")(({ theme }) => ({
     overflowY: "scroll",
     padding: "16px 24px",
   },
-  // [`& .${classes.icon}`]: {
-  //   color: theme.palette.text.secondary,
-  //   [`:hover`]: {
-  //     backgroundColor: "transparent",
-  //   },
-  // },
+  [`& .${classes.icon}`]: {
+    color: theme.palette.text.secondary,
+    [`:hover`]: {
+      backgroundColor: "transparent",
+    },
+  },
 
   [`& .${classes.empty}`]: {
+    height: "calc(100% - 56px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  [`& .${classes.loading}`]: {
     height: "calc(100% - 56px)",
     display: "flex",
     alignItems: "center",
@@ -63,10 +66,11 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const PriorSearch = (props) => {
+  const queryClient = useQueryClient();
   const [keyword, setKeyword] = React.useState("");
   const [clickSearch, onClickSearch] = useToggle();
 
-  const { data, isError, isFetched, isSuccess } = useQuery(
+  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
     ["fetchPriorSearch", { project_id: props.project_id, keyword: keyword }],
     ProjectAPI.fetchPriorSearch,
     {
@@ -79,6 +83,10 @@ const PriorSearch = (props) => {
       refetchOnWindowFocus: false,
     }
   );
+
+  const refetchPriorSearch = () => {
+    queryClient.resetQueries("fetchPriorSearch");
+  };
 
   const onChangeKeyword = (event) => {
     setKeyword(event.target.value);
@@ -95,9 +103,9 @@ const PriorSearch = (props) => {
         >
           <Stack direction="row" sx={{ p: "4px 16px" }}>
             <Tooltip title="Select another way">
-              <StyledIconButton onClick={props.toggleSearch}>
+              <IconButton className={classes.icon} onClick={props.toggleSearch}>
                 <ArrowBack />
-              </StyledIconButton>
+              </IconButton>
             </Tooltip>
             <InputBase
               autoFocus
@@ -109,20 +117,37 @@ const PriorSearch = (props) => {
             <Button onClick={onClickSearch}>Search</Button>
           </Stack>
           <Divider />
-          {data === undefined && (
+          {isFetching && !isError && (
+            <Box className={classes.loading}>
+              <CircularProgress />
+            </Box>
+          )}
+          {!isFetching && isError && (
+            <Box className={classes.empty}>
+              <InlineErrorHandler
+                message={error["message"]}
+                refetch={refetchPriorSearch}
+                button={true}
+              />
+            </Box>
+          )}
+          {!isFetching && !isError && data === undefined && (
             <Box className={classes.empty}>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 Your search results will show up here
               </Typography>
             </Box>
           )}
-          {!data?.result.filter((record) => record?.included === -1).length && (
-            <Box className={classes.empty}>
-              <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Your search results will show up here
-              </Typography>
-            </Box>
-          )}
+          {!isFetching &&
+            !isError &&
+            !data?.result.filter((record) => record?.included === -1)
+              .length && (
+              <Box className={classes.empty}>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Your search results will show up here
+                </Typography>
+              </Box>
+            )}
           {!isError && isFetched && isSuccess && (
             <Box
               className={classes.recordCard}
