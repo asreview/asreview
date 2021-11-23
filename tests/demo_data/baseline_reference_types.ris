@@ -1,0 +1,241 @@
+﻿TY  -
+ER  -
+
+TY  - GEN
+ER  - 
+
+TY  - GEN
+N1  - Reference Type: Generic
+ER  - 
+
+TY  - ABST
+N1  - Reference Type: Abstract
+ER  - 
+
+TY  - AGGR
+N1  - Reference Type: Aggregated Database
+ER  - 
+
+TY  - ANCIENT
+N1  - Reference Type: Ancient Text
+ER  - 
+
+TY  - ART
+N1  - Reference Type: Artwork
+ER  - 
+
+TY  - ADVS
+N1  - Reference Type: Audiovisual Material
+ER  - 
+
+TY  - BILL
+N1  - Reference Type: Bill
+ER  - 
+
+TY  - BLOG
+N1  - Reference Type: Blog
+ER  - 
+
+TY  - BOOK
+N1  - Reference Type: Book
+ER  - 
+
+TY  - CHAP
+N1  - Reference Type: Book Section
+ER  - 
+
+TY  - CASE
+N1  - Reference Type: Case
+ER  - 
+
+TY  - CTLG
+N1  - Reference Type: Catalog
+ER  - 
+
+TY  - CHART
+N1  - Reference Type: Chart
+ER  - 
+
+TY  - CLSWK
+N1  - Reference Type: Classical Work
+ER  - 
+
+TY  - COMP
+N1  - Reference Type: Computer Program
+ER  - 
+
+TY  - CPAPER
+N1  - Reference Type: Conference Paper
+ER  - 
+
+TY  - CONF
+N1  - Reference Type: Conference Proceeding
+ER  - 
+
+TY  - DATA
+N1  - Reference Type: Dataset
+ER  - 
+
+TY  - DICT
+N1  - Reference Type: Dictionary
+ER  - 
+
+TY  - EDBOOK
+N1  - Reference Type: Edited Book
+ER  - 
+
+TY  - EBOOK
+N1  - Reference Type: Electronic Book
+ER  - 
+
+TY  - ECHAP
+N1  - Reference Type: Electronic Book Section
+ER  - 
+
+TY  - EJOUR
+N1  - Reference Type: Electronic Article
+ER  - 
+
+TY  - ENCYC
+N1  - Reference Type: Encyclopedia
+ER  - 
+
+TY  - EQUA
+N1  - Reference Type: Equation
+ER  - 
+
+TY  - FIGURE
+N1  - Reference Type: Figure
+ER  - 
+
+TY  - MPCT
+N1  - Reference Type: Film or Broadcast
+ER  - 
+
+TY  - JFULL
+N1  - Reference Type: Full Journal
+ER  - 
+
+TY  - GOVDOC
+N1  - Reference Type: Government Document
+ER  - 
+
+TY  - GRNT
+N1  - Reference Type: Grant
+ER  - 
+
+TY  - HEAR
+N1  - Reference Type: Hearing
+ER  - 
+
+TY  - INPR
+N1  - Reference Type: In Press Article
+ER  - 
+
+TY  - ICOMM
+N1  - Reference Type: Internet Communication
+ER  - 
+
+TY  - INTV
+N1  - Reference Type: Interview
+ER  - 
+
+TY  - JOUR
+N1  - Reference Type: Journal Article
+ER  - 
+
+TY  - LEGAL
+N1  - Reference Type: Legal Rule
+ER  - 
+
+TY  - MGZN
+N1  - Reference Type: Magazine Article
+ER  - 
+
+TY  - MANSCPT
+N1  - Reference Type: Manuscript
+ER  - 
+
+TY  - MAP
+N1  - Reference Type: Map
+ER  - 
+
+TY  - MUSIC
+N1  - Reference Type: Music
+ER  - 
+
+TY  - NEWS
+N1  - Reference Type: Newspaper Article
+ER  - 
+
+TY  - DBASE
+N1  - Reference Type: Online Database
+ER  - 
+
+TY  - MULTI
+N1  - Reference Type: Online Multimedia
+ER  - 
+
+TY  - PAMP
+N1  - Reference Type: Pamphlet
+ER  - 
+
+TY  - PAT
+N1  - Reference Type: Patent
+ER  - 
+
+TY  - PCOMM
+N1  - Reference Type: Personal Communication
+ER  - 
+
+TY  - POD
+N1  - Reference Type: Podcast
+ER  - 
+
+TY  - PRESS
+N1  - Reference Type: Press Release
+ER  - 
+
+TY  - RPRT
+N1  - Reference Type: Report
+ER  - 
+
+TY  - SER
+N1  - Reference Type: Serial
+ER  - 
+
+TY  - SLIDE
+N1  - Reference Type: Slide
+ER  - 
+
+TY  - SOUND
+N1  - Reference Type: Sound Recording
+ER  - 
+
+TY  - STAND
+N1  - Reference Type: Standard
+ER  - 
+
+TY  - STAT
+N1  - Reference Type: Statute
+ER  - 
+
+TY  - THES
+N1  - Reference Type: Thesis
+ER  - 
+
+TY  - UNBILL
+N1  - Reference Type: Unenacted Bill
+ER  - 
+
+TY  - UNPD
+N1  - Reference Type: Unpublished Work
+ER  - 
+
+TY  - VIDEO
+N1  - Reference Type: Video Recording
+ER  - 
+
+TY  - WEB
+N1  - Reference Type: Web Page
+ER  - 

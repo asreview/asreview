@@ -24,7 +24,7 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import write_ris
+from asreview.io.ris_writer import write_ris
 from asreview.io.utils import type_from_column
 from asreview.io.utils import convert_keywords
 from asreview.utils import is_iterable
@@ -61,6 +61,8 @@ class ASReviewData():
         Returns an array with dataset bodies.
     abstract: numpy.ndarray
         Identical to bodies.
+    notes: numpy.ndarray
+        Returns an array with dataset notes.
     keywords: numpy.ndarray
         Returns an array with dataset keywords.
     authors: numpy.ndarray
@@ -102,6 +104,9 @@ class ASReviewData():
 
         if "included" not in self.column_spec:
             self.column_spec["included"] = "included"
+
+        if "notes" not in self.column_spec:
+            self.column_spec["notes"] = "notes"
 
         if data_type == "included":
             self.labels = np.ones(len(self), dtype=int)
@@ -314,6 +319,13 @@ class ASReviewData():
             return None
 
     @property
+    def notes(self):
+        try:
+            return self.df[self.column_spec["notes"]].values
+        except KeyError:
+            return None
+
+    @property
     def keywords(self):
         try:
             return self.df[self.column_spec["keywords"]].apply(
@@ -417,7 +429,7 @@ class ASReviewData():
     def to_file(self, fp, labels=None, ranking=None):
         """Export data object to file.
 
-        RIS, CSV and Excel are supported file formats at the moment.
+        RIS, CSV, TSV and Excel are supported file formats at the moment.
 
         Arguments
         ---------
@@ -432,7 +444,7 @@ class ASReviewData():
             self.to_csv(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
             self.to_csv(fp, sep="\t", labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".ris", ".RIS"]:
+        elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
             self.to_ris(fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".xlsx", ".XLSX"]:
             self.to_excel(fp, labels=labels, ranking=ranking)
@@ -532,6 +544,24 @@ class ASReviewData():
         df = self.to_dataframe(labels=labels, ranking=ranking)
         return df.to_excel(fp, index=True)
 
-    def to_ris(self, ris_fp, labels=None, ranking=None):
+    def to_ris(self, fp, labels=None, ranking=None):
+        """Export to RIS (.ris) file.
+
+        Arguments
+        ---------
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, numpy.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe of all available record data.
+        """
         df = self.to_dataframe(labels=labels, ranking=ranking)
-        write_ris(df, ris_fp)
+        return write_ris(df, fp)

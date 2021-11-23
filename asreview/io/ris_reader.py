@@ -13,29 +13,89 @@
 # limitations under the License.
 
 import logging
+import re
 
-import pandas as pd
+import pandas
 import rispy
-from rispy import TAG_KEY_MAPPING
-from rispy.config import LIST_TYPE_TAGS
 
-from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import standardize_dataframe
 
 
-RIS_KEY_LABEL_INCLUDED = "LI"
+def _strip_zotero_p_tags(note_list):
+    """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
+    Parameters
+    ----------
+    note_list: list
+        A list of notes, coming from the Dataframe's "notes" column.
 
-def _tag_key_mapping(reverse=False):
-    # Add label_included into the specification and create reverse mapping.
-    TAG_KEY_MAPPING[RIS_KEY_LABEL_INCLUDED] = "included"
-    KEY_TAG_MAPPING = {TAG_KEY_MAPPING[key]: key for key in TAG_KEY_MAPPING}
-    for label in COLUMN_DEFINITIONS["included"]:
-        KEY_TAG_MAPPING[label] = "LI"
-    if reverse:
-        return KEY_TAG_MAPPING
+    Returns
+    -------
+    new_notes: list
+        A list of updated notes, where XHTML <p></p> tags have been stripped.
+    note_list: list
+        The original note_list, when no XHTML <p></p> tags have been found.
+    """
+    if isinstance(note_list, list):
+        new_notes = []
+        for v in note_list:
+            try:
+                new_notes.append(re.sub(r'^<p>|<\/p>$', '', v))
+            except Exception:
+                new_notes.append(v)
+        return new_notes
     else:
-        return TAG_KEY_MAPPING
+        return note_list
+
+
+def _label_parser(note_list):
+    """Converter function for manipulating the internal "included" and "notes" columns.
+
+    Parameters
+    ----------
+    note_list: list
+        A list of notes, coming from the Dataframe's "notes" column.
+
+    Returns
+    -------
+    asreview_new_notes: list
+        A list of updated notes, where internal label has been added.
+    note_list: list
+        The original note_list, when no labels have been found.
+    1,0,-1: int
+        Labels in case they are still needed from the internal representation.
+    """
+    regex = r"ASReview_relevant|ASReview_irrelevant|ASReview_not_seen"
+
+    # Check whether note_list is actually a list and not NaN
+    # Return -1 and an empty list
+    if not isinstance(note_list, list):
+        return -1, []
+
+    # Create lists of lists for ASReview references
+    asreview_refs = [re.findall(regex, note) for note in note_list]
+    asreview_refs_list = [
+        item for sublist in asreview_refs for item in sublist
+    ]
+
+    if len(asreview_refs_list) > 0:
+        # Create lists of lists for notes without references
+        asreview_new_notes = [re.sub(regex, "", note) for note in note_list]
+        # Remove empty elements from list
+        asreview_new_notes[:] = [
+            item for item in asreview_new_notes if item != ""
+        ]
+        label = asreview_refs_list[-1]
+
+        # Check for the label and return proper values for internal representation
+        if label == "ASReview_relevant":
+            return 1, asreview_new_notes
+        elif label == "ASReview_irrelevant":
+            return 0, asreview_new_notes
+        elif label == "ASReview_not_seen":
+            return -1, asreview_new_notes
+    else:
+        return -1, note_list
 
 
 def read_ris(fp):
@@ -45,85 +105,46 @@ def read_ris(fp):
     ----------
     fp: str, pathlib.Path
         File path to the RIS file.
-    label: bool
-        Check for label. If None, this is automatic.
 
     Returns
     -------
     pandas.DataFrame:
         Dataframe with entries.
 
+    Raises
+    ------
+    ValueError
+        File with unrecognized encoding is used as input.
     """
 
-    encodings = ['ISO-8859-1', 'utf-8', 'utf-8-sig']
+    encodings = ['utf-8', 'utf-8-sig', 'ISO-8859-1']
     entries = None
     for encoding in encodings:
         try:
             with open(fp, 'r', encoding=encoding) as bibliography_file:
-                mapping = _tag_key_mapping(reverse=False)
-                entries = list(rispy.load(bibliography_file, mapping=mapping))
+                entries = list(
+                    rispy.load(bibliography_file, skip_unknown_tags=True))
                 break
         except UnicodeDecodeError:
             pass
         except IOError as e:
             logging.warning(e)
-
     if entries is None:
         raise ValueError("Cannot find proper encoding for data file.")
 
-    df = pd.DataFrame(entries)
+    # Turn the entries dictionary into a Pandas dataframe
+    df = pandas.DataFrame(entries)
 
-    def converter(x):
-        try:
-            return ", ".join(x)
-        except TypeError:
-            return ""
-
-    for tag in LIST_TYPE_TAGS:
-        key = TAG_KEY_MAPPING[tag]
-        if key in df:
-            df[key] = df[key].apply(converter)
-    return standardize_dataframe(df)
-
-
-def write_ris(df, ris_fp):
-    """Write dataframe to RIS file.
-
-    Arguments
-    ---------
-    df: pandas.Dataframe
-        Dataframe to export.
-    ris_fp: str
-        RIS file to export to.
-    """
-    column_names = list(df)
-    column_key = []
-    for col in column_names:
-        try:
-            rev_mapping = _tag_key_mapping(reverse=True)
-            column_key.append(rev_mapping[col])
-        except KeyError:
-            column_key.append('UK')
-            logging.info(f"Cannot find column {col} in specification.")
-
-    n_row = df.shape[0]
-
-    # According to RIS specifications, a record should begin with TY.
-    # Thus, the column id is inserted before all the other.
-    col_order = []
-    for i, key in enumerate(column_key):
-        if key == 'TY':
-            col_order.insert(0, i)
-        else:
-            col_order.append(i)
-
-    with open(ris_fp, "w") as fp:
-        for i_row in range(n_row):
-            for i_col in col_order:
-                value = df.iloc[i_row, i_col]
-                if isinstance(value, list):
-                    for val in value:
-                        fp.write(f"{column_key[i_col]}  - {val}\n")
-                else:
-                    fp.write(f"{column_key[i_col]}  - {value}\n")
-            fp.write("ER  - \n\n")
+    # Check if "notes" column is present
+    if "notes" in df:
+        # Strip Zotero XHTML <p> tags on "notes"
+        df["notes"] = df["notes"].apply(_strip_zotero_p_tags)
+        # Split "included" from "notes"
+        df[["included", "notes"
+            ]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(),
+                                  columns=["included", "notes"])
+        # Return the standardised dataframe with label and notes separated
+        return standardize_dataframe(df)
+    else:
+        # Return the standardised dataframe
+        return standardize_dataframe(df)

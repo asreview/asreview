@@ -240,13 +240,14 @@ def test_clear_model_error(client):
 def test_export_result(client):
     """Test export result"""
 
-    response_excel = client.get("/api/project/project-id/export?file_type=excel")
     response_csv = client.get("/api/project/project-id/export?file_type=csv")
     response_tsv = client.get("/api/project/project-id/export?file_type=tsv")
-
-    assert response_excel.status_code == 200
+    response_excel = client.get("/api/project/project-id/export?file_type=xlsx")
+    response_ris = client.get("/api/project/project-id/export?file_type=ris")
     assert response_csv.status_code == 200
     assert response_tsv.status_code == 200
+    assert response_excel.status_code == 200
+    assert response_ris.status_code == 500
 
 
 def test_export_project(client):
