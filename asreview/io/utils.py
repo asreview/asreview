@@ -129,7 +129,7 @@ def standardize_dataframe(df, column_spec={}):
         logging.warning("Unable to detect titles in dataset.")
 
     # Replace NA values with empty strings.
-    for col in ["title", "abstract", "authors", "keywords"]:
+    for col in ["title", "abstract", "authors", "keywords", "notes"]:
         try:
             df[all_column_spec[col]] = np.where(
                 pd.isnull(df[all_column_spec[col]]),
