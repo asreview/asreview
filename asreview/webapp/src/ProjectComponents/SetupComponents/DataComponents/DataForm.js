@@ -45,9 +45,26 @@ const DataForm = (props) => {
     queryClient.resetQueries("fetchData");
   };
 
+  const refetchDetails = () => {
+    queryClient.prefetchQuery(
+      ["fetchInfo", { project_id: props.project_id }],
+      ProjectAPI.fetchInfo
+    );
+  };
+
   const refetchLabeledStats = () => {
     queryClient.resetQueries("fetchLabeledStats");
   };
+
+  // fetch details in data step when init a new project
+  React.useEffect(() => {
+    if (!props.details && props.project_id !== null) {
+      queryClient.prefetchQuery(
+        ["fetchInfo", { project_id: props.project_id }],
+        ProjectAPI.fetchInfo
+      );
+    }
+  }, [props.details, props.project_id, queryClient]);
 
   return (
     <Root>
@@ -59,15 +76,23 @@ const DataForm = (props) => {
           preferences.
         </Typography>
       </Box>
-      {(isFetching || props.isFetchingLabeledStats) && (
-        <Box className={classes.loading}>
-          <CircularProgress />
-        </Box>
-      )}
+      {!props.isFetchDetailsError &&
+        (!props.details || isFetching || props.isFetchingLabeledStats) && (
+          <Box className={classes.loading}>
+            <CircularProgress />
+          </Box>
+        )}
       {!isFetching && isError && (
         <InlineErrorHandler
           message={error?.message}
           refetch={refetchData}
+          button={true}
+        />
+      )}
+      {props.isFetchDetailsError && (
+        <InlineErrorHandler
+          message={props.fetchDetailsError?.message}
+          refetch={refetchDetails}
           button={true}
         />
       )}
@@ -78,7 +103,8 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {!isFetching &&
+      {props.details &&
+        !isFetching &&
         !props.isFetchingLabeledStats &&
         !isError &&
         !props.isFetchLabeledStatsError && (
