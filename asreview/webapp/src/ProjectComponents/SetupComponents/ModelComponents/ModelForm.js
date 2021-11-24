@@ -90,6 +90,7 @@ const ModelForm = (props) => {
     ["fetchModelConfig", { project_id: props.project_id }],
     ProjectAPI.fetchModelConfig,
     {
+      enabled: props.project_id !== null,
       onSuccess: (data) => {
         props.setModel({
           classifier: data["model"],
@@ -113,7 +114,7 @@ const ModelForm = (props) => {
           feature_extraction: "embedding-lstm",
         });
       } else {
-        if (props.model["feature_extraction"] === "embedding-lstm") {
+        if (props.model?.feature_extraction === "embedding-lstm") {
           props.setModel({
             ...props.model,
             classifier: event.target.value,
@@ -146,38 +147,38 @@ const ModelForm = (props) => {
       <React.Fragment>
         Some classifiers and feature extraction techniques require additional
         dependencies.{" "}
-        {(props.model["classifier"] === "nn-2-layer" ||
-          props.model["feature_extraction"] === "embedding-idf" ||
-          props.model["feature_extraction"] === "embedding-lstm") && (
+        {(props.model?.classifier === "nn-2-layer" ||
+          props.model?.feature_extraction === "embedding-idf" ||
+          props.model?.feature_extraction === "embedding-lstm") && (
           <React.Fragment>
-            {props.model["feature_extraction"] === "tfidf" &&
+            {props.model?.feature_extraction === "tfidf" &&
               "This combination might crash on some systems with limited memory. "}
-            {props.model["classifier"] === "nn-2-layer" &&
-              modelOptions["classifier"]
+            {props.model?.classifier === "nn-2-layer" &&
+              modelOptions?.classifier
                 .filter((e) => e.name === "nn-2-layer")
                 .map((e) => e.label) + " "}
-            {props.model["feature_extraction"] === "embedding-idf" &&
-              modelOptions["feature_extraction"]
+            {props.model?.feature_extraction === "embedding-idf" &&
+              modelOptions?.feature_extraction
                 .filter((e) => e.name === "embedding-idf")
                 .map((e) => e.label) + " "}
-            {props.model["feature_extraction"] === "embedding-lstm" &&
-              modelOptions["feature_extraction"]
+            {props.model?.feature_extraction === "embedding-lstm" &&
+              modelOptions?.feature_extraction
                 .filter((e) => e.name === "embedding-lstm")
                 .map((e) => e.label) + " "}
             {modelRequirement("tensorflow")}
           </React.Fragment>
         )}
-        {props.model["feature_extraction"] === "doc2vec" && (
+        {props.model?.feature_extraction === "doc2vec" && (
           <React.Fragment>
-            {modelOptions["feature_extraction"]
+            {modelOptions?.feature_extraction
               .filter((e) => e.name === "doc2vec")
               .map((e) => e.label)}{" "}
             {modelRequirement("gensim")}
           </React.Fragment>
         )}
-        {props.model["feature_extraction"] === "sbert" && (
+        {props.model?.feature_extraction === "sbert" && (
           <React.Fragment>
-            {modelOptions["feature_extraction"]
+            {modelOptions?.feature_extraction
               .filter((e) => e.name === "sbert")
               .map((e) => e.label)}{" "}
             {modelRequirement("sentence-transformers")}
@@ -188,23 +189,23 @@ const ModelForm = (props) => {
   };
 
   const disableClassifierItem = (value) => {
-    return value === "nb" && props.model["feature_extraction"] === "doc2vec";
+    return value === "nb" && props.model?.feature_extraction === "doc2vec";
   };
 
   const disableFeatureExtractionItem = (value) => {
     return (
-      (value === "doc2vec" && props.model["classifier"] === "nb") ||
-      (props.model["classifier"] !== "lstm-base" &&
-        props.model["classifier"] !== "lstm-pool" &&
+      (value === "doc2vec" && props.model?.classifier === "nb") ||
+      (props.model?.classifier !== "lstm-base" &&
+        props.model?.classifier !== "lstm-pool" &&
         value === "embedding-lstm") ||
-      ((props.model["classifier"] === "lstm-base" ||
-        props.model["classifier"] === "lstm-pool") &&
+      ((props.model?.classifier === "lstm-base" ||
+        props.model?.classifier === "lstm-pool") &&
         value !== "embedding-lstm")
     );
   };
 
   const returnQueryStrategyHelperText = () => {
-    if (props.model["query_strategy"] === "random") {
+    if (props.model?.query_strategy === "random") {
       return "Your review is not accelerated by the model";
     }
   };
@@ -230,6 +231,11 @@ const ModelForm = (props) => {
     if (isFetchModelConfigError) {
       queryClient.resetQueries("fetchModelConfig");
     }
+  };
+
+  const resetMutateModelConfig = () => {
+    queryClient.invalidateQueries("fetchModelConfig");
+    props.reset();
   };
 
   return (
@@ -276,14 +282,14 @@ const ModelForm = (props) => {
                     id="select-classifier"
                     name="classifier"
                     label="Classifier"
-                    value={props.model["classifier"]}
+                    value={props.model?.classifier}
                     onChange={handleModel}
                   >
-                    {modelOptions["classifier"].map((value) => {
+                    {modelOptions?.classifier.map((value) => {
                       return (
                         <MenuItem
                           key={`result-item-${value.name}`}
-                          checked={props.model["classifier"] === value.name}
+                          checked={props.model?.classifier === value.name}
                           value={value.name}
                           disabled={disableClassifierItem(value.name)}
                         >
@@ -304,14 +310,14 @@ const ModelForm = (props) => {
                     id="select-query-strategy"
                     name="query_strategy"
                     label="Query strategy"
-                    value={props.model["query_strategy"]}
+                    value={props.model?.query_strategy}
                     onChange={handleModel}
                   >
-                    {modelOptions["query_strategy"].map((value) => {
+                    {modelOptions?.query_strategy.map((value) => {
                       return (
                         <MenuItem
                           key={`result-item-${value.name}`}
-                          checked={props.model["query_strategy"] === value.name}
+                          checked={props.model?.query_strategy === value.name}
                           value={value.name}
                         >
                           <SelectItem
@@ -334,15 +340,15 @@ const ModelForm = (props) => {
                     id="select-feature-extraction"
                     name="feature_extraction"
                     label="Feature extraction technique"
-                    value={props.model["feature_extraction"]}
+                    value={props.model?.feature_extraction}
                     onChange={handleModel}
                   >
-                    {modelOptions["feature_extraction"].map((value) => {
+                    {modelOptions?.feature_extraction.map((value) => {
                       return (
                         <MenuItem
                           key={`result-item-${value.name}`}
                           checked={
-                            props.model["feature_extraction"] === value.name
+                            props.model?.feature_extraction === value.name
                           }
                           value={value.name}
                           disabled={disableFeatureExtractionItem(value.name)}
@@ -363,6 +369,13 @@ const ModelForm = (props) => {
           <InlineErrorHandler
             message={returnModelError()}
             refetch={refetchModel}
+            button={true}
+          />
+        )}
+        {props.isMutateModelConfigError && (
+          <InlineErrorHandler
+            message={props.mutateModelConfigError?.message}
+            refetch={resetMutateModelConfig}
             button={true}
           />
         )}
