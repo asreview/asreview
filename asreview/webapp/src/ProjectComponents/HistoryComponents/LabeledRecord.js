@@ -161,7 +161,6 @@ const LabeledRecord = (props) => {
                     label={props.label}
                     key={`result-page-${index}`}
                     is_prior={props.is_prior}
-                    setSavingPriorKnowledge={props.setSavingPriorKnowledge}
                   />
                 ))}
               <InView

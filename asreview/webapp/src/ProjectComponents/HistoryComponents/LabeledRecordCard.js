@@ -48,15 +48,8 @@ const LabeledRecordCard = (props) => {
   const { error, isError, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
     {
-      onMutate: () => {
-        if (props.is_prior) {
-          props.setSavingPriorKnowledge(true);
-        }
-      },
+      mutationKey: "mutateLabeledPriorKnowledge",
       onSuccess: (data, variables) => {
-        if (props.is_prior) {
-          props.setSavingPriorKnowledge(false);
-        }
         // update cached data
         queryClient.setQueryData(
           [
@@ -97,20 +90,13 @@ const LabeledRecordCard = (props) => {
     }
   );
 
-  const resetMutateClassification = () => {
-    reset();
-    if (props.is_prior) {
-      props.setSavingPriorKnowledge(false);
-    }
-  };
-
   return (
     <Root>
       {isError && (
         <Box sx={{ pt: 8, pb: 16 }}>
           <InlineErrorHandler
             message={error["message"]}
-            refetch={resetMutateClassification}
+            refetch={reset}
             button={true}
           />
         </Box>

@@ -161,7 +161,6 @@ const PriorSearch = (props) => {
                     record={record}
                     n_prior={props.n_prior}
                     key={`result-page-${index}`}
-                    setSavingPriorKnowledge={props.setSavingPriorKnowledge}
                   />
                 ))}
             </Box>

@@ -20,11 +20,15 @@ const Root = styled("div")(({ theme }) => ({
 export default function DetailsModeSelect(props) {
   return (
     <Root>
-      <FormControl disabled={props.edit} fullWidth>
+      <FormControl disabled={props.disableModeSelect} fullWidth>
         <InputLabel id="mode-select-label">Mode</InputLabel>
         <Select
           labelId="mode-select-label"
           id="mode-select"
+          inputProps={{
+            onFocus: () => props.onFocus(),
+            onBlur: () => props.onBlur(),
+          }}
           name="mode"
           label="Mode"
           value={props.mode}

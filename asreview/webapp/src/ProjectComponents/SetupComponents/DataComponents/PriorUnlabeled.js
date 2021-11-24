@@ -46,11 +46,7 @@ const PriorUnlabeled = (props) => {
     ProjectAPI.mutateClassification,
     {
       mutationKey: "mutatePriorKnowledge",
-      onMutate: () => {
-        props.setSavingPriorKnowledge(true);
-      },
       onSuccess: (data, variables) => {
-        props.setSavingPriorKnowledge(false);
         queryClient.invalidateQueries("fetchLabeledStats");
         if (!variables.label) {
           queryClient.invalidateQueries("fetchIrrelevantLabeledRecord");
@@ -89,18 +85,13 @@ const PriorUnlabeled = (props) => {
     }
   );
 
-  const resetMutatePriorKnowledge = () => {
-    reset();
-    props.setSavingPriorKnowledge(false);
-  };
-
   return (
     <Root>
       {isError && (
         <Box sx={{ pt: 8 }}>
           <InlineErrorHandler
             message={error["message"]}
-            refetch={resetMutatePriorKnowledge}
+            refetch={reset}
             button={true}
           />
         </Box>

@@ -50,12 +50,7 @@ export default function PriorLabeled(props) {
           n_inclusions={props.n_inclusions}
         />
         <Divider />
-        <LabeledRecord
-          label={label}
-          is_prior={true}
-          n_prior={props.n_prior}
-          setSavingPriorKnowledge={props.setSavingPriorKnowledge}
-        />
+        <LabeledRecord label={label} is_prior={true} n_prior={props.n_prior} />
         {props.n_prior === 0 && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>

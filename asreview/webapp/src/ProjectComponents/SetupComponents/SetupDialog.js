@@ -22,6 +22,7 @@ import {
 import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 
+import { SavingStateBox } from "../SetupComponents";
 import { DetailsForm } from "../SetupComponents/DetailsComponents";
 import {
   AddDataset,
@@ -88,33 +89,40 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 const SetupDialog = (props) => {
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
-  const [showSimulate, setShowSimulate] = React.useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
 
-  const [addDataset, toggleAddDataset] = useToggle();
-  const [datasetSource, setDatasetSource] = React.useState("file");
-  const [file, setFile] = React.useState(null);
-  const [url, setURL] = React.useState("");
-  const [extension, setExtension] = React.useState(null);
-  const [benchmark, setBenchmark] = React.useState(null);
-
-  const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
-  const [savingPriorKnowledge, setSavingPriorKnowledge] = React.useState(false);
-
-  const [model, setModel] = React.useState({
-    classifier: null,
-    query_strategy: null,
-    feature_extraction: null,
-  });
-
-  // the state of the form data
+  // State Step 1: Details
   const [details, setDetails] = React.useState({
     mode: projectModes.ORACLE,
     title: "",
     authors: "",
     description: "",
   });
+  const [disableFetchDetails, setDisableFetchDetails] = React.useState(false); // disable fetch when init a project
+  const [disableModeSelect, setDisableModeSelect] = React.useState(false);
+  const [exTitle, setExTitle] = React.useState(""); // for comparison to decide on mutate project id
+  const [showSimulate, setShowSimulate] = React.useState(false);
+  const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
 
+  // State Step 2: Data
+  const [addDataset, toggleAddDataset] = useToggle();
+  const [datasetSource, setDatasetSource] = React.useState("file");
+  const [file, setFile] = React.useState(null);
+  const [url, setURL] = React.useState("");
+  const [extension, setExtension] = React.useState(null);
+  const [benchmark, setBenchmark] = React.useState(null);
+  const [addPriorKnowledge, toggleAddPriorKnowledge] = useToggle();
+
+  // State Step 3: Model
+  const [model, setModel] = React.useState({
+    classifier: null,
+    query_strategy: null,
+    feature_extraction: null,
+  });
+
+  /**
+   * Step 1: Details
+   */
   const handleDetailsChange = (event) => {
     if (isInitError && event.target.name === "title") {
       resetInit();
@@ -131,24 +139,29 @@ const SetupDialog = (props) => {
   const {
     error: initError,
     isError: isInitError,
+    isLoading: isMutatingInitProject,
     mutate: initProject,
     reset: resetInit,
   } = useMutation(ProjectAPI.mutateInitProject, {
     onSuccess: (data, variables) => {
       props.setProjectId(data["id"]);
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      setTextFieldFocused(null);
     },
   });
 
   const {
     error: mutateDetailsError,
     isError: isMutateDetailsError,
+    isLoading: isMutatingDetails,
     mutate: mutateDetails,
     reset: resetMutateDetails,
   } = useMutation(ProjectAPI.mutateInfo, {
     onSuccess: (data, variables) => {
-      props.setProjectId(data["id"]);
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      // mutate project id when typed title is different from existing title/empty string
+      if (variables.title !== exTitle) {
+        props.setProjectId(data["id"]);
+      }
+      setTextFieldFocused(null);
     },
   });
 
@@ -161,7 +174,7 @@ const SetupDialog = (props) => {
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: props.project_id !== null,
+      enabled: props.project_id !== null && !disableFetchDetails,
       onSuccess: (data) => {
         setDetails({
           mode: data["mode"],
@@ -169,6 +182,9 @@ const SetupDialog = (props) => {
           authors: data["authors"],
           description: data["description"],
         });
+        setExTitle(data["name"]);
+        setDisableFetchDetails(true); // avoid getting all the time
+        setDisableModeSelect(true);
       },
       refetchOnWindowFocus: false,
     }
@@ -183,6 +199,52 @@ const SetupDialog = (props) => {
     }
   };
 
+  // disable fetch details query when initiate a new project
+  React.useEffect(() => {
+    if (props.open && props.project_id === null && !disableFetchDetails) {
+      setDisableFetchDetails(true);
+    }
+  }, [props.open, props.project_id, disableFetchDetails]);
+
+  // auto mutate details when text field is not focused
+  React.useEffect(() => {
+    if (
+      props.open &&
+      textFiledFocused !== null &&
+      !textFiledFocused &&
+      !(details.title.length < 3) &&
+      !isInitError &&
+      !isMutateDetailsError
+    ) {
+      if (!props.project_id) {
+        initProject({
+          mode: details.mode,
+          title: details.title,
+          authors: details.authors,
+          description: details.description,
+        });
+      }
+      if (props.project_id) {
+        mutateDetails({
+          project_id: props.project_id,
+          mode: details.mode,
+          title: details.title,
+          authors: details.authors,
+          description: details.description,
+        });
+      }
+    }
+  }, [
+    props.open,
+    details,
+    initProject,
+    isInitError,
+    isMutateDetailsError,
+    mutateDetails,
+    props.project_id,
+    textFiledFocused,
+  ]);
+
   /**
    * Step 2: Data
    */
@@ -194,6 +256,7 @@ const SetupDialog = (props) => {
     reset: resetMutateDataset,
   } = useMutation(ProjectAPI.mutateData, {
     onSuccess: () => {
+      setDisableFetchDetails(false); // refetch after adding a dataset
       queryClient.invalidateQueries("fetchInfo");
       queryClient.invalidateQueries("fetchLabeledStats");
       toggleAddDataset();
@@ -268,75 +331,22 @@ const SetupDialog = (props) => {
   /**
    * Step3: Model
    */
-  const { mutate: mutateModelConfig } = useMutation(
-    ProjectAPI.mutateModelConfig,
-    {
-      onSuccess: () => {
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      },
-    }
-  );
+  const {
+    error: mutateModelConfigError,
+    isError: isMutateModelConfigError,
+    isLoading: isMutatingModelConfig,
+    mutate: mutateModelConfig,
+    reset: resetMutateModelConfig,
+  } = useMutation(ProjectAPI.mutateModelConfig);
 
-  /**
-   * Dialog actions
-   */
-  const handleClose = () => {
-    props.setNewProjectTitle(details["title"]);
-    props.onClose();
-    props.toggleInfoBar();
-    setDetails({
-      mode: projectModes.ORACLE,
-      title: "",
-      authors: "",
-      description: "",
-    });
-    setActiveStep(0);
-    setShowSimulate(false);
-    if (isInitError) {
-      resetInit();
-    }
-    if (isMutateDetailsError) {
-      resetMutateDetails();
-    }
-    if (props.project_id) {
-      queryClient.invalidateQueries("fetchProjects");
-      props.handleAppState("home");
-    }
-  };
-
-  const disableNextButton = () => {
-    if (activeStep === 0) {
-      return details.title.length < 3;
-    }
-    if (activeStep === 1) {
-      return !labeledStats?.n_inclusions || !labeledStats?.n_exclusions;
-      // return false; // temporary
-    }
-  };
-
-  const handleNext = () => {
-    if (activeStep === 0 && !props.project_id) {
-      initProject({
-        mode: details.mode,
-        title: details.title,
-        authors: details.authors,
-        description: details.description,
-      });
-    }
-    if (activeStep === 0 && props.project_id) {
-      mutateDetails({
-        project_id: props.project_id,
-        mode: details.mode,
-        title: details.title,
-        authors: details.authors,
-        description: details.description,
-      });
-    }
-    if (activeStep === 1) {
-      // temporaray
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
-    if (activeStep === 2) {
+  // auto mutate model selection
+  React.useEffect(() => {
+    if (
+      props.project_id &&
+      model.classifier &&
+      model.query_strategy &&
+      model.feature_extraction
+    ) {
       mutateModelConfig({
         project_id: props.project_id,
         classifier: model["classifier"],
@@ -344,10 +354,87 @@ const SetupDialog = (props) => {
         feature_extraction: model["feature_extraction"],
       });
     }
+  }, [model, mutateModelConfig, props.project_id]);
+
+  /**
+   * Dialog actions
+   */
+  const handleClose = () => {
+    setTextFieldFocused(null);
+    setExTitle("");
+    props.setNewProjectTitle(details["title"]);
+    props.onClose();
+  };
+
+  const exitedSetup = () => {
+    setActiveStep(0);
+    setDetails({
+      mode: projectModes.ORACLE,
+      title: "",
+      authors: "",
+      description: "",
+    });
+    setModel({
+      classifier: null,
+      query_strategy: null,
+      feature_extraction: null,
+    });
+    setDisableFetchDetails(false);
+    setDisableModeSelect(false);
+    setShowSimulate(false);
+    if (isInitError) {
+      resetInit();
+    }
+    if (isMutateDetailsError) {
+      resetMutateDetails();
+    }
+    if (isAddDatasetError) {
+      resetMutateDataset();
+    }
+    if (isMutateModelConfigError) {
+      resetMutateModelConfig();
+    }
+    if (props.project_id) {
+      props.toggleInfoBar();
+      queryClient.invalidateQueries("fetchProjects");
+      props.handleAppState("home");
+    }
+  };
+
+  const disableNextButton = () => {
+    if (activeStep === 0) {
+      return isInitError || isMutateDetailsError || details.title.length < 3;
+    }
+    if (activeStep === 1) {
+      return (
+        isAddDatasetError ||
+        !labeledStats?.n_inclusions ||
+        !labeledStats?.n_exclusions
+      );
+    }
+    if (activeStep === 2) {
+      return isMutateModelConfigError;
+    }
+  };
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  // saving state box in step 1 & 3
+  const isSaving = () => {
+    return isMutatingInitProject || isMutatingDetails || isMutatingModelConfig;
+  };
+
+  const isSavingPriorKnowledge = () => {
+    return (
+      queryClient.isMutating({ mutationKey: "mutatePriorKnowledge" }) ||
+      queryClient.isMutating({ mutationKey: "mutateLabeledPriorKnowledge" })
+    );
   };
 
   React.useEffect(() => {
@@ -380,18 +467,27 @@ const SetupDialog = (props) => {
       PaperProps={{
         sx: { height: "calc(100% - 96px)" },
       }}
+      TransitionProps={{
+        onExited: () => exitedSetup(),
+      }}
     >
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <Box className={classes.title}>
             <DialogTitle>Create a new project</DialogTitle>
-            <Box className={classes.closeButton}>
-              <Tooltip title="Save and close">
-                <StyledIconButton onClick={handleClose}>
-                  <CloseIcon />
-                </StyledIconButton>
-              </Tooltip>
-            </Box>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              {props.project_id !== null &&
+                (activeStep === 0 || activeStep === 2) && (
+                  <SavingStateBox isSaving={isSaving()} />
+                )}
+              <Box className={classes.closeButton}>
+                <Tooltip title="Save and close">
+                  <StyledIconButton onClick={handleClose}>
+                    <CloseIcon />
+                  </StyledIconButton>
+                </Tooltip>
+              </Box>
+            </Stack>
           </Box>
         </Fade>
       )}
@@ -426,26 +522,9 @@ const SetupDialog = (props) => {
                   step.
                 </Typography>
               )}
-              <Box
-                sx={{
-                  bgcolor: (theme) => {
-                    if (theme.palette.mode === "dark") {
-                      return "#282828";
-                    } else {
-                      return "rgba(0, 0, 0, 0.06)";
-                    }
-                  },
-                  pl: 1,
-                  pr: 1,
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ color: "text.secondary" }}
-                >
-                  {!savingPriorKnowledge ? "Saved" : "Saving..."}
-                </Typography>
-              </Box>
+              {labeledStats?.n_prior !== 0 && (
+                <SavingStateBox isSaving={isSavingPriorKnowledge()} />
+              )}
               <Box className={classes.closeButton}>
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
@@ -475,6 +554,7 @@ const SetupDialog = (props) => {
               {activeStep === 0 && (
                 <DetailsForm
                   details={details}
+                  disableModeSelect={disableModeSelect}
                   error={returnDetailsError()[1]}
                   fetchDetailsError={fetchDetailsError}
                   isError={returnDetailsError()[0]}
@@ -482,6 +562,7 @@ const SetupDialog = (props) => {
                   isFetchingDetails={isFetchingDetails}
                   handleChange={handleDetailsChange}
                   showSimulate={showSimulate}
+                  setTextFieldFocused={setTextFieldFocused}
                 />
               )}
               {activeStep === 1 && (
@@ -490,13 +571,21 @@ const SetupDialog = (props) => {
                   labeledStats={labeledStats}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
+                  fetchDetailsError={fetchDetailsError}
                   fetchLabeledStatsError={fetchLabeledStatsError}
+                  isFetchDetailsError={isFetchDetailsError}
                   isFetchLabeledStatsError={isFetchLabeledStatsError}
                   isFetchingLabeledStats={isFetchingLabeledStats}
                 />
               )}
               {activeStep === 2 && (
-                <ModelForm model={model} setModel={setModel} />
+                <ModelForm
+                  model={model}
+                  setModel={setModel}
+                  isMutateModelConfigError={isMutateModelConfigError}
+                  mutateModelConfigError={mutateModelConfigError}
+                  reset={resetMutateModelConfig}
+                />
               )}
             </Box>
           </DialogContent>
@@ -530,7 +619,6 @@ const SetupDialog = (props) => {
           n_prior={labeledStats?.n_prior}
           n_exclusions={labeledStats?.n_exclusions}
           n_inclusions={labeledStats?.n_inclusions}
-          setSavingPriorKnowledge={setSavingPriorKnowledge}
         />
       )}
       {!addDataset && !addPriorKnowledge && <Divider />}

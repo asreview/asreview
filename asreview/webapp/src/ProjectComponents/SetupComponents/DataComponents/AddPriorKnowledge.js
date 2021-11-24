@@ -72,11 +72,7 @@ const AddPriorKnowledge = (props) => {
           </Card>
         )}
         {search && !random && (
-          <PriorSearch
-            n_prior={props.n_prior}
-            toggleSearch={toggleSearch}
-            setSavingPriorKnowledge={props.setSavingPriorKnowledge}
-          />
+          <PriorSearch n_prior={props.n_prior} toggleSearch={toggleSearch} />
         )}
         {!search && random && (
           <PriorRandom
@@ -84,14 +80,12 @@ const AddPriorKnowledge = (props) => {
             n_exclusions={props.n_exclusions}
             toggleRandom={toggleRandom}
             toggleSearch={toggleSearch}
-            setSavingPriorKnowledge={props.setSavingPriorKnowledge}
           />
         )}
         <PriorLabeled
           n_prior={props.n_prior}
           n_exclusions={props.n_exclusions}
           n_inclusions={props.n_inclusions}
-          setSavingPriorKnowledge={props.setSavingPriorKnowledge}
         />
       </DialogContent>
     </Fade>

@@ -32,6 +32,9 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DetailsForm = (props) => {
+  const onFocus = () => props.setTextFieldFocused(true);
+  const onBlur = () => props.setTextFieldFocused(false);
+
   const queryClient = useQueryClient();
 
   const refetchDetails = () => {
@@ -53,9 +56,12 @@ const DetailsForm = (props) => {
           <Box component="form" noValidate autoComplete="off">
             <Stack direction="column" spacing={3}>
               <DetailsModeSelect
+                disableModeSelect={props.disableModeSelect}
                 mode={props.details.mode}
                 handleMode={props.handleChange}
                 showSimulate={props.showSimulate}
+                onBlur={onBlur}
+                onFocus={onFocus}
               />
               {props.showSimulate && (
                 <Box>
@@ -73,6 +79,10 @@ const DetailsForm = (props) => {
                 fullWidth
                 autoFocus
                 error={props.isError}
+                inputProps={{
+                  onFocus: () => onFocus(),
+                  onBlur: () => onBlur(),
+                }}
                 required
                 name="title"
                 id="project-title"
@@ -83,6 +93,10 @@ const DetailsForm = (props) => {
               />
               <TextField
                 fullWidth
+                inputProps={{
+                  onFocus: () => onFocus(),
+                  onBlur: () => onBlur(),
+                }}
                 name="authors"
                 id="project-author"
                 label="Author(s)"
@@ -91,6 +105,10 @@ const DetailsForm = (props) => {
               />
               <TextField
                 fullWidth
+                inputProps={{
+                  onFocus: () => onFocus(),
+                  onBlur: () => onBlur(),
+                }}
                 multiline
                 rows={4}
                 name="description"
