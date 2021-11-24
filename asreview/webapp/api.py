@@ -940,21 +940,6 @@ def export_results(project_id):
 
     # get the export args
     file_type = request.args.get('file_type', None)
-
-    # CSV
-    
-    # TSV
-    elif file_type == "tsv":
-        dataset_str = export_to_string(project_id, export_type="tsv")
-
-        return Response(
-            dataset_str,
-            mimetype="text/tab-separated-values",
-            headers={
-                "Content-disposition":
-                f"attachment; filename=asreview_result_{project_id}.tsv"
-            })
-
     
     try:
         # CSV
