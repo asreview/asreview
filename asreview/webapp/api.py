@@ -940,7 +940,7 @@ def export_results(project_id):
 
     # get the export args
     file_type = request.args.get('file_type', None)
-    
+
     try:
         # CSV
         if file_type == "csv":
@@ -999,8 +999,6 @@ def export_results(project_id):
     except Exception as err:
         logging.error(err)
         return jsonify(message=f"Failed to export the {file_type} dataset."), 500
-
-    
 
 
 @bp.route('/project/<project_id>/export_project', methods=["GET"])
