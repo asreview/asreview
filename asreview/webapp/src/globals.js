@@ -1,6 +1,9 @@
 // When you're running the development server, the javascript code is always
 // pointing to localhost:5000. In all other configurations, the api url point to
 // the host domain.
+
+import { setProject } from "./redux/actions";
+
 export const base_url =
   (window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1") &&
@@ -11,6 +14,31 @@ export const api_url = base_url + "api/";
 
 export const donateURL = "https://asreview.nl/donate";
 
+export const getDesignTokens = (mode: PaletteMode) => ({
+  palette: {
+    mode,
+    ...(mode === "light"
+      ? {
+          primary: {
+            main: "#816700",
+            light: "#FFCD00",
+          },
+          secondary: {
+            main: "#076AED",
+            light: "#3ea6ff",
+          },
+        }
+      : {
+          primary: {
+            main: "#FFCD00",
+          },
+          secondary: {
+            main: "#3ea6ff",
+          },
+        }),
+  },
+});
+
 // algorithm settings configs
 export const defaultAlgorithms = {
   model: "nb",
@@ -18,12 +46,12 @@ export const defaultAlgorithms = {
   feature_extraction: "tfidf",
 };
 
-// review drawer configs
-export const reviewDrawerWidth = 250;
+// drawer configs
+export const drawerWidth = 250;
 
 // review screen configs
 export const decisionUndoBarDuration = 6000;
-export const decisionUndoBarMarginBottom = 56;
+export const decisionUndoBarMarginBottom = 100;
 
 export const fontSizeOptions = [
   {
@@ -47,4 +75,18 @@ export const fontSizeOptions = [
 // functions
 export const mapStateToProps = (state) => {
   return { project_id: state.project_id };
+};
+export const mapDispatchToProps = (dispatch) => {
+  return {
+    setProjectId: (project_id) => {
+      dispatch(setProject(project_id));
+    },
+  };
+};
+
+// enums
+export const projectModes = {
+  ORACLE: "oracle",
+  SIMULATION: "simulate",
+  EXPLORATION: "explore",
 };

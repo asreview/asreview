@@ -14,6 +14,7 @@
 
 import os
 import time
+
 import pytest
 
 
@@ -34,7 +35,8 @@ def test_init_project(tmp_path, client):
     os.environ["ASREVIEW_PATH"] = str(tmp_path)
 
     response = client.post("/api/project/info", data={
-        "name": "project id",
+        "mode": "explore",
+        "name": "project_id",
         "authors": "name",
         "description": "hello world"
     })
@@ -43,6 +45,19 @@ def test_init_project(tmp_path, client):
     assert response.status_code == 201
     assert "name" in json_data
     assert isinstance(json_data, dict)
+
+
+def test_get_projects_stats(client):
+    """Test get dashboard statistics of all projects"""
+
+    response = client.get("/api/projects/stats")
+    json_data = response.get_json()
+
+    assert "n_in_review" in json_data["result"]
+    assert "n_finished" in json_data["result"]
+    assert "n_reviewed" in json_data["result"]
+    assert "n_included" in json_data["result"]
+    assert isinstance(json_data["result"], dict)
 
 
 def test_demo_data_project(client):
@@ -80,7 +95,8 @@ def test_update_project_info(client):
     """Test update project info"""
 
     response = client.put("/api/project/project-id/info", data={
-        "name": "project id",
+        "mode": "explore",
+        "name": "project_id",
         "authors": "asreview team",
         "description": "hello world"
     })
@@ -119,12 +135,12 @@ def test_random_prior_papers(client):
 def test_label_item(client):
     """Test label item"""
 
-    response_irrelevant = client.post("/api/project/project-id/labelitem", data={
+    response_irrelevant = client.post("/api/project/project-id/record/5509", data={
         "doc_id": 5509,
         "label": 0,
         "is_prior": 1
     })
-    response_relevant = client.post("/api/project/project-id/labelitem", data={
+    response_relevant = client.post("/api/project/project-id/record/58", data={
         "doc_id": 58,
         "label": 1,
         "is_prior": 1
@@ -134,24 +150,25 @@ def test_label_item(client):
     assert response_relevant.status_code == 200
 
 
-def test_get_prior(client):
-    """Test get all papers classified as prior documents"""
+def test_get_labeled(client):
+    """Test get all papers classified as labeled documents"""
 
-    response = client.get("/api/project/project-id/prior")
+    response = client.get("/api/project/project-id/labeled")
     json_data = response.get_json()
 
     assert "result" in json_data
     assert isinstance(json_data["result"], list)
 
 
-def test_get_prior_stat(client):
+def test_get_labeled_stats(client):
     """Test get all papers classified as prior documents"""
 
-    response = client.get("/api/project/project-id/prior_stats")
+    response = client.get("/api/project/project-id/labeled_stats")
     json_data = response.get_json()
 
-    assert "n_prior" in json_data
     assert isinstance(json_data, dict)
+    assert "n_prior" in json_data
+    assert json_data["n_prior"] == 2
 
 
 def test_list_algorithms(client):
@@ -170,7 +187,8 @@ def test_set_algorithms(client):
 
     response = client.post("/api/project/project-id/algorithms", data={
         "model": "svm",
-        "query_strategy": "random_max"
+        "query_strategy": "max_random",
+        "feature_extraction": "tfidf"
     })
     assert response.status_code == 200
 
@@ -195,46 +213,42 @@ def test_start(client):
     assert response.status_code == 200
 
 
-@pytest.mark.xfail(
-    raises=KeyError,
-    reason="status"
-)
-def test_init_model_ready(client):
+def test_ready(client):
     """Test check if trained model is available"""
 
     # wait the model ready
     time.sleep(8)
 
-    response = client.get("/api/project/project-id/model/init_ready")
+    response = client.get("/api/project/project-id/ready")
     json_data = response.get_json()
 
     assert json_data["status"] == 1
 
 
-def test_clear_model_error(client):
-    """Test clear model training error and retrain"""
+# def test_clear_model_error(client):
+#     """Test clear model training error and retrain"""
 
-    response_clear_error = client.delete("/api/project/project-id/model/clear_error")
-    assert response_clear_error.status_code == 200
+#     response_clear_error = client.delete("/api/project/project-id/model/clear_error")
+#     assert response_clear_error.status_code == 200
 
-    # reset active learning model
-    response_reset = client.post("/api/project/project-id/algorithms", data={
-        "model": "svm",
-        "query_strategy": "random"
-    })
-    assert response_reset.status_code == 200
+#     # reset active learning model
+#     response_reset = client.post("/api/project/project-id/algorithms", data={
+#         "model": "svm",
+#         "query_strategy": "random"
+#     })
+#     assert response_reset.status_code == 200
 
-    # retrain active learning model
-    response_retrain = client.post("/api/project/project-id/start")
-    assert response_retrain.status_code == 200
+#     # retrain active learning model
+#     response_retrain = client.post("/api/project/project-id/start")
+#     assert response_retrain.status_code == 200
 
-    # wait the model ready
-    time.sleep(8)
-    response_init_ready = client.get("/api/project/project-id/model/init_ready")
-    json_data = response_init_ready.get_json()
+#     # wait the model ready
+#     time.sleep(8)
+#     response_ready = client.get("/api/project/project-id/ready")
+#     json_data = response_ready.get_json()
 
-    assert "status" in json_data
-    assert json_data["status"] == 1
+#     assert "status" in json_data
+#     assert json_data["status"] == 1
 
 
 def test_export_result(client):
@@ -272,40 +286,24 @@ def test_get_progress_info(client):
     assert isinstance(json_data, dict)
 
 
-def test_get_progress_history(client):
-    """Test get progress history on the article"""
+def test_get_progress_density(client):
+    """Test get progress density on the article"""
 
-    response = client.get("/api/project/project-id/progress_history")
+    response = client.get("/api/project/project-id/progress_density")
     json_data = response.get_json()
-    assert isinstance(json_data, list)
+    assert "relevant" in json_data
+    assert "irrelevant" in json_data
+    assert isinstance(json_data, dict)
 
 
-def test_get_progress_efficiency(client):
+def test_get_progress_recall(client):
     """Test get cumulative number of inclusions by ASReview/at random"""
 
-    response = client.get("/api/project/project-id/progress_efficiency")
+    response = client.get("/api/project/project-id/progress_recall")
     json_data = response.get_json()
-    assert isinstance(json_data, list)
-
-
-def test_classify_instance(client):
-    """Test retrieve classification result"""
-
-    response = client.post("/api/project/project-id/record/<doc_id>", data={
-        "doc_id": 8208,
-        "label": 1,
-    })
-    assert response.status_code == 200
-
-
-def test_update_classify_instance(client):
-    """Test update classification result"""
-
-    response = client.put("/api/project/project-id/record/<doc_id>", data={
-        "doc_id": 8208,
-        "label": 0,
-    })
-    assert response.status_code == 200
+    assert "asreview" in json_data
+    assert "random" in json_data
+    assert isinstance(json_data, dict)
 
 
 def test_get_document(client):
@@ -316,6 +314,28 @@ def test_get_document(client):
 
     assert "result" in json_data
     assert isinstance(json_data, dict)
+
+    doc_id = json_data["result"]['doc_id']
+
+    # Test retrieve classification result
+    response = client.post(
+        f"/api/project/project-id/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": 1,
+        }
+    )
+    assert response.status_code == 200
+
+    # Test update classification result
+    response = client.put(
+        f"/api/project/project-id/record/{doc_id}",
+        data={
+            "doc_id": doc_id,
+            "label": 0,
+        }
+    )
+    assert response.status_code == 200
 
 
 def test_delete_project(client):

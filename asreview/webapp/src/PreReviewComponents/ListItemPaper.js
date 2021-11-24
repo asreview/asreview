@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { PaperCard } from "../PreReviewComponents";
 
@@ -38,8 +38,6 @@ const ListItemPaper = (props) => {
 
       // Close the search results
       props.closeSearchResult();
-
-      props.updatePriorStats();
     });
   };
 
@@ -50,8 +48,6 @@ const ListItemPaper = (props) => {
 
       // Close the search results
       props.closeSearchResult();
-
-      props.updatePriorStats();
     });
   };
 

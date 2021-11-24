@@ -1,106 +1,44 @@
 import { useEffect, useState } from "react";
-import brown from "@material-ui/core/colors/brown";
-import red from "@material-ui/core/colors/red";
 
-import { fontSizeOptions } from "../globals.js";
+import { fontSizeOptions, getDesignTokens } from "../globals.js";
+
+const useRowsPerPage = () => {
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handleRowsPerPage = (rows) => {
+    window.localStorage.setItem("rowsPerPage", rows);
+    setRowsPerPage(rows);
+  };
+
+  useEffect(() => {
+    const localRowsPerPage = window.localStorage.getItem("rowsPerPage");
+    if (localRowsPerPage !== null && rowsPerPage !== localRowsPerPage) {
+      setRowsPerPage(parseInt(localRowsPerPage));
+    }
+  }, [rowsPerPage]);
+
+  return [rowsPerPage, handleRowsPerPage];
+};
 
 const useDarkMode = () => {
-  let lightTheme = {
-    palette: {
-      type: "light",
-      primary: {
-        main: brown[500],
-      },
-    },
-    overrides: {
-      debug: {
-        color: "#1E824C",
-      },
-      MuiLink: {
-        root: {
-          color: "#DC004E",
-        },
-      },
-      MuiTypography: {
-        colorTextSecondary: {
-          color: "#555555",
-        },
-      },
-    },
-  };
-
-  let darkTheme = {
-    palette: {
-      type: "dark",
-      primary: {
-        main: brown[500],
-      },
-      secondary: {
-        main: red[500],
-      },
-    },
-    overrides: {
-      debug: {
-        color: "#65A665",
-      },
-      MuiLink: {
-        root: {
-          color: "#F48FB1",
-        },
-      },
-      MuiButton: {
-        textPrimary: {
-          color: "#CFA596",
-        },
-        outlinedPrimary: {
-          color: "#CFA596",
-        },
-      },
-      MuiTypography: {
-        colorPrimary: {
-          color: "#CFA596",
-        },
-      },
-      MuiFormLabel: {
-        root: {
-          "&$focused": {
-            color: "#CFA596",
-          },
-        },
-      },
-      MuiTab: {
-        textColorPrimary: {
-          "&$selected": {
-            color: "#CFA596",
-          },
-        },
-      },
-      MuiDialog: {
-        paper: {
-          backgroundColor: "#303030",
-        },
-      },
-    },
-  };
-
-  const [theme, setTheme] = useState(lightTheme);
+  const [theme, setTheme] = useState(getDesignTokens("light"));
 
   const toggleDarkMode = () => {
-    if (theme.palette.type === "light") {
+    if (theme.palette.mode === "light") {
       window.localStorage.setItem("themeType", "dark");
-      setTheme(darkTheme);
+      setTheme(getDesignTokens("dark"));
     } else {
       window.localStorage.setItem("themeType", "light");
-      setTheme(lightTheme);
+      setTheme(getDesignTokens("light"));
     }
   };
 
   useEffect(() => {
     const localTheme = window.localStorage.getItem("themeType");
-    if (theme.palette.type !== localTheme && localTheme !== null) {
-      setTheme(darkTheme);
+    if (theme.palette.mode !== localTheme && localTheme !== null) {
+      setTheme(getDesignTokens("dark"));
     }
-  }, [darkTheme, theme.palette.type]);
+  }, [theme.palette.mode]);
 
   return [theme, toggleDarkMode];
 };
@@ -170,4 +108,10 @@ const useKeyPressEnabled = () => {
   return [keyPressEnabled, toggleKeyPressEnabled];
 };
 
-export { useDarkMode, useFontSize, useUndoEnabled, useKeyPressEnabled };
+export {
+  useRowsPerPage,
+  useDarkMode,
+  useFontSize,
+  useUndoEnabled,
+  useKeyPressEnabled,
+};

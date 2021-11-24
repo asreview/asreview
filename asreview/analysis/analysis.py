@@ -19,36 +19,44 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-from asreview.state.utils import states_from_dir, state_from_file
-from asreview.analysis.statistics import _get_labeled_order
-from asreview.analysis.statistics import _get_limits
 from asreview.analysis.statistics import _find_inclusions
+from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_last_proba_order
+from asreview.analysis.statistics import _get_limits
+from asreview.state import BaseState
+from asreview.state.legacy.utils import states_from_dir
+from asreview.state.utils import open_state
 
 
+# TODO(State): Remove states_from_dir
 class Analysis():
     """Analysis object to do statistical analysis on state files."""
+
     def __init__(self, states, key=None):
         """Class to analyse state files.
 
         Arguments
         ---------
-        states: list, BaseLogger
+        states: list, BaseState
             Either a list of states (opened files) or a single state.
         key: str
             Give a name to the analysis.
         """
+
+        # if states is a list, convert to dict
         if isinstance(states, list):
             states = {i: state for i, state in enumerate(states)}
+        # is state is subclass of BaseState, convert to dict
+        elif issubclass(states, BaseState):
+            states = {0: states}
 
         # Sometimes an extra dataset is present in the state_file(s).
         # These signify not the labels on which the model was trained, but the
         # ones that were included in the end (or some other intermediate step.
-        self.final_labels = None
-        self.labels = None
-        self.empty = True
-
         if states is None:
+            self.final_labels = None
+            self.labels = None
+            self.empty = True
             return
 
         self.key = key
@@ -57,13 +65,17 @@ class Analysis():
         if self.num_runs == 0:
             return
 
+        # define the key to the first state file
         self._first_file = list(self.states.keys())[0]
-        self.labels = self.states[self._first_file].get('labels')
+        self._first_state_key = self._first_file
+
+        # labels
+        self.labels = self.states[self._first_state_key].get('labels')
         try:
-            self.final_labels = self.states[self._first_file].get(
+            self.final_labels = self.states[self._first_state_key].get(
                 'final_labels')
         except KeyError:
-            pass
+            self.final_labels = None
         self.empty = False
         self.inc_found = {}
 
@@ -104,20 +116,31 @@ class Analysis():
         """
         if key is None:
             key = os.path.basename(os.path.normpath(data_fp))
-        state = state_from_file(data_fp)
-        analysis_inst = cls(state, key=key)
+
+        # open state file and init Analysis class
+        with open_state(data_fp) as state:
+            analysis_inst = cls(state, key)
+
         if analysis_inst.empty:
             return None
 
         analysis_inst.data_path = data_fp
         return analysis_inst
 
-    @classmethod
-    def from_path(cls, data_path, prefix="", key=None):
-        """Create an Analysis object from either a file or a directory."""
-        if Path(data_path).is_file():
-            return cls.from_file(data_path, key=key)
-        return cls.from_dir(data_path, prefix, key=key)
+    # @classmethod
+    # def from_path(cls, data_path, prefix="", key=None):
+    #     """Create an Analysis object from either a file or a directory.
+
+    #     Arguments
+    #     ---------
+    #     data_fp: str
+    #         Path to state file to analyse.
+    #     key: str
+    #         Name for analysis object.
+    #     """
+    #     if Path(data_path).is_file():
+    #         return cls.from_file(data_path, key=key)
+    #     return cls.from_dir(data_path, prefix, key=key)
 
     def inclusions_found(self,
                          result_format="fraction",
@@ -361,8 +384,8 @@ class Analysis():
         """
         if not isinstance(prob_allow_miss, list):
             prob_allow_miss = [prob_allow_miss]
-        state = self.states[self._first_file]
-        n_queries = state.n_queries()
+        state = self.states[self._first_state_key]
+        n_predictor_models = state.n_predictor_models
         results = {
             "x_range": [],
             "limits": [[] for _ in range(len(prob_allow_miss))],
@@ -370,7 +393,7 @@ class Analysis():
 
         n_train = 0
         _, n_initial = _get_labeled_order(state)
-        for query_i in range(n_queries):
+        for query_i in range(n_predictor_models):
             new_limits = _get_limits(self.states,
                                      query_i,
                                      self.labels,

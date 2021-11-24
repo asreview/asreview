@@ -20,7 +20,6 @@ import sys
 from asreview import __version__
 from asreview.utils import get_entry_points
 
-
 PROG_DESCRIPTION = "Automated Systematic Review (ASReview)."
 
 # Internal or deprecated entry points. These entry points

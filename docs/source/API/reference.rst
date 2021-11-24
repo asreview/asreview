@@ -212,6 +212,14 @@ Functions
    balance.get_balance_model
    balance.get_balance_class
    balance.list_balance_strategies
+   :template: custom-module-template.rst
+   
+   
+   balance.base
+   balance.simple
+   balance.double
+   balance.undersample
+   balance.utils
 
 
 

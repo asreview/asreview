@@ -1,4 +1,4 @@
-import { axiosErrorHandler } from "./index.js";
+import { axiosErrorHandler } from "./axiosErrorHandler";
 import axios from "axios";
 
 class UtilsAPI {

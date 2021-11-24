@@ -19,9 +19,10 @@ import re
 import subprocess
 from io import open
 from os import path
-from setuptools import setup
-from setuptools import find_packages
+
 from setuptools import Command
+from setuptools import find_packages
+from setuptools import setup
 
 import versioneer
 
@@ -113,7 +114,6 @@ setup(
         'pandas',
         'rispy~=0.7.0',
         'dill',
-        'h5py',
         'xlrd>=1.0.0',
         'setuptools',
         'flask>=2.0',
@@ -128,11 +128,10 @@ setup(
         ],
         'asreview.entry_points': [
             'lab=asreview.entry_points:LABEntryPoint',
-            'oracle=asreview.entry_points:OracleEntryPoint',  # deprecated (use lab)
             'web_run_model = asreview.entry_points:WebRunModelEntryPoint',
             'simulate=asreview.entry_points:SimulateEntryPoint',
-            'simulate-batch = asreview.entry_points:BatchEntryPoint',
             'algorithms = asreview.entry_points:AlgorithmsEntryPoint',
+            'state-inspect = asreview.entry_points:StateInspectEntryPoint'
         ],
         'asreview.readers': [
             '.csv = asreview.io.csv_reader:read_csv',
@@ -141,7 +140,6 @@ setup(
             '.ris = asreview.io.ris_reader:read_ris',
             '.txt = asreview.io.ris_reader:read_ris',
             '.xlsx = asreview.io.excel_reader:read_excel',
-            '.xml = asreview.io.pubmed_xml_reader: read_pubmed_xml',
         ],
         'asreview.datasets': [
             'benchmark = asreview.datasets:BenchmarkDataGroup',
@@ -165,7 +163,7 @@ setup(
         'asreview.models.balance': [
             "simple = asreview.models.balance:SimpleBalance",
             "double = asreview.models.balance:DoubleBalance",
-            "triple = asreview.models.balance:TripleBalance",
+            # "triple = asreview.models.balance:TripleBalance",  # Broken, only via API
             "undersample = asreview.models.balance:UndersampleBalance",
         ],
         'asreview.models.query': [

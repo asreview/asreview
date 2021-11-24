@@ -16,7 +16,7 @@ import json
 from urllib.request import urlopen
 
 
-def retrieve_project_url_github():
+def retrieve_project_url_github(major=None):
     '''Retrieve .asreview file url from
     asreview-project-files-testing GitHub repository'''
 
@@ -36,6 +36,8 @@ def retrieve_project_url_github():
 
     for tag in version_tags:
         file_version = f"/{tag}/asreview-project-{tag.replace('.', '-')}-"
-        project_urls.append(repo_url + file_version + file_type)
+
+        if major is None or int(tag[1]) == major:
+            project_urls.append(repo_url + file_version + file_type)
 
     return project_urls

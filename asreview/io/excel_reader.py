@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.io.utils import standardize_dataframe
-
 import pandas as pd
+
 from asreview.config import COLUMN_DEFINITIONS
+from asreview.io.utils import _standardize_dataframe
 
 
 def read_excel(fp):
@@ -50,4 +50,4 @@ def read_excel(fp):
             sheet_obj_val = obj_val
             best_sheet = sheet_name
 
-    return standardize_dataframe(dfs[best_sheet])
+    return _standardize_dataframe(dfs[best_sheet])

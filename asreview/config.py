@@ -12,12 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ASCII_LOGO = """
+            _____ _____            _
+     /\    / ____|  __ \          (_)
+    /  \  | (___ | |__) |_____   ___  _____      __
+   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
+  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
+ /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
+"""  # noqa
+
 AVAILABLE_CLI_MODI = ["simulate"]
 AVAILABLE_REVIEW_CLASSES = ["simulate", "minimal"]
 
 LABEL_NA = -1
 
 KERAS_MODELS = ["lstm_base", "lstm_pool"]
+
+# project types
+PROJECT_MODE_ORACLE = "oracle"
+PROJECT_MODE_EXPLORE = "explore"
+PROJECT_MODE_SIMULATE = "simulate"
+PROJECT_MODES = [PROJECT_MODE_ORACLE, PROJECT_MODE_EXPLORE, PROJECT_MODE_SIMULATE]
 
 # CLI defaults
 DEFAULT_MODEL = "nb"
@@ -31,8 +46,7 @@ DEFAULT_N_PRIOR_EXCLUDED = 1
 GITHUB_PAGE = "https://github.com/asreview/asreview"
 EMAIL_ADDRESS = "asreview@uu.nl"
 
-STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
-LOGGER_EXTENSIONS = STATE_EXTENSIONS
+LEGACY_STATE_EXTENSIONS = [".h5", ".hdf5", ".he5", ".json"]
 
 COLUMN_DEFINITIONS = {
     # included

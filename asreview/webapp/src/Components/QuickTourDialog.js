@@ -1,5 +1,8 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { connect } from "react-redux";
+import SwipeableViews from "react-swipeable-views";
+import semverValid from "semver/functions/valid";
+import semverCoerce from "semver/functions/coerce";
 import {
   Box,
   Dialog,
@@ -8,17 +11,11 @@ import {
   IconButton,
   Paper,
   Typography,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-
-import SwipeableViews from "react-swipeable-views";
-
-import semverValid from "semver/functions/valid";
-import semverCoerce from "semver/functions/coerce";
-// import semverMajor from 'semver/functions/major';
-// import semverMinor from 'semver/functions/minor';
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 
 import Welcome from "../images/QuickTour/1_Welcome.svg";
 import SetUp from "../images/QuickTour/2_SetUp.svg";
@@ -28,7 +25,76 @@ import DontStress from "../images/QuickTour/5_DontStress.svg";
 import Done from "../images/QuickTour/6_DoneItsYourChoice.svg";
 import Publish from "../images/QuickTour/7_PublishYourWork.svg";
 
-import { connect } from "react-redux";
+const PREFIX = "QuickTourDialog";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  header: `${PREFIX}-header`,
+  closeButton: `${PREFIX}-closeButton`,
+  paper: `${PREFIX}-paper`,
+  img: `${PREFIX}-img`,
+  textTitle: `${PREFIX}-textTitle`,
+  textTitleWrap: `${PREFIX}-textTitleWrap`,
+  text: `${PREFIX}-text`,
+  iconButtonBack: `${PREFIX}-iconButtonBack`,
+  iconButtonNext: `${PREFIX}-iconButtonNext`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.root}`]: {
+    maxWidth: 350,
+    flexGrow: 1,
+  },
+
+  [`& .${classes.header}`]: {
+    display: "flex",
+    height: 45,
+  },
+
+  [`& .${classes.closeButton}`]: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
+
+  [`& .${classes.paper}`]: {
+    height: 440,
+  },
+
+  [`& .${classes.img}`]: {
+    height: 270,
+    display: "block",
+    overflow: "hidden",
+    width: "100%",
+  },
+
+  [`& .${classes.textTitle}`]: {
+    textAlign: "center",
+    padding: "0px 18px",
+  },
+
+  [`& .${classes.textTitleWrap}`]: {
+    paddingBottom: 18,
+  },
+
+  [`& .${classes.text}`]: {
+    display: "flex",
+    textShadow: "0 0 0.5px",
+    justifyContent: "center",
+    lineHeight: "18pt",
+  },
+
+  [`& .${classes.iconButtonBack}`]: {
+    width: "94px",
+    textAlign: "left",
+  },
+
+  [`& .${classes.iconButtonNext}`]: {
+    width: "94px",
+    textAlign: "right",
+  },
+}));
 
 const mapStateToProps = (state) => {
   return {
@@ -74,55 +140,7 @@ const quickTourSteps = [
   },
 ];
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    maxWidth: 350,
-    flexGrow: 1,
-  },
-  header: {
-    display: "flex",
-    height: 45,
-  },
-  closeButton: {
-    position: "absolute",
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: theme.palette.grey[500],
-  },
-  paper: {
-    height: 440,
-  },
-  img: {
-    height: 270,
-    display: "block",
-    overflow: "hidden",
-    width: "100%",
-  },
-  textTitle: {
-    textAlign: "center",
-    padding: "0px 18px",
-  },
-  textTitleWrap: {
-    paddingBottom: 18,
-  },
-  text: {
-    display: "flex",
-    textShadow: "0 0 0.5px",
-    justifyContent: "center",
-    lineHeight: "18pt",
-  },
-  iconButtonBack: {
-    width: "94px",
-    textAlign: "left",
-  },
-  iconButtonNext: {
-    width: "94px",
-    textAlign: "right",
-  },
-}));
-
 function QuickTourDialog(props) {
-  const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const [quickTour, setQuickTour] = React.useState(false);
   const maxSteps = quickTourSteps.length;
@@ -168,7 +186,7 @@ function QuickTourDialog(props) {
   }, [asreviewVersion]);
 
   return (
-    <Dialog open={quickTour} onClose={closeQuickTour} scroll="body">
+    <StyledDialog open={quickTour} onClose={closeQuickTour} scroll="body">
       <div className={classes.root}>
         <Paper square elevation={0} className={classes.header}>
           <IconButton
@@ -270,7 +288,7 @@ function QuickTourDialog(props) {
           }
         />
       </div>
-    </Dialog>
+    </StyledDialog>
   );
 }
 

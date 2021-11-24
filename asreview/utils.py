@@ -15,10 +15,10 @@
 import logging
 import os
 from pathlib import Path
-import pkg_resources
 from urllib.parse import urlparse
 
 import numpy as np
+import pkg_resources
 
 
 def _unsafe_dict_update(default_dict, override_dict):

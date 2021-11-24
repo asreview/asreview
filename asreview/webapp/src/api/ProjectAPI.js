@@ -1,15 +1,29 @@
-import { axiosErrorHandler } from "./index.js";
+import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "../globals.js";
 import axios from "axios";
 
 class ProjectAPI {
-  static projects() {
+  static fetchProjects({ queryKey }) {
     const url = api_url + `projects`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result.data["result"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchDashboardStats({ queryKey }) {
+    const url = api_url + `projects/stats`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result.data["result"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -35,6 +49,37 @@ class ProjectAPI {
     });
   }
 
+  static fetchConvertProjectIfOld({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/convert_if_old`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static fetchInfo({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/info`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  // TODO{Terry}: deprecating
   static info(project_id, edit = false, data = null) {
     const url = api_url + `project/${project_id}/info`;
     return new Promise((resolve, reject) => {
@@ -97,26 +142,9 @@ class ProjectAPI {
     });
   }
 
-  static labelitem(project_id, data) {
-    const url = api_url + `project/${project_id}/labelitem`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: "post",
-        url: url,
-        data: data,
-        headers: { "Content-type": "application/x-www-form-urlencoded" },
-      })
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
+  // TODO{Terry}: deprecating, replaced by fetchLabeledRecord
   static prior(project_id) {
-    const url = api_url + `project/${project_id}/prior`;
+    const url = api_url + `project/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -129,8 +157,25 @@ class ProjectAPI {
     });
   }
 
-  static prior_stats(project_id) {
-    const url = api_url + `project/${project_id}/prior_stats`;
+  static fetchLabeledRecord({ pageParam = 1, queryKey }) {
+    const { project_id, select, per_page } = queryKey[1];
+    const url = api_url + `project/${project_id}/labeled`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url, {
+          params: { subset: select, page: pageParam, per_page: per_page },
+        })
+        .then((result) => {
+          resolve(result.data);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
+  static labeled_stats(project_id) {
+    const url = api_url + `project/${project_id}/labeled_stats`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -207,7 +252,7 @@ class ProjectAPI {
   }
 
   static init_ready(project_id) {
-    const url = api_url + `project/${project_id}/model/init_ready`;
+    const url = api_url + `project/${project_id}/ready`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -234,16 +279,19 @@ class ProjectAPI {
     });
   }
 
-  static import_project(data) {
+  static mutateImportProject(variables) {
+    let body = new FormData();
+    body.append("file", variables.file);
+
     const url = api_url + `project/import_project`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
         url: url,
-        data: data,
+        data: body,
       })
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -251,25 +299,86 @@ class ProjectAPI {
     });
   }
 
-  static export_results(project_id, exportFileType) {
-    const exportUrl =
-      api_url + `project/${project_id}/export?file_type=${exportFileType}`;
-    setTimeout(() => {
-      const response = {
-        file: exportUrl,
-      };
-      window.location.href = response.file;
-    }, 100);
+  static fetchExportDataset({ queryKey }) {
+    const { project_id, fileFormat } = queryKey[1];
+    const url =
+      api_url + `project/${project_id}/export?file_type=${fileFormat}`;
+    return new Promise((resolve, reject) => {
+      axios({
+        url: url,
+        method: "get",
+        responseType: "blob",
+      })
+        .then((result) => {
+          const url = window.URL.createObjectURL(new Blob([result.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute(
+            "download",
+            `asreview_result_${project_id}.${fileFormat}`
+          );
+          document.body.appendChild(link);
+          link.click();
+          resolve(result);
+        })
+        .catch((error) => {
+          if (
+            error.request.responseType === "blob" &&
+            error.response.data instanceof Blob &&
+            error.response.data.type &&
+            error.response.data.type.toLowerCase().indexOf("json") !== -1
+          ) {
+            let reader = new FileReader();
+            reader.onload = () => {
+              error.response.data = JSON.parse(reader.result);
+              resolve(reject(axiosErrorHandler(error)));
+            };
+            reader.onerror = () => {
+              reject(axiosErrorHandler(error));
+            };
+            reader.readAsText(error.response.data);
+          }
+        });
+    });
   }
 
-  static export_project(project_id) {
-    const exportUrl = api_url + `project/${project_id}/export_project`;
-    setTimeout(() => {
-      const response = {
-        file: exportUrl,
-      };
-      window.location.href = response.file;
-    }, 100);
+  static fetchExportProject({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/export_project`;
+    return new Promise((resolve, reject) => {
+      axios({
+        url: url,
+        method: "get",
+        responseType: "blob",
+      })
+        .then((result) => {
+          const url = window.URL.createObjectURL(new Blob([result.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", `${project_id}.asreview`);
+          document.body.appendChild(link);
+          link.click();
+          resolve(result);
+        })
+        .catch((error) => {
+          if (
+            error.request.responseType === "blob" &&
+            error.response.data instanceof Blob &&
+            error.response.data.type &&
+            error.response.data.type.toLowerCase().indexOf("json") !== -1
+          ) {
+            let reader = new FileReader();
+            reader.onload = () => {
+              error.response.data = JSON.parse(reader.result);
+              resolve(reject(axiosErrorHandler(error)));
+            };
+            reader.onerror = () => {
+              reject(axiosErrorHandler(error));
+            };
+            reader.readAsText(error.response.data);
+          }
+        });
+    });
   }
 
   static finish(project_id) {
@@ -286,13 +395,14 @@ class ProjectAPI {
     });
   }
 
-  static progress(project_id) {
+  static fetchProgress({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/progress`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -300,13 +410,14 @@ class ProjectAPI {
     });
   }
 
-  static progress_history(project_id) {
-    const url = api_url + `project/${project_id}/progress_history`;
+  static fetchProgressDensity({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/progress_density`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -314,13 +425,14 @@ class ProjectAPI {
     });
   }
 
-  static progress_efficiency(project_id) {
-    const url = api_url + `project/${project_id}/progress_efficiency`;
+  static fetchProgressRecall({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `project/${project_id}/progress_recall`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -328,17 +440,43 @@ class ProjectAPI {
     });
   }
 
-  static classify_instance(project_id, doc_id, data, initial) {
-    const url = api_url + `project/${project_id}/record/${doc_id}`;
+  static mutateClassification(variables) {
+    let body = new FormData();
+    body.set("doc_id", variables.doc_id);
+
+    if (!variables.initial && variables.label !== -1) {
+      body.set("label", variables.label === 1 ? 0 : 1);
+    } else {
+      body.set("label", variables.label);
+    }
+
+    // prior items should be labeled as such
+    if (variables.is_prior === 1){
+      body.set("is_prior", 1);
+    }
+
+    const url =
+      api_url + `project/${variables.project_id}/record/${variables.doc_id}`;
     return new Promise((resolve, reject) => {
       axios({
-        method: initial ? "post" : "put",
+        method: variables.initial ? "post" : "put",
         url: url,
-        data: data,
+        data: body,
         headers: { "Content-Type": "application/json" },
       })
         .then((result) => {
           resolve(result);
+          console.log(
+            `${variables.project_id} - add item ${variables.doc_id} to ${
+              variables.label === 1
+                ? variables.initial
+                  ? "inclusions"
+                  : "exclusions"
+                : variables.initial
+                ? "exclusions"
+                : "inclusions"
+            }`
+          );
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -346,13 +484,14 @@ class ProjectAPI {
     });
   }
 
-  static get_document(project_id) {
+  static fetchRecord({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/get_document`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -360,8 +499,8 @@ class ProjectAPI {
     });
   }
 
-  static delete(project_id) {
-    const url = api_url + `project/${project_id}/delete`;
+  static mutateDeleteProject(variables) {
+    const url = api_url + `project/${variables.project_id}/delete`;
     return new Promise((resolve, reject) => {
       axios
         .delete(url)

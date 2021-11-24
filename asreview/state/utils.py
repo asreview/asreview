@@ -12,162 +12,224 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import shutil
+import sqlite3
+import time
+from base64 import b64decode
 from contextlib import contextmanager
-import logging
-import os
+from datetime import datetime
+from io import BytesIO
 from pathlib import Path
-import zipfile
-import tempfile
+from uuid import uuid4
 
-from asreview.config import STATE_EXTENSIONS
+import pandas as pd
+from scipy.sparse import csr_matrix
+from scipy.sparse import load_npz
+
+from asreview._version import get_versions
+from asreview.state.errors import StateNotFoundError
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_feature_matrices_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
+from asreview.state.sqlstate import SqlStateV1
+
+V3STATE_VERSION = "1.0"
 
 
-def _get_state_class(fp):
-    "Get state class from file extension."
-    from asreview.state.hdf5 import HDF5State
-    from asreview.state.json import JSONState
-    from asreview.state.dict import DictState
+# TODO(State): Create an 'add_project_json' function.
+def is_zipped_project_file(fp):
+    """Check if it is a zipped asreview project file."""
+    if Path(fp).is_file():
+        state_ext = Path(fp).suffix
 
-    if fp is None:
-        return DictState
-
-    state_ext = Path(fp).suffix
-    if state_ext in ['.h5', '.hdf5', '.he5']:
-        state_class = HDF5State
-    elif state_ext in ['.json']:
-        state_class = JSONState
+        # TODO(State): Make link.
+        if state_ext in ['.h5', '.hdf5', '.he5', '.json']:
+            raise ValueError(
+                f'State file with extension {state_ext} is no longer '
+                f'supported. Migrate to the new format or '
+                'use an older version of ASReview. See LINK.')
+        elif state_ext == '.asreview':
+            return True
+        else:
+            raise ValueError(f'State file extension {state_ext} is not '
+                             f'recognized.')
     else:
-        state_class = None
-    return state_class
+        return False
+
+
+def is_valid_project_folder(fp):
+    """Check of the folder contains an asreview project."""
+    if not Path(fp, 'reviews').is_dir() \
+            or not Path(fp, 'feature_matrices').is_dir():
+        raise ValueError(f"There does not seem to be a valid project folder"
+                         f" at {fp}. The 'reviews' or 'feature_matrices' "
+                         f"folder is missing.")
+    else:
+        return
+
+
+def init_project_folder_structure(project_path,
+                                  project_mode="oracle",
+                                  project_name=None,
+                                  project_description=None,
+                                  project_authors=None):
+    """Initialize a project folder structure at the given filepath.
+
+    Arguments
+    ---------
+    project_path: pathlike
+        Filepath where to intialize the project folder structure.
+    project_mode: str
+        Mode of the project. Should be 'oracle', 'explore' or 'simulate'.
+    project_name: str
+    project_description: str
+    project_authors: str
+
+    Returns
+    -------
+    dict
+        Project configuration dictionary.
+    """
+    project_path = Path(project_path)
+    project_id = project_path.stem
+    asreview_version = get_versions()['version']
+
+    if not project_id and not isinstance(project_id, str) \
+            and len(project_id) >= 3:
+        raise ValueError("Project name should be at least 3 characters.")
+
+    if project_path.is_dir():
+        raise IsADirectoryError(
+            f'Project folder {project_path} already exists.')
+
+    try:
+        project_path.mkdir(exist_ok=True)
+        get_data_path(project_path).mkdir(exist_ok=True)
+        get_feature_matrices_path(project_path).mkdir(exist_ok=True)
+        get_reviews_path(project_path).mkdir(exist_ok=True)
+
+        project_config = {
+            'version': asreview_version,  # todo: Fail without git?
+            'id': project_id,
+            'mode': project_mode,
+            'name': project_name,
+            'description': project_description,
+            'authors': project_authors,
+            'created_at_unix': int(time.time()),
+
+            # project related variables
+            'datetimeCreated': str(datetime.now()),
+            'projectInitReady': False,
+            'reviewFinished': False,
+            'reviews': [],
+            'feature_matrices': []
+        }
+
+        # create a file with project info
+        with open(get_project_file_path(project_path), "w") as project_path:
+            json.dump(project_config, project_path)
+
+        return project_config
+
+    except Exception as err:
+        # remove all generated folders and raise error
+        shutil.rmtree(project_path)
+        raise err
 
 
 @contextmanager
-def open_state(fp, *args, read_only=False, **kwargs):
-    """Open a state from a file.
+def open_state(working_dir, review_id=None, read_only=True):
+    """Initialize a state class instance from a project folder.
+
+    Arguments
+    ---------
+    working_dir: str/pathlike
+        Filepath to the (unzipped) project folder.
+    review_id: str
+        Identifier of the review from which the state will be instantiated.
+        If none is given, the first review in the reviews folder will be taken.
+    read_only: bool
+        Whether to open in read_only mode.
+
+    Returns
+    -------
+    SqlStateV1
+    """
+    working_dir = Path(working_dir)
+
+    if not get_reviews_path(working_dir).is_dir():
+        if read_only:
+            raise StateNotFoundError(f"There is no valid project folder"
+                                     f" at {working_dir}")
+        else:
+            init_project_folder_structure(working_dir)
+            review_id = uuid4().hex
+
+    # Check if file is a valid project folder.
+    is_valid_project_folder(working_dir)
+
+    # Get the review_id of the first review if none is given.
+    # If there is no review yet, create a review id.
+    if review_id is None:
+        reviews = list(get_reviews_path(working_dir).iterdir())
+        if reviews:
+            review_id = reviews[0].name
+        else:
+            review_id = uuid4().hex
+
+    # init state class
+    state = SqlStateV1(read_only=read_only)
+
+    try:
+        if Path(get_reviews_path(working_dir), review_id).is_dir():
+            state._restore(working_dir, review_id)
+        elif not Path(get_reviews_path(working_dir), review_id).is_dir() \
+                and not read_only:
+            state._create_new_state_file(working_dir, review_id)
+        else:
+            raise StateNotFoundError("State file does not exist, and in "
+                                     "read only mode.")
+        yield state
+    finally:
+        try:
+            state.close()
+        except AttributeError:
+            # file seems to be closed, do nothing
+            pass
+
+
+def read_results_into_dataframe(fp, table='results'):
+    """Read the result table of a v3 state file into a pandas dataframe.
 
     Arguments
     ---------
     fp: str
-        File to open.
-    read_only: bool
-        Whether to open the file in read_only mode.
+        Project folder.
+    table: str
+        Name of the sql table in the results.sql that you want to read.
 
     Returns
     -------
-    Basestate:
-        Depending on the extension the appropriate state is
-        chosen:
-        - [.h5, .hdf5, .he5] -> HDF5state.
-        - None -> Dictstate (doesn't store anything permanently).
-        - Anything else -> JSONstate.
+    pd.DataFrame
+        Dataframe containing contents of the results table of the state file.
     """
-    state_class = _get_state_class(fp)
-
-    if state_class is None:
-        raise ValueError("Bad state file extension, choose one of the"
-                         f" following:\n   {', '.join(STATE_EXTENSIONS)}")
-
-    # init state class
-    state = state_class(state_fp=fp, *args, read_only=read_only, **kwargs)
-
-    try:
-        yield state
-    finally:
-        state.close()
+    path = Path(fp)
+    con = sqlite3.connect(path / 'results.sql')
+    df = pd.read_sql_query(f'SELECT * FROM {table}', con)
+    con.close()
+    return df
 
 
-def states_from_dir(data_dir, prefix=""):
-    """Obtain a dictionary of states from a directory.
-
-    Arguments
-    ---------
-    data_dir: str
-        Directory where to search for state files or .asreview files.
-    prefix: str
-        Files starting with the prefix are assumed to be state files.
-        The rest is ignored.
-
-    Returns
-    -------
-    dict:
-        A dictionary of opened states, with their (base) filenames as keys.
-    """
-    states = {}
-    files = os.listdir(data_dir)
-    if not files:
-        logging.error(f"{data_dir} is empty.")
-        return None
-
-    for state_file in files:
-        if not state_file.startswith(prefix):
-            continue
-
-        state_fp = os.path.join(data_dir, state_file)
-        if Path(state_fp).suffix == ".asreview":
-            states[state_file] = state_from_asreview_file(state_fp)
-        else:
-            state_class = _get_state_class(state_fp)
-            if state_class is None:
-                continue
-            states[state_file] = state_class(state_fp=state_fp, read_only=True)
-
-    return states
-
-
-def state_from_file(data_fp):
-    """Obtain a single state from a file.
-
-    Arguments
-    ---------
-    data_fp: str
-        Path to state file or .asreview file.
-
-    Returns
-    -------
-    dict:
-        A dictionary of a single opened state, with its filename as key.
-    """
-    if not Path(data_fp).is_file():
-        logging.error(f"File {data_fp} does not exist, cannot create state.")
-        return None
-
-    if Path(data_fp).suffix == ".asreview":
-        base_state = state_from_asreview_file(data_fp)
-    elif Path(data_fp).suffix in STATE_EXTENSIONS:
-        base_state = _get_state_class(data_fp)(state_fp=data_fp, read_only=True)
-    else:
-        raise ValueError(f"Expected ASReview file or file {data_fp} with "
-                         f"extension {STATE_EXTENSIONS}.")
-
-    state = {
-        os.path.basename(os.path.normpath(data_fp)):
-        base_state
-    }
-    return state
-
-
-def state_from_asreview_file(data_fp):
-    """Obtain the state from a .asreview file.
-
-    Parameters
-    ----------
-    data_fp: str
-        Path to .asreview file.
-
-    Returns
-    -------
-    BaseState:
-        The same type of state file as in the .asreview file, which at the moment
-        is JSONState.
-    """
-    if not Path(data_fp).suffix == '.asreview':
-        raise ValueError(f"file {data_fp} does not end with '.asreview'.")
-
-    # Name of the state file in the .asreview file.
-    state_fp_in_zip = 'result.json'
-    with zipfile.ZipFile(data_fp, "r") as zipObj:
-        tmpdir = tempfile.TemporaryDirectory()
-        zipObj.extract(state_fp_in_zip, tmpdir.name)
-        fp = Path(tmpdir.name, state_fp_in_zip)
-        state = _get_state_class(fp)(state_fp=fp, read_only=True)
-        return state
+def decode_feature_matrix(jsonstate, data_hash):
+    """Get the feature matrix from a json state as a scipy csr_matrix."""
+    my_data = jsonstate._state_dict["data_properties"][data_hash]
+    encoded_X = my_data["feature_matrix"]
+    matrix_type = my_data["matrix_type"]
+    if matrix_type == "ndarray":
+        return csr_matrix(encoded_X)
+    elif matrix_type == "csr_matrix":
+        with BytesIO(b64decode(encoded_X)) as f:
+            return load_npz(f)
+    return encoded_X

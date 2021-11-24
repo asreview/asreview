@@ -1,21 +1,26 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardContent from "@material-ui/core/CardContent";
-import Typography from "@material-ui/core/Typography";
+import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 import store from "./redux/store";
 import { setProject } from "./redux/actions";
 
-const useStyles = makeStyles({
-  root: {
+const PREFIX = "ProjectCard";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  content: `${PREFIX}-content`,
+  description: `${PREFIX}-description`,
+};
+
+const StyledCard = styled(Card)({
+  [`&.${classes.root}`]: {
     maxWidth: "100%",
   },
-  content: {
+  [`& .${classes.content}`]: {
     height: 120,
   },
-  description: {
+  [`& .${classes.description}`]: {
     display: "-webkit-box",
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": "vertical",
@@ -24,8 +29,6 @@ const useStyles = makeStyles({
 });
 
 const ProjectCard = (props) => {
-  const classes = useStyles();
-
   const openExistingProject = () => {
     console.log("Opening existing project " + props.id);
 
@@ -36,7 +39,7 @@ const ProjectCard = (props) => {
   };
 
   return (
-    <Card className={classes.root}>
+    <StyledCard className={classes.root}>
       <CardActionArea onClick={openExistingProject}>
         <CardContent className={classes.content}>
           <Typography gutterBottom variant="h5" component="h2">
@@ -52,7 +55,7 @@ const ProjectCard = (props) => {
           </Typography>
         </CardContent>
       </CardActionArea>
-    </Card>
+    </StyledCard>
   );
 };
 

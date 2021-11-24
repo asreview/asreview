@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import pandas as pd
-from asreview.io.utils import standardize_dataframe
+
+from asreview.io.utils import _standardize_dataframe
 
 
 def read_csv(data_fp):
@@ -39,7 +40,7 @@ def read_csv(data_fp):
                 encoding=encoding,
                 engine='python'
             )
-            return standardize_dataframe(df)
+            return _standardize_dataframe(df)
         except UnicodeDecodeError:
             # if unicode error, go to next encoding
             continue

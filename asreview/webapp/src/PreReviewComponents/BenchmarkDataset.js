@@ -9,25 +9,37 @@ import {
   Link,
   Grid,
   Typography,
-} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
+const PREFIX = "BenchmarkDataset";
+
+const classes = {
+  root: `${PREFIX}-root`,
+  heading: `${PREFIX}-heading`,
+  secondaryHeading: `${PREFIX}-secondaryHeading`,
+  link: `${PREFIX}-link`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`&.${classes.root}`]: {
     width: "100%",
     marginBottom: "5px",
   },
-  heading: {
+
+  [`& .${classes.heading}`]: {
     fontSize: theme.typography.pxToRem(15),
     flexBasis: "33.33%",
     flexShrink: 0,
   },
-  secondaryHeading: {
+
+  [`& .${classes.secondaryHeading}`]: {
     fontSize: theme.typography.pxToRem(15),
     color: theme.palette.text.secondary,
   },
-  link: {
+
+  [`& .${classes.link}`]: {
     marginLeft: "6px",
   },
 }));
@@ -41,8 +53,6 @@ const DOILink = (doi) => {
 };
 
 const BenchmarkDataset = (props) => {
-  const classes = useStyles();
-
   const handleChange = (index, featured) => (event, isExpanded) => {
     if (!props.uploading) {
       if (featured) {
@@ -76,7 +86,7 @@ const BenchmarkDataset = (props) => {
   };
 
   return (
-    <div className={classes.root}>
+    <Root className={classes.root}>
       <Accordion
         expanded={props.expanded === props.index}
         onChange={handleChange(props.index, props.featured)}
@@ -147,7 +157,7 @@ const BenchmarkDataset = (props) => {
           </Button>
         </AccordionActions>
       </Accordion>
-    </div>
+    </Root>
   );
 };
 

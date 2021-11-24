@@ -1,53 +1,83 @@
-import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-
+import React from "react";
+import Confetti from "react-confetti";
+import { connect } from "react-redux";
+// import useWindowSize from 'react-use/lib/useWindowSize'
 import {
+  Box,
   Button,
   TextField,
   DialogTitle,
   DialogContent,
   DialogActions,
   Dialog,
-} from "@material-ui/core";
+  Typography,
+} from "@mui/material";
+import { brown } from "@mui/material/colors";
+import { styled } from "@mui/material/styles";
 
-import { brown } from "@material-ui/core/colors";
-
+import ProjectModeSelect from "./ProjectModeSelect";
 import ErrorHandler from "../ErrorHandler";
+
 import { ProjectAPI } from "../api/index.js";
-
-import { setProject } from "../redux/actions";
-
-import { connect } from "react-redux";
-import { mapStateToProps } from "../globals.js";
+import {
+  mapStateToProps,
+  mapDispatchToProps,
+  projectModes,
+} from "../globals.js";
 
 import "./ReviewZone.css";
 
-const useStyles = makeStyles((theme) => ({
-  title: {
+const PREFIX = "ProjectInfo";
+
+const classes = {
+  title: `${PREFIX}-title`,
+  button: `${PREFIX}-button`,
+  input: `${PREFIX}-input`,
+  list: `${PREFIX}-list`,
+  textfieldItem: `${PREFIX}-textfieldItem`,
+  clear: `${PREFIX}-clear`,
+  editButton: `${PREFIX}-editButton`,
+  avatar: `${PREFIX}-avatar`,
+  closeButton: `${PREFIX}-closeButton`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.title}`]: {
     marginBottom: "20px",
   },
-  button: {
+
+  [`& .${classes.button}`]: {
     margin: "36px 0px 0px 12px",
     float: "right",
   },
-  input: {
+
+  [`& .${classes.input}`]: {
     display: "none",
   },
-  textfieldItem: {
+
+  [`& .${classes.list}`]: {
+    backgroundColor: theme.palette.warning.light,
+  },
+
+  [`& .${classes.textfieldItem}`]: {
     marginTop: 0,
     marginBottom: 40,
   },
-  clear: {
+
+  [`& .${classes.clear}`]: {
     overflow: "auto",
   },
-  editButton: {
+
+  [`& .${classes.editButton}`]: {
     float: "right",
   },
-  avatar: {
+
+  [`& .${classes.avatar}`]: {
     color: theme.palette.getContrastText(brown[500]),
     backgroundColor: brown[500],
   },
-  closeButton: {
+
+  [`& .${classes.closeButton}`]: {
     position: "absolute",
     right: theme.spacing(1),
     top: theme.spacing(1),
@@ -55,29 +85,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function mapDispatchToProps(dispatch) {
-  return {
-    setProjectId: (project_id) => {
-      dispatch(setProject(project_id));
-    },
-  };
-}
-
-const ProjectInfo = (props) => {
-  const classes = useStyles();
-
-  // const [open, setOpen] = React.useState(props.open)
+const ProjectInit = (props) => {
+  // const { width, height } = useWindowSize()
 
   // the state of the form data
-  const [info, setInfo] = useState({
+  const [info, setInfo] = React.useState({
     authors: "",
     name: "",
     description: "",
+    mode: projectModes.ORACLE,
   });
-  const [error, setError] = useState({
+  const [showSimulate, setShowSimulate] = React.useState(false);
+  const [error, setError] = React.useState({
     code: null,
     message: null,
   });
+
+  // handle project type/mode change
+  const onModeChange = (event) => {
+    setInfo({
+      ...info,
+      mode: event.target.value,
+    });
+  };
 
   const onChange = (evt) => {
     if (error.code) {
@@ -86,6 +116,7 @@ const ProjectInfo = (props) => {
         message: null,
       });
     }
+
     setInfo({
       ...info,
       [evt.target.name]: evt.target.value,
@@ -96,52 +127,66 @@ const ProjectInfo = (props) => {
     evt.preventDefault();
 
     var bodyFormData = new FormData();
+    bodyFormData.set("mode", info.mode);
     bodyFormData.set("name", info.name);
     bodyFormData.set("authors", info.authors);
     bodyFormData.set("description", info.description);
 
-    (props.edit
-      ? ProjectAPI.info(props.project_id, true, bodyFormData)
-      : ProjectAPI.init(bodyFormData)
-    )
-      .then((result) => {
-        // set the project_id in the redux store
-        props.setProjectId(result.data["id"]);
-        // switch to project page if init
-        // reload project info if edit
-        if (!props.edit) {
-          props.onClose(); // set newProject state to false
-          props.handleAppState("project-page");
-        } else {
-          props.onClose(); // set editing state to false
-          props.reloadProjectInfo();
-        }
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
+    // dialog is open in edit mode
+    if (props.edit) {
+      ProjectAPI.info(props.project_id, true, bodyFormData)
+        .then((result) => {
+          props.setProjectId(result.data["id"]);
+          props.onClose();
+        })
+        .catch((error) => {
+          setError({
+            code: error.code,
+            message: error.message,
+          });
         });
-      });
+    } else {
+      // dialog is open in init mode
+      ProjectAPI.init(bodyFormData)
+        .then((result) => {
+          props.setProjectId(result.data["id"]);
+          // set newProject state to false
+          props.onClose();
+          props.handleAppState("project-page-old");
+        })
+        .catch((error) => {
+          setError({
+            code: error.code,
+            message: error.message,
+          });
+        });
+    }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
+    // unlock simulation mode
+    if (info.name === "elas" && !showSimulate) {
+      setInfo({
+        ...info,
+        name: "",
+        mode: projectModes.SIMULATION,
+      });
+      setShowSimulate(true);
+    }
+  }, [info.name, info, showSimulate]);
+
+  React.useEffect(() => {
     // pre-fill project info in edit mode
     if (props.edit) {
-      setInfo({
-        name: props.name,
-        authors: props.authors,
-        description: props.description,
-      });
+      setInfo(props.info);
     }
-  }, [props.edit, props.name, props.authors, props.description]);
+  }, [props.edit, props.info]);
 
   return (
-    <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
+    <StyledDialog open={props.open} onClose={props.onClose} fullWidth={true}>
       <DialogTitle>
         {props.edit ? "Edit project info" : "Create a new project"}
       </DialogTitle>
-
       {error.code === 503 && (
         <DialogContent dividers={true}>
           <ErrorHandler error={error} />
@@ -160,14 +205,36 @@ const ProjectInfo = (props) => {
           {/* The actual form */}
           <form noValidate autoComplete="off">
             <div className={classes.textfieldItem}>
+              <ProjectModeSelect
+                mode={info.mode}
+                edit={props.edit}
+                onModeChange={onModeChange}
+                showSimulate={showSimulate}
+              />
+            </div>
+
+            {showSimulate && (
+              <Box>
+                <Typography color="error" className={classes.textfieldItem}>
+                  You unlocked the experimental simulation mode!
+                </Typography>
+                <Confetti
+                  recycle={false}
+                  tweenDuration={50000}
+                  numberOfPieces={1000}
+                />
+              </Box>
+            )}
+
+            <div className={classes.textfieldItem}>
               <TextField
                 fullWidth
                 error={error.message !== null}
                 autoFocus={true}
                 required
                 name="name"
-                id="project-name"
-                label="Project name"
+                id="project-title"
+                label="Title"
                 onChange={onChange}
                 value={info.name}
                 helperText={error.code !== 503 && error.message}
@@ -179,7 +246,7 @@ const ProjectInfo = (props) => {
                 fullWidth
                 name="authors"
                 id="project-author"
-                label="Your name"
+                label="Author(s)"
                 onChange={onChange}
                 value={info.authors}
               />
@@ -190,7 +257,6 @@ const ProjectInfo = (props) => {
                 fullWidth
                 multiline
                 rows={4}
-                rowsMax={6}
                 name="description"
                 id="project-description"
                 label="Description"
@@ -215,8 +281,8 @@ const ProjectInfo = (props) => {
           </Button>
         </DialogActions>
       )}
-    </Dialog>
+    </StyledDialog>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectInit);

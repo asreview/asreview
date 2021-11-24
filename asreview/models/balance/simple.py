@@ -24,7 +24,7 @@ class SimpleBalance(BaseBalance):
     name = "simple"
     label = "Simple (no balancing)"
 
-    def sample(self, X, y, train_idx, shared):
+    def sample(self, X, y, train_idx):
         """
         Function that does not resample the training set.
 
@@ -34,8 +34,6 @@ class SimpleBalance(BaseBalance):
             Complete matrix of all samples.
         y: numpy.ndarray
             Classified results of all samples.
-        extra_vars: dict:
-            Extra variables that can be passed around between functions.
 
         Returns
         -------

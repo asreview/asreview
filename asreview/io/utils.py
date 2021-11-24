@@ -14,10 +14,11 @@
 
 import logging
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 
 
@@ -83,7 +84,7 @@ def _is_record_id_int(s):
         raise ValueError("Column 'record_id' should contain integer values.")
 
 
-def standardize_dataframe(df, column_spec={}):
+def _standardize_dataframe(df, column_spec={}):
     """Create a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.webapp.utils.paths import asreview_path
+from asreview.webapp.utils.project_path import asreview_path
 
 
 def is_project(project_id):

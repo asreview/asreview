@@ -17,52 +17,68 @@ import json
 import logging
 import sys
 
-import numpy as np
-import pandas as pd
-
-from asreview.compat import convert_id_to_idx, convert_idx_to_id
-from asreview.review.factory import get_reviewer
+from asreview.models.balance import get_balance_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.query import get_query_model
+from asreview.review.base import BaseReview
+from asreview.state.paths import get_lock_path
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils import get_lock_path
-from asreview.webapp.utils import get_state_path
-from asreview.webapp.utils.io import read_label_history
-from asreview.webapp.utils.io import read_pool
-from asreview.webapp.utils.io import write_pool
-from asreview.webapp.utils.io import write_proba
-from asreview.webapp.utils.paths import get_data_file_path
-from asreview.webapp.utils.paths import get_project_path
-from asreview.webapp.utils.paths import get_kwargs_path
 from asreview.webapp.utils.project import read_data
+from asreview.webapp.utils.project_path import get_project_path
 
 
-def _get_diff_history(new_history, old_history):
-    for i in range(len(new_history)):
-        try:
-            if old_history[i] != new_history[i]:
-                return new_history[i:]
-        except IndexError:
-            return new_history[i:]
-    return []
+def get_lab_reviewer(as_data,
+                     state_file=None,
+                     embedding_fp=None,
+                     verbose=0,
+                     prior_idx=None,
+                     prior_record_id=None,
+                     seed=None,
+                     **kwargs):
+    """Get a review object from arguments.
+    """
+
+    if len(as_data) == 0:
+        raise ValueError("Supply at least one dataset"
+                         " with at least one record.")
+
+    with open_state(state_file) as state:
+        settings = state.settings
+
+    # TODO: Set random seed.
+    # Initialize models.
+    # random_state = get_random_state(seed)
+    classifier_model = get_classifier(settings.model)
+    query_model = get_query_model(settings.query_strategy)
+    balance_model = get_balance_model(settings.balance_strategy)
+    feature_model = get_feature_model(settings.feature_extraction)
+
+    # LSTM models need embedding matrices.
+    if classifier_model.name.startswith("lstm-"):
+        texts = as_data.texts
+        classifier_model.embedding_matrix = feature_model.get_embedding_matrix(
+            texts, embedding_fp)
+
+    # prior knowledge
+    if prior_idx is not None and prior_record_id is not None and \
+            len(prior_idx) > 0 and len(prior_record_id) > 0:
+        raise ValueError(
+            "Not possible to provide both prior_idx and prior_record_id"
+        )
+
+    reviewer = BaseReview(as_data,
+                          state_file,
+                          model=classifier_model,
+                          query_model=query_model,
+                          balance_model=balance_model,
+                          feature_model=feature_model,
+                          **kwargs)
+    return reviewer
 
 
-def _get_label_train_history(state):
-    label_idx = []
-    inclusions = []
-    for query_i in range(state.n_queries()):
-        try:
-            new_labels = state.get("label_idx", query_i=query_i)
-            new_inclusions = state.get("inclusions", query_i=query_i)
-        except KeyError:
-            new_labels = None
-        if new_labels is not None:
-            label_idx.extend(new_labels)
-            inclusions.extend(new_inclusions)
-
-    return list(zip(label_idx, inclusions))
-
-
-def train_model(project_id, label_method=None):
+def train_model(project_id):
     """Add the new labels to the review and do the modeling.
 
     It uses a lock to ensure only one model is running at the same time.
@@ -70,12 +86,11 @@ def train_model(project_id, label_method=None):
 
     It has one argument on the CLI, which is the base project directory.
     """
-
+    project_path = get_project_path(project_id)
     logging.info(f"Project {project_id} - Train a new model for project")
 
     # get file locations
-    asr_kwargs_file = get_kwargs_path(project_id)
-    lock_file = get_lock_path(project_id)
+    lock_file = get_lock_path(project_path)
 
     # Lock so that only one training run is running at the same time.
     # It doesn't lock the flask server/client.
@@ -85,89 +100,29 @@ def train_model(project_id, label_method=None):
 
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
-            logging.info("Project {project_id} - "
+            logging.info(f"Project {project_id} - "
                          "Cannot acquire lock, other instance running.")
             return
 
-        # Lock the current state. We want to have a consistent active state.
-        # This does communicate with the flask backend; it prevents writing and
-        # reading to the same files at the same time.
-        with SQLiteLock(
-                lock_file,
-                blocking=True,
-                lock_name="active",
-                project_id=project_id) as lock:
-            # Get the all labels since last run. If no new labels, quit.
-            new_label_history = read_label_history(project_id)
+        # Check if there are new labeled records.
+        with open_state(project_path) as state:
+            exist_new_labeled_records = state.exist_new_labeled_records
 
-        data_fp = str(get_data_file_path(project_id))
-        as_data = read_data(project_id)
-        state_file = get_state_path(project_id)
+        if exist_new_labeled_records:
+            # collect command line arguments and pass them to the reviewer
+            as_data = read_data(project_id)
 
-        # collect command line arguments and pass them to the reviewer
-        with open(asr_kwargs_file, "r") as fp:
-            asr_kwargs = json.load(fp)
-
-        try:
-            del asr_kwargs["abstract_only"]
-        except KeyError:
-            pass
-
-        asr_kwargs['state_file'] = str(state_file)
-        reviewer = get_reviewer(dataset=data_fp, mode="minimal", **asr_kwargs)
-
-        with open_state(state_file) as state:
-            old_label_history = _get_label_train_history(state)
-
-        diff_history = _get_diff_history(new_label_history, old_label_history)
-
-        if len(diff_history) == 0:
-            logging.info(
-                "Project {project_id} - No new labels since last run.")
-            return
-
-        query_record_ids = np.array([x[0] for x in diff_history], dtype=int)
-        inclusions = np.array([x[1] for x in diff_history], dtype=int)
-
-        query_idx = convert_id_to_idx(as_data, query_record_ids)
-
-        # Classify the new labels, train and store the results.
-        with open_state(state_file) as state:
-            reviewer.classify(
-                query_idx, inclusions, state, method=label_method)
-            reviewer.train()
-            reviewer.log_probabilities(state)
-            new_query_idx = reviewer.query(reviewer.n_pool()).tolist()
-            reviewer.log_current_query(state)
-
-            # write the proba to a pandas dataframe with record_ids as index
-            proba = pd.DataFrame(
-                {"proba": state.pred_proba.tolist()},
-                index=pd.Index(as_data.record_ids, name="record_id")
+            reviewer = get_lab_reviewer(
+                as_data=as_data,
+                state_file=project_path
             )
 
-        # update the pool and output the proba's
-        # important: pool is sorted on query
-        with SQLiteLock(
-                lock_file,
-                blocking=True,
-                lock_name="active",
-                project_id=project_id) as lock:
-
-            # read the pool
-            current_pool = read_pool(project_id)
-
-            # diff pool and new_query_ind
-            current_pool_idx = convert_id_to_idx(as_data, current_pool)
-            current_pool_idx = frozenset(current_pool_idx)
-            new_pool_idx = [x for x in new_query_idx if x in current_pool_idx]
-
-            # convert new_pool_idx back to record_ids
-            new_pool = convert_idx_to_id(as_data, new_pool_idx)
-
-            # write the pool and proba
-            write_pool(project_id, new_pool)
-            write_proba(project_id, proba)
+            # Train the model.
+            reviewer.train()
+        else:
+            logging.info(
+                f"Project {project_id} - No new labels since last run.")
+            return
 
 
 def main(argv):
@@ -176,20 +131,20 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("project_id", type=str, help="Project id")
     parser.add_argument(
-        "--label_method",
-        type=str,
-        default=None,
-        help="Label method (for example 'prior')")
+        "--output_error",
+        dest='output_error',
+        action='store_true',
+        help="Save training error message to file.")
     args = parser.parse_args(argv)
 
     try:
-        train_model(args.project_id, args.label_method)
+        train_model(args.project_id)
     except Exception as err:
         err_type = type(err).__name__
         logging.error(f"Project {args.project_id} - {err_type}: {err}")
 
-        # write error to file is label method is prior (first iteration)
-        if args.label_method == "prior":
+        # write error to file if label method is prior (first iteration)
+        if args.output_error:
             message = {"message": f"{err_type}: {err}"}
 
             fp = get_project_path(args.project_id) / "error.json"

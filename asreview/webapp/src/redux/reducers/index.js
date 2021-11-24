@@ -2,14 +2,16 @@ import {
   SET_ASREVIEW_VERSION,
   SET_PROJECT,
   SET_APP_STATE,
-  TOGGLE_REVIEW_DRAWER,
+  SET_NAV_STATE,
+  TOGGLE_HELP_DIALOG,
 } from "../../constants/action-types";
 
 const initialState = {
   asreview_version: undefined,
   app_state: "boot",
+  nav_state: "dashboard",
   project_id: null,
-  reviewDrawerOpen: true,
+  onHelpDialog: false,
 };
 
 function rootReducer(state = initialState, action) {
@@ -23,9 +25,10 @@ function rootReducer(state = initialState, action) {
         project_id: action.project_id,
       });
     case SET_APP_STATE:
-      if (action.app_state === "boot" || action.app_state === "projects") {
+      if (action.app_state === "boot" || action.app_state === "home") {
         return Object.assign({}, state, {
           app_state: action.app_state,
+          nav_state: "dashboard",
           project_id: null,
         });
       } else {
@@ -33,9 +36,13 @@ function rootReducer(state = initialState, action) {
           app_state: action.app_state,
         });
       }
-    case TOGGLE_REVIEW_DRAWER:
+    case SET_NAV_STATE:
       return Object.assign({}, state, {
-        reviewDrawerOpen: !state.reviewDrawerOpen,
+        nav_state: action.nav_state,
+      });
+    case TOGGLE_HELP_DIALOG:
+      return Object.assign({}, state, {
+        onHelpDialog: !state.onHelpDialog,
       });
 
     default:

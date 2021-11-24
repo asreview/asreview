@@ -29,8 +29,8 @@ from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
 from asreview.webapp.utils.misc import check_port_in_use
-from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
+from asreview.webapp.utils.project import clean_project_tmp_files
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -77,7 +77,6 @@ def create_app(**kwargs):
     )
 
     # Get the ASReview arguments.
-    kwargs.pop("dataset", None)
     app.config['asr_kwargs'] = kwargs
 
     # Ensure the instance folder exists.
@@ -148,11 +147,7 @@ def main(argv):
     parser = _lab_parser(prog="lab")
     args = parser.parse_args(argv)
 
-    app = create_app(
-        embedding_fp=args.embedding_fp,
-        config_file=args.config_file,
-        seed=args.seed
-    )
+    app = create_app(embedding_fp=args.embedding_fp)
     app.config['PROPAGATE_EXCEPTIONS'] = False
 
     # ssl certificate, key and protocol

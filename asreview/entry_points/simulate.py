@@ -12,9 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 
-from asreview.batch import batch_simulate
+import json
+import logging
+from datetime import datetime
+from pathlib import Path
+from pathlib import PurePath
+
+import numpy as np
+
+from asreview.compat import convert_id_to_idx
+from asreview.config import ASCII_LOGO
 from asreview.config import DEFAULT_BALANCE_STRATEGY
 from asreview.config import DEFAULT_FEATURE_EXTRACTION
 from asreview.config import DEFAULT_MODEL
@@ -22,30 +30,183 @@ from asreview.config import DEFAULT_N_INSTANCES
 from asreview.config import DEFAULT_N_PRIOR_EXCLUDED
 from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
-from asreview.entry_points.base import BaseEntryPoint, _base_parser
-from asreview.review import review_simulate
+from asreview.config import EMAIL_ADDRESS
+from asreview.config import GITHUB_PAGE
+from asreview.config import KERAS_MODELS
+from asreview.config import LABEL_NA
+from asreview.data import ASReviewData
+from asreview.data import load_data
+from asreview.entry_points.base import BaseEntryPoint
+from asreview.entry_points.base import _base_parser
+from asreview.io.paper_record import preview_record
+from asreview.models.balance.utils import get_balance_model
+from asreview.models.classifiers import get_classifier
+from asreview.models.feature_extraction import get_feature_model
+from asreview.models.query import get_query_model
+from asreview.review.simulate import ReviewSimulate
+from asreview.settings import ASReviewSettings
+from asreview.state.paths import get_data_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.utils import init_project_folder_structure
 from asreview.types import type_n_queries
+from asreview.utils import get_random_state
+
+ASCII_MSG_SIMULATE = """
+---------------------------------------------------------------------------------
+|                                                                                |
+|  Welcome to the ASReview Automated Systematic Review software.                 |
+|  In this mode the computer will simulate how well the ASReview software        |
+|  could have accelerate the systematic review of your dataset.                  |
+|  You can sit back and relax while the computer runs this simulation.           |
+|                                                                                |
+|  GitHub page:        {0: <58}|
+|  Questions/remarks:  {1: <58}|
+|                                                                                |
+---------------------------------------------------------------------------------
+""".format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
+
+
+def review_finished(project_path, review_id=None):
+    """Mark a review in the project as finished. If no review_id is given,
+    mark the first review as finished.
+
+    Arguments
+    ---------
+    project_path: pathlike
+        Path to the project folder.
+    review_id: str
+        Identifier of the review to mark as finished.
+    """
+    project_path = Path(project_path)
+    with open(get_project_file_path(project_path), 'r') as f:
+        project_config = json.load(f)
+
+    if review_id is None:
+        review_index = 0
+    else:
+        review_index = [x['id']
+                        for x in project_config['reviews']].index(review_id)
+
+    project_config['reviews'][review_index]['review_finished'] = True
+    project_config['reviews'][review_index]['end_time'] = str(datetime.now())
+
+    with open(get_project_file_path(project_path), 'w') as f:
+        json.dump(project_config, f)
+
+
+def _set_log_verbosity(verbose):
+    if verbose == 0:
+        logging.getLogger().setLevel(logging.WARNING)
+    elif verbose == 1:
+        logging.getLogger().setLevel(logging.INFO)
+    elif verbose >= 2:
+        logging.getLogger().setLevel(logging.DEBUG)
 
 
 class SimulateEntryPoint(BaseEntryPoint):
     description = "Simulate the performance of ASReview."
 
     def execute(self, argv):
+
+        # parse arguments
         parser = _simulate_parser()
         args = parser.parse_args(argv)
 
-        args_dict = vars(args)
-        path = args_dict.pop("dataset")
+        # change the verbosity
+        _set_log_verbosity(args.verbose)
 
-        verbose = args_dict.get("verbose", 0)
-        if verbose == 0:
-            logging.getLogger().setLevel(logging.WARNING)
-        elif verbose == 1:
-            logging.getLogger().setLevel(logging.INFO)
-        elif verbose >= 2:
-            logging.getLogger().setLevel(logging.DEBUG)
+        # check for state file extension
+        if args.state_file is None:
+            raise ValueError(
+                "Specify project file name (with .asreview extension).")
 
-        review_simulate(path, **args_dict)
+        # print intro message
+        print(ASCII_LOGO + ASCII_MSG_SIMULATE)
+
+        # read dataset into memory
+        as_data = load_data(args.dataset)
+
+        if len(as_data) == 0:
+            raise ValueError("Supply at least one dataset"
+                             " with at least one record.")
+
+        # rewrite to ProjectAPI
+        init_project_folder_structure(args.state_file, project_mode='simulate')
+
+        # Add the dataset to the project file.
+        as_data.to_csv(Path(get_data_path(args.state_file), f'{as_data.data_name}.csv'))
+
+        # create a new settings object from arguments
+        settings = ASReviewSettings(model=args.model,
+                                    n_instances=args.n_instances,
+                                    n_queries=args.n_queries,
+                                    n_papers=args.n_papers,
+                                    n_prior_included=args.n_prior_included,
+                                    n_prior_excluded=args.n_prior_excluded,
+                                    query_strategy=args.query_strategy,
+                                    balance_strategy=args.balance_strategy,
+                                    feature_extraction=args.feature_extraction,
+                                    mode="simulate",
+                                    data_fp=None)
+        settings.from_file(args.config_file)
+
+        # Initialize models.
+        random_state = get_random_state(args.seed)
+        train_model = get_classifier(settings.model,
+                                     **settings.model_param,
+                                     random_state=random_state)
+        query_model = get_query_model(settings.query_strategy,
+                                      **settings.query_param,
+                                      random_state=random_state)
+        balance_model = get_balance_model(settings.balance_strategy,
+                                          **settings.balance_param,
+                                          random_state=random_state)
+        feature_model = get_feature_model(settings.feature_extraction,
+                                          **settings.feature_param,
+                                          random_state=random_state)
+
+        # TODO{Deprecate and integrate with the model}
+        # LSTM models need embedding matrices.
+        if train_model.name.startswith("lstm-"):
+            texts = as_data.texts
+            train_model.embedding_matrix = feature_model.get_embedding_matrix(
+                texts, args.embedding_fp)
+
+        # prior knowledge
+        if args.prior_idx is not None and args.prior_record_id is not None and \
+                len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
+            raise ValueError(
+                "Not possible to provide both prior_idx and prior_record_id")
+
+        prior_idx = args.prior_idx
+        if args.prior_record_id is not None and len(args.prior_record_id) > 0:
+            prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
+
+        print("The following records are prior knowledge:\n")
+        for prior_record_id in args.prior_record_id:
+            preview = preview_record(as_data.record(prior_record_id))
+            print(f"{prior_record_id} - {preview}")
+
+        # Initialize the review class.
+        reviewer = ReviewSimulate(as_data,
+                                  state_file=args.state_file,
+                                  model=train_model,
+                                  query_model=query_model,
+                                  balance_model=balance_model,
+                                  feature_model=feature_model,
+                                  n_papers=args.n_papers,
+                                  n_instances=args.n_instances,
+                                  n_queries=args.n_queries,
+                                  prior_indices=prior_idx,
+                                  n_prior_included=args.n_prior_included,
+                                  n_prior_excluded=args.n_prior_excluded,
+                                  init_seed=args.init_seed)
+
+        # Start the review process.
+        reviewer.review()
+
+        # Mark review as finished.
+        review_finished(args.state_file)
 
 
 DESCRIPTION_SIMULATE = """
@@ -64,7 +225,6 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "dataset",
         type=str,
-        nargs="*",
         help="File path to the dataset or one of the benchmark datasets."
     )
     # Initial data (prior knowledge)
@@ -98,32 +258,9 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         type=int,
         help="Prior indices by record_id."
     )
-    parser.add_argument(
-        "--included_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers that should be included"
-             "Can be used multiple times."
-    )
-    parser.add_argument(
-        "--excluded_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers that should be excluded"
-             "Can be used multiple times."
-    )
-    parser.add_argument(
-        "--prior_dataset",
-        default=[],
-        nargs="*",
-        type=str,
-        help="A dataset with papers from prior studies."
-    )
     # logging and verbosity
     parser.add_argument(
-        "--state_file", "-s", "--log_file", "-l",
+        "--state_file", "-s",
         default=None,
         type=str,
         help="Location to store the state of the simulation."
@@ -194,35 +331,4 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         help="Verbosity"
     )
 
-    return parser
-
-
-class BatchEntryPoint(BaseEntryPoint):
-    description = "Parallel simulation for ASReview."
-
-    def execute(self, argv):
-        parser = _batch_parser()
-        kwargs = vars(parser.parse_args(argv))
-        batch_simulate(**kwargs)
-
-
-DESCRIPTION_BATCH = """
-Automated Systematic Review (ASReview) batch system for simulation runs.
-
-It has the same interface as the simulation modus, but adds an extra option
-(--n_runs) to run a batch of simulation runs with the same configuration.
-"""
-
-
-def _batch_parser():
-    parser = _simulate_parser(
-        prog="simulate-batch",
-        description=DESCRIPTION_BATCH
-    )
-    parser.add_argument(
-        "-r", "--n_run",
-        default=10,
-        type=int,
-        help="Number of runs to perform."
-    )
     return parser

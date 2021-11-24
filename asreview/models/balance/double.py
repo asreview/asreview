@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from math import log, floor
+from math import floor
+from math import log
 
 import numpy as np
 
@@ -65,7 +66,7 @@ class DoubleBalance(BaseBalance):
         self.fallback_model = SimpleBalance()
         self._random_state = get_random_state(random_state)
 
-    def sample(self, X, y, train_idx, shared):
+    def sample(self, X, y, train_idx):
         """Resample the training data.
 
         Arguments
@@ -76,8 +77,6 @@ class DoubleBalance(BaseBalance):
             Labels for all papers.
         train_idx: numpy.ndarray
             Training indices, that is all papers that have been reviewed.
-        shared: dict
-            Dictionary to share data between balancing models and other models.
 
         Returns
         -------
@@ -90,7 +89,7 @@ class DoubleBalance(BaseBalance):
 
         # Fall back to simple sampling if we have only ones or zeroes.
         if len(one_idx) == 0 or len(zero_idx) == 0:
-            self.fallback_model.sample(X, y, train_idx, shared)
+            self.fallback_model.sample(X, y, train_idx)
 
         n_one = len(one_idx)
         n_zero = len(zero_idx)
