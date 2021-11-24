@@ -18,7 +18,7 @@ import re
 import pandas
 import rispy
 
-from asreview.io.utils import standardize_dataframe
+from asreview.io.utils import _standardize_dataframe
 
 
 def _strip_zotero_p_tags(note_list):
@@ -144,7 +144,7 @@ def read_ris(fp):
             ]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(),
                                   columns=["included", "notes"])
         # Return the standardised dataframe with label and notes separated
-        return standardize_dataframe(df)
+        return _standardize_dataframe(df)
     else:
         # Return the standardised dataframe
-        return standardize_dataframe(df)
+        return _standardize_dataframe(df)
