@@ -7,11 +7,6 @@ import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
 import { Header, HelpDialog, SettingsDialog } from "./Components";
-import {
-  PreReviewZone,
-  ProjectPageOLD,
-  StartReview,
-} from "./PreReviewComponents";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
 import { ReviewZoneComplete } from "./PostReviewComponents";
@@ -101,14 +96,6 @@ const App = (props) => {
               keyPressEnabled={keyPressEnabled}
             />
           )}
-
-          {props.app_state === "project-page-old" && (
-            <ProjectPageOLD handleAppState={props.setAppState} />
-          )}
-
-          {props.app_state === "review-init" && <PreReviewZone />}
-
-          {props.app_state === "train-first-model" && <StartReview />}
 
           {props.app_state === "review-complete" && (
             <ReviewZoneComplete handleAppState={props.setAppState} />

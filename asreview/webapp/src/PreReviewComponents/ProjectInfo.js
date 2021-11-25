@@ -25,8 +25,6 @@ import {
   projectModes,
 } from "../globals.js";
 
-import "./ReviewZone.css";
-
 const PREFIX = "ProjectInfo";
 
 const classes = {
