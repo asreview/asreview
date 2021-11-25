@@ -283,25 +283,8 @@ class ProjectAPI {
     });
   }
 
-  static algorithms(project_id, edit, data = null) {
-    const url = api_url + `project/${project_id}/algorithms`;
-    return new Promise((resolve, reject) => {
-      axios({
-        method: edit ? "post" : "get",
-        url: url,
-        data: data,
-      })
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  static start(project_id) {
-    const url = api_url + `project/${project_id}/start`;
+  static mutateStartTraining(variables) {
+    const url = api_url + `project/${variables.project_id}/start`;
     return new Promise((resolve, reject) => {
       axios({
         method: "post",
@@ -310,7 +293,7 @@ class ProjectAPI {
         headers: { "Content-Type": "multipart/form-data" },
       })
         .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));
@@ -318,27 +301,14 @@ class ProjectAPI {
     });
   }
 
-  static init_ready(project_id) {
+  static fetchProjectReady({ queryKey }) {
+    const { project_id } = queryKey[1];
     const url = api_url + `project/${project_id}/ready`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
         .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(axiosErrorHandler(error));
-        });
-    });
-  }
-
-  static clear_error(project_id) {
-    const url = api_url + `project/${project_id}/model/clear_error`;
-    return new Promise((resolve, reject) => {
-      axios
-        .delete(url)
-        .then((result) => {
-          resolve(result);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

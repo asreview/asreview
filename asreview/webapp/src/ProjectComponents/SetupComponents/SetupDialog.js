@@ -20,9 +20,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CloseIcon from "@mui/icons-material/Close";
+import { Close, Feedback } from "@mui/icons-material";
 
-import { SavingStateBox } from "../SetupComponents";
+import { FinishSetup, SavingStateBox } from "../SetupComponents";
 import { DetailsForm } from "../SetupComponents/DetailsComponents";
 import {
   AddDataset,
@@ -46,7 +46,7 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const steps = ["Details", "Data", "Model", "Check"];
+const steps = ["Details", "Data", "Model"];
 
 const PREFIX = "SetupDialog";
 
@@ -119,6 +119,10 @@ const SetupDialog = (props) => {
     query_strategy: null,
     feature_extraction: null,
   });
+
+  // State finish setup
+  const [trainingStarted, setTrainingStarted] = React.useState(false);
+  const [trainingFinished, setTrainingFinished] = React.useState(false);
 
   /**
    * Step 1: Details
@@ -357,6 +361,50 @@ const SetupDialog = (props) => {
   }, [model, mutateModelConfig, props.project_id]);
 
   /**
+   * Finish setup
+   */
+  const {
+    error: startTrainingError,
+    isError: isStartTrainingError,
+    mutate: startTraining,
+    reset: resetStartTraining,
+  } = useMutation(ProjectAPI.mutateStartTraining, {
+    onSuccess: () => {
+      setTrainingStarted(true);
+    },
+  });
+
+  const {
+    error: projectReadyError,
+    isError: isProjectReadyError,
+    isFetching: isPreparingProject,
+  } = useQuery(
+    ["fetchProjectReady", { project_id: props.project_id }],
+    ProjectAPI.fetchProjectReady,
+    {
+      enabled: trainingStarted,
+      onSuccess: (data) => {
+        if (data["status"] === 1) {
+          // model ready
+          setTrainingStarted(false);
+          setTrainingFinished(true);
+        } else {
+          // not ready yet
+          setTimeout(
+            () => queryClient.invalidateQueries("fetchProjectReady"),
+            29000
+          );
+        }
+      },
+    }
+  );
+
+  const restartTraining = () => {
+    resetStartTraining();
+    startTraining({ project_id: props.project_id });
+  };
+
+  /**
    * Dialog actions
    */
   const handleClose = () => {
@@ -382,6 +430,8 @@ const SetupDialog = (props) => {
     setDisableFetchDetails(false);
     setDisableModeSelect(false);
     setShowSimulate(false);
+    setTrainingStarted(false);
+    setTrainingFinished(false);
     if (isInitError) {
       resetInit();
     }
@@ -398,6 +448,20 @@ const SetupDialog = (props) => {
       props.toggleInfoBar();
       queryClient.invalidateQueries("fetchProjects");
       props.handleAppState("home");
+    }
+  };
+
+  const returnDialogTitle = () => {
+    if (activeStep !== 3) {
+      return "Create a new project";
+    } else {
+      if (!trainingFinished) {
+        return !(isStartTrainingError || isProjectReadyError)
+          ? "Training active learning model..."
+          : "Error";
+      } else {
+        return `${details.title} created`;
+      }
     }
   };
 
@@ -419,6 +483,9 @@ const SetupDialog = (props) => {
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (activeStep === 2) {
+      startTraining({ project_id: props.project_id });
+    }
   };
 
   const handleBack = () => {
@@ -474,18 +541,31 @@ const SetupDialog = (props) => {
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <Box className={classes.title}>
-            <DialogTitle>Create a new project</DialogTitle>
+            <DialogTitle>{returnDialogTitle()}</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {props.project_id !== null &&
                 (activeStep === 0 || activeStep === 2) && (
                   <SavingStateBox isSaving={isSaving()} />
                 )}
               <Box className={classes.closeButton}>
-                <Tooltip title="Save and close">
-                  <StyledIconButton onClick={handleClose}>
-                    <CloseIcon />
-                  </StyledIconButton>
-                </Tooltip>
+                {activeStep === 3 && (
+                  <Tooltip title="Send feedback">
+                    <StyledIconButton
+                      component={"a"}
+                      href={`https://github.com/asreview/asreview/issues/new/choose`}
+                      target="_blank"
+                    >
+                      <Feedback />
+                    </StyledIconButton>
+                  </Tooltip>
+                )}
+                {activeStep !== 3 && (
+                  <Tooltip title="Save and close">
+                    <StyledIconButton onClick={handleClose}>
+                      <Close />
+                    </StyledIconButton>
+                  </Tooltip>
+                )}
               </Box>
             </Stack>
           </Box>
@@ -541,15 +621,17 @@ const SetupDialog = (props) => {
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <DialogContent className={classes.content}>
-            <Box className={classes.stepper}>
-              <Stepper alternativeLabel activeStep={activeStep}>
-                {steps.map((label, index) => (
-                  <Step key={label}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-            </Box>
+            {(activeStep === 0 || activeStep === 1 || activeStep === 2) && (
+              <Box className={classes.stepper}>
+                <Stepper alternativeLabel activeStep={activeStep}>
+                  {steps.map((label, index) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+              </Box>
+            )}
             <Box className={classes.form}>
               {activeStep === 0 && (
                 <DetailsForm
@@ -587,6 +669,19 @@ const SetupDialog = (props) => {
                   reset={resetMutateModelConfig}
                 />
               )}
+              {activeStep === 3 && (
+                <FinishSetup
+                  handleAppState={props.handleAppState}
+                  handleNavState={props.handleNavState}
+                  isPreparingProject={isPreparingProject}
+                  isProjectReadyError={isProjectReadyError}
+                  isStartTrainingError={isStartTrainingError}
+                  projectReadyError={projectReadyError}
+                  restartTraining={restartTraining}
+                  startTrainingError={startTrainingError}
+                  trainingFinished={trainingFinished}
+                />
+              )}
             </Box>
           </DialogContent>
         </Fade>
@@ -622,7 +717,7 @@ const SetupDialog = (props) => {
         />
       )}
       {!addDataset && !addPriorKnowledge && <Divider />}
-      {!addDataset && !addPriorKnowledge && (
+      {!addDataset && !addPriorKnowledge && activeStep !== 3 && (
         <Fade in={!addDataset}>
           <DialogActions>
             {activeStep !== 0 && (

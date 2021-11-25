@@ -140,6 +140,7 @@ const DashboardPage = (props) => {
 
       <SetupDialog
         handleAppState={props.handleAppState}
+        handleNavState={props.handleNavState}
         open={open.newProject}
         onClose={handleCloseNewProject}
         setNewProjectTitle={setNewProjectTitle}
