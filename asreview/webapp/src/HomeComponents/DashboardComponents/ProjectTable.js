@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -118,6 +118,8 @@ const columns = [
 ];
 
 const ProjectTable = (props) => {
+  const queryClient = useQueryClient();
+
   const [page, setPage] = useState(0);
   const [hoverRowId, setHoverRowId] = useState(null);
   const [hoverRowIdPersistent, setHoverRowIdPersistent] = useState(null);
@@ -280,10 +282,17 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectExport = () => {
-                    console.log("Opening existing project " + row.id);
-                    setOnProject(true);
-                    props.setProjectId(row.id);
-                    props.handleNavState("export");
+                    if (!row["projectInitReady"]) {
+                      queryClient.prefetchQuery(
+                        ["fetchExportProject", { project_id: row.id }],
+                        ProjectAPI.fetchExportProject
+                      );
+                    } else {
+                      console.log("Opening existing project " + row.id);
+                      setOnProject(true);
+                      props.setProjectId(row.id);
+                      props.handleNavState("export");
+                    }
                   };
 
                   const onClickProjectDetails = () => {
