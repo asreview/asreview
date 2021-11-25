@@ -13,6 +13,7 @@ import {
   MenuItem,
   Link,
 } from "@material-ui/core";
+import Alert from "@material-ui/lab/Alert";
 
 import { ProjectAPI } from "../api/index.js";
 
@@ -43,8 +44,22 @@ const ExportDialog = (props) => {
   const classes = useStyles();
 
   const [exportFileType, setExportFileType] = React.useState("ris");
+  const [error, setError] = React.useState({
+    code: null,
+    message: null,
+  });
+
+  const handleClearError = () => {
+    if (error.message) {
+      setError({
+        code: null,
+        message: null,
+      });
+    }
+  };
 
   const handleExportFileTypeChange = (event) => {
+    handleClearError();
     setExportFileType(event.target.value);
   };
 
@@ -62,7 +77,16 @@ const ExportDialog = (props) => {
     const project_id = store.getState()["project_id"];
 
     if (project_id !== null) {
-      ProjectAPI.export_results(project_id, exportFileType);
+      ProjectAPI.export_results(project_id, exportFileType)
+        .then((response) => {
+          // file exported
+        })
+        .catch((error) => {
+          setError({
+            code: error["code"],
+            message: error["message"],
+          });
+        });
     } else {
       // raise exception
     }
@@ -77,6 +101,9 @@ const ExportDialog = (props) => {
       maxWidth={"sm"}
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
+      TransitionProps={{
+        onExited: () => handleClearError(),
+      }}
     >
       <DialogTitle id="scroll-dialog-title">Download review result</DialogTitle>
       <DialogContent dividers={true}>
@@ -98,6 +125,7 @@ const ExportDialog = (props) => {
             <MenuItem value={"excel"}>Excel</MenuItem>
           </Select>
         </Box>
+        {error.message && <Alert severity="error">{error["message"]}</Alert>}
       </DialogContent>
 
       <DialogContent dividers={true}>
