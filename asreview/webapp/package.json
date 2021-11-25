@@ -3,21 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-<<<<<<< HEAD
-    "@emotion/react": "^11.4.1",
-    "@emotion/styled": "^11.3.0",
-    "@mui/icons-material": "^5.0.1",
-    "@mui/lab": "^5.0.0-alpha.48",
-    "@mui/material": "^5.0.1",
-    "apexcharts": "^3.29.0",
-    "axios": "^0.21.1",
-=======
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@material-ui/styles": "^4.11.3",
     "axios": "^0.21.2",
->>>>>>> 46d443e2b3bdd08923ce024097871c9321845f1e
     "classnames": "^2.2.6",
     "core-js": "^3.8.3",
     "cors": "^2.8.5",
