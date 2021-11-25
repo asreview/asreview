@@ -50,21 +50,16 @@ const ExportDialog = (props) => {
   });
 
   const handleClearError = () => {
-    setError({
-      code: null,
-      message: null,
-    });
-  };
-
-  const handleCloseExport = () => {
-    props.toggleExportResult();
-    handleClearError();
+    if (error.message) {
+      setError({
+        code: null,
+        message: null,
+      });
+    }
   };
 
   const handleExportFileTypeChange = (event) => {
-    if (error.message) {
-      handleClearError();
-    }
+    handleClearError();
     setExportFileType(event.target.value);
   };
 
@@ -84,7 +79,7 @@ const ExportDialog = (props) => {
     if (project_id !== null) {
       ProjectAPI.export_results(project_id, exportFileType)
         .then((response) => {
-          //
+          // file exported
         })
         .catch((error) => {
           setError({
@@ -100,12 +95,15 @@ const ExportDialog = (props) => {
   return (
     <Dialog
       open={props.exportResult}
-      onClose={handleCloseExport}
+      onClose={props.toggleExportResult}
       scroll="body"
       fullWidth={true}
       maxWidth={"sm"}
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
+      TransitionProps={{
+        onExited: () => handleClearError(),
+      }}
     >
       <DialogTitle id="scroll-dialog-title">Download review result</DialogTitle>
       <DialogContent dividers={true}>
@@ -142,7 +140,7 @@ const ExportDialog = (props) => {
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleCloseExport}>Cancel</Button>
+        <Button onClick={props.toggleExportResult}>Cancel</Button>
         <Button onClick={downloadResult}>Download</Button>
       </DialogActions>
     </Dialog>
