@@ -396,6 +396,7 @@ const SetupDialog = (props) => {
           );
         }
       },
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -472,19 +473,26 @@ const SetupDialog = (props) => {
     if (activeStep === 1) {
       return (
         isAddDatasetError ||
+        isFetchLabeledStatsError ||
         !labeledStats?.n_inclusions ||
         !labeledStats?.n_exclusions
       );
     }
     if (activeStep === 2) {
-      return isMutateModelConfigError;
+      return isMutatingModelConfig || isMutateModelConfigError;
     }
   };
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (activeStep === 0 && !isInitError && !isMutateDetailsError) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (activeStep === 1) {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
     if (activeStep === 2) {
       startTraining({ project_id: props.project_id });
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 
@@ -503,6 +511,12 @@ const SetupDialog = (props) => {
       queryClient.isMutating({ mutationKey: "mutateLabeledPriorKnowledge" })
     );
   };
+
+  React.useEffect(() => {
+    if (activeStep === 1 && (isInitError || isMutateDetailsError)) {
+      handleBack();
+    }
+  }, [activeStep, isInitError, isMutateDetailsError]);
 
   React.useEffect(() => {
     // unlock simulation mode
