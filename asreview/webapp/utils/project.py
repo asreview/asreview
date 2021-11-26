@@ -36,9 +36,9 @@ from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_lock_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.utils import delete_state_from_project

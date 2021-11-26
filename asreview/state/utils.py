@@ -233,7 +233,6 @@ def delete_state_from_project(project_path):
         json.dump(project_dict, f_write)
 
 
-
 def read_results_into_dataframe(fp, table='results'):
     """Read the result table of a v3 state file into a pandas dataframe.
 
