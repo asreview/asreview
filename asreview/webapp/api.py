@@ -527,6 +527,9 @@ def api_get_labeled(project_id):  # noqa: F401
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
+    subset = request.args.get("subset", default=None, type=str)
+    latest_first = request.args.get("latest_first", default=1, type=int)
+
     project_path = get_project_path(project_id)
 
     try:
@@ -534,7 +537,16 @@ def api_get_labeled(project_id):  # noqa: F401
         with open_state(project_path) as s:
             data = s.get_dataset(["record_id", "label", "query_strategy"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
-            data = data.loc[~data['label'].isnull()]
+
+        if subset in ["relevant", "included"]:
+            data = data[data['label'] == 1]
+        elif subset in ["irrelevant", "excluded"]:
+            data = data[data['label'] == 0]
+        else:
+            data = data[~data['label'].isnull()]
+
+        if latest_first == 1:
+            data = data.iloc[::-1]
 
         # count labeled records and max pages
         count = len(data)
@@ -575,7 +587,7 @@ def api_get_labeled(project_id):  # noqa: F401
             "previous_page": previous_page,
             "result": [],
         }
-        for i, record in enumerate(records):
+        for i, record in zip(data.index.tolist(), records):
 
             payload["result"].append({
                 "id": int(record.record_id),
