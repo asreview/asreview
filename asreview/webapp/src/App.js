@@ -9,7 +9,6 @@ import "./App.css";
 import { Header, HelpDialog, SettingsDialog } from "./Components";
 import {
   PreReviewZone,
-  ProjectPageOLD,
   StartReview,
 } from "./PreReviewComponents";
 import { HomePage } from "./HomeComponents";
@@ -100,10 +99,6 @@ const App = (props) => {
               undoEnabled={undoEnabled}
               keyPressEnabled={keyPressEnabled}
             />
-          )}
-
-          {props.app_state === "project-page-old" && (
-            <ProjectPageOLD handleAppState={props.setAppState} />
           )}
 
           {props.app_state === "review-init" && <PreReviewZone />}
