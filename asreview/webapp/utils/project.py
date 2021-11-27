@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import logging
 import os
 import re
 import shutil
@@ -69,7 +70,7 @@ def _get_executable():
     return py_exe
 
 
-def create_project_id(name):
+def _create_project_id(name):
     """Create project id from input name."""
 
     if isinstance(name, str) \
@@ -120,52 +121,87 @@ def init_project(project_id,
     return project_config
 
 
-def update_project_info(project_id,
-                        project_mode,
-                        project_name=None,
-                        project_description=None,
-                        project_authors=None):
-    '''Update project info'''
+def rename_project(project_id, project_name_new):
+    """Rename a project id.
 
-    project_id_new = create_project_id(project_name)
+    This function only works for projects in ASReview LAB  web interface.
+    This is the result of the file storage in
+    asreview.webapp.utils.project_path.asreview_path.
+
+    Arguments
+    ---------
+    project_id: str
+        The current project_id.
+    project_name_new: str
+        The new project name to be converted into a new
+        project_id.
+
+    Returns
+    -------
+    str:
+        The new project_id.
+    """
+
+    # create a new project_id from project name
+    project_id_new = _create_project_id(project_name_new)
+
+    if (project_id == project_id_new):
+        # nothing to do
+        return project_id
 
     if (project_id != project_id_new) & is_project(project_id_new):
-        raise ValueError("Project name already exists.")
+        raise ValueError(f"Project '{project_id_new}' already exists.")
 
-    # validate schema
-    # TODO{}
-    if project_mode not in PROJECT_MODES:
-        raise ValueError(f"Project mode '{project_mode}' not found.")
+    project_path = get_project_path(project_id)
+    project_path_new = Path(asreview_path(), project_id_new)
+    project_file_path_new = get_project_file_path(project_path_new)
 
     try:
-        project_path = get_project_path(project_id)
+        project_path.rename(project_path_new)
 
-        # read the file with project info
-        with open(get_project_file_path(project_path), "r") as fp:
+        with open(project_file_path_new, "r") as fp:
             project_info = json.load(fp)
 
         project_info["id"] = project_id_new
-        project_info["mode"] = project_mode
-        project_info["name"] = project_name
-        project_info["authors"] = project_authors
-        project_info["description"] = project_description
+        project_info["name"] = project_name_new
 
-        # # backwards support <0.10
-        # if "projectInitReady" not in project_info:
-        #     project_info["projectInitReady"] = True
-
-        # update the file with project info
-        with open(get_project_file_path(project_path), "w") as fp:
+        with open(project_file_path_new, "w") as fp:
             json.dump(project_info, fp)
-
-        # rename the folder
-        get_project_path(project_path) \
-            .rename(Path(asreview_path(), project_id_new))
 
     except Exception as err:
         raise err
 
-    return project_info["id"]
+    return project_id_new
+
+
+def update_project_info(project_id, **kwargs):
+    '''Update project info'''
+
+    kwargs_copy = kwargs.copy()
+
+    if "name" in kwargs_copy:
+        del kwargs_copy["name"]
+        logging.info(
+            "Update project name is ignored, use 'rename_project' function.")
+
+    # validate schema
+    if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
+        raise ValueError(
+            "Project mode '{}' not found.".format(kwargs_copy["mode"]))
+
+    # update project file
+    project_path = get_project_path(project_id)
+    project_file_path = get_project_file_path(project_path)
+
+    with open(project_file_path, "r") as fp:
+        project_info = json.load(fp)
+
+    project_info.update(kwargs_copy)
+
+    with open(project_file_path, "w") as fp:
+        json.dump(project_info, fp)
+
+    return project_id
 
 
 def import_project_file(file_name):
@@ -228,17 +264,8 @@ def add_dataset_to_project(project_id, file_name):
     Add file to data subfolder and fill the pool of iteration 0.
     """
     project_path = get_project_path(project_id)
-    project_file_path = get_project_file_path(project_path)
 
-    # open the projects file
-    with open(project_file_path, "r") as f_read:
-        project_dict = json.load(f_read)
-
-    # add path to dict (overwrite if already exists)
-    project_dict["dataset_path"] = file_name
-
-    with open(project_file_path, "w") as f_write:
-        json.dump(project_dict, f_write)
+    update_project_info(project_id, dataset_path=file_name)
 
     # fill the pool of the first iteration
     as_data = read_data(project_id)
