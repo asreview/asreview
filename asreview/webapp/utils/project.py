@@ -38,8 +38,10 @@ from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
+from asreview.state.utils import delete_state_from_project
 from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -245,6 +247,10 @@ def add_dataset_to_project(project_id, file_name):
     as_data = read_data(project_id)
 
     state_file = get_state_path(project_path)
+
+    # remove state file if present
+    if any(get_reviews_path(project_path).iterdir()):
+        delete_state_from_project(project_path)
 
     with open_state(state_file, read_only=False) as state:
 
