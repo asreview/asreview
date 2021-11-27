@@ -200,19 +200,23 @@ def open_state(working_dir, review_id=None, read_only=True):
             pass
 
 
-def delete_state_from_project(project_path):
+def delete_state_from_project(project_path, remove_folders=False):
 
     project_file_path = get_project_file_path(project_path)
 
     try:
         path_fm = get_feature_matrices_path(project_path)
         shutil.rmtree(path_fm)
+        if not remove_folders:
+            get_feature_matrices_path(project_path).mkdir(exist_ok=True)
     except Exception:
         print("Failed to remove feature matrices.")
 
     try:
         path_review = get_reviews_path(project_path)
         shutil.rmtree(path_review)
+        if not remove_folders:
+            get_reviews_path(project_path).mkdir(exist_ok=True)
     except Exception:
         print("Failed to remove sql database.")
 

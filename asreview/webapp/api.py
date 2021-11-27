@@ -365,8 +365,11 @@ def api_upload_data_to_project(project_id):  # noqa: F401
     # remove old dataset if present
     if "dataset_path" in project_config and \
             project_config["dataset_path"] is not None:
-        logging.info("Removing old dataset and adding new dataset.")
+        logging.warning("Removing old dataset and adding new dataset.")
         remove_dataset_from_project(project_id)
+
+    # create dataset folder if not present
+    get_data_path(project_path).mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).url

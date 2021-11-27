@@ -299,22 +299,16 @@ def remove_dataset_from_project(project_id):
     project_path = get_project_path(project_id)
     project_file_path = get_project_file_path(project_path)
 
-    # clean temp project files
-    clean_project_tmp_files(project_id)
+    # reset dataset_path
+    dataset_path = get_project_config(project_id)["dataset_path"]
+    update_project_info(project_id, dataset_path=None)
 
-    # open the projects file
-    with open(project_file_path, "r") as f_read:
-        dataset_path = json.load(f_read)["dataset_path"]
-
-    # update project config
-    update_project_info(project_id, dataset_path=dataset_path)
-
-    # remove dataset from project
-    data_path = get_data_file_path(project_path, dataset_path)
-    os.remove(str(data_path))
+    # remove datasets from project
+    shutil.rmtree(get_data_path(project_path))
 
     # remove state file if present
-    if any(get_reviews_path(project_path).iterdir()):
+    if get_reviews_path(project_path).is_dir() and \
+            any(get_reviews_path(project_path).iterdir()):
         delete_state_from_project(project_path)
 
 
