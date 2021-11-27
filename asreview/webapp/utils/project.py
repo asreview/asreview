@@ -262,7 +262,6 @@ def add_dataset_to_project(project_id, file_name):
     Add file to data subfolder and fill the pool of iteration 0.
     """
     project_path = get_project_path(project_id)
-    project_file_path = get_project_file_path(project_path)
 
     # clean temp project files
     clean_project_tmp_files(project_id)
@@ -295,12 +294,11 @@ def add_dataset_to_project(project_id, file_name):
             )
 
 
-def remove_dataset_to_project(project_id, file_name):
+def remove_dataset_to_project(project_id):
     """Remove dataset from project
 
     """
     project_path = get_project_path(project_id)
-    project_file_path = get_project_file_path(project_path)
     fp_lock = get_lock_path(project_path)
 
     with SQLiteLock(fp_lock,
@@ -312,7 +310,7 @@ def remove_dataset_to_project(project_id, file_name):
 
         # files to remove
         # TODO: This no longer works?
-        data_path = get_data_file_path(project_path, data_fn)
+        data_path = get_data_file_path(project_path)
         pool_path = get_pool_path(project_path)
         labeled_path = get_labeled_path(project_path)
 

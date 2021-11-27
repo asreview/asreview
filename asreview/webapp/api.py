@@ -67,10 +67,10 @@ from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import ProjectNotFoundError
+from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import add_review_to_project
-from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
