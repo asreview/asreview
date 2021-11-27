@@ -175,7 +175,7 @@ def rename_project(project_id, project_name_new):
 def update_project_info(project_id, **kwargs):
     '''Update project info'''
 
-    kwargs_copy = kwargs.deepcopy()
+    kwargs_copy = kwargs.copy()
 
     if "name" in kwargs_copy:
         del kwargs_copy["name"]
