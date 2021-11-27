@@ -230,9 +230,6 @@ def add_dataset_to_project(project_id, file_name):
     project_path = get_project_path(project_id)
     project_file_path = get_project_file_path(project_path)
 
-    # clean temp project files
-    clean_project_tmp_files(project_id)
-
     # open the projects file
     with open(project_file_path, "r") as f_read:
         project_dict = json.load(f_read)
@@ -247,10 +244,6 @@ def add_dataset_to_project(project_id, file_name):
     as_data = read_data(project_id)
 
     state_file = get_state_path(project_path)
-
-    # remove state file if present
-    if any(get_reviews_path(project_path).iterdir()):
-        delete_state_from_project(project_path)
 
     with open_state(state_file, read_only=False) as state:
 
@@ -272,40 +265,30 @@ def add_dataset_to_project(project_id, file_name):
                 prior=True
             )
 
-
-def remove_dataset_to_project(project_id, file_name):
-    """Remove dataset from project
+def remove_dataset_from_project(project_id):
+    """Remove dataset from project.
 
     """
     project_path = get_project_path(project_id)
     project_file_path = get_project_file_path(project_path)
-    fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
+    # clean temp project files
+    clean_project_tmp_files(project_id)
 
-        # open the projects file
-        with open(project_file_path, "r") as f_read:
-            project_config = json.load(f_read)
+    # open the projects file
+    with open(project_file_path, "r") as f_read:
+        dataset_path = json.load(f_read)["dataset_path"]
 
-        # remove the path from the project file
-        data_fn = project_config["dataset_path"]
-        del project_config["dataset_path"]
+    # update project config
+    update_project_info(project_id, dataset_path=dataset_path)
 
-        with open(project_file_path, "w") as f_write:
-            json.dump(project_config, f_write)
+    # remove dataset from project
+    data_path = get_data_file_path(project_path, dataset_path)
+    os.remove(str(data_path))
 
-        # files to remove
-        # TODO: This no longer works?
-        data_path = get_data_file_path(project_path, data_fn)
-        pool_path = get_pool_path(project_path)
-        labeled_path = get_labeled_path(project_path)
-
-        os.remove(str(data_path))
-        os.remove(str(pool_path))
-        os.remove(str(labeled_path))
+    # remove state file if present
+    if any(get_reviews_path(project_path).iterdir()):
+        delete_state_from_project(project_path)
 
 
 def add_review_to_project(project_id, simulation_id):

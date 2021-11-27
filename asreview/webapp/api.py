@@ -79,6 +79,7 @@ from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
+from asreview.webapp.utils.project import remove_dataset_from_project
 from asreview.webapp.utils.project import update_instance
 from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import update_review_in_project
@@ -353,13 +354,19 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["POST"])
+@bp.route('/project/<project_id>/data', methods=["POST", "PUT"])
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
     project_path = get_project_path(project_id)
 
     # get the project config to modify behavior of dataset
     project_config = get_project_config(project_id)
+
+    # remove old dataset if present
+    if "dataset_path" in project_config and \
+            project_config["dataset_path"] is not None:
+        logging.info("Removing old dataset and adding new dataset.")
+        remove_dataset_from_project(project_id)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).url
