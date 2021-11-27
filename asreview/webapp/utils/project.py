@@ -249,7 +249,7 @@ def add_dataset_to_project(project_id, file_name):
     state_file = get_state_path(project_path)
 
     # remove state file if present
-    if not any(get_reviews_path(project_path).iterdir()):
+    if any(get_reviews_path(project_path).iterdir()):
         delete_state_from_project(project_path)
 
     with open_state(state_file, read_only=False) as state:
