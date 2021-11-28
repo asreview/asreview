@@ -292,15 +292,14 @@ def add_dataset_to_project(project_id, file_name):
                 prior=True
             )
 
+
 def remove_dataset_from_project(project_id):
     """Remove dataset from project.
 
     """
     project_path = get_project_path(project_id)
-    project_file_path = get_project_file_path(project_path)
 
     # reset dataset_path
-    dataset_path = get_project_config(project_id)["dataset_path"]
     update_project_info(project_id, dataset_path=None)
 
     # remove datasets from project
