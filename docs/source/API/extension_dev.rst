@@ -186,8 +186,19 @@ following package structure:
     └── tests
 
 For minimal functionality, ``your_dataset.py`` should extent
-:class:`asreview.datasets.BaseDataSet` and
+:class:`asreview.datasets.BaseDataSet`, which can then be supplied to
 :class:`asreview.datasets.BaseDataGroup`.
+
+To implement multiple datasets, supply the `BaseDataGroup` with multiple
+`BaseDataSet` objects:
+
+```python
+dataset_1 = BaseDataSet(config_1)
+dataset_2 = BaseDataSet(config_2)
+dataset_3 = BaseDataSet(config_3)    
+
+super().__init__(dataset_1, dataset_2, dataset_3)
+```
 
 A working template to clone and use can be found at `Template for extending
 ASReview with a new dataset
