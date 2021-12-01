@@ -192,16 +192,15 @@ For minimal functionality, ``your_dataset.py`` should extent
 To implement multiple datasets, supply the `BaseDataGroup` with multiple
 `BaseDataSet` objects:
 
-```python
-dataset_1 = BaseDataSet(config_1)
-dataset_2 = BaseDataSet(config_2)
-dataset_3 = BaseDataSet(config_3)    
+.. code:: python
 
-super().__init__(dataset_1, dataset_2, dataset_3)
-```
+    dataset_1 = BaseDataSet(config_1)
+    dataset_2 = BaseDataSet(config_2)
+    dataset_3 = BaseDataSet(config_3)    
 
-A working template to clone and use can be found at `Template for extending
-ASReview with a new dataset
+    super(YourDataGroup, self).__init__(dataset_1, dataset_2, dataset_3)
+
+A working template to clone and use can be found at the `template repository
 <https://github.com/asreview/template-extension-new-dataset>`_.
 
 Extending BaseDataSet
