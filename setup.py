@@ -112,7 +112,7 @@ setup(
         'numpy',
         'sklearn',
         'pandas',
-        'rispy~=0.6.0',
+        'rispy~=0.7.0',
         'dill',
         'xlrd>=1.0.0',
         'setuptools',

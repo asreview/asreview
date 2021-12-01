@@ -177,9 +177,10 @@ const ExportPage = (props) => {
                   value={fileFormat}
                   onChange={handleFileFormat}
                 >
-                  <MenuItem value="excel">Excel</MenuItem>
+                  <MenuItem value="ris">RIS (UTF-8)</MenuItem>
                   <MenuItem value="csv">CSV (UTF-8)</MenuItem>
                   <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
+                  <MenuItem value="excel">Excel</MenuItem>
                 </Select>
               )}
               {file === "project" && (

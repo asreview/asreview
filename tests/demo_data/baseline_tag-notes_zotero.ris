@@ -1,0 +1,19 @@
+﻿TY  - GEN
+TI  - Zotero: notes in records come with XHTML tags around them.
+N1  - <p>XHTML</p> tags should be stripped, leaving content intact.
+ER  -
+
+TY  - GEN
+TI  - Zotero: notes in records come with XHTML tags around them.
+N1  - <p>XHTML tags should be stripped, leaving content intact.</p>
+ER  -
+
+TY  - GEN
+TI  - Zotero: notes in records come with XHTML tags around them.
+N1  - XHTML tags should be stripped, leaving content <p>intact.</p>
+ER  -
+
+TY  - GEN
+TI  - Zotero: notes in records come with XHTML tags around them.
+N1  - <p>XHTML</p>tags should be stripped, leaving content <p>intact.</p>
+ER  -
