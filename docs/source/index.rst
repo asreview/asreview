@@ -76,7 +76,7 @@ A (citable) PDF of the ASReview documentation can be found on `Zenodo <https://d
    :maxdepth: 1
    :caption: Development
 
-   API/overview_cli
+   API/overview_development
 
    API/cli
 
