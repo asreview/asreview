@@ -204,6 +204,21 @@ A working template to clone and use can be found at `Template for extending
 ASReview with a new dataset
 <https://github.com/asreview/template-extension-new-dataset>`_.
 
+Extending BaseDataSet
+*********************
+[explain how to make a dataset extension]
+
+Dataset from_config
+*******************
+Dataset config files are used to configure the datasets. The config file can
+either be provided to the BaseDataSet class directly as a dict, or a json file
+can be loaded.
+
+[more explanation]
+
+**Note:** When using the url argument to point to a file, only .csv files are
+allowed. Reading a .xlsx file is only possible from a local path.
+
 
 Further functionality can be
 extensions of any other class in :mod:`asreview.datasets`. 
