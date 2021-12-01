@@ -222,6 +222,7 @@ def api_init_project():  # noqa: F401
     project_id = create_project_id(project_name)
 
     project_config = init_project(project_id,
+                                  project_mode=project_mode,
                                   project_name=project_name,
                                   project_description=project_description,
                                   project_authors=project_authors)
