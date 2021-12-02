@@ -29,35 +29,70 @@ class DataSetNotFoundError(Exception):
     pass
 
 
-def _create_dataset_from_meta(data):
-    """Create dataset from entry."""
-    if data["type"] == "versioned":
-        datasets = []
-        title = data["title"]
-        base_dataset_id = data["base_id"]
-        for config in data["configs"]:
-            datasets.append(BaseDataSet.from_config(config))
-        return BaseVersionedDataSet(base_dataset_id, datasets, title)
-    elif data["type"] == "base":
-        return BaseDataSet.from_config(data)
-    else:
-        raise ValueError(f"Dataset type {data['type']} unknown.")
+def _download_from_metadata(url):
+    """Download metadata to dataset."""
 
+    try:
+        with urlopen(url, timeout=10) as f:
+            meta_data = json.loads(f.read().decode())
+    except URLError as e:
+        if isinstance(e.reason, socket.timeout):
+            raise Exception("Connection time out.")
+        raise e
 
-def dataset_from_url(*args, **kwargs):
-    # compat for asreview-covid<=0.9.1
-    warnings.warn("Deprecated function.")
+    datasets = []
+    for data in meta_data.values():
+
+        # raise error on versioned datasets
+        if data["type"] == "versioned":
+            raise ValueError("Datasets of type 'versioned' are deprecated")
+
+        datasets.append(BaseDataSet.from_config(data))
+
+    return datasets
 
 
 class BaseDataSet():
-    def __init__(self, fp=None):
+    def __init__(self,
+
+        ):
         """Initialize BaseDataSet which contains metadata.
+
+
+        # {
+        #     "description": "A free dataset on publications on the corona virus.",
+        #     "authors": [
+        #         "Allen institute for AI"
+        #     ],
+        #     "topic": "Covid-19",
+        #     "link": "https://pages.semanticscholar.org/coronavirus-research",
+        #     "img_url": "https://pages.semanticscholar.org/hs-fs/hubfs/covid-image.png?width=300&name=covid-image.png",
+        #     "license": "Covid dataset license",
+        #     "dataset_id": "cord19-v2020-03-13",
+        #     "title": "CORD-19 (v2020-03-13)",
+        #     "last_update": "2020-03-13",
+        #     "url": "https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/2020-03-13/metadata.csv"
+        # },
 
         Parameters
         ----------
         fp: str
             Path to file, if None, either an url/fp has to be set manually.
         """
+
+        self.dataset_id = dataset_id
+        self.title = title
+        self.description = description
+        self.authors = authors
+        self.topic = topic
+        self.link = link
+        self.img_url = img_url
+        self.license = license
+        self.dataset_id = dataset_id
+        self.title = title
+        self.last_update = last_update
+        self.url = url
+
 
         if fp is not None:
             self.fp = fp
@@ -68,44 +103,7 @@ class BaseDataSet():
     def __str__(self):
         return pretty_format(self.to_dict())
 
-    @classmethod
-    def from_config(cls, config_file):
-        """Create DataSet from a JSON configuration file.
-
-        Parameters
-        ----------
-        config_file: str, dict
-            Can be a link to a config file or one on the disk.
-            Another option is to supply a dictionary with the metadata.
-        """
-        if is_url(config_file):
-            with urlopen(config_file) as f:
-                config = json.loads(f.read().decode())
-        elif isinstance(config_file, dict):
-            config = config_file
-        else:
-            with open(config_file, "r") as f:
-                config = json.load(f)
-
-        # Set the attributes of the dataset.
-        dataset = cls()
-        for attr, val in config.items():
-            setattr(dataset, attr, val)
-        return dataset
-
-    @property
-    def aliases(self):
-        """Can be overriden by setting it manually."""
-        return [self.dataset_id.lower()]
-
-    def get(self):
-        """Get the url/fp for the dataset."""
-        try:
-            return self.url
-        except AttributeError:
-            return self.fp
-
-    def to_dict(self):
+    def __dict__(self):
         """Convert self to a python dictionary."""
         mydict = {}
         for attr in dir(self):
@@ -122,66 +120,18 @@ class BaseDataSet():
                 pass
         return mydict
 
-    def find(self, data_name):
-        """Return self if the name is one of our aliases."""
-        if data_name.lower() in self.aliases:
-            return self
+    @property
+    def aliases(self):
+        """Can be overriden by setting it manually."""
+        return [self.dataset_id.lower()]
 
-        raise DataSetNotFoundError(
-            f"Dataset {data_name} not found"
-        )
+    def get(self):
+        """Get the url/fp for the dataset."""
+        try:
+            return self.url
+        except AttributeError:
+            return self.fp
 
-    def list(self, latest_only=True):
-        """Return a list of itself."""
-        return [self]
-
-
-class BaseVersionedDataSet():
-    def __init__(self, base_dataset_id, datasets, title="Unknown title"):
-        """Initialize a BaseVersionedDataDet instance.
-
-        Parameters
-        ----------
-        base_dataset_id: str
-            This is the identification given to the versioned dataset as a
-            whole. Each individual version has their own dataset_id.
-        datasets: list
-            List of BaseDataSet's containing all the different versions.
-        """
-        self.datasets = datasets
-        self.title = title
-        self.dataset_id = base_dataset_id
-
-    def __str__(self):
-        dataset_dict = self.datasets[-1].to_dict()
-        dataset_dict["versions_available"] = [
-            d.dataset_id for d in self.datasets
-        ]
-        return pretty_format(dataset_dict)
-
-    def __len__(self):
-        return len(self.datasets)
-
-    def find(self, dataset_name):
-        if dataset_name == self.dataset_id:
-            return self
-
-        all_dataset_names = [(d, d.aliases) for d in self.datasets]
-        for dataset, aliases in all_dataset_names:
-            if dataset_name.lower() in aliases:
-                return dataset
-
-        raise DataSetNotFoundError(
-            f"Dataset {dataset_name} not found"
-        )
-
-    def get(self, i_version=-1):
-        return self.datasets[i_version].get()
-
-    def list(self, latest_only=True):
-        if latest_only:
-            return [self.datasets[-1]]
-        return [self]
 
 
 class BaseDataGroup():
@@ -204,11 +154,9 @@ class BaseDataGroup():
     def find(self, dataset_name):
         results = []
         for d in self._data_sets:
-            try:
-                dataset_result = d.find(dataset_name)
-                results.append(dataset_result)
-            except DataSetNotFoundError:
-                pass
+            if data_name.lower() in d.aliases:
+                results.append(d)
+
         if len(results) > 1:
             raise ValueError(
                 f"Broken dataset group '{self.group_id}' containing multiple"
@@ -351,26 +299,21 @@ class BenchmarkDataGroup(BaseDataGroup):
 
     def __init__(self):
         meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index.json"  # noqa
-        datasets = download_from_metadata(meta_file)
+        datasets = _download_from_metadata(meta_file)
 
         super(BenchmarkDataGroup, self).__init__(
             *datasets
         )
 
 
-def download_from_metadata(url):
-    """Download metadata to dataset."""
+class NaturePublicationDataGroup(BaseDataGroup):
+    group_id = "benchmark-nature"
+    description = "Featured benchmarking datasets from the Nature publication."
 
-    try:
-        with urlopen(url, timeout=10) as f:
-            meta_data = json.loads(f.read().decode())
-    except URLError as e:
-        if isinstance(e.reason, socket.timeout):
-            raise Exception("Connection time out.")
-        raise e
+    def __init__(self):
+        meta_file = "INSERT URL"  # noqa
+        datasets = _download_from_metadata(meta_file)
 
-    datasets = []
-    for data in meta_data.values():
-        datasets.append(_create_dataset_from_meta(data))
-
-    return datasets
+        super(NaturePublicationDataGroup, self).__init__(
+            *datasets
+        )
