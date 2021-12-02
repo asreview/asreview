@@ -265,19 +265,12 @@ def add_dataset_to_project(project_id, file_name):
     """
     project_path = get_project_path(project_id)
 
-    # clean temp project files
-    clean_project_tmp_files(project_id)
-
     update_project_info(project_id, dataset_path=file_name)
 
     # fill the pool of the first iteration
     as_data = read_data(project_id)
 
     state_file = get_state_path(project_path)
-
-    # remove state file if present
-    if any(get_reviews_path(project_path).iterdir()):
-        delete_state_from_project(project_path)
 
     with open_state(state_file, read_only=False) as state:
 
@@ -300,29 +293,22 @@ def add_dataset_to_project(project_id, file_name):
             )
 
 
-def remove_dataset_to_project(project_id):
-    """Remove dataset from project
+def remove_dataset_from_project(project_id):
+    """Remove dataset from project.
 
     """
     project_path = get_project_path(project_id)
-    fp_lock = get_lock_path(project_path)
 
-    with SQLiteLock(fp_lock,
-                    blocking=True,
-                    lock_name="active",
-                    project_id=project_id):
+    # reset dataset_path
+    update_project_info(project_id, dataset_path=None)
 
-        update_project_info(project_id, dataset_path=None)
+    # remove datasets from project
+    shutil.rmtree(get_data_path(project_path))
 
-        # files to remove
-        # TODO: This no longer works?
-        data_path = get_data_file_path(project_path)
-        pool_path = get_pool_path(project_path)
-        labeled_path = get_labeled_path(project_path)
-
-        os.remove(str(data_path))
-        os.remove(str(pool_path))
-        os.remove(str(labeled_path))
+    # remove state file if present
+    if get_reviews_path(project_path).is_dir() and \
+            any(get_reviews_path(project_path).iterdir()):
+        delete_state_from_project(project_path)
 
 
 def add_review_to_project(project_id, simulation_id):
