@@ -526,18 +526,19 @@ def export_to_string(project_id, export_type="csv"):
     if export_type == "csv":
         return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
 
-    if export_type == "tsv":
-        return as_data.to_csv(fp=None,
-                              sep="\t",
-                              labels=labeled,
-                              ranking=ranking)
+    elif export_type == "tsv":
+        return as_data.to_csv(
+            fp=None, sep="\t", labels=labeled, ranking=ranking)
 
-    if export_type == "excel":
+    elif export_type == "excel":
         get_tmp_path(project_path).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-        return as_data.to_excel(fp=fp_tmp_export,
-                                labels=labeled,
-                                ranking=ranking)
+        return as_data.to_excel(
+            fp=fp_tmp_export, labels=labeled, ranking=ranking)
+
+    elif export_type == "ris":
+        return as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
+
     else:
         raise ValueError("This export type isn't implemented.")
 

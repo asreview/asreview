@@ -956,6 +956,7 @@ def export_results(project_id):
     file_type = request.args.get('file_type', None)
 
     try:
+        # CSV
         if file_type == "csv":
             dataset_str = export_to_string(project_id, export_type="csv")
 
@@ -966,7 +967,7 @@ def export_results(project_id):
                     "Content-disposition":
                     f"attachment; filename=asreview_result_{project_id}.csv"
                 })
-
+        # TSV
         elif file_type == "tsv":
             dataset_str = export_to_string(project_id, export_type="tsv")
 
@@ -977,8 +978,8 @@ def export_results(project_id):
                     "Content-disposition":
                     f"attachment; filename=asreview_result_{project_id}.tsv"
                 })
-        else:  # excel
-
+        # Excel
+        elif file_type == "xlsx":
             dataset_str = export_to_string(project_id, export_type="excel")
             fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
@@ -989,6 +990,26 @@ def export_results(project_id):
                 as_attachment=True,
                 download_name=f"asreview_result_{project_id}.xlsx",
                 max_age=0)
+        # RIS
+        elif file_type == "ris":
+            if get_data_file_path(project_id).suffix not in [
+                    ".ris", ".RIS", ".txt", ".TXT"
+            ]:
+                raise ValueError(
+                    "RIS file can be exported only when RIS file was imported.")
+
+            dataset_str = export_to_string(project_id, export_type="ris")
+
+            return Response(
+                dataset_str,
+                mimetype="application/octet-stream",
+                headers={
+                    "Content-disposition":
+                    f"attachment; filename=asreview_result_{project_id}.ris"
+                })
+
+        else:
+            raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
     except Exception as err:
         logging.error(err)
         return jsonify(message=f"Failed to export the {file_type} dataset."), 500
