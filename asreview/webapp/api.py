@@ -67,10 +67,10 @@ from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import ProjectNotFoundError
+from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import add_review_to_project
-from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
@@ -79,6 +79,8 @@ from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
+from asreview.webapp.utils.project import remove_dataset_from_project
+from asreview.webapp.utils.project import rename_project
 from asreview.webapp.utils.project import update_instance
 from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import update_review_in_project
@@ -219,7 +221,7 @@ def api_init_project():  # noqa: F401
     project_description = request.form['description']
     project_authors = request.form['authors']
 
-    project_id = create_project_id(project_name)
+    project_id = _create_project_id(project_name)
 
     project_config = init_project(project_id,
                                   project_mode=project_mode,
@@ -290,17 +292,16 @@ def api_get_project_info(project_id):  # noqa: F401
 def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
-    project_name = request.form['name']
-    project_mode = request.form['mode']
-    project_description = request.form['description']
-    project_authors = request.form['authors']
+    # rename the project if project name is changed
+    if request.form.get('name', None) is not None:
+        project_id_new = rename_project(project_id, request.form['name'])
 
-    project_id_new = update_project_info(
-        project_id,
-        project_mode=project_mode,
-        project_name=project_name,
-        project_description=project_description,
-        project_authors=project_authors)
+    # update the project info
+    update_project_info(
+        project_id_new,
+        mode=request.form['mode'],
+        description=request.form['description'],
+        authors=request.form['authors'])
 
     return api_get_project_info(project_id_new)
 
@@ -353,13 +354,22 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["POST"])
+@bp.route('/project/<project_id>/data', methods=["POST", "PUT"])
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
     project_path = get_project_path(project_id)
 
     # get the project config to modify behavior of dataset
     project_config = get_project_config(project_id)
+
+    # remove old dataset if present
+    if "dataset_path" in project_config and \
+            project_config["dataset_path"] is not None:
+        logging.warning("Removing old dataset and adding new dataset.")
+        remove_dataset_from_project(project_id)
+
+    # create dataset folder if not present
+    get_data_path(project_path).mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).url
@@ -885,15 +895,7 @@ def api_init_model_ready(project_id):  # noqa: F401
         try:
             with open_state(project_path) as state:
                 if state.model_has_trained:
-                    # read the file with project info
-                    with open(get_project_file_path(project_path), "r") as fp:
-                        project_info = json.load(fp)
-
-                    project_info["projectInitReady"] = True
-
-                    # update the file with project info
-                    with open(get_project_file_path(project_path), "w") as fp:
-                        json.dump(project_info, fp)
+                    update_project_info(project_id, projectInitReady=True)
 
                     response = jsonify({'status': 1})
                 else:
@@ -954,6 +956,7 @@ def export_results(project_id):
     file_type = request.args.get('file_type', None)
 
     try:
+        # CSV
         if file_type == "csv":
             dataset_str = export_to_string(project_id, export_type="csv")
 
@@ -964,7 +967,7 @@ def export_results(project_id):
                     "Content-disposition":
                     f"attachment; filename=asreview_result_{project_id}.csv"
                 })
-
+        # TSV
         elif file_type == "tsv":
             dataset_str = export_to_string(project_id, export_type="tsv")
 
@@ -975,8 +978,8 @@ def export_results(project_id):
                     "Content-disposition":
                     f"attachment; filename=asreview_result_{project_id}.tsv"
                 })
-        else:  # excel
-
+        # Excel
+        elif file_type == "xlsx":
             dataset_str = export_to_string(project_id, export_type="excel")
             fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
@@ -987,6 +990,26 @@ def export_results(project_id):
                 as_attachment=True,
                 download_name=f"asreview_result_{project_id}.xlsx",
                 max_age=0)
+        # RIS
+        elif file_type == "ris":
+            if get_data_file_path(project_id).suffix not in [
+                    ".ris", ".RIS", ".txt", ".TXT"
+            ]:
+                raise ValueError(
+                    "RIS file can be exported only when RIS file was imported.")
+
+            dataset_str = export_to_string(project_id, export_type="ris")
+
+            return Response(
+                dataset_str,
+                mimetype="application/octet-stream",
+                headers={
+                    "Content-disposition":
+                    f"attachment; filename=asreview_result_{project_id}.ris"
+                })
+
+        else:
+            raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
     except Exception as err:
         logging.error(err)
         return jsonify(message=f"Failed to export the {file_type} dataset."), 500
