@@ -27,12 +27,12 @@ const PluginDataset = (props) => {
 
   const [state, setState] = useState(false);
 
-  const uploadDataset = () => {
+  const uploadDataset = (dataset_id) => {
     // upload state
     setState(true);
 
     // send upload request to server
-    props.onUploadHandler(props.dataset_id, resetState);
+    props.onUploadHandler(dataset_id, resetState);
   };
 
   const resetState = () => {
@@ -41,13 +41,9 @@ const PluginDataset = (props) => {
 
   function DataSetCard(dataset) {
     return (
-      <Card
-        className={classes.cardRoot}
-        key={dataset.dataset_id}
-        onClick={!state ? uploadDataset : undefined}
-      >
+      <Card className={classes.cardRoot} key={dataset.dataset_id}>
         {!state ? (
-          <CardActionArea>
+          <CardActionArea onClick={() => uploadDataset(dataset.dataset_id)}>
             <CardMedia
               className={classes.media}
               image={dataset.img_url}
