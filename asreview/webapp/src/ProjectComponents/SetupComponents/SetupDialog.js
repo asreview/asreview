@@ -392,7 +392,7 @@ const SetupDialog = (props) => {
           // not ready yet
           setTimeout(
             () => queryClient.invalidateQueries("fetchProjectReady"),
-            29000
+            24000
           );
         }
       },
@@ -449,20 +449,6 @@ const SetupDialog = (props) => {
       props.toggleInfoBar();
       queryClient.invalidateQueries("fetchProjects");
       props.handleAppState("home");
-    }
-  };
-
-  const returnDialogTitle = () => {
-    if (activeStep !== 3) {
-      return "Create a new project";
-    } else {
-      if (!trainingFinished) {
-        return !(isStartTrainingError || isProjectReadyError)
-          ? "Training active learning model..."
-          : "Error";
-      } else {
-        return `${details.title} created`;
-      }
     }
   };
 
@@ -555,7 +541,7 @@ const SetupDialog = (props) => {
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
           <Box className={classes.title}>
-            <DialogTitle>{returnDialogTitle()}</DialogTitle>
+            <DialogTitle>Create a new project</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {props.project_id !== null &&
                 (activeStep === 0 || activeStep === 2) && (

@@ -149,7 +149,7 @@ const FinishSetup = (props) => {
               <AutoPlaySwipeableViews
                 axis={"x"}
                 index={activeStep}
-                interval={6000}
+                interval={5000}
                 onChangeIndex={handleStepChange}
                 enableMouseEvents
                 className={classes.swipeable}

@@ -50,8 +50,16 @@ export default function PriorLabeled(props) {
           n_inclusions={props.n_inclusions}
         />
         <Divider />
-        <LabeledRecord label={label} is_prior={true} n_prior={props.n_prior} />
-        {props.n_prior === 0 && (
+        <LabeledRecord
+          label={label}
+          is_prior={true}
+          n_prior={props.n_prior}
+          n_exclusions={props.n_exclusions}
+          n_inclusions={props.n_inclusions}
+        />
+        {(props.n_prior === 0 ||
+          props.n_inclusions === 0 ||
+          props.n_exclusions === 0) && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
               You have not provided prior knowledge

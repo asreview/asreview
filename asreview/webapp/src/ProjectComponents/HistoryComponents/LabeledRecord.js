@@ -70,7 +70,7 @@ const LabeledRecord = (props) => {
     {
       enabled:
         props.label === "relevant" &&
-        (!props.is_prior ? true : !props.n_prior ? false : true),
+        (!props.is_prior ? true : !props.n_inclusions ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -88,7 +88,7 @@ const LabeledRecord = (props) => {
     {
       enabled:
         props.label === "irrelevant" &&
-        (!props.is_prior ? true : !props.n_prior ? false : true),
+        (!props.is_prior ? true : !props.n_exclusions ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -96,19 +96,10 @@ const LabeledRecord = (props) => {
 
   const filteredQuery = () => {
     if (props.label === "relevant") {
-      return relevantQuery;
+      return [relevantQuery, "fetchRelevantLabeledRecord"];
     }
     if (props.label === "irrelevant") {
-      return irrelevantQuery;
-    }
-  };
-
-  const filteredQueryKey = () => {
-    if (props.label === "relevant") {
-      return "fetchRelevantLabeledRecord";
-    }
-    if (props.label === "irrelevant") {
-      return "fetchIrrelevantLabeledRecord";
+      return [irrelevantQuery, "fetchIrrelevantLabeledRecord"];
     }
   };
 
@@ -125,26 +116,28 @@ const LabeledRecord = (props) => {
 
   return (
     <Root aria-label="labeled record container">
-      {filteredQuery().isError && (
+      {filteredQuery()[0].isError && (
         <BoxErrorHandler
-          error={filteredQuery().error}
-          queryKey={filteredQueryKey()}
+          error={filteredQuery()[0].error}
+          queryKey={filteredQuery()[1]}
         />
       )}
       {props.n_prior !== 0 &&
-        !filteredQuery().isError &&
-        (filteredQuery().isLoading || !mounted.current) && (
+        !filteredQuery()[0].isError &&
+        (filteredQuery()[0].isLoading || !mounted.current) && (
           <Box className={classes.loading}>
             <CircularProgress />
           </Box>
         )}
       {props.n_prior !== 0 &&
-        !filteredQuery().isError &&
-        !(filteredQuery().isLoading || !mounted.current) && (
+        !filteredQuery()[0].isError &&
+        !(filteredQuery()[0].isLoading || !mounted.current) &&
+        filteredQuery()[0].isFetched && (
           <Fade
             in={
-              !filteredQuery().isError &&
-              !(filteredQuery().isLoading || !mounted.current)
+              !filteredQuery()[0].isError &&
+              !(filteredQuery()[0].isLoading || !mounted.current) &&
+              filteredQuery()[0].isFetched
             }
           >
             <Box
@@ -154,8 +147,8 @@ const LabeledRecord = (props) => {
               })}
               aria-label="labeled record card"
             >
-              {filteredQuery().isFetched &&
-                filteredQuery().data.pages.map((page, index) => (
+              {filteredQuery()[0].isFetched &&
+                filteredQuery()[0].data.pages.map((page, index) => (
                   <LabeledRecordCard
                     page={page}
                     label={props.label}
@@ -168,24 +161,24 @@ const LabeledRecord = (props) => {
                 onChange={(inView, entry) => {
                   if (
                     inView &&
-                    filteredQuery().hasNextPage &&
-                    !filteredQuery().isFetchingNextPage
+                    filteredQuery()[0].hasNextPage &&
+                    !filteredQuery()[0].isFetchingNextPage
                   ) {
-                    filteredQuery().fetchNextPage();
+                    filteredQuery()[0].fetchNextPage();
                   }
                 }}
                 className={classes.loadMoreInView}
               >
                 <ButtonBase
                   disabled={
-                    !filteredQuery().hasNextPage ||
-                    filteredQuery().isFetchingNextPage
+                    !filteredQuery()[0].hasNextPage ||
+                    filteredQuery()[0].isFetchingNextPage
                   }
                 >
                   <Typography gutterBottom variant="button">
-                    {filteredQuery().isFetchingNextPage
+                    {filteredQuery()[0].isFetchingNextPage
                       ? "Loading more..."
-                      : filteredQuery().hasNextPage
+                      : filteredQuery()[0].hasNextPage
                       ? "Load More"
                       : "Nothing more to load"}
                   </Typography>
