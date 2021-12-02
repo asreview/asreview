@@ -127,7 +127,7 @@ const ExportDialog = (props) => {
         </Box>
         {exportFileType === "ris" && (
           <Alert severity="info">
-            Experimental feature: available only if you imported the RIS file
+            Experimental feature: available only if you imported a RIS file
             when creating the project
           </Alert>
         )}
