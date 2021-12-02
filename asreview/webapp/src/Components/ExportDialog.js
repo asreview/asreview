@@ -43,7 +43,7 @@ const mapStateToProps = (state) => {
 const ExportDialog = (props) => {
   const classes = useStyles();
 
-  const [exportFileType, setExportFileType] = React.useState("ris");
+  const [exportFileType, setExportFileType] = React.useState("xlsx");
   const [error, setError] = React.useState({
     code: null,
     message: null,
@@ -119,12 +119,18 @@ const ExportDialog = (props) => {
             value={exportFileType}
             onChange={handleExportFileTypeChange}
           >
-            <MenuItem value={"ris"}>RIS (UTF-8)</MenuItem>
+            <MenuItem value={"xlsx"}>Excel</MenuItem>
             <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
             <MenuItem value={"tsv"}>TSV (UTF-8)</MenuItem>
-            <MenuItem value={"excel"}>Excel</MenuItem>
+            <MenuItem value={"ris"}>RIS (UTF-8)</MenuItem>
           </Select>
         </Box>
+        {exportFileType === "ris" && (
+          <Alert severity="info">
+            Experimental feature: available only if you imported the RIS file
+            when creating the project
+          </Alert>
+        )}
         {error.message && <Alert severity="error">{error["message"]}</Alert>}
       </DialogContent>
 
