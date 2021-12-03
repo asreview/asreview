@@ -21,8 +21,8 @@ import Publish from "../../images/QuickTour/7_PublishYourWork.svg";
 const images = [
   {
     imgPath: Start,
-    textTitle: "Ready to review soon",
-    text: "Read the displayed text and decide whether it is relevant or not.",
+    textTitle: "Preparing your project",
+    text: "Soon you can start reviewing the displayed text and decide whether it is relevant or not.",
   },
   {
     imgPath: Benefit,
