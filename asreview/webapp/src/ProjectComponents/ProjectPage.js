@@ -167,7 +167,7 @@ const ProjectPage = (props) => {
 
           {/* Export page */}
           {props.nav_state === "export" && (
-            <ExportPage enableExportDataset={data?.projectInitReady} />
+            <ExportPage datasetPath={data?.dataset_path} />
           )}
 
           {/* Details page */}

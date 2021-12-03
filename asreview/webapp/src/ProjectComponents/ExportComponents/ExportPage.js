@@ -19,6 +19,8 @@ import { SnackbarErrorHandler } from "../../Components";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
+const selectWidth = 310;
+
 const PREFIX = "ExportPage";
 
 const classes = {
@@ -35,7 +37,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.select}`]: {
-    minWidth: 310,
+    width: selectWidth,
     padding: "40px 0px",
   },
 }));
@@ -79,7 +81,7 @@ const ExportPage = (props) => {
     if (event.target.value === "project") {
       setFileFormat("asreview");
     } else {
-      setFileFormat("");
+      setFileFormat("xlsx");
     }
   };
 
@@ -89,6 +91,10 @@ const ExportPage = (props) => {
 
   const onClickExport = () => {
     setExporting(true);
+  };
+
+  const disableRIS = () => {
+    return props.datasetPath.split(".").pop() !== "ris";
   };
 
   const disableExportButton = () => {
@@ -128,11 +134,7 @@ const ExportPage = (props) => {
                 value={file}
                 onChange={handleFile}
               >
-                <MenuItem
-                  value="dataset"
-                  disabled={!props.enableExportDataset}
-                  divider
-                >
+                <MenuItem value="dataset" divider>
                   <Box>
                     <Typography variant="subtitle1">Dataset</Typography>
                     <Typography
@@ -176,11 +178,34 @@ const ExportPage = (props) => {
                   label="File format"
                   value={fileFormat}
                   onChange={handleFileFormat}
+                  MenuProps={{
+                    sx: { width: selectWidth },
+                  }}
                 >
-                  <MenuItem value="ris">RIS (UTF-8)</MenuItem>
+                  <MenuItem value="xlsx">Excel</MenuItem>
                   <MenuItem value="csv">CSV (UTF-8)</MenuItem>
                   <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
-                  <MenuItem value="excel">Excel</MenuItem>
+                  {!disableRIS() && (
+                    <MenuItem value="ris">RIS (UTF-8)</MenuItem>
+                  )}
+                  {disableRIS() && (
+                    <MenuItem value="ris" disabled={disableRIS()}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography variant="subtitle1">RIS (UTF-8)</Typography>
+                        <Typography
+                          variant="body2"
+                          gutterBottom
+                          sx={{
+                            color: "text.secondary",
+                            whiteSpace: "pre-line",
+                          }}
+                        >
+                          Available only if you imported a RIS file when
+                          creating the project
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  )}
                 </Select>
               )}
               {file === "project" && (
