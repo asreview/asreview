@@ -77,15 +77,15 @@ const AddPriorKnowledge = (props) => {
         {!search && random && (
           <PriorRandom
             n_prior={props.n_prior}
-            n_exclusions={props.n_exclusions}
+            n_prior_exclusions={props.n_prior_exclusions}
             toggleRandom={toggleRandom}
             toggleSearch={toggleSearch}
           />
         )}
         <PriorLabeled
           n_prior={props.n_prior}
-          n_exclusions={props.n_exclusions}
-          n_inclusions={props.n_inclusions}
+          n_prior_exclusions={props.n_prior_exclusions}
+          n_prior_inclusions={props.n_prior_inclusions}
         />
       </DialogContent>
     </Fade>

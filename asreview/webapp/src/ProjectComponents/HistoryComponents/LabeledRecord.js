@@ -70,7 +70,7 @@ const LabeledRecord = (props) => {
     {
       enabled:
         props.label === "relevant" &&
-        (!props.is_prior ? true : !props.n_inclusions ? false : true),
+        (!props.is_prior ? true : !props.n_prior_inclusions ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -88,7 +88,7 @@ const LabeledRecord = (props) => {
     {
       enabled:
         props.label === "irrelevant" &&
-        (!props.is_prior ? true : !props.n_exclusions ? false : true),
+        (!props.is_prior ? true : !props.n_prior_exclusions ? false : true),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }

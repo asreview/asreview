@@ -96,10 +96,10 @@ const PriorRandom = (props) => {
   };
 
   React.useEffect(() => {
-    if (props.n_exclusions !== 0 && props.n_exclusions % 5 === 0) {
+    if (props.n_prior_exclusions !== 0 && props.n_prior_exclusions % 5 === 0) {
       toggleReminder();
     }
-  }, [props.n_exclusions, toggleReminder]);
+  }, [props.n_prior_exclusions, toggleReminder]);
 
   return (
     <Root>
@@ -153,9 +153,9 @@ const PriorRandom = (props) => {
                   Enough irrelevant records found
                 </Typography>
                 <Typography sx={{ color: "text.secondary" }}>
-                  {props.n_exclusions} records were labeled as irrelevant. You
-                  have found enough irrelevant records as prior knowledge. Try
-                  to search for relevant records?
+                  {props.n_prior_exclusions} records were labeled as irrelevant.
+                  You have found enough irrelevant records as prior knowledge.
+                  Try to search for relevant records?
                 </Typography>
               </CardContent>
               <Divider />

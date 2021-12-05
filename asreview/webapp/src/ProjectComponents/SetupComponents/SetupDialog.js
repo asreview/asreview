@@ -329,7 +329,10 @@ const SetupDialog = (props) => {
   };
 
   const isEnoughPriorKnowledge = () => {
-    return labeledStats?.n_exclusions > 4 && labeledStats?.n_inclusions > 4;
+    return (
+      labeledStats?.n_prior_exclusions > 4 &&
+      labeledStats?.n_prior_inclusions > 4
+    );
   };
 
   /**
@@ -460,8 +463,8 @@ const SetupDialog = (props) => {
       return (
         isAddDatasetError ||
         isFetchLabeledStatsError ||
-        !labeledStats?.n_inclusions ||
-        !labeledStats?.n_exclusions
+        !labeledStats?.n_prior_inclusions ||
+        !labeledStats?.n_prior_exclusions
       );
     }
     if (activeStep === 2) {
@@ -712,8 +715,8 @@ const SetupDialog = (props) => {
       {addPriorKnowledge && (
         <AddPriorKnowledge
           n_prior={labeledStats?.n_prior}
-          n_exclusions={labeledStats?.n_exclusions}
-          n_inclusions={labeledStats?.n_inclusions}
+          n_prior_exclusions={labeledStats?.n_prior_exclusions}
+          n_prior_inclusions={labeledStats?.n_prior_inclusions}
         />
       )}
       {!addDataset && !addPriorKnowledge && <Divider />}
