@@ -53,6 +53,6 @@ class SBERT(BaseFeatureExtraction):
 
         _check_st()
 
-        model = SentenceTransformer('bert-base-nli-mean-tokens')
+        model = SentenceTransformer('all-mpnet-base-v2')
         X = np.array(model.encode(texts))
         return X
