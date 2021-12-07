@@ -72,7 +72,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.img}`]: {
-    marginLeft: 32,
+    marginLeft: 48,
     width: 250,
     [theme.breakpoints.down("md")]: {
       width: 150,
