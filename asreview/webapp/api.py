@@ -50,6 +50,7 @@ from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
 from asreview.search import fuzzy_find
+from asreview.search import SearchError
 from asreview.settings import ASReviewSettings
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
@@ -520,6 +521,10 @@ def api_search_data(project_id):  # noqa: F401
                     "keywords": paper.keywords,
                     "included": int(paper.included)
                 })
+
+    except SearchError as search_err:
+        logging.error(search_err)
+        return jsonify(message=f"Error: {search_err}"), 500
 
     except Exception as err:
         logging.error(err)
