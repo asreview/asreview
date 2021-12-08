@@ -67,7 +67,6 @@ class SBERT(BaseFeatureExtraction):
     label = "Sentence BERT"
 
     def __init__(self, *args, transformer_model='all-mpnet-base-v2', **kwargs):
-        """Initialize the SBERT feature extraction technique."""
         super(SBERT, self).__init__(*args, **kwargs)
         self.transformer_model = transformer_model
 
