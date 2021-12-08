@@ -53,105 +53,160 @@ def _download_from_metadata(url):
 
 
 class BaseDataSet():
+
     def __init__(self,
+            dataset_id,
+            filepath,
+            title,
+            description=None,
+            authors=None,
+            topic=None,
+            link=None,
+            reference=None,
+            img_url=None,
+            license=None,
+            year=None,
+            aliases=[]
+            **kwargs
+            ):
+        """Base class for metadata of dataset.
 
-        ):
-        """Initialize BaseDataSet which contains metadata.
+        A BaseDataSet is a class with metadata about a (labeled)
+        dataset used in ASReview LAB. The dataset can be used via
+        the frontend or via command line interface.
 
+        In general, a BaseDataSet is part of a group (BaseDataGroup).
 
-        # {
-        #     "description": "A free dataset on publications on the corona virus.",
-        #     "authors": [
-        #         "Allen institute for AI"
-        #     ],
-        #     "topic": "Covid-19",
-        #     "link": "https://pages.semanticscholar.org/coronavirus-research",
-        #     "img_url": "https://pages.semanticscholar.org/hs-fs/hubfs/covid-image.png?width=300&name=covid-image.png",
-        #     "license": "Covid dataset license",
-        #     "dataset_id": "cord19-v2020-03-13",
-        #     "title": "CORD-19 (v2020-03-13)",
-        #     "last_update": "2020-03-13",
-        #     "url": "https://ai2-semanticscholar-cord-19.s3-us-west-2.amazonaws.com/2020-03-13/metadata.csv"
-        # },
+        Examples
+        --------
+
+        The following example simulates a dataset with dataset_id
+        'cord19'. The name of the group is 'covid'.
+
+        >>> asreview simulate covid:cord_19
 
         Parameters
         ----------
-        fp: str
-            Path to file, if None, either an url/fp has to be set manually.
+        dataset_id: str
+            Identifier of the dataset. The value is a alphanumeric
+            string used to indentify the dataset via the command line
+            interface. Example: 'groupname:DATASET_ID' where DATASET_ID
+            is the value of dataset_id.
+        filepath: str
+            Path to file or URL to the dataset. See
+            asreview.readthedocs.io/{URL} for information about valid
+            datasets.
+        title: str
+            Title of the dataset.
+        description: str
+            Description of the dataset. Optional.
+        authors: list
+            Authors of the dataset. Optional.
+        topic: str
+            Topics of the dataset. Optional.
+        link: str
+            Link to a website or additional information.
+        reference: str
+            (Academic) reference describing the dataset. Optional.
+        license: str
+            License of the dataset. Optional
+        year: str
+            Year of publication of the dataset. Optional.
+        img_url: str
+            Image for display in graphical interfaces. Optional.
+        aliases: list
+            Additional identifiers for the dataset_id. This can be
+            useful for long of complex dataset_id's. Optional.
+
         """
 
         self.dataset_id = dataset_id
+        self.filepath = filepath
         self.title = title
         self.description = description
         self.authors = authors
         self.topic = topic
         self.link = link
-        self.img_url = img_url
+        self.reference = reference
         self.license = license
-        self.dataset_id = dataset_id
-        self.title = title
-        self.last_update = last_update
-        self.url = url
-
-
-        if fp is not None:
-            self.fp = fp
-            self.id = Path(fp).name
-
-        super(BaseDataSet, self).__init__()
+        self.year = year
+        self.img_url = img_url
+        self.aliases = aliases
+        self.kwargs = kwargs
 
     def __str__(self):
-        return pretty_format(self.to_dict())
+        return f"<BaseDataSet dataset_id='{self.dataset_id}' title='{self.title}'>"  # noqa
 
     def __dict__(self):
-        """Convert self to a python dictionary."""
-        mydict = {}
-        for attr in dir(self):
-            try:
-                is_callable = callable(getattr(BaseDataSet, attr))
-            except AttributeError:
-                is_callable = False
-            if attr.startswith("__") or is_callable:
-                continue
-            try:
-                val = getattr(self, attr)
-                mydict[attr] = val
-            except AttributeError:
-                pass
-        return mydict
 
-    @property
-    def aliases(self):
-        """Can be overriden by setting it manually."""
-        return [self.dataset_id.lower()]
-
-    def get(self):
-        """Get the url/fp for the dataset."""
-        try:
-            return self.url
-        except AttributeError:
-            return self.fp
-
+        return {
+            'dataset_id': self.dataset_id,
+            'filepath': self.filepath,
+            'title': self.title,
+            'description': self.description,
+            'authors': self.authors,
+            'topic': self.topic,
+            'link': self.link,
+            'reference': self.reference,
+            'license': self.license,
+            'year': self.year,
+            'img_url': self.img_url,
+            'aliases': self.aliases,
+            **self.kwargs
+        }
 
 
 class BaseDataGroup():
-    def __init__(self, *args):
-        """Group of datasets."""
-        self._data_sets = [a for a in args]
+    def __init__(self, *datasets):
+        """Group of datasets.
+
+        Group containing one or more datasets.
+
+        Parameters
+        ----------
+        *datasets:
+            One or more datasets.
+        """
+        self.datasets = list(datasets)
 
     def __str__(self):
-        return "".join([
+        return f"<BaseDataGroup dataset_id='{self.dataset_id}' title='{self.title}'>"  # noqa
+
+
+        "".join([
             f"*******  {str(data.dataset_id)}  *******\n"
             f"{str(data)}\n\n" for data in self._data_sets
         ])
 
-    def to_dict(self):
+    def __dict__(self):
         return {data.dataset_id: data for data in self._data_sets}
 
     def append(self, dataset):
+        """Append dataset to group.
+
+        dataset: asreview.datasets.BaseDataSet
+            A asreview BaseDataSet-like object.
+        """
+        if not issubclass(dataset, BaseDataSet):
+            raise ValueError(
+                "Expected BaseDataSet or subclass of BaseDataSet."
+            )
         self._data_sets.append(dataset)
 
-    def find(self, dataset_name):
+    def find(self, dataset_id):
+        """Find dataset in the group.
+
+        Parameters
+        ----------
+        dataset_id: str
+            Identifier of the dataset to look for. It can also be one
+            of the aliases.
+
+        Returns
+        -------
+        asreview.datasets.BaseDataSet:
+            Returns base dataset with the given dataset_id.
+        """
         results = []
         for d in self._data_sets:
             if data_name.lower() in d.aliases:
@@ -160,19 +215,13 @@ class BaseDataGroup():
         if len(results) > 1:
             raise ValueError(
                 f"Broken dataset group '{self.group_id}' containing multiple"
-                f" datasets with the same name/alias '{dataset_name}'.")
+                f" datasets with the same name/alias '{dataset_id}'.")
         elif len(results) == 1:
             return results[0]
 
         raise DataSetNotFoundError(
-            f"Dataset {dataset_name} not found"
+            f"Dataset {dataset_id} not found"
         )
-
-    def list(self, latest_only=True):
-        return_list = []
-        for d in self._data_sets:
-            return_list.extend(d.list(latest_only=latest_only))
-        return return_list
 
 
 class DatasetManager():
