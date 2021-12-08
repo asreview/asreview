@@ -26,9 +26,6 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: "16px",
   },
-  link: {
-    paddingLeft: "3px",
-  },
   file_type: {
     margin: theme.spacing(1),
     width: "100%",
@@ -43,7 +40,7 @@ const mapStateToProps = (state) => {
 const ExportDialog = (props) => {
   const classes = useStyles();
 
-  const [exportFileType, setExportFileType] = React.useState("ris");
+  const [exportFileType, setExportFileType] = React.useState("xlsx");
   const [error, setError] = React.useState({
     code: null,
     message: null,
@@ -119,12 +116,29 @@ const ExportDialog = (props) => {
             value={exportFileType}
             onChange={handleExportFileTypeChange}
           >
-            <MenuItem value={"ris"}>RIS (UTF-8)</MenuItem>
+            <MenuItem value={"xlsx"}>Excel</MenuItem>
             <MenuItem value={"csv"}>CSV (UTF-8)</MenuItem>
             <MenuItem value={"tsv"}>TSV (UTF-8)</MenuItem>
-            <MenuItem value={"excel"}>Excel</MenuItem>
+            <MenuItem value={"ris"}>RIS</MenuItem>
           </Select>
         </Box>
+        {exportFileType === "ris" && (
+          <Alert severity="info">
+            Experimental. RIS export is a new option and might be further
+            improved. You can send feedback to{" "}
+            <Link href={"mailto:asreview@uu.nl"} target="_blank">
+              asreview@uu.nl
+            </Link>{" "}
+            or post it on{" "}
+            <Link
+              href={"https://github.com/asreview/asreview/discussions"}
+              target="_blank"
+            >
+              GitHub Discussions
+            </Link>
+            .
+          </Alert>
+        )}
         {error.message && <Alert severity="error">{error["message"]}</Alert>}
       </DialogContent>
 
@@ -132,8 +146,8 @@ const ExportDialog = (props) => {
         {donateURL !== undefined && (
           <Typography>
             Our software is made with love and freely available for everyone.
-            Help the development of the ASReview with a donation:
-            <Link className={classes.link} href={donateURL} target="_blank">
+            Help the development of the ASReview with a donation:{" "}
+            <Link href={donateURL} target="_blank">
               asreview.nl/donate
             </Link>
           </Typography>
