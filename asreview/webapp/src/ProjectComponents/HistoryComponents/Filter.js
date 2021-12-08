@@ -20,8 +20,6 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const filterOptions = [{ label: "Contains note", value: 0 }];
-
 export default function Filter(props) {
   const [placeholder, setPlaceholder] = React.useState("Filter");
   const filterInput = React.useRef(null);
@@ -58,7 +56,7 @@ export default function Filter(props) {
         filterSelectedOptions
         multiple
         openOnFocus
-        options={filterOptions}
+        options={props.filterOptions}
         getOptionLabel={(option) => option.label}
         PopperComponent={customPopper}
         renderInput={(params) => {

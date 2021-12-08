@@ -15,7 +15,7 @@ import {
 import { brown } from "@mui/material/colors";
 import { styled } from "@mui/material/styles";
 
-import ProjectModeSelect from "./ProjectModeSelect";
+// import ProjectModeSelect from "./ProjectModeSelect";
 import ErrorHandler from "../ErrorHandler";
 
 import { ProjectAPI } from "../api/index.js";
@@ -24,8 +24,6 @@ import {
   mapDispatchToProps,
   projectModes,
 } from "../globals.js";
-
-import "./ReviewZone.css";
 
 const PREFIX = "ProjectInfo";
 
@@ -102,12 +100,12 @@ const ProjectInit = (props) => {
   });
 
   // handle project type/mode change
-  const onModeChange = (event) => {
-    setInfo({
-      ...info,
-      mode: event.target.value,
-    });
-  };
+  // const onModeChange = (event) => {
+  //   setInfo({
+  //     ...info,
+  //     mode: event.target.value,
+  //   });
+  // };
 
   const onChange = (evt) => {
     if (error.code) {
@@ -204,6 +202,7 @@ const ProjectInit = (props) => {
         <DialogContent dividers={true}>
           {/* The actual form */}
           <form noValidate autoComplete="off">
+            {/*
             <div className={classes.textfieldItem}>
               <ProjectModeSelect
                 mode={info.mode}
@@ -212,7 +211,7 @@ const ProjectInit = (props) => {
                 showSimulate={showSimulate}
               />
             </div>
-
+            */}
             {showSimulate && (
               <Box>
                 <Typography color="error" className={classes.textfieldItem}>
