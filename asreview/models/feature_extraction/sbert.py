@@ -42,7 +42,7 @@ class SBERT(BaseFeatureExtraction):
     Sentence BERT is a sentence embedding model that is trained on a large
     corpus of human written text. It is a fast and accurate model that can
     be used for many tasks.
-    
+
     The huggingface library includes multilingual text classification models. If
     your dataset contains records with multiple languages, you can use the
     ``transformer_model`` parameter to select the model that is most suitable
