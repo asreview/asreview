@@ -55,16 +55,26 @@ class SBERT(BaseFeatureExtraction):
         all optional ASReview dependencies with ``pip install asreview[all]``
         to install the package.
 
+    Parameters
+    ----------
+    transformer_model : str, optional
+        The transformer model to use.
+        Default: 'all-mpnet-base-v2'
 
     """
 
     name = "sbert"
     label = "Sentence BERT"
 
+    def __init__(self, *args, transformer_model='all-mpnet-base-v2', **kwargs):
+        """Initialize the SBERT feature extraction technique."""
+        super(SBERT, self).__init__(*args, **kwargs)
+        self.transformer_model = transformer_model
+
     def transform(self, texts):
 
         _check_st()
 
-        model = SentenceTransformer('all-mpnet-base-v2')
+        model = SentenceTransformer(self.transformer_model)
         X = np.array(model.encode(texts))
         return X
