@@ -26,9 +26,6 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: "16px",
   },
-  link: {
-    paddingLeft: "3px",
-  },
   file_type: {
     margin: theme.spacing(1),
     width: "100%",
@@ -127,9 +124,19 @@ const ExportDialog = (props) => {
         </Box>
         {exportFileType === "ris" && (
           <Alert severity="info">
-            Experimental. RIS export is a new export option and might be further improved.
-            Feedback is welcome and can be sent to asreview@uu.nl or posted on the
-            <Link className={classes.link} href={"https://github.com/asreview/asreview/discussions"} target="_blank">Discussion platform</Link>.
+            Experimental. RIS export is a new option and might be further
+            improved. You can send feedback to{" "}
+            <Link href={"mailto:asreview@uu.nl"} target="_blank">
+              asreview@uu.nl
+            </Link>{" "}
+            or post it on{" "}
+            <Link
+              href={"https://github.com/asreview/asreview/discussions"}
+              target="_blank"
+            >
+              GitHub Discussions
+            </Link>
+            .
           </Alert>
         )}
         {error.message && <Alert severity="error">{error["message"]}</Alert>}
@@ -139,8 +146,8 @@ const ExportDialog = (props) => {
         {donateURL !== undefined && (
           <Typography>
             Our software is made with love and freely available for everyone.
-            Help the development of the ASReview with a donation:
-            <Link className={classes.link} href={donateURL} target="_blank">
+            Help the development of the ASReview with a donation:{" "}
+            <Link href={donateURL} target="_blank">
               asreview.nl/donate
             </Link>
           </Typography>
