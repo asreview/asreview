@@ -127,8 +127,9 @@ const ExportDialog = (props) => {
         </Box>
         {exportFileType === "ris" && (
           <Alert severity="info">
-            Experimental feature: available only if you imported a RIS file
-            when creating the project
+            Experimental. RIS export is a new export option and might be further improved.
+            Feedback is welcome and can be sent to asreview@uu.nl or posted on the
+            <Link className={classes.link} href={"https://github.com/asreview/asreview/discussions"} target="_blank">Discussion platform</Link>.
           </Alert>
         )}
         {error.message && <Alert severity="error">{error["message"]}</Alert>}
