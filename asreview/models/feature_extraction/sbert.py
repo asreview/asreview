@@ -34,9 +34,19 @@ def _check_st():
 class SBERT(BaseFeatureExtraction):
     """Sentence BERT feature extraction technique.
 
-    Feature extraction technique based on Sentence BERT. Implementation based on
-    the `sentence_transformers <https://github.com/UKPLab/sentence-
-    transformers>`__ package. It is relatively slow.
+    By setting the ``transformer_model`` parameter, you can use other
+    transformer models. For example, ``transformer_model='bert-base-nli-stsb-
+    large'``. For a list of available models, see the `Sentence BERT
+    documentation <https://huggingface.co/sentence-transformers>`__.
+
+    Sentence BERT is a sentence embedding model that is trained on a large
+    corpus of human written text. It is a fast and accurate model that can
+    be used for many tasks.
+    
+    The huggingface library includes multilingual text classification models. If
+    your dataset contains records with multiple languages, you can use the
+    ``transformer_model`` parameter to select the model that is most suitable
+    for your data.
 
     .. note::
 
