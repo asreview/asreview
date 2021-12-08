@@ -49,8 +49,8 @@ from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
-from asreview.search import fuzzy_find
 from asreview.search import SearchError
+from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
