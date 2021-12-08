@@ -59,8 +59,9 @@ const ProjectUploadPluginDatasets = (props) => {
     <Box className={classes.cards}>
       {state.loaded && error.message === null && (
         <Box>
-          {state.datasets.map((dataset) => (
+          {state.datasets.map((dataset, index) => (
             <PluginDataset
+              key={index}
               dataset={dataset}
               onUploadHandler={props.onUploadHandler}
             />
