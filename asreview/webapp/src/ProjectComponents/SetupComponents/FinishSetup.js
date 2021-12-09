@@ -12,35 +12,35 @@ import { InlineErrorHandler } from "../../Components";
 import { mapStateToProps } from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.png";
-import Start from "../../images/QuickTour/3_StartReviewing.svg";
-import Benefit from "../../images/QuickTour/4_BenefitFromAIAssisted.svg";
-import DontStress from "../../images/QuickTour/5_DontStress.svg";
-import Done from "../../images/QuickTour/6_DoneItsYourChoice.svg";
-import Publish from "../../images/QuickTour/7_PublishYourWork.svg";
+import PreparingProject from "../../images/FinishSetup_1_PreparingProject.svg";
+import BenefitFromAI from "../../images/FinishSetup_2_BenefitFromAI.svg";
+import Autosave from "../../images/FinishSetup_3_Autosave.svg";
+import FinishReview from "../../images/FinishSetup_4_FinishReview.svg";
+import OpenScience from "../../images/FinishSetup_5_OpenScience.svg";
 
 const images = [
   {
-    imgPath: Start,
+    imgPath: PreparingProject,
     textTitle: "Preparing your project",
     text: "Soon you can start reviewing the displayed text and decide whether it is relevant or not.",
   },
   {
-    imgPath: Benefit,
+    imgPath: BenefitFromAI,
     textTitle: "Benefit from AI-assisted reviewing",
     text: "After each decision, the predicted ranking of records is updated and you will see the most relevant record next (default).",
   },
   {
-    imgPath: DontStress,
+    imgPath: Autosave,
     textTitle: "Autosave",
     text: "Your screening decisions are automatically saved on your own device.",
   },
   {
-    imgPath: Done,
+    imgPath: FinishReview,
     textTitle: "Done reviewing? It's your choice!",
     text: "You decide when to stop the reviewing process (but hopefully before you have reached the end of your dataset).",
   },
   {
-    imgPath: Publish,
+    imgPath: OpenScience,
     textTitle: "Love Open Science",
     text: "Share the ASReview project file to enhance transparency and reproducibility.",
   },

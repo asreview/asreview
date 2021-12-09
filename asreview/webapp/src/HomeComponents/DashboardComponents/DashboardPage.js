@@ -11,7 +11,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
-import { ProjectImportDialog, QuickTourDialog } from "../../Components";
+import { ProjectImportDialog } from "../../Components";
 import { NumberCard, ProjectTable } from "../DashboardComponents";
 import {
   CloseSetupInfoBar,
@@ -183,8 +183,6 @@ const DashboardPage = (props) => {
           }}
         />
       </SpeedDial>
-
-      <QuickTourDialog />
     </Root>
   );
 };
