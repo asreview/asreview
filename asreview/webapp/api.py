@@ -207,9 +207,6 @@ def api_get_projects_stats():  # noqa: F401
 
     project_stats = dict(stats_counter)
 
-    for keys in project_stats:
-        project_stats[keys] = int(project_stats[keys])
-
     response = jsonify({"result": project_stats})
     response.headers.add('Access-Control-Allow-Origin', '*')
 
