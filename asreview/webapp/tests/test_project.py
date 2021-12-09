@@ -42,9 +42,16 @@ def test_project_file(tmp_path, client, url):
     project_id = json_data_import["id"]
     api_url = f"/api/project/{project_id}"
 
-    # Test convert project if old
-    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
-    assert response_convert_if_old.status_code == 200
+    # Test get dashboard analytics
+    response_stats = client.get("/api/projects/stats")
+    json_data_stats = response_stats.get_json()
+
+    assert "result" in json_data_stats
+    assert "n_in_review" in json_data_stats["result"]
+    assert "n_finished" in json_data_stats["result"]
+    assert "n_reviewed" in json_data_stats["result"]
+    assert "n_included" in json_data_stats["result"]
+    assert isinstance(json_data_stats["result"], dict)
 
     # Test get projects
     response_projects = client.get("/api/projects")
@@ -54,6 +61,10 @@ def test_project_file(tmp_path, client, url):
         item["id"] == project_id
         for item in json_data_projects["result"]
     )
+
+    # Test convert project if old
+    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
+    assert response_convert_if_old.status_code == 200
 
     # Test get info on the project
     response_get_info = client.get(f"{api_url}/info")
