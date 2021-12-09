@@ -485,11 +485,11 @@ def get_statistics(project_id):
             labels = np.array([])
             n_records = 0
 
-    n_included = sum(labels == 1)
-    n_excluded = sum(labels == 0)
+    n_included = int(sum(labels == 1))
+    n_excluded = int(sum(labels == 0))
 
     if len(labels) > 0:
-        n_since_last_relevant = labels.tolist()[::-1].index(1)
+        n_since_last_relevant = int(labels.tolist()[::-1].index(1))
     else:
         n_since_last_relevant = 0
 
