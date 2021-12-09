@@ -21,7 +21,7 @@ any time during the screening process. To download your results:
 
 .. warning::
 
-    A `ris` file can only be exported if a `ris` file is imported.
+    A RIS file can only be exported if a RIS file is imported.
 
 Three columns will be added to your dataset:
 
