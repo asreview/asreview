@@ -28,14 +28,3 @@ def test_fuzzy_finder(keywords, paper_id):
     as_data = ASReviewData.from_file(fp)
 
     assert fuzzy_find(as_data, keywords)[0] == paper_id
-
-
-@mark.parametrize("data_name", [
-    "benchmark:van_de_Schoot_2017",
-    "benchmark:Hall_2012",
-    "benchmark:Cohen_2006_ACEInhibitors",
-    "benchmark:Bos_2018",
-])
-def test_datasets(data_name):
-    data = DatasetManager().find(data_name)
-    assert exists(data.get())

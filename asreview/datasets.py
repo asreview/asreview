@@ -44,10 +44,10 @@ def _download_from_metadata(url):
     for data in meta_data.values():
 
         # raise error on versioned datasets
-        if data["type"] == "versioned":
+        if "type" in data and data["type"] == "versioned":
             raise ValueError("Datasets of type 'versioned' are deprecated")
 
-        datasets.append(BaseDataSet.from_config(data))
+        datasets.append(BaseDataSet(**data))
 
     return datasets
 
@@ -55,20 +55,20 @@ def _download_from_metadata(url):
 class BaseDataSet():
 
     def __init__(self,
-            dataset_id,
-            filepath,
-            title,
-            description=None,
-            authors=None,
-            topic=None,
-            link=None,
-            reference=None,
-            img_url=None,
-            license=None,
-            year=None,
-            aliases=[]
-            **kwargs
-            ):
+                 dataset_id,
+                 filepath,
+                 title,
+                 description=None,
+                 authors=None,
+                 topic=None,
+                 link=None,
+                 reference=None,
+                 img_url=None,
+                 license=None,
+                 year=None,
+                 aliases=[],
+                 **kwargs
+                 ):
         """Base class for metadata of dataset.
 
         A BaseDataSet is a class with metadata about a (labeled)
@@ -170,16 +170,10 @@ class BaseDataGroup():
         self.datasets = list(datasets)
 
     def __str__(self):
-        return f"<BaseDataGroup dataset_id='{self.dataset_id}' title='{self.title}'>"  # noqa
-
-
-        "".join([
-            f"*******  {str(data.dataset_id)}  *******\n"
-            f"{str(data)}\n\n" for data in self._data_sets
-        ])
+        return f"<BaseDataGroup group_id='{self.group_id}'>"
 
     def __dict__(self):
-        return {data.dataset_id: data for data in self._data_sets}
+        return {d.dataset_id: d for d in self.datasets}
 
     def append(self, dataset):
         """Append dataset to group.
@@ -191,7 +185,7 @@ class BaseDataGroup():
             raise ValueError(
                 "Expected BaseDataSet or subclass of BaseDataSet."
             )
-        self._data_sets.append(dataset)
+        self.datasets.append(dataset)
 
     def find(self, dataset_id):
         """Find dataset in the group.
@@ -200,7 +194,7 @@ class BaseDataGroup():
         ----------
         dataset_id: str
             Identifier of the dataset to look for. It can also be one
-            of the aliases.
+            of the aliases. Case insensitive.
 
         Returns
         -------
@@ -208,8 +202,9 @@ class BaseDataGroup():
             Returns base dataset with the given dataset_id.
         """
         results = []
-        for d in self._data_sets:
-            if data_name.lower() in d.aliases:
+        for d in self.datasets:
+            if dataset_id.lower() == d.dataset_id.lower() or \
+                    dataset_id.lower() in [a.lower() for a in d.aliases]:
                 results.append(d)
 
         if len(results) > 1:
@@ -233,16 +228,16 @@ class DatasetManager():
 
         return list(entry_points.keys())
 
-    def find(self, dataset_name):
+    def find(self, dataset_id):
         """Find a dataset.
 
         Parameters
         ----------
-        dataset_name: str, iterable
+        dataset_id: str, iterable
             Look for this term in aliases within any dataset. A group can
-            be specified by setting dataset_name to 'group_id:dataset_id'.
+            be specified by setting dataset_id to 'group_id:dataset_id'.
             This can be helpful if the dataset_id is not unique.
-            The dataset_name can also be a non-string iterable, in which case
+            The dataset_id can also be a non-string iterable, in which case
             a list will be returned with all terms.
             Dataset_ids should not contain semicolons (:).
             Return None if the dataset could not be found.
@@ -253,34 +248,34 @@ class DatasetManager():
             If the dataset with that name is found, return it
             (or a list there of).
         """
-        # If dataset_name is a non-string iterable, return a list.
-        if is_iterable(dataset_name):
-            return [self.find(x) for x in dataset_name]
+        # If dataset_id is a non-string iterable, return a list.
+        if is_iterable(dataset_id):
+            return [self.find(x) for x in dataset_id]
 
-        # If dataset_name is a valid path, create a dataset from it.
-        if Path(dataset_name).is_file():
-            return BaseDataSet(dataset_name)
+        # If dataset_id is a valid path, create a dataset from it.
+        if Path(dataset_id).is_file():
+            return BaseDataSet(dataset_id)
 
-        dataset_name = str(dataset_name)
+        dataset_id = str(dataset_id)
 
         # get installed dataset groups
         dataset_groups = get_entry_points('asreview.datasets')
 
         # Split into group/dataset if possible.
-        split_dataset_id = dataset_name.split(":")
+        split_dataset_id = dataset_id.split(":")
         if len(split_dataset_id) == 2:
             data_group = split_dataset_id[0]
-            split_dataset_name = split_dataset_id[1]
+            split_dataset_id = split_dataset_id[1]
             if data_group in self.groups:
                 return dataset_groups[data_group].load()() \
-                    .find(split_dataset_name)
+                    .find(split_dataset_id)
 
         # Look through all available/installed groups for the name.
         all_results = {}
-        for group_name, dataset_entry in dataset_groups.items():
+        for group_id, dataset_entry in dataset_groups.items():
             try:
-                all_results[group_name] = \
-                    dataset_entry.load()().find(dataset_name)
+                all_results[group_id] = \
+                    dataset_entry.load()().find(dataset_id)
             except Exception:
                 # don't raise error on loading entry point
                 pass
@@ -297,17 +292,17 @@ class DatasetManager():
 
         # Could not find dataset
         raise DataSetNotFoundError(
-            f"Dataset {dataset_name} not found"
+            f"Dataset {dataset_id} not found"
         )
 
-    def list(self, group_name=None, latest_only=True, raise_on_error=False):
+    def list(self, group_id=None, latest_only=True, raise_on_error=False):
         """List the available datasets.
 
         Parameters
         ----------
-        group_name: str, iterable
+        group_id: str, iterable
             List only datasets in the group(s) with that name. Lists all
-            groups if group_name is None.
+            groups if group_id is None.
         latest_only: bool
             Only include the latest version of the dataset.
         raise_on_error: bool
@@ -319,17 +314,17 @@ class DatasetManager():
             Dictionary with group names as keys and lists of datasets as
             values.
         """
-        if group_name is None:
-            group_names = self.groups
-        elif not is_iterable(group_name):
-            group_names = [group_name]
+        if group_id is None:
+            group_ids = self.groups
+        elif not is_iterable(group_id):
+            group_ids = [group_id]
         else:
-            group_names = group_name
+            group_ids = group_id
 
         dataset_groups = get_entry_points('asreview.datasets')
 
         dataset_list = {}
-        for group in group_names:
+        for group in group_ids:
             try:
                 dataset_list[group] = \
                     dataset_groups[group].load()().list(latest_only=latest_only)
@@ -347,7 +342,7 @@ class BenchmarkDataGroup(BaseDataGroup):
     description = "A collections of labeled datasets for benchmarking."
 
     def __init__(self):
-        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index.json"  # noqa
+        meta_file = "https://raw.githubusercontent.com/asreview/systematic-review-datasets/master/index_v1.json"  # noqa
         datasets = _download_from_metadata(meta_file)
 
         super(BenchmarkDataGroup, self).__init__(
@@ -360,7 +355,7 @@ class NaturePublicationDataGroup(BaseDataGroup):
     description = "Featured benchmarking datasets from the Nature publication."
 
     def __init__(self):
-        meta_file = "INSERT URL"  # noqa
+        meta_file = "https://raw.githubusercontent.com/asreview/paper-asreview/master/index_v1.json"  # noqa
         datasets = _download_from_metadata(meta_file)
 
         super(NaturePublicationDataGroup, self).__init__(
