@@ -42,7 +42,8 @@ def test_group_list():
 
     dm = DatasetManager()
 
-    nature_group = dm.list(include="benchmark-nature", raise_on_error=True, serialize=False)[0]
+    nature_group = dm.list(
+        include="benchmark-nature", raise_on_error=True, serialize=False)[0]
 
     assert len(nature_group.datasets) == 4
 

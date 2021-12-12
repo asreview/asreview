@@ -30,4 +30,3 @@ def get_data_statistics(project_id):
 
     # return full information on the records
     return result
-
