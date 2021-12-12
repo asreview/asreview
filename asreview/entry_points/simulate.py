@@ -134,7 +134,12 @@ class SimulateEntryPoint(BaseEntryPoint):
         init_project_folder_structure(args.state_file, project_mode='simulate')
 
         # Add the dataset to the project file.
-        as_data.to_csv(Path(get_data_path(args.state_file), f'{as_data.data_name}.csv'))
+        as_data.to_csv(
+            Path(
+                get_data_path(args.state_file),
+                Path(args.dataset).with_suffix(".csv").name
+            )
+        )
 
         # create a new settings object from arguments
         settings = ASReviewSettings(model=args.model,
