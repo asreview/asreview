@@ -145,7 +145,6 @@ class BaseReview(ABC):
                                 query_param=self.query_strategy.param,
                                 balance_param=self.balance_model.param,
                                 feature_param=self.feature_extraction.param,
-                                data_name=self.as_data.data_name,
                                 **extra_kwargs)
 
     def review(self):

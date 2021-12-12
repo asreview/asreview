@@ -38,10 +38,6 @@ class ASReviewData():
     ---------
     df: pandas.DataFrame
         Dataframe containing the data for the ASReview data object.
-    data_name: str
-        Give a name to the data object.
-    data_type: str
-        What kind of data the dataframe contains.
     column_spec: dict
         Specification for which column corresponds to which standard
         specification. Key is the standard specification, key is which column
@@ -79,12 +75,9 @@ class ASReviewData():
     """
 
     def __init__(self,
-                 df,
-                 data_name="empty",
-                 data_type="standard",
+                 df=None,
                  column_spec=None):
         self.df = df
-        self.data_name = data_name
         self.prior_idx = np.array([], dtype=int)
 
         self.max_idx = max(df.index.values) + 1
@@ -101,16 +94,6 @@ class ASReviewData():
 
         if "included" not in self.column_spec:
             self.column_spec["included"] = "included"
-
-        if "notes" not in self.column_spec:
-            self.column_spec["notes"] = "notes"
-
-        if data_type == "included":
-            self.labels = np.ones(len(self), dtype=int)
-        if data_type == "excluded":
-            self.labels = np.zeros(len(self), dtype=int)
-        if data_type == "prior":
-            self.prior_idx = df.index.values
 
     def __len__(self):
         if self.df is None:
@@ -134,7 +117,7 @@ class ASReviewData():
             encoding='UTF-8', errors='ignore')).hexdigest()
 
     @classmethod
-    def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
+    def from_file(cls, fp, read_fn=None):
         """Create instance from csv/ris/excel file.
 
         It works in two ways; either manual control where the conversion
@@ -148,24 +131,14 @@ class ASReviewData():
         read_fn: callable
             Function to read the file. It should return a standardized
             dataframe.
-        data_name: str
-            Name of the data.
-        data_type: str
-            What kind of data it is. Special names: 'included', 'excluded',
-            'prior'.
         """
         if is_url(fp):
             path = urlparse(fp).path
-            new_data_name = Path(path.split("/")[-1]).stem
         else:
             path = str(Path(fp).resolve())
-            new_data_name = Path(fp).stem
-
-        if data_name is None:
-            data_name = new_data_name
 
         if read_fn is not None:
-            return cls(read_fn(fp), data_name=data_name, data_type=data_type)
+            return cls(read_fn(fp))
 
         entry_points = {
             entry.name: entry
@@ -183,10 +156,7 @@ class ASReviewData():
 
         read_fn = entry_points[best_suffix].load()
         df, column_spec = read_fn(fp)
-        return cls(df,
-                   column_spec=column_spec,
-                   data_name=data_name,
-                   data_type=data_type)
+        return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
         """Create a record from an index.
