@@ -93,7 +93,7 @@ const BenchmarkDataset = (props) => {
               target="_blank"
               rel="noreferrer"
             >
-              {props.doi && props.doi}
+              {props.doi}
             </Link>
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
