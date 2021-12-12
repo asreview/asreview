@@ -108,7 +108,7 @@ const ProjectUploadDatasets = (props) => {
                     dataset_id={group.group_id + ":" + dataset.dataset_id}
                     authors={formatCitation(dataset.authors, dataset.year)}
                     description={dataset.topic}
-                    doi={dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
+                    doi={dataset.reference && dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
                     title={dataset.title}
                     license={dataset.license}
                     link={dataset.link}

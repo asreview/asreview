@@ -108,14 +108,15 @@ const BenchmarkDataset = (props) => {
               <Grid item xs={12}>
                 <Typography className={classes.heading} gutterBottom={true}>
                   DOI:
-                  <Link
-                    href={DOILink(props.doi)}
-                    className={classes.link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {props.doi}
-                  </Link>
+                  {props.doi && <Link
+                      href={DOILink(props.doi)}
+                      className={classes.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {props.doi}
+                    </Link>
+                  }
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={1}>
