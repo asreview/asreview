@@ -64,7 +64,6 @@ from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
-from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.project import _get_executable
@@ -311,11 +310,12 @@ def api_demo_data_project():  # noqa: F401
 
     subset = request.args.get('subset', None)
 
+    manager = DatasetManager()
+
     if subset == "plugin":
 
         try:
-            result_datasets = get_dataset_metadata(
-                exclude=["builtin", "benchmark"])
+            result_datasets = manager.list(exclude=["builtin", "benchmark"])
 
         except Exception as err:
             logging.error(err)
@@ -323,24 +323,24 @@ def api_demo_data_project():  # noqa: F401
 
     elif subset == "benchmark":
 
-        try:
-            # collect the datasets metadata
-            result_datasets = get_dataset_metadata(include="benchmark")
+        # try:
+        # collect the datasets metadata
+        result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
 
-            # mark the featured datasets
-            featured_dataset_ids = [
-                "van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors",
-                "Kwok_2020"
-            ]
-            for featured_id in featured_dataset_ids:
-                for i, dataset in enumerate(result_datasets):
-                    if result_datasets[i][
-                            "dataset_id"] == f"benchmark:{featured_id}":
-                        result_datasets[i]["featured"] = True
+        # # mark the featured datasets
+        # featured_dataset_ids = [
+        #     "van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors",
+        #     "Kwok_2020"
+        # ]
+        # for featured_id in featured_dataset_ids:
+        #     for i, dataset in enumerate(result_datasets):
+        #         if result_datasets[i][
+        #                 "dataset_id"] == f"benchmark:{featured_id}":
+        #             result_datasets[i]["featured"] = True
 
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to load benchmark datasets."), 500
+        # except Exception as err:
+        #     logging.error(err)
+        #     return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
         response = jsonify(message="demo-data-loading-failed")

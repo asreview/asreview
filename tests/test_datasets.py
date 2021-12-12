@@ -31,11 +31,22 @@ def test_group():
             startswith("https://raw.githubusercontent.com/asreview/paper-asreview")
 
 
+def test_group_to_dict():
+
+    group_nature = NaturePublicationDataGroup()
+
+    assert isinstance(group_nature.__dict__(), dict)
+
+
 def test_group_list():
 
     dm = DatasetManager()
 
-    for d in dm.list(group_id="benchmark-nature"):
+    nature_group = dm.list(include="benchmark-nature", raise_on_error=True, serialize=False)[0]
+
+    assert len(nature_group.datasets) == 4
+
+    for d in nature_group.datasets:
         assert d.filepath. \
             startswith("https://raw.githubusercontent.com/asreview/paper-asreview")
 

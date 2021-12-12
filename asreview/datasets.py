@@ -295,44 +295,69 @@ class DatasetManager():
             f"Dataset {dataset_id} not found"
         )
 
-    def list(self, group_id=None, latest_only=True, raise_on_error=False):
+    def list(self, include=None, exclude=None, serialize=True, raise_on_error=False):
         """List the available datasets.
 
         Parameters
         ----------
-        group_id: str, iterable
-            List only datasets in the group(s) with that name. Lists all
-            groups if group_id is None.
-        latest_only: bool
-            Only include the latest version of the dataset.
+        include: str, iterable
+            List of groups to include
+        exclude: str, iterable
+            List of groups to exclude from all groups.
+        serialize: bool
+            Make returned list serializable.
         raise_on_error: bool
             Raise error when entry point can't be loaded.
 
         Returns
         -------
-        dict:
-            Dictionary with group names as keys and lists of datasets as
-            values.
+        list:
+            List with datasets as values.
         """
-        if group_id is None:
-            group_ids = self.groups
-        elif not is_iterable(group_id):
-            group_ids = [group_id]
+
+        if include is not None and exclude is not None:
+            raise ValueError("Cannot exclude groups when include is not None.")
+
+        if include is not None:
+            if not is_iterable(include):
+                include = [include]
+            groups = include
+        elif exclude is not None:
+            if not is_iterable(include):
+                exclude = [exclude]
+            groups = self.groups.copy()
+            for group_id in exclude:
+                try:
+                    groups.remove(group_id)
+                except ValueError:
+                    pass
         else:
-            group_ids = group_id
+            groups = self.groups.copy()
 
         dataset_groups = get_entry_points('asreview.datasets')
 
-        dataset_list = {}
-        for group in group_ids:
+        dataset_list = []
+        for group in groups:
             try:
-                dataset_list[group] = \
-                    dataset_groups[group].load()().list(latest_only=latest_only)
+                dataset_list.append(dataset_groups[group].load()())
             except Exception as err:
 
                 # don't raise error on loading entry point
                 if raise_on_error:
                     raise err
+
+        if serialize:
+            dataset_list_ser = []
+            for data_group in dataset_list:
+                group_ser = []
+                for dataset in data_group.datasets:
+                    group_ser.append(dataset.__dict__())
+                dataset_list_ser.append({
+                    "group_id": data_group.group_id,
+                    "datasets": group_ser
+                })
+
+            return dataset_list_ser
 
         return dataset_list
 
