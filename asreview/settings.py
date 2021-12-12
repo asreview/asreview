@@ -96,7 +96,9 @@ class ASReviewSettings(object):
                  query_param={},
                  balance_param={},
                  feature_param={},
-                 data_fp=None):
+                 data_fp=None,
+                 data_name=None  # deprecated
+                 ):
 
         self.mode = mode
         self.model = model
