@@ -49,6 +49,7 @@ from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
+from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
 from asreview.state.errors import StateNotFoundError
@@ -66,10 +67,10 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import ProjectNotFoundError
+from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import add_review_to_project
-from asreview.webapp.utils.project import create_project_id
 from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
@@ -78,6 +79,8 @@ from asreview.webapp.utils.project import get_statistics
 from asreview.webapp.utils.project import import_project_file
 from asreview.webapp.utils.project import init_project
 from asreview.webapp.utils.project import label_instance
+from asreview.webapp.utils.project import remove_dataset_from_project
+from asreview.webapp.utils.project import rename_project
 from asreview.webapp.utils.project import update_instance
 from asreview.webapp.utils.project import update_project_info
 from asreview.webapp.utils.project import update_review_in_project
@@ -218,7 +221,7 @@ def api_init_project():  # noqa: F401
     project_description = request.form['description']
     project_authors = request.form['authors']
 
-    project_id = create_project_id(project_name)
+    project_id = _create_project_id(project_name)
 
     project_config = init_project(project_id,
                                   project_mode=project_mode,
@@ -289,17 +292,16 @@ def api_get_project_info(project_id):  # noqa: F401
 def api_update_project_info(project_id):  # noqa: F401
     """Get info on the article"""
 
-    project_name = request.form['name']
-    project_mode = request.form['mode']
-    project_description = request.form['description']
-    project_authors = request.form['authors']
+    # rename the project if project name is changed
+    if request.form.get('name', None) is not None:
+        project_id_new = rename_project(project_id, request.form['name'])
 
-    project_id_new = update_project_info(
-        project_id,
-        project_mode=project_mode,
-        project_name=project_name,
-        project_description=project_description,
-        project_authors=project_authors)
+    # update the project info
+    update_project_info(
+        project_id_new,
+        mode=request.form['mode'],
+        description=request.form['description'],
+        authors=request.form['authors'])
 
     return api_get_project_info(project_id_new)
 
@@ -343,13 +345,22 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["POST"])
+@bp.route('/project/<project_id>/data', methods=["POST", "PUT"])
 def api_upload_data_to_project(project_id):  # noqa: F401
     """Get info on the article"""
     project_path = get_project_path(project_id)
 
     # get the project config to modify behavior of dataset
     project_config = get_project_config(project_id)
+
+    # remove old dataset if present
+    if "dataset_path" in project_config and \
+            project_config["dataset_path"] is not None:
+        logging.warning("Removing old dataset and adding new dataset.")
+        remove_dataset_from_project(project_id)
+
+    # create dataset folder if not present
+    get_data_path(project_path).mkdir(exist_ok=True)
 
     if request.form.get('plugin', None):
         url = DatasetManager().find(request.form['plugin']).filepath
@@ -500,6 +511,10 @@ def api_search_data(project_id):  # noqa: F401
                     "keywords": paper.keywords,
                     "included": int(paper.included)
                 })
+
+    except SearchError as search_err:
+        logging.error(search_err)
+        return jsonify(message=f"Error: {search_err}"), 500
 
     except Exception as err:
         logging.error(err)
@@ -875,15 +890,7 @@ def api_init_model_ready(project_id):  # noqa: F401
         try:
             with open_state(project_path) as state:
                 if state.model_has_trained:
-                    # read the file with project info
-                    with open(get_project_file_path(project_path), "r") as fp:
-                        project_info = json.load(fp)
-
-                    project_info["projectInitReady"] = True
-
-                    # update the file with project info
-                    with open(get_project_file_path(project_path), "w") as fp:
-                        json.dump(project_info, fp)
+                    update_project_info(project_id, projectInitReady=True)
 
                     response = jsonify({'status': 1})
                 else:

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -118,10 +118,13 @@ const columns = [
 ];
 
 const ProjectTable = (props) => {
+  const queryClient = useQueryClient();
+
   const [page, setPage] = useState(0);
   const [hoverRowId, setHoverRowId] = useState(null);
   const [hoverRowIdPersistent, setHoverRowIdPersistent] = useState(null);
   const [hoverRowTitle, setHoverRowTitle] = useState(null);
+  const [onProject, setOnProject] = useState(false);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
@@ -144,13 +147,14 @@ const ProjectTable = (props) => {
     ["fetchConvertProjectIfOld", { project_id: props.project_id }],
     ProjectAPI.fetchConvertProjectIfOld,
     {
-      enabled: props.project_id !== null && !props.onCreateProject,
+      enabled: onProject && props.project_id !== null,
       onError: () => {
         props.handleAppState("home");
       },
       onSuccess: () => {
         props.handleAppState("project-page");
       },
+      onSettled: () => setOnProject(false),
       refetchOnWindowFocus: false,
     }
   );
@@ -261,25 +265,46 @@ const ProjectTable = (props) => {
                   const onClickProjectAnalytics = () => {
                     console.log("Opening existing project " + row.id);
                     props.setProjectId(row.id);
-                    props.handleNavState("analytics");
+                    if (!row["projectInitReady"]) {
+                      // when project is in setup
+                      props.handleProjectSetup();
+                    } else {
+                      setOnProject(true);
+                      props.handleNavState("analytics");
+                    }
                   };
 
                   const onClickProjectReview = () => {
                     console.log("Opening existing project " + row.id);
+                    setOnProject(true);
                     props.setProjectId(row.id);
                     props.handleNavState("review");
                   };
 
                   const onClickProjectExport = () => {
-                    console.log("Opening existing project " + row.id);
-                    props.setProjectId(row.id);
-                    props.handleNavState("export");
+                    if (!row["projectInitReady"]) {
+                      queryClient.prefetchQuery(
+                        ["fetchExportProject", { project_id: row.id }],
+                        ProjectAPI.fetchExportProject
+                      );
+                    } else {
+                      console.log("Opening existing project " + row.id);
+                      setOnProject(true);
+                      props.setProjectId(row.id);
+                      props.handleNavState("export");
+                    }
                   };
 
                   const onClickProjectDetails = () => {
                     console.log("Opening existing project " + row.id);
                     props.setProjectId(row.id);
-                    props.handleNavState("details");
+                    if (!row["projectInitReady"]) {
+                      // when project is in setup
+                      props.handleProjectSetup();
+                    } else {
+                      setOnProject(true);
+                      props.handleNavState("details");
+                    }
                   };
                   return (
                     <TableRow

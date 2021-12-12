@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import {
   Backdrop,
@@ -13,7 +13,11 @@ import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
 import { ProjectImportDialog, QuickTourDialog } from "../../Components";
 import { NumberCard, ProjectTable } from "../DashboardComponents";
-import { ProjectInfo } from "../../PreReviewComponents";
+import {
+  CloseSetupInfoBar,
+  SetupDialog,
+} from "../../ProjectComponents/SetupComponents";
+import { useToggle } from "../../hooks/useToggle";
 
 const PREFIX = "DashboardPage";
 
@@ -45,15 +49,19 @@ const Root = styled("div")(({ theme }) => ({
 const mapStateToProps = (state) => {
   return {
     nav_state: state.nav_state,
+    project_id: state.project_id,
   };
 };
 
 const DashboardPage = (props) => {
-  const [open, setOpen] = useState({
+  const [open, setOpen] = React.useState({
     dial: false,
     newProject: false,
     importProject: false,
   });
+
+  const [newProjectTitle, setNewProjectTitle] = React.useState("");
+  const [infoBar, toggleInfoBar] = useToggle();
 
   const handleOpen = () => {
     setOpen({
@@ -100,6 +108,13 @@ const DashboardPage = (props) => {
     }
   };
 
+  const handleProjectSetup = () => {
+    setOpen({
+      ...open,
+      newProject: true,
+    });
+  };
+
   return (
     <Root aria-label="dashboard page">
       <Container maxWidth="md">
@@ -107,7 +122,7 @@ const DashboardPage = (props) => {
           <NumberCard />
           <ProjectTable
             handleClickAdd={handleClickAdd}
-            onCreateProject={open.newProject}
+            handleProjectSetup={handleProjectSetup}
             handleAppState={props.handleAppState}
             handleNavState={props.handleNavState}
             onNavDrawer={props.onNavDrawer}
@@ -116,20 +131,27 @@ const DashboardPage = (props) => {
         </Stack>
       </Container>
 
-      {open.newProject && (
-        <ProjectInfo
-          handleAppState={props.handleAppState}
-          open={open.newProject}
-          onClose={handleCloseNewProject}
-        />
-      )}
-
       {open.importProject && (
         <ProjectImportDialog
           open={open.importProject}
           onClose={handleCloseProjectImport}
         />
       )}
+
+      <SetupDialog
+        handleAppState={props.handleAppState}
+        handleNavState={props.handleNavState}
+        open={open.newProject}
+        onClose={handleCloseNewProject}
+        setNewProjectTitle={setNewProjectTitle}
+        toggleInfoBar={toggleInfoBar}
+      />
+      <CloseSetupInfoBar
+        onClose={toggleInfoBar}
+        open={infoBar}
+        setNewProjectTitle={setNewProjectTitle}
+        info={`Your project ${newProjectTitle} has been saved as draft`}
+      />
 
       {/* Add button for new or importing project */}
       <Backdrop open={open.dial} className={classes.backdropZ} />

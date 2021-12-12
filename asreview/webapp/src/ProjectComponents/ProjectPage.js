@@ -101,13 +101,6 @@ const ProjectPage = (props) => {
     }
   };
 
-  // for temporary use
-  React.useEffect(() => {
-    if (data && !data.projectInitReady) {
-      props.handleAppState("project-page-old");
-    }
-  });
-
   return (
     <Root aria-label="project page">
       <NavigationDrawer
