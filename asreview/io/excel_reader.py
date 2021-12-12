@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.io.utils import _standardize_dataframe
-
 import pandas as pd
+
 from asreview.config import COLUMN_DEFINITIONS
+from asreview.io.utils import _standardize_dataframe
 
 
 def read_excel(fp):

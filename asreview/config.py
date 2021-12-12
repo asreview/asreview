@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ASCII_LOGO = """
+            _____ _____            _
+     /\    / ____|  __ \          (_)
+    /  \  | (___ | |__) |_____   ___  _____      __
+   / /\ \  \___ \|  _  // _ \ \ / / |/ _ \ \ /\ / /
+  / ____ \ ____) | | \ \  __/\ V /| |  __/\ V  V /
+ /_/    \_\_____/|_|  \_\___| \_/ |_|\___| \_/\_/
+"""  # noqa
+
 AVAILABLE_CLI_MODI = ["simulate"]
 AVAILABLE_REVIEW_CLASSES = ["simulate", "minimal"]
 
@@ -53,6 +62,7 @@ COLUMN_DEFINITIONS = {
     "title": ["title", "primary_title"],
     "authors": ["authors", "author names", "first_authors"],
     "abstract": ["abstract", "abstract note", "notes_abstract"],
+    "notes": ["notes"],
     "keywords": ["keywords"],
     "doi": ["doi"],
 }

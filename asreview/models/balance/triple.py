@@ -17,8 +17,8 @@ import logging
 import numpy as np
 
 from asreview.models.balance.base import BaseBalance
-from asreview.models.balance.double import _one_weight
 from asreview.models.balance.double import DoubleBalance
+from asreview.models.balance.double import _one_weight
 from asreview.models.balance.double import _zero_weight
 from asreview.models.balance.double import fill_training
 from asreview.models.balance.double import random_round
@@ -27,6 +27,8 @@ from asreview.utils import get_random_state
 
 class TripleBalance(BaseBalance):
     """Triple balance strategy.
+
+    Broken. Only for internal and experimental use.
 
     This divides the training data into three sets: included papers, excluded
     papers found with random sampling and papers found with max sampling. They
@@ -74,6 +76,7 @@ class TripleBalance(BaseBalance):
                  shuffle=True,
                  random_state=None):
         """Initialize the triple balance strategy."""
+
         super(TripleBalance, self).__init__()
         self.a = a
         self.alpha = alpha

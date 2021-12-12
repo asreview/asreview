@@ -19,20 +19,19 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.sparse.csr import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
+from scipy.sparse.csr import csr_matrix
 
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
 from asreview.state.base import BaseState
-from asreview.state.errors import StateNotFoundError
 from asreview.state.errors import StateError
-from asreview.state.paths import get_sql_path
+from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_feature_matrix_path
-from asreview.state.paths import get_settings_metadata_path
 from asreview.state.paths import get_project_file_path
-
+from asreview.state.paths import get_settings_metadata_path
+from asreview.state.paths import get_sql_path
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -41,18 +40,20 @@ REQUIRED_TABLES = [
     "record_table",
     # the latest probabilities.
     "last_probabilities",
+    # the latest ranking.
+    "last_ranking",
     # the record ids whose labeling decision was changed.
     "decision_changes"
 ]
 
 RESULTS_TABLE_COLUMNS = [
-    "record_id", "label", "classifier", "query_strategy",
-    "balance_strategy", "feature_extraction", "training_set",
-    "labeling_time", "notes"
+    "record_id", "label", "classifier", "query_strategy", "balance_strategy",
+    "feature_extraction", "training_set", "labeling_time", "notes"
 ]
 SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
 
 
+# TODO(State): Update docstring.
 class SqlStateV1(BaseState):
     """Class for storing the review state with HDF5 storage.
 
@@ -73,9 +74,6 @@ class SqlStateV1(BaseState):
         Number of priors. If priors have not been selected returns None.
 
     """
-
-    # TODO(State): Implement undo feature.
-
     def __init__(self, read_only=True):
         super(SqlStateV1, self).__init__(read_only=read_only)
 
@@ -188,6 +186,18 @@ class SqlStateV1(BaseState):
             cur.execute("""CREATE TABLE last_probabilities
                                 (proba REAL)""")
 
+            # Create the last_ranking table.
+            cur.execute('''CREATE TABLE last_ranking
+                                (record_id INTEGER,
+                                ranking INT,
+                                classifier TEXT,
+                                query_strategy TEXT,
+                                balance_strategy TEXT,
+                                feature_extraction TEXT,
+                                training_set INTEGER,
+                                time INTEGER)''')
+
+            # Create the table of changed decisions.
             cur.execute('''CREATE TABLE decision_changes
                                 (record_id INTEGER,
                                 new_label INTEGER,
@@ -375,13 +385,8 @@ class SqlStateV1(BaseState):
 
     @property
     def n_records_labeled(self):
-
-        con = self._connect_to_sql()
-        cur = con.cursor()
-        cur.execute("SELECT COUNT (*) FROM results")
-        n_rows = cur.fetchone()
-        con.close()
-        return n_rows[0]
+        _, labeled, _ = self.get_pool_labeled_pending()
+        return len(labeled)
 
     @property
     def n_priors(self):
@@ -397,7 +402,22 @@ class SqlStateV1(BaseState):
             return None
         return n
 
-# Features, settings_metadata
+    @property
+    def exist_new_labeled_records(self):
+        """Return True if there were records labeled since the last time the
+        model training data was saved in the state. Also returns True if no
+        model was trained yet, but priors have been added."""
+        _, labeled, _ = self.get_pool_labeled_pending()
+        last_training_set = self.get_last_ranking()['training_set']
+        if last_training_set.empty:
+            return len(labeled) > 0
+        else:
+            return len(labeled) > last_training_set.iloc[0]
+
+    @property
+    def model_has_trained(self):
+        """Return True if there is data of a trained model in the state."""
+        return not self.get_last_ranking().empty
 
     def _update_project_with_feature_extraction(self, feature_extraction):
         """If the feature extraction method is set, update the project.json."""
@@ -440,6 +460,7 @@ class SqlStateV1(BaseState):
 
         con = self._connect_to_sql()
         cur = con.cursor()
+        cur.execute("DELETE FROM record_table")
         cur.executemany(
             """INSERT INTO record_table VALUES
                                             (?)""", record_sql_input)
@@ -466,6 +487,37 @@ class SqlStateV1(BaseState):
             """INSERT INTO last_probabilities VALUES
                                             (?)""", proba_sql_input)
         con.commit()
+
+    def add_last_ranking(self, ranking, classifier, query_strategy,
+                         balance_strategy, feature_extraction, training_set):
+        """Save the ranking of the last iteration of the model."""
+        record_ids = self.get_record_table()
+
+        if len(record_ids) != len(ranking):
+            raise ValueError("The ranking should have the same length as the "
+                             "record table.")
+
+        classifiers = [classifier for _ in record_ids]
+        query_strategies = [query_strategy for _ in record_ids]
+        balance_strategies = [balance_strategy for _ in record_ids]
+        feature_extractions = [feature_extraction for _ in record_ids]
+        training_sets = [int(training_set) for _ in record_ids]
+        ranking_times = [datetime.now()] * len(record_ids)
+
+        # Create the database rows.
+        db_rows = [(int(record_ids[i]), int(ranking[i]), classifiers[i],
+                    query_strategies[i], balance_strategies[i],
+                    feature_extractions[i], training_sets[i], ranking_times[i])
+                   for i in range(len(record_ids))]
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute("DELETE FROM last_ranking")
+        cur.executemany(
+            """INSERT INTO last_ranking VALUES
+                                    (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
+        con.commit()
+        con.close()
 
     def add_feature_matrix(self, feature_matrix):
         """Add feature matrix to project file.
@@ -503,16 +555,12 @@ class SqlStateV1(BaseState):
         """Add a text note to save with a labeled record."""
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.execute(
-            "UPDATE results SET notes = ? WHERE record_id = ?",
-            (note, record_id)
-        )
+        cur.execute("UPDATE results SET notes = ? WHERE record_id = ?",
+                    (note, record_id))
         con.commit()
         con.close()
 
-    def add_labeling_data(self, record_ids, labels, classifiers,
-                          query_strategies, balance_strategies,
-                          feature_extraction, training_sets, notes=None):
+    def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
         """Add all the data of one labeling action."""
 
         # TODO (State): Add custom datasets.
@@ -526,35 +574,49 @@ class SqlStateV1(BaseState):
         if notes is None:
             notes = [None for _ in record_ids]
 
+        lengths = [len(record_ids), len(labels), len(notes)]
         # Check that all input data has the same length.
-        lengths = [
-            len(record_ids),
-            len(labels),
-            len(classifiers),
-            len(query_strategies),
-            len(balance_strategies),
-            len(feature_extraction),
-            len(training_sets),
-            len(labeling_times),
-            len(notes)
-        ]
         if len(set(lengths)) != 1:
             raise ValueError("Input data should be of the same length.")
         n_records_labeled = len(record_ids)
 
-        # Create the database rows.
-        db_rows = [(int(record_ids[i]), int(labels[i]), classifiers[i],
-                    query_strategies[i], balance_strategies[i],
-                    feature_extraction[i], training_sets[i],
-                    labeling_times[i], notes[i])
-                   for i in range(n_records_labeled)]
+        pool, _, pending = self.get_pool_labeled_pending()
+
+        if prior:
+            # Check that the record_ids are in the pool.
+            if not all(record_id in pool.values for record_id in record_ids):
+                raise ValueError("Labeling priors, but not all "
+                                 "record_ids were found in the pool.")
+
+            query_strategies = ['prior' for _ in record_ids]
+            training_sets = [-1 for _ in record_ids]
+            data = [(int(record_ids[i]), int(labels[i]), query_strategies[i],
+                     training_sets[i], labeling_times[i], notes[i])
+                    for i in range(n_records_labeled)]
+
+            # If prior, we need to insert new records into the database.
+            query = ("INSERT INTO results (record_id, label, query_strategy, "
+                     "training_set, labeling_time, notes) "
+                     "VALUES (?, ?, ?, ?, ?, ?)")
+
+        else:
+            # Check that the record_ids are pending.
+            if not all(record_id in pending.values
+                       for record_id in record_ids):
+                raise ValueError("Labeling records, but not all "
+                                 "record_ids were pending.")
+
+            data = [(int(labels[i]), labeling_times[i], notes[i],
+                     int(record_ids[i])) for i in range(n_records_labeled)]
+
+            # If not prior, we need to update records.
+            query = ("UPDATE results SET label=?, labeling_time=?, "
+                     "notes=? WHERE record_id=?")
 
         # Add the rows to the database.
         con = self._connect_to_sql()
         cur = con.cursor()
-        cur.executemany(
-            """INSERT INTO results VALUES
-                                    (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
+        cur.executemany(query, data)
         con.commit()
         con.close()
 
@@ -570,17 +632,27 @@ class SqlStateV1(BaseState):
         cur = con.cursor()
 
         # Change the label.
-        cur.execute(
-            "UPDATE results SET label = ? WHERE record_id = ?",
-            (new_label, record_id)
-        )
+        cur.execute("UPDATE results SET label = ? WHERE record_id = ?",
+                    (new_label, record_id))
 
         # Add the change to the decision changes table.
-        cur.execute(
-            "INSERT INTO decision_changes VALUES (?,?, ?)",
-            (record_id, new_label, current_time)
-        )
+        cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
+                    (record_id, new_label, current_time))
 
+        con.commit()
+        con.close()
+
+    def delete_record_labeling_data(self, record_id):
+        """Delete the labeling data for the given record id."""
+        current_time = datetime.now()
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.execute('DELETE FROM results WHERE record_id=?', (record_id, ))
+
+        # Add the change to the decision changes table.
+        cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
+                    (record_id, None, current_time))
         con.commit()
         con.close()
 
@@ -597,46 +669,57 @@ class SqlStateV1(BaseState):
 
         Returns
         -------
-        pd.DataFrame:
-            Dataframe with column 'record_id' containing the record ids.
+        pd.Series:
+            Series with name 'record_id' containing the record ids.
         """
         con = self._connect_to_sql()
         record_table = pd.read_sql_query('SELECT * FROM record_table', con)
+        record_table = record_table['record_id']
         con.close()
         return record_table
 
-    def get_pool_labeled(self):
-        """Return the labeled and unlabeled records.
+    def get_pool_labeled_pending(self):
+        """Return the labeled and unlabeled records and the records pending a
+        labeling decision.
 
         Returns
         -------
-        tuple (pd.DataFrame, pd.DataFrame):
-            Returns a tuple (pool, labeled). Pool is a dataframe
-            containing the unlabeled record_ids, ordered by the last predicted
-            probabilities of the model. Labeled is a dataframe containing
-            the record_ids and labels of the labeled records, in the order
-            that they were labeled.
+        tuple (pd.Series, pd.DataFrame, pd.Series):
+            Returns a tuple (pool, labeled, pending). Pool is a series
+            containing the unlabeled, not pending record_ids, ordered by the
+            last predicted ranking of the model. Labeled is a dataframe
+            containing the record_ids and labels of the labeled records, in the
+            order that they were labeled. Pending is a series containing the
+            record_ids of the records whose label is pending.
         """
         con = self._connect_to_sql()
+
         query = """SELECT record_table.record_id, results.label,
-                results.rowid AS label_order, last_probabilities.proba
+                results.rowid AS label_order, results.classifier,
+                last_ranking.ranking
                 FROM record_table
                 LEFT JOIN results
                 ON results.record_id=record_table.record_id
-                LEFT JOIN last_probabilities
-                ON record_table.rowid=last_probabilities.rowid
+                LEFT JOIN last_ranking
+                ON record_table.rowid=last_ranking.rowid
                 """
+
         df = pd.read_sql_query(query, con)
         con.close()
         labeled = df.loc[~df['label'].isna()] \
             .sort_values('label_order') \
             .loc[:, ['record_id', 'label']] \
             .astype(int)
-        pool = df.loc[df['label'].isna()] \
-            .sort_values('proba', ascending=False) \
-            .loc[:, ['record_id']] \
+        pool = df.loc[df['label_order'].isna()] \
+            .sort_values('ranking') \
+            .loc[:, 'record_id'] \
             .astype(int)
-        return pool, labeled
+        pending = df.loc[df['label'].isna() & ~df['classifier'].isna()] \
+            .sort_values('label_order') \
+            .loc[:, 'record_id'] \
+            .astype(int)
+
+        return pool, labeled, pending
 
     def get_last_probabilities(self):
         """Get the probabilities produced by the last classifier.
@@ -651,6 +734,64 @@ class SqlStateV1(BaseState):
             'SELECT * FROM last_probabilities', con)
         con.close()
         return last_probabilities
+
+    def get_last_ranking(self):
+        """Get the ranking from the state."""
+        con = self._connect_to_sql()
+        last_ranking = pd.read_sql_query('SELECT * FROM last_ranking', con)
+        con.close()
+        return last_ranking
+
+    def _move_ranking_data_to_results(self, record_ids):
+        """Move the data with the given record_ids from the last_ranking table
+        to the results table.
+
+        Arguments
+        ---------
+        record_ids: list
+            List of record ids in last ranking whose model data should be added
+            to the results table.
+        """
+        if self.model_has_trained:
+            record_list = [(record_id, ) for record_id in record_ids]
+            con = self._connect_to_sql()
+            cur = con.cursor()
+            cur.executemany(
+                """INSERT INTO results (record_id, classifier, query_strategy,
+                balance_strategy, feature_extraction, training_set)
+                SELECT record_id, classifier, query_strategy,
+                balance_strategy, feature_extraction, training_set
+                FROM last_ranking
+                WHERE record_id=?""", record_list)
+            con.commit()
+            con.close()
+        else:
+            raise StateError("Save trained model data "
+                             "before using this function.")
+
+    def query_top_ranked(self, n):
+        """Get the top n instances from the pool according to the last ranking.
+        Add the model data to the results table.
+
+        Arguments
+        ---------
+        n: int
+            Number of instances.
+
+        Returns
+        -------
+        list
+            List of record_ids of the top n ranked records.
+        """
+        if self.model_has_trained:
+            pool, _, _ = self.get_pool_labeled_pending()
+            top_n_records = pool[:n].to_list()
+            self._move_ranking_data_to_results(top_n_records)
+        else:
+            raise StateError("Save trained model data "
+                             "before using this function.")
+
+        return top_n_records
 
     def get_data_by_query_number(self, query, columns=None):
         """Get the data of a specific query from the results table.
@@ -763,7 +904,7 @@ class SqlStateV1(BaseState):
         pd.Series:
             Series containing the labels at each labelling moment.
         """
-        return self.get_dataset('label')['label']
+        return self.get_dataset('label')['label'].dropna()
 
     def get_classifiers(self):
         """Get the classifiers from the state file.
@@ -834,7 +975,7 @@ class SqlStateV1(BaseState):
             If format='int' you get a UTC timestamp (integer number of
             microseconds), if it is 'datetime' you get datetime format.
         """
-        times = self.get_dataset('labeling_time')['labeling_time']
+        times = self.get_dataset('labeling_time')['labeling_time'].dropna()
 
         # Convert time to datetime format.
         if time_format == 'datetime':

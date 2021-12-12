@@ -14,12 +14,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
 
 const PREFIX = "RecordCard";
 
 const classes = {
-  root: `${PREFIX}-root`,
   loadedCard: `${PREFIX}-loadedCard`,
   loadingCard: `${PREFIX}-loadingCard`,
   alert: `${PREFIX}-alert`,
@@ -30,29 +30,26 @@ const classes = {
   note: `${PREFIX}-note`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    display: "flex",
-    flex: "1 0 auto",
-    margin: "auto",
-    maxWidth: 960,
-    marginTop: 40,
-    marginBottom: 40,
-    height: "50%",
-    width: "100%",
-    [theme.breakpoints.down("md")]: {
-      marginTop: 0,
-      marginBottom: 24,
-    },
+const Root = styled("div")(({ theme }) => ({
+  display: "flex",
+  flex: "1 0 auto",
+  margin: "auto",
+  maxWidth: 960,
+  paddingTop: 40,
+  paddingBottom: 40,
+  width: "100%",
+  height: "calc(100% - 88px)",
+  [theme.breakpoints.down("md")]: {
+    paddingTop: 0,
+    paddingBottom: 0,
   },
-
   [`& .${classes.loadedCard}`]: {
+    borderRadius: 16,
     display: "flex",
     flexDirection: "column",
     width: "100%",
     [theme.breakpoints.down("md")]: {
-      borderBottomRightRadius: 0,
-      borderBottomLeftRadius: 0,
+      borderRadius: 0,
     },
   },
 
@@ -64,6 +61,9 @@ const StyledBox = styled(Box)(({ theme }) => ({
   [`& .${classes.alert}`]: {
     borderBottomRightRadius: 0,
     borderBottomLeftRadius: 0,
+    [theme.breakpoints.down("md")]: {
+      borderRadius: 0,
+    },
   },
 
   [`& .${classes.titleAbstract}`]: {
@@ -90,8 +90,8 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 const RecordCard = (props) => {
   const isDebugInclusion = () => {
-    if (props.record) {
-      return props.record._debug_label === 1;
+    if (props.activeRecord) {
+      return props.activeRecord._debug_label === 1;
     }
   };
 
@@ -114,47 +114,32 @@ const RecordCard = (props) => {
     });
   };
 
-  const onChangeNote = (event) => {
-    props.setRecordNote({
-      ...props.recordNote,
-      data: event.target.value,
-    });
-  };
-
-  const discardNote = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: false,
-        data: null,
-      };
-    });
-  };
-
-  const saveNote = () => {
-    props.setRecordNote((s) => {
-      return {
-        ...s,
-        expand: false,
-        saved: true,
-      };
-    });
-  };
-
   return (
-    <StyledBox className={classes.root} aria-label="record card container">
-      {!props.isloaded && (
-        <Card className={clsx(classes.loadedCard, classes.loadingCard)}>
+    <Root aria-label="record card">
+      {!props.isError && !props.activeRecord && (
+        <Card
+          elevation={2}
+          className={clsx(classes.loadedCard, classes.loadingCard)}
+        >
           <CardContent aria-label="record loading">
             <CircularProgress />
           </CardContent>
         </Card>
       )}
-      {props.isloaded && (
+      {props.isError && (
+        <Card
+          elevation={2}
+          className={clsx(classes.loadedCard, classes.loadingCard)}
+          aria-label="record loaded failure"
+        >
+          <BoxErrorHandler queryKey="fetchRecord" error={props.error} />
+        </Card>
+      )}
+      {props.activeRecord && (
         <Card
           elevation={2}
           className={classes.loadedCard}
-          aria-label="record card"
+          aria-label="record loaded"
         >
           {/* Previous decision alert */}
           {isDebugInclusion() && (
@@ -173,30 +158,36 @@ const RecordCard = (props) => {
             <Typography
               className={classes.title}
               variant="h5"
-              color="textSecondary"
               component="div"
               paragraph
             >
               {/* No title, inplace text */}
-              {(props.record.title === "" || props.record.title === null) && (
+              {(props.activeRecord.title === "" ||
+                props.activeRecord.title === null) && (
                 <Box
                   className={"fontSize" + props.fontSize.label}
                   fontStyle="italic"
                 >
-                  This document doesn't have a title.
+                  No title available.
                 </Box>
               )}
 
               {/* No title, inplace text */}
-              {!(props.record.title === "" || props.record.title === null) && (
+              {!(
+                props.activeRecord.title === "" ||
+                props.activeRecord.title === null
+              ) && (
                 <Box className={"fontSize" + props.fontSize.label}>
-                  {props.record.title}
+                  {props.activeRecord.title}
                 </Box>
               )}
             </Typography>
 
             {/* Show the publication date if available */}
-            {!(props.record.doi === undefined || props.record.doi === null) && (
+            {!(
+              props.activeRecord.doi === undefined ||
+              props.activeRecord.doi === null
+            ) && (
               <Typography
                 className={classes.doi + " fontSize" + props.fontSize.label}
                 color="textSecondary"
@@ -206,11 +197,11 @@ const RecordCard = (props) => {
               >
                 DOI:{" "}
                 <Link
-                  href={"https://doi.org/" + props.record.doi}
+                  href={"https://doi.org/" + props.activeRecord.doi}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  {props.record.doi}
+                  {props.activeRecord.doi}
                 </Link>
               </Typography>
             )}
@@ -224,17 +215,16 @@ const RecordCard = (props) => {
               paragraph
             >
               {/* No abstract, inplace text */}
-              {(props.record.abstract === "" ||
-                props.record.abstract === null) && (
-                <Box fontStyle="italic">
-                  This document doesn't have an abstract.
-                </Box>
+              {(props.activeRecord.abstract === "" ||
+                props.activeRecord.abstract === null) && (
+                <Box fontStyle="italic">No abstract available.</Box>
               )}
 
               {/* No abstract, inplace text */}
               {!(
-                props.record.abstract === "" || props.record.abstract === null
-              ) && <Box>{props.record.abstract}</Box>}
+                props.activeRecord.abstract === "" ||
+                props.activeRecord.abstract === null
+              ) && <Box>{props.activeRecord.abstract}</Box>}
             </Typography>
           </CardContent>
 
@@ -248,9 +238,8 @@ const RecordCard = (props) => {
             <Box>
               <NoteSheet
                 note={props.recordNote["data"]}
-                discardNote={discardNote}
-                saveNote={saveNote}
-                onChangeNote={onChangeNote}
+                setRecordNote={props.setRecordNote}
+                noteFieldAutoFocus={props.noteFieldAutoFocus}
               />
             </Box>
           </Slide>
@@ -268,7 +257,7 @@ const RecordCard = (props) => {
           )}
         </Card>
       )}
-    </StyledBox>
+    </Root>
   );
 };
 

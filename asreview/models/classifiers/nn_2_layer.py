@@ -14,13 +14,12 @@
 
 import logging
 
-
 try:
     import tensorflow as tf
+    from tensorflow.keras import regularizers
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-    from tensorflow.keras import regularizers
 except ImportError:
     TF_AVAILABLE = False
 else:
@@ -31,7 +30,6 @@ else:
         logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import scipy
-
 
 from asreview.models.classifiers.base import BaseTrainClassifier
 from asreview.models.classifiers.lstm_base import _get_optimizer

@@ -4,7 +4,7 @@ Command Line
 ASReview provides a powerful command line interface for running tasks like
 simulations. For a list of available commands, type :code:`asreview --help`.
 
-Lab
+LAB
 ---
 
 :program:`asreview lab` launches the ASReview LAB software (the frontend).
@@ -126,7 +126,7 @@ Examples:
 
 .. option:: --config_file CONFIG_FILE
 
-    Configuration file with model settingsand parameter values.
+    Configuration file with model settings and parameter values.
 
 .. option:: --seed SEED
 
@@ -266,8 +266,6 @@ Balance Strategies
 | simple      | :class:`asreview.models.balance.SimpleBalance`          |          |
 +-------------+---------------------------------------------------------+----------+
 | double      | :class:`asreview.models.balance.DoubleBalance`          |          |
-+-------------+---------------------------------------------------------+----------+
-| triple      | :class:`asreview.models.balance.TripleBalance`          |          |
 +-------------+---------------------------------------------------------+----------+
 | undersample | :class:`asreview.models.balance.UndersampleBalance`     |          |
 +-------------+---------------------------------------------------------+----------+

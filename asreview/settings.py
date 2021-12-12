@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 from configparser import ConfigParser
-import logging
 
 from asreview.config import DEFAULT_N_INSTANCES
-from asreview.models.classifiers import get_classifier
 from asreview.models.balance import get_balance_model
-from asreview.models.query import get_query_model
+from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
-from asreview.utils import pretty_format
+from asreview.models.query import get_query_model
 from asreview.types import type_n_queries
-
+from asreview.utils import pretty_format
 
 SETTINGS_TYPE_DICT = {
     "model": str,

@@ -1,7 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
+import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
+  Box,
   Card,
   CardActions,
   CardContent,
@@ -15,6 +17,8 @@ import { styled } from "@mui/material/styles";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
+import { InlineErrorHandler } from "../../Components";
+import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "LabeledRecordCard";
@@ -24,12 +28,12 @@ const classes = {
   icon: `${PREFIX}-icon`,
 };
 
-// TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
-    borderRadius: 8,
+    borderRadius: 16,
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    maxWidth: 960,
   },
 
   [`& .${classes.icon}`]: {
@@ -38,68 +42,123 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecordCard = (props) => {
+  const queryClient = useQueryClient();
   const [recordReadMore, setRecordReadMore] = React.useState(null);
+
+  const { error, isError, mutate, reset } = useMutation(
+    ProjectAPI.mutateClassification,
+    {
+      mutationKey: "mutateLabeledPriorKnowledge",
+      onSuccess: (data, variables) => {
+        // update cached data
+        queryClient.setQueryData(
+          [
+            props.label === "relevant"
+              ? "fetchRelevantLabeledRecord"
+              : "fetchIrrelevantLabeledRecord",
+            {
+              project_id: props.project_id,
+              select: props.label === "relevant" ? "included" : "excluded",
+            },
+          ],
+          (prev) => {
+            return {
+              ...prev,
+              pages: prev.pages.map((page) => {
+                return {
+                  ...page,
+                  result: page.result.map((value) => {
+                    return {
+                      ...value,
+                      included:
+                        value.id === variables.doc_id
+                          ? value.included === 1
+                            ? 0
+                            : 1
+                          : value.included,
+                    };
+                  }),
+                };
+              }),
+            };
+          }
+        );
+        if (props.is_prior) {
+          queryClient.invalidateQueries("fetchLabeledStats");
+        }
+      },
+    }
+  );
 
   return (
     <Root>
-      {props.page.result.map((value) => (
-        <Card elevation={2} className={classes.root} key={value.id}>
-          <CardContent>
-            <Typography gutterBottom variant="h6">
-              {value.title ? value.title : "This record doesn't have a title."}
-            </Typography>
-            <TruncateMarkup
-              lines={value.id === recordReadMore ? Infinity : 6}
-              ellipsis={
-                <span>
-                  ...{" "}
-                  <Link
-                    component="button"
-                    underline="none"
-                    onClick={() => setRecordReadMore(value.id)}
-                  >
-                    read more
-                  </Link>
-                </span>
-              }
-            >
-              <div>
-                {value.abstract
-                  ? value.abstract
-                  : "This record doesn't have an abstract."}
-              </div>
-            </TruncateMarkup>
-          </CardContent>
-          <CardActions>
-            <Tooltip
-              title={
-                value.included === 1
-                  ? "Convert to irrelevant"
-                  : "Convert to relevant"
-              }
-            >
-              <IconButton
-                className={classes.icon}
-                onClick={() => {
-                  props.mutateClassification({
-                    project_id: props.project_id,
-                    doc_id: value.id,
-                    label: value.included,
-                    initial: false,
-                  });
-                }}
-                size="large"
+      {isError && (
+        <Box sx={{ pt: 8, pb: 16 }}>
+          <InlineErrorHandler
+            message={error["message"]}
+            refetch={reset}
+            button={true}
+          />
+        </Box>
+      )}
+      {!isError &&
+        props.page.result.map((value) => (
+          <Card elevation={3} className={classes.root} key={value.id}>
+            <CardContent>
+              <Typography gutterBottom variant="h6">
+                {value.title ? value.title : "No title available."}
+              </Typography>
+              <TruncateMarkup
+                lines={value.id === recordReadMore ? Infinity : 6}
+                ellipsis={
+                  <span>
+                    ...{" "}
+                    <Link
+                      component="button"
+                      underline="none"
+                      onClick={() => setRecordReadMore(value.id)}
+                    >
+                      read more
+                    </Link>
+                  </span>
+                }
               >
-                {value.included === 1 ? (
-                  <FavoriteIcon color="error" fontSize="small" />
-                ) : (
-                  <FavoriteBorderIcon fontSize="small" />
-                )}
-              </IconButton>
-            </Tooltip>
-          </CardActions>
-        </Card>
-      ))}
+                <Typography color="textSecondary">
+                  {value.abstract ? value.abstract : "No abstract available."}
+                </Typography>
+              </TruncateMarkup>
+            </CardContent>
+            <CardActions>
+              <Tooltip
+                title={
+                  value.included === 1
+                    ? "Convert to irrelevant"
+                    : "Convert to relevant"
+                }
+              >
+                <IconButton
+                  className={classes.icon}
+                  onClick={() => {
+                    mutate({
+                      project_id: props.project_id,
+                      doc_id: value.id,
+                      label: value.included,
+                      initial: false,
+                      is_prior: !props.is_prior ? 0 : 1,
+                    });
+                  }}
+                  size="large"
+                >
+                  {value.included === 1 ? (
+                    <FavoriteIcon color="error" fontSize="small" />
+                  ) : (
+                    <FavoriteBorderIcon fontSize="small" />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </CardActions>
+          </Card>
+        ))}
     </Root>
   );
 };

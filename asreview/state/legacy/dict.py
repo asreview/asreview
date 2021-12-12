@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from base64 import b64encode, b64decode
+from base64 import b64decode
+from base64 import b64encode
 from collections import OrderedDict
 from datetime import datetime
 from io import BytesIO
 
 import numpy as np
+from scipy.sparse import load_npz
+from scipy.sparse import save_npz
 from scipy.sparse.csr import csr_matrix
-from scipy.sparse import save_npz, load_npz
 
 from asreview.analysis.statistics import _get_labeled_order
 from asreview.analysis.statistics import _get_last_proba_order
-from asreview.state.legacy.base import BaseState
 from asreview.settings import ASReviewSettings
+from asreview.state.legacy.base import BaseState
 
 
 def get_serial_list(array, dtype=None):

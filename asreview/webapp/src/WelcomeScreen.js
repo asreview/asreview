@@ -95,7 +95,7 @@ const WelcomeScreen = ({ setASReviewVersion, setAppState }) => {
   });
 
   const setAppStateToProjects = useCallback(() => {
-    setAppState("dashboard");
+    setAppState("home");
   }, [setAppState]);
 
   const setVersion = useCallback(
@@ -180,7 +180,7 @@ const WelcomeScreen = ({ setASReviewVersion, setAppState }) => {
           }, 3000);
         }}
         onExited={() => {
-          setAppState("dashboard");
+          setAppState("home");
         }}
       >
         <Box className={classes.background}>

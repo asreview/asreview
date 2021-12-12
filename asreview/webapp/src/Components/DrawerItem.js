@@ -57,9 +57,12 @@ const DrawerItem = (props) => {
   };
 
   const returnIconState = () => {
+    // home page navigation
     if (props.state === "dashboard" && props.label === "Dashboard") {
       return <Dashboard color={returnIconColor()} />;
     }
+
+    // project page navigation
     if (props.state === "project-page" && props.label === "Dashboard") {
       return <ArrowBack />;
     }
@@ -89,7 +92,11 @@ const DrawerItem = (props) => {
             if (props.mobileScreen) {
               props.toggleNavDrawer();
             }
-            props.setState(props.value);
+            if (props.label === "Dashboard") {
+              props.setState("home");
+            } else {
+              props.setState(props.value);
+            }
           }}
           className={returnSelectedState() ? classes.root : null}
         >

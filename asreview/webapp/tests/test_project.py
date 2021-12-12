@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import os
-import pytest
 from io import BytesIO
 from urllib.request import urlopen
 
-from asreview.webapp.tests.utils import retrieve_project_url_github
+import pytest
 
+from asreview.webapp.tests.utils import retrieve_project_url_github
 
 # Retrieve urls to .asreview files exported from previous versions
 project_urls = retrieve_project_url_github()
@@ -42,9 +42,16 @@ def test_project_file(tmp_path, client, url):
     project_id = json_data_import["id"]
     api_url = f"/api/project/{project_id}"
 
-    # Test convert project if old
-    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
-    assert response_convert_if_old.status_code == 200
+    # Test get dashboard analytics
+    response_stats = client.get("/api/projects/stats")
+    json_data_stats = response_stats.get_json()
+
+    assert "result" in json_data_stats
+    assert "n_in_review" in json_data_stats["result"]
+    assert "n_finished" in json_data_stats["result"]
+    assert "n_reviewed" in json_data_stats["result"]
+    assert "n_included" in json_data_stats["result"]
+    assert isinstance(json_data_stats["result"], dict)
 
     # Test get projects
     response_projects = client.get("/api/projects")
@@ -54,6 +61,10 @@ def test_project_file(tmp_path, client, url):
         item["id"] == project_id
         for item in json_data_projects["result"]
     )
+
+    # Test convert project if old
+    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
+    assert response_convert_if_old.status_code == 200
 
     # Test get info on the project
     response_get_info = client.get(f"{api_url}/info")
@@ -74,15 +85,19 @@ def test_project_file(tmp_path, client, url):
     json_data_progress = response_progress.get_json()
     assert isinstance(json_data_progress, dict)
 
-    # Test get progress history on the article
+    # Test get progress density of the project
     response_progress_density = client.get(f"{api_url}/progress_density")
     json_data_progress_density = response_progress_density.get_json()
-    assert isinstance(json_data_progress_density, list)
+    assert "relevant" in json_data_progress_density
+    assert "irrelevant" in json_data_progress_density
+    assert isinstance(json_data_progress_density, dict)
 
     # Test get cumulative number of inclusions by ASReview/at random
     response_progress_recall = client.get(f"{api_url}/progress_recall")
     json_data_progress_recall = response_progress_recall.get_json()
-    assert isinstance(json_data_progress_recall, list)
+    assert "asreview" in json_data_progress_recall
+    assert "random" in json_data_progress_recall
+    assert isinstance(json_data_progress_recall, dict)
 
     # Test retrieve documents in order of review
     response_get_document = client.get(f"{api_url}/get_document")
@@ -90,33 +105,39 @@ def test_project_file(tmp_path, client, url):
     assert "result" in json_data_get_document
     assert isinstance(json_data_get_document, dict)
 
+    # get doc_id from the queue and label the item
+    doc_id = json_data_get_document["result"]["doc_id"]
+
     # Test retrieve classification result
-    response_classify_instance = client.post(f"{api_url}/record/<doc_id>", data={
-        "doc_id": 99,
+    response_classify_instance = client.post(f"{api_url}/record/{doc_id}", data={
+        "doc_id": doc_id,
         "label": 1,
     })
     assert response_classify_instance.status_code == 200
 
     # Test update classification result
-    response_update_classify = client.put(f"{api_url}/record/<doc_id>", data={
-        "doc_id": 99,
+    response_update_classify = client.put(f"{api_url}/record/{doc_id}", data={
+        "doc_id": doc_id,
         "label": 0,
     })
     assert response_update_classify.status_code == 200
 
     # Test retrieve review history
-    response_prior = client.get(f"{api_url}/prior")
+    response_prior = client.get(f"{api_url}/labeled")
     json_data_prior = response_prior.get_json()
     assert "result" in json_data_prior
     assert isinstance(json_data_prior["result"], list)
 
     # Test export result
-    response_export_result_excel = client.get(f"{api_url}/export?file_type=excel")
+    response_export_result_ris = client.get(f"{api_url}/export?file_type=ris")
     response_export_result_csv = client.get(f"{api_url}/export?file_type=csv")
     response_export_result_tsv = client.get(f"{api_url}/export?file_type=tsv")
-    assert response_export_result_excel.status_code == 200
+    response_export_result_excel = client.get(f"{api_url}/export?file_type=xlsx")
+    # RIS can only be exported from RIS data file path
+    assert response_export_result_ris.status_code == 500
     assert response_export_result_csv.status_code == 200
     assert response_export_result_tsv.status_code == 200
+    assert response_export_result_excel.status_code == 200
 
     # Test export project
     response_export_project = client.get(f"{api_url}/export_project")

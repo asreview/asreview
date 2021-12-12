@@ -27,7 +27,6 @@ const StyledCard = styled(Card)({
     paddingTop: 32,
   },
   [`& .${classes.button}`]: {
-    // display: "flex",
     justifyContent: "flex-end",
   },
   [`& .${classes.title}`]: {
@@ -37,6 +36,25 @@ const StyledCard = styled(Card)({
 });
 
 const NoteSheet = (props) => {
+  const handleNote = (event) => {
+    props.setRecordNote((s) => {
+      return {
+        ...s,
+        data: event.target.value,
+      };
+    });
+  };
+
+  const discardNote = () => {
+    props.setRecordNote((s) => {
+      return {
+        ...s,
+        expand: false,
+        data: null,
+      };
+    });
+  };
+
   return (
     <StyledCard className={classes.root} variant="outlined">
       <CardContent className={classes.note}>
@@ -44,11 +62,11 @@ const NoteSheet = (props) => {
           <TextField
             id="multiline-note"
             label="Note"
-            autoFocus
+            autoFocus={props.noteFieldAutoFocus()}
             fullWidth
             multiline
-            onChange={props.onChangeNote}
-            placeholder="Write something......"
+            onChange={handleNote}
+            placeholder={`Autosaved when this record is labeled as relevant or irrelevant. View your notes in "History" on the left menu.`}
             rows={4}
             value={props.note ? props.note : ""}
             variant="outlined"
@@ -56,16 +74,8 @@ const NoteSheet = (props) => {
         </Box>
       </CardContent>
       <CardActions className={classes.button}>
-        <Button color="primary" size="small" onClick={props.discardNote}>
+        <Button color="primary" size="small" onClick={discardNote}>
           Discard Changes
-        </Button>
-        <Button
-          color="primary"
-          disabled={!props.note}
-          size="small"
-          onClick={props.saveNote}
-        >
-          Save
         </Button>
       </CardActions>
     </StyledCard>

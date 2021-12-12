@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from asreview.state.paths import get_reviews_path
 # from asreview.dataset import ASReviewData
 from asreview.webapp.utils.project_path import get_project_path
-from asreview.state.paths import get_reviews_path
 
 
 def check_dataset(fp):

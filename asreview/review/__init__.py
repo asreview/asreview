@@ -13,6 +13,4 @@
 # limitations under the License.
 
 from asreview.review.base import BaseReview
-from asreview.review.factory import review_simulate
-from asreview.review.minimal import MinimalReview
 from asreview.review.simulate import ReviewSimulate

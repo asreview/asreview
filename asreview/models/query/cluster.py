@@ -54,32 +54,30 @@ class ClusterQuery(ProbaQueryStrategy):
         self.fallback_model = MaxQuery()
         self._random_state = get_random_state(random_state)
 
-    def _query(self, X, pool_idx, n_instances, proba):
+    def _query(self, predictions, n_instances, X):
         n_samples = X.shape[0]
-        if pool_idx is None:
-            pool_idx = np.arange(n_samples)
 
         last_update = self.last_update
         if (last_update is None or self.update_interval is None or
-                last_update - len(pool_idx) >= self.update_interval):
-            n_clusters = round(len(pool_idx) / self.cluster_size)
+                last_update - n_samples >= self.update_interval):
+            n_clusters = round(n_samples / self.cluster_size)
             if n_clusters <= 1:
                 return self.fallback_model._query(
-                    X, pool_idx=pool_idx, n_instances=n_instances, proba=proba)
+                    predictions, n_instances, X)
             model = KMeans(
                 n_clusters=n_clusters,
                 n_init=1,
                 random_state=self._random_state)
             self.clusters = model.fit_predict(X)
-            self.last_update = len(pool_idx)
+            self.last_update = n_samples
 
         clusters = {}
-        for idx in pool_idx:
+        for idx in np.arange(n_samples):
             cluster_id = self.clusters[idx]
             if cluster_id in clusters:
-                clusters[cluster_id].append((idx, proba[idx, 1]))
+                clusters[cluster_id].append((idx, predictions[idx, 1]))
             else:
-                clusters[cluster_id] = [(idx, proba[idx, 1])]
+                clusters[cluster_id] = [(idx, predictions[idx, 1])]
 
         for cluster_id in clusters:
             try:
@@ -99,7 +97,7 @@ class ClusterQuery(ProbaQueryStrategy):
 
         clust_idx = np.array(clust_idx, dtype=int)
 
-        return clust_idx, X[clust_idx]
+        return clust_idx
 
     def full_hyper_space(self):
         from hyperopt import hp
