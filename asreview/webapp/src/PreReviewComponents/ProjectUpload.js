@@ -27,8 +27,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import HelpIcon from "@mui/icons-material/Help";
 
 import {
-  ProjectUploadBenchmarkDatasets,
-  ProjectUploadPluginDatasets,
+  ProjectUploadDatasets,
   ProjectUploadURL,
   ProjectUploadFile,
   Help,
@@ -390,14 +389,16 @@ const ProjectUpload = ({
                 )}
 
                 {value === "plugin" && (
-                  <ProjectUploadPluginDatasets
+                  <ProjectUploadDatasets
+                    subset={"plugin"}
                     onUploadHandler={onUploadHandlerPluginDataset}
                   />
                 )}
 
                 {value === "benchmark" && (
                   <div>
-                    <ProjectUploadBenchmarkDatasets
+                    <ProjectUploadDatasets
+                      subset={"benchmark"}
                       onUploadHandler={onUploadHandlerBenchmarkDataset}
                     />
                   </div>

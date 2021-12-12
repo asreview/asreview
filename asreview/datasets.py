@@ -323,7 +323,7 @@ class DatasetManager():
                 include = [include]
             groups = include
         elif exclude is not None:
-            if not is_iterable(include):
+            if not is_iterable(exclude):
                 exclude = [exclude]
             groups = self.groups.copy()
             for group_id in exclude:
@@ -336,10 +336,10 @@ class DatasetManager():
 
         dataset_groups = get_entry_points('asreview.datasets')
 
-        dataset_list = []
+        group_list = []
         for group in groups:
             try:
-                dataset_list.append(dataset_groups[group].load()())
+                group_list.append(dataset_groups[group].load()())
             except Exception as err:
 
                 # don't raise error on loading entry point
@@ -348,18 +348,24 @@ class DatasetManager():
 
         if serialize:
             dataset_list_ser = []
-            for data_group in dataset_list:
-                group_ser = []
-                for dataset in data_group.datasets:
-                    group_ser.append(dataset.__dict__())
-                dataset_list_ser.append({
-                    "group_id": data_group.group_id,
-                    "datasets": group_ser
-                })
+            for data_group in group_list:
+                try:
+                    group_ser = []
+                    for dataset in data_group.datasets:
+                        group_ser.append(dataset.__dict__())
+                    dataset_list_ser.append({
+                        "group_id": data_group.group_id,
+                        "description": data_group.description,
+                        "datasets": group_ser
+                    })
+                except Exception as err:
+                    # don't raise error on loading entry point
+                    if raise_on_error:
+                        raise err
 
             return dataset_list_ser
 
-        return dataset_list
+        return group_list
 
 
 class BenchmarkDataGroup(BaseDataGroup):

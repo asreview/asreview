@@ -315,7 +315,8 @@ def api_demo_data_project():  # noqa: F401
     if subset == "plugin":
 
         try:
-            result_datasets = manager.list(exclude=["builtin", "benchmark"])
+            result_datasets = manager.list(
+                exclude=["builtin", "benchmark", "benchmark-nature"])
 
         except Exception as err:
             logging.error(err)
@@ -323,24 +324,13 @@ def api_demo_data_project():  # noqa: F401
 
     elif subset == "benchmark":
 
-        # try:
-        # collect the datasets metadata
-        result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
+        try:
+            # collect the datasets metadata
+            result_datasets = manager.list(include=["benchmark-nature", "benchmark"])
 
-        # # mark the featured datasets
-        # featured_dataset_ids = [
-        #     "van_de_Schoot_2017", "Hall_2012", "Cohen_2006_ACEInhibitors",
-        #     "Kwok_2020"
-        # ]
-        # for featured_id in featured_dataset_ids:
-        #     for i, dataset in enumerate(result_datasets):
-        #         if result_datasets[i][
-        #                 "dataset_id"] == f"benchmark:{featured_id}":
-        #             result_datasets[i]["featured"] = True
-
-        # except Exception as err:
-        #     logging.error(err)
-        #     return jsonify(message="Failed to load benchmark datasets."), 500
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to load benchmark datasets."), 500
 
     else:
         response = jsonify(message="demo-data-loading-failed")

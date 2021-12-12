@@ -51,6 +51,17 @@ def test_group_list():
             startswith("https://raw.githubusercontent.com/asreview/paper-asreview")
 
 
+def test_group_exclude_list():
+
+    dm = DatasetManager()
+
+    groups = dm.list(exclude="benchmark-nature", raise_on_error=True, serialize=False)
+    assert "benchmark-nature" not in [group.group_id for group in groups]
+
+    groups = dm.list(exclude=["benchmark-nature"], raise_on_error=True, serialize=False)
+    assert "benchmark-nature" not in [group.group_id for group in groups]
+
+
 def test_template_group():
 
     # START - use for building your plugin
