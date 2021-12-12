@@ -352,10 +352,10 @@ def api_upload_data_to_project(project_id):  # noqa: F401
     project_config = get_project_config(project_id)
 
     if request.form.get('plugin', None):
-        url = DatasetManager().find(request.form['plugin']).url
+        url = DatasetManager().find(request.form['plugin']).filepath
 
     if request.form.get('benchmark', None):
-        url = DatasetManager().find(request.form['benchmark']).url
+        url = DatasetManager().find(request.form['benchmark']).filepath
 
     if request.form.get('url', None):
         url = request.form['url']
