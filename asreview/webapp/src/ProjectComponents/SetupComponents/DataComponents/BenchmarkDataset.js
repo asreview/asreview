@@ -49,7 +49,7 @@ const BenchmarkDataset = (props) => {
         other: false,
         featured: false,
       });
-      props.setBenchmark(props.dataset_id);
+      props.setDatasetId(props.dataset_id);
     }
   };
 

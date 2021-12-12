@@ -113,6 +113,7 @@ const DatasetFromEntryPoint = (props) => {
                       location={dataset.url}
                       isAddingDataset={props.isAddingDataset}
                       isAddDatasetError={props.isAddDatasetError}
+                      setDatasetId={props.subset==="plugin"? props.setExtension : props.setBenchmark}
                       reset={props.reset}
                     />
                   ))}
