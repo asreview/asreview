@@ -15,6 +15,8 @@
 import json
 import socket
 import warnings
+from abc import ABC
+from abc import abstractmethod
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import urlopen
@@ -156,7 +158,7 @@ class BaseDataSet():
         }
 
 
-class BaseDataGroup():
+class BaseDataGroup(ABC):
     def __init__(self, *datasets):
         """Group of datasets.
 
@@ -168,6 +170,18 @@ class BaseDataGroup():
             One or more datasets.
         """
         self.datasets = list(datasets)
+
+    @property
+    @classmethod
+    @abstractmethod
+    def group_id(cls):
+        return NotImplementedError
+
+    @property
+    @classmethod
+    @abstractmethod
+    def description(cls):
+        return NotImplementedError
 
     def __str__(self):
         return f"<BaseDataGroup group_id='{self.group_id}'>"

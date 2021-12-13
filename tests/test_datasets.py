@@ -1,4 +1,4 @@
-from pytest import mark
+import pytest
 
 from asreview.datasets import BaseDataGroup
 from asreview.datasets import BaseDataSet
@@ -6,7 +6,7 @@ from asreview.datasets import DatasetManager
 from asreview.datasets import NaturePublicationDataGroup
 
 
-@mark.parametrize("data_id", [
+@pytest.mark.parametrize("data_id", [
     "benchmark:van_de_Schoot_2017",
     "benchmark:Hall_2012",
     "benchmark:Cohen_2006_ACEInhibitors",
@@ -94,3 +94,19 @@ def test_template_group():
 
     my_group.find("my_dataset1").title == "My dataset"
     my_group.find("j535").title == "My second dataset"  # see lowercase alias
+
+
+@pytest.mark.xfail(raises=TypeError)
+def test_template_group_abc():
+
+    my_dataset1 = BaseDataSet(
+        dataset_id="my_dataset2",
+        filepath="http",
+        title="My second dataset",
+        aliases=["J535"]
+    )
+
+    class TemplateDataGroup(BaseDataGroup):
+        description = "Template group"
+
+    TemplateDataGroup(my_dataset1)
