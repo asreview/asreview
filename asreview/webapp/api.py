@@ -498,6 +498,8 @@ def api_search_data(project_id):  # noqa: F401
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
 
+    project_path = get_project_path(project_id)
+
     try:
         payload = {"result": []}
         if q:
@@ -505,11 +507,15 @@ def api_search_data(project_id):  # noqa: F401
             # read the dataset
             as_data = read_data(project_id)
 
+            # read record_ids of labels from state
+            with open_state(project_path) as s:
+                labeled_record_ids = s.get_dataset(["record_id"])["record_id"].to_list()
+
             # search for the keywords
             result_idx = fuzzy_find(as_data,
                                     q,
                                     max_return=max_results,
-                                    exclude=[],
+                                    exclude=labeled_record_ids,
                                     by_index=True)
 
             for paper in as_data.record(result_idx, by_index=True):
