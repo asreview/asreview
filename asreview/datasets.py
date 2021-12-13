@@ -244,9 +244,8 @@ class DatasetManager():
 
         Returns
         -------
-        BaseDataSet, VersionedDataSet:
-            If the dataset with that name is found, return it
-            (or a list there of).
+        BaseDataSet:
+            Return the dataset with dataset_id.
         """
         # If dataset_id is a non-string iterable, return a list.
         if is_iterable(dataset_id):
