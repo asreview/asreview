@@ -1,30 +1,21 @@
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import {
-  Box,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
-import { BenchmarkDataset } from "../DataComponents";
+import { EntryPointDataset } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
 
 const PREFIX = "DatasetFromEntryPoint";
 
 const classes = {
   loading: `${PREFIX}-loading`,
-  featuredTitle: `${PREFIX}-featured-title`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.loading}`]: {
     textAlign: "center",
-  },
-
-  [`& .${classes.featuredTitle}`]: {
-    alignItems: "center",
   },
 }));
 
@@ -86,38 +77,44 @@ const DatasetFromEntryPoint = (props) => {
         />
       )}
       {!isFetchingDatasets && isSuccess && isFetched && (
-
-          <Box>
-            {data?.result.map((group, index) => (
-              <Box>
-                <Typography className={classes.title} variant="h6">
-                  {group.description}
-                </Typography>
-                <Box>
-                  {group.datasets.map((dataset, index) => (
-                    <BenchmarkDataset
-                      index={index}
-                      expanded={expanded.other}
-                      setExpanded={setExpanded}
-                      key={group.group_id + ":" + dataset.dataset_id}
-                      dataset_id={group.group_id + ":" + dataset.dataset_id}
-                      authors={formatCitation(dataset.authors, dataset.year)}
-                      description={dataset.topic}
-                      doi={dataset.reference && dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")}
-                      title={dataset.title}
-                      license={dataset.license}
-                      link={dataset.link}
-                      location={dataset.url}
-                      isAddingDataset={props.isAddingDataset}
-                      isAddDatasetError={props.isAddDatasetError}
-                      setDatasetId={props.subset==="plugin"? props.setExtension : props.setBenchmark}
-                      reset={props.reset}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            ))}
-          </Box>
+        <Box sx={{ mt: 2 }}>
+          {data?.result.map((group, index) => (
+            <Box key={index}>
+              {group.datasets.map((dataset, index) => (
+                <EntryPointDataset
+                  authors={formatCitation(dataset.authors, dataset.year)}
+                  dataset_id={group.group_id + ":" + dataset.dataset_id}
+                  description={dataset.topic}
+                  doi={
+                    dataset.reference &&
+                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
+                  }
+                  expanded={expanded.other}
+                  index={index}
+                  isAddingDataset={props.isAddingDataset}
+                  isAddDatasetError={props.isAddDatasetError}
+                  key={group.group_id + ":" + dataset.dataset_id}
+                  license={dataset.license}
+                  link={dataset.link}
+                  location={dataset.url}
+                  reset={props.reset}
+                  selectedDatasetId={
+                    props.subset === "plugin"
+                      ? props.extension
+                      : props.benchmark
+                  }
+                  setExpanded={setExpanded}
+                  setSelectedDatasetId={
+                    props.subset === "plugin"
+                      ? props.setExtension
+                      : props.setBenchmark
+                  }
+                  title={dataset.title}
+                />
+              ))}
+            </Box>
+          ))}
+        </Box>
       )}
     </Root>
   );

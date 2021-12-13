@@ -19,7 +19,7 @@ const DOILink = (doi) => {
   }
 };
 
-const BenchmarkDataset = (props) => {
+const EntryPointDataset = (props) => {
   const handleAccordion = (index, featured) => (event, isExpanded) => {
     if (!props.isAddingDataset) {
       if (featured) {
@@ -49,17 +49,17 @@ const BenchmarkDataset = (props) => {
         other: false,
         featured: false,
       });
-      props.setDatasetId(props.dataset_id);
+      props.setSelectedDatasetId(props.dataset_id);
     }
   };
 
   const returnSelected = () => {
-    return props.benchmark === props.dataset_id;
+    return props.selectedDatasetId === props.dataset_id;
   };
 
   const returnCheckedIcon = () => {
     if (
-      props.benchmark === props.dataset_id &&
+      props.selectedDatasetId === props.dataset_id &&
       props.expanded !== props.index
     ) {
       return <CheckCircleOutline color="primary" />;
@@ -132,4 +132,4 @@ const BenchmarkDataset = (props) => {
   );
 };
 
-export default BenchmarkDataset;
+export default EntryPointDataset;
