@@ -84,7 +84,11 @@ const DatasetFromEntryPoint = (props) => {
                 <EntryPointDataset
                   authors={formatCitation(dataset.authors, dataset.year)}
                   dataset_id={group.group_id + ":" + dataset.dataset_id}
-                  description={dataset.topic}
+                  description={
+                    props.subset === "plugin"
+                      ? dataset.description
+                      : dataset.topic
+                  }
                   doi={
                     dataset.reference &&
                     dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
@@ -96,7 +100,7 @@ const DatasetFromEntryPoint = (props) => {
                   key={group.group_id + ":" + dataset.dataset_id}
                   license={dataset.license}
                   link={dataset.link}
-                  location={dataset.url}
+                  location={dataset.filepath}
                   reset={props.reset}
                   selectedDatasetId={
                     props.subset === "plugin"

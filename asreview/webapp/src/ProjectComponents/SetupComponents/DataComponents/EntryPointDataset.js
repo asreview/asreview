@@ -85,17 +85,19 @@ const EntryPointDataset = (props) => {
       <AccordionDetails>
         <Stack spacing={1}>
           <Typography>{props.title}</Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            DOI:{" "}
-            <Link
-              href={props.doi && DOILink(props.doi)}
-              underline="none"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {props.doi}
-            </Link>
-          </Typography>
+          {props.doi && (
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
+              DOI:{" "}
+              <Link
+                href={props.doi && DOILink(props.doi)}
+                underline="none"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {props.doi}
+              </Link>
+            </Typography>
+          )}
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             License:{" "}
             <Link
