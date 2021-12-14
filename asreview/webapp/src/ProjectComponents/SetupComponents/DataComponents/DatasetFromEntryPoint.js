@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
@@ -77,48 +77,60 @@ const DatasetFromEntryPoint = (props) => {
         />
       )}
       {!isFetchingDatasets && isSuccess && isFetched && (
-        <Box sx={{ mt: 2 }}>
+        <Stack spacing={2}>
           {data?.result.map((group, index) => (
-            <Box key={index}>
-              {group.datasets.map((dataset, index) => (
-                <EntryPointDataset
-                  authors={formatCitation(dataset.authors, dataset.year)}
-                  dataset_id={group.group_id + ":" + dataset.dataset_id}
-                  description={
-                    props.subset === "plugin"
-                      ? dataset.description
-                      : dataset.topic
-                  }
-                  doi={
-                    dataset.reference &&
-                    dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
-                  }
-                  expanded={expanded.other}
-                  index={index}
-                  isAddingDataset={props.isAddingDataset}
-                  isAddDatasetError={props.isAddDatasetError}
-                  key={group.group_id + ":" + dataset.dataset_id}
-                  license={dataset.license}
-                  link={dataset.link}
-                  location={dataset.filepath}
-                  reset={props.reset}
-                  selectedDatasetId={
-                    props.subset === "plugin"
-                      ? props.extension
-                      : props.benchmark
-                  }
-                  setExpanded={setExpanded}
-                  setSelectedDatasetId={
-                    props.subset === "plugin"
-                      ? props.setExtension
-                      : props.setBenchmark
-                  }
-                  title={dataset.title}
-                />
-              ))}
-            </Box>
+            <Stack spacing={2} key={index}>
+              {props.subset === "plugin" && (
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: (theme) => theme.typography.fontWeightMedium,
+                  }}
+                >
+                  {group.description}
+                </Typography>
+              )}
+              <Box>
+                {group.datasets.map((dataset, index) => (
+                  <EntryPointDataset
+                    authors={formatCitation(dataset.authors, dataset.year)}
+                    dataset_id={group.group_id + ":" + dataset.dataset_id}
+                    description={
+                      props.subset === "plugin"
+                        ? dataset.description
+                        : dataset.topic
+                    }
+                    doi={
+                      dataset.reference &&
+                      dataset.reference.replace(/^(https:\/\/doi\.org\/)/, "")
+                    }
+                    expanded={expanded.other}
+                    index={index}
+                    isAddingDataset={props.isAddingDataset}
+                    isAddDatasetError={props.isAddDatasetError}
+                    key={group.group_id + ":" + dataset.dataset_id}
+                    license={dataset.license}
+                    link={dataset.link}
+                    location={dataset.filepath}
+                    reset={props.reset}
+                    selectedDatasetId={
+                      props.subset === "plugin"
+                        ? props.extension
+                        : props.benchmark
+                    }
+                    setExpanded={setExpanded}
+                    setSelectedDatasetId={
+                      props.subset === "plugin"
+                        ? props.setExtension
+                        : props.setBenchmark
+                    }
+                    title={dataset.title}
+                  />
+                ))}
+              </Box>
+            </Stack>
           ))}
-        </Box>
+        </Stack>
       )}
     </Root>
   );
