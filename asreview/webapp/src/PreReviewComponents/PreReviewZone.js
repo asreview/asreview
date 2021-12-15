@@ -61,6 +61,8 @@ const PreReviewZone = (props) => {
     ready: false,
   });
 
+  const [modelSetup, setModelSetup] = React.useState(false);
+
   const handleNext = (step_i = state.step) => {
     if (state.step <= step_i) {
       handleStep(state.step + 1);
@@ -161,6 +163,7 @@ const PreReviewZone = (props) => {
                 project_id={props.project_id}
                 scrollToBottom={scrollToBottom}
                 handleReviewDrawer={props.handleReviewDrawer}
+                setModelSetup={setModelSetup}
               />
               <div ref={EndRef} />
             </Box>
@@ -183,7 +186,7 @@ const PreReviewZone = (props) => {
             <Button
               variant="contained"
               color="primary"
-              disabled={false}
+              disabled={!modelSetup}
               onClick={props.finishProjectSetup}
               className={classes.nextButton}
             >
