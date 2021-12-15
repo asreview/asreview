@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
+const ProjectAlgorithms = ({ project_id, scrollToBottom, setModelSetup }) => {
   const classes = useStyles();
 
   const [state, setState] = useState({
@@ -153,12 +153,13 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom }) => {
 
     ProjectAPI.algorithms(project_id, true, bodyFormData)
       .then((result) => {
-        // nothing to do
+        setModelSetup(true);
       })
       .catch((error) => {
         console.log(error);
+        setModelSetup(false);
       });
-  }, [algorithms, project_id]);
+  }, [algorithms, project_id, setModelSetup]);
 
   // send an update to the server on a model change
   useEffect(() => {
