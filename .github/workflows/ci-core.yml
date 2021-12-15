@@ -21,11 +21,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+      with:
+        submodules: recursive
     - uses: actions/setup-python@v1
       with:
         python-version: '3.8'
         architecture: 'x64'
-    	submodules: recursive
     - name: Install packages
       run: |
         pip install pytest
@@ -38,11 +39,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+      with:
+        submodules: recursive
     - uses: actions/setup-python@v1
       with:
         python-version: '3.8'
         architecture: 'x64'
-	submodules: recursive
     - name: Install packages
       run: |
         pip install pytest
