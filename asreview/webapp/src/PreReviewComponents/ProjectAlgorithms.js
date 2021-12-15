@@ -159,7 +159,7 @@ const ProjectAlgorithms = ({ project_id, scrollToBottom, setModelSetup }) => {
         console.log(error);
         setModelSetup(false);
       });
-  }, [algorithms, project_id]);
+  }, [algorithms, project_id, setModelSetup]);
 
   // send an update to the server on a model change
   useEffect(() => {
