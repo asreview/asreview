@@ -104,15 +104,15 @@ const ExportDialog = (props) => {
     >
       <DialogTitle id="scroll-dialog-title">Download review result</DialogTitle>
       <DialogContent dividers={true}>
-        <Typography>
-          Download the result of your review. Select a file format.
-        </Typography>
+        <Typography>Select a file format</Typography>
 
         <Box className={classes.file_type}>
-          <InputLabel id="select-export-file-type-label">File type</InputLabel>
+          <InputLabel id="select-export-file-format-label">
+            File format
+          </InputLabel>
           <Select
-            labelId="select-export-file-type-label"
-            id="select-export-file-type"
+            labelId="select-export-file-format-label"
+            id="select-export-file-format"
             value={exportFileType}
             onChange={handleExportFileTypeChange}
           >
@@ -124,12 +124,8 @@ const ExportDialog = (props) => {
         </Box>
         {exportFileType === "ris" && (
           <Alert severity="info">
-            Experimental. RIS export is a new option and might be further
-            improved. You can send feedback to{" "}
-            <Link href={"mailto:asreview@uu.nl"} target="_blank">
-              asreview@uu.nl
-            </Link>{" "}
-            or post it on{" "}
+            Experimental. RIS export might be further improved. You can send
+            feedback on{" "}
             <Link
               href={"https://github.com/asreview/asreview/discussions"}
               target="_blank"
