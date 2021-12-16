@@ -21,10 +21,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-function numberWithCommas(x) {
-  return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-}
-
 export default function ProgressChart(props) {
   const theme = useTheme();
 
@@ -39,7 +35,7 @@ export default function ProgressChart(props) {
     : null;
 
   const formattedTotal = React.useCallback(() => {
-    return n_papers ? numberWithCommas(n_papers) : 0;
+    return n_papers ? n_papers.toLocaleString("en-US") : 0;
   }, [n_papers]);
 
   /**
