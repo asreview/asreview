@@ -22,7 +22,7 @@ from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
 TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_RECORD_TABLE = list(range(1, 852))
+TEST_RECORD_TABLE = list(range(851))
 TEST_CLASSIFIERS = [
     None, None, None, None, 'nb', 'nb', 'nb', 'nb', 'nb', 'nb'
 ]
@@ -65,7 +65,7 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7127075014419986, 0.7085644453092131, 0.7067520535764322,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
-TEST_POOL_START = list(range(1, 11))
+TEST_POOL_START = list(range(0, 10))
 TEST_LABELED_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
 TEST_LABELED_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 
@@ -329,7 +329,7 @@ def test_move_ranking_data_to_results(tmpdir):
 
 
 def test_query_top_ranked(tmpdir):
-    test_ranking = [3, 2, 1] + list(range(4, len(TEST_RECORD_TABLE) + 1))
+    test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
@@ -338,9 +338,9 @@ def test_query_top_ranked(tmpdir):
                                'max', 'double', 'tfidf', 4)
         top_ranked = state.query_top_ranked(5)
 
-        assert top_ranked == [3, 2, 1, 4, 5]
+        assert top_ranked == [2, 1, 0, 3, 4]
         data = state.get_dataset()
-        assert data['record_id'].to_list() == [3, 2, 1, 4, 5]
+        assert data['record_id'].to_list() == [2, 1, 0, 3, 4]
         assert data['classifier'].to_list() == ['nb'] * 5
         assert data['query_strategy'].to_list() == ['max'] * 5
         assert data['balance_strategy'].to_list() == ['double'] * 5
@@ -349,7 +349,7 @@ def test_query_top_ranked(tmpdir):
 
 
 def test_add_labeling_data(tmpdir):
-    test_ranking = list(range(1, len(TEST_RECORD_TABLE) + 1))
+    test_ranking = list(range(len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
@@ -378,18 +378,18 @@ def test_add_labeling_data(tmpdir):
         data = state.get_dataset()
         assert data['label'].to_list()[:6] == TEST_LABELS[:6]
         assert data['label'][6:].isna().all()
-        assert data['record_id'].to_list() == TEST_RECORD_IDS[:6] + [1, 2, 3]
+        assert data['record_id'].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
 
-        state.add_labeling_data([2], [1])
+        state.add_labeling_data([1], [1])
         labels = state.get_labels()
         assert labels.to_list()[:6] == TEST_LABELS[:6]
         assert labels[7] == 1
 
-        state.add_labeling_data([1, 3], [0, 1], notes=['note1', 'note3'])
+        state.add_labeling_data([0, 2], [0, 1], notes=['note0', 'note2'])
         data = state.get_dataset()
         assert data['label'].to_list() == TEST_LABELS[:6] + [0, 1, 1]
         assert data['notes'].to_list() == TEST_NOTES[:6] + \
-               ['note1', None, 'note3']
+               ['note0', None, 'note2']
 
 
 def test_pool_labeled_pending(tmpdir):

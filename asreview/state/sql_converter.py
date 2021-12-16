@@ -16,6 +16,7 @@ import json
 import sqlite3
 from pathlib import Path
 from uuid import uuid4
+import shutil
 
 import numpy as np
 from scipy.sparse import issparse
@@ -59,12 +60,16 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Check if it is indeed an old format project.
     is_old_project(fp)
 
-    # Current Paths
+    # Move the old files to the legacy folder.
     fp = Path(fp)
-    json_fp = Path(fp, 'result.json')
+    legacy_fp = Path(fp, 'legacy')
+    move_old_files_to_legacy_folder(fp)
+
+    # Current paths.
+    json_fp = Path(legacy_fp, 'result.json')
     project_fp = Path(fp, 'project.json')
-    pool_fp = Path(fp, 'pool.json')
-    kwargs_fp = Path(fp, 'kwargs.json')
+    pool_fp = Path(legacy_fp, 'pool.json')
+    kwargs_fp = Path(legacy_fp, 'kwargs.json')
     review_id = str(uuid4().hex)
 
     # Create the reviews folder and the paths for the results and settings.
@@ -81,11 +86,10 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Create sqlite tables 'last_probabilities'.
     convert_json_last_probabilities(sql_fp, json_fp)
 
-    # Create teh table for the last ranking of the model.
+    # Create the table for the last ranking of the model.
     create_last_ranking_table(sql_fp, pool_fp, kwargs_fp)
 
-    # Add the record table to the sqlite database as the table
-    # 'record_table'.
+    # Add the record table to the sqlite database as the table 'record_table'.
     convert_json_record_table(sql_fp, json_fp)
 
     # Create decision changes table.
@@ -95,7 +99,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
     # Create file for the feature matrix.
-    with open(Path(fp, 'kwargs.json'), 'r') as f:
+    with open(kwargs_fp, 'r') as f:
         kwargs_dict = json.load(f)
         feature_extraction_method = kwargs_dict['feature_extraction']
     feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
@@ -106,6 +110,30 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         start_time = json.load(f)['time']['start_time']
     convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
                          feature_extraction_method)
+
+
+def move_old_files_to_legacy_folder(fp):
+    """Move the old files to a legacy folder.
+
+    Arguments
+    ----------
+    fp: pathlib.Path
+        Location of the (unzipped) project file.
+
+    Returns
+    -------
+    Creates a folder 'legacy' in the project file, moves all current files to
+    this legacy folder, and keeps a copy of 'project.json' and the data folder
+    at the original place.
+    """
+    files_to_keep = ['project.json', 'data', 'lock.sqlite']
+
+    file_paths = list(fp.iterdir())
+    legacy_folder = Path(fp, 'legacy')
+    shutil.copytree(fp, legacy_folder)
+    for file_path in file_paths:
+        if file_path.name not in files_to_keep:
+            file_path.unlink()
 
 
 def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
@@ -313,7 +341,7 @@ def convert_json_record_table(sql_fp, json_fp):
         record_table = get_json_record_table(json_state)
 
     # Convert record_table to list of tuples.
-    record_table = [(record_id, ) for record_id in record_table]
+    record_table = [(record_id, ) for record_id in range(len(record_table))]
 
     con = sqlite3.connect(sql_fp)
     cur = con.cursor()
