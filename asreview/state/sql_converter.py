@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import json
+import shutil
 import sqlite3
 from pathlib import Path
 from uuid import uuid4
-import shutil
 
 import numpy as np
 from scipy.sparse import issparse
