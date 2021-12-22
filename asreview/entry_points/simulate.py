@@ -220,7 +220,7 @@ def _batch_parser():
         description=DESCRIPTION_BATCH
     )
     parser.add_argument(
-        "-r", "--n_run",
+        "-r", "--n_run", "--n_runs",
         default=10,
         type=int,
         help="Number of runs to perform."
