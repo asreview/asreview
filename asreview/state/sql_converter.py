@@ -195,6 +195,9 @@ def convert_json_settings_metadata(fp, json_fp):
     data_dict = {}
     with open_state_legacy(json_fp) as json_state:
         data_dict['settings'] = json_state._state_dict['settings']
+        # The 'triple' balance strategy is no longer implemented.
+        if data_dict['settings']['balance_strategy'] == 'triple':
+            data_dict['settings']['balance_strategy'] = 'double'
         data_dict['current_queries'] = json_state._state_dict[
             'current_queries']
         data_dict['state_version'] = SQLSTATE_VERSION
@@ -221,9 +224,13 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp):
     with open(kwargs_fp, 'r') as f_kwargs:
         kwargs_dict = json.load(f_kwargs)
 
+    # Set the training set to -1 (prior) for records from old pool.
+    training_set = -1
+    time = None
+
     last_ranking = [(v, i, kwargs_dict['model'], kwargs_dict['query_strategy'],
                      kwargs_dict['balance_strategy'],
-                     kwargs_dict['feature_extraction'], None, None)
+                     kwargs_dict['feature_extraction'], training_set, time)
                     for i, v in enumerate(pool_ranking)]
 
     with sqlite3.connect(sql_fp) as con:
