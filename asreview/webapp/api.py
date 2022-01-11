@@ -1123,12 +1123,14 @@ def api_get_progress_info(project_id):  # noqa: F401
 def api_get_progress_density(project_id):
     """Get progress density of a project"""
 
+    include_priors = request.args.get('priors', False, type=bool)
+
     try:
         # get label history
         project_path = get_project_path(project_id)
 
         with open_state(project_path) as s:
-            data = s.get_labels()
+            data = s.get_labels(priors=include_priors)
 
         # create a dataset with the rolling mean of every 10 papers
         df = data \
@@ -1181,10 +1183,12 @@ def api_get_progress_density(project_id):
 def api_get_progress_recall(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
+    include_priors = request.args.get('priors', False, type=bool)
+
     project_path = get_project_path(project_id)
     try:
         with open_state(project_path) as s:
-            data = s.get_labels()
+            data = s.get_labels(priors=include_priors)
             n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
