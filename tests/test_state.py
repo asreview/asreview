@@ -245,6 +245,13 @@ def test_get_labels():
         assert all(state.get_labels() == TEST_LABELS)
 
 
+def test_get_labels_wo_priors():
+    with open_state(TEST_STATE_FP) as state:
+        labels = state.get_labels(priors=False)
+        assert isinstance(labels, pd.Series)
+        assert all(labels == TEST_LABELS[4:])
+
+
 def test_get_labeling_times():
     with open_state(TEST_WITH_TIMES_FP) as state:
         assert isinstance(state.get_labeling_times(), pd.Series)
