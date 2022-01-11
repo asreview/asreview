@@ -86,7 +86,7 @@ const ProjectUploadFile = (props) => {
     <div>
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
-        <Typography>Drag 'n' drop a file here, or click to a file</Typography>
+        <Typography>Drag 'n' drop a file here, or click to add a file</Typography>
       </div>
 
       {props.file !== null && (
