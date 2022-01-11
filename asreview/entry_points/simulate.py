@@ -210,7 +210,7 @@ DESCRIPTION_BATCH = """
 Automated Systematic Review (ASReview) batch system for simulation runs.
 
 It has the same interface as the simulation modus, but adds an extra option
-(--n_runs) to run a batch of simulation runs with the same configuration.
+(--n_run) to run a batch of simulation runs with the same configuration.
 """
 
 
