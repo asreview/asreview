@@ -17,7 +17,7 @@ import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
 import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
-import { DataForm, DetailsForm } from "../DetailsComponents";
+import { DataForm, DetailsForm, ModelForm } from "../DetailsComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
@@ -25,23 +25,13 @@ import { useToggle } from "../../hooks/useToggle";
 const PREFIX = "DetailsPage";
 
 const classes = {
-  dataForm: `${PREFIX}-data-form`,
-  detailsForm: `${PREFIX}-details-form`,
-  loading: `${PREFIX}-loading`,
+  dataModelForm: `${PREFIX}-data-model-form`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   padding: "16px 48px 16px 24px",
-  [`& .${classes.dataForm}`]: {
+  [`& .${classes.dataModelForm}`]: {
     width: "40%",
-  },
-
-  [`& .${classes.detailsForm}`]: {},
-
-  [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
-    padding: 64,
   },
 }));
 
@@ -169,7 +159,10 @@ const DetailsPage = (props) => {
               setDetails={setDetails}
               setDisableButton={setDisableButton}
             />
-            <DataForm project_id={props.project_id} />
+            <Stack className={classes.dataModelForm} spacing={3}>
+              <DataForm />
+              <ModelForm />
+            </Stack>
           </Stack>
         </Stack>
       </Fade>
