@@ -1,14 +1,14 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DataFormCard } from "../DetailsComponents";
 import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 
-const Root = styled("div")(({ theme }) => ({
-  width: "40%",
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const DataForm = (props) => {
   const queryClient = useQueryClient();
@@ -93,4 +93,4 @@ const DataForm = (props) => {
   );
 };
 
-export default DataForm;
+export default connect(mapStateToProps)(DataForm);
