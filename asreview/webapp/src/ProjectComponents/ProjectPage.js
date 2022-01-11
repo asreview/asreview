@@ -7,13 +7,13 @@ import { styled } from "@mui/material/styles";
 
 import { DialogErrorHandler, NavigationDrawer } from "../Components";
 import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
+import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import { ExportPage } from "../ProjectComponents/ExportComponents";
 import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
-import { ProjectInfo } from "../PreReviewComponents";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -77,12 +77,8 @@ const ProjectPage = (props) => {
   const { data, error, isError, isSuccess } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
-    { refetchOnWindowFocus: false }
+    { enabled: props.project_id !== null, refetchOnWindowFocus: false }
   );
-
-  const finishEditProjectInfo = () => {
-    props.handleNavState("analytics");
-  };
 
   const returnElasState = () => {
     // setup
@@ -165,12 +161,7 @@ const ProjectPage = (props) => {
 
           {/* Details page */}
           {isSuccess && props.nav_state === "details" && (
-            <ProjectInfo
-              edit={true}
-              open={props.nav_state === "details"}
-              onClose={finishEditProjectInfo}
-              info={data}
-            />
+            <DetailsPage details={data} />
           )}
         </Box>
       </Box>
