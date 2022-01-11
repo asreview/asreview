@@ -896,15 +896,24 @@ class SqlStateV1(BaseState):
         """
         return self.get_order_of_labeling()[:self.n_priors]
 
-    def get_labels(self):
+    def get_labels(self, priors=True):
         """Get the labels from the state file.
+
+        priors: bool
+            Include the prior labels. Default True.
 
         Returns
         -------
         pd.Series:
             Series containing the labels at each labelling moment.
         """
-        return self.get_dataset('label')['label'].dropna()
+
+        subset = self.get_dataset(['label', 'query_strategy'])
+
+        if not priors:
+            subset = subset[subset['query_strategy'] != "prior"].copy()
+
+        return subset['label'].dropna()
 
     def get_classifiers(self):
         """Get the classifiers from the state file.
