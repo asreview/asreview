@@ -1,9 +1,10 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import { Stack } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
 import { DataFormCard } from "../DetailsComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
@@ -67,7 +68,15 @@ const DataForm = (props) => {
 
   return (
     <Root>
-      <Stack spacing={3}>
+      <Stack spacing={2}>
+        <Box>
+          <StyledTypoSubtitle1Medium text="Data" />
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Active learning models help you accelerate the review of records in
+            your dataset (e.g., abstracts of scientific papers) by learning your
+            preferences.
+          </Typography>
+        </Box>
         <DataFormCard
           isError={isFetchDataError}
           primary={

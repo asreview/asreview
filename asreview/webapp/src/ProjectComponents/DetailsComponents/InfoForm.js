@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
 import { DetailsModeSelect } from "../SetupComponents/DetailsComponents";
 import { mapStateToProps } from "../../globals.js";
 
@@ -21,7 +22,8 @@ const InfoForm = (props) => {
 
   return (
     <Root>
-      <Stack direction="column" spacing={3}>
+      <Stack direction="column" spacing={2}>
+        <StyledTypoSubtitle1Medium text="Basic information" />
         <DetailsModeSelect disableModeSelect={true} mode={props.info?.mode} />
         <TextField
           autoComplete="off"

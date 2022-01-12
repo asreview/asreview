@@ -5,13 +5,16 @@ import {
   Box,
   FormControl,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Stack,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
 import { SelectItem } from "../SetupComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
@@ -73,7 +76,23 @@ const ModelForm = (props) => {
 
   return (
     <Root>
-      <Stack spacing={3}>
+      <Stack spacing={2}>
+        <Box>
+          <StyledTypoSubtitle1Medium text="Model" />
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            An active learning model consists of a classifier, a query strategy,
+            a feature extraction technique, and a balance strategy. The default
+            setup (Naive Bayes, Maximum, TF-IDF) overall has fast and excellent
+            performance.{" "}
+            <Link
+              underline="none"
+              href={`https://asreview.readthedocs.io/en/latest/guides/activelearning.html#active-learning-for-systematic-reviews`}
+              target="_blank"
+            >
+              Learn more
+            </Link>
+          </Typography>
+        </Box>
         {!isFetchModelOptionsError &&
           !isFetchModelConfigError &&
           !isFetchingModelOptions &&
@@ -83,7 +102,7 @@ const ModelForm = (props) => {
           isSuccessModelOptions &&
           isSuccessModelConfig && (
             <Box component="form" noValidate autoComplete="off">
-              <Stack direction="column" spacing={3}>
+              <Stack direction="column" spacing={2}>
                 <FormControl fullWidth>
                   <InputLabel id="classifier-select-label">
                     Classifier
