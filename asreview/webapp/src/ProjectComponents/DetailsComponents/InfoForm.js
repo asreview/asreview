@@ -10,55 +10,55 @@ const Root = styled("div")(({ theme }) => ({
   width: "60%",
 }));
 
-const DetailsForm = (props) => {
-  const handleDetailsChange = (event) => {
-    props.setDetails({
-      ...props.details,
+const InfoForm = (props) => {
+  const handleInfoChange = (event) => {
+    props.setInfo({
+      ...props.info,
       [event.target.name]: event.target.value,
     });
     props.setDisableButton(false);
   };
 
   return (
-    <Root component="form" noValidate autoComplete="off">
+    <Root>
       <Stack direction="column" spacing={3}>
-        <DetailsModeSelect
-          disableModeSelect={true}
-          mode={props.details?.mode}
-        />
+        <DetailsModeSelect disableModeSelect={true} mode={props.info?.mode} />
         <TextField
-          fullWidth
+          autoComplete="off"
           autoFocus
           error={props.isError}
-          required
-          name="title"
+          fullWidth
+          helperText={props.error?.message}
           id="project-title"
           label="Title"
-          onChange={handleDetailsChange}
-          value={props.details.title}
-          helperText={props.error?.message}
+          name="title"
+          onChange={handleInfoChange}
+          required
+          value={props.info.title}
         />
         <TextField
+          autoComplete="off"
           fullWidth
-          name="authors"
           id="project-author"
           label="Author(s)"
-          onChange={handleDetailsChange}
-          value={props.details?.authors}
+          name="authors"
+          onChange={handleInfoChange}
+          value={props.info?.authors}
         />
         <TextField
+          autoComplete="off"
           fullWidth
+          id="project-description"
+          label="Description"
           multiline
           minRows={8}
           name="description"
-          id="project-description"
-          label="Description"
-          onChange={handleDetailsChange}
-          value={props.details?.description}
+          onChange={handleInfoChange}
+          value={props.info?.description}
         />
       </Stack>
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(DetailsForm);
+export default connect(mapStateToProps)(InfoForm);

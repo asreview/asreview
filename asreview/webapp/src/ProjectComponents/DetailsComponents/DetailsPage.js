@@ -17,7 +17,7 @@ import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
 import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
-import { DataForm, DetailsForm, ModelForm } from "../DetailsComponents";
+import { DataForm, InfoForm, ModelForm } from "../DetailsComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
@@ -49,25 +49,25 @@ const DetailsPage = (props) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
   const [onFeedbackBar, toggleFeedbackBar] = useToggle();
   const [disableButton, setDisableButton] = React.useState(true);
-  const [details, setDetails] = React.useState({
-    mode: props.details?.mode,
-    title: props.details?.name,
-    authors: props.details?.authors,
-    description: props.details?.description,
+  const [info, setInfo] = React.useState({
+    mode: props.info?.mode,
+    title: props.info?.name,
+    authors: props.info?.authors,
+    description: props.info?.description,
   });
 
   const { error, isError, isLoading, mutate } = useMutation(
     ProjectAPI.mutateInfo,
     {
       onSettled: (data, error, variables) => {
-        if (error || variables.title === props.details?.name) {
+        if (error || variables.title === props.info?.name) {
           // avoid bar if project title/id changes
           toggleFeedbackBar();
         }
       },
       onSuccess: (data, variables) => {
         setDisableButton(true);
-        if (variables.title !== props.details?.name) {
+        if (variables.title !== props.info?.name) {
           // mutate project id when typed title is different from existing title/empty string
           props.setProjectId(data["id"]);
         } else {
@@ -89,11 +89,11 @@ const DetailsPage = (props) => {
   );
 
   const handleClickUndoChanges = () => {
-    setDetails({
-      ...details,
-      title: props.details?.name,
-      authors: props.details?.authors,
-      description: props.details?.description,
+    setInfo({
+      ...info,
+      title: props.info?.name,
+      authors: props.info?.authors,
+      description: props.info?.description,
     });
     setDisableButton(true);
   };
@@ -101,10 +101,10 @@ const DetailsPage = (props) => {
   const handleClickSave = () => {
     mutate({
       project_id: props.project_id,
-      mode: details.mode,
-      title: details.title,
-      authors: details.authors,
-      description: details.description,
+      mode: info.mode,
+      title: info.title,
+      authors: info.authors,
+      description: info.description,
     });
   };
 
@@ -156,9 +156,9 @@ const DetailsPage = (props) => {
             </Stack>
           </Stack>
           <Stack className="main-page-body" direction="row" spacing={3}>
-            <DetailsForm
-              details={details}
-              setDetails={setDetails}
+            <InfoForm
+              info={info}
+              setInfo={setInfo}
               setDisableButton={setDisableButton}
             />
             <Stack className={classes.dataModelForm} spacing={3}>
@@ -171,7 +171,7 @@ const DetailsPage = (props) => {
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
-        projectTitle={props.details?.name}
+        projectTitle={props.info?.name}
         project_id={props.project_id}
       />
       {!isError && !isLoading && (

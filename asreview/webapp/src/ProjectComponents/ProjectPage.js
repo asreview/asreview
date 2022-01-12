@@ -161,7 +161,7 @@ const ProjectPage = (props) => {
 
           {/* Details page */}
           {isSuccess && props.nav_state === "details" && (
-            <DetailsPage details={data} />
+            <DetailsPage info={data} />
           )}
         </Box>
       </Box>
