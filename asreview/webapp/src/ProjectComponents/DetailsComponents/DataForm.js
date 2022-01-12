@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
 import { DataFormCard } from "../DetailsComponents";
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 

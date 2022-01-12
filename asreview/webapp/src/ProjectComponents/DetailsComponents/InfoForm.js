@@ -3,8 +3,8 @@ import { connect } from "react-redux";
 import { Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
 import { DetailsModeSelect } from "../SetupComponents/DetailsComponents";
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { mapStateToProps } from "../../globals.js";
 
 const Root = styled("div")(({ theme }) => ({

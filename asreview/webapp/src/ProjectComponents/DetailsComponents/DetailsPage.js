@@ -10,7 +10,6 @@ import {
   MenuItem,
   Stack,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
@@ -18,6 +17,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
 import { DataForm, InfoForm, ModelForm } from "../DetailsComponents";
+import { StyledTypoH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
@@ -27,7 +27,7 @@ const PREFIX = "DetailsPage";
 
 const classes = {
   dataModelForm: `${PREFIX}-data-model-form`,
-  pageTitle: `${PREFIX}-page-title`,
+  pageHeaderWrapper: `${PREFIX}-page-header-wrapper`,
 };
 
 const Root = styled("div")(({ theme }) => ({
@@ -35,8 +35,9 @@ const Root = styled("div")(({ theme }) => ({
     width: "40%",
   },
 
-  [`& .${classes.pageTitle}`]: {
-    justifyContent: "space-between",
+  [`& .${classes.pageHeaderWrapper}`]: {
+    background: theme.palette.background.paper,
+    zIndex: 1000,
   },
 }));
 
@@ -122,51 +123,63 @@ const DetailsPage = (props) => {
   };
 
   return (
-    <Root className="main-page-container" aria-label="details page">
+    <Root aria-label="details page">
       <Fade in>
-        <Stack spacing={3}>
-          <Stack className={classes.pageTitle} direction="row">
-            <Typography variant="h6">Project details</Typography>
-            <Stack direction="row" spacing={1}>
-              <Button disabled={disableButton} onClick={handleClickUndoChanges}>
-                Undo Changes
-              </Button>
-              <LoadingButton
-                disabled={disableButton}
-                loading={isLoading}
-                variant="contained"
-                onClick={handleClickSave}
-              >
-                Save
-              </LoadingButton>
-              <Box>
-                <Tooltip title="Options">
-                  <IconButton onClick={handleClickOptions}>
-                    <MoreVert />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  anchorEl={anchorEl}
-                  open={onOptions}
-                  onClose={handleCloseOptions}
+        <Box>
+          {/* Page title */}
+          <Box
+            className={`main-page-sticky-header-wrapper ${classes.pageHeaderWrapper}`}
+          >
+            <Box className="main-page-sticky-header-with-button">
+              <StyledTypoH5Medium text="Project details" />
+              <Stack direction="row" spacing={1}>
+                <Button
+                  disabled={disableButton}
+                  onClick={handleClickUndoChanges}
                 >
-                  <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
-                </Menu>
-              </Box>
+                  Undo Changes
+                </Button>
+                <LoadingButton
+                  disabled={disableButton}
+                  loading={isLoading}
+                  variant="contained"
+                  onClick={handleClickSave}
+                >
+                  Save
+                </LoadingButton>
+                <Box>
+                  <Tooltip title="Options">
+                    <IconButton onClick={handleClickOptions}>
+                      <MoreVert />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={onOptions}
+                    onClose={handleCloseOptions}
+                  >
+                    <MenuItem onClick={handleClickDelete}>Delete</MenuItem>
+                  </Menu>
+                </Box>
+              </Stack>
+            </Box>
+          </Box>
+
+          {/* Page body */}
+          <Box className="main-page-body-wrapper">
+            <Stack className="main-page-body" direction="row" spacing={3}>
+              <InfoForm
+                info={info}
+                setInfo={setInfo}
+                setDisableButton={setDisableButton}
+              />
+              <Stack className={classes.dataModelForm} spacing={3}>
+                <DataForm />
+                <ModelForm />
+              </Stack>
             </Stack>
-          </Stack>
-          <Stack className="main-page-body" direction="row" spacing={3}>
-            <InfoForm
-              info={info}
-              setInfo={setInfo}
-              setDisableButton={setDisableButton}
-            />
-            <Stack className={classes.dataModelForm} spacing={3}>
-              <DataForm />
-              <ModelForm />
-            </Stack>
-          </Stack>
-        </Stack>
+          </Box>
+        </Box>
       </Fade>
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}

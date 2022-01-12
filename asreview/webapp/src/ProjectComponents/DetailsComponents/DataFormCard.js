@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Card, CardContent, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 const PREFIX = "DataFormCard";
 

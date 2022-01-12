@@ -14,8 +14,8 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents";
 import { SelectItem } from "../SetupComponents";
+import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 

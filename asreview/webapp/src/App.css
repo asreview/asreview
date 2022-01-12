@@ -1,13 +1,24 @@
 .App {
   text-align: left;
 }
-.main-page-container {
-  padding: 16px 48px 16px 24px;
+
+.main-page-sticky-header-with-button {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+}
+.main-page-sticky-header-wrapper {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
 }
 .main-page-body {
-  align-self: center;
   max-width: 960px;
-  width: 100%;
+  padding: 0px 24px 24px 24px;
+}
+.main-page-body-wrapper {
+  display: flex;
+  justify-content: center;
 }
 
 .navBar {
