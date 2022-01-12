@@ -10,6 +10,7 @@ import {
   MenuItem,
   Stack,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
@@ -26,15 +27,10 @@ import "../../App.css";
 const PREFIX = "DetailsPage";
 
 const classes = {
-  dataModelForm: `${PREFIX}-data-model-form`,
   pageHeaderWrapper: `${PREFIX}-page-header-wrapper`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.dataModelForm}`]: {
-    width: "40%",
-  },
-
   [`& .${classes.pageHeaderWrapper}`]: {
     background: theme.palette.background.paper,
     zIndex: 1000,
@@ -131,11 +127,17 @@ const DetailsPage = (props) => {
             className={`main-page-sticky-header-wrapper ${classes.pageHeaderWrapper}`}
           >
             <Box className="main-page-sticky-header-with-button">
-              <StyledTypoH5Medium text="Project details" />
+              {!props.mobileScreen && (
+                <StyledTypoH5Medium text="Project details" />
+              )}
+              {props.mobileScreen && (
+                <Typography variant="h6">Project details</Typography>
+              )}
               <Stack direction="row" spacing={1}>
                 <Button
                   disabled={disableButton}
                   onClick={handleClickUndoChanges}
+                  size={!props.mobileScreen ? "medium" : "small"}
                 >
                   Undo Changes
                 </Button>
@@ -144,13 +146,19 @@ const DetailsPage = (props) => {
                   loading={isLoading}
                   variant="contained"
                   onClick={handleClickSave}
+                  size={!props.mobileScreen ? "medium" : "small"}
                 >
                   Save
                 </LoadingButton>
                 <Box>
                   <Tooltip title="Options">
-                    <IconButton onClick={handleClickOptions}>
-                      <MoreVert />
+                    <IconButton
+                      onClick={handleClickOptions}
+                      size={!props.mobileScreen ? "medium" : "small"}
+                    >
+                      <MoreVert
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     </IconButton>
                   </Tooltip>
                   <Menu
@@ -167,13 +175,21 @@ const DetailsPage = (props) => {
 
           {/* Page body */}
           <Box className="main-page-body-wrapper">
-            <Stack className="main-page-body" direction="row" spacing={3}>
+            <Stack
+              className="main-page-body"
+              direction={!props.mobileScreen ? "row" : "column"}
+              spacing={3}
+            >
               <InfoForm
                 info={info}
+                mobileScreen={props.mobileScreen}
                 setInfo={setInfo}
                 setDisableButton={setDisableButton}
               />
-              <Stack className={classes.dataModelForm} spacing={3}>
+              <Stack
+                spacing={3}
+                sx={{ width: !props.mobileScreen ? "40%" : "100%" }}
+              >
                 <DataForm />
                 <ModelForm />
               </Stack>

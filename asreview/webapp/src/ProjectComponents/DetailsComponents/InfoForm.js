@@ -8,9 +8,7 @@ import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { mapStateToProps } from "../../globals.js";
 
-const Root = styled("div")(({ theme }) => ({
-  width: "60%",
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const InfoForm = (props) => {
   const handleInfoChange = (event) => {
@@ -22,7 +20,7 @@ const InfoForm = (props) => {
   };
 
   return (
-    <Root>
+    <Root style={{ width: !props.mobileScreen ? "60%" : "100%" }}>
       <Stack direction="column" spacing={2}>
         <StyledTypoSubtitle1Medium text="Basic information" />
         <MouseOverPopover title="Select mode when creating a new project">
