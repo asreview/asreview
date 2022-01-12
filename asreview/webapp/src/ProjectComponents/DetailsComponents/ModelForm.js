@@ -15,6 +15,7 @@ import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
 import { SelectItem } from "../SetupComponents";
+import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
@@ -103,90 +104,96 @@ const ModelForm = (props) => {
           isSuccessModelConfig && (
             <Box component="form" noValidate autoComplete="off">
               <Stack direction="column" spacing={2}>
-                <FormControl fullWidth>
-                  <InputLabel id="classifier-select-label">
-                    Classifier
-                  </InputLabel>
-                  <Select
-                    disabled
-                    labelId="select-classifier-label"
-                    id="select-classifier"
-                    name="classifier"
-                    label="Classifier"
-                    value={modelConfig?.model}
-                  >
-                    {modelOptions?.classifier.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={modelConfig?.model === value.name}
-                          value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="query-strategy-select-label">
-                    Query strategy
-                  </InputLabel>
-                  <Select
-                    disabled
-                    id="select-query-strategy"
-                    name="query_strategy"
-                    label="Query strategy"
-                    value={modelConfig?.query_strategy}
-                  >
-                    {modelOptions?.query_strategy.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={modelConfig?.query_strategy === value.name}
-                          value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel id="feature-extraction-select-label">
-                    Feature extraction technique
-                  </InputLabel>
-                  <Select
-                    disabled
-                    id="select-feature-extraction"
-                    name="feature_extraction"
-                    label="Feature extraction technique"
-                    value={modelConfig?.feature_extraction}
-                  >
-                    {modelOptions?.feature_extraction.map((value) => {
-                      return (
-                        <MenuItem
-                          key={`result-item-${value.name}`}
-                          checked={
-                            modelConfig?.feature_extraction === value.name
-                          }
-                          value={value.name}
-                        >
-                          <SelectItem
-                            primary={value.label}
-                            secondary={value.description}
-                          />
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
+                <MouseOverPopover title="Select classifier when creating a new project">
+                  <FormControl fullWidth>
+                    <InputLabel id="classifier-select-label">
+                      Classifier
+                    </InputLabel>
+                    <Select
+                      disabled
+                      labelId="select-classifier-label"
+                      id="select-classifier"
+                      name="classifier"
+                      label="Classifier"
+                      value={modelConfig?.model}
+                    >
+                      {modelOptions?.classifier.map((value) => {
+                        return (
+                          <MenuItem
+                            key={`result-item-${value.name}`}
+                            checked={modelConfig?.model === value.name}
+                            value={value.name}
+                          >
+                            <SelectItem
+                              primary={value.label}
+                              secondary={value.description}
+                            />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </MouseOverPopover>
+                <MouseOverPopover title="Select query strategy when creating a new project">
+                  <FormControl fullWidth>
+                    <InputLabel id="query-strategy-select-label">
+                      Query strategy
+                    </InputLabel>
+                    <Select
+                      disabled
+                      id="select-query-strategy"
+                      name="query_strategy"
+                      label="Query strategy"
+                      value={modelConfig?.query_strategy}
+                    >
+                      {modelOptions?.query_strategy.map((value) => {
+                        return (
+                          <MenuItem
+                            key={`result-item-${value.name}`}
+                            checked={modelConfig?.query_strategy === value.name}
+                            value={value.name}
+                          >
+                            <SelectItem
+                              primary={value.label}
+                              secondary={value.description}
+                            />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </MouseOverPopover>
+                <MouseOverPopover title="Select feature extraction technique when creating a new project">
+                  <FormControl fullWidth>
+                    <InputLabel id="feature-extraction-select-label">
+                      Feature extraction technique
+                    </InputLabel>
+                    <Select
+                      disabled
+                      id="select-feature-extraction"
+                      name="feature_extraction"
+                      label="Feature extraction technique"
+                      value={modelConfig?.feature_extraction}
+                    >
+                      {modelOptions?.feature_extraction.map((value) => {
+                        return (
+                          <MenuItem
+                            key={`result-item-${value.name}`}
+                            checked={
+                              modelConfig?.feature_extraction === value.name
+                            }
+                            value={value.name}
+                          >
+                            <SelectItem
+                              primary={value.label}
+                              secondary={value.description}
+                            />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </MouseOverPopover>
               </Stack>
             </Box>
           )}

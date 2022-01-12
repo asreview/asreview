@@ -4,6 +4,7 @@ import { Stack, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DetailsModeSelect } from "../SetupComponents/DetailsComponents";
+import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { mapStateToProps } from "../../globals.js";
 
@@ -24,7 +25,9 @@ const InfoForm = (props) => {
     <Root>
       <Stack direction="column" spacing={2}>
         <StyledTypoSubtitle1Medium text="Basic information" />
-        <DetailsModeSelect disableModeSelect={true} mode={props.info?.mode} />
+        <MouseOverPopover title="Select mode when creating a new project">
+          <DetailsModeSelect disableModeSelect={true} mode={props.info?.mode} />
+        </MouseOverPopover>
         <TextField
           autoComplete="off"
           autoFocus
