@@ -1,6 +1,14 @@
 .App {
   text-align: left;
 }
+.main-page-container {
+  padding: 16px 48px 16px 24px;
+}
+.main-page-body {
+  align-self: center;
+  max-width: 960px;
+  width: 100%;
+}
 
 .navBar {
   background-color: #ffcc00;
@@ -29,4 +37,8 @@
 }
 .fontSizeLargest {
   font-size: 140% !important;
+}
+
+.typography-wrap {
+  white-space: pre-line;
 }

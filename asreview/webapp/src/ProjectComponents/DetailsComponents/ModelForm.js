@@ -73,7 +73,7 @@ const ModelForm = (props) => {
 
   return (
     <Root>
-      <Stack spacing={3} sx={{ mt: 3 }}>
+      <Stack spacing={3}>
         {!isFetchModelOptionsError &&
           !isFetchModelConfigError &&
           !isFetchingModelOptions &&

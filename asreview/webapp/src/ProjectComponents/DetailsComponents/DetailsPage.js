@@ -21,17 +21,22 @@ import { DataForm, DetailsForm, ModelForm } from "../DetailsComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
+import "../../App.css";
 
 const PREFIX = "DetailsPage";
 
 const classes = {
   dataModelForm: `${PREFIX}-data-model-form`,
+  pageTitle: `${PREFIX}-page-title`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  padding: "16px 48px 16px 24px",
   [`& .${classes.dataModelForm}`]: {
     width: "40%",
+  },
+
+  [`& .${classes.pageTitle}`]: {
+    justifyContent: "space-between",
   },
 }));
 
@@ -117,10 +122,10 @@ const DetailsPage = (props) => {
   };
 
   return (
-    <Root aria-label="details page">
+    <Root className="main-page-container" aria-label="details page">
       <Fade in>
         <Stack spacing={3}>
-          <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Stack className={classes.pageTitle} direction="row">
             <Typography variant="h6">Project details</Typography>
             <Stack direction="row" spacing={1}>
               <Button disabled={disableButton} onClick={handleClickUndoChanges}>
@@ -136,10 +141,7 @@ const DetailsPage = (props) => {
               </LoadingButton>
               <Box>
                 <Tooltip title="Options">
-                  <IconButton
-                    className={classes.button}
-                    onClick={handleClickOptions}
-                  >
+                  <IconButton onClick={handleClickOptions}>
                     <MoreVert />
                   </IconButton>
                 </Tooltip>
@@ -153,7 +155,7 @@ const DetailsPage = (props) => {
               </Box>
             </Stack>
           </Stack>
-          <Stack direction="row" spacing={3}>
+          <Stack className="main-page-body" direction="row" spacing={3}>
             <DetailsForm
               details={details}
               setDetails={setDetails}
