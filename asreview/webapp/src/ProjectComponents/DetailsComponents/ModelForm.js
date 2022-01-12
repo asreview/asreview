@@ -77,7 +77,7 @@ const ModelForm = (props) => {
 
   return (
     <Root>
-      <Stack spacing={2}>
+      <Stack spacing={3}>
         <Box>
           <StyledTypoSubtitle1Medium text="Model" />
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -103,14 +103,13 @@ const ModelForm = (props) => {
           isSuccessModelOptions &&
           isSuccessModelConfig && (
             <Box component="form" noValidate autoComplete="off">
-              <Stack direction="column" spacing={2}>
+              <Stack direction="column" spacing={3}>
                 <MouseOverPopover title="Select classifier when creating a new project">
-                  <FormControl fullWidth>
+                  <FormControl disabled fullWidth variant="filled">
                     <InputLabel id="classifier-select-label">
                       Classifier
                     </InputLabel>
                     <Select
-                      disabled
                       labelId="select-classifier-label"
                       id="select-classifier"
                       name="classifier"
@@ -135,12 +134,11 @@ const ModelForm = (props) => {
                   </FormControl>
                 </MouseOverPopover>
                 <MouseOverPopover title="Select query strategy when creating a new project">
-                  <FormControl fullWidth>
+                  <FormControl disabled fullWidth variant="filled">
                     <InputLabel id="query-strategy-select-label">
                       Query strategy
                     </InputLabel>
                     <Select
-                      disabled
                       id="select-query-strategy"
                       name="query_strategy"
                       label="Query strategy"
@@ -164,12 +162,11 @@ const ModelForm = (props) => {
                   </FormControl>
                 </MouseOverPopover>
                 <MouseOverPopover title="Select feature extraction technique when creating a new project">
-                  <FormControl fullWidth>
+                  <FormControl disabled fullWidth variant="filled">
                     <InputLabel id="feature-extraction-select-label">
                       Feature extraction technique
                     </InputLabel>
                     <Select
-                      disabled
                       id="select-feature-extraction"
                       name="feature_extraction"
                       label="Feature extraction technique"

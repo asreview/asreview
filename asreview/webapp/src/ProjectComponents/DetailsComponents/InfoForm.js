@@ -21,7 +21,7 @@ const InfoForm = (props) => {
 
   return (
     <Root style={{ width: !props.mobileScreen ? "60%" : "100%" }}>
-      <Stack direction="column" spacing={2}>
+      <Stack direction="column" spacing={3}>
         <StyledTypoSubtitle1Medium text="Basic information" />
         <MouseOverPopover title="Select mode when creating a new project">
           <DetailsModeSelect disableModeSelect={true} mode={props.info?.mode} />

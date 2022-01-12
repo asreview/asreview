@@ -68,7 +68,7 @@ const DataForm = (props) => {
 
   return (
     <Root>
-      <Stack spacing={2}>
+      <Stack spacing={3}>
         <Box>
           <StyledTypoSubtitle1Medium text="Data" />
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
