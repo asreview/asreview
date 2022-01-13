@@ -1,12 +1,16 @@
 import * as React from "react";
 import { Box, Typography } from "@mui/material";
+import "../../App.css";
 
 export default function SelectItem(props) {
   return (
     <Box>
-      <Typography variant="subtitle1">{props.primary}</Typography>
+      <Typography className="typography-wrap" variant="subtitle1">
+        {props.primary}
+      </Typography>
       {props.secondary && (
         <Typography
+          className="typography-wrap"
           variant="body2"
           gutterBottom
           sx={{ color: "text.secondary" }}
