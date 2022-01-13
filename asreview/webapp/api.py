@@ -1144,6 +1144,7 @@ def api_get_progress_density(project_id):
         # create a dataset with the rolling mean of every 10 papers
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .rolling(10, min_periods=1) \
             .mean()
         df["Total"] = df.index + 1
@@ -1203,6 +1204,7 @@ def api_get_progress_recall(project_id):
         # create a dataset with the cumulative number of inclusions
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (df["Total"] *

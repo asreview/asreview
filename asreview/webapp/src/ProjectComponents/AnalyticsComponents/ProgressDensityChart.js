@@ -255,7 +255,7 @@ export default function ProgressDensityChart(props) {
         size: 0,
       },
       noData: {
-        text: "No data available",
+        text: "No data available. Start reviewing first.",
       },
       stroke: {
         curve: "smooth",
@@ -284,6 +284,7 @@ export default function ProgressDensityChart(props) {
         showAlways: false,
         opposite: true,
         max: 10,
+        min: 0,
         tickAmount: 3,
       },
     };
