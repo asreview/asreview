@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, Card, CardContent, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 const PREFIX = "DataFormCard";
 
@@ -43,7 +43,7 @@ const DataFormCard = (props) => {
         <CardContent className={classes.cardContent}>
           <Stack spacing={1} sx={{ alignItems: "flex-start" }}>
             <Box className={classes.singleLine}>
-              <StyledTypoSubtitle1Medium text={props.primary} />
+              <TypographySubtitle1Medium text={props.primary} />
             </Box>
             {!props.isError && (
               <Typography

@@ -16,7 +16,7 @@ import { styled } from "@mui/material/styles";
 import { InlineErrorHandler } from "../../Components";
 import { SelectItem } from "../SetupComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
@@ -79,7 +79,7 @@ const ModelForm = (props) => {
     <Root>
       <Stack spacing={3}>
         <Box>
-          <StyledTypoSubtitle1Medium text="Model" />
+          <TypographySubtitle1Medium text="Model" />
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             An active learning model consists of a classifier, a query strategy,
             a feature extraction technique, and a balance strategy. The default

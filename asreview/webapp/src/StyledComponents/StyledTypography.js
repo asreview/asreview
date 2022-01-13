@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Typography } from "@mui/material";
 
-export function StyledTypoH5Medium(props) {
+export function TypographyH5Medium(props) {
   return (
     <Typography
       variant="h5"
@@ -12,7 +12,7 @@ export function StyledTypoH5Medium(props) {
   );
 }
 
-export function StyledTypoSubtitle1Medium(props) {
+export function TypographySubtitle1Medium(props) {
   return (
     <Typography
       variant="subtitle1"

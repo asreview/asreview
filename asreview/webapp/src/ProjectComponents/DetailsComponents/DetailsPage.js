@@ -18,7 +18,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
 import { DataForm, InfoForm, ModelForm } from "../DetailsComponents";
-import { StyledTypoH5Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
@@ -128,7 +128,7 @@ const DetailsPage = (props) => {
           >
             <Box className="main-page-sticky-header-with-button">
               {!props.mobileScreen && (
-                <StyledTypoH5Medium text="Project details" />
+                <TypographyH5Medium text="Project details" />
               )}
               {props.mobileScreen && (
                 <Typography variant="h6">Project details</Typography>

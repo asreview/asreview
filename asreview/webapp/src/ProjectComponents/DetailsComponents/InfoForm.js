@@ -5,7 +5,7 @@ import { styled } from "@mui/material/styles";
 
 import { DetailsModeSelect } from "../SetupComponents/DetailsComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { mapStateToProps } from "../../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -22,7 +22,7 @@ const InfoForm = (props) => {
   return (
     <Root style={{ width: !props.mobileScreen ? "60%" : "100%" }}>
       <Stack direction="column" spacing={3}>
-        <StyledTypoSubtitle1Medium text="Basic information" />
+        <TypographySubtitle1Medium text="Basic information" />
         <MouseOverPopover title="Select mode when creating a new project">
           <DetailsModeSelect disableModeSelect={true} mode={props.info?.mode} />
         </MouseOverPopover>

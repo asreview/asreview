@@ -5,7 +5,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DataFormCard } from "../DetailsComponents";
-import { StyledTypoSubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 
@@ -70,7 +70,7 @@ const DataForm = (props) => {
     <Root>
       <Stack spacing={3}>
         <Box>
-          <StyledTypoSubtitle1Medium text="Data" />
+          <TypographySubtitle1Medium text="Data" />
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Active learning models help you accelerate the review of records in
             your dataset (e.g., abstracts of scientific papers) by learning your
