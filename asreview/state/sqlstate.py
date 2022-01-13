@@ -620,24 +620,19 @@ class SqlStateV1(BaseState):
         con.commit()
         con.close()
 
-    def change_decision(self, record_id):
+    def update_decision(self, record_id, label, note=None):
         """Change the label of a record from 0 to 1 or vice versa."""
-        current_label = self.get_data_by_record_id(record_id)['label'][0]
-
-        # New label should be of type int, not np.int, to insert into sql.
-        new_label = int(1 - current_label)
-        current_time = datetime.now()
 
         con = self._connect_to_sql()
         cur = con.cursor()
 
         # Change the label.
-        cur.execute("UPDATE results SET label = ? WHERE record_id = ?",
-                    (new_label, record_id))
+        cur.execute("UPDATE results SET label = ?, notes = ? WHERE record_id = ?",
+                    (label, note, record_id))
 
         # Add the change to the decision changes table.
         cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
-                    (record_id, new_label, current_time))
+                    (record_id, label, datetime.now()))
 
         con.commit()
         con.close()

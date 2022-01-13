@@ -1249,6 +1249,7 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     # return the combination of document_id and label.
     doc_id = request.form.get('doc_id')
     label = request.form.get('label')
+    note = request.form.get('note')
     is_prior = request.form.get('is_prior', default=False)
 
     retrain_model = False if is_prior == "1" else True
@@ -1258,12 +1259,14 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
         label_instance(project_id,
                        doc_id,
                        label,
+                       note=note,
                        prior=prior,
                        retrain_model=retrain_model)
     elif request.method == 'PUT':
         update_instance(project_id,
                         doc_id,
                         label,
+                        note=note,
                         retrain_model=retrain_model)
 
     response = jsonify({'success': True})
