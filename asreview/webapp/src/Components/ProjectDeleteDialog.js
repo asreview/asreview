@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
 import {
   Alert,
@@ -11,9 +12,24 @@ import {
   TextField,
 } from "@mui/material";
 
-import { ProjectAPI } from "../../api/index.js";
+import { ProjectAPI } from "../api/index.js";
+import { setAppState } from "../redux/actions";
 
-export default function ProjectDeleteDialog(props) {
+const mapStateToProps = (state) => {
+  return {
+    app_state: state.app_state,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setAppState: (app_state) => {
+      dispatch(setAppState(app_state));
+    },
+  };
+};
+
+const ProjectDeleteDialog = (props) => {
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
   const [deleteInput, setDeleteInput] = React.useState("");
@@ -22,9 +38,14 @@ export default function ProjectDeleteDialog(props) {
     ProjectAPI.mutateDeleteProject,
     {
       onSuccess: () => {
-        queryClient.invalidateQueries("fetchProjects");
-        queryClient.invalidateQueries("fetchDashboardStats");
-        props.toggleDeleteDialog();
+        if (props.app_state === "home") {
+          queryClient.invalidateQueries("fetchProjects");
+          queryClient.invalidateQueries("fetchDashboardStats");
+          props.toggleDeleteDialog();
+        }
+        if (props.app_state === "project-page") {
+          props.setAppState("home");
+        }
       },
     }
   );
@@ -94,4 +115,9 @@ export default function ProjectDeleteDialog(props) {
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ProjectDeleteDialog);

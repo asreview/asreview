@@ -1,3 +1,4 @@
+export { default as ActionsFeedbackBar } from "./ActionsFeedbackBar";
 export { default as AppBarWithinDialog } from "./AppBarWithinDialog";
 export { default as BoxErrorHandler } from "./BoxErrorHandler";
 export { default as CardErrorHandler } from "./CardErrorHandler";
@@ -10,6 +11,7 @@ export { default as HelpDialog } from "./HelpDialog";
 export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as NavigationDrawer } from "./NavigationDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
+export { default as ProjectDeleteDialog } from "./ProjectDeleteDialog";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";
 export { default as QuickTourDialog } from "./QuickTourDialog";
 export { default as SettingsDialog } from "./SettingsDialog";

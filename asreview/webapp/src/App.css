@@ -2,6 +2,25 @@
   text-align: left;
 }
 
+.main-page-sticky-header-with-button {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+}
+.main-page-sticky-header-wrapper {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+}
+.main-page-body {
+  max-width: 960px;
+  padding: 0px 24px 24px 24px;
+}
+.main-page-body-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 .navBar {
   background-color: #ffcc00;
 }
@@ -29,4 +48,8 @@
 }
 .fontSizeLargest {
   font-size: 140% !important;
+}
+
+.typography-wrap {
+  white-space: pre-line;
 }
