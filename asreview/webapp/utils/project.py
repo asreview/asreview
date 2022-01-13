@@ -564,7 +564,8 @@ def update_instance(project_id, record_id, label, note=None, retrain_model=True)
         train_model(project_id)
 
 
-def label_instance(project_id, paper_i, label, note=None, prior=False, retrain_model=True):
+def label_instance(project_id, paper_i, label, note=None,
+                   prior=False, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
