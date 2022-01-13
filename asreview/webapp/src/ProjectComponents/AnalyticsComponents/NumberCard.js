@@ -116,7 +116,7 @@ export default function NumberCard(props) {
                   variant="subtitle1"
                   sx={{ color: "text.secondary" }}
                 >
-                  Reviewed Records Since Last Relevant
+                  Labeled Records Since Last Relevant
                 </Typography>
                 <Typography className={classes.number} variant="h4">
                   <NumberFormat
