@@ -65,9 +65,7 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7127075014419986, 0.7085644453092131, 0.7067520535764322,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
-TEST_POOL_START = list(range(0, 10))
-TEST_LABELED_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_LABELED_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
+TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
 
 
 def test_init_project_folder(tmpdir):
@@ -278,11 +276,10 @@ def test_record_table(tmpdir):
 
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
-    RECORD_IDS = list(range(12, 2, -1))
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
-        assert state.get_record_table().to_list() == RECORD_IDS
+        assert state.get_record_table().to_list() == list(range(len(as_data)))
 
 
 def test_get_last_probabilities():
@@ -493,8 +490,8 @@ def test_get_pool_labeled():
     assert list(labeled.columns) == ['record_id', 'label']
 
     assert pool.to_list()[:10] == TEST_POOL_START
-    assert labeled['record_id'].to_list() == TEST_LABELED_RECORD_IDS
-    assert labeled['label'].to_list() == TEST_LABELED_LABELS
+    assert labeled['record_id'].to_list() == TEST_RECORD_IDS
+    assert labeled['label'].to_list() == TEST_LABELS
 
 
 def test_last_ranking(tmpdir):

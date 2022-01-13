@@ -678,6 +678,7 @@ class SqlStateV1(BaseState):
         con.close()
         return record_table
 
+    # TODO: Create separate functions for pool, labeled, pending for speed up.
     def get_pool_labeled_pending(self):
         """Return the labeled and unlabeled records and the records pending a
         labeling decision.
@@ -701,7 +702,7 @@ class SqlStateV1(BaseState):
                 LEFT JOIN results
                 ON results.record_id=record_table.record_id
                 LEFT JOIN last_ranking
-                ON record_table.rowid=last_ranking.rowid
+                ON record_table.record_id=last_ranking.record_id
                 """
 
         df = pd.read_sql_query(query, con)

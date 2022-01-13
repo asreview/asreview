@@ -87,7 +87,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     convert_json_last_probabilities(sql_fp, json_fp)
 
     # Create the table for the last ranking of the model.
-    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp)
+    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp)
 
     # Add the record table to the sqlite database as the table 'record_table'.
     convert_json_record_table(sql_fp, json_fp)
@@ -126,7 +126,7 @@ def move_old_files_to_legacy_folder(fp):
     this legacy folder, and keeps a copy of 'project.json' and the data folder
     at the original place.
     """
-    files_to_keep = ['project.json', 'data', 'lock.sqlite']
+    files_to_keep = ['project.json', 'data', 'lock.sqlite', '__MACOSX']
 
     file_paths = list(fp.iterdir())
     legacy_folder = Path(fp, 'legacy')
@@ -207,10 +207,9 @@ def convert_json_settings_metadata(fp, json_fp):
         json.dump(data_dict, f)
 
 
-def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp):
+def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
     """Create the table which will contain the ranking of the last iteration of
-    the model. The converter will leave the table empty. It will be filled the
-    first time a new model is trained.
+    the model.
 
     Arguments
     ---------
@@ -223,6 +222,13 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp):
 
     with open(kwargs_fp, 'r') as f_kwargs:
         kwargs_dict = json.load(f_kwargs)
+
+    # Add the record_ids not found in the pool to the end of the ranking.
+    with open_state_legacy(json_fp) as json_state:
+        record_table = get_json_record_table(json_state)
+    records_not_in_pool = [record_id for record_id in record_table
+                           if record_id not in pool_ranking]
+    pool_ranking += records_not_in_pool
 
     # Set the training set to -1 (prior) for records from old pool.
     training_set = -1
