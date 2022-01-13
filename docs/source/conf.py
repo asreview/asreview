@@ -6,6 +6,8 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+import datetime
+
 try:
     from asreview import __version__ as asreview_verion
 except Exception:
@@ -59,8 +61,11 @@ autodoc_mock_imports = [
 
 # -- Project information -----------------------------------------------------
 
+# add current year
+year = datetime.datetime.now().year
+
 project = 'ASReview'
-copyright = '2020, ASReview Core Development Team'
+copyright = '{}, ASReview Core Development Team'.format(year)
 author = 'ASReview Core Development Team, Utrecht University'
 
 # The short X.Y version
