@@ -225,7 +225,7 @@ export default function ProgressRecallChart(props) {
         size: 0,
       },
       noData: {
-        text: "No data available",
+        text: "No data available. Start reviewing first.",
       },
       stroke: {
         curve: "smooth",
@@ -239,6 +239,9 @@ export default function ProgressRecallChart(props) {
         custom: customTooltip,
       },
       xaxis: {
+        labels: {
+          show: false,
+        },
         type: "numeric",
         axisTicks: {
           show: false,
@@ -248,11 +251,16 @@ export default function ProgressRecallChart(props) {
         },
       },
       yaxis: {
+        labels: {
+          formatter: function (val, index) {
+            return val.toFixed();
+          },
+        },
         showAlways: false,
         max: maxY(),
         forceNiceScale: false,
         opposite: true,
-        tickAmount: 6,
+        tickAmount: maxY() < 6 ? maxY() : 6,
       },
     };
   }, [theme, lightModePrimaryColor, lightModeSecondaryColor, maxY]);
