@@ -518,14 +518,19 @@ def api_search_data(project_id):  # noqa: F401
                                     exclude=labeled_record_ids,
                                     by_index=True)
 
-            for paper in as_data.record(result_idx, by_index=True):
+            for record in as_data.record(result_idx, by_index=True):
+
+                debug_label = record.extra_fields.get("debug_label", None)
+                debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
                 payload["result"].append({
-                    "id": int(paper.record_id),
-                    "title": paper.title,
-                    "abstract": paper.abstract,
-                    "authors": paper.authors,
-                    "keywords": paper.keywords,
-                    "included": int(paper.included)
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": int(record.included),
+                    "_debug_label": debug_label
                 })
 
     except SearchError as search_err:
@@ -687,6 +692,9 @@ def api_random_prior_papers(project_id):  # noqa: F401
     try:
         record = read_data(project_id).record(pool_random, by_index=False)
 
+        debug_label = record.extra_fields.get("debug_label", None)
+        debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
         payload = {"result": []}
 
         payload["result"].append({
@@ -695,7 +703,8 @@ def api_random_prior_papers(project_id):  # noqa: F401
             "abstract": record.abstract,
             "authors": record.authors,
             "keywords": record.keywords,
-            "included": None
+            "included": None,
+            "_debug_label": debug_label
         })
 
     except Exception as err:
