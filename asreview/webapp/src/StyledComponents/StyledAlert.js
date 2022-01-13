@@ -7,7 +7,7 @@ export function ExplorationModeRecordAlert(props) {
       severity="info"
       sx={{ borderBottomRightRadius: 0, borderBottomLeftRadius: 0 }}
     >
-      This record was pre-labeled as relevant
+      Labeled as relevant in an earlier study
     </Alert>
   );
 }
