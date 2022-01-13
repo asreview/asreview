@@ -1,7 +1,6 @@
 import React from "react";
 import clsx from "clsx";
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -16,13 +15,13 @@ import { styled } from "@mui/material/styles";
 
 import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
+import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
 
 const PREFIX = "RecordCard";
 
 const classes = {
   loadedCard: `${PREFIX}-loadedCard`,
   loadingCard: `${PREFIX}-loadingCard`,
-  alert: `${PREFIX}-alert`,
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
@@ -56,14 +55,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.loadingCard}`]: {
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  [`& .${classes.alert}`]: {
-    borderBottomRightRadius: 0,
-    borderBottomLeftRadius: 0,
-    [theme.breakpoints.down("md")]: {
-      borderRadius: 0,
-    },
   },
 
   [`& .${classes.titleAbstract}`]: {
@@ -142,13 +133,7 @@ const RecordCard = (props) => {
           aria-label="record loaded"
         >
           {/* Previous decision alert */}
-          {isDebugInclusion() && (
-            <Box aria-label="pre-labeled record alert">
-              <Alert className={classes.alert} severity="info">
-                This record was pre-labeled as relevant.
-              </Alert>
-            </Box>
-          )}
+          {isDebugInclusion() && <ExplorationModeRecordAlert />}
 
           <CardContent
             className={classes.titleAbstract}
