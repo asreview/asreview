@@ -16,6 +16,7 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { PageHeader, SnackbarErrorHandler } from "../../Components";
+import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
@@ -24,11 +25,16 @@ const PREFIX = "ExportPage";
 
 const classes = {
   select: `${PREFIX}-select`,
+  selectHeight: `${PREFIX}-select-height`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.select}`]: {
     minWidth: 310,
+  },
+
+  [`& .${classes.selectHeight}`]: {
+    height: 86,
   },
 }));
 
@@ -112,94 +118,122 @@ const ExportPage = (props) => {
             mobileScreen={props.mobileScreen}
           />
           <Box className="main-page-body-wrapper">
-            <Stack className="main-page-body" spacing={5}>
-              <Stack className={classes.select} spacing={5}>
-                <FormControl sx={{ height: 86 }}>
-                  {!file && (
-                    <InputLabel id="file-select-label" shrink={false}>
-                      Select file
-                    </InputLabel>
-                  )}
-                  <Select
-                    labelId="file-select-label"
-                    id="file-select"
-                    value={file}
-                    onChange={handleFile}
+            <Stack className="main-page-body" spacing={3}>
+              <Box component="form" noValidate autoComplete="off">
+                <Stack spacing={3}>
+                  <FormControl
+                    className={`${classes.select} ${classes.selectHeight}`}
                   >
-                    <MenuItem
-                      value="dataset"
-                      disabled={!props.enableExportDataset}
-                      divider
-                    >
-                      <Box>
-                        <Typography variant="subtitle1">Dataset</Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          sx={{ color: "text.secondary" }}
-                        >
-                          With relevant/irrelevant labels
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                    <MenuItem value="project">
-                      <Box>
-                        <Typography variant="subtitle1">Project</Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          sx={{ color: "text.secondary" }}
-                        >
-                          Including data and model configuration
-                        </Typography>
-                      </Box>
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ height: 78 }}>
-                  <InputLabel id="file-select-label">File format</InputLabel>
-                  {!file && (
+                    {!file && (
+                      <InputLabel id="file-select-label" shrink={false}>
+                        Select file
+                      </InputLabel>
+                    )}
                     <Select
-                      disabled
-                      labelId="file-type-select-label"
-                      id="file-type-select"
-                      label="File format"
-                      value=""
-                    />
+                      labelId="file-select-label"
+                      id="file-select"
+                      value={file}
+                      onChange={handleFile}
+                    >
+                      <MenuItem
+                        value="dataset"
+                        disabled={!props.enableExportDataset}
+                        divider
+                      >
+                        <Box>
+                          <Typography variant="subtitle1">Dataset</Typography>
+                          <Typography
+                            variant="body2"
+                            gutterBottom
+                            sx={{ color: "text.secondary" }}
+                          >
+                            With relevant/irrelevant labels
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value="project">
+                        <Box>
+                          <Typography variant="subtitle1">Project</Typography>
+                          <Typography
+                            variant="body2"
+                            gutterBottom
+                            sx={{ color: "text.secondary" }}
+                          >
+                            Including data and model configuration
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                  {!file && (
+                    <Box className={classes.selectHeight}>
+                      <MouseOverPopover title="Select file before selecting file format">
+                        <FormControl
+                          className={classes.select}
+                          disabled
+                          variant="filled"
+                        >
+                          <InputLabel id="file-select-label">
+                            File format
+                          </InputLabel>
+                          <Select
+                            labelId="file-type-select-label"
+                            id="file-type-select"
+                            label="File format"
+                            value=""
+                          />
+                        </FormControl>
+                      </MouseOverPopover>
+                    </Box>
                   )}
                   {file === "dataset" && (
-                    <Select
-                      labelId="file-type-select-label"
-                      id="file-type-select"
-                      label="File format"
-                      value={fileFormat}
-                      onChange={handleFileFormat}
+                    <FormControl
+                      className={`${classes.select} ${classes.selectHeight}`}
                     >
-                      <MenuItem value="ris">RIS (UTF-8)</MenuItem>
-                      <MenuItem value="csv">CSV (UTF-8)</MenuItem>
-                      <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
-                      <MenuItem value="excel">Excel</MenuItem>
-                    </Select>
-                  )}
-                  {file === "project" && (
-                    <Box>
+                      <InputLabel id="file-select-label">
+                        File format
+                      </InputLabel>
                       <Select
-                        disabled
                         labelId="file-type-select-label"
                         id="file-type-select"
                         label="File format"
                         value={fileFormat}
-                        sx={{ width: "100%" }}
+                        onChange={handleFileFormat}
                       >
-                        <MenuItem value="asreview">ASREVIEW</MenuItem>
+                        <MenuItem value="ris">RIS (UTF-8)</MenuItem>
+                        <MenuItem value="csv">CSV (UTF-8)</MenuItem>
+                        <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
+                        <MenuItem value="excel">Excel</MenuItem>
                       </Select>
-                      <FormHelperText>
-                        Can be imported into ASReview LAB
-                      </FormHelperText>
-                    </Box>
+                    </FormControl>
                   )}
-                </FormControl>
-              </Stack>
+                  {file === "project" && (
+                    <FormControl
+                      className={classes.selectHeight}
+                      disabled
+                      variant="filled"
+                    >
+                      <InputLabel id="file-select-label">
+                        File format
+                      </InputLabel>
+                      <Box>
+                        <Select
+                          labelId="file-type-select-label"
+                          id="file-type-select"
+                          label="File format"
+                          value={fileFormat}
+                          sx={{ width: "100%" }}
+                        >
+                          <MenuItem value="asreview">ASREVIEW</MenuItem>
+                        </Select>
+                        <FormHelperText>
+                          Can be imported into ASReview LAB
+                        </FormHelperText>
+                      </Box>
+                    </FormControl>
+                  )}
+                </Stack>
+              </Box>
               <Box className="main-page-body-wrapper">
                 <Button
                   disabled={disableExportButton()}
