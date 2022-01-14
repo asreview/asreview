@@ -24,18 +24,7 @@ import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 import "../../App.css";
 
-const PREFIX = "DetailsPage";
-
-const classes = {
-  pageHeaderWrapper: `${PREFIX}-page-header-wrapper`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.pageHeaderWrapper}`]: {
-    background: theme.palette.background.paper,
-    zIndex: 1000,
-  },
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
   const queryClient = useQueryClient();
@@ -123,10 +112,8 @@ const DetailsPage = (props) => {
       <Fade in>
         <Box>
           {/* Page title */}
-          <Box
-            className={`main-page-sticky-header-wrapper ${classes.pageHeaderWrapper}`}
-          >
-            <Box className="main-page-sticky-header-with-button">
+          <Box className="main-page-sticky-header-wrapper">
+            <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (
                 <TypographyH5Medium text="Project details" />
               )}
