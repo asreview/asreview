@@ -126,7 +126,9 @@ const ProjectPage = (props) => {
           aria-label="project page content loaded"
         >
           {/* Analytics */}
-          {props.nav_state === "analytics" && <AnalyticsPage />}
+          {props.nav_state === "analytics" && (
+            <AnalyticsPage mobileScreen={props.mobileScreen} />
+          )}
 
           {/* Review page */}
           {isSuccess &&

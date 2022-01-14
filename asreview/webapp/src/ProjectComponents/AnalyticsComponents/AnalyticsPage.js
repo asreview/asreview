@@ -15,10 +15,12 @@ import {
   Grid,
   SpeedDial,
   SpeedDialAction,
+  Stack,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Share } from "@mui/icons-material";
 
+import { PageHeader } from "../../Components";
 import {
   NumberCard,
   ShareFabAction,
@@ -29,32 +31,9 @@ import {
 
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
+import "../../App.css";
 
-const PREFIX = "AnalyticsPage";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  loading: `${PREFIX}-loading`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.root}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    padding: 24,
-    "& > *": {
-      margin: theme.spacing(2),
-    },
-  },
-
-  [`& .${classes.loading}`]: {
-    display: "flex",
-    justifyContent: "center",
-    padding: 64,
-  },
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const actions = [
   { icon: <TwitterIcon round />, name: "Twitter" },
@@ -114,30 +93,42 @@ const AnalyticsPage = (props) => {
   };
 
   return (
-    <Root>
-      {!allQueriesReady() && (
-        <Box className={classes.loading}>
-          <CircularProgress />
-        </Box>
-      )}
-      {allQueriesReady() && (
-        <Fade in={allQueriesReady()}>
-          <Box className={classes.root}>
-            <Box sx={{ width: "100%", maxWidth: 960 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={5}>
-                  <ProgressChart progressQuery={progressQuery} />
-                </Grid>
-                <Grid item xs={12} sm={7}>
-                  <NumberCard progressQuery={progressQuery} />
-                </Grid>
-              </Grid>
+    <Root aria-label="analytics page">
+      <Fade in>
+        <Box>
+          <PageHeader
+            header="Project analytics"
+            mobileScreen={props.mobileScreen}
+          />
+          {!allQueriesReady() && (
+            <Box className="main-page-body-wrapper">
+              <CircularProgress />
             </Box>
-            <ProgressDensityChart progressDensityQuery={progressDensityQuery} />
-            <ProgressRecallChart progressRecallQuery={progressRecallQuery} />
-          </Box>
-        </Fade>
-      )}
+          )}
+          {allQueriesReady() && (
+            <Box className="main-page-body-wrapper">
+              <Stack spacing={3} className="main-page-body">
+                <Box>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} sm={5}>
+                      <ProgressChart progressQuery={progressQuery} />
+                    </Grid>
+                    <Grid item xs={12} sm={7}>
+                      <NumberCard progressQuery={progressQuery} />
+                    </Grid>
+                  </Grid>
+                </Box>
+                <ProgressDensityChart
+                  progressDensityQuery={progressDensityQuery}
+                />
+                <ProgressRecallChart
+                  progressRecallQuery={progressRecallQuery}
+                />
+              </Stack>
+            </Box>
+          )}
+        </Box>
+      </Fade>
       {allQueriesReady() && (
         <SpeedDial
           ariaLabel="share project analytics"
