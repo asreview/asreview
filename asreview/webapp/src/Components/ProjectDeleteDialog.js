@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Stack,
   Typography,
   TextField,
 } from "@mui/material";
@@ -83,26 +84,31 @@ const ProjectDeleteDialog = (props) => {
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>Delete project</DialogTitle>
+      <DialogTitle>Permanently delete this project?</DialogTitle>
       <DialogContent dividers>
-        {isError && (
-          <Alert severity="error" sx={{ marginBottom: "16px" }}>
-            {error["message"]}
-          </Alert>
-        )}
-        <Typography sx={{ marginBottom: "16px" }}>
-          Confirm the project you want to delete by typing the title{" "}
-          <b>{props.projectTitle}</b> below.
-        </Typography>
-        <TextField
-          autoFocus
-          fullWidth
-          required
-          name="project-title"
-          id="project-title"
-          label="Title"
-          onChange={onChangeTitle}
-        />
+        <Stack spacing={3}>
+          {isError && <Alert severity="error">{error["message"]}</Alert>}
+          <Stack spacing={2}>
+            <Typography>
+              This action <b>cannot</b> be undone. This will permanently delete
+              the <b>{props.projectTitle}</b> project, including the dataset,
+              review history, notes, and model configuration.
+            </Typography>
+            <Typography>
+              Please type <b>{props.projectTitle}</b> to confirm.
+            </Typography>
+          </Stack>
+          <TextField
+            autoComplete="off"
+            autoFocus
+            fullWidth
+            required
+            name="project-title"
+            id="project-title"
+            label="Title"
+            onChange={onChangeTitle}
+          />
+        </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={cancelDelete}>Cancel</Button>
@@ -110,7 +116,7 @@ const ProjectDeleteDialog = (props) => {
           onClick={() => mutate({ project_id: props.project_id })}
           disabled={disableConfirmButton()}
         >
-          Confirm
+          Delete Forever
         </Button>
       </DialogActions>
     </Dialog>
