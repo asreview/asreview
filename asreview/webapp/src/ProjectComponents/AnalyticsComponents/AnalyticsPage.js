@@ -111,17 +111,25 @@ const AnalyticsPage = (props) => {
                 <Box>
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={5}>
-                      <ProgressChart progressQuery={progressQuery} />
+                      <ProgressChart
+                        mobileScreen={props.mobileScreen}
+                        progressQuery={progressQuery}
+                      />
                     </Grid>
                     <Grid item xs={12} sm={7}>
-                      <NumberCard progressQuery={progressQuery} />
+                      <NumberCard
+                        mobileScreen={props.mobileScreen}
+                        progressQuery={progressQuery}
+                      />
                     </Grid>
                   </Grid>
                 </Box>
                 <ProgressDensityChart
+                  mobileScreen={props.mobileScreen}
                   progressDensityQuery={progressDensityQuery}
                 />
                 <ProgressRecallChart
+                  mobileScreen={props.mobileScreen}
                   progressRecallQuery={progressRecallQuery}
                 />
               </Stack>
