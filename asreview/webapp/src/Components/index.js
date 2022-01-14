@@ -11,6 +11,7 @@ export { default as HelpDialog } from "./HelpDialog";
 export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as NavigationDrawer } from "./NavigationDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
+export { default as PageHeader } from "./PageHeader";
 export { default as ProjectDeleteDialog } from "./ProjectDeleteDialog";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";
 export { default as QuickTourDialog } from "./QuickTourDialog";
