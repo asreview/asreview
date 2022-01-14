@@ -8,7 +8,9 @@ export default function PageHeader(props) {
   return (
     <Box className="main-page-sticky-header-wrapper">
       <Box className="main-page-sticky-header">
-        {!props.mobileScreen && <TypographyH5Medium text={props.header} />}
+        {!props.mobileScreen && (
+          <TypographyH5Medium>{props.header}</TypographyH5Medium>
+        )}
         {props.mobileScreen && (
           <Typography variant="h6">{props.header}</Typography>
         )}

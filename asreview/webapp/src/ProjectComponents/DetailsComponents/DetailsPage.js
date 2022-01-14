@@ -115,7 +115,7 @@ const DetailsPage = (props) => {
           <Box className="main-page-sticky-header-wrapper">
             <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (
-                <TypographyH5Medium text="Project details" />
+                <TypographyH5Medium>Project details</TypographyH5Medium>
               )}
               {props.mobileScreen && (
                 <Typography variant="h6">Project details</Typography>

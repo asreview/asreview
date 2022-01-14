@@ -43,7 +43,9 @@ const DataFormCard = (props) => {
         <CardContent className={classes.cardContent}>
           <Stack spacing={1} sx={{ alignItems: "flex-start" }}>
             <Box className={classes.singleLine}>
-              <TypographySubtitle1Medium text={props.primary} />
+              <TypographySubtitle1Medium>
+                {props.primary}
+              </TypographySubtitle1Medium>
             </Box>
             {!props.isError && (
               <Typography

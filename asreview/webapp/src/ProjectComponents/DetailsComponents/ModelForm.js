@@ -79,7 +79,7 @@ const ModelForm = (props) => {
     <Root>
       <Stack spacing={3}>
         <Box>
-          <TypographySubtitle1Medium text="Model" />
+          <TypographySubtitle1Medium>Model</TypographySubtitle1Medium>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             An active learning model consists of a classifier, a query strategy,
             a feature extraction technique, and a balance strategy. The default
