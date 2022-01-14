@@ -33,7 +33,6 @@ const DetailsPage = (props) => {
   const onOptions = Boolean(anchorEl);
 
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [onFeedbackBar, toggleFeedbackBar] = useToggle();
   const [disableButton, setDisableButton] = React.useState(true);
   const [info, setInfo] = React.useState({
     mode: props.info?.mode,
@@ -42,15 +41,9 @@ const DetailsPage = (props) => {
     description: props.info?.description,
   });
 
-  const { error, isError, isLoading, mutate } = useMutation(
+  const { error, isError, isLoading, isSuccess, mutate, reset } = useMutation(
     ProjectAPI.mutateInfo,
     {
-      onSettled: (data, error, variables) => {
-        if (error || variables.title === props.info?.name) {
-          // avoid bar if project title/id changes
-          toggleFeedbackBar();
-        }
-      },
       onSuccess: (data, variables) => {
         setDisableButton(true);
         if (variables.title !== props.info?.name) {
@@ -190,18 +183,16 @@ const DetailsPage = (props) => {
         projectTitle={props.info?.name}
         project_id={props.project_id}
       />
-      {!isError && !isLoading && (
+      <ActionsFeedbackBar
+        feedback="Changes saved"
+        open={isSuccess}
+        onClose={reset}
+      />
+      {isError && (
         <ActionsFeedbackBar
-          feedback="Changes saved"
-          onClose={toggleFeedbackBar}
-          open={onFeedbackBar}
-        />
-      )}
-      {isError && !isLoading && (
-        <ActionsFeedbackBar
-          feedback={error["message"] + " Please try again."}
-          onClose={toggleFeedbackBar}
-          open={onFeedbackBar}
+          feedback={error?.message + " Please try again."}
+          open={isError}
+          onClose={reset}
         />
       )}
     </Root>

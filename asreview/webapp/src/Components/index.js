@@ -16,4 +16,3 @@ export { default as ProjectDeleteDialog } from "./ProjectDeleteDialog";
 export { default as ProjectImportDialog } from "./ProjectImportDialog";
 export { default as QuickTourDialog } from "./QuickTourDialog";
 export { default as SettingsDialog } from "./SettingsDialog";
-export { default as SnackbarErrorHandler } from "./SnackbarErrorHandler";

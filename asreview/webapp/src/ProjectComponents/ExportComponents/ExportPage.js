@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { PageHeader, SnackbarErrorHandler } from "../../Components";
+import { ActionsFeedbackBar, PageHeader } from "../../Components";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
@@ -39,6 +39,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ExportPage = (props) => {
+  const queryClient = useQueryClient();
+
   const [file, setFile] = React.useState("");
   const [fileFormat, setFileFormat] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
@@ -93,24 +95,12 @@ const ExportPage = (props) => {
     return !file || !fileFormat || exporting;
   };
 
+  const resetQueries = () => {
+    queryClient.resetQueries(selectedQuery()[1]);
+  };
+
   return (
     <Root aria-label="export page">
-      {selectedQuery() && (
-        <SnackbarErrorHandler
-          severity="error"
-          open={selectedQuery()[0].isError}
-          message={`${selectedQuery()[0].error?.message} Please try again.`}
-          queryKey={selectedQuery()[1]}
-        />
-      )}
-      {selectedQuery() && (
-        <SnackbarErrorHandler
-          severity="success"
-          open={selectedQuery()[0].isSuccess}
-          message="Successfully exported the file."
-          queryKey={selectedQuery()[1]}
-        />
-      )}
       <Fade in>
         <Box>
           <PageHeader
@@ -200,10 +190,10 @@ const ExportPage = (props) => {
                         value={fileFormat}
                         onChange={handleFileFormat}
                       >
-                        <MenuItem value="ris">RIS (UTF-8)</MenuItem>
                         <MenuItem value="csv">CSV (UTF-8)</MenuItem>
                         <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
-                        <MenuItem value="excel">Excel</MenuItem>
+                        <MenuItem value="xlsx">Excel</MenuItem>
+                        <MenuItem value="ris">RIS</MenuItem>
                       </Select>
                     </FormControl>
                   )}
@@ -246,6 +236,20 @@ const ExportPage = (props) => {
           </Box>
         </Box>
       </Fade>
+      {selectedQuery() && (
+        <ActionsFeedbackBar
+          feedback="Successfully exported the file"
+          open={selectedQuery()[0].isSuccess}
+          onClose={resetQueries}
+        />
+      )}
+      {selectedQuery() && selectedQuery()[0].isError && (
+        <ActionsFeedbackBar
+          feedback={selectedQuery()[0].error?.message + " Please try again."}
+          open={selectedQuery()[0].isError}
+          onClose={resetQueries}
+        />
+      )}
     </Root>
   );
 };
