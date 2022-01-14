@@ -186,12 +186,37 @@ following package structure:
     └── tests
 
 For minimal functionality, ``your_dataset.py`` should extent
-:class:`asreview.datasets.BaseDataSet` and
+:class:`asreview.datasets.BaseDataSet`, which can then be supplied to
 :class:`asreview.datasets.BaseDataGroup`.
 
-A working template to clone and use can be found at `Template for extending
-ASReview with a new dataset
+To implement multiple datasets, supply the `BaseDataGroup` with multiple
+`BaseDataSet` objects:
+
+.. code:: python
+
+    dataset_1 = BaseDataSet(config_1)
+    dataset_2 = BaseDataSet(config_2)
+    dataset_3 = BaseDataSet(config_3)    
+
+    super(YourDataGroup, self).__init__(dataset_1, dataset_2, dataset_3)
+
+A working template to clone and use can be found at the `template repository
 <https://github.com/asreview/template-extension-new-dataset>`_.
+
+Extending BaseDataSet
+*********************
+[explain how to make a dataset extension]
+
+Dataset from_config
+*******************
+Dataset config files are used to configure the datasets. The config file can
+either be provided to the BaseDataSet class directly as a dict, or a json file
+can be loaded.
+
+[more explanation]
+
+**Note:** When using the url argument to point to a file, only .csv files are
+allowed. Reading a .xlsx file is only possible from a local path.
 
 
 Further functionality can be
