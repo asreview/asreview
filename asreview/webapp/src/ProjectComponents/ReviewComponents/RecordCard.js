@@ -35,13 +35,10 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  paddingTop: 40,
-  paddingBottom: 40,
-  width: "100%",
-  height: "calc(100% - 88px)",
+  padding: "24px 0px 32px 0px",
+  height: "100%",
   [theme.breakpoints.down("md")]: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    padding: "4px 0px",
   },
   [`& .${classes.loadedCard}`]: {
     borderRadius: 16,
