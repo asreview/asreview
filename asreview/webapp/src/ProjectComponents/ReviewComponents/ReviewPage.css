@@ -1,3 +1,20 @@
 .MuiBanner-cardContentIconAppBar {
   padding-top: 8px !important;
 }
+
+.review-page-body {
+  height: calc(100% - 128px);
+}
+.review-page-body-wrapper {
+  height: calc(100% - 80px);
+  position: relative;
+}
+.review-page-decision-button {
+  align-items: center;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  padding: 40px 32px;
+  position: absolute;
+  width: 100%;
+}

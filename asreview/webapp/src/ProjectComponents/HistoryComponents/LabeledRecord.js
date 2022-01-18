@@ -22,7 +22,6 @@ const PREFIX = "LabeledRecord";
 
 const classes = {
   loading: `${PREFIX}-loading`,
-  recordCard: `${PREFIX}-recordCard`,
   priorRecordCard: `${PREFIX}-prior-record-card`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
@@ -34,20 +33,10 @@ const Root = styled("div")(({ theme }) => ({
     padding: 64,
   },
 
-  [`& .${classes.recordCard}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    height: "calc(100vh - 168px)",
-    width: "100%",
-    overflowY: "scroll",
-    padding: "16px 0px",
-  },
-
   [`& .${classes.priorRecordCard}`]: {
     height: "calc(100vh - 208px)",
-    paddingLeft: 24,
-    paddingRight: 24,
+    overflowY: "scroll",
+    padding: "16px 24px",
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -142,7 +131,6 @@ const LabeledRecord = (props) => {
           >
             <Box
               className={clsx({
-                [classes.recordCard]: true,
                 [classes.priorRecordCard]: props.is_prior,
               })}
               aria-label="labeled record card"

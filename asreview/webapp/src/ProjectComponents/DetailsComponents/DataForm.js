@@ -70,7 +70,7 @@ const DataForm = (props) => {
     <Root>
       <Stack spacing={3}>
         <Box>
-          <TypographySubtitle1Medium text="Data" />
+          <TypographySubtitle1Medium>Data</TypographySubtitle1Medium>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Active learning models help you accelerate the review of records in
             your dataset (e.g., abstracts of scientific papers) by learning your
