@@ -22,6 +22,18 @@ const ExplorationModeBanner = (props) => {
         dismissButtonProps={{
           sx: { color: "text.secondary" },
         }}
+        paperProps={{
+          sx: {
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+          },
+        }}
+        cardProps={{
+          sx: {
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+          },
+        }}
         appBar
       />
     </div>

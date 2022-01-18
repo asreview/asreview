@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Box, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { PageHeader } from "../../Components";
 import {
   DecisionButton,
   DecisionUndoBar,
@@ -17,20 +18,8 @@ import { useKeyPress } from "../../hooks/useKeyPress";
 
 import "./ReviewPage.css";
 
-const PREFIX = "ReviewPage";
-
-const classes = {
-  root: `${PREFIX}-root`,
-};
-
 const Root = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
   height: "100%",
-  [`& .${classes.root}`]: {
-    height: "-webkit-fill-available",
-    position: "relative",
-  },
 }));
 
 const ReviewPage = (props) => {
@@ -134,7 +123,7 @@ const ReviewPage = (props) => {
           : initial
           ? "relevant"
           : "irrelevant";
-      const message = `${initial ? "Marked as" : "Converted to"} ${mark}`;
+      const message = `${initial ? "Labeled as" : "Converted to"} ${mark}`;
       showUndoBar(message);
     }
   };
@@ -223,7 +212,7 @@ const ReviewPage = (props) => {
       if (irrelevantPress && activeRecord) {
         makeDecision(0);
       }
-      if (undoPress && undoState.open && props.undoEnabled) {
+      if (undoPress && activeRecord && undoState.open && props.undoEnabled) {
         undoDecision();
       }
       if (notePress && activeRecord) {
@@ -241,24 +230,33 @@ const ReviewPage = (props) => {
 
   return (
     <Root aria-label="review page">
-      {/* Banner Exploration Mode */}
-      <ExplorationModeBanner
-        explorationMode={explorationMode}
-        setExplorationMode={setExplorationMode}
-      />
       <Fade in>
-        <Box className={classes.root}>
-          {/* Article card */}
-          <RecordCard
-            error={recordQuery.error}
-            isError={recordQuery.isError}
-            activeRecord={activeRecord}
-            recordNote={recordNote}
-            setRecordNote={setRecordNote}
-            fontSize={props.fontSize}
-            noteFieldAutoFocus={noteFieldAutoFocus}
+        <Box>
+          <PageHeader
+            header="Project review"
+            mobileScreen={props.mobileScreen}
           />
-
+        </Box>
+      </Fade>
+      <Fade in>
+        <Box className="review-page-body-wrapper">
+          <Box className="review-page-body">
+            {/* Banner Exploration Mode */}
+            <ExplorationModeBanner
+              explorationMode={explorationMode}
+              setExplorationMode={setExplorationMode}
+            />
+            {/* Article card */}
+            <RecordCard
+              error={recordQuery.error}
+              isError={recordQuery.isError}
+              activeRecord={activeRecord}
+              recordNote={recordNote}
+              setRecordNote={setRecordNote}
+              fontSize={props.fontSize}
+              noteFieldAutoFocus={noteFieldAutoFocus}
+            />
+          </Box>
           {/* Decision button */}
           <DecisionButton
             disableDecisionButton={disableDecisionButton}
@@ -266,16 +264,15 @@ const ReviewPage = (props) => {
             mobileScreen={props.mobileScreen}
             previousRecord={previousRecord}
           />
-
-          {/* Decision undo bar */}
-          <DecisionUndoBar
-            disableDecisionButton={disableDecisionButton}
-            state={undoState}
-            undo={undoDecision}
-            close={closeUndoBar}
-          />
         </Box>
       </Fade>
+      {/* Decision undo bar */}
+      <DecisionUndoBar
+        disableDecisionButton={disableDecisionButton}
+        state={undoState}
+        undo={undoDecision}
+        close={closeUndoBar}
+      />
     </Root>
   );
 };

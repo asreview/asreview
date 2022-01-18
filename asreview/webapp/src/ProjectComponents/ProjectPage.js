@@ -126,7 +126,9 @@ const ProjectPage = (props) => {
           aria-label="project page content loaded"
         >
           {/* Analytics */}
-          {props.nav_state === "analytics" && <AnalyticsPage />}
+          {props.nav_state === "analytics" && (
+            <AnalyticsPage mobileScreen={props.mobileScreen} />
+          )}
 
           {/* Review page */}
           {isSuccess &&
@@ -156,7 +158,10 @@ const ProjectPage = (props) => {
 
           {/* Export page */}
           {props.nav_state === "export" && (
-            <ExportPage enableExportDataset={data?.projectInitReady} />
+            <ExportPage
+              enableExportDataset={data?.projectInitReady}
+              mobileScreen={props.mobileScreen}
+            />
           )}
 
           {/* Details page */}

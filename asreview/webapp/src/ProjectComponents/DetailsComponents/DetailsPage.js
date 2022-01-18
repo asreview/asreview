@@ -24,18 +24,7 @@ import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 import "../../App.css";
 
-const PREFIX = "DetailsPage";
-
-const classes = {
-  pageHeaderWrapper: `${PREFIX}-page-header-wrapper`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.pageHeaderWrapper}`]: {
-    background: theme.palette.background.paper,
-    zIndex: 1000,
-  },
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
   const queryClient = useQueryClient();
@@ -44,7 +33,6 @@ const DetailsPage = (props) => {
   const onOptions = Boolean(anchorEl);
 
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [onFeedbackBar, toggleFeedbackBar] = useToggle();
   const [disableButton, setDisableButton] = React.useState(true);
   const [info, setInfo] = React.useState({
     mode: props.info?.mode,
@@ -53,15 +41,9 @@ const DetailsPage = (props) => {
     description: props.info?.description,
   });
 
-  const { error, isError, isLoading, mutate } = useMutation(
+  const { error, isError, isLoading, isSuccess, mutate, reset } = useMutation(
     ProjectAPI.mutateInfo,
     {
-      onSettled: (data, error, variables) => {
-        if (error || variables.title === props.info?.name) {
-          // avoid bar if project title/id changes
-          toggleFeedbackBar();
-        }
-      },
       onSuccess: (data, variables) => {
         setDisableButton(true);
         if (variables.title !== props.info?.name) {
@@ -124,11 +106,12 @@ const DetailsPage = (props) => {
         <Box>
           {/* Page title */}
           <Box
-            className={`main-page-sticky-header-wrapper ${classes.pageHeaderWrapper}`}
+            className="main-page-sticky-header-wrapper"
+            sx={{ background: (theme) => theme.palette.background.paper }}
           >
-            <Box className="main-page-sticky-header-with-button">
+            <Box className="main-page-sticky-header with-button">
               {!props.mobileScreen && (
-                <TypographyH5Medium text="Project details" />
+                <TypographyH5Medium>Project details</TypographyH5Medium>
               )}
               {props.mobileScreen && (
                 <Typography variant="h6">Project details</Typography>
@@ -203,18 +186,16 @@ const DetailsPage = (props) => {
         projectTitle={props.info?.name}
         project_id={props.project_id}
       />
-      {!isError && !isLoading && (
+      <ActionsFeedbackBar
+        feedback="Changes saved"
+        open={isSuccess}
+        onClose={reset}
+      />
+      {isError && (
         <ActionsFeedbackBar
-          feedback="Changes saved"
-          onClose={toggleFeedbackBar}
-          open={onFeedbackBar}
-        />
-      )}
-      {isError && !isLoading && (
-        <ActionsFeedbackBar
-          feedback={error["message"] + " Please try again."}
-          onClose={toggleFeedbackBar}
-          open={onFeedbackBar}
+          feedback={error?.message + " Please try again."}
+          open={isError}
+          onClose={reset}
         />
       )}
     </Root>

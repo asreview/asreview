@@ -7,7 +7,7 @@ export function TypographyH5Medium(props) {
       variant="h5"
       sx={{ fontWeight: (theme) => theme.typography.fontWeightMedium }}
     >
-      {props.text}
+      {props.children}
     </Typography>
   );
 }
@@ -18,7 +18,7 @@ export function TypographySubtitle1Medium(props) {
       variant="subtitle1"
       sx={{ fontWeight: (theme) => theme.typography.fontWeightMedium }}
     >
-      {props.text}
+      {props.children}
     </Typography>
   );
 }
