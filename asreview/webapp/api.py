@@ -60,6 +60,7 @@ from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_simulation_ready_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
+from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -235,9 +236,32 @@ def api_init_project():  # noqa: F401
     return response, 201
 
 
-@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
-def api_convert_project_if_old(project_id):
-    """Get if project is converted"""
+@bp.route('/project/<project_id>/is_old', methods=["GET"])
+def api_get_project_is_old(project_id):
+    """Get if project is v0.x"""
+
+    project_path = get_project_path(project_id)
+
+    try:
+        is_old_project(project_path)
+
+    except ValueError:
+        response = jsonify({'success': False})
+
+    except Exception as err:
+        logging.error(err)
+        raise InternalServerError
+
+    else:
+        response = jsonify({'success': True})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/project/<project_id>/upgrade_if_old', methods=["GET"])
+def api_upgrade_project_if_old(project_id):
+    """Get upgrade project if it is v0.x"""
 
     project_path = get_project_path(project_id)
 

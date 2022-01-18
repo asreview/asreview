@@ -28,6 +28,20 @@ def test_get_projects(client):
     assert isinstance(json_data["result"], list)
 
 
+def test_get_project_is_old(client):
+    """Test if project is v0.x"""
+
+    response = client.get("/api/project/project-id/is_old")
+    assert response.status_code == 200
+
+
+def test_upgrade_project_if_old(client):
+    """Test upgrade project if it is v0.x"""
+
+    response = client.get("/api/project/project-id/upgrade_if_old")
+    assert response.status_code == 200
+
+
 def test_init_project(tmp_path, client):
     """Test create project."""
 
