@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
@@ -18,8 +18,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ProjectDeleteDialog } from "../../Components";
-import { TableRowButton } from "../DashboardComponents";
+import { DialogErrorHandler, ProjectDeleteDialog } from "../../Components";
+import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
@@ -121,13 +121,24 @@ const columns = [
 const ProjectTable = (props) => {
   const queryClient = useQueryClient();
 
-  const [page, setPage] = useState(0);
-  const [hoverRowId, setHoverRowId] = useState(null);
-  const [hoverRowIdPersistent, setHoverRowIdPersistent] = useState(null);
-  const [hoverRowTitle, setHoverRowTitle] = useState(null);
-  const [onProject, setOnProject] = useState(false);
+  /**
+   * Project table state
+   */
+  const [page, setPage] = React.useState(0);
+  const [hoverRowId, setHoverRowId] = React.useState(null);
+  const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
+  const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
+  const [destination, setDestination] = React.useState("dashboard");
+
+  /**
+   * Dialog state
+   */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
+  const [projectCheck, setProjectCheck] = React.useState({
+    open: false,
+    issue: null,
+  });
 
   /**
    * Fetch projects
@@ -136,26 +147,32 @@ const ProjectTable = (props) => {
     data,
     isFetched,
     isLoading: isLoadingProjects,
-    isSuccess,
+    isSuccess: isFetchProjectsSuccess,
   } = useQuery("fetchProjects", ProjectAPI.fetchProjects, {
     refetchOnWindowFocus: false,
   });
 
   /**
-   * When open a project, convert if old
+   * Check if project is old
    */
-  const { isLoading: isConverting } = useQuery(
-    ["fetchConvertProjectIfOld", { project_id: props.project_id }],
-    ProjectAPI.fetchConvertProjectIfOld,
+  const { error, isError, isFetching } = useQuery(
+    ["fetchProjectIsOld", { project_id: props.project_id }],
+    ProjectAPI.fetchProjectIsOld,
     {
-      enabled: onProject && props.project_id !== null,
-      onError: () => {
-        props.handleAppState("home");
+      enabled: props.project_id !== null,
+      onSuccess: (data) => {
+        if (!data["success"]) {
+          if (destination !== "dashboard") {
+            props.handleAppState("project-page");
+            props.handleNavState(destination);
+          }
+        } else {
+          setProjectCheck({
+            open: true,
+            issue: "upgrade",
+          });
+        }
       },
-      onSuccess: () => {
-        props.handleAppState("project-page");
-      },
-      onSettled: () => setOnProject(false),
       refetchOnWindowFocus: false,
     }
   );
@@ -251,7 +268,7 @@ const ProjectTable = (props) => {
           <TableBody>
             {!isLoadingProjects &&
               isFetched &&
-              isSuccess &&
+              isFetchProjectsSuccess &&
               data
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
@@ -270,16 +287,14 @@ const ProjectTable = (props) => {
                       // when project is in setup
                       props.handleProjectSetup();
                     } else {
-                      setOnProject(true);
-                      props.handleNavState("analytics");
+                      setDestination("analytics");
                     }
                   };
 
                   const onClickProjectReview = () => {
                     console.log("Opening existing project " + row.id);
-                    setOnProject(true);
                     props.setProjectId(row.id);
-                    props.handleNavState("review");
+                    setDestination("review");
                   };
 
                   const onClickProjectExport = () => {
@@ -290,9 +305,8 @@ const ProjectTable = (props) => {
                       );
                     } else {
                       console.log("Opening existing project " + row.id);
-                      setOnProject(true);
                       props.setProjectId(row.id);
-                      props.handleNavState("export");
+                      setDestination("export");
                     }
                   };
 
@@ -303,8 +317,7 @@ const ProjectTable = (props) => {
                       // when project is in setup
                       props.handleProjectSetup();
                     } else {
-                      setOnProject(true);
-                      props.handleNavState("details");
+                      setDestination("details");
                     }
                   };
                   return (
@@ -320,7 +333,7 @@ const ProjectTable = (props) => {
                     >
                       <TableCell sx={{ display: "flex" }}>
                         <Box className={classes.converting}>
-                          {isConverting && row.id === props.project_id && (
+                          {isFetching && row.id === props.project_id && (
                             <CircularProgress
                               size="1rem"
                               thickness={5}
@@ -330,9 +343,7 @@ const ProjectTable = (props) => {
                         </Box>
                         <Box className={classes.titleWrapper}>
                           <Typography
-                            onClick={
-                              isConverting ? null : onClickProjectAnalytics
-                            }
+                            onClick={onClickProjectAnalytics}
                             className={classes.title}
                             variant="subtitle1"
                           >
@@ -341,7 +352,6 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
-                              isConverting={isConverting}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
@@ -390,44 +400,63 @@ const ProjectTable = (props) => {
             <CircularProgress />
           </Box>
         )}
-        {!isLoadingProjects && isFetched && isSuccess && data?.length === 0 && (
-          <Box
-            sx={{
-              alignItems: "center",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
-              Your projects will show up here
-            </Typography>
-            <Button
-              onClick={(event) => {
-                props.handleClickAdd(event, "newProject");
+        {!isLoadingProjects &&
+          isFetched &&
+          isFetchProjectsSuccess &&
+          data?.length === 0 && (
+            <Box
+              sx={{
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              Get Started
-            </Button>
-            <img
-              src={ElasArrowRightAhead}
-              alt="ElasArrowRightAhead"
-              className={classes.img}
-            />
-          </Box>
-        )}
+              <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
+                Your projects will show up here
+              </Typography>
+              <Button
+                onClick={(event) => {
+                  props.handleClickAdd(event, "newProject");
+                }}
+              >
+                Get Started
+              </Button>
+              <img
+                src={ElasArrowRightAhead}
+                alt="ElasArrowRightAhead"
+                className={classes.img}
+              />
+            </Box>
+          )}
       </TableContainer>
-      {!isLoadingProjects && isFetched && isSuccess && data?.length !== 0 && (
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 15]}
-          component="div"
-          count={data?.length}
-          rowsPerPage={rowsPerPage}
-          labelRowsPerPage="Projects per page:"
-          page={page}
-          onPageChange={handlePage}
-          onRowsPerPageChange={setRowsPerPage}
-        />
-      )}
+      {!isLoadingProjects &&
+        isFetched &&
+        isFetchProjectsSuccess &&
+        data?.length !== 0 && (
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 15]}
+            component="div"
+            count={data?.length}
+            rowsPerPage={rowsPerPage}
+            labelRowsPerPage="Projects per page:"
+            page={page}
+            onPageChange={handlePage}
+            onRowsPerPageChange={setRowsPerPage}
+          />
+        )}
+      <DialogErrorHandler
+        error={error}
+        isError={isError}
+        queryKey="fetchProjectIsOld"
+      />
+      <ProjectCheckDialog
+        destination={destination}
+        handleAppState={props.handleAppState}
+        handleNavState={props.handleNavState}
+        projectCheck={projectCheck}
+        setDestination={setDestination}
+        setProjectCheck={setProjectCheck}
+      />
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
