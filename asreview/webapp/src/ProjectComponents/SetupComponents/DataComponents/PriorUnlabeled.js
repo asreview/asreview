@@ -15,6 +15,7 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
+import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
 
@@ -85,6 +86,12 @@ const PriorUnlabeled = (props) => {
     }
   );
 
+  const isDebugInclusion = () => {
+    if (props.record) {
+      return props.record._debug_label === 1;
+    }
+  };
+
   return (
     <Root>
       {isError && (
@@ -98,6 +105,7 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
+          {isDebugInclusion() && <ExplorationModeRecordAlert />}
           <CardContent>
             <Typography gutterBottom variant="h6">
               {props.record.title ? props.record.title : "No title available."}
