@@ -61,8 +61,8 @@ Dataset extensions
 
 .. _extensions-community:
 
-Community-Maintained Extensions
--------------------------------
+Community-Maintained Extensions and Tools
+----------------------------------------
 
 ASReview has support for community-maintained extensions, that enable you to
 seamlessly integrate your code with the ASReview framework. These extensions can
@@ -106,6 +106,12 @@ The following extensions are developed and maintained by the ASReview community:
       matrix and the vocabulary to pickle and JSON respectively, and a doc2vec
       extractor that grabs the entire doc2vec model. 
     - `Github <https://github.com/asreview/asreview-extension-vocab-extractor>`__ 
+
+* xref2csv tool to convert XREF XML files to CSV files required for ASreview
+    - Although not really an ASreview extension, the 
+      [xref2csv](https://github.com/erikvullings/xref2csv) tool converts XREF
+      XML files, as created by our organisation's library department, to CSV 
+      files that can be imported to ASreview.
 
 If an extension is not on this list, or you made one and you would like it to 
 be added to this list, please initiate an issue on `Github
