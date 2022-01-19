@@ -219,9 +219,10 @@ const RecordCard = (props) => {
           >
             <Box>
               <NoteSheet
-                note={props.recordNote["data"]}
-                setRecordNote={props.setRecordNote}
+                note={props.recordNote.data}
                 noteFieldAutoFocus={props.noteFieldAutoFocus}
+                previousRecord={props.previousRecord}
+                setRecordNote={props.setRecordNote}
               />
             </Box>
           </Slide>
@@ -233,7 +234,9 @@ const RecordCard = (props) => {
                 onClick={expandNoteSheet}
                 aria-label="add note"
               >
-                {props.recordNote["data"] ? "Edit Note" : "Add Note"}
+                {props.previousRecord.show && props.previousRecord.note
+                  ? "Edit Note"
+                  : "Add Note"}
               </Button>
             </CardActions>
           )}

@@ -28,6 +28,7 @@ const StyledCard = styled(Card)({
   },
   [`& .${classes.button}`]: {
     justifyContent: "flex-end",
+    paddingRight: 16,
   },
   [`& .${classes.title}`]: {
     display: "flex",
@@ -36,6 +37,7 @@ const StyledCard = styled(Card)({
 });
 
 const NoteSheet = (props) => {
+  const [disableUndoButton, setDisableUndoButton] = React.useState(true);
   const handleNote = (event) => {
     props.setRecordNote((s) => {
       return {
@@ -43,16 +45,18 @@ const NoteSheet = (props) => {
         data: event.target.value,
       };
     });
+    setDisableUndoButton(false);
   };
 
-  const discardNote = () => {
+  const handleClickUndoChanges = () => {
     props.setRecordNote((s) => {
       return {
         ...s,
         expand: false,
-        data: null,
+        data: !props.previousRecord.show ? null : props.previousRecord.note,
       };
     });
+    setDisableUndoButton(true);
   };
 
   return (
@@ -74,8 +78,13 @@ const NoteSheet = (props) => {
         </Box>
       </CardContent>
       <CardActions className={classes.button}>
-        <Button color="primary" size="small" onClick={discardNote}>
-          Discard Changes
+        <Button
+          color="primary"
+          disabled={disableUndoButton}
+          size="small"
+          onClick={handleClickUndoChanges}
+        >
+          Undo Changes
         </Button>
       </CardActions>
     </StyledCard>

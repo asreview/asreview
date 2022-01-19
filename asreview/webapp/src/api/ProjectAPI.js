@@ -480,12 +480,8 @@ class ProjectAPI {
   static mutateClassification(variables) {
     let body = new FormData();
     body.set("doc_id", variables.doc_id);
-
-    if (!variables.initial && variables.label !== -1) {
-      body.set("label", variables.label === 1 ? 0 : 1);
-    } else {
-      body.set("label", variables.label);
-    }
+    body.set("label", variables.label);
+    body.set("note", variables.note);
 
     // prior items should be labeled as such
     if (variables.is_prior === 1) {
@@ -505,13 +501,7 @@ class ProjectAPI {
           resolve(result);
           console.log(
             `${variables.project_id} - add item ${variables.doc_id} to ${
-              variables.label === 1
-                ? variables.initial
-                  ? "inclusions"
-                  : "exclusions"
-                : variables.initial
-                ? "exclusions"
-                : "inclusions"
+              variables.label === 1 ? "inclusions" : "exclusions"
             }`
           );
         })
