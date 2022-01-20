@@ -488,15 +488,16 @@ class SqlStateV1(BaseState):
                                             (?)""", proba_sql_input)
         con.commit()
 
-    def add_last_ranking(self, ranking, classifier, query_strategy,
+    def add_last_ranking(self, ranked_record_ids, classifier, query_strategy,
                          balance_strategy, feature_extraction, training_set):
         """Save the ranking of the last iteration of the model."""
         record_ids = self.get_record_table()
 
-        if len(record_ids) != len(ranking):
+        if len(record_ids) != len(ranked_record_ids):
             raise ValueError("The ranking should have the same length as the "
                              "record table.")
 
+        ranking = range(len(record_ids))
         classifiers = [classifier for _ in record_ids]
         query_strategies = [query_strategy for _ in record_ids]
         balance_strategies = [balance_strategy for _ in record_ids]
@@ -505,7 +506,7 @@ class SqlStateV1(BaseState):
         ranking_times = [datetime.now()] * len(record_ids)
 
         # Create the database rows.
-        db_rows = [(int(record_ids[i]), int(ranking[i]), classifiers[i],
+        db_rows = [(int(ranked_record_ids[i]), int(ranking[i]), classifiers[i],
                     query_strategies[i], balance_strategies[i],
                     feature_extractions[i], training_sets[i], ranking_times[i])
                    for i in range(len(record_ids))]

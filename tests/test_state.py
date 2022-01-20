@@ -530,7 +530,7 @@ def test_last_ranking(tmpdir):
                                               'training_set',
                                               'time']
 
-        assert last_ranking['ranking'].to_list() == ranking
-        assert last_ranking['record_id'].to_list() == record_ids
+        assert last_ranking['ranking'].to_list() == [0, 1, 2, 3, 4, 5]
+        assert last_ranking['record_id'].to_list() == ranking
         assert last_ranking['classifier'].to_list() == \
                [classifier] * len(record_ids)
