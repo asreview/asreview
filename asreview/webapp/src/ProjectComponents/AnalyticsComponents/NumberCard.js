@@ -62,12 +62,15 @@ export default function NumberCard(props) {
               <Stack spacing={2} className={classes.content}>
                 <Typography
                   className={classes.text}
-                  variant="subtitle1"
+                  variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
                   Labeled Records
                 </Typography>
-                <Typography className={classes.number} variant="h4">
+                <Typography
+                  className={classes.number}
+                  variant={!props.mobileScreen ? "h4" : "h5"}
+                >
                   <NumberFormat
                     value={
                       showNumber()
@@ -89,12 +92,15 @@ export default function NumberCard(props) {
               <Stack spacing={2} className={classes.content}>
                 <Typography
                   className={classes.text}
-                  variant="subtitle1"
+                  variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
                   Relevant Records
                 </Typography>
-                <Typography className={classes.number} variant="h4">
+                <Typography
+                  className={classes.number}
+                  variant={!props.mobileScreen ? "h4" : "h5"}
+                >
                   <NumberFormat
                     value={
                       showNumber() ? props.progressQuery.data["n_included"] : 0
@@ -113,12 +119,15 @@ export default function NumberCard(props) {
               <Stack spacing={2} className={classes.content}>
                 <Typography
                   className={classes.text}
-                  variant="subtitle1"
+                  variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
-                  Reviewed Records Since Last Relevant
+                  Labeled Records Since Last Relevant
                 </Typography>
-                <Typography className={classes.number} variant="h4">
+                <Typography
+                  className={classes.number}
+                  variant={!props.mobileScreen ? "h4" : "h5"}
+                >
                   <NumberFormat
                     value={
                       showNumber()

@@ -243,6 +243,13 @@ def test_get_labels():
         assert all(state.get_labels() == TEST_LABELS)
 
 
+def test_get_labels_wo_priors():
+    with open_state(TEST_STATE_FP) as state:
+        labels = state.get_labels(priors=False)
+        assert isinstance(labels, pd.Series)
+        assert all(labels == TEST_LABELS[4:])
+
+
 def test_get_labeling_times():
     with open_state(TEST_WITH_TIMES_FP) as state:
         assert isinstance(state.get_labeling_times(), pd.Series)
@@ -453,7 +460,7 @@ def test_add_note(tmpdir):
         assert record_data['notes'][0] == note
 
 
-def test_change_decision(tmpdir):
+def test_update_decision(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
@@ -462,12 +469,12 @@ def test_change_decision(tmpdir):
                                 prior=True)
 
         for i in range(3):
-            state.change_decision(TEST_RECORD_IDS[i])
+            state.update_decision(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
             new_label = \
                 state.get_data_by_record_id(TEST_RECORD_IDS[i])['label'][0]
             assert new_label == 1 - TEST_LABELS[i]
 
-        state.change_decision(TEST_RECORD_IDS[1])
+        state.update_decision(TEST_RECORD_IDS[1], TEST_LABELS[1])
         new_label = \
             state.get_data_by_record_id(TEST_RECORD_IDS[1])['label'][0]
         assert new_label == TEST_LABELS[1]

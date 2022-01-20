@@ -3,6 +3,8 @@ import Chart from "react-apexcharts";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+
 const PREFIX = "ProgressChart";
 
 const classes = {
@@ -76,15 +78,23 @@ export default function ProgressChart(props) {
               fontSize: "22px",
             },
             value: {
-              fontSize: theme.typography.h5.fontSize,
-              fontFamily: theme.typography.h5.fontFamily,
+              fontSize: !props.mobileScreen
+                ? theme.typography.h5.fontSize
+                : theme.typography.h6.fontSize,
+              fontFamily: !props.mobileScreen
+                ? theme.typography.h5.fontFamily
+                : theme.typography.h6.fontFamily,
               fontWeight: theme.typography.fontWeightBold,
             },
             total: {
               show: true,
               label: "Total Records",
-              fontSize: theme.typography.subtitle1.fontSize,
-              fontFamily: theme.typography.subtitle1.fontFamily,
+              fontSize: !props.mobileScreen
+                ? theme.typography.subtitle1.fontSize
+                : theme.typography.subtitle2.fontSize,
+              fontFamily: !props.mobileScreen
+                ? theme.typography.subtitle1.fontFamily
+                : theme.typography.subtitle2.fontFamily,
               color: theme.palette.text.secondary,
               formatter: formattedTotal,
             },
@@ -106,7 +116,7 @@ export default function ProgressChart(props) {
       legend: {
         show: true,
         position: "bottom",
-        fontSize: "14px",
+        fontSize: !props.mobileScreen ? "14px" : "12px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -146,7 +156,7 @@ export default function ProgressChart(props) {
         mode: theme.palette.mode,
       },
     };
-  }, [theme, formattedTotal]);
+  }, [theme, formattedTotal, props.mobileScreen]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState({});
@@ -160,7 +170,14 @@ export default function ProgressChart(props) {
     <StyledCard elevation={2}>
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Typography variant="h6">Current Progress</Typography>
+          {!props.mobileScreen && (
+            <Typography variant="h6">Current Progress</Typography>
+          )}
+          {props.mobileScreen && (
+            <TypographySubtitle1Medium>
+              Current Progress
+            </TypographySubtitle1Medium>
+          )}
           <Chart
             options={options}
             series={series}

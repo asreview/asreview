@@ -620,24 +620,19 @@ class SqlStateV1(BaseState):
         con.commit()
         con.close()
 
-    def change_decision(self, record_id):
+    def update_decision(self, record_id, label, note=None):
         """Change the label of a record from 0 to 1 or vice versa."""
-        current_label = self.get_data_by_record_id(record_id)['label'][0]
-
-        # New label should be of type int, not np.int, to insert into sql.
-        new_label = int(1 - current_label)
-        current_time = datetime.now()
 
         con = self._connect_to_sql()
         cur = con.cursor()
 
         # Change the label.
-        cur.execute("UPDATE results SET label = ? WHERE record_id = ?",
-                    (new_label, record_id))
+        cur.execute("UPDATE results SET label = ?, notes = ? WHERE record_id = ?",
+                    (label, note, record_id))
 
         # Add the change to the decision changes table.
         cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
-                    (record_id, new_label, current_time))
+                    (record_id, label, datetime.now()))
 
         con.commit()
         con.close()
@@ -897,15 +892,24 @@ class SqlStateV1(BaseState):
         """
         return self.get_order_of_labeling()[:self.n_priors]
 
-    def get_labels(self):
+    def get_labels(self, priors=True):
         """Get the labels from the state file.
+
+        priors: bool
+            Include the prior labels. Default True.
 
         Returns
         -------
         pd.Series:
             Series containing the labels at each labelling moment.
         """
-        return self.get_dataset('label')['label'].dropna()
+
+        subset = self.get_dataset(['label', 'query_strategy'])
+
+        if not priors:
+            subset = subset[subset['query_strategy'] != "prior"].copy()
+
+        return subset['label'].dropna()
 
     def get_classifiers(self):
         """Get the classifiers from the state file.

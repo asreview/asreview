@@ -518,14 +518,19 @@ def api_search_data(project_id):  # noqa: F401
                                     exclude=labeled_record_ids,
                                     by_index=True)
 
-            for paper in as_data.record(result_idx, by_index=True):
+            for record in as_data.record(result_idx, by_index=True):
+
+                debug_label = record.extra_fields.get("debug_label", None)
+                debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
                 payload["result"].append({
-                    "id": int(paper.record_id),
-                    "title": paper.title,
-                    "abstract": paper.abstract,
-                    "authors": paper.authors,
-                    "keywords": paper.keywords,
-                    "included": int(paper.included)
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": int(record.included),
+                    "_debug_label": debug_label
                 })
 
     except SearchError as search_err:
@@ -687,6 +692,9 @@ def api_random_prior_papers(project_id):  # noqa: F401
     try:
         record = read_data(project_id).record(pool_random, by_index=False)
 
+        debug_label = record.extra_fields.get("debug_label", None)
+        debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
         payload = {"result": []}
 
         payload["result"].append({
@@ -695,7 +703,8 @@ def api_random_prior_papers(project_id):  # noqa: F401
             "abstract": record.abstract,
             "authors": record.authors,
             "keywords": record.keywords,
-            "included": None
+            "included": None,
+            "_debug_label": debug_label
         })
 
     except Exception as err:
@@ -1124,16 +1133,19 @@ def api_get_progress_info(project_id):  # noqa: F401
 def api_get_progress_density(project_id):
     """Get progress density of a project"""
 
+    include_priors = request.args.get('priors', False, type=bool)
+
     try:
         # get label history
         project_path = get_project_path(project_id)
 
         with open_state(project_path) as s:
-            data = s.get_labels()
+            data = s.get_labels(priors=include_priors)
 
         # create a dataset with the rolling mean of every 10 papers
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .rolling(10, min_periods=1) \
             .mean()
         df["Total"] = df.index + 1
@@ -1182,15 +1194,18 @@ def api_get_progress_density(project_id):
 def api_get_progress_recall(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
+    include_priors = request.args.get('priors', False, type=bool)
+
     project_path = get_project_path(project_id)
     try:
         with open_state(project_path) as s:
-            data = s.get_labels()
+            data = s.get_labels(priors=include_priors)
             n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (df["Total"] *
@@ -1235,6 +1250,7 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     # return the combination of document_id and label.
     doc_id = request.form.get('doc_id')
     label = request.form.get('label')
+    note = request.form.get('note')
     is_prior = request.form.get('is_prior', default=False)
 
     retrain_model = False if is_prior == "1" else True
@@ -1244,12 +1260,14 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
         label_instance(project_id,
                        doc_id,
                        label,
+                       note=note,
                        prior=prior,
                        retrain_model=retrain_model)
     elif request.method == 'PUT':
         update_instance(project_id,
                         doc_id,
                         label,
+                        note=note,
                         retrain_model=retrain_model)
 
     response = jsonify({'success': True})
