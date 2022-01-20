@@ -53,12 +53,10 @@ const LabeledRecordCard = (props) => {
         // update cached data
         queryClient.setQueryData(
           [
-            props.label === "relevant"
-              ? "fetchRelevantLabeledRecord"
-              : "fetchIrrelevantLabeledRecord",
+            "fetchLabeledRecord",
             {
               project_id: props.project_id,
-              select: props.label === "relevant" ? "included" : "excluded",
+              subset: props.returnSubset(),
             },
           ],
           (prev) => {
@@ -142,7 +140,8 @@ const LabeledRecordCard = (props) => {
                     mutate({
                       project_id: props.project_id,
                       doc_id: value.id,
-                      label: value.included,
+                      label: value.included === 1 ? 0 : 1,
+                      note: !value.note ? "" : value.note,
                       initial: false,
                       is_prior: !props.is_prior ? 0 : 1,
                     });

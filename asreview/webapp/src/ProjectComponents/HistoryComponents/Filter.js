@@ -30,12 +30,15 @@ export default function Filter(props) {
     );
   };
 
-  const hidePlaceholder = (value) => {
+  const handleFilterQuery = (value) => {
+    // hide place holder
     if (value.length) {
       setPlaceholder("");
     } else {
       setPlaceholder("Filter");
     }
+    // pass filter query
+    props.setFilterQuery(value);
   };
 
   const onClickFilter = () => {
@@ -71,7 +74,7 @@ export default function Filter(props) {
           );
         }}
         onChange={(event, value) => {
-          hidePlaceholder(value);
+          handleFilterQuery(value);
         }}
       />
       {/*

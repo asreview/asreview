@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { connect } from "react-redux";
 import { Box, Divider, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -9,12 +9,13 @@ import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
-const filterOptions = [{ label: "Contains note", value: 0 }];
+const filterOptions = [{ value: "note", label: "Contains note" }];
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const HistoryPage = (props) => {
-  const [label, setLabel] = useState("relevant");
+  const [label, setLabel] = React.useState("relevant");
+  const [filterQuery, setFilterQuery] = React.useState(null);
 
   return (
     <Root aria-label="history page">
@@ -30,12 +31,15 @@ const HistoryPage = (props) => {
           >
             <LabelChip label={label} setLabel={setLabel} />
             <Divider />
-            <Filter filterOptions={filterOptions} />
+            <Filter
+              filterOptions={filterOptions}
+              setFilterQuery={setFilterQuery}
+            />
             <Divider />
           </Box>
           <Box className="main-page-body-wrapper">
             <Box className="main-page-body">
-              <LabeledRecord label={label} />
+              <LabeledRecord label={label} filterQuery={filterQuery} />
             </Box>
           </Box>
         </Box>
