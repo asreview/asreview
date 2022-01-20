@@ -53,7 +53,7 @@ const NoteSheet = (props) => {
       return {
         ...s,
         expand: false,
-        data: !props.previousRecord.show ? null : props.previousRecord.note,
+        data: !props.previousRecord.show ? "" : props.previousRecord.note,
       };
     });
     setDisableUndoButton(true);
@@ -64,6 +64,7 @@ const NoteSheet = (props) => {
       <CardContent className={classes.note}>
         <Box>
           <TextField
+            autoComplete="off"
             id="multiline-note"
             label="Note"
             autoFocus={props.noteFieldAutoFocus()}

@@ -35,7 +35,7 @@ const ReviewPage = (props) => {
   const [recordNote, setRecordNote] = React.useState({
     expand: false,
     shrink: true, // for smooth transition
-    data: null,
+    data: "",
   });
   const [undoState, setUndoState] = React.useState({
     open: false,
@@ -184,7 +184,7 @@ const ReviewPage = (props) => {
     setRecordNote({
       expand: false,
       shrink: true,
-      data: null,
+      data: "",
     });
   };
 

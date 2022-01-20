@@ -144,6 +144,7 @@ const PriorUnlabeled = (props) => {
                     project_id: props.project_id,
                     doc_id: props.record.id,
                     label: 1,
+                    note: "",
                     initial: true,
                     is_prior: 1,
                   });
@@ -158,6 +159,7 @@ const PriorUnlabeled = (props) => {
                     project_id: props.project_id,
                     doc_id: props.record.id,
                     label: 0,
+                    note: "",
                     initial: true,
                     is_prior: 1,
                   });
