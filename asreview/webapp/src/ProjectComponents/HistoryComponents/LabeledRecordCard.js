@@ -3,47 +3,54 @@ import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
+  Avatar,
   Box,
   Card,
   CardActions,
   CardContent,
+  Collapse,
+  Divider,
   IconButton,
   Link,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { Comment, Favorite, FavoriteBorder } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
+import "../../App.css";
+
+import ElasAvatar from "../../images/ElasAvatar.svg";
 
 const PREFIX = "LabeledRecordCard";
 
 const classes = {
   root: `${PREFIX}-root`,
-  icon: `${PREFIX}-icon`,
+  cardActions: `${PREFIX}-card-actions`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 16,
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
     maxWidth: 960,
   },
 
-  [`& .${classes.icon}`]: {
-    marginLeft: "auto",
+  [`& .${classes.cardActions}`]: {
+    justifyContent: "flex-end",
   },
 }));
 
 const LabeledRecordCard = (props) => {
   const queryClient = useQueryClient();
   const [recordReadMore, setRecordReadMore] = React.useState(null);
+  const [showNote, setShowNote] = React.useState(null);
 
   const { error, isError, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
@@ -102,7 +109,7 @@ const LabeledRecordCard = (props) => {
       {!isError &&
         props.page.result.map((value) => (
           <Card elevation={3} className={classes.root} key={value.id}>
-            <CardContent>
+            <CardContent className="record-card-content">
               <Typography gutterBottom variant="h6">
                 {value.title ? value.title : "No title available."}
               </Typography>
@@ -126,7 +133,29 @@ const LabeledRecordCard = (props) => {
                 </Typography>
               </TruncateMarkup>
             </CardContent>
-            <CardActions>
+            <CardActions className={classes.cardActions}>
+              {!props.is_prior && (
+                <Tooltip
+                  title={
+                    value.id !== showNote
+                      ? !value.note
+                        ? "Add note"
+                        : "Show note"
+                      : "Hide note"
+                  }
+                >
+                  <IconButton
+                    onClick={() => {
+                      value.id !== showNote
+                        ? setShowNote(value.id)
+                        : setShowNote(null);
+                    }}
+                    size="large"
+                  >
+                    <Comment fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
               <Tooltip
                 title={
                   value.included === 1
@@ -135,7 +164,6 @@ const LabeledRecordCard = (props) => {
                 }
               >
                 <IconButton
-                  className={classes.icon}
                   onClick={() => {
                     mutate({
                       project_id: props.project_id,
@@ -149,13 +177,49 @@ const LabeledRecordCard = (props) => {
                   size="large"
                 >
                   {value.included === 1 ? (
-                    <FavoriteIcon color="error" fontSize="small" />
+                    <Favorite color="error" fontSize="small" />
                   ) : (
-                    <FavoriteBorderIcon fontSize="small" />
+                    <FavoriteBorder fontSize="small" />
                   )}
                 </IconButton>
               </Tooltip>
             </CardActions>
+            <Collapse in={value.id === showNote} timeout="auto" unmountOnExit>
+              <Divider />
+              <CardContent className="record-card-content">
+                <Stack direction="row" spacing={3}>
+                  <Avatar
+                    alt="user"
+                    src={ElasAvatar}
+                    size={50}
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark" ? "grey.600" : "grey.400",
+                    }}
+                    imgProps={{ sx: { p: 1 } }}
+                  />
+                  <Card
+                    elevation={0}
+                    sx={{
+                      borderRadius: 4,
+                      width: "100%",
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "background.paper"
+                          : "grey.100",
+                    }}
+                  >
+                    <CardContent>
+                      <Typography sx={{ color: "text.secondary" }}>
+                        {value.note}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Stack>
+              </CardContent>
+            </Collapse>
           </Card>
         ))}
     </Root>
