@@ -1,6 +1,7 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "../globals.js";
 import axios from "axios";
+import qs from "qs";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
@@ -201,12 +202,15 @@ class ProjectAPI {
   }
 
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
-    const { project_id, select, per_page } = queryKey[1];
+    const { project_id, subset, per_page } = queryKey[1];
     const url = api_url + `project/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, {
-          params: { subset: select, page: pageParam, per_page: per_page },
+          params: { subset: subset, page: pageParam, per_page: per_page },
+          paramsSerializer: (params) => {
+            return qs.stringify(params, { arrayFormat: "repeat" });
+          },
         })
         .then((result) => {
           resolve(result.data);
