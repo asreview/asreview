@@ -56,3 +56,11 @@
 .typography-wrap {
   white-space: pre-line;
 }
+
+.record-card-content {
+  padding: 24px;
+}
+
+.MuiCardActions-root {
+  padding: 8px 16px;
+}

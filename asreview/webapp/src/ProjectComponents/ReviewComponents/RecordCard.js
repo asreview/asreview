@@ -16,6 +16,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
 import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
+import "../../App.css";
 
 const PREFIX = "RecordCard";
 
@@ -133,7 +134,7 @@ const RecordCard = (props) => {
           {isDebugInclusion() && <ExplorationModeRecordAlert />}
 
           <CardContent
-            className={classes.titleAbstract}
+            className={`${classes.titleAbstract} record-card-content`}
             aria-label="record title abstract"
           >
             {/* Show the title */}
