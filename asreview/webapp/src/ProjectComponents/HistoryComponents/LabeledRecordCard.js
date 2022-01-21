@@ -1,31 +1,26 @@
-import React from "react";
+import * as React from "react";
 import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
-  Avatar,
   Box,
   Card,
   CardActions,
   CardContent,
-  Collapse,
-  Divider,
   IconButton,
   Link,
-  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { Comment, Favorite, FavoriteBorder } from "@mui/icons-material";
+import { Favorite, FavoriteBorder } from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
+import { RecordCardNote } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
-
-import ElasAvatar from "../../images/ElasAvatar.svg";
 
 const PREFIX = "LabeledRecordCard";
 
@@ -50,9 +45,12 @@ const Root = styled("div")(({ theme }) => ({
 const LabeledRecordCard = (props) => {
   const queryClient = useQueryClient();
   const [recordReadMore, setRecordReadMore] = React.useState(null);
-  const [showNote, setShowNote] = React.useState(null);
+  const [note, setNote] = React.useState({
+    data: null,
+    editing: null,
+  });
 
-  const { error, isError, mutate, reset } = useMutation(
+  const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
     {
       mutationKey: "mutateLabeledPriorKnowledge",
@@ -76,11 +74,15 @@ const LabeledRecordCard = (props) => {
                     return {
                       ...value,
                       included:
-                        value.id === variables.doc_id
-                          ? value.included === 1
-                            ? 0
-                            : 1
-                          : value.included,
+                        value.id !== variables.doc_id
+                          ? value.included
+                          : variables.label,
+                      note:
+                        value.id !== variables.doc_id
+                          ? value.note
+                          : !variables.note
+                          ? null
+                          : variables.note,
                     };
                   }),
                 };
@@ -88,6 +90,15 @@ const LabeledRecordCard = (props) => {
             };
           }
         );
+        if (variables.doc_id === recordReadMore) {
+          setRecordReadMore(null);
+        }
+        if (variables.doc_id === note.editing) {
+          setNote({
+            data: null,
+            editing: null,
+          });
+        }
         if (props.is_prior) {
           queryClient.invalidateQueries("fetchLabeledStats");
         }
@@ -111,7 +122,7 @@ const LabeledRecordCard = (props) => {
           <Card elevation={3} className={classes.root} key={value.id}>
             <CardContent className="record-card-content">
               <Typography gutterBottom variant="h6">
-                {value.title ? value.title : "No title available."}
+                {value.title ? value.title : "No title available"}
               </Typography>
               <TruncateMarkup
                 lines={value.id === recordReadMore ? Infinity : 6}
@@ -129,97 +140,52 @@ const LabeledRecordCard = (props) => {
                 }
               >
                 <Typography color="textSecondary">
-                  {value.abstract ? value.abstract : "No abstract available."}
+                  {value.abstract ? value.abstract : "No abstract available"}
                 </Typography>
               </TruncateMarkup>
             </CardContent>
             <CardActions className={classes.cardActions}>
-              {!props.is_prior && (
-                <Tooltip
-                  title={
-                    value.id !== showNote
-                      ? !value.note
-                        ? "Add note"
-                        : "Show note"
-                      : "Hide note"
-                  }
-                >
+              <Tooltip
+                title={
+                  note.editing !== value.id
+                    ? value.included === 1
+                      ? "Convert to irrelevant"
+                      : "Convert to relevant"
+                    : "Save note before converting"
+                }
+              >
+                <span>
                   <IconButton
+                    disabled={isLoading || note.editing === value.id}
                     onClick={() => {
-                      value.id !== showNote
-                        ? setShowNote(value.id)
-                        : setShowNote(null);
+                      mutate({
+                        project_id: props.project_id,
+                        doc_id: value.id,
+                        label: value.included === 1 ? 0 : 1,
+                        note: !value.note ? "" : value.note,
+                        initial: false,
+                        is_prior: !props.is_prior ? 0 : 1,
+                      });
                     }}
                     size="large"
                   >
-                    <Comment fontSize="small" />
+                    {value.included === 1 ? (
+                      <Favorite color="error" fontSize="small" />
+                    ) : (
+                      <FavoriteBorder fontSize="small" />
+                    )}
                   </IconButton>
-                </Tooltip>
-              )}
-              <Tooltip
-                title={
-                  value.included === 1
-                    ? "Convert to irrelevant"
-                    : "Convert to relevant"
-                }
-              >
-                <IconButton
-                  onClick={() => {
-                    mutate({
-                      project_id: props.project_id,
-                      doc_id: value.id,
-                      label: value.included === 1 ? 0 : 1,
-                      note: !value.note ? "" : value.note,
-                      initial: false,
-                      is_prior: !props.is_prior ? 0 : 1,
-                    });
-                  }}
-                  size="large"
-                >
-                  {value.included === 1 ? (
-                    <Favorite color="error" fontSize="small" />
-                  ) : (
-                    <FavoriteBorder fontSize="small" />
-                  )}
-                </IconButton>
+                </span>
               </Tooltip>
             </CardActions>
-            <Collapse in={value.id === showNote} timeout="auto" unmountOnExit>
-              <Divider />
-              <CardContent className="record-card-content">
-                <Stack direction="row" spacing={3}>
-                  <Avatar
-                    alt="user"
-                    src={ElasAvatar}
-                    size={50}
-                    sx={{
-                      width: 56,
-                      height: 56,
-                      bgcolor: (theme) =>
-                        theme.palette.mode === "dark" ? "grey.600" : "grey.400",
-                    }}
-                    imgProps={{ sx: { p: 1 } }}
-                  />
-                  <Card
-                    elevation={0}
-                    sx={{
-                      borderRadius: 4,
-                      width: "100%",
-                      bgcolor: (theme) =>
-                        theme.palette.mode === "dark"
-                          ? "background.paper"
-                          : "grey.100",
-                    }}
-                  >
-                    <CardContent>
-                      <Typography sx={{ color: "text.secondary" }}>
-                        {value.note}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Stack>
-              </CardContent>
-            </Collapse>
+            <RecordCardNote
+              isLoading={isLoading}
+              record={value}
+              mutate={mutate}
+              note={note}
+              setNote={setNote}
+              is_prior={props.is_prior}
+            />
           </Card>
         ))}
     </Root>
