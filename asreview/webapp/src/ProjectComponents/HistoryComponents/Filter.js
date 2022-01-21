@@ -48,7 +48,7 @@ export default function Filter(props) {
   return (
     <Root>
       <IconButton className={classes.icon} onClick={onClickFilter}>
-        <FilterList />
+        <FilterList fontSize={!props.mobileScreen ? "medium" : "small"} />
       </IconButton>
       <Autocomplete
         id="filter labeled record"

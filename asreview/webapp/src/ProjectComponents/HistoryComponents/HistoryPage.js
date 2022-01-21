@@ -29,9 +29,14 @@ const HistoryPage = (props) => {
             className="main-page-sticky-header-wrapper"
             sx={{ background: (theme) => theme.palette.background.paper }}
           >
-            <LabelChip label={label} setLabel={setLabel} />
+            <LabelChip
+              mobileScreen={props.mobileScreen}
+              label={label}
+              setLabel={setLabel}
+            />
             <Divider />
             <Filter
+              mobileScreen={props.mobileScreen}
               filterOptions={filterOptions}
               setFilterQuery={setFilterQuery}
             />
@@ -39,7 +44,11 @@ const HistoryPage = (props) => {
           </Box>
           <Box className="main-page-body-wrapper">
             <Box className="main-page-body">
-              <LabeledRecord label={label} filterQuery={filterQuery} />
+              <LabeledRecord
+                label={label}
+                filterQuery={filterQuery}
+                mobileScreen={props.mobileScreen}
+              />
             </Box>
           </Box>
         </Box>

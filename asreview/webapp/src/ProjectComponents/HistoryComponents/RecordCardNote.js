@@ -72,13 +72,13 @@ const RecordCardNote = (props) => {
         unmountOnExit
       >
         <CardContent sx={{ padding: "16px 16px 24px 24px" }}>
-          <Stack direction="row" spacing={3}>
+          <Stack direction="row" spacing={!props.mobileScreen ? 3 : 2}>
             <Avatar
               alt="user"
               src={ElasAvatar}
               sx={{
-                width: 56,
-                height: 56,
+                width: !props.mobileScreen ? 56 : 40,
+                height: !props.mobileScreen ? 56 : 40,
                 bgcolor: (theme) =>
                   theme.palette.mode === "dark" ? "grey.600" : "grey.400",
               }}
@@ -87,7 +87,7 @@ const RecordCardNote = (props) => {
             {props.note?.editing === props.record?.id && (
               <Stack
                 direction="row"
-                spacing={2}
+                spacing={!props.mobileScreen ? 2 : 1}
                 sx={{ alignItems: "center", width: "100%" }}
               >
                 <FormControl sx={{ width: "100%" }} variant="outlined">
@@ -118,7 +118,9 @@ const RecordCardNote = (props) => {
                       }
                       onClick={() => handleClickSaveNote(props.record?.note)}
                     >
-                      <Send />
+                      <Send
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -127,7 +129,7 @@ const RecordCardNote = (props) => {
             {props.record?.note && props.note?.editing !== props.record?.id && (
               <Stack
                 direction="row"
-                spacing={2}
+                spacing={!props.mobileScreen ? 2 : 1}
                 sx={{ alignItems: "center", width: "100%" }}
               >
                 <Card
@@ -164,7 +166,9 @@ const RecordCardNote = (props) => {
                         )
                       }
                     >
-                      <Edit />
+                      <Edit
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     </IconButton>
                   </span>
                 </Tooltip>

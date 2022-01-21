@@ -130,6 +130,7 @@ const LabeledRecord = (props) => {
                     key={`result-page-${index}`}
                     is_prior={props.is_prior}
                     returnSubset={returnSubset}
+                    mobileScreen={props.mobileScreen}
                   />
                 ))}
               <InView

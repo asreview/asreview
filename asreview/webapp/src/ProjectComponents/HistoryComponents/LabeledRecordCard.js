@@ -40,6 +40,9 @@ const Root = styled("div")(({ theme }) => ({
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
     maxWidth: 960,
+    [theme.breakpoints.down("md")]: {
+      borderRadius: 0,
+    },
   },
 
   [`& .${classes.cardActions}`]: {
@@ -209,9 +212,14 @@ const LabeledRecordCard = (props) => {
                     }}
                   >
                     {value.included === 1 ? (
-                      <Favorite color="error" />
+                      <Favorite
+                        color="error"
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     ) : (
-                      <FavoriteBorder />
+                      <FavoriteBorder
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     )}
                   </IconButton>
                 </span>
@@ -229,7 +237,9 @@ const LabeledRecordCard = (props) => {
                       disabled={disableAddNoteButton(value.id)}
                       onClick={() => handleClickAddNote(value.id)}
                     >
-                      <NoteAddOutlined />
+                      <NoteAddOutlined
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -241,7 +251,9 @@ const LabeledRecordCard = (props) => {
                       disabled={isLoading}
                       onClick={() => handleClickRemoveNote(value)}
                     >
-                      <KeyboardArrowUp />
+                      <KeyboardArrowUp
+                        fontSize={!props.mobileScreen ? "medium" : "small"}
+                      />
                     </IconButton>
                   </span>
                 </Tooltip>
@@ -250,6 +262,7 @@ const LabeledRecordCard = (props) => {
             <RecordCardNote
               isLoading={isLoading}
               record={value}
+              mobileScreen={props.mobileScreen}
               mutate={mutate}
               note={note}
               setNote={setNote}
