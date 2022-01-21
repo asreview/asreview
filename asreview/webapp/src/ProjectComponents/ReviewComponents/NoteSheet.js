@@ -71,7 +71,7 @@ const NoteSheet = (props) => {
             fullWidth
             multiline
             onChange={handleNote}
-            placeholder={`Autosaved when this record is labeled as relevant or irrelevant. View your notes in "History" on the left menu.`}
+            placeholder={`Autosaved when this record is labeled as relevant or irrelevant. View your note in "History" on the left menu.`}
             rows={4}
             value={props.note ? props.note : ""}
             variant="outlined"
