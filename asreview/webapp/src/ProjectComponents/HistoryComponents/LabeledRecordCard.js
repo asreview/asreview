@@ -14,7 +14,12 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import {
+  Favorite,
+  FavoriteBorder,
+  KeyboardArrowUp,
+  NoteAddOutlined,
+} from "@mui/icons-material";
 
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
@@ -38,7 +43,7 @@ const Root = styled("div")(({ theme }) => ({
   },
 
   [`& .${classes.cardActions}`]: {
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
 }));
 
@@ -106,6 +111,48 @@ const LabeledRecordCard = (props) => {
     }
   );
 
+  const handleClickLabelConvert = (value) => {
+    mutate({
+      project_id: props.project_id,
+      doc_id: value.id,
+      label: value.included === 1 ? 0 : 1,
+      note: !value.note ? "" : value.note,
+      initial: false,
+      is_prior: !props.is_prior ? 0 : 1,
+    });
+  };
+
+  const handleClickAddNote = (doc_id) => {
+    setNote((s) => {
+      return {
+        ...s,
+        editing: doc_id,
+      };
+    });
+  };
+
+  const handleClickRemoveNote = (value) => {
+    if (!value.note) {
+      setNote({
+        data: null,
+        editing: null,
+      });
+    } else {
+      mutate({
+        project_id: props.project_id,
+        doc_id: value.id,
+        label: value.included,
+        note: "",
+        initial: false,
+        is_prior: 0,
+      });
+    }
+  };
+
+  const disableAddNoteButton = (doc_id) => {
+    return doc_id !== note.editing && note.editing !== null;
+  };
+
   return (
     <Root>
       {isError && (
@@ -158,25 +205,47 @@ const LabeledRecordCard = (props) => {
                   <IconButton
                     disabled={isLoading || note.editing === value.id}
                     onClick={() => {
-                      mutate({
-                        project_id: props.project_id,
-                        doc_id: value.id,
-                        label: value.included === 1 ? 0 : 1,
-                        note: !value.note ? "" : value.note,
-                        initial: false,
-                        is_prior: !props.is_prior ? 0 : 1,
-                      });
+                      handleClickLabelConvert(value);
                     }}
-                    size="large"
                   >
                     {value.included === 1 ? (
-                      <Favorite color="error" fontSize="small" />
+                      <Favorite color="error" />
                     ) : (
-                      <FavoriteBorder fontSize="small" />
+                      <FavoriteBorder />
                     )}
                   </IconButton>
                 </span>
               </Tooltip>
+              {!props.is_prior && !value.note && value.id !== note.editing && (
+                <Tooltip
+                  title={
+                    !disableAddNoteButton(value.id)
+                      ? "Add note"
+                      : "Save another note before adding"
+                  }
+                >
+                  <span>
+                    <IconButton
+                      disabled={disableAddNoteButton(value.id)}
+                      onClick={() => handleClickAddNote(value.id)}
+                    >
+                      <NoteAddOutlined />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              )}
+              {!props.is_prior && value.id === note.editing && (
+                <Tooltip title="Remove note">
+                  <span>
+                    <IconButton
+                      disabled={isLoading}
+                      onClick={() => handleClickRemoveNote(value)}
+                    >
+                      <KeyboardArrowUp />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              )}
             </CardActions>
             <RecordCardNote
               isLoading={isLoading}

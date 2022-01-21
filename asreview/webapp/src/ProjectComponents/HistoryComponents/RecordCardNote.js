@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Collapse,
-  Divider,
   FormControl,
   IconButton,
   OutlinedInput,
@@ -64,14 +63,19 @@ const RecordCardNote = (props) => {
 
   return (
     <Root>
-      <Collapse in={props.record?.note !== null} timeout="auto" unmountOnExit>
-        <Divider />
-        <CardContent sx={{ padding: "24px 16px 24px 24px" }}>
+      <Collapse
+        in={
+          props.record?.note !== null ||
+          props.record?.id === props.note?.editing
+        }
+        timeout="auto"
+        unmountOnExit
+      >
+        <CardContent sx={{ padding: "16px 16px 24px 24px" }}>
           <Stack direction="row" spacing={3}>
             <Avatar
               alt="user"
               src={ElasAvatar}
-              size={50}
               sx={{
                 width: 56,
                 height: 56,
@@ -80,17 +84,20 @@ const RecordCardNote = (props) => {
               }}
               imgProps={{ sx: { p: 1 } }}
             />
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{ alignItems: "center", width: "100%" }}
-            >
-              {props.note?.editing === props.record?.id && (
+            {props.note?.editing === props.record?.id && (
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ alignItems: "center", width: "100%" }}
+              >
                 <FormControl sx={{ width: "100%" }} variant="outlined">
                   <OutlinedInput
+                    autoComplete="off"
                     autoFocus
+                    disabled={props.isLoading}
                     multiline
-                    value={props.note?.data}
+                    placeholder="Write something..."
+                    value={!props.note?.data ? "" : props.note?.data}
                     onChange={handleChangeNote}
                     inputProps={{
                       sx: {
@@ -101,8 +108,28 @@ const RecordCardNote = (props) => {
                     sx={{ p: 2 }}
                   />
                 </FormControl>
-              )}
-              {props.note?.editing !== props.record?.id && (
+                <Tooltip title="Save note">
+                  <span>
+                    <IconButton
+                      disabled={
+                        props.isLoading ||
+                        props.note?.data === null ||
+                        props.note?.data === ""
+                      }
+                      onClick={() => handleClickSaveNote(props.record?.note)}
+                    >
+                      <Send />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </Stack>
+            )}
+            {props.record?.note && props.note?.editing !== props.record?.id && (
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ alignItems: "center", width: "100%" }}
+              >
                 <Card
                   elevation={0}
                   sx={{
@@ -120,8 +147,6 @@ const RecordCardNote = (props) => {
                     </Typography>
                   </CardContent>
                 </Card>
-              )}
-              {props.note?.editing !== props.record?.id && (
                 <Tooltip
                   title={
                     !disableEditNoteButton()
@@ -138,27 +163,13 @@ const RecordCardNote = (props) => {
                           props.record?.id
                         )
                       }
-                      size="large"
                     >
-                      <Edit fontSize="small" />
+                      <Edit />
                     </IconButton>
                   </span>
                 </Tooltip>
-              )}
-              {props.note?.editing === props.record?.id && (
-                <Tooltip title="Save note">
-                  <span>
-                    <IconButton
-                      disabled={props.isLoading}
-                      onClick={() => handleClickSaveNote(props.record?.note)}
-                      size="large"
-                    >
-                      <Send fontSize="small" />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              )}
-            </Stack>
+              </Stack>
+            )}
           </Stack>
         </CardContent>
       </Collapse>
