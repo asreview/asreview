@@ -35,8 +35,8 @@ const DataForm = (props) => {
     ProjectAPI.fetchData,
     {
       enabled:
-        props.details?.projectHasDataset !== undefined &&
-        props.details?.projectHasDataset,
+        props.info?.projectHasDataset !== undefined &&
+        props.info?.projectHasDataset,
       refetchOnWindowFocus: false,
     }
   );
@@ -45,7 +45,7 @@ const DataForm = (props) => {
     queryClient.resetQueries("fetchData");
   };
 
-  const refetchDetails = () => {
+  const refetchInfo = () => {
     queryClient.prefetchQuery(
       ["fetchInfo", { project_id: props.project_id }],
       ProjectAPI.fetchInfo
@@ -56,15 +56,15 @@ const DataForm = (props) => {
     queryClient.resetQueries("fetchLabeledStats");
   };
 
-  // fetch details in data step when init a new project
+  // fetch info in data step when init a new project
   React.useEffect(() => {
-    if (!props.details && props.project_id !== null) {
+    if (!props.info && props.project_id !== null) {
       queryClient.prefetchQuery(
         ["fetchInfo", { project_id: props.project_id }],
         ProjectAPI.fetchInfo
       );
     }
-  }, [props.details, props.project_id, queryClient]);
+  }, [props.info, props.project_id, queryClient]);
 
   return (
     <Root>
@@ -76,8 +76,8 @@ const DataForm = (props) => {
           preferences.
         </Typography>
       </Box>
-      {!props.isFetchDetailsError &&
-        (!props.details || isFetching || props.isFetchingLabeledStats) && (
+      {!props.isFetchInfoError &&
+        (!props.info || isFetching || props.isFetchingLabeledStats) && (
           <Box className={classes.loading}>
             <CircularProgress />
           </Box>
@@ -89,10 +89,10 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {props.isFetchDetailsError && (
+      {props.isFetchInfoError && (
         <InlineErrorHandler
-          message={props.fetchDetailsError?.message}
-          refetch={refetchDetails}
+          message={props.fetchInfoError?.message}
+          refetch={refetchInfo}
           button={true}
         />
       )}
@@ -103,14 +103,14 @@ const DataForm = (props) => {
           button={true}
         />
       )}
-      {props.details &&
+      {props.info &&
         !isFetching &&
         !props.isFetchingLabeledStats &&
         !isError &&
         !props.isFetchLabeledStatsError && (
           <Stack direction="column" spacing={3}>
             <DataFormCard
-              added={props.details?.projectHasDataset}
+              added={props.info?.projectHasDataset}
               primaryDefault="Add a dataset"
               primaryAdded={
                 <React.Fragment>
@@ -126,7 +126,7 @@ const DataForm = (props) => {
                 props.labeledStats?.n_inclusions !== 0 &&
                 props.labeledStats?.n_exclusions !== 0
               }
-              projectHasDataset={props.details?.projectHasDataset}
+              projectHasDataset={props.info?.projectHasDataset}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
               secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant records"
