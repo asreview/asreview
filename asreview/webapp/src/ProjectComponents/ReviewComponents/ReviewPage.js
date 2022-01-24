@@ -144,7 +144,7 @@ const ReviewPage = (props) => {
   /**
    * Decision button config
    */
-  const disableDecisionButton = () => {
+  const disableButton = () => {
     return !activeRecord || isLoading;
   };
 
@@ -248,6 +248,7 @@ const ReviewPage = (props) => {
             />
             {/* Article card */}
             <RecordCard
+              disableButton={disableButton}
               error={recordQuery.error}
               isError={recordQuery.isError}
               activeRecord={activeRecord}
@@ -260,7 +261,7 @@ const ReviewPage = (props) => {
           </Box>
           {/* Decision button */}
           <DecisionButton
-            disableDecisionButton={disableDecisionButton}
+            disableButton={disableButton}
             makeDecision={makeDecision}
             mobileScreen={props.mobileScreen}
             previousRecord={previousRecord}
@@ -269,7 +270,7 @@ const ReviewPage = (props) => {
       </Fade>
       {/* Decision undo bar */}
       <DecisionUndoBar
-        disableDecisionButton={disableDecisionButton}
+        disableButton={disableButton}
         state={undoState}
         undo={undoDecision}
         close={closeUndoBar}

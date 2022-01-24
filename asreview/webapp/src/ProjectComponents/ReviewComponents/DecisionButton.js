@@ -46,7 +46,7 @@ const DecisionButton = (props) => {
       >
         <Box>
           <Fab
-            disabled={props.disableDecisionButton()}
+            disabled={props.disableButton()}
             onClick={() => props.makeDecision(0)}
             size={props.mobileScreen ? "small" : "large"}
             variant="extended"
@@ -59,7 +59,7 @@ const DecisionButton = (props) => {
           <Fab
             onClick={() => props.makeDecision(1)}
             color="primary"
-            disabled={props.disableDecisionButton()}
+            disabled={props.disableButton()}
             size={props.mobileScreen ? "small" : "large"}
             variant="extended"
           >

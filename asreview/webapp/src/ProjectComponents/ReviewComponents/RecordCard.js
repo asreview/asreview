@@ -231,11 +231,14 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
+                disabled={props.disableButton()}
                 size="small"
                 onClick={expandNoteSheet}
                 aria-label="add note"
               >
-                {props.previousRecord.show && props.previousRecord.note
+                {props.previousRecord.show &&
+                props.previousRecord.note &&
+                props.recordNote.data
                   ? "Edit Note"
                   : "Add Note"}
               </Button>
