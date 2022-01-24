@@ -74,7 +74,7 @@ const DataForm = (props) => {
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             Active learning models help you accelerate the review of records in
             your dataset (e.g., abstracts of scientific papers) by learning your
-            preferences.
+            preferences
           </Typography>
         </Box>
         <DataFormCard
