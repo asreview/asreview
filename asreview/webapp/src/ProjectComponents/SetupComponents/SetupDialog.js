@@ -532,10 +532,11 @@ const SetupDialog = (props) => {
     <StyledDialog
       aria-label="project setup"
       open={props.open}
+      fullScreen={props.mobileScreen}
       fullWidth
       maxWidth="md"
       PaperProps={{
-        sx: { height: "calc(100% - 96px)" },
+        sx: { height: !props.mobileScreen ? "calc(100% - 96px)" : "100%" },
       }}
       TransitionProps={{
         onExited: () => exitedSetup(),
