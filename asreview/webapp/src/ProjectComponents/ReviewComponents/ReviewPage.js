@@ -255,6 +255,7 @@ const ReviewPage = (props) => {
               recordNote={recordNote}
               setRecordNote={setRecordNote}
               fontSize={props.fontSize}
+              mobileScreen={props.mobileScreen}
               noteFieldAutoFocus={noteFieldAutoFocus}
               previousRecord={previousRecord}
             />

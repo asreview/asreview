@@ -140,9 +140,10 @@ const RecordCard = (props) => {
             {/* Show the title */}
             <Typography
               className={classes.title}
-              variant="h5"
+              variant={!props.mobileScreen ? "h5" : "h6"}
               component="div"
               paragraph
+              sx={{ fontWeight: (theme) => theme.typography.fontWeightRegular }}
             >
               {/* No title, inplace text */}
               {(props.activeRecord.title === "" ||

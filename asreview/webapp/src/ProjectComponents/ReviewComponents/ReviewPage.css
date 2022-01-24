@@ -9,6 +9,11 @@
   height: calc(100% - 80px);
   position: relative;
 }
+@media (max-width: 900px) {
+  .review-page-body-wrapper {
+    height: calc(100% - 64px);
+  }
+}
 .review-page-decision-button {
   align-items: center;
   bottom: 0;
@@ -17,4 +22,9 @@
   padding: 40px 32px;
   position: absolute;
   width: 100%;
+}
+@media (max-width: 900px) {
+  .review-page-decision-button {
+    padding: 32px 24px;
+  }
 }
