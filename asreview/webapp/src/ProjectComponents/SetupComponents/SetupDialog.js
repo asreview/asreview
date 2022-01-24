@@ -178,7 +178,7 @@ const SetupDialog = (props) => {
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
     {
-      enabled: props.project_id !== null && !disableFetchDetails,
+      enabled: props.project_id !== null && props.open && !disableFetchDetails,
       onSuccess: (data) => {
         setDetails({
           mode: data["mode"],
