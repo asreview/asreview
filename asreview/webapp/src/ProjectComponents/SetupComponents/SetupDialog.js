@@ -342,6 +342,7 @@ const SetupDialog = (props) => {
     error: mutateModelConfigError,
     isError: isMutateModelConfigError,
     isLoading: isMutatingModelConfig,
+    isSuccess: isMutateModelConfigSuccess,
     mutate: mutateModelConfig,
     reset: resetMutateModelConfig,
   } = useMutation(ProjectAPI.mutateModelConfig);
@@ -468,7 +469,11 @@ const SetupDialog = (props) => {
       );
     }
     if (activeStep === 2) {
-      return isMutatingModelConfig || isMutateModelConfigError;
+      return (
+        !isMutateModelConfigSuccess ||
+        isMutatingModelConfig ||
+        isMutateModelConfigError
+      );
     }
   };
 
@@ -556,7 +561,7 @@ const SetupDialog = (props) => {
                   <Tooltip title="Send feedback">
                     <StyledIconButton
                       component={"a"}
-                      href={`https://github.com/asreview/asreview/issues/new/choose`}
+                      href={`https://github.com/asreview/asreview/discussions`}
                       target="_blank"
                     >
                       <Feedback />
