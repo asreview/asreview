@@ -104,14 +104,15 @@ const LabeledRecord = (props) => {
   }, []);
 
   return (
-    <Root aria-label="labeled record container">
+    <Root aria-label="labeled record">
       {filteredQuery()[0].isError && (
         <BoxErrorHandler
           error={filteredQuery()[0].error}
           queryKey={filteredQuery()[1]}
         />
       )}
-      {props.n_prior !== 0 &&
+      {props.n_prior_exclusions !== 0 &&
+        props.n_prior_inclusions !== 0 &&
         !filteredQuery()[0].isError &&
         (filteredQuery()[0].isLoading || !mounted.current) && (
           <Box className={classes.loading}>
