@@ -32,10 +32,9 @@ ASREVIEW_FILE_EXTENSION = '.asreview'
 def is_old_project(fp):
     """Check if state file is old version."""
     if Path(fp, 'reviews').is_dir():
-        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
-                         f"This project seems to be in new format.")
-    if not Path(fp, 'result.json').is_file():
-        raise ValueError(f"There is no 'result.json' file at {fp}")
+        return False
+    else:
+        return True
 
 
 # TODO(State): Allow basic/full (i.e. save probabilities).
@@ -57,8 +56,9 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
             f"Not possible to upgrade from {from_version} to {to_version}.")
 
     # Check if it is indeed an old format project.
-    is_old_project(fp)
-
+    if not is_old_project(fp):
+        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
+                         f"This project seems to be in new format.")
     # Current Paths
     fp = Path(fp)
     json_fp = Path(fp, 'result.json')
