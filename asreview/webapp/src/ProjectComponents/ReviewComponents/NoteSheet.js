@@ -1,37 +1,32 @@
 import React from "react";
 import {
   Box,
-  Button,
   Card,
-  CardActions,
   CardContent,
+  IconButton,
+  Stack,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { KeyboardArrowDown } from "@mui/icons-material";
 
 const PREFIX = "NoteSheet";
 
 const classes = {
-  root: `${PREFIX}-root`,
-  note: `${PREFIX}-note`,
+  textfield: `${PREFIX}-text-field`,
   button: `${PREFIX}-button`,
-  title: `${PREFIX}-title`,
 };
 
-const StyledCard = styled(Card)({
-  [`&.${classes.root}`]: {
-    borderTopRightRadius: 8,
-    borderTopLeftRadius: 8,
-  },
-  [`& .${classes.note}`]: {
-    paddingTop: 32,
+const Root = styled("div")({
+  [`& .${classes.textfield}`]: {
+    paddingLeft: 16,
+    paddingRight: 16,
   },
   [`& .${classes.button}`]: {
-    justifyContent: "flex-end",
-  },
-  [`& .${classes.title}`]: {
     display: "flex",
-    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingRight: 16,
   },
 });
 
@@ -45,40 +40,51 @@ const NoteSheet = (props) => {
     });
   };
 
-  const discardNote = () => {
+  const handleClickRemoveNote = () => {
     props.setRecordNote((s) => {
       return {
         ...s,
         expand: false,
-        data: null,
+        data: "",
       };
     });
   };
 
   return (
-    <StyledCard className={classes.root} variant="outlined">
-      <CardContent className={classes.note}>
-        <Box>
-          <TextField
-            id="multiline-note"
-            label="Note"
-            autoFocus={props.noteFieldAutoFocus()}
-            fullWidth
-            multiline
-            onChange={handleNote}
-            placeholder={`Autosaved when this record is labeled as relevant or irrelevant. View your notes in "History" on the left menu.`}
-            rows={4}
-            value={props.note ? props.note : ""}
-            variant="outlined"
-          />
-        </Box>
-      </CardContent>
-      <CardActions className={classes.button}>
-        <Button color="primary" size="small" onClick={discardNote}>
-          Discard Changes
-        </Button>
-      </CardActions>
-    </StyledCard>
+    <Root>
+      <Card
+        variant="outlined"
+        sx={{ borderTopRightRadius: 16, borderTopLeftRadius: 16 }}
+      >
+        <CardContent>
+          <Stack spacing={1}>
+            <Box className={classes.button}>
+              <Tooltip title="Remove note">
+                <IconButton onClick={handleClickRemoveNote}>
+                  <KeyboardArrowDown />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Box className={classes.textfield}>
+              <TextField
+                autoComplete="off"
+                id="multiline-note"
+                label="Note"
+                autoFocus={props.noteFieldAutoFocus()}
+                fullWidth
+                helperText="Save the note by labeling the record as relevant or irrelevant"
+                multiline
+                onChange={handleNote}
+                placeholder="Write something..."
+                rows={4}
+                value={props.note ? props.note : ""}
+                variant="outlined"
+              />
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Root>
   );
 };
 

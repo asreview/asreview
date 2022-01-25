@@ -16,6 +16,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
 import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
+import "../../App.css";
 
 const PREFIX = "RecordCard";
 
@@ -133,15 +134,16 @@ const RecordCard = (props) => {
           {isDebugInclusion() && <ExplorationModeRecordAlert />}
 
           <CardContent
-            className={classes.titleAbstract}
+            className={`${classes.titleAbstract} record-card-content`}
             aria-label="record title abstract"
           >
             {/* Show the title */}
             <Typography
               className={classes.title}
-              variant="h5"
+              variant={!props.mobileScreen ? "h5" : "h6"}
               component="div"
               paragraph
+              sx={{ fontWeight: (theme) => theme.typography.fontWeightRegular }}
             >
               {/* No title, inplace text */}
               {(props.activeRecord.title === "" ||
@@ -150,7 +152,7 @@ const RecordCard = (props) => {
                   className={"fontSize" + props.fontSize.label}
                   fontStyle="italic"
                 >
-                  No title available.
+                  No title available
                 </Box>
               )}
 
@@ -199,7 +201,7 @@ const RecordCard = (props) => {
               {/* No abstract, inplace text */}
               {(props.activeRecord.abstract === "" ||
                 props.activeRecord.abstract === null) && (
-                <Box fontStyle="italic">No abstract available.</Box>
+                <Box fontStyle="italic">No abstract available</Box>
               )}
 
               {/* No abstract, inplace text */}
@@ -219,9 +221,10 @@ const RecordCard = (props) => {
           >
             <Box>
               <NoteSheet
-                note={props.recordNote["data"]}
-                setRecordNote={props.setRecordNote}
+                note={props.recordNote.data}
                 noteFieldAutoFocus={props.noteFieldAutoFocus}
+                previousRecord={props.previousRecord}
+                setRecordNote={props.setRecordNote}
               />
             </Box>
           </Slide>
@@ -229,11 +232,16 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
+                disabled={props.disableButton()}
                 size="small"
                 onClick={expandNoteSheet}
                 aria-label="add note"
               >
-                {props.recordNote["data"] ? "Edit Note" : "Add Note"}
+                {props.previousRecord.show &&
+                props.previousRecord.note &&
+                props.recordNote.data
+                  ? "Edit Note"
+                  : "Add Note"}
               </Button>
             </CardActions>
           )}
