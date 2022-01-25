@@ -56,58 +56,56 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
             f"Not possible to upgrade from {from_version} to {to_version}.")
 
     # Check if it is indeed an old format project.
-    if is_old_project(fp):
-
-        # Current Paths
-        fp = Path(fp)
-        json_fp = Path(fp, 'result.json')
-        project_fp = Path(fp, 'project.json')
-        pool_fp = Path(fp, 'pool.json')
-        kwargs_fp = Path(fp, 'kwargs.json')
-        review_id = str(uuid4().hex)
-
-        # Create the reviews folder and the paths for the results and settings.
-        Path(fp, 'reviews', review_id).mkdir(parents=True)
-        sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
-        settings_metadata_fp = Path(fp, 'reviews', review_id,
-                                    'settings_metadata.json')
-
-        # Create the path for the feature matrix.
-
-        # Create sqlite table with the results of the review.
-        convert_json_results_to_sql(sql_fp, json_fp)
-
-        # Create sqlite tables 'last_probabilities'.
-        convert_json_last_probabilities(sql_fp, json_fp)
-
-        # Create teh table for the last ranking of the model.
-        create_last_ranking_table(sql_fp, pool_fp, kwargs_fp)
-
-        # Add the record table to the sqlite database as the table
-        # 'record_table'.
-        convert_json_record_table(sql_fp, json_fp)
-
-        # Create decision changes table.
-        create_decision_changes_table(sql_fp)
-
-        # Create json for settings.
-        convert_json_settings_metadata(settings_metadata_fp, json_fp)
-
-        # Create file for the feature matrix.
-        with open(Path(fp, 'kwargs.json'), 'r') as f:
-            kwargs_dict = json.load(f)
-            feature_extraction_method = kwargs_dict['feature_extraction']
-        feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
-                                                        feature_extraction_method)
-
-        # Update the project.json file.
-        with open(json_fp, 'r') as f:
-            start_time = json.load(f)['time']['start_time']
-        convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
-                             feature_extraction_method)
-    else:
+    if not is_old_project(fp):
         raise ValueError(f"There already is a 'reviews' folder at {fp}. "
                          f"This project seems to be in new format.")
+    # Current Paths
+    fp = Path(fp)
+    json_fp = Path(fp, 'result.json')
+    project_fp = Path(fp, 'project.json')
+    pool_fp = Path(fp, 'pool.json')
+    kwargs_fp = Path(fp, 'kwargs.json')
+    review_id = str(uuid4().hex)
+
+    # Create the reviews folder and the paths for the results and settings.
+    Path(fp, 'reviews', review_id).mkdir(parents=True)
+    sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
+    settings_metadata_fp = Path(fp, 'reviews', review_id,
+                                'settings_metadata.json')
+
+    # Create the path for the feature matrix.
+
+    # Create sqlite table with the results of the review.
+    convert_json_results_to_sql(sql_fp, json_fp)
+
+    # Create sqlite tables 'last_probabilities'.
+    convert_json_last_probabilities(sql_fp, json_fp)
+
+    # Create teh table for the last ranking of the model.
+    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp)
+
+    # Add the record table to the sqlite database as the table
+    # 'record_table'.
+    convert_json_record_table(sql_fp, json_fp)
+
+    # Create decision changes table.
+    create_decision_changes_table(sql_fp)
+
+    # Create json for settings.
+    convert_json_settings_metadata(settings_metadata_fp, json_fp)
+
+    # Create file for the feature matrix.
+    with open(Path(fp, 'kwargs.json'), 'r') as f:
+        kwargs_dict = json.load(f)
+        feature_extraction_method = kwargs_dict['feature_extraction']
+    feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
+                                                    feature_extraction_method)
+
+    # Update the project.json file.
+    with open(json_fp, 'r') as f:
+        start_time = json.load(f)['time']['start_time']
+    convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
+                         feature_extraction_method)
 
 
 def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
