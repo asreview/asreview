@@ -70,6 +70,7 @@ export default function Filter(props) {
               {...rest}
               inputRef={filterInput}
               placeholder={placeholder}
+              readOnly
             />
           );
         }}
