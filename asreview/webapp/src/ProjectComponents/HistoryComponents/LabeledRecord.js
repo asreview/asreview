@@ -102,7 +102,7 @@ const LabeledRecord = (props) => {
   }, []);
 
   return (
-    <Root aria-label="labeled record container">
+    <Root aria-label="labeled record">
       {isError && (
         <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
@@ -111,7 +111,8 @@ const LabeledRecord = (props) => {
           <CircularProgress />
         </Box>
       )}
-      {props.n_prior !== 0 &&
+      {props.n_prior_exclusions !== 0 &&
+        props.n_prior_inclusions !== 0 &&
         !isError &&
         !(isLoading || !mounted.current) &&
         isFetched && (
