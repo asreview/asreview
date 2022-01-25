@@ -55,9 +55,9 @@ class ProjectAPI {
     });
   }
 
-  static fetchConvertProjectIfOld({ queryKey }) {
+  static fetchUpgradeProjectIfOld({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/convert_if_old`;
+    const url = api_url + `project/${project_id}/upgrade_if_old`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
