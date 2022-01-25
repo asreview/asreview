@@ -26,7 +26,7 @@ export default function Filter(props) {
 
   const customPopper = (props) => {
     return (
-      <Popper {...props} style={{ width: 140 }} placement="bottom-start" />
+      <Popper {...props} style={{ width: 160 }} placement="bottom-start" />
     );
   };
 

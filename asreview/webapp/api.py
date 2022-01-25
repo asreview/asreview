@@ -566,14 +566,16 @@ def api_get_labeled(project_id):  # noqa: F401
 
         if any(s in subset for s in ["relevant", "included"]):
             data = data[data["label"] == 1]
-            if "note" in subset:
-                data = data[~data["notes"].isnull()]
         elif any(s in subset for s in ["irrelevant", "excluded"]):
             data = data[data["label"] == 0]
-            if "note" in subset:
-                data = data[~data["notes"].isnull()]
         else:
             data = data[~data["label"].isnull()]
+
+        if "note" in subset:
+            data = data[~data["notes"].isnull()]
+
+        if "prior" in subset:
+            data = data[data["prior"] == 1]
 
         if latest_first == 1:
             data = data.iloc[::-1]

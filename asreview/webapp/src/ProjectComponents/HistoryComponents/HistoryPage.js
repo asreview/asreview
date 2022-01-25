@@ -9,7 +9,10 @@ import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
-const filterOptions = [{ value: "note", label: "Contains note" }];
+const filterOptions = [
+  { value: "note", label: "Contains note" },
+  { value: "prior", label: "Prior knowledge" },
+];
 
 const Root = styled("div")(({ theme }) => ({}));
 
