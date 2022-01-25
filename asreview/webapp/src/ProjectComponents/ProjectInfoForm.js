@@ -100,7 +100,7 @@ const ProjectInfoForm = (props) => {
                     !isProjectSetup() ? true : props.disableModeSelect
                   }
                   mode={props.info?.mode}
-                  handleMode={props.handleChange}
+                  handleMode={handleInfoChange}
                   showSimulate={props.showSimulate}
                   onBlur={onBlur}
                   onFocus={onFocus}
