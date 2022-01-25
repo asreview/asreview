@@ -16,8 +16,9 @@ import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
+import { ProjectInfoForm } from "../../ProjectComponents";
 import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
-import { DataForm, InfoForm, ModelForm } from "../DetailsComponents";
+import { DataForm, ModelForm } from "../DetailsComponents";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
 import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
@@ -163,7 +164,7 @@ const DetailsPage = (props) => {
               direction={!props.mobileScreen ? "row" : "column"}
               spacing={3}
             >
-              <InfoForm
+              <ProjectInfoForm
                 info={info}
                 mobileScreen={props.mobileScreen}
                 setInfo={setInfo}
