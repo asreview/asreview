@@ -140,6 +140,9 @@ def api_get_projects():  # noqa: F401
             if "created_at_unix" not in res:
                 res["created_at_unix"] = None
 
+            # check if project is old
+            res["projectNeedsUpgrade"] = is_old_project(proj)
+
             logging.info("Project found: {}".format(res["id"]))
             project_info.append(res)
 
@@ -234,29 +237,6 @@ def api_init_project():  # noqa: F401
     response = jsonify(project_config)
 
     return response, 201
-
-
-@bp.route('/project/<project_id>/is_old', methods=["GET"])
-def api_get_project_is_old(project_id):
-    """Get if project is v0.x"""
-
-    project_path = get_project_path(project_id)
-
-    try:
-        is_old_project(project_path)
-
-    except ValueError:
-        response = jsonify({'success': False})
-
-    except Exception as err:
-        logging.error(err)
-        raise InternalServerError
-
-    else:
-        response = jsonify({'success': True})
-
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
 
 
 @bp.route('/project/<project_id>/upgrade_if_old', methods=["GET"])

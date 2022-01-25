@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { DialogErrorHandler, ProjectDeleteDialog } from "../../Components";
+import { ProjectDeleteDialog } from "../../Components";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
@@ -129,7 +129,6 @@ const ProjectTable = (props) => {
   const [hoverRowIdPersistent, setHoverRowIdPersistent] = React.useState(null);
   const [hoverRowTitle, setHoverRowTitle] = React.useState(null);
   const [rowsPerPage, handleRowsPerPage] = useRowsPerPage();
-  const [destination, setDestination] = React.useState("dashboard");
 
   /**
    * Dialog state
@@ -138,6 +137,7 @@ const ProjectTable = (props) => {
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
     issue: null,
+    destination: "dashboard",
   });
 
   /**
@@ -152,30 +152,27 @@ const ProjectTable = (props) => {
     refetchOnWindowFocus: false,
   });
 
-  /**
-   * Check if project is old
-   */
-  const { error, isError, isFetching } = useQuery(
-    ["fetchProjectIsOld", { project_id: props.project_id }],
-    ProjectAPI.fetchProjectIsOld,
-    {
-      enabled: props.project_id !== null,
-      onSuccess: (data) => {
-        if (!data["success"]) {
-          if (destination !== "dashboard") {
-            props.handleAppState("project-page");
-            props.handleNavState(destination);
-          }
-        } else {
-          setProjectCheck({
-            open: true,
-            issue: "upgrade",
-          });
-        }
-      },
-      refetchOnWindowFocus: false,
+  const openProject = (project, page) => {
+    // set project id
+    props.setProjectId(project["id"]);
+
+    if (!project["projectInitReady"]) {
+      // open project setup dialog
+      props.handleProjectSetup();
+    } else if (!project["projectNeedsUpgrade"]) {
+      // open project page
+      console.log("Opening project " + project["id"]);
+      props.handleAppState("project-page");
+      props.handleNavState(page);
+    } else {
+      // open project check dialog
+      setProjectCheck({
+        open: true,
+        issue: "upgrade",
+        destination: page,
+      });
     }
-  );
+  };
 
   /**
    * Show buttons when hovering over project title
@@ -216,9 +213,9 @@ const ProjectTable = (props) => {
   /**
    * Return status label and style
    */
-  const statusLabel = (row) => {
-    if (row["projectInitReady"]) {
-      if (row["reviewFinished"]) {
+  const statusLabel = (project) => {
+    if (project["projectInitReady"]) {
+      if (project["reviewFinished"]) {
         return "Finished";
       } else {
         return "In Review";
@@ -228,9 +225,9 @@ const ProjectTable = (props) => {
     }
   };
 
-  const statusStyle = (row) => {
-    if (row["projectInitReady"]) {
-      if (row["reviewFinished"]) {
+  const statusStyle = (project) => {
+    if (project["projectInitReady"]) {
+      if (project["reviewFinished"]) {
         return classes.chipFinished;
       } else {
         return classes.chipInReview;
@@ -281,44 +278,29 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectAnalytics = () => {
-                    console.log("Opening existing project " + row.id);
-                    props.setProjectId(row.id);
-                    if (!row["projectInitReady"]) {
-                      // when project is in setup
-                      props.handleProjectSetup();
-                    } else {
-                      setDestination("analytics");
-                    }
+                    openProject(row, "analytics");
                   };
 
                   const onClickProjectReview = () => {
-                    console.log("Opening existing project " + row.id);
-                    props.setProjectId(row.id);
-                    setDestination("review");
+                    openProject(row, "review");
                   };
 
                   const onClickProjectExport = () => {
-                    if (!row["projectInitReady"]) {
+                    if (
+                      !row["projectInitReady"] ||
+                      row["projectNeedsUpgrade"]
+                    ) {
                       queryClient.prefetchQuery(
                         ["fetchExportProject", { project_id: row.id }],
                         ProjectAPI.fetchExportProject
                       );
                     } else {
-                      console.log("Opening existing project " + row.id);
-                      props.setProjectId(row.id);
-                      setDestination("export");
+                      openProject(row, "export");
                     }
                   };
 
                   const onClickProjectDetails = () => {
-                    console.log("Opening existing project " + row.id);
-                    props.setProjectId(row.id);
-                    if (!row["projectInitReady"]) {
-                      // when project is in setup
-                      props.handleProjectSetup();
-                    } else {
-                      setDestination("details");
-                    }
+                    openProject(row, "details");
                   };
                   return (
                     <TableRow
@@ -332,15 +314,6 @@ const ProjectTable = (props) => {
                       onMouseLeave={() => hoverOffProject()}
                     >
                       <TableCell sx={{ display: "flex" }}>
-                        <Box className={classes.converting}>
-                          {isFetching && row.id === props.project_id && (
-                            <CircularProgress
-                              size="1rem"
-                              thickness={5}
-                              sx={{ marginRight: "8px" }}
-                            />
-                          )}
-                        </Box>
                         <Box className={classes.titleWrapper}>
                           <Typography
                             onClick={onClickProjectAnalytics}
@@ -444,17 +417,10 @@ const ProjectTable = (props) => {
             onRowsPerPageChange={setRowsPerPage}
           />
         )}
-      <DialogErrorHandler
-        error={error}
-        isError={isError}
-        queryKey="fetchProjectIsOld"
-      />
       <ProjectCheckDialog
-        destination={destination}
         handleAppState={props.handleAppState}
         handleNavState={props.handleNavState}
         projectCheck={projectCheck}
-        setDestination={setDestination}
         setProjectCheck={setProjectCheck}
       />
       <ProjectDeleteDialog

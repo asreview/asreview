@@ -48,7 +48,7 @@ const ProjectCheckDialog = (props) => {
       enabled: upgrade,
       onSuccess: () => {
         props.handleAppState("project-page");
-        props.handleNavState(props.destination);
+        props.handleNavState(props.projectCheck?.destination);
         queryClient.invalidateQueries("fetchProjectIsOld", {
           refetchActive: false,
         });
@@ -116,7 +116,6 @@ const ProjectCheckDialog = (props) => {
       open: false,
     });
     props.handleAppState("home");
-    props.setDestination("dashboard");
   };
 
   const resetQuery = () => {
@@ -137,6 +136,7 @@ const ProjectCheckDialog = (props) => {
           props.setProjectCheck({
             ...props.projectCheck,
             issue: null,
+            destination: "dashboard",
           });
         },
       }}
