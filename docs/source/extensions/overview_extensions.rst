@@ -62,7 +62,7 @@ Dataset extensions
 .. _extensions-community:
 
 Community-Maintained Extensions and Tools
-----------------------------------------
+-----------------------------------------
 
 ASReview has support for community-maintained extensions, that enable you to
 seamlessly integrate your code with the ASReview framework. These extensions can
