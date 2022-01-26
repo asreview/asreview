@@ -64,11 +64,13 @@ Dataset extensions
 Community-Maintained Extensions and Tools
 -----------------------------------------
 
-ASReview has support for community-maintained extensions, that enable you to
-seamlessly integrate your code with the ASReview framework. These extensions can
-extend the software with new models, subcommands, and datasets.
+ASReview has support for community-maintained extensions and tools, that
+enable you to seamlessly integrate your code with the ASReview framework.
+These extensions can extend the software with new models, subcommands, and
+datasets. Tools can be used to pre- or post-process data. 
 
-The following extensions are developed and maintained by the ASReview community:
+The following extensions and tools are developed and maintained by the
+ASReview community:
 
 
 * ASReview 17 layer CNN classifier 
