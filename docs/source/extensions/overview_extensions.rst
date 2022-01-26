@@ -110,10 +110,9 @@ ASReview community:
     - `Github <https://github.com/asreview/asreview-extension-vocab-extractor>`__ 
 
 * xref2csv tool to convert XREF XML files to CSV files required for ASreview
-    - Although not really an ASreview extension, the 
-      [xref2csv](https://github.com/erikvullings/xref2csv) tool converts XREF
-      XML files, as created by our organisation's library department, to CSV 
-      files that can be imported to ASreview.
+    - The    
+      [XREF2CSV-tool](https://github.com/erikvullings/xref2csv) converts XREF
+      XML files to CSV files that can be imported to ASreview.
 
 If an extension is not on this list, or you made one and you would like it to 
 be added to this list, please initiate an issue on `Github
