@@ -197,16 +197,22 @@ const LabeledRecordCard = (props) => {
             <CardActions className={classes.cardActions}>
               <Tooltip
                 title={
-                  note.editing !== value.id
-                    ? value.included === 1
-                      ? "Convert to irrelevant"
-                      : "Convert to relevant"
-                    : "Save note before converting"
+                  !value.prior
+                    ? note.editing !== value.id
+                      ? value.included === 1
+                        ? "Convert to irrelevant"
+                        : "Convert to relevant"
+                      : "Save note before converting"
+                    : "Prior knowledge cannot be converted"
                 }
               >
                 <span>
                   <IconButton
-                    disabled={isLoading || note.editing === value.id}
+                    disabled={
+                      value.prior === 1 ||
+                      isLoading ||
+                      note.editing === value.id
+                    }
                     onClick={() => {
                       handleClickLabelConvert(value);
                     }}
