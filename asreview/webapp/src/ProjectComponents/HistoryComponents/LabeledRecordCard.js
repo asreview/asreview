@@ -156,6 +156,11 @@ const LabeledRecordCard = (props) => {
     return doc_id !== note.editing && note.editing !== null;
   };
 
+  // only on history page
+  const disableConvertPrior = (prior) => {
+    return !props.is_prior && prior === 1;
+  };
+
   return (
     <Root>
       {isError && (
@@ -197,19 +202,19 @@ const LabeledRecordCard = (props) => {
             <CardActions className={classes.cardActions}>
               <Tooltip
                 title={
-                  !value.prior
-                    ? note.editing !== value.id
-                      ? value.included === 1
-                        ? "Convert to irrelevant"
-                        : "Convert to relevant"
-                      : "Save note before converting"
-                    : "Prior knowledge cannot be converted"
+                  disableConvertPrior(value.prior)
+                    ? "Prior knowledge cannot be converted"
+                    : note.editing !== value.id
+                    ? value.included === 1
+                      ? "Convert to irrelevant"
+                      : "Convert to relevant"
+                    : "Save note before converting"
                 }
               >
                 <span>
                   <IconButton
                     disabled={
-                      value.prior === 1 ||
+                      disableConvertPrior(value.prior) ||
                       isLoading ||
                       note.editing === value.id
                     }
