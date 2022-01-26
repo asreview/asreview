@@ -40,7 +40,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DataFormCard = (props) => {
-  const handleClickViewPriors = () => {
+  const handleClickViewPrior = () => {
     props.handleNavState("history");
     props.setHistoryFilterQuery([
       historyFilterOptions.find((e) => e.value === "prior"),
@@ -79,7 +79,7 @@ const DataFormCard = (props) => {
             )}
           </Stack>
           {props.primary === "Prior knowledge" && (
-            <Button onClick={handleClickViewPriors}>View</Button>
+            <Button onClick={handleClickViewPrior}>View</Button>
           )}
         </CardContent>
       </Card>
