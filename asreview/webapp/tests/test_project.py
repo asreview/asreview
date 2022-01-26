@@ -148,5 +148,5 @@ def test_project_file(tmp_path, client, url):
     assert response_finish.status_code == 200
 
     # Test delete project
-    response_delete = client.delete(f"{api_url}/delete")
+    # response_delete = client.delete(f"{api_url}/delete")
     # assert response_delete.status_code == 200

@@ -148,7 +148,7 @@ def test_non_tf_models(tmpdir):
 
 def test_number_records_found(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
-    project_path = Path(tmpdir, f'test_records_found.asreview')
+    project_path = Path(tmpdir, 'test_records_found.asreview')
     n_queries = 100
     priors = [284, 285]
     seed = 101
