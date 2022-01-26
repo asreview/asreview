@@ -7,19 +7,11 @@ import { LabelChip, LabeledRecord } from "../../HistoryComponents";
 const PREFIX = "PriorLabeled";
 
 const classes = {
-  icon: `${PREFIX}-icon`,
   noPrior: `${PREFIX}-no-prior`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   width: "50%",
-  [`& .${classes.icon}`]: {
-    color: theme.palette.text.secondary,
-    [`:hover`]: {
-      backgroundColor: "transparent",
-    },
-  },
-
   [`& .${classes.noPrior}`]: {
     height: "calc(100% - 56px)",
     display: "flex",
@@ -62,7 +54,7 @@ export default function PriorLabeled(props) {
           props.n_prior_exclusions === 0) && (
           <Box className={classes.noPrior}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              You have not provided prior knowledge
+              {`You have not provided ${label} prior knowledge`}
             </Typography>
           </Box>
         )}

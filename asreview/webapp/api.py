@@ -60,6 +60,7 @@ from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_simulation_ready_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
+from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -138,6 +139,9 @@ def api_get_projects():  # noqa: F401
             # if time is not available (<0.14)
             if "created_at_unix" not in res:
                 res["created_at_unix"] = None
+
+            # check if project is old
+            res["projectNeedsUpgrade"] = is_old_project(proj)
 
             logging.info("Project found: {}".format(res["id"]))
             project_info.append(res)
@@ -235,9 +239,9 @@ def api_init_project():  # noqa: F401
     return response, 201
 
 
-@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
-def api_convert_project_if_old(project_id):
-    """Get if project is converted"""
+@bp.route('/project/<project_id>/upgrade_if_old', methods=["GET"])
+def api_upgrade_project_if_old(project_id):
+    """Get upgrade project if it is v0.x"""
 
     project_path = get_project_path(project_id)
 
@@ -553,7 +557,7 @@ def api_get_labeled(project_id):  # noqa: F401
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
-    subset = request.args.get("subset", default=None, type=str)
+    subset = request.args.getlist("subset")
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     project_path = get_project_path(project_id)
@@ -561,21 +565,28 @@ def api_get_labeled(project_id):  # noqa: F401
     try:
 
         with open_state(project_path) as s:
-            data = s.get_dataset(["record_id", "label", "query_strategy"])
+            data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
-        if subset in ["relevant", "included"]:
-            data = data[data['label'] == 1]
-        elif subset in ["irrelevant", "excluded"]:
-            data = data[data['label'] == 0]
+        if any(s in subset for s in ["relevant", "included"]):
+            data = data[data["label"] == 1]
+            if "note" in subset:
+                data = data[~data["notes"].isnull()]
+        elif any(s in subset for s in ["irrelevant", "excluded"]):
+            data = data[data["label"] == 0]
+            if "note" in subset:
+                data = data[~data["notes"].isnull()]
         else:
-            data = data[~data['label'].isnull()]
+            data = data[~data["label"].isnull()]
 
         if latest_first == 1:
             data = data.iloc[::-1]
 
         # count labeled records and max pages
         count = len(data)
+        if count == 0:
+            raise ValueError("No available record")
+
         max_page_calc = divmod(count, per_page)
         if max_page_calc[1] == 0:
             max_page = max_page_calc[0]
@@ -589,7 +600,7 @@ def api_get_labeled(project_id):  # noqa: F401
                 idx_end = page * per_page
                 data = data.iloc[idx_start:idx_end, :].copy()
             else:
-                raise ValueError(f"Page {page - 1} is the last page.")
+                raise ValueError(f"Page {page - 1} is the last page")
 
             # set next & previous page
             if page < max_page:
@@ -622,12 +633,13 @@ def api_get_labeled(project_id):  # noqa: F401
                 "authors": record.authors,
                 "keywords": record.keywords,
                 "included": int(data.loc[i, "label"]),
+                "note": data.loc[i, "notes"],
                 "prior": int(data.loc[i, "prior"])
             })
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to load labeled documents. {err}"), 500
+        return jsonify(message=f"{err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1250,7 +1262,10 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     # return the combination of document_id and label.
     doc_id = request.form.get('doc_id')
     label = request.form.get('label')
-    note = request.form.get('note')
+    note = request.form.get('note', type=str)
+    if not note:
+        note = None
+
     is_prior = request.form.get('is_prior', default=False)
 
     retrain_model = False if is_prior == "1" else True

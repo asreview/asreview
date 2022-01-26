@@ -146,7 +146,7 @@ const ModelForm = (props) => {
     return (
       <React.Fragment>
         Some classifiers and feature extraction techniques require additional
-        dependencies.{" "}
+        dependencies{" "}
         {(props.model?.classifier === "nn-2-layer" ||
           props.model?.feature_extraction === "embedding-idf" ||
           props.model?.feature_extraction === "embedding-lstm") && (

@@ -54,9 +54,7 @@ export default function TableRowButton(props) {
           <Tooltip title="Analytics">
             <IconButton
               className={classes.button}
-              onClick={
-                props.isConverting ? null : props.onClickProjectAnalytics
-              }
+              onClick={props.onClickProjectAnalytics}
             >
               <Assessment />
             </IconButton>
@@ -66,7 +64,7 @@ export default function TableRowButton(props) {
           <Tooltip title="Review">
             <IconButton
               className={classes.button}
-              onClick={props.isConverting ? null : props.onClickProjectReview}
+              onClick={props.onClickProjectReview}
             >
               <Assignment />
             </IconButton>
@@ -75,7 +73,7 @@ export default function TableRowButton(props) {
         <Tooltip title="Export">
           <IconButton
             className={classes.button}
-            onClick={props.isConverting ? null : props.onClickProjectExport}
+            onClick={props.onClickProjectExport}
           >
             <Download />
           </IconButton>
@@ -91,11 +89,7 @@ export default function TableRowButton(props) {
             open={onRowMenu}
             onClose={handleCloseRowMenu}
           >
-            <MenuItem
-              onClick={props.isConverting ? null : handleClickEditDetails}
-            >
-              Edit details
-            </MenuItem>
+            <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
             <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
           </Menu>
         </div>

@@ -488,7 +488,7 @@ def get_statistics(project_id):
     n_included = int(sum(labels == 1))
     n_excluded = int(sum(labels == 0))
 
-    if len(labels) > 0:
+    if n_included > 0:
         n_since_last_relevant = int(labels.tolist()[::-1].index(1))
     else:
         n_since_last_relevant = 0

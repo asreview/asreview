@@ -62,9 +62,9 @@ def test_project_file(tmp_path, client, url):
         for item in json_data_projects["result"]
     )
 
-    # Test convert project if old
-    response_convert_if_old = client.get(f"{api_url}/convert_if_old")
-    assert response_convert_if_old.status_code == 200
+    # Test upgrade project if old
+    response_upgrade_if_old = client.get(f"{api_url}/upgrade_if_old")
+    assert response_upgrade_if_old.status_code == 200
 
     # Test get info on the project
     response_get_info = client.get(f"{api_url}/info")

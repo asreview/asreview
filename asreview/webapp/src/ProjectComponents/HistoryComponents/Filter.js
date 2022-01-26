@@ -30,12 +30,15 @@ export default function Filter(props) {
     );
   };
 
-  const hidePlaceholder = (value) => {
+  const handleFilterQuery = (value) => {
+    // hide place holder
     if (value.length) {
       setPlaceholder("");
     } else {
       setPlaceholder("Filter");
     }
+    // pass filter query
+    props.setFilterQuery(value);
   };
 
   const onClickFilter = () => {
@@ -45,7 +48,7 @@ export default function Filter(props) {
   return (
     <Root>
       <IconButton className={classes.icon} onClick={onClickFilter}>
-        <FilterList />
+        <FilterList fontSize={!props.mobileScreen ? "medium" : "small"} />
       </IconButton>
       <Autocomplete
         id="filter labeled record"
@@ -71,7 +74,7 @@ export default function Filter(props) {
           );
         }}
         onChange={(event, value) => {
-          hidePlaceholder(value);
+          handleFilterQuery(value);
         }}
       />
       {/*

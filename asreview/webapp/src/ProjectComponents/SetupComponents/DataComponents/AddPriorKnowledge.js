@@ -46,7 +46,7 @@ const AddPriorKnowledge = (props) => {
                   Learn more
                 </Link>
               </Typography>
-              <InfoCard info="Editing the prior knowledge does not train the model." />
+              <InfoCard info="Editing the prior knowledge does not train the model" />
               <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
                 Select a way to add prior knowledge:
               </Typography>
