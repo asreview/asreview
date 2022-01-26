@@ -3,6 +3,8 @@ import { Autocomplete, IconButton, InputBase, Popper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FilterList } from "@mui/icons-material";
 
+import { historyFilterOptions } from "../../globals.js";
+
 const PREFIX = "Filter";
 
 const classes = {
@@ -21,24 +23,12 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 export default function Filter(props) {
-  const [placeholder, setPlaceholder] = React.useState("Filter");
   const filterInput = React.useRef(null);
 
   const customPopper = (props) => {
     return (
       <Popper {...props} style={{ width: 160 }} placement="bottom-start" />
     );
-  };
-
-  const handleFilterQuery = (value) => {
-    // hide place holder
-    if (value.length) {
-      setPlaceholder("");
-    } else {
-      setPlaceholder("Filter");
-    }
-    // pass filter query
-    props.setFilterQuery(value);
   };
 
   const onClickFilter = () => {
@@ -59,7 +49,7 @@ export default function Filter(props) {
         filterSelectedOptions
         multiple
         openOnFocus
-        options={props.filterOptions}
+        options={historyFilterOptions}
         getOptionLabel={(option) => option.label}
         PopperComponent={customPopper}
         renderInput={(params) => {
@@ -69,14 +59,15 @@ export default function Filter(props) {
               {...params.InputProps}
               {...rest}
               inputRef={filterInput}
-              placeholder={placeholder}
+              placeholder={!props.filterQuery.length ? "Filter" : ""}
               readOnly
             />
           );
         }}
         onChange={(event, value) => {
-          handleFilterQuery(value);
+          props.setFilterQuery(value);
         }}
+        value={props.filterQuery}
       />
       {/*
       <Tooltip title="Remove filter">

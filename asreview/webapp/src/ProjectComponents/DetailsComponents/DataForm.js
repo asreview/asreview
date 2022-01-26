@@ -88,6 +88,7 @@ const DataForm = (props) => {
           refetch={refetchData}
         />
         <DataFormCard
+          handleNavState={props.handleNavState}
           isError={isFetchLabeledStatsError}
           primary={
             !isFetchLabeledStatsError
@@ -95,6 +96,7 @@ const DataForm = (props) => {
               : fetchLabeledStatsError.message
           }
           secondary={returnLabeledStatsSecondary()}
+          setHistoryFilterQuery={props.setHistoryFilterQuery}
           refetch={refetchLabeledStats}
         />
       </Stack>

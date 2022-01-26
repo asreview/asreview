@@ -1,8 +1,17 @@
 import * as React from "react";
-import { Box, Card, CardContent, Link, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Link,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
+import { historyFilterOptions } from "../../globals.js";
 
 const PREFIX = "DataFormCard";
 
@@ -31,6 +40,13 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DataFormCard = (props) => {
+  const handleClickViewPriors = () => {
+    props.handleNavState("history");
+    props.setHistoryFilterQuery([
+      historyFilterOptions.find((e) => e.value === "prior"),
+    ]);
+  };
+
   return (
     <Root>
       <Card
@@ -62,6 +78,9 @@ const DataFormCard = (props) => {
               </Link>
             )}
           </Stack>
+          {props.primary === "Prior knowledge" && (
+            <Button onClick={handleClickViewPriors}>View</Button>
+          )}
         </CardContent>
       </Card>
     </Root>
