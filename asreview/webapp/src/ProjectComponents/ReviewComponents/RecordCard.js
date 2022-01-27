@@ -131,7 +131,11 @@ const RecordCard = (props) => {
           aria-label="record loaded"
         >
           {/* Previous decision alert */}
-          {isDebugInclusion() && <ExplorationModeRecordAlert />}
+          {props.activeRecord._debug_label !== null && (
+            <ExplorationModeRecordAlert
+              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+            />
+          )}
 
           <CardContent
             className={`${classes.titleAbstract} record-card-content`}

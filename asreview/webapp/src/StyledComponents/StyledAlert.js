@@ -7,7 +7,7 @@ export function ExplorationModeRecordAlert(props) {
       severity="info"
       sx={{ borderBottomRightRadius: 0, borderBottomLeftRadius: 0 }}
     >
-      Labeled as relevant in the dataset
+      {`Labeled as ${props.label} in the dataset`}
     </Alert>
   );
 }
