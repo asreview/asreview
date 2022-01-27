@@ -722,18 +722,15 @@ class SqlStateV1(BaseState):
 
     def get_labeled(self):
         con = self._connect_to_sql()
-        query = """SELECT record_id, label 
-                FROM results 
-                WHERE label is not null"""
+        query = """SELECT record_id, label FROM results
+         WHERE label is not null"""
         df = pd.read_sql_query(query, con)
         con.close()
         return df
 
     def get_pending(self):
         con = self._connect_to_sql()
-        query = """SELECT record_id 
-                FROM results 
-                WHERE label is null"""
+        query = """SELECT record_id FROM results WHERE label is null"""
         df = pd.read_sql_query(query, con)
         con.close()
         return df['record_id']
