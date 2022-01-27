@@ -1,22 +1,14 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import { Box, Divider, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { PageHeader } from "../../Components";
 import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
-
-import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
-
-const filterOptions = [{ value: "note", label: "Contains note" }];
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const HistoryPage = (props) => {
-  const [label, setLabel] = React.useState("relevant");
-  const [filterQuery, setFilterQuery] = React.useState(null);
-
   return (
     <Root aria-label="history page">
       <Fade in>
@@ -31,22 +23,22 @@ const HistoryPage = (props) => {
           >
             <LabelChip
               mobileScreen={props.mobileScreen}
-              label={label}
-              setLabel={setLabel}
+              label={props.label}
+              setLabel={props.setLabel}
             />
             <Divider />
             <Filter
               mobileScreen={props.mobileScreen}
-              filterOptions={filterOptions}
-              setFilterQuery={setFilterQuery}
+              filterQuery={props.filterQuery}
+              setFilterQuery={props.setFilterQuery}
             />
             <Divider />
           </Box>
           <Box className="main-page-body-wrapper">
             <Box className="main-page-body">
               <LabeledRecord
-                label={label}
-                filterQuery={filterQuery}
+                label={props.label}
+                filterQuery={props.filterQuery}
                 mobileScreen={props.mobileScreen}
               />
             </Box>
@@ -57,4 +49,4 @@ const HistoryPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(HistoryPage);
+export default HistoryPage;
