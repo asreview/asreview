@@ -1013,7 +1013,8 @@ def export_results(project_id):
                     f"attachment; filename=asreview_result_{project_id}.tsv"
                 })
         # Excel
-        elif file_type == "xlsx":
+        # TODO: Take only one. Frontend uses "excel", rest uses "xlsx".
+        elif file_type == "xlsx" or file_type == "excel":
             dataset_str = export_to_string(project_id, export_type="excel")
             fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
@@ -1338,7 +1339,11 @@ def api_delete_project(project_id):  # noqa: F401
     project_path = get_project_path(project_id)
 
     if project_path.exists() and project_path.is_dir():
-        shutil.rmtree(project_path)
+        try:
+            shutil.rmtree(project_path)
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to delete project."), 500
 
         response = jsonify({'success': True})
         response.headers.add('Access-Control-Allow-Origin', '*')

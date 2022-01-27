@@ -267,11 +267,12 @@ class BaseReview(ABC):
         self.classifier.fit(X_train, y_train)
 
         # Use the query strategy to produce a ranking.
-        ranking = self.query_strategy.query(self.X, classifier=self.classifier)
+        ranked_record_ids = \
+            self.query_strategy.query(self.X, classifier=self.classifier)
 
         # Log the probabilities and ranking in the state.
         with open_state(self.state_fp, read_only=False) as state:
-            state.add_last_ranking(ranking,
+            state.add_last_ranking(ranked_record_ids,
                                    self.classifier.name,
                                    self.query_strategy.name,
                                    self.balance_model.name,
