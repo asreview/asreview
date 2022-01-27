@@ -488,15 +488,16 @@ class SqlStateV1(BaseState):
                                             (?)""", proba_sql_input)
         con.commit()
 
-    def add_last_ranking(self, ranking, classifier, query_strategy,
+    def add_last_ranking(self, ranked_record_ids, classifier, query_strategy,
                          balance_strategy, feature_extraction, training_set):
         """Save the ranking of the last iteration of the model."""
         record_ids = self.get_record_table()
 
-        if len(record_ids) != len(ranking):
+        if len(record_ids) != len(ranked_record_ids):
             raise ValueError("The ranking should have the same length as the "
                              "record table.")
 
+        ranking = range(len(record_ids))
         classifiers = [classifier for _ in record_ids]
         query_strategies = [query_strategy for _ in record_ids]
         balance_strategies = [balance_strategy for _ in record_ids]
@@ -505,7 +506,7 @@ class SqlStateV1(BaseState):
         ranking_times = [datetime.now()] * len(record_ids)
 
         # Create the database rows.
-        db_rows = [(int(record_ids[i]), int(ranking[i]), classifiers[i],
+        db_rows = [(int(ranked_record_ids[i]), int(ranking[i]), classifiers[i],
                     query_strategies[i], balance_strategies[i],
                     feature_extractions[i], training_sets[i], ranking_times[i])
                    for i in range(len(record_ids))]
@@ -673,6 +674,7 @@ class SqlStateV1(BaseState):
         con.close()
         return record_table
 
+    # TODO: Create separate functions for pool, labeled, pending for speed up.
     def get_pool_labeled_pending(self):
         """Return the labeled and unlabeled records and the records pending a
         labeling decision.
@@ -696,7 +698,7 @@ class SqlStateV1(BaseState):
                 LEFT JOIN results
                 ON results.record_id=record_table.record_id
                 LEFT JOIN last_ranking
-                ON record_table.rowid=last_ranking.rowid
+                ON record_table.record_id=last_ranking.record_id
                 """
 
         df = pd.read_sql_query(query, con)

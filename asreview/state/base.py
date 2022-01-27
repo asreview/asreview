@@ -105,15 +105,16 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_last_ranking(self, ranking, classifier,
+    def add_last_ranking(self, ranked_record_ids, classifier,
                          query_strategy, balance_strategy, feature_extraction,
                          training_set):
-        """Save the ranking of the last iteration of the model.
+        """Save the ranking of the last iteration of the model, in the ranking
+        order.
 
         Arguments
         ---------
-        ranking: list, numpy.ndarray
-            A list of the rank (int) as output by the model.
+        ranked_record_ids: list, numpy.ndarray
+            A list of records ids in the order that they were ranked.
         classifier: str
             Name of the classifier of the model.
         query_strategy: str
