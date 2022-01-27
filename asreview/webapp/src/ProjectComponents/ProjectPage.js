@@ -74,6 +74,10 @@ const mapStateToProps = (state) => {
 };
 
 const ProjectPage = (props) => {
+  // History page state
+  const [historyLabel, setHistoryLabel] = React.useState("relevant");
+  const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
+
   const { data, error, isError, isSuccess } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
@@ -153,7 +157,13 @@ const ProjectPage = (props) => {
 
           {/* History page */}
           {props.nav_state === "history" && (
-            <HistoryPage mobileScreen={props.mobileScreen} />
+            <HistoryPage
+              filterQuery={historyFilterQuery}
+              label={historyLabel}
+              setFilterQuery={setHistoryFilterQuery}
+              setLabel={setHistoryLabel}
+              mobileScreen={props.mobileScreen}
+            />
           )}
 
           {/* Export page */}
@@ -166,7 +176,12 @@ const ProjectPage = (props) => {
 
           {/* Details page */}
           {isSuccess && props.nav_state === "details" && (
-            <DetailsPage info={data} mobileScreen={props.mobileScreen} />
+            <DetailsPage
+              handleNavState={props.handleNavState}
+              info={data}
+              mobileScreen={props.mobileScreen}
+              setHistoryFilterQuery={setHistoryFilterQuery}
+            />
           )}
         </Box>
       </Box>

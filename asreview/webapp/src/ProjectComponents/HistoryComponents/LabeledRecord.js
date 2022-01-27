@@ -53,6 +53,15 @@ const LabeledRecord = (props) => {
     return !subset ? [props.label] : [props.label].concat(subset);
   };
 
+  const enableQuery = () => {
+    return !props.is_prior
+      ? true
+      : !(
+          (props.label === "relevant" && !props.n_prior_inclusions) ||
+          (props.label === "irrelevant" && !props.n_prior_exclusions)
+        );
+  };
+
   const {
     data,
     error,
@@ -72,11 +81,7 @@ const LabeledRecord = (props) => {
     ],
     ProjectAPI.fetchLabeledRecord,
     {
-      enabled: !props.is_prior
-        ? true
-        : !props.n_prior_inclusions
-        ? false
-        : true,
+      enabled: enableQuery(),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
@@ -111,8 +116,7 @@ const LabeledRecord = (props) => {
           <CircularProgress />
         </Box>
       )}
-      {props.n_prior_exclusions !== 0 &&
-        props.n_prior_inclusions !== 0 &&
+      {enableQuery() &&
         !isError &&
         !(isLoading || !mounted.current) &&
         isFetched && (

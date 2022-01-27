@@ -51,9 +51,15 @@ const PriorUnlabeled = (props) => {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries("fetchLabeledStats");
         if (!variables.label) {
-          queryClient.invalidateQueries("fetchIrrelevantLabeledRecord");
+          queryClient.invalidateQueries([
+            "fetchLabeledRecord",
+            { subset: ["irrelevant"] },
+          ]);
         } else {
-          queryClient.invalidateQueries("fetchRelevantLabeledRecord");
+          queryClient.invalidateQueries([
+            "fetchLabeledRecord",
+            { subset: ["relevant"] },
+          ]);
         }
         if (props.keyword) {
           // update cached data

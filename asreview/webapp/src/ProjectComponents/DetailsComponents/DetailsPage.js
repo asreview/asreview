@@ -174,7 +174,10 @@ const DetailsPage = (props) => {
                 spacing={3}
                 sx={{ width: !props.mobileScreen ? "40%" : "100%" }}
               >
-                <DataForm />
+                <DataForm
+                  handleNavState={props.handleNavState}
+                  setHistoryFilterQuery={props.setHistoryFilterQuery}
+                />
                 <ModelForm />
               </Stack>
             </Stack>

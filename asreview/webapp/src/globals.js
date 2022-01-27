@@ -90,3 +90,9 @@ export const projectModes = {
   SIMULATION: "simulate",
   EXPLORATION: "explore",
 };
+
+// project history filter options
+export const historyFilterOptions = [
+  { value: "note", label: "Contains note" },
+  { value: "prior", label: "Prior knowledge" },
+];
