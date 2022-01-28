@@ -552,17 +552,15 @@ const SetupDialog = (props) => {
                   <SavingStateBox isSaving={isSaving()} />
                 )}
               <Box className={classes.closeButton}>
-                {activeStep === 3 && (
-                  <Tooltip title="Send feedback">
-                    <StyledIconButton
-                      component={"a"}
-                      href={`https://github.com/asreview/asreview/discussions`}
-                      target="_blank"
-                    >
-                      <Feedback />
-                    </StyledIconButton>
-                  </Tooltip>
-                )}
+                <Tooltip title="Send feedback">
+                  <StyledIconButton
+                    component={"a"}
+                    href={`https://github.com/asreview/asreview/discussions`}
+                    target="_blank"
+                  >
+                    <Feedback />
+                  </StyledIconButton>
+                </Tooltip>
                 {activeStep !== 3 && (
                   <Tooltip title="Save and close">
                     <StyledIconButton onClick={handleClose}>
