@@ -255,7 +255,11 @@ def import_project_file(file_name):
         raise ValueError("Failed to import project "
                          f"'{file_name.filename}'.")
 
-    return import_project["id"]
+    project_info = {}
+    project_info["id"] = import_project["id"]
+    project_info["name"] = import_project["name"]
+
+    return project_info
 
 
 def add_dataset_to_project(project_id, file_name):
