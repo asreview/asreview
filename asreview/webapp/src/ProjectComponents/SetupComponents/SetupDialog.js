@@ -11,7 +11,6 @@ import {
   Dialog,
   Divider,
   Fade,
-  IconButton,
   Stack,
   Step,
   StepLabel,
@@ -30,6 +29,7 @@ import {
 } from "../SetupComponents/DataComponents";
 import { ModelForm } from "../SetupComponents/ModelComponents";
 import { ProjectInfoForm } from "../../ProjectComponents";
+import { StyledIconButton } from "../../StyledComponents/StyledButton.js";
 
 import { ProjectAPI } from "../../api/index.js";
 import {
@@ -38,13 +38,6 @@ import {
   projectModes,
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
-
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  [`:hover`]: {
-    backgroundColor: "transparent",
-  },
-}));
 
 const steps = ["Basic information", "Data", "Model"];
 
@@ -415,7 +408,6 @@ const SetupDialog = (props) => {
   const handleClose = () => {
     setTextFieldFocused(null);
     setExTitle("");
-    props.setNewProjectTitle(info["title"]);
     props.onClose();
   };
 
@@ -450,7 +442,10 @@ const SetupDialog = (props) => {
       resetMutateModelConfig();
     }
     if (props.project_id) {
-      props.toggleInfoBar();
+      props.setFeedbackBar({
+        open: true,
+        message: `Your project ${info.title} has been saved as draft`,
+      });
       queryClient.invalidateQueries("fetchProjects");
       props.handleAppState("home");
     }
