@@ -25,6 +25,7 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 
+import jsonschema
 import numpy as np
 import pandas as pd
 
@@ -53,6 +54,28 @@ from asreview.webapp.utils.project_path import list_asreview_project_paths
 from asreview.webapp.utils.validation import is_project
 from asreview.webapp.utils.validation import is_v0_project
 
+
+PROJECT_SCHEMA = {
+    "title": "Project file",
+    "description": "The project metadata in the project file.",
+    "type": "object",
+    "properties": {
+        "version": {"type": "string"},
+        "id": {"type": "string"},
+        "mode": {"type": "string", "enum": PROJECT_MODES},
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "authors": {"type": "string"},
+        "created_at_unix": {"type": "number"},
+
+        "datetimeCreated": {"type": "string"},
+        "projectInitReady": {"type": "boolean"},
+        "reviewFinished": {"type": "boolean"},
+        "reviews": {"type": "array"},
+        "feature_matrices": {"type": "array"}
+    },
+    "required": ["version", "id", "mode", "reviews", "feature_matrices"]
+}
 
 class ProjectNotFoundError(Exception):
     pass
@@ -177,26 +200,24 @@ def rename_project(project_id, project_name_new):
 def update_project_info(project_id, **kwargs):
     '''Update project info'''
 
-    kwargs_copy = kwargs.copy()
+    update_vals = kwargs.copy()
 
-    if "name" in kwargs_copy:
-        del kwargs_copy["name"]
+    # ignore name updates
+    if "name" in update_vals:
+        del update_vals["name"]
         logging.info(
             "Update project name is ignored, use 'rename_project' function.")
 
-    # validate schema
-    if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
-        raise ValueError(
-            "Project mode '{}' not found.".format(kwargs_copy["mode"]))
-
-    # update project file
     project_path = get_project_path(project_id)
     project_file_path = get_project_file_path(project_path)
 
     with open(project_file_path, "r") as fp:
         project_info = json.load(fp)
 
-    project_info.update(kwargs_copy)
+    project_info.update(update_vals)
+
+    # validate the project info
+    jsonschema.validate(instance=project_info, schema=schema)
 
     with open(project_file_path, "w") as fp:
         json.dump(project_info, fp)
