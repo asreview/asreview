@@ -77,6 +77,7 @@ PROJECT_SCHEMA = {
     "required": ["version", "id", "mode", "reviews", "feature_matrices"]
 }
 
+
 class ProjectNotFoundError(Exception):
     pass
 
@@ -217,7 +218,7 @@ def update_project_info(project_id, **kwargs):
     project_info.update(update_vals)
 
     # validate the project info
-    jsonschema.validate(instance=project_info, schema=schema)
+    jsonschema.validate(instance=project_info, schema=PROJECT_SCHEMA)
 
     with open(project_file_path, "w") as fp:
         json.dump(project_info, fp)
