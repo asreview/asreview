@@ -113,7 +113,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const columns = [
   { id: "name", label: "Project", width: "55%" },
-  { id: "datetimeCreated", label: "Date", width: "15%" },
+  { id: "created_at_unix", label: "Date", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
   { id: "reviewFinished", label: "Status", width: "15%" },
 ];
@@ -191,7 +191,7 @@ const ProjectTable = (props) => {
    * Format date and mode
    */
   const formatDate = (datetime) => {
-    let date = new Date(datetime.split(" ")[0]);
+    let date = new Date(datetime*1000);
     let dateString = date.toDateString().slice(4);
     let dateDisplay =
       dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
@@ -342,8 +342,8 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["datetimeCreated"]
-                            ? formatDate(row["datetimeCreated"])
+                          {row["created_at_unix"]
+                            ? formatDate(row["created_at_unix"])
                             : "N/A"}
                         </Typography>
                       </TableCell>
