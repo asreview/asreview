@@ -657,6 +657,8 @@ def api_get_labeled_stats(project_id):  # noqa: F401
 
         with open_state(project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
+            # Drop pending records.
+            data = data[~data['label'].isna()]
             data_prior = data[data["query_strategy"] == "prior"]
 
         response = jsonify({
