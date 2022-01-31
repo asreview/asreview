@@ -191,7 +191,7 @@ const ProjectTable = (props) => {
    * Format date and mode
    */
   const formatDate = (datetime) => {
-    let date = new Date(datetime*1000);
+    let date = new Date(datetime * 1000);
     let dateString = date.toDateString().slice(4);
     let dateDisplay =
       dateString.replace(/\s+\S*$/, ",") + dateString.match(/\s+\S*$/);
