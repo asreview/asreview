@@ -81,6 +81,7 @@ const DetailsPage = (props) => {
   const handleClickSave = () => {
     mutate({
       project_id: props.project_id,
+      mode: info.mode,
       title: info.title,
       authors: info.authors,
       description: info.description,
