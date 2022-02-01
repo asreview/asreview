@@ -199,7 +199,7 @@ const ProjectTable = (props) => {
   };
 
   const formatMode = (mode) => {
-    if (mode === "oracle") {
+    if (mode === "oracle" || !mode) {
       return "Oracle";
     }
     if (mode === "explore") {
@@ -342,9 +342,7 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["created_at_unix"]
-                            ? formatDate(row["created_at_unix"])
-                            : "N/A"}
+                          {formatDate(row["created_at_unix"])}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -353,7 +351,7 @@ const ProjectTable = (props) => {
                           variant="subtitle1"
                           noWrap
                         >
-                          {row["mode"] ? formatMode(row["mode"]) : "N/A"}
+                          {formatMode(row["mode"])}
                         </Typography>
                       </TableCell>
                       <TableCell className={classes.tableCell}>
