@@ -13,13 +13,13 @@ import {
   Typography,
 } from "@mui/material";
 
-import { InfoCard } from "../../SetupComponents";
 import {
   DatasetFromBenchmark,
   DatasetFromExtension,
-  DatasetFromFile,
   DatasetFromURL,
 } from "../DataComponents";
+import { InfoCard } from "../../SetupComponents";
+import { ImportFromFile } from "../../../ProjectComponents";
 import { mapStateToProps, projectModes } from "../../../globals.js";
 
 const AddDataset = (props) => {
@@ -112,12 +112,13 @@ const AddDataset = (props) => {
             </Typography>
           )}
           {props.datasetSource === "file" && (
-            <DatasetFromFile
-              addDatasetError={props.addDatasetError}
+            <ImportFromFile
+              acceptFormat=".txt,.tsv,.tab,.csv,.ris,.xlsx"
+              addFileError={props.addDatasetError}
               file={props.file}
               setFile={props.setFile}
-              isAddDatasetError={props.isAddDatasetError}
-              isAddingDataset={props.isAddingDataset}
+              isAddFileError={props.isAddDatasetError}
+              isAddingFile={props.isAddingDataset}
               reset={props.reset}
             />
           )}
