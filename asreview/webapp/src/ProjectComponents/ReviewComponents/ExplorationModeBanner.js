@@ -8,17 +8,18 @@ const ExplorationModeBanner = (props) => {
       <Banner
         open={props.explorationMode}
         onClose={() => props.setExplorationMode(false)}
-        label="You are screening through a manually pre-labeled dataset."
+        label="You are screening through a completely labeled dataset."
         icon={<InfoOutlinedIcon sx={{ color: "text.secondary" }} />}
         iconProps={{
           sx: { bgcolor: "transparent" },
         }}
-        buttonLabel="read more"
+        buttonLabel="Learn more"
         buttonProps={{
           href: "https://asreview.readthedocs.io/en/latest/lab/exploration.html",
           target: "_blank",
           sx: { color: "text.secondary" },
         }}
+        dismissButtonLabel="Got it"
         dismissButtonProps={{
           sx: { color: "text.secondary" },
         }}
