@@ -304,7 +304,6 @@ def api_update_project_info(project_id):  # noqa: F401
     # update the project info
     update_project_info(
         project_id_new,
-        mode=request.form['mode'],
         description=request.form['description'],
         authors=request.form['authors'])
 
