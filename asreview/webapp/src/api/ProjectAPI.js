@@ -87,6 +87,7 @@ class ProjectAPI {
 
   static mutateInfo(variables) {
     let body = new FormData();
+    body.set("mode", variables.mode);
     body.set("name", variables.title);
     body.set("authors", variables.authors);
     body.set("description", variables.description);
