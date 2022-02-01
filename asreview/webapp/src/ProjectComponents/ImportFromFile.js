@@ -115,6 +115,18 @@ const ImportFromFile = ({
     [isDragActive, isDragReject, isDragAccept]
   );
 
+  const returnAcceptFile = () => {
+    if (acceptFormat !== ".asreview") {
+      return <Typography>Drag and drop a dataset file to add</Typography>;
+    } else {
+      return (
+        <Typography>
+          Drag and drop a project file (<code>.asreview</code>) to add
+        </Typography>
+      );
+    }
+  };
+
   return (
     <Root>
       <Box {...getRootProps({ style })}>
@@ -134,9 +146,7 @@ const ImportFromFile = ({
               />
             </Avatar>
           </ButtonBase>
-          <Typography>{`Drag and drop a ${
-            acceptFormat !== `.asreview` ? `dataset` : `project`
-          } file to add`}</Typography>
+          {returnAcceptFile()}
           {file && (
             <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.
