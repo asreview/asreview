@@ -2,25 +2,19 @@ import React from "react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { SelectItem } from "../../SetupComponents";
-import { projectModes } from "../../../globals.js";
+import { SelectItem } from "../ProjectComponents/SetupComponents";
+import { projectModes } from "../globals.js";
 
-const PREFIX = "DetailsModeSelect";
+const Root = styled("div")(({ theme }) => ({}));
 
-const classes = {
-  formControl: `${PREFIX}-formControl`,
-};
-
-const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.formControl}`]: {
-    width: "100%",
-  },
-}));
-
-export default function DetailsModeSelect(props) {
+export default function ProjectModeSelect(props) {
   return (
     <Root>
-      <FormControl disabled={props.disableModeSelect} fullWidth>
+      <FormControl
+        disabled={props.disableModeSelect}
+        fullWidth
+        variant={!props.disableModeSelect ? "outlined" : "filled"}
+      >
         <InputLabel id="mode-select-label">Mode</InputLabel>
         <Select
           labelId="mode-select-label"
@@ -43,14 +37,14 @@ export default function DetailsModeSelect(props) {
           <MenuItem value={projectModes.EXPLORATION}>
             <SelectItem
               primary="Exploration"
-              secondary="Explore the power of ASReview LAB with an existing labeled dataset"
+              secondary="Explore the power of ASReview LAB with a completely labeled dataset"
             />
           </MenuItem>
           {props.showSimulate && (
             <MenuItem value={projectModes.SIMULATION}>
               <SelectItem
                 primary="Simulation"
-                secondary="Simulate screening on a labeled dataset to understand the performance of an active learning model"
+                secondary="Simulate screening on a completely labeled dataset to understand the performance of an active learning model"
               />
             </MenuItem>
           )}

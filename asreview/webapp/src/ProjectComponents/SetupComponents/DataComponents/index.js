@@ -5,7 +5,6 @@ export { default as DataForm } from "./DataForm";
 export { default as DataFormCard } from "./DataFormCard";
 export { default as DatasetFromBenchmark } from "./DatasetFromBenchmark";
 export { default as DatasetFromExtension } from "./DatasetFromExtension";
-export { default as DatasetFromFile } from "./DatasetFromFile";
 export { default as DatasetFromURL } from "./DatasetFromURL";
 export { default as ExtensionDataset } from "./ExtensionDataset";
 export { default as PriorLabeled } from "./PriorLabeled";

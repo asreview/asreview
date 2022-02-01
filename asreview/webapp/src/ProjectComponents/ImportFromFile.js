@@ -11,9 +11,9 @@ import {
 import { styled } from "@mui/material/styles";
 import { FileUpload } from "@mui/icons-material";
 
-import { InlineErrorHandler } from "../../../Components";
+import { InlineErrorHandler } from "../Components";
 
-const PREFIX = "DatasetFromFile";
+const PREFIX = "ImportFromFile";
 
 const classes = {
   root: `${PREFIX}-root`,
@@ -21,6 +21,8 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
+  height: "100%",
+  width: "100%",
   [`& .${classes.root}`]: {
     display: "flex",
     alignItems: "center",
@@ -36,12 +38,13 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const baseStyle = {
-  height: 400,
+  height: "100%",
   flex: 1,
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  padding: "75px 20px 45px 20px",
+  justifyContent: "center",
+  padding: "80px 20px 80px 20px",
   borderWidth: 2,
   borderRadius: 2,
   borderColor: "#eeeeee",
@@ -62,29 +65,30 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-const DatasetFromFile = ({
-  addDatasetError,
+const ImportFromFile = ({
+  acceptFormat,
+  addFileError,
   file,
   setFile,
-  isAddDatasetError,
-  isAddingDataset,
+  isAddFileError,
+  isAddingFile,
   reset,
 }) => {
   const onDrop = useCallback(
     (acceptedFiles) => {
       if (acceptedFiles.length !== 1) {
-        console.log("No valid files provided.");
+        console.log("No valid file provided");
         return;
       }
 
       // set error to state
-      if (isAddDatasetError) {
+      if (isAddFileError) {
         reset();
       }
       // set the state such that we ca upload the file
       setFile(acceptedFiles[0]);
     },
-    [setFile, isAddDatasetError, reset]
+    [setFile, isAddFileError, reset]
   );
 
   const {
@@ -95,10 +99,10 @@ const DatasetFromFile = ({
     isDragReject,
     open,
   } = useDropzone({
-    onDrop: !isAddingDataset ? onDrop : false,
+    onDrop: !isAddingFile ? onDrop : false,
     multiple: false,
     noClick: true,
-    accept: ".txt,.tsv,.tab,.csv,.ris,.xlsx",
+    accept: acceptFormat,
   });
 
   const style = useMemo(
@@ -111,12 +115,24 @@ const DatasetFromFile = ({
     [isDragActive, isDragReject, isDragAccept]
   );
 
+  const returnAcceptFile = () => {
+    if (acceptFormat !== ".asreview") {
+      return <Typography>Drag and drop a dataset file to add</Typography>;
+    } else {
+      return (
+        <Typography>
+          Drag and drop a project file (<code>.asreview</code>) to add
+        </Typography>
+      );
+    }
+  };
+
   return (
     <Root>
       <Box {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <Stack className={classes.root} spacing={2}>
-          <ButtonBase disabled={isAddingDataset} disableRipple onClick={open}>
+          <ButtonBase disabled={isAddingFile} disableRipple onClick={open}>
             <Avatar
               sx={{
                 height: "136px",
@@ -130,18 +146,18 @@ const DatasetFromFile = ({
               />
             </Avatar>
           </ButtonBase>
-          <Typography>Drag and drop a dataset file to add</Typography>
+          {returnAcceptFile()}
           {file && (
             <Typography className={classes.singleLine}>
               File <i>{file?.path}</i> selected.
             </Typography>
           )}
-          {isAddDatasetError && (
+          {isAddFileError && (
             <InlineErrorHandler
-              message={addDatasetError?.message + " Please try again."}
+              message={addFileError?.message + " Please try again."}
             />
           )}
-          <Button disabled={isAddingDataset} variant="contained" onClick={open}>
+          <Button disabled={isAddingFile} variant="contained" onClick={open}>
             Select File
           </Button>
         </Stack>
@@ -150,4 +166,4 @@ const DatasetFromFile = ({
   );
 };
 
-export default DatasetFromFile;
+export default ImportFromFile;

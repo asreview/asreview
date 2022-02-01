@@ -10,7 +10,7 @@ import {
 import { Check } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 
-const PREFIX = "DataForm";
+const PREFIX = "DataFormCard";
 
 const classes = {
   cardContent: `${PREFIX}-card-content`,

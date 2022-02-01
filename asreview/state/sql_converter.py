@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import shutil
 import sqlite3
 from pathlib import Path
 from uuid import uuid4
@@ -32,10 +33,9 @@ ASREVIEW_FILE_EXTENSION = '.asreview'
 def is_old_project(fp):
     """Check if state file is old version."""
     if Path(fp, 'reviews').is_dir():
-        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
-                         f"This project seems to be in new format.")
-    if not Path(fp, 'result.json').is_file():
-        raise ValueError(f"There is no 'result.json' file at {fp}")
+        return False
+    else:
+        return True
 
 
 # TODO(State): Allow basic/full (i.e. save probabilities).
@@ -57,14 +57,20 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
             f"Not possible to upgrade from {from_version} to {to_version}.")
 
     # Check if it is indeed an old format project.
-    is_old_project(fp)
+    if not is_old_project(fp):
+        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
+                         f"This project seems to be in new format.")
 
     # Current Paths
     fp = Path(fp)
-    json_fp = Path(fp, 'result.json')
+    legacy_fp = Path(fp, 'legacy')
+    move_old_files_to_legacy_folder(fp)
+
+    # Current paths.
+    json_fp = Path(legacy_fp, 'result.json')
     project_fp = Path(fp, 'project.json')
-    pool_fp = Path(fp, 'pool.json')
-    kwargs_fp = Path(fp, 'kwargs.json')
+    pool_fp = Path(legacy_fp, 'pool.json')
+    kwargs_fp = Path(legacy_fp, 'kwargs.json')
     review_id = str(uuid4().hex)
 
     # Create the reviews folder and the paths for the results and settings.
@@ -81,11 +87,10 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Create sqlite tables 'last_probabilities'.
     convert_json_last_probabilities(sql_fp, json_fp)
 
-    # Create teh table for the last ranking of the model.
-    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp)
+    # Create the table for the last ranking of the model.
+    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp)
 
-    # Add the record table to the sqlite database as the table
-    # 'record_table'.
+    # Add the record table to the sqlite database as the table 'record_table'.
     convert_json_record_table(sql_fp, json_fp)
 
     # Create decision changes table.
@@ -95,7 +100,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
     # Create file for the feature matrix.
-    with open(Path(fp, 'kwargs.json'), 'r') as f:
+    with open(kwargs_fp, 'r') as f:
         kwargs_dict = json.load(f)
         feature_extraction_method = kwargs_dict['feature_extraction']
     feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
@@ -106,6 +111,30 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
         start_time = json.load(f)['time']['start_time']
     convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
                          feature_extraction_method)
+
+
+def move_old_files_to_legacy_folder(fp):
+    """Move the old files to a legacy folder.
+
+    Arguments
+    ----------
+    fp: pathlib.Path
+        Location of the (unzipped) project file.
+
+    Returns
+    -------
+    Creates a folder 'legacy' in the project file, moves all current files to
+    this legacy folder, and keeps a copy of 'project.json' and the data folder
+    at the original place.
+    """
+    files_to_keep = ['project.json', 'data', 'lock.sqlite', '__MACOSX']
+
+    file_paths = list(fp.iterdir())
+    legacy_folder = Path(fp, 'legacy')
+    shutil.copytree(fp, legacy_folder)
+    for file_path in file_paths:
+        if file_path.name not in files_to_keep:
+            file_path.unlink()
 
 
 def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
@@ -167,6 +196,9 @@ def convert_json_settings_metadata(fp, json_fp):
     data_dict = {}
     with open_state_legacy(json_fp) as json_state:
         data_dict['settings'] = json_state._state_dict['settings']
+        # The 'triple' balance strategy is no longer implemented.
+        if data_dict['settings']['balance_strategy'] == 'triple':
+            data_dict['settings']['balance_strategy'] = 'double'
         data_dict['current_queries'] = json_state._state_dict[
             'current_queries']
         data_dict['state_version'] = SQLSTATE_VERSION
@@ -176,10 +208,9 @@ def convert_json_settings_metadata(fp, json_fp):
         json.dump(data_dict, f)
 
 
-def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp):
+def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
     """Create the table which will contain the ranking of the last iteration of
-    the model. The converter will leave the table empty. It will be filled the
-    first time a new model is trained.
+    the model.
 
     Arguments
     ---------
@@ -193,9 +224,20 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp):
     with open(kwargs_fp, 'r') as f_kwargs:
         kwargs_dict = json.load(f_kwargs)
 
+    # Add the record_ids not found in the pool to the end of the ranking.
+    with open_state_legacy(json_fp) as json_state:
+        record_table = get_json_record_table(json_state)
+    records_not_in_pool = [record_id for record_id in record_table
+                           if record_id not in pool_ranking]
+    pool_ranking += records_not_in_pool
+
+    # Set the training set to -1 (prior) for records from old pool.
+    training_set = -1
+    time = None
+
     last_ranking = [(v, i, kwargs_dict['model'], kwargs_dict['query_strategy'],
                      kwargs_dict['balance_strategy'],
-                     kwargs_dict['feature_extraction'], None, None)
+                     kwargs_dict['feature_extraction'], training_set, time)
                     for i, v in enumerate(pool_ranking)]
 
     with sqlite3.connect(sql_fp) as con:
@@ -313,7 +355,7 @@ def convert_json_record_table(sql_fp, json_fp):
         record_table = get_json_record_table(json_state)
 
     # Convert record_table to list of tuples.
-    record_table = [(record_id, ) for record_id in record_table]
+    record_table = [(record_id, ) for record_id in range(len(record_table))]
 
     con = sqlite3.connect(sql_fp)
     cur = con.cursor()

@@ -1,6 +1,7 @@
 import { axiosErrorHandler } from "./axiosErrorHandler";
 import { api_url } from "../globals.js";
 import axios from "axios";
+import qs from "qs";
 
 class ProjectAPI {
   static fetchProjects({ queryKey }) {
@@ -54,9 +55,9 @@ class ProjectAPI {
     });
   }
 
-  static fetchConvertProjectIfOld({ queryKey }) {
+  static fetchUpgradeProjectIfOld({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `project/${project_id}/convert_if_old`;
+    const url = api_url + `project/${project_id}/upgrade_if_old`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -86,7 +87,6 @@ class ProjectAPI {
 
   static mutateInfo(variables) {
     let body = new FormData();
-    body.set("mode", variables.mode);
     body.set("name", variables.title);
     body.set("authors", variables.authors);
     body.set("description", variables.description);
@@ -201,12 +201,15 @@ class ProjectAPI {
   }
 
   static fetchLabeledRecord({ pageParam = 1, queryKey }) {
-    const { project_id, select, per_page } = queryKey[1];
+    const { project_id, subset, per_page } = queryKey[1];
     const url = api_url + `project/${project_id}/labeled`;
     return new Promise((resolve, reject) => {
       axios
         .get(url, {
-          params: { subset: select, page: pageParam, per_page: per_page },
+          params: { subset: subset, page: pageParam, per_page: per_page },
+          paramsSerializer: (params) => {
+            return qs.stringify(params, { arrayFormat: "repeat" });
+          },
         })
         .then((result) => {
           resolve(result.data);
@@ -480,12 +483,8 @@ class ProjectAPI {
   static mutateClassification(variables) {
     let body = new FormData();
     body.set("doc_id", variables.doc_id);
-
-    if (!variables.initial && variables.label !== -1) {
-      body.set("label", variables.label === 1 ? 0 : 1);
-    } else {
-      body.set("label", variables.label);
-    }
+    body.set("label", variables.label);
+    body.set("note", variables.note);
 
     // prior items should be labeled as such
     if (variables.is_prior === 1) {
@@ -505,13 +504,7 @@ class ProjectAPI {
           resolve(result);
           console.log(
             `${variables.project_id} - add item ${variables.doc_id} to ${
-              variables.label === 1
-                ? variables.initial
-                  ? "inclusions"
-                  : "exclusions"
-                : variables.initial
-                ? "exclusions"
-                : "inclusions"
+              variables.label === 1 ? "inclusions" : "exclusions"
             }`
           );
         })

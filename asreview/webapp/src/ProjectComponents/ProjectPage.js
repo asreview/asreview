@@ -7,13 +7,13 @@ import { styled } from "@mui/material/styles";
 
 import { DialogErrorHandler, NavigationDrawer } from "../Components";
 import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
+import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
 import { ExportPage } from "../ProjectComponents/ExportComponents";
 import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
-import { ProjectInfo } from "../PreReviewComponents";
 
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
@@ -74,15 +74,15 @@ const mapStateToProps = (state) => {
 };
 
 const ProjectPage = (props) => {
+  // History page state
+  const [historyLabel, setHistoryLabel] = React.useState("relevant");
+  const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
+
   const { data, error, isError, isSuccess } = useQuery(
     ["fetchInfo", { project_id: props.project_id }],
     ProjectAPI.fetchInfo,
-    { refetchOnWindowFocus: false }
+    { enabled: props.project_id !== null, refetchOnWindowFocus: false }
   );
-
-  const finishEditProjectInfo = () => {
-    props.handleNavState("analytics");
-  };
 
   const returnElasState = () => {
     // setup
@@ -130,7 +130,9 @@ const ProjectPage = (props) => {
           aria-label="project page content loaded"
         >
           {/* Analytics */}
-          {props.nav_state === "analytics" && <AnalyticsPage />}
+          {props.nav_state === "analytics" && (
+            <AnalyticsPage mobileScreen={props.mobileScreen} />
+          )}
 
           {/* Review page */}
           {isSuccess &&
@@ -155,21 +157,30 @@ const ProjectPage = (props) => {
 
           {/* History page */}
           {props.nav_state === "history" && (
-            <HistoryPage mobileScreen={props.mobileScreen} />
+            <HistoryPage
+              filterQuery={historyFilterQuery}
+              label={historyLabel}
+              setFilterQuery={setHistoryFilterQuery}
+              setLabel={setHistoryLabel}
+              mobileScreen={props.mobileScreen}
+            />
           )}
 
           {/* Export page */}
           {props.nav_state === "export" && (
-            <ExportPage enableExportDataset={data?.projectInitReady} />
+            <ExportPage
+              enableExportDataset={data?.projectInitReady}
+              mobileScreen={props.mobileScreen}
+            />
           )}
 
           {/* Details page */}
           {isSuccess && props.nav_state === "details" && (
-            <ProjectInfo
-              edit={true}
-              open={props.nav_state === "details"}
-              onClose={finishEditProjectInfo}
+            <DetailsPage
+              handleNavState={props.handleNavState}
               info={data}
+              mobileScreen={props.mobileScreen}
+              setHistoryFilterQuery={setHistoryFilterQuery}
             />
           )}
         </Box>

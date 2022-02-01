@@ -13,6 +13,7 @@ import { styled, useTheme } from "@mui/material/styles";
 import { HelpOutline } from "@mui/icons-material";
 
 import { CardErrorHandler } from "../../Components";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 import tooltipRelevantLight from "../../images/progress_density_relevant_light.png";
 import tooltipRelevantDark from "../../images/progress_density_relevant_dark.png";
@@ -215,6 +216,9 @@ export default function ProgressDensityChart(props) {
         id: "ASReviewLABprogressDensity",
         type: "area",
         stacked: true,
+        toolbar: {
+          show: !props.mobileScreen,
+        },
       },
       colors: [
         theme.palette.mode === "light"
@@ -236,7 +240,7 @@ export default function ProgressDensityChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: "14px",
+        fontSize: !props.mobileScreen ? "14px" : "12px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -255,7 +259,7 @@ export default function ProgressDensityChart(props) {
         size: 0,
       },
       noData: {
-        text: "No data available",
+        text: "No data available. Start reviewing first.",
       },
       stroke: {
         curve: "smooth",
@@ -284,10 +288,11 @@ export default function ProgressDensityChart(props) {
         showAlways: false,
         opposite: true,
         max: 10,
+        min: 0,
         tickAmount: 3,
       },
     };
-  }, [theme]);
+  }, [theme, props.mobileScreen]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState(optionsChart());
@@ -307,7 +312,14 @@ export default function ProgressDensityChart(props) {
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           <Box className={classes.title}>
-            <Typography variant="h6">Progress Density</Typography>
+            {!props.mobileScreen && (
+              <Typography variant="h6">Progress Density</Typography>
+            )}
+            {props.mobileScreen && (
+              <TypographySubtitle1Medium>
+                Progress Density
+              </TypographySubtitle1Medium>
+            )}
             <StyledTooltip
               title={
                 <React.Fragment>
@@ -358,7 +370,7 @@ export default function ProgressDensityChart(props) {
               }
             >
               <HelpOutline
-                fontSize="small"
+                fontSize={!props.mobileScreen ? "small" : "12px"}
                 sx={{ color: "text.secondary", marginLeft: "8px" }}
               />
             </StyledTooltip>

@@ -152,17 +152,19 @@ def _standardize_dataframe(df, column_spec={}):
             df.rename(columns={"label": "included"})
             all_column_spec.pop("included")
 
-    # If the we have a record_id (for example from an ASReview export) use it.
-    if "record_id" in list(df):
-
-        # validate record_id column
-        _is_record_id_notnull(df["record_id"])
-        _is_record_id_unique(df["record_id"])
-        _is_record_id_int(df["record_id"])
-
-    # Create a new index if we haven't found it in the data.
-    else:
-        df["record_id"] = np.arange(len(df.index))
+    # TODO: Make sure 'record_id' column in original dataset does not get overwritten.
+    # # If the we have a record_id (for example from an ASReview export) use it.
+    # if "record_id" in list(df):
+    #
+    #     # validate record_id column
+    #     _is_record_id_notnull(df["record_id"])
+    #     _is_record_id_unique(df["record_id"])
+    #     _is_record_id_int(df["record_id"])
+    #
+    # # Create a new index if we haven't found it in the data.
+    # else:
+    #     df["record_id"] = np.arange(len(df.index))
+    df["record_id"] = np.arange(len(df.index))
 
     # set the index
     df.set_index('record_id', inplace=True)

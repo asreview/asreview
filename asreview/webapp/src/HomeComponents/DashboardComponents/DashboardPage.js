@@ -11,13 +11,10 @@ import {
 import { styled } from "@mui/material/styles";
 import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
-import { ProjectImportDialog } from "../../Components";
+import { ActionsFeedbackBar } from "../../Components";
+import { ProjectImportDialog } from "../../ProjectComponents";
 import { NumberCard, ProjectTable } from "../DashboardComponents";
-import {
-  CloseSetupInfoBar,
-  SetupDialog,
-} from "../../ProjectComponents/SetupComponents";
-import { useToggle } from "../../hooks/useToggle";
+import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 
 const PREFIX = "DashboardPage";
 
@@ -60,8 +57,17 @@ const DashboardPage = (props) => {
     importProject: false,
   });
 
-  const [newProjectTitle, setNewProjectTitle] = React.useState("");
-  const [infoBar, toggleInfoBar] = useToggle();
+  const [feedbackBar, setFeedbackBar] = React.useState({
+    open: false,
+    message: null,
+  });
+
+  const resetFeedbackBar = () => {
+    setFeedbackBar({
+      ...feedbackBar,
+      open: false,
+    });
+  };
 
   const handleOpen = () => {
     setOpen({
@@ -130,27 +136,25 @@ const DashboardPage = (props) => {
           />
         </Stack>
       </Container>
-
-      {open.importProject && (
-        <ProjectImportDialog
-          open={open.importProject}
-          onClose={handleCloseProjectImport}
-        />
-      )}
-
+      <ProjectImportDialog
+        mobileScreen={props.mobileScreen}
+        open={open.importProject}
+        onClose={handleCloseProjectImport}
+        setFeedbackBar={setFeedbackBar}
+      />
       <SetupDialog
         handleAppState={props.handleAppState}
         handleNavState={props.handleNavState}
+        mobileScreen={props.mobileScreen}
         open={open.newProject}
         onClose={handleCloseNewProject}
-        setNewProjectTitle={setNewProjectTitle}
-        toggleInfoBar={toggleInfoBar}
+        setFeedbackBar={setFeedbackBar}
       />
-      <CloseSetupInfoBar
-        onClose={toggleInfoBar}
-        open={infoBar}
-        setNewProjectTitle={setNewProjectTitle}
-        info={`Your project ${newProjectTitle} has been saved as draft`}
+      <ActionsFeedbackBar
+        center
+        onClose={resetFeedbackBar}
+        open={feedbackBar.open}
+        feedback={feedbackBar.message}
       />
 
       {/* Add button for new or importing project */}

@@ -15,8 +15,10 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
+import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
 import { ProjectAPI } from "../../../api/index.js";
 import { mapStateToProps } from "../../../globals.js";
+import "../../../App.css";
 
 const PREFIX = "PriorUnlabeled";
 
@@ -28,8 +30,8 @@ const classes = {
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 16,
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(3),
+    // marginBottom: theme.spacing(3),
     maxWidth: 960,
   },
 
@@ -49,9 +51,15 @@ const PriorUnlabeled = (props) => {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries("fetchLabeledStats");
         if (!variables.label) {
-          queryClient.invalidateQueries("fetchIrrelevantLabeledRecord");
+          queryClient.invalidateQueries([
+            "fetchLabeledRecord",
+            { subset: ["irrelevant"] },
+          ]);
         } else {
-          queryClient.invalidateQueries("fetchRelevantLabeledRecord");
+          queryClient.invalidateQueries([
+            "fetchLabeledRecord",
+            { subset: ["relevant"] },
+          ]);
         }
         if (props.keyword) {
           // update cached data
@@ -85,6 +93,12 @@ const PriorUnlabeled = (props) => {
     }
   );
 
+  const isDebugInclusion = () => {
+    if (props.record) {
+      return props.record._debug_label === 1;
+    }
+  };
+
   return (
     <Root>
       {isError && (
@@ -98,9 +112,14 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
-          <CardContent>
+          {props.record._debug_label !== null && (
+            <ExplorationModeRecordAlert
+              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+            />
+          )}
+          <CardContent className="record-card-content">
             <Typography gutterBottom variant="h6">
-              {props.record.title ? props.record.title : "No title available."}
+              {props.record.title ? props.record.title : "No title available"}
             </Typography>
             <TruncateMarkup
               lines={props.record.id === recordReadMore ? Infinity : 6}
@@ -120,7 +139,7 @@ const PriorUnlabeled = (props) => {
               <Typography sx={{ color: "text.secondary" }}>
                 {props.record.abstract
                   ? props.record.abstract
-                  : "No abstract available."}
+                  : "No abstract available"}
               </Typography>
             </TruncateMarkup>
           </CardContent>
@@ -136,6 +155,7 @@ const PriorUnlabeled = (props) => {
                     project_id: props.project_id,
                     doc_id: props.record.id,
                     label: 1,
+                    note: "",
                     initial: true,
                     is_prior: 1,
                   });
@@ -150,6 +170,7 @@ const PriorUnlabeled = (props) => {
                     project_id: props.project_id,
                     doc_id: props.record.id,
                     label: 0,
+                    note: "",
                     initial: true,
                     is_prior: 1,
                   });

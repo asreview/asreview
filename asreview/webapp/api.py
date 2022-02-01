@@ -60,6 +60,7 @@ from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_simulation_ready_path
 from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
+from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
@@ -138,6 +139,9 @@ def api_get_projects():  # noqa: F401
             # if time is not available (<0.14)
             if "created_at_unix" not in res:
                 res["created_at_unix"] = None
+
+            # check if project is old
+            res["projectNeedsUpgrade"] = is_old_project(proj)
 
             logging.info("Project found: {}".format(res["id"]))
             project_info.append(res)
@@ -235,9 +239,9 @@ def api_init_project():  # noqa: F401
     return response, 201
 
 
-@bp.route('/project/<project_id>/convert_if_old', methods=["GET"])
-def api_convert_project_if_old(project_id):
-    """Get if project is converted"""
+@bp.route('/project/<project_id>/upgrade_if_old', methods=["GET"])
+def api_upgrade_project_if_old(project_id):
+    """Get upgrade project if it is v0.x"""
 
     project_path = get_project_path(project_id)
 
@@ -300,7 +304,6 @@ def api_update_project_info(project_id):  # noqa: F401
     # update the project info
     update_project_info(
         project_id_new,
-        mode=request.form['mode'],
         description=request.form['description'],
         authors=request.form['authors'])
 
@@ -498,6 +501,8 @@ def api_search_data(project_id):  # noqa: F401
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
 
+    project_path = get_project_path(project_id)
+
     try:
         payload = {"result": []}
         if q:
@@ -505,21 +510,30 @@ def api_search_data(project_id):  # noqa: F401
             # read the dataset
             as_data = read_data(project_id)
 
+            # read record_ids of labels from state
+            with open_state(project_path) as s:
+                labeled_record_ids = s.get_dataset(["record_id"])["record_id"].to_list()
+
             # search for the keywords
             result_idx = fuzzy_find(as_data,
                                     q,
                                     max_return=max_results,
-                                    exclude=[],
+                                    exclude=labeled_record_ids,
                                     by_index=True)
 
-            for paper in as_data.record(result_idx, by_index=True):
+            for record in as_data.record(result_idx, by_index=True):
+
+                debug_label = record.extra_fields.get("debug_label", None)
+                debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
                 payload["result"].append({
-                    "id": int(paper.record_id),
-                    "title": paper.title,
-                    "abstract": paper.abstract,
-                    "authors": paper.authors,
-                    "keywords": paper.keywords,
-                    "included": int(paper.included)
+                    "id": int(record.record_id),
+                    "title": record.title,
+                    "abstract": record.abstract,
+                    "authors": record.authors,
+                    "keywords": record.keywords,
+                    "included": int(record.included),
+                    "_debug_label": debug_label
                 })
 
     except SearchError as search_err:
@@ -542,7 +556,7 @@ def api_get_labeled(project_id):  # noqa: F401
 
     page = request.args.get("page", default=None, type=int)
     per_page = request.args.get("per_page", default=20, type=int)
-    subset = request.args.get("subset", default=None, type=str)
+    subset = request.args.getlist("subset")
     latest_first = request.args.get("latest_first", default=1, type=int)
 
     project_path = get_project_path(project_id)
@@ -550,21 +564,30 @@ def api_get_labeled(project_id):  # noqa: F401
     try:
 
         with open_state(project_path) as s:
-            data = s.get_dataset(["record_id", "label", "query_strategy"])
+            data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
-        if subset in ["relevant", "included"]:
-            data = data[data['label'] == 1]
-        elif subset in ["irrelevant", "excluded"]:
-            data = data[data['label'] == 0]
+        if any(s in subset for s in ["relevant", "included"]):
+            data = data[data["label"] == 1]
+        elif any(s in subset for s in ["irrelevant", "excluded"]):
+            data = data[data["label"] == 0]
         else:
-            data = data[~data['label'].isnull()]
+            data = data[~data["label"].isnull()]
+
+        if "note" in subset:
+            data = data[~data["notes"].isnull()]
+
+        if "prior" in subset:
+            data = data[data["prior"] == 1]
 
         if latest_first == 1:
             data = data.iloc[::-1]
 
         # count labeled records and max pages
         count = len(data)
+        if count == 0:
+            raise ValueError("No available record")
+
         max_page_calc = divmod(count, per_page)
         if max_page_calc[1] == 0:
             max_page = max_page_calc[0]
@@ -578,7 +601,7 @@ def api_get_labeled(project_id):  # noqa: F401
                 idx_end = page * per_page
                 data = data.iloc[idx_start:idx_end, :].copy()
             else:
-                raise ValueError(f"Page {page - 1} is the last page.")
+                raise ValueError(f"Page {page - 1} is the last page")
 
             # set next & previous page
             if page < max_page:
@@ -611,12 +634,13 @@ def api_get_labeled(project_id):  # noqa: F401
                 "authors": record.authors,
                 "keywords": record.keywords,
                 "included": int(data.loc[i, "label"]),
+                "note": data.loc[i, "notes"],
                 "prior": int(data.loc[i, "prior"])
             })
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to load labeled documents. {err}"), 500
+        return jsonify(message=f"{err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -632,6 +656,8 @@ def api_get_labeled_stats(project_id):  # noqa: F401
 
         with open_state(project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
+            # Drop pending records.
+            data = data[~data['label'].isna()]
             data_prior = data[data["query_strategy"] == "prior"]
 
         response = jsonify({
@@ -681,6 +707,9 @@ def api_random_prior_papers(project_id):  # noqa: F401
     try:
         record = read_data(project_id).record(pool_random, by_index=False)
 
+        debug_label = record.extra_fields.get("debug_label", None)
+        debug_label = int(debug_label) if pd.notnull(debug_label) else None
+
         payload = {"result": []}
 
         payload["result"].append({
@@ -689,7 +718,8 @@ def api_random_prior_papers(project_id):  # noqa: F401
             "abstract": record.abstract,
             "authors": record.authors,
             "keywords": record.keywords,
-            "included": None
+            "included": None,
+            "_debug_label": debug_label
         })
 
     except Exception as err:
@@ -947,10 +977,10 @@ def api_import_project():
     # set the project file
     project_file = request.files['file']
     # import the project
-    project_id = import_project_file(project_file)
+    project_info = import_project_file(project_file)
 
     # return the project info in the same format as project_info
-    return jsonify(id=project_id)
+    return jsonify(project_info)
 
 
 @bp.route('/project/<project_id>/export', methods=["GET"])
@@ -984,7 +1014,8 @@ def export_results(project_id):
                     f"attachment; filename=asreview_result_{project_id}.tsv"
                 })
         # Excel
-        elif file_type == "xlsx":
+        # TODO: Take only one. Frontend uses "excel", rest uses "xlsx".
+        elif file_type == "xlsx" or file_type == "excel":
             dataset_str = export_to_string(project_id, export_type="excel")
             fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
@@ -1117,16 +1148,19 @@ def api_get_progress_info(project_id):  # noqa: F401
 def api_get_progress_density(project_id):
     """Get progress density of a project"""
 
+    include_priors = request.args.get('priors', False, type=bool)
+
     try:
         # get label history
         project_path = get_project_path(project_id)
 
         with open_state(project_path) as s:
-            data = s.get_labels()
+            data = s.get_labels(priors=include_priors)
 
         # create a dataset with the rolling mean of every 10 papers
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .rolling(10, min_periods=1) \
             .mean()
         df["Total"] = df.index + 1
@@ -1175,15 +1209,18 @@ def api_get_progress_density(project_id):
 def api_get_progress_recall(project_id):
     """Get cumulative number of inclusions by ASReview/at random"""
 
+    include_priors = request.args.get('priors', False, type=bool)
+
     project_path = get_project_path(project_id)
     try:
         with open_state(project_path) as s:
-            data = s.get_labels()
+            data = s.get_labels(priors=include_priors)
             n_records = len(s.get_record_table())
 
         # create a dataset with the cumulative number of inclusions
         df = data \
             .to_frame(name="Relevant") \
+            .reset_index(drop=True) \
             .cumsum()
         df["Total"] = df.index + 1
         df["Random"] = (df["Total"] *
@@ -1228,6 +1265,10 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
     # return the combination of document_id and label.
     doc_id = request.form.get('doc_id')
     label = request.form.get('label')
+    note = request.form.get('note', type=str)
+    if not note:
+        note = None
+
     is_prior = request.form.get('is_prior', default=False)
 
     retrain_model = False if is_prior == "1" else True
@@ -1237,12 +1278,14 @@ def api_classify_instance(project_id, doc_id):  # noqa: F401
         label_instance(project_id,
                        doc_id,
                        label,
+                       note=note,
                        prior=prior,
                        retrain_model=retrain_model)
     elif request.method == 'PUT':
         update_instance(project_id,
                         doc_id,
                         label,
+                        note=note,
                         retrain_model=retrain_model)
 
     response = jsonify({'success': True})
@@ -1297,7 +1340,11 @@ def api_delete_project(project_id):  # noqa: F401
     project_path = get_project_path(project_id)
 
     if project_path.exists() and project_path.is_dir():
-        shutil.rmtree(project_path)
+        try:
+            shutil.rmtree(project_path)
+        except Exception as err:
+            logging.error(err)
+            return jsonify(message="Failed to delete project."), 500
 
         response = jsonify({'success': True})
         response.headers.add('Access-Control-Allow-Origin', '*')

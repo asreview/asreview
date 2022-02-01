@@ -1,35 +1,52 @@
-import React, { useState } from "react";
-import { connect } from "react-redux";
+import * as React from "react";
 import { Box, Divider, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { PageHeader } from "../../Components";
 import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
+import "../../App.css";
 
-import { mapStateToProps } from "../../globals.js";
-
-const filterOptions = [{ label: "Contains note", value: 0 }];
-
-const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  overflowY: "hidden",
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
 const HistoryPage = (props) => {
-  const [label, setLabel] = useState("relevant");
-
   return (
     <Root aria-label="history page">
       <Fade in>
         <Box>
-          <LabelChip label={label} setLabel={setLabel} />
-          <Divider />
-          <Filter filterOptions={filterOptions} />
-          <Divider />
+          <PageHeader
+            header="Project history"
+            mobileScreen={props.mobileScreen}
+          />
+          <Box
+            className="main-page-sticky-header-wrapper"
+            sx={{ background: (theme) => theme.palette.background.paper }}
+          >
+            <LabelChip
+              mobileScreen={props.mobileScreen}
+              label={props.label}
+              setLabel={props.setLabel}
+            />
+            <Divider />
+            <Filter
+              mobileScreen={props.mobileScreen}
+              filterQuery={props.filterQuery}
+              setFilterQuery={props.setFilterQuery}
+            />
+            <Divider />
+          </Box>
+          <Box className="main-page-body-wrapper">
+            <Box className="main-page-body">
+              <LabeledRecord
+                label={props.label}
+                filterQuery={props.filterQuery}
+                mobileScreen={props.mobileScreen}
+              />
+            </Box>
+          </Box>
         </Box>
       </Fade>
-      <LabeledRecord label={label} />
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(HistoryPage);
+export default HistoryPage;

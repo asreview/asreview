@@ -1,7 +1,7 @@
 {
   "time": {
     "start_time": "2021-04-29 10:39:12.384713",
-    "end_time": "2021-10-26 17:01:39.193759"
+    "end_time": "2021-12-16 14:52:42.302381"
   },
   "version": "2.1",
   "software_version": "0.17",
@@ -33,8 +33,7 @@
       "stop_words": "english",
       "split_ta": 0,
       "use_keywords": 0
-    },
-    "data_name": "ADHD"
+    }
   },
   "results": [
     {
