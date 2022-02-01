@@ -31,7 +31,7 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.root}`]: {
     borderRadius: 16,
     marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
+    // marginBottom: theme.spacing(3),
     maxWidth: 960,
   },
 
@@ -112,7 +112,11 @@ const PriorUnlabeled = (props) => {
       )}
       {!isError && (
         <Card elevation={3} className={classes.root}>
-          {isDebugInclusion() && <ExplorationModeRecordAlert />}
+          {props.record._debug_label !== null && (
+            <ExplorationModeRecordAlert
+              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+            />
+          )}
           <CardContent className="record-card-content">
             <Typography gutterBottom variant="h6">
               {props.record.title ? props.record.title : "No title available"}
