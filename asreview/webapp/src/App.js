@@ -9,7 +9,6 @@ import "./App.css";
 import { Header, HelpDialog, SettingsDialog } from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
-import { ReviewZoneComplete } from "./PostReviewComponents";
 import WelcomeScreen from "./WelcomeScreen";
 import {
   useDarkMode,
@@ -95,10 +94,6 @@ const App = (props) => {
               undoEnabled={undoEnabled}
               keyPressEnabled={keyPressEnabled}
             />
-          )}
-
-          {props.app_state === "review-complete" && (
-            <ReviewZoneComplete handleAppState={props.setAppState} />
           )}
 
           {/* Dialogs */}
