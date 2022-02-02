@@ -74,7 +74,7 @@ PROJECT_SCHEMA = {
         "reviews": {"type": "array"},
         "feature_matrices": {"type": "array"}
     },
-    "required": ["version", "id", "mode", "reviews", "feature_matrices"]
+    "required": ["version", "id", "mode"]
 }
 
 
