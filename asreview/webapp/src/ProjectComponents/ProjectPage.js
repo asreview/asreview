@@ -152,7 +152,11 @@ const ProjectPage = (props) => {
           {isSuccess &&
             props.nav_state === "review" &&
             data?.reviewFinished && (
-              <ReviewPageFinished mobileScreen={props.mobileScreen} />
+              <ReviewPageFinished
+                handleNavState={props.handleNavState}
+                mobileScreen={props.mobileScreen}
+                project_id={props.project_id}
+              />
             )}
 
           {/* History page */}
