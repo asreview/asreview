@@ -1,9 +1,11 @@
 import React from "react";
 import { useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 import ElasFinished from "../../images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";
@@ -97,4 +99,4 @@ const ReviewPageFinished = (props) => {
   );
 };
 
-export default ReviewPageFinished;
+export default connect(mapStateToProps)(ReviewPageFinished);

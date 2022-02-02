@@ -155,7 +155,6 @@ const ProjectPage = (props) => {
               <ReviewPageFinished
                 handleNavState={props.handleNavState}
                 mobileScreen={props.mobileScreen}
-                project_id={props.project_id}
               />
             )}
 
