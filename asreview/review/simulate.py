@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
-
-from datetime import datetime
 
 from asreview.init_sampling import sample_prior_knowledge
 from asreview.review import BaseReview
@@ -192,8 +192,8 @@ class ReviewSimulate(BaseReview):
         # Check if both labels are available is done in init for simulation.
         # Use the balance model to sample the trainings data.
         y_sample_input = pd.DataFrame(self.record_table). \
-                             merge(self.labeled, how='left', on='record_id'). \
-                             loc[:, 'label']. \
+            merge(self.labeled, how='left', on='record_id'). \
+            loc[:, 'label']. \
             fillna(LABEL_NA). \
             to_numpy()
         train_idx = np.where(y_sample_input != LABEL_NA)[0]

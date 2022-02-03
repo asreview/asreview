@@ -163,18 +163,18 @@ def test_number_records_found(tmpdir):
 
 
 def test_write_interval(tmpdir):
-        dataset = 'benchmark:van_de_Schoot_2017'
-        project_path = Path(tmpdir, 'test_records_found.asreview')
-        n_queries = 100
-        priors = [284, 285]
-        seed = 101
-        write_interval = 20
+    dataset = 'benchmark:van_de_Schoot_2017'
+    project_path = Path(tmpdir, 'test_records_found.asreview')
+    n_queries = 100
+    priors = [284, 285]
+    seed = 101
+    write_interval = 20
 
-        argv = f'{dataset} -s {project_path} --n_queries {n_queries} ' \
-               f'--prior_idx {priors[0]} {priors[1]} --seed {seed} ' \
-               f'--write_interval {write_interval}'.split()
-        entry_point = SimulateEntryPoint()
-        entry_point.execute(argv)
+    argv = f'{dataset} -s {project_path} --n_queries {n_queries} ' \
+           f'--prior_idx {priors[0]} {priors[1]} --seed {seed} ' \
+           f'--write_interval {write_interval}'.split()
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(argv)
 
-        with open_state(project_path) as s:
-            assert s.get_labels().sum() == 28
+    with open_state(project_path) as s:
+        assert s.get_labels().sum() == 28
