@@ -204,13 +204,13 @@ class ASReviewData():
 
     @property
     def texts(self):
-        if self.headings is None:
-            return self.bodies
-        if self.bodies is None:
-            return self.headings
+        if self.title is None:
+            return self.abstract
+        if self.abstract is None:
+            return self.title
 
         cur_texts = np.array([
-            self.headings[i] + " " + self.bodies[i] for i in range(len(self))
+            self.title[i] + " " + self.abstract[i] for i in range(len(self))
         ], dtype=object)
         return cur_texts
 
