@@ -60,8 +60,8 @@ def get_data_file_path(project_path):
     try:
         # open the projects file
         with open(project_file_path, "r") as f_read:
-            project_dict = json.load(f_read)
-            data_filename = project_dict["dataset_path"]
+            project_info = json.load(f_read)
+            data_filename = project_info["data"]["dataset_name"]
 
     except Exception:
         raise Exception("Dataset location not found")

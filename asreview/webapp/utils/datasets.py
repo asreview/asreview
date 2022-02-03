@@ -18,21 +18,6 @@ from asreview.utils import is_iterable
 from asreview.webapp.utils.io import read_data
 
 
-def get_data_statistics(project_id):
-    """Get the title/authors/abstract for a paper."""
-
-    # read the dataset
-    as_data = read_data(project_id)
-
-    result = {
-        "n_rows": as_data.df.shape[0],
-        "n_cols": as_data.df.shape[1],
-    }
-
-    # return full information on the records
-    return result
-
-
 def get_dataset_metadata(exclude=None, include=None):
 
     manager = DatasetManager()

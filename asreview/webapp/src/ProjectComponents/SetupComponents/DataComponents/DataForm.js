@@ -114,11 +114,11 @@ const DataForm = (props) => {
               primaryDefault="Add a dataset"
               primaryAdded={
                 <React.Fragment>
-                  Dataset <i>{data?.filename}</i> added
+                  Dataset <i>{data?.dataset_name}</i> added
                 </React.Fragment>
               }
               secondaryDefault="Contains all records related to a particular topic"
-              secondaryAdded={`Contains ${data?.n_rows} records`}
+              secondaryAdded={`Contains ${data?.n_records} records and ${data?.n_duplicates} duplicates`}
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard

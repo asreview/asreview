@@ -65,7 +65,6 @@ from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
-from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import ProjectNotFoundError
@@ -466,31 +465,11 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
 @bp.route('/project/<project_id>/data', methods=["GET"])
 def api_get_project_data(project_id):  # noqa: F401
-    """Get info on the article"""
-    project_path = get_project_path(project_id)
+    """Get metadata on the dataset"""
 
-    if not is_project(project_id):
-        response = jsonify(message="Project not found.")
-        return response, 404
+    project_info = get_project_config(project_id)
 
-    try:
-
-        filename = get_data_file_path(project_path).stem
-
-        # get statistics of the dataset
-        statistics = get_data_statistics(project_id)
-        statistics["filename"] = filename
-
-    except FileNotFoundError as err:
-        logging.info(err)
-        statistics = {"filename": None}
-
-    except Exception as err:
-        logging.error(err)
-        message = f"Failed to get file. {err}"
-        return jsonify(message=message), 400
-
-    response = jsonify(statistics)
+    response = jsonify(project_info["data"])
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 

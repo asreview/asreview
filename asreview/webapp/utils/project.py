@@ -31,6 +31,7 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
+from asreview.data.statistics import n_duplicates
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
@@ -262,6 +263,20 @@ def import_project_file(file_name):
     return project_info
 
 
+def _add_metadata_of_dataset_to_project(project_id, file_name, as_data=None):
+
+    if as_data is None:
+        as_data = read_data(project_id)
+
+    data_metadata = {
+        "dataset_name": file_name,
+        "n_records": len(as_data),
+        "n_duplicates": n_duplicates(as_data)
+    }
+
+    update_project_info(project_id, data=data_metadata)
+
+
 def add_dataset_to_project(project_id, file_name):
     """Add file path to the project file.
 
@@ -269,11 +284,16 @@ def add_dataset_to_project(project_id, file_name):
     """
     project_path = get_project_path(project_id)
 
-    update_project_info(project_id, dataset_path=file_name)
+    # add the file path to the project file
+    update_project_info(project_id, data={"dataset_name": file_name})
 
-    # fill the pool of the first iteration
     as_data = read_data(project_id)
 
+    # put statistics in project file
+    _add_metadata_of_dataset_to_project(
+        project_id, file_name, as_data=as_data)
+
+    # put tables in state database
     state_file = get_state_path(project_path)
 
     with open_state(state_file, read_only=False) as state:

@@ -178,6 +178,12 @@ def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
     # Add the project mode.
     project_info['mode'] = project_info.get('mode', 'oracle')
 
+    _add_metadata_of_dataset_to_project(
+        project_id,
+        project_info['dataset_path']
+    )
+    del project_info['dataset_path']
+
     # Update the state version.
     project_info['state_version'] = SQLSTATE_VERSION
 

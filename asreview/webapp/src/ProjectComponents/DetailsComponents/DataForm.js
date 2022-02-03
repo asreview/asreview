@@ -50,7 +50,7 @@ const DataForm = (props) => {
 
   const returnDataSecondary = () => {
     if (!isFetchingData) {
-      return !isFetchDataError ? `Contains ${dataset?.n_rows} records` : ``;
+      return !isFetchDataError ? `Contains ${dataset?.n_records} records` : ``;
     } else {
       return "Loading...";
     }
@@ -81,7 +81,7 @@ const DataForm = (props) => {
           isError={isFetchDataError}
           primary={
             !isFetchDataError
-              ? `Dataset ${dataset ? dataset.filename : ``}`
+              ? `Dataset ${dataset ? dataset.dataset_name : ``}`
               : fetchDataError.message
           }
           secondary={returnDataSecondary()}
