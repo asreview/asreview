@@ -632,6 +632,26 @@ class SqlStateV1(BaseState):
         con.commit()
         con.close()
 
+    def _add_labeling_data_simulation_mode(self, rows):
+        """Add the labeling data and the model data at the same time to the
+        results table. This is used for the simulation mode, since the model
+        data is available at the time of labeling.
+
+        Arguments
+        ----------
+        rows : list of tuples
+            List of tuples (record_id: int, label: int, classifier: str,
+            query_strategy: str, balance_strategy: str, feature_extraction: str,
+             training_set: int, labeling_time: int, notes: str).
+        """
+        query = "INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.executemany(query, rows)
+        con.commit()
+        con.close()
+
     def update_decision(self, record_id, label, note=None):
         """Change the label of a record from 0 to 1 or vice versa."""
 
@@ -639,8 +659,8 @@ class SqlStateV1(BaseState):
         cur = con.cursor()
 
         # Change the label.
-        cur.execute("UPDATE results SET label = ?, notes = ? WHERE record_id = ?",
-                    (label, note, record_id))
+        cur.execute("UPDATE results SET label = ?, notes = ? "
+                    "WHERE record_id = ?", (label, note, record_id))
 
         # Add the change to the decision changes table.
         cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",

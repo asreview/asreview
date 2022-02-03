@@ -120,10 +120,7 @@ class BaseReview(ABC):
                                  "file or dataset.")
 
             # Make sure the priors are labeled.
-            labeled = state.get_labeled()
-            unlabeled_priors = [x for x in self.prior_indices
-                                if x not in labeled['record_id'].to_list()]
-            self._label(unlabeled_priors, prior=True)
+            self._label_priors()
 
     @property
     def settings(self):
@@ -165,6 +162,14 @@ class BaseReview(ABC):
 
             # Label the records.
             self._label(record_ids)
+
+    def _label_priors(self):
+        """Make sure the prior records are labeled."""
+        with open_state(self.state_fp, read_only=False) as state:
+            labeled = state.get_labeled()
+            unlabeled_priors = [x for x in self.prior_indices
+                                if x not in labeled['record_id'].to_list()]
+            self._label(unlabeled_priors, prior=True)
 
     def _stop_review(self):
         """Check if the review should be stopped according to stopping rule
@@ -270,7 +275,8 @@ class BaseReview(ABC):
         ranked_record_ids = \
             self.query_strategy.query(self.X, classifier=self.classifier)
 
-        # Log the probabilities and ranking in the state.
+        # TODO: Also log the probablities.
+        # Log the ranking in the state.
         with open_state(self.state_fp, read_only=False) as state:
             state.add_last_ranking(ranked_record_ids,
                                    self.classifier.name,

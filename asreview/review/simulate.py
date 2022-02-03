@@ -12,9 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
+import pandas as pd
+
+from datetime import datetime
 
 from asreview.init_sampling import sample_prior_knowledge
 from asreview.review import BaseReview
+from asreview.review.base import LABEL_NA
+from asreview.state import open_state
 
 
 class ReviewSimulate(BaseReview):
@@ -62,6 +67,9 @@ class ReviewSimulate(BaseReview):
         index, this option is ignored.
     state_file: str
         Path to state file.
+    write_interval: int
+        After how many labeled records to write away the simulation data to the
+        state.
     """
 
     name = "simulate"
@@ -73,10 +81,13 @@ class ReviewSimulate(BaseReview):
                  n_prior_excluded=0,
                  prior_indices=None,
                  init_seed=None,
+                 write_interval=None,
                  **kwargs):
 
         self.n_prior_included = n_prior_included
         self.n_prior_excluded = n_prior_excluded
+
+        self.write_interval = write_interval
 
         # check for partly labeled data
         labels = as_data.labels
@@ -98,18 +109,167 @@ class ReviewSimulate(BaseReview):
                                              start_idx=start_idx,
                                              **kwargs)
 
-    def _get_labels(self, ind):
-        """Get the labels directly from memory.
+        # Setup the reviewer attributes that take over the role of state
+        # functions.
+        with open_state(self.state_fp) as state:
+            # Check if there is already a ranking stored in the state.
+            if state.model_has_trained:
+                self.last_ranking = state.get_last_ranking()
+            else:
+                self.last_ranking = None
 
-        Arguments
-        ---------
-        ind: list, numpy.ndarray
-            A list with indices
+            self.labeled = state.get_labeled()
+            self.pool = pd.Series([
+                record_id for record_id in self.record_table if record_id
+                not in self.labeled['record_id'].values])
+            self.training_set = len(self.labeled)
 
-        Returns
-        -------
-        list, numpy.ndarray
-            The corresponding true labels for each indice.
-        """
+            # Get the number of queries.
+            training_sets = state.get_training_sets()
+            # There is one query per trained model. We subtract 1
+            # for the priors.
+            self.total_queries = len(set(training_sets)) - 1
 
-        return self.y[ind, ]
+            # Check that both labels are available.
+            if (0 not in self.labeled['label'].values) or \
+                    (1 not in self.labeled['label'].values):
+                raise ValueError("Not both labels available Make sure there"
+                                 " is an included and excluded record in "
+                                 "the priors.")
+
+        self.results = pd.DataFrame([], columns=[
+            'record_id', 'label', 'classifier', 'query_strategy',
+            'balance_strategy', 'feature_extraction', 'training_set',
+            'labeling_time', 'notes'])
+
+    def _label_priors(self):
+        """Make sure all the priors are labeled as well as the pending
+        labels."""
+        with open_state(self.state_fp, read_only=False) as state:
+            # Make sure the prior records are labeled.
+            labeled = state.get_labeled()
+            unlabeled_priors = [x for x in self.prior_indices
+                                if x not in labeled['record_id'].to_list()]
+            labels = self.data_labels[unlabeled_priors]
+
+            with open_state(self.state_fp, read_only=False) as s:
+                s.add_labeling_data(unlabeled_priors, labels, prior=True)
+
+            # Make sure the pending records are labeled.
+            pending = state.get_pending()
+            pending_labels = self.data_labels[pending]
+            state.add_labeling_data(pending, pending_labels)
+
+    def _stop_review(self):
+        """In simulation mode, the stop review function should get the labeled
+        records list from the reviewer attribute."""
+        stop = False
+
+        # if the pool is empty, always stop
+        if self.pool.empty:
+            stop = True
+
+        # If we are exceeding the number of papers, stop.
+        if self.n_papers is not None and len(self.labeled) >= self.n_papers:
+            stop = True
+
+        # If n_queries is set to min, stop when all papers in the pool are
+        # irrelevant.
+        if self.n_queries == 'min' and (self.data_labels[self.pool] == 0).all():
+            stop = True
+        # Otherwise, stop when reaching n_queries (if provided)
+        elif self.n_queries is not None:
+            if self.total_queries >= self.n_queries:
+                stop = True
+
+        if stop:
+            self._write_to_state()
+
+        return stop
+
+    def train(self):
+        """Train a new model on the labeled data."""
+        # Check if both labels are available is done in init for simulation.
+        # Use the balance model to sample the trainings data.
+        y_sample_input = pd.DataFrame(self.record_table). \
+                             merge(self.labeled, how='left', on='record_id'). \
+                             loc[:, 'label']. \
+            fillna(LABEL_NA). \
+            to_numpy()
+        train_idx = np.where(y_sample_input != LABEL_NA)[0]
+
+        X_train, y_train = self.balance_model.sample(
+            self.X,
+            y_sample_input,
+            train_idx
+        )
+
+        # Fit the classifier on the trainings data.
+        self.classifier.fit(X_train, y_train)
+
+        # Use the query strategy to produce a ranking.
+        ranked_record_ids = \
+            self.query_strategy.query(self.X, classifier=self.classifier)
+
+        self.last_ranking = \
+            pd.concat([pd.Series(ranked_record_ids),
+                      pd.Series(range(len(ranked_record_ids)))], axis=1)
+        self.last_ranking.columns = ['record_id', 'label']
+
+    def _query(self, n):
+        """In simulation mode, the query function should get the n highest
+        ranked unlabeled records, without writing the model data to the results
+        table. The """
+        unlabeled_ranking = self.last_ranking[
+            self.last_ranking['record_id'].isin(self.pool)]
+
+        self.total_queries += 1
+
+        return unlabeled_ranking['record_id'].iloc[:n].to_list()
+
+    def _label(self, record_ids, prior=False):
+        """In simulation mode, the label function should also add the model
+        data to the results table."""
+
+        labels = self.data_labels[record_ids]
+        labeling_time = datetime.now()
+        for record_id, label in zip(record_ids, labels):
+            self.results = self.results.append(
+                {
+                    'record_id': int(record_id),
+                    'label': int(label),
+                    'classifier': self.classifier.name,
+                    'query_strategy': self.query_strategy.name,
+                    'balance_strategy': self.balance_model.name,
+                    'feature_extraction': self.feature_extraction.name,
+                    'training_set': int(self.training_set),
+                    'labeling_time': str(labeling_time),
+                    'notes': None
+                }, ignore_index=True)
+
+        # Add the record ids to the labeled and remove from the pool.
+        new_labeled_data = pd.DataFrame(zip(record_ids, labels),
+                                        columns=['record_id', 'label'])
+        self.labeled = self.labeled.append(new_labeled_data, ignore_index=True)
+        self.pool = self.pool[~self.pool.isin(record_ids)]
+
+        if (self.write_interval is not None) and \
+                (len(self.results) >= self.write_interval):
+            self._write_to_state()
+
+    def _write_to_state(self):
+        """Write the data that has not yet been written away to the state."""
+        # Write the data to the state.
+        rows = [tuple(self.results.iloc[i]) for i in range(len(self.results))]
+        with open_state(self.state_fp, read_only=False) as state:
+            state._add_labeling_data_simulation_mode(rows)
+
+            state.add_last_ranking(self.last_ranking['record_id'].to_numpy(),
+                                   self.classifier.name,
+                                   self.query_strategy.name,
+                                   self.balance_model.name,
+                                   self.feature_extraction.name,
+                                   self.training_set)
+
+        # Empty the results table in memory.
+        self.results.drop(self.results.index, inplace=True)

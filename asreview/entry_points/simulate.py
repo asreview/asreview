@@ -205,7 +205,8 @@ class SimulateEntryPoint(BaseEntryPoint):
                                   prior_indices=prior_idx,
                                   n_prior_included=args.n_prior_included,
                                   n_prior_excluded=args.n_prior_excluded,
-                                  init_seed=args.init_seed)
+                                  init_seed=args.init_seed,
+                                  write_interval=args.write_interval)
 
         # Start the review process.
         reviewer.review()
@@ -334,6 +335,14 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         default=0,
         type=int,
         help="Verbosity"
+    )
+    parser.add_argument(
+        "--write_interval", "-w",
+        default=None,
+        type=int,
+        help="The simulation data will be written away after each set of this"
+             "many labeled records. By default only writes away data at the end"
+             "of the simulation to make it as fast as possible."
     )
 
     return parser
