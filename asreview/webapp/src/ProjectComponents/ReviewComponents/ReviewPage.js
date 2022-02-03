@@ -54,7 +54,7 @@ const ReviewPage = (props) => {
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
         if (data["pool_empty"]) {
-          props.handleAppState("review-complete");
+          queryClient.invalidateQueries("fetchInfo");
         } else {
           setActiveRecord(data["result"]);
         }
