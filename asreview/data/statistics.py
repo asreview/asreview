@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import numpy as np
+import pandas as pd
 
 
 def n_records(data):
@@ -201,3 +202,25 @@ def n_keywords(data):
     if data.keywords is None:
         return None
     return np.average([len(keywords) for keywords in data.keywords])
+
+
+def n_duplicates(data):
+    """Number of duplicates.
+
+    Duplicate detection can be a very challenging task. Multiple
+    algotihms can be used and results can be vary.
+
+    Arguments
+    ---------
+    data: asreview.data.ASReviewData
+        An ASReviewData object with the records.
+
+    Return
+    ------
+    int:
+        Number of duplicates
+    """
+    s = pd.Series(data.texts).str.replace("[^A-Za-z0-9]", "", regex=True) \
+        .str.lower()
+
+    return s.duplicated().sum()
