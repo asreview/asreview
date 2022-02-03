@@ -120,9 +120,12 @@ Misc
 
 Other helpful tools developed by the community not necessarily written in Python. 
 
+* Automatically generate a report on interrater reliability
+    - This rmarkdown file takes the two csv files from ASReview, one for each independent reviewer of a literature database, and automatically generates a report summarising the degree of agreement between the two raters.
+    - All the material is available on the `corresponding GitHub repository <https://github.com/langtonhugh/asreview_irr>`__  
+
 * xref2csv tool to convert XREF XML files to CSV files required for ASreview
-    - The    
-      [XREF2CSV-tool](https://github.com/erikvullings/xref2csv) written in NodeJS 
+    - The `XREF2CSV-too <https://github.com/erikvullings/xref2csv>`__ written in NodeJS 
       converts XREF-XML files to CSV files that can be imported to ASreview.
 
 
