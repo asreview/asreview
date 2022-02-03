@@ -129,7 +129,7 @@ const DataForm = (props) => {
               projectHasDataset={props.info?.projectHasDataset}
               primaryDefault="Add prior knowledge"
               primaryAdded="Prior knowledge added"
-              secondaryDefault="Indicate your preference with at least 1 relevant and 1 irrelevant records"
+              secondaryDefault="Indicate your preference with at least one relevant and one irrelevant record"
               secondaryAdded={`${props.labeledStats?.n_prior_inclusions} relevant and ${props.labeledStats?.n_prior_exclusions} irrelevant records`}
               toggleAddCard={props.toggleAddPriorKnowledge}
             />
