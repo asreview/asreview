@@ -75,7 +75,8 @@ const AddDataset = (props) => {
               <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
               <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
               selected dataset should contain the title and abstract of each
-              record. It is highly recommended to add a dataset without{" "}
+              record. To optimally benefit from the performance of the active
+              learning model, it is highly recommended to add a dataset without
               duplicate records.{" "}
               <Link
                 underline="none"
