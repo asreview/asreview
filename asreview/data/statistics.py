@@ -223,4 +223,4 @@ def n_duplicates(data):
     s = pd.Series(data.texts).str.replace("[^A-Za-z0-9]", "", regex=True) \
         .str.lower()
 
-    return s.duplicated().sum()
+    return int(s.duplicated().sum())
