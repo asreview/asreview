@@ -2,6 +2,20 @@
   text-align: left;
 }
 
+.main-page-content {
+  overflow-y: scroll;
+  padding: 0;
+}
+@media (min-width: 0px) and (orientation: landscape) {
+  .main-page-content {
+    height: calc(100vh - 48px);
+  }
+}
+@media (min-width: 600px) {
+  .main-page-content {
+    height: calc(100vh - 64px);
+  }
+}
 .main-page-sticky-header {
   display: flex;
   padding: 24px 32px;
@@ -21,6 +35,7 @@
   z-index: 1000;
 }
 .main-page-body {
+  width: 100%;
   max-width: 960px;
   padding: 8px 24px 24px 24px;
 }

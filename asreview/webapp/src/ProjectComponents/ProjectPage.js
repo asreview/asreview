@@ -21,32 +21,21 @@ import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
 import { ProjectAPI } from "../api/index.js";
 import { drawerWidth } from "../globals.js";
+import "../App.css";
 
 const PREFIX = "ProjectPage";
 
 const classes = {
   content: `${PREFIX}-content`,
   contentShift: `${PREFIX}-contentShift`,
-  container: `${PREFIX}-container`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
-    flexGrow: 1,
-    padding: 0,
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    overflowY: "scroll",
-    height: `calc(100vh - 56px)`,
-    // WebkitOverflowScrolling: "touch",
-    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      height: `calc(100vh - 48px)`,
-    },
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100vh - 64px)`,
-    },
     [theme.breakpoints.up("md")]: {
       marginLeft: 72,
     },
@@ -58,10 +47,6 @@ const Root = styled("div")(({ theme }) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     marginLeft: drawerWidth,
-  },
-
-  [`& .${classes.container}`]: {
-    height: "100%",
   },
 }));
 
@@ -120,73 +105,64 @@ const ProjectPage = (props) => {
       />
       <Box
         component="main"
-        className={clsx(classes.content, {
+        className={clsx("main-page-content", classes.content, {
           [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
         })}
         aria-label="project page content"
       >
-        <Box
-          className={classes.container}
-          aria-label="project page content loaded"
-        >
-          {/* Analytics */}
-          {props.nav_state === "analytics" && (
-            <AnalyticsPage mobileScreen={props.mobileScreen} />
-          )}
+        {/* Analytics */}
+        {props.nav_state === "analytics" && (
+          <AnalyticsPage mobileScreen={props.mobileScreen} />
+        )}
 
-          {/* Review page */}
-          {isSuccess &&
-            props.nav_state === "review" &&
-            !data?.reviewFinished && (
-              <ReviewPage
-                handleAppState={props.handleAppState}
-                mobileScreen={props.mobileScreen}
-                projectMode={data?.mode}
-                fontSize={props.fontSize}
-                undoEnabled={props.undoEnabled}
-                keyPressEnabled={props.keyPressEnabled}
-              />
-            )}
+        {/* Review */}
+        {isSuccess && props.nav_state === "review" && !data?.reviewFinished && (
+          <ReviewPage
+            handleAppState={props.handleAppState}
+            mobileScreen={props.mobileScreen}
+            projectMode={data?.mode}
+            fontSize={props.fontSize}
+            undoEnabled={props.undoEnabled}
+            keyPressEnabled={props.keyPressEnabled}
+          />
+        )}
 
-          {/* Review page when marked as finished */}
-          {isSuccess &&
-            props.nav_state === "review" &&
-            data?.reviewFinished && (
-              <ReviewPageFinished
-                handleNavState={props.handleNavState}
-                mobileScreen={props.mobileScreen}
-              />
-            )}
+        {/* Review finished */}
+        {isSuccess && props.nav_state === "review" && data?.reviewFinished && (
+          <ReviewPageFinished
+            handleNavState={props.handleNavState}
+            mobileScreen={props.mobileScreen}
+          />
+        )}
 
-          {/* History page */}
-          {props.nav_state === "history" && (
-            <HistoryPage
-              filterQuery={historyFilterQuery}
-              label={historyLabel}
-              setFilterQuery={setHistoryFilterQuery}
-              setLabel={setHistoryLabel}
-              mobileScreen={props.mobileScreen}
-            />
-          )}
+        {/* History */}
+        {props.nav_state === "history" && (
+          <HistoryPage
+            filterQuery={historyFilterQuery}
+            label={historyLabel}
+            setFilterQuery={setHistoryFilterQuery}
+            setLabel={setHistoryLabel}
+            mobileScreen={props.mobileScreen}
+          />
+        )}
 
-          {/* Export page */}
-          {props.nav_state === "export" && (
-            <ExportPage
-              enableExportDataset={data?.projectInitReady}
-              mobileScreen={props.mobileScreen}
-            />
-          )}
+        {/* Export */}
+        {props.nav_state === "export" && (
+          <ExportPage
+            enableExportDataset={data?.projectInitReady}
+            mobileScreen={props.mobileScreen}
+          />
+        )}
 
-          {/* Details page */}
-          {isSuccess && props.nav_state === "details" && (
-            <DetailsPage
-              handleNavState={props.handleNavState}
-              info={data}
-              mobileScreen={props.mobileScreen}
-              setHistoryFilterQuery={setHistoryFilterQuery}
-            />
-          )}
-        </Box>
+        {/* Details */}
+        {isSuccess && props.nav_state === "details" && (
+          <DetailsPage
+            handleNavState={props.handleNavState}
+            info={data}
+            mobileScreen={props.mobileScreen}
+            setHistoryFilterQuery={setHistoryFilterQuery}
+          />
+        )}
       </Box>
     </Root>
   );
