@@ -39,7 +39,6 @@ const Root = styled("div")(({ theme }) => ({
     borderRadius: 16,
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
-    maxWidth: 960,
     [theme.breakpoints.down("md")]: {
       borderRadius: 0,
     },

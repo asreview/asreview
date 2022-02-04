@@ -33,9 +33,6 @@ const classes = {
   root: `${PREFIX}-root`,
   table: `${PREFIX}-table`,
   tableCell: `${PREFIX}-tableCell`,
-  chipSetup: `${PREFIX}-chipSetup`,
-  chipInReview: `${PREFIX}-chipInReview`,
-  chipFinished: `${PREFIX}-chipFinished`,
   converting: `${PREFIX}-converting`,
   img: `${PREFIX}-img`,
   title: `${PREFIX}-title`,
@@ -55,24 +52,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
   [`& .${classes.tableCell}`]: {
     letterSpacing: "0.25px",
-  },
-
-  [`& .${classes.chipSetup}`]: {
-    color: "#424242",
-    backgroundColor: "#bdbdbd",
-    fontWeight: 500,
-  },
-
-  [`& .${classes.chipInReview}`]: {
-    color: "#91620B",
-    backgroundColor: "#FFFBE7",
-    fontWeight: 500,
-  },
-
-  [`& .${classes.chipFinished}`]: {
-    color: "rgb(0, 123, 85)",
-    backgroundColor: "#E1FAE3",
-    fontWeight: 500,
   },
 
   [`& .${classes.converting}`]: {
@@ -228,12 +207,12 @@ const ProjectTable = (props) => {
   const statusStyle = (project) => {
     if (project["projectInitReady"]) {
       if (project["reviewFinished"]) {
-        return classes.chipFinished;
+        return "dashboard-page-table-chip finished";
       } else {
-        return classes.chipInReview;
+        return "dashboard-page-table-chip inreview";
       }
     } else {
-      return classes.chipSetup;
+      return "dashboard-page-table-chip setup";
     }
   };
 

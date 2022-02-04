@@ -1,0 +1,41 @@
+.dashboard-page-card-bg-yellow {
+  background-color: #fff7cd;
+}
+.dashboard-page-card-bg-green {
+  background-color: #c8facd;
+}
+.dashboard-page-card-bg-blue {
+  background-color: #d0f2ff;
+}
+.dashboard-page-card-bg-red {
+  background-color: #ffe7d9;
+}
+
+.dashboard-page-card-text-yellow {
+  color: #7a4f01;
+}
+.dashboard-page-card-text-green {
+  color: #005249;
+}
+.dashboard-page-card-text-blue {
+  color: #04297a;
+}
+.dashboard-page-card-text-red {
+  color: #7a0c2e;
+}
+
+.dashboard-page-table-chip {
+  font-weight: 500;
+}
+.dashboard-page-table-chip.setup {
+  color: #424242;
+  background-color: #bdbdbd;
+}
+.dashboard-page-table-chip.inreview {
+  color: #91620b;
+  background-color: #fffbe7;
+}
+.dashboard-page-table-chip.finished {
+  color: #007b55;
+  background-color: #e1fae3;
+}
