@@ -5,37 +5,8 @@ import { styled } from "@mui/material/styles";
 
 import { CardErrorHandler } from "../../Components";
 
-const PREFIX = "NumberCard";
-
-const classes = {
-  root: `${PREFIX}-root`,
-  content: `${PREFIX}-content`,
-  number: `${PREFIX}-number`,
-  text: `${PREFIX}-text`,
-};
-
 const Root = styled("div")(({ theme }) => ({
-  maxWidth: 960,
   position: "relative",
-  width: "100%",
-  [`& .${classes.root}`]: {
-    borderRadius: 16,
-    padding: 8,
-  },
-
-  [`& .${classes.content}`]: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-
-  [`& .${classes.number}`]: {
-    fontWeight: theme.typography.fontWeightBold,
-  },
-
-  [`& .${classes.text}`]: {
-    fontWeight: 600,
-  },
 }));
 
 export default function NumberCard(props) {
@@ -57,18 +28,18 @@ export default function NumberCard(props) {
       />
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>
-          <Card className={classes.root} elevation={2}>
+          <Card className="number-card" elevation={2}>
             <CardContent>
-              <Stack spacing={2} className={classes.content}>
+              <Stack spacing={2} className="number-card-content">
                 <Typography
-                  className={classes.text}
+                  className="number-card-content-text"
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
                   Labeled Records
                 </Typography>
                 <Typography
-                  className={classes.number}
+                  className="number-card-content-numeral"
                   variant={!props.mobileScreen ? "h4" : "h5"}
                 >
                   <NumberFormat
@@ -87,18 +58,18 @@ export default function NumberCard(props) {
           </Card>
         </Grid>
         <Grid item xs={6} sm={6}>
-          <Card className={classes.root} elevation={2}>
+          <Card className="number-card" elevation={2}>
             <CardContent>
-              <Stack spacing={2} className={classes.content}>
+              <Stack spacing={2} className="number-card-content">
                 <Typography
-                  className={classes.text}
+                  className="number-card-content-text"
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
                   Relevant Records
                 </Typography>
                 <Typography
-                  className={classes.number}
+                  className="number-card-content-numeral"
                   variant={!props.mobileScreen ? "h4" : "h5"}
                 >
                   <NumberFormat
@@ -114,18 +85,18 @@ export default function NumberCard(props) {
           </Card>
         </Grid>
         <Grid item xs={12} sm={12}>
-          <Card className={classes.root} elevation={2}>
+          <Card className="number-card" elevation={2}>
             <CardContent>
-              <Stack spacing={2} className={classes.content}>
+              <Stack spacing={2} className="number-card-content">
                 <Typography
-                  className={classes.text}
+                  className="number-card-content-text"
                   variant={!props.mobileScreen ? "subtitle1" : "subtitle2"}
                   sx={{ color: "text.secondary" }}
                 >
                   Labeled Records Since Last Relevant
                 </Typography>
                 <Typography
-                  className={classes.number}
+                  className="number-card-content-numeral"
                   variant={!props.mobileScreen ? "h4" : "h5"}
                 >
                   <NumberFormat

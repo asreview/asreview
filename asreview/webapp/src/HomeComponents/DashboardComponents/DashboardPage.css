@@ -1,0 +1,25 @@
+.dashboard-page-card-bg-yellow {
+  background-color: #fff7cd;
+}
+.dashboard-page-card-bg-green {
+  background-color: #c8facd;
+}
+.dashboard-page-card-bg-blue {
+  background-color: #d0f2ff;
+}
+.dashboard-page-card-bg-red {
+  background-color: #ffe7d9;
+}
+
+.dashboard-page-card-text-yellow {
+  color: #7a4f01;
+}
+.dashboard-page-card-text-green {
+  color: #005249;
+}
+.dashboard-page-card-text-blue {
+  color: #04297a;
+}
+.dashboard-page-card-text-red {
+  color: #7a0c2e;
+}

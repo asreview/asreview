@@ -126,7 +126,7 @@ const DashboardPage = (props) => {
           <DashboardPageHeader mobileScreen={props.mobileScreen} />
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" spacing={6}>
-              <NumberCard />
+              <NumberCard mobileScreen={props.mobileScreen} />
               <ProjectTable
                 handleClickAdd={handleClickAdd}
                 handleProjectSetup={handleProjectSetup}

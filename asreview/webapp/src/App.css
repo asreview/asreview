@@ -3,6 +3,7 @@
 }
 
 .main-page-content {
+  height: calc(100vh - 56px);
   overflow-y: scroll;
   padding: 0;
 }
@@ -38,12 +39,6 @@
   width: 100%;
   max-width: 960px;
   padding: 8px 24px 24px 24px;
-}
-@media (max-width: 900px) {
-  .main-page-body {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
 }
 .main-page-body-wrapper {
   display: flex;
@@ -89,4 +84,18 @@
 
 .MuiCardActions-root {
   padding: 8px 16px;
+}
+
+.number-card {
+  border-radius: 16px;
+  padding: 16px 0px 8px 0px;
+}
+.number-card-content {
+  align-items: center;
+}
+.number-card-content-numeral {
+  font-weight: 700;
+}
+.number-card-content-text {
+  font-weight: 600;
 }
