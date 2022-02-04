@@ -128,7 +128,7 @@ Citation Managers
 ~~~~~~~~~~~~~~~~~
 
 The following table provides an overview of export files from citation
-managers  which are accepted by ASReview.
+managers which are accepted by ASReview.
 
 +-------------------------------+----------+----------+----------+
 |                               | **.ris** | **.csv** | **.xlsx**|
@@ -146,7 +146,17 @@ managers  which are accepted by ASReview.
 
 -  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not supported.
+
+
+RIS files used for screening in ASReview LAB can be imported back into the
+reference software* and the decision labels can be found in the notes field.
+For more information see this `instruction video
+<https://youtu.be/-Rw291AE2OI>`_.
+
+*This pipeline is aimed to work for reference managers Zotero and EndNote.
+*However, it might also work for other reference managers but is currently not
+*supported. 
+
 
 .. note::
 
