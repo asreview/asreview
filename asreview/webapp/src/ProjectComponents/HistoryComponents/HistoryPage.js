@@ -4,7 +4,6 @@ import { styled } from "@mui/material/styles";
 
 import { PageHeader } from "../../Components";
 import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
-import "../../App.css";
 
 const PREFIX = "HistoryPage";
 

@@ -9,7 +9,6 @@ import { NavigationDrawer } from "../Components";
 import { DashboardPage } from "../HomeComponents/DashboardComponents";
 
 import { drawerWidth } from "../globals.js";
-import "../App.css";
 
 const PREFIX = "HomePage";
 

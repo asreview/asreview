@@ -21,7 +21,6 @@ import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
 import { ProjectAPI } from "../api/index.js";
 import { drawerWidth } from "../globals.js";
-import "../App.css";
 
 const PREFIX = "ProjectPage";
 
