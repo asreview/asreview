@@ -38,7 +38,7 @@
 .main-page-body {
   width: 100%;
   max-width: 960px;
-  padding: 8px 24px 24px 24px;
+  padding: 8px 24px 32px 24px;
 }
 .main-page-body-wrapper {
   display: flex;
