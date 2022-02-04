@@ -2,7 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import {
   Backdrop,
-  Container,
+  Box,
+  Fade,
   SpeedDial,
   SpeedDialIcon,
   SpeedDialAction,
@@ -13,25 +14,22 @@ import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
 import { ActionsFeedbackBar, QuickTourDialog } from "../../Components";
 import { ProjectImportDialog } from "../../ProjectComponents";
-import { NumberCard, ProjectTable } from "../DashboardComponents";
+import {
+  DashboardPageHeader,
+  NumberCard,
+  ProjectTable,
+} from "../DashboardComponents";
 import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 
 const PREFIX = "DashboardPage";
 
 const classes = {
-  root: `${PREFIX}-root`,
   fab: `${PREFIX}-fab`,
   noProjects: `${PREFIX}-noProjects`,
   backdropZ: `${PREFIX}-backdropZ`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  padding: "48px 0px",
-  height: "100%",
-  [`& .${classes.root}`]: {
-    paddingTop: "24px",
-  },
-
   [`& .${classes.fab}`]: {
     position: "fixed",
     right: theme.spacing(3),
@@ -123,19 +121,24 @@ const DashboardPage = (props) => {
 
   return (
     <Root aria-label="dashboard page">
-      <Container maxWidth="md">
-        <Stack spacing={5}>
-          <NumberCard />
-          <ProjectTable
-            handleClickAdd={handleClickAdd}
-            handleProjectSetup={handleProjectSetup}
-            handleAppState={props.handleAppState}
-            handleNavState={props.handleNavState}
-            onNavDrawer={props.onNavDrawer}
-            toggleNavDrawer={props.toggleNavDrawer}
-          />
-        </Stack>
-      </Container>
+      <Fade in>
+        <Box>
+          <DashboardPageHeader mobileScreen={props.mobileScreen} />
+          <Box className="main-page-body-wrapper">
+            <Stack className="main-page-body" spacing={6}>
+              <NumberCard mobileScreen={props.mobileScreen} />
+              <ProjectTable
+                handleClickAdd={handleClickAdd}
+                handleProjectSetup={handleProjectSetup}
+                handleAppState={props.handleAppState}
+                handleNavState={props.handleNavState}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+            </Stack>
+          </Box>
+        </Box>
+      </Fade>
       <ProjectImportDialog
         mobileScreen={props.mobileScreen}
         open={open.importProject}

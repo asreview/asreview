@@ -30,7 +30,7 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.select}`]: {
-    minWidth: 310,
+    width: 310,
   },
 
   [`& .${classes.selectHeight}`]: {
@@ -109,7 +109,12 @@ const ExportPage = (props) => {
           />
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" spacing={3}>
-              <Box component="form" noValidate autoComplete="off">
+              <Box
+                className="main-page-body-wrapper"
+                component="form"
+                noValidate
+                autoComplete="off"
+              >
                 <Stack spacing={3}>
                   <FormControl
                     className={`${classes.select} ${classes.selectHeight}`}
@@ -208,11 +213,11 @@ const ExportPage = (props) => {
                       </InputLabel>
                       <Box>
                         <Select
+                          className={classes.select}
                           labelId="file-type-select-label"
                           id="file-type-select"
                           label="File format"
                           value={fileFormat}
-                          sx={{ width: "100%" }}
                         >
                           <MenuItem value="asreview">ASREVIEW</MenuItem>
                         </Select>
