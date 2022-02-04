@@ -6,7 +6,20 @@ import { PageHeader } from "../../Components";
 import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 import "../../App.css";
 
-const Root = styled("div")(({ theme }) => ({}));
+const PREFIX = "HistoryPage";
+
+const classes = {
+  bodyMobile: `${PREFIX}-body-mobile`,
+};
+
+const Root = styled("div")(({ theme }) => ({
+  [`& .${classes.bodyMobile}`]: {
+    [theme.breakpoints.down("md")]: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+  },
+}));
 
 const HistoryPage = (props) => {
   return (
@@ -35,7 +48,7 @@ const HistoryPage = (props) => {
             <Divider />
           </Box>
           <Box className="main-page-body-wrapper">
-            <Box className="main-page-body">
+            <Box className={`${classes.bodyMobile} main-page-body`}>
               <LabeledRecord
                 label={props.label}
                 filterQuery={props.filterQuery}
