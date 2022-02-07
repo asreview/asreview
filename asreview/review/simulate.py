@@ -260,16 +260,19 @@ class ReviewSimulate(BaseReview):
     def _write_to_state(self):
         """Write the data that has not yet been written away to the state."""
         # Write the data to the state.
-        rows = [tuple(self.results.iloc[i]) for i in range(len(self.results))]
-        with open_state(self.state_fp, read_only=False) as state:
-            state._add_labeling_data_simulation_mode(rows)
+        if len(self.results) > 0:
+            rows = [tuple(self.results.iloc[i])
+                    for i in range(len(self.results))]
+            with open_state(self.state_fp, read_only=False) as state:
+                state._add_labeling_data_simulation_mode(rows)
 
-            state.add_last_ranking(self.last_ranking['record_id'].to_numpy(),
-                                   self.classifier.name,
-                                   self.query_strategy.name,
-                                   self.balance_model.name,
-                                   self.feature_extraction.name,
-                                   self.training_set)
+                state.add_last_ranking(
+                    self.last_ranking['record_id'].to_numpy(),
+                    self.classifier.name,
+                    self.query_strategy.name,
+                    self.balance_model.name,
+                    self.feature_extraction.name,
+                    self.training_set)
 
-        # Empty the results table in memory.
-        self.results.drop(self.results.index, inplace=True)
+            # Empty the results table in memory.
+            self.results.drop(self.results.index, inplace=True)
