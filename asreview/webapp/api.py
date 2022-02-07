@@ -67,8 +67,8 @@ from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
-from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.io import data_reader_name
+from asreview.webapp.utils.io import read_data
 from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import _get_executable

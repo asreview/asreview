@@ -27,10 +27,7 @@ class CSVReader():
     """
     name = "csv-reader"
 
-    def __init__(self, fp):
-        self.fp = None
-
-    def read_data(fp):
+    def read_data(self, fp):
         """
         Returns
         -------
@@ -40,7 +37,7 @@ class CSVReader():
         for encoding in ["utf-8", "ISO-8859-1"]:
             try:
                 df = pd.read_csv(
-                    data_fp,
+                    fp,
                     sep=None,
                     encoding=encoding,
                     engine='python'

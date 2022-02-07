@@ -28,10 +28,7 @@ class ExcelReader():
     """
     name = "excel-reader"
 
-    def __init__(self, fp):
-        self.fp = None
-
-    def read_data(fp):
+    def read_data(self, fp):
         """
         Returns
         -------

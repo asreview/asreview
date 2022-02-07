@@ -33,11 +33,7 @@ class RISReader():
     """
     name = "ris-reader"
 
-    def __init__(self, fp, note_list):
-        self.fp = None
-        self.note_list = None
-
-    def _strip_zotero_p_tags(note_list):
+    def _strip_zotero_p_tags(self, note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
         Returns
@@ -58,8 +54,7 @@ class RISReader():
         else:
             return note_list
 
-
-    def _label_parser(note_list):
+    def _label_parser(self, note_list):
         """Converter function for manipulating the internal "included" and "notes" columns.
 
         Returns
@@ -103,8 +98,7 @@ class RISReader():
         else:
             return -1, note_list
 
-
-    def read_data(fp):
+    def read_data(self, fp):
         """
         Returns
         -------
@@ -137,10 +131,10 @@ class RISReader():
         # Check if "notes" column is present
         if "notes" in df:
             # Strip Zotero XHTML <p> tags on "notes"
-            df["notes"] = df["notes"].apply(_strip_zotero_p_tags)
+            df["notes"] = df["notes"].apply(self._strip_zotero_p_tags)
             # Split "included" from "notes"
             df[["included", "notes"
-                ]] = pandas.DataFrame(df["notes"].apply(_label_parser).tolist(),
+                ]] = pandas.DataFrame(df["notes"].apply(self._label_parser).tolist(),
                                       columns=["included", "notes"])
             # Return the standardised dataframe with label and notes separated
             return _standardize_dataframe(df)

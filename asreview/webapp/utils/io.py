@@ -17,6 +17,7 @@ import logging
 import os
 import pickle
 from pathlib import Path
+from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
@@ -28,8 +29,8 @@ from asreview.data import ASReviewData
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_pool_path
-from asreview.webapp.utils.project_path import get_project_path
 from asreview.utils import is_url
+from asreview.webapp.utils.project_path import get_project_path
 
 
 class CacheDataError(Exception):
