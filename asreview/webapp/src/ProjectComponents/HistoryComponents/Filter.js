@@ -3,6 +3,8 @@ import { Autocomplete, IconButton, InputBase, Popper } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FilterList } from "@mui/icons-material";
 
+import { historyFilterOptions } from "../../globals.js";
+
 const PREFIX = "Filter";
 
 const classes = {
@@ -20,24 +22,13 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const filterOptions = [{ label: "Contains note", value: 0 }];
-
 export default function Filter(props) {
-  const [placeholder, setPlaceholder] = React.useState("Filter");
   const filterInput = React.useRef(null);
 
   const customPopper = (props) => {
     return (
-      <Popper {...props} style={{ width: 140 }} placement="bottom-start" />
+      <Popper {...props} style={{ width: 160 }} placement="bottom-start" />
     );
-  };
-
-  const hidePlaceholder = (value) => {
-    if (value.length) {
-      setPlaceholder("");
-    } else {
-      setPlaceholder("Filter");
-    }
   };
 
   const onClickFilter = () => {
@@ -47,7 +38,7 @@ export default function Filter(props) {
   return (
     <Root>
       <IconButton className={classes.icon} onClick={onClickFilter}>
-        <FilterList />
+        <FilterList fontSize={!props.mobileScreen ? "medium" : "small"} />
       </IconButton>
       <Autocomplete
         id="filter labeled record"
@@ -58,7 +49,7 @@ export default function Filter(props) {
         filterSelectedOptions
         multiple
         openOnFocus
-        options={filterOptions}
+        options={historyFilterOptions}
         getOptionLabel={(option) => option.label}
         PopperComponent={customPopper}
         renderInput={(params) => {
@@ -68,13 +59,15 @@ export default function Filter(props) {
               {...params.InputProps}
               {...rest}
               inputRef={filterInput}
-              placeholder={placeholder}
+              placeholder={!props.filterQuery.length ? "Filter" : ""}
+              readOnly
             />
           );
         }}
         onChange={(event, value) => {
-          hidePlaceholder(value);
+          props.setFilterQuery(value);
         }}
+        value={props.filterQuery}
       />
       {/*
       <Tooltip title="Remove filter">

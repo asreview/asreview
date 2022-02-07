@@ -2,6 +2,49 @@
   text-align: left;
 }
 
+.main-page-content {
+  height: calc(100vh - 56px);
+  overflow-y: scroll;
+  padding: 0;
+}
+@media (min-width: 0px) and (orientation: landscape) {
+  .main-page-content {
+    height: calc(100vh - 48px);
+  }
+}
+@media (min-width: 600px) {
+  .main-page-content {
+    height: calc(100vh - 64px);
+  }
+}
+.main-page-sticky-header {
+  display: flex;
+  padding: 24px 32px;
+}
+@media (max-width: 900px) {
+  .main-page-sticky-header {
+    padding: 16px 24px;
+  }
+}
+.main-page-sticky-header.with-button {
+  justify-content: space-between;
+}
+.main-page-sticky-header-wrapper {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.main-page-body {
+  width: 100%;
+  max-width: 960px;
+  padding: 8px 24px 32px 24px;
+}
+.main-page-body-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 .navBar {
   background-color: #ffcc00;
 }
@@ -29,4 +72,30 @@
 }
 .fontSizeLargest {
   font-size: 140% !important;
+}
+
+.typography-wrap {
+  white-space: pre-line;
+}
+
+.record-card-content {
+  padding: 24px 24px 16px 24px;
+}
+
+.MuiCardActions-root {
+  padding: 8px 16px;
+}
+
+.number-card {
+  border-radius: 16px;
+  padding: 16px 0px 8px 0px;
+}
+.number-card-content {
+  align-items: center;
+}
+.number-card-content-numeral {
+  font-weight: 700;
+}
+.number-card-content-text {
+  font-weight: 600;
 }

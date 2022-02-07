@@ -1,63 +1,64 @@
-import React, { useState } from "react";
-import { connect } from "react-redux";
-import { Box, Chip, Divider, Fade, Stack } from "@mui/material";
+import * as React from "react";
+import { Box, Divider, Fade } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { Filter, LabeledRecord } from "../HistoryComponents";
-
-import { mapStateToProps } from "../../globals.js";
+import { PageHeader } from "../../Components";
+import { Filter, LabelChip, LabeledRecord } from "../HistoryComponents";
 
 const PREFIX = "HistoryPage";
 
 const classes = {
-  labelChip: `${PREFIX}-label-chip`,
+  bodyMobile: `${PREFIX}-body-mobile`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  height: "100%",
-  overflowY: "hidden",
-  [`& .${classes.labelChip}`]: {
-    padding: "16px 24px 8px 24px",
+  [`& .${classes.bodyMobile}`]: {
+    [theme.breakpoints.down("md")]: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
   },
 }));
 
 const HistoryPage = (props) => {
-  const [label, setLabel] = useState("relevant");
-
-  const handleClickRelevant = () => {
-    setLabel("relevant");
-  };
-
-  const handleClickIrrelevant = () => {
-    setLabel("irrelevant");
-  };
-
   return (
     <Root aria-label="history page">
       <Fade in>
         <Box>
-          <Stack className={classes.labelChip} direction="row" spacing={2}>
-            <Chip
-              label="Relevant"
-              color="primary"
-              variant={label === "relevant" ? "filled" : "outlined"}
-              onClick={handleClickRelevant}
+          <PageHeader
+            header="Project history"
+            mobileScreen={props.mobileScreen}
+          />
+          <Box
+            className="main-page-sticky-header-wrapper"
+            sx={{ background: (theme) => theme.palette.background.paper }}
+          >
+            <LabelChip
+              mobileScreen={props.mobileScreen}
+              label={props.label}
+              setLabel={props.setLabel}
             />
-            <Chip
-              label="Irrelevant"
-              color="primary"
-              variant={label === "irrelevant" ? "filled" : "outlined"}
-              onClick={handleClickIrrelevant}
+            <Divider />
+            <Filter
+              mobileScreen={props.mobileScreen}
+              filterQuery={props.filterQuery}
+              setFilterQuery={props.setFilterQuery}
             />
-          </Stack>
-          <Divider />
-          <Filter />
-          <Divider />
+            <Divider />
+          </Box>
+          <Box className="main-page-body-wrapper">
+            <Box className={`${classes.bodyMobile} main-page-body`}>
+              <LabeledRecord
+                label={props.label}
+                filterQuery={props.filterQuery}
+                mobileScreen={props.mobileScreen}
+              />
+            </Box>
+          </Box>
         </Box>
       </Fade>
-      <LabeledRecord label={label} />
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(HistoryPage);
+export default HistoryPage;

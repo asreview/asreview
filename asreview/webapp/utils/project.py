@@ -255,7 +255,11 @@ def import_project_file(file_name):
         raise ValueError("Failed to import project "
                          f"'{file_name.filename}'.")
 
-    return import_project["id"]
+    project_info = {}
+    project_info["id"] = import_project["id"]
+    project_info["name"] = import_project["name"]
+
+    return project_info
 
 
 def add_dataset_to_project(project_id, file_name):
@@ -419,6 +423,7 @@ def get_instance(project_id):
         return record_ids[0]
     else:
         # end of pool
+        update_project_info(project_id, reviewFinished=True)
         return None
 
 
@@ -485,11 +490,11 @@ def get_statistics(project_id):
             labels = np.array([])
             n_records = 0
 
-    n_included = sum(labels == 1)
-    n_excluded = sum(labels == 0)
+    n_included = int(sum(labels == 1))
+    n_excluded = int(sum(labels == 0))
 
-    if len(labels) > 0:
-        n_since_last_relevant = labels.tolist()[::-1].index(1)
+    if n_included > 0:
+        n_since_last_relevant = int(labels.tolist()[::-1].index(1))
     else:
         n_since_last_relevant = 0
 
@@ -549,35 +554,23 @@ def train_model(project_id):
     subprocess.Popen(run_command)
 
 
-def update_instance(project_id, paper_i, label, retrain_model=True):
+def update_instance(project_id, record_id, label, note=None, retrain_model=True):
     """Update a labeling decision."""
     project_path = get_project_path(project_id)
     state_path = get_state_path(project_path)
 
-    record_id = int(paper_i)
+    # check the label
     label = int(label)
 
     with open_state(state_path, read_only=False) as state:
-        record_info = state.get_data_by_record_id(record_id)
-
-        # Check if the record is actually labeled.
-        if record_info.empty:
-            raise ValueError(f"Tried to update record_id {record_id}, "
-                             f"but it has not been labeled yet.")
-        else:
-            # If the current label is the same as the updated label, do nothing.
-            current_label = record_info['label'][0]
-            if current_label == label:
-                pass
-            # Else change the labeling decision.
-            else:
-                state.change_decision(record_id)
+        state.update_decision(record_id, label, note=note)
 
     if retrain_model:
         train_model(project_id)
 
 
-def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
+def label_instance(project_id, paper_i, label, note=None,
+                   prior=False, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
@@ -595,7 +588,7 @@ def label_instance(project_id, paper_i, label, prior=False, retrain_model=True):
             # add the labels as prior data
             state.add_labeling_data(record_ids=[paper_i],
                                     labels=[label],
-                                    notes=[None],
+                                    notes=[note],
                                     prior=prior)
 
         elif label == -1:

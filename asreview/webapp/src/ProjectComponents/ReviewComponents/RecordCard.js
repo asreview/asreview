@@ -1,7 +1,6 @@
 import React from "react";
 import clsx from "clsx";
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -16,13 +15,14 @@ import { styled } from "@mui/material/styles";
 
 import { BoxErrorHandler } from "../../Components";
 import { NoteSheet } from "../ReviewComponents";
+import { ExplorationModeRecordAlert } from "../../StyledComponents/StyledAlert.js";
+import "../../App.css";
 
 const PREFIX = "RecordCard";
 
 const classes = {
   loadedCard: `${PREFIX}-loadedCard`,
   loadingCard: `${PREFIX}-loadingCard`,
-  alert: `${PREFIX}-alert`,
   titleAbstract: `${PREFIX}-titleAbstract`,
   title: `${PREFIX}-title`,
   abstract: `${PREFIX}-abstract`,
@@ -35,13 +35,10 @@ const Root = styled("div")(({ theme }) => ({
   flex: "1 0 auto",
   margin: "auto",
   maxWidth: 960,
-  paddingTop: 40,
-  paddingBottom: 40,
-  width: "100%",
-  height: "calc(100% - 88px)",
+  padding: "24px 0px 32px 0px",
+  height: "100%",
   [theme.breakpoints.down("md")]: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    padding: "4px 0px",
   },
   [`& .${classes.loadedCard}`]: {
     borderRadius: 16,
@@ -56,14 +53,6 @@ const Root = styled("div")(({ theme }) => ({
   [`& .${classes.loadingCard}`]: {
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  [`& .${classes.alert}`]: {
-    borderBottomRightRadius: 0,
-    borderBottomLeftRadius: 0,
-    [theme.breakpoints.down("md")]: {
-      borderRadius: 0,
-    },
   },
 
   [`& .${classes.titleAbstract}`]: {
@@ -142,24 +131,23 @@ const RecordCard = (props) => {
           aria-label="record loaded"
         >
           {/* Previous decision alert */}
-          {isDebugInclusion() && (
-            <Box aria-label="pre-labeled record alert">
-              <Alert className={classes.alert} severity="info">
-                This record was pre-labeled as relevant.
-              </Alert>
-            </Box>
+          {props.activeRecord._debug_label !== null && (
+            <ExplorationModeRecordAlert
+              label={!isDebugInclusion() ? "irrelevant" : "relevant"}
+            />
           )}
 
           <CardContent
-            className={classes.titleAbstract}
+            className={`${classes.titleAbstract} record-card-content`}
             aria-label="record title abstract"
           >
             {/* Show the title */}
             <Typography
               className={classes.title}
-              variant="h5"
+              variant={!props.mobileScreen ? "h5" : "h6"}
               component="div"
               paragraph
+              sx={{ fontWeight: (theme) => theme.typography.fontWeightRegular }}
             >
               {/* No title, inplace text */}
               {(props.activeRecord.title === "" ||
@@ -168,7 +156,7 @@ const RecordCard = (props) => {
                   className={"fontSize" + props.fontSize.label}
                   fontStyle="italic"
                 >
-                  No title available.
+                  No title available
                 </Box>
               )}
 
@@ -217,9 +205,7 @@ const RecordCard = (props) => {
               {/* No abstract, inplace text */}
               {(props.activeRecord.abstract === "" ||
                 props.activeRecord.abstract === null) && (
-                <Box fontStyle="italic">
-                  No abstract available.
-                </Box>
+                <Box fontStyle="italic">No abstract available</Box>
               )}
 
               {/* No abstract, inplace text */}
@@ -239,9 +225,10 @@ const RecordCard = (props) => {
           >
             <Box>
               <NoteSheet
-                note={props.recordNote["data"]}
-                setRecordNote={props.setRecordNote}
+                note={props.recordNote.data}
                 noteFieldAutoFocus={props.noteFieldAutoFocus}
+                previousRecord={props.previousRecord}
+                setRecordNote={props.setRecordNote}
               />
             </Box>
           </Slide>
@@ -249,11 +236,16 @@ const RecordCard = (props) => {
           {props.recordNote.shrink && (
             <CardActions className={classes.note}>
               <Button
+                disabled={props.disableButton()}
                 size="small"
                 onClick={expandNoteSheet}
                 aria-label="add note"
               >
-                {props.recordNote["data"] ? "Edit Note" : "Add Note"}
+                {props.previousRecord.show &&
+                props.previousRecord.note &&
+                props.recordNote.data
+                  ? "Edit Note"
+                  : "Add Note"}
               </Button>
             </CardActions>
           )}

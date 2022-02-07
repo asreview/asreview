@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
@@ -21,7 +22,7 @@ const PREFIX = "LabeledRecord";
 
 const classes = {
   loading: `${PREFIX}-loading`,
-  recordCard: `${PREFIX}-recordCard`,
+  priorRecordCard: `${PREFIX}-prior-record-card`,
   loadMoreInView: `${PREFIX}-loadMoreInView`,
 };
 
@@ -32,14 +33,10 @@ const Root = styled("div")(({ theme }) => ({
     padding: 64,
   },
 
-  [`& .${classes.recordCard}`]: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
-    height: "calc(100vh - 168px)",
-    width: "100%",
+  [`& .${classes.priorRecordCard}`]: {
+    height: "calc(100vh - 208px)",
     overflowY: "scroll",
-    padding: "16px 0px",
+    padding: "16px 24px",
   },
 
   [`& .${classes.loadMoreInView}`]: {
@@ -50,55 +47,53 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
-  const relevantQuery = useInfiniteQuery(
+  const [subset, setSubset] = React.useState(null);
+
+  const returnSubset = () => {
+    return !subset ? [props.label] : [props.label].concat(subset);
+  };
+
+  const enableQuery = () => {
+    return !props.is_prior
+      ? true
+      : !(
+          (props.label === "relevant" && !props.n_prior_inclusions) ||
+          (props.label === "irrelevant" && !props.n_prior_exclusions)
+        );
+  };
+
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    isFetched,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery(
     [
-      "fetchRelevantLabeledRecord",
+      "fetchLabeledRecord",
       {
         project_id: props.project_id,
-        select: "included",
+        subset: returnSubset(),
       },
     ],
     ProjectAPI.fetchLabeledRecord,
     {
-      enabled: props.label === "relevant",
+      enabled: enableQuery(),
       getNextPageParam: (lastPage) => lastPage.next_page ?? false,
       refetchOnWindowFocus: false,
     }
   );
 
-  const irrelevantQuery = useInfiniteQuery(
-    [
-      "fetchIrrelevantLabeledRecord",
-      {
-        project_id: props.project_id,
-        select: "excluded",
-      },
-    ],
-    ProjectAPI.fetchLabeledRecord,
-    {
-      enabled: props.label === "irrelevant",
-      getNextPageParam: (lastPage) => lastPage.next_page ?? false,
-      refetchOnWindowFocus: false,
-    }
-  );
-
-  const filteredQuery = () => {
-    if (props.label === "relevant") {
-      return relevantQuery;
-    }
-    if (props.label === "irrelevant") {
-      return irrelevantQuery;
-    }
-  };
-
-  const filteredQueryKey = () => {
-    if (props.label === "relevant") {
-      return "fetchRelevantLabeledRecord";
-    }
-    if (props.label === "irrelevant") {
-      return "fetchIrrelevantLabeledRecord";
-    }
-  };
+  React.useEffect(() => {
+    setSubset(
+      props.filterQuery?.map((element) => {
+        return element.value;
+      })
+    );
+  }, [props.filterQuery]);
 
   /**
    * Check if this component is mounted
@@ -112,62 +107,51 @@ const LabeledRecord = (props) => {
   }, []);
 
   return (
-    <Root aria-label="labeled record container">
-      {filteredQuery().isError && (
-        <BoxErrorHandler
-          error={filteredQuery().error}
-          queryKey={filteredQueryKey()}
-        />
+    <Root aria-label="labeled record">
+      {isError && (
+        <BoxErrorHandler error={error} queryKey="fetchLabeledRecord" />
       )}
-      {!filteredQuery().isError &&
-        (filteredQuery().isLoading || !mounted.current) && (
-          <Box className={classes.loading}>
-            <CircularProgress />
-          </Box>
-        )}
-      {!filteredQuery().isError &&
-        !(filteredQuery().isLoading || !mounted.current) && (
-          <Fade
-            in={
-              !filteredQuery().isError &&
-              !(filteredQuery().isLoading || !mounted.current)
-            }
-          >
+      {props.n_prior !== 0 && !isError && (isLoading || !mounted.current) && (
+        <Box className={classes.loading}>
+          <CircularProgress />
+        </Box>
+      )}
+      {enableQuery() &&
+        !isError &&
+        !(isLoading || !mounted.current) &&
+        isFetched && (
+          <Fade in={!isError && !(isLoading || !mounted.current) && isFetched}>
             <Box
-              className={classes.recordCard}
+              className={clsx({
+                [classes.priorRecordCard]: props.is_prior,
+              })}
               aria-label="labeled record card"
             >
-              {filteredQuery().isFetched &&
-                filteredQuery().data.pages.map((page, index) => (
+              {isFetched &&
+                data.pages.map((page, index) => (
                   <LabeledRecordCard
                     page={page}
                     label={props.label}
                     key={`result-page-${index}`}
+                    is_prior={props.is_prior}
+                    returnSubset={returnSubset}
+                    mobileScreen={props.mobileScreen}
                   />
                 ))}
               <InView
                 as="div"
                 onChange={(inView, entry) => {
-                  if (
-                    inView &&
-                    filteredQuery().hasNextPage &&
-                    !filteredQuery().isFetchingNextPage
-                  ) {
-                    filteredQuery().fetchNextPage();
+                  if (inView && hasNextPage && !isFetchingNextPage) {
+                    fetchNextPage();
                   }
                 }}
                 className={classes.loadMoreInView}
               >
-                <ButtonBase
-                  disabled={
-                    !filteredQuery().hasNextPage ||
-                    filteredQuery().isFetchingNextPage
-                  }
-                >
+                <ButtonBase disabled={!hasNextPage || isFetchingNextPage}>
                   <Typography gutterBottom variant="button">
-                    {filteredQuery().isFetchingNextPage
+                    {isFetchingNextPage
                       ? "Loading more..."
-                      : filteredQuery().hasNextPage
+                      : hasNextPage
                       ? "Load More"
                       : "Nothing more to load"}
                   </Typography>

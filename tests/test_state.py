@@ -22,7 +22,7 @@ from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
 TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_RECORD_TABLE = list(range(1, 852))
+TEST_RECORD_TABLE = list(range(851))
 TEST_CLASSIFIERS = [
     None, None, None, None, 'nb', 'nb', 'nb', 'nb', 'nb', 'nb'
 ]
@@ -65,9 +65,7 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7127075014419986, 0.7085644453092131, 0.7067520535764322,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
-TEST_POOL_START = list(range(1, 11))
-TEST_LABELED_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_LABELED_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
+TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
 
 
 def test_init_project_folder(tmpdir):
@@ -245,6 +243,13 @@ def test_get_labels():
         assert all(state.get_labels() == TEST_LABELS)
 
 
+def test_get_labels_wo_priors():
+    with open_state(TEST_STATE_FP) as state:
+        labels = state.get_labels(priors=False)
+        assert isinstance(labels, pd.Series)
+        assert all(labels == TEST_LABELS[4:])
+
+
 def test_get_labeling_times():
     with open_state(TEST_WITH_TIMES_FP) as state:
         assert isinstance(state.get_labeling_times(), pd.Series)
@@ -278,11 +283,10 @@ def test_record_table(tmpdir):
 
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
-    RECORD_IDS = list(range(12, 2, -1))
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
-        assert state.get_record_table().to_list() == RECORD_IDS
+        assert state.get_record_table().to_list() == list(range(len(as_data)))
 
 
 def test_get_last_probabilities():
@@ -329,7 +333,7 @@ def test_move_ranking_data_to_results(tmpdir):
 
 
 def test_query_top_ranked(tmpdir):
-    test_ranking = [3, 2, 1] + list(range(4, len(TEST_RECORD_TABLE) + 1))
+    test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
@@ -338,9 +342,9 @@ def test_query_top_ranked(tmpdir):
                                'max', 'double', 'tfidf', 4)
         top_ranked = state.query_top_ranked(5)
 
-        assert top_ranked == [3, 2, 1, 4, 5]
+        assert top_ranked == [2, 1, 0, 3, 4]
         data = state.get_dataset()
-        assert data['record_id'].to_list() == [3, 2, 1, 4, 5]
+        assert data['record_id'].to_list() == [2, 1, 0, 3, 4]
         assert data['classifier'].to_list() == ['nb'] * 5
         assert data['query_strategy'].to_list() == ['max'] * 5
         assert data['balance_strategy'].to_list() == ['double'] * 5
@@ -349,7 +353,7 @@ def test_query_top_ranked(tmpdir):
 
 
 def test_add_labeling_data(tmpdir):
-    test_ranking = list(range(1, len(TEST_RECORD_TABLE) + 1))
+    test_ranking = list(range(len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
@@ -378,18 +382,18 @@ def test_add_labeling_data(tmpdir):
         data = state.get_dataset()
         assert data['label'].to_list()[:6] == TEST_LABELS[:6]
         assert data['label'][6:].isna().all()
-        assert data['record_id'].to_list() == TEST_RECORD_IDS[:6] + [1, 2, 3]
+        assert data['record_id'].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
 
-        state.add_labeling_data([2], [1])
+        state.add_labeling_data([1], [1])
         labels = state.get_labels()
         assert labels.to_list()[:6] == TEST_LABELS[:6]
         assert labels[7] == 1
 
-        state.add_labeling_data([1, 3], [0, 1], notes=['note1', 'note3'])
+        state.add_labeling_data([0, 2], [0, 1], notes=['note0', 'note2'])
         data = state.get_dataset()
         assert data['label'].to_list() == TEST_LABELS[:6] + [0, 1, 1]
         assert data['notes'].to_list() == TEST_NOTES[:6] + \
-               ['note1', None, 'note3']
+               ['note0', None, 'note2']
 
 
 def test_pool_labeled_pending(tmpdir):
@@ -456,7 +460,7 @@ def test_add_note(tmpdir):
         assert record_data['notes'][0] == note
 
 
-def test_change_decision(tmpdir):
+def test_update_decision(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
@@ -465,12 +469,12 @@ def test_change_decision(tmpdir):
                                 prior=True)
 
         for i in range(3):
-            state.change_decision(TEST_RECORD_IDS[i])
+            state.update_decision(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
             new_label = \
                 state.get_data_by_record_id(TEST_RECORD_IDS[i])['label'][0]
             assert new_label == 1 - TEST_LABELS[i]
 
-        state.change_decision(TEST_RECORD_IDS[1])
+        state.update_decision(TEST_RECORD_IDS[1], TEST_LABELS[1])
         new_label = \
             state.get_data_by_record_id(TEST_RECORD_IDS[1])['label'][0]
         assert new_label == TEST_LABELS[1]
@@ -493,8 +497,8 @@ def test_get_pool_labeled():
     assert list(labeled.columns) == ['record_id', 'label']
 
     assert pool.to_list()[:10] == TEST_POOL_START
-    assert labeled['record_id'].to_list() == TEST_LABELED_RECORD_IDS
-    assert labeled['label'].to_list() == TEST_LABELED_LABELS
+    assert labeled['record_id'].to_list() == TEST_RECORD_IDS
+    assert labeled['label'].to_list() == TEST_LABELS
 
 
 def test_last_ranking(tmpdir):
@@ -526,7 +530,7 @@ def test_last_ranking(tmpdir):
                                               'training_set',
                                               'time']
 
-        assert last_ranking['ranking'].to_list() == ranking
-        assert last_ranking['record_id'].to_list() == record_ids
+        assert last_ranking['ranking'].to_list() == [0, 1, 2, 3, 4, 5]
+        assert last_ranking['record_id'].to_list() == ranking
         assert last_ranking['classifier'].to_list() == \
                [classifier] * len(record_ids)

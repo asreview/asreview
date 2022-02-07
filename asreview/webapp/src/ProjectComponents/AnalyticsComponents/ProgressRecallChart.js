@@ -4,6 +4,7 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { CardErrorHandler } from "../../Components";
+import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 
 const PREFIX = "ProgressRecallChart";
 
@@ -195,6 +196,9 @@ export default function ProgressRecallChart(props) {
         background: "transparent",
         id: "ASReviewLABprogressRecall",
         type: "line",
+        toolbar: {
+          show: !props.mobileScreen,
+        },
         zoom: {
           enabled: false,
         },
@@ -206,7 +210,7 @@ export default function ProgressRecallChart(props) {
       legend: {
         position: "top",
         horizontalAlign: "left",
-        fontSize: "14px",
+        fontSize: !props.mobileScreen ? "14px" : "12px",
         fontFamily: theme.typography.subtitle2.fontFamily,
         fontWeight: theme.typography.subtitle2.fontWeight,
         labels: {
@@ -225,7 +229,7 @@ export default function ProgressRecallChart(props) {
         size: 0,
       },
       noData: {
-        text: "No data available",
+        text: "No data available. Start reviewing first.",
       },
       stroke: {
         curve: "smooth",
@@ -239,6 +243,9 @@ export default function ProgressRecallChart(props) {
         custom: customTooltip,
       },
       xaxis: {
+        labels: {
+          show: false,
+        },
         type: "numeric",
         axisTicks: {
           show: false,
@@ -248,14 +255,25 @@ export default function ProgressRecallChart(props) {
         },
       },
       yaxis: {
+        labels: {
+          formatter: function (val, index) {
+            return val.toFixed();
+          },
+        },
         showAlways: false,
         max: maxY(),
         forceNiceScale: false,
         opposite: true,
-        tickAmount: 6,
+        tickAmount: maxY() < 6 ? maxY() : 6,
       },
     };
-  }, [theme, lightModePrimaryColor, lightModeSecondaryColor, maxY]);
+  }, [
+    theme,
+    lightModePrimaryColor,
+    lightModeSecondaryColor,
+    maxY,
+    props.mobileScreen,
+  ]);
 
   const [series, setSeries] = React.useState(seriesArray());
   const [options, setOptions] = React.useState(optionsChart());
@@ -274,7 +292,14 @@ export default function ProgressRecallChart(props) {
       />
       <CardContent className={classes.root}>
         <Stack spacing={2}>
-          <Typography variant="h6">Progress Recall</Typography>
+          {!props.mobileScreen && (
+            <Typography variant="h6">Progress Recall</Typography>
+          )}
+          {props.mobileScreen && (
+            <TypographySubtitle1Medium>
+              Progress Recall
+            </TypographySubtitle1Medium>
+          )}
           <Chart
             options={options}
             series={series}

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import {
   Backdrop,
-  Container,
+  Box,
+  Fade,
   SpeedDial,
   SpeedDialIcon,
   SpeedDialAction,
@@ -11,26 +12,24 @@ import {
 import { styled } from "@mui/material/styles";
 import { AddOutlined, CreateNewFolderOutlined } from "@mui/icons-material";
 
-import { ProjectImportDialog, QuickTourDialog } from "../../Components";
-import { NumberCard, ProjectTable } from "../DashboardComponents";
-import { ProjectInfo } from "../../PreReviewComponents";
+import { ActionsFeedbackBar, QuickTourDialog } from "../../Components";
+import { ProjectImportDialog } from "../../ProjectComponents";
+import {
+  DashboardPageHeader,
+  NumberCard,
+  ProjectTable,
+} from "../DashboardComponents";
+import { SetupDialog } from "../../ProjectComponents/SetupComponents";
 
 const PREFIX = "DashboardPage";
 
 const classes = {
-  root: `${PREFIX}-root`,
   fab: `${PREFIX}-fab`,
   noProjects: `${PREFIX}-noProjects`,
   backdropZ: `${PREFIX}-backdropZ`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  padding: "48px 0px",
-  height: "100%",
-  [`& .${classes.root}`]: {
-    paddingTop: "24px",
-  },
-
   [`& .${classes.fab}`]: {
     position: "fixed",
     right: theme.spacing(3),
@@ -45,15 +44,28 @@ const Root = styled("div")(({ theme }) => ({
 const mapStateToProps = (state) => {
   return {
     nav_state: state.nav_state,
+    project_id: state.project_id,
   };
 };
 
 const DashboardPage = (props) => {
-  const [open, setOpen] = useState({
+  const [open, setOpen] = React.useState({
     dial: false,
     newProject: false,
     importProject: false,
   });
+
+  const [feedbackBar, setFeedbackBar] = React.useState({
+    open: false,
+    message: null,
+  });
+
+  const resetFeedbackBar = () => {
+    setFeedbackBar({
+      ...feedbackBar,
+      open: false,
+    });
+  };
 
   const handleOpen = () => {
     setOpen({
@@ -100,36 +112,53 @@ const DashboardPage = (props) => {
     }
   };
 
+  const handleProjectSetup = () => {
+    setOpen({
+      ...open,
+      newProject: true,
+    });
+  };
+
   return (
     <Root aria-label="dashboard page">
-      <Container maxWidth="md">
-        <Stack spacing={5}>
-          <NumberCard />
-          <ProjectTable
-            handleClickAdd={handleClickAdd}
-            onCreateProject={open.newProject}
-            handleAppState={props.handleAppState}
-            handleNavState={props.handleNavState}
-            onNavDrawer={props.onNavDrawer}
-            toggleNavDrawer={props.toggleNavDrawer}
-          />
-        </Stack>
-      </Container>
-
-      {open.newProject && (
-        <ProjectInfo
-          handleAppState={props.handleAppState}
-          open={open.newProject}
-          onClose={handleCloseNewProject}
-        />
-      )}
-
-      {open.importProject && (
-        <ProjectImportDialog
-          open={open.importProject}
-          onClose={handleCloseProjectImport}
-        />
-      )}
+      <Fade in>
+        <Box>
+          <DashboardPageHeader mobileScreen={props.mobileScreen} />
+          <Box className="main-page-body-wrapper">
+            <Stack className="main-page-body" spacing={6}>
+              <NumberCard mobileScreen={props.mobileScreen} />
+              <ProjectTable
+                handleClickAdd={handleClickAdd}
+                handleProjectSetup={handleProjectSetup}
+                handleAppState={props.handleAppState}
+                handleNavState={props.handleNavState}
+                onNavDrawer={props.onNavDrawer}
+                toggleNavDrawer={props.toggleNavDrawer}
+              />
+            </Stack>
+          </Box>
+        </Box>
+      </Fade>
+      <ProjectImportDialog
+        mobileScreen={props.mobileScreen}
+        open={open.importProject}
+        onClose={handleCloseProjectImport}
+        setFeedbackBar={setFeedbackBar}
+      />
+      <SetupDialog
+        handleAppState={props.handleAppState}
+        handleNavState={props.handleNavState}
+        mobileScreen={props.mobileScreen}
+        open={open.newProject}
+        onClose={handleCloseNewProject}
+        setFeedbackBar={setFeedbackBar}
+      />
+      <ActionsFeedbackBar
+        center
+        onClose={resetFeedbackBar}
+        open={feedbackBar.open}
+        feedback={feedbackBar.message}
+      />
 
       {/* Add button for new or importing project */}
       <Backdrop open={open.dial} className={classes.backdropZ} />
