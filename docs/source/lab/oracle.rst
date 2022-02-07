@@ -93,6 +93,16 @@ You are asked to make a decision: relevant or irrelevant?
 While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
 
+More specifically, each labeling decision of the user triggers a new model.
+When this new model is done training, the unseen records' rank order is
+updated. Training and labeling occur a-synchronic. With fast models, a new
+model will probably be ready before the user is done reading the text. With
+slower models, training continues until a new model is done, and the user can
+continue screening the next record in line (2nd, 3rd, etc.). Therefore, the
+record shown to the user can be the one with the highest relevance score of
+the new model or the highest-ranked as resulted from the old model until a new
+model is done. 
+
 As you keep reviewing documents and providing more labels, the number of
 unlabeled documents left in the dataset will decline. When to stop is left to
 the you. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
