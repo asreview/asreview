@@ -21,11 +21,20 @@ of the core project:
 Model extensions
 ~~~~~~~~~~~~~~~~
 
-* Feature Extraction
+* Feature Extraction Vocab Extractor
     - `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: 
-      This extension adds two feature extractors that extract vocabulary and 
-      vector matrices during simulation phases. Might one day be integrated to the 
-      core.
+      This extension adds two feature extractors that extract vocabulary and
+      vector matrices during simulation phases for research purposes. Might one
+      day be integrated to the core.
+* Multilingual Feature Extraction  
+    - `ASReview-multilingual-feature-extractor <https://github.com/asreview/asreview-multilingual-feature-extractor>`__:
+      This extension implements a multilingual feature extractor
+      algorithm to ASReview. This algorithm allows for the usage of records in multiple
+      languages. These languages are:
+
+      Arabic, Chinese, Dutch, English, French, German, Italian, Korean, Polish,
+      Portuguese, Russian, Spanish, Turkish.
+
 
 Subcommand extensions
 ~~~~~~~~~~~~~~~~~~~~~
