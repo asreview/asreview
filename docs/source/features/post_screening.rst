@@ -51,8 +51,12 @@ Export Project
 --------------
 
 An ASReview project file can be downloaded containing all information needed to
-replicate the project or to import the project on a different device. To
-export your project:
+replicate the project or to import the project on a different device. 
+The ASReview project file (.asreview) allows another person to continue your
+project exactly where you left off. The entire model, all your screening
+decisions, settings, and statistics, can be imported into a new project.  
+
+To export your project:
 
 1. Open ASReview LAB.
 2. Start a new project, upload a dataset and select prior knowledge.
