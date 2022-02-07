@@ -81,7 +81,7 @@ const ExportPage = (props) => {
     if (event.target.value === "project") {
       setFileFormat("asreview");
     } else {
-      setFileFormat("xlsx");
+      setFileFormat("");
     }
   };
 
@@ -94,7 +94,7 @@ const ExportPage = (props) => {
   };
 
   const disableRIS = () => {
-    return props.datasetPath.split(".").pop() !== "ris";
+    return props.dataReader !== "ris-reader";
   };
 
   const disableExportButton = () => {
@@ -207,9 +207,7 @@ const ExportPage = (props) => {
                         <MenuItem value="csv">CSV (UTF-8)</MenuItem>
                         <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
                         <MenuItem value="xlsx">Excel</MenuItem>
-                        {!disableRIS() && (
-                          <MenuItem value="ris">RIS</MenuItem>
-                        )}
+                        {!disableRIS() && <MenuItem value="ris">RIS</MenuItem>}
                         {disableRIS() && (
                           <MenuItem value="ris" disabled={disableRIS()}>
                             <Box>
