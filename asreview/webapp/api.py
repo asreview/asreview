@@ -68,6 +68,7 @@ from asreview.webapp.types import is_project
 from asreview.webapp.utils.datasets import get_data_statistics
 from asreview.webapp.utils.datasets import get_dataset_metadata
 from asreview.webapp.utils.io import read_data
+from asreview.webapp.utils.io import data_reader_name
 from asreview.webapp.utils.project import ProjectNotFoundError
 from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import _get_executable
@@ -271,7 +272,8 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # check if there is a dataset
         try:
-            get_data_file_path(project_path)
+            data_fp = get_data_file_path(project_path)
+            project_info["reader"] = data_reader_name(data_fp)
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False

@@ -20,6 +20,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pkg_resources
 
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
@@ -28,6 +29,7 @@ from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_labeled_path
 from asreview.state.paths import get_pool_path
 from asreview.webapp.utils.project_path import get_project_path
+from asreview.utils import is_url
 
 
 class CacheDataError(Exception):
@@ -119,3 +121,29 @@ def read_data(project_id, use_cache=True, save_cache=True):
         _write_data_to_cache(project_id, data_obj)
 
     return data_obj
+
+
+def data_reader_name(fp):
+
+    if is_url(fp):
+        path = urlparse(fp).path
+    else:
+        path = str(Path(fp).resolve())
+
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points('asreview.readers')
+    }
+    best_suffix = None
+    for suffix, entry in entry_points.items():
+        if path.endswith(suffix):
+            if best_suffix is None or len(suffix) > len(best_suffix):
+                best_suffix = suffix
+
+    if best_suffix is None:
+        raise ValueError(f"Error reading file {fp}, no capabilities for "
+                         "reading such a file.")
+
+    reader_name = entry_points[best_suffix].load().name
+
+    return reader_name

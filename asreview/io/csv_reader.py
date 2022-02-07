@@ -17,32 +17,37 @@ import pandas as pd
 from asreview.io.utils import _standardize_dataframe
 
 
-def read_csv(data_fp):
+class CSVReader():
     """CVS file reader.
 
     Parameters
     ----------
     fp: str, pathlib.Path
         File path to the CSV file.
-
-    Returns
-    -------
-    list:
-        List with entries.
-
     """
+    name = "csv-reader"
 
-    for encoding in ["utf-8", "ISO-8859-1"]:
-        try:
-            df = pd.read_csv(
-                data_fp,
-                sep=None,
-                encoding=encoding,
-                engine='python'
-            )
-            return _standardize_dataframe(df)
-        except UnicodeDecodeError:
-            # if unicode error, go to next encoding
-            continue
+    def __init__(self, fp):
+        self.fp = None
 
-    raise UnicodeDecodeError("The encoding of the file is not supported.")
+    def read_data(fp):
+        """
+        Returns
+        -------
+        list:
+            List with entries.
+        """
+        for encoding in ["utf-8", "ISO-8859-1"]:
+            try:
+                df = pd.read_csv(
+                    data_fp,
+                    sep=None,
+                    encoding=encoding,
+                    engine='python'
+                )
+                return _standardize_dataframe(df)
+            except UnicodeDecodeError:
+                # if unicode error, go to next encoding
+                continue
+
+        raise UnicodeDecodeError("The encoding of the file is not supported.")

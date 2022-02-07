@@ -18,36 +18,43 @@ from asreview.config import COLUMN_DEFINITIONS
 from asreview.io.utils import _standardize_dataframe
 
 
-def read_excel(fp):
+class ExcelReader():
     """Excel file reader.
 
     Parameters
     ----------
     fp: str, pathlib.Path
         File path to the Excel file (.xlsx).
-
-    Returns
-    -------
-    list:
-        List with entries.
-
     """
-    try:
-        dfs = pd.read_excel(fp, sheet_name=None)
-    except UnicodeDecodeError:
-        dfs = pd.read_excel(fp, sheet_name=None, encoding="ISO-8859-1")
+    name = "excel-reader"
 
-    best_sheet = None
-    sheet_obj_val = -1
-    wanted_columns = []
-    for type_name, type_list in COLUMN_DEFINITIONS.items():
-        wanted_columns.extend(type_list)
+    def __init__(self, fp):
+        self.fp = None
 
-    for sheet_name in dfs:
-        col_names = set([col.lower() for col in list(dfs[sheet_name])])
-        obj_val = len(col_names & set(wanted_columns))
-        if obj_val > sheet_obj_val:
-            sheet_obj_val = obj_val
-            best_sheet = sheet_name
+    def read_data(fp):
+        """
+        Returns
+        -------
+        list:
+            List with entries.
 
-    return _standardize_dataframe(dfs[best_sheet])
+        """
+        try:
+            dfs = pd.read_excel(fp, sheet_name=None)
+        except UnicodeDecodeError:
+            dfs = pd.read_excel(fp, sheet_name=None, encoding="ISO-8859-1")
+
+        best_sheet = None
+        sheet_obj_val = -1
+        wanted_columns = []
+        for type_name, type_list in COLUMN_DEFINITIONS.items():
+            wanted_columns.extend(type_list)
+
+        for sheet_name in dfs:
+            col_names = set([col.lower() for col in list(dfs[sheet_name])])
+            obj_val = len(col_names & set(wanted_columns))
+            if obj_val > sheet_obj_val:
+                sheet_obj_val = obj_val
+                best_sheet = sheet_name
+
+        return _standardize_dataframe(dfs[best_sheet])

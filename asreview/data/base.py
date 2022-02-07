@@ -154,7 +154,7 @@ class ASReviewData():
             raise ValueError(f"Error reading file {fp}, no capabilities for "
                              "reading such a file.")
 
-        read_fn = entry_points[best_suffix].load()
+        read_fn = entry_points[best_suffix].load().read_data
         df, column_spec = read_fn(fp)
         return cls(df, column_spec=column_spec)
 
