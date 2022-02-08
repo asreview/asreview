@@ -14,6 +14,9 @@
 
 
 from asreview.io.csv_reader import CSVReader
+from asreview.io.csv_writer import CSVWriter
 from asreview.io.excel_reader import ExcelReader
+from asreview.io.excel_writer import ExcelWriter
 from asreview.io.paper_record import PaperRecord
 from asreview.io.ris_reader import RISReader
+from asreview.io.ris_writer import RISWriter

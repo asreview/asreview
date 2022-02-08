@@ -31,6 +31,9 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
+from asreview.io import CSVWriter
+from asreview.io import ExcelWriter
+from asreview.io import RISWriter
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
@@ -527,22 +530,24 @@ def export_to_string(project_id, export_type="csv"):
 
     labeled = labeled_data.values.tolist()
 
+    df = as_data.to_dataframe(labels=labeled, ranking=ranking)
+
     # export the data to file
     if export_type == "csv":
-        return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
+        return CSVWriter().write_data(df, fp=None, labels=labeled, ranking=ranking)
 
     elif export_type == "tsv":
-        return as_data.to_csv(
-            fp=None, sep="\t", labels=labeled, ranking=ranking)
+        return CSVWriter().write_data(
+            df, fp=None, sep="\t", labels=labeled, ranking=ranking)
 
     elif export_type == "excel":
         get_tmp_path(project_path).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-        return as_data.to_excel(
-            fp=fp_tmp_export, labels=labeled, ranking=ranking)
+        return ExcelWriter().write_data(
+            df, fp=fp_tmp_export, labels=labeled, ranking=ranking)
 
     elif export_type == "ris":
-        return as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
+        return RISWriter().write_data(df, fp=None, labels=labeled, ranking=ranking)
 
     else:
         raise ValueError("This export type isn't implemented.")

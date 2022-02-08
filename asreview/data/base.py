@@ -23,8 +23,10 @@ import pkg_resources
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
-from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_writer import write_ris
+from asreview.io import CSVWriter
+from asreview.io import ExcelWriter
+from asreview.io import RISWriter
+from asreview.io import PaperRecord
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable
@@ -399,14 +401,16 @@ class ASReviewData():
         ranking: list, numpy.ndarray
             Optionally, dataframe rows can be reordered.
         """
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+
         if Path(fp).suffix in [".csv", ".CSV"]:
-            self.to_csv(fp, labels=labels, ranking=ranking)
+            CSVWriter().write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
-            self.to_csv(fp, sep="\t", labels=labels, ranking=ranking)
+            CSVWriter().write_data(df, fp, sep="\t", labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
-            self.to_ris(fp, labels=labels, ranking=ranking)
+            RISWriter().write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".xlsx", ".XLSX"]:
-            self.to_excel(fp, labels=labels, ranking=ranking)
+            ExcelWriter().write_data(df, fp, labels=labels, ranking=ranking)
         else:
             raise BadFileFormatError(
                 f"Unknown file extension: {Path(fp).suffix}.\n"
@@ -456,71 +460,3 @@ class ASReviewData():
             result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
 
         return result_df
-
-    def to_csv(self, fp, sep=",", labels=None, ranking=None):
-        """Export to csv.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        sep: str
-            Seperator of the file.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_csv(fp, sep=sep, index=True)
-
-    def to_excel(self, fp, labels=None, ranking=None):
-        """Export to Excel xlsx file.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_excel(fp, index=True)
-
-    def to_ris(self, fp, labels=None, ranking=None):
-        """Export to RIS (.ris) file.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return write_ris(df, fp)
