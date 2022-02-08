@@ -102,8 +102,8 @@ names are allowed, see the table. It can be used for:
   labels will be automatically detected and used for prior knowledge. The first
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabeled part of the data.
-- **Exploration**: You can explore an existing fully labeled dataset in the Exploraton
-  Mode. The relevant records will be displayed in green during screening. 
+- **Exploration**: You can explore a completely labeled dataset in the Exploration
+  Mode. The relevant/irrelevant label in the dataset will be displayed on each record.
   This option is useful for training purposes, presentations, and workshops.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
   the column containing the labels is used to simulate a systematic review run.
