@@ -275,7 +275,7 @@ Simulate-batch
 --------------
 
 :program:`asreview simulate-batch` provides the same interface as the
-:program:`asreview simulate`, but adds an extra option (:code:`--n_runs`) to run a
+:program:`asreview simulate`, but adds an extra option (:code:`--n_run`) to run a
 batch of simulation runs with the same configuration.
 
 .. code:: bash
@@ -293,7 +293,7 @@ batch of simulation runs with the same configuration.
 
     A dataset to simulate
 
-.. option:: --n_runs
+.. option:: --n_run
 
     Number of simulation runs.
 
