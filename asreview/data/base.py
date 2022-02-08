@@ -158,6 +158,43 @@ class ASReviewData():
         df, column_spec = reader.read_data(fp)
         return cls(df, column_spec=column_spec)
 
+    @classmethod
+    def reader_name(cls, fp):
+        """Find available dataset reader from csv/ris/excel file.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            Read the data from this file.
+
+        Returns
+        -------
+        str:
+            Name of dataset reader class.
+        """
+        if is_url(fp):
+            path = urlparse(fp).path
+        else:
+            path = str(Path(fp).resolve())
+
+        entry_points = {
+            entry.name: entry
+            for entry in pkg_resources.iter_entry_points('asreview.readers')
+        }
+        best_suffix = None
+        for suffix, entry in entry_points.items():
+            if path.endswith(suffix):
+                if best_suffix is None or len(suffix) > len(best_suffix):
+                    best_suffix = suffix
+
+        if best_suffix is None:
+            raise ValueError(f"Error reading file {fp}, no capabilities for "
+                             "reading such a file.")
+
+        reader_name = entry_points[best_suffix].load().name
+
+        return reader_name
+
     def record(self, i, by_index=True):
         """Create a record from an index.
 
