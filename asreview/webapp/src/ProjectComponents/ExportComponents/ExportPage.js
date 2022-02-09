@@ -94,7 +94,7 @@ const ExportPage = (props) => {
   };
 
   const disableRIS = () => {
-    return props.dataReader !== "ris-reader";
+    return !props.dataWriter.includes("ris-writer");
   };
 
   const disableExportButton = () => {
