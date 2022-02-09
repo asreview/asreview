@@ -201,7 +201,7 @@ class ASReviewData():
     @classmethod
     def writer_name(cls, fp):
         """Find available dataset writer from csv/ris/excel file.
-        
+
         Arguments
         ---------
         fp: str, pathlib.Path
