@@ -98,7 +98,8 @@ class RISReader():
         else:
             return -1, note_list
 
-    def read_data(self, fp):
+    @classmethod
+    def read_data(cls, fp):
         """
         Returns
         -------
@@ -131,10 +132,10 @@ class RISReader():
         # Check if "notes" column is present
         if "notes" in df:
             # Strip Zotero XHTML <p> tags on "notes"
-            df["notes"] = df["notes"].apply(self._strip_zotero_p_tags)
+            df["notes"] = df["notes"].apply(cls._strip_zotero_p_tags)
             # Split "included" from "notes"
             df[["included", "notes"
-                ]] = pandas.DataFrame(df["notes"].apply(self._label_parser).tolist(),
+                ]] = pandas.DataFrame(df["notes"].apply(cls._label_parser).tolist(),
                                       columns=["included", "notes"])
             # Return the standardised dataframe with label and notes separated
             return _standardize_dataframe(df)

@@ -27,7 +27,8 @@ class CSVReader():
     """
     name = "csv-reader"
 
-    def read_data(self, fp):
+    @classmethod
+    def read_data(cls, fp):
         """
         Returns
         -------

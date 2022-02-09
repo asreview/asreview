@@ -534,20 +534,20 @@ def export_to_string(project_id, export_type="csv"):
 
     # export the data to file
     if export_type == "csv":
-        return CSVWriter().write_data(df, fp=None, labels=labeled, ranking=ranking)
+        return CSVWriter.write_data(df, fp=None, labels=labeled, ranking=ranking)
 
     elif export_type == "tsv":
-        return CSVWriter().write_data(
+        return CSVWriter.write_data(
             df, fp=None, sep="\t", labels=labeled, ranking=ranking)
 
     elif export_type == "excel":
         get_tmp_path(project_path).mkdir(exist_ok=True)
         fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-        return ExcelWriter().write_data(
+        return ExcelWriter.write_data(
             df, fp=fp_tmp_export, labels=labeled, ranking=ranking)
 
     elif export_type == "ris":
-        return RISWriter().write_data(df, fp=None, labels=labeled, ranking=ranking)
+        return RISWriter.write_data(df, fp=None, labels=labeled, ranking=ranking)
 
     else:
         raise ValueError("This export type isn't implemented.")

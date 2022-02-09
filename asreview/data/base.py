@@ -157,7 +157,7 @@ class ASReviewData():
             raise ValueError(f"Error reading file {fp}, no capabilities for "
                              "reading such a file.")
 
-        reader = entry_points[best_suffix].load()()
+        reader = entry_points[best_suffix].load()
         df, column_spec = reader.read_data(fp)
         return cls(df, column_spec=column_spec)
 
@@ -429,13 +429,13 @@ class ASReviewData():
         df = self.to_dataframe(labels=labels, ranking=ranking)
 
         if Path(fp).suffix in [".csv", ".CSV"]:
-            CSVWriter().write_data(df, fp, labels=labels, ranking=ranking)
+            CSVWriter.write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
-            CSVWriter().write_data(df, fp, sep="\t", labels=labels, ranking=ranking)
+            CSVWriter.write_data(df, fp, sep="\t", labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
-            RISWriter().write_data(df, fp, labels=labels, ranking=ranking)
+            RISWriter.write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".xlsx", ".XLSX"]:
-            ExcelWriter().write_data(df, fp, labels=labels, ranking=ranking)
+            ExcelWriter.write_data(df, fp, labels=labels, ranking=ranking)
         else:
             raise BadFileFormatError(
                 f"Unknown file extension: {Path(fp).suffix}.\n"
