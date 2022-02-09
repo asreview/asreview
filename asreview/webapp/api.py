@@ -273,6 +273,7 @@ def api_get_project_info(project_id):  # noqa: F401
         try:
             data_fp = get_data_file_path(project_path)
             project_info["reader"] = ASReviewData.reader_name(data_fp)
+            project_info["writer"] = ASReviewData.writer_name(data_fp)
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False

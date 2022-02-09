@@ -25,8 +25,9 @@ from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
 from asreview.io import CSVWriter
 from asreview.io import ExcelWriter
-from asreview.io import RISWriter
 from asreview.io import PaperRecord
+from asreview.io import RISReader
+from asreview.io import RISWriter
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable
@@ -196,6 +197,30 @@ class ASReviewData():
         reader_name = entry_points[best_suffix].load().name
 
         return reader_name
+
+    @classmethod
+    def writer_name(cls, fp):
+        """Find available dataset writer from csv/ris/excel file.
+        
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            Read the data from this file.
+
+        Returns
+        -------
+        str:
+            Name of dataset writer class.
+        """
+
+        # CSV and Excel writers are available for all dataset formats
+        writer_name = [CSVWriter().name, ExcelWriter().name]
+
+        reader_name = cls.reader_name(fp)
+        if reader_name == RISReader().name:
+            writer_name += [RISWriter().name]
+
+        return writer_name
 
     def record(self, i, by_index=True):
         """Create a record from an index.
