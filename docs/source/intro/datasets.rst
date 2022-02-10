@@ -23,6 +23,7 @@ publications <../extensions/extension_covid19>` is available.
     has to offer.
 
 
+.. _data-format:
 
 Data Format
 -----------
@@ -41,6 +42,8 @@ formats:
    The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
+
+.. _column-names:
 
 .. table:: Table with column name definitions
     :widths: 20 60 20
