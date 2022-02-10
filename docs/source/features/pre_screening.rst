@@ -74,20 +74,28 @@ Select one of the :ref:`benchmark datasets <benchmark-datasets>`.
 Partly Labeled Data
 -------------------
 
-If you want to include decisions you've already made prior to setting up your
-project, you can upload a partly labeled dataset containg labels for part of
-the data and unlabeled records you want to screen with ASReview. This might be
-helpful if you switch from screening in another tool to screening with
-ASReview, or when updating an existing systematic review with more recent
-publications.
+A partly labeled dataset contains labeling decessions for part of the records,
+and part of the data does not have labels. The goal is to use the labels as
+prior knowledge to screen the unseen records. The labeled records will be
+recognized by ASReview LAB and are used to train the first iteration of the
+active learning model. This might be helpful if you switch from screening in
+another tool to screening with ASReview, or when updating an existing
+systematic review with more recent publications. For more options, see the
+`discussion board <https://github.com/asreview/asreview/discussions/975>`_. 
 
-Currently, this can be done by merging your dataset with labeled and unlabeled
-records via Excel or another reference manager. Your dataset should contain a
-column, called *label_included* (or: final_included, label, label_included,
-included_label, included_final, included, included_flag, include) which is
-filled with 1's or 0's for the publications that you have already screened,
-and is empty for the records that you still need to screen using
-ASReview.
+.. note::
+
+  Merging labeled with unlabeled data should be done outside ASReview LAB, for
+  example in reference manager software.
+
+
+For tabular datasets (:ref:`e.g., CSV, XLSX <data-format>`), the dataset should
+contain a column, called :ref:`label_included <column-names>` which is
+filled with 1's or 0's for the records that are already screened
+and is empty for the records that you still need to screen using ASReview.
+
+For RIS file format the dataset should contain ???
+
 
 To use a partly labeled dataset:
 
@@ -97,7 +105,7 @@ To use a partly labeled dataset:
 4. Select your partly labeled dataset.
 
 ASReview will recognize the column with the labels and show you the number of
-prior relevant/irrelevant papers in the section *Prior Knowledge*.
+prior relevant/irrelevant records in the section *Prior Knowledge*.
 
 .. _select-prior-knowledge:
 
