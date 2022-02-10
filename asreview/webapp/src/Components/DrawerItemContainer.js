@@ -1,4 +1,5 @@
 import React from "react";
+import { useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import {
   Divider,
@@ -16,7 +17,11 @@ import { Help, Payment, Settings } from "@mui/icons-material";
 
 import { DrawerItem } from "../Components";
 
+import { ProjectAPI } from "../api/index.js";
 import { donateURL } from "../globals.js";
+import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
+import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
+import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
 const PREFIX = "DrawerItemContainer";
 
@@ -82,13 +87,42 @@ const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
     nav_state: state.nav_state,
+    project_id: state.project_id,
   };
 };
 
 const DrawerItemContainer = (props) => {
+  const queryClient = useQueryClient();
+  const [projectInfo, setProjectInfo] = React.useState(null);
+
+  const fetchProjectInfo = React.useCallback(async () => {
+    const data = await queryClient.fetchQuery(
+      ["fetchInfo", { project_id: props.project_id }],
+      ProjectAPI.fetchInfo
+    );
+    setProjectInfo(data);
+  }, [props.project_id, queryClient]);
+
+  const returnElasState = () => {
+    // setup
+    if (projectInfo && !projectInfo.projectInitReady) {
+      return SetUp;
+    }
+
+    // review
+    if (!projectInfo?.reviewFinished) {
+      return InReview;
+    }
+
+    // finished
+    if (projectInfo?.reviewFinished) {
+      return Finished;
+    }
+  };
+
   /**
    * Drawer items on home page
-   * Any change here requires change in StyledDrawerItem
+   * Any change here requires change in DrawerItem
    */
   const drawerItemsHomePage = [
     {
@@ -98,7 +132,7 @@ const DrawerItemContainer = (props) => {
   ];
   /**
    * Drawer items on project page
-   * Any change here requires change in StyledDrawerItem
+   * Any change here requires change in DrawerItem
    */
   const drawerItemsProjectPage = [
     {
@@ -122,6 +156,12 @@ const DrawerItemContainer = (props) => {
       label: "Details",
     },
   ];
+
+  React.useEffect(() => {
+    if (props.app_state === "project-page") {
+      fetchProjectInfo();
+    }
+  }, [fetchProjectInfo, props.app_state]);
 
   return (
     <StyledList aria-label="drawer item container">
@@ -149,9 +189,7 @@ const DrawerItemContainer = (props) => {
 
       {/* Top Section: Project page drawer */}
       {props.app_state === "project-page" && (
-        <Fade
-          in={props.app_state === "project-page" && props.projectInfo !== null}
-        >
+        <Fade in={props.app_state === "project-page" && projectInfo !== null}>
           <div className={classes.topSection}>
             <DrawerItem
               mobileScreen={props.mobileScreen}
@@ -164,7 +202,7 @@ const DrawerItemContainer = (props) => {
             />
             <ListItem className={classes.projectInfo}>
               <img
-                src={props.returnElasState()}
+                src={returnElasState()}
                 alt="ElasState"
                 className={classes.stateElas}
               />
@@ -176,7 +214,7 @@ const DrawerItemContainer = (props) => {
                     variant="body2"
                     color="textSecondary"
                   >
-                    {props.projectInfo ? props.projectInfo.name : "Null"}
+                    {projectInfo ? projectInfo.name : "Null"}
                   </Typography>
                 </div>
               </Fade>
@@ -200,54 +238,56 @@ const DrawerItemContainer = (props) => {
       )}
 
       {/* Bottom Section */}
-      <div className={classes.bottomSection}>
-        <Divider />
-        {donateURL !== undefined && (
-          <Tooltip disableHoverListener={props.onNavDrawer} title="Donate">
+      {props.app_state !== "boot" && (
+        <div className={classes.bottomSection}>
+          <Divider />
+          {donateURL !== undefined && (
+            <Tooltip disableHoverListener={props.onNavDrawer} title="Donate">
+              <ListItemButton
+                component={"a"}
+                color="inherit"
+                href={donateURL}
+                target="_blank"
+              >
+                <ListItemIcon className={classes.icon}>
+                  <Payment />
+                </ListItemIcon>
+                <ListItemText primary="Donate" />
+              </ListItemButton>
+            </Tooltip>
+          )}
+          <Tooltip disableHoverListener={props.onNavDrawer} title="Settings">
             <ListItemButton
-              component={"a"}
-              color="inherit"
-              href={donateURL}
-              target="_blank"
+              onClick={() => {
+                if (props.mobileScreen) {
+                  props.toggleNavDrawer();
+                }
+                props.toggleSettings();
+              }}
             >
               <ListItemIcon className={classes.icon}>
-                <Payment />
+                <Settings />
               </ListItemIcon>
-              <ListItemText primary="Donate" />
+              <ListItemText primary="Settings" />
             </ListItemButton>
           </Tooltip>
-        )}
-        <Tooltip disableHoverListener={props.onNavDrawer} title="Settings">
-          <ListItemButton
-            onClick={() => {
-              if (props.mobileScreen) {
-                props.toggleNavDrawer();
-              }
-              props.toggleSettings();
-            }}
-          >
-            <ListItemIcon className={classes.icon}>
-              <Settings />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-          </ListItemButton>
-        </Tooltip>
-        <Tooltip disableHoverListener={props.onNavDrawer} title="Help">
-          <ListItemButton
-            onClick={() => {
-              if (props.mobileScreen) {
-                props.toggleNavDrawer();
-              }
-              props.toggleHelpDialog();
-            }}
-          >
-            <ListItemIcon className={classes.icon}>
-              <Help />
-            </ListItemIcon>
-            <ListItemText primary="Help" />
-          </ListItemButton>
-        </Tooltip>
-      </div>
+          <Tooltip disableHoverListener={props.onNavDrawer} title="Help">
+            <ListItemButton
+              onClick={() => {
+                if (props.mobileScreen) {
+                  props.toggleNavDrawer();
+                }
+                props.toggleHelpDialog();
+              }}
+            >
+              <ListItemIcon className={classes.icon}>
+                <Help />
+              </ListItemIcon>
+              <ListItemText primary="Help" />
+            </ListItemButton>
+          </Tooltip>
+        </div>
+      )}
     </StyledList>
   );
 };

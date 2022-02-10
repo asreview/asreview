@@ -136,8 +136,6 @@ const NavigationDrawer = (props) => {
           mobileScreen={props.mobileScreen}
           onNavDrawer={props.onNavDrawer}
           toggleNavDrawer={props.toggleNavDrawer}
-          projectInfo={props.projectInfo}
-          returnElasState={props.returnElasState}
           toggleSettings={props.toggleSettings}
           toggleHelpDialog={props.toggleHelpDialog}
         />
@@ -158,8 +156,6 @@ const NavigationDrawer = (props) => {
           mobileScreen={props.mobileScreen}
           onNavDrawer={props.onNavDrawer}
           toggleNavDrawer={props.toggleNavDrawer}
-          projectInfo={props.projectInfo}
-          returnElasState={props.returnElasState}
           toggleSettings={props.toggleSettings}
           toggleHelpDialog={props.toggleHelpDialog}
         />

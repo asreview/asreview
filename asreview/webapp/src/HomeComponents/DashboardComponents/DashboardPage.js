@@ -133,7 +133,6 @@ const DashboardPage = (props) => {
                 handleAppState={props.handleAppState}
                 handleNavState={props.handleNavState}
                 onNavDrawer={props.onNavDrawer}
-                toggleNavDrawer={props.toggleNavDrawer}
               />
             </Stack>
           </Box>

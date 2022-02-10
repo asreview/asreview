@@ -6,7 +6,12 @@ import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import { Header, HelpDialog, SettingsDialog } from "./Components";
+import {
+  Header,
+  HelpDialog,
+  NavigationDrawer,
+  SettingsDialog,
+} from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
 import WelcomeScreen from "./WelcomeScreen";
@@ -42,7 +47,7 @@ const queryClient = new QueryClient();
 
 const App = (props) => {
   // Dialog state
-  const [settings, setSettings] = useToggle();
+  const [onSettings, toggleSettings] = useToggle();
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -56,7 +61,7 @@ const App = (props) => {
   });
 
   // Navigation drawer state
-  const [navDrawer, setNavDrawer] = useToggle(mobileScreen ? false : true);
+  const [onNavDrawer, toggleNavDrawer] = useToggle(mobileScreen ? false : true);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -67,44 +72,48 @@ const App = (props) => {
           {props.app_state !== "boot" && (
             <Header
               handleAppState={props.setAppState}
-              toggleNavDrawer={setNavDrawer}
+              toggleNavDrawer={toggleNavDrawer}
             />
           )}
-
-          {props.app_state === "home" && (
-            <HomePage
+          <div aria-label="nav and main content">
+            <NavigationDrawer
               handleAppState={props.setAppState}
               handleNavState={props.setNavState}
               mobileScreen={mobileScreen}
-              onNavDrawer={navDrawer}
-              toggleNavDrawer={setNavDrawer}
-              toggleSettings={setSettings}
+              onNavDrawer={onNavDrawer}
+              toggleNavDrawer={toggleNavDrawer}
+              toggleSettings={toggleSettings}
             />
-          )}
-
-          {props.app_state === "project-page" && (
-            <ProjectPage
-              handleAppState={props.setAppState}
-              handleNavState={props.setNavState}
-              mobileScreen={mobileScreen}
-              onNavDrawer={navDrawer}
-              toggleNavDrawer={setNavDrawer}
-              toggleSettings={setSettings}
-              fontSize={fontSize}
-              undoEnabled={undoEnabled}
-              keyPressEnabled={keyPressEnabled}
-            />
-          )}
+            {props.app_state === "home" && (
+              <HomePage
+                handleAppState={props.setAppState}
+                handleNavState={props.setNavState}
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+              />
+            )}
+            {props.app_state === "project-page" && (
+              <ProjectPage
+                handleAppState={props.setAppState}
+                handleNavState={props.setNavState}
+                mobileScreen={mobileScreen}
+                onNavDrawer={onNavDrawer}
+                fontSize={fontSize}
+                undoEnabled={undoEnabled}
+                keyPressEnabled={keyPressEnabled}
+              />
+            )}
+          </div>
 
           {/* Dialogs */}
           <SettingsDialog
             mobileScreen={mobileScreen}
-            onSettings={settings}
+            onSettings={onSettings}
             onDark={theme}
             fontSize={fontSize}
             keyPressEnabled={keyPressEnabled}
             undoEnabled={undoEnabled}
-            toggleSettings={setSettings}
+            toggleSettings={toggleSettings}
             toggleDarkMode={toggleDarkMode}
             handleFontSizeChange={handleFontSizeChange}
             toggleKeyPressEnabled={toggleKeyPressEnabled}

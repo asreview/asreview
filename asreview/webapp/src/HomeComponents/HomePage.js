@@ -5,7 +5,6 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { NavigationDrawer } from "../Components";
 import { DashboardPage } from "../HomeComponents/DashboardComponents";
 
 import { drawerWidth } from "../globals.js";
@@ -47,14 +46,6 @@ const mapStateToProps = (state) => {
 const HomePage = (props) => {
   return (
     <Root aria-label="home page">
-      <NavigationDrawer
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
-        mobileScreen={props.mobileScreen}
-        onNavDrawer={props.onNavDrawer}
-        toggleNavDrawer={props.toggleNavDrawer}
-        toggleSettings={props.toggleSettings}
-      />
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
@@ -68,8 +59,6 @@ const HomePage = (props) => {
           handleNavState={props.handleNavState}
           mobileScreen={props.mobileScreen}
           onNavDrawer={props.onNavDrawer}
-          toggleNavDrawer={props.toggleNavDrawer}
-          toggleSettings={props.toggleSettings}
         />
       </Box>
     </Root>

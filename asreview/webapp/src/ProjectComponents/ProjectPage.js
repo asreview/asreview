@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { DialogErrorHandler, NavigationDrawer } from "../Components";
+import { DialogErrorHandler } from "../Components";
 import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
@@ -14,10 +14,6 @@ import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
-
-import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
-import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
-import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
 
 import { ProjectAPI } from "../api/index.js";
 import { drawerWidth } from "../globals.js";
@@ -68,35 +64,8 @@ const ProjectPage = (props) => {
     { enabled: props.project_id !== null, refetchOnWindowFocus: false }
   );
 
-  const returnElasState = () => {
-    // setup
-    if (data && !data.projectInitReady) {
-      return SetUp;
-    }
-
-    // review
-    if (!data?.reviewFinished) {
-      return InReview;
-    }
-
-    // finished
-    if (data?.reviewFinished) {
-      return Finished;
-    }
-  };
-
   return (
     <Root aria-label="project page">
-      <NavigationDrawer
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
-        mobileScreen={props.mobileScreen}
-        onNavDrawer={props.onNavDrawer}
-        toggleNavDrawer={props.toggleNavDrawer}
-        toggleSettings={props.toggleSettings}
-        returnElasState={returnElasState}
-        projectInfo={data}
-      />
       <DialogErrorHandler
         isError={isError}
         error={error}
