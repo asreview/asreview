@@ -1,9 +1,10 @@
 Post-Screening
 ==============
 
-After you stop screening, or anytime you want to take a break, you can
+After you decide to `stop screening <https://github.com/asreview/asreview/discussions/557>`_ 
+or anytime you want to take a break, you can
 return to the project dashboard by clicking the hamburger menu on the
-top-left. Below, you find the options in the project dashboard.
+top-left. Below, you will find the options in the project dashboard.
 
 
 Download Results
