@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { AppBar, ButtonBase, Toolbar, IconButton } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
@@ -38,6 +39,7 @@ const mapStateToProps = (state) => {
 };
 
 const Header = (props) => {
+  const navigate = useNavigate();
   const theme = useTheme();
 
   const wordmarkState = () => {
@@ -67,7 +69,7 @@ const Header = (props) => {
               src={wordmarkState()}
               alt="ASReview LAB Dashboard"
               onClick={() => {
-                props.handleAppState("home");
+                navigate("/");
               }}
             />
           </ButtonBase>

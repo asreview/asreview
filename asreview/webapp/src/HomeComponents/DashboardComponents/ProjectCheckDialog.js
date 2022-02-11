@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Dialog,
@@ -12,7 +12,6 @@ import {
 
 import { InlineErrorHandler } from "../../Components";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 
 const checkText = [
   {
@@ -29,6 +28,7 @@ const checkText = [
 ];
 
 const ProjectCheckDialog = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [upgrade, setUpgrade] = React.useState(false);
@@ -42,13 +42,17 @@ const ProjectCheckDialog = (props) => {
     isError: isUpgradeProjectError,
     isFetching: isUpgradingProject,
   } = useQuery(
-    ["fetchUpgradeProjectIfOld", { project_id: props.project_id }],
+    [
+      "fetchUpgradeProjectIfOld",
+      { project_id: props.projectCheck?.project_id },
+    ],
     ProjectAPI.fetchUpgradeProjectIfOld,
     {
       enabled: upgrade,
       onSuccess: () => {
-        props.handleAppState("project-page");
-        props.handleNavState(props.projectCheck?.destination);
+        navigate(
+          `/project/${props.projectCheck?.project_id}/${props.projectCheck?.path}`
+        );
         queryClient.invalidateQueries("fetchProjectIsOld", {
           refetchActive: false,
         });
@@ -68,7 +72,7 @@ const ProjectCheckDialog = (props) => {
     isError: isExportProjectError,
     isFetching: isExportingProject,
   } = useQuery(
-    ["fetchExportProject", { project_id: props.project_id }],
+    ["fetchExportProject", { project_id: props.projectCheck?.project_id }],
     ProjectAPI.fetchExportProject,
     {
       enabled: exporting,
@@ -111,11 +115,7 @@ const ProjectCheckDialog = (props) => {
 
   const handleClose = () => {
     resetQuery();
-    props.setProjectCheck({
-      ...props.projectCheck,
-      open: false,
-    });
-    props.handleAppState("home");
+    props.resetProjectCheck();
   };
 
   const resetQuery = () => {
@@ -136,7 +136,7 @@ const ProjectCheckDialog = (props) => {
           props.setProjectCheck({
             ...props.projectCheck,
             issue: null,
-            destination: "dashboard",
+            path: "dashboard",
           });
         },
       }}
@@ -183,4 +183,4 @@ const ProjectCheckDialog = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ProjectCheckDialog);
+export default ProjectCheckDialog;

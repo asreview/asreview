@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   FormControl,
@@ -18,11 +18,11 @@ import { SelectItem } from "../SetupComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const ModelForm = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const {
@@ -44,10 +44,10 @@ const ModelForm = (props) => {
     isFetching: isFetchingModelConfig,
     isSuccess: isSuccessModelConfig,
   } = useQuery(
-    ["fetchModelConfig", { project_id: props.project_id }],
+    ["fetchModelConfig", { project_id }],
     ProjectAPI.fetchModelConfig,
     {
-      enabled: props.project_id !== null,
+      enabled: project_id !== null,
       refetchOnWindowFocus: false,
     }
   );
@@ -206,4 +206,4 @@ const ModelForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ModelForm);
+export default ModelForm;

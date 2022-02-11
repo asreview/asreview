@@ -1,5 +1,4 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import clsx from "clsx";
 
 import { Box } from "@mui/material";
@@ -36,13 +35,6 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    nav_state: state.nav_state,
-  };
-};
-
 const HomePage = (props) => {
   return (
     <Root aria-label="home page">
@@ -55,8 +47,6 @@ const HomePage = (props) => {
       >
         {/* Dashboard */}
         <DashboardPage
-          handleAppState={props.handleAppState}
-          handleNavState={props.handleNavState}
           mobileScreen={props.mobileScreen}
           onNavDrawer={props.onNavDrawer}
         />
@@ -65,4 +55,4 @@ const HomePage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(HomePage);
+export default HomePage;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
+import { Routes, Route, useParams } from "react-router-dom";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -45,23 +45,17 @@ const Root = styled("div")(({ theme }) => ({
   },
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    nav_state: state.nav_state,
-    project_id: state.project_id,
-  };
-};
-
 const ProjectPage = (props) => {
+  const { project_id } = useParams();
+
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
   const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
 
   const { data, error, isError, isSuccess } = useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
+    ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
-    { enabled: props.project_id !== null, refetchOnWindowFocus: false }
+    { enabled: project_id !== undefined, refetchOnWindowFocus: false }
   );
 
   return (
@@ -78,62 +72,79 @@ const ProjectPage = (props) => {
         })}
         aria-label="project page content"
       >
-        {/* Analytics */}
-        {props.nav_state === "analytics" && (
-          <AnalyticsPage mobileScreen={props.mobileScreen} />
-        )}
-
-        {/* Review */}
-        {isSuccess && props.nav_state === "review" && !data?.reviewFinished && (
-          <ReviewPage
-            handleAppState={props.handleAppState}
-            mobileScreen={props.mobileScreen}
-            projectMode={data?.mode}
-            fontSize={props.fontSize}
-            undoEnabled={props.undoEnabled}
-            keyPressEnabled={props.keyPressEnabled}
+        <Routes>
+          {/* Analytics */}
+          <Route
+            index
+            element={<AnalyticsPage mobileScreen={props.mobileScreen} />}
           />
-        )}
 
-        {/* Review finished */}
-        {isSuccess && props.nav_state === "review" && data?.reviewFinished && (
-          <ReviewPageFinished
-            handleNavState={props.handleNavState}
-            mobileScreen={props.mobileScreen}
-          />
-        )}
+          {/* Review */}
+          {isSuccess && !data?.reviewFinished && (
+            <Route
+              path="review"
+              element={
+                <ReviewPage
+                  mobileScreen={props.mobileScreen}
+                  projectMode={data?.mode}
+                  fontSize={props.fontSize}
+                  undoEnabled={props.undoEnabled}
+                  keyPressEnabled={props.keyPressEnabled}
+                />
+              }
+            />
+          )}
 
-        {/* History */}
-        {props.nav_state === "history" && (
-          <HistoryPage
-            filterQuery={historyFilterQuery}
-            label={historyLabel}
-            setFilterQuery={setHistoryFilterQuery}
-            setLabel={setHistoryLabel}
-            mobileScreen={props.mobileScreen}
-          />
-        )}
+          {/* Review finished */}
+          {isSuccess && data?.reviewFinished && (
+            <Route
+              path="review"
+              element={<ReviewPageFinished mobileScreen={props.mobileScreen} />}
+            />
+          )}
 
-        {/* Export */}
-        {props.nav_state === "export" && (
-          <ExportPage
-            enableExportDataset={data?.projectInitReady}
-            mobileScreen={props.mobileScreen}
+          {/* History */}
+          <Route
+            path="history"
+            element={
+              <HistoryPage
+                filterQuery={historyFilterQuery}
+                label={historyLabel}
+                setFilterQuery={setHistoryFilterQuery}
+                setLabel={setHistoryLabel}
+                mobileScreen={props.mobileScreen}
+              />
+            }
           />
-        )}
 
-        {/* Details */}
-        {isSuccess && props.nav_state === "details" && (
-          <DetailsPage
-            handleNavState={props.handleNavState}
-            info={data}
-            mobileScreen={props.mobileScreen}
-            setHistoryFilterQuery={setHistoryFilterQuery}
+          {/* Export */}
+          <Route
+            path="export"
+            element={
+              <ExportPage
+                enableExportDataset={data?.projectInitReady}
+                mobileScreen={props.mobileScreen}
+              />
+            }
           />
-        )}
+
+          {/* Details */}
+          {isSuccess && (
+            <Route
+              path="details"
+              element={
+                <DetailsPage
+                  info={data}
+                  mobileScreen={props.mobileScreen}
+                  setHistoryFilterQuery={setHistoryFilterQuery}
+                />
+              }
+            />
+          )}
+        </Routes>
       </Box>
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(ProjectPage);
+export default ProjectPage;

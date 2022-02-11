@@ -1,6 +1,7 @@
 import React from "react";
 import { useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { Route, Routes, useParams } from "react-router-dom";
 import {
   Divider,
   Fade,
@@ -86,22 +87,22 @@ const StyledList = styled(List)(({ theme }) => ({
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
-    nav_state: state.nav_state,
-    project_id: state.project_id,
   };
 };
 
 const DrawerItemContainer = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [projectInfo, setProjectInfo] = React.useState(null);
 
   const fetchProjectInfo = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
-      ["fetchInfo", { project_id: props.project_id }],
+      ["fetchInfo", { project_id }],
       ProjectAPI.fetchInfo
     );
     setProjectInfo(data);
-  }, [props.project_id, queryClient]);
+  }, [project_id, queryClient]);
 
   const returnElasState = () => {
     // setup
@@ -126,7 +127,7 @@ const DrawerItemContainer = (props) => {
    */
   const drawerItemsHomePage = [
     {
-      value: "dashboard",
+      path: "/",
       label: "Dashboard",
     },
   ];
@@ -136,106 +137,108 @@ const DrawerItemContainer = (props) => {
    */
   const drawerItemsProjectPage = [
     {
-      value: "analytics",
+      path: "",
       label: "Analytics",
     },
     {
-      value: "review",
+      path: "review",
       label: "Review",
     },
     {
-      value: "history",
+      path: "history",
       label: "History",
     },
     {
-      value: "export",
+      path: "export",
       label: "Export",
     },
     {
-      value: "details",
+      path: "details",
       label: "Details",
     },
   ];
 
   React.useEffect(() => {
-    if (props.app_state === "project-page") {
+    if (project_id) {
       fetchProjectInfo();
     }
-  }, [fetchProjectInfo, props.app_state]);
+  }, [fetchProjectInfo, project_id]);
 
   return (
     <StyledList aria-label="drawer item container">
       {/* Top Section: Home page drawer */}
-      {props.app_state === "home" && (
-        <Fade in={props.app_state === "home"}>
-          <div className={classes.topSection}>
-            {drawerItemsHomePage.map((element, index) => {
-              return (
-                <DrawerItem
-                  key={index}
-                  value={element.value}
-                  label={element.label}
-                  mobileScreen={props.mobileScreen}
-                  onNavDrawer={props.onNavDrawer}
-                  toggleNavDrawer={props.toggleNavDrawer}
-                  state={props.nav_state}
-                  setState={props.handleNavState}
-                />
-              );
-            })}
-          </div>
-        </Fade>
-      )}
+      <Routes>
+        <Route
+          index
+          element={
+            <Fade in>
+              <div className={classes.topSection}>
+                {drawerItemsHomePage.map((element, index) => {
+                  return (
+                    <DrawerItem
+                      key={index}
+                      path={element.path}
+                      label={element.label}
+                      mobileScreen={props.mobileScreen}
+                      onNavDrawer={props.onNavDrawer}
+                      toggleNavDrawer={props.toggleNavDrawer}
+                    />
+                  );
+                })}
+              </div>
+            </Fade>
+          }
+        />
 
-      {/* Top Section: Project page drawer */}
-      {props.app_state === "project-page" && (
-        <Fade in={props.app_state === "project-page" && projectInfo !== null}>
-          <div className={classes.topSection}>
-            <DrawerItem
-              mobileScreen={props.mobileScreen}
-              label="Dashboard"
-              value="dashboard"
-              onNavDrawer={props.onNavDrawer}
-              toggleNavDrawer={props.toggleNavDrawer}
-              state={props.app_state}
-              setState={props.handleAppState}
-            />
-            <ListItem className={classes.projectInfo}>
-              <img
-                src={returnElasState()}
-                alt="ElasState"
-                className={classes.stateElas}
-              />
-              <Fade in={props.onNavDrawer} unmountOnExit>
-                <div className={classes.yourProject}>
-                  <Typography variant="subtitle2">Your project</Typography>
-                  <Typography
-                    className={classes.projectTitle}
-                    variant="body2"
-                    color="textSecondary"
-                  >
-                    {projectInfo ? projectInfo.name : "Null"}
-                  </Typography>
-                </div>
-              </Fade>
-            </ListItem>
-            {drawerItemsProjectPage.map((element, index) => {
-              return (
+        {/* Top Section: Project page drawer */}
+        <Route
+          path="project/:project_id/*"
+          element={
+            <Fade in={projectInfo !== null}>
+              <div className={classes.topSection}>
                 <DrawerItem
-                  key={index}
-                  value={element.value}
-                  label={element.label}
                   mobileScreen={props.mobileScreen}
+                  label="Dashboard"
+                  path="/"
                   onNavDrawer={props.onNavDrawer}
                   toggleNavDrawer={props.toggleNavDrawer}
-                  state={props.nav_state}
-                  setState={props.handleNavState}
                 />
-              );
-            })}
-          </div>
-        </Fade>
-      )}
+                <ListItem className={classes.projectInfo}>
+                  <img
+                    src={returnElasState()}
+                    alt="ElasState"
+                    className={classes.stateElas}
+                  />
+                  <Fade in={props.onNavDrawer} unmountOnExit>
+                    <div className={classes.yourProject}>
+                      <Typography variant="subtitle2">Your project</Typography>
+                      <Typography
+                        className={classes.projectTitle}
+                        variant="body2"
+                        color="textSecondary"
+                      >
+                        {projectInfo ? projectInfo.name : "Null"}
+                      </Typography>
+                    </div>
+                  </Fade>
+                </ListItem>
+                {drawerItemsProjectPage.map((element, index) => {
+                  return (
+                    <DrawerItem
+                      key={index}
+                      path={element.path}
+                      label={element.label}
+                      mobileScreen={props.mobileScreen}
+                      onNavDrawer={props.onNavDrawer}
+                      toggleNavDrawer={props.toggleNavDrawer}
+                    />
+                  );
+                })}
+              </div>
+            </Fade>
+          }
+        />
+      </Routes>
 
       {/* Bottom Section */}
       {props.app_state !== "boot" && (

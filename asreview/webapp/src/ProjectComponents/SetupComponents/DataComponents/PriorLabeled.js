@@ -45,6 +45,7 @@ export default function PriorLabeled(props) {
         <LabeledRecord
           label={label}
           is_prior={true}
+          project_id={props.project_id}
           n_prior={props.n_prior}
           n_prior_exclusions={props.n_prior_exclusions}
           n_prior_inclusions={props.n_prior_inclusions}

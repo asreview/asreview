@@ -1,8 +1,8 @@
 import React from "react";
 import clsx from "clsx";
-import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
+import { useParams } from "react-router-dom";
 import {
   Box,
   ButtonBase,
@@ -16,7 +16,6 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler } from "../../Components";
 import { LabeledRecordCard } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "LabeledRecord";
 
@@ -47,6 +46,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
+  const { project_id } = useParams();
+
   const [subset, setSubset] = React.useState(null);
 
   const returnSubset = () => {
@@ -75,7 +76,7 @@ const LabeledRecord = (props) => {
     [
       "fetchLabeledRecord",
       {
-        project_id: props.project_id,
+        project_id: !project_id ? props.project_id : project_id,
         subset: returnSubset(),
       },
     ],
@@ -164,4 +165,4 @@ const LabeledRecord = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(LabeledRecord);
+export default LabeledRecord;

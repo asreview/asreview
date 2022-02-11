@@ -1,5 +1,4 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import {
   Card,
   DialogContent,
@@ -17,7 +16,6 @@ import AddIcon from "@mui/icons-material/Add";
 
 import { InfoCard } from "../../SetupComponents";
 import { PriorLabeled, PriorRandom, PriorSearch } from "../DataComponents";
-import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
 const AddPriorKnowledge = (props) => {
@@ -72,17 +70,23 @@ const AddPriorKnowledge = (props) => {
           </Card>
         )}
         {search && !random && (
-          <PriorSearch n_prior={props.n_prior} toggleSearch={toggleSearch} />
+          <PriorSearch
+            n_prior={props.n_prior}
+            project_id={props.project_id}
+            toggleSearch={toggleSearch}
+          />
         )}
         {!search && random && (
           <PriorRandom
             n_prior={props.n_prior}
             n_prior_exclusions={props.n_prior_exclusions}
+            project_id={props.project_id}
             toggleRandom={toggleRandom}
             toggleSearch={toggleSearch}
           />
         )}
         <PriorLabeled
+          project_id={props.project_id}
           n_prior={props.n_prior}
           n_prior_exclusions={props.n_prior_exclusions}
           n_prior_inclusions={props.n_prior_inclusions}
@@ -92,4 +96,4 @@ const AddPriorKnowledge = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AddPriorKnowledge);
+export default AddPriorKnowledge;

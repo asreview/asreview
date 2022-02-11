@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -25,7 +26,7 @@ import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapStateToProps, mapDispatchToProps } from "../../globals";
+import { mapDispatchToProps } from "../../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -98,6 +99,7 @@ const columns = [
 ];
 
 const ProjectTable = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   /**
@@ -116,8 +118,18 @@ const ProjectTable = (props) => {
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
     issue: null,
-    destination: "dashboard",
+    path: "/",
+    project_id: null,
   });
+
+  const resetProjectCheck = () => {
+    setProjectCheck({
+      open: false,
+      issue: null,
+      path: "/",
+      project_id: null,
+    });
+  };
 
   /**
    * Fetch projects
@@ -131,24 +143,23 @@ const ProjectTable = (props) => {
     refetchOnWindowFocus: false,
   });
 
-  const openProject = (project, page) => {
-    // set project id
-    props.setProjectId(project["id"]);
-
+  const openProject = (project, path) => {
     if (!project["projectInitReady"]) {
+      // set project id
+      props.setProjectId(project["id"]);
       // open project setup dialog
       props.handleProjectSetup();
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
+      navigate(`/project/${project["id"]}/${path}`);
       console.log("Opening project " + project["id"]);
-      props.handleAppState("project-page");
-      props.handleNavState(page);
     } else {
       // open project check dialog
       setProjectCheck({
         open: true,
         issue: "upgrade",
-        destination: page,
+        path: path,
+        project_id: project["id"],
       });
     }
   };
@@ -257,7 +268,7 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectAnalytics = () => {
-                    openProject(row, "analytics");
+                    openProject(row, "");
                   };
 
                   const onClickProjectReview = () => {
@@ -395,9 +406,8 @@ const ProjectTable = (props) => {
           />
         )}
       <ProjectCheckDialog
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
         projectCheck={projectCheck}
+        resetProjectCheck={resetProjectCheck}
         setProjectCheck={setProjectCheck}
       />
       <ProjectDeleteDialog
@@ -410,4 +420,4 @@ const ProjectTable = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectTable);
+export default connect(null, mapDispatchToProps)(ProjectTable);

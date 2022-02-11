@@ -1,6 +1,6 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
+import { useParams } from "react-router-dom";
 import TruncateMarkup from "react-truncate-markup";
 import {
   Box,
@@ -24,7 +24,6 @@ import {
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
 const PREFIX = "LabeledRecordCard";
@@ -50,7 +49,9 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecordCard = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [recordReadMore, setRecordReadMore] = React.useState(null);
   const [note, setNote] = React.useState({
     data: null,
@@ -67,7 +68,7 @@ const LabeledRecordCard = (props) => {
           [
             "fetchLabeledRecord",
             {
-              project_id: props.project_id,
+              project_id,
               subset: props.returnSubset(),
             },
           ],
@@ -115,7 +116,7 @@ const LabeledRecordCard = (props) => {
 
   const handleClickLabelConvert = (value) => {
     mutate({
-      project_id: props.project_id,
+      project_id: project_id,
       doc_id: value.id,
       label: value.included === 1 ? 0 : 1,
       note: !value.note ? "" : value.note,
@@ -141,7 +142,7 @@ const LabeledRecordCard = (props) => {
       });
     } else {
       mutate({
-        project_id: props.project_id,
+        project_id: project_id,
         doc_id: value.id,
         label: value.included,
         note: "",
@@ -284,4 +285,4 @@ const LabeledRecordCard = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(LabeledRecordCard);
+export default LabeledRecordCard;

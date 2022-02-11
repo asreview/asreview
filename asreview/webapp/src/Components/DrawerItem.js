@@ -1,5 +1,11 @@
 import * as React from "react";
 import {
+  useMatch,
+  useNavigate,
+  useParams,
+  useResolvedPath,
+} from "react-router-dom";
+import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -48,8 +54,14 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const DrawerItem = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
+
+  const resolved = useResolvedPath(props.path);
+  const match = useMatch({ path: resolved.pathname, end: true });
+
   const returnSelectedState = () => {
-    return props.state === props.value;
+    return match !== null;
   };
 
   const returnIconColor = () => {
@@ -58,12 +70,12 @@ const DrawerItem = (props) => {
 
   const returnIconState = () => {
     // home page navigation
-    if (props.state === "dashboard" && props.label === "Dashboard") {
+    if (!project_id && props.label === "Dashboard") {
       return <Dashboard color={returnIconColor()} />;
     }
 
     // project page navigation
-    if (props.state === "project-page" && props.label === "Dashboard") {
+    if (project_id && props.label === "Dashboard") {
       return <ArrowBack />;
     }
     if (props.label === "Analytics") {
@@ -92,11 +104,7 @@ const DrawerItem = (props) => {
             if (props.mobileScreen) {
               props.toggleNavDrawer();
             }
-            if (props.label === "Dashboard") {
-              props.setState("home");
-            } else {
-              props.setState(props.value);
-            }
+            navigate(props.path);
           }}
           className={returnSelectedState() ? classes.root : null}
         >

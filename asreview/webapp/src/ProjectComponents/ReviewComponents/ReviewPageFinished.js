@@ -1,11 +1,10 @@
 import React from "react";
 import { useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Fade, Link, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import ElasFinished from "../../images/ElasFinished.svg";
 
 const PREFIX = "ReviewPageFinished";
@@ -42,20 +41,23 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ReviewPageFinished = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
   const handleClickExport = () => {
-    props.handleNavState("export");
+    navigate(`/project/${project_id}/export`);
   };
 
   const ifRecordPoolEmpty = React.useCallback(async () => {
     const data = await queryClient.fetchQuery(
-      ["fetchRecord", { project_id: props.project_id }],
+      ["fetchRecord", { project_id }],
       ProjectAPI.fetchRecord
     );
     setRecordEmpty(data["pool_empty"]);
-  }, [props.project_id, queryClient]);
+  }, [project_id, queryClient]);
 
   React.useEffect(() => {
     ifRecordPoolEmpty();
@@ -99,4 +101,4 @@ const ReviewPageFinished = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ReviewPageFinished);
+export default ReviewPageFinished;

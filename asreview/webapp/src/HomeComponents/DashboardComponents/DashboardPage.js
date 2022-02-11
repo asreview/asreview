@@ -130,8 +130,6 @@ const DashboardPage = (props) => {
               <ProjectTable
                 handleClickAdd={handleClickAdd}
                 handleProjectSetup={handleProjectSetup}
-                handleAppState={props.handleAppState}
-                handleNavState={props.handleNavState}
                 onNavDrawer={props.onNavDrawer}
               />
             </Stack>
@@ -145,8 +143,6 @@ const DashboardPage = (props) => {
         setFeedbackBar={setFeedbackBar}
       />
       <SetupDialog
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
         mobileScreen={props.mobileScreen}
         open={open.newProject}
         onClose={handleCloseNewProject}

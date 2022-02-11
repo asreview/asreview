@@ -1,17 +1,13 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { connect } from "react-redux";
+import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
 import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
 import "./App.css";
 
-import {
-  Header,
-  HelpDialog,
-  NavigationDrawer,
-  SettingsDialog,
-} from "./Components";
+import { HelpDialog, NavigationDrawer, SettingsDialog } from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
 import WelcomeScreen from "./WelcomeScreen";
@@ -23,25 +19,11 @@ import {
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
 
-// redux config
-import { setAppState, setNavState } from "./redux/actions";
-
 const mapStateToProps = (state) => {
   return {
     app_state: state.app_state,
   };
 };
-
-function mapDispatchToProps(dispatch) {
-  return {
-    setAppState: (app_state) => {
-      dispatch(setAppState(app_state));
-    },
-    setNavState: (nav_state) => {
-      dispatch(setNavState(nav_state));
-    },
-  };
-}
 
 const queryClient = new QueryClient();
 
@@ -70,40 +52,44 @@ const App = (props) => {
           <CssBaseline />
           {props.app_state === "boot" && <WelcomeScreen />}
           {props.app_state !== "boot" && (
-            <Header
-              handleAppState={props.setAppState}
-              toggleNavDrawer={toggleNavDrawer}
-            />
+            <div aria-label="nav and main content">
+              <Routes>
+                <Route
+                  path="*"
+                  element={
+                    <NavigationDrawer
+                      mobileScreen={mobileScreen}
+                      onNavDrawer={onNavDrawer}
+                      toggleNavDrawer={toggleNavDrawer}
+                      toggleSettings={toggleSettings}
+                    />
+                  }
+                >
+                  <Route
+                    index
+                    element={
+                      <HomePage
+                        mobileScreen={mobileScreen}
+                        onNavDrawer={onNavDrawer}
+                      />
+                    }
+                  />
+                  <Route
+                    path="project/:project_id/*"
+                    element={
+                      <ProjectPage
+                        mobileScreen={mobileScreen}
+                        onNavDrawer={onNavDrawer}
+                        fontSize={fontSize}
+                        undoEnabled={undoEnabled}
+                        keyPressEnabled={keyPressEnabled}
+                      />
+                    }
+                  />
+                </Route>
+              </Routes>
+            </div>
           )}
-          <div aria-label="nav and main content">
-            <NavigationDrawer
-              handleAppState={props.setAppState}
-              handleNavState={props.setNavState}
-              mobileScreen={mobileScreen}
-              onNavDrawer={onNavDrawer}
-              toggleNavDrawer={toggleNavDrawer}
-              toggleSettings={toggleSettings}
-            />
-            {props.app_state === "home" && (
-              <HomePage
-                handleAppState={props.setAppState}
-                handleNavState={props.setNavState}
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-              />
-            )}
-            {props.app_state === "project-page" && (
-              <ProjectPage
-                handleAppState={props.setAppState}
-                handleNavState={props.setNavState}
-                mobileScreen={mobileScreen}
-                onNavDrawer={onNavDrawer}
-                fontSize={fontSize}
-                undoEnabled={undoEnabled}
-                keyPressEnabled={keyPressEnabled}
-              />
-            )}
-          </div>
 
           {/* Dialogs */}
           <SettingsDialog
@@ -126,4 +112,4 @@ const App = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);
