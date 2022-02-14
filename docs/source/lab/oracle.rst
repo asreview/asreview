@@ -97,7 +97,7 @@ More specifically, each labeling decision of the user starts the training of a n
 When this new model is trained, the unseen records' rank order is
 updated. Training and labeling occur a-synchronic. With fast models, a new
 ranking will probably be available before the user finished reading the text. With
-slower models, training continues until a new model is done, and the user can
+slower models, training continues until a new model is trained, and the user can
 continue screening the next record in line (2nd, 3rd, etc.). Therefore, the
 record shown to the user can be the one with the highest relevance score of
 the second last model or the highest-ranked as resulted from the latest model until a new
