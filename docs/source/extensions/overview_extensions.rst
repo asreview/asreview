@@ -24,8 +24,7 @@ Model extensions
 * Feature Extraction Vocab Extractor
     - `ASReview-vocab-extractor <https://github.com/asreview/asreview-extension-vocab-extractor>`__: 
       This extension adds two feature extractors that extract vocabulary and
-      vector matrices during simulation phases for research purposes. Might one
-      day be integrated to the core.
+      vector matrices during simulation phases for research purposes.
 * Multilingual Feature Extraction  
     - `ASReview-multilingual-feature-extractor <https://github.com/asreview/asreview-multilingual-feature-extractor>`__:
       This extension implements a multilingual feature extractor
