@@ -62,8 +62,7 @@ For tabular data files, the software accepts a set of predetermined column names
     +-------------+---------------------------------------------------------------------------------------------------------+-----------+
     | Included    | final_included, label, label_included, included_label, included_final, included, included_flag, include | no        |
     +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | debug_label | debug_label                                                                                             | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
+ 
 
 \* Only a title or an abstract is mandatory.
 
@@ -96,13 +95,16 @@ not have access you might want to read this `blog post
 
 **Included** A binary variable indicating the existing labeling decisions with
 ``0`` = irrelevant/excluded, and ``1`` = relevant/included. Different column
-names are allowed, see the table. The use is twofold:
+names are allowed, see the table. It can be used for:
 
 - **Screening**: In ASReview LAB, if labels are available for a part of the
   dataset (see :doc:`partly labeled data <../features/pre_screening>`), the
   labels will be automatically detected and used for prior knowledge. The first
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabeled part of the data.
+- **Exploration**: You can explore a completely labeled dataset in the Exploration
+  Mode. The relevant/irrelevant label in the dataset will be displayed on each record.
+  This option is useful for training purposes, presentations, and workshops.
 - **Simulation**: In the :doc:`ASReview command line interface for simulations<../API/cli/>`,
   the column containing the labels is used to simulate a systematic review run.
   Only records containing labels are used for the simulation, unlabeled records are ignored.
@@ -111,14 +113,6 @@ names are allowed, see the table. The use is twofold:
 
   Files exported with ASReview LAB contain the column ``included`` and can be used for
   prior knowledge.
-
-
-**debug_label**
-You can explore a existing fully labeled dataset in the Exploraton
-Mode. A column called named ``debug_label`` is required, indicating the relevant
-and irrelevant records with ones and zeroes. The relevant records will be displayed in
-green during screening. This option is useful for training purposes,
-presentations, and workshops.
 
 
 Compatibility
