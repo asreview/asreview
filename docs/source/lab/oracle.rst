@@ -95,8 +95,9 @@ understanding of your decisions, constantly updating the underlying model.
 
 As you keep reviewing documents and providing more labels, the number of
 unlabeled documents left in the dataset will decline. When to stop is left to
-the you. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
-provides some tips on stopping with screening.
+the user. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-class-101/>`_
+and the `discussion board <https://github.com/asreview/asreview/discussions/557>`_ 
+provide some tips on when to stop with screening.
 
 
 Download Results

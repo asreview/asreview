@@ -82,7 +82,8 @@ be found. So researchers might either stop too early and potentially miss many
 relevant papers, or stop too late, causing unnecessary further reading[20].
 That is, one can decide to stop reviewing after a certain amount of
 non-relevant papers have been found in succession[21], but this is up to the
-user to decide.
+user to decide. See the `discussion board <https://github.com/asreview/asreview/discussions/557>`_
+for more options. 
 
 
 1.	Harrison, H., et al., Software tools to support title and abstract screening for systematic reviews in healthcare: an evaluation. BMC Medical Research Methodology, 2020. 20(1): p. 7.

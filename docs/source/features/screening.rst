@@ -118,7 +118,10 @@ you hoover over the plot you can see the moving average for any batch of 10
 labeled records.
 
 Underneath the progress plot, the number of irrelevant records after the last
-relevant is shown. This statistic might help in deciding when to stop reviewing.
+relevant is shown. This statistic might help in deciding when to stop
+reviewing, see `blogpost *ASReview Class 101*
+<https://asreview.nl/blog/asreview-class-101/>`_ for more instructions how to
+use this graph.
 
 
 DOI
