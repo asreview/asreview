@@ -100,7 +100,7 @@ ranking will probably be available before the user finished reading the text. Wi
 slower models, training continues until a new model is done, and the user can
 continue screening the next record in line (2nd, 3rd, etc.). Therefore, the
 record shown to the user can be the one with the highest relevance score of
-the new model or the highest-ranked as resulted from the old model until a new
+the second last model or the highest-ranked as resulted from the latest model until a new
 model is trained. 
 
 As you keep reviewing documents and providing more labels, the number of
