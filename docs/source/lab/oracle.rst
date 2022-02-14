@@ -94,7 +94,7 @@ While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
 
 More specifically, each labeling decision of the user starts the training of a new model given there is no model being trained at that time.
-When this new model is done training, the unseen records' rank order is
+When this new model is trained, the unseen records' rank order is
 updated. Training and labeling occur a-synchronic. With fast models, a new
 model will probably be ready before the user is done reading the text. With
 slower models, training continues until a new model is done, and the user can
