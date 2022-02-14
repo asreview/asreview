@@ -50,7 +50,7 @@ new record_id, based on the row number and starting at 0.
 Export Project
 --------------
 
-An ASReview project file can be downloaded containing all information needed to
+An ASReview project file can be exported from ASReview LAB. The file contains all data, decisions, and models. 
 replicate the project or to import the project on a different device. 
 The ASReview project file (.asreview) allows another person to continue your
 project exactly where you left off. The entire model, all your screening
