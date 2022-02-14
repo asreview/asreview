@@ -83,7 +83,7 @@ partly-labeled dataset can be imported into a new project and the labels based
 on the first model will be recognized as prior knowledge. Then, a second model
 can be trained on the partly-labeled data, and the new predictions will be
 based on the second model. In the simulation mode, this process can be
-simulated using the `model switching plug-in 
+simulated using the third party `ASReview Model Switcher extension 
 <https://github.com/JTeijema/asreview-plugin-model-switcher>`_ . 
 
 
