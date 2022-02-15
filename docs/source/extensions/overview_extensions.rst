@@ -125,7 +125,7 @@ Other helpful tools developed by the community not necessarily written in Python
     - All the material is available on the `corresponding GitHub repository <https://github.com/langtonhugh/asreview_irr>`__  
 
 * xref2csv tool to convert XREF XML files to CSV files required for ASreview
-    - The `XREF2CSV-too <https://github.com/erikvullings/xref2csv>`__ written in NodeJS 
+    - The `XREF2CSV-tool <https://github.com/erikvullings/xref2csv>`__ written in NodeJS 
       converts XREF-XML files to CSV files that can be imported to ASreview.
 
 
