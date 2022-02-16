@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery } from "react-query";
-import { Routes, Route, useParams } from "react-router-dom";
+import { connect } from "react-redux";
+import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -16,7 +17,7 @@ import {
 } from "../ProjectComponents/ReviewComponents";
 
 import { ProjectAPI } from "../api/index.js";
-import { drawerWidth } from "../globals.js";
+import { drawerWidth, mapDispatchToProps } from "../globals.js";
 
 const PREFIX = "ProjectPage";
 
@@ -46,6 +47,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectPage = (props) => {
+  const navigate = useNavigate();
   const { project_id } = useParams();
 
   // History page state
@@ -55,7 +57,31 @@ const ProjectPage = (props) => {
   const { data, error, isError, isSuccess } = useQuery(
     ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
-    { enabled: project_id !== undefined, refetchOnWindowFocus: false }
+    {
+      enabled: project_id !== undefined,
+      onSuccess: (data) => {
+        if (!data["projectInitReady"]) {
+          // set project id
+          props.setProjectId(project_id);
+          // open project setup dialog
+          navigate("/");
+          // props.handleProjectSetup();
+        } else if (!data["projectNeedsUpgrade"]) {
+          // open project page
+          console.log("Opening project " + project_id);
+        } else {
+          navigate("/");
+          // open project check dialog
+          props.setProjectCheck({
+            open: true,
+            issue: "upgrade",
+            path: "",
+            project_id: project_id,
+          });
+        }
+      },
+      refetchOnWindowFocus: false,
+    }
   );
 
   return (
@@ -74,13 +100,15 @@ const ProjectPage = (props) => {
       >
         <Routes>
           {/* Analytics */}
-          <Route
-            index
-            element={<AnalyticsPage mobileScreen={props.mobileScreen} />}
-          />
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              index
+              element={<AnalyticsPage mobileScreen={props.mobileScreen} />}
+            />
+          )}
 
           {/* Review */}
-          {isSuccess && !data?.reviewFinished && (
+          {isSuccess && !data?.projectNeedsUpgrade && !data?.reviewFinished && (
             <Route
               path="review"
               element={
@@ -96,7 +124,7 @@ const ProjectPage = (props) => {
           )}
 
           {/* Review finished */}
-          {isSuccess && data?.reviewFinished && (
+          {isSuccess && !data?.projectNeedsUpgrade && data?.reviewFinished && (
             <Route
               path="review"
               element={<ReviewPageFinished mobileScreen={props.mobileScreen} />}
@@ -104,32 +132,36 @@ const ProjectPage = (props) => {
           )}
 
           {/* History */}
-          <Route
-            path="history"
-            element={
-              <HistoryPage
-                filterQuery={historyFilterQuery}
-                label={historyLabel}
-                setFilterQuery={setHistoryFilterQuery}
-                setLabel={setHistoryLabel}
-                mobileScreen={props.mobileScreen}
-              />
-            }
-          />
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="history"
+              element={
+                <HistoryPage
+                  filterQuery={historyFilterQuery}
+                  label={historyLabel}
+                  setFilterQuery={setHistoryFilterQuery}
+                  setLabel={setHistoryLabel}
+                  mobileScreen={props.mobileScreen}
+                />
+              }
+            />
+          )}
 
           {/* Export */}
-          <Route
-            path="export"
-            element={
-              <ExportPage
-                enableExportDataset={data?.projectInitReady}
-                mobileScreen={props.mobileScreen}
-              />
-            }
-          />
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="export"
+              element={
+                <ExportPage
+                  enableExportDataset={data?.projectInitReady}
+                  mobileScreen={props.mobileScreen}
+                />
+              }
+            />
+          )}
 
           {/* Details */}
-          {isSuccess && (
+          {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
               path="details"
               element={
@@ -147,4 +179,4 @@ const ProjectPage = (props) => {
   );
 };
 
-export default ProjectPage;
+export default connect(null, mapDispatchToProps)(ProjectPage);

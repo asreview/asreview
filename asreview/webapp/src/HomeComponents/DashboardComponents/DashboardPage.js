@@ -131,6 +131,8 @@ const DashboardPage = (props) => {
                 handleClickAdd={handleClickAdd}
                 handleProjectSetup={handleProjectSetup}
                 onNavDrawer={props.onNavDrawer}
+                projectCheck={props.projectCheck}
+                setProjectCheck={props.setProjectCheck}
               />
             </Stack>
           </Box>

@@ -30,6 +30,12 @@ const queryClient = new QueryClient();
 const App = (props) => {
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
+  const [projectCheck, setProjectCheck] = React.useState({
+    open: false,
+    issue: null,
+    path: "/",
+    project_id: null,
+  });
 
   // Settings hook
   const [theme, toggleDarkMode] = useDarkMode();
@@ -71,6 +77,8 @@ const App = (props) => {
                       <HomePage
                         mobileScreen={mobileScreen}
                         onNavDrawer={onNavDrawer}
+                        projectCheck={projectCheck}
+                        setProjectCheck={setProjectCheck}
                       />
                     }
                   />
@@ -83,6 +91,8 @@ const App = (props) => {
                         fontSize={fontSize}
                         undoEnabled={undoEnabled}
                         keyPressEnabled={keyPressEnabled}
+                        projectCheck={projectCheck}
+                        setProjectCheck={setProjectCheck}
                       />
                     }
                   />

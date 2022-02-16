@@ -115,21 +115,6 @@ const ProjectTable = (props) => {
    * Dialog state
    */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [projectCheck, setProjectCheck] = React.useState({
-    open: false,
-    issue: null,
-    path: "/",
-    project_id: null,
-  });
-
-  const resetProjectCheck = () => {
-    setProjectCheck({
-      open: false,
-      issue: null,
-      path: "/",
-      project_id: null,
-    });
-  };
 
   /**
    * Fetch projects
@@ -155,7 +140,7 @@ const ProjectTable = (props) => {
       console.log("Opening project " + project["id"]);
     } else {
       // open project check dialog
-      setProjectCheck({
+      props.setProjectCheck({
         open: true,
         issue: "upgrade",
         path: path,
@@ -406,9 +391,8 @@ const ProjectTable = (props) => {
           />
         )}
       <ProjectCheckDialog
-        projectCheck={projectCheck}
-        resetProjectCheck={resetProjectCheck}
-        setProjectCheck={setProjectCheck}
+        projectCheck={props.projectCheck}
+        setProjectCheck={props.setProjectCheck}
       />
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}

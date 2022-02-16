@@ -286,6 +286,9 @@ def api_get_project_info(project_id):  # noqa: F401
                 else:
                     project_info["projectInitReady"] = False
 
+        # check if project is old
+        project_info["projectNeedsUpgrade"] = is_old_project(project_path)
+
     except Exception as err:
         logging.error(err)
         return jsonify(message="Failed to retrieve project information."), 500

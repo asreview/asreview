@@ -115,7 +115,10 @@ const ProjectCheckDialog = (props) => {
 
   const handleClose = () => {
     resetQuery();
-    props.resetProjectCheck();
+    props.setProjectCheck({
+      ...props.projectCheck,
+      open: false,
+    });
   };
 
   const resetQuery = () => {
@@ -136,7 +139,8 @@ const ProjectCheckDialog = (props) => {
           props.setProjectCheck({
             ...props.projectCheck,
             issue: null,
-            path: "dashboard",
+            path: "/",
+            project_id: null,
           });
         },
       }}
