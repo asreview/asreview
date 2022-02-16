@@ -2,7 +2,6 @@ import {
   SET_ASREVIEW_VERSION,
   SET_PROJECT,
   SET_APP_STATE,
-  SET_NAV_STATE,
   TOGGLE_HELP_DIALOG,
 } from "../../constants/action-types";
 
@@ -16,10 +15,6 @@ export function setProject(project_id) {
 
 export function setAppState(app_state) {
   return { type: SET_APP_STATE, app_state };
-}
-
-export function setNavState(nav_state) {
-  return { type: SET_NAV_STATE, nav_state };
 }
 
 export function toggleHelpDialog() {
