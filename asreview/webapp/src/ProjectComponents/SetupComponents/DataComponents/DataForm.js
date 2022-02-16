@@ -1,11 +1,13 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../../Components";
 import { DataFormCard } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 
 const PREFIX = "DataForm";
 
@@ -137,4 +139,4 @@ const DataForm = (props) => {
   );
 };
 
-export default DataForm;
+export default connect(mapStateToProps)(DataForm);

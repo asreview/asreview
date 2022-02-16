@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -19,6 +20,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { InlineErrorHandler } from "../../../Components";
 import { PriorUnlabeled } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
 const PREFIX = "PriorSearch";
@@ -156,7 +158,6 @@ const PriorSearch = (props) => {
                 .map((record, index) => (
                   <PriorUnlabeled
                     keyword={keyword}
-                    project_id={props.project_id}
                     record={record}
                     n_prior={props.n_prior}
                     key={`result-page-${index}`}
@@ -170,4 +171,4 @@ const PriorSearch = (props) => {
   );
 };
 
-export default PriorSearch;
+export default connect(mapStateToProps)(PriorSearch);

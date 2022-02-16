@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
 import { useParams } from "react-router-dom";
@@ -16,6 +17,7 @@ import { styled } from "@mui/material/styles";
 import { BoxErrorHandler } from "../../Components";
 import { LabeledRecordCard } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 
 const PREFIX = "LabeledRecord";
 
@@ -165,4 +167,4 @@ const LabeledRecord = (props) => {
   );
 };
 
-export default LabeledRecord;
+export default connect(mapStateToProps)(LabeledRecord);

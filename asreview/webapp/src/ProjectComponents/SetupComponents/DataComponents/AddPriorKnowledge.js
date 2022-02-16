@@ -70,23 +70,17 @@ const AddPriorKnowledge = (props) => {
           </Card>
         )}
         {search && !random && (
-          <PriorSearch
-            n_prior={props.n_prior}
-            project_id={props.project_id}
-            toggleSearch={toggleSearch}
-          />
+          <PriorSearch n_prior={props.n_prior} toggleSearch={toggleSearch} />
         )}
         {!search && random && (
           <PriorRandom
             n_prior={props.n_prior}
             n_prior_exclusions={props.n_prior_exclusions}
-            project_id={props.project_id}
             toggleRandom={toggleRandom}
             toggleSearch={toggleSearch}
           />
         )}
         <PriorLabeled
-          project_id={props.project_id}
           n_prior={props.n_prior}
           n_prior_exclusions={props.n_prior_exclusions}
           n_prior_inclusions={props.n_prior_inclusions}

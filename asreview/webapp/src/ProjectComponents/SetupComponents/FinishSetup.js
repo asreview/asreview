@@ -1,6 +1,7 @@
 import * as React from "react";
 import ReactLoading from "react-loading";
 import { useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
@@ -9,6 +10,7 @@ import { Box, Button, Fade, Slide, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
+import { mapStateToProps } from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.png";
 import Start from "../../images/QuickTour/3_StartReviewing.svg";
@@ -221,4 +223,4 @@ const FinishSetup = (props) => {
   );
 };
 
-export default FinishSetup;
+export default connect(mapStateToProps)(FinishSetup);

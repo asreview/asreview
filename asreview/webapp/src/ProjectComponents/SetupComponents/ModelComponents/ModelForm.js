@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   Box,
   CircularProgress,
@@ -17,7 +18,7 @@ import { styled } from "@mui/material/styles";
 import { InlineErrorHandler } from "../../../Components";
 import { InfoCard, SelectItem } from "../../SetupComponents";
 import { ProjectAPI } from "../../../api/index.js";
-import { defaultAlgorithms } from "../../../globals.js";
+import { defaultAlgorithms, mapStateToProps } from "../../../globals.js";
 
 const requirements = [
   {
@@ -383,4 +384,4 @@ const ModelForm = (props) => {
   );
 };
 
-export default ModelForm;
+export default connect(mapStateToProps)(ModelForm);

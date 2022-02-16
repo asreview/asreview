@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
 import TruncateMarkup from "react-truncate-markup";
 import {
@@ -16,6 +17,7 @@ import { styled } from "@mui/material/styles";
 import { InlineErrorHandler } from "../../../Components";
 import { ExplorationModeRecordAlert } from "../../../StyledComponents/StyledAlert.js";
 import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 import "../../../App.css";
 
 const PREFIX = "PriorUnlabeled";
@@ -185,4 +187,4 @@ const PriorUnlabeled = (props) => {
   );
 };
 
-export default PriorUnlabeled;
+export default connect(mapStateToProps)(PriorUnlabeled);

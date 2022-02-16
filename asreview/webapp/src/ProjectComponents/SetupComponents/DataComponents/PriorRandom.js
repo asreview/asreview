@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import {
   Box,
   Button,
@@ -20,6 +21,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { InlineErrorHandler } from "../../../Components";
 import { PriorUnlabeled } from "../DataComponents";
 import { ProjectAPI } from "../../../api/index.js";
+import { mapStateToProps } from "../../../globals.js";
 import { useToggle } from "../../../hooks/useToggle";
 
 const PREFIX = "PriorRandom";
@@ -137,7 +139,6 @@ const PriorRandom = (props) => {
             >
               {data?.result.map((record, index) => (
                 <PriorUnlabeled
-                  project_id={props.project_id}
                   record={record}
                   n_prior={props.n_prior}
                   key={`result-page-${index}`}
@@ -174,4 +175,4 @@ const PriorRandom = (props) => {
   );
 };
 
-export default PriorRandom;
+export default connect(mapStateToProps)(PriorRandom);

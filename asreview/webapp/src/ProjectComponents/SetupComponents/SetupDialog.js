@@ -655,7 +655,6 @@ const SetupDialog = (props) => {
                 <DataForm
                   info={fetchedInfo}
                   labeledStats={labeledStats}
-                  project_id={props.project_id}
                   toggleAddDataset={toggleAddDataset}
                   toggleAddPriorKnowledge={toggleAddPriorKnowledge}
                   fetchInfoError={fetchInfoError}
@@ -668,7 +667,6 @@ const SetupDialog = (props) => {
               {activeStep === 2 && (
                 <ModelForm
                   model={model}
-                  project_id={props.project_id}
                   setModel={setModel}
                   isMutateModelConfigError={isMutateModelConfigError}
                   mutateModelConfigError={mutateModelConfigError}
@@ -680,7 +678,6 @@ const SetupDialog = (props) => {
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}
-                  project_id={props.project_id}
                   projectReadyError={projectReadyError}
                   restartTraining={restartTraining}
                   startTrainingError={startTrainingError}
@@ -719,7 +716,6 @@ const SetupDialog = (props) => {
           n_prior={labeledStats?.n_prior}
           n_prior_exclusions={labeledStats?.n_prior_exclusions}
           n_prior_inclusions={labeledStats?.n_prior_inclusions}
-          project_id={props.project_id}
         />
       )}
       {!addDataset && !addPriorKnowledge && <Divider />}
