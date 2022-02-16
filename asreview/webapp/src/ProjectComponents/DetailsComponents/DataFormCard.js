@@ -45,7 +45,7 @@ const DataFormCard = (props) => {
   const { project_id } = useParams();
 
   const handleClickViewPrior = () => {
-    navigate(`/project/${project_id}/history`);
+    navigate(`/projects/${project_id}/history`);
     props.setHistoryFilterQuery([
       historyFilterOptions.find((e) => e.value === "prior"),
     ]);

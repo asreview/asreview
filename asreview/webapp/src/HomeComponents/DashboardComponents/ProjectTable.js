@@ -136,7 +136,7 @@ const ProjectTable = (props) => {
       props.handleProjectSetup();
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
-      navigate(`/project/${project["id"]}/${path}`);
+      navigate(`/projects/${project["id"]}/${path}`);
       console.log("Opening project " + project["id"]);
     } else {
       // open project check dialog

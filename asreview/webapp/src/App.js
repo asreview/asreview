@@ -83,7 +83,7 @@ const App = (props) => {
                     }
                   />
                   <Route
-                    path="project/:project_id/*"
+                    path="projects/:project_id/*"
                     element={
                       <ProjectPage
                         mobileScreen={mobileScreen}

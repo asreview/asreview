@@ -51,7 +51,7 @@ const ProjectCheckDialog = (props) => {
       enabled: upgrade,
       onSuccess: () => {
         navigate(
-          `/project/${props.projectCheck?.project_id}/${props.projectCheck?.path}`
+          `/projects/${props.projectCheck?.project_id}/${props.projectCheck?.path}`
         );
         queryClient.invalidateQueries("fetchProjectIsOld", {
           refetchActive: false,

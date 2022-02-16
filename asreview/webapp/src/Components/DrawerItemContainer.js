@@ -192,7 +192,7 @@ const DrawerItemContainer = (props) => {
 
         {/* Top Section: Project page drawer */}
         <Route
-          path="project/:project_id/*"
+          path="projects/:project_id/*"
           element={
             <Fade in={projectInfo !== null}>
               <div className={classes.topSection}>

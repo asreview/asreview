@@ -50,7 +50,7 @@ const DetailsPage = (props) => {
         setDisableButton(true);
         if (variables.title !== props.info?.name) {
           // mutate project id when typed title is different from existing title/empty string
-          navigate(`/project/${data["id"]}/details`);
+          navigate(`/projects/${data["id"]}/details`);
         } else {
           // update cached data
           queryClient.setQueryData(

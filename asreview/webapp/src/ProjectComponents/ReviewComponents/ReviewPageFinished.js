@@ -48,7 +48,7 @@ const ReviewPageFinished = (props) => {
   const [recordEmpty, setRecordEmpty] = React.useState(false);
 
   const handleClickExport = () => {
-    navigate(`/project/${project_id}/export`);
+    navigate(`/projects/${project_id}/export`);
   };
 
   const ifRecordPoolEmpty = React.useCallback(async () => {

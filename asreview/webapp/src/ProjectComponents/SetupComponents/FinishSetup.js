@@ -109,7 +109,7 @@ const FinishSetup = (props) => {
 
   const onClickProjectReview = () => {
     console.log("Opening existing project " + props.project_id);
-    navigate(`/project/${props.project_id}/review`);
+    navigate(`/projects/${props.project_id}/review`);
   };
 
   React.useEffect(() => {
