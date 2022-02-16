@@ -439,7 +439,6 @@ const SetupDialog = (props) => {
     setShowSimulate(false);
     setTrainingStarted(false);
     setTrainingFinished(false);
-    props.resetProjectCheck();
     if (isInitError) {
       resetInit();
     }

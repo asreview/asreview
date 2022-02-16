@@ -56,6 +56,12 @@ const ProjectCheckDialog = (props) => {
         queryClient.invalidateQueries("fetchProjectIsOld", {
           refetchActive: false,
         });
+        props.setProjectCheck({
+          open: false,
+          issue: null,
+          path: "/",
+          project_id: null,
+        });
       },
       onSettled: () => {
         setUpgrade(false);
