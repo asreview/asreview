@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from asreview.entry_points.simulate import _simulate_parser
 from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _is_partial_simulation
+from asreview.entry_points.simulate import _simulate_parser
 from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.state import open_state
 from asreview.state.paths import get_project_file_path

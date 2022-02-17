@@ -17,9 +17,6 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from pathlib import PurePath
-
-import numpy as np
 
 from asreview.compat import convert_id_to_idx
 from asreview.config import ASCII_LOGO
@@ -32,9 +29,6 @@ from asreview.config import DEFAULT_N_PRIOR_INCLUDED
 from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import EMAIL_ADDRESS
 from asreview.config import GITHUB_PAGE
-from asreview.config import KERAS_MODELS
-from asreview.config import LABEL_NA
-from asreview.data import ASReviewData
 from asreview.data import load_data
 from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
@@ -45,13 +39,13 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state.paths import get_data_path
+from asreview.state import open_state
+from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
+from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.utils import init_project_folder_structure
-from asreview.state.errors import StateNotFoundError
-from asreview.state import open_state
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 
