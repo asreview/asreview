@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Add, Upload } from "@mui/icons-material";
+import { Upload } from "@mui/icons-material";
 
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 
@@ -38,24 +38,8 @@ export default function DashboardPageHeader(props) {
     <Root className="main-page-sticky-header-wrapper">
       <Box className="main-page-sticky-header with-button">
         {!props.mobileScreen && <TypographyH5Medium></TypographyH5Medium>}
-        {props.mobileScreen && (
-          <Typography variant="h6">Home dashboard</Typography>
-        )}
+        {props.mobileScreen && <Typography variant="h6">Projects</Typography>}
         <Stack direction="row" spacing={1}>
-          <Tooltip title="New project">
-            <IconButton
-              disableRipple
-              onClick={props.toggleSetupDialog}
-              size={!props.mobileScreen ? "medium" : "small"}
-            >
-              <Avatar className={classes.headerButton}>
-                <Add
-                  color="primary"
-                  fontSize={!props.mobileScreen ? "medium" : "small"}
-                />
-              </Avatar>
-            </IconButton>
-          </Tooltip>
           <Tooltip title="Import project">
             <IconButton
               disableRipple

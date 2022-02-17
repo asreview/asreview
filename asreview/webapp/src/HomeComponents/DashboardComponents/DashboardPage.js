@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Fade, Stack } from "@mui/material";
+import { Box, Fab, Fade, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { Add } from "@mui/icons-material";
 
 import { ActionsFeedbackBar, QuickTourDialog } from "../../Components";
 import { ProjectImportDialog } from "../../ProjectComponents";
@@ -31,12 +32,11 @@ const DashboardPage = (props) => {
   };
 
   return (
-    <Root aria-label="dashboard page">
+    <Root aria-label="projects page">
       <Fade in>
         <Box>
           <DashboardPageHeader
             mobileScreen={props.mobileScreen}
-            toggleSetupDialog={toggleSetupDialog}
             toggleImportDialog={toggleImportDialog}
           />
           <Box className="main-page-body-wrapper">
@@ -53,6 +53,15 @@ const DashboardPage = (props) => {
           </Box>
         </Box>
       </Fade>
+      <Fab
+        className="main-page-fab"
+        color="primary"
+        onClick={toggleSetupDialog}
+        variant="extended"
+      >
+        <Add sx={{ mr: 1 }} />
+        Create
+      </Fab>
       <ProjectImportDialog
         mobileScreen={props.mobileScreen}
         open={onImportDialog}
