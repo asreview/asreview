@@ -133,7 +133,7 @@ const ProjectTable = (props) => {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
-      props.handleProjectSetup();
+      props.toggleSetupDialog();
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
       navigate(`/projects/${project["id"]}/${path}`);
@@ -360,13 +360,7 @@ const ProjectTable = (props) => {
               <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
                 Your projects will show up here
               </Typography>
-              <Button
-                onClick={(event) => {
-                  props.handleClickAdd(event, "newProject");
-                }}
-              >
-                Get Started
-              </Button>
+              <Button onClick={props.toggleSetupDialog}>Get Started</Button>
               <img
                 src={ElasArrowRightAhead}
                 alt="ElasArrowRightAhead"

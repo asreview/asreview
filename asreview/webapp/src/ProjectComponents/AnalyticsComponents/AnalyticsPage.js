@@ -141,7 +141,7 @@ const AnalyticsPage = (props) => {
       {allQueriesReady() && (
         <SpeedDial
           ariaLabel="share project analytics"
-          sx={{ position: "absolute", bottom: 24, right: 24 }}
+          className="main-page-fab"
           icon={<Share />}
         >
           {actions.map((action) => (
