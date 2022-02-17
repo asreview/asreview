@@ -38,7 +38,6 @@ def is_old_project(fp):
         return True
 
 
-# TODO(State): Allow basic/full (i.e. save probabilities).
 def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     """Convert an old asreview project folder to the new format.
 
@@ -389,7 +388,6 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                             training_set INTEGER,
                             labeling_time INTEGER,
                             notes TEXT)''')
-            # TODO(State): models_training?
 
             # Index (row number) of record being labeled.
             sf_indices = [
