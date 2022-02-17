@@ -68,13 +68,23 @@ Select Active Learning Model
 In the next step of the setup, you can :ref:`select a model <select-model>`.
 The default setup (Naïve Bayes, tf-idf, Max) overall has fast and
 :doc:`excellent performance <../guides/simulation_study_results>`, but many
-more options are :ref:`davaialble <feature-extraction-table>` . After choosing
+more options are :ref:`available <feature-extraction-table>` . After choosing
 your model, click on `Finish`. You will return to the project page and the
 model is trained for the first time.
 
 
 .. figure:: ../../images/asreview_prescreening_model.png
    :alt: ASReview model
+
+During the screening phase, it is not possible to change the model. However,
+it is possible to select a first model, screen part of the data, and export
+the dataset with the labeling decisions of the first model. This
+partly-labeled dataset can be imported into a new project and the labels based
+on the first model will be recognized as prior knowledge. Then, a second model
+can be trained on the partly-labeled data, and the new predictions will be
+based on the second model. In the simulation mode, this process can be
+simulated using the third party `ASReview Model Switcher extension 
+<https://github.com/JTeijema/asreview-plugin-model-switcher>`_ . 
 
 
 Start Reviewing
