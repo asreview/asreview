@@ -44,6 +44,11 @@
   display: flex;
   justify-content: center;
 }
+.main-page-fab {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+}
 
 .navBar {
   background-color: #ffcc00;
