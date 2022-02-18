@@ -15,6 +15,7 @@ import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
+import RouteNotFound from "../RouteNotFound";
 
 import { ProjectAPI } from "../api/index.js";
 import { drawerWidth, mapDispatchToProps } from "../globals.js";
@@ -173,6 +174,8 @@ const ProjectPage = (props) => {
               }
             />
           )}
+
+          <Route path="*" element={<RouteNotFound />} />
         </Routes>
       </Box>
     </Root>

@@ -5,6 +5,7 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DashboardPage } from "../HomeComponents/DashboardComponents";
+import RouteNotFound from "../RouteNotFound";
 
 import { drawerWidth } from "../globals.js";
 
@@ -58,6 +59,7 @@ const HomePage = (props) => {
               />
             }
           />
+          <Route path="*" element={<RouteNotFound />} />
         </Routes>
       </Box>
     </Root>
