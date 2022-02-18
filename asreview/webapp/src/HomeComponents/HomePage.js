@@ -54,8 +54,10 @@ const HomePage = (props) => {
               <DashboardPage
                 mobileScreen={props.mobileScreen}
                 onNavDrawer={props.onNavDrawer}
+                onProjectSetup={props.onProjectSetup}
                 projectCheck={props.projectCheck}
                 setProjectCheck={props.setProjectCheck}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             }
           />

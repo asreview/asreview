@@ -17,7 +17,6 @@ import { useToggle } from "../../hooks/useToggle";
 const Root = styled("div")(({ theme }) => ({}));
 
 const DashboardPage = (props) => {
-  const [onSetupDialog, toggleSetupDialog] = useToggle();
   const [onImportDialog, toggleImportDialog] = useToggle();
   const [feedbackBar, setFeedbackBar] = React.useState({
     open: false,
@@ -46,7 +45,7 @@ const DashboardPage = (props) => {
                 onNavDrawer={props.onNavDrawer}
                 projectCheck={props.projectCheck}
                 setProjectCheck={props.setProjectCheck}
-                toggleSetupDialog={toggleSetupDialog}
+                toggleProjectSetup={props.toggleProjectSetup}
               />
             </Stack>
           </Box>
@@ -55,7 +54,7 @@ const DashboardPage = (props) => {
       <Fab
         className="main-page-fab"
         color="primary"
-        onClick={toggleSetupDialog}
+        onClick={props.toggleProjectSetup}
         variant="extended"
       >
         <Add sx={{ mr: 1 }} />
@@ -69,8 +68,8 @@ const DashboardPage = (props) => {
       />
       <SetupDialog
         mobileScreen={props.mobileScreen}
-        open={onSetupDialog}
-        onClose={toggleSetupDialog}
+        open={props.onProjectSetup}
+        onClose={props.toggleProjectSetup}
         setFeedbackBar={setFeedbackBar}
       />
       <ActionsFeedbackBar

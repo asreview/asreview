@@ -66,7 +66,7 @@ const ProjectPage = (props) => {
           props.setProjectId(project_id);
           // open project setup dialog
           navigate("/projects");
-          // props.handleProjectSetup();
+          props.toggleProjectSetup();
         } else if (!data["projectNeedsUpgrade"]) {
           // open project page
           console.log("Opening project " + project_id);

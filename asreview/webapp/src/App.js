@@ -23,6 +23,7 @@ const queryClient = new QueryClient();
 const App = (props) => {
   // Dialog state
   const [onSettings, toggleSettings] = useToggle();
+  const [onProjectSetup, toggleProjectSetup] = useToggle();
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
     issue: null,
@@ -69,8 +70,10 @@ const App = (props) => {
                     <HomePage
                       mobileScreen={mobileScreen}
                       onNavDrawer={onNavDrawer}
+                      onProjectSetup={onProjectSetup}
                       projectCheck={projectCheck}
                       setProjectCheck={setProjectCheck}
+                      toggleProjectSetup={toggleProjectSetup}
                     />
                   }
                 />
@@ -85,6 +88,7 @@ const App = (props) => {
                       keyPressEnabled={keyPressEnabled}
                       projectCheck={projectCheck}
                       setProjectCheck={setProjectCheck}
+                      toggleProjectSetup={toggleProjectSetup}
                     />
                   }
                 />
