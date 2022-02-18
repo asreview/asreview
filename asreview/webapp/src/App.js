@@ -26,7 +26,7 @@ const App = (props) => {
   const [projectCheck, setProjectCheck] = React.useState({
     open: false,
     issue: null,
-    path: "/",
+    path: "/projects",
     project_id: null,
   });
 

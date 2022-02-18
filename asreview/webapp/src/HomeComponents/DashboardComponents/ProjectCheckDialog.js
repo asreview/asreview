@@ -59,7 +59,7 @@ const ProjectCheckDialog = (props) => {
         props.setProjectCheck({
           open: false,
           issue: null,
-          path: "/",
+          path: "/projects",
           project_id: null,
         });
       },
@@ -145,7 +145,7 @@ const ProjectCheckDialog = (props) => {
           props.setProjectCheck({
             ...props.projectCheck,
             issue: null,
-            path: "/",
+            path: "/projects",
             project_id: null,
           });
         },

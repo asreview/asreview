@@ -65,13 +65,13 @@ const ProjectPage = (props) => {
           // set project id
           props.setProjectId(project_id);
           // open project setup dialog
-          navigate("/");
+          navigate("/projects");
           // props.handleProjectSetup();
         } else if (!data["projectNeedsUpgrade"]) {
           // open project page
           console.log("Opening project " + project_id);
         } else {
-          navigate("/");
+          navigate("/projects");
           // open project check dialog
           props.setProjectCheck({
             open: true,
@@ -175,7 +175,7 @@ const ProjectPage = (props) => {
             />
           )}
 
-          <Route path="*" element={<RouteNotFound />} />
+          {isSuccess && <Route path="*" element={<RouteNotFound />} />}
         </Routes>
       </Box>
     </Root>
