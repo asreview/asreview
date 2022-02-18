@@ -121,7 +121,7 @@ const DrawerItemContainer = (props) => {
   const drawerItemsHomePage = [
     {
       path: "/projects",
-      label: "Dashboard",
+      label: "Projects",
     },
   ];
   /**
@@ -191,7 +191,7 @@ const DrawerItemContainer = (props) => {
               <div className={classes.topSection}>
                 <DrawerItem
                   mobileScreen={props.mobileScreen}
-                  label="Dashboard"
+                  label="Projects"
                   path="/projects"
                   onNavDrawer={props.onNavDrawer}
                   toggleNavDrawer={props.toggleNavDrawer}

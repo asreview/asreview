@@ -422,6 +422,7 @@ const SetupDialog = (props) => {
   };
 
   const exitedSetup = () => {
+    props.setProjectId(null);
     setActiveStep(0);
     setInfo({
       mode: projectModes.ORACLE,

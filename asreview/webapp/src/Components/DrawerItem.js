@@ -70,12 +70,12 @@ const DrawerItem = (props) => {
 
   const returnIconState = () => {
     // home page navigation
-    if (!project_id && props.label === "Dashboard") {
+    if (!project_id && props.label === "Projects") {
       return <Dashboard color={returnIconColor()} />;
     }
 
     // project page navigation
-    if (project_id && props.label === "Dashboard") {
+    if (project_id && props.label === "Projects") {
       return <ArrowBack />;
     }
     if (props.label === "Analytics") {
