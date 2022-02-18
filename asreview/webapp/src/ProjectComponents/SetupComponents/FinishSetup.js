@@ -10,7 +10,7 @@ import { Box, Button, Fade, Slide, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { mapStateToProps } from "../../globals.js";
+import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.png";
 import Start from "../../images/QuickTour/3_StartReviewing.svg";
@@ -110,6 +110,8 @@ const FinishSetup = (props) => {
   };
 
   const onClickProjectReview = () => {
+    props.setProjectId(null);
+    props.toggleProjectSetup();
     console.log("Opening existing project " + props.project_id);
     navigate(`/projects/${props.project_id}/review`);
   };
@@ -223,4 +225,4 @@ const FinishSetup = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(FinishSetup);
+export default connect(mapStateToProps, mapDispatchToProps)(FinishSetup);

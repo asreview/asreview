@@ -682,6 +682,7 @@ const SetupDialog = (props) => {
                   restartTraining={restartTraining}
                   startTrainingError={startTrainingError}
                   trainingFinished={trainingFinished}
+                  toggleProjectSetup={props.onClose}
                 />
               )}
             </Box>
