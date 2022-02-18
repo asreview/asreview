@@ -1,6 +1,5 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { connect } from "react-redux";
 import { Routes, Route } from "react-router-dom";
 import "typeface-roboto";
 import { CssBaseline, createTheme, useMediaQuery } from "@mui/material";
@@ -10,7 +9,7 @@ import "./App.css";
 import { HelpDialog, NavigationDrawer, SettingsDialog } from "./Components";
 import { HomePage } from "./HomeComponents";
 import { ProjectPage } from "./ProjectComponents";
-import WelcomeScreen from "./WelcomeScreen";
+import BootPage from "./BootPage";
 import {
   useDarkMode,
   useFontSize,
@@ -18,12 +17,6 @@ import {
   useUndoEnabled,
 } from "./hooks/SettingsHooks";
 import { useToggle } from "./hooks/useToggle";
-
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-  };
-};
 
 const queryClient = new QueryClient();
 
@@ -56,50 +49,48 @@ const App = (props) => {
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={muiTheme}>
           <CssBaseline />
-          {props.app_state === "boot" && <WelcomeScreen />}
-          {props.app_state !== "boot" && (
-            <div aria-label="nav and main content">
-              <Routes>
+          <div aria-label="nav and main content">
+            <Routes>
+              <Route index element={<BootPage />} />
+              <Route
+                path="*"
+                element={
+                  <NavigationDrawer
+                    mobileScreen={mobileScreen}
+                    onNavDrawer={onNavDrawer}
+                    toggleNavDrawer={toggleNavDrawer}
+                    toggleSettings={toggleSettings}
+                  />
+                }
+              >
                 <Route
                   path="*"
                   element={
-                    <NavigationDrawer
+                    <HomePage
                       mobileScreen={mobileScreen}
                       onNavDrawer={onNavDrawer}
-                      toggleNavDrawer={toggleNavDrawer}
-                      toggleSettings={toggleSettings}
+                      projectCheck={projectCheck}
+                      setProjectCheck={setProjectCheck}
                     />
                   }
-                >
-                  <Route
-                    index
-                    element={
-                      <HomePage
-                        mobileScreen={mobileScreen}
-                        onNavDrawer={onNavDrawer}
-                        projectCheck={projectCheck}
-                        setProjectCheck={setProjectCheck}
-                      />
-                    }
-                  />
-                  <Route
-                    path="projects/:project_id/*"
-                    element={
-                      <ProjectPage
-                        mobileScreen={mobileScreen}
-                        onNavDrawer={onNavDrawer}
-                        fontSize={fontSize}
-                        undoEnabled={undoEnabled}
-                        keyPressEnabled={keyPressEnabled}
-                        projectCheck={projectCheck}
-                        setProjectCheck={setProjectCheck}
-                      />
-                    }
-                  />
-                </Route>
-              </Routes>
-            </div>
-          )}
+                />
+                <Route
+                  path="projects/:project_id/*"
+                  element={
+                    <ProjectPage
+                      mobileScreen={mobileScreen}
+                      onNavDrawer={onNavDrawer}
+                      fontSize={fontSize}
+                      undoEnabled={undoEnabled}
+                      keyPressEnabled={keyPressEnabled}
+                      projectCheck={projectCheck}
+                      setProjectCheck={setProjectCheck}
+                    />
+                  }
+                />
+              </Route>
+            </Routes>
+          </div>
 
           {/* Dialogs */}
           <SettingsDialog
@@ -122,4 +113,4 @@ const App = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(App);
+export default App;

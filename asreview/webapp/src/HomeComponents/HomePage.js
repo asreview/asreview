@@ -1,6 +1,6 @@
 import * as React from "react";
+import { Routes, Route } from "react-router-dom";
 import clsx from "clsx";
-
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -45,13 +45,20 @@ const HomePage = (props) => {
         })}
         aria-label="home page content"
       >
-        {/* Dashboard */}
-        <DashboardPage
-          mobileScreen={props.mobileScreen}
-          onNavDrawer={props.onNavDrawer}
-          projectCheck={props.projectCheck}
-          setProjectCheck={props.setProjectCheck}
-        />
+        <Routes>
+          {/* Projects dashboard */}
+          <Route
+            path="projects"
+            element={
+              <DashboardPage
+                mobileScreen={props.mobileScreen}
+                onNavDrawer={props.onNavDrawer}
+                projectCheck={props.projectCheck}
+                setProjectCheck={props.setProjectCheck}
+              />
+            }
+          />
+        </Routes>
       </Box>
     </Root>
   );

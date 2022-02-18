@@ -417,7 +417,7 @@ const SetupDialog = (props) => {
         message: `Your project ${info.title} has been saved as draft`,
       });
       queryClient.invalidateQueries("fetchProjects");
-      navigate("/");
+      navigate("/projects");
     }
   };
 
