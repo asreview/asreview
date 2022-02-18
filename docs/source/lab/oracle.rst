@@ -93,9 +93,10 @@ You are asked to make a decision: relevant or irrelevant?
 While you review the documents, the software continuously improves its
 understanding of your decisions, constantly updating the underlying model.
 
-More specifically, each labeling decision of the user starts the training of a new model given there is no model being trained at that time.
+More specifically, each labeling decision of the user starts the training 
+of a new model given there is no model being trained at that time.
 When this new model is trained, the unseen records' rank order is
-updated. Training and labeling occur a-synchronic. With fast models, a new
+updated. Training and labeling occur asynchronous. With fast models, a new
 ranking will probably be available before the user finished reading the text. With
 slower models, training continues until a new model is trained, and the user can
 continue screening the next record in line (2nd, 3rd, etc.). Therefore, the
