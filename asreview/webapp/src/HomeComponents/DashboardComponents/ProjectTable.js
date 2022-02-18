@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ProjectDeleteDialog } from "../../Components";
+import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";

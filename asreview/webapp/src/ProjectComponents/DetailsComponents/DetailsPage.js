@@ -16,8 +16,8 @@ import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-import { ProjectInfoForm } from "../../ProjectComponents";
-import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
+import { ProjectInfoForm, ProjectDeleteDialog } from "../../ProjectComponents";
+import { ActionsFeedbackBar } from "../../Components";
 import { DataForm, ModelForm } from "../DetailsComponents";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
