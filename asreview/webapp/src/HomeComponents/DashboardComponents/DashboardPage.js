@@ -3,7 +3,7 @@ import { Box, Fab, Fade, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Add } from "@mui/icons-material";
 
-import { ActionsFeedbackBar, QuickTourDialog } from "../../Components";
+import { ActionsFeedbackBar } from "../../Components";
 import { ProjectImportDialog } from "../../ProjectComponents";
 import {
   DashboardPageHeader,
@@ -78,7 +78,6 @@ const DashboardPage = (props) => {
         open={feedbackBar.open}
         feedback={feedbackBar.message}
       />
-      <QuickTourDialog />
     </Root>
   );
 };

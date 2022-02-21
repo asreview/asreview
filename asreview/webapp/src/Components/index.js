@@ -12,5 +12,4 @@ export { default as InlineErrorHandler } from "./InlineErrorHandler";
 export { default as NavigationDrawer } from "./NavigationDrawer";
 export { default as OpenInNewIconStyled } from "./OpenInNewIconStyled";
 export { default as PageHeader } from "./PageHeader";
-export { default as QuickTourDialog } from "./QuickTourDialog";
 export { default as SettingsDialog } from "./SettingsDialog";
