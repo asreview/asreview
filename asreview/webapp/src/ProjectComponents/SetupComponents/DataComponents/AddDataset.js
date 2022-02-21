@@ -1,5 +1,4 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import {
   DialogContent,
   Fade,
@@ -20,7 +19,7 @@ import {
 } from "../DataComponents";
 import { InfoCard } from "../../SetupComponents";
 import { ImportFromFile } from "../../../ProjectComponents";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import { projectModes } from "../../../globals.js";
 
 const AddDataset = (props) => {
   return (
@@ -75,7 +74,9 @@ const AddDataset = (props) => {
               <code>.txt</code>) and tabular datasets (<code>.csv</code>,{" "}
               <code>.tab</code>, <code>.tsv</code>, <code>.xlsx</code>). The
               selected dataset should contain the title and abstract of each
-              record.{" "}
+              record. To optimally benefit from the performance of the active
+              learning model, it is highly recommended to add a dataset without
+              duplicate records.{" "}
               <Link
                 underline="none"
                 href="https://asreview.readthedocs.io/en/latest/intro/datasets.html"
@@ -158,4 +159,4 @@ const AddDataset = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AddDataset);
+export default AddDataset;

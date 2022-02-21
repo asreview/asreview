@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Box,
@@ -80,6 +81,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 const SetupDialog = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const descriptionElementRef = React.useRef(null);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -196,9 +198,9 @@ const SetupDialog = (props) => {
     }
   };
 
-  // disable fetch info query when initiate a new project
   React.useEffect(() => {
-    if (props.open && props.project_id === null && !disableFetchInfo) {
+    if (props.open && !props.project_id && !disableFetchInfo) {
+      // disable fetch info query when initiate a new project
       setDisableFetchInfo(true);
     }
   }, [props.open, props.project_id, disableFetchInfo]);
@@ -224,6 +226,7 @@ const SetupDialog = (props) => {
       if (props.project_id) {
         mutateInfo({
           project_id: props.project_id,
+          mode: info.mode,
           title: info.title,
           authors: info.authors,
           description: info.description,
@@ -408,9 +411,18 @@ const SetupDialog = (props) => {
     setTextFieldFocused(null);
     setExTitle("");
     props.onClose();
+    if (props.project_id) {
+      props.setFeedbackBar({
+        open: true,
+        message: `Your project ${info.title} has been saved as draft`,
+      });
+      queryClient.invalidateQueries("fetchProjects");
+      navigate("/projects");
+    }
   };
 
   const exitedSetup = () => {
+    props.setProjectId(null);
     setActiveStep(0);
     setInfo({
       mode: projectModes.ORACLE,
@@ -439,14 +451,6 @@ const SetupDialog = (props) => {
     }
     if (isMutateModelConfigError) {
       resetMutateModelConfig();
-    }
-    if (props.project_id) {
-      props.setFeedbackBar({
-        open: true,
-        message: `Your project ${info.title} has been saved as draft`,
-      });
-      queryClient.invalidateQueries("fetchProjects");
-      props.handleAppState("home");
     }
   };
 
@@ -546,10 +550,9 @@ const SetupDialog = (props) => {
           <Box className={classes.title}>
             <DialogTitle>Create a new project</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              {props.project_id !== null &&
-                (activeStep === 0 || activeStep === 2) && (
-                  <SavingStateBox isSaving={isSaving()} />
-                )}
+              {props.project_id && (activeStep === 0 || activeStep === 2) && (
+                <SavingStateBox isSaving={isSaving()} />
+              )}
               <Box className={classes.closeButton}>
                 <Tooltip title="Send feedback">
                   <StyledIconButton
@@ -672,8 +675,6 @@ const SetupDialog = (props) => {
               )}
               {activeStep === 3 && (
                 <FinishSetup
-                  handleAppState={props.handleAppState}
-                  handleNavState={props.handleNavState}
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}
@@ -681,6 +682,7 @@ const SetupDialog = (props) => {
                   restartTraining={restartTraining}
                   startTrainingError={startTrainingError}
                   trainingFinished={trainingFinished}
+                  toggleProjectSetup={props.onClose}
                 />
               )}
             </Box>

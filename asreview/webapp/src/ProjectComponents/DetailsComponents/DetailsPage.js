@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -16,18 +16,19 @@ import { styled } from "@mui/material/styles";
 import { MoreVert } from "@mui/icons-material";
 import LoadingButton from "@mui/lab/LoadingButton";
 
-import { ProjectInfoForm } from "../../ProjectComponents";
-import { ActionsFeedbackBar, ProjectDeleteDialog } from "../../Components";
+import { ProjectInfoForm, ProjectDeleteDialog } from "../../ProjectComponents";
+import { ActionsFeedbackBar } from "../../Components";
 import { DataForm, ModelForm } from "../DetailsComponents";
 import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 import "../../App.css";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const DetailsPage = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -49,7 +50,7 @@ const DetailsPage = (props) => {
         setDisableButton(true);
         if (variables.title !== props.info?.name) {
           // mutate project id when typed title is different from existing title/empty string
-          props.setProjectId(data["id"]);
+          navigate(`/projects/${data["id"]}/details`);
         } else {
           // update cached data
           queryClient.setQueryData(
@@ -80,7 +81,8 @@ const DetailsPage = (props) => {
 
   const handleClickSave = () => {
     mutate({
-      project_id: props.project_id,
+      project_id,
+      mode: info.mode,
       title: info.title,
       authors: info.authors,
       description: info.description,
@@ -173,10 +175,7 @@ const DetailsPage = (props) => {
                 spacing={3}
                 sx={{ width: !props.mobileScreen ? "40%" : "100%" }}
               >
-                <DataForm
-                  handleNavState={props.handleNavState}
-                  setHistoryFilterQuery={props.setHistoryFilterQuery}
-                />
+                <DataForm setHistoryFilterQuery={props.setHistoryFilterQuery} />
                 <ModelForm />
               </Stack>
             </Stack>
@@ -187,7 +186,7 @@ const DetailsPage = (props) => {
         onDeleteDialog={onDeleteDialog}
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={props.info?.name}
-        project_id={props.project_id}
+        project_id={project_id}
       />
       <ActionsFeedbackBar
         feedback="Changes saved"
@@ -205,4 +204,4 @@ const DetailsPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DetailsPage);
+export default DetailsPage;

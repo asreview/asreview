@@ -2,6 +2,7 @@ import * as React from "react";
 import ReactLoading from "react-loading";
 import { useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 
@@ -9,7 +10,7 @@ import { Box, Button, Fade, Slide, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { mapStateToProps } from "../../globals.js";
+import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.png";
 import PreparingProject from "../../images/FinishSetup_1_PreparingProject.svg";
@@ -93,6 +94,7 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const FinishSetup = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const theme = useTheme();
 
@@ -108,9 +110,10 @@ const FinishSetup = (props) => {
   };
 
   const onClickProjectReview = () => {
+    props.setProjectId(null);
+    props.toggleProjectSetup();
     console.log("Opening existing project " + props.project_id);
-    props.handleAppState("project-page");
-    props.handleNavState("review");
+    navigate(`/projects/${props.project_id}/review`);
   };
 
   React.useEffect(() => {
@@ -222,4 +225,4 @@ const FinishSetup = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(FinishSetup);
+export default connect(mapStateToProps, mapDispatchToProps)(FinishSetup);

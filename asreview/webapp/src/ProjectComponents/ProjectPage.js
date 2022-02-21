@@ -1,11 +1,12 @@
 import * as React from "react";
 import { useQuery } from "react-query";
 import { connect } from "react-redux";
+import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { DialogErrorHandler, NavigationDrawer } from "../Components";
+import { DialogErrorHandler } from "../Components";
 import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
 import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
@@ -14,39 +15,24 @@ import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
-
-import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
-import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
-import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
+import RouteNotFound from "../RouteNotFound";
 
 import { ProjectAPI } from "../api/index.js";
-import { drawerWidth } from "../globals.js";
+import { drawerWidth, mapDispatchToProps } from "../globals.js";
 
 const PREFIX = "ProjectPage";
 
 const classes = {
   content: `${PREFIX}-content`,
   contentShift: `${PREFIX}-contentShift`,
-  container: `${PREFIX}-container`,
 };
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
-    flexGrow: 1,
-    padding: 0,
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    overflowY: "scroll",
-    height: `calc(100vh - 56px)`,
-    // WebkitOverflowScrolling: "touch",
-    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      height: `calc(100vh - 48px)`,
-    },
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100vh - 64px)`,
-    },
     [theme.breakpoints.up("md")]: {
       marginLeft: 72,
     },
@@ -59,60 +45,48 @@ const Root = styled("div")(({ theme }) => ({
     }),
     marginLeft: drawerWidth,
   },
-
-  [`& .${classes.container}`]: {
-    height: "100%",
-  },
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    nav_state: state.nav_state,
-    project_id: state.project_id,
-  };
-};
-
 const ProjectPage = (props) => {
+  const navigate = useNavigate();
+  const { project_id } = useParams();
+
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
   const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
 
   const { data, error, isError, isSuccess } = useQuery(
-    ["fetchInfo", { project_id: props.project_id }],
+    ["fetchInfo", { project_id }],
     ProjectAPI.fetchInfo,
-    { enabled: props.project_id !== null, refetchOnWindowFocus: false }
+    {
+      enabled: project_id !== undefined,
+      onSuccess: (data) => {
+        if (!data["projectInitReady"]) {
+          // set project id
+          props.setProjectId(project_id);
+          // open project setup dialog
+          navigate("/projects");
+          props.toggleProjectSetup();
+        } else if (!data["projectNeedsUpgrade"]) {
+          // open project page
+          console.log("Opening project " + project_id);
+        } else {
+          navigate("/projects");
+          // open project check dialog
+          props.setProjectCheck({
+            open: true,
+            issue: "upgrade",
+            path: "",
+            project_id: project_id,
+          });
+        }
+      },
+      refetchOnWindowFocus: false,
+    }
   );
-
-  const returnElasState = () => {
-    // setup
-    if (data && !data.projectInitReady) {
-      return SetUp;
-    }
-
-    // review
-    if (!data?.reviewFinished) {
-      return InReview;
-    }
-
-    // finished
-    if (data?.reviewFinished) {
-      return Finished;
-    }
-  };
 
   return (
     <Root aria-label="project page">
-      <NavigationDrawer
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
-        mobileScreen={props.mobileScreen}
-        onNavDrawer={props.onNavDrawer}
-        toggleNavDrawer={props.toggleNavDrawer}
-        toggleSettings={props.toggleSettings}
-        returnElasState={returnElasState}
-        projectInfo={data}
-      />
       <DialogErrorHandler
         isError={isError}
         error={error}
@@ -120,73 +94,92 @@ const ProjectPage = (props) => {
       />
       <Box
         component="main"
-        className={clsx(classes.content, {
+        className={clsx("main-page-content", classes.content, {
           [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
         })}
         aria-label="project page content"
       >
-        <Box
-          className={classes.container}
-          aria-label="project page content loaded"
-        >
+        <Routes>
           {/* Analytics */}
-          {props.nav_state === "analytics" && (
-            <AnalyticsPage mobileScreen={props.mobileScreen} />
-          )}
-
-          {/* Review page */}
-          {isSuccess &&
-            props.nav_state === "review" &&
-            !data?.reviewFinished && (
-              <ReviewPage
-                handleAppState={props.handleAppState}
-                mobileScreen={props.mobileScreen}
-                projectMode={data?.mode}
-                fontSize={props.fontSize}
-                undoEnabled={props.undoEnabled}
-                keyPressEnabled={props.keyPressEnabled}
-              />
-            )}
-
-          {/* Review page when marked as finished */}
-          {isSuccess &&
-            props.nav_state === "review" &&
-            data?.reviewFinished && (
-              <ReviewPageFinished mobileScreen={props.mobileScreen} />
-            )}
-
-          {/* History page */}
-          {props.nav_state === "history" && (
-            <HistoryPage
-              filterQuery={historyFilterQuery}
-              label={historyLabel}
-              setFilterQuery={setHistoryFilterQuery}
-              setLabel={setHistoryLabel}
-              mobileScreen={props.mobileScreen}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              index
+              element={<AnalyticsPage mobileScreen={props.mobileScreen} />}
             />
           )}
 
-          {/* Export page */}
-          {props.nav_state === "export" && (
-            <ExportPage
-              enableExportDataset={data?.projectInitReady}
-              mobileScreen={props.mobileScreen}
+          {/* Review */}
+          {isSuccess && !data?.projectNeedsUpgrade && !data?.reviewFinished && (
+            <Route
+              path="review"
+              element={
+                <ReviewPage
+                  mobileScreen={props.mobileScreen}
+                  projectMode={data?.mode}
+                  fontSize={props.fontSize}
+                  undoEnabled={props.undoEnabled}
+                  keyPressEnabled={props.keyPressEnabled}
+                />
+              }
             />
           )}
 
-          {/* Details page */}
-          {isSuccess && props.nav_state === "details" && (
-            <DetailsPage
-              handleNavState={props.handleNavState}
-              info={data}
-              mobileScreen={props.mobileScreen}
-              setHistoryFilterQuery={setHistoryFilterQuery}
+          {/* Review finished */}
+          {isSuccess && !data?.projectNeedsUpgrade && data?.reviewFinished && (
+            <Route
+              path="review"
+              element={<ReviewPageFinished mobileScreen={props.mobileScreen} />}
             />
           )}
-        </Box>
+
+          {/* History */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="history"
+              element={
+                <HistoryPage
+                  filterQuery={historyFilterQuery}
+                  label={historyLabel}
+                  setFilterQuery={setHistoryFilterQuery}
+                  setLabel={setHistoryLabel}
+                  mobileScreen={props.mobileScreen}
+                />
+              }
+            />
+          )}
+
+          {/* Export */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="export"
+              element={
+                <ExportPage
+                  enableExportDataset={data?.projectInitReady}
+                  mobileScreen={props.mobileScreen}
+                />
+              }
+            />
+          )}
+
+          {/* Details */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="details"
+              element={
+                <DetailsPage
+                  info={data}
+                  mobileScreen={props.mobileScreen}
+                  setHistoryFilterQuery={setHistoryFilterQuery}
+                />
+              }
+            />
+          )}
+
+          {isSuccess && <Route path="*" element={<RouteNotFound />} />}
+        </Routes>
       </Box>
     </Root>
   );
 };
 
-export default connect(mapStateToProps)(ProjectPage);
+export default connect(null, mapDispatchToProps)(ProjectPage);

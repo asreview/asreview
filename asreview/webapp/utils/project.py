@@ -423,6 +423,7 @@ def get_instance(project_id):
         return record_ids[0]
     else:
         # end of pool
+        update_project_info(project_id, reviewFinished=True)
         return None
 
 
