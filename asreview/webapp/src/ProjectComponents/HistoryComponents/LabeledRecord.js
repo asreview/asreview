@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { connect } from "react-redux";
 import { InView } from "react-intersection-observer";
 import { useInfiniteQuery } from "react-query";
+import { useParams } from "react-router-dom";
 import {
   Box,
   ButtonBase,
@@ -47,6 +48,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecord = (props) => {
+  const { project_id } = useParams();
+
   const [subset, setSubset] = React.useState(null);
 
   const returnSubset = () => {
@@ -75,7 +78,7 @@ const LabeledRecord = (props) => {
     [
       "fetchLabeledRecord",
       {
-        project_id: props.project_id,
+        project_id: !project_id ? props.project_id : project_id,
         subset: returnSubset(),
       },
     ],

@@ -33,14 +33,14 @@ def test_project_file(tmp_path, client, url):
 
     # Test import uploaded project
     with urlopen(url) as project_file:
-        response_import = client.post("/api/project/import_project", data={
+        response_import = client.post("/api/projects/import_project", data={
             "file": (BytesIO(project_file.read()), "project.asreview")
         })
     json_data_import = response_import.get_json()
     assert response_import.status_code == 200
 
     project_id = json_data_import["id"]
-    api_url = f"/api/project/{project_id}"
+    api_url = f"/api/projects/{project_id}"
 
     # Test get dashboard analytics
     response_stats = client.get("/api/projects/stats")

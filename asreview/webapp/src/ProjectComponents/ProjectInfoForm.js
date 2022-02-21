@@ -1,7 +1,7 @@
 import * as React from "react";
 import Confetti from "react-confetti";
 import { useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   CircularProgress,
@@ -17,18 +17,13 @@ import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 import "../App.css";
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-  };
-};
-
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProjectInfoForm = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
   const isProjectSetup = () => {
-    return props.app_state === "home";
+    return !project_id;
   };
 
   const onFocus = () => {
@@ -178,4 +173,4 @@ const ProjectInfoForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ProjectInfoForm);
+export default ProjectInfoForm;

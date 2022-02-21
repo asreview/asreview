@@ -1,5 +1,4 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import {
   DialogContent,
   Fade,
@@ -20,7 +19,7 @@ import {
 } from "../DataComponents";
 import { InfoCard } from "../../SetupComponents";
 import { ImportFromFile } from "../../../ProjectComponents";
-import { mapStateToProps, projectModes } from "../../../globals.js";
+import { projectModes } from "../../../globals.js";
 
 const AddDataset = (props) => {
   return (
@@ -160,4 +159,4 @@ const AddDataset = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AddDataset);
+export default AddDataset;

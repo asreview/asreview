@@ -37,8 +37,12 @@ export default function DashboardPageHeader(props) {
   return (
     <Root className="main-page-sticky-header-wrapper">
       <Box className="main-page-sticky-header with-button">
-        {!props.mobileScreen && <TypographyH5Medium></TypographyH5Medium>}
-        {props.mobileScreen && <Typography variant="h6">Projects</Typography>}
+        {!props.mobileScreen && (
+          <TypographyH5Medium>Projects dashboard</TypographyH5Medium>
+        )}
+        {props.mobileScreen && (
+          <Typography variant="h6">Projects dashboard</Typography>
+        )}
         <Stack direction="row" spacing={1}>
           <Tooltip title="Import project">
             <IconButton
