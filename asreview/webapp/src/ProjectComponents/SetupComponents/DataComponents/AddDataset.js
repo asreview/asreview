@@ -57,7 +57,8 @@ const AddDataset = (props) => {
                   onChange={props.handleDatasetSource}
                 />
               )}
-              {props.mode === projectModes.EXPLORATION && (
+              {(props.mode === projectModes.EXPLORATION ||
+                props.mode === projectModes.SIMULATION) && (
                 <FormControlLabel
                   value="benchmark"
                   control={<Radio />}

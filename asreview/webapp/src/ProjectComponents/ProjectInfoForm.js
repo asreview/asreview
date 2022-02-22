@@ -1,5 +1,4 @@
 import * as React from "react";
-import Confetti from "react-confetti";
 import { useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import {
@@ -96,23 +95,10 @@ const ProjectInfoForm = (props) => {
                   }
                   mode={props.info?.mode}
                   handleMode={handleInfoChange}
-                  showSimulate={props.showSimulate}
                   onBlur={onBlur}
                   onFocus={onFocus}
                 />
               </MouseOverPopover>
-              {props.showSimulate && (
-                <Box>
-                  <Typography color="error">
-                    You unlocked the experimental simulation mode!
-                  </Typography>
-                  <Confetti
-                    recycle={false}
-                    tweenDuration={50000}
-                    numberOfPieces={1000}
-                  />
-                </Box>
-              )}
               <TextField
                 autoFocus
                 error={props.isMutateInfoError}
