@@ -179,8 +179,8 @@ class SimulateEntryPoint(BaseEntryPoint):
             # Initialize models.
             random_state = get_random_state(args.seed)
             classifier_model = get_classifier(settings.model,
-                                         **settings.model_param,
-                                         random_state=random_state)
+                                              **settings.model_param,
+                                              random_state=random_state)
             query_model = get_query_model(settings.query_strategy,
                                           **settings.query_param,
                                           random_state=random_state)
