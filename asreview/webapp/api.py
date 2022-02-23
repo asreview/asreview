@@ -449,6 +449,16 @@ def api_upload_data_to_project(project_id):  # noqa: F401
                        axis=1,
                        inplace=True)
         data.to_csv(data_path)
+
+    elif project_config["mode"] == PROJECT_MODE_SIMULATE:
+
+        data_path_raw = get_data_path(project_path) / filename
+        data_path = data_path_raw.with_suffix('.csv')
+
+        data = ASReviewData.from_file(data_path_raw)
+        data.df["debug_label"] = data.df[data.column_spec["included"]]
+        data.to_csv(data_path)
+
     else:
         data_path = get_data_path(project_path) / filename
 
@@ -506,6 +516,7 @@ def api_search_data(project_id):  # noqa: F401
     max_results = request.args.get('n_max', default=10, type=int)
 
     project_path = get_project_path(project_id)
+    project_config = get_project_config(project_id)
 
     try:
         payload = {"result": []}
@@ -530,13 +541,19 @@ def api_search_data(project_id):  # noqa: F401
                 debug_label = record.extra_fields.get("debug_label", None)
                 debug_label = int(debug_label) if pd.notnull(debug_label) else None
 
+                if project_config["mode"] == PROJECT_MODE_SIMULATE:
+                    # ignore existing labels
+                    included = -1
+                else:
+                    included = int(record.included)
+
                 payload["result"].append({
                     "id": int(record.record_id),
                     "title": record.title,
                     "abstract": record.abstract,
                     "authors": record.authors,
                     "keywords": record.keywords,
-                    "included": int(record.included),
+                    "included": included,
                     "_debug_label": debug_label
                 })
 
@@ -847,22 +864,29 @@ def api_start(project_id):  # noqa: F401
     # the project is a simulation project
     if project_config["mode"] == PROJECT_MODE_SIMULATE:
 
-        logging.info("Starting simulation")
+        # get priors
+        with open_state(project_path) as s:
+            priors = s.get_priors().tolist()
+
+        logging.info("Start simulation")
 
         try:
-            simulation_id = uuid.uuid4().hex
-            datafile = get_data_file_path(project_path)
-            state_file = get_simulation_ready_path(project_path, simulation_id)
-
-            logging.info("Project data file found: {}".format(datafile))
-
-            add_review_to_project(project_id, simulation_id)
-
             # start simulation
             py_exe = _get_executable()
             run_command = [
-                py_exe, "-m", "asreview", "simulate", datafile, "--state_file",
-                state_file
+                # get executable
+                py_exe,
+                # get module
+                "-m", "asreview",
+                # run simulation via cli
+                "simulate",
+                # specify dataset
+                "",
+                # specify prior indices
+                "--prior_idx"] + list(map(str, priors)) + [
+                # specify state file
+                "--state_file",
+                project_path
             ]
             subprocess.Popen(run_command)
 
