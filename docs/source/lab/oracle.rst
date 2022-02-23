@@ -99,18 +99,23 @@ the you. The `blogpost *ASReview Class 101* <https://asreview.nl/blog/asreview-c
 provides some tips on stopping with screening.
 
 
-Download Results
+Export Results
 ----------------
 
 During the screening or via the :doc:`dashboard <../features/post_screening>`
-you can download the results with your decisions by clicking the download
+you can export the results with your decisions by clicking on the download
 icon. A dialog will show the download options. Choose from the menu whether
 you would like to export your results as a RIS, CSV or an Excel file and click
-`Download`.
+`Export`.
 
 
 .. figure:: ../../images/asreview_project_page_download.png
-   :alt: ASReview project download
+   :alt: ASReview project export
+
+Upcoming export options:
+
+.. figure:: ../../images/asreview_export_page.png
+   :alt: ASReview project export options
 
 
 Return to Project Dashboard
