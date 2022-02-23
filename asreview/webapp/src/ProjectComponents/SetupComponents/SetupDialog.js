@@ -96,7 +96,6 @@ const SetupDialog = (props) => {
   const [disableFetchInfo, setDisableFetchInfo] = React.useState(false); // disable fetch when init a project
   const [disableModeSelect, setDisableModeSelect] = React.useState(false);
   const [exTitle, setExTitle] = React.useState(""); // for comparison to decide on mutate project id
-  const [showSimulate, setShowSimulate] = React.useState(false);
   const [textFiledFocused, setTextFieldFocused] = React.useState(null); // for autosave on blur
 
   // State Step 2: Data
@@ -437,7 +436,6 @@ const SetupDialog = (props) => {
     });
     setDisableFetchInfo(false);
     setDisableModeSelect(false);
-    setShowSimulate(false);
     setTrainingStarted(false);
     setTrainingFinished(false);
     if (isInitError) {
@@ -509,18 +507,6 @@ const SetupDialog = (props) => {
       handleBack();
     }
   }, [activeStep, isInitError, isMutateInfoError]);
-
-  React.useEffect(() => {
-    // unlock simulation mode
-    if (info.title === "elas" && !showSimulate) {
-      setInfo({
-        ...info,
-        title: "",
-        mode: projectModes.SIMULATION,
-      });
-      setShowSimulate(true);
-    }
-  }, [info, showSimulate]);
 
   React.useEffect(() => {
     if (props.open) {
@@ -647,7 +633,6 @@ const SetupDialog = (props) => {
                   isFetchInfoError={isFetchInfoError}
                   isFetchingInfo={isFetchingInfo}
                   handleInfoChange={handleInfoChange}
-                  showSimulate={showSimulate}
                   setTextFieldFocused={setTextFieldFocused}
                 />
               )}
