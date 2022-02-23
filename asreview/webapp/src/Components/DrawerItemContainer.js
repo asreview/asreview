@@ -18,7 +18,7 @@ import { Help, Payment, Settings } from "@mui/icons-material";
 import { DrawerItem } from "../Components";
 
 import { ProjectAPI } from "../api/index.js";
-import { donateURL } from "../globals.js";
+import { donateURL, projectModes } from "../globals.js";
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
@@ -215,18 +215,24 @@ const DrawerItemContainer = (props) => {
                     </div>
                   </Fade>
                 </ListItem>
-                {drawerItemsProjectPage.map((element, index) => {
-                  return (
-                    <DrawerItem
-                      key={index}
-                      path={element.path}
-                      label={element.label}
-                      mobileScreen={props.mobileScreen}
-                      onNavDrawer={props.onNavDrawer}
-                      toggleNavDrawer={props.toggleNavDrawer}
-                    />
-                  );
-                })}
+                {drawerItemsProjectPage
+                  .filter((element) => {
+                    return projectInfo?.mode !== projectModes.SIMULATION
+                      ? element
+                      : element.path !== "review";
+                  })
+                  .map((element, index) => {
+                    return (
+                      <DrawerItem
+                        key={index}
+                        path={element.path}
+                        label={element.label}
+                        mobileScreen={props.mobileScreen}
+                        onNavDrawer={props.onNavDrawer}
+                        toggleNavDrawer={props.toggleNavDrawer}
+                      />
+                    );
+                  })}
               </div>
             </Fade>
           }
