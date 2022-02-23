@@ -74,7 +74,7 @@ Select one of the :ref:`benchmark datasets <benchmark-datasets>`.
 Partly Labeled Data
 -------------------
 
-A partly labeled dataset contains labeling decessions for part of the records,
+A partly labeled dataset contains labeling decisions for part of the records,
 and part of the data does not have labels. The goal is to use the labels as
 prior knowledge to screen the unseen records. The labeled records will be
 recognized by ASReview LAB and are used to train the first iteration of the
