@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { connect } from "react-redux";
 import { useParams } from "react-router-dom";
 import TruncateMarkup from "react-truncate-markup";
 import {
@@ -24,6 +25,7 @@ import {
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
+import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
 const PREFIX = "LabeledRecordCard";
@@ -58,6 +60,10 @@ const LabeledRecordCard = (props) => {
     editing: null,
   });
 
+  const returnProjectId = () => {
+    return !project_id ? props.project_id : project_id;
+  };
+
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
     {
@@ -68,7 +74,7 @@ const LabeledRecordCard = (props) => {
           [
             "fetchLabeledRecord",
             {
-              project_id,
+              project_id: returnProjectId(),
               subset: props.returnSubset(),
             },
           ],
@@ -116,7 +122,7 @@ const LabeledRecordCard = (props) => {
 
   const handleClickLabelConvert = (value) => {
     mutate({
-      project_id: project_id,
+      project_id: returnProjectId(),
       doc_id: value.id,
       label: value.included === 1 ? 0 : 1,
       note: !value.note ? "" : value.note,
@@ -285,4 +291,4 @@ const LabeledRecordCard = (props) => {
   );
 };
 
-export default LabeledRecordCard;
+export default connect(mapStateToProps)(LabeledRecordCard);
