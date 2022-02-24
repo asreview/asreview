@@ -60,7 +60,10 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-asreview.codeofconduct@uu.nl which is visible to @J535D165, @Rensvandeschoot and @VeenDuco. Regarding complaints against these individuals please use procedures of Utrecht University, see [here](https://www.uu.nl/en/organisation/about-us/codes-of-conduct/inappropriate-behaviour).
+asreview.codeofconduct@uu.nl which is visible to @J535D165, @Rensvandeschoot
+and @VeenDuco. Regarding complaints against these individuals please use
+procedures of Utrecht University, see
+[here](https://www.uu.nl/en/organisation/about-us/codes-of-conduct/inappropriate-behaviour).
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
