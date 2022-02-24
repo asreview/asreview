@@ -64,9 +64,9 @@ from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.utils import open_state
 from asreview.datasets import get_dataset_metadata
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.types import is_project
+from asreview.project import is_project
 from asreview.webapp.io import read_data
-from asreview.webapp.utils import _get_executable
+from asreview.utils import _get_executable
 from asreview.webapp.utils import export_to_string
 from asreview.webapp.utils import get_paper_data
 from asreview.webapp.utils import get_statistics
@@ -168,7 +168,7 @@ def api_get_projects_stats():  # noqa: F401
                 res["projectInitReady"] = True
 
             # get dashboard statistics
-            statistics = get_statistics(res["id"])
+            statistics = api_get_progress_info(project.project_id)
             statistics["n_reviewed"] = statistics["n_included"] \
                 + statistics["n_excluded"]
 
@@ -217,13 +217,16 @@ def api_init_project():  # noqa: F401
     project_id = _create_project_id(project_name)
     project_path = get_project_path(project_id)
 
-    project_config = init_project(project_path,
-                                  project_mode=project_mode,
-                                  project_name=project_name,
-                                  project_description=project_description,
-                                  project_authors=project_authors)
+    project = ASReviewProject.create(
+        get_project_path(project_id),
+        project_id=project_id,
+        project_mode=project_mode,
+        project_name=project_name,
+        project_description=project_description,
+        project_authors=project_authors
+    )
 
-    response = jsonify(project_config)
+    response = jsonify(project.config)
 
     return response, 201
 
@@ -996,10 +999,28 @@ def export_results(project):
     # get the export args
     file_type = request.args.get('file_type', None)
 
+
+    # read the dataset into a ASReview data object
+    as_data = read_data(project_path)
+
+    with open_state(project_path) as s:
+        proba = s.get_last_probabilities()
+        labeled_data = s.get_dataset(['record_id', 'label'])
+        record_table = s.get_record_table()
+
+    prob_df = pd.concat([record_table, proba], axis=1)
+
+    ranking = pd. \
+        merge(prob_df, labeled_data, on='record_id', how='left'). \
+        fillna(0.5). \
+        sort_values(['label', 'proba'], ascending=False)['record_id']
+
+    labeled = labeled_data.values.tolist()
+
     try:
         # CSV
         if file_type == "csv":
-            dataset_str = export_to_string(project.project_path, export_type="csv")
+            dataset_str = as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
 
             return Response(
                 dataset_str,
@@ -1010,7 +1031,8 @@ def export_results(project):
                 })
         # TSV
         elif file_type == "tsv":
-            dataset_str = export_to_string(project.project_path, export_type="tsv")
+            dataset_str = as_data.to_csv(
+                fp=None, sep="\t", labels=labeled, ranking=ranking)
 
             return Response(
                 dataset_str,
@@ -1022,8 +1044,11 @@ def export_results(project):
         # Excel
         # TODO: Take only one. Frontend uses "excel", rest uses "xlsx".
         elif file_type == "xlsx" or file_type == "excel":
-            dataset_str = export_to_string(project.project_path, export_type="excel")
+
+            get_tmp_path(project.project_path).mkdir(exist_ok=True)
             fp_tmp_export = Path(get_tmp_path(project.project_path), "export_result.xlsx")
+            dataset_str = as_data.to_excel(
+                fp=fp_tmp_export, labels=labeled, ranking=ranking)
 
             return send_file(
                 fp_tmp_export,
@@ -1040,7 +1065,7 @@ def export_results(project):
                 raise ValueError(
                     "RIS file can be exported only when RIS file was imported.")
 
-            dataset_str = export_to_string(project.project_path, export_type="ris")
+            dataset_str = as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
 
             return Response(
                 dataset_str,
@@ -1115,35 +1140,70 @@ def api_finish_project(project):
     return response
 
 
-# @bp.route('/projects/<project_id>/document/<doc_id>/info', methods=["GET"])
-# def api_get_article_info(project_id, doc_id=None):  # noqa: F401
-#     """Get info on the article"""
-
-#     data = get_paper_data(
-#         project_id,
-#         paper_id=doc_id,
-#         return_debug_label=True
-#     )
-
-#     response = jsonify(data)
-#     response.headers.add('Access-Control-Allow-Origin', '*')
-
-#     return response
-
-
 @bp.route('/project/<project_id>/progress', methods=["GET"])
 @project_from_id
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
 
     try:
-        statistics = get_statistics(project.project_path)
+
+        if is_v0_project(project.project_path):
+            json_fp = Path(project.project_path, 'result.json')
+
+            # Check if the v0 project is in review.
+            if json_fp.exists():
+
+                with open(json_fp, 'r') as f:
+                    s = json.load(f)
+
+                # Get the labels.
+                labels = np.array([
+                    int(sample_data[1])
+                    for query in range(len(s['results']))
+                    for sample_data in s['results'][query]['labelled']
+                ])
+
+                # Get the record table.
+                data_hash = list(s['data_properties'].keys())[0]
+                record_table = s['data_properties'][data_hash][
+                    'record_table']
+
+                n_records = len(record_table)
+
+            # No result found.
+            else:
+                labels = np.array([])
+                n_records = 0
+        else:
+            # Check if there is a review started in the project.
+            try:
+                with open_state(project.project_path) as s:
+                    labels = s.get_labels()
+                    n_records = len(s.get_record_table())
+            # No state file found or not init.
+            except (StateNotFoundError, StateError):
+                labels = np.array([])
+                n_records = 0
+
+        n_included = int(sum(labels == 1))
+        n_excluded = int(sum(labels == 0))
+
+        if n_included > 0:
+            n_since_last_relevant = int(labels.tolist()[::-1].index(1))
+        else:
+            n_since_last_relevant = 0
 
     except Exception as err:
         logging.error(err)
         return jsonify(message="Failed to load progress statistics."), 500
 
-    response = jsonify(statistics)
+    response = jsonify({
+        "n_included": n_included,
+        "n_excluded": n_excluded,
+        "n_since_last_inclusion": n_since_last_relevant,
+        "n_papers": n_records,
+        "n_pool": n_records - n_excluded - n_included
+    })
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
@@ -1268,8 +1328,8 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     in the background.
     """
     # return the combination of document_id and label.
-    doc_id = request.form.get('doc_id')
-    label = request.form.get('label')
+    record_id = request.form.get('doc_id')
+    label = int(request.form.get('label'))
     note = request.form.get('note', type=str)
     if not note:
         note = None
@@ -1279,19 +1339,40 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
+    state_path = get_state_path(project_path)
+
     if request.method == 'POST':
-        label_instance(project.project_path,
-                       doc_id,
-                       label,
-                       note=note,
-                       prior=prior,
-                       retrain_model=retrain_model)
+
+        with open_state(state_path, read_only=False) as state:
+
+            # get the index of the active iteration
+            if label in [0, 1]:
+
+                # add the labels as prior data
+                state.add_labeling_data(record_ids=[record_id],
+                                        labels=[label],
+                                        notes=[note],
+                                        prior=prior)
+
+            elif label == -1:
+                with open_state(state_path, read_only=False) as state:
+                    state.delete_record_labeling_data(record_id)
+
     elif request.method == 'PUT':
-        update_instance(project.project_path,
-                        doc_id,
-                        label,
-                        note=note,
-                        retrain_model=retrain_model)
+
+        with open_state(state_path, read_only=False) as state:
+            state.update_decision(record_id, label, note=note)
+
+    if retrain_model:
+
+        # retrain model
+        subprocess.Popen([
+            _get_executable(),
+            "-m",
+            "asreview",
+            "web_run_model",
+            project_path
+        ])
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1312,7 +1393,7 @@ def api_get_document(project):  # noqa: F401
     """
     try:
 
-        with open_state(project_path, read_only=False) as state:
+        with open_state(project.project_path, read_only=False) as state:
             # First check if there is a pending record.
             _, _, pending = state.get_pool_labeled_pending()
             if not pending.empty:
@@ -1323,14 +1404,26 @@ def api_get_document(project):  # noqa: F401
 
         if len(record_ids) > 0:
             new_instance = record_ids[0]
-            item = get_paper_data(project.project_path,
-                                  new_instance,
-                                  return_debug_label=True)
+
+            as_data = read_data(project.project_path)
+            record = as_data.record(int(new_instance), by_index=False)
+
+            item = {}
+            item['title'] = record.title
+            item['authors'] = record.authors
+            item['abstract'] = record.abstract
+            item['doi'] = record.doi
+
+            # return the debug label
+            debug_label = record.extra_fields.get("debug_label", None)
+            item['_debug_label'] = \
+                int(debug_label) if pd.notnull(debug_label) else None
+
             item["doc_id"] = new_instance
             pool_empty = False
         else:
             # end of pool
-            update_project_info(project_path, reviewFinished=True)
+            project.update_config(project_path, reviewFinished=True)
             item = None
             pool_empty = True
 

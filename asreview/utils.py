@@ -258,3 +258,9 @@ def get_random_state(random_state):
         else:
             return np.random.RandomState(
                 random_state % (2**32))
+
+
+def _get_executable():
+    """Get the Python executable"""
+
+    return sys.executable if sys.executable else 'python'

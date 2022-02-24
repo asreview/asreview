@@ -187,7 +187,8 @@ def main(argv):
     # clean all projects
     if args.clean_all_projects:
         print("Cleaning all project files.")
-        clean_all_project_tmp_files()
+        for project in list_asreview_projects():
+            project.clean_tmp_files()
         print("Done")
         return
 

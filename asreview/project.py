@@ -48,7 +48,6 @@ from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.io import read_data
 from asreview.utils import asreview_path
-from asreview.webapp.utils import is_project
 from asreview.webapp.utils import is_v0_project
 
 from functools import wraps
@@ -126,11 +125,85 @@ def _create_project_id(name):
     return project_id
 
 
+def is_project(project_path):
+
+    project_path = Path(project_path) / "project.json"
+
+    return project_path.exists()
+
+
+def is_v0_project(project_path):
+    """Check if a project file is of a ASReview version 0 project."""
+
+    return not get_reviews_path(project_path).exists()
+
+
 class ASReviewProject():
 
     def __init__(self, project_path, project_id=None):
         self.project_path = project_path
         self.project_id = project_id
+
+    @classmethod
+    def create(cls,
+               project_path,
+               project_id=None,
+               project_mode="oracle",
+               project_name=None,
+               project_description=None,
+               project_authors=None):
+        """Initialize the necessary files specific to the web app."""
+
+        if is_project(project_path):
+            raise ValueError("Project already exists.")
+
+        if project_mode not in PROJECT_MODES:
+            raise ValueError(f"Project mode '{project_mode}' is not in "
+                             f"{PROJECT_MODES}.")
+
+        project_id = project_path.stem
+
+        if not project_id and not isinstance(project_id, str) \
+                and len(project_id) >= 3:
+            raise ValueError("Project name should be at least 3 characters.")
+
+        if project_path.is_dir():
+            raise IsADirectoryError(
+                f'Project folder {project_path} already exists.')
+
+        try:
+            project_path.mkdir(exist_ok=True)
+            get_data_path(project_path).mkdir(exist_ok=True)
+            get_feature_matrices_path(project_path).mkdir(exist_ok=True)
+            get_reviews_path(project_path).mkdir(exist_ok=True)
+
+            project_config = {
+                'version': get_versions()['version'],  # todo: Fail without git?
+                'id': project_id,
+                'mode': project_mode,
+                'name': project_name,
+                'description': project_description,
+                'authors': project_authors,
+                'created_at_unix': int(time.time()),
+
+                # project related variables
+                'datetimeCreated': str(datetime.now()),
+                'projectInitReady': False,
+                'reviewFinished': False,
+                'reviews': [],
+                'feature_matrices': []
+            }
+
+            # create a file with project info
+            with open(get_project_file_path(project_path), "w") as project_path:
+                json.dump(project_config, project_path)
+
+        except Exception as err:
+            # remove all generated folders and raise error
+            shutil.rmtree(project_path)
+            raise err
+
+        return cls(project_path, project_id=project_id)
 
     @property
     def config(self):

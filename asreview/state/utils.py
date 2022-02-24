@@ -34,6 +34,8 @@ from asreview.state.paths import get_feature_matrices_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SqlStateV1
+from asreview.project import ASReviewProject
+
 
 V3STATE_VERSION = "1.0"
 
@@ -70,75 +72,6 @@ def is_valid_project_folder(fp):
         return
 
 
-def init_project_folder_structure(project_path,
-                                  project_mode="oracle",
-                                  project_name=None,
-                                  project_description=None,
-                                  project_authors=None):
-    """Initialize a project folder structure at the given filepath.
-
-    Arguments
-    ---------
-    project_path: pathlike
-        Filepath where to intialize the project folder structure.
-    project_mode: str
-        Mode of the project. Should be 'oracle', 'explore' or 'simulate'.
-    project_name: str
-    project_description: str
-    project_authors: str
-
-    Returns
-    -------
-    dict
-        Project configuration dictionary.
-    """
-    project_path = Path(project_path)
-    project_id = project_path.stem
-    asreview_version = get_versions()['version']
-
-    if not project_id and not isinstance(project_id, str) \
-            and len(project_id) >= 3:
-        raise ValueError("Project name should be at least 3 characters.")
-
-    if project_path.is_dir():
-        raise IsADirectoryError(
-            f'Project folder {project_path} already exists.')
-
-    try:
-        project_path.mkdir(exist_ok=True)
-        get_data_path(project_path).mkdir(exist_ok=True)
-        get_feature_matrices_path(project_path).mkdir(exist_ok=True)
-        get_reviews_path(project_path).mkdir(exist_ok=True)
-
-        project_config = {
-            'version': asreview_version,  # todo: Fail without git?
-            'id': project_id,
-            'mode': project_mode,
-            'name': project_name,
-            'description': project_description,
-            'authors': project_authors,
-            'created_at_unix': int(time.time()),
-
-            # project related variables
-            'datetimeCreated': str(datetime.now()),
-            'projectInitReady': False,
-            'reviewFinished': False,
-            'reviews': [],
-            'feature_matrices': []
-        }
-
-        # create a file with project info
-        with open(get_project_file_path(project_path), "w") as project_path:
-            json.dump(project_config, project_path)
-
-        return project_config
-
-    except Exception as err:
-        # remove all generated folders and raise error
-        shutil.rmtree(project_path)
-        raise err
-
-
 @contextmanager
 def open_state(working_dir, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
@@ -164,7 +97,7 @@ def open_state(working_dir, review_id=None, read_only=True):
             raise StateNotFoundError(f"There is no valid project folder"
                                      f" at {working_dir}")
         else:
-            init_project_folder_structure(working_dir)
+            ASReviewProject.create(working_dir)
             review_id = uuid4().hex
 
     # Check if file is a valid project folder.
