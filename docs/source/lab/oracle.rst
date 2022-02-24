@@ -105,7 +105,7 @@ Download Results
 During the screening or via the :doc:`dashboard <../features/post_screening>`
 you can download the results with your decisions by clicking the download
 icon. A dialog will show the download options. Choose from the menu whether
-you would like to export your results as a RIS, CSV or an Excel file and click
+you would like to export your results as a RIS, CSV, TSV or an Excel file and click
 `Download`.
 
 
