@@ -45,47 +45,26 @@ def write_ris(df, fp):
     # Iterate over all available records
     for rec in records:
 
-        # Store the record as a deepcopy
-        rec_copy = copy.deepcopy(rec)
+        # Remove all nan values
+        rec_copy = {k: v for k, v in rec.items() if pd.notnull(v)}
 
-        # Iterate over all the items for the deepcopied record
-        for k, v in rec_copy.items():
-            # Find all items with a value
-            if not isinstance(v, list) and pd.isnull(v):
-                # Assign the value to the key
-                rec_copy[k] = v
+        for m in ["authors", "keywords", "notes"]:  # AU, KW, N1
+            try:
+                rec_copy[m] = eval(rec_copy[m])
+            except Exception:
+                rec_copy[m] = []
 
-        # Check the "authors" - AU
-        try:
-            rec_copy["authors"] = eval(rec_copy["authors"])
-        except Exception:
-            rec_copy["authors"] = []
-
-        # Check the "keywords" - KW
-        try:
-            rec_copy["keywords"] = eval(rec_copy["keywords"])
-        except Exception:
-            rec_copy["keywords"] = []
-
-        # Check the "notes" - N1
-        try:
-            rec_copy["notes"] = eval(str(rec_copy["notes"]))
-        except Exception:
-            rec_copy["notes"] = []
-
-        # Update "notes" column based on the "included" column label
-        finally:
-            # Relevant records
-            if "included" in rec_copy and rec_copy["included"] == 1:
-                rec_copy["notes"].append("ASReview_relevant")
-            # Irrelevant records
-            elif "included" in rec_copy and rec_copy["included"] == 0:
-                rec_copy["notes"].append("ASReview_irrelevant")
-            # Not seen records
-            elif "included" in rec_copy and rec_copy["included"] == -1:
-                rec_copy["notes"].append("ASReview_not_seen")
-            else:
-                rec_copy["notes"].append("ASReview_not_seen")
+        # Relevant records
+        if "included" in rec_copy and rec_copy["included"] == 1:
+            rec_copy["notes"].append("ASReview_relevant")
+        # Irrelevant records
+        elif "included" in rec_copy and rec_copy["included"] == 0:
+            rec_copy["notes"].append("ASReview_irrelevant")
+        # Not seen records
+        elif "included" in rec_copy and rec_copy["included"] == -1:
+            rec_copy["notes"].append("ASReview_not_seen")
+        else:
+            rec_copy["notes"].append("ASReview_not_seen")
 
         # Append the deepcopied and updated record to a new array
         records_new.append(rec_copy)
