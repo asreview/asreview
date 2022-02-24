@@ -31,7 +31,6 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
-from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
@@ -47,65 +46,42 @@ from asreview.state.utils import delete_state_from_project
 from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils.io import read_data
-from asreview.webapp.utils.project_path import asreview_path
-from asreview.webapp.utils.project_path import get_project_path
-from asreview.webapp.utils.project_path import list_asreview_project_paths
-from asreview.webapp.utils.validation import is_project
-from asreview.webapp.utils.validation import is_v0_project
+from asreview.webapp.io import read_data
+from asreview.utils import asreview_path
+
+from asreview.state.paths import get_reviews_path
+from asreview.project import get_project_path
 
 
-class ProjectNotFoundError(Exception):
-    pass
+
+def is_project(project_id):
+
+    if get_project_path(project_id).exists():
+        return True
+
+    return False
+
+
+def is_v0_project(project_path):
+    """Check if a project file is of a ASReview version 0 project."""
+
+    return not get_reviews_path(project_path).exists()
 
 
 def _get_executable():
     """Get the Python executable"""
 
-    py_exe = sys.executable
-
-    # if the exe is an empty string or None, then fall badck on 'python'
-    if not py_exe:
-        py_exe = 'python'
-
-    return py_exe
+    return sys.executable if sys.executable else 'python'
 
 
-def _create_project_id(name):
-    """Create project id from input name."""
-
-    if isinstance(name, str) \
-            and len(name) > 0 \
-            and not name[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet"
-            " letter (a-z) or number (0-9).")
-
-    if not name \
-            and not isinstance(name, str) \
-            and len(name) >= 3:
-        raise ValueError(
-            "Project name should be at least 3 characters.")
-
-    project_id = ""
-    for c in name.lower():
-        if c.isalnum():
-            project_id += c
-        elif len(project_id) > 0 and project_id[-1] != "-":
-            project_id += "-"
-
-    return project_id
-
-
-def init_project(project_id,
+def init_project(project_path,
                  project_mode="oracle",
                  project_name=None,
                  project_description=None,
                  project_authors=None):
     """Initialize the necessary files specific to the web app."""
-    project_path = get_project_path(project_id)
 
-    if is_project(project_id):
+    if is_project(project_path):
         raise ValueError("Project already exists.")
 
     if project_mode not in PROJECT_MODES:
@@ -120,89 +96,6 @@ def init_project(project_id,
                                       project_authors=project_authors)
 
     return project_config
-
-
-def rename_project(project_id, project_name_new):
-    """Rename a project id.
-
-    This function only works for projects in ASReview LAB  web interface.
-    This is the result of the file storage in
-    asreview.webapp.utils.project_path.asreview_path.
-
-    Arguments
-    ---------
-    project_id: str
-        The current project_id.
-    project_name_new: str
-        The new project name to be converted into a new
-        project_id.
-
-    Returns
-    -------
-    str:
-        The new project_id.
-    """
-
-    # create a new project_id from project name
-    project_id_new = _create_project_id(project_name_new)
-
-    if (project_id == project_id_new):
-        # nothing to do
-        return project_id
-
-    if (project_id != project_id_new) & is_project(project_id_new):
-        raise ValueError(f"Project '{project_id_new}' already exists.")
-
-    project_path = get_project_path(project_id)
-    project_path_new = Path(asreview_path(), project_id_new)
-    project_file_path_new = get_project_file_path(project_path_new)
-
-    try:
-        project_path.rename(project_path_new)
-
-        with open(project_file_path_new, "r") as fp:
-            project_info = json.load(fp)
-
-        project_info["id"] = project_id_new
-        project_info["name"] = project_name_new
-
-        with open(project_file_path_new, "w") as fp:
-            json.dump(project_info, fp)
-
-    except Exception as err:
-        raise err
-
-    return project_id_new
-
-
-def update_project_info(project_id, **kwargs):
-    '''Update project info'''
-
-    kwargs_copy = kwargs.copy()
-
-    if "name" in kwargs_copy:
-        del kwargs_copy["name"]
-        logging.info(
-            "Update project name is ignored, use 'rename_project' function.")
-
-    # validate schema
-    if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
-        raise ValueError(
-            "Project mode '{}' not found.".format(kwargs_copy["mode"]))
-
-    # update project file
-    project_path = get_project_path(project_id)
-    project_file_path = get_project_file_path(project_path)
-
-    with open(project_file_path, "r") as fp:
-        project_info = json.load(fp)
-
-    project_info.update(kwargs_copy)
-
-    with open(project_file_path, "w") as fp:
-        json.dump(project_info, fp)
-
-    return project_id
 
 
 def import_project_file(file_name):
@@ -263,131 +156,16 @@ def import_project_file(file_name):
     return project_info
 
 
-def add_dataset_to_project(project_id, file_name):
-    """Add file path to the project file.
-
-    Add file to data subfolder and fill the pool of iteration 0.
-    """
-    project_path = get_project_path(project_id)
-    project_info = get_project_config(project_id)
-
-    update_project_info(project_id, dataset_path=file_name)
-
-    # fill the pool of the first iteration
-    as_data = read_data(project_id)
-
-    state_file = get_state_path(project_path)
-
-    with open_state(state_file, read_only=False) as state:
-
-        # save the record ids in the state file
-        state.add_record_table(as_data.record_ids)
-
-        # if the data contains labels, add them to the state file
-        # except for simulation project
-        if as_data.labels is not None and project_info["mode"] != PROJECT_MODE_SIMULATE:
-
-            labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
-            labels = as_data.labels[labeled_indices].tolist()
-            labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
-
-            # add the labels as prior data
-            state.add_labeling_data(
-                record_ids=labeled_record_ids,
-                labels=labels,
-                notes=[None for _ in labeled_record_ids],
-                prior=True
-            )
-
-
-def remove_dataset_from_project(project_id):
-    """Remove dataset from project.
-
-    """
-    project_path = get_project_path(project_id)
-
-    # reset dataset_path
-    update_project_info(project_id, dataset_path=None)
-
-    # remove datasets from project
-    shutil.rmtree(get_data_path(project_path))
-
-    # remove state file if present
-    if get_reviews_path(project_path).is_dir() and \
-            any(get_reviews_path(project_path).iterdir()):
-        delete_state_from_project(project_path)
-
-
-def add_review_to_project(project_id, simulation_id):
-    update_review_in_project(project_id, simulation_id, True)
-
-
-def update_review_in_project(project_id, review_id, review_finished):
-    project_path = get_project_path(project_id)
-
-    # read the file with project info
-    with open(get_project_file_path(project_path), "r") as fp:
-        project_info = json.load(fp)
-
-    if "reviews" not in project_info:
-        project_info["reviews"] = []
-
-    review = {"id": review_id, "state": review_finished}
-
-    project_info["reviews"].append(review)
-
-    # update the file with project info
-    with open(get_project_file_path(project_path), "w") as fp:
-        json.dump(project_info, fp)
-
-
-def get_project_config(project_id):
-    project_path = get_project_path(project_id)
-
-    try:
-
-        # read the file with project info
-        with open(get_project_file_path(project_path), "r") as fp:
-
-            project_info = json.load(fp)
-
-    except FileNotFoundError:
-        raise ProjectNotFoundError(f"Project '{project_id}' not found")
-
-    return project_info
-
-
-def clean_project_tmp_files(project_id):
-    """Clean temporary files in a project.
-
-    Arguments
-    ---------
-    project_id: str
-        The id of the current project.
-    """
-    project_path = get_project_path(project_id)
-
-    # clean pickle files
-    for f_pickle in project_path.rglob("*.pickle"):
-        try:
-            os.remove(f_pickle)
-        except OSError as e:
-            print(f"Error: {f_pickle} : {e.strerror}")
-
-    # clean tmp export files
-    # TODO
-
-
 def clean_all_project_tmp_files():
     """Clean temporary files in all projects.
     """
-    for project_path in list_asreview_project_paths():
-        clean_project_tmp_files(project_path)
+    for project in list_asreview_projects():
+        project.clean_tmp_files()
 
 
-def get_paper_data(project_id, paper_id, return_debug_label=False):
+def get_paper_data(project_path, paper_id, return_debug_label=False):
     """Get the title/authors/abstract for a paper."""
-    as_data = read_data(project_id)
+    as_data = read_data(project_path)
     record = as_data.record(int(paper_id), by_index=False)
 
     paper_data = {}
@@ -402,32 +180,6 @@ def get_paper_data(project_id, paper_id, return_debug_label=False):
         int(debug_label) if pd.notnull(debug_label) else None
 
     return paper_data
-
-
-def get_instance(project_id):
-    """Get a new instance to review.
-
-    Arguments
-    ---------
-    project_id: str
-        The id of the current project.
-    """
-    project_path = get_project_path(project_id)
-    with open_state(project_path, read_only=False) as state:
-        # First check if there is a pending record.
-        _, _, pending = state.get_pool_labeled_pending()
-        if not pending.empty:
-            record_ids = pending.to_list()
-        # Else query for a new record.
-        else:
-            record_ids = state.query_top_ranked(1)
-
-    if len(record_ids) > 0:
-        return record_ids[0]
-    else:
-        # end of pool
-        update_project_info(project_id, reviewFinished=True)
-        return None
 
 
 def get_legacy_statistics(json_fp):
@@ -458,7 +210,7 @@ def get_legacy_statistics(json_fp):
     return labeled, n_records
 
 
-def get_statistics(project_id):
+def get_statistics(project_path):
     """Get statistics from project files.
 
     Arguments
@@ -471,9 +223,8 @@ def get_statistics(project_id):
     dict:
         Dictionary with statistics.
     """
-    project_path = get_project_path(project_id)
 
-    if is_v0_project(project_id):
+    if is_v0_project(project_path):
         json_fp = Path(project_path, 'result.json')
         # Check if the v0 project is in review.
         if json_fp.exists():
@@ -510,11 +261,10 @@ def get_statistics(project_id):
     }
 
 
-def export_to_string(project_id, export_type="csv"):
-    project_path = get_project_path(project_id)
+def export_to_string(project_path, export_type="csv"):
 
     # read the dataset into a ASReview data object
-    as_data = read_data(project_id)
+    as_data = read_data(project_path)
 
     with open_state(project_path) as s:
         proba = s.get_last_probabilities()
@@ -551,15 +301,14 @@ def export_to_string(project_id, export_type="csv"):
         raise ValueError("This export type isn't implemented.")
 
 
-def train_model(project_id):
+def train_model(project_path):
     py_exe = _get_executable()
-    run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
+    run_command = [_get_executable(), "-m", "asreview", "web_run_model", project_path]
     subprocess.Popen(run_command)
 
 
-def update_instance(project_id, record_id, label, note=None, retrain_model=True):
+def update_instance(project_path, record_id, label, note=None, retrain_model=True):
     """Update a labeling decision."""
-    project_path = get_project_path(project_id)
     state_path = get_state_path(project_path)
 
     # check the label
@@ -569,15 +318,14 @@ def update_instance(project_id, record_id, label, note=None, retrain_model=True)
         state.update_decision(record_id, label, note=note)
 
     if retrain_model:
-        train_model(project_id)
+        train_model(project_path)
 
 
-def label_instance(project_id, paper_i, label, note=None,
+def label_instance(project_path, paper_i, label, note=None,
                    prior=False, retrain_model=True):
     """Label a paper after reviewing the abstract.
 
     """
-    project_path = get_project_path(project_id)
     state_path = get_state_path(project_path)
 
     paper_i = int(paper_i)
@@ -599,4 +347,4 @@ def label_instance(project_id, paper_i, label, note=None,
                 state.delete_record_labeling_data(paper_i)
 
     if retrain_model:
-        train_model(project_id)
+        train_model(project_path)

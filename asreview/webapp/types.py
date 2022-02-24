@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from asreview.webapp.utils.project_path import asreview_path
+from pathlib import Path
+
+from asreview.utils import asreview_path
 
 
-def is_project(project_id):
+def is_project(project_path):
 
-    project_path = asreview_path() / project_id / "project.json"
+    project_path = Path(project_path) / "project.json"
 
     return project_path.exists()

@@ -101,6 +101,23 @@ def _safe_dict_update(default_dict, override_dict):
     return new_dict
 
 
+def asreview_path():
+    """Get the location where projects are stored.
+
+    Overwrite this location by specifying the ASREVIEW_PATH enviroment
+    variable.
+    """
+
+    if os.environ.get("ASREVIEW_PATH", None):
+        asreview_path = Path(os.environ["ASREVIEW_PATH"])
+    else:
+        asreview_path = Path("~", ".asreview").expanduser()
+
+    asreview_path.mkdir(parents=True, exist_ok=True)
+
+    return asreview_path
+
+
 def get_data_home(data_home=None):
     """Return the path of the ASR data dir.
 

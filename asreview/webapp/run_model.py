@@ -25,8 +25,8 @@ from asreview.review.base import BaseReview
 from asreview.state.paths import get_lock_path
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils.project import read_data
-from asreview.webapp.utils.project_path import get_project_path
+from asreview.webapp.utils import read_data
+from asreview.project import get_project_path
 
 
 def get_lab_reviewer(as_data,

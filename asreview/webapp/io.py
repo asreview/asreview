@@ -34,17 +34,16 @@ class CacheDataError(Exception):
     pass
 
 
-def _get_cache_data_path(project_id):
-    project_path = get_project_path(project_id)
+def _get_cache_data_path(project_path):
     fp_data = get_data_file_path(project_path)
 
     return get_data_file_path(project_path) \
         .with_suffix(fp_data.suffix + ".pickle")
 
 
-def _read_data_from_cache(project_id, version_check=True):
+def _read_data_from_cache(project_path, version_check=True):
 
-    fp_data_pickle = _get_cache_data_path(project_id)
+    fp_data_pickle = _get_cache_data_path(project_path)
 
     try:
         # get the pickle data
@@ -74,21 +73,21 @@ def _read_data_from_cache(project_id, version_check=True):
     raise CacheDataError()
 
 
-def _write_data_to_cache(project_id, data_obj):
+def _write_data_to_cache(project_path, data_obj):
 
-    fp_data_pickle = _get_cache_data_path(project_id)
+    fp_data_pickle = _get_cache_data_path(project_path)
 
     logging.info("Store a copy of the data in a pickle file.")
     with open(fp_data_pickle, 'wb') as f_pickle:
         pickle.dump((data_obj, asreview_version), f_pickle)
 
 
-def read_data(project_id, use_cache=True, save_cache=True):
+def read_data(project_path, use_cache=True, save_cache=True):
     """Get ASReviewData object from file.
 
     Parameters
     ----------
-    project_id: str, iterable
+    project_path: str, iterable
         The project identifier.
     use_cache: bool
         Use the pickle file if available.
@@ -101,12 +100,11 @@ def read_data(project_id, use_cache=True, save_cache=True):
         The data object for internal use in ASReview.
 
     """
-    project_path = get_project_path(project_id)
 
     # use cache file
     if use_cache:
         try:
-            return _read_data_from_cache(project_id)
+            return _read_data_from_cache(project_path)
         except CacheDataError:
             pass
 
@@ -116,6 +114,6 @@ def read_data(project_id, use_cache=True, save_cache=True):
 
     # save a pickle version
     if save_cache:
-        _write_data_to_cache(project_id, data_obj)
+        _write_data_to_cache(project_path, data_obj)
 
     return data_obj

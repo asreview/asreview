@@ -14,6 +14,7 @@
 
 import logging
 import os
+import socket
 import webbrowser
 from threading import Timer
 
@@ -28,9 +29,9 @@ from werkzeug.exceptions import InternalServerError
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
-from asreview.webapp.utils.misc import check_port_in_use
 from asreview.webapp.utils.project import clean_all_project_tmp_files
-from asreview.webapp.utils.project import clean_project_tmp_files
+from asreview.project import ASReviewProject
+from asreview.webapp.utils.project_path import get_project_path
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":
@@ -42,6 +43,29 @@ else:
 def _url(host, port, protocol):
     """Create url from host and port."""
     return f"{protocol}{host}:{port}/"
+
+
+def _check_port_in_use(host, port):
+    """Check if port is already in use.
+
+    Arguments
+    ---------
+    host: str
+        The current host.
+    port: int
+        The host port to be checked.
+
+    Returns
+    -------
+    bool:
+        True if port is in use, false otherwise.
+    """
+    logging.info(
+        f"Checking if host and port are available :: {host}:{port}"
+    )
+    host = host.replace('https://', '').replace('http://', '')
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex((host, port)) == 0
 
 
 def _open_browser(host, port, protocol, no_browser):
@@ -170,7 +194,9 @@ def main(argv):
     # clean project by project_id
     if args.clean_project is not None:
         print(f"Cleaning project file '{args.clean_project}'.")
-        clean_project_tmp_files(args.clean_project)
+        ASReviewProject(
+            get_project_path(args.clean_project)
+        ).clean_tmp_files()
         print("Done")
         return
 
@@ -181,7 +207,7 @@ def main(argv):
     # if port is already taken find another one
     if not os.environ.get('FLASK_ENV', "") == "development":
         original_port = port
-        while check_port_in_use(host, port) is True:
+        while _check_port_in_use(host, port) is True:
             old_port = port
             port = int(port) + 1
             if port - original_port >= port_retries:
