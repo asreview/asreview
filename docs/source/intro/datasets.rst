@@ -64,6 +64,7 @@ After a labeling decision is made and the record is exported from ASReview LAB, 
     +-------------+---------------------------------------------------------------------------------------------------------+-----------+
 
 \* Either a title or an abstract is mandatory.
+
 \*\* List-type tags which can occur more than once in a record.
 
 .. figure:: ../../images/asreview_export_to_zotero_labeled.png
