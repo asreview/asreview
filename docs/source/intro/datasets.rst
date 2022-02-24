@@ -38,35 +38,6 @@ formats:
 
 For parsing RIS file format, the software uses a Python RIS files parser and reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export depends on a proper data set structure. To validate your data set, the complete default mapping can be found on the developer's `GitHub page <https://github.com/MrTango/rispy#complete-default-mapping>`_.
 
-After a labeling decision is made and the record is exported from ASReview LAB, the decision (ASReview_relevant/ASReview_irrelevant/ASReview_not_seen) is stored under the N1 list-type tag:
-
-.. table:: Table with (some) RIS tag definitions
-    :widths: 20 60 20
-
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | Tag         | Meaning                                                                                                 | Mandatory |
-    +=============+=========================================================================================================+===========+
-    | TY          | Type of reference (must be the first tag)                                                               | yes       |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | T1          | Primary title                                                                                           | yes\*     |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | AB          | Abstract                                                                                                | yes\*     |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | KW          | Keywords                                                                                                | no\*\*    |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | AU          | Author                                                                                                  | no\*\*    |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | DO          | DOI                                                                                                     | no        |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | N1          | Notes                                                                                                   | no\*\*    |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-    | ER          | End of Reference (must be empty and the last tag)                                                       | yes       |
-    +-------------+---------------------------------------------------------------------------------------------------------+-----------+
-
-\* Either a title or an abstract is mandatory.
-
-\*\* List-type tags which can occur more than once in a record.
-
 .. figure:: ../../images/asreview_export_to_zotero_labeled.png
    :alt: Example record with a labeling decision imported to Zotero
 
