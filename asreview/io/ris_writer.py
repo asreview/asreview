@@ -49,7 +49,6 @@ def write_ris(df, fp):
         rec_copy = {k: v for k, v in rec.items() if pd.notnull(v)}
 
         for m in ["authors", "keywords", "notes"]:  # AU, KW, N1
-            # Check the "authors" - AU
             try:
                 rec_copy[m] = eval(rec_copy[m])
             except Exception:
