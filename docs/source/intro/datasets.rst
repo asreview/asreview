@@ -41,7 +41,7 @@ For parsing RIS file format, the software uses a Python RIS files parser and rea
     data set structure. To validate your data set, the complete default mapping can be found
     on the developer's `GitHub page <https://github.com/MrTango/rispy#complete-default-mapping>`_.
 
-After a labeling decision is made and the record is exported from ASReview Lab, the decision
+After a labeling decision is made and the record is exported from ASReview LAB, the decision
     (ASReview_relevant/ASReview_irrelevant/ASReview_not_seen) is stored under the N1 list-type tag:
 
 .. table:: Table with (some) RIS tag definitions
