@@ -192,7 +192,7 @@ RIS files used for screening in ASReview LAB can be imported back into the
 reference software* and the decision labels can be found in the notes field.
 For more information see this `instruction video <https://youtu.be/-Rw291AE2OI>`_.
 
-*This pipeline is aimed to work for reference managers Zotero and EndNote.
+*This pipeline is extensively tested for reference managers Zotero and EndNote.
 *However, it might also work for other reference managers but is currently not
 *supported. 
 
