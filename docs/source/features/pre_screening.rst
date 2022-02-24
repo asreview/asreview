@@ -94,9 +94,9 @@ contain a column, called :ref:`label_included <column-names>` which is
 filled with 1's or 0's for the records that are already screened
 and is empty for the records that you still need to screen using ASReview.
 
-For RIS file format the dataset is handled automatically. The label 
-(ASReview_relevant,ASReview_irrelevant,ASReview_not_seen) is stored under the
-N1 (Notes) tag. In case the N1 tag is missing, it will be created for each record
+For the RIS file format, the dataset is handled automatically. The label 
+(ASReview_relevant, ASReview_irrelevant, ASReview_not_seen) is stored under the
+N1 (Notes) tag. If the N1 tag is missing, it will be created for each record
 after importing the dataset. You can find a representative demo dataset in our
 `GitHub repository <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_
 where all records are valid. You can also find a record without a
