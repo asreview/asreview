@@ -985,8 +985,50 @@ def api_import_project():
 
     # set the project file
     project_file = request.files['file']
-    # import the project
-    project_info = import_project_file(project_file)
+
+
+
+    # # import the project
+    # project_info = import_project_file(project_file)
+
+
+
+
+    try:
+        # Open the project file and check the id. The id needs to be
+        # unique, otherwise it is exended with -copy.
+        import_project = None
+        fp = Path(tmpdir, "project.json")
+        with open(fp, "r+") as f:
+
+            # load the project info in scope of function
+            import_project = json.load(f)
+
+            # If the uploaded project already exists,
+            # then overwrite project.json with a copy suffix.
+            while is_project(import_project["id"]):
+                # project update
+                import_project["id"] = f"{import_project['id']}-copy"
+                import_project["name"] = f"{import_project['name']} copy"
+            else:
+                # write to file
+                f.seek(0)
+                json.dump(import_project, f)
+                f.truncate()
+
+        # location to copy file to
+        fp_copy = get_project_path(import_project["id"])
+        # Move the project from the temp folder to the projects folder.
+        os.replace(tmpdir, fp_copy)
+
+    except Exception:
+        # Unknown error.
+        raise ValueError("Failed to import project "
+                         f"'{file_name.filename}'.")
+
+    project_info = {}
+    project_info["id"] = import_project["id"]
+    project_info["name"] = import_project["name"]
 
     # return the project info in the same format as project_info
     return jsonify(project_info)
