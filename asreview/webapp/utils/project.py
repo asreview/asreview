@@ -415,7 +415,7 @@ def get_instance(project_id):
     project_path = get_project_path(project_id)
     with open_state(project_path, read_only=False) as state:
         # First check if there is a pending record.
-        _, _, pending = state.get_pool_labeled_pending()
+        pending = state.get_pending()
         if not pending.empty:
             record_ids = pending.to_list()
         # Else query for a new record.
