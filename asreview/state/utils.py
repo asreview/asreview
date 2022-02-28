@@ -64,9 +64,9 @@ def is_valid_project_folder(fp):
     """Check of the folder contains an asreview project."""
     if not Path(fp, 'reviews').is_dir() \
             or not Path(fp, 'feature_matrices').is_dir():
-        raise ValueError(f"There does not seem to be a valid project folder"
-                         f" at {fp}. The 'reviews' or 'feature_matrices' "
-                         f"folder is missing.")
+        raise StateNotFoundError(
+            f"There does not seem to be a valid project folder at {fp}. The "
+            f"'reviews' or 'feature_matrices' folder is missing.")
     else:
         return
 
