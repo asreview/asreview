@@ -33,17 +33,11 @@ from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
-from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_labeled_path
-from asreview.state.paths import get_lock_path
-from asreview.state.paths import get_pool_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_state_path
-from asreview.state.paths import get_tmp_path
 from asreview.state.utils import delete_state_from_project
-from asreview.state.utils import init_project_folder_structure
 from asreview.state.utils import open_state
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.io import read_data
@@ -379,11 +373,11 @@ class ASReviewProject():
             except OSError as e:
                 print(f"Error: {f_pickle} : {e.strerror}")
 
-    def add_review(simulation_id):
+    def add_review(self, simulation_id):
         update_review(simulation_id, True)
 
 
-    def update_review(review_id, review_finished):
+    def update_review(self, review_id, review_finished):
 
         # read the file with project info
         config = self.config
@@ -397,6 +391,23 @@ class ASReviewProject():
 
         # update the file with project info
         self.config = config
+
+    def export(self, export_fp):
+
+        if Path(export_fp).suffix != ".asreview":
+            raise ValueError("File export should have .asreview extension.")
+
+        # copy the source tree, but ignore pickle files
+        shutil.copytree(self.project_path,
+                        export_fp,
+                        ignore=shutil.ignore_patterns('*.pickle'))
+
+        # create the archive
+        shutil.make_archive(export_fp,
+                            "zip",
+                            root_dir=Path(export_dir, self.project_id))
+
+        shutil.move(f'{export_fp}.zip', export_fp)
 
 
 def import_project_file(file_name):

@@ -1137,27 +1137,14 @@ def export_project(project):
 
     # create a temp folder to zip
     tmpdir = tempfile.TemporaryDirectory()
+    tmpfile = Path(tmpdir.name, project.project_id, ".asreview")
 
-    # copy the source tree, but ignore pickle files
-    shutil.copytree(project.project_path,
-                    Path(tmpdir.name, project.project_id),
-                    ignore=shutil.ignore_patterns('*.pickle'))
+    project.export(tmpfile)
 
-    # create the archive
-    shutil.make_archive(Path(tmpdir.name, project.project_id),
-                        "zip",
-                        root_dir=Path(tmpdir.name, project.project_id))
-
-    try:
-        # return the project file to the user
-        return send_file(str(Path(tmpdir.name, f"{project.project_id}.zip")),
-                         as_attachment=True,
-                         download_name=f"{project.project_id}.asreview",
-                         max_age=0)
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to export the project."), 500
+    return send_file(tmpfile,
+                     as_attachment=True,
+                     download_name=f"{project.project_id}.asreview",
+                     max_age=0)
 
 
 @bp.route('/project/<project_id>/finish', methods=["GET"])

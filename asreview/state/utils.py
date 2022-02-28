@@ -27,7 +27,6 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 
-from asreview._version import get_versions
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
