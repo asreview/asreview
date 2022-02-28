@@ -25,8 +25,6 @@ from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.data import ASReviewData
 from asreview.state.paths import get_data_file_path
-from asreview.state.paths import get_labeled_path
-from asreview.state.paths import get_pool_path
 from asreview.webapp.utils.project_path import get_project_path
 
 
