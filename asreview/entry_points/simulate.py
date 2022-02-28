@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+"""Simulation entry point and utils."""
+
 import json
 import logging
 from datetime import datetime
@@ -46,7 +48,6 @@ from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.utils import init_project_folder_structure
-from asreview.state.utils import open_state
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.utils.io import read_data
@@ -67,8 +68,9 @@ ASCII_MSG_SIMULATE = """
 
 
 def _mark_review_finished(project_path, review_id=None):
-    """Mark a review in the project as finished. If no review_id is given,
-    mark the first review as finished.
+    """Mark a review in the project as finished.
+
+    If no review_id is given, mark the first review as finished.
 
     Arguments
     ---------
@@ -133,8 +135,10 @@ def _get_dataset_path_from_args(args_dataset):
 
 
 def _is_partial_simulation(args):
-    """Check if there already is a project file with data of the simulation
-    with given args.
+    """Check for partial simulation.
+
+    Check if there already is a project file with data of
+    the simulation with given args.
 
     Arguments
     ----------
@@ -184,9 +188,11 @@ def _set_log_verbosity(verbose):
 
 
 class SimulateEntryPoint(BaseEntryPoint):
+    """Entrypoint for simulation."""
+
     description = "Simulate the performance of ASReview."
 
-    def execute(self, argv):
+    def execute(self, argv):  # noqa
 
         # parse arguments
         parser = _simulate_parser()
@@ -271,17 +277,17 @@ class SimulateEntryPoint(BaseEntryPoint):
             # Initialize models.
             random_state = get_random_state(args.seed)
             classifier_model = get_classifier(settings.model,
-                                         **settings.model_param,
-                                         random_state=random_state)
+                                              random_state=random_state,
+                                              **settings.model_param)
             query_model = get_query_model(settings.query_strategy,
-                                          **settings.query_param,
-                                          random_state=random_state)
+                                          random_state=random_state,
+                                          **settings.query_param)
             balance_model = get_balance_model(settings.balance_strategy,
-                                              **settings.balance_param,
-                                              random_state=random_state)
+                                              random_state=random_state,
+                                              **settings.balance_param)
             feature_model = get_feature_model(settings.feature_extraction,
-                                              **settings.feature_param,
-                                              random_state=random_state)
+                                              random_state=random_state,
+                                              **settings.feature_param)
 
             # TODO{Deprecate and integrate with the model}
             # LSTM models need embedding matrices.
