@@ -50,7 +50,8 @@ RESULTS_TABLE_COLUMNS = [
     "record_id", "label", "classifier", "query_strategy", "balance_strategy",
     "feature_extraction", "training_set", "labeling_time", "notes"
 ]
-SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version"]
+SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version",
+                          "model_has_trained"]
 
 
 # TODO(State): Update docstring.
@@ -214,7 +215,8 @@ class SqlStateV1(BaseState):
         self.settings_metadata = {
             "settings": None,
             "state_version": "1",
-            "software_version": get_versions()['version']
+            "software_version": get_versions()['version'],
+            "model_has_trained": False
         }
 
         with open(self._settings_metadata_fp, "w") as f:
@@ -268,30 +270,36 @@ class SqlStateV1(BaseState):
     def _is_valid_state(self):
         con = self._connect_to_sql()
         cur = con.cursor()
-
-        # Check if all required tables are present.
+        column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         table_names = cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        con.close()
+
+        # Check if all required tables are present.
         table_names = [tup[0] for tup in table_names]
-        for table in REQUIRED_TABLES:
-            if table not in table_names:
-                raise StateError(
-                    f"The sql file should contain a table named '{table}'.")
+        missing_tables = [table for table in REQUIRED_TABLES
+                          if table not in table_names]
+        if missing_tables:
+            raise StateError(
+                f"The sql file should contain tables named "
+                f"'{' '.join(missing_tables)}'.")
 
         # Check if all required columns are present in results.
-        column_names = cur.execute("PRAGMA table_info(results)").fetchall()
         column_names = [tup[1] for tup in column_names]
-        for column in RESULTS_TABLE_COLUMNS:
-            if column not in column_names:
-                raise StateError(
-                    f"The results table does not contain the column {column}.")
+        missing_columns = [col for col in RESULTS_TABLE_COLUMNS
+                           if col not in column_names]
+        if missing_columns:
+            raise StateError(
+                f"The results table does not contain the columns "
+                f"{' '.join(missing_columns)}.")
 
         # Check settings_metadata contains the required keys.
-        settings_metadata_keys = self.settings_metadata.keys()
-        for key in SETTINGS_METADATA_KEYS:
-            if key not in settings_metadata_keys:
-                raise StateError(
-                    f"The key {key} was not found in settings_metadata.")
+        missing_keys = [key for key in SETTINGS_METADATA_KEYS
+                        if key not in self.settings_metadata.keys()]
+        if missing_keys:
+            raise StateError(
+                f"The keys {' '.join(missing_keys)} were not found in "
+                f"settings_metadata.")
 
     def close(self):
         pass
@@ -385,7 +393,7 @@ class SqlStateV1(BaseState):
 
     @property
     def n_records_labeled(self):
-        _, labeled, _ = self.get_pool_labeled_pending()
+        labeled = self.get_labeled()
         return len(labeled)
 
     @property
@@ -407,7 +415,7 @@ class SqlStateV1(BaseState):
         """Return True if there were records labeled since the last time the
         model training data was saved in the state. Also returns True if no
         model was trained yet, but priors have been added."""
-        _, labeled, _ = self.get_pool_labeled_pending()
+        labeled = self.get_labeled()
         last_training_set = self.get_last_ranking()['training_set']
         if last_training_set.empty:
             return len(labeled) > 0
@@ -417,7 +425,7 @@ class SqlStateV1(BaseState):
     @property
     def model_has_trained(self):
         """Return True if there is data of a trained model in the state."""
-        return not self.get_last_ranking().empty
+        return self.settings_metadata['model_has_trained']
 
     def _update_project_with_feature_extraction(self, feature_extraction):
         """If the feature extraction method is set, update the project.json."""
@@ -462,8 +470,7 @@ class SqlStateV1(BaseState):
         cur = con.cursor()
         cur.execute("DELETE FROM record_table")
         cur.executemany(
-            """INSERT INTO record_table VALUES
-                                            (?)""", record_sql_input)
+            """INSERT INTO record_table VALUES (?)""", record_sql_input)
         con.commit()
 
     def add_last_probabilities(self, probabilities):
@@ -519,6 +526,10 @@ class SqlStateV1(BaseState):
                                     (?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)
         con.commit()
         con.close()
+
+        # If it's the first ranking table to be added, set model_has_trained.
+        if not self.model_has_trained:
+            self._add_settings_metadata('model_has_trained', True)
 
     def add_feature_matrix(self, feature_matrix):
         """Add feature matrix to project file.
@@ -621,6 +632,26 @@ class SqlStateV1(BaseState):
         con.commit()
         con.close()
 
+    def _add_labeling_data_simulation_mode(self, rows):
+        """Add the labeling data and the model data at the same time to the
+        results table. This is used for the simulation mode, since the model
+        data is available at the time of labeling.
+
+        Arguments
+        ----------
+        rows : list of tuples
+            List of tuples (record_id: int, label: int, classifier: str,
+            query_strategy: str, balance_strategy: str, feature_extraction: str,
+             training_set: int, labeling_time: int, notes: str).
+        """
+        query = "INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+        con = self._connect_to_sql()
+        cur = con.cursor()
+        cur.executemany(query, rows)
+        con.commit()
+        con.close()
+
     def update_decision(self, record_id, label, note=None):
         """Change the label of a record from 0 to 1 or vice versa."""
 
@@ -628,8 +659,8 @@ class SqlStateV1(BaseState):
         cur = con.cursor()
 
         # Change the label.
-        cur.execute("UPDATE results SET label = ?, notes = ? WHERE record_id = ?",
-                    (label, note, record_id))
+        cur.execute("UPDATE results SET label = ?, notes = ? "
+                    "WHERE record_id = ?", (label, note, record_id))
 
         # Add the change to the decision changes table.
         cur.execute("INSERT INTO decision_changes VALUES (?,?, ?)",
@@ -674,7 +705,56 @@ class SqlStateV1(BaseState):
         con.close()
         return record_table
 
-    # TODO: Create separate functions for pool, labeled, pending for speed up.
+    def get_pool(self):
+        """Return the pool of unlabeled records in the ranking order.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the record_ids of the unlabeled, not pending
+            records, in the order of the last available ranking.
+        """
+        # If model has trained, using ranking to order pool.
+        con = self._connect_to_sql()
+        if self.model_has_trained:
+            query = """SELECT last_ranking.record_id, last_ranking.ranking,
+                    results.query_strategy
+                    FROM last_ranking
+                    LEFT JOIN results
+                    ON last_ranking.record_id = results.record_id
+                    WHERE results.query_strategy is null
+                    ORDER BY ranking
+                    """
+            df = pd.read_sql_query(query, con)
+
+        # Else return all records not yet in the results table.
+        else:
+            query = """SELECT record_table.record_id, results.query_strategy
+                    FROM record_table
+                    LEFT JOIN results
+                    ON record_table.record_id = results.record_id
+                    WHERE results.query_strategy is null
+                    """
+            df = pd.read_sql_query(query, con)
+
+        con.close()
+        return df['record_id']
+
+    def get_labeled(self):
+        con = self._connect_to_sql()
+        query = """SELECT record_id, label FROM results
+         WHERE label is not null"""
+        df = pd.read_sql_query(query, con)
+        con.close()
+        return df
+
+    def get_pending(self):
+        con = self._connect_to_sql()
+        query = """SELECT record_id FROM results WHERE label is null"""
+        df = pd.read_sql_query(query, con)
+        con.close()
+        return df['record_id']
+
     def get_pool_labeled_pending(self):
         """Return the labeled and unlabeled records and the records pending a
         labeling decision.
@@ -692,7 +772,7 @@ class SqlStateV1(BaseState):
         con = self._connect_to_sql()
 
         query = """SELECT record_table.record_id, results.label,
-                results.rowid AS label_order, results.classifier,
+                results.rowid AS label_order, results.query_strategy,
                 last_ranking.ranking
                 FROM record_table
                 LEFT JOIN results
@@ -711,7 +791,7 @@ class SqlStateV1(BaseState):
             .sort_values('ranking') \
             .loc[:, 'record_id'] \
             .astype(int)
-        pending = df.loc[df['label'].isna() & ~df['classifier'].isna()] \
+        pending = df.loc[df['label'].isna() & ~df['query_strategy'].isna()] \
             .sort_values('label_order') \
             .loc[:, 'record_id'] \
             .astype(int)
@@ -781,7 +861,7 @@ class SqlStateV1(BaseState):
             List of record_ids of the top n ranked records.
         """
         if self.model_has_trained:
-            pool, _, _ = self.get_pool_labeled_pending()
+            pool = self.get_pool()
             top_n_records = pool[:n].to_list()
             self._move_ranking_data_to_results(top_n_records)
         else:
