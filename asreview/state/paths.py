@@ -80,30 +80,6 @@ def get_lock_path(project_path):
     return Path(project_path, "lock.sqlite")
 
 
-def get_pool_path(project_path):
-    """Get the pool file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return Path(project_path, "pool.json")
-
-
-def get_labeled_path(project_path):
-    """Get the labeled file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return Path(project_path, "labeled.json")
-
-
 def get_reviews_path(project_path):
     """Get the reviews folder from the project.
 
