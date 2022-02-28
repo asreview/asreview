@@ -47,6 +47,9 @@ from asreview.webapp.utils import is_v0_project
 from functools import wraps
 
 
+PATH_FEATURE_MATRICES = 'feature_matrices'
+
+
 class ProjectNotFoundError(Exception):
     pass
 
@@ -168,7 +171,7 @@ class ASReviewProject():
         try:
             project_path.mkdir(exist_ok=True)
             get_data_path(project_path).mkdir(exist_ok=True)
-            get_feature_matrices_path(project_path).mkdir(exist_ok=True)
+            Path(project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
             get_reviews_path(project_path).mkdir(exist_ok=True)
 
             project_config = {
@@ -355,7 +358,7 @@ class ASReviewProject():
         # remove state file if present
         if get_reviews_path(self.project_path).is_dir() and \
                 any(get_reviews_path(self.project_path).iterdir()):
-            delete_state_from_project(self.project_path)
+            self.delete_state()
 
     def clean_tmp_files(self):
         """Clean temporary files in a project.
@@ -372,6 +375,35 @@ class ASReviewProject():
                 os.remove(f_pickle)
             except OSError as e:
                 print(f"Error: {f_pickle} : {e.strerror}")
+
+
+    def delete_state(self, remove_folders=False):
+
+        try:
+            # remove the folder tree
+            shutil.rmtree(Path(self.project_path, PATH_FEATURE_MATRICES))
+
+            # recreate folder structure if True
+            if not remove_folders:
+                Path(self.project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
+        except Exception:
+            print("Failed to remove feature matrices.")
+
+        try:
+            path_review = get_reviews_path(self.project_path)
+            shutil.rmtree(path_review)
+            if not remove_folders:
+                get_reviews_path(self.project_path).mkdir(exist_ok=True)
+        except Exception:
+            print("Failed to remove sql database.")
+
+        # update the config
+        self.update_config({
+            'projectInitReady': False,
+            'reviewFinished': False,
+            'reviews': [],
+            'feature_matrices': []
+        })
 
     def add_review(self, simulation_id):
         update_review(simulation_id, True)

@@ -132,65 +132,6 @@ def open_state(working_dir, review_id=None, read_only=True):
             pass
 
 
-def delete_state_from_project(project_path, remove_folders=False):
-
-    project_file_path = get_project_file_path(project_path)
-
-    try:
-        path_fm = get_feature_matrices_path(project_path)
-        shutil.rmtree(path_fm)
-        if not remove_folders:
-            get_feature_matrices_path(project_path).mkdir(exist_ok=True)
-    except Exception:
-        print("Failed to remove feature matrices.")
-
-    try:
-        path_review = get_reviews_path(project_path)
-        shutil.rmtree(path_review)
-        if not remove_folders:
-            get_reviews_path(project_path).mkdir(exist_ok=True)
-    except Exception:
-        print("Failed to remove sql database.")
-
-    # open the projects file
-    with open(project_file_path, "r") as f_read:
-        project_dict = json.load(f_read)
-
-    # add path to dict (overwrite if already exists)
-    reset_config = {
-        'projectInitReady': False,
-        'reviewFinished': False,
-        'reviews': [],
-        'feature_matrices': []
-    }
-    project_dict.update(reset_config)
-
-    with open(project_file_path, "w") as f_write:
-        json.dump(project_dict, f_write)
-
-
-def read_results_into_dataframe(fp, table='results'):
-    """Read the result table of a v3 state file into a pandas dataframe.
-
-    Arguments
-    ---------
-    fp: str
-        Project folder.
-    table: str
-        Name of the sql table in the results.sql that you want to read.
-
-    Returns
-    -------
-    pd.DataFrame
-        Dataframe containing contents of the results table of the state file.
-    """
-    path = Path(fp)
-    con = sqlite3.connect(path / 'results.sql')
-    df = pd.read_sql_query(f'SELECT * FROM {table}', con)
-    con.close()
-    return df
-
-
 def decode_feature_matrix(jsonstate, data_hash):
     """Get the feature matrix from a json state as a scipy csr_matrix."""
     my_data = jsonstate._state_dict["data_properties"][data_hash]
