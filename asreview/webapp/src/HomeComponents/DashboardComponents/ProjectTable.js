@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -18,14 +19,14 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { ProjectDeleteDialog } from "../../Components";
+import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
 import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapStateToProps, mapDispatchToProps } from "../../globals";
+import { mapDispatchToProps } from "../../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -33,9 +34,6 @@ const classes = {
   root: `${PREFIX}-root`,
   table: `${PREFIX}-table`,
   tableCell: `${PREFIX}-tableCell`,
-  chipSetup: `${PREFIX}-chipSetup`,
-  chipInReview: `${PREFIX}-chipInReview`,
-  chipFinished: `${PREFIX}-chipFinished`,
   converting: `${PREFIX}-converting`,
   img: `${PREFIX}-img`,
   title: `${PREFIX}-title`,
@@ -55,24 +53,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
   [`& .${classes.tableCell}`]: {
     letterSpacing: "0.25px",
-  },
-
-  [`& .${classes.chipSetup}`]: {
-    color: "#424242",
-    backgroundColor: "#bdbdbd",
-    fontWeight: 500,
-  },
-
-  [`& .${classes.chipInReview}`]: {
-    color: "#91620B",
-    backgroundColor: "#FFFBE7",
-    fontWeight: 500,
-  },
-
-  [`& .${classes.chipFinished}`]: {
-    color: "rgb(0, 123, 85)",
-    backgroundColor: "#E1FAE3",
-    fontWeight: 500,
   },
 
   [`& .${classes.converting}`]: {
@@ -119,6 +99,7 @@ const columns = [
 ];
 
 const ProjectTable = (props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   /**
@@ -134,11 +115,6 @@ const ProjectTable = (props) => {
    * Dialog state
    */
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
-  const [projectCheck, setProjectCheck] = React.useState({
-    open: false,
-    issue: null,
-    destination: "dashboard",
-  });
 
   /**
    * Fetch projects
@@ -152,24 +128,23 @@ const ProjectTable = (props) => {
     refetchOnWindowFocus: false,
   });
 
-  const openProject = (project, page) => {
-    // set project id
-    props.setProjectId(project["id"]);
-
+  const openProject = (project, path) => {
     if (!project["projectInitReady"]) {
+      // set project id
+      props.setProjectId(project["id"]);
       // open project setup dialog
-      props.handleProjectSetup();
+      props.toggleProjectSetup();
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
+      navigate(`/projects/${project["id"]}/${path}`);
       console.log("Opening project " + project["id"]);
-      props.handleAppState("project-page");
-      props.handleNavState(page);
     } else {
       // open project check dialog
-      setProjectCheck({
+      props.setProjectCheck({
         open: true,
         issue: "upgrade",
-        destination: page,
+        path: path,
+        project_id: project["id"],
       });
     }
   };
@@ -228,12 +203,12 @@ const ProjectTable = (props) => {
   const statusStyle = (project) => {
     if (project["projectInitReady"]) {
       if (project["reviewFinished"]) {
-        return classes.chipFinished;
+        return "dashboard-page-table-chip finished";
       } else {
-        return classes.chipInReview;
+        return "dashboard-page-table-chip inreview";
       }
     } else {
-      return classes.chipSetup;
+      return "dashboard-page-table-chip setup";
     }
   };
 
@@ -278,7 +253,7 @@ const ProjectTable = (props) => {
                   };
 
                   const onClickProjectAnalytics = () => {
-                    openProject(row, "analytics");
+                    openProject(row, "");
                   };
 
                   const onClickProjectReview = () => {
@@ -385,13 +360,7 @@ const ProjectTable = (props) => {
               <Typography sx={{ color: "text.secondary", marginTop: "64px" }}>
                 Your projects will show up here
               </Typography>
-              <Button
-                onClick={(event) => {
-                  props.handleClickAdd(event, "newProject");
-                }}
-              >
-                Get Started
-              </Button>
+              <Button onClick={props.toggleProjectSetup}>Get Started</Button>
               <img
                 src={ElasArrowRightAhead}
                 alt="ElasArrowRightAhead"
@@ -416,10 +385,8 @@ const ProjectTable = (props) => {
           />
         )}
       <ProjectCheckDialog
-        handleAppState={props.handleAppState}
-        handleNavState={props.handleNavState}
-        projectCheck={projectCheck}
-        setProjectCheck={setProjectCheck}
+        projectCheck={props.projectCheck}
+        setProjectCheck={props.setProjectCheck}
       />
       <ProjectDeleteDialog
         onDeleteDialog={onDeleteDialog}
@@ -431,4 +398,4 @@ const ProjectTable = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectTable);
+export default connect(null, mapDispatchToProps)(ProjectTable);

@@ -34,20 +34,18 @@ export default function ProjectModeSelect(props) {
               secondary="Start interactive AI-assisted screening with an unlabeled dataset"
             />
           </MenuItem>
-          <MenuItem value={projectModes.EXPLORATION}>
+          <MenuItem value={projectModes.EXPLORATION} divider>
             <SelectItem
               primary="Exploration"
               secondary="Explore the power of ASReview LAB with a completely labeled dataset"
             />
           </MenuItem>
-          {props.showSimulate && (
-            <MenuItem value={projectModes.SIMULATION}>
-              <SelectItem
-                primary="Simulation"
-                secondary="Simulate screening on a completely labeled dataset to understand the performance of an active learning model"
-              />
-            </MenuItem>
-          )}
+          <MenuItem value={projectModes.SIMULATION}>
+            <SelectItem
+              primary="Simulation"
+              secondary="Simulate screening on a completely labeled dataset to understand the performance of an active learning model"
+            />
+          </MenuItem>
         </Select>
       </FormControl>
     </Root>

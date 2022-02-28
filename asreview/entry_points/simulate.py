@@ -46,14 +46,16 @@ from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.utils import init_project_folder_structure
+from asreview.state.utils import open_state
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
+from asreview.webapp.utils.io import read_data
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
 |                                                                                |
-|  Welcome to the ASReview Automated Systematic Review software.                 |
-|  In this mode the computer will simulate how well the ASReview software        |
+|  Welcome to ASReview LAB - AI-assisted systematic reviews software.            |
+|  In simulation mode the computer will simulate how well ASReview LAB           |
 |  could have accelerate the systematic review of your dataset.                  |
 |  You can sit back and relax while the computer runs this simulation.           |
 |                                                                                |
@@ -64,7 +66,7 @@ ASCII_MSG_SIMULATE = """
 """.format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
 
 
-def mark_review_finished(project_path, review_id=None):
+def _mark_review_finished(project_path, review_id=None):
     """Mark a review in the project as finished. If no review_id is given,
     mark the first review as finished.
 
@@ -201,110 +203,129 @@ class SimulateEntryPoint(BaseEntryPoint):
         # print intro message
         print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
-        # read dataset into memory
-        as_data = load_data(args.dataset)
+        if args.dataset == "":
 
-        if len(as_data) == 0:
-            raise ValueError("Supply at least one dataset"
-                             " with at least one record.")
+            with open_state(args.state_file) as state:
+                settings = state.settings
 
-        if not _is_partial_simulation(args):
-            # TODO: refactor these functions into a project module
-            init_project_folder_structure(args.state_file,
-                                          project_mode='simulate')
+                # Check if there are new labeled records.
+                exist_new_labeled_records = state.exist_new_labeled_records
 
-            # Add the dataset to the project file.
-            dataset_path = _get_dataset_path_from_args(args.dataset)
+            # collect command line arguments and pass them to the reviewer
+            if exist_new_labeled_records:
+                as_data = read_data(Path(args.state_file).stem)
+                prior_idx = args.prior_idx
 
-            as_data.to_csv(
-                Path(
-                    get_data_path(args.state_file),
-                    dataset_path
+            classifier_model = get_classifier(settings.model)
+            query_model = get_query_model(settings.query_strategy)
+            balance_model = get_balance_model(settings.balance_strategy)
+            feature_model = get_feature_model(settings.feature_extraction)
+
+        else:
+
+            as_data = load_data(args.dataset)
+
+            if len(as_data) == 0:
+                raise ValueError("Supply at least one dataset"
+                                 " with at least one record.")
+
+            if not _is_partial_simulation(args):
+                # TODO: refactor these functions into a project module
+                init_project_folder_structure(args.state_file,
+                                              project_mode='simulate')
+
+                # Add the dataset to the project file.
+                dataset_path = _get_dataset_path_from_args(args.dataset)
+
+                as_data.to_csv(
+                    Path(
+                        get_data_path(args.state_file),
+                        dataset_path
+                    )
                 )
-            )
-            # Update the project.json.
-            project_file_path = get_project_file_path(args.state_file)
-            with open(project_file_path, 'r') as f:
-                project_json = json.load(f)
+                # Update the project.json.
+                project_file_path = get_project_file_path(args.state_file)
+                with open(project_file_path, 'r') as f:
+                    project_json = json.load(f)
 
-            project_json['dataset_path'] = dataset_path
+                project_json['dataset_path'] = dataset_path
 
-            with open(project_file_path, 'w') as f:
-                json.dump(project_json, f)
+                with open(project_file_path, 'w') as f:
+                    json.dump(project_json, f)
 
-        # create a new settings object from arguments
-        settings = ASReviewSettings(
-            model=args.model,
-            n_instances=args.n_instances,
-            n_queries=args.n_queries,
-            n_papers=args.n_papers,
-            n_prior_included=args.n_prior_included,
-            n_prior_excluded=args.n_prior_excluded,
-            query_strategy=args.query_strategy,
-            balance_strategy=args.balance_strategy,
-            feature_extraction=args.feature_extraction,
-            mode="simulate",
-            data_fp=None)
-        settings.from_file(args.config_file)
+            # create a new settings object from arguments
+            settings = ASReviewSettings(
+                model=args.model,
+                n_instances=args.n_instances,
+                n_queries=args.n_queries,
+                n_papers=args.n_papers,
+                n_prior_included=args.n_prior_included,
+                n_prior_excluded=args.n_prior_excluded,
+                query_strategy=args.query_strategy,
+                balance_strategy=args.balance_strategy,
+                feature_extraction=args.feature_extraction,
+                mode="simulate",
+                data_fp=None)
+            settings.from_file(args.config_file)
 
-        # Initialize models.
-        random_state = get_random_state(args.seed)
-        train_model = get_classifier(settings.model,
-                                     **settings.model_param,
-                                     random_state=random_state)
-        query_model = get_query_model(settings.query_strategy,
-                                      **settings.query_param,
-                                      random_state=random_state)
-        balance_model = get_balance_model(settings.balance_strategy,
-                                          **settings.balance_param,
+            # Initialize models.
+            random_state = get_random_state(args.seed)
+            classifier_model = get_classifier(settings.model,
+                                         **settings.model_param,
+                                         random_state=random_state)
+            query_model = get_query_model(settings.query_strategy,
+                                          **settings.query_param,
                                           random_state=random_state)
-        feature_model = get_feature_model(settings.feature_extraction,
-                                          **settings.feature_param,
-                                          random_state=random_state)
+            balance_model = get_balance_model(settings.balance_strategy,
+                                              **settings.balance_param,
+                                              random_state=random_state)
+            feature_model = get_feature_model(settings.feature_extraction,
+                                              **settings.feature_param,
+                                              random_state=random_state)
 
-        # TODO{Deprecate and integrate with the model}
-        # LSTM models need embedding matrices.
-        if train_model.name.startswith("lstm-"):
-            texts = as_data.texts
-            train_model.embedding_matrix = feature_model.\
-                get_embedding_matrix(texts, args.embedding_fp)
+            # TODO{Deprecate and integrate with the model}
+            # LSTM models need embedding matrices.
+            if classifier_model.name.startswith("lstm-"):
+                texts = as_data.texts
+                classifier_model.embedding_matrix = feature_model.\
+                    get_embedding_matrix(texts, args.embedding_fp)
 
-        # prior knowledge
-        if args.prior_idx is not None and args.prior_record_id is not None and \
-                len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
-            raise ValueError(
-                "Not possible to provide both prior_idx and prior_record_id")
+            # prior knowledge
+            if args.prior_idx is not None and args.prior_record_id is not None and \
+                    len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
+                raise ValueError(
+                    "Not possible to provide both prior_idx and prior_record_id")
 
-        prior_idx = args.prior_idx
-        if args.prior_record_id is not None and len(args.prior_record_id) > 0:
-            prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
+            prior_idx = args.prior_idx
+            if args.prior_record_id is not None and len(args.prior_record_id) > 0:
+                prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
 
-        print("The following records are prior knowledge:\n")
-        for prior_record_id in prior_idx:
-            preview = preview_record(as_data.record(prior_record_id))
-            print(f"{prior_record_id} - {preview}")
+            print("The following records are prior knowledge:\n")
+            for prior_record_id in args.prior_record_id:
+                preview = preview_record(as_data.record(prior_record_id))
+                print(f"{prior_record_id} - {preview}")
 
-        # Initialize the review class.
-        reviewer = ReviewSimulate(as_data,
-                                  state_file=args.state_file,
-                                  model=train_model,
-                                  query_model=query_model,
-                                  balance_model=balance_model,
-                                  feature_model=feature_model,
-                                  n_papers=args.n_papers,
-                                  n_instances=args.n_instances,
-                                  n_queries=args.n_queries,
-                                  prior_indices=prior_idx,
-                                  n_prior_included=args.n_prior_included,
-                                  n_prior_excluded=args.n_prior_excluded,
-                                  init_seed=args.init_seed,
-                                  write_interval=args.write_interval)
+            # Initialize the review class.
+            reviewer = ReviewSimulate(as_data,
+                                      state_file=args.state_file,
+                                      model=classifier_model,
+                                      query_model=query_model,
+                                      balance_model=balance_model,
+                                      feature_model=feature_model,
+                                      n_papers=args.n_papers,
+                                      n_instances=args.n_instances,
+                                      n_queries=args.n_queries,
+                                      prior_indices=prior_idx,
+                                      n_prior_included=args.n_prior_included,
+                                      n_prior_excluded=args.n_prior_excluded,
+                                      init_seed=args.init_seed,
+                                      write_interval=args.write_interval)
 
-        # Start the review process.
-        reviewer.review()
+            # Start the review process.
+            reviewer.review()
 
-        # Mark review as finished.
-        mark_review_finished(args.state_file)
+            # Mark review as finished.
+            _mark_review_finished(args.state_file)
 
 
 DESCRIPTION_SIMULATE = """

@@ -1,17 +1,17 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import { Box, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 import { DataFormCard } from "../DetailsComponents";
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));
 
 const DataForm = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
 
   const {
@@ -19,13 +19,9 @@ const DataForm = (props) => {
     error: fetchDataError,
     isError: isFetchDataError,
     isFetching: isFetchingData,
-  } = useQuery(
-    ["fetchData", { project_id: props.project_id }],
-    ProjectAPI.fetchData,
-    {
-      refetchOnWindowFocus: false,
-    }
-  );
+  } = useQuery(["fetchData", { project_id }], ProjectAPI.fetchData, {
+    refetchOnWindowFocus: false,
+  });
 
   const {
     data: labeledStats,
@@ -33,7 +29,7 @@ const DataForm = (props) => {
     isError: isFetchLabeledStatsError,
     isFetching: isFetchingLabeledStats,
   } = useQuery(
-    ["fetchLabeledStats", { project_id: props.project_id }],
+    ["fetchLabeledStats", { project_id }],
     ProjectAPI.fetchLabeledStats,
     {
       refetchOnWindowFocus: false,
@@ -88,7 +84,6 @@ const DataForm = (props) => {
           refetch={refetchData}
         />
         <DataFormCard
-          handleNavState={props.handleNavState}
           isError={isFetchLabeledStatsError}
           primary={
             !isFetchLabeledStatsError
@@ -104,4 +99,4 @@ const DataForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(DataForm);
+export default DataForm;

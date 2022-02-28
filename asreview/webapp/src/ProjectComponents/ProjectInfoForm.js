@@ -1,7 +1,6 @@
 import * as React from "react";
-import Confetti from "react-confetti";
 import { useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   CircularProgress,
@@ -17,18 +16,13 @@ import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 import "../App.css";
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-  };
-};
-
 const Root = styled("div")(({ theme }) => ({}));
 
 const ProjectInfoForm = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
   const isProjectSetup = () => {
-    return props.app_state === "home";
+    return !project_id;
   };
 
   const onFocus = () => {
@@ -101,23 +95,10 @@ const ProjectInfoForm = (props) => {
                   }
                   mode={props.info?.mode}
                   handleMode={handleInfoChange}
-                  showSimulate={props.showSimulate}
                   onBlur={onBlur}
                   onFocus={onFocus}
                 />
               </MouseOverPopover>
-              {props.showSimulate && (
-                <Box>
-                  <Typography color="error">
-                    You unlocked the experimental simulation mode!
-                  </Typography>
-                  <Confetti
-                    recycle={false}
-                    tweenDuration={50000}
-                    numberOfPieces={1000}
-                  />
-                </Box>
-              )}
               <TextField
                 autoFocus
                 error={props.isMutateInfoError}
@@ -178,4 +159,4 @@ const ProjectInfoForm = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ProjectInfoForm);
+export default ProjectInfoForm;

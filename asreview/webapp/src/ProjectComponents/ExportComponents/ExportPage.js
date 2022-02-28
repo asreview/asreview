@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -18,7 +18,6 @@ import { styled } from "@mui/material/styles";
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
 const PREFIX = "ExportPage";
@@ -30,7 +29,7 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.select}`]: {
-    minWidth: 310,
+    width: 310,
   },
 
   [`& .${classes.selectHeight}`]: {
@@ -39,6 +38,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ExportPage = (props) => {
+  const { project_id } = useParams();
+
   const queryClient = useQueryClient();
 
   const [file, setFile] = React.useState("");
@@ -46,7 +47,7 @@ const ExportPage = (props) => {
   const [exporting, setExporting] = React.useState(false);
 
   const exportDatasetQuery = useQuery(
-    ["fetchExportDataset", { project_id: props.project_id, fileFormat }],
+    ["fetchExportDataset", { project_id, fileFormat }],
     ProjectAPI.fetchExportDataset,
     {
       enabled: file === "dataset" && exporting,
@@ -56,7 +57,7 @@ const ExportPage = (props) => {
   );
 
   const exportProjectQuery = useQuery(
-    ["fetchExportProject", { project_id: props.project_id }],
+    ["fetchExportProject", { project_id }],
     ProjectAPI.fetchExportProject,
     {
       enabled: file === "project" && exporting,
@@ -109,7 +110,12 @@ const ExportPage = (props) => {
           />
           <Box className="main-page-body-wrapper">
             <Stack className="main-page-body" spacing={3}>
-              <Box component="form" noValidate autoComplete="off">
+              <Box
+                className="main-page-body-wrapper"
+                component="form"
+                noValidate
+                autoComplete="off"
+              >
                 <Stack spacing={3}>
                   <FormControl
                     className={`${classes.select} ${classes.selectHeight}`}
@@ -208,11 +214,11 @@ const ExportPage = (props) => {
                       </InputLabel>
                       <Box>
                         <Select
+                          className={classes.select}
                           labelId="file-type-select-label"
                           id="file-type-select"
                           label="File format"
                           value={fileFormat}
-                          sx={{ width: "100%" }}
                         >
                           <MenuItem value="asreview">ASREVIEW</MenuItem>
                         </Select>
@@ -254,4 +260,4 @@ const ExportPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ExportPage);
+export default ExportPage;
