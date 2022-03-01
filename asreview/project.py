@@ -22,13 +22,15 @@ import sys
 import tempfile
 import time
 import zipfile
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
 import numpy as np
 import pandas as pd
 
-from asreview import __version__ as asreview_version
+from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.state.errors import StateError
@@ -36,13 +38,14 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
-from asreview.state.paths import get_state_path
-from asreview.state.utils import delete_state_from_project
-from asreview.state.utils import open_state
+from asreview.state.paths import get_feature_matrices_path
+from asreview.state.sqlstate import SqlStateV1
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.io import read_data
 from asreview.utils import asreview_path
-from asreview.webapp.utils import is_v0_project
+from asreview.state.utils import is_zipped_project_file
+from asreview.state.utils import is_valid_project_folder
+
 
 from functools import wraps
 
@@ -66,7 +69,7 @@ def get_project_path(project_id, asreview_dir=None):
         The id of the current project.
     """
 
-    if asreview_dir is not None:
+    if asreview_dir is None:
         asreview_dir = asreview_path()
 
     return Path(asreview_dir, project_id)
@@ -135,6 +138,67 @@ def is_v0_project(project_path):
     return not get_reviews_path(project_path).exists()
 
 
+@contextmanager
+def open_state(working_dir, review_id=None, read_only=True):
+    """Initialize a state class instance from a project folder.
+
+    Arguments
+    ---------
+    working_dir: str/pathlike
+        Filepath to the (unzipped) project folder.
+    review_id: str
+        Identifier of the review from which the state will be instantiated.
+        If none is given, the first review in the reviews folder will be taken.
+    read_only: bool
+        Whether to open in read_only mode.
+
+    Returns
+    -------
+    SqlStateV1
+    """
+    working_dir = Path(working_dir)
+
+    if not get_reviews_path(working_dir).is_dir():
+        if read_only:
+            raise StateNotFoundError(f"There is no valid project folder"
+                                     f" at {working_dir}")
+        else:
+            ASReviewProject.create(working_dir)
+            review_id = uuid4().hex
+
+    # Check if file is a valid project folder.
+    is_valid_project_folder(working_dir)
+
+    # Get the review_id of the first review if none is given.
+    # If there is no review yet, create a review id.
+    if review_id is None:
+        reviews = list(get_reviews_path(working_dir).iterdir())
+        if reviews:
+            review_id = reviews[0].name
+        else:
+            review_id = uuid4().hex
+
+    # init state class
+    state = SqlStateV1(read_only=read_only)
+
+    try:
+        if Path(get_reviews_path(working_dir), review_id).is_dir():
+            state._restore(working_dir, review_id)
+        elif not Path(get_reviews_path(working_dir), review_id).is_dir() \
+                and not read_only:
+            state._create_new_state_file(working_dir, review_id)
+        else:
+            raise StateNotFoundError("State file does not exist, and in "
+                                     "read only mode.")
+        yield state
+    finally:
+        try:
+            state.close()
+        except AttributeError:
+            # file seems to be closed, do nothing
+            pass
+
+
 class ASReviewProject():
 
     def __init__(self, project_path, project_id=None):
@@ -192,8 +256,8 @@ class ASReviewProject():
             }
 
             # create a file with project info
-            with open(get_project_file_path(project_path), "w") as project_path:
-                json.dump(project_config, project_path)
+            with open(get_project_file_path(project_path), "w") as f:
+                json.dump(project_config, f)
 
         except Exception as err:
             # remove all generated folders and raise error
@@ -211,6 +275,7 @@ class ASReviewProject():
 
             try:
 
+                print(self.project_path)
                 # read the file with project info
                 with open(get_project_file_path(self.project_path), "r") as fp:
 
@@ -323,9 +388,7 @@ class ASReviewProject():
         # fill the pool of the first iteration
         as_data = read_data(self.project_path)
 
-        state_file = get_state_path(self.project_path)
-
-        with open_state(state_file, read_only=False) as state:
+        with open_state(self.project_path, read_only=False) as state:
 
             # save the record ids in the state file
             state.add_record_table(as_data.record_ids)

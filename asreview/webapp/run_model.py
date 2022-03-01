@@ -23,9 +23,9 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.review.base import BaseReview
 from asreview.state.paths import get_lock_path
-from asreview.state.utils import open_state
+from asreview.project import open_state
 from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.utils import read_data
+from asreview.webapp.io import read_data
 from asreview.project import get_project_path
 
 

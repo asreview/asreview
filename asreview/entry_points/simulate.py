@@ -41,16 +41,17 @@ from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state import open_state
+from asreview.project import open_state
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
-from asreview.state.utils import init_project_folder_structure
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
-from asreview.webapp.utils.io import read_data
+from asreview.webapp.io import read_data
+from asreview.project import ASReviewProject
+
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
@@ -236,28 +237,28 @@ class SimulateEntryPoint(BaseEntryPoint):
                                  " with at least one record.")
 
             if not _is_partial_simulation(args):
-                # TODO: refactor these functions into a project module
-                init_project_folder_structure(args.state_file,
-                                              project_mode='simulate')
+
+                fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+
+                project = ASReviewProject.create(
+                    fp_tmp_simulation,
+                    project_id=fp_tmp_simulation.name,
+                    project_mode="simulate",
+                    project_name=fp_tmp_simulation.name,
+                    project_description="Simulation create via ASReview command line interface"
+                )
 
                 # Add the dataset to the project file.
                 dataset_path = _get_dataset_path_from_args(args.dataset)
 
                 as_data.to_csv(
                     Path(
-                        get_data_path(args.state_file),
+                        get_data_path(fp_tmp_simulation),
                         dataset_path
                     )
                 )
                 # Update the project.json.
-                project_file_path = get_project_file_path(args.state_file)
-                with open(project_file_path, 'r') as f:
-                    project_json = json.load(f)
-
-                project_json['dataset_path'] = dataset_path
-
-                with open(project_file_path, 'w') as f:
-                    json.dump(project_json, f)
+                project.update_config(dataset_path=dataset_path)
 
             # create a new settings object from arguments
             settings = ASReviewSettings(
@@ -313,7 +314,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # Initialize the review class.
             reviewer = ReviewSimulate(as_data,
-                                      state_file=args.state_file,
+                                      state_file=fp_tmp_simulation,
                                       model=classifier_model,
                                       query_model=query_model,
                                       balance_model=balance_model,
@@ -331,7 +332,10 @@ class SimulateEntryPoint(BaseEntryPoint):
             reviewer.review()
 
             # Mark review as finished.
-            _mark_review_finished(args.state_file)
+            _mark_review_finished(fp_tmp_simulation)
+
+            # export the file to a ASReview zipped folder
+            ASReviewProject(fp_tmp_simulation).export(args.state_file)
 
 
 DESCRIPTION_SIMULATE = """
@@ -388,7 +392,7 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--state_file", "-s",
         default=None,
         type=str,
-        help="Location to store the state of the simulation."
+        help="Location to ASReview project file of simulation."
     )
     parser.add_argument(
         "-m", "--model",

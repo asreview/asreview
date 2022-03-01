@@ -15,16 +15,19 @@
 import json
 import shutil
 import sqlite3
+from base64 import b64decode
+from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
 import numpy as np
+from scipy.sparse import csr_matrix
 from scipy.sparse import issparse
 from scipy.sparse import save_npz
 
 from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy
-from asreview.state.utils import decode_feature_matrix
+
 
 SQLSTATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
@@ -36,6 +39,19 @@ def is_old_project(fp):
         return False
     else:
         return True
+
+
+def decode_feature_matrix(jsonstate, data_hash):
+    """Get the feature matrix from a json state as a scipy csr_matrix."""
+    my_data = jsonstate._state_dict["data_properties"][data_hash]
+    encoded_X = my_data["feature_matrix"]
+    matrix_type = my_data["matrix_type"]
+    if matrix_type == "ndarray":
+        return csr_matrix(encoded_X)
+    elif matrix_type == "csr_matrix":
+        with BytesIO(b64decode(encoded_X)) as f:
+            return load_npz(f)
+    return encoded_X
 
 
 def upgrade_asreview_project_file(fp, from_version=0, to_version=1):

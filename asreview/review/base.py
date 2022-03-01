@@ -10,7 +10,7 @@ from asreview.models.classifiers import NaiveBayesClassifier
 from asreview.models.feature_extraction.tfidf import Tfidf
 from asreview.models.query.max import MaxQuery
 from asreview.settings import ASReviewSettings
-from asreview.state.utils import open_state
+from asreview.project import open_state
 
 
 class BaseReview(ABC):

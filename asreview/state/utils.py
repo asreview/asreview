@@ -16,16 +16,11 @@ import json
 import shutil
 import sqlite3
 import time
-from base64 import b64decode
-from contextlib import contextmanager
 from datetime import datetime
-from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
 import pandas as pd
-from scipy.sparse import csr_matrix
-from scipy.sparse import load_npz
 
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
@@ -33,7 +28,6 @@ from asreview.state.paths import get_feature_matrices_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SqlStateV1
-from asreview.project import ASReviewProject
 
 
 V3STATE_VERSION = "1.0"
@@ -70,76 +64,3 @@ def is_valid_project_folder(fp):
     else:
         return
 
-
-@contextmanager
-def open_state(working_dir, review_id=None, read_only=True):
-    """Initialize a state class instance from a project folder.
-
-    Arguments
-    ---------
-    working_dir: str/pathlike
-        Filepath to the (unzipped) project folder.
-    review_id: str
-        Identifier of the review from which the state will be instantiated.
-        If none is given, the first review in the reviews folder will be taken.
-    read_only: bool
-        Whether to open in read_only mode.
-
-    Returns
-    -------
-    SqlStateV1
-    """
-    working_dir = Path(working_dir)
-
-    if not get_reviews_path(working_dir).is_dir():
-        if read_only:
-            raise StateNotFoundError(f"There is no valid project folder"
-                                     f" at {working_dir}")
-        else:
-            ASReviewProject.create(working_dir)
-            review_id = uuid4().hex
-
-    # Check if file is a valid project folder.
-    is_valid_project_folder(working_dir)
-
-    # Get the review_id of the first review if none is given.
-    # If there is no review yet, create a review id.
-    if review_id is None:
-        reviews = list(get_reviews_path(working_dir).iterdir())
-        if reviews:
-            review_id = reviews[0].name
-        else:
-            review_id = uuid4().hex
-
-    # init state class
-    state = SqlStateV1(read_only=read_only)
-
-    try:
-        if Path(get_reviews_path(working_dir), review_id).is_dir():
-            state._restore(working_dir, review_id)
-        elif not Path(get_reviews_path(working_dir), review_id).is_dir() \
-                and not read_only:
-            state._create_new_state_file(working_dir, review_id)
-        else:
-            raise StateNotFoundError("State file does not exist, and in "
-                                     "read only mode.")
-        yield state
-    finally:
-        try:
-            state.close()
-        except AttributeError:
-            # file seems to be closed, do nothing
-            pass
-
-
-def decode_feature_matrix(jsonstate, data_hash):
-    """Get the feature matrix from a json state as a scipy csr_matrix."""
-    my_data = jsonstate._state_dict["data_properties"][data_hash]
-    encoded_X = my_data["feature_matrix"]
-    matrix_type = my_data["matrix_type"]
-    if matrix_type == "ndarray":
-        return csr_matrix(encoded_X)
-    elif matrix_type == "csr_matrix":
-        with BytesIO(b64decode(encoded_X)) as f:
-            return load_npz(f)
-    return encoded_X

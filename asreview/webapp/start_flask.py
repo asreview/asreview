@@ -29,9 +29,8 @@ from werkzeug.exceptions import InternalServerError
 from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
-from asreview.webapp.utils.project import clean_all_project_tmp_files
 from asreview.project import ASReviewProject
-from asreview.webapp.utils.project_path import get_project_path
+from asreview.project import get_project_path
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":

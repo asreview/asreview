@@ -17,8 +17,8 @@ import argparse
 import pandas as pd
 
 from asreview.entry_points.base import BaseEntryPoint
-from asreview.state.utils import open_state
-from asreview.webapp.utils.project_path import get_project_path
+from asreview.project import open_state
+from asreview.project import get_project_path
 
 
 def _parse_state_inspect_args():

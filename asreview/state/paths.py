@@ -166,19 +166,6 @@ def get_feature_matrix_path(project_path, feature_extraction=None):
     return Path(get_feature_matrices_path(project_path), filename)
 
 
-# TODO(State): Merge with get_project_path.
-def get_state_path(project_path):
-    """Get the labeled file for the project and iteration.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return project_path
-
-
 def get_simulation_ready_path(project_path, simulation_id):
     """Get the simulation_ready file for the project and iteration.
 

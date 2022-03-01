@@ -25,7 +25,7 @@ from asreview.analysis.statistics import _get_last_proba_order
 from asreview.analysis.statistics import _get_limits
 from asreview.state import BaseState
 from asreview.state.legacy.utils import states_from_dir
-from asreview.state.utils import open_state
+from asreview.project import open_state
 
 
 # TODO(State): Remove states_from_dir

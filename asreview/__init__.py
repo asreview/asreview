@@ -19,7 +19,7 @@ from asreview.io.ris_reader import read_ris
 from asreview.models.feature_extraction.embedding_lstm import load_embedding
 from asreview.models.feature_extraction.embedding_lstm import sample_embedding
 from asreview.models.feature_extraction.embedding_lstm import text_to_features
-from asreview.state.utils import open_state
+from asreview.project import open_state
 
 from ._version import get_versions
 

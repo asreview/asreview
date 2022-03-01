@@ -19,7 +19,7 @@ import pandas as pd
 from asreview.init_sampling import sample_prior_knowledge
 from asreview.review import BaseReview
 from asreview.review.base import LABEL_NA
-from asreview.state import open_state
+from asreview.project import open_state
 
 
 class ReviewSimulate(BaseReview):

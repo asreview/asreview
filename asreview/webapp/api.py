@@ -57,30 +57,22 @@ from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_simulation_ready_path
-from asreview.state.paths import get_state_path
 from asreview.state.paths import get_tmp_path
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
-from asreview.state.utils import open_state
+from asreview.project import open_state
 from asreview.datasets import get_dataset_metadata
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.project import is_project
 from asreview.webapp.io import read_data
 from asreview.utils import _get_executable
-from asreview.webapp.utils import export_to_string
-from asreview.webapp.utils import get_paper_data
-from asreview.webapp.utils import get_statistics
-from asreview.webapp.utils import import_project_file
-from asreview.webapp.utils import init_project
-from asreview.webapp.utils import label_instance
-from asreview.webapp.utils import update_instance
 from asreview.project import _create_project_id
 from asreview.project import ASReviewProject
 from asreview.project import project_from_id
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
-from asreview.webapp.utils.validation import check_dataset
+
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
@@ -215,7 +207,6 @@ def api_init_project():  # noqa: F401
     project_authors = request.form['authors']
 
     project_id = _create_project_id(project_name)
-    project_path = get_project_path(project_id)
 
     project = ASReviewProject.create(
         get_project_path(project_id),
@@ -231,7 +222,7 @@ def api_init_project():  # noqa: F401
     return response, 201
 
 
-@bp.route('/project/<project_id>/upgrade_if_old', methods=["GET"])
+@bp.route('/projects/<project_id>/upgrade_if_old', methods=["GET"])
 @project_from_id
 def api_upgrade_project_if_old(project):
     """Get upgrade project if it is v0.x"""
@@ -252,7 +243,7 @@ def api_upgrade_project_if_old(project):
     return response
 
 
-@bp.route('/project/<project_id>/info', methods=["GET"])
+@bp.route('/projects/<project_id>/info', methods=["GET"])
 @project_from_id
 def api_get_project_info(project):  # noqa: F401
     """Get info on the article"""
@@ -279,7 +270,7 @@ def api_get_project_info(project):  # noqa: F401
                     project_config["projectInitReady"] = False
 
         # check if project is old
-        project_info["projectNeedsUpgrade"] = is_old_project(project_path)
+        project_config["projectNeedsUpgrade"] = is_old_project(project.project_path)
 
     except Exception as err:
         logging.error(err)
@@ -288,7 +279,7 @@ def api_get_project_info(project):  # noqa: F401
     return jsonify(project_config)
 
 
-@bp.route('/project/<project_id>/info', methods=["PUT"])
+@bp.route('/projects/<project_id>/info', methods=["PUT"])
 @project_from_id
 def api_update_project_info(project):  # noqa: F401
     """Get info on the article"""
@@ -354,7 +345,7 @@ def api_demo_data_project():  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["POST", "PUT"])
+@bp.route('/projects/<project_id>/data', methods=["POST", "PUT"])
 @project_from_id
 def api_upload_data_to_project(project):  # noqa: F401
     """Get info on the article"""
@@ -469,7 +460,7 @@ def api_upload_data_to_project(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/data', methods=["GET"])
+@bp.route('/projects/<project_id>/data', methods=["GET"])
 @project_from_id
 def api_get_project_data(project):  # noqa: F401
     """Get info on the article"""
@@ -505,7 +496,7 @@ def api_get_project_data(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/search', methods=["GET"])
+@bp.route('/projects/<project_id>/search', methods=["GET"])
 @project_from_id
 def api_search_data(project):  # noqa: F401
     """Search for papers
@@ -565,7 +556,7 @@ def api_search_data(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/labeled', methods=["GET"])
+@bp.route('/projects/<project_id>/labeled', methods=["GET"])
 @project_from_id
 def api_get_labeled(project):  # noqa: F401
     """Get all papers classified as labeled documents
@@ -662,7 +653,7 @@ def api_get_labeled(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/labeled_stats', methods=["GET"])
+@bp.route('/projects/<project_id>/labeled_stats', methods=["GET"])
 @project_from_id
 def api_get_labeled_stats(project):  # noqa: F401
     """Get all papers classified as prior documents
@@ -702,7 +693,7 @@ def api_get_labeled_stats(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/prior_random', methods=["GET"])
+@bp.route('/projects/<project_id>/prior_random', methods=["GET"])
 @project_from_id
 def api_random_prior_papers(project):  # noqa: F401
     """Get a selection of random papers to find exclusions.
@@ -710,9 +701,8 @@ def api_random_prior_papers(project):  # noqa: F401
     This set of papers is extracted from the pool, but without
     the already labeled items.
     """
-    state_file = get_state_path(project.project_path)
 
-    with open_state(state_file) as state:
+    with open_state(project.project_path) as state:
         pool = state.get_pool()
 
     try:
@@ -788,7 +778,7 @@ def api_list_algorithms():
     return response
 
 
-@bp.route('/project/<project_id>/algorithms', methods=["GET"])
+@bp.route('/projects/<project_id>/algorithms', methods=["GET"])
 @project_from_id
 def api_get_algorithms(project):  # noqa: F401
 
@@ -801,9 +791,7 @@ def api_get_algorithms(project):  # noqa: F401
     # check if there were algorithms stored in the state file
     try:
 
-        state_file = get_state_path(project.project_path)
-
-        with open_state(state_file) as state:
+        with open_state(project.project_path) as state:
             if state.settings is not None:
                 payload = {
                     "model": state.settings.model,
@@ -820,7 +808,7 @@ def api_get_algorithms(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/algorithms', methods=["POST"])
+@bp.route('/projects/<project_id>/algorithms', methods=["POST"])
 @project_from_id
 def api_set_algorithms(project):  # noqa: F401
 
@@ -838,10 +826,8 @@ def api_set_algorithms(project):  # noqa: F401
         balance_strategy=DEFAULT_BALANCE_STRATEGY,
         feature_extraction=ml_feature_extraction)
 
-    state_file = get_state_path(project.project_path)
-
     # save the new settings to the state file
-    with open_state(state_file, read_only=False) as state:
+    with open_state(project.project_path, read_only=False) as state:
         state.settings = asreview_settings
 
     response = jsonify({'success': True})
@@ -849,7 +835,7 @@ def api_set_algorithms(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/start', methods=["POST"])
+@bp.route('/projects/<project_id>/start', methods=["POST"])
 @project_from_id
 def api_start(project):  # noqa: F401
     """Start training of first model or simulation.
@@ -927,7 +913,7 @@ def api_start(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/ready', methods=["GET"])
+@bp.route('/projects/<project_id>/ready', methods=["GET"])
 @project_from_id
 def api_init_model_ready(project):  # noqa: F401
     """Check if trained model is available
@@ -974,7 +960,7 @@ def api_init_model_ready(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/import_project', methods=["POST"])
+@bp.route('/projects/import_project', methods=["POST"])
 def api_import_project():
     """Import uploaded project"""
 
@@ -1034,7 +1020,7 @@ def api_import_project():
     return jsonify(project_info)
 
 
-@bp.route('/project/<project_id>/export', methods=["GET"])
+@bp.route('/projects/<project_id>/export', methods=["GET"])
 @project_from_id
 def export_results(project):
 
@@ -1124,7 +1110,7 @@ def export_results(project):
         return jsonify(message=f"Failed to export the {file_type} dataset."), 500
 
 
-@bp.route('/project/<project_id>/export_project', methods=["GET"])
+@bp.route('/projects/<project_id>/export_project', methods=["GET"])
 @project_from_id
 def export_project(project):
     """Export the project file.
@@ -1147,7 +1133,7 @@ def export_project(project):
                      max_age=0)
 
 
-@bp.route('/project/<project_id>/finish', methods=["GET"])
+@bp.route('/projects/<project_id>/finish', methods=["GET"])
 @project_from_id
 def api_finish_project(project):
     """Mark a project as finished or not"""
@@ -1169,7 +1155,7 @@ def api_finish_project(project):
     return response
 
 
-@bp.route('/project/<project_id>/progress', methods=["GET"])
+@bp.route('/projects/<project_id>/progress', methods=["GET"])
 @project_from_id
 def api_get_progress_info(project):  # noqa: F401
     """Get progress statistics of a project"""
@@ -1239,7 +1225,7 @@ def api_get_progress_info(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/progress_density', methods=["GET"])
+@bp.route('/projects/<project_id>/progress_density', methods=["GET"])
 @project_from_id
 def api_get_progress_density(project):
     """Get progress density of a project"""
@@ -1299,7 +1285,7 @@ def api_get_progress_density(project):
     return response
 
 
-@bp.route('/project/<project_id>/progress_recall', methods=["GET"])
+@bp.route('/projects/<project_id>/progress_recall', methods=["GET"])
 def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
 
@@ -1345,7 +1331,7 @@ def api_get_progress_recall(project):
     return response
 
 
-@bp.route('/project/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
+@bp.route('/projects/<project_id>/record/<doc_id>', methods=["POST", "PUT"])
 @project_from_id
 def api_classify_instance(project, doc_id):  # noqa: F401
     """Label item
@@ -1368,11 +1354,9 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     retrain_model = False if is_prior == "1" else True
     prior = True if is_prior == "1" else False
 
-    state_path = get_state_path(project_path)
-
     if request.method == 'POST':
 
-        with open_state(state_path, read_only=False) as state:
+        with open_state(project.project_path, read_only=False) as state:
 
             # get the index of the active iteration
             if label in [0, 1]:
@@ -1384,12 +1368,12 @@ def api_classify_instance(project, doc_id):  # noqa: F401
                                         prior=prior)
 
             elif label == -1:
-                with open_state(state_path, read_only=False) as state:
+                with open_state(project.project_path, read_only=False) as state:
                     state.delete_record_labeling_data(record_id)
 
     elif request.method == 'PUT':
 
-        with open_state(state_path, read_only=False) as state:
+        with open_state(project.project_path, read_only=False) as state:
             state.update_decision(record_id, label, note=note)
 
     if retrain_model:
@@ -1409,7 +1393,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/get_document', methods=["GET"])
+@bp.route('/projects/<project_id>/get_document', methods=["GET"])
 @project_from_id
 def api_get_document(project):  # noqa: F401
     """Retrieve documents in order of review.
@@ -1465,7 +1449,7 @@ def api_get_document(project):  # noqa: F401
     return response
 
 
-@bp.route('/project/<project_id>/delete', methods=["DELETE"])
+@bp.route('/projects/<project_id>/delete', methods=["DELETE"])
 @project_from_id
 def api_delete_project(project):  # noqa: F401
     """Get info on the article"""
