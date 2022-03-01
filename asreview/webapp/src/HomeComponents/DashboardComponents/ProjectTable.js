@@ -244,6 +244,14 @@ const ProjectTable = (props) => {
               data
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
+                  const isSimulating = () => {
+                    return (
+                      row["mode"] === projectModes.SIMULATION &&
+                      row["projectInitReady"] &&
+                      !row["reviewFinished"]
+                    );
+                  };
+
                   const showAnalyticsButton = () => {
                     return row["projectInitReady"];
                   };
@@ -300,6 +308,7 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
+                              isSimulating={isSimulating}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}

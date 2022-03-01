@@ -60,7 +60,7 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        {props.showReviewButton() && (
+        {!props.isSimulating() && props.showReviewButton() && (
           <Tooltip title="Review">
             <IconButton
               className={classes.button}
@@ -70,14 +70,16 @@ export default function TableRowButton(props) {
             </IconButton>
           </Tooltip>
         )}
-        <Tooltip title="Export">
-          <IconButton
-            className={classes.button}
-            onClick={props.onClickProjectExport}
-          >
-            <Download />
-          </IconButton>
-        </Tooltip>
+        {!props.isSimulating() && (
+          <Tooltip title="Export">
+            <IconButton
+              className={classes.button}
+              onClick={props.onClickProjectExport}
+            >
+              <Download />
+            </IconButton>
+          </Tooltip>
+        )}
         <div>
           <Tooltip title="Options">
             <IconButton className={classes.button} onClick={handleClickRowMenu}>
@@ -89,7 +91,9 @@ export default function TableRowButton(props) {
             open={onRowMenu}
             onClose={handleCloseRowMenu}
           >
-            <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
+            {!props.isSimulating() && (
+              <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
+            )}
             <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
           </Menu>
         </div>
