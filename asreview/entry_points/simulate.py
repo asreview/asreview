@@ -89,6 +89,7 @@ def review_finished(project_path, review_id=None):
         review_index = [x['id']
                         for x in project_config['reviews']].index(review_id)
 
+    project_config['reviewFinished'] = True
     project_config['reviews'][review_index]['review_finished'] = True
     project_config['reviews'][review_index]['end_time'] = str(datetime.now())
 
