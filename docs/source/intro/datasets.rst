@@ -36,6 +36,14 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
+For parsing RIS file format, the software uses a Python RIS files parser and reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export depends on a proper data set structure. To validate your data set, the complete default mapping can be found on the developer's `GitHub page <https://github.com/MrTango/rispy#complete-default-mapping>`_.
+
+.. figure:: ../../images/asreview_export_to_zotero_labeled.png
+   :alt: Example record with a labeling decision imported to Zotero
+
+.. figure:: ../../images/asreview_export_to_endnote_labeled.png
+   :alt: Example record with a labeling decision imported to Endnote
+
  - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
    CSV and TAB files are preferably comma, semicolon, or tab-delimited.
    The preferred file encoding is *UTF-8* or *latin1*.
@@ -122,7 +130,7 @@ Citation Managers
 ~~~~~~~~~~~~~~~~~
 
 The following table provides an overview of export files from citation
-managers  which are accepted by ASReview.
+managers which are accepted by ASReview.
 
 +-------------------------------+----------+----------+----------+
 |                               | **.ris** | **.csv** | **.xlsx**|
@@ -140,7 +148,15 @@ managers  which are accepted by ASReview.
 
 -  ✅ = The data can be exported from the citation manager and imported in ASReview.
 -  N/A = This format does not exist.
--  X = Not supported.
+
+
+RIS files used for screening in ASReview LAB can be imported back into the
+reference software and the decision labels can be found in the notes field.
+For more information see this `instruction video <https://youtu.be/-Rw291AE2OI>`_.
+
+Note: the RIS-pipeline is extensively tested for reference managers Zotero and EndNote. 
+However, it might also work for other reference managers but is currently not supported. 
+
 
 .. note::
 
