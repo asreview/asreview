@@ -36,6 +36,14 @@ formats:
    IEEE Xplore, Scopus and ScienceDirect. Citation managers Mendeley, RefWorks,
    Zotero, and EndNote support the RIS file format as well.
 
+For parsing RIS file format, the software uses a Python RIS files parser and reader (`rispy <https://pypi.org/project/rispy/>`__). Successful import/export depends on a proper data set structure. To validate your data set, the complete default mapping can be found on the developer's `GitHub page <https://github.com/MrTango/rispy#complete-default-mapping>`_.
+
+.. figure:: ../../images/asreview_export_to_zotero_labeled.png
+   :alt: Example record with a labeling decision imported to Zotero
+
+.. figure:: ../../images/asreview_export_to_endnote_labeled.png
+   :alt: Example record with a labeling decision imported to Endnote
+
  - **Tabular datasets** with extensions ``.csv``, ``.tab``, ``.tsv``, or ``.xlsx``.
    CSV and TAB files are preferably comma, semicolon, or tab-delimited.
    The preferred file encoding is *UTF-8* or *latin1*.
