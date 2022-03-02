@@ -423,6 +423,23 @@ def test_pool_labeled_pending(tmpdir):
         assert labeled['label'].to_list() == [1, 0, 1]
         assert pending.to_list() == [10, 9, 8]
 
+        pool2 = state.get_pool()
+        labeled2 = state.get_labeled()
+        pending2 = state.get_pending()
+
+        assert isinstance(pool2, pd.Series)
+        assert isinstance(labeled2, pd.DataFrame)
+        assert isinstance(pending2, pd.Series)
+
+        assert pool2.name == 'record_id'
+        assert pending2.name == 'record_id'
+        assert list(labeled2.columns) == ['record_id', 'label']
+
+        assert pool.to_list() == pool2.to_list()
+        assert labeled['record_id'].to_list() == labeled2['record_id'].to_list()
+        assert labeled['label'].to_list() == labeled2['label'].to_list()
+        assert pending.to_list() == pending2.to_list()
+
 
 def test_exist_new_labeled_records(tmpdir):
     record_table = range(1, 11)
@@ -534,3 +551,21 @@ def test_last_ranking(tmpdir):
         assert last_ranking['record_id'].to_list() == ranking
         assert last_ranking['classifier'].to_list() == \
                [classifier] * len(record_ids)
+
+
+def test_get_pool():
+    with open_state(TEST_STATE_FP) as state:
+        pool = state.get_pool()
+
+    assert isinstance(pool, pd.Series)
+    assert len(pool) == 841
+    assert pool[:10].to_list() == TEST_POOL_START
+
+
+def test_get_labeled():
+    with open_state(TEST_STATE_FP) as state:
+        labeled = state.get_labeled()
+
+    assert isinstance(labeled, pd.DataFrame)
+    assert labeled['record_id'].to_list() == TEST_RECORD_IDS
+    assert labeled['label'].to_list() == TEST_LABELS
