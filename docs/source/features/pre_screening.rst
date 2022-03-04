@@ -96,8 +96,8 @@ and is empty for the records that you still need to screen using ASReview.
 For the RIS file format, the dataset is handled automatically. The label 
 (ASReview_relevant, ASReview_irrelevant, ASReview_not_seen) is stored under the
 N1 (Notes) tag. If the N1 tag is missing, it will be created for each record
-after importing the dataset. You can find a representative demo dataset in our
-`GitHub repository <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_
+after importing the dataset. An example of a RIS file with N1 tag in the `ASReview
+GitHub repository <https://github.com/asreview/asreview/blob/master/tests/demo_data/baseline_tag-notes_labels.ris>`_
 where all records are valid. You can also find a record without a
 N1 (Notes) tag defined - the tag will be created after importing to
 ASReview and populated with a label.
