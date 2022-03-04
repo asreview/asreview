@@ -80,8 +80,7 @@ prior knowledge to screen the unseen records. The labeled records will be
 recognized by ASReview LAB and are used to train the first iteration of the
 active learning model. This might be helpful if you switch from screening in
 another tool to screening with ASReview, or when updating an existing
-systematic review with more recent publications. For more options, see the
-`discussion board <https://github.com/asreview/asreview/discussions/975>`_. 
+systematic review with more recent publications. For more options, see `How to collaborate with ASReview? <https://github.com/asreview/asreview/discussions/975>`_ on the ASReview discussion board. 
 
 .. note::
 
