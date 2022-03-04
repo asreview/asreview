@@ -33,10 +33,8 @@ Functions
    :toctree: generated/
    :template: custom-module-template.rst
 
-   asreview.batch.batch_simulate
-   asreview.batch.create_jobs
-   asreview.compat.convert_id_to_idx
-   asreview.compat.convert_idx_to_id
+   asreview.datasets.dataset_from_url
+   asreview.datasets.download_from_metadata
    asreview.init_sampling.sample_prior_knowledge
    asreview.search.fuzzy_find
 
@@ -129,7 +127,6 @@ Classes
    :template: custom-class-template.rst
 
    entry_points.AlgorithmsEntryPoint
-   entry_points.BatchEntryPoint
    entry_points.LABEntryPoint
    entry_points.SimulateEntryPoint
 
@@ -371,7 +368,6 @@ Classes
    :toctree: generated/
    :template: custom-class-template.rst
 
-   review.MinimalReview
    review.ReviewSimulate
 
 
@@ -382,7 +378,6 @@ Functions
    :toctree: generated/
    :template: custom-class-template.rst
 
-   review.get_reviewer
    review.review
    review.review_simulate
 
@@ -412,8 +407,7 @@ Classes
    :nosignatures:
    :toctree: generated/
    :template: custom-class-template.rst
-
-   state.DictState
+   
    state.HDF5State
    state.JSONState
 
@@ -425,10 +419,7 @@ Functions
    :toctree: generated/
    :template: custom-class-template.rst
 
-   state.open_state
-   state.states_from_dir
-   state.state_from_file
-   state.state_from_asreview_file
+   project.open_state
 
 
 
