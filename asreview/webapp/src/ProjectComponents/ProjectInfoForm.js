@@ -12,7 +12,6 @@ import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../Components";
 import { ProjectModeSelect } from "../ProjectComponents";
-import { MouseOverPopover } from "../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../StyledComponents/StyledTypography.js";
 import "../App.css";
 
@@ -82,23 +81,15 @@ const ProjectInfoForm = (props) => {
         {!props.isFetchingInfo && !props.isFetchInfoError && (
           <Box component="form" noValidate autoComplete="off">
             <Stack direction="column" spacing={3}>
-              <MouseOverPopover
-                title={
-                  !isProjectSetup()
-                    ? "Select mode when creating a new project"
-                    : "Select mode before proceeding to the next step"
+              <ProjectModeSelect
+                disableModeSelect={
+                  !isProjectSetup() ? true : props.disableModeSelect
                 }
-              >
-                <ProjectModeSelect
-                  disableModeSelect={
-                    !isProjectSetup() ? true : props.disableModeSelect
-                  }
-                  mode={props.info?.mode}
-                  handleMode={handleInfoChange}
-                  onBlur={onBlur}
-                  onFocus={onFocus}
-                />
-              </MouseOverPopover>
+                mode={props.info?.mode}
+                handleMode={handleInfoChange}
+                onBlur={onBlur}
+                onFocus={onFocus}
+              />
               <TextField
                 autoFocus
                 error={props.isMutateInfoError}
