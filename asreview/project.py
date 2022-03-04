@@ -80,7 +80,7 @@ def project_from_id(f):
     def decorated_function(project_id, *args, **kwargs):
 
         project_path = get_project_path(project_id)
-        project = ASReviewProject(project_path)
+        project = ASReviewProject(project_path, project_id=project_id)
         return f(project, *args, **kwargs)
 
     return decorated_function
@@ -92,10 +92,12 @@ def list_asreview_projects():
     file_list = []
     for x in asreview_path().iterdir():
         if x.is_dir():
-            if Path(x, "project.json").exists():
-                file_list.append(
-                    ASReviewProject(x)
-                )
+            try:
+                project = ASReviewProject(x)
+                project.project_id = project.config["id"]
+                file_list.append(project)
+            except Exception:
+                pass
     return file_list
 
 
@@ -275,7 +277,6 @@ class ASReviewProject():
 
             try:
 
-                print(self.project_path)
                 # read the file with project info
                 with open(get_project_file_path(self.project_path), "r") as fp:
 
@@ -350,32 +351,27 @@ class ASReviewProject():
 
         if (self.project_path == project_path_new):
             # nothing to do
-            return
+            return self
 
         if (self.project_path != project_path_new) & is_project(project_path_new):
             raise ValueError(f"Project '{project_path_new}' already exists.")
 
         project_file_path_new = get_project_file_path(project_path_new)
 
-        try:
-            print(self.project_path)
-            print(project_path_new)
-            self.project_path.rename(project_path_new)
+        self.project_path.rename(project_path_new)
+        self.project_path = project_path_new
+        self.project_id = project_id_new
 
-            with open(project_file_path_new, "r") as fp:
-                config = json.load(fp)
+        # update the project file
+        config = self.config
 
-            config["id"] = project_id_new
-            config["name"] = project_name_new
+        config["id"] = project_id_new
+        config["name"] = project_name_new
 
-            with open(project_file_path_new, "w") as fp:
-                json.dump(config, fp)
-            self._config = config
+        self.config = config
+        self._config = config
 
-        except Exception as err:
-            raise err
-
-        return project_path_new
+        return self
 
 
     def add_dataset(self, file_name):
@@ -490,19 +486,23 @@ class ASReviewProject():
     def export(self, export_fp):
 
         if Path(export_fp).suffix != ".asreview":
-            raise ValueError("File export should have .asreview extension.")
+            raise ValueError("Export file should have .asreview extension.")
+
+        export_fp_tmp = Path(export_fp).with_suffix(".asreview.tmp")
 
         # copy the source tree, but ignore pickle files
         shutil.copytree(self.project_path,
-                        export_fp,
+                        export_fp_tmp,
                         ignore=shutil.ignore_patterns('*.pickle'))
 
         # create the archive
-        shutil.make_archive(export_fp,
+        shutil.make_archive(export_fp_tmp,
                             "zip",
-                            root_dir=Path(export_dir, self.project_id))
+                            root_dir=export_fp_tmp)
 
-        shutil.move(f'{export_fp}.zip', export_fp)
+        # remove the unzipped folder and move zip
+        shutil.rmtree(export_fp_tmp)
+        shutil.move(f'{export_fp_tmp}.zip', export_fp)
 
 
 def import_project_file(file_name):

@@ -52,6 +52,7 @@ from asreview.models.query import list_query_strategies
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
+from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
@@ -72,6 +73,7 @@ from asreview.project import project_from_id
 from asreview.project import ProjectNotFoundError
 from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
+from asreview.project import is_v0_project
 
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -111,22 +113,21 @@ def api_get_projects():  # noqa: F401
     for project in list_asreview_projects():
 
         try:
-            with open(project.project_path / "project.json", "r") as f:
-                res = json.load(f)
+            project_config = project.config
 
             # backwards support <0.10
-            if "projectInitReady" not in res:
-                res["projectInitReady"] = True
+            if "projectInitReady" not in project_config:
+                project_config["projectInitReady"] = True
 
             # if time is not available (<0.14)
-            if "created_at_unix" not in res:
-                res["created_at_unix"] = None
+            if "created_at_unix" not in project_config:
+                project_config["created_at_unix"] = None
 
             # check if project is old
-            res["projectNeedsUpgrade"] = is_old_project(project.project_path)
+            project_config["projectNeedsUpgrade"] = is_old_project(project.project_path)
 
-            logging.info("Project found: {}".format(res["id"]))
-            project_info.append(res)
+            logging.info("Project found: {}".format(project_config["id"]))
+            project_info.append(project_config)
 
         except Exception as err:
             logging.error(err)
@@ -152,8 +153,7 @@ def api_get_projects_stats():  # noqa: F401
     for project in list_asreview_projects():
 
         try:
-            with open(project.project_path / "project.json", "r") as f:
-                res = json.load(f)
+            res = project.config
 
             # backwards support <0.10
             if "projectInitReady" not in res:
@@ -286,7 +286,7 @@ def api_update_project_info(project):  # noqa: F401
 
     # rename the project if project name is changed
     if request.form.get('name', None) is not None:
-        project_path = project.rename(request.form['name'])
+        project.rename(request.form['name'])
 
     # update the project info
     project.update_config(
@@ -294,7 +294,7 @@ def api_update_project_info(project):  # noqa: F401
         description=request.form['description'],
         authors=request.form['authors'])
 
-    return api_get_project_info(project.project_path)
+    return api_get_project_info(project.project_id)
 
 
 @bp.route('/datasets', methods=["GET"])
@@ -435,7 +435,7 @@ def api_upload_data_to_project(project):  # noqa: F401
 
     elif project_config["mode"] == PROJECT_MODE_SIMULATE:
 
-        data_path_raw = get_data_path(project_path) / filename
+        data_path_raw = get_data_path(project.project_path) / filename
         data_path = data_path_raw.with_suffix('.csv')
 
         data = ASReviewData.from_file(data_path_raw)
@@ -474,7 +474,7 @@ def api_get_project_data(project):  # noqa: F401
         filename = get_data_file_path(project.project_path).stem
 
         # get statistics of the dataset
-        as_data = read_data(project_path)
+        as_data = read_data(project.project_path)
 
         statistics = {
             "n_rows": as_data.df.shape[0],
@@ -504,6 +504,8 @@ def api_search_data(project):  # noqa: F401
     q = request.args.get('q', default=None, type=str)
     max_results = request.args.get('n_max', default=10, type=int)
 
+    project_mode = project.config["mode"]
+
     try:
         payload = {"result": []}
         if q:
@@ -527,7 +529,7 @@ def api_search_data(project):  # noqa: F401
                 debug_label = record.extra_fields.get("debug_label", None)
                 debug_label = int(debug_label) if pd.notnull(debug_label) else None
 
-                if project_config["mode"] == PROJECT_MODE_SIMULATE:
+                if project_mode == PROJECT_MODE_SIMULATE:
                     # ignore existing labels
                     included = -1
                 else:
@@ -1027,11 +1029,10 @@ def export_results(project):
     # get the export args
     file_type = request.args.get('file_type', None)
 
-
     # read the dataset into a ASReview data object
-    as_data = read_data(project_path)
+    as_data = read_data(project.project_path)
 
-    with open_state(project_path) as s:
+    with open_state(project.project_path) as s:
         proba = s.get_last_probabilities()
         labeled_data = s.get_dataset(['record_id', 'label'])
         record_table = s.get_record_table()
@@ -1123,8 +1124,9 @@ def export_project(project):
 
     # create a temp folder to zip
     tmpdir = tempfile.TemporaryDirectory()
-    tmpfile = Path(tmpdir.name, project.project_id, ".asreview")
+    tmpfile = Path(tmpdir.name, project.project_id).with_suffix(".asreview")
 
+    logging.info("Saving project (temporary) to", tmpfile)
     project.export(tmpfile)
 
     return send_file(tmpfile,
@@ -1343,7 +1345,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
     in the background.
     """
     # return the combination of document_id and label.
-    record_id = request.form.get('doc_id')
+    record_id = int(request.form.get('doc_id'))
     label = int(request.form.get('label'))
     note = request.form.get('note', type=str)
     if not note:
@@ -1384,7 +1386,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
             "-m",
             "asreview",
             "web_run_model",
-            project_path
+            project.project_path
         ])
 
     response = jsonify({'success': True})

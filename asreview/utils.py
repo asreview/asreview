@@ -14,6 +14,7 @@
 
 import logging
 import os
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
