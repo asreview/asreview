@@ -68,35 +68,6 @@ ASCII_MSG_SIMULATE = """
 """.format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
 
 
-def _mark_review_finished(project_path, review_id=None):
-    """Mark a review in the project as finished.
-
-    If no review_id is given, mark the first review as finished.
-
-    Arguments
-    ---------
-    project_path: pathlike
-        Path to the project folder.
-    review_id: str
-        Identifier of the review to mark as finished.
-    """
-    project_path = Path(project_path)
-    with open(get_project_file_path(project_path), 'r') as f:
-        project_config = json.load(f)
-
-    if review_id is None:
-        review_index = 0
-    else:
-        review_index = [x['id']
-                        for x in project_config['reviews']].index(review_id)
-
-    project_config['reviews'][review_index]['review_finished'] = True
-    project_config['reviews'][review_index]['end_time'] = str(datetime.now())
-
-    with open(get_project_file_path(project_path), 'w') as f:
-        json.dump(project_config, f)
-
-
 def _is_review_finished(project_path, review_id=None):
     """Check if the given review is finished."""
     project_path = Path(project_path)
@@ -210,6 +181,7 @@ class SimulateEntryPoint(BaseEntryPoint):
         # print intro message
         print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
+        # for webapp
         if args.dataset == "":
 
             with open_state(args.state_file) as state:
@@ -228,6 +200,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             balance_model = get_balance_model(settings.balance_strategy)
             feature_model = get_feature_model(settings.feature_extraction)
 
+        # for simulation CLI
         else:
 
             as_data = load_data(args.dataset)
@@ -235,6 +208,9 @@ class SimulateEntryPoint(BaseEntryPoint):
             if len(as_data) == 0:
                 raise ValueError("Supply at least one dataset"
                                  " with at least one record.")
+
+            # create a project file
+            tmp_project_file = Path(args.state_file).with_suffix(".asreview.tmp")
 
             if not _is_partial_simulation(args):
 
@@ -332,7 +308,9 @@ class SimulateEntryPoint(BaseEntryPoint):
             reviewer.review()
 
             # Mark review as finished.
-            _mark_review_finished(fp_tmp_simulation)
+            project = ASReviewProject(tmp_project_file)
+            project.mark_review_finished()
+            project.export(args.state_file)
 
             # export the file to a ASReview zipped folder
             ASReviewProject(fp_tmp_simulation).export(args.state_file)

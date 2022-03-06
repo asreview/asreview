@@ -436,6 +436,26 @@ class ASReviewProject():
                 print(f"Error: {f_pickle} : {e.strerror}")
 
 
+    def add_review(self, review_id):
+        update_review(review_id, True)
+
+
+    def update_review(self, review_id, review_finished):
+
+        # read the file with project info
+        config = self.config
+
+        if "reviews" not in config:
+            config["reviews"] = []
+
+        config["reviews"].append(
+            {"id": review_id, "state": review_finished}
+        )
+
+        # update the file with project info
+        self.config = config
+
+
     def delete_state(self, remove_folders=False):
 
         try:
@@ -464,31 +484,41 @@ class ASReviewProject():
             'feature_matrices': []
         })
 
-    def add_review(self, simulation_id):
-        update_review(simulation_id, True)
 
+    def mark_review_finished(self, review_id=None):
+        """Mark a review in the project as finished.
 
-    def update_review(self, review_id, review_finished):
+        If no review_id is given, mark the first review as finished.
 
-        # read the file with project info
-        config = self.config
+        Arguments
+        ---------
+        review_id: str
+            Identifier of the review to mark as finished.
+        """
 
-        if "reviews" not in config:
-            config["reviews"] = []
+        project_config = self.config
 
-        config["reviews"].append(
-            {"id": review_id, "state": review_finished}
-        )
+        if review_id is None:
+            review_index = 0
+        else:
+            review_index = [x['id']
+                            for x in project_config['reviews']].index(review_id)
 
-        # update the file with project info
-        self.config = config
+        project_config['reviews'][review_index]['review_finished'] = True
+        project_config['reviews'][review_index]['end_time'] = str(datetime.now())
+
+        self.config = project_config
+
 
     def export(self, export_fp):
 
         if Path(export_fp).suffix != ".asreview":
             raise ValueError("Export file should have .asreview extension.")
 
-        export_fp_tmp = Path(export_fp).with_suffix(".asreview.tmp")
+        if Path(export_fp) == Path(self.project_path):
+            raise ValueError("export_fp should not be identical to project path.")
+
+        export_fp_tmp = Path(export_fp).with_suffix(".asreview.zip")
 
         # copy the source tree, but ignore pickle files
         shutil.copytree(self.project_path,
