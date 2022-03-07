@@ -18,7 +18,7 @@ import {
 import RouteNotFound from "../RouteNotFound";
 
 import { ProjectAPI } from "../api/index.js";
-import { drawerWidth, mapDispatchToProps } from "../globals.js";
+import { drawerWidth, mapDispatchToProps, projectModes } from "../globals.js";
 
 const PREFIX = "ProjectPage";
 
@@ -85,6 +85,14 @@ const ProjectPage = (props) => {
     }
   );
 
+  const isSimulating = () => {
+    return (
+      data?.mode === projectModes.SIMULATION &&
+      data?.projectInitReady &&
+      !data?.reviewFinished
+    );
+  };
+
   return (
     <Root aria-label="project page">
       <DialogErrorHandler
@@ -140,9 +148,11 @@ const ProjectPage = (props) => {
                 <HistoryPage
                   filterQuery={historyFilterQuery}
                   label={historyLabel}
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
                   setFilterQuery={setHistoryFilterQuery}
                   setLabel={setHistoryLabel}
-                  mobileScreen={props.mobileScreen}
                 />
               }
             />
@@ -155,6 +165,7 @@ const ProjectPage = (props) => {
               element={
                 <ExportPage
                   enableExportDataset={data?.projectInitReady}
+                  isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                 />
               }
@@ -168,6 +179,7 @@ const ProjectPage = (props) => {
               element={
                 <DetailsPage
                   info={data}
+                  isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                   setHistoryFilterQuery={setHistoryFilterQuery}
                 />

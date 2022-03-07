@@ -11,6 +11,7 @@ import {
   MenuItem,
   Select,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -93,7 +94,7 @@ const ExportPage = (props) => {
   };
 
   const disableExportButton = () => {
-    return !file || !fileFormat || exporting;
+    return !file || !fileFormat || exporting || props.isSimulating();
   };
 
   const resetQueries = () => {
@@ -231,12 +232,21 @@ const ExportPage = (props) => {
                 </Stack>
               </Box>
               <Box className="main-page-body-wrapper">
-                <Button
-                  disabled={disableExportButton()}
-                  onClick={onClickExport}
+                <Tooltip
+                  disableFocusListener={!props.isSimulating()}
+                  disableHoverListener={!props.isSimulating()}
+                  disableTouchListener={!props.isSimulating()}
+                  title="Export after simulation is finished"
                 >
-                  {!exporting ? "Export" : "Exporting..."}
-                </Button>
+                  <span>
+                    <Button
+                      disabled={disableExportButton()}
+                      onClick={onClickExport}
+                    >
+                      {!exporting ? "Export" : "Exporting..."}
+                    </Button>
+                  </span>
+                </Tooltip>
               </Box>
             </Stack>
           </Box>
