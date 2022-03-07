@@ -886,7 +886,9 @@ def api_start(project_id):  # noqa: F401
                 "--prior_idx"] + list(map(str, priors)) + [
                 # specify state file
                 "--state_file",
-                project_path
+                project_path,
+                # specify write interval
+                "--write_interval", "100"
             ]
             subprocess.Popen(run_command)
 
