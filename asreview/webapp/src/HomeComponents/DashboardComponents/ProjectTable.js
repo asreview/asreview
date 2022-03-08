@@ -27,7 +27,11 @@ import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapDispatchToProps, projectModes } from "../../globals";
+import {
+  checkIfSimulationFinishedDuration,
+  mapDispatchToProps,
+  projectModes,
+} from "../../globals";
 
 const PREFIX = "ProjectTable";
 
@@ -199,7 +203,7 @@ const ProjectTable = (props) => {
                       queryClient.invalidateQueries(
                         `fetchSimulationFinished-${project_id[key]}`
                       ),
-                    6000
+                    checkIfSimulationFinishedDuration
                   );
                 }
               },
