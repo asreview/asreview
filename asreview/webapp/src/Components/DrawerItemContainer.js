@@ -1,5 +1,5 @@
 import React from "react";
-import { useQueryClient } from "react-query";
+import { useIsFetching, useQueryClient } from "react-query";
 import { Route, Routes, useParams } from "react-router-dom";
 import {
   Divider,
@@ -87,6 +87,8 @@ const DrawerItemContainer = (props) => {
   const { project_id } = useParams();
   const queryClient = useQueryClient();
 
+  const isFetchingInfo = useIsFetching("fetchInfo");
+
   const [projectInfo, setProjectInfo] = React.useState(null);
 
   const fetchProjectInfo = React.useCallback(async () => {
@@ -152,10 +154,10 @@ const DrawerItemContainer = (props) => {
   ];
 
   React.useEffect(() => {
-    if (project_id) {
+    if (project_id && isFetchingInfo) {
       fetchProjectInfo();
     }
-  }, [fetchProjectInfo, project_id]);
+  }, [fetchProjectInfo, project_id, isFetchingInfo]);
 
   return (
     <StyledList aria-label="drawer item container">
