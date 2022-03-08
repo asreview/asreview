@@ -9,7 +9,7 @@ from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
 from asreview.settings import ASReviewSettings
-from asreview.state import SqlStateV1
+from asreview.state import SQLiteState
 from asreview.state import init_project_folder_structure
 from asreview.project import open_state
 from asreview.state.errors import StateNotFoundError
@@ -109,7 +109,7 @@ def test_state_not_found(tmpdir):
 
 def test_read_basic_state():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state, SqlStateV1)
+        assert isinstance(state, SQLiteState)
 
 
 def test_version_number_state():

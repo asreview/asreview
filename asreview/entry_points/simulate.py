@@ -17,6 +17,7 @@
 
 import json
 import logging
+import shutils
 from datetime import datetime
 from pathlib import Path
 
@@ -210,11 +211,9 @@ class SimulateEntryPoint(BaseEntryPoint):
                                  " with at least one record.")
 
             # create a project file
-            tmp_project_file = Path(args.state_file).with_suffix(".asreview.tmp")
+            fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
             if not _is_partial_simulation(args):
-
-                fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
 
                 project = ASReviewProject.create(
                     fp_tmp_simulation,
@@ -308,18 +307,17 @@ class SimulateEntryPoint(BaseEntryPoint):
             reviewer.review()
 
             # Mark review as finished.
-            project = ASReviewProject(tmp_project_file)
+            project = ASReviewProject(fp_tmp_simulation)
             project.mark_review_finished()
             project.export(args.state_file)
 
-            # export the file to a ASReview zipped folder
-            ASReviewProject(fp_tmp_simulation).export(args.state_file)
+            shutil.rmtree(fp_tmp_simulation)
 
 
 DESCRIPTION_SIMULATE = """
 ASReview for simulation.
 
-The simulation modus is used to measure the performance of our
+The simulation modus is used to measure the performance of the ASReview
 software on existing systematic reviews. The software shows how many
 papers you could have potentially skipped during the systematic
 review."""

@@ -39,7 +39,7 @@ from asreview.state.paths import get_data_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_feature_matrices_path
-from asreview.state.sqlstate import SqlStateV1
+from asreview.state.sqlstate import SQLiteState
 from asreview.webapp.sqlock import SQLiteLock
 from asreview.webapp.io import read_data
 from asreview.utils import asreview_path
@@ -156,7 +156,7 @@ def open_state(working_dir, review_id=None, read_only=True):
 
     Returns
     -------
-    SqlStateV1
+    SQLiteState
     """
     working_dir = Path(working_dir)
 
@@ -181,7 +181,7 @@ def open_state(working_dir, review_id=None, read_only=True):
             review_id = uuid4().hex
 
     # init state class
-    state = SqlStateV1(read_only=read_only)
+    state = SQLiteState(read_only=read_only)
 
     try:
         if Path(get_reviews_path(working_dir), review_id).is_dir():
@@ -455,6 +455,25 @@ class ASReviewProject():
         # update the file with project info
         self.config = config
 
+    def add_state(self, review_id, start_time=None, review_finished=False):
+
+        if start_time is None:
+            start_time = datetime.now()
+
+        # Add the review to the project.
+        config = self.config
+
+        config = {
+            "id": review_id,
+            "start_time": str(start_time),
+            "review_finished": review_finished
+            # "status": "stopped"  # on of the following: ["setup", "running", "stopped"]
+        }
+
+        project_config["reviews"].append(config)
+
+        self.config = config
+
 
     def delete_state(self, remove_folders=False):
 
@@ -535,10 +554,13 @@ class ASReviewProject():
         shutil.move(f'{export_fp_tmp}.zip', export_fp)
 
 
-def import_project_file(file_name):
+def import_project(file_name, safe_import=True):
     """Import .asreview project file"""
 
     try:
+
+        tmpdir = tempfile.mkdtemp()
+
         # Unzip the project file
         with zipfile.ZipFile(file_name, "r") as zip_obj:
             zip_filenames = zip_obj.namelist()
@@ -548,47 +570,47 @@ def import_project_file(file_name):
                 raise ValueError("File doesn't contain valid project format.")
 
             # extract all files to a temporary folder
-            tmpdir = tempfile.mkdtemp()
             zip_obj.extractall(path=tmpdir)
 
     except zipfile.BadZipFile:
         raise ValueError("File is not an ASReview file.")
 
-    try:
-        # Open the project file and check the id. The id needs to be
-        # unique, otherwise it is exended with -copy.
-        import_project = None
-        fp = Path(tmpdir, "project.json")
-        with open(fp, "r+") as f:
+    if safe_import:
+        try:
+            # Open the project file and check the id. The id needs to be
+            # unique, otherwise it is exended with -copy.
+            import_project = None
+            fp = Path(tmpdir, "project.json")
+            with open(fp, "r+") as f:
 
-            # load the project info in scope of function
-            import_project = json.load(f)
+                # load the project info in scope of function
+                import_project = json.load(f)
 
-            # If the uploaded project already exists,
-            # then overwrite project.json with a copy suffix.
-            while is_project(import_project["id"]):
-                # project update
-                import_project["id"] = f"{import_project['id']}-copy"
-                import_project["name"] = f"{import_project['name']} copy"
-            else:
-                # write to file
-                f.seek(0)
-                json.dump(import_project, f)
-                f.truncate()
+                # If the uploaded project already exists,
+                # then overwrite project.json with a copy suffix.
+                while is_project(import_project["id"]):
+                    # project update
+                    import_project["id"] = f"{import_project['id']}-copy"
+                    import_project["name"] = f"{import_project['name']} copy"
+                else:
+                    # write to file
+                    f.seek(0)
+                    json.dump(import_project, f)
+                    f.truncate()
 
-        # location to copy file to
-        fp_copy = get_project_path(import_project["id"])
-        # Move the project from the temp folder to the projects folder.
-        os.replace(tmpdir, fp_copy)
+            # location to copy file to
+            fp_copy = get_project_path(import_project["id"])
+            # Move the project from the temp folder to the projects folder.
+            os.replace(tmpdir, fp_copy)
 
-    except Exception:
-        # Unknown error.
-        raise ValueError("Failed to import project "
-                         f"'{file_name.filename}'.")
+        except Exception:
+            # Unknown error.
+            raise ValueError("Failed to import project "
+                             f"'{file_name.filename}'.")
 
-    project_info = {}
-    project_info["id"] = import_project["id"]
-    project_info["name"] = import_project["name"]
+        project_info = {}
+        project_info["id"] = import_project["id"]
+        project_info["name"] = import_project["name"]
 
     return project_info
 

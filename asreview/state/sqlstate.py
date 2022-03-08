@@ -55,7 +55,7 @@ SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version",
 
 
 # TODO(State): Update docstring.
-class SqlStateV1(BaseState):
+class SQLiteState(BaseState):
     """Class for storing the review state with HDF5 storage.
 
     Arguments
@@ -76,7 +76,7 @@ class SqlStateV1(BaseState):
 
     """
     def __init__(self, read_only=True):
-        super(SqlStateV1, self).__init__(read_only=read_only)
+        super(SQLiteState, self).__init__(read_only=read_only)
 
 # INTERNAL PATHS AND CONNECTIONS
 
@@ -535,7 +535,7 @@ class SqlStateV1(BaseState):
         """Add feature matrix to project file.
 
         Feature matrices are stored in the project file. See
-        asreview.state.SqlStateV1._feature_matrix_fp for the file
+        asreview.state.SQLiteState._feature_matrix_fp for the file
         location.
 
         Arguments

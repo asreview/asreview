@@ -27,7 +27,7 @@ from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
-from asreview.state.sqlstate import SqlStateV1
+from asreview.state.sqlstate import SQLiteState
 
 
 V3STATE_VERSION = "1.0"

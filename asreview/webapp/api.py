@@ -977,7 +977,7 @@ def api_import_project():
 
 
     # # import the project
-    # project_info = import_project_file(project_file)
+    # project_info = import_project(project_file)
 
 
 

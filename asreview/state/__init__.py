@@ -13,4 +13,4 @@
 # limitations under the License.
 
 from asreview.state.base import BaseState
-from asreview.state.sqlstate import SqlStateV1
+from asreview.state.sqlstate import SQLiteState
