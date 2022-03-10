@@ -94,7 +94,7 @@ const ExportPage = (props) => {
   };
 
   const disableExportButton = () => {
-    return !file || !fileFormat || exporting || props.isSimulating();
+    return !file || !fileFormat || exporting || props.isSimulating;
   };
 
   const resetQueries = () => {
@@ -233,9 +233,9 @@ const ExportPage = (props) => {
               </Box>
               <Box className="main-page-body-wrapper">
                 <Tooltip
-                  disableFocusListener={!props.isSimulating()}
-                  disableHoverListener={!props.isSimulating()}
-                  disableTouchListener={!props.isSimulating()}
+                  disableFocusListener={!props.isSimulating}
+                  disableHoverListener={!props.isSimulating}
+                  disableTouchListener={!props.isSimulating}
                   title="Export after simulation is finished"
                 >
                   <span>

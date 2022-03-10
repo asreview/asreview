@@ -120,7 +120,7 @@ const AnalyticsPage = (props) => {
                 )}
                 <Stack direction="row" spacing={1}>
                   <Button
-                    disabled={!allQueriesReady() || !props.isSimulating()}
+                    disabled={!allQueriesReady() || !props.isSimulating}
                     variant="contained"
                     onClick={props.refetchAnalytics}
                     size={!props.mobileScreen ? "medium" : "small"}

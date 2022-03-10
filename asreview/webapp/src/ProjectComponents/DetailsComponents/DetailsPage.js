@@ -127,14 +127,14 @@ const DetailsPage = (props) => {
                   Undo Changes
                 </Button>
                 <Tooltip
-                  disableFocusListener={!props.isSimulating()}
-                  disableHoverListener={!props.isSimulating()}
-                  disableTouchListener={!props.isSimulating()}
+                  disableFocusListener={!props.isSimulating}
+                  disableHoverListener={!props.isSimulating}
+                  disableTouchListener={!props.isSimulating}
                   title="Save after simulation is finished"
                 >
                   <span>
                     <LoadingButton
-                      disabled={disableButton || props.isSimulating()}
+                      disabled={disableButton || props.isSimulating}
                       loading={isLoading}
                       variant="contained"
                       onClick={handleClickSave}

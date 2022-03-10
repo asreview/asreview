@@ -251,7 +251,7 @@ const LabeledRecordCard = (props) => {
               {!props.is_prior && !value.note && value.id !== note.editing && (
                 <Tooltip
                   title={
-                    !props.isSimulating()
+                    !props.isSimulating
                       ? !disableAddNoteButton(value.id)
                         ? "Add note"
                         : "Save another note before adding"
@@ -261,7 +261,7 @@ const LabeledRecordCard = (props) => {
                   <span>
                     <IconButton
                       disabled={
-                        props.isSimulating() || disableAddNoteButton(value.id)
+                        props.isSimulating || disableAddNoteButton(value.id)
                       }
                       onClick={() => handleClickAddNote(value.id)}
                     >

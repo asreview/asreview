@@ -70,6 +70,8 @@ const ProjectPage = (props) => {
     return match !== null;
   };
 
+  const [isSimulating, setIsSimulating] = React.useState(false);
+
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
   const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
@@ -89,6 +91,13 @@ const ProjectPage = (props) => {
         } else if (!data["projectNeedsUpgrade"]) {
           // open project page
           console.log("Opening project " + project_id);
+          // if simulation is running
+          if (
+            data["mode"] === projectModes.SIMULATION &&
+            !data["reviewFinished"]
+          ) {
+            setIsSimulating(true);
+          }
         } else {
           navigate("/projects");
           // open project check dialog
@@ -104,14 +113,6 @@ const ProjectPage = (props) => {
     }
   );
 
-  const isSimulating = () => {
-    return (
-      data?.mode === projectModes.SIMULATION &&
-      data?.projectInitReady &&
-      !data?.reviewFinished
-    );
-  };
-
   const refetchAnalytics = () => {
     if (isAnalyticsPageOpen()) {
       queryClient.invalidateQueries("fetchProgress");
@@ -125,12 +126,13 @@ const ProjectPage = (props) => {
       ["fetchSimulationFinished", { project_id }],
       ProjectAPI.fetchSimulationFinished,
       {
-        enabled: isSimulating(),
+        enabled: isSimulating,
         onSuccess: (data) => {
           if (data["status"] === 1) {
             // refresh analytics
             refetchAnalytics();
             // simulation finished
+            setIsSimulating(false);
             queryClient.invalidateQueries("fetchInfo");
           } else {
             // not finished yet
