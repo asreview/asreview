@@ -172,7 +172,14 @@ const ProjectPage = (props) => {
           {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
               index
-              element={<AnalyticsPage mobileScreen={props.mobileScreen} />}
+              element={
+                <AnalyticsPage
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
+                  refetchAnalytics={refetchAnalytics}
+                />
+              }
             />
           )}
 
