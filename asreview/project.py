@@ -141,12 +141,12 @@ def is_v0_project(project_path):
 
 
 @contextmanager
-def open_state(working_dir, review_id=None, read_only=True):
+def open_state(asreview_file_or_dir, review_id=None, read_only=True):
     """Initialize a state class instance from a project folder.
 
     Arguments
     ---------
-    working_dir: str/pathlike
+    asreview_file_or_dir: str/pathlike
         Filepath to the (unzipped) project folder.
     review_id: str
         Identifier of the review from which the state will be instantiated.
@@ -158,37 +158,51 @@ def open_state(working_dir, review_id=None, read_only=True):
     -------
     SQLiteState
     """
-    working_dir = Path(working_dir)
 
-    if not get_reviews_path(working_dir).is_dir():
-        if read_only:
-            raise StateNotFoundError(f"There is no valid project folder"
-                                     f" at {working_dir}")
-        else:
-            ASReviewProject.create(working_dir)
-            review_id = uuid4().hex
+    # Unzip the ASReview data if needed.
+    if zipfile.is_zipfile(asreview_file_or_dir) and Path(asreview_file_or_dir).suffix == ".asreview":
+
+        if not read_only:
+            raise ValueError("ASReview files do not support not read only files.")
+
+        # work from a temp dir
+        tmpdir = tempfile.TemporaryDirectory()
+        project = ASReviewProject.load(asreview_file_or_dir, tmpdir.name)
+    else:
+        project = ASReviewProject(asreview_file_or_dir)
+
+    # if not get_reviews_path(asreview_file_or_dir).is_dir():
+    #     if read_only:
+    #         raise StateNotFoundError(
+    #             f"No review found in project folder {asreview_file_or_dir}"
+    #         )
+    #     else:
+    #         project.create(asreview_file_or_dir)
+    #         review_id = uuid4().hex
 
     # Check if file is a valid project folder.
-    is_valid_project_folder(working_dir)
+    is_valid_project_folder(project.project_path)
 
     # Get the review_id of the first review if none is given.
     # If there is no review yet, create a review id.
-    if review_id is None:
-        reviews = list(get_reviews_path(working_dir).iterdir())
-        if reviews:
-            review_id = reviews[0].name
-        else:
-            review_id = uuid4().hex
+    # if review_id is None:
+    #     print(get_reviews_path(project.project_path))
+    #     review_id = next(get_reviews_path(project.project_path).iterdir()).name
+
+
+        # if reviews:
+        #     review_id = reviews[0].name
+        # else:
+        #     review_id = uuid4().hex
 
     # init state class
     state = SQLiteState(read_only=read_only)
 
     try:
-        if Path(get_reviews_path(working_dir), review_id).is_dir():
-            state._restore(working_dir, review_id)
-        elif not Path(get_reviews_path(working_dir), review_id).is_dir() \
-                and not read_only:
-            state._create_new_state_file(working_dir, review_id)
+        if len(project.reviews) > 0:
+            state._restore(project.project_path, review_id)
+        elif len(project.reviews) == 0 and not read_only:
+            state._create_new_state_file(project.project_path, uuid4().hex)
         else:
             raise StateNotFoundError("State file does not exist, and in "
                                      "read only mode.")
@@ -272,6 +286,7 @@ class ASReviewProject():
     def config(self):
 
         try:
+            print(self._config)
             return self._config
         except AttributeError:
 
@@ -435,6 +450,12 @@ class ASReviewProject():
             except OSError as e:
                 print(f"Error: {f_pickle} : {e.strerror}")
 
+    @property
+    def reviews(self):
+        try:
+            return self.config['reviews']
+        except Exception:
+            return []
 
     def add_review(self, review_id):
         update_review(review_id, True)
@@ -553,64 +574,60 @@ class ASReviewProject():
         shutil.rmtree(export_fp_tmp)
         shutil.move(f'{export_fp_tmp}.zip', export_fp)
 
+    @classmethod
+    def load(cls, asreview_file, project_path, safe_import=False):
 
-def import_project(file_name, safe_import=True):
-    """Import .asreview project file"""
-
-    try:
-
-        tmpdir = tempfile.mkdtemp()
-
-        # Unzip the project file
-        with zipfile.ZipFile(file_name, "r") as zip_obj:
-            zip_filenames = zip_obj.namelist()
-
-            # raise error if no ASReview project file
-            if "project.json" not in zip_filenames:
-                raise ValueError("File doesn't contain valid project format.")
-
-            # extract all files to a temporary folder
-            zip_obj.extractall(path=tmpdir)
-
-    except zipfile.BadZipFile:
-        raise ValueError("File is not an ASReview file.")
-
-    if safe_import:
         try:
-            # Open the project file and check the id. The id needs to be
-            # unique, otherwise it is exended with -copy.
-            import_project = None
-            fp = Path(tmpdir, "project.json")
-            with open(fp, "r+") as f:
 
-                # load the project info in scope of function
-                import_project = json.load(f)
+            # Unzip the project file
+            with zipfile.ZipFile(asreview_file, "r") as zip_obj:
+                zip_filenames = zip_obj.namelist()
 
-                # If the uploaded project already exists,
-                # then overwrite project.json with a copy suffix.
-                while is_project(import_project["id"]):
-                    # project update
-                    import_project["id"] = f"{import_project['id']}-copy"
-                    import_project["name"] = f"{import_project['name']} copy"
-                else:
-                    # write to file
-                    f.seek(0)
-                    json.dump(import_project, f)
-                    f.truncate()
+                # raise error if no ASReview project file
+                if "project.json" not in zip_filenames:
+                    raise ValueError("Project file is not valid project.")
 
-            # location to copy file to
-            fp_copy = get_project_path(import_project["id"])
-            # Move the project from the temp folder to the projects folder.
-            os.replace(tmpdir, fp_copy)
+                # extract all files to folder
+                zip_obj.extractall(path=project_path)
 
-        except Exception:
-            # Unknown error.
-            raise ValueError("Failed to import project "
-                             f"'{file_name.filename}'.")
+        except zipfile.BadZipFile:
+            raise ValueError("File is not an ASReview file.")
 
-        project_info = {}
-        project_info["id"] = import_project["id"]
-        project_info["name"] = import_project["name"]
+        if safe_import:
+            try:
+                # Open the project file and check the id. The id needs to be
+                # unique, otherwise it is exended with -copy.
+                import_project = None
+                fp = Path(tmpdir, "project.json")
+                with open(fp, "r+") as f:
 
-    return project_info
+                    # load the project info in scope of function
+                    import_project = json.load(f)
 
+                    # If the uploaded project already exists,
+                    # then overwrite project.json with a copy suffix.
+                    while is_project(import_project["id"]):
+                        # project update
+                        import_project["id"] = f"{import_project['id']}-copy"
+                        import_project["name"] = f"{import_project['name']} copy"
+                    else:
+                        # write to file
+                        f.seek(0)
+                        json.dump(import_project, f)
+                        f.truncate()
+
+                # location to copy file to
+                fp_copy = get_project_path(import_project["id"])
+                # Move the project from the temp folder to the projects folder.
+                os.replace(tmpdir, fp_copy)
+
+            except Exception:
+                # Unknown error.
+                raise ValueError("Failed to import project "
+                                 f"'{file_name.filename}'.")
+
+            project_info = {}
+            project_info["id"] = import_project["id"]
+            project_info["name"] = import_project["name"]
+
+        return cls(project_path)

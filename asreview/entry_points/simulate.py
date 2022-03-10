@@ -17,7 +17,7 @@
 
 import json
 import logging
-import shutils
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -130,6 +130,7 @@ def _is_partial_simulation(args):
     except StateNotFoundError:
         return False
 
+    print("state found")
     # Check if the datasets have the same name.
     try:
         project_data_file_name = get_data_file_path(args.state_file).name

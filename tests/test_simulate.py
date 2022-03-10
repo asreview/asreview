@@ -7,7 +7,7 @@ from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _is_partial_simulation
 from asreview.entry_points.simulate import _simulate_parser
-from asreview.project import open_state
+from asreview.project import open_state, ASReviewProject
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
 
@@ -47,7 +47,9 @@ def test_simulate(tmpdir):
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open(get_project_file_path(project_path), 'r') as f:
+    project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+
+    with open(get_project_file_path(Path(tmpdir, 'test')), 'r') as f:
         project_config = json.load(f)
 
     assert project_config['reviews'][0]['review_finished']
@@ -82,7 +84,10 @@ def test_n_prior_included(tmpdir):
         result['label'] & (result['query_strategy'] == 'prior')
     assert sum(prior_included) == 2
 
-    with open(get_settings_metadata_path(project_path), 'r') as f:
+
+    project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+
+    with open(get_settings_metadata_path(Path(tmpdir, 'test')), 'r') as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata['settings']['n_prior_included'] == 2
@@ -101,7 +106,9 @@ def test_n_prior_excluded(tmpdir):
         ~result['label'] & (result['query_strategy'] == 'prior')
     assert sum(prior_excluded) == 2
 
-    with open(get_settings_metadata_path(project_path), 'r') as f:
+    project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+
+    with open(get_settings_metadata_path(Path(tmpdir, 'test')), 'r') as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata['settings']['n_prior_excluded'] == 2
@@ -139,7 +146,9 @@ def test_non_tf_models(tmpdir):
         default_n_priors = 2
         assert all(classifiers[default_n_priors:] == model)
 
-        with open(get_settings_metadata_path(project_path), 'r') as f:
+        project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+
+        with open(get_settings_metadata_path(Path(tmpdir, 'test')), 'r') as f:
             settings_metadata = json.load(f)
 
         assert settings_metadata['settings']['model'] == model
