@@ -33,7 +33,7 @@ class RISReader():
     """
     name = "ris-reader"
 
-    def _strip_zotero_p_tags(self, note_list):
+    def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
 
         Returns
@@ -54,7 +54,7 @@ class RISReader():
         else:
             return note_list
 
-    def _label_parser(self, note_list):
+    def _label_parser(note_list):
         """Converter function for manipulating the internal "included" and "notes" columns.
 
         Returns

@@ -151,14 +151,14 @@ def test_nan_values_csv():
     assert as_data.record(2, by_index=True).doi is None
 
 
-def test_csv_write_data(tmpdir):
+def test_write_data(tmpdir):
     fp_in = Path("tests", "demo_data", "generic_labels.csv")
     fp_out = Path(tmpdir, "generic_out.csv")
     asr_data = ASReviewData.from_file(fp_in)
-    asr_data.to_csv(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
+    asr_data.to_file(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
 
     tmp_csv_fp_out = Path("tmp_generic_labels.csv")
-    asr_data.to_csv(tmp_csv_fp_out)
+    asr_data.to_file(tmp_csv_fp_out)
     asr_data_diff = ASReviewData.from_file(tmp_csv_fp_out)
     # Check if export file includes labels [1,0]
     assert list(asr_data.labels) == list(asr_data_diff.labels)
