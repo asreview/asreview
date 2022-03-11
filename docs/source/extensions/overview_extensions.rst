@@ -64,11 +64,13 @@ Dataset extensions
 Community-Maintained Extensions
 -------------------------------
 
-ASReview has support for community-maintained extensions, that enable you to
-seamlessly integrate your code with the ASReview framework. These extensions can
-extend the software with new models, subcommands, and datasets.
+ASReview has support for community-maintained extensions, that
+enable you to seamlessly integrate your code with the ASReview framework.
+These extensions can extend the software with new models, subcommands, and
+datasets.
 
-The following extensions are developed and maintained by the ASReview community:
+The following extensions are developed and maintained by the
+ASReview community:
 
 
 * ASReview 17 layer CNN classifier 
@@ -107,10 +109,25 @@ The following extensions are developed and maintained by the ASReview community:
       extractor that grabs the entire doc2vec model. 
     - `Github <https://github.com/asreview/asreview-extension-vocab-extractor>`__ 
 
+
 If an extension is not on this list, or you made one and you would like it to 
 be added to this list, please initiate an issue on `Github
 <https://github.com/asreview/asreview/issues/new/choose>`__.
 
+
+Misc
+----
+
+Other helpful tools developed by the community not necessarily written in Python. 
+
+* xref2csv tool to convert XREF XML files to CSV files required for ASreview
+    - The    
+      [XREF2CSV-tool](https://github.com/erikvullings/xref2csv) written in NodeJS 
+      converts XREF-XML files to CSV files that can be imported to ASreview.
+
+
+Tools can be suggested to be added to this list via an issue on `Github
+<https://github.com/asreview/asreview/issues/new/choose>`__.
 
 Installation
 ------------

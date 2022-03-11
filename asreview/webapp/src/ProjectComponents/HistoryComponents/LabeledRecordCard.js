@@ -1,6 +1,7 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import { useMutation, useQueryClient } from "react-query";
+import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import TruncateMarkup from "react-truncate-markup";
 import {
   Box,
@@ -50,12 +51,18 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const LabeledRecordCard = (props) => {
+  const { project_id } = useParams();
   const queryClient = useQueryClient();
+
   const [recordReadMore, setRecordReadMore] = React.useState(null);
   const [note, setNote] = React.useState({
     data: null,
     editing: null,
   });
+
+  const returnProjectId = () => {
+    return !project_id ? props.project_id : project_id;
+  };
 
   const { error, isError, isLoading, mutate, reset } = useMutation(
     ProjectAPI.mutateClassification,
@@ -67,7 +74,7 @@ const LabeledRecordCard = (props) => {
           [
             "fetchLabeledRecord",
             {
-              project_id: props.project_id,
+              project_id: returnProjectId(),
               subset: props.returnSubset(),
             },
           ],
@@ -115,7 +122,7 @@ const LabeledRecordCard = (props) => {
 
   const handleClickLabelConvert = (value) => {
     mutate({
-      project_id: props.project_id,
+      project_id: returnProjectId(),
       doc_id: value.id,
       label: value.included === 1 ? 0 : 1,
       note: !value.note ? "" : value.note,
@@ -141,7 +148,7 @@ const LabeledRecordCard = (props) => {
       });
     } else {
       mutate({
-        project_id: props.project_id,
+        project_id: project_id,
         doc_id: value.id,
         label: value.included,
         note: "",

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -18,7 +18,6 @@ import { styled } from "@mui/material/styles";
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
 const selectWidth = 310;
@@ -41,6 +40,8 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ExportPage = (props) => {
+  const { project_id } = useParams();
+
   const queryClient = useQueryClient();
 
   const [file, setFile] = React.useState("");
@@ -48,7 +49,7 @@ const ExportPage = (props) => {
   const [exporting, setExporting] = React.useState(false);
 
   const exportDatasetQuery = useQuery(
-    ["fetchExportDataset", { project_id: props.project_id, fileFormat }],
+    ["fetchExportDataset", { project_id, fileFormat }],
     ProjectAPI.fetchExportDataset,
     {
       enabled: file === "dataset" && exporting,
@@ -58,7 +59,7 @@ const ExportPage = (props) => {
   );
 
   const exportProjectQuery = useQuery(
-    ["fetchExportProject", { project_id: props.project_id }],
+    ["fetchExportProject", { project_id }],
     ProjectAPI.fetchExportProject,
     {
       enabled: file === "project" && exporting,
@@ -286,4 +287,4 @@ const ExportPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(ExportPage);
+export default ExportPage;

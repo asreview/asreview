@@ -31,6 +31,7 @@ import pandas as pd
 from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
+from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.io import CSVWriter
 from asreview.io import ExcelWriter
 from asreview.io import RISWriter
@@ -271,6 +272,7 @@ def add_dataset_to_project(project_id, file_name):
     Add file to data subfolder and fill the pool of iteration 0.
     """
     project_path = get_project_path(project_id)
+    project_info = get_project_config(project_id)
 
     update_project_info(project_id, dataset_path=file_name)
 
@@ -285,7 +287,8 @@ def add_dataset_to_project(project_id, file_name):
         state.add_record_table(as_data.record_ids)
 
         # if the data contains labels, add them to the state file
-        if as_data.labels is not None:
+        # except for simulation project
+        if as_data.labels is not None and project_info["mode"] != PROJECT_MODE_SIMULATE:
 
             labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
             labels = as_data.labels[labeled_indices].tolist()
@@ -415,7 +418,7 @@ def get_instance(project_id):
     project_path = get_project_path(project_id)
     with open_state(project_path, read_only=False) as state:
         # First check if there is a pending record.
-        _, _, pending = state.get_pool_labeled_pending()
+        pending = state.get_pending()
         if not pending.empty:
             record_ids = pending.to_list()
         # Else query for a new record.

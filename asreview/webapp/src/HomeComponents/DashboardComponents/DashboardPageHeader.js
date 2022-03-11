@@ -1,16 +1,16 @@
 import * as React from "react";
 import {
-  // Avatar,
+  Avatar,
   Box,
-  // IconButton,
-  // Stack,
-  // Tooltip,
-  // Typography,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-// import { Add, Upload } from "@mui/icons-material";
+import { Upload } from "@mui/icons-material";
 
-// import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography.js";
 
 const PREFIX = "DashboardPageHeader";
 
@@ -19,6 +19,7 @@ const classes = {
 };
 
 const Root = styled("div")(({ theme }) => ({
+  background: theme.palette.background.paper,
   [`& .${classes.headerButton}`]: {
     backgroundColor: [
       theme.palette.mode === "dark"
@@ -34,44 +35,30 @@ const Root = styled("div")(({ theme }) => ({
 
 export default function DashboardPageHeader(props) {
   return (
-    <Root>
-      <Box className="main-page-sticky-header-wrapper">
-        <Box className="main-page-sticky-header with-button">
-          {/*
-          {!props.mobileScreen && <TypographyH5Medium></TypographyH5Medium>}
-          {props.mobileScreen && (
-            <Typography variant="h6">Home dashboard</Typography>
-          )}
-          <Stack direction="row" spacing={1}>
-            <Tooltip title="New project">
-              <IconButton
-                disableRipple
-                size={!props.mobileScreen ? "medium" : "small"}
-              >
-                <Avatar className={classes.headerButton}>
-                  <Add
-                    color="primary"
-                    fontSize={!props.mobileScreen ? "medium" : "small"}
-                  />
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Import project">
-              <IconButton
-                disableRipple
-                size={!props.mobileScreen ? "medium" : "small"}
-              >
-                <Avatar className={classes.headerButton}>
-                  <Upload
-                    color="primary"
-                    fontSize={!props.mobileScreen ? "medium" : "small"}
-                  />
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-          </Stack>
-          */}
-        </Box>
+    <Root className="main-page-sticky-header-wrapper">
+      <Box className="main-page-sticky-header with-button">
+        {!props.mobileScreen && (
+          <TypographyH5Medium>Projects dashboard</TypographyH5Medium>
+        )}
+        {props.mobileScreen && (
+          <Typography variant="h6">Projects dashboard</Typography>
+        )}
+        <Stack direction="row" spacing={1}>
+          <Tooltip title="Import project">
+            <IconButton
+              disableRipple
+              onClick={props.toggleImportDialog}
+              size={!props.mobileScreen ? "medium" : "small"}
+            >
+              <Avatar className={classes.headerButton}>
+                <Upload
+                  color="primary"
+                  fontSize={!props.mobileScreen ? "medium" : "small"}
+                />
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+        </Stack>
       </Box>
     </Root>
   );

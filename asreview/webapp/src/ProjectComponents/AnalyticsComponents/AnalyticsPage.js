@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   EmailIcon,
   TwitterIcon,
@@ -30,7 +30,6 @@ import {
 } from "../AnalyticsComponents";
 
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
 import "../../App.css";
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -44,18 +43,20 @@ const actions = [
 ];
 
 const AnalyticsPage = (props) => {
+  const { project_id } = useParams();
+
   const progressQuery = useQuery(
-    ["fetchProgress", { project_id: props.project_id }],
+    ["fetchProgress", { project_id }],
     ProjectAPI.fetchProgress,
     { refetchOnWindowFocus: false }
   );
   const progressDensityQuery = useQuery(
-    ["fetchProgressDensity", { project_id: props.project_id }],
+    ["fetchProgressDensity", { project_id }],
     ProjectAPI.fetchProgressDensity,
     { refetchOnWindowFocus: false }
   );
   const progressRecallQuery = useQuery(
-    ["fetchProgressRecall", { project_id: props.project_id }],
+    ["fetchProgressRecall", { project_id }],
     ProjectAPI.fetchProgressRecall,
     { refetchOnWindowFocus: false }
   );
@@ -140,7 +141,7 @@ const AnalyticsPage = (props) => {
       {allQueriesReady() && (
         <SpeedDial
           ariaLabel="share project analytics"
-          sx={{ position: "absolute", bottom: 24, right: 24 }}
+          className="main-page-fab"
           icon={<Share />}
         >
           {actions.map((action) => (
@@ -167,4 +168,4 @@ const AnalyticsPage = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(AnalyticsPage);
+export default AnalyticsPage;
