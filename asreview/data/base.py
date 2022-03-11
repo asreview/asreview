@@ -28,6 +28,7 @@ from asreview.io import ExcelWriter
 from asreview.io import PaperRecord
 from asreview.io import RISReader
 from asreview.io import RISWriter
+from asreview.io import TSVWriter
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable
@@ -431,7 +432,7 @@ class ASReviewData():
         if Path(fp).suffix in [".csv", ".CSV"]:
             CSVWriter.write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
-            CSVWriter.write_data(df, fp, sep="\t", labels=labels, ranking=ranking)
+            TSVWriter.write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
             RISWriter.write_data(df, fp, labels=labels, ranking=ranking)
         elif Path(fp).suffix in [".xlsx", ".XLSX"]:

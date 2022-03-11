@@ -20,3 +20,4 @@ from asreview.io.excel_writer import ExcelWriter
 from asreview.io.paper_record import PaperRecord
 from asreview.io.ris_reader import RISReader
 from asreview.io.ris_writer import RISWriter
+from asreview.io.tsv_writer import TSVWriter
