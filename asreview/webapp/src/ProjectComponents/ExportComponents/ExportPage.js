@@ -8,6 +8,7 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Stack,
@@ -47,6 +48,14 @@ const ExportPage = (props) => {
   const [file, setFile] = React.useState("");
   const [fileFormat, setFileFormat] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
+
+  const { data, error, isError, isFetching } = useQuery(
+    ["fetchDataWriter", { project_id }],
+    ProjectAPI.fetchDataWriter,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const exportDatasetQuery = useQuery(
     ["fetchExportDataset", { project_id, fileFormat }],
@@ -94,16 +103,16 @@ const ExportPage = (props) => {
     setExporting(true);
   };
 
-  const disableRIS = () => {
-    return !props.dataWriter.includes("ris-writer");
-  };
-
   const disableExportButton = () => {
     return !file || !fileFormat || exporting;
   };
 
   const resetQueries = () => {
     queryClient.resetQueries(selectedQuery()[1]);
+  };
+
+  const refetchDataWriter = () => {
+    queryClient.resetQueries("fetchDataWriter");
   };
 
   return (
@@ -191,6 +200,9 @@ const ExportPage = (props) => {
                   {file === "dataset" && (
                     <FormControl
                       className={`${classes.select} ${classes.selectHeight}`}
+                      disabled={isError || isFetching}
+                      error={isError}
+                      variant={isError || isFetching ? "filled" : "outlined"}
                     >
                       <InputLabel id="file-select-label">
                         File format
@@ -205,29 +217,26 @@ const ExportPage = (props) => {
                           sx: { width: selectWidth },
                         }}
                       >
-                        <MenuItem value="csv">CSV (UTF-8)</MenuItem>
-                        <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
-                        <MenuItem value="xlsx">Excel</MenuItem>
-                        {!disableRIS() && <MenuItem value="ris">RIS</MenuItem>}
-                        {disableRIS() && (
-                          <MenuItem value="ris" disabled={disableRIS()}>
-                            <Box>
-                              <Typography variant="subtitle1">RIS</Typography>
-                              <Typography
-                                variant="body2"
-                                gutterBottom
-                                sx={{
-                                  color: "text.secondary",
-                                  whiteSpace: "pre-line",
-                                }}
-                              >
-                                Available only if you imported a RIS file when
-                                creating the project
-                              </Typography>
-                            </Box>
-                          </MenuItem>
-                        )}
+                        {data?.result.map((value, index) => {
+                          return (
+                            <MenuItem key={index} value={value.name}>
+                              {value.label}
+                            </MenuItem>
+                          );
+                        })}
                       </Select>
+                      {isError && (
+                        <FormHelperText>
+                          {error.message}
+                          <Link
+                            component="button"
+                            variant="body2"
+                            onClick={refetchDataWriter}
+                          >
+                            Please try again
+                          </Link>
+                        </FormHelperText>
+                      )}
                     </FormControl>
                   )}
                   {file === "project" && (

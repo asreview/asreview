@@ -29,7 +29,7 @@ class ExcelWriter():
         Default ordering if ranking is None.
     """
 
-    name = "excel-writer"
+    name = "xlsx"
     label = "Excel"
 
     @classmethod

@@ -31,7 +31,7 @@ class TSVWriter():
         Default ordering if ranking is None.
     """
 
-    name = "tsv-writer"
+    name = "tsv"
     label = "TSV (UTF-8)"
 
     @classmethod

@@ -1039,8 +1039,7 @@ def export_results(project_id):
                     f"attachment; filename=asreview_result_{project_id}.tsv"
                 })
         # Excel
-        # TODO: Take only one. Frontend uses "excel", rest uses "xlsx".
-        elif file_type == "xlsx" or file_type == "excel":
+        elif file_type == "xlsx":
             dataset_str = export_to_string(project_id, export_type="excel")
             fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
 
@@ -1064,10 +1063,10 @@ def export_results(project_id):
                 })
 
         else:
-            raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
+            raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx.")
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to export the {file_type} dataset."), 500
+        return jsonify(message=f"Failed to export the {file_type} dataset. {err}"), 500
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])

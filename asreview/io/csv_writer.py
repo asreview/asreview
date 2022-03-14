@@ -31,7 +31,7 @@ class CSVWriter():
         Default ordering if ranking is None.
     """
 
-    name = "csv-writer"
+    name = "csv"
     label = "CSV (UTF-8)"
 
     @classmethod

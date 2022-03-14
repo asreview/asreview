@@ -154,7 +154,6 @@ const ProjectPage = (props) => {
               path="export"
               element={
                 <ExportPage
-                  dataWriter={data?.writer}
                   enableExportDataset={data?.projectInitReady}
                   mobileScreen={props.mobileScreen}
                 />

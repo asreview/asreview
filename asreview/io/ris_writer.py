@@ -35,7 +35,7 @@ class RISWriter():
         Default ordering if ranking is None.
     """
 
-    name = "ris-writer"
+    name = "ris"
     label = "RIS"
 
     @classmethod
