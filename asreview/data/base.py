@@ -26,7 +26,6 @@ from asreview.exceptions import BadFileFormatError
 from asreview.io import CSVWriter
 from asreview.io import ExcelWriter
 from asreview.io import PaperRecord
-from asreview.io import RISReader
 from asreview.io import RISWriter
 from asreview.io import TSVWriter
 from asreview.io.utils import convert_keywords
@@ -216,6 +215,9 @@ class ASReviewData():
                     "name": writer.name,
                     "label": writer.label,
                 })
+
+        if not writers:
+            raise ValueError(f"No data writer available for {' '.join(write_format)} file.")
 
         return writers
 
