@@ -98,6 +98,14 @@ def test_get_project_data(client):
     assert json_data["filename"] == "Hall_2012"
 
 
+def test_get_data_writer(client):
+    """Test get data writer"""
+
+    response = client.get("/api/projects/project-id/data_writer")
+    json_data = response.get_json()
+    assert isinstance(json_data["result"], list)
+
+
 def test_update_project_info(client):
     """Test update project info"""
 
