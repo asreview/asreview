@@ -30,6 +30,7 @@ class ExcelWriter():
     """
 
     name = "excel-writer"
+    label = "Excel"
 
     @classmethod
     def write_data(cls, df, fp, labels=None, ranking=None):

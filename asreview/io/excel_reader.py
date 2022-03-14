@@ -27,6 +27,7 @@ class ExcelReader():
         File path to the Excel file (.xlsx).
     """
     name = "excel-reader"
+    write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod
     def read_data(cls, fp):

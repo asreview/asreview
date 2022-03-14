@@ -32,6 +32,7 @@ class RISReader():
         A list of notes, coming from the Dataframe's "notes" column.
     """
     name = "ris-reader"
+    write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 
     def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.

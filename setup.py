@@ -141,6 +141,14 @@ setup(
             '.txt = asreview.io:RISReader',
             '.xlsx = asreview.io:ExcelReader',
         ],
+        'asreview.writers': [
+            '.csv = asreview.io:CSVWriter',
+            '.tab = asreview.io:TSVWriter',
+            '.tsv = asreview.io:TSVWriter',
+            '.ris = asreview.io:RISWriter',
+            '.txt = asreview.io:RISWriter',
+            '.xlsx = asreview.io:ExcelWriter',
+        ],
         'asreview.datasets': [
             'benchmark = asreview.datasets:BenchmarkDataGroup',
         ],

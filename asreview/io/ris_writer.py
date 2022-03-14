@@ -36,6 +36,7 @@ class RISWriter():
     """
 
     name = "ris-writer"
+    label = "RIS"
 
     @classmethod
     def write_data(cls, df, fp, labels=None, ranking=None):

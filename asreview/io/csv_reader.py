@@ -26,6 +26,7 @@ class CSVReader():
         File path to the CSV file.
     """
     name = "csv-reader"
+    write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod
     def read_data(cls, fp):

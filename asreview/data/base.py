@@ -120,29 +120,24 @@ class ASReviewData():
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
 
-    @classmethod
-    def from_file(cls, fp, read_fn=None):
-        """Create instance from csv/ris/excel file.
-
-        It works in two ways; either manual control where the conversion
-        functions are supplied or automatic, where it searches in the entry
-        points for the right conversion functions.
+    def reader(fp):
+        """Load data reader class
 
         Arguments
         ---------
         fp: str, pathlib.Path
-            Read the data from this file.
-        read_fn: callable
-            Function to read the file. It should return a standardized
-            dataframe.
+            Load the data reader from this file.
+        
+        Returns
+        -------
+        class:
+            Data reader class.
         """
+
         if is_url(fp):
             path = urlparse(fp).path
         else:
             path = str(Path(fp).resolve())
-
-        if read_fn is not None:
-            return cls(read_fn(fp))
 
         entry_points = {
             entry.name: entry
@@ -159,69 +154,70 @@ class ASReviewData():
                              "reading such a file.")
 
         reader = entry_points[best_suffix].load()
+
+        return reader
+
+    @classmethod
+    def from_file(cls, fp, read_fn=None):
+        """Create instance from csv/ris/excel file.
+
+        It works in two ways; either manual control where the conversion
+        functions are supplied or automatic, where it searches in the entry
+        points for the right conversion functions.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            Read the data from this file.
+        read_fn: callable
+            Function to read the file. It should return a standardized
+            dataframe.
+        """
+        if read_fn is not None:
+            return cls(read_fn(fp))
+
+        reader = cls.reader(fp)
+
         df, column_spec = reader.read_data(fp)
         return cls(df, column_spec=column_spec)
 
     @classmethod
-    def reader_name(cls, fp):
-        """Find available dataset reader from csv/ris/excel file.
+    def list_writer(cls, fp):
+        """Find available writer from data reader.
 
         Arguments
         ---------
         fp: str, pathlib.Path
-            Read the data from this file.
+            Find data reader and corresponding writer from the file.
 
         Returns
         -------
-        str:
-            Name of dataset reader class.
+        list:
+            List of name and label of available data writer.
         """
-        if is_url(fp):
-            path = urlparse(fp).path
+        reader = cls.reader(fp)
+
+        if hasattr(reader, "write_format"):
+            write_format = reader.write_format
         else:
-            path = str(Path(fp).resolve())
+            raise ValueError("No write format specified for the reader.")
 
         entry_points = {
             entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.readers')
+            for entry in pkg_resources.iter_entry_points('asreview.writers')
         }
-        best_suffix = None
+
+        writers = []
+
         for suffix, entry in entry_points.items():
-            if path.endswith(suffix):
-                if best_suffix is None or len(suffix) > len(best_suffix):
-                    best_suffix = suffix
+            if suffix in write_format:
+                writer = entry.load()
+                writers.append({
+                    "name": writer.name,
+                    "label": writer.label,
+                })
 
-        if best_suffix is None:
-            raise ValueError(f"Error reading file {fp}, no capabilities for "
-                             "reading such a file.")
-
-        reader_name = entry_points[best_suffix].load().name
-
-        return reader_name
-
-    @classmethod
-    def writer_name(cls, fp):
-        """Find available dataset writer from csv/ris/excel file.
-
-        Arguments
-        ---------
-        fp: str, pathlib.Path
-            Read the data from this file.
-
-        Returns
-        -------
-        str:
-            Name of dataset writer class.
-        """
-
-        # CSV and Excel writers are available for all dataset formats
-        writer_name = [CSVWriter().name, ExcelWriter().name]
-
-        reader_name = cls.reader_name(fp)
-        if reader_name == RISReader().name:
-            writer_name += [RISWriter().name]
-
-        return writer_name
+        return writers
 
     def record(self, i, by_index=True):
         """Create a record from an index.

@@ -271,8 +271,6 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # check if there is a dataset
         try:
-            data_fp = get_data_file_path(project_path)
-            project_info["writer"] = ASReviewData.writer_name(data_fp)
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False
@@ -505,6 +503,25 @@ def api_get_project_data(project_id):  # noqa: F401
         return jsonify(message=message), 400
 
     response = jsonify(statistics)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/projects/<project_id>/data_writer', methods=["GET"])
+def api_list_data_writers(project_id):
+    """List the name and label of available data writer"""
+
+    project_path = get_project_path(project_id)
+    fp_data = get_data_file_path(project_path)
+
+    try:
+        payload = {"result": ASReviewData.list_writer(fp_data)}
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message=f"Failed to retrieve data writers. {err}"), 500
+
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
