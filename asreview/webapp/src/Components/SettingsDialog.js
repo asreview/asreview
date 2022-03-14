@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Box,
@@ -21,11 +22,21 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
+import { BaseAPI } from "../api/index.js";
 import { fontSizeOptions, donateURL } from "../globals.js";
+import { setASReviewVersion } from "../redux/actions";
 
 const mapStateToProps = (state) => {
   return {
     asreview_version: state.asreview_version,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setASReviewVersion: (asreview_version) => {
+      dispatch(setASReviewVersion(asreview_version));
+    },
   };
 };
 
@@ -35,6 +46,15 @@ const SettingsDialog = (props) => {
   // second layer state
   const [fontSizeSetting, setFontSizeSetting] = useState(false);
   const [shortcutSetting, setShortcutSetting] = useState(false);
+
+  const { isError } = useQuery("boot", BaseAPI.boot, {
+    enabled: props.asreview_version === undefined,
+    onSuccess: (data) => {
+      // set the version of asreview
+      props.setASReviewVersion(data.version);
+    },
+    refetchOnWindowFocus: false,
+  });
 
   // second layer toggle
   const toggleFontSizeSetting = () => {
@@ -184,7 +204,9 @@ const SettingsDialog = (props) => {
                     About ASReview LAB <OpenInNewIconStyled />
                   </React.Fragment>
                 }
-                secondary={"Version " + props.asreview_version}
+                secondary={`Version ${
+                  !isError ? props.asreview_version : `N/A`
+                }`}
               />
             </ListItem>
             {donateURL !== undefined && (
@@ -418,4 +440,4 @@ const SettingsDialog = (props) => {
   );
 };
 
-export default connect(mapStateToProps)(SettingsDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(SettingsDialog);
