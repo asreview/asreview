@@ -127,7 +127,7 @@ class ASReviewData():
         ---------
         fp: str, pathlib.Path
             Load the data reader from this file.
-        
+
         Returns
         -------
         class:
