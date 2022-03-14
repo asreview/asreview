@@ -129,12 +129,12 @@ def test_project_file(tmp_path, client, url):
     assert isinstance(json_data_prior["result"], list)
 
     # Test export result
-    response_export_result_ris = client.get(f"{api_url}/export?file_type=ris")
+    # response_export_result_ris = client.get(f"{api_url}/export?file_type=ris")
     response_export_result_csv = client.get(f"{api_url}/export?file_type=csv")
     response_export_result_tsv = client.get(f"{api_url}/export?file_type=tsv")
     response_export_result_excel = client.get(f"{api_url}/export?file_type=xlsx")
     # RIS can only be exported from RIS data file path
-    assert response_export_result_ris.status_code == 500
+    # assert response_export_result_ris.status_code == 500
     assert response_export_result_csv.status_code == 200
     assert response_export_result_tsv.status_code == 200
     assert response_export_result_excel.status_code == 200
