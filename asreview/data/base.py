@@ -217,7 +217,9 @@ class ASReviewData():
                 })
 
         if not writers:
-            raise ValueError(f"No data writer available for {' '.join(write_format)} file.")
+            raise ValueError(
+                f"No data writer available for {' '.join(write_format)} file."
+            )
 
         return writers
 
