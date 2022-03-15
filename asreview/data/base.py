@@ -18,7 +18,6 @@ from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
@@ -32,6 +31,7 @@ from asreview.io import RISWriter
 from asreview.io import TSVWriter
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
+from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 from asreview.utils import is_url
 
@@ -175,11 +175,10 @@ class ASReviewData():
         if read_fn is not None:
             return cls(read_fn(fp))
 
-        entry_points = {
-            entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.readers')
-        }
+        entry_points = get_entry_points(entry_name="asreview.readers")
+
         best_suffix = None
+
         for suffix, entry in entry_points.items():
             if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
