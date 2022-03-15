@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 from asreview.entry_points.simulate import SimulateEntryPoint
-from asreview.entry_points.simulate import _get_dataset_path_from_args
-from asreview.entry_points.simulate import _is_partial_simulation
+# from asreview.entry_points.simulate import _get_dataset_path_from_args
+# from asreview.entry_points.simulate import _is_partial_simulation
 from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import open_state, ASReviewProject
 from asreview.state.paths import get_project_file_path
@@ -41,13 +41,18 @@ def test_dataset_not_found(tmpdir):
     entry_point.execute(argv)
 
 
-def test_simulate(tmpdir):
-    project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATA_FP)} -s {project_path}'.split()
-    entry_point = SimulateEntryPoint()
-    entry_point.execute(argv)
+def test_simulate_review_finished(tmpdir):
 
-    project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+    # file path
+    project_fp = Path(tmpdir, 'test.asreview')
+
+    # simulate entry point
+    entry_point = SimulateEntryPoint()
+    entry_point.execute(
+        f'{DATA_FP} -s {project_fp}'.split()
+    )
+
+    project = ASReviewProject.load(project_fp, Path(tmpdir, 'test'))
 
     with open(get_project_file_path(Path(tmpdir, 'test')), 'r') as f:
         project_config = json.load(f)
@@ -235,23 +240,23 @@ def test_partial_simulation(tmpdir):
                isin(dataset2['record_id'])]) == 89
 
 
-def test_get_dataset_path_from_args():
-    assert _get_dataset_path_from_args('test') == 'test.csv'
-    assert _get_dataset_path_from_args('test.ris') == 'test.csv'
-    assert _get_dataset_path_from_args('benchmark:test') == 'test.csv'
+# def test_get_dataset_path_from_args():
+#     assert _get_dataset_path_from_args('test') == 'test.csv'
+#     assert _get_dataset_path_from_args('test.ris') == 'test.csv'
+#     assert _get_dataset_path_from_args('benchmark:test') == 'test.csv'
 
 
-def test_is_partial_simulation(tmpdir):
-    dataset = 'benchmark:van_de_Schoot_2017'
-    project_path = Path(tmpdir, 'test.asreview')
+# def test_is_partial_simulation(tmpdir):
+#     dataset = 'benchmark:van_de_Schoot_2017'
+#     project_path = Path(tmpdir, 'test.asreview')
 
-    argv = f'{dataset} -s {project_path} --n_papers 50'.split()
-    parser = _simulate_parser()
-    args = parser.parse_args(argv)
+#     argv = f'{dataset} -s {project_path} --n_papers 50'.split()
+#     parser = _simulate_parser()
+#     args = parser.parse_args(argv)
 
-    assert not _is_partial_simulation(args)
+#     assert not _is_partial_simulation(args)
 
-    entry_point = SimulateEntryPoint()
-    entry_point.execute(argv)
+#     entry_point = SimulateEntryPoint()
+#     entry_point.execute(argv)
 
-    assert _is_partial_simulation(args)
+#     assert _is_partial_simulation(args)

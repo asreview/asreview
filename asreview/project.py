@@ -180,8 +180,8 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
     #         project.create(asreview_file_or_dir)
     #         review_id = uuid4().hex
 
-    # Check if file is a valid project folder.
-    is_valid_project_folder(project.project_path)
+    # # Check if file is a valid project folder.
+    # is_valid_project_folder(project.project_path)
 
     # Get the review_id of the first review if none is given.
     # If there is no review yet, create a review id.
@@ -200,9 +200,13 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
 
     try:
         if len(project.reviews) > 0:
+            logging.debug("Reviews found.")
             state._restore(project.project_path, review_id)
         elif len(project.reviews) == 0 and not read_only:
-            state._create_new_state_file(project.project_path, uuid4().hex)
+            review_id = uuid4().hex
+            logging.debug(f"Create new review (state) with id {review_id}.")
+            state._create_new_state_file(project.project_path, review_id)
+            project.add_review(review_id)
         else:
             raise StateNotFoundError("State file does not exist, and in "
                                      "read only mode.")
@@ -286,7 +290,6 @@ class ASReviewProject():
     def config(self):
 
         try:
-            print(self._config)
             return self._config
         except AttributeError:
 
@@ -306,6 +309,11 @@ class ASReviewProject():
 
     @config.setter
     def config(self, config):
+
+        project_fp = get_project_file_path(self.project_path)
+
+        with open(project_fp, "w") as f:
+            json.dump(config, f)
 
         self._config = config
 
@@ -327,13 +335,13 @@ class ASReviewProject():
         # update project file
         project_fp = get_project_file_path(self.project_path)
 
-        with open(project_fp, "r") as fp:
-            config = json.load(fp)
+        with open(project_fp, "r") as f:
+            config = json.load(f)
 
         config.update(kwargs_copy)
 
-        with open(project_fp, "w") as fp:
-            json.dump(config, fp)
+        with open(project_fp, "w") as f:
+            json.dump(config, f)
 
         self._config = config
         return config
@@ -457,44 +465,74 @@ class ASReviewProject():
         except Exception:
             return []
 
-    def add_review(self, review_id):
-        update_review(review_id, True)
+    def add_review(self, review_id, start_time=None, review_finished=False):
+        """Add new review metadata.
 
+        Arguments
+        ---------
+        review_id: str
+            The review_id uuid4.
+        status: str
+            The status of the review. One of 'setup', 'running',
+            'finished'.
+        start_time:
+            Start of the review.
 
-    def update_review(self, review_id, review_finished):
-
-        # read the file with project info
-        config = self.config
-
-        if "reviews" not in config:
-            config["reviews"] = []
-
-        config["reviews"].append(
-            {"id": review_id, "state": review_finished}
-        )
-
-        # update the file with project info
-        self.config = config
-
-    def add_state(self, review_id, start_time=None, review_finished=False):
-
+        """
         if start_time is None:
             start_time = datetime.now()
 
         # Add the review to the project.
         config = self.config
 
-        config = {
+        review_config = {
             "id": review_id,
             "start_time": str(start_time),
             "review_finished": review_finished
             # "status": "stopped"  # on of the following: ["setup", "running", "stopped"]
+            # "end_time": datetime.now()
         }
 
-        project_config["reviews"].append(config)
+        # add container for reviews
+        if "reviews" not in config:
+            config["reviews"] = []
+
+        config["reviews"].append(review_config)
 
         self.config = config
 
+    def update_review(self, review_id=None, **kwargs):
+        """Update review metadata.
+
+        Arguments
+        ---------
+        review_id: str
+            The review_id uuid4. Default None, which is the
+            first added review.
+        status: str
+            The status of the review. One of 'setup', 'running',
+            'finished'.
+        start_time:
+            Start of the review.
+        end_time: End time of the review.
+        """
+
+        # read the file with project info
+        config = self.config
+
+        if review_id is None:
+            review_index = 0
+        else:
+            review_index = [x['id']
+                            for x in project_config['reviews']].index(review_id)
+
+        review_config = config["reviews"][review_index]
+        review_config.update(kwargs)
+
+        config["reviews"][review_index] = review_config
+
+        # update the file with project info
+        self.config = config
 
     def delete_state(self, remove_folders=False):
 
@@ -536,18 +574,8 @@ class ASReviewProject():
             Identifier of the review to mark as finished.
         """
 
-        project_config = self.config
-
-        if review_id is None:
-            review_index = 0
-        else:
-            review_index = [x['id']
-                            for x in project_config['reviews']].index(review_id)
-
-        project_config['reviews'][review_index]['review_finished'] = True
-        project_config['reviews'][review_index]['end_time'] = str(datetime.now())
-
-        self.config = project_config
+        self.update_review(review_id=review_id, review_finished=True,
+                           end_time=str(datetime.now()))
 
 
     def export(self, export_fp):

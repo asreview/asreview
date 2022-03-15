@@ -853,13 +853,13 @@ def api_start(project):  # noqa: F401
         logging.info("Start simulation")
 
         try:
-            simulation_id = uuid.uuid4().hex
+            review_id = uuid.uuid4().hex
             datafile = get_data_file_path(project.project_path)
-            state_file = get_simulation_ready_path(project.project_path, simulation_id)
+            state_file = get_simulation_ready_path(project.project_path, review_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
-            project.add_review(simulation_id)
+            project.add_review(review_id)
 
             # start simulation
             py_exe = _get_executable()
@@ -930,7 +930,7 @@ def api_init_model_ready(project):  # noqa: F401
 
         if get_simulation_ready_path(project.project_path, simulation_id).exists():
             logging.info("simulation ready")
-            project.update_review(simulation_id, "ready")
+            project.update_review(simulation_id, status="ready")
 
             response = jsonify({'status': 1})
         else:
