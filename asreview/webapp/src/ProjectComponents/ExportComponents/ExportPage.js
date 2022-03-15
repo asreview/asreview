@@ -17,6 +17,8 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import { SelectItem } from "../../ProjectComponents";
+
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
@@ -50,8 +52,8 @@ const ExportPage = (props) => {
   const [exporting, setExporting] = React.useState(false);
 
   const { data, error, isError, isFetching } = useQuery(
-    ["fetchDataWriter", { project_id }],
-    ProjectAPI.fetchDataWriter,
+    ["fetchDatasetWriter", { project_id }],
+    ProjectAPI.fetchDatasetWriter,
     {
       refetchOnWindowFocus: false,
     }
@@ -111,8 +113,8 @@ const ExportPage = (props) => {
     queryClient.resetQueries(selectedQuery()[1]);
   };
 
-  const refetchDataWriter = () => {
-    queryClient.resetQueries("fetchDataWriter");
+  const refetchDatasetWriter = () => {
+    queryClient.resetQueries("fetchDatasetWriter");
   };
 
   return (
@@ -219,8 +221,17 @@ const ExportPage = (props) => {
                       >
                         {data?.result.map((value, index) => {
                           return (
-                            <MenuItem key={index} value={value.name}>
-                              {value.label}
+                            <MenuItem
+                              key={index}
+                              value={value.name}
+                              disabled={!value.enabled}
+                            >
+                              <SelectItem
+                                primary={value.label}
+                                secondary={
+                                  !value.enabled ? value.caution : null
+                                }
+                              />
                             </MenuItem>
                           );
                         })}
@@ -231,7 +242,7 @@ const ExportPage = (props) => {
                           <Link
                             component="button"
                             variant="body2"
-                            onClick={refetchDataWriter}
+                            onClick={refetchDatasetWriter}
                           >
                             Please try again
                           </Link>
