@@ -14,17 +14,16 @@
 
 import logging
 
-from pathlib import Path
-from urllib.parse import urlparse
-
 import numpy as np
 import pandas as pd
-import pkg_resources
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
-from asreview.utils import is_url
+from asreview.utils import list_reader_names
+from asreview.utils import list_writer_names
+from asreview.utils import _reader_class_from_entry_point
+from asreview.utils import _writer_class_from_entry_point
 
 
 def type_from_column(col_name, col_definitions):
@@ -177,82 +176,69 @@ def _standardize_dataframe(df, column_spec={}):
     return df, all_column_spec
 
 
-def get_reader_class(fp):
-    """Load data reader class
-
-    Arguments
-    ---------
-    fp: str, pathlib.Path
-        Load the data reader from data file path.
-
-    Returns
-    -------
-    class:
-        Data reader class for this data file
-    """
-
-    if is_url(fp):
-        path = urlparse(fp).path
-    else:
-        path = str(Path(fp).resolve())
-
-    entry_points = {
-        entry.name: entry
-        for entry in pkg_resources.iter_entry_points('asreview.readers')
-    }
-    best_suffix = None
-    for suffix, entry in entry_points.items():
-        if path.endswith(suffix):
-            if best_suffix is None or len(suffix) > len(best_suffix):
-                best_suffix = suffix
-
-    if best_suffix is None:
-        raise ValueError(f"Error reading file {fp}, no capabilities for "
-                         "reading such a file.")
-
-    reader = entry_points[best_suffix].load()
-
-    return reader
-
-
-def list_writers(fp):
-    """Find available writer from data reader.
-
-    Arguments
-    ---------
-    fp: str, pathlib.Path
-        Find data reader and corresponding writer from the file.
+def list_readers():
+    """List available dataset reader classes.
 
     Returns
     -------
     list:
-        List of name and label of available data writer.
+        Classes of available dataset readers in alphabetical order.
     """
-    reader = get_reader_class(fp)
+    reader_class = [
+        get_reader_class(name)
+        for name in list_reader_names(entry_name="asreview.readers")
+    ]
 
-    if hasattr(reader, "write_format"):
-        write_format = reader.write_format
-    else:
-        raise ValueError("No write format specified for the reader.")
+    return reader_class
 
-    entry_points = {
-        entry.name: entry
-        for entry in pkg_resources.iter_entry_points('asreview.writers')
-    }
 
-    writers = []
+def list_writers():
+    """List available dataset writer classes.
 
-    for suffix, entry in entry_points.items():
-        if suffix in write_format:
-            writer = entry.load()
-            writers.append({
-                "name": writer.name,
-                "label": writer.label,
-            })
+    Returns
+    -------
+    list:
+        Classes of available dataset writers in alphabetical order.
+    """
+    writer_class = [
+        get_writer_class(name)
+        for name in list_writer_names(entry_name="asreview.writers")
+    ]
 
-    if not writers:
-        raise ValueError(
-            f"No data writer available for {' '.join(write_format)} file."
-        )
+    return writer_class
 
-    return writers
+
+def get_reader_class(name):
+    """Get class of dataset reader from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset reader, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _reader_class_from_entry_point(
+        name,
+        entry_name="asreview.readers")
+
+
+def get_writer_class(name):
+    """Get class of dataset writer from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset writer, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _writer_class_from_entry_point(
+        name,
+        entry_name="asreview.writers")
