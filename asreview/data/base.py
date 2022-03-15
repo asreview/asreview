@@ -168,12 +168,30 @@ class ASReviewData():
             Function to read the file. It should return a standardized
             dataframe.
         """
+        if is_url(fp):
+            path = urlparse(fp).path
+        else:
+            path = str(Path(fp).resolve())
+
         if read_fn is not None:
             return cls(read_fn(fp))
 
-        reader = get_reader_class(fp)
+        entry_points = {
+            entry.name: entry
+            for entry in pkg_resources.iter_entry_points('asreview.readers')
+        }
+        best_suffix = None
+        for suffix, entry in entry_points.items():
+            if path.endswith(suffix):
+                if best_suffix is None or len(suffix) > len(best_suffix):
+                    best_suffix = suffix
 
-        df, column_spec = reader.read_data(fp)
+        if best_suffix is None:
+            raise ValueError(f"Error reading file {fp}, no capabilities for "
+                             "reading such a file.")
+
+        read_fn = entry_points[best_suffix].load()
+        df, column_spec = read_fn.read_data(fp)
         return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
