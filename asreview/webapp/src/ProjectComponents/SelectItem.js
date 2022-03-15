@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Box, Typography } from "@mui/material";
-import "../../App.css";
 
 export default function SelectItem(props) {
   return (

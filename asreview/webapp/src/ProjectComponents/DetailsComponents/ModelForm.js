@@ -14,7 +14,7 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { SelectItem } from "../SetupComponents";
+import { SelectItem } from "../../ProjectComponents";
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { TypographySubtitle1Medium } from "../../StyledComponents/StyledTypography.js";
 import { ProjectAPI } from "../../api/index.js";
