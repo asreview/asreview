@@ -45,6 +45,7 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
+from asreview.io import list_writers
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
@@ -515,7 +516,7 @@ def api_list_data_writers(project_id):
     fp_data = get_data_file_path(project_path)
 
     try:
-        payload = {"result": ASReviewData.list_writer(fp_data)}
+        payload = {"result": list_writers(fp_data)}
 
     except Exception as err:
         logging.error(err)

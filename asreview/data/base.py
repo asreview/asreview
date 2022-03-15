@@ -22,16 +22,49 @@ import pkg_resources
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
+from asreview.datasets import DatasetManager
+from asreview.datasets import DataSetNotFoundError
 from asreview.exceptions import BadFileFormatError
 from asreview.io import CSVWriter
 from asreview.io import ExcelWriter
 from asreview.io import PaperRecord
 from asreview.io import RISWriter
 from asreview.io import TSVWriter
+from asreview.io import get_reader_class
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable
 from asreview.utils import is_url
+
+
+def load_data(name, *args, **kwargs):
+    """Load data from file, URL, or plugin.
+
+    Parameters
+    ----------
+    name: str, pathlib.Path
+        File path, URL, or alias of extension dataset.
+
+    Returns
+    -------
+    asreview.ASReviewData:
+        Inititalized ASReview data object.
+    """
+
+    # check is file or URL
+    if is_url(name) or Path(name).exists():
+        return ASReviewData.from_file(name, *args, **kwargs)
+
+    # check if dataset is plugin dataset\
+    try:
+        dataset_path = DatasetManager().find(name).get()
+        return ASReviewData.from_file(dataset_path, *args, **kwargs)
+    except DataSetNotFoundError:
+        pass
+
+    # Could not find dataset, return None.
+    raise FileNotFoundError(
+        f"File, URL, or dataset does not exist: '{name}'")
 
 
 class ASReviewData():
@@ -119,43 +152,6 @@ class ASReviewData():
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
 
-    def reader(fp):
-        """Load data reader class
-
-        Arguments
-        ---------
-        fp: str, pathlib.Path
-            Load the data reader from this file.
-
-        Returns
-        -------
-        class:
-            Data reader class.
-        """
-
-        if is_url(fp):
-            path = urlparse(fp).path
-        else:
-            path = str(Path(fp).resolve())
-
-        entry_points = {
-            entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.readers')
-        }
-        best_suffix = None
-        for suffix, entry in entry_points.items():
-            if path.endswith(suffix):
-                if best_suffix is None or len(suffix) > len(best_suffix):
-                    best_suffix = suffix
-
-        if best_suffix is None:
-            raise ValueError(f"Error reading file {fp}, no capabilities for "
-                             "reading such a file.")
-
-        reader = entry_points[best_suffix].load()
-
-        return reader
-
     @classmethod
     def from_file(cls, fp, read_fn=None):
         """Create instance from csv/ris/excel file.
@@ -175,53 +171,10 @@ class ASReviewData():
         if read_fn is not None:
             return cls(read_fn(fp))
 
-        reader = cls.reader(fp)
+        reader = get_reader_class(fp)
 
         df, column_spec = reader.read_data(fp)
         return cls(df, column_spec=column_spec)
-
-    @classmethod
-    def list_writer(cls, fp):
-        """Find available writer from data reader.
-
-        Arguments
-        ---------
-        fp: str, pathlib.Path
-            Find data reader and corresponding writer from the file.
-
-        Returns
-        -------
-        list:
-            List of name and label of available data writer.
-        """
-        reader = cls.reader(fp)
-
-        if hasattr(reader, "write_format"):
-            write_format = reader.write_format
-        else:
-            raise ValueError("No write format specified for the reader.")
-
-        entry_points = {
-            entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.writers')
-        }
-
-        writers = []
-
-        for suffix, entry in entry_points.items():
-            if suffix in write_format:
-                writer = entry.load()
-                writers.append({
-                    "name": writer.name,
-                    "label": writer.label,
-                })
-
-        if not writers:
-            raise ValueError(
-                f"No data writer available for {' '.join(write_format)} file."
-            )
-
-        return writers
 
     def record(self, i, by_index=True):
         """Create a record from an index.

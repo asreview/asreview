@@ -12,14 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+from pathlib import Path
+from urllib.parse import urlparse
 
+import logging
 import numpy as np
 import pandas as pd
+import pkg_resources
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
+from asreview.utils import is_url
 
 
 def type_from_column(col_name, col_definitions):
@@ -170,3 +174,84 @@ def _standardize_dataframe(df, column_spec={}):
     df.set_index('record_id', inplace=True)
 
     return df, all_column_spec
+
+
+def get_reader_class(fp):
+    """Load data reader class
+
+    Arguments
+    ---------
+    fp: str, pathlib.Path
+        Load the data reader from this file.
+
+    Returns
+    -------
+    class:
+        Data reader class.
+    """
+
+    if is_url(fp):
+        path = urlparse(fp).path
+    else:
+        path = str(Path(fp).resolve())
+
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points('asreview.readers')
+    }
+    best_suffix = None
+    for suffix, entry in entry_points.items():
+        if path.endswith(suffix):
+            if best_suffix is None or len(suffix) > len(best_suffix):
+                best_suffix = suffix
+
+    if best_suffix is None:
+        raise ValueError(f"Error reading file {fp}, no capabilities for "
+                         "reading such a file.")
+
+    reader = entry_points[best_suffix].load()
+
+    return reader
+
+
+def list_writers(fp):
+    """Find available writer from data reader.
+
+    Arguments
+    ---------
+    fp: str, pathlib.Path
+        Find data reader and corresponding writer from the file.
+
+    Returns
+    -------
+    list:
+        List of name and label of available data writer.
+    """
+    reader = get_reader_class(fp)
+
+    if hasattr(reader, "write_format"):
+        write_format = reader.write_format
+    else:
+        raise ValueError("No write format specified for the reader.")
+
+    entry_points = {
+        entry.name: entry
+        for entry in pkg_resources.iter_entry_points('asreview.writers')
+    }
+
+    writers = []
+
+    for suffix, entry in entry_points.items():
+        if suffix in write_format:
+            writer = entry.load()
+            writers.append({
+                "name": writer.name,
+                "label": writer.label,
+            })
+
+    if not writers:
+        raise ValueError(
+            f"No data writer available for {' '.join(write_format)} file."
+        )
+
+    return writers
