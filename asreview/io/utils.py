@@ -20,10 +20,10 @@ import pandas as pd
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
-from asreview.utils import list_reader_names
 from asreview.utils import _reader_class_from_entry_point
-from asreview.utils import list_writer_names
 from asreview.utils import _writer_class_from_entry_point
+from asreview.utils import list_reader_names
+from asreview.utils import list_writer_names
 
 
 def type_from_column(col_name, col_definitions):
