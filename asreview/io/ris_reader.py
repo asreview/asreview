@@ -31,7 +31,6 @@ class RISReader():
     note_list: list
         A list of notes, coming from the Dataframe's "notes" column.
     """
-    name = "ris-reader"
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 
     def _strip_zotero_p_tags(note_list):
