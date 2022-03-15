@@ -132,7 +132,9 @@ def test_project_file(tmp_path, client, url):
     # response_export_result_ris = client.get(f"{api_url}/export_dataset?file_type=ris")
     response_export_result_csv = client.get(f"{api_url}/export_dataset?file_type=csv")
     response_export_result_tsv = client.get(f"{api_url}/export_dataset?file_type=tsv")
-    response_export_result_excel = client.get(f"{api_url}/export_dataset?file_type=xlsx")
+    response_export_result_excel = client.get(
+        f"{api_url}/export_dataset?file_type=xlsx"
+    )
     # RIS can only be exported from RIS data file path
     # assert response_export_result_ris.status_code == 500
     assert response_export_result_csv.status_code == 200
