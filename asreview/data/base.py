@@ -30,7 +30,6 @@ from asreview.io import ExcelWriter
 from asreview.io import PaperRecord
 from asreview.io import RISWriter
 from asreview.io import TSVWriter
-from asreview.io import get_reader_class
 from asreview.io.utils import convert_keywords
 from asreview.io.utils import type_from_column
 from asreview.utils import is_iterable

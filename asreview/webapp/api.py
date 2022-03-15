@@ -273,6 +273,7 @@ def api_get_project_info(project_id):  # noqa: F401
 
         # check if there is a dataset
         try:
+            get_data_file_path(project_path)
             project_info["projectHasDataset"] = True
         except Exception:
             project_info["projectHasDataset"] = False
