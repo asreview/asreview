@@ -31,6 +31,7 @@ class ExcelWriter():
 
     name = "xlsx"
     label = "Excel"
+    write_format = ".xlsx"
 
     @classmethod
     def write_data(cls, df, fp, labels=None, ranking=None):

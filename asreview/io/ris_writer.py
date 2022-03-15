@@ -37,6 +37,8 @@ class RISWriter():
 
     name = "ris"
     label = "RIS"
+    caution = "Available only if you imported a RIS file when creating the project"
+    write_format = ".ris"
 
     @classmethod
     def write_data(cls, df, fp, labels=None, ranking=None):

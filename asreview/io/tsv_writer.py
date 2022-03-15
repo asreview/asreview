@@ -33,6 +33,7 @@ class TSVWriter():
 
     name = "tsv"
     label = "TSV (UTF-8)"
+    write_format = ".tsv"
 
     @classmethod
     def write_data(cls, df, fp, sep="\t", labels=None, ranking=None):

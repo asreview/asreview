@@ -25,6 +25,7 @@ class CSVReader():
     fp: str, pathlib.Path
         File path to the CSV file.
     """
+    read_format = [".csv", ".tab", ".tsv"]
     write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod

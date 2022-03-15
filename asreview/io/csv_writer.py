@@ -33,6 +33,7 @@ class CSVWriter():
 
     name = "csv"
     label = "CSV (UTF-8)"
+    write_format = ".csv"
 
     @classmethod
     def write_data(cls, df, fp, sep=",", labels=None, ranking=None):

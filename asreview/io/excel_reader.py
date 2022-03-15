@@ -26,6 +26,7 @@ class ExcelReader():
     fp: str, pathlib.Path
         File path to the Excel file (.xlsx).
     """
+    read_format = [".xlsx"]
     write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod
