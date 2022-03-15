@@ -171,9 +171,9 @@ class ProjectAPI {
     });
   }
 
-  static fetchDataWriter({ queryKey }) {
+  static fetchDatasetWriter({ queryKey }) {
     const { project_id } = queryKey[1];
-    const url = api_url + `projects/${project_id}/data_writer`;
+    const url = api_url + `projects/${project_id}/dataset_writer`;
     return new Promise((resolve, reject) => {
       axios
         .get(url)
@@ -358,7 +358,7 @@ class ProjectAPI {
   static fetchExportDataset({ queryKey }) {
     const { project_id, fileFormat } = queryKey[1];
     const url =
-      api_url + `projects/${project_id}/export?file_type=${fileFormat}`;
+      api_url + `projects/${project_id}/export_dataset?file_type=${fileFormat}`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,

@@ -45,6 +45,7 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
+from asreview.io import list_readers
 from asreview.io import list_writers
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
@@ -508,19 +509,48 @@ def api_get_project_data(project_id):  # noqa: F401
     return response
 
 
-@bp.route('/projects/<project_id>/data_writer', methods=["GET"])
-def api_list_data_writers(project_id):
-    """List the name and label of available data writer"""
+@bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
+def api_list_dataset_writers(project_id):
+    """List the name and label of available dataset writer"""
 
     project_path = get_project_path(project_id)
     fp_data = get_data_file_path(project_path)
 
     try:
-        payload = {"result": list_writers(fp_data)}
+        readers = list_readers()
+        writers = list_writers()
+
+        # get write format for the data file
+        write_format = None
+        for c in readers:
+            if fp_data.suffix in c.read_format:
+                if write_format is None:
+                    write_format = c.write_format
+
+        # get available writers
+        payload = {"result": []}
+        for c in writers:
+            payload["result"].append({
+                "enabled": True if c.write_format in write_format else False,
+                "name": c.name,
+                "label": c.label,
+                "caution": c.caution if hasattr(c, "caution") else None
+            })
+
+        if not payload["result"]:
+            return jsonify(
+                message=f"No dataset writer available for {fp_data.suffix} file."
+            ), 500
+
+        # remove duplicate writers
+        payload["result"] = [
+            i for n, i in enumerate(payload["result"])
+            if i not in payload["result"][n + 1:]
+        ]
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to retrieve data writers. {err}"), 500
+        return jsonify(message=f"Failed to retrieve dataset writers. {err}"), 500
 
     response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -1009,8 +1039,8 @@ def api_import_project():
     return jsonify(project_info)
 
 
-@bp.route('/projects/<project_id>/export', methods=["GET"])
-def export_results(project_id):
+@bp.route('/projects/<project_id>/export_dataset', methods=["GET"])
+def api_export_dataset(project_id):
     project_path = get_project_path(project_id)
 
     # get the export args
