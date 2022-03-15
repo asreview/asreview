@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 from pathlib import Path
 from urllib.parse import urlparse
 
-import logging
 import numpy as np
 import pandas as pd
 import pkg_resources
@@ -182,12 +183,12 @@ def get_reader_class(fp):
     Arguments
     ---------
     fp: str, pathlib.Path
-        Load the data reader from this file.
+        Load the data reader from data file path.
 
     Returns
     -------
     class:
-        Data reader class.
+        Data reader class for this data file
     """
 
     if is_url(fp):
