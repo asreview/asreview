@@ -24,6 +24,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import issparse
 from scipy.sparse import save_npz
+from scipy.sparse import load_npz
 
 from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy

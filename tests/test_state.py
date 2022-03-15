@@ -12,6 +12,7 @@ from asreview.settings import ASReviewSettings
 from asreview.state import SQLiteState
 from asreview.project import open_state
 from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
@@ -83,8 +84,8 @@ def test_init_project_folder(tmpdir):
     assert project_config['id'] == 'test'
 
 
-@pytest.mark.xfail(raises=IsADirectoryError,
-                   reason="Project folder {project_path} already exists.")
+@pytest.mark.xfail(raises=ProjectExistsError,
+                   reason="Project {project_path} already exists.")
 def test_init_project_already_exists(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     ASReviewProject.create(project_path)

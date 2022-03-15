@@ -53,6 +53,14 @@ from functools import wraps
 PATH_FEATURE_MATRICES = 'feature_matrices'
 
 
+class ProjectError(Exception):
+    pass
+
+
+class ProjectExistsError(Exception):
+    pass
+
+
 class ProjectNotFoundError(Exception):
     pass
 
@@ -236,7 +244,7 @@ class ASReviewProject():
         """Initialize the necessary files specific to the web app."""
 
         if is_project(project_path):
-            raise ValueError("Project already exists.")
+            raise ProjectExistsError("Project already exists.")
 
         if project_mode not in PROJECT_MODES:
             raise ValueError(f"Project mode '{project_mode}' is not in "
