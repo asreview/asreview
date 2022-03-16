@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import * as React from "react";
 import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
@@ -8,6 +8,7 @@ import {
   Container,
   Dialog,
   DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   List,
@@ -15,14 +16,20 @@ import {
   ListItemIcon,
   ListItemSecondaryAction,
   ListItemText,
+  Stack,
   Switch,
   Slider,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { styled } from "@mui/material/styles";
+import { ArrowBack, Close, InfoOutlined } from "@mui/icons-material";
 
 import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
+import { StyledIconButton } from "../StyledComponents/StyledButton.js";
+
 import { BaseAPI } from "../api/index.js";
+import { useToggle } from "../hooks/useToggle";
 import { fontSizeOptions, donateURL } from "../globals.js";
 import { setASReviewVersion } from "../redux/actions";
 
@@ -40,12 +47,25 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
+const PREFIX = "SettingsDialog";
+
+const classes = {
+  content: `${PREFIX}-content`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.content}`]: {
+    height: 688,
+    padding: "0px 0px 10px 0px",
+  },
+}));
+
 const SettingsDialog = (props) => {
-  const descriptionElementRef = useRef(null);
+  const descriptionElementRef = React.useRef(null);
 
   // second layer state
-  const [fontSizeSetting, setFontSizeSetting] = useState(false);
-  const [shortcutSetting, setShortcutSetting] = useState(false);
+  const [fontSizeSetting, toggleFontSizeSetting] = useToggle();
+  const [shortcutSetting, toggleShortcutSetting] = useToggle();
 
   const { isError } = useQuery("boot", BaseAPI.boot, {
     enabled: props.asreview_version === undefined,
@@ -55,15 +75,6 @@ const SettingsDialog = (props) => {
     },
     refetchOnWindowFocus: false,
   });
-
-  // second layer toggle
-  const toggleFontSizeSetting = () => {
-    setFontSizeSetting((a) => !a);
-  };
-
-  const toggleShortcutSetting = () => {
-    setShortcutSetting((a) => !a);
-  };
 
   // second layer font size setting
   const handleFontSize = (event, newValue) => {
@@ -75,13 +86,16 @@ const SettingsDialog = (props) => {
     }
   };
 
-  // second layer off when exiting dialog
-  const exitSettings = () => {
-    setFontSizeSetting(false);
-    setShortcutSetting(false);
+  const toggleBackMainSettings = () => {
+    if (fontSizeSetting) {
+      toggleFontSizeSetting();
+    }
+    if (shortcutSetting) {
+      toggleShortcutSetting();
+    }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (props.onSettings) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
@@ -91,28 +105,54 @@ const SettingsDialog = (props) => {
   }, [props.onSettings]);
 
   return (
-    <Dialog
+    <StyledDialog
       fullScreen={props.mobileScreen}
       open={props.onSettings}
       onClose={props.toggleSettings}
       scroll="paper"
-      fullWidth={true}
-      maxWidth={"sm"}
+      fullWidth
+      maxWidth="sm"
       aria-labelledby="scroll-dialog-title"
       aria-describedby="scroll-dialog-description"
       TransitionProps={{
-        onExited: exitSettings,
+        onExited: toggleBackMainSettings,
       }}
     >
-      {/*Main settings*/}
-      {!fontSizeSetting && !shortcutSetting && (
+      {/* Main settings */}
+      {!props.mobileScreen && (
+        <Stack className="dialog-header" direction="row" spacing={1}>
+          {!fontSizeSetting && !shortcutSetting && (
+            <StyledIconButton className="dialog-header-button left-empty" />
+          )}
+          {(fontSizeSetting || shortcutSetting) && (
+            <Tooltip title="Back">
+              <StyledIconButton
+                className="dialog-header-button left"
+                onClick={toggleBackMainSettings}
+              >
+                <ArrowBack />
+              </StyledIconButton>
+            </Tooltip>
+          )}
+          <DialogTitle>Settings</DialogTitle>
+          <Tooltip title="Close">
+            <StyledIconButton
+              className="dialog-header-button right"
+              onClick={props.toggleSettings}
+            >
+              <Close />
+            </StyledIconButton>
+          </Tooltip>
+        </Stack>
+      )}
+      {props.mobileScreen && !fontSizeSetting && !shortcutSetting && (
         <AppBarWithinDialog
           onClickStartIcon={props.toggleSettings}
           title="Settings"
         />
       )}
       {!fontSizeSetting && !shortcutSetting && (
-        <DialogContent sx={{ padding: "0px 0px 10px 0px" }}>
+        <DialogContent className={classes.content} dividers>
           <List>
             <ListItem>
               <ListItemIcon></ListItemIcon>
@@ -228,7 +268,7 @@ const SettingsDialog = (props) => {
       )}
 
       {/*Font size setting*/}
-      {fontSizeSetting && (
+      {props.mobileScreen && fontSizeSetting && (
         <AppBarWithinDialog
           startIconIsClose={false}
           onClickStartIcon={toggleFontSizeSetting}
@@ -236,7 +276,7 @@ const SettingsDialog = (props) => {
         />
       )}
       {fontSizeSetting && (
-        <DialogContent sx={{ padding: "0px 0px 10px 0px" }}>
+        <DialogContent className={classes.content} dividers>
           <Container
             maxWidth="md"
             sx={{ paddingTop: "10px", paddingBottom: "10px" }}
@@ -335,7 +375,7 @@ const SettingsDialog = (props) => {
       )}
 
       {/*Keyboard shortcut setting*/}
-      {shortcutSetting && (
+      {props.mobileScreen && shortcutSetting && (
         <AppBarWithinDialog
           startIconIsClose={false}
           onClickStartIcon={toggleShortcutSetting}
@@ -343,7 +383,7 @@ const SettingsDialog = (props) => {
         />
       )}
       {shortcutSetting && (
-        <DialogContent sx={{ padding: "0px 0px 10px 0px" }}>
+        <DialogContent className={classes.content} dividers>
           <List>
             <ListItem button onClick={props.toggleKeyPressEnabled}>
               <ListItemIcon></ListItemIcon>
@@ -364,7 +404,7 @@ const SettingsDialog = (props) => {
             <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
             <ListItem alignItems="flex-start">
               <ListItemIcon>
-                <InfoOutlinedIcon />
+                <InfoOutlined />
               </ListItemIcon>
               <ListItemText secondary="While screening, you can press a key (or a combination of keys) to label a record as relevant or irrelevant, or to return to the previous decision." />
             </ListItem>
@@ -436,7 +476,7 @@ const SettingsDialog = (props) => {
           </List>
         </DialogContent>
       )}
-    </Dialog>
+    </StyledDialog>
   );
 };
 
