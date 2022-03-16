@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import * as React from "react";
+import { useQuery } from "react-query";
 import { connect } from "react-redux";
 import {
   Avatar,
   Card,
   CardActionArea,
   CardHeader,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -17,7 +19,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 import {
   Close,
@@ -26,8 +28,11 @@ import {
   QuestionAnswer,
 } from "@mui/icons-material";
 
-import ErrorHandler from "../ErrorHandler";
-import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
+import {
+  AppBarWithinDialog,
+  BoxErrorHandler,
+  OpenInNewIconStyled,
+} from "../Components";
 import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 
 import { UtilsAPI } from "../api/index.js";
@@ -47,30 +52,64 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
+const PREFIX = "HelpDialog";
+
+const classes = {
+  faq: `${PREFIX}-faq`,
+  faqHeight: `${PREFIX}-faq-height`,
+  contact: `${PREFIX}-contact`,
+  contactAvatar: `${PREFIX}-contact-avatar`,
+  divider: `${PREFIX}-divider`,
+  sectionTitle: `${PREFIX}-section-title`,
+};
+
+const StyledDialog = styled(Dialog)(({ theme }) => ({
+  [`& .${classes.faq}`]: {
+    height: 250,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  [`& .${classes.faqHeight}`]: {
+    minHeight: 353,
+  },
+
+  [`& .${classes.contact}`]: {
+    width: "100%",
+    marginLeft: 20,
+    marginRight: 20,
+  },
+
+  [`& .${classes.contactAvatar}`]: {
+    width: theme.spacing(4),
+    height: theme.spacing(4),
+    color: theme.palette.getContrastText(theme.palette.primary.main),
+    backgroundColor: theme.palette.primary.main,
+  },
+
+  [`& .${classes.divider}`]: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+
+  [`& .${classes.sectionTitle}`]: {
+    paddingLeft: 20,
+  },
+}));
+
 const HelpDialog = (props) => {
-  const theme = useTheme();
-  const descriptionElementRef = useRef(null);
+  const descriptionElementRef = React.useRef(null);
 
-  const [faq, setFaq] = useState(null);
-  const [error, setError] = useState({
-    code: null,
-    message: null,
-  });
+  const { data, error, isError, isFetched, isFetching } = useQuery(
+    "fetchFAQ",
+    UtilsAPI.fetchFAQ,
+    {
+      enabled: props.onHelpDialog,
+      refetchOnWindowFocus: false,
+    }
+  );
 
-  const getFaq = useCallback(() => {
-    UtilsAPI.faq()
-      .then((result) => {
-        setFaq(result);
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
-        });
-      });
-  }, []);
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (props.onHelpDialog) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
@@ -79,21 +118,14 @@ const HelpDialog = (props) => {
     }
   }, [props.onHelpDialog]);
 
-  useEffect(() => {
-    if (!error.message) {
-      getFaq();
-    }
-  }, [getFaq, error.message]);
-
   return (
-    <Dialog
+    <StyledDialog
       fullScreen={props.mobileScreen}
       open={props.onHelpDialog}
       onClose={props.toggleHelpDialog}
       scroll="paper"
       fullWidth
       maxWidth="sm"
-      aria-labelledby="scroll-dialog-help"
     >
       {!props.mobileScreen && (
         <Stack className="dialog-header" direction="row" spacing={1}>
@@ -109,7 +141,6 @@ const HelpDialog = (props) => {
           </Tooltip>
         </Stack>
       )}
-
       {props.mobileScreen && (
         <AppBarWithinDialog
           onClickStartIcon={props.toggleHelpDialog}
@@ -117,14 +148,20 @@ const HelpDialog = (props) => {
         />
       )}
       <DialogContent dividers sx={{ padding: "0px 0px 20px 0px" }}>
-        <List>
+        <List className={classes.faqHeight}>
           <ListItem>
-            <Typography display="block" sx={{ paddingLeft: "20px" }}>
+            <Typography className={classes.sectionTitle} display="block">
               <b>Frequently Asked Questions</b>
             </Typography>
           </ListItem>
-          {faq &&
-            faq.map((element, index) => (
+          {!isError && isFetching && (
+            <Stack className={classes.faq}>
+              <CircularProgress />
+            </Stack>
+          )}
+          {!isError &&
+            isFetched &&
+            data.map((element, index) => (
               <ListItem
                 key={element.url}
                 button
@@ -146,11 +183,15 @@ const HelpDialog = (props) => {
                 />
               </ListItem>
             ))}
-          {!faq && <ErrorHandler error={error} setError={setError} />}
+          {isError && (
+            <Stack className={classes.faq}>
+              <BoxErrorHandler error={error} queryKey="fetchFAQ" />
+            </Stack>
+          )}
           <ListItem
             button
             component={"a"}
-            href="https://asreview.readthedocs.io/en/latest/"
+            href={`https://asreview.readthedocs.io/en/latest/`}
             target="_blank"
           >
             <ListItemIcon></ListItemIcon>
@@ -158,34 +199,23 @@ const HelpDialog = (props) => {
               <b>Browse the documentation</b> <OpenInNewIconStyled />
             </Typography>
           </ListItem>
-
-          <Divider sx={{ marginTop: "8px", marginBottom: "8px" }} />
-
+        </List>
+        <Divider className={classes.divider} />
+        <List>
           <ListItem>
-            <Typography display="block" sx={{ paddingLeft: "20px" }}>
+            <Typography className={classes.sectionTitle} display="block">
               <b>Need more help?</b>
             </Typography>
           </ListItem>
           <ListItem>
-            <Card
-              sx={{ width: "100%", marginLeft: "20px", marginRight: "20px" }}
-            >
+            <Card className={classes.contact}>
               <CardActionArea
-                href="https://github.com/asreview/asreview/discussions"
+                href={`https://github.com/asreview/asreview/discussions`}
                 target="_blank"
               >
                 <CardHeader
                   avatar={
-                    <Avatar
-                      sx={{
-                        width: theme.spacing(4),
-                        height: theme.spacing(4),
-                        color: theme.palette.getContrastText(
-                          theme.palette.primary.main
-                        ),
-                        backgroundColor: theme.palette.primary.main,
-                      }}
-                    >
+                    <Avatar className={classes.contactAvatar}>
                       <QuestionAnswer fontSize="small" />
                     </Avatar>
                   }
@@ -201,25 +231,14 @@ const HelpDialog = (props) => {
           </ListItem>
 
           <ListItem>
-            <Card
-              sx={{ width: "100%", marginLeft: "20px", marginRight: "20px" }}
-            >
+            <Card className={classes.contact}>
               <CardActionArea
                 href="https://github.com/asreview/asreview/issues/new/choose"
                 target="_blank"
               >
                 <CardHeader
                   avatar={
-                    <Avatar
-                      sx={{
-                        width: theme.spacing(4),
-                        height: theme.spacing(4),
-                        color: theme.palette.getContrastText(
-                          theme.palette.primary.main
-                        ),
-                        backgroundColor: theme.palette.primary.main,
-                      }}
-                    >
+                    <Avatar className={classes.contactAvatar}>
                       <Feedback fontSize="small" />
                     </Avatar>
                   }
@@ -235,7 +254,7 @@ const HelpDialog = (props) => {
           </ListItem>
         </List>
       </DialogContent>
-    </Dialog>
+    </StyledDialog>
   );
 };
 
