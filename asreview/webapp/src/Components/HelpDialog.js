@@ -7,19 +7,28 @@ import {
   CardHeader,
   Dialog,
   DialogContent,
+  DialogTitle,
   Divider,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
-import { Description, Feedback, QuestionAnswer } from "@mui/icons-material";
+import {
+  Close,
+  Description,
+  Feedback,
+  QuestionAnswer,
+} from "@mui/icons-material";
 
 import ErrorHandler from "../ErrorHandler";
 import { AppBarWithinDialog, OpenInNewIconStyled } from "../Components";
+import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 
 import { UtilsAPI } from "../api/index.js";
 import { toggleHelpDialog } from "../redux/actions";
@@ -82,15 +91,32 @@ const HelpDialog = (props) => {
       open={props.onHelpDialog}
       onClose={props.toggleHelpDialog}
       scroll="paper"
-      fullWidth={true}
-      maxWidth={"sm"}
+      fullWidth
+      maxWidth="sm"
       aria-labelledby="scroll-dialog-help"
     >
-      <AppBarWithinDialog
-        onClickStartIcon={props.toggleHelpDialog}
-        title="Help"
-      />
-      <DialogContent sx={{ padding: "0px 0px 20px 0px" }}>
+      {!props.mobileScreen && (
+        <Stack className="dialog-header" direction="row" spacing={1}>
+          <StyledIconButton className="dialog-header-button left-empty" />
+          <DialogTitle>Help</DialogTitle>
+          <Tooltip title="Close">
+            <StyledIconButton
+              className="dialog-header-button right"
+              onClick={props.toggleHelpDialog}
+            >
+              <Close />
+            </StyledIconButton>
+          </Tooltip>
+        </Stack>
+      )}
+
+      {props.mobileScreen && (
+        <AppBarWithinDialog
+          onClickStartIcon={props.toggleHelpDialog}
+          title="Help"
+        />
+      )}
+      <DialogContent dividers sx={{ padding: "0px 0px 20px 0px" }}>
         <List>
           <ListItem>
             <Typography display="block" sx={{ paddingLeft: "20px" }}>
