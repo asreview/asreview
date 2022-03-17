@@ -663,6 +663,7 @@ const SetupDialog = (props) => {
                   isPreparingProject={isPreparingProject}
                   isProjectReadyError={isProjectReadyError}
                   isStartTrainingError={isStartTrainingError}
+                  mode={info.mode}
                   projectReadyError={projectReadyError}
                   restartTraining={restartTraining}
                   startTrainingError={startTrainingError}

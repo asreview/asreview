@@ -126,15 +126,24 @@ const DetailsPage = (props) => {
                 >
                   Undo Changes
                 </Button>
-                <LoadingButton
-                  disabled={disableButton}
-                  loading={isLoading}
-                  variant="contained"
-                  onClick={handleClickSave}
-                  size={!props.mobileScreen ? "medium" : "small"}
+                <Tooltip
+                  disableFocusListener={!props.isSimulating}
+                  disableHoverListener={!props.isSimulating}
+                  disableTouchListener={!props.isSimulating}
+                  title="Save after simulation is finished"
                 >
-                  Save
-                </LoadingButton>
+                  <span>
+                    <LoadingButton
+                      disabled={disableButton || props.isSimulating}
+                      loading={isLoading}
+                      variant="contained"
+                      onClick={handleClickSave}
+                      size={!props.mobileScreen ? "medium" : "small"}
+                    >
+                      Save
+                    </LoadingButton>
+                  </span>
+                </Tooltip>
                 <Box>
                   <Tooltip title="Options">
                     <IconButton
