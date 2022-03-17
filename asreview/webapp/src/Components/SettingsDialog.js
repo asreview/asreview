@@ -55,7 +55,7 @@ const classes = {
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.content}`]: {
-    height: 688,
+    height: 588,
     padding: "0px 0px 10px 0px",
   },
 }));
@@ -281,7 +281,7 @@ const SettingsDialog = (props) => {
             maxWidth="md"
             sx={{ paddingTop: "10px", paddingBottom: "10px" }}
           >
-            <Card sx={{ height: 500, overflowY: "scroll" }}>
+            <Card sx={{ height: 400, overflowY: "scroll" }}>
               <CardContent>
                 <Typography
                   variant="h5"
