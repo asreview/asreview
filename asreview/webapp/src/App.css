@@ -104,3 +104,20 @@
 .number-card-content-text {
   font-weight: 600;
 }
+
+.dialog-header {
+  align-items: center;
+  justify-content: space-between;
+}
+.dialog-header-button {
+  align-items: center;
+}
+.dialog-header-button.left {
+  padding-left: 24px;
+}
+.dialog-header-button.left-empty {
+  padding-left: 48px;
+}
+.dialog-header-button.right {
+  padding-right: 24px;
+}
