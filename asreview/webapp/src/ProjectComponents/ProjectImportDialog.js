@@ -7,31 +7,11 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { Close, Feedback } from "@mui/icons-material";
 
 import { ImportFromFile } from "../ProjectComponents";
 import { StyledIconButton } from "../StyledComponents/StyledButton.js";
 import { ProjectAPI } from "../api/index.js";
-
-const PREFIX = "ProjectImportDialog";
-
-const classes = {
-  title: `${PREFIX}-title`,
-  titleButton: `${PREFIX}-title-button`,
-};
-
-const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.title}`]: {
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  [`& .${classes.titleButton}`]: {
-    alignItems: "center",
-    paddingRight: 24,
-  },
-}));
 
 const ProjectImportDialog = (props) => {
   const queryClient = useQueryClient();
@@ -68,7 +48,7 @@ const ProjectImportDialog = (props) => {
   }, [props.open]);
 
   return (
-    <StyledDialog
+    <Dialog
       open={props.open}
       fullScreen={props.mobileScreen}
       fullWidth
@@ -84,9 +64,13 @@ const ProjectImportDialog = (props) => {
           }),
       }}
     >
-      <Stack className={classes.title} direction="row" spacing={1}>
+      <Stack className="dialog-header" direction="row" spacing={1}>
         <DialogTitle>Import project</DialogTitle>
-        <Stack className={classes.titleButton} direction="row" spacing={1}>
+        <Stack
+          className="dialog-header-button right"
+          direction="row"
+          spacing={1}
+        >
           <Tooltip title="Send feedback">
             <StyledIconButton
               component={"a"}
@@ -114,7 +98,7 @@ const ProjectImportDialog = (props) => {
           reset={reset}
         />
       </DialogContent>
-    </StyledDialog>
+    </Dialog>
   );
 };
 

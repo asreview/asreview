@@ -45,24 +45,12 @@ const steps = ["Basic information", "Data", "Model"];
 const PREFIX = "SetupDialog";
 
 const classes = {
-  title: `${PREFIX}-title`,
-  closeButton: `${PREFIX}-close-button`,
   content: `${PREFIX}-content`,
   stepper: `${PREFIX}-stepper`,
   form: `${PREFIX}-form`,
 };
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
-  [`& .${classes.title}`]: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  [`& .${classes.closeButton}`]: {
-    paddingRight: 24,
-  },
-
   [`& .${classes.content}`]: {
     overflowY: "hidden",
     paddingLeft: 0,
@@ -533,13 +521,17 @@ const SetupDialog = (props) => {
     >
       {!addDataset && !addPriorKnowledge && (
         <Fade in={!addDataset}>
-          <Box className={classes.title}>
+          <Stack className="dialog-header" direction="row">
             <DialogTitle>Create a new project</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {props.project_id && (activeStep === 0 || activeStep === 2) && (
                 <SavingStateBox isSaving={isSaving()} />
               )}
-              <Box className={classes.closeButton}>
+              <Stack
+                className="dialog-header-button right"
+                direction="row"
+                spacing={1}
+              >
                 <Tooltip title="Send feedback">
                   <StyledIconButton
                     component={"a"}
@@ -556,16 +548,20 @@ const SetupDialog = (props) => {
                     </StyledIconButton>
                   </Tooltip>
                 )}
-              </Box>
+              </Stack>
             </Stack>
-          </Box>
+          </Stack>
         </Fade>
       )}
       {addDataset && (
         <Fade in={addDataset}>
-          <Box className={classes.title}>
+          <Stack className="dialog-header" direction="row">
             <DialogTitle>Dataset</DialogTitle>
-            <Stack direction="row" spacing={2} className={classes.closeButton}>
+            <Stack
+              direction="row"
+              spacing={1}
+              className="dialog-header-button right"
+            >
               <Button disabled={isAddingDataset} onClick={handleDiscardDataset}>
                 Discard Changes
               </Button>
@@ -578,12 +574,12 @@ const SetupDialog = (props) => {
                 Save
               </LoadingButton>
             </Stack>
-          </Box>
+          </Stack>
         </Fade>
       )}
       {addPriorKnowledge && (
         <Fade in={addPriorKnowledge}>
-          <Box className={classes.title}>
+          <Stack className="dialog-header" direction="row">
             <DialogTitle>Prior knowledge</DialogTitle>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               {isEnoughPriorKnowledge() && (
@@ -595,7 +591,7 @@ const SetupDialog = (props) => {
               {labeledStats?.n_prior !== 0 && (
                 <SavingStateBox isSaving={isSavingPriorKnowledge()} />
               )}
-              <Box className={classes.closeButton}>
+              <Box className="dialog-header-button right">
                 <Button
                   variant={!isEnoughPriorKnowledge() ? "text" : "contained"}
                   onClick={toggleAddPriorKnowledge}
@@ -604,7 +600,7 @@ const SetupDialog = (props) => {
                 </Button>
               </Box>
             </Stack>
-          </Box>
+          </Stack>
         </Fade>
       )}
       <Divider />
