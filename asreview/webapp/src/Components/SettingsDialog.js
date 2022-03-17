@@ -406,7 +406,7 @@ const SettingsDialog = (props) => {
               <ListItemIcon>
                 <InfoOutlined />
               </ListItemIcon>
-              <ListItemText secondary="While screening, you can press a key (or a combination of keys) to label a record as relevant or irrelevant, or to return to the previous decision." />
+              <ListItemText secondary="While reviewing, you can press a key (or a combination of keys) to label a record as relevant or irrelevant, to return to the previous decision, or to add a note." />
             </ListItem>
             <ListItem>
               <ListItemIcon></ListItemIcon>
@@ -468,6 +468,26 @@ const SettingsDialog = (props) => {
                       variant="body2"
                     >
                       Return to the previous decision
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container>
+                  <Grid item style={{ width: 135 }}>
+                    <Typography
+                      color="textSecondary"
+                      display="block"
+                      variant="body2"
+                    >
+                      Press <b>N</b> or <b>Shift + N</b>:
+                    </Typography>
+                  </Grid>
+                  <Grid item>
+                    <Typography
+                      color="textSecondary"
+                      display="block"
+                      variant="body2"
+                    >
+                      Add a note
                     </Typography>
                   </Grid>
                 </Grid>
