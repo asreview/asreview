@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,23 +20,24 @@ from asreview.io.utils import _standardize_dataframe
 
 class ExcelReader():
     """Excel file reader.
-
-    Parameters
-    ----------
-    fp: str, pathlib.Path
-        File path to the Excel file (.xlsx).
     """
+
     read_format = [".xlsx"]
     write_format = [".csv", ".tsv", ".xlsx"]
 
     @classmethod
     def read_data(cls, fp):
-        """
+        """Import dataset.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            File path to the Excel file (.xlsx).
+
         Returns
         -------
         list:
             List with entries.
-
         """
         try:
             dfs = pd.read_excel(fp, sheet_name=None)

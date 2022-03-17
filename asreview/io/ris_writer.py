@@ -20,19 +20,6 @@ import rispy
 
 class RISWriter():
     """RIS file writer.
-
-    Parameters
-    ----------
-    df: pandas.Dataframe
-        Dataframe of all available record data.
-    fp: str, pathlib.Path
-        File path to the RIS file, if exists.
-    labels: list, numpy.ndarray
-        Current labels will be overwritten by these labels
-        (including unlabelled). No effect if labels is None.
-    ranking: list
-        Reorder the dataframe according to these (internal) indices.
-        Default ordering if ranking is None.
     """
 
     name = "ris"
@@ -42,7 +29,21 @@ class RISWriter():
 
     @classmethod
     def write_data(cls, df, fp, labels=None, ranking=None):
-        """
+        """Export dataset.
+
+        Arguments
+        ---------
+        df: pandas.Dataframe
+            Dataframe of all available record data.
+        fp: str, pathlib.Path
+            File path to the RIS file, if exists.
+        labels: list, numpy.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
         Returns
         -------
         RIS file

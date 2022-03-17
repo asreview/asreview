@@ -14,19 +14,6 @@
 
 class ExcelWriter():
     """Excel file writer.
-
-    Arguments
-    ---------
-    df: pandas.Dataframe
-        Dataframe of all available record data.
-    fp: str, NoneType
-        Filepath or None for buffer.
-    labels: list, numpy.ndarray
-        Current labels will be overwritten by these labels
-        (including unlabelled). No effect if labels is None.
-    ranking: list
-        Reorder the dataframe according to these (internal) indices.
-        Default ordering if ranking is None.
     """
 
     name = "xlsx"
@@ -35,7 +22,21 @@ class ExcelWriter():
 
     @classmethod
     def write_data(cls, df, fp, labels=None, ranking=None):
-        """
+        """Export dataset.
+
+        Arguments
+        ---------
+        df: pandas.Dataframe
+            Dataframe of all available record data.
+        fp: str, NoneType
+            Filepath or None for buffer.
+        labels: list, numpy.ndarray
+            Current labels will be overwritten by these labels
+            (including unlabelled). No effect if labels is None.
+        ranking: list
+            Reorder the dataframe according to these (internal) indices.
+            Default ordering if ranking is None.
+
         Returns
         -------
         Excel file

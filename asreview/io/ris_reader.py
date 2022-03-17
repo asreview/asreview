@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,19 +23,18 @@ from asreview.io.utils import _standardize_dataframe
 
 class RISReader():
     """RIS file reader.
-
-    Parameters
-    ----------
-    fp: str, pathlib.Path
-        File path to the RIS file.
-    note_list: list
-        A list of notes, coming from the Dataframe's "notes" column.
     """
+
     read_format = [".ris", ".txt"]
     write_format = [".csv", ".tsv", ".xlsx", ".ris"]
 
     def _strip_zotero_p_tags(note_list):
         """Converter function for removing the XHTML <p></p> tags from Zotero export.
+
+        Arguments
+        ---------
+        note_list: list
+            A list of notes, coming from the Dataframe's "notes" column.
 
         Returns
         -------
@@ -57,6 +56,11 @@ class RISReader():
 
     def _label_parser(note_list):
         """Converter function for manipulating the internal "included" and "notes" columns.
+
+        Arguments
+        ---------
+        note_list: list
+            A list of notes, coming from the Dataframe's "notes" column.
 
         Returns
         -------
@@ -101,7 +105,15 @@ class RISReader():
 
     @classmethod
     def read_data(cls, fp):
-        """
+        """Import dataset.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            File path to the RIS file.
+        note_list: list
+            A list of notes, coming from the Dataframe's "notes" column.
+
         Returns
         -------
         pandas.DataFrame:
