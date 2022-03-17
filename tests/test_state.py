@@ -175,6 +175,37 @@ def test_get_dataset():
             'training_set')['training_set'].to_list() == TEST_TRAINING_SETS
 
 
+def test_get_dataset_drop_prior():
+    with open_state(TEST_STATE_FP) as state:
+        assert len(state.get_dataset(drop_priors=True)) == \
+            len(TEST_RECORD_IDS) - TEST_N_PRIORS
+        assert (state.get_dataset(drop_priors=True)['query_strategy'] !=
+                'prior').all()
+        assert 'query_strategy' in state.get_dataset(drop_priors=True).columns
+        assert 'query_strategy' not in state.get_dataset('label',
+                                                         drop_priors=True)
+
+
+def test_get_dataset_drop_pending(tmpdir):
+    record_table = range(1, 11)
+    test_ranking = range(10, 0, -1)
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(record_table)
+        state.add_last_ranking(test_ranking, 'nb',
+                               'max', 'double', 'tfidf', 4)
+        state.add_labeling_data([4, 5, 6], [1, 0, 1],
+                                prior=True)
+        state.query_top_ranked(3)
+
+        assert 'label' in state.get_dataset(drop_pending=True).columns
+        assert 'label' not in state.get_dataset('balance_strategy',
+                                                drop_pending=True)
+        assert len(state.get_dataset(drop_pending=True)) == 3
+        assert state.get_dataset(drop_pending=True)['label'].notna().all()
+
+
 def test_get_data_by_query_number():
     with open_state(TEST_STATE_FP) as state:
         query = state.get_data_by_query_number(0)
@@ -240,9 +271,9 @@ def test_get_labels():
         assert all(state.get_labels() == TEST_LABELS)
 
 
-def test_get_labels_wo_priors():
+def test_get_labels_no_priors():
     with open_state(TEST_STATE_FP) as state:
-        labels = state.get_labels(priors=False)
+        labels = state.get_labels(drop_priors=True)
         assert isinstance(labels, pd.Series)
         assert all(labels == TEST_LABELS[4:])
 

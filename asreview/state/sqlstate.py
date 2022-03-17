@@ -685,6 +685,367 @@ class SQLiteState(BaseState):
         con.close()
         return record_table
 
+    def get_last_probabilities(self):
+        """Get the probabilities produced by the last classifier.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe with column 'proba' containing the probabilities.
+        """
+        con = self._connect_to_sql()
+        last_probabilities = pd.read_sql_query(
+            'SELECT * FROM last_probabilities', con)
+        con.close()
+        return last_probabilities
+
+    def get_last_ranking(self):
+        """Get the ranking from the state."""
+        con = self._connect_to_sql()
+        last_ranking = pd.read_sql_query('SELECT * FROM last_ranking', con)
+        con.close()
+        return last_ranking
+
+    def _move_ranking_data_to_results(self, record_ids):
+        """Move the data with the given record_ids from the last_ranking table
+        to the results table.
+
+        Arguments
+        ---------
+        record_ids: list
+            List of record ids in last ranking whose model data should be added
+            to the results table.
+        """
+        if self.model_has_trained:
+            record_list = [(record_id, ) for record_id in record_ids]
+            con = self._connect_to_sql()
+            cur = con.cursor()
+            cur.executemany(
+                """INSERT INTO results (record_id, classifier, query_strategy,
+                balance_strategy, feature_extraction, training_set)
+                SELECT record_id, classifier, query_strategy,
+                balance_strategy, feature_extraction, training_set
+                FROM last_ranking
+                WHERE record_id=?""", record_list)
+            con.commit()
+            con.close()
+        else:
+            raise StateError("Save trained model data "
+                             "before using this function.")
+
+    def query_top_ranked(self, n):
+        """Get the top n instances from the pool according to the last ranking.
+        Add the model data to the results table.
+
+        Arguments
+        ---------
+        n: int
+            Number of instances.
+
+        Returns
+        -------
+        list
+            List of record_ids of the top n ranked records.
+        """
+        if self.model_has_trained:
+            pool = self.get_pool()
+            top_n_records = pool[:n].to_list()
+            self._move_ranking_data_to_results(top_n_records)
+        else:
+            raise StateError("Save trained model data "
+                             "before using this function.")
+
+        return top_n_records
+
+# GET FUNCTIONS
+    def get_data_by_query_number(self, query, columns=None):
+        """Get the data of a specific query from the results table.
+
+        Arguments
+        ---------
+        query: int
+            Number of the query of which you want the data. query=0 corresponds
+            to all the prior records.
+        columns: list
+            List of columns names of the results table.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the data from the results table with the given
+            query number and columns.
+        """
+        if columns is not None:
+            if not type(columns) == list:
+                raise ValueError("The columns argument should be a list.")
+        col_query_string = '*' if columns is None else ','.join(columns)
+
+        if query == 0:
+            sql_query = f"SELECT {col_query_string} FROM results WHERE " \
+                        f"query_strategy='prior'"
+        else:
+            rowid = query + self.n_priors
+            sql_query = f"SELECT {col_query_string} FROM results WHERE " \
+                        f"rowid={rowid}"
+
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(sql_query, con)
+        con.close()
+        return data
+
+    def get_data_by_record_id(self, record_id, columns=None):
+        """Get the data of a specific query from the results table.
+
+        Arguments
+        ---------
+        record_id: int
+            Record id of which you want the data.
+        columns: list
+            List of columns names of the results table.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the data from the results table with the given
+            record_id and columns.
+        """
+        query_string = '*' if columns is None else ','.join(columns)
+
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(
+            f'SELECT {query_string} FROM results WHERE record_id={record_id}',
+            con)
+        con.close()
+        return data
+
+    def get_dataset(self, columns=None, drop_priors=False, drop_pending=True):
+        """Get a column from the results table. Most other get functions use
+        this one.
+
+        Arguments
+        ---------
+        columns: list, str
+            List of columns names of the results table, or a string containing
+            one column name.
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.DataFrame:
+            Dataframe containing the data of the specified columns of the
+            results table.
+        """
+        if type(columns) == str:
+            columns = [columns]
+
+        # Make sure the right columns are available to drop priors/pending.
+        if columns is None:
+            contains_query_strategy = True
+            contains_labels = True
+        else:
+            contains_query_strategy = 'query_strategy' in columns
+            contains_labels = 'label' in columns
+
+            if drop_priors and not contains_query_strategy:
+                columns.append('query_strategy')
+            if drop_pending and not contains_labels:
+                columns.append('label')
+
+        # Query the database.
+        query_string = '*' if columns is None else ','.join(columns)
+        con = self._connect_to_sql()
+        data = pd.read_sql_query(f'SELECT {query_string} FROM results', con)
+        con.close()
+
+        # Drop priors/pending and added columns.
+        if drop_priors:
+            data = data[data['query_strategy'] != 'prior']
+            if not contains_query_strategy:
+                data.drop('query_strategy', axis=1, inplace=True)
+        if drop_pending:
+            data.dropna(subset=['label'], inplace=True)
+            if not contains_labels:
+                data.drop('label', axis=1, inplace=True)
+        data.reset_index(drop=True, inplace=True)
+
+        return data
+
+    def get_order_of_labeling(self, drop_priors=False, drop_pending=True):
+        """Get full array of record id's in order that they were labeled.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            The record_id's in the order that they were labeled.
+        """
+        return self.get_dataset('record_id', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['record_id']
+
+    def get_priors(self):
+        """Get the record ids of the priors.
+
+        Returns
+        -------
+        pd.Series:
+            The record_id's of the priors in the order they were added.
+        """
+        return self.get_order_of_labeling()[:self.n_priors]
+
+    def get_labels(self, drop_priors=False, drop_pending=True):
+        """Get the labels from the state file.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the labels at each labelling moment.
+        """
+
+        return self.get_dataset('label', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['label']
+
+    def get_classifiers(self, drop_priors=False, drop_pending=True):
+        """Get the classifiers from the state file.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the classifier used at each labeling moment.
+        """
+        return self.get_dataset('classifier', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['classifier']
+
+    def get_query_strategies(self, drop_priors=False, drop_pending=True):
+        """Get the query strategies from the state file.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the query strategy used to get the record to
+            query at each labeling moment.
+        """
+        return self.get_dataset('query_strategy', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['query_strategy']
+
+    def get_balance_strategies(self, drop_priors=False, drop_pending=True):
+        """Get the balance strategies from the state file.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the balance strategy used to get the training
+            data at each labeling moment.
+        """
+        return self.get_dataset('balance_strategy', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['balance_strategy']
+
+    def get_feature_extraction(self, drop_priors=False, drop_pending=True):
+        """Get the query strategies from the state file.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the feature extraction method used for the
+            classifier input at each labeling moment.
+        """
+        return self.get_dataset('feature_extraction', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['feature_extraction']
+
+    def get_training_sets(self, drop_priors=False, drop_pending=True):
+        """Get the training_sets from the state file.
+
+        Arguments
+        ---------
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            Series containing the training set on which the classifier was fit
+            at each labeling moment.
+        """
+        return self.get_dataset('training_set', drop_priors=drop_priors,
+                                drop_pending=drop_pending)['training_set']
+
+    def get_labeling_times(self, time_format='int', drop_priors=False,
+                           drop_pending=True):
+        """Get the time of labeling the state file.
+
+        Arguments
+        ---------
+        time_format: 'int' or 'datetime'
+            Format of the return value. If it is 'int' you get a UTC timestamp,
+            if it is 'datetime' you get datetime instead of an integer.
+        drop_priors: bool
+            Drop the rows containing the prior knowledge.
+        drop_pending: bool
+            Drop the rows which are pending a labeling decision.
+
+        Returns
+        -------
+        pd.Series:
+            If format='int' you get a UTC timestamp (integer number of
+            microseconds), if it is 'datetime' you get datetime format.
+        """
+        times = self.get_dataset('labeling_time', drop_priors=drop_priors,
+                                 drop_pending=drop_pending)['labeling_time']
+
+        # Convert time to datetime format.
+        if time_format == 'datetime':
+            times = times.applymap(
+                lambda x: datetime.utcfromtimestamp(x / 10**6))
+
+        return times
+
+# Get pool, labeled and pending in slightly more optimized way than via
+# get_dataset.
     def get_pool(self):
         """Return the pool of unlabeled records in the ranking order.
 
@@ -777,275 +1138,3 @@ class SQLiteState(BaseState):
             .astype(int)
 
         return pool, labeled, pending
-
-    def get_last_probabilities(self):
-        """Get the probabilities produced by the last classifier.
-
-        Returns
-        -------
-        pd.DataFrame:
-            Dataframe with column 'proba' containing the probabilities.
-        """
-        con = self._connect_to_sql()
-        last_probabilities = pd.read_sql_query(
-            'SELECT * FROM last_probabilities', con)
-        con.close()
-        return last_probabilities
-
-    def get_last_ranking(self):
-        """Get the ranking from the state."""
-        con = self._connect_to_sql()
-        last_ranking = pd.read_sql_query('SELECT * FROM last_ranking', con)
-        con.close()
-        return last_ranking
-
-    def _move_ranking_data_to_results(self, record_ids):
-        """Move the data with the given record_ids from the last_ranking table
-        to the results table.
-
-        Arguments
-        ---------
-        record_ids: list
-            List of record ids in last ranking whose model data should be added
-            to the results table.
-        """
-        if self.model_has_trained:
-            record_list = [(record_id, ) for record_id in record_ids]
-            con = self._connect_to_sql()
-            cur = con.cursor()
-            cur.executemany(
-                """INSERT INTO results (record_id, classifier, query_strategy,
-                balance_strategy, feature_extraction, training_set)
-                SELECT record_id, classifier, query_strategy,
-                balance_strategy, feature_extraction, training_set
-                FROM last_ranking
-                WHERE record_id=?""", record_list)
-            con.commit()
-            con.close()
-        else:
-            raise StateError("Save trained model data "
-                             "before using this function.")
-
-    def query_top_ranked(self, n):
-        """Get the top n instances from the pool according to the last ranking.
-        Add the model data to the results table.
-
-        Arguments
-        ---------
-        n: int
-            Number of instances.
-
-        Returns
-        -------
-        list
-            List of record_ids of the top n ranked records.
-        """
-        if self.model_has_trained:
-            pool = self.get_pool()
-            top_n_records = pool[:n].to_list()
-            self._move_ranking_data_to_results(top_n_records)
-        else:
-            raise StateError("Save trained model data "
-                             "before using this function.")
-
-        return top_n_records
-
-    def get_data_by_query_number(self, query, columns=None):
-        """Get the data of a specific query from the results table.
-
-        Arguments
-        ---------
-        query: int
-            Number of the query of which you want the data. query=0 corresponds
-            to all the prior records.
-        columns: list
-            List of columns names of the results table.
-
-        Returns
-        -------
-        pd.DataFrame
-            Dataframe containing the data from the results table with the given
-            query number and columns.
-        """
-        if columns is not None:
-            if not type(columns) == list:
-                raise ValueError("The columns argument should be a list.")
-        col_query_string = '*' if columns is None else ','.join(columns)
-
-        if query == 0:
-            sql_query = f"SELECT {col_query_string} FROM results WHERE " \
-                        f"query_strategy='prior'"
-        else:
-            rowid = query + self.n_priors
-            sql_query = f"SELECT {col_query_string} FROM results WHERE " \
-                        f"rowid={rowid}"
-
-        con = self._connect_to_sql()
-        data = pd.read_sql_query(sql_query, con)
-        con.close()
-        return data
-
-    def get_data_by_record_id(self, record_id, columns=None):
-        """Get the data of a specific query from the results table.
-
-        Arguments
-        ---------
-        record_id: int
-            Record id of which you want the data.
-        columns: list
-            List of columns names of the results table.
-
-        Returns
-        -------
-        pd.DataFrame
-            Dataframe containing the data from the results table with the given
-            record_id and columns.
-        """
-        query_string = '*' if columns is None else ','.join(columns)
-
-        con = self._connect_to_sql()
-        data = pd.read_sql_query(
-            f'SELECT {query_string} FROM results WHERE record_id={record_id}',
-            con)
-        con.close()
-        return data
-
-    def get_dataset(self, columns=None):
-        """Get a column from the results table.
-
-        Arguments
-        ---------
-        columns: list, str
-            List of columns names of the results table, or a string containing
-            one column name.
-
-        Returns
-        -------
-        pd.DataFrame:
-            Dataframe containing the data of the specified columns of the
-            results table.
-        """
-        if type(columns) == str:
-            columns = [columns]
-        query_string = '*' if columns is None else ','.join(columns)
-        con = self._connect_to_sql()
-        data = pd.read_sql_query(f'SELECT {query_string} FROM results', con)
-        con.close()
-        return data
-
-    def get_order_of_labeling(self):
-        """Get full array of record id's in order that they were labeled.
-
-        Returns
-        -------
-        pd.Series:
-            The record_id's in the order that they were labeled.
-        """
-        return self.get_dataset('record_id')['record_id']
-
-    def get_priors(self):
-        """Get the record ids of the priors.
-
-        Returns
-        -------
-        pd.Series:
-            The record_id's of the priors in the order they were added.
-        """
-        return self.get_order_of_labeling()[:self.n_priors]
-
-    def get_labels(self, priors=True):
-        """Get the labels from the state file.
-
-        priors: bool
-            Include the prior labels. Default True.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the labels at each labelling moment.
-        """
-
-        subset = self.get_dataset(['label', 'query_strategy'])
-
-        if not priors:
-            subset = subset[subset['query_strategy'] != "prior"].copy()
-
-        return subset['label'].dropna()
-
-    def get_classifiers(self):
-        """Get the classifiers from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the classifier used at each labeling moment.
-        """
-        return self.get_dataset('classifier')['classifier']
-
-    def get_query_strategies(self):
-        """Get the query strategies from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the query strategy used to get the record to
-            query at each labeling moment.
-        """
-        return self.get_dataset('query_strategy')['query_strategy']
-
-    def get_balance_strategies(self):
-        """Get the balance strategies from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the balance strategy used to get the training
-            data at each labeling moment.
-        """
-        return self.get_dataset('balance_strategy')['balance_strategy']
-
-    def get_feature_extraction(self):
-        """Get the query strategies from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the feature extraction method used for the
-            classifier input at each labeling moment.
-        """
-        return self.get_dataset('feature_extraction')['feature_extraction']
-
-    def get_training_sets(self):
-        """Get the training_sets from the state file.
-
-        Returns
-        -------
-        pd.Series:
-            Series containing the training set on which the classifier was fit
-            at each labeling moment.
-        """
-        return self.get_dataset('training_set')['training_set']
-
-    def get_labeling_times(self, time_format='int'):
-        """Get the time of labeling the state file.
-
-        Arguments
-        ---------
-        time_format: 'int' or 'datetime'
-            Format of the return value. If it is 'int' you get a UTC timestamp,
-            if it is 'datetime' you get datetime instead of an integer.
-
-        Returns
-        -------
-        pd.Series:
-            If format='int' you get a UTC timestamp (integer number of
-            microseconds), if it is 'datetime' you get datetime format.
-        """
-        times = self.get_dataset('labeling_time')['labeling_time'].dropna()
-
-        # Convert time to datetime format.
-        if time_format == 'datetime':
-            times = times.applymap(
-                lambda x: datetime.utcfromtimestamp(x / 10**6))
-
-        return times
