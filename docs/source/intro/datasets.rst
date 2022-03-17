@@ -7,8 +7,8 @@ search. To create such a dataset for a systematic review, typically an `online
 library search <https://asreview.nl/blog/the-importance-of-abstracts/>`__ is
 performed for all studies related to a particular topic.
 
-It is possible to use your own dataset with unlabeled, partly labeled (where
-the labeled records are used for training a model for the unlabeled records),
+It is possible to use your own dataset with unlabeled, :ref:`partly labeled data <partly-labeled-data>` 
+(where the labeled records are used for training a model for the unlabeled records),
 or fully labeled records (used for the Simulation mode). For testing and
 demonstrating ASReview (used for the Exploration mode), the software offers
 `Benchmark Datasets`_. Also, an extension with :doc:`Covid19 related
@@ -23,6 +23,7 @@ publications <../extensions/extension_covid19>` is available.
     has to offer.
 
 
+.. _data-format:
 
 Data Format
 -----------
@@ -49,6 +50,8 @@ For parsing RIS file format, the software uses a Python RIS files parser and rea
    The preferred file encoding is *UTF-8* or *latin1*.
 
 For tabular data files, the software accepts a set of predetermined column names:
+
+.. _column-names:
 
 .. table:: Table with column name definitions
     :widths: 20 60 20
@@ -106,7 +109,7 @@ not have access you might want to read this `blog post
 names are allowed, see the table. It can be used for:
 
 - **Screening**: In ASReview LAB, if labels are available for a part of the
-  dataset (see :doc:`partly labeled data <../features/pre_screening>`), the
+  dataset (see :ref:`partly labeled data <partly-labeled-data>`), the
   labels will be automatically detected and used for prior knowledge. The first
   iteration of the model will then be based on these decisions and used to
   predict relevance scores for the unlabeled part of the data.
