@@ -25,7 +25,7 @@ import {
 import { InlineErrorHandler } from "../../Components";
 import { RecordCardNote } from "../HistoryComponents";
 import { ProjectAPI } from "../../api/index.js";
-import { mapStateToProps } from "../../globals.js";
+import { mapStateToProps, projectModes } from "../../globals.js";
 import "../../App.css";
 
 const PREFIX = "LabeledRecordCard";
@@ -167,6 +167,10 @@ const LabeledRecordCard = (props) => {
     return !props.is_prior && prior === 1;
   };
 
+  const isSimulationProject = () => {
+    return props.mode === projectModes.SIMULATION;
+  };
+
   return (
     <Root>
       {isError && (
@@ -208,18 +212,21 @@ const LabeledRecordCard = (props) => {
             <CardActions className={classes.cardActions}>
               <Tooltip
                 title={
-                  disableConvertPrior(value.prior)
-                    ? "Prior knowledge cannot be converted"
-                    : note.editing !== value.id
-                    ? value.included === 1
-                      ? "Convert to irrelevant"
-                      : "Convert to relevant"
-                    : "Save note before converting"
+                  !isSimulationProject()
+                    ? disableConvertPrior(value.prior)
+                      ? "Prior knowledge cannot be converted"
+                      : note.editing !== value.id
+                      ? value.included === 1
+                        ? "Convert to irrelevant"
+                        : "Convert to relevant"
+                      : "Save note before converting"
+                    : "Cannot be converted in simulation mode"
                 }
               >
                 <span>
                   <IconButton
                     disabled={
+                      isSimulationProject() ||
                       disableConvertPrior(value.prior) ||
                       isLoading ||
                       note.editing === value.id
@@ -244,14 +251,18 @@ const LabeledRecordCard = (props) => {
               {!props.is_prior && !value.note && value.id !== note.editing && (
                 <Tooltip
                   title={
-                    !disableAddNoteButton(value.id)
-                      ? "Add note"
-                      : "Save another note before adding"
+                    !props.isSimulating
+                      ? !disableAddNoteButton(value.id)
+                        ? "Add note"
+                        : "Save another note before adding"
+                      : "Add note after simulation is finished"
                   }
                 >
                   <span>
                     <IconButton
-                      disabled={disableAddNoteButton(value.id)}
+                      disabled={
+                        props.isSimulating || disableAddNoteButton(value.id)
+                      }
                       onClick={() => handleClickAddNote(value.id)}
                     >
                       <NoteAddOutlined

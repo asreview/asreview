@@ -89,6 +89,7 @@ def _mark_review_finished(project_path, review_id=None):
         review_index = [x['id']
                         for x in project_config['reviews']].index(review_id)
 
+    project_config['reviewFinished'] = True
     project_config['reviews'][review_index]['review_finished'] = True
     project_config['reviews'][review_index]['end_time'] = str(datetime.now())
 
@@ -311,27 +312,27 @@ class SimulateEntryPoint(BaseEntryPoint):
                 preview = preview_record(as_data.record(prior_record_id))
                 print(f"{prior_record_id} - {preview}")
 
-            # Initialize the review class.
-            reviewer = ReviewSimulate(as_data,
-                                      state_file=args.state_file,
-                                      model=classifier_model,
-                                      query_model=query_model,
-                                      balance_model=balance_model,
-                                      feature_model=feature_model,
-                                      n_papers=args.n_papers,
-                                      n_instances=args.n_instances,
-                                      n_queries=args.n_queries,
-                                      prior_indices=prior_idx,
-                                      n_prior_included=args.n_prior_included,
-                                      n_prior_excluded=args.n_prior_excluded,
-                                      init_seed=args.init_seed,
-                                      write_interval=args.write_interval)
+        # Initialize the review class.
+        reviewer = ReviewSimulate(as_data,
+                                  state_file=args.state_file,
+                                  model=classifier_model,
+                                  query_model=query_model,
+                                  balance_model=balance_model,
+                                  feature_model=feature_model,
+                                  n_papers=args.n_papers,
+                                  n_instances=args.n_instances,
+                                  n_queries=args.n_queries,
+                                  prior_indices=prior_idx,
+                                  n_prior_included=args.n_prior_included,
+                                  n_prior_excluded=args.n_prior_excluded,
+                                  init_seed=args.init_seed,
+                                  write_interval=args.write_interval)
 
-            # Start the review process.
-            reviewer.review()
+        # Start the review process.
+        reviewer.review()
 
-            # Mark review as finished.
-            _mark_review_finished(args.state_file)
+        # Mark review as finished.
+        _mark_review_finished(args.state_file)
 
 
 DESCRIPTION_SIMULATE = """

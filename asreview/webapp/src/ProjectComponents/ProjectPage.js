@@ -1,7 +1,14 @@
 import * as React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
-import { Routes, Route, useNavigate, useParams } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useMatch,
+  useNavigate,
+  useParams,
+  useResolvedPath,
+} from "react-router-dom";
 import clsx from "clsx";
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -18,7 +25,12 @@ import {
 import RouteNotFound from "../RouteNotFound";
 
 import { ProjectAPI } from "../api/index.js";
-import { drawerWidth, mapDispatchToProps } from "../globals.js";
+import {
+  checkIfSimulationFinishedDuration,
+  drawerWidth,
+  mapDispatchToProps,
+  projectModes,
+} from "../globals.js";
 
 const PREFIX = "ProjectPage";
 
@@ -48,8 +60,17 @@ const Root = styled("div")(({ theme }) => ({
 }));
 
 const ProjectPage = (props) => {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { project_id } = useParams();
+  const resolved = useResolvedPath("");
+  const match = useMatch({ path: resolved.pathname, end: true });
+
+  const isAnalyticsPageOpen = () => {
+    return match !== null;
+  };
+
+  const [isSimulating, setIsSimulating] = React.useState(false);
 
   // History page state
   const [historyLabel, setHistoryLabel] = React.useState("relevant");
@@ -70,6 +91,13 @@ const ProjectPage = (props) => {
         } else if (!data["projectNeedsUpgrade"]) {
           // open project page
           console.log("Opening project " + project_id);
+          // if simulation is running
+          if (
+            data["mode"] === projectModes.SIMULATION &&
+            !data["reviewFinished"]
+          ) {
+            setIsSimulating(true);
+          }
         } else {
           navigate("/projects");
           // open project check dialog
@@ -85,13 +113,55 @@ const ProjectPage = (props) => {
     }
   );
 
+  const refetchAnalytics = () => {
+    if (isAnalyticsPageOpen()) {
+      queryClient.invalidateQueries("fetchProgress");
+      queryClient.invalidateQueries("fetchProgressDensity");
+      queryClient.invalidateQueries("fetchProgressRecall");
+    }
+  };
+
+  const { error: checkSimulationError, isError: isCheckSimulationError } =
+    useQuery(
+      ["fetchSimulationFinished", { project_id }],
+      ProjectAPI.fetchSimulationFinished,
+      {
+        enabled: isSimulating,
+        onSuccess: (data) => {
+          if (data["status"] === 1) {
+            // refresh analytics
+            refetchAnalytics();
+            // simulation finished
+            setIsSimulating(false);
+            queryClient.invalidateQueries("fetchInfo");
+          } else {
+            // not finished yet
+            setTimeout(
+              () => queryClient.invalidateQueries("fetchSimulationFinished"),
+              checkIfSimulationFinishedDuration
+            );
+          }
+        },
+        refetchOnWindowFocus: false,
+      }
+    );
+
+  const returnError = () => {
+    if (isError) {
+      return ["fetchInfo", error, isError];
+    } else if (isCheckSimulationError) {
+      return [
+        "fetchSimulationFinished",
+        checkSimulationError,
+        isCheckSimulationError,
+      ];
+    } else {
+      return ["", null, false];
+    }
+  };
+
   return (
     <Root aria-label="project page">
-      <DialogErrorHandler
-        isError={isError}
-        error={error}
-        queryKey="fetchInfo"
-      />
       <Box
         component="main"
         className={clsx("main-page-content", classes.content, {
@@ -104,7 +174,14 @@ const ProjectPage = (props) => {
           {isSuccess && !data?.projectNeedsUpgrade && (
             <Route
               index
-              element={<AnalyticsPage mobileScreen={props.mobileScreen} />}
+              element={
+                <AnalyticsPage
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
+                  refetchAnalytics={refetchAnalytics}
+                />
+              }
             />
           )}
 
@@ -140,9 +217,11 @@ const ProjectPage = (props) => {
                 <HistoryPage
                   filterQuery={historyFilterQuery}
                   label={historyLabel}
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
                   setFilterQuery={setHistoryFilterQuery}
                   setLabel={setHistoryLabel}
-                  mobileScreen={props.mobileScreen}
                 />
               }
             />
@@ -155,6 +234,7 @@ const ProjectPage = (props) => {
               element={
                 <ExportPage
                   enableExportDataset={data?.projectInitReady}
+                  isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                 />
               }
@@ -168,6 +248,7 @@ const ProjectPage = (props) => {
               element={
                 <DetailsPage
                   info={data}
+                  isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                   setHistoryFilterQuery={setHistoryFilterQuery}
                 />
@@ -178,6 +259,11 @@ const ProjectPage = (props) => {
           {isSuccess && <Route path="*" element={<RouteNotFound />} />}
         </Routes>
       </Box>
+      <DialogErrorHandler
+        isError={returnError()[2]}
+        error={returnError()[1]}
+        queryKey={returnError()[0]}
+      />
     </Root>
   );
 };

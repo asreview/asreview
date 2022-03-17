@@ -10,7 +10,12 @@ import { Box, Button, Fade, Slide, Stack, Typography } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { InlineErrorHandler } from "../../Components";
-import { mapStateToProps, mapDispatchToProps } from "../../globals.js";
+import { TypographyH5Medium } from "../../StyledComponents/StyledTypography";
+import {
+  mapStateToProps,
+  mapDispatchToProps,
+  projectModes,
+} from "../../globals.js";
 
 import ElasBalloons from "../../images/ElasBalloons.png";
 import PreparingProject from "../../images/FinishSetup_1_PreparingProject.svg";
@@ -46,6 +51,8 @@ const images = [
     text: "Share the ASReview project file to enhance transparency and reproducibility.",
   },
 ];
+
+const transitionTimeout = 1500;
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
@@ -116,9 +123,14 @@ const FinishSetup = (props) => {
     navigate(`/projects/${props.project_id}/review`);
   };
 
+  const onClickFinishSetupSimulation = () => {
+    props.toggleProjectSetup();
+    queryClient.invalidateQueries("fetchProjects");
+  };
+
   React.useEffect(() => {
     if (props.trainingFinished) {
-      setTimeout(() => setButtonIn(true), 2000);
+      setTimeout(() => setButtonIn(true), transitionTimeout);
     }
   }, [props.trainingFinished]);
 
@@ -206,19 +218,38 @@ const FinishSetup = (props) => {
         )}
       {props.trainingFinished && (
         <Stack spacing={3} className={classes.root} sx={{ overflow: "hidden" }}>
-          <Slide direction="up" in={props.trainingFinished} timeout={2000}>
+          <Slide
+            direction="up"
+            in={props.trainingFinished}
+            timeout={transitionTimeout}
+          >
             <img
               src={ElasBalloons}
               alt="ElasBalloons"
               className={classes.img}
             />
           </Slide>
-          <Fade in={buttonIn}>
-            <Stack spacing={3} className={classes.root}>
-              <Typography variant="h6">Your project is ready</Typography>
-              <Button onClick={onClickProjectReview}>Start Reviewing</Button>
-            </Stack>
-          </Fade>
+          {props.mode !== projectModes.SIMULATION && (
+            <Fade in={buttonIn}>
+              <Stack spacing={3} className={classes.root}>
+                <TypographyH5Medium>Your project is ready</TypographyH5Medium>
+                <Button onClick={onClickProjectReview}>Start Reviewing</Button>
+              </Stack>
+            </Fade>
+          )}
+          {props.mode === projectModes.SIMULATION && (
+            <Fade in={buttonIn}>
+              <Stack spacing={3} className={classes.root}>
+                <TypographyH5Medium>
+                  Your simulation project has been initiated
+                </TypographyH5Medium>
+                <Typography>
+                  It will take some time to complete the simulation
+                </Typography>
+                <Button onClick={onClickFinishSetupSimulation}>Got it</Button>
+              </Stack>
+            </Fade>
+          )}
         </Stack>
       )}
     </Root>
