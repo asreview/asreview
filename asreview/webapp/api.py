@@ -1079,7 +1079,11 @@ def api_export_dataset(project_id):
         # read the dataset into a ASReview data object
         as_data = read_data(project_id)
 
-        as_data.to_file(fp=tmp_path_dataset, labels=labeled, ranking=ranking, writer=writer)
+        as_data.to_file(
+            fp=tmp_path_dataset,
+            labels=labeled,
+            ranking=ranking,
+            writer=writer)
 
         return send_file(
             tmp_path_dataset,
@@ -1089,7 +1093,8 @@ def api_export_dataset(project_id):
 
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to export the {file_format} dataset. {err}"), 500
+        return jsonify(
+            message=f"Failed to export the {file_format} dataset. {err}"), 500
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])

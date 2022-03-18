@@ -416,7 +416,7 @@ class ASReviewData():
                                          "for exporting such a file.")
 
             writer = entry_points[best_suffix].load()
-            df, column_spec = writer.write_data(df, fp, labels=labels, ranking=ranking)
+            writer.write_data(df, fp, labels=labels, ranking=ranking)
 
     def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).
