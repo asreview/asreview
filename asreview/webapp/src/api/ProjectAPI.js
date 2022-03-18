@@ -358,7 +358,8 @@ class ProjectAPI {
   static fetchExportDataset({ queryKey }) {
     const { project_id, fileFormat } = queryKey[1];
     const url =
-      api_url + `projects/${project_id}/export_dataset?file_type=${fileFormat}`;
+      api_url +
+      `projects/${project_id}/export_dataset?file_format=${fileFormat}`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
@@ -371,7 +372,7 @@ class ProjectAPI {
           link.href = url;
           link.setAttribute(
             "download",
-            `asreview_result_${project_id}.${fileFormat}`
+            `asreview_dataset_${project_id}.${fileFormat}`
           );
           document.body.appendChild(link);
           link.click();

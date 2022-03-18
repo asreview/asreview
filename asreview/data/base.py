@@ -152,7 +152,7 @@ class ASReviewData():
             encoding='UTF-8', errors='ignore')).hexdigest()
 
     @classmethod
-    def from_file(cls, fp, read_fn=None):
+    def from_file(cls, fp, reader=None):
         """Create instance from csv/ris/excel file.
 
         It works in two ways; either manual control where the conversion
@@ -163,17 +163,16 @@ class ASReviewData():
         ---------
         fp: str, pathlib.Path
             Read the data from this file.
-        read_fn: callable
-            Function to read the file. It should return a standardized
-            dataframe.
+        reader: class
+            Reader to import the file.
         """
         if is_url(fp):
             path = urlparse(fp).path
         else:
             path = str(Path(fp).resolve())
 
-        if read_fn is not None:
-            return cls(read_fn(fp))
+        if reader is not None:
+            return cls(reader.read_data(fp))
 
         entry_points = get_entry_points(entry_name="asreview.readers")
 
@@ -185,11 +184,11 @@ class ASReviewData():
                     best_suffix = suffix
 
         if best_suffix is None:
-            raise ValueError(f"Error reading file {fp}, no capabilities for "
-                             "reading such a file.")
+            raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
+                                     "for importing such a file.")
 
-        read_fn = entry_points[best_suffix].load()
-        df, column_spec = read_fn.read_data(fp)
+        reader = entry_points[best_suffix].load()
+        df, column_spec = reader.read_data(fp)
         return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
@@ -382,7 +381,7 @@ class ASReviewData():
             return np.array(initial_indices, dtype=int)
         return self.df.index.values[initial_indices]
 
-    def to_file(self, fp, labels=None, ranking=None):
+    def to_file(self, fp, labels=None, ranking=None, writer=None):
         """Export data object to file.
 
         RIS, CSV, TSV and Excel are supported file formats at the moment.
@@ -395,21 +394,29 @@ class ASReviewData():
             Labels to be inserted into the dataframe before export.
         ranking: list, numpy.ndarray
             Optionally, dataframe rows can be reordered.
+        writer: class
+            Writer to export the file.
         """
         df = self.to_dataframe(labels=labels, ranking=ranking)
 
-        if Path(fp).suffix in [".csv", ".CSV"]:
-            CSVWriter.write_data(df, fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
-            TSVWriter.write_data(df, fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".ris", ".RIS", ".txt", ".TXT"]:
-            RISWriter.write_data(df, fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".xlsx", ".XLSX"]:
-            ExcelWriter.write_data(df, fp, labels=labels, ranking=ranking)
+        if writer is not None:
+            writer.write_data(df, fp, labels=labels, ranking=ranking)
         else:
-            raise BadFileFormatError(
-                f"Unknown file extension: {Path(fp).suffix}.\n"
-                f"from file {fp}")
+            entry_points = get_entry_points(entry_name="asreview.writers")
+
+            best_suffix = None
+
+            for suffix, entry in entry_points.items():
+                if Path(fp).suffix == suffix:
+                    if best_suffix is None or len(suffix) > len(best_suffix):
+                        best_suffix = suffix
+
+            if best_suffix is None:
+                raise BadFileFormatError(f"Error exporting file {fp}, no capabilities "
+                                         "for exporting such a file.")
+
+            writer = entry_points[best_suffix].load()
+            df, column_spec = writer.write_data(df, fp, labels=labels, ranking=ranking)
 
     def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).

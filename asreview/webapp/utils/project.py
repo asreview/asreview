@@ -513,49 +513,6 @@ def get_statistics(project_id):
     }
 
 
-def export_to_string(project_id, export_type="csv"):
-    project_path = get_project_path(project_id)
-
-    # read the dataset into a ASReview data object
-    as_data = read_data(project_id)
-
-    with open_state(project_path) as s:
-        proba = s.get_last_probabilities()
-        labeled_data = s.get_dataset(['record_id', 'label'])
-        record_table = s.get_record_table()
-
-    prob_df = pd.concat([record_table, proba], axis=1)
-
-    ranking = pd. \
-        merge(prob_df, labeled_data, on='record_id', how='left'). \
-        fillna(0.5). \
-        sort_values(['label', 'proba'], ascending=False)['record_id']
-
-    labeled = labeled_data.values.tolist()
-
-    df = as_data.to_dataframe(labels=labeled, ranking=ranking)
-
-    # export the data to file
-    if export_type == "csv":
-        return CSVWriter.write_data(df, fp=None, labels=labeled, ranking=ranking)
-
-    elif export_type == "tsv":
-        return CSVWriter.write_data(
-            df, fp=None, sep="\t", labels=labeled, ranking=ranking)
-
-    elif export_type == "excel":
-        get_tmp_path(project_path).mkdir(exist_ok=True)
-        fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-        return ExcelWriter.write_data(
-            df, fp=fp_tmp_export, labels=labeled, ranking=ranking)
-
-    elif export_type == "ris":
-        return RISWriter.write_data(df, fp=None, labels=labeled, ranking=ranking)
-
-    else:
-        raise ValueError("This export type isn't implemented.")
-
-
 def train_model(project_id):
     py_exe = _get_executable()
     run_command = [py_exe, "-m", "asreview", "web_run_model", project_id]
