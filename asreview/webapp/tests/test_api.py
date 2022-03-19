@@ -247,12 +247,9 @@ def test_export_result(client):
     response_tsv = client.get("/api/projects/project-id/export_dataset?file_format=tsv")
     response_excel = client.get(
         "/api/projects/project-id/export_dataset?file_format=xlsx")
-    # response_ris = client.get(
-    #     "/api/projects/project-id/export_dataset?file_format=ris")
     assert response_csv.status_code == 200
     assert response_tsv.status_code == 200
     assert response_excel.status_code == 200
-    # assert response_ris.status_code == 500
 
 
 def test_export_project(client):
