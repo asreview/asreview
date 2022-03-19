@@ -71,6 +71,11 @@ def test_project_file(tmp_path, client, url):
     json_data_get_info = response_get_info.get_json()
     assert json_data_get_info["id"] == project_id
 
+    # Test get dataset writer
+    response_get_writer = client.get(f"{api_url}/dataset_writer")
+    json_data_get_writer = response_get_writer.get_json()
+    assert isinstance(json_data_get_writer["result"], list)
+
     # Test update info of the project
     response_update_info = client.put(f"{api_url}/info", data={
         "mode": "explore",
@@ -146,5 +151,5 @@ def test_project_file(tmp_path, client, url):
     assert response_finish.status_code == 200
 
     # Test delete project
-    # response_delete = client.delete(f"{api_url}/delete")
-    # assert response_delete.status_code == 200
+    response_delete = client.delete(f"{api_url}/delete")
+    assert response_delete.status_code == 200
