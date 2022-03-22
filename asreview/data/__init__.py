@@ -13,4 +13,4 @@
 # limitations under the License.
 
 from asreview.data.base import ASReviewData
-from asreview.data.utils import load_data
+from asreview.data.base import load_data
