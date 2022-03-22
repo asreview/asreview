@@ -441,7 +441,7 @@ class ASReviewProject():
 
         """
         # reset dataset_path
-        self.update_config(dataset_path=file_name)
+        self.update_config(dataset_path=None)
 
         # remove datasets from project
         shutil.rmtree(get_data_path(self.project_path))
@@ -565,7 +565,7 @@ class ASReviewProject():
             print("Failed to remove sql database.")
 
         # update the config
-        self.update_config({
+        self.update_config(**{
             'projectInitReady': False,
             'reviewFinished': False,
             'reviews': [],

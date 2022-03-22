@@ -160,7 +160,7 @@ def api_get_projects_stats():  # noqa: F401
                 res["projectInitReady"] = True
 
             # get dashboard statistics
-            statistics = api_get_progress_info(project.project_id)
+            statistics = _get_stats(project)
             statistics["n_reviewed"] = statistics["n_included"] \
                 + statistics["n_excluded"]
 
@@ -355,7 +355,7 @@ def api_upload_data_to_project(project):  # noqa: F401
     if "dataset_path" in project_config and \
             project_config["dataset_path"] is not None:
         logging.warning("Removing old dataset and adding new dataset.")
-        remove_dataset_from_project(project.project_path)
+        project.remove_dataset()
 
     # create dataset folder if not present
     get_data_path(project.project_path).mkdir(exist_ok=True)
@@ -1170,10 +1170,7 @@ def api_finish_project(project):
     return response
 
 
-@bp.route('/projects/<project_id>/progress', methods=["GET"])
-@project_from_id
-def api_get_progress_info(project):  # noqa: F401
-    """Get progress statistics of a project"""
+def _get_stats(project):
 
     try:
 
@@ -1225,13 +1222,21 @@ def api_get_progress_info(project):  # noqa: F401
         logging.error(err)
         return jsonify(message="Failed to load progress statistics."), 500
 
-    response = jsonify({
+    return {
         "n_included": n_included,
         "n_excluded": n_excluded,
         "n_since_last_inclusion": n_since_last_relevant,
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included
-    })
+    }
+
+
+@bp.route('/projects/<project_id>/progress', methods=["GET"])
+@project_from_id
+def api_get_progress_info(project):  # noqa: F401
+    """Get progress statistics of a project"""
+
+    response = jsonify(_get_stats(project))
     response.headers.add('Access-Control-Allow-Origin', '*')
 
     # return a success response to the client.
@@ -1299,6 +1304,7 @@ def api_get_progress_density(project):
 
 
 @bp.route('/projects/<project_id>/progress_recall', methods=["GET"])
+@project_from_id
 def api_get_progress_recall(project):
     """Get cumulative number of inclusions by ASReview/at random"""
 
