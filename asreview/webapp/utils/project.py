@@ -32,6 +32,9 @@ from asreview import __version__ as asreview_version
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
 from asreview.config import PROJECT_MODE_SIMULATE
+from asreview.io import CSVWriter
+from asreview.io import ExcelWriter
+from asreview.io import RISWriter
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
@@ -508,47 +511,6 @@ def get_statistics(project_id):
         "n_papers": n_records,
         "n_pool": n_records - n_excluded - n_included
     }
-
-
-def export_to_string(project_id, export_type="csv"):
-    project_path = get_project_path(project_id)
-
-    # read the dataset into a ASReview data object
-    as_data = read_data(project_id)
-
-    with open_state(project_path) as s:
-        proba = s.get_last_probabilities()
-        labeled_data = s.get_dataset(['record_id', 'label'])
-        record_table = s.get_record_table()
-
-    prob_df = pd.concat([record_table, proba], axis=1)
-
-    ranking = pd. \
-        merge(prob_df, labeled_data, on='record_id', how='left'). \
-        fillna(0.5). \
-        sort_values(['label', 'proba'], ascending=False)['record_id']
-
-    labeled = labeled_data.values.tolist()
-
-    # export the data to file
-    if export_type == "csv":
-        return as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
-
-    elif export_type == "tsv":
-        return as_data.to_csv(
-            fp=None, sep="\t", labels=labeled, ranking=ranking)
-
-    elif export_type == "excel":
-        get_tmp_path(project_path).mkdir(exist_ok=True)
-        fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
-        return as_data.to_excel(
-            fp=fp_tmp_export, labels=labeled, ranking=ranking)
-
-    elif export_type == "ris":
-        return as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
-
-    else:
-        raise ValueError("This export type isn't implemented.")
 
 
 def train_model(project_id):

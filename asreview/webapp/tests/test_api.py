@@ -98,6 +98,14 @@ def test_get_project_data(client):
     assert json_data["filename"] == "Hall_2012"
 
 
+def test_get_dataset_writer(client):
+    """Test get dataset writer"""
+
+    response = client.get("/api/projects/project-id/dataset_writer")
+    json_data = response.get_json()
+    assert isinstance(json_data["result"], list)
+
+
 def test_update_project_info(client):
     """Test update project info"""
 
@@ -235,14 +243,13 @@ def test_ready(client):
 def test_export_result(client):
     """Test export result"""
 
-    response_csv = client.get("/api/projects/project-id/export?file_type=csv")
-    response_tsv = client.get("/api/projects/project-id/export?file_type=tsv")
-    response_excel = client.get("/api/projects/project-id/export?file_type=xlsx")
-    response_ris = client.get("/api/projects/project-id/export?file_type=ris")
+    response_csv = client.get("/api/projects/project-id/export_dataset?file_format=csv")
+    response_tsv = client.get("/api/projects/project-id/export_dataset?file_format=tsv")
+    response_excel = client.get(
+        "/api/projects/project-id/export_dataset?file_format=xlsx")
     assert response_csv.status_code == 200
     assert response_tsv.status_code == 200
     assert response_excel.status_code == 200
-    assert response_ris.status_code == 500
 
 
 def test_export_project(client):

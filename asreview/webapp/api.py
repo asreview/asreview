@@ -45,6 +45,8 @@ from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
+from asreview.io import list_readers
+from asreview.io import list_writers
 from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
@@ -73,7 +75,6 @@ from asreview.webapp.utils.project import _create_project_id
 from asreview.webapp.utils.project import _get_executable
 from asreview.webapp.utils.project import add_dataset_to_project
 from asreview.webapp.utils.project import add_review_to_project
-from asreview.webapp.utils.project import export_to_string
 from asreview.webapp.utils.project import get_instance
 from asreview.webapp.utils.project import get_paper_data
 from asreview.webapp.utils.project import get_project_config
@@ -448,7 +449,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
         data.df.rename({data.column_spec["included"]: "debug_label"},
                        axis=1,
                        inplace=True)
-        data.to_csv(data_path)
+        data.to_file(data_path)
 
     elif project_config["mode"] == PROJECT_MODE_SIMULATE:
 
@@ -457,7 +458,7 @@ def api_upload_data_to_project(project_id):  # noqa: F401
 
         data = ASReviewData.from_file(data_path_raw)
         data.df["debug_label"] = data.df[data.column_spec["included"]]
-        data.to_csv(data_path)
+        data.to_file(data_path)
 
     else:
         data_path = get_data_path(project_path) / filename
@@ -504,6 +505,54 @@ def api_get_project_data(project_id):  # noqa: F401
         return jsonify(message=message), 400
 
     response = jsonify(statistics)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/projects/<project_id>/dataset_writer', methods=["GET"])
+def api_list_dataset_writers(project_id):
+    """List the name and label of available dataset writer"""
+
+    project_path = get_project_path(project_id)
+    fp_data = get_data_file_path(project_path)
+
+    try:
+        readers = list_readers()
+        writers = list_writers()
+
+        # get write format for the data file
+        write_format = None
+        for c in readers:
+            if fp_data.suffix in c.read_format:
+                if write_format is None:
+                    write_format = c.write_format
+
+        # get available writers
+        payload = {"result": []}
+        for c in writers:
+            payload["result"].append({
+                "enabled": True if c.write_format in write_format else False,
+                "name": c.name,
+                "label": c.label,
+                "caution": c.caution if hasattr(c, "caution") else None
+            })
+
+        if not payload["result"]:
+            return jsonify(
+                message=f"No dataset writer available for {fp_data.suffix} file."
+            ), 500
+
+        # remove duplicate writers
+        payload["result"] = [
+            i for n, i in enumerate(payload["result"])
+            if i not in payload["result"][n + 1:]
+        ]
+
+    except Exception as err:
+        logging.error(err)
+        return jsonify(message=f"Failed to retrieve dataset writers. {err}"), 500
+
+    response = jsonify(payload)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -1014,72 +1063,62 @@ def api_import_project():
     return jsonify(project_info)
 
 
-@bp.route('/projects/<project_id>/export', methods=["GET"])
-def export_results(project_id):
+@bp.route('/projects/<project_id>/export_dataset', methods=["GET"])
+def api_export_dataset(project_id):
+    """Export dataset with relevant/irrelevant labels"""
+
     project_path = get_project_path(project_id)
 
     # get the export args
-    file_type = request.args.get('file_type', None)
+    file_format = request.args.get("file_format", None)
+
+    # create temporary folder to store exported dataset
+    tmp_path = tempfile.TemporaryDirectory(dir=project_path)
+    tmp_path_dataset = Path(tmp_path.name, f"export_dataset.{file_format}")
 
     try:
-        # CSV
-        if file_type == "csv":
-            dataset_str = export_to_string(project_id, export_type="csv")
+        # get labels and ranking from state file
+        with open_state(project_path) as s:
+            proba = s.get_last_probabilities()
+            labeled_data = s.get_dataset(['record_id', 'label'])
+            record_table = s.get_record_table()
 
-            return Response(
-                dataset_str,
-                mimetype="text/csv",
-                headers={
-                    "Content-disposition":
-                    f"attachment; filename=asreview_result_{project_id}.csv"
-                })
-        # TSV
-        elif file_type == "tsv":
-            dataset_str = export_to_string(project_id, export_type="tsv")
+        prob_df = pd.concat([record_table, proba], axis=1)
 
-            return Response(
-                dataset_str,
-                mimetype="text/tab-separated-values",
-                headers={
-                    "Content-disposition":
-                    f"attachment; filename=asreview_result_{project_id}.tsv"
-                })
-        # Excel
-        # TODO: Take only one. Frontend uses "excel", rest uses "xlsx".
-        elif file_type == "xlsx" or file_type == "excel":
-            dataset_str = export_to_string(project_id, export_type="excel")
-            fp_tmp_export = Path(get_tmp_path(project_path), "export_result.xlsx")
+        ranking = pd. \
+            merge(prob_df, labeled_data, on='record_id', how='left'). \
+            fillna(0.5). \
+            sort_values(['label', 'proba'], ascending=False)['record_id']
 
-            return send_file(
-                fp_tmp_export,
-                mimetype=   # noqa
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
-                as_attachment=True,
-                download_name=f"asreview_result_{project_id}.xlsx",
-                max_age=0)
-        # RIS
-        elif file_type == "ris":
-            if get_data_file_path(project_id).suffix not in [
-                    ".ris", ".RIS", ".txt", ".TXT"
-            ]:
-                raise ValueError(
-                    "RIS file can be exported only when RIS file was imported.")
+        labeled = labeled_data.values.tolist()
 
-            dataset_str = export_to_string(project_id, export_type="ris")
+        # get writer corresponding to specified file format
+        writers = list_writers()
+        writer = None
+        for c in writers:
+            if writer is None:
+                if c.name == file_format:
+                    writer = c
 
-            return Response(
-                dataset_str,
-                mimetype="application/octet-stream",
-                headers={
-                    "Content-disposition":
-                    f"attachment; filename=asreview_result_{project_id}.ris"
-                })
+        # read the dataset into a ASReview data object
+        as_data = read_data(project_id)
 
-        else:
-            raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
+        as_data.to_file(
+            fp=tmp_path_dataset,
+            labels=labeled,
+            ranking=ranking,
+            writer=writer)
+
+        return send_file(
+            tmp_path_dataset,
+            as_attachment=True,
+            download_name=f"asreview_dataset_{project_id}.{file_format}",
+            max_age=0)
+
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to export the {file_type} dataset."), 500
+        return jsonify(
+            message=f"Failed to export the {file_format} dataset. {err}"), 500
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])

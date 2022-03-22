@@ -8,6 +8,7 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
+  Link,
   MenuItem,
   Select,
   Stack,
@@ -17,9 +18,13 @@ import {
 import { styled } from "@mui/material/styles";
 
 import { ActionsFeedbackBar, PageHeader } from "../../Components";
+import { SelectItem } from "../../ProjectComponents";
+
 import { MouseOverPopover } from "../../StyledComponents/StyledPopover.js";
 import { ProjectAPI } from "../../api/index.js";
 import "../../App.css";
+
+const selectWidth = 310;
 
 const PREFIX = "ExportPage";
 
@@ -30,7 +35,7 @@ const classes = {
 
 const Root = styled("div")(({ theme }) => ({
   [`& .${classes.select}`]: {
-    width: 310,
+    width: selectWidth,
   },
 
   [`& .${classes.selectHeight}`]: {
@@ -46,6 +51,14 @@ const ExportPage = (props) => {
   const [file, setFile] = React.useState("");
   const [fileFormat, setFileFormat] = React.useState("");
   const [exporting, setExporting] = React.useState(false);
+
+  const { data, error, isError, isFetching } = useQuery(
+    ["fetchDatasetWriter", { project_id }],
+    ProjectAPI.fetchDatasetWriter,
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const exportDatasetQuery = useQuery(
     ["fetchExportDataset", { project_id, fileFormat }],
@@ -99,6 +112,10 @@ const ExportPage = (props) => {
 
   const resetQueries = () => {
     queryClient.resetQueries(selectedQuery()[1]);
+  };
+
+  const refetchDatasetWriter = () => {
+    queryClient.resetQueries("fetchDatasetWriter");
   };
 
   return (
@@ -186,6 +203,9 @@ const ExportPage = (props) => {
                   {file === "dataset" && (
                     <FormControl
                       className={`${classes.select} ${classes.selectHeight}`}
+                      disabled={isError || isFetching}
+                      error={isError}
+                      variant={isError || isFetching ? "filled" : "outlined"}
                     >
                       <InputLabel id="file-select-label">
                         File format
@@ -196,12 +216,39 @@ const ExportPage = (props) => {
                         label="File format"
                         value={fileFormat}
                         onChange={handleFileFormat}
+                        MenuProps={{
+                          sx: { width: selectWidth },
+                        }}
                       >
-                        <MenuItem value="csv">CSV (UTF-8)</MenuItem>
-                        <MenuItem value="tsv">TSV (UTF-8)</MenuItem>
-                        <MenuItem value="xlsx">Excel</MenuItem>
-                        <MenuItem value="ris">RIS</MenuItem>
+                        {data?.result.map((value, index) => {
+                          return (
+                            <MenuItem
+                              key={index}
+                              value={value.name}
+                              disabled={!value.enabled}
+                            >
+                              <SelectItem
+                                primary={value.label}
+                                secondary={
+                                  !value.enabled ? value.caution : null
+                                }
+                              />
+                            </MenuItem>
+                          );
+                        })}
                       </Select>
+                      {isError && (
+                        <FormHelperText>
+                          {error.message}
+                          <Link
+                            component="button"
+                            variant="body2"
+                            onClick={refetchDatasetWriter}
+                          >
+                            Please try again
+                          </Link>
+                        </FormHelperText>
+                      )}
                     </FormControl>
                   )}
                   {file === "project" && (
