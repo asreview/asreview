@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery, useQueries, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
+import { BoxErrorHandler, DialogErrorHandler } from "../../Components";
 import { ProjectDeleteDialog } from "../../ProjectComponents";
 import { ProjectCheckDialog, TableRowButton } from "../DashboardComponents";
 import { ProjectAPI } from "../../api/index.js";
@@ -26,12 +27,17 @@ import { useRowsPerPage } from "../../hooks/SettingsHooks";
 import { useToggle } from "../../hooks/useToggle";
 import ElasArrowRightAhead from "../../images/ElasArrowRightAhead.png";
 
-import { mapDispatchToProps } from "../../globals";
+import {
+  checkIfSimulationFinishedDuration,
+  mapDispatchToProps,
+  projectModes,
+} from "../../globals";
 
 const PREFIX = "ProjectTable";
 
 const classes = {
   root: `${PREFIX}-root`,
+  error: `${PREFIX}-error`,
   table: `${PREFIX}-table`,
   tableCell: `${PREFIX}-tableCell`,
   converting: `${PREFIX}-converting`,
@@ -45,6 +51,13 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: "100%",
     borderRadius: 16,
+  },
+
+  [`& .${classes.error}`]: {
+    display: "flex",
+    justifyContent: "center",
+    paddingTop: 64,
+    paddingBottom: 132,
   },
 
   [`& .${classes.table}`]: {
@@ -117,16 +130,98 @@ const ProjectTable = (props) => {
   const [onDeleteDialog, toggleDeleteDialog] = useToggle();
 
   /**
-   * Fetch projects
+   * Simulation status query state
    */
-  const {
-    data,
-    isFetched,
-    isLoading: isLoadingProjects,
-    isSuccess: isFetchProjectsSuccess,
-  } = useQuery("fetchProjects", ProjectAPI.fetchProjects, {
-    refetchOnWindowFocus: false,
+  const [querySimulationFinished, setQuerySimulationFinished] = React.useState(
+    []
+  );
+  const [querySimulationError, setQuerySimulationError] = React.useState({
+    isError: false,
+    message: null,
   });
+
+  /**
+   * Fetch projects and check if simulation running in the background
+   */
+  const { data, error, isError, isFetched, isFetching, isSuccess } = useQuery(
+    "fetchProjects",
+    ProjectAPI.fetchProjects,
+    {
+      onError: () => {
+        setQuerySimulationFinished([]);
+      },
+      onSuccess: (data) => {
+        // reset query for fetching simulation project(s) status
+        setQuerySimulationFinished([]);
+        // get simulation project(s) running in the background
+        const simulationProjects = data.filter(
+          (element) =>
+            element.mode === projectModes.SIMULATION &&
+            element.projectInitReady &&
+            !element.reviewFinished
+        );
+        if (!simulationProjects.length) {
+          console.log("No simulation running");
+        } else {
+          const simulationQueries = [];
+          const project_id = simulationProjects.map((element) => element.id);
+          // prepare query array for fetching simulation project(s) status
+          for (let key in project_id) {
+            // reset query if error
+            if (querySimulationError.isError) {
+              queryClient.resetQueries(
+                `fetchSimulationFinished-${project_id[key]}`
+              );
+              setQuerySimulationError({
+                isError: false,
+                message: null,
+              });
+            }
+            // update query array
+            simulationQueries.push({
+              queryKey: [
+                `fetchSimulationFinished-${project_id[key]}`,
+                { project_id: project_id[key] },
+              ],
+              queryFn: ProjectAPI.fetchSimulationFinished,
+              enabled: project_id[key] !== null,
+              onError: (error) => {
+                setQuerySimulationError({
+                  isError: true,
+                  message: error.message,
+                });
+              },
+              onSuccess: (data) => {
+                if (data["status"] === 1) {
+                  // simulation finished
+                  queryClient.invalidateQueries("fetchDashboardStats");
+                  queryClient.invalidateQueries("fetchProjects");
+                } else {
+                  // not finished yet
+                  setTimeout(
+                    () =>
+                      queryClient.invalidateQueries(
+                        `fetchSimulationFinished-${project_id[key]}`
+                      ),
+                    checkIfSimulationFinishedDuration
+                  );
+                }
+              },
+              refetchOnWindowFocus: false,
+            });
+          }
+          // pass prepared query array
+          setQuerySimulationFinished(simulationQueries);
+        }
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  /**
+   * Fetch if simulation project(s) finished
+   */
+  useQueries(querySimulationFinished);
 
   const openProject = (project, path) => {
     if (!project["projectInitReady"]) {
@@ -137,7 +232,6 @@ const ProjectTable = (props) => {
     } else if (!project["projectNeedsUpgrade"]) {
       // open project page
       navigate(`/projects/${project["id"]}/${path}`);
-      console.log("Opening project " + project["id"]);
     } else {
       // open project check dialog
       props.setProjectCheck({
@@ -238,12 +332,21 @@ const ProjectTable = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {!isLoadingProjects &&
+            {!isError &&
+              !isFetching &&
               isFetched &&
-              isFetchProjectsSuccess &&
+              isSuccess &&
               data
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
+                  const isSimulating = () => {
+                    return (
+                      row["mode"] === projectModes.SIMULATION &&
+                      row["projectInitReady"] &&
+                      !row["reviewFinished"]
+                    );
+                  };
+
                   const showAnalyticsButton = () => {
                     return row["projectInitReady"];
                   };
@@ -300,6 +403,7 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
+                              isSimulating={isSimulating}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
                               onClickProjectAnalytics={onClickProjectAnalytics}
@@ -341,14 +445,15 @@ const ProjectTable = (props) => {
                 })}
           </TableBody>
         </Table>
-        {isLoadingProjects && (
+        {!isError && isFetching && (
           <Box className={classes.loadingProjects}>
             <CircularProgress />
           </Box>
         )}
-        {!isLoadingProjects &&
+        {!isError &&
+          !isFetching &&
           isFetched &&
-          isFetchProjectsSuccess &&
+          isSuccess &&
           data?.length === 0 && (
             <Box
               sx={{
@@ -368,10 +473,16 @@ const ProjectTable = (props) => {
               />
             </Box>
           )}
+        {isError && !isFetching && (
+          <Box className={classes.error}>
+            <BoxErrorHandler error={error} queryKey="fetchProjects" />
+          </Box>
+        )}
       </TableContainer>
-      {!isLoadingProjects &&
+      {!isError &&
+        !isFetching &&
         isFetched &&
-        isFetchProjectsSuccess &&
+        isSuccess &&
         data?.length !== 0 && (
           <TablePagination
             rowsPerPageOptions={[5, 10, 15]}
@@ -393,6 +504,11 @@ const ProjectTable = (props) => {
         toggleDeleteDialog={toggleDeleteDialog}
         projectTitle={hoverRowTitle}
         project_id={hoverRowIdPersistent}
+      />
+      <DialogErrorHandler
+        error={querySimulationError}
+        isError={querySimulationError.isError}
+        queryKey="fetchProjects"
       />
     </StyledPaper>
   );

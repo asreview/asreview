@@ -157,7 +157,7 @@ def fill_training(src_idx, n_train, random_state):
     """Copy/sample until there are n_train indices sampled/copied.
     """
     # Number of copies needed.
-    n_copy = np.int(n_train / len(src_idx))
+    n_copy = int(n_train / len(src_idx))
     # For the remainder, use sampling.
     n_sample = n_train - n_copy * len(src_idx)
 

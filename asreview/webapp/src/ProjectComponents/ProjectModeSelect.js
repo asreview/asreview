@@ -2,7 +2,7 @@ import React from "react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { SelectItem } from "../ProjectComponents/SetupComponents";
+import { SelectItem } from "../ProjectComponents";
 import { projectModes } from "../globals.js";
 
 const Root = styled("div")(({ theme }) => ({}));

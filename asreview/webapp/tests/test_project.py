@@ -71,6 +71,11 @@ def test_project_file(tmp_path, client, url):
     json_data_get_info = response_get_info.get_json()
     assert json_data_get_info["id"] == project_id
 
+    # Test get dataset writer
+    response_get_writer = client.get(f"{api_url}/dataset_writer")
+    json_data_get_writer = response_get_writer.get_json()
+    assert isinstance(json_data_get_writer["result"], list)
+
     # Test update info of the project
     response_update_info = client.put(f"{api_url}/info", data={
         "mode": "explore",
@@ -129,12 +134,10 @@ def test_project_file(tmp_path, client, url):
     assert isinstance(json_data_prior["result"], list)
 
     # Test export result
-    response_export_result_ris = client.get(f"{api_url}/export?file_type=ris")
-    response_export_result_csv = client.get(f"{api_url}/export?file_type=csv")
-    response_export_result_tsv = client.get(f"{api_url}/export?file_type=tsv")
-    response_export_result_excel = client.get(f"{api_url}/export?file_type=xlsx")
-    # RIS can only be exported from RIS data file path
-    assert response_export_result_ris.status_code == 500
+    response_export_result_csv = client.get(f"{api_url}/export_dataset?file_format=csv")
+    response_export_result_tsv = client.get(f"{api_url}/export_dataset?file_format=tsv")
+    response_export_result_excel = client.get(
+        f"{api_url}/export_dataset?file_format=xlsx")
     assert response_export_result_csv.status_code == 200
     assert response_export_result_tsv.status_code == 200
     assert response_export_result_excel.status_code == 200
@@ -148,5 +151,5 @@ def test_project_file(tmp_path, client, url):
     assert response_finish.status_code == 200
 
     # Test delete project
-    # response_delete = client.delete(f"{api_url}/delete")
-    # assert response_delete.status_code == 200
+    response_delete = client.delete(f"{api_url}/delete")
+    assert response_delete.status_code == 200

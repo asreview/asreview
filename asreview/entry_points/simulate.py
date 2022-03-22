@@ -172,8 +172,6 @@ class SimulateEntryPoint(BaseEntryPoint):
             fp_tmp_simulation = Path(
                 args.state_file).with_suffix(".asreview.tmp")
 
-            # if not _is_partial_simulation(args):
-
             project = ASReviewProject.create(
                 fp_tmp_simulation,
                 project_id=fp_tmp_simulation.name,
@@ -244,33 +242,33 @@ class SimulateEntryPoint(BaseEntryPoint):
                 preview = preview_record(as_data.record(prior_record_id))
                 print(f"{prior_record_id} - {preview}")
 
-            # Initialize the review class.
-            reviewer = ReviewSimulate(as_data,
-                                      state_file=fp_tmp_simulation,
-                                      model=classifier_model,
-                                      query_model=query_model,
-                                      balance_model=balance_model,
-                                      feature_model=feature_model,
-                                      n_papers=args.n_papers,
-                                      n_instances=args.n_instances,
-                                      n_queries=args.n_queries,
-                                      prior_indices=prior_idx,
-                                      n_prior_included=args.n_prior_included,
-                                      n_prior_excluded=args.n_prior_excluded,
-                                      init_seed=args.init_seed,
-                                      write_interval=args.write_interval)
+        # Initialize the review class.
+        reviewer = ReviewSimulate(as_data,
+                                  state_file=fp_tmp_simulation,
+                                  model=classifier_model,
+                                  query_model=query_model,
+                                  balance_model=balance_model,
+                                  feature_model=feature_model,
+                                  n_papers=args.n_papers,
+                                  n_instances=args.n_instances,
+                                  n_queries=args.n_queries,
+                                  prior_indices=prior_idx,
+                                  n_prior_included=args.n_prior_included,
+                                  n_prior_excluded=args.n_prior_excluded,
+                                  init_seed=args.init_seed,
+                                  write_interval=args.write_interval)
 
-            # Start the review process.
-            reviewer.review()
+        # Start the review process.
+        reviewer.review()
 
-            print("finished simlation")
+        print("finished simlation")
 
-            # Mark review as finished.
-            project = ASReviewProject(fp_tmp_simulation)
-            project.mark_review_finished()
-            project.export(args.state_file)
+        # Mark review as finished.
+        project = ASReviewProject(fp_tmp_simulation)
+        project.mark_review_finished()
+        project.export(args.state_file)
 
-            shutil.rmtree(fp_tmp_simulation)
+        shutil.rmtree(fp_tmp_simulation)
 
 
 DESCRIPTION_SIMULATE = """

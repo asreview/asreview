@@ -34,8 +34,7 @@ def _sort_entry_points(entry_points):
 
     entry_points_sorted = {
         "lab": entry_points_copy.pop("lab"),
-        "simulate": entry_points_copy.pop("simulate"),
-        "simulate-batch": entry_points_copy.pop("simulate-batch"),
+        "simulate": entry_points_copy.pop("simulate")
     }
 
     entry_points_sorted.update(entry_points_copy)

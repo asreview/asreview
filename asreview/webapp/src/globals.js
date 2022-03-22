@@ -53,6 +53,8 @@ export const drawerWidth = 250;
 export const decisionUndoBarDuration = 6000;
 export const decisionUndoBarMarginBottom = 80;
 
+export const checkIfSimulationFinishedDuration = 6000;
+
 export const fontSizeOptions = [
   {
     value: 1,

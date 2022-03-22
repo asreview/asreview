@@ -171,6 +171,21 @@ class ProjectAPI {
     });
   }
 
+  static fetchDatasetWriter({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/dataset_writer`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static fetchPriorSearch({ queryKey }) {
     const { project_id, keyword } = queryKey[1];
     const url = api_url + `projects/${project_id}/search`;
@@ -320,6 +335,21 @@ class ProjectAPI {
     });
   }
 
+  static fetchSimulationFinished({ queryKey }) {
+    const { project_id } = queryKey[1];
+    const url = api_url + `projects/${project_id}/simulation_finished`;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(url)
+        .then((result) => {
+          resolve(result["data"]);
+        })
+        .catch((error) => {
+          reject(axiosErrorHandler(error));
+        });
+    });
+  }
+
   static mutateImportProject(variables) {
     let body = new FormData();
     body.append("file", variables.file);
@@ -343,7 +373,8 @@ class ProjectAPI {
   static fetchExportDataset({ queryKey }) {
     const { project_id, fileFormat } = queryKey[1];
     const url =
-      api_url + `projects/${project_id}/export?file_type=${fileFormat}`;
+      api_url +
+      `projects/${project_id}/export_dataset?file_format=${fileFormat}`;
     return new Promise((resolve, reject) => {
       axios({
         url: url,
@@ -356,7 +387,7 @@ class ProjectAPI {
           link.href = url;
           link.setAttribute(
             "download",
-            `asreview_result_${project_id}.${fileFormat}`
+            `asreview_dataset_${project_id}.${fileFormat}`
           );
           document.body.appendChild(link);
           link.click();

@@ -137,8 +137,10 @@ const LabeledRecord = (props) => {
                     label={props.label}
                     key={`result-page-${index}`}
                     is_prior={props.is_prior}
+                    isSimulating={props.isSimulating}
                     returnSubset={returnSubset}
                     mobileScreen={props.mobileScreen}
+                    mode={props.mode}
                   />
                 ))}
               <InView

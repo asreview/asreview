@@ -51,7 +51,9 @@ const HistoryPage = (props) => {
               <LabeledRecord
                 label={props.label}
                 filterQuery={props.filterQuery}
+                isSimulating={props.isSimulating}
                 mobileScreen={props.mobileScreen}
+                mode={props.mode}
               />
             </Box>
           </Box>
