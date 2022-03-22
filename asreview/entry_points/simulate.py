@@ -67,24 +67,6 @@ ASCII_MSG_SIMULATE = """
 """.format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
 
 
-def _is_review_finished(project_path, review_id=None):
-    """Check if the given review is finished."""
-    project_path = Path(project_path)
-    with open(get_project_file_path(project_path), 'r') as f:
-        project_config = json.load(f)
-
-    if review_id is None:
-        review_index = 0
-    else:
-        review_index = [x['id']
-                        for x in project_config['reviews']].index(review_id)
-
-    review_info = project_config['reviews'][review_index]
-
-    return ('review_finished' in review_info.keys()) & \
-        review_info['review_finished']
-
-
 def _get_dataset_path_from_args(args_dataset):
     """Remove 'benchmark:' from the dataset name and add .csv suffix.
 
