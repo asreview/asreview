@@ -17,9 +17,9 @@
 This module is used to draw an initial sample. This sample is the
 so-called 'pre-knowledge' of the researcher.
 """
-from asreview.utils import get_random_state
-
 import numpy as np
+
+from asreview.utils import get_random_state
 
 
 def sample_prior_knowledge(

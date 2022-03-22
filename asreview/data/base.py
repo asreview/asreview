@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import hashlib
-import pkg_resources
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -22,13 +21,49 @@ import pandas as pd
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
+from asreview.datasets import DataSetNotFoundError
+from asreview.datasets import DatasetManager
 from asreview.exceptions import BadFileFormatError
-from asreview.io.paper_record import PaperRecord
-from asreview.io.ris_reader import write_ris
-from asreview.io.utils import type_from_column
+from asreview.io import CSVWriter
+from asreview.io import ExcelWriter
+from asreview.io import PaperRecord
+from asreview.io import RISWriter
+from asreview.io import TSVWriter
 from asreview.io.utils import convert_keywords
+from asreview.io.utils import type_from_column
+from asreview.utils import get_entry_points
 from asreview.utils import is_iterable
 from asreview.utils import is_url
+
+
+def load_data(name, *args, **kwargs):
+    """Load data from file, URL, or plugin.
+
+    Parameters
+    ----------
+    name: str, pathlib.Path
+        File path, URL, or alias of extension dataset.
+
+    Returns
+    -------
+    asreview.ASReviewData:
+        Inititalized ASReview data object.
+    """
+
+    # check is file or URL
+    if is_url(name) or Path(name).exists():
+        return ASReviewData.from_file(name, *args, **kwargs)
+
+    # check if dataset is plugin dataset\
+    try:
+        dataset_path = DatasetManager().find(name).get()
+        return ASReviewData.from_file(dataset_path, *args, **kwargs)
+    except DataSetNotFoundError:
+        pass
+
+    # Could not find dataset, return None.
+    raise FileNotFoundError(
+        f"File, URL, or dataset does not exist: '{name}'")
 
 
 class ASReviewData():
@@ -38,14 +73,10 @@ class ASReviewData():
     ---------
     df: pandas.DataFrame
         Dataframe containing the data for the ASReview data object.
-    data_name: str
-        Give a name to the data object.
-    data_type: str
-        What kind of data the dataframe contains.
     column_spec: dict
         Specification for which column corresponds to which standard
         specification. Key is the standard specification, key is which column
-        it is actually in.
+        it is actually in. Default: None.
 
     Attributes
     ----------
@@ -61,6 +92,8 @@ class ASReviewData():
         Returns an array with dataset bodies.
     abstract: numpy.ndarray
         Identical to bodies.
+    notes: numpy.ndarray
+        Returns an array with dataset notes.
     keywords: numpy.ndarray
         Returns an array with dataset keywords.
     authors: numpy.ndarray
@@ -78,15 +111,9 @@ class ASReviewData():
 
     def __init__(self,
                  df=None,
-                 data_name="empty",
-                 data_type="standard",
                  column_spec=None):
         self.df = df
-        self.data_name = data_name
         self.prior_idx = np.array([], dtype=int)
-        if df is None:
-            self.column_spec = {}
-            return
 
         self.max_idx = max(df.index.values) + 1
 
@@ -102,13 +129,6 @@ class ASReviewData():
 
         if "included" not in self.column_spec:
             self.column_spec["included"] = "included"
-
-        if data_type == "included":
-            self.labels = np.ones(len(self), dtype=int)
-        if data_type == "excluded":
-            self.labels = np.zeros(len(self), dtype=int)
-        if data_type == "prior":
-            self.prior_idx = df.index.values
 
     def __len__(self):
         if self.df is None:
@@ -131,57 +151,8 @@ class ASReviewData():
         return hashlib.sha1(" ".join(texts).encode(
             encoding='UTF-8', errors='ignore')).hexdigest()
 
-    def append(self, as_data):
-        """Append another ASReviewData object.
-
-        It puts the training data at the end.
-
-        Arguments
-        ---------
-        as_data: ASReviewData
-            Dataset to append.
-        """
-        if as_data.df is None:
-            return
-        if len(self) == 0:
-            self.df = as_data.df
-            self.data_name = as_data.data_name
-            self.prior_idx = as_data.prior_idx
-            self.max_idx = as_data.max_idx
-            self.column_spec = as_data.column_spec
-            return
-
-        reindex_val = max(self.max_idx - min(as_data.df.index.values), 0)
-        new_index = np.append(self.df.index.values,
-                              as_data.df.index.values + reindex_val)
-        new_priors = np.append(self.prior_idx, as_data.prior_idx + reindex_val)
-        new_df = self.df.append(as_data.df, sort=False)
-        new_df.index = new_index
-
-        new_labels = None
-        if self.labels is None and as_data.labels is not None:
-            new_labels = np.append(np.full(len(self), LABEL_NA, dtype=int),
-                                   as_data.labels)
-        elif self.labels is not None and as_data.labels is None:
-            new_labels = np.append(self.labels,
-                                   np.full(len(as_data), LABEL_NA, dtype=int))
-        self.max_idx = max(self.max_idx, as_data.max_idx, max(new_index))
-        self.df = new_df
-        if new_labels is not None:
-            self.labels = new_labels
-        self.prior_idx = new_priors
-        self.data_name += "_" + as_data.data_name
-        for data_type, col in as_data.column_spec.items():
-            if data_type in self.column_spec:
-                if self.column_spec[data_type] != col:
-                    raise ValueError(
-                        "Error merging dataframes: column specifications "
-                        f"differ: {self.column_spec} vs {as_data.column_spec}")
-            else:
-                self.column_spec[data_type] = col
-
     @classmethod
-    def from_file(cls, fp, read_fn=None, data_name=None, data_type=None):
+    def from_file(cls, fp, reader=None):
         """Create instance from csv/ris/excel file.
 
         It works in two ways; either manual control where the conversion
@@ -192,48 +163,33 @@ class ASReviewData():
         ---------
         fp: str, pathlib.Path
             Read the data from this file.
-        read_fn: callable
-            Function to read the file. It should return a standardized
-            dataframe.
-        data_name: str
-            Name of the data.
-        data_type: str
-            What kind of data it is. Special names: 'included', 'excluded',
-            'prior'.
+        reader: class
+            Reader to import the file.
         """
         if is_url(fp):
             path = urlparse(fp).path
-            new_data_name = Path(path.split("/")[-1]).stem
         else:
             path = str(Path(fp).resolve())
-            new_data_name = Path(fp).stem
 
-        if data_name is None:
-            data_name = new_data_name
+        if reader is not None:
+            return cls(reader.read_data(fp))
 
-        if read_fn is not None:
-            return cls(read_fn(fp), data_name=data_name, data_type=data_type)
+        entry_points = get_entry_points(entry_name="asreview.readers")
 
-        entry_points = {
-            entry.name: entry
-            for entry in pkg_resources.iter_entry_points('asreview.readers')
-        }
         best_suffix = None
+
         for suffix, entry in entry_points.items():
             if path.endswith(suffix):
                 if best_suffix is None or len(suffix) > len(best_suffix):
                     best_suffix = suffix
 
         if best_suffix is None:
-            raise ValueError(f"Error reading file {fp}, no capabilities for "
-                             "reading such a file.")
+            raise BadFileFormatError(f"Error importing file {fp}, no capabilities "
+                                     "for importing such a file.")
 
-        read_fn = entry_points[best_suffix].load()
-        df, column_spec = read_fn(fp)
-        return cls(df,
-                   column_spec=column_spec,
-                   data_name=data_name,
-                   data_type=data_type)
+        reader = entry_points[best_suffix].load()
+        df, column_spec = reader.read_data(fp)
+        return cls(df, column_spec=column_spec)
 
     def record(self, i, by_index=True):
         """Create a record from an index.
@@ -281,13 +237,13 @@ class ASReviewData():
 
     @property
     def texts(self):
-        if self.headings is None:
-            return self.bodies
-        if self.bodies is None:
-            return self.headings
+        if self.title is None:
+            return self.abstract
+        if self.abstract is None:
+            return self.title
 
         cur_texts = np.array([
-            self.headings[i] + " " + self.bodies[i] for i in range(len(self))
+            self.title[i] + " " + self.abstract[i] for i in range(len(self))
         ], dtype=object)
         return cur_texts
 
@@ -310,6 +266,13 @@ class ASReviewData():
     def abstract(self):
         try:
             return self.df[self.column_spec["abstract"]].values
+        except KeyError:
+            return None
+
+    @property
+    def notes(self):
+        try:
+            return self.df[self.column_spec["notes"]].values
         except KeyError:
             return None
 
@@ -418,10 +381,10 @@ class ASReviewData():
             return np.array(initial_indices, dtype=int)
         return self.df.index.values[initial_indices]
 
-    def to_file(self, fp, labels=None, ranking=None):
+    def to_file(self, fp, labels=None, ranking=None, writer=None):
         """Export data object to file.
 
-        RIS, CSV and Excel are supported file formats at the moment.
+        RIS, CSV, TSV and Excel are supported file formats at the moment.
 
         Arguments
         ---------
@@ -431,19 +394,29 @@ class ASReviewData():
             Labels to be inserted into the dataframe before export.
         ranking: list, numpy.ndarray
             Optionally, dataframe rows can be reordered.
+        writer: class
+            Writer to export the file.
         """
-        if Path(fp).suffix in [".csv", ".CSV"]:
-            self.to_csv(fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".tsv", ".TSV", ".tab", ".TAB"]:
-            self.to_csv(fp, sep="\t", labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".ris", ".RIS"]:
-            self.to_ris(fp, labels=labels, ranking=ranking)
-        elif Path(fp).suffix in [".xlsx", ".XLSX"]:
-            self.to_excel(fp, labels=labels, ranking=ranking)
+        df = self.to_dataframe(labels=labels, ranking=ranking)
+
+        if writer is not None:
+            writer.write_data(df, fp, labels=labels, ranking=ranking)
         else:
-            raise BadFileFormatError(
-                f"Unknown file extension: {Path(fp).suffix}.\n"
-                f"from file {fp}")
+            entry_points = get_entry_points(entry_name="asreview.writers")
+
+            best_suffix = None
+
+            for suffix, entry in entry_points.items():
+                if Path(fp).suffix == suffix:
+                    if best_suffix is None or len(suffix) > len(best_suffix):
+                        best_suffix = suffix
+
+            if best_suffix is None:
+                raise BadFileFormatError(f"Error exporting file {fp}, no capabilities "
+                                         "for exporting such a file.")
+
+            writer = entry_points[best_suffix].load()
+            writer.write_data(df, fp, labels=labels, ranking=ranking)
 
     def to_dataframe(self, labels=None, ranking=None):
         """Create new dataframe with updated label (order).
@@ -489,53 +462,3 @@ class ASReviewData():
             result_df.loc[result_df[col_label] == LABEL_NA, col_label] = np.nan
 
         return result_df
-
-    def to_csv(self, fp, sep=",", labels=None, ranking=None):
-        """Export to csv.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        sep: str
-            Seperator of the file.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_csv(fp, sep=sep, index=True)
-
-    def to_excel(self, fp, labels=None, ranking=None):
-        """Export to Excel xlsx file.
-
-        Arguments
-        ---------
-        fp: str, NoneType
-            Filepath or None for buffer.
-        labels: list, numpy.ndarray
-            Current labels will be overwritten by these labels
-            (including unlabelled). No effect if labels is None.
-        ranking: list
-            Reorder the dataframe according to these (internal) indices.
-            Default ordering if ranking is None.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Dataframe of all available record data.
-        """
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        return df.to_excel(fp, index=True)
-
-    def to_ris(self, ris_fp, labels=None, ranking=None):
-        df = self.to_dataframe(labels=labels, ranking=ranking)
-        write_ris(df, ris_fp)

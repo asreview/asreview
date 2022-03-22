@@ -13,10 +13,11 @@
 # limitations under the License.
 
 import numpy as np
+
 try:
-    from gensim.utils import simple_preprocess
-    from gensim.models.doc2vec import TaggedDocument
     from gensim.models.doc2vec import Doc2Vec as GenSimDoc2Vec
+    from gensim.models.doc2vec import TaggedDocument
+    from gensim.utils import simple_preprocess
     GENSIM_AVAILABLE = True
 except ImportError:
     GENSIM_AVAILABLE = False

@@ -2,6 +2,24 @@ import { useEffect, useState } from "react";
 
 import { fontSizeOptions, getDesignTokens } from "../globals.js";
 
+const useRowsPerPage = () => {
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const handleRowsPerPage = (rows) => {
+    window.localStorage.setItem("rowsPerPage", rows);
+    setRowsPerPage(rows);
+  };
+
+  useEffect(() => {
+    const localRowsPerPage = window.localStorage.getItem("rowsPerPage");
+    if (localRowsPerPage !== null && rowsPerPage !== localRowsPerPage) {
+      setRowsPerPage(parseInt(localRowsPerPage));
+    }
+  }, [rowsPerPage]);
+
+  return [rowsPerPage, handleRowsPerPage];
+};
+
 const useDarkMode = () => {
   const [theme, setTheme] = useState(getDesignTokens("light"));
 
@@ -90,4 +108,10 @@ const useKeyPressEnabled = () => {
   return [keyPressEnabled, toggleKeyPressEnabled];
 };
 
-export { useDarkMode, useFontSize, useUndoEnabled, useKeyPressEnabled };
+export {
+  useRowsPerPage,
+  useDarkMode,
+  useFontSize,
+  useUndoEnabled,
+  useKeyPressEnabled,
+};

@@ -9,26 +9,15 @@ import {
 const PREFIX = "DecisionUndoBar";
 
 const classes = {
-  root: `${PREFIX}-root`,
   snackbar: `${PREFIX}-snackbar`,
-  undoButton: `${PREFIX}-undoButton`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`& .${classes.root}`]: {
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.primary,
-  },
-
   [`& .${classes.snackbar}`]: {
     marginBottom: decisionUndoBarMarginBottom,
     [theme.breakpoints.down("md")]: {
       marginBottom: 70,
     },
-  },
-
-  [`& .${classes.undoButton}`]: {
-    color: theme.palette.primary.main,
   },
 }));
 
@@ -57,17 +46,20 @@ const DecisionUndoBar = (props) => {
         action={
           <div>
             <Button
-              className={classes.undoButton}
+              disabled={props.disableButton()}
               size="small"
               onClick={handleUndo}
+              sx={{
+                color: (theme) =>
+                  theme.palette.mode === "light"
+                    ? "primary.light"
+                    : "primary.dark",
+              }}
             >
               UNDO
             </Button>
           </div>
         }
-        ContentProps={{
-          className: classes.root,
-        }}
         className={classes.snackbar}
       />
     </Root>

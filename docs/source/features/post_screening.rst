@@ -16,8 +16,12 @@ any time during the screening process. To download your results:
 2. Start a new project, upload a dataset and select prior knowledge.
 3. Navigate to the Project Dashboard.
 4. Click the *download* icon (see screenshot below), or click on *Download Results*.
-5. You will be asked whether you want to save an excel or a csv file.
+5. You will be asked to download an Excel, RIS, TSV, or CSV file.
 6. You will be asked where to save the file.
+
+.. warning::
+
+    A RIS file can only be exported if a RIS file is imported.
 
 Three columns will be added to your dataset:
 

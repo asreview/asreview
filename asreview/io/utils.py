@@ -14,11 +14,16 @@
 
 import logging
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from asreview.config import COLUMN_DEFINITIONS, LABEL_NA
+from asreview.config import COLUMN_DEFINITIONS
+from asreview.config import LABEL_NA
 from asreview.exceptions import BadFileFormatError
+from asreview.utils import _reader_class_from_entry_point
+from asreview.utils import _writer_class_from_entry_point
+from asreview.utils import list_reader_names
+from asreview.utils import list_writer_names
 
 
 def type_from_column(col_name, col_definitions):
@@ -83,7 +88,7 @@ def _is_record_id_int(s):
         raise ValueError("Column 'record_id' should contain integer values.")
 
 
-def standardize_dataframe(df, column_spec={}):
+def _standardize_dataframe(df, column_spec={}):
     """Create a ASReview readable dataframe.
 
     The main purpose is to rename columns with slightly different names;
@@ -129,7 +134,7 @@ def standardize_dataframe(df, column_spec={}):
         logging.warning("Unable to detect titles in dataset.")
 
     # Replace NA values with empty strings.
-    for col in ["title", "abstract", "authors", "keywords"]:
+    for col in ["title", "abstract", "authors", "keywords", "notes"]:
         try:
             df[all_column_spec[col]] = np.where(
                 pd.isnull(df[all_column_spec[col]]),
@@ -151,19 +156,89 @@ def standardize_dataframe(df, column_spec={}):
             df.rename(columns={"label": "included"})
             all_column_spec.pop("included")
 
-    # If the we have a record_id (for example from an ASReview export) use it.
-    if "record_id" in list(df):
-
-        # validate record_id column
-        _is_record_id_notnull(df["record_id"])
-        _is_record_id_unique(df["record_id"])
-        _is_record_id_int(df["record_id"])
-
-    # Create a new index if we haven't found it in the data.
-    else:
-        df["record_id"] = np.arange(len(df.index))
+    # TODO: Make sure 'record_id' column in original dataset does not get overwritten.
+    # # If the we have a record_id (for example from an ASReview export) use it.
+    # if "record_id" in list(df):
+    #
+    #     # validate record_id column
+    #     _is_record_id_notnull(df["record_id"])
+    #     _is_record_id_unique(df["record_id"])
+    #     _is_record_id_int(df["record_id"])
+    #
+    # # Create a new index if we haven't found it in the data.
+    # else:
+    #     df["record_id"] = np.arange(len(df.index))
+    df["record_id"] = np.arange(len(df.index))
 
     # set the index
     df.set_index('record_id', inplace=True)
 
     return df, all_column_spec
+
+
+def list_readers():
+    """List available dataset reader classes.
+
+    Returns
+    -------
+    list:
+        Classes of available dataset readers in alphabetical order.
+    """
+    reader_class = [
+        get_reader_class(name)
+        for name in list_reader_names(entry_name="asreview.readers")
+    ]
+
+    return reader_class
+
+
+def list_writers():
+    """List available dataset writer classes.
+
+    Returns
+    -------
+    list:
+        Classes of available dataset writers in alphabetical order.
+    """
+    writer_class = [
+        get_writer_class(name)
+        for name in list_writer_names(entry_name="asreview.writers")
+    ]
+
+    return writer_class
+
+
+def get_reader_class(name):
+    """Get class of dataset reader from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset reader, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _reader_class_from_entry_point(
+        name,
+        entry_name="asreview.readers")
+
+
+def get_writer_class(name):
+    """Get class of dataset writer from string.
+
+    Arguments
+    ---------
+    name: str
+        Name of the dataset writer, e.g. '.csv', '.tsv' or '.xlsx'.
+
+    Returns
+    -------
+    class:
+        Class corresponding to the name.
+    """
+    return _writer_class_from_entry_point(
+        name,
+        entry_name="asreview.writers")

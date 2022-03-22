@@ -1,6 +1,6 @@
-import string
-import random
 import os
+import random
+import string
 import urllib.request
 
 from asreview.models.feature_extraction.embedding_lstm import load_embedding

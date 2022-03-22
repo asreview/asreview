@@ -13,17 +13,18 @@
 # limitations under the License.
 
 import json
+import shutil
 import sqlite3
 from pathlib import Path
 from uuid import uuid4
 
 import numpy as np
-from scipy.sparse import save_npz
 from scipy.sparse import issparse
+from scipy.sparse import save_npz
 
+from asreview.state.errors import StateError
 from asreview.state.legacy.utils import open_state as open_state_legacy
 from asreview.state.utils import decode_feature_matrix
-from asreview.state.errors import StateError
 
 SQLSTATE_VERSION = "1.0"
 ASREVIEW_FILE_EXTENSION = '.asreview'
@@ -32,13 +33,11 @@ ASREVIEW_FILE_EXTENSION = '.asreview'
 def is_old_project(fp):
     """Check if state file is old version."""
     if Path(fp, 'reviews').is_dir():
-        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
-                         f"This project seems to be in new format.")
-    if not Path(fp, 'result.json').is_file():
-        raise ValueError(f"There is no 'result.json' file at {fp}")
+        return False
+    else:
+        return True
 
 
-# TODO(State): Allow basic/full (i.e. save probabilities).
 def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     """Convert an old asreview project folder to the new format.
 
@@ -54,23 +53,30 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
 
     if from_version != 0 and to_version != 1:
         raise ValueError(
-            f"Not possible to upgrade from {from_version} to {to_version}."
-        )
+            f"Not possible to upgrade from {from_version} to {to_version}.")
 
     # Check if it is indeed an old format project.
-    is_old_project(fp)
+    if not is_old_project(fp):
+        raise ValueError(f"There already is a 'reviews' folder at {fp}. "
+                         f"This project seems to be in new format.")
 
     # Current Paths
     fp = Path(fp)
-    json_fp = Path(fp, 'result.json')
+    legacy_fp = Path(fp, 'legacy')
+    move_old_files_to_legacy_folder(fp)
+
+    # Current paths.
+    json_fp = Path(legacy_fp, 'result.json')
     project_fp = Path(fp, 'project.json')
+    pool_fp = Path(legacy_fp, 'pool.json')
+    kwargs_fp = Path(legacy_fp, 'kwargs.json')
     review_id = str(uuid4().hex)
 
     # Create the reviews folder and the paths for the results and settings.
     Path(fp, 'reviews', review_id).mkdir(parents=True)
     sql_fp = str(Path(fp, 'reviews', review_id, 'results.sql'))
-    settings_metadata_fp = Path(fp, 'reviews',
-                                review_id, 'settings_metadata.json')
+    settings_metadata_fp = Path(fp, 'reviews', review_id,
+                                'settings_metadata.json')
 
     # Create the path for the feature matrix.
 
@@ -80,8 +86,10 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Create sqlite tables 'last_probabilities'.
     convert_json_last_probabilities(sql_fp, json_fp)
 
-    # Add the record table to the sqlite database as the table
-    # 'record_table'.
+    # Create the table for the last ranking of the model.
+    create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp)
+
+    # Add the record table to the sqlite database as the table 'record_table'.
     convert_json_record_table(sql_fp, json_fp)
 
     # Create decision changes table.
@@ -91,7 +99,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     convert_json_settings_metadata(settings_metadata_fp, json_fp)
 
     # Create file for the feature matrix.
-    with open(Path(fp, 'kwargs.json'), 'r') as f:
+    with open(kwargs_fp, 'r') as f:
         kwargs_dict = json.load(f)
         feature_extraction_method = kwargs_dict['feature_extraction']
     feature_matrix_fp = convert_json_feature_matrix(fp, json_fp,
@@ -100,12 +108,36 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     # Update the project.json file.
     with open(json_fp, 'r') as f:
         start_time = json.load(f)['time']['start_time']
-    convert_project_json(project_fp, review_id, start_time,
-                         feature_matrix_fp, feature_extraction_method)
+    convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
+                         feature_extraction_method)
 
 
-def convert_project_json(project_fp, review_id, start_time,
-                         feature_matrix_fp, feature_extraction_method):
+def move_old_files_to_legacy_folder(fp):
+    """Move the old files to a legacy folder.
+
+    Arguments
+    ----------
+    fp: pathlib.Path
+        Location of the (unzipped) project file.
+
+    Returns
+    -------
+    Creates a folder 'legacy' in the project file, moves all current files to
+    this legacy folder, and keeps a copy of 'project.json' and the data folder
+    at the original place.
+    """
+    files_to_keep = ['project.json', 'data', 'lock.sqlite', '__MACOSX']
+
+    file_paths = list(fp.iterdir())
+    legacy_folder = Path(fp, 'legacy')
+    shutil.copytree(fp, legacy_folder)
+    for file_path in file_paths:
+        if file_path.name not in files_to_keep:
+            file_path.unlink()
+
+
+def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
+                         feature_extraction_method):
     """Update the project.json file to contain the review information , the
     feature matrix information and the new state version number.
 
@@ -127,21 +159,23 @@ def convert_project_json(project_fp, review_id, start_time,
 
     # Add the feature matrix information.
     feature_matrix_name = Path(feature_matrix_fp).name
-    project_info['feature_matrices'] = [
-        {
-            'id': feature_extraction_method,
-            'filename': feature_matrix_name
-        }
-    ]
+    project_info['feature_matrices'] = [{
+        'id': feature_extraction_method,
+        'filename': feature_matrix_name
+    }]
 
     # Add the review information.
-    project_info['reviews'] = [
-        {
-            'id': review_id,
-            'start_time': start_time,
-            'review_finished': project_info.get('reviewFinished', False)
-        }
-    ]
+    project_info['reviews'] = [{
+        'id':
+        review_id,
+        'start_time':
+        start_time,
+        'review_finished':
+        project_info.get('reviewFinished', False)
+    }]
+
+    # Add the project mode.
+    project_info['mode'] = project_info.get('mode', 'oracle')
 
     # Update the state version.
     project_info['state_version'] = SQLSTATE_VERSION
@@ -164,13 +198,68 @@ def convert_json_settings_metadata(fp, json_fp):
     data_dict = {}
     with open_state_legacy(json_fp) as json_state:
         data_dict['settings'] = json_state._state_dict['settings']
+        # The 'triple' balance strategy is no longer implemented.
+        if data_dict['settings']['balance_strategy'] == 'triple':
+            data_dict['settings']['balance_strategy'] = 'double'
         data_dict['current_queries'] = json_state._state_dict[
             'current_queries']
         data_dict['state_version'] = SQLSTATE_VERSION
         data_dict['software_version'] = json_state._state_dict[
             'software_version']
+        data_dict['model_has_trained'] = True
     with open(fp, 'w') as f:
         json.dump(data_dict, f)
+
+
+def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
+    """Create the table which will contain the ranking of the last iteration of
+    the model.
+
+    Arguments
+    ---------
+    sql_fp: str/path
+        Path where to save the record table. Should be a .sql file.
+    """
+
+    with open(pool_fp) as f_pool:
+        pool_ranking = json.load(f_pool)
+
+    with open(kwargs_fp, 'r') as f_kwargs:
+        kwargs_dict = json.load(f_kwargs)
+
+    # Add the record_ids not found in the pool to the end of the ranking.
+    with open_state_legacy(json_fp) as json_state:
+        record_table = get_json_record_table(json_state)
+    records_not_in_pool = [record_id for record_id in record_table
+                           if record_id not in pool_ranking]
+    pool_ranking += records_not_in_pool
+
+    # Set the training set to -1 (prior) for records from old pool.
+    training_set = -1
+    time = None
+
+    last_ranking = [(v, i, kwargs_dict['model'], kwargs_dict['query_strategy'],
+                     kwargs_dict['balance_strategy'],
+                     kwargs_dict['feature_extraction'], training_set, time)
+                    for i, v in enumerate(pool_ranking)]
+
+    with sqlite3.connect(sql_fp) as con:
+        cur = con.cursor()
+
+        # Create the last_ranking table.
+        cur.execute('''CREATE TABLE last_ranking
+                        (record_id INTEGER,
+                        ranking INT,
+                        classifier TEXT,
+                        query_strategy TEXT,
+                        balance_strategy TEXT,
+                        feature_extraction TEXT,
+                        training_set INTEGER,
+                        time INTEGER)''')
+        cur.executemany(
+            """INSERT INTO last_ranking VALUES
+                                    (?, ?, ?, ?, ?, ?, ?, ?)""", last_ranking)
+        con.commit()
 
 
 def convert_json_last_probabilities(sql_fp, json_fp):
@@ -186,6 +275,7 @@ def convert_json_last_probabilities(sql_fp, json_fp):
     """
     with open_state_legacy(json_fp) as json_state:
         # Get the last predicted probabilities from the state file.
+        # Also get the number of record labeled and the classifier.
         last_probabilities = json_state.pred_proba
 
         # Put them in the format for input in the sqlite database.
@@ -198,6 +288,7 @@ def convert_json_last_probabilities(sql_fp, json_fp):
             cur.executemany(
                 """INSERT INTO last_probabilities VALUES
                                         (?)""", last_probabilities)
+
             con.commit()
 
 
@@ -214,9 +305,7 @@ def get_json_record_table(json_state):
     return record_table
 
 
-def convert_json_feature_matrix(fp,
-                                json_fp,
-                                feature_extraction_method):
+def convert_json_feature_matrix(fp, json_fp, feature_extraction_method):
     """Get the feature matrix from a json state file. Save it in the feature
     matrices folder. Format is .npz if the matrix is sparse and .npy if the
     matrix is dense.
@@ -269,7 +358,7 @@ def convert_json_record_table(sql_fp, json_fp):
         record_table = get_json_record_table(json_state)
 
     # Convert record_table to list of tuples.
-    record_table = [(record_id, ) for record_id in record_table]
+    record_table = [(record_id, ) for record_id in range(len(record_table))]
 
     con = sqlite3.connect(sql_fp)
     cur = con.cursor()
@@ -299,7 +388,6 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                             training_set INTEGER,
                             labeling_time INTEGER,
                             notes TEXT)''')
-            # TODO(State): models_training?
 
             # Index (row number) of record being labeled.
             sf_indices = [
@@ -332,7 +420,7 @@ def convert_json_results_to_sql(sql_fp, json_fp):
 
             # classifier.
             classifier = sf.settings.to_dict()['model']
-            sf_classifiers = ['prior'] * n_priors + [
+            sf_classifiers = [None] * n_priors + [
                 f'{classifier}' for _ in range(n_non_prior_records)
             ]
 
@@ -342,13 +430,13 @@ def convert_json_results_to_sql(sql_fp, json_fp):
 
             # feature extraction.
             feature_extraction = sf.settings.to_dict()['feature_extraction']
-            sf_feature_extraction = ['prior'] * n_priors + [
+            sf_feature_extraction = [None] * n_priors + [
                 f'{feature_extraction}' for _ in range(n_non_prior_records)
             ]
 
             # balance strategy.
             balance_strategy = sf.settings.to_dict()['balance_strategy']
-            sf_balance_strategy = ['prior'] * n_priors + [
+            sf_balance_strategy = [None] * n_priors + [
                 f'{balance_strategy}' for _ in range(n_non_prior_records)
             ]
 
@@ -375,13 +463,11 @@ def convert_json_results_to_sql(sql_fp, json_fp):
                     "All datasets should have the same number of entries.")
 
             # Create the database rows.
-            db_rows = [
-                (sf_record_ids[i], sf_labels[i], sf_classifiers[i],
-                 sf_query_strategy[i], sf_balance_strategy[i],
-                 sf_feature_extraction[i], sf_training_sets[i], sf_time[i],
-                 sf_notes[i])
-                for i in range(n_records_labeled)
-            ]
+            db_rows = [(sf_record_ids[i], sf_labels[i], sf_classifiers[i],
+                        sf_query_strategy[i], sf_balance_strategy[i],
+                        sf_feature_extraction[i], sf_training_sets[i],
+                        sf_time[i], sf_notes[i])
+                       for i in range(n_records_labeled)]
             cur.executemany(
                 """INSERT INTO results VALUES
                             (?, ?, ?, ?, ?, ?, ?, ?, ?)""", db_rows)

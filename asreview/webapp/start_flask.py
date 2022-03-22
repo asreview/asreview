@@ -29,8 +29,8 @@ from asreview import __version__ as asreview_version
 from asreview.entry_points.lab import _lab_parser
 from asreview.webapp import api
 from asreview.webapp.utils.misc import check_port_in_use
-from asreview.webapp.utils.project import clean_project_tmp_files
 from asreview.webapp.utils.project import clean_all_project_tmp_files
+from asreview.webapp.utils.project import clean_project_tmp_files
 
 # set logging level
 if os.environ.get('FLASK_ENV', "") == "development":

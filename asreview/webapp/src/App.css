@@ -2,6 +2,54 @@
   text-align: left;
 }
 
+.main-page-content {
+  height: calc(100vh - 56px);
+  overflow-y: scroll;
+  padding: 0;
+}
+@media (min-width: 0px) and (orientation: landscape) {
+  .main-page-content {
+    height: calc(100vh - 48px);
+  }
+}
+@media (min-width: 600px) {
+  .main-page-content {
+    height: calc(100vh - 64px);
+  }
+}
+.main-page-sticky-header {
+  display: flex;
+  padding: 24px 32px;
+}
+@media (max-width: 900px) {
+  .main-page-sticky-header {
+    padding: 16px 24px;
+  }
+}
+.main-page-sticky-header.with-button {
+  justify-content: space-between;
+}
+.main-page-sticky-header-wrapper {
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.main-page-body {
+  width: 100%;
+  max-width: 960px;
+  padding: 8px 24px 32px 24px;
+}
+.main-page-body-wrapper {
+  display: flex;
+  justify-content: center;
+}
+.main-page-fab {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+}
+
 .navBar {
   background-color: #ffcc00;
 }
@@ -31,61 +79,45 @@
   font-size: 140% !important;
 }
 
-.paperProjectsInReview {
-  background-color: #fff7cd !important;
-}
-.paperProjectsFinished {
-  background-color: #c8facd !important;
-}
-.paperRecordsReviewed {
-  background-color: #d0f2ff !important;
-}
-.paperRelevantRecords {
-  background-color: #ffe7d9 !important;
+.typography-wrap {
+  white-space: pre-line;
 }
 
-.iconProjectsInReview {
-  color: #b78103;
-  background-image: linear-gradient(
-    135deg,
-    rgba(183, 129, 3, 0) 0%,
-    rgba(183, 129, 3, 0.24) 100%
-  );
-}
-.iconProjectsFinished {
-  color: #007b55;
-  background-image: linear-gradient(
-    135deg,
-    rgba(0, 123, 85, 0) 0%,
-    rgba(0, 123, 85, 0.24) 100%
-  );
-}
-.iconRecordsReviewed {
-  color: #0c53b7;
-  background-image: linear-gradient(
-    135deg,
-    rgba(12, 83, 183, 0) 0%,
-    rgba(12, 83, 183, 0.24) 100%
-  );
-}
-.iconRelevantRecords {
-  color: #b72136;
-  background-image: linear-gradient(
-    135deg,
-    rgba(183, 33, 54, 0) 0%,
-    rgba(183, 33, 54, 0.24) 100%
-  );
+.record-card-content {
+  padding: 24px 24px 16px 24px;
 }
 
-.textProjectsInReview {
-  color: #7a4f01;
+.MuiCardActions-root {
+  padding: 8px 16px;
 }
-.textProjectsFinished {
-  color: #005249;
+
+.number-card {
+  border-radius: 16px;
+  padding: 16px 0px 8px 0px;
 }
-.textRecordsReviewed {
-  color: #04297a;
+.number-card-content {
+  align-items: center;
 }
-.textRelevantRecords {
-  color: #7a0c2e;
+.number-card-content-numeral {
+  font-weight: 700;
+}
+.number-card-content-text {
+  font-weight: 600;
+}
+
+.dialog-header {
+  align-items: center;
+  justify-content: space-between;
+}
+.dialog-header-button {
+  align-items: center;
+}
+.dialog-header-button.left {
+  padding-left: 24px;
+}
+.dialog-header-button.left-empty {
+  padding-left: 48px;
+}
+.dialog-header-button.right {
+  padding-right: 24px;
 }

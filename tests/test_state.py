@@ -1,40 +1,41 @@
+import json
 from pathlib import Path
 from sqlite3 import OperationalError
-import json
-import pytest
 
+import numpy as np
 import pandas as pd
+import pytest
 from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
+from asreview.settings import ASReviewSettings
 from asreview.state import SqlStateV1
-from asreview.state import open_state
 from asreview.state import init_project_folder_structure
-from asreview.state.paths import get_project_file_path
-from asreview.state.paths import get_reviews_path
+from asreview.state import open_state
+from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
+from asreview.state.paths import get_project_file_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
-from asreview.state.errors import StateNotFoundError
-from asreview.settings import ASReviewSettings
 
 TEST_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 TEST_INDICES = [16, 346, 509, 27, 11, 555, 554, 680, 264, 309]
 TEST_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_RECORD_TABLE = list(range(1, 852))
+TEST_RECORD_TABLE = list(range(851))
 TEST_CLASSIFIERS = [
-    'prior', 'prior', 'prior', 'prior', 'nb', 'nb', 'nb', 'nb', 'nb', 'nb'
+    None, None, None, None, 'nb', 'nb', 'nb', 'nb', 'nb', 'nb'
 ]
 TEST_QUERY_STRATEGIES = [
     'prior', 'prior', 'prior', 'prior', 'max', 'max', 'max', 'max', 'max',
     'max'
 ]
 TEST_BALANCE_STRATEGIES = [
-    'prior', 'prior', 'prior', 'prior', 'double', 'double', 'double', 'double',
+    None, None, None, None, 'double', 'double', 'double', 'double',
     'double', 'double'
 ]
 TEST_FEATURE_EXTRACTION = [
-    'prior', 'prior', 'prior', 'prior', 'tfidf', 'tfidf', 'tfidf', 'tfidf',
+    None, None, None, None, 'tfidf', 'tfidf', 'tfidf', 'tfidf',
     'tfidf', 'tfidf'
 ]
 TEST_TRAINING_SETS = [-1, -1, -1, -1, 4, 5, 6, 7, 8, 9]
@@ -65,8 +66,6 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
 TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
-TEST_LABELED_RECORD_IDS = [17, 347, 510, 28, 12, 556, 555, 681, 265, 310]
-TEST_LABELED_LABELS = [1, 0, 0, 1, 1, 1, 0, 1, 1, 1]
 
 
 def test_init_project_folder(tmpdir):
@@ -122,9 +121,7 @@ def test_version_number_state():
                    reason="attempt to write a readonly database")
 def test_write_while_read_only_state():
     with open_state(TEST_STATE_FP, read_only=True) as state:
-        state.add_labeling_data(TEST_RECORD_IDS, TEST_LABELS, TEST_CLASSIFIERS,
-                                TEST_QUERY_STRATEGIES, TEST_BALANCE_STRATEGIES,
-                                TEST_FEATURE_EXTRACTION, TEST_TRAINING_SETS)
+        state.add_last_probabilities([1.0] * len(TEST_RECORD_TABLE))
 
 
 def test_print_state():
@@ -219,13 +216,13 @@ def test_get_data_by_record_id():
 def test_get_query_strategies():
     with open_state(TEST_STATE_FP) as state:
         assert isinstance(state.get_query_strategies(), pd.Series)
-        assert all(state.get_query_strategies() == TEST_QUERY_STRATEGIES)
+        assert state.get_query_strategies().to_list() == TEST_QUERY_STRATEGIES
 
 
 def test_get_classifiers():
     with open_state(TEST_STATE_FP) as state:
         assert isinstance(state.get_classifiers(), pd.Series)
-        assert all(state.get_classifiers() == TEST_CLASSIFIERS)
+        assert state.get_classifiers().to_list() == TEST_CLASSIFIERS
 
 
 def test_get_training_sets():
@@ -244,6 +241,13 @@ def test_get_labels():
     with open_state(TEST_STATE_FP) as state:
         assert isinstance(state.get_labels(), pd.Series)
         assert all(state.get_labels() == TEST_LABELS)
+
+
+def test_get_labels_wo_priors():
+    with open_state(TEST_STATE_FP) as state:
+        labels = state.get_labels(priors=False)
+        assert isinstance(labels, pd.Series)
+        assert all(labels == TEST_LABELS[4:])
 
 
 def test_get_labeling_times():
@@ -268,9 +272,9 @@ def test_get_feature_matrix():
 def test_get_record_table():
     with open_state(TEST_STATE_FP) as state:
         record_table = state.get_record_table()
-        assert isinstance(record_table, pd.DataFrame)
-        assert list(record_table.columns) == ['record_id']
-        assert record_table['record_id'].to_list() == TEST_RECORD_TABLE
+        assert isinstance(record_table, pd.Series)
+        assert record_table.name == 'record_id'
+        assert record_table.to_list() == TEST_RECORD_TABLE
 
 
 def test_record_table(tmpdir):
@@ -279,11 +283,10 @@ def test_record_table(tmpdir):
 
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
-    RECORD_IDS = list(range(12, 2, -1))
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
-        assert state.get_record_table()['record_id'].to_list() == RECORD_IDS
+        assert state.get_record_table().to_list() == list(range(len(as_data)))
 
 
 def test_get_last_probabilities():
@@ -314,50 +317,158 @@ def test_add_last_probabilities(tmpdir):
         assert state_probabilities == probabilities
 
 
-def test_add_labeling_data(tmpdir):
+def test_move_ranking_data_to_results(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
+        state.add_record_table(TEST_RECORD_TABLE)
+        state.add_last_ranking(range(1, len(TEST_RECORD_TABLE) + 1), 'nb',
+                               'max', 'double', 'tfidf', 4)
+        state._move_ranking_data_to_results([4, 6, 5, 7])
+
+        data = state.get_dataset()
+        assert data['record_id'].to_list() == [4, 6, 5, 7]
+        assert data['label'].to_list() == [None] * 4
+        assert data['classifier'].to_list() == ['nb'] * 4
+
+
+def test_query_top_ranked(tmpdir):
+    test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(TEST_RECORD_TABLE)
+        state.add_last_ranking(test_ranking, 'nb',
+                               'max', 'double', 'tfidf', 4)
+        top_ranked = state.query_top_ranked(5)
+
+        assert top_ranked == [2, 1, 0, 3, 4]
+        data = state.get_dataset()
+        assert data['record_id'].to_list() == [2, 1, 0, 3, 4]
+        assert data['classifier'].to_list() == ['nb'] * 5
+        assert data['query_strategy'].to_list() == ['max'] * 5
+        assert data['balance_strategy'].to_list() == ['double'] * 5
+        assert data['feature_extraction'].to_list() == ['tfidf'] * 5
+        assert data['training_set'].to_list() == [4] * 5
+
+
+def test_add_labeling_data(tmpdir):
+    test_ranking = list(range(len(TEST_RECORD_TABLE)))
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(TEST_RECORD_TABLE)
+        state.add_last_ranking(test_ranking, 'nb', 'max', 'double', 'tfidf', 4)
         for i in range(3):
             # Test without specifying notes.
             state.add_labeling_data([TEST_RECORD_IDS[i]], [TEST_LABELS[i]],
-                                    [TEST_CLASSIFIERS[i]],
-                                    [TEST_QUERY_STRATEGIES[i]],
-                                    [TEST_BALANCE_STRATEGIES[i]],
-                                    [TEST_FEATURE_EXTRACTION[i]],
-                                    [TEST_TRAINING_SETS[i]])
+                                    prior=True)
 
         # Test with specifying notes and with larger batch.
-        state.add_labeling_data(TEST_RECORD_IDS[3:], TEST_LABELS[3:],
-                                TEST_CLASSIFIERS[3:],
-                                TEST_QUERY_STRATEGIES[3:],
-                                TEST_BALANCE_STRATEGIES[3:],
-                                TEST_FEATURE_EXTRACTION[3:],
-                                TEST_TRAINING_SETS[3:],
-                                TEST_NOTES[3:])
+        state.add_labeling_data(TEST_RECORD_IDS[3:6], TEST_LABELS[3:6],
+                                notes=TEST_NOTES[3:6], prior=True)
 
         data = state.get_dataset()
-        assert data['record_id'].to_list() == TEST_RECORD_IDS
-        assert data['label'].to_list() == TEST_LABELS
-        assert data['classifier'].to_list() == TEST_CLASSIFIERS
-        assert data['query_strategy'].to_list() == TEST_QUERY_STRATEGIES
-        assert data['balance_strategy'].to_list() == TEST_BALANCE_STRATEGIES
-        assert data['feature_extraction'].to_list() == TEST_FEATURE_EXTRACTION
-        assert data['training_set'].to_list() == TEST_TRAINING_SETS
-        assert data['notes'].to_list() == TEST_NOTES
+        assert data['record_id'].to_list() == TEST_RECORD_IDS[:6]
+        assert data['label'].to_list() == TEST_LABELS[:6]
+        assert data['classifier'].to_list() == [None] * 6
+        assert data['query_strategy'].to_list() == ['prior'] * 6
+        assert data['balance_strategy'].to_list() == [None] * 6
+        assert data['feature_extraction'].to_list() == [None] * 6
+        assert data['training_set'].to_list() == [-1] * 6
+        assert data['notes'].to_list() == TEST_NOTES[:6]
+
+        state.query_top_ranked(3)
+        data = state.get_dataset()
+        assert data['label'].to_list()[:6] == TEST_LABELS[:6]
+        assert data['label'][6:].isna().all()
+        assert data['record_id'].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
+
+        state.add_labeling_data([1], [1])
+        labels = state.get_labels()
+        assert labels.to_list()[:6] == TEST_LABELS[:6]
+        assert labels[7] == 1
+
+        state.add_labeling_data([0, 2], [0, 1], notes=['note0', 'note2'])
+        data = state.get_dataset()
+        assert data['label'].to_list() == TEST_LABELS[:6] + [0, 1, 1]
+        assert data['notes'].to_list() == TEST_NOTES[:6] + \
+               ['note0', None, 'note2']
+
+
+def test_pool_labeled_pending(tmpdir):
+    record_table = range(1, 11)
+    test_ranking = range(10, 0, -1)
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(record_table)
+        state.add_last_ranking(test_ranking, 'nb',
+                               'max', 'double', 'tfidf', 4)
+        state.add_labeling_data([4, 5, 6], [1, 0, 1],
+                                prior=True)
+        state.query_top_ranked(3)
+
+        pool, labeled, pending = state.get_pool_labeled_pending()
+        assert isinstance(pool, pd.Series)
+        assert isinstance(labeled, pd.DataFrame)
+        assert isinstance(pending, pd.Series)
+
+        assert pool.name == 'record_id'
+        assert pending.name == 'record_id'
+        assert list(labeled.columns) == ['record_id', 'label']
+
+        assert pool.to_list() == [7, 3, 2, 1]
+        assert labeled['record_id'].to_list() == [4, 5, 6]
+        assert labeled['label'].to_list() == [1, 0, 1]
+        assert pending.to_list() == [10, 9, 8]
+
+        pool2 = state.get_pool()
+        labeled2 = state.get_labeled()
+        pending2 = state.get_pending()
+
+        assert isinstance(pool2, pd.Series)
+        assert isinstance(labeled2, pd.DataFrame)
+        assert isinstance(pending2, pd.Series)
+
+        assert pool2.name == 'record_id'
+        assert pending2.name == 'record_id'
+        assert list(labeled2.columns) == ['record_id', 'label']
+
+        assert pool.to_list() == pool2.to_list()
+        assert labeled['record_id'].to_list() == labeled2['record_id'].to_list()
+        assert labeled['label'].to_list() == labeled2['label'].to_list()
+        assert pending.to_list() == pending2.to_list()
+
+
+def test_exist_new_labeled_records(tmpdir):
+    record_table = range(1, 11)
+    test_ranking = range(10, 0, -1)
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(record_table)
+
+        assert not state.exist_new_labeled_records
+        state.add_labeling_data([4, 5, 6], [1, 0, 1],
+                                prior=True)
+        assert state.exist_new_labeled_records
+        state.add_last_ranking(test_ranking, 'nb',
+                               'max', 'double', 'tfidf', 3)
+        assert not state.exist_new_labeled_records
+        state.query_top_ranked(3)
+        assert not state.exist_new_labeled_records
+        state.add_labeling_data([8, 9, 10], [1, 1, 1])
+        assert state.exist_new_labeled_records
 
 
 def test_add_note(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
+        state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3],
-                                TEST_CLASSIFIERS[:3],
-                                TEST_QUERY_STRATEGIES[:3],
-                                TEST_BALANCE_STRATEGIES[:3],
-                                TEST_FEATURE_EXTRACTION[:3],
-                                TEST_TRAINING_SETS[:3],
-                                TEST_NOTES[:3])
+                                TEST_NOTES[:3], prior=True)
 
         note = 'An added note'
         record_id = TEST_RECORD_IDS[1]
@@ -366,25 +477,21 @@ def test_add_note(tmpdir):
         assert record_data['notes'][0] == note
 
 
-def test_change_decision(tmpdir):
+def test_update_decision(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
     init_project_folder_structure(project_path)
     with open_state(project_path, read_only=False) as state:
+        state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3],
-                                TEST_CLASSIFIERS[:3],
-                                TEST_QUERY_STRATEGIES[:3],
-                                TEST_BALANCE_STRATEGIES[:3],
-                                TEST_FEATURE_EXTRACTION[:3],
-                                TEST_TRAINING_SETS[:3],
-                                TEST_NOTES[:3])
+                                prior=True)
 
         for i in range(3):
-            state.change_decision(TEST_RECORD_IDS[i])
+            state.update_decision(TEST_RECORD_IDS[i], 1 - TEST_LABELS[i])
             new_label = \
                 state.get_data_by_record_id(TEST_RECORD_IDS[i])['label'][0]
             assert new_label == 1 - TEST_LABELS[i]
 
-        state.change_decision(TEST_RECORD_IDS[1])
+        state.update_decision(TEST_RECORD_IDS[1], TEST_LABELS[1])
         new_label = \
             state.get_data_by_record_id(TEST_RECORD_IDS[1])['label'][0]
         assert new_label == TEST_LABELS[1]
@@ -399,13 +506,66 @@ def test_change_decision(tmpdir):
 
 def test_get_pool_labeled():
     with open_state(TEST_STATE_FP) as state:
-        pool, labeled = state.get_pool_labeled()
+        pool, labeled, _ = state.get_pool_labeled_pending()
 
-    assert isinstance(pool, pd.DataFrame)
-    assert list(pool.columns) == ['record_id']
+    assert isinstance(pool, pd.Series)
+    assert pool.name == 'record_id'
     assert isinstance(labeled, pd.DataFrame)
     assert list(labeled.columns) == ['record_id', 'label']
 
-    assert pool['record_id'].to_list()[:10] == TEST_POOL_START
-    assert labeled['record_id'].to_list() == TEST_LABELED_RECORD_IDS
-    assert labeled['label'].to_list() == TEST_LABELED_LABELS
+    assert pool.to_list()[:10] == TEST_POOL_START
+    assert labeled['record_id'].to_list() == TEST_RECORD_IDS
+    assert labeled['label'].to_list() == TEST_LABELS
+
+
+def test_last_ranking(tmpdir):
+    project_path = Path(tmpdir, 'test.asreview')
+    init_project_folder_structure(project_path)
+
+    record_ids = [1, 2, 3, 4, 5, 6]
+    ranking = [1, 3, 4, 6, 2, 5]
+    classifier = 'nb'
+    query_strategy = 'max'
+    balance_strategy = 'double'
+    feature_extraction = 'tfidf'
+    training_set = 2
+
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(record_ids)
+        state.add_last_ranking(ranking, classifier,
+                               query_strategy, balance_strategy,
+                               feature_extraction, training_set)
+
+        last_ranking = state.get_last_ranking()
+        assert type(last_ranking) == pd.DataFrame
+        assert list(last_ranking.columns) == ['record_id',
+                                              'ranking',
+                                              'classifier',
+                                              'query_strategy',
+                                              'balance_strategy',
+                                              'feature_extraction',
+                                              'training_set',
+                                              'time']
+
+        assert last_ranking['ranking'].to_list() == [0, 1, 2, 3, 4, 5]
+        assert last_ranking['record_id'].to_list() == ranking
+        assert last_ranking['classifier'].to_list() == \
+               [classifier] * len(record_ids)
+
+
+def test_get_pool():
+    with open_state(TEST_STATE_FP) as state:
+        pool = state.get_pool()
+
+    assert isinstance(pool, pd.Series)
+    assert len(pool) == 841
+    assert pool[:10].to_list() == TEST_POOL_START
+
+
+def test_get_labeled():
+    with open_state(TEST_STATE_FP) as state:
+        labeled = state.get_labeled()
+
+    assert isinstance(labeled, pd.DataFrame)
+    assert labeled['record_id'].to_list() == TEST_RECORD_IDS
+    assert labeled['label'].to_list() == TEST_LABELS

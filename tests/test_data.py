@@ -1,9 +1,12 @@
 import urllib
 from pathlib import Path
 
+import pandas as pd
+
 from pytest import mark
 
-from asreview import ASReviewData
+import asreview
+from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.search import fuzzy_find
 
@@ -25,7 +28,7 @@ def exists(url):
 ])
 def test_fuzzy_finder(keywords, paper_id):
     fp = Path("tests", "demo_data", "embase.csv")
-    as_data = ASReviewData.from_file(fp)
+    as_data = asreview.ASReviewData.from_file(fp)
 
     assert fuzzy_find(as_data, keywords)[0] == paper_id
 
@@ -39,3 +42,15 @@ def test_fuzzy_finder(keywords, paper_id):
 def test_datasets(data_name):
     data = DatasetManager().find(data_name)
     assert exists(data.get())
+
+
+def test_data_statistics():
+
+    d = asreview.ASReviewData(
+        pd.DataFrame({
+            "title": ["a", "b", "b", "c"],
+            "abstract": ["lorem", "lorem", "lorem", "lorem"]
+        })
+    )
+
+    assert n_duplicates(d) == 1

@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import argparse
-from abc import ABC, abstractclassmethod
+from abc import ABC
+from abc import abstractclassmethod
 from argparse import RawTextHelpFormatter
 
 from asreview import __version__

@@ -15,10 +15,10 @@
 import logging
 import os
 from pathlib import Path
-import pkg_resources
 from urllib.parse import urlparse
 
 import numpy as np
+import pkg_resources
 
 
 def _unsafe_dict_update(default_dict, override_dict):
@@ -179,6 +179,14 @@ def list_model_names(entry_name="asreview.models"):
     return [*get_entry_points(entry_name)]
 
 
+def list_reader_names(entry_name="asreview.readers"):
+    return [*get_entry_points(entry_name)]
+
+
+def list_writer_names(entry_name="asreview.writers"):
+    return [*get_entry_points(entry_name)]
+
+
 def get_entry_points(entry_name="asreview.entry_points"):
     """Get the entry points for asreview.
 
@@ -210,6 +218,34 @@ def _model_class_from_entry_point(method, entry_name="asreview.models"):
     except ImportError as e:
         raise ValueError(
             f"Failed to import '{method}' model ({entry_name}) "
+            f"with the following error:\n{e}")
+
+
+def _reader_class_from_entry_point(suffix, entry_name="asreview.readers"):
+    entry_points = get_entry_points(entry_name)
+    try:
+        return entry_points[suffix].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: suffix '{suffix}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{suffix}' reader ({entry_name}) "
+            f"with the following error:\n{e}")
+
+
+def _writer_class_from_entry_point(suffix, entry_name="asreview.writers"):
+    entry_points = get_entry_points(entry_name)
+    try:
+        return entry_points[suffix].load()
+    except KeyError:
+        raise ValueError(
+            f"Error: suffix '{suffix}' is not implemented for entry point "
+            f"{entry_name}.")
+    except ImportError as e:
+        raise ValueError(
+            f"Failed to import '{suffix}' writer ({entry_name}) "
             f"with the following error:\n{e}")
 
 

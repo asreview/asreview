@@ -1,53 +1,50 @@
-import React, { useState, useEffect, useCallback } from "react";
+import * as React from "react";
+import { useQuery, useQueryClient } from "react-query";
 import { connect } from "react-redux";
+import {
+  Routes,
+  Route,
+  useMatch,
+  useNavigate,
+  useParams,
+  useResolvedPath,
+} from "react-router-dom";
 import clsx from "clsx";
-import { Box, Fade } from "@mui/material";
+import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { NavigationDrawer } from "../Components";
+import { DialogErrorHandler } from "../Components";
+import { AnalyticsPage } from "../ProjectComponents/AnalyticsComponents";
+import { DetailsPage } from "../ProjectComponents/DetailsComponents";
 import { HistoryPage } from "../ProjectComponents/HistoryComponents";
+import { ExportPage } from "../ProjectComponents/ExportComponents";
 import {
   ReviewPage,
   ReviewPageFinished,
 } from "../ProjectComponents/ReviewComponents";
-import { ProjectInfo } from "../PreReviewComponents";
-import ErrorHandler from "../ErrorHandler";
-import DangerZone from "../DangerZone.js";
-import PublicationZone from "../PublicationZone.js";
-import StatisticsZone from "../StatisticsZone.js";
-
-import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
-import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
-import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
+import RouteNotFound from "../RouteNotFound";
 
 import { ProjectAPI } from "../api/index.js";
-import { drawerWidth } from "../globals.js";
+import {
+  checkIfSimulationFinishedDuration,
+  drawerWidth,
+  mapDispatchToProps,
+  projectModes,
+} from "../globals.js";
 
 const PREFIX = "ProjectPage";
 
 const classes = {
   content: `${PREFIX}-content`,
   contentShift: `${PREFIX}-contentShift`,
-  container: `${PREFIX}-container`,
 };
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const Root = styled("div")(({ theme }) => ({
   [`& .${classes.content}`]: {
-    flexGrow: 1,
-    padding: 0,
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    overflowY: "scroll",
-    height: `calc(100vh - 56px)`,
-    // WebkitOverflowScrolling: "touch",
-    [`${theme.breakpoints.up("xs")} and (orientation: landscape)`]: {
-      height: `calc(100vh - 48px)`,
-    },
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100vh - 64px)`,
-    },
     [theme.breakpoints.up("md")]: {
       marginLeft: 72,
     },
@@ -60,206 +57,215 @@ const StyledBox = styled(Box)(({ theme }) => ({
     }),
     marginLeft: drawerWidth,
   },
-
-  [`& .${classes.container}`]: {
-    height: "100%",
-  },
 }));
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    project_id: state.project_id,
-  };
-};
-
 const ProjectPage = (props) => {
-  const [nav_state, setNav_state] = useState("analytics");
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { project_id } = useParams();
+  const resolved = useResolvedPath("");
+  const match = useMatch({ path: resolved.pathname, end: true });
 
-  const [state, setState] = useState({
-    // info-header
-    infoLoading: true,
-    info: null,
-
-    // stage
-    finished: null,
-  });
-
-  const [error, setError] = useState({
-    code: null,
-    message: null,
-  });
-
-  const finishEditProjectInfo = () => {
-    setNav_state("analytics");
+  const isAnalyticsPageOpen = () => {
+    return match !== null;
   };
 
-  const finishProject = () => {
-    ProjectAPI.finish(props.project_id)
-      .then((result) => {
-        setState((s) => {
-          return {
-            ...s,
-            finished: !s.finished,
-          };
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const [isSimulating, setIsSimulating] = React.useState(false);
+
+  // History page state
+  const [historyLabel, setHistoryLabel] = React.useState("relevant");
+  const [historyFilterQuery, setHistoryFilterQuery] = React.useState([]);
+
+  const { data, error, isError, isSuccess } = useQuery(
+    ["fetchInfo", { project_id }],
+    ProjectAPI.fetchInfo,
+    {
+      enabled: project_id !== undefined,
+      onSuccess: (data) => {
+        if (!data["projectInitReady"]) {
+          // set project id
+          props.setProjectId(project_id);
+          // open project setup dialog
+          navigate("/projects");
+          props.toggleProjectSetup();
+        } else if (!data["projectNeedsUpgrade"]) {
+          // open project page
+          console.log("Opening project " + project_id);
+          // if simulation is running
+          if (
+            data["mode"] === projectModes.SIMULATION &&
+            !data["reviewFinished"]
+          ) {
+            setIsSimulating(true);
+          }
+        } else {
+          navigate("/projects");
+          // open project check dialog
+          props.setProjectCheck({
+            open: true,
+            issue: "upgrade",
+            path: "",
+            project_id: project_id,
+          });
+        }
+      },
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const refetchAnalytics = () => {
+    if (isAnalyticsPageOpen()) {
+      queryClient.invalidateQueries("fetchProgress");
+      queryClient.invalidateQueries("fetchProgressDensity");
+      queryClient.invalidateQueries("fetchProgressRecall");
+    }
   };
 
-  const returnElasState = () => {
-    // setup
-    if ((state.info && !state.info.projectInitReady) || state.setup) {
-      return SetUp;
-    }
+  const { error: checkSimulationError, isError: isCheckSimulationError } =
+    useQuery(
+      ["fetchSimulationFinished", { project_id }],
+      ProjectAPI.fetchSimulationFinished,
+      {
+        enabled: isSimulating,
+        onSuccess: (data) => {
+          if (data["status"] === 1) {
+            // refresh analytics
+            refetchAnalytics();
+            // simulation finished
+            setIsSimulating(false);
+            queryClient.invalidateQueries("fetchInfo");
+          } else {
+            // not finished yet
+            setTimeout(
+              () => queryClient.invalidateQueries("fetchSimulationFinished"),
+              checkIfSimulationFinishedDuration
+            );
+          }
+        },
+        refetchOnWindowFocus: false,
+      }
+    );
 
-    // review
-    if (!state.finished) {
-      return InReview;
-    }
-
-    // finished
-    if (state.finished) {
-      return Finished;
+  const returnError = () => {
+    if (isError) {
+      return ["fetchInfo", error, isError];
+    } else if (isCheckSimulationError) {
+      return [
+        "fetchSimulationFinished",
+        checkSimulationError,
+        isCheckSimulationError,
+      ];
+    } else {
+      return ["", null, false];
     }
   };
-
-  const fetchProjectInfo = useCallback(async () => {
-    ProjectAPI.info(props.project_id)
-      .then((result) => {
-        // update the state with the fetched data
-        setState((s) => {
-          return {
-            ...s,
-            infoLoading: false,
-            info: result.data,
-            finished: result.data.reviewFinished,
-          };
-        });
-      })
-      .catch((error) => {
-        setError({
-          code: error.code,
-          message: error.message,
-        });
-      });
-  }, [props.project_id]);
-
-  useEffect(() => {
-    if (state.infoLoading) {
-      fetchProjectInfo();
-    }
-  }, [fetchProjectInfo, state.infoLoading, error.message]);
-
-  // for temporary use
-  useEffect(() => {
-    if ((state.info && !state.info.projectInitReady) || state.setup) {
-      props.handleAppState("project-page-old");
-    }
-  });
 
   return (
-    <StyledBox aria-label="project page">
-      <NavigationDrawer
-        mobileScreen={props.mobileScreen}
-        onNavDrawer={props.onNavDrawer}
-        nav_state={nav_state}
-        toggleNavDrawer={props.toggleNavDrawer}
-        toggleSettings={props.toggleSettings}
-        handleNavState={setNav_state}
-        returnElasState={returnElasState}
-        projectInfo={state.info}
-      />
+    <Root aria-label="project page">
       <Box
         component="main"
-        className={clsx(classes.content, {
+        className={clsx("main-page-content", classes.content, {
           [classes.contentShift]: !props.mobileScreen && props.onNavDrawer,
         })}
         aria-label="project page content"
       >
-        <Fade in={props.app_state === "project-page"}>
-          <Box
-            className={classes.container}
-            aria-label="project page content transition"
-          >
-            {error.message !== null && (
-              <ErrorHandler error={error} setError={setError} />
-            )}
+        <Routes>
+          {/* Analytics */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              index
+              element={
+                <AnalyticsPage
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
+                  refetchAnalytics={refetchAnalytics}
+                />
+              }
+            />
+          )}
 
-            {error.message === null && !state.infoLoading && !state.setup && (
-              <Box
-                className={classes.container}
-                aria-label="project page content loaded"
-              >
-                {/* Analytics */}
-                {nav_state === "analytics" && (
-                  <StatisticsZone
-                    project_id={props.project_id}
-                    projectInitReady={state.info.projectInitReady}
-                  />
-                )}
+          {/* Review */}
+          {isSuccess && !data?.projectNeedsUpgrade && !data?.reviewFinished && (
+            <Route
+              path="review"
+              element={
+                <ReviewPage
+                  mobileScreen={props.mobileScreen}
+                  projectMode={data?.mode}
+                  fontSize={props.fontSize}
+                  undoEnabled={props.undoEnabled}
+                  keyPressEnabled={props.keyPressEnabled}
+                />
+              }
+            />
+          )}
 
-                {/* Review page */}
-                {nav_state === "review" && !state.finished && (
-                  <ReviewPage
-                    handleAppState={props.handleAppState}
-                    mobileScreen={props.mobileScreen}
-                    projectMode={state.info.mode}
-                    fontSize={props.fontSize}
-                    undoEnabled={props.undoEnabled}
-                    keyPressEnabled={props.keyPressEnabled}
-                  />
-                )}
+          {/* Review finished */}
+          {isSuccess && !data?.projectNeedsUpgrade && data?.reviewFinished && (
+            <Route
+              path="review"
+              element={<ReviewPageFinished mobileScreen={props.mobileScreen} />}
+            />
+          )}
 
-                {/* Review page when marked as finished */}
-                {nav_state === "review" && state.finished && (
-                  <ReviewPageFinished mobileScreen={props.mobileScreen} />
-                )}
+          {/* History */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="history"
+              element={
+                <HistoryPage
+                  filterQuery={historyFilterQuery}
+                  label={historyLabel}
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  mode={data?.mode}
+                  setFilterQuery={setHistoryFilterQuery}
+                  setLabel={setHistoryLabel}
+                />
+              }
+            />
+          )}
 
-                {/* History page */}
-                {nav_state === "history" && (
-                  <HistoryPage mobileScreen={props.mobileScreen} />
-                )}
+          {/* Export */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="export"
+              element={
+                <ExportPage
+                  enableExportDataset={data?.projectInitReady}
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                />
+              }
+            />
+          )}
 
-                {/* Export page */}
-                {nav_state === "export" && (
-                  <Box>
-                    <PublicationZone
-                      project_id={props.project_id}
-                      showExportResult={
-                        state.info.projectInitReady &&
-                        !state.setup &&
-                        !state.training
-                      }
-                      toggleExportResult={props.toggleExportResult}
-                      reviewFinished={state.finished}
-                      finishProject={finishProject}
-                    />
-                    <DangerZone
-                      project_id={props.project_id}
-                      handleAppState={props.handleAppState}
-                    />
-                  </Box>
-                )}
+          {/* Details */}
+          {isSuccess && !data?.projectNeedsUpgrade && (
+            <Route
+              path="details"
+              element={
+                <DetailsPage
+                  info={data}
+                  isSimulating={isSimulating}
+                  mobileScreen={props.mobileScreen}
+                  setHistoryFilterQuery={setHistoryFilterQuery}
+                />
+              }
+            />
+          )}
 
-                {/* Details page */}
-                {nav_state === "details" && (
-                  <ProjectInfo
-                    edit={true}
-                    open={nav_state === "details"}
-                    onClose={finishEditProjectInfo}
-                    info={state.info}
-                  />
-                )}
-              </Box>
-            )}
-          </Box>
-        </Fade>
+          {isSuccess && <Route path="*" element={<RouteNotFound />} />}
+        </Routes>
       </Box>
-    </StyledBox>
+      <DialogErrorHandler
+        isError={returnError()[2]}
+        error={returnError()[1]}
+        queryKey={returnError()[0]}
+      />
+    </Root>
   );
 };
 
-export default connect(mapStateToProps)(ProjectPage);
+export default connect(null, mapDispatchToProps)(ProjectPage);

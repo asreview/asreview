@@ -119,6 +119,8 @@ class PaperRecord():
         Paper abstract.
     authors: str, list
         Authors of the paper.
+    notes: str, list
+        Notes of the paper.
     keywords: str, list
         Keywords of the paper.
     label: int
@@ -131,7 +133,7 @@ class PaperRecord():
     def __init__(self, record_id, column_spec={}, **kwargs):
 
         for attr in [
-                "title", "abstract", "authors", "keywords", "doi", "included"
+                "title", "abstract", "authors", "notes", "keywords", "doi", "included"
         ]:
             if attr in column_spec:
                 col = column_spec[attr]
@@ -154,7 +156,7 @@ class PaperRecord():
         self.extra_fields = kwargs
 
         for attr, val in self.extra_fields.items():
-            if pd.isna(val):
+            if not isinstance(val, list) and pd.isna(val):
                 self.extra_fields[attr] = None
 
     def __str__(self):

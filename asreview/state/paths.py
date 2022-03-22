@@ -64,7 +64,7 @@ def get_data_file_path(project_path):
             data_filename = project_dict["dataset_path"]
 
     except Exception:
-        raise Exception("Dataset location not found")
+        raise FileNotFoundError("Dataset location not found")
 
     return data_folder / data_filename
 

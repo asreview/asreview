@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import { useNavigate, Outlet } from "react-router-dom";
 import {
   Box,
   ButtonBase,
@@ -11,25 +12,17 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import { Menu } from "@mui/icons-material";
 
-import { DrawerItemContainer } from "../Components";
+import { DrawerItemContainer, Header } from "../Components";
 
 import ASReviewLAB_black from "../images/asreview_sub_logo_lab_black_transparent.svg";
 import ASReviewLAB_white from "../images/asreview_sub_logo_lab_white_transparent.svg";
 import { drawerWidth } from "../globals.js";
-import { setAppState, toggleHelpDialog } from "../redux/actions";
+import { toggleHelpDialog } from "../redux/actions";
 
-const mapStateToProps = (state) => {
-  return {
-    app_state: state.app_state,
-    project_id: state.project_id,
-  };
-};
+const Root = styled("div")(({ theme }) => ({}));
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setAppState: (app_state) => {
-      dispatch(setAppState(app_state));
-    },
     toggleHelpDialog: () => {
       dispatch(toggleHelpDialog());
     },
@@ -76,7 +69,7 @@ const NavigationRail = styled(Drawer, {
 
 const NavigationDrawer = (props) => {
   const { window } = props;
-
+  const navigate = useNavigate();
   const theme = useTheme();
 
   const wordmarkState = () => {
@@ -91,88 +84,83 @@ const NavigationDrawer = (props) => {
     window !== undefined ? () => window().document.body : undefined;
 
   return (
-    <Box
-      component="nav"
-      aria-label="navigation drawer"
-      sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-    >
-      {/* Temporary drawer on mobile screen */}
-      <Drawer
-        container={container}
-        variant="temporary"
-        open={props.mobileScreen && props.onNavDrawer}
-        onClose={props.toggleNavDrawer}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
-        }}
-        sx={{
-          display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
-        }}
+    <Root>
+      <Header toggleNavDrawer={props.toggleNavDrawer} />
+      <Box
+        component="nav"
+        aria-label="navigation drawer"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
       >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={props.toggleNavDrawer}
-            size="large"
-            sx={{ marginRight: "4px" }}
-          >
-            <Menu />
-          </IconButton>
-          <ButtonBase disableRipple>
-            <CardMedia
-              component="img"
-              src={wordmarkState()}
-              alt="ASReview LAB Dashboard"
-              onClick={() => {
-                props.toggleNavDrawer();
-                props.setAppState("dashboard");
-              }}
-              sx={{ width: 130 }}
-            />
-          </ButtonBase>
-        </Toolbar>
-        <DrawerItemContainer
-          app_state={props.app_state}
-          nav_state={props.nav_state}
-          mobileScreen={props.mobileScreen}
-          onNavDrawer={props.onNavDrawer}
-          toggleNavDrawer={props.toggleNavDrawer}
-          setAppState={props.setAppState}
-          projectInfo={props.projectInfo}
-          returnElasState={props.returnElasState}
-          handleNavState={props.handleNavState}
-          toggleSettings={props.toggleSettings}
-          toggleHelpDialog={props.toggleHelpDialog}
-        />
-      </Drawer>
+        {/* Temporary drawer on mobile screen */}
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={props.mobileScreen && props.onNavDrawer}
+          onClose={props.toggleNavDrawer}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            display: { xs: "block", md: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={props.toggleNavDrawer}
+              size="large"
+              sx={{ marginRight: "4px" }}
+            >
+              <Menu />
+            </IconButton>
+            <ButtonBase disableRipple>
+              <CardMedia
+                component="img"
+                src={wordmarkState()}
+                alt="ASReview LAB Dashboard"
+                onClick={() => {
+                  props.toggleNavDrawer();
+                  navigate("/");
+                }}
+                sx={{ width: 130 }}
+              />
+            </ButtonBase>
+          </Toolbar>
+          <DrawerItemContainer
+            mobileScreen={props.mobileScreen}
+            onNavDrawer={props.onNavDrawer}
+            toggleNavDrawer={props.toggleNavDrawer}
+            toggleSettings={props.toggleSettings}
+            toggleHelpDialog={props.toggleHelpDialog}
+          />
+        </Drawer>
 
-      {/* Permanent drawer on desktop screen */}
-      <NavigationRail
-        variant="permanent"
-        open={props.onNavDrawer}
-        sx={{
-          display: { xs: "none", md: "block" },
-        }}
-      >
-        <Toolbar />
-        <DrawerItemContainer
-          app_state={props.app_state}
-          nav_state={props.nav_state}
-          mobileScreen={props.mobileScreen}
-          onNavDrawer={props.onNavDrawer}
-          toggleNavDrawer={props.toggleNavDrawer}
-          setAppState={props.setAppState}
-          projectInfo={props.projectInfo}
-          returnElasState={props.returnElasState}
-          handleNavState={props.handleNavState}
-          toggleSettings={props.toggleSettings}
-          toggleHelpDialog={props.toggleHelpDialog}
-        />
-      </NavigationRail>
-    </Box>
+        {/* Permanent drawer on desktop screen */}
+        <NavigationRail
+          variant="permanent"
+          open={props.onNavDrawer}
+          sx={{
+            display: { xs: "none", md: "block" },
+          }}
+        >
+          <Toolbar />
+          <DrawerItemContainer
+            mobileScreen={props.mobileScreen}
+            onNavDrawer={props.onNavDrawer}
+            toggleNavDrawer={props.toggleNavDrawer}
+            toggleSettings={props.toggleSettings}
+            toggleHelpDialog={props.toggleHelpDialog}
+          />
+        </NavigationRail>
+      </Box>
+      <Outlet />
+    </Root>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NavigationDrawer);
+export default connect(null, mapDispatchToProps)(NavigationDrawer);

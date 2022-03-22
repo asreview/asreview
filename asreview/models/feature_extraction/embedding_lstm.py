@@ -15,22 +15,21 @@
 import gzip
 import io
 import logging
-from multiprocessing import cpu_count
+import time
 from multiprocessing import Process
 from multiprocessing import Queue
+from multiprocessing import cpu_count
 from pathlib import Path
 from urllib.request import urlopen
-import time
 
 import numpy as np
 
-from asreview.utils import get_data_home
 from asreview.models.feature_extraction.base import BaseFeatureExtraction
-
+from asreview.utils import get_data_home
 
 try:
-    from tensorflow.keras.preprocessing.text import Tokenizer
     from tensorflow.keras.preprocessing.sequence import pad_sequences
+    from tensorflow.keras.preprocessing.text import Tokenizer
 except ImportError:
     TF_AVAILABLE = False
 else:

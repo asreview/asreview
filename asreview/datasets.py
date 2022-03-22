@@ -16,12 +16,13 @@ import json
 import socket
 import warnings
 from pathlib import Path
+from urllib.error import URLError
+from urllib.request import urlopen
 
 from asreview.utils import get_entry_points
+from asreview.utils import is_iterable
+from asreview.utils import is_url
 from asreview.utils import pretty_format
-from asreview.utils import is_iterable, is_url
-from urllib.request import urlopen
-from urllib.error import URLError
 
 
 class DataSetNotFoundError(Exception):

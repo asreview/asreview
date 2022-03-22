@@ -42,7 +42,7 @@ class UndersampleBalance(BaseBalance):
         self.ratio = ratio
         self._random_state = get_random_state(random_state)
 
-    def sample(self, X, y, train_idx, shared):
+    def sample(self, X, y, train_idx):
         """Resample the training data.
 
         Arguments
@@ -53,8 +53,6 @@ class UndersampleBalance(BaseBalance):
             Labels for all papers.
         train_idx: numpy.ndarray
             Training indices, that is all papers that have been reviewed.
-        shared: dict
-            Dictionary to share data between balancing models and other models.
 
         Returns
         -------

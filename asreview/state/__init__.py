@@ -14,5 +14,5 @@
 
 from asreview.state.base import BaseState
 from asreview.state.sqlstate import SqlStateV1
-from asreview.state.utils import open_state
 from asreview.state.utils import init_project_folder_structure
+from asreview.state.utils import open_state

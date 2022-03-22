@@ -9,6 +9,17 @@ Build the project from source with the following code.
 
 ## Development workflow
 
+### Git Submodules
+Some demo datasets are included as a submodule. Directory [asreview/tests/citation-file-formatting](https://github.com/ottomattas/asreview/tree/development-v1/tests) is cloned from [citation-file-formatting](https://github.com/asreview/citation-file-formatting).
+
+Examples:
+- To clone the full repository with submodules in one line, add `--recursive` flag:
+
+	```git clone --recursive git://github.com/asreview/asreview.git```
+
+- To update the submodule, you would still need to follow the contribution guide in the submodule repository. And then create a PR for the main repository with the updated submodule commit.
+
+
 ### Back end
 Install Python
 

@@ -1,37 +1,16 @@
 import React from "react";
-import clsx from "clsx";
-import Fab from "@mui/material/Fab";
+import { Box, Fab, Stack } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Favorite, FavoriteBorder } from "@mui/icons-material";
+import "./ReviewPage.css";
 
 const PREFIX = "DecisionButton";
 
 const classes = {
-  root: `${PREFIX}-root`,
-  rootMobile: `${PREFIX}-rootMobile`,
   extendedFab: `${PREFIX}-extendedFab`,
 };
 
 const Root = styled("div")(({ theme }) => ({
-  [`&.${classes.root}`]: {
-    "& > *": {
-      marginLeft: theme.spacing(5),
-      marginRight: theme.spacing(5),
-      marginBottom: theme.spacing(5),
-    },
-    flexShrink: 0,
-    width: "100%",
-    textAlign: "center",
-  },
-
-  [`&.${classes.rootMobile}`]: {
-    "& > *": {
-      marginLeft: theme.spacing(2),
-      marginRight: theme.spacing(2),
-      marginBottom: theme.spacing(3),
-    },
-  },
-
   [`& .${classes.extendedFab}`]: {
     marginRight: theme.spacing(1),
   },
@@ -41,38 +20,54 @@ const DecisionButton = (props) => {
   let relevantLabel = "Relevant";
   let irrelevantLabel = "Irrelevant";
 
-  if (props.previousSelection === 0) {
-    relevantLabel = "Convert to relevant";
-    irrelevantLabel = "Keep irrelevant";
-  }
-  if (props.previousSelection === 1) {
-    relevantLabel = "Keep relevant";
-    irrelevantLabel = "Convert to irrelevant";
+  if (props.previousRecord.show) {
+    if (props.previousRecord.label === 0) {
+      relevantLabel = "Convert to relevant";
+      irrelevantLabel = "Keep irrelevant";
+    }
+    if (props.previousRecord.label === 1) {
+      relevantLabel = "Keep relevant";
+      irrelevantLabel = "Convert to irrelevant";
+    }
   }
 
   return (
-    <Root
-      className={clsx(classes.root, {
-        [classes.rootMobile]: props.mobileScreen,
-      })}
-    >
-      <Fab
-        onClick={() => props.makeDecision(0)}
-        size={props.mobileScreen ? "small" : "large"}
-        variant="extended"
+    <Root>
+      <Stack
+        className="review-page-decision-button"
+        direction={
+          !props.mobileScreen
+            ? "row"
+            : !props.previousRecord.show
+            ? "row"
+            : "column"
+        }
+        spacing={!props.mobileScreen ? 10 : !props.previousRecord.show ? 10 : 2}
       >
-        <FavoriteBorder className={classes.extendedFab} />
-        {irrelevantLabel}
-      </Fab>
-      <Fab
-        onClick={() => props.makeDecision(1)}
-        color="primary"
-        size={props.mobileScreen ? "small" : "large"}
-        variant="extended"
-      >
-        <Favorite className={classes.extendedFab} />
-        {relevantLabel}
-      </Fab>
+        <Box>
+          <Fab
+            disabled={props.disableButton()}
+            onClick={() => props.makeDecision(0)}
+            size={props.mobileScreen ? "small" : "large"}
+            variant="extended"
+          >
+            <FavoriteBorder className={classes.extendedFab} />
+            {irrelevantLabel}
+          </Fab>
+        </Box>
+        <Box>
+          <Fab
+            onClick={() => props.makeDecision(1)}
+            color="primary"
+            disabled={props.disableButton()}
+            size={props.mobileScreen ? "small" : "large"}
+            variant="extended"
+          >
+            <Favorite className={classes.extendedFab} />
+            {relevantLabel}
+          </Fab>
+        </Box>
+      </Stack>
     </Root>
   );
 };

@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,35 +13,42 @@
 # limitations under the License.
 
 import pandas as pd
-from asreview.io.utils import standardize_dataframe
+
+from asreview.io.utils import _standardize_dataframe
 
 
-def read_csv(data_fp):
+class CSVReader():
     """CVS file reader.
-
-    Parameters
-    ----------
-    fp: str, pathlib.Path
-        File path to the CSV file.
-
-    Returns
-    -------
-    list:
-        List with entries.
-
     """
 
-    for encoding in ["utf-8", "ISO-8859-1"]:
-        try:
-            df = pd.read_csv(
-                data_fp,
-                sep=None,
-                encoding=encoding,
-                engine='python'
-            )
-            return standardize_dataframe(df)
-        except UnicodeDecodeError:
-            # if unicode error, go to next encoding
-            continue
+    read_format = [".csv", ".tab", ".tsv"]
+    write_format = [".csv", ".tsv", ".xlsx"]
 
-    raise UnicodeDecodeError("The encoding of the file is not supported.")
+    @classmethod
+    def read_data(cls, fp):
+        """Import dataset.
+
+        Arguments
+        ---------
+        fp: str, pathlib.Path
+            File path to the CSV file.
+
+        Returns
+        -------
+        list:
+            List with entries.
+        """
+        for encoding in ["utf-8", "ISO-8859-1"]:
+            try:
+                df = pd.read_csv(
+                    fp,
+                    sep=None,
+                    encoding=encoding,
+                    engine='python'
+                )
+                return _standardize_dataframe(df)
+            except UnicodeDecodeError:
+                # if unicode error, go to next encoding
+                continue
+
+        raise UnicodeDecodeError("The encoding of the file is not supported.")

@@ -1,0 +1,3 @@
+[submodule "tests/citation-file-formatting"]
+	path = tests/citation-file-formatting
+	url = https://github.com/asreview/citation-file-formatting.git

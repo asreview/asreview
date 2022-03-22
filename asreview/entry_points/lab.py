@@ -18,7 +18,6 @@ from asreview.entry_points.base import BaseEntryPoint
 from asreview.entry_points.base import _base_parser
 from asreview.webapp.run_model import main as main_run_model
 
-
 HOST_NAME = "localhost"
 PORT_NUMBER = 5000
 
@@ -92,17 +91,6 @@ class LABEntryPoint(BaseEntryPoint):
         from asreview.webapp.start_flask import main
 
         main(argv)
-
-
-# deprecated oracle class
-class OracleEntryPoint(LABEntryPoint):
-    description = "Graphical user interface for ASReview. (Deprecated)"
-
-    def execute(self, argv):
-
-        logging.warning("Warning: subcommmand 'oracle' is replaced by 'lab'.")
-
-        super(OracleEntryPoint, self).execute(argv)
 
 
 class WebRunModelEntryPoint(BaseEntryPoint):
