@@ -52,6 +52,8 @@ from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
 from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+
 
 
 ASCII_MSG_SIMULATE = """
@@ -107,57 +109,6 @@ def _get_dataset_path_from_args(args_dataset):
     return Path(args_dataset).with_suffix('.csv').name
 
 
-# def _is_partial_simulation(args):
-#     """Check for partial simulation.
-
-#     Check if there already is a project file with data of
-#     the simulation with given args.
-
-#     Arguments
-#     ----------
-#     args : output of argparse
-
-#     Returns
-#     -------
-#     bool
-#         Returns True if there is a project file at args.state_file, with
-#         the given dataset, and a review with the given settings, which is not
-#         marked as finished.
-#     """
-
-#     try:
-#         with open_state(args.state_file) as state:
-#             settings = state.settings
-#     except StateNotFoundError as err:
-#         print(err)
-#         return False
-
-#     print("state found")
-#     # Check if the datasets have the same name.
-#     try:
-#         print("same name")
-#         project_data_file_name = get_data_file_path(args.state_file).name
-#         print("same name", project_data_file_name)
-#     except Exception:
-#         return False
-#     args_data_file_name = _get_dataset_path_from_args(args.dataset)
-#     if project_data_file_name != args_data_file_name:
-#         return False
-
-#     print("data found")
-
-#     # Check if the feature matrix is available.
-#     feature_extraction_method = settings.feature_extraction
-#     try:
-#         feature_matrix_file = get_feature_matrix_path(args.state_file)
-#     except FileNotFoundError:
-#         return False
-#     if not feature_matrix_file.name.startswith(feature_extraction_method):
-#         return False
-
-#     return True
-
-
 def _set_log_verbosity(verbose):
     if verbose == 0:
         logging.getLogger().setLevel(logging.WARNING)
@@ -210,6 +161,10 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # for simulation CLI
         else:
+
+            # do this check now and again when zipping.
+            if Path(args.state_file).exists():
+                raise ProjectExistsError("Project already exists.")
 
             as_data = load_data(args.dataset)
 

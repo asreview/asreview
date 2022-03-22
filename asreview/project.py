@@ -610,6 +610,7 @@ class ASReviewProject():
         shutil.rmtree(export_fp_tmp)
         shutil.move(f'{export_fp_tmp}.zip', export_fp)
 
+
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
 
