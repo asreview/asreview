@@ -183,8 +183,9 @@ class SimulateEntryPoint(BaseEntryPoint):
             # Add the dataset to the project file.
             dataset_path = _get_dataset_path_from_args(args.dataset)
 
-            as_data.to_csv(Path(get_data_path(fp_tmp_simulation),
-                                dataset_path))
+            as_data.to_file(
+                Path(get_data_path(fp_tmp_simulation), dataset_path)
+            )
             # Update the project.json.
             project.update_config(dataset_path=dataset_path)
 
