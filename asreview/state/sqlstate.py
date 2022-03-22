@@ -115,30 +115,7 @@ class SQLiteState(BaseState):
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-    def _add_state_file_to_project(self,
-                                   review_id,
-                                   start_time=None,
-                                   review_finished=False):
-
-        if start_time is None:
-            start_time = datetime.now()
-
-        # Add the review to the project json.
-        with open(get_project_file_path(self.working_dir), "r") as f:
-            project_config = json.load(f)
-
-        review_config = {
-            "id": review_id,
-            "start_time": str(start_time),
-            "review_finished": review_finished
-        }
-
-        project_config["reviews"].append(review_config)
-
-        with open(get_project_file_path(self.working_dir), "w") as f:
-            json.dump(project_config, f)
-
-    def _create_new_state_file(self, working_dir, review_id):
+    def _create_new_state_file(self, working_dir):
         """Create the files for a new state given an review_id.
 
         Stages:
@@ -150,14 +127,11 @@ class SQLiteState(BaseState):
         ---------
         working_dir: str, pathlib.Path
             Project file location.
-        review_id: str
-            Identifier (UUID4) of the review.
         """
         if self.read_only:
             raise ValueError("Can't create new state file in read_only mode.")
 
         self.working_dir = Path(working_dir)
-        self.review_id = review_id
 
         # create folder in the folder `results` with the name of result_id
         self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
@@ -221,9 +195,6 @@ class SQLiteState(BaseState):
 
         with open(self._settings_metadata_fp, "w") as f:
             json.dump(self.settings_metadata, f)
-
-        # after succesfull init, add review_id to the project file
-        self._add_state_file_to_project(review_id)
 
     def _restore(self, working_dir, review_id):
         """

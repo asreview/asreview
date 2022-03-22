@@ -7,7 +7,6 @@ from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _simulate_parser
 from asreview.project import open_state, ASReviewProject, ProjectExistsError
-from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
 
 ADVANCED_DEPS = {"tensorflow": False}

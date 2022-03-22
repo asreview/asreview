@@ -45,7 +45,6 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrix_path
-from asreview.state.paths import get_project_file_path
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
