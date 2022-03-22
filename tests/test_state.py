@@ -71,17 +71,14 @@ TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
 
 def test_init_project_folder(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    ASReviewProject.create(project_path)
+    project = ASReviewProject.create(project_path)
 
-    assert get_project_file_path(project_path).is_file()
+    assert Path(project_path, "project.json").is_file()
     assert get_data_path(project_path).is_dir()
     assert get_feature_matrices_path(project_path).is_dir()
     assert get_reviews_path(project_path).is_dir()
 
-    with open(get_project_file_path(project_path), 'r') as f:
-        project_config = json.load(f)
-
-    assert project_config['id'] == 'test'
+    assert project.config['id'] == 'test'
 
 
 @pytest.mark.xfail(raises=ProjectExistsError,

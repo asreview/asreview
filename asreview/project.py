@@ -36,7 +36,6 @@ from asreview.config import PROJECT_MODES
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_feature_matrices_path
 from asreview.state.sqlstate import SQLiteState
@@ -48,6 +47,7 @@ from asreview.state.utils import is_valid_project_folder
 
 from functools import wraps
 
+PATH_PROJECT_CONFIG = "project.json"
 PATH_FEATURE_MATRICES = 'feature_matrices'
 
 
@@ -285,7 +285,7 @@ class ASReviewProject():
             }
 
             # create a file with project info
-            with open(get_project_file_path(project_path), "w") as f:
+            with open(Path(project_path, PATH_PROJECT_CONFIG), "w") as f:
                 json.dump(project_config, f)
 
         except Exception as err:
@@ -305,7 +305,7 @@ class ASReviewProject():
             try:
 
                 # read the file with project info
-                with open(get_project_file_path(self.project_path), "r") as fp:
+                with open(Path(self.project_path, PATH_PROJECT_CONFIG), "r") as fp:
 
                     config = json.load(fp)
                     self._config = config
@@ -319,7 +319,7 @@ class ASReviewProject():
     @config.setter
     def config(self, config):
 
-        project_fp = get_project_file_path(self.project_path)
+        project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
 
         with open(project_fp, "w") as f:
             json.dump(config, f)
@@ -343,7 +343,7 @@ class ASReviewProject():
                 kwargs_copy["mode"]))
 
         # update project file
-        project_fp = get_project_file_path(self.project_path)
+        project_fp = Path(self.project_path, PATH_PROJECT_CONFIG)
 
         with open(project_fp, "r") as f:
             config = json.load(f)
@@ -389,7 +389,7 @@ class ASReviewProject():
                 project_path_new) & is_project(project_path_new):
             raise ValueError(f"Project '{project_path_new}' already exists.")
 
-        project_file_path_new = get_project_file_path(project_path_new)
+        project_file_path_new = Path(project_path_new, PATH_PROJECT_CONFIG)
 
         self.project_path.rename(project_path_new)
         self.project_path = project_path_new

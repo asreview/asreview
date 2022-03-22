@@ -25,7 +25,6 @@ import pandas as pd
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
-from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SQLiteState
 

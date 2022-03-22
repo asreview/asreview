@@ -53,10 +53,7 @@ def test_simulate_review_finished(tmpdir):
 
     project = ASReviewProject.load(project_fp, Path(tmpdir, 'test'))
 
-    with open(get_project_file_path(Path(tmpdir, 'test')), 'r') as f:
-        project_config = json.load(f)
-
-    assert project_config['reviews'][0]['review_finished']
+    assert project.config['reviews'][0]['review_finished']
 
 
 def test_prior_idx(tmpdir):
