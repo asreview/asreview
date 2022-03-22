@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 """Simulation entry point and utils."""
 
 import json
@@ -53,8 +51,6 @@ from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
-
-
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
@@ -173,7 +169,8 @@ class SimulateEntryPoint(BaseEntryPoint):
                                  " with at least one record.")
 
             # create a project file
-            fp_tmp_simulation = Path(args.state_file).with_suffix(".asreview.tmp")
+            fp_tmp_simulation = Path(
+                args.state_file).with_suffix(".asreview.tmp")
 
             # if not _is_partial_simulation(args):
 
@@ -182,18 +179,14 @@ class SimulateEntryPoint(BaseEntryPoint):
                 project_id=fp_tmp_simulation.name,
                 project_mode="simulate",
                 project_name=fp_tmp_simulation.name,
-                project_description="Simulation create via ASReview command line interface"
-            )
+                project_description=
+                "Simulation create via ASReview command line interface")
 
             # Add the dataset to the project file.
             dataset_path = _get_dataset_path_from_args(args.dataset)
 
-            as_data.to_csv(
-                Path(
-                    get_data_path(fp_tmp_simulation),
-                    dataset_path
-                )
-            )
+            as_data.to_csv(Path(get_data_path(fp_tmp_simulation),
+                                dataset_path))
             # Update the project.json.
             project.update_config(dataset_path=dataset_path)
 
@@ -238,10 +231,12 @@ class SimulateEntryPoint(BaseEntryPoint):
             if args.prior_idx is not None and args.prior_record_id is not None and \
                     len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
                 raise ValueError(
-                    "Not possible to provide both prior_idx and prior_record_id")
+                    "Not possible to provide both prior_idx and prior_record_id"
+                )
 
             prior_idx = args.prior_idx
-            if args.prior_record_id is not None and len(args.prior_record_id) > 0:
+            if args.prior_record_id is not None and len(
+                    args.prior_record_id) > 0:
                 prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
 
             print("The following records are prior knowledge:\n")
@@ -294,118 +289,110 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "dataset",
         type=str,
-        help="File path to the dataset or one of the benchmark datasets."
-    )
+        help="File path to the dataset or one of the benchmark datasets.")
     # Initial data (prior knowledge)
-    parser.add_argument(
-        "--n_prior_included",
-        default=DEFAULT_N_PRIOR_INCLUDED,
-        type=int,
-        help="Sample n prior included papers. "
-             "Only used when --prior_idx is not given. "
-             f"Default {DEFAULT_N_PRIOR_INCLUDED}")
+    parser.add_argument("--n_prior_included",
+                        default=DEFAULT_N_PRIOR_INCLUDED,
+                        type=int,
+                        help="Sample n prior included papers. "
+                        "Only used when --prior_idx is not given. "
+                        f"Default {DEFAULT_N_PRIOR_INCLUDED}")
 
-    parser.add_argument(
-        "--n_prior_excluded",
-        default=DEFAULT_N_PRIOR_EXCLUDED,
-        type=int,
-        help="Sample n prior excluded papers. "
-             "Only used when --prior_idx is not given. "
-             f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
+    parser.add_argument("--n_prior_excluded",
+                        default=DEFAULT_N_PRIOR_EXCLUDED,
+                        type=int,
+                        help="Sample n prior excluded papers. "
+                        "Only used when --prior_idx is not given. "
+                        f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
     parser.add_argument(
         "--prior_idx",
         default=[],
         nargs="*",
         type=int,
-        help="Prior indices by rownumber (0 is first rownumber)."
-    )
-    parser.add_argument(
-        "--prior_record_id",
-        default=[],
-        nargs="*",
-        type=int,
-        help="Prior indices by record_id."
-    )
+        help="Prior indices by rownumber (0 is first rownumber).")
+    parser.add_argument("--prior_record_id",
+                        default=[],
+                        nargs="*",
+                        type=int,
+                        help="Prior indices by record_id.")
     # logging and verbosity
     parser.add_argument(
-        "--state_file", "-s",
+        "--state_file",
+        "-s",
         default=None,
         type=str,
-        help="Location to ASReview project file of simulation."
-    )
+        help="Location to ASReview project file of simulation.")
+    parser.add_argument("-m",
+                        "--model",
+                        type=str,
+                        default=DEFAULT_MODEL,
+                        help=f"The prediction model for Active Learning. "
+                        f"Default: '{DEFAULT_MODEL}'.")
+    parser.add_argument("-q",
+                        "--query_strategy",
+                        type=str,
+                        default=DEFAULT_QUERY_STRATEGY,
+                        help=f"The query strategy for Active Learning. "
+                        f"Default: '{DEFAULT_QUERY_STRATEGY}'.")
     parser.add_argument(
-        "-m", "--model",
-        type=str,
-        default=DEFAULT_MODEL,
-        help=f"The prediction model for Active Learning. "
-             f"Default: '{DEFAULT_MODEL}'.")
-    parser.add_argument(
-        "-q", "--query_strategy",
-        type=str,
-        default=DEFAULT_QUERY_STRATEGY,
-        help=f"The query strategy for Active Learning. "
-             f"Default: '{DEFAULT_QUERY_STRATEGY}'.")
-    parser.add_argument(
-        "-b", "--balance_strategy",
+        "-b",
+        "--balance_strategy",
         type=str,
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
-             " imbalanced dataset with few inclusions and many exclusions. "
-             f"Default: '{DEFAULT_BALANCE_STRATEGY}'")
+        " imbalanced dataset with few inclusions and many exclusions. "
+        f"Default: '{DEFAULT_BALANCE_STRATEGY}'")
     parser.add_argument(
-        "-e", "--feature_extraction",
+        "-e",
+        "--feature_extraction",
         type=str,
         default=DEFAULT_FEATURE_EXTRACTION,
         help="Feature extraction method. Some combinations of feature"
-             " extraction method and prediction model are impossible/ill"
-             " advised."
-             f"Default: '{DEFAULT_FEATURE_EXTRACTION}'"
-    )
+        " extraction method and prediction model are impossible/ill"
+        " advised."
+        f"Default: '{DEFAULT_FEATURE_EXTRACTION}'")
     parser.add_argument(
         '--init_seed',
         default=None,
         type=int,
         help="Seed for setting the prior indices if the --prior_idx option is "
-             "not used. If the option --prior_idx is used with one or more "
-             "index, this option is ignored."
-    )
-    parser.add_argument(
-        "--n_instances",
-        default=DEFAULT_N_INSTANCES,
-        type=int,
-        help="Number of papers queried each query."
-             f"Default {DEFAULT_N_INSTANCES}.")
+        "not used. If the option --prior_idx is used with one or more "
+        "index, this option is ignored.")
+    parser.add_argument("--n_instances",
+                        default=DEFAULT_N_INSTANCES,
+                        type=int,
+                        help="Number of papers queried each query."
+                        f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_queries",
         type=type_n_queries,
         default=None,
-        help="The number of queries. Alternatively, entering 'min' will stop the "
-             "simulation when all relevant records have been found. By default, "
-             "the program stops after all records are reviewed or is interrupted "
-             "by the user."
-    )
+        help=
+        "The number of queries. Alternatively, entering 'min' will stop the "
+        "simulation when all relevant records have been found. By default, "
+        "the program stops after all records are reviewed or is interrupted "
+        "by the user.")
     parser.add_argument(
-        "-n", "--n_papers",
+        "-n",
+        "--n_papers",
         type=int,
         default=None,
         help="The number of papers to be reviewed. By default, "
-             "the program stops after all documents are reviewed or is "
-             "interrupted by the user."
-    )
+        "the program stops after all documents are reviewed or is "
+        "interrupted by the user.")
+    parser.add_argument("--verbose",
+                        "-v",
+                        default=0,
+                        type=int,
+                        help="Verbosity")
     parser.add_argument(
-        "--verbose", "-v",
-        default=0,
-        type=int,
-        help="Verbosity"
-    )
-    parser.add_argument(
-        "--write_interval", "-w",
+        "--write_interval",
+        "-w",
         default=None,
         type=int,
         help="The simulation data will be written away after each set of this"
-             "many labeled records. By default only writes away data at the end"
-             "of the simulation to make it as fast as possible."
-    )
+        "many labeled records. By default only writes away data at the end"
+        "of the simulation to make it as fast as possible.")
 
     return parser

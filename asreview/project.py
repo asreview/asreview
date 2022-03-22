@@ -46,9 +46,7 @@ from asreview.utils import asreview_path
 from asreview.state.utils import is_zipped_project_file
 from asreview.state.utils import is_valid_project_folder
 
-
 from functools import wraps
-
 
 PATH_FEATURE_MATRICES = 'feature_matrices'
 
@@ -64,9 +62,11 @@ class ProjectExistsError(Exception):
 class ProjectNotFoundError(Exception):
     pass
 
+
 # def project_from_id(project_id, *args, **kwargs):
 
 #     return ASReviewProject(project_id, *args, **kwargs)
+
 
 def get_project_path(project_id, asreview_dir=None):
     """Get the project directory.
@@ -84,6 +84,7 @@ def get_project_path(project_id, asreview_dir=None):
 
 
 def project_from_id(f):
+
     @wraps(f)
     def decorated_function(project_id, *args, **kwargs):
 
@@ -115,15 +116,13 @@ def _create_project_id(name):
     if isinstance(name, str) \
             and len(name) > 0 \
             and not name[0].isalnum():
-        raise ValueError(
-            "First character should be alphabet"
-            " letter (a-z) or number (0-9).")
+        raise ValueError("First character should be alphabet"
+                         " letter (a-z) or number (0-9).")
 
     if not name \
             and not isinstance(name, str) \
             and len(name) >= 3:
-        raise ValueError(
-            "Project name should be at least 3 characters.")
+        raise ValueError("Project name should be at least 3 characters.")
 
     project_id = ""
     for c in name.lower():
@@ -168,10 +167,12 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
     """
 
     # Unzip the ASReview data if needed.
-    if zipfile.is_zipfile(asreview_file_or_dir) and Path(asreview_file_or_dir).suffix == ".asreview":
+    if zipfile.is_zipfile(asreview_file_or_dir) and Path(
+            asreview_file_or_dir).suffix == ".asreview":
 
         if not read_only:
-            raise ValueError("ASReview files do not support not read only files.")
+            raise ValueError(
+                "ASReview files do not support not read only files.")
 
         # work from a temp dir
         tmpdir = tempfile.TemporaryDirectory()
@@ -197,11 +198,10 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
     #     print(get_reviews_path(project.project_path))
     #     review_id = next(get_reviews_path(project.project_path).iterdir()).name
 
-
-        # if reviews:
-        #     review_id = reviews[0].name
-        # else:
-        #     review_id = uuid4().hex
+    # if reviews:
+    #     review_id = reviews[0].name
+    # else:
+    #     review_id = uuid4().hex
 
     # init state class
     state = SQLiteState(read_only=read_only)
@@ -267,7 +267,8 @@ class ASReviewProject():
             get_reviews_path(project_path).mkdir(exist_ok=True)
 
             project_config = {
-                'version': get_versions()['version'],  # todo: Fail without git?
+                'version':
+                get_versions()['version'],  # todo: Fail without git?
                 'id': project_id,
                 'mode': project_mode,
                 'name': project_name,
@@ -333,12 +334,13 @@ class ASReviewProject():
         if "name" in kwargs_copy:
             del kwargs_copy["name"]
             logging.info(
-                "Update project name is ignored, use 'rename_project' function.")
+                "Update project name is ignored, use 'rename_project' function."
+            )
 
         # validate schema
         if "mode" in kwargs_copy and kwargs_copy["mode"] not in PROJECT_MODES:
-            raise ValueError(
-                "Project mode '{}' not found.".format(kwargs_copy["mode"]))
+            raise ValueError("Project mode '{}' not found.".format(
+                kwargs_copy["mode"]))
 
         # update project file
         project_fp = get_project_file_path(self.project_path)
@@ -353,7 +355,6 @@ class ASReviewProject():
 
         self._config = config
         return config
-
 
     def rename(self, project_name_new):
         """Rename a project id.
@@ -384,7 +385,8 @@ class ASReviewProject():
             # nothing to do
             return self
 
-        if (self.project_path != project_path_new) & is_project(project_path_new):
+        if (self.project_path !=
+                project_path_new) & is_project(project_path_new):
             raise ValueError(f"Project '{project_path_new}' already exists.")
 
         project_file_path_new = get_project_file_path(project_path_new)
@@ -403,7 +405,6 @@ class ASReviewProject():
         self._config = config
 
         return self
-
 
     def add_dataset(self, file_name):
         """Add file path to the project file.
@@ -425,15 +426,15 @@ class ASReviewProject():
 
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
-                labeled_record_ids = as_data.record_ids[labeled_indices].tolist()
+                labeled_record_ids = as_data.record_ids[
+                    labeled_indices].tolist()
 
                 # add the labels as prior data
                 state.add_labeling_data(
                     record_ids=labeled_record_ids,
                     labels=labels,
                     notes=[None for _ in labeled_record_ids],
-                    prior=True
-                )
+                    prior=True)
 
     def remove_dataset(self):
         """Remove dataset from project.
@@ -531,8 +532,8 @@ class ASReviewProject():
         if review_id is None:
             review_index = 0
         else:
-            review_index = [x['id']
-                            for x in project_config['reviews']].index(review_id)
+            review_index = [x['id'] for x in project_config['reviews']
+                            ].index(review_id)
 
         review_config = config["reviews"][review_index]
         review_config.update(kwargs)
@@ -550,7 +551,8 @@ class ASReviewProject():
 
             # recreate folder structure if True
             if not remove_folders:
-                Path(self.project_path, PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
+                Path(self.project_path,
+                     PATH_FEATURE_MATRICES).mkdir(exist_ok=True)
         except Exception:
             print("Failed to remove feature matrices.")
 
@@ -570,7 +572,6 @@ class ASReviewProject():
             'feature_matrices': []
         })
 
-
     def mark_review_finished(self, review_id=None):
         """Mark a review in the project as finished.
 
@@ -582,9 +583,9 @@ class ASReviewProject():
             Identifier of the review to mark as finished.
         """
 
-        self.update_review(review_id=review_id, review_finished=True,
+        self.update_review(review_id=review_id,
+                           review_finished=True,
                            end_time=str(datetime.now()))
-
 
     def export(self, export_fp):
 
@@ -592,7 +593,8 @@ class ASReviewProject():
             raise ValueError("Export file should have .asreview extension.")
 
         if Path(export_fp) == Path(self.project_path):
-            raise ValueError("export_fp should not be identical to project path.")
+            raise ValueError(
+                "export_fp should not be identical to project path.")
 
         export_fp_tmp = Path(export_fp).with_suffix(".asreview.zip")
 
@@ -602,14 +604,11 @@ class ASReviewProject():
                         ignore=shutil.ignore_patterns('*.pickle'))
 
         # create the archive
-        shutil.make_archive(export_fp_tmp,
-                            "zip",
-                            root_dir=export_fp_tmp)
+        shutil.make_archive(export_fp_tmp, "zip", root_dir=export_fp_tmp)
 
         # remove the unzipped folder and move zip
         shutil.rmtree(export_fp_tmp)
         shutil.move(f'{export_fp_tmp}.zip', export_fp)
-
 
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
@@ -646,7 +645,8 @@ class ASReviewProject():
                     while is_project(import_project["id"]):
                         # project update
                         import_project["id"] = f"{import_project['id']}-copy"
-                        import_project["name"] = f"{import_project['name']} copy"
+                        import_project[
+                            "name"] = f"{import_project['name']} copy"
                     else:
                         # write to file
                         f.seek(0)

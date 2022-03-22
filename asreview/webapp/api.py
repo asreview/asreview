@@ -75,7 +75,6 @@ from asreview.project import get_project_path
 from asreview.project import list_asreview_projects
 from asreview.project import is_v0_project
 
-
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})
 
@@ -124,7 +123,8 @@ def api_get_projects():  # noqa: F401
                 project_config["created_at_unix"] = None
 
             # check if project is old
-            project_config["projectNeedsUpgrade"] = is_old_project(project.project_path)
+            project_config["projectNeedsUpgrade"] = is_old_project(
+                project.project_path)
 
             logging.info("Project found: {}".format(project_config["id"]))
             project_info.append(project_config)
@@ -208,14 +208,12 @@ def api_init_project():  # noqa: F401
 
     project_id = _create_project_id(project_name)
 
-    project = ASReviewProject.create(
-        get_project_path(project_id),
-        project_id=project_id,
-        project_mode=project_mode,
-        project_name=project_name,
-        project_description=project_description,
-        project_authors=project_authors
-    )
+    project = ASReviewProject.create(get_project_path(project_id),
+                                     project_id=project_id,
+                                     project_mode=project_mode,
+                                     project_name=project_name,
+                                     project_description=project_description,
+                                     project_authors=project_authors)
 
     response = jsonify(project.config)
 
@@ -270,7 +268,8 @@ def api_get_project_info(project):  # noqa: F401
                     project_config["projectInitReady"] = False
 
         # check if project is old
-        project_config["projectNeedsUpgrade"] = is_old_project(project.project_path)
+        project_config["projectNeedsUpgrade"] = is_old_project(
+            project.project_path)
 
     except Exception as err:
         logging.error(err)
@@ -289,10 +288,9 @@ def api_update_project_info(project):  # noqa: F401
         project.rename(request.form['name'])
 
     # update the project info
-    project.update_config(
-        mode=request.form['mode'],
-        description=request.form['description'],
-        authors=request.form['authors'])
+    project.update_config(mode=request.form['mode'],
+                          description=request.form['description'],
+                          authors=request.form['authors'])
 
     return api_get_project_info(project.project_id)
 
@@ -515,7 +513,8 @@ def api_search_data(project):  # noqa: F401
 
             # read record_ids of labels from state
             with open_state(project.project_path) as s:
-                labeled_record_ids = s.get_dataset(["record_id"])["record_id"].to_list()
+                labeled_record_ids = s.get_dataset(["record_id"
+                                                    ])["record_id"].to_list()
 
             # search for the keywords
             result_idx = fuzzy_find(as_data,
@@ -527,7 +526,8 @@ def api_search_data(project):  # noqa: F401
             for record in as_data.record(result_idx, by_index=True):
 
                 debug_label = record.extra_fields.get("debug_label", None)
-                debug_label = int(debug_label) if pd.notnull(debug_label) else None
+                debug_label = int(debug_label) if pd.notnull(
+                    debug_label) else None
 
                 if project_mode == PROJECT_MODE_SIMULATE:
                     # ignore existing labels
@@ -572,7 +572,8 @@ def api_get_labeled(project):  # noqa: F401
     try:
 
         with open_state(project.project_path) as s:
-            data = s.get_dataset(["record_id", "label", "query_strategy", "notes"])
+            data = s.get_dataset(
+                ["record_id", "label", "query_strategy", "notes"])
             data["prior"] = (data["query_strategy"] == "prior").astype(int)
 
         if any(s in subset for s in ["relevant", "included"]):
@@ -625,7 +626,8 @@ def api_get_labeled(project):  # noqa: F401
             next_page = None
             previous_page = None
 
-        records = read_data(project.project_path).record(data["record_id"], by_index=False)
+        records = read_data(project.project_path).record(data["record_id"],
+                                                         by_index=False)
 
         payload = {
             "count": count,
@@ -713,7 +715,8 @@ def api_random_prior_papers(project):  # noqa: F401
         raise ValueError("Not enough random indices to sample from.")
 
     try:
-        record = read_data(project.project_path).record(pool_random, by_index=False)
+        record = read_data(project.project_path).record(pool_random,
+                                                        by_index=False)
 
         debug_label = record.extra_fields.get("debug_label", None)
         debug_label = int(debug_label) if pd.notnull(debug_label) else None
@@ -855,7 +858,8 @@ def api_start(project):  # noqa: F401
         try:
             review_id = uuid.uuid4().hex
             datafile = get_data_file_path(project.project_path)
-            state_file = get_simulation_ready_path(project.project_path, review_id)
+            state_file = get_simulation_ready_path(project.project_path,
+                                                   review_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
@@ -867,13 +871,15 @@ def api_start(project):  # noqa: F401
                 # get executable
                 py_exe,
                 # get module
-                "-m", "asreview",
+                "-m",
+                "asreview",
                 # run simulation via cli
                 "simulate",
                 # specify dataset
                 "",
                 # specify prior indices
-                "--prior_idx"] + list(map(str, priors)) + [
+                "--prior_idx"
+            ] + list(map(str, priors)) + [
                 # specify state file
                 "--state_file",
                 project_path
@@ -896,7 +902,8 @@ def api_start(project):  # noqa: F401
                 # get executable
                 py_exe,
                 # get module
-                "-m", "asreview",
+                "-m",
+                "asreview",
                 # train the model via cli
                 "web_run_model",
                 # specify project id
@@ -928,7 +935,8 @@ def api_init_model_ready(project):  # noqa: F401
 
         simulation_id = project_config["reviews"][0]["id"]
 
-        if get_simulation_ready_path(project.project_path, simulation_id).exists():
+        if get_simulation_ready_path(project.project_path,
+                                     simulation_id).exists():
             logging.info("simulation ready")
             project.update_review(simulation_id, status="ready")
 
@@ -974,13 +982,8 @@ def api_import_project():
     # set the project file
     project_file = request.files['file']
 
-
-
     # # import the project
     # project_info = import_project(project_file)
-
-
-
 
     try:
         # Open the project file and check the id. The id needs to be
@@ -1049,7 +1052,9 @@ def export_results(project):
     try:
         # CSV
         if file_type == "csv":
-            dataset_str = as_data.to_csv(fp=None, labels=labeled, ranking=ranking)
+            dataset_str = as_data.to_csv(fp=None,
+                                         labels=labeled,
+                                         ranking=ranking)
 
             return Response(
                 dataset_str,
@@ -1060,8 +1065,10 @@ def export_results(project):
                 })
         # TSV
         elif file_type == "tsv":
-            dataset_str = as_data.to_csv(
-                fp=None, sep="\t", labels=labeled, ranking=ranking)
+            dataset_str = as_data.to_csv(fp=None,
+                                         sep="\t",
+                                         labels=labeled,
+                                         ranking=ranking)
 
             return Response(
                 dataset_str,
@@ -1075,13 +1082,15 @@ def export_results(project):
         elif file_type == "xlsx" or file_type == "excel":
 
             get_tmp_path(project.project_path).mkdir(exist_ok=True)
-            fp_tmp_export = Path(get_tmp_path(project.project_path), "export_result.xlsx")
-            dataset_str = as_data.to_excel(
-                fp=fp_tmp_export, labels=labeled, ranking=ranking)
+            fp_tmp_export = Path(get_tmp_path(project.project_path),
+                                 "export_result.xlsx")
+            dataset_str = as_data.to_excel(fp=fp_tmp_export,
+                                           labels=labeled,
+                                           ranking=ranking)
 
             return send_file(
                 fp_tmp_export,
-                mimetype=   # noqa
+                mimetype=  # noqa
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
                 as_attachment=True,
                 download_name=f"asreview_result_{project.project_id}.xlsx",
@@ -1092,9 +1101,12 @@ def export_results(project):
                     ".ris", ".RIS", ".txt", ".TXT"
             ]:
                 raise ValueError(
-                    "RIS file can be exported only when RIS file was imported.")
+                    "RIS file can be exported only when RIS file was imported."
+                )
 
-            dataset_str = as_data.to_ris(fp=None, labels=labeled, ranking=ranking)
+            dataset_str = as_data.to_ris(fp=None,
+                                         labels=labeled,
+                                         ranking=ranking)
 
             return Response(
                 dataset_str,
@@ -1108,7 +1120,8 @@ def export_results(project):
             raise TypeError("File type should be: .ris/.csv/.tsv/.xlsx")
     except Exception as err:
         logging.error(err)
-        return jsonify(message=f"Failed to export the {file_type} dataset."), 500
+        return jsonify(
+            message=f"Failed to export the {file_type} dataset."), 500
 
 
 @bp.route('/projects/<project_id>/export_project', methods=["GET"])
@@ -1175,15 +1188,13 @@ def api_get_progress_info(project):  # noqa: F401
 
                 # Get the labels.
                 labels = np.array([
-                    int(sample_data[1])
-                    for query in range(len(s['results']))
+                    int(sample_data[1]) for query in range(len(s['results']))
                     for sample_data in s['results'][query]['labelled']
                 ])
 
                 # Get the record table.
                 data_hash = list(s['data_properties'].keys())[0]
-                record_table = s['data_properties'][data_hash][
-                    'record_table']
+                record_table = s['data_properties'][data_hash]['record_table']
 
                 n_records = len(record_table)
 
@@ -1370,7 +1381,8 @@ def api_classify_instance(project, doc_id):  # noqa: F401
                                         prior=prior)
 
             elif label == -1:
-                with open_state(project.project_path, read_only=False) as state:
+                with open_state(project.project_path,
+                                read_only=False) as state:
                     state.delete_record_labeling_data(record_id)
 
     elif request.method == 'PUT':
@@ -1382,10 +1394,7 @@ def api_classify_instance(project, doc_id):  # noqa: F401
 
         # retrain model
         subprocess.Popen([
-            _get_executable(),
-            "-m",
-            "asreview",
-            "web_run_model",
+            _get_executable(), "-m", "asreview", "web_run_model",
             project.project_path
         ])
 
