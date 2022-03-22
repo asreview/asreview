@@ -58,9 +58,7 @@ from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_lock_path
 from asreview.state.paths import get_simulation_ready_path
-from asreview.state.paths import get_tmp_path
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.project import open_state

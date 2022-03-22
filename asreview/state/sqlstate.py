@@ -100,7 +100,14 @@ class SQLiteState(BaseState):
     @property
     def _sql_fp(self):
         """Path to the sql database."""
-        return get_sql_path(self.working_dir, self.review_id)
+
+        if self.review_id is None:
+
+            with open(get_project_file_path(self.working_dir), 'r') as f:
+                project_config = json.load(f)
+            review_id = project_config['reviews'][0]['id']
+
+        return Path(self.working_dir, 'reviews', review_id, 'results.sql')
 
     @property
     def _settings_metadata_fp(self):

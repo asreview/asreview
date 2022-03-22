@@ -28,18 +28,6 @@ def get_project_file_path(project_path):
     return Path(project_path, "project.json")
 
 
-def get_tmp_path(project_path):
-    """Get the tmp directory in the project.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-
-    return Path(project_path, "tmp")
-
-
 def get_data_path(project_path):
     """Get the path to the data folder.
 
@@ -69,17 +57,6 @@ def get_data_file_path(project_path):
     return data_folder / data_filename
 
 
-def get_lock_path(project_path):
-    """Get the active file for the project.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    """
-    return Path(project_path, "lock.sqlite")
-
-
 def get_reviews_path(project_path):
     """Get the reviews folder from the project.
 
@@ -100,25 +77,6 @@ def get_feature_matrices_path(project_path):
         The path to the project.
     """
     return Path(project_path, 'feature_matrices')
-
-
-def get_sql_path(project_path, review_id=None):
-    """Get the results sql file from the project.
-
-    Arguments
-    ---------
-    project_path: str
-        The path to the project.
-    review_id: str
-        Identifier for the review from which to get the results sql file.
-        If none is given, pick the first id available.
-    """
-    if review_id is None:
-        with open(get_project_file_path(project_path), 'r') as f:
-            project_config = json.load(f)
-        review_id = project_config['reviews'][0]['id']
-
-    return Path(get_reviews_path(project_path), review_id, 'results.sql')
 
 
 def get_settings_metadata_path(project_path, review_id=None):
