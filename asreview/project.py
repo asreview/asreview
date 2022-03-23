@@ -498,7 +498,8 @@ class ASReviewProject():
             "id": review_id,
             "start_time": str(start_time),
             "review_finished": review_finished
-            # "status": "stopped"  # on of the following: ["setup", "running", "stopped"]
+            # one of the following: ["setup", "running", "stopped"]
+            # "status": "stopped"
             # "end_time": datetime.now()
         }
 
@@ -532,7 +533,7 @@ class ASReviewProject():
         if review_id is None:
             review_index = 0
         else:
-            review_index = [x['id'] for x in project_config['reviews']
+            review_index = [x['id'] for x in project.config['reviews']
                             ].index(review_id)
 
         review_config = config["reviews"][review_index]

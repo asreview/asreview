@@ -61,4 +61,3 @@ def is_valid_project_folder(fp):
             f"'reviews' or 'feature_matrices' folder is missing.")
     else:
         return
-

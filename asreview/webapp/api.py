@@ -908,20 +908,20 @@ def api_start(project):  # noqa: F401
     if project.config["mode"] == PROJECT_MODE_SIMULATE:
 
         # get priors
-        with open_state(project_path) as s:
+        with open_state(project.project_path) as s:
             priors = s.get_priors().tolist()
 
         logging.info("Start simulation")
 
         try:
-            review_id = uuid.uuid4().hex
+            # review_id = uuid.uuid4().hex
             datafile = get_data_file_path(project.project_path)
-            state_file = get_simulation_ready_path(project.project_path,
-                                                   review_id)
+            # state_file = get_simulation_ready_path(project.project_path,
+            #                                        review_id)
 
             logging.info("Project data file found: {}".format(datafile))
 
-            project.add_review(review_id)
+            # project.add_review(review_id)
 
             # start simulation
             py_exe = _get_executable()
@@ -940,7 +940,7 @@ def api_start(project):  # noqa: F401
             ] + list(map(str, priors)) + [
                 # specify state file
                 "--state_file",
-                project_path,
+                project.project_path,
                 # specify write interval
                 "--write_interval", "100"
             ]
@@ -994,9 +994,9 @@ def api_init_model_ready(project):  # noqa: F401
         logging.info("Checking if simulation starts")
 
         try:
-            with open_state(project_path) as state:
+            with open_state(project.project_path) as state:
                 if state.model_has_trained:
-                    update_project_info(project_id, projectInitReady=True)
+                    project.update_config(projectInitReady=True)
 
                 # if get_simulation_ready_path(project.project_path,
                 #                              simulation_id).exists():
@@ -1036,10 +1036,11 @@ def api_init_model_ready(project):  # noqa: F401
 
 
 @bp.route('/projects/<project_id>/simulation_finished', methods=["GET"])
-def api_simulation_finished(project_id):  # noqa: F401
+@project_from_id
+def api_simulation_finished(project):  # noqa: F401
     """Check if simulation has finished.
     """
-    project_config = get_project_config(project_id)
+    project_config = project.config
 
     try:
         if project_config["reviewFinished"]:
@@ -1464,7 +1465,7 @@ def api_get_document(project):  # noqa: F401
             pool_empty = False
         else:
             # end of pool
-            project.update_config(project_path, reviewFinished=True)
+            project.update_config(reviewFinished=True)
             item = None
             pool_empty = True
 
