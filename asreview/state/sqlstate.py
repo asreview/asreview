@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
-from scipy.sparse.csr import csr_matrix
+from scipy.sparse import csr_matrix
 
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
