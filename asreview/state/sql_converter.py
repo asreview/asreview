@@ -41,6 +41,27 @@ def is_old_project(fp):
         return True
 
 
+def get_old_project_status(fp):
+
+    with open(fp, 'r') as f:
+        project_config = json.load(f)
+
+    if project_config.get('reviewFinished', False):
+        return "finished"
+
+    if "projectInitReady" not in project_config:
+        if "projectHasPriorKnowledge" in project_config:
+            if project_config["projectHasPriorKnowledge"]:
+                return "review"
+            else:
+                return "setup"
+
+    if not project_config["projectInitReady"]:
+        return "setup"
+
+    return "review"
+
+
 def decode_feature_matrix(jsonstate, data_hash):
     """Get the feature matrix from a json state as a scipy csr_matrix."""
     my_data = jsonstate._state_dict["data_properties"][data_hash]
@@ -182,12 +203,9 @@ def convert_project_json(project_fp, review_id, start_time, feature_matrix_fp,
 
     # Add the review information.
     project_info['reviews'] = [{
-        'id':
-        review_id,
-        'start_time':
-        start_time,
-        'review_finished':
-        project_info.get('reviewFinished', False)
+        'id': review_id,
+        'start_time': start_time,
+        'status': get_old_project_status()
     }]
 
     # Add the project mode.

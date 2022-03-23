@@ -70,6 +70,7 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_simulation_ready_path
+from asreview.state.sql_converter import get_old_project_status
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.utils import _get_executable
@@ -250,32 +251,15 @@ def api_get_project_info(project):  # noqa: F401
 
     project_config = project.config
 
-    try:
+    # extend for old projects
+    if is_old_project(project.project_path):
 
-        # check if there is a dataset
-        try:
-            get_data_file_path(project.project_path)
-            project_config["projectHasDataset"] = True
-        except Exception:
-            project_config["projectHasDataset"] = False
+        # v0 projects need upgrade
+        project_config["projectNeedsUpgrade"] = True
 
-        # backwards support <0.10
-        if "projectInitReady" not in project_config:
-            if "projectHasPriorKnowledge" not in project_config:
-                pass
-            else:
-                if project_config["projectHasPriorKnowledge"]:
-                    project_config["projectInitReady"] = True
-                else:
-                    project_config["projectInitReady"] = False
-
-        # check if project is old
-        project_config["projectNeedsUpgrade"] = is_old_project(
-            project.project_path)
-
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to retrieve project information."), 500
+        # status is required for project overview
+        project_config["status"] = \
+            get_old_project_status(project.project_path)
 
     return jsonify(project_config)
 
