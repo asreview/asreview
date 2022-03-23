@@ -128,13 +128,15 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                as_data = read_data(Path(args.state_file).stem)
+                as_data = read_data(args.state_file)
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
             query_model = get_query_model(settings.query_strategy)
             balance_model = get_balance_model(settings.balance_strategy)
             feature_model = get_feature_model(settings.feature_extraction)
+
+            fp_tmp_simulation = args.state_file
 
         # for simulation CLI
         else:
@@ -246,12 +248,15 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         print("finished simlation")
 
-        # Mark review as finished.
-        project = ASReviewProject(fp_tmp_simulation)
-        project.mark_review_finished()
-        project.export(args.state_file)
+        # for cli simulate
+        if args.dataset != "":
 
-        shutil.rmtree(fp_tmp_simulation)
+            # Mark review as finished.
+            project = ASReviewProject(fp_tmp_simulation)
+            project.mark_review_finished()
+            project.export(args.state_file)
+
+            shutil.rmtree(fp_tmp_simulation)
 
 
 DESCRIPTION_SIMULATE = """
