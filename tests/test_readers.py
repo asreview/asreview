@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import numpy as np
-from pytest import mark
 import rispy
+from pytest import mark
 
 from asreview import ASReviewData
 

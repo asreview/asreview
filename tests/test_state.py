@@ -8,11 +8,11 @@ import pytest
 from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
-from asreview.settings import ASReviewSettings
-from asreview.state import SQLiteState
-from asreview.project import open_state
 from asreview.project import ASReviewProject
 from asreview.project import ProjectExistsError
+from asreview.project import open_state
+from asreview.settings import ASReviewSettings
+from asreview.state import SQLiteState
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path

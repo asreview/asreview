@@ -38,9 +38,11 @@ from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.project import open_state
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
@@ -48,8 +50,6 @@ from asreview.state.paths import get_feature_matrix_path
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
 from asreview.webapp.io import read_data
-from asreview.project import ASReviewProject
-from asreview.project import ProjectExistsError
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------

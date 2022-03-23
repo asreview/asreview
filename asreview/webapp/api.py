@@ -25,15 +25,15 @@ from collections import Counter
 from pathlib import Path
 from urllib.request import urlretrieve
 
-from flask import abort
+import numpy as np
+import pandas as pd
 from flask import Blueprint
 from flask import Response
+from flask import abort
 from flask import jsonify
 from flask import request
 from flask import send_file
 from flask_cors import CORS
-import numpy as np
-import pandas as pd
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import secure_filename
 
@@ -45,6 +45,7 @@ from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
 from asreview.datasets import DatasetManager
+from asreview.datasets import get_dataset_metadata
 from asreview.exceptions import BadFileFormatError
 from asreview.io import list_readers
 from asreview.io import list_writers
@@ -52,6 +53,15 @@ from asreview.models.balance import list_balance_strategies
 from asreview.models.classifiers import list_classifiers
 from asreview.models.feature_extraction import list_feature_extraction
 from asreview.models.query import list_query_strategies
+from asreview.project import ASReviewProject
+from asreview.project import ProjectNotFoundError
+from asreview.project import _create_project_id
+from asreview.project import get_project_path
+from asreview.project import is_project
+from asreview.project import is_v0_project
+from asreview.project import list_asreview_projects
+from asreview.project import open_state
+from asreview.project import project_from_id
 from asreview.search import SearchError
 from asreview.search import fuzzy_find
 from asreview.settings import ASReviewSettings
@@ -62,20 +72,10 @@ from asreview.state.paths import get_data_path
 from asreview.state.paths import get_simulation_ready_path
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
-from asreview.project import open_state
-from asreview.datasets import get_dataset_metadata
-from asreview.webapp.sqlock import SQLiteLock
-from asreview.project import is_project
-from asreview.webapp.io import read_data
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
-from asreview.project import _create_project_id
-from asreview.project import ASReviewProject
-from asreview.project import project_from_id
-from asreview.project import ProjectNotFoundError
-from asreview.project import get_project_path
-from asreview.project import list_asreview_projects
-from asreview.project import is_v0_project
+from asreview.webapp.io import read_data
+from asreview.webapp.sqlock import SQLiteLock
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 CORS(bp, resources={r"*": {"origins": "*"}})

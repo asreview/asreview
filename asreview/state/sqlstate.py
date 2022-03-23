@@ -19,9 +19,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
-from scipy.sparse import csr_matrix
 
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
@@ -31,7 +31,6 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
-
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained

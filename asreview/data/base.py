@@ -21,8 +21,8 @@ import pandas as pd
 
 from asreview.config import COLUMN_DEFINITIONS
 from asreview.config import LABEL_NA
-from asreview.datasets import DataSetNotFoundError
 from asreview.datasets import DatasetManager
+from asreview.datasets import DataSetNotFoundError
 from asreview.exceptions import BadFileFormatError
 from asreview.io import CSVWriter
 from asreview.io import ExcelWriter

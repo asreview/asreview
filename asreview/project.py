@@ -24,6 +24,7 @@ import time
 import zipfile
 from contextlib import contextmanager
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 from uuid import uuid4
 
@@ -36,16 +37,14 @@ from asreview.config import PROJECT_MODES
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
-from asreview.state.paths import get_reviews_path
 from asreview.state.paths import get_feature_matrices_path
+from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import SQLiteState
-from asreview.webapp.sqlock import SQLiteLock
-from asreview.webapp.io import read_data
-from asreview.utils import asreview_path
-from asreview.state.utils import is_zipped_project_file
 from asreview.state.utils import is_valid_project_folder
-
-from functools import wraps
+from asreview.state.utils import is_zipped_project_file
+from asreview.utils import asreview_path
+from asreview.webapp.io import read_data
+from asreview.webapp.sqlock import SQLiteLock
 
 PATH_PROJECT_CONFIG = "project.json"
 PATH_FEATURE_MATRICES = 'feature_matrices'
@@ -389,8 +388,6 @@ class ASReviewProject():
                 project_path_new) & is_project(project_path_new):
             raise ValueError(f"Project '{project_path_new}' already exists.")
 
-        project_file_path_new = Path(project_path_new, PATH_PROJECT_CONFIG)
-
         self.project_path.rename(project_path_new)
         self.project_path = project_path_new
         self.project_id = project_id_new
@@ -533,7 +530,7 @@ class ASReviewProject():
         if review_id is None:
             review_index = 0
         else:
-            review_index = [x['id'] for x in project.config['reviews']
+            review_index = [x['id'] for x in self.config['reviews']
                             ].index(review_id)
 
         review_config = config["reviews"][review_index]

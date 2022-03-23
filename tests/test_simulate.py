@@ -6,7 +6,9 @@ import pytest
 from asreview.entry_points.simulate import SimulateEntryPoint
 from asreview.entry_points.simulate import _get_dataset_path_from_args
 from asreview.entry_points.simulate import _simulate_parser
-from asreview.project import open_state, ASReviewProject, ProjectExistsError
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
 from asreview.state.paths import get_settings_metadata_path
 
 ADVANCED_DEPS = {"tensorflow": False}
@@ -84,7 +86,6 @@ def test_n_prior_included(tmpdir):
     prior_included = \
         result['label'] & (result['query_strategy'] == 'prior')
     assert sum(prior_included) == 2
-
 
     Path(tmpdir, 'test').mkdir(parents=True)
     project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
@@ -266,12 +267,12 @@ def test_is_partial_simulation(tmpdir):
     parser = _simulate_parser()
     args = parser.parse_args(argv)
 
-    assert not _is_partial_simulation(args)
+    assert not _is_partial_simulation(args)  # noqa
 
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    assert _is_partial_simulation(args)
+    assert _is_partial_simulation(args)  # noqa
 
 
 def test_get_dataset_path_from_args():
