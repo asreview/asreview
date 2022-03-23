@@ -8,14 +8,14 @@ import pytest
 from scipy.sparse.csr import csr_matrix
 
 from asreview import ASReviewData
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
 from asreview.settings import ASReviewSettings
-from asreview.state import SqlStateV1
-from asreview.state import init_project_folder_structure
-from asreview.state import open_state
+from asreview.state import SQLiteState
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrices_path
-from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_reviews_path
 from asreview.state.sqlstate import RESULTS_TABLE_COLUMNS
 
@@ -70,25 +70,22 @@ TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
 
 def test_init_project_folder(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    project = ASReviewProject.create(project_path)
 
-    assert get_project_file_path(project_path).is_file()
+    assert Path(project_path, "project.json").is_file()
     assert get_data_path(project_path).is_dir()
     assert get_feature_matrices_path(project_path).is_dir()
     assert get_reviews_path(project_path).is_dir()
 
-    with open(get_project_file_path(project_path), 'r') as f:
-        project_config = json.load(f)
-
-    assert project_config['id'] == 'test'
+    assert project.config['id'] == 'test'
 
 
-@pytest.mark.xfail(raises=IsADirectoryError,
-                   reason="Project folder {project_path} already exists.")
+@pytest.mark.xfail(raises=ProjectExistsError,
+                   reason="Project {project_path} already exists.")
 def test_init_project_already_exists(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
+    ASReviewProject.create(project_path)
 
 
 @pytest.mark.xfail(raises=StateNotFoundError,
@@ -102,14 +99,14 @@ def test_invalid_project_folder():
                    reason="State file does not exist")
 def test_state_not_found(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path) as state:  # noqa
         pass
 
 
 def test_read_basic_state():
     with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state, SqlStateV1)
+        assert isinstance(state, SQLiteState)
 
 
 def test_version_number_state():
@@ -152,7 +149,7 @@ def test_n_priors():
 
 def test_create_new_state_file(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state._is_valid_state()
 
@@ -258,7 +255,7 @@ def test_get_labeling_times():
 
 def test_create_empty_state(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         assert state.is_empty()
 
@@ -282,7 +279,7 @@ def test_record_table(tmpdir):
     as_data = ASReviewData.from_file(data_fp)
 
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
 
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(as_data.record_ids)
@@ -309,7 +306,7 @@ def test_add_last_probabilities_fail():
 
 def test_add_last_probabilities(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     probabilities = [float(num) for num in range(50)]
     with open_state(project_path, read_only=False) as state:
         state.add_last_probabilities(probabilities)
@@ -319,7 +316,7 @@ def test_add_last_probabilities(tmpdir):
 
 def test_move_ranking_data_to_results(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(range(1, len(TEST_RECORD_TABLE) + 1), 'nb',
@@ -335,7 +332,7 @@ def test_move_ranking_data_to_results(tmpdir):
 def test_query_top_ranked(tmpdir):
     test_ranking = [2, 1, 0] + list(range(3, len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(test_ranking, 'nb',
@@ -355,7 +352,7 @@ def test_query_top_ranked(tmpdir):
 def test_add_labeling_data(tmpdir):
     test_ranking = list(range(len(TEST_RECORD_TABLE)))
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_last_ranking(test_ranking, 'nb', 'max', 'double', 'tfidf', 4)
@@ -400,7 +397,7 @@ def test_pool_labeled_pending(tmpdir):
     record_table = range(1, 11)
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_table)
         state.add_last_ranking(test_ranking, 'nb',
@@ -445,7 +442,7 @@ def test_exist_new_labeled_records(tmpdir):
     record_table = range(1, 11)
     test_ranking = range(10, 0, -1)
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(record_table)
 
@@ -464,7 +461,7 @@ def test_exist_new_labeled_records(tmpdir):
 
 def test_add_note(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3],
@@ -479,7 +476,7 @@ def test_add_note(tmpdir):
 
 def test_update_decision(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
     with open_state(project_path, read_only=False) as state:
         state.add_record_table(TEST_RECORD_TABLE)
         state.add_labeling_data(TEST_RECORD_IDS[:3], TEST_LABELS[:3],
@@ -520,7 +517,7 @@ def test_get_pool_labeled():
 
 def test_last_ranking(tmpdir):
     project_path = Path(tmpdir, 'test.asreview')
-    init_project_folder_structure(project_path)
+    ASReviewProject.create(project_path)
 
     record_ids = [1, 2, 3, 4, 5, 6]
     ranking = [1, 3, 4, 6, 2, 5]
