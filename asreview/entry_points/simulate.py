@@ -158,8 +158,9 @@ class SimulateEntryPoint(BaseEntryPoint):
                 project_id=fp_tmp_simulation.name,
                 project_mode="simulate",
                 project_name=fp_tmp_simulation.name,
-                project_description=
-                "Simulation create via ASReview command line interface")
+                project_description="Simulation create via ASReview "
+                                    "command line interface"
+            )
 
             # Add the dataset to the project file.
             dataset_path = _get_dataset_path_from_args(args.dataset)
@@ -348,11 +349,10 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
         "--n_queries",
         type=type_n_queries,
         default=None,
-        help=
-        "The number of queries. Alternatively, entering 'min' will stop the "
-        "simulation when all relevant records have been found. By default, "
-        "the program stops after all records are reviewed or is interrupted "
-        "by the user.")
+        help="The number of queries. Alternatively, entering 'min' will stop "
+        "the simulation when all relevant records have been found. By "
+        "default, the program stops after all records are reviewed or is "
+        "interrupted by the user.")
     parser.add_argument(
         "-n",
         "--n_papers",

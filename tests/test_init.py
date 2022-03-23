@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import numpy as np
-import pytest
 from pandas.testing import assert_frame_equal
+import pytest
 
 from asreview.data import ASReviewData
 from asreview.entry_points.simulate import SimulateEntryPoint

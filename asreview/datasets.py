@@ -25,7 +25,7 @@ from asreview.utils import is_url
 from asreview.utils import pretty_format
 
 
-class DataSetNotFoundError(Exception):
+class DatasetNotFoundError(Exception):
     pass
 
 
@@ -179,7 +179,7 @@ class BaseDataSet():
         if data_name.lower() in self.aliases:
             return self
 
-        raise DataSetNotFoundError(
+        raise DatasetNotFoundError(
             f"Dataset {data_name} not found"
         )
 
@@ -223,7 +223,7 @@ class BaseVersionedDataSet():
             if dataset_name.lower() in aliases:
                 return dataset
 
-        raise DataSetNotFoundError(
+        raise DatasetNotFoundError(
             f"Dataset {dataset_name} not found"
         )
 
@@ -259,7 +259,7 @@ class BaseDataGroup():
             try:
                 dataset_result = d.find(dataset_name)
                 results.append(dataset_result)
-            except DataSetNotFoundError:
+            except DatasetNotFoundError:
                 pass
         if len(results) > 1:
             raise ValueError(
@@ -268,7 +268,7 @@ class BaseDataGroup():
         elif len(results) == 1:
             return results[0]
 
-        raise DataSetNotFoundError(
+        raise DatasetNotFoundError(
             f"Dataset {dataset_name} not found"
         )
 
@@ -351,7 +351,7 @@ class DatasetManager():
             return list(all_results.values())[0]
 
         # Could not find dataset
-        raise DataSetNotFoundError(
+        raise DatasetNotFoundError(
             f"Dataset {dataset_name} not found"
         )
 
