@@ -1073,15 +1073,9 @@ def api_import_project():
 
     except Exception as err:
         logging.error(err)
-        raise ValueError("Failed to import project "
-                         f"'{file_name.filename}'.")
+        raise ValueError("Failed to import project.")
 
-    project_info = {}
-    project_info["id"] = import_project["id"]
-    project_info["name"] = import_project["name"]
-
-    # return the project info in the same format as project_info
-    return jsonify(project_info)
+    return jsonify(project.config)
 
 
 @bp.route('/projects/<project_id>/export_dataset', methods=["GET"])

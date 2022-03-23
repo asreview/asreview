@@ -613,6 +613,8 @@ class ASReviewProject():
     @classmethod
     def load(cls, asreview_file, project_path, safe_import=False):
 
+        tmpdir = tempfile.TemporaryDirectory().name
+
         try:
 
             # Unzip the project file
@@ -620,51 +622,40 @@ class ASReviewProject():
                 zip_filenames = zip_obj.namelist()
 
                 # raise error if no ASReview project file
-                if "project.json" not in zip_filenames:
+                if PATH_PROJECT_CONFIG not in zip_filenames:
                     raise ValueError("Project file is not valid project.")
 
                 # extract all files to folder
-                zip_obj.extractall(path=project_path)
+                zip_obj.extractall(path=tmpdir)
 
         except zipfile.BadZipFile:
             raise ValueError("File is not an ASReview file.")
 
+        with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r") as f:
+            project_config = json.load(f)
+
         if safe_import:
-            try:
-                # Open the project file and check the id. The id needs to be
-                # unique, otherwise it is exended with -copy.
-                import_project = None
-                fp = Path(tmpdir, "project.json")
-                with open(fp, "r+") as f:
 
-                    # load the project info in scope of function
-                    import_project = json.load(f)
+            # If the uploaded project already exists,
+            # then overwrite project.json with a copy suffix.
+            while Path(
+                    project_path,
+                    project_config["id"],
+                    PATH_PROJECT_CONFIG
+            ).exists():
+                # project update
+                project_config["id"] = f"{project_config['id']}-copy"
+                project_config[
+                    "name"] = f"{project_config['name']} copy"
+            else:
+                with open(Path(tmpdir, PATH_PROJECT_CONFIG), "r+") as f:
+                    # write to file
+                    f.seek(0)
+                    json.dump(project_config, f)
+                    f.truncate()
 
-                    # If the uploaded project already exists,
-                    # then overwrite project.json with a copy suffix.
-                    while is_project(import_project["id"]):
-                        # project update
-                        import_project["id"] = f"{import_project['id']}-copy"
-                        import_project[
-                            "name"] = f"{import_project['name']} copy"
-                    else:
-                        # write to file
-                        f.seek(0)
-                        json.dump(import_project, f)
-                        f.truncate()
-
-                # location to copy file to
-                fp_copy = get_project_path(import_project["id"])
-                # Move the project from the temp folder to the projects folder.
-                os.replace(tmpdir, fp_copy)
-
-            except Exception:
-                # Unknown error.
-                raise ValueError("Failed to import project "
-                                 f"'{file_name.filename}'.")
-
-            project_info = {}
-            project_info["id"] = import_project["id"]
-            project_info["name"] = import_project["name"]
+        # location to copy file to
+        # Move the project from the temp folder to the projects folder.
+        os.replace(tmpdir, Path(project_path, project_config["id"]))
 
         return cls(project_path)
