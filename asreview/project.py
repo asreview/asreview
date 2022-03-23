@@ -34,6 +34,7 @@ import pandas as pd
 from asreview._version import get_versions
 from asreview.config import LABEL_NA
 from asreview.config import PROJECT_MODES
+from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.state.errors import StateError
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_path
@@ -419,7 +420,8 @@ class ASReviewProject():
             state.add_record_table(as_data.record_ids)
 
             # if the data contains labels, add them to the state file
-            if as_data.labels is not None:
+            if self.config["mode"] != PROJECT_MODE_SIMULATE and \
+                    as_data.labels is not None:
 
                 labeled_indices = np.where(as_data.labels != LABEL_NA)[0]
                 labels = as_data.labels[labeled_indices].tolist()
