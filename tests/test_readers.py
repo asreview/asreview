@@ -157,7 +157,7 @@ def test_write_data(tmpdir):
     asr_data = ASReviewData.from_file(fp_in)
     asr_data.to_file(fp_out, labels=[[0, 0], [2, 1], [3, 1]])
 
-    tmp_csv_fp_out = Path("tmp_generic_labels.csv")
+    tmp_csv_fp_out = Path(tmpdir, "tmp_generic_labels.csv")
     asr_data.to_file(tmp_csv_fp_out)
     asr_data_diff = ASReviewData.from_file(tmp_csv_fp_out)
     # Check if export file includes labels [1,0]
