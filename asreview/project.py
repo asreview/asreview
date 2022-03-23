@@ -213,7 +213,7 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
         elif len(project.reviews) == 0 and not read_only:
             review_id = uuid4().hex
             logging.debug(f"Create new review (state) with id {review_id}.")
-            state._create_new_state_file(project.project_path)
+            state._create_new_state_file(project.project_path, review_id)
             project.add_review(review_id)
         else:
             raise StateNotFoundError("State file does not exist, and in "

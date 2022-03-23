@@ -31,7 +31,7 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
-from asreview.state.paths import get_sql_path
+
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -106,6 +106,8 @@ class SQLiteState(BaseState):
             with open(get_project_file_path(self.working_dir), 'r') as f:
                 project_config = json.load(f)
             review_id = project_config['reviews'][0]['id']
+        else:
+            review_id = self.review_id
 
         return Path(self.working_dir, 'reviews', review_id, 'results.sql')
 
@@ -122,7 +124,7 @@ class SQLiteState(BaseState):
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-    def _create_new_state_file(self, working_dir):
+    def _create_new_state_file(self, working_dir, review_id):
         """Create the files for a new state given an review_id.
 
         Stages:
@@ -139,6 +141,7 @@ class SQLiteState(BaseState):
             raise ValueError("Can't create new state file in read_only mode.")
 
         self.working_dir = Path(working_dir)
+        self.review_id = review_id
 
         # create folder in the folder `results` with the name of result_id
         self._sql_fp.parent.mkdir(parents=True, exist_ok=True)
