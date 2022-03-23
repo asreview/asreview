@@ -34,34 +34,35 @@ JSON_STATE_FILE = Path(STATE_DIR, "test.json")
                    "'this_doesnt_exist.csv'")
 def test_dataset_not_found(tmpdir):
     entry_point = SimulateEntryPoint()
-    project_fp = Path(tmpdir, 'project.asreview')
-    argv = f'does_not.exist -s {project_fp}'.split()
+    asreview_fp = Path(tmpdir, 'project.asreview')
+    argv = f'does_not.exist -s {asreview_fp}'.split()
     entry_point.execute(argv)
 
 
 def test_simulate_review_finished(tmpdir):
 
     # file path
-    project_fp = Path(tmpdir, 'test.asreview')
+    asreview_fp = Path(tmpdir, 'test.asreview')
 
     # simulate entry point
     entry_point = SimulateEntryPoint()
     entry_point.execute(
-        f'{DATA_FP} -s {project_fp}'.split()
+        f'{DATA_FP} -s {asreview_fp}'.split()
     )
 
-    project = ASReviewProject.load(project_fp, Path(tmpdir, 'test'))
+    Path(tmpdir, 'test').mkdir(parents=True)
+    project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
     assert project.config['reviews'][0]['review_finished']
 
 
 def test_prior_idx(tmpdir):
-    project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATA_FP)} -s {project_path} --prior_idx 1 4'.split()
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    argv = f'{str(DATA_FP)} -s {asreview_fp} --prior_idx 1 4'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open_state(project_path) as state:
+    with open_state(asreview_fp) as state:
         labeling_order = state.get_order_of_labeling()
         query_strategies = state.get_query_strategies()
 
@@ -72,12 +73,12 @@ def test_prior_idx(tmpdir):
 
 
 def test_n_prior_included(tmpdir):
-    project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATA_FP)} -s {project_path} --n_prior_included 2'.split()
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    argv = f'{str(DATA_FP)} -s {asreview_fp} --n_prior_included 2'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open_state(project_path) as state:
+    with open_state(asreview_fp) as state:
         result = state.get_dataset(['label', 'query_strategy'])
 
     prior_included = \
@@ -85,30 +86,32 @@ def test_n_prior_included(tmpdir):
     assert sum(prior_included) == 2
 
 
-    project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+    Path(tmpdir, 'test').mkdir(parents=True)
+    project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-    with open(get_settings_metadata_path(Path(tmpdir, 'test')), 'r') as f:
+    with open(get_settings_metadata_path(project.project_path), 'r') as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata['settings']['n_prior_included'] == 2
 
 
 def test_n_prior_excluded(tmpdir):
-    project_path = Path(tmpdir, 'test.asreview')
-    argv = f'{str(DATA_FP)} -s {project_path} --n_prior_excluded 2'.split()
+    asreview_fp = Path(tmpdir, 'test.asreview')
+    argv = f'{str(DATA_FP)} -s {asreview_fp} --n_prior_excluded 2'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open_state(project_path) as state:
+    with open_state(asreview_fp) as state:
         result = state.get_dataset(['label', 'query_strategy'])
 
     prior_excluded = \
         ~result['label'] & (result['query_strategy'] == 'prior')
     assert sum(prior_excluded) == 2
 
-    project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+    Path(tmpdir, 'test').mkdir(parents=True)
+    project = ASReviewProject.load(asreview_fp, Path(tmpdir, 'test'))
 
-    with open(get_settings_metadata_path(Path(tmpdir, 'test')), 'r') as f:
+    with open(get_settings_metadata_path(project.project_path), 'r') as f:
         settings_metadata = json.load(f)
 
     assert settings_metadata['settings']['n_prior_excluded'] == 2
@@ -116,12 +119,12 @@ def test_n_prior_excluded(tmpdir):
 
 # TODO: Add random seed to settings.
 # def test_seed(tmpdir):
-#     project_path = Path(tmpdir, 'test.asreview')
-#     argv = f'{str(DATA_FP)} -s {project_path} --seed 42'.split()
+#     asreview_fp = Path(tmpdir, 'test.asreview')
+#     argv = f'{str(DATA_FP)} -s {asreview_fp} --seed 42'.split()
 #     entry_point = SimulateEntryPoint()
 #     entry_point.execute(argv)
 #
-#     with open(get_settings_metadata_path(project_path), 'r') as f:
+#     with open(get_settings_metadata_path(asreview_fp), 'r') as f:
 #         settings_metadata = json.load(f)
 #
 #     assert settings_metadata['random_seed'] == 42
@@ -136,19 +139,20 @@ def test_non_tf_models(tmpdir):
     ]
     for model in models:
         print(model)
-        project_path = Path(tmpdir, f'test_{model}.asreview')
-        argv = f'{str(DATA_FP)} -s {project_path} -m {model}'.split()
+        asreview_fp = Path(tmpdir, f'test_{model}.asreview')
+        argv = f'{str(DATA_FP)} -s {asreview_fp} -m {model}'.split()
         entry_point = SimulateEntryPoint()
         entry_point.execute(argv)
 
-        with open_state(project_path) as state:
+        with open_state(asreview_fp) as state:
             classifiers = state.get_classifiers()
         default_n_priors = 2
         assert all(classifiers[default_n_priors:] == model)
 
-        project = ASReviewProject.load(project_path, Path(tmpdir, 'test'))
+        Path(tmpdir, f'test_{model}').mkdir(parents=True)
+        project = ASReviewProject.load(asreview_fp, Path(tmpdir, f'test_{model}'))
 
-        with open(get_settings_metadata_path(Path(tmpdir, 'test')), 'r') as f:
+        with open(get_settings_metadata_path(project.project_path), 'r') as f:
             settings_metadata = json.load(f)
 
         assert settings_metadata['settings']['model'] == model
@@ -156,50 +160,50 @@ def test_non_tf_models(tmpdir):
 
 def test_number_records_found(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
-    project_path = Path(tmpdir, 'test.asreview')
+    asreview_fp = Path(tmpdir, 'test.asreview')
     n_queries = 100
     priors = [284, 285]
     seed = 101
 
-    argv = f'{dataset} -s {project_path} --n_queries {n_queries} ' \
+    argv = f'{dataset} -s {asreview_fp} --n_queries {n_queries} ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open_state(project_path) as s:
+    with open_state(asreview_fp) as s:
         assert s.get_labels().sum() == 28
 
 
 def test_write_interval(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
-    project_path = Path(tmpdir, 'test.asreview')
+    asreview_fp = Path(tmpdir, 'test.asreview')
     n_queries = 100
     priors = [284, 285]
     seed = 101
     write_interval = 20
 
-    argv = f'{dataset} -s {project_path} --n_queries {n_queries} ' \
+    argv = f'{dataset} -s {asreview_fp} --n_queries {n_queries} ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed} ' \
            f'--write_interval {write_interval}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open_state(project_path) as s:
+    with open_state(asreview_fp) as s:
         assert s.get_labels().sum() == 28
 
 
 @pytest.mark.xfail(raises=ProjectExistsError,
                    reason="Cannot continue simulation.")
 def test_project_already_exists_error(tmpdir):
-    project_path1 = Path(tmpdir, 'test1.asreview')
+    asreview_fp1 = Path(tmpdir, 'test1.asreview')
 
-    argv = f'benchmark:van_de_Schoot_2017 -s {project_path1} --n_papers 100' \
+    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_papers 100' \
            f' --seed 535'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
     # Simulate 100 queries in two steps of 50.
-    argv = f'benchmark:van_de_Schoot_2017 -s {project_path1} --n_papers 50' \
+    argv = f'benchmark:van_de_Schoot_2017 -s {asreview_fp1} --n_papers 50' \
            f' --seed 535'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
@@ -208,33 +212,33 @@ def test_project_already_exists_error(tmpdir):
 @pytest.mark.skip(reason="Partial simulations are not available.")
 def test_partial_simulation(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
-    project_path1 = Path(tmpdir, 'test1.asreview')
-    project_path2 = Path(tmpdir, 'test2.asreview')
+    asreview_fp1 = Path(tmpdir, 'test1.asreview')
+    asreview_fp2 = Path(tmpdir, 'test2.asreview')
 
     priors = [284, 285]
     seed = 101
 
     # Simulate 100 queries in one go.
-    argv = f'{dataset} -s {project_path1} --n_papers 100 ' \
+    argv = f'{dataset} -s {asreview_fp1} --n_papers 100 ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
     # Simulate 100 queries in two steps of 50.
-    argv = f'{dataset} -s {project_path2} --n_papers 50 ' \
+    argv = f'{dataset} -s {asreview_fp2} --n_papers 50 ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    argv = f'{dataset} -s {project_path2} --n_papers 100 ' \
+    argv = f'{dataset} -s {asreview_fp2} --n_papers 100 ' \
            f'--prior_idx {priors[0]} {priors[1]} --seed {seed}'.split()
     entry_point = SimulateEntryPoint()
     entry_point.execute(argv)
 
-    with open_state(project_path1) as state:
+    with open_state(asreview_fp1) as state:
         dataset1 = state.get_dataset()
 
-    with open_state(project_path2) as state:
+    with open_state(asreview_fp2) as state:
         dataset2 = state.get_dataset()
 
     assert dataset1.shape == dataset2.shape
@@ -256,9 +260,9 @@ def test_partial_simulation(tmpdir):
 @pytest.mark.skip(reason="Partial simulations are not available.")
 def test_is_partial_simulation(tmpdir):
     dataset = 'benchmark:van_de_Schoot_2017'
-    project_path = Path(tmpdir, 'test.asreview')
+    asreview_fp = Path(tmpdir, 'test.asreview')
 
-    argv = f'{dataset} -s {project_path} --n_papers 50'.split()
+    argv = f'{dataset} -s {asreview_fp} --n_papers 50'.split()
     parser = _simulate_parser()
     args = parser.parse_args(argv)
 

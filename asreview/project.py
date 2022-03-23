@@ -658,4 +658,4 @@ class ASReviewProject():
         # Move the project from the temp folder to the projects folder.
         os.replace(tmpdir, Path(project_path, project_config["id"]))
 
-        return cls(project_path)
+        return cls(Path(project_path, project_config["id"]))
