@@ -10,7 +10,7 @@ def test_asreview_labels_ris(test_file, tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     asr_data = ASReviewData.from_file(fp_in)
 
-    tmp_ris_fp_out = Path("tmp_labels.ris")
+    tmp_ris_fp_out = Path(tmpdir, "tmp_labels.ris")
     asr_data.to_file(tmp_ris_fp_out)
     asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
 
@@ -24,7 +24,7 @@ def test_asreview_notes_ris(test_file, tmpdir):
     fp_in = Path("tests", "demo_data", test_file)
     asr_data = ASReviewData.from_file(fp_in)
 
-    tmp_ris_fp_out = Path("tmp_notes.ris")
+    tmp_ris_fp_out = Path(tmpdir, "tmp_notes.ris")
     asr_data.to_file(tmp_ris_fp_out)
 
     asr_data_diff = ASReviewData.from_file(tmp_ris_fp_out)
