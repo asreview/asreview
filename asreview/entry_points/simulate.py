@@ -11,12 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 """Simulation entry point and utils."""
 
 import json
 import logging
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -39,18 +38,18 @@ from asreview.models.balance.utils import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
+from asreview.project import ASReviewProject
+from asreview.project import ProjectExistsError
+from asreview.project import open_state
 from asreview.review.simulate import ReviewSimulate
 from asreview.settings import ASReviewSettings
-from asreview.state import open_state
 from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_feature_matrix_path
-from asreview.state.paths import get_project_file_path
-from asreview.state.utils import init_project_folder_structure
 from asreview.types import type_n_queries
 from asreview.utils import get_random_state
-from asreview.webapp.utils.io import read_data
+from asreview.webapp.io import read_data
 
 ASCII_MSG_SIMULATE = """
 ---------------------------------------------------------------------------------
@@ -65,54 +64,6 @@ ASCII_MSG_SIMULATE = """
 |                                                                                |
 ---------------------------------------------------------------------------------
 """.format(GITHUB_PAGE, EMAIL_ADDRESS)  # noqa
-
-
-def _mark_review_finished(project_path, review_id=None):
-    """Mark a review in the project as finished.
-
-    If no review_id is given, mark the first review as finished.
-
-    Arguments
-    ---------
-    project_path: pathlike
-        Path to the project folder.
-    review_id: str
-        Identifier of the review to mark as finished.
-    """
-    project_path = Path(project_path)
-    with open(get_project_file_path(project_path), 'r') as f:
-        project_config = json.load(f)
-
-    if review_id is None:
-        review_index = 0
-    else:
-        review_index = [x['id']
-                        for x in project_config['reviews']].index(review_id)
-
-    project_config['reviewFinished'] = True
-    project_config['reviews'][review_index]['review_finished'] = True
-    project_config['reviews'][review_index]['end_time'] = str(datetime.now())
-
-    with open(get_project_file_path(project_path), 'w') as f:
-        json.dump(project_config, f)
-
-
-def _is_review_finished(project_path, review_id=None):
-    """Check if the given review is finished."""
-    project_path = Path(project_path)
-    with open(get_project_file_path(project_path), 'r') as f:
-        project_config = json.load(f)
-
-    if review_id is None:
-        review_index = 0
-    else:
-        review_index = [x['id']
-                        for x in project_config['reviews']].index(review_id)
-
-    review_info = project_config['reviews'][review_index]
-
-    return ('review_finished' in review_info.keys()) & \
-        review_info['review_finished']
 
 
 def _get_dataset_path_from_args(args_dataset):
@@ -133,50 +84,6 @@ def _get_dataset_path_from_args(args_dataset):
         args_dataset = args_dataset[10:]
 
     return Path(args_dataset).with_suffix('.csv').name
-
-
-def _is_partial_simulation(args):
-    """Check for partial simulation.
-
-    Check if there already is a project file with data of
-    the simulation with given args.
-
-    Arguments
-    ----------
-    args : output of argparse
-
-    Returns
-    -------
-    bool
-        Returns True if there is a project file at args.state_file, with
-        the given dataset, and a review with the given settings, which is not
-        marked as finished.
-    """
-    try:
-        with open_state(args.state_file) as state:
-            settings = state.settings
-    except StateNotFoundError:
-        return False
-
-    # Check if the datasets have the same name.
-    try:
-        project_data_file_name = get_data_file_path(args.state_file).name
-    except Exception:
-        return False
-    args_data_file_name = _get_dataset_path_from_args(args.dataset)
-    if project_data_file_name != args_data_file_name:
-        return False
-
-    # Check if the feature matrix is available.
-    feature_extraction_method = settings.feature_extraction
-    try:
-        feature_matrix_file = get_feature_matrix_path(args.state_file)
-    except FileNotFoundError:
-        return False
-    if not feature_matrix_file.name.startswith(feature_extraction_method):
-        return False
-
-    return True
 
 
 def _set_log_verbosity(verbose):
@@ -210,6 +117,7 @@ class SimulateEntryPoint(BaseEntryPoint):
         # print intro message
         print(ASCII_LOGO + ASCII_MSG_SIMULATE)
 
+        # for webapp
         if args.dataset == "":
 
             with open_state(args.state_file) as state:
@@ -220,7 +128,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
             # collect command line arguments and pass them to the reviewer
             if exist_new_labeled_records:
-                as_data = read_data(Path(args.state_file).stem)
+                as_data = read_data(args.state_file)
                 prior_idx = args.prior_idx
 
             classifier_model = get_classifier(settings.model)
@@ -228,7 +136,14 @@ class SimulateEntryPoint(BaseEntryPoint):
             balance_model = get_balance_model(settings.balance_strategy)
             feature_model = get_feature_model(settings.feature_extraction)
 
+            fp_tmp_simulation = args.state_file
+
+        # for simulation CLI
         else:
+
+            # do this check now and again when zipping.
+            if Path(args.state_file).exists():
+                raise ProjectExistsError("Project already exists.")
 
             as_data = load_data(args.dataset)
 
@@ -236,29 +151,27 @@ class SimulateEntryPoint(BaseEntryPoint):
                 raise ValueError("Supply at least one dataset"
                                  " with at least one record.")
 
-            if not _is_partial_simulation(args):
-                # TODO: refactor these functions into a project module
-                init_project_folder_structure(args.state_file,
-                                              project_mode='simulate')
+            # create a project file
+            fp_tmp_simulation = Path(
+                args.state_file).with_suffix(".asreview.tmp")
 
-                # Add the dataset to the project file.
-                dataset_path = _get_dataset_path_from_args(args.dataset)
+            project = ASReviewProject.create(
+                fp_tmp_simulation,
+                project_id=fp_tmp_simulation.name,
+                project_mode="simulate",
+                project_name=fp_tmp_simulation.name,
+                project_description="Simulation create via ASReview "
+                                    "command line interface"
+            )
 
-                as_data.to_file(
-                    Path(
-                        get_data_path(args.state_file),
-                        dataset_path
-                    )
-                )
-                # Update the project.json.
-                project_file_path = get_project_file_path(args.state_file)
-                with open(project_file_path, 'r') as f:
-                    project_json = json.load(f)
+            # Add the dataset to the project file.
+            dataset_path = _get_dataset_path_from_args(args.dataset)
 
-                project_json['dataset_path'] = dataset_path
-
-                with open(project_file_path, 'w') as f:
-                    json.dump(project_json, f)
+            as_data.to_file(
+                Path(get_data_path(fp_tmp_simulation), dataset_path)
+            )
+            # Update the project.json.
+            project.update_config(dataset_path=dataset_path)
 
             # create a new settings object from arguments
             settings = ASReviewSettings(
@@ -301,10 +214,12 @@ class SimulateEntryPoint(BaseEntryPoint):
             if args.prior_idx is not None and args.prior_record_id is not None and \
                     len(args.prior_idx) > 0 and len(args.prior_record_id) > 0:
                 raise ValueError(
-                    "Not possible to provide both prior_idx and prior_record_id")
+                    "Not possible to provide both prior_idx and prior_record_id"
+                )
 
             prior_idx = args.prior_idx
-            if args.prior_record_id is not None and len(args.prior_record_id) > 0:
+            if args.prior_record_id is not None and len(
+                    args.prior_record_id) > 0:
                 prior_idx = convert_id_to_idx(as_data, args.prior_record_id)
 
             print("The following records are prior knowledge:\n")
@@ -314,7 +229,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # Initialize the review class.
         reviewer = ReviewSimulate(as_data,
-                                  state_file=args.state_file,
+                                  state_file=fp_tmp_simulation,
                                   model=classifier_model,
                                   query_model=query_model,
                                   balance_model=balance_model,
@@ -331,14 +246,23 @@ class SimulateEntryPoint(BaseEntryPoint):
         # Start the review process.
         reviewer.review()
 
-        # Mark review as finished.
-        _mark_review_finished(args.state_file)
+        print("finished simlation")
+
+        # for cli simulate
+        if args.dataset != "":
+
+            # Mark review as finished.
+            project = ASReviewProject(fp_tmp_simulation)
+            project.mark_review_finished()
+            project.export(args.state_file)
+
+            shutil.rmtree(fp_tmp_simulation)
 
 
 DESCRIPTION_SIMULATE = """
 ASReview for simulation.
 
-The simulation modus is used to measure the performance of our
+The simulation modus is used to measure the performance of the ASReview
 software on existing systematic reviews. The software shows how many
 papers you could have potentially skipped during the systematic
 review."""
@@ -351,118 +275,109 @@ def _simulate_parser(prog="simulate", description=DESCRIPTION_SIMULATE):
     parser.add_argument(
         "dataset",
         type=str,
-        help="File path to the dataset or one of the benchmark datasets."
-    )
+        help="File path to the dataset or one of the benchmark datasets.")
     # Initial data (prior knowledge)
-    parser.add_argument(
-        "--n_prior_included",
-        default=DEFAULT_N_PRIOR_INCLUDED,
-        type=int,
-        help="Sample n prior included papers. "
-             "Only used when --prior_idx is not given. "
-             f"Default {DEFAULT_N_PRIOR_INCLUDED}")
+    parser.add_argument("--n_prior_included",
+                        default=DEFAULT_N_PRIOR_INCLUDED,
+                        type=int,
+                        help="Sample n prior included papers. "
+                        "Only used when --prior_idx is not given. "
+                        f"Default {DEFAULT_N_PRIOR_INCLUDED}")
 
-    parser.add_argument(
-        "--n_prior_excluded",
-        default=DEFAULT_N_PRIOR_EXCLUDED,
-        type=int,
-        help="Sample n prior excluded papers. "
-             "Only used when --prior_idx is not given. "
-             f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
+    parser.add_argument("--n_prior_excluded",
+                        default=DEFAULT_N_PRIOR_EXCLUDED,
+                        type=int,
+                        help="Sample n prior excluded papers. "
+                        "Only used when --prior_idx is not given. "
+                        f"Default {DEFAULT_N_PRIOR_EXCLUDED}")
 
     parser.add_argument(
         "--prior_idx",
         default=[],
         nargs="*",
         type=int,
-        help="Prior indices by rownumber (0 is first rownumber)."
-    )
-    parser.add_argument(
-        "--prior_record_id",
-        default=[],
-        nargs="*",
-        type=int,
-        help="Prior indices by record_id."
-    )
+        help="Prior indices by rownumber (0 is first rownumber).")
+    parser.add_argument("--prior_record_id",
+                        default=[],
+                        nargs="*",
+                        type=int,
+                        help="Prior indices by record_id.")
     # logging and verbosity
     parser.add_argument(
-        "--state_file", "-s",
+        "--state_file",
+        "-s",
         default=None,
         type=str,
-        help="Location to store the state of the simulation."
-    )
+        help="Location to ASReview project file of simulation.")
+    parser.add_argument("-m",
+                        "--model",
+                        type=str,
+                        default=DEFAULT_MODEL,
+                        help=f"The prediction model for Active Learning. "
+                        f"Default: '{DEFAULT_MODEL}'.")
+    parser.add_argument("-q",
+                        "--query_strategy",
+                        type=str,
+                        default=DEFAULT_QUERY_STRATEGY,
+                        help=f"The query strategy for Active Learning. "
+                        f"Default: '{DEFAULT_QUERY_STRATEGY}'.")
     parser.add_argument(
-        "-m", "--model",
-        type=str,
-        default=DEFAULT_MODEL,
-        help=f"The prediction model for Active Learning. "
-             f"Default: '{DEFAULT_MODEL}'.")
-    parser.add_argument(
-        "-q", "--query_strategy",
-        type=str,
-        default=DEFAULT_QUERY_STRATEGY,
-        help=f"The query strategy for Active Learning. "
-             f"Default: '{DEFAULT_QUERY_STRATEGY}'.")
-    parser.add_argument(
-        "-b", "--balance_strategy",
+        "-b",
+        "--balance_strategy",
         type=str,
         default=DEFAULT_BALANCE_STRATEGY,
         help="Data rebalancing strategy mainly for RNN methods. Helps against"
-             " imbalanced dataset with few inclusions and many exclusions. "
-             f"Default: '{DEFAULT_BALANCE_STRATEGY}'")
+        " imbalanced dataset with few inclusions and many exclusions. "
+        f"Default: '{DEFAULT_BALANCE_STRATEGY}'")
     parser.add_argument(
-        "-e", "--feature_extraction",
+        "-e",
+        "--feature_extraction",
         type=str,
         default=DEFAULT_FEATURE_EXTRACTION,
         help="Feature extraction method. Some combinations of feature"
-             " extraction method and prediction model are impossible/ill"
-             " advised."
-             f"Default: '{DEFAULT_FEATURE_EXTRACTION}'"
-    )
+        " extraction method and prediction model are impossible/ill"
+        " advised."
+        f"Default: '{DEFAULT_FEATURE_EXTRACTION}'")
     parser.add_argument(
         '--init_seed',
         default=None,
         type=int,
         help="Seed for setting the prior indices if the --prior_idx option is "
-             "not used. If the option --prior_idx is used with one or more "
-             "index, this option is ignored."
-    )
-    parser.add_argument(
-        "--n_instances",
-        default=DEFAULT_N_INSTANCES,
-        type=int,
-        help="Number of papers queried each query."
-             f"Default {DEFAULT_N_INSTANCES}.")
+        "not used. If the option --prior_idx is used with one or more "
+        "index, this option is ignored.")
+    parser.add_argument("--n_instances",
+                        default=DEFAULT_N_INSTANCES,
+                        type=int,
+                        help="Number of papers queried each query."
+                        f"Default {DEFAULT_N_INSTANCES}.")
     parser.add_argument(
         "--n_queries",
         type=type_n_queries,
         default=None,
-        help="The number of queries. Alternatively, entering 'min' will stop the "
-             "simulation when all relevant records have been found. By default, "
-             "the program stops after all records are reviewed or is interrupted "
-             "by the user."
-    )
+        help="The number of queries. Alternatively, entering 'min' will stop "
+        "the simulation when all relevant records have been found. By "
+        "default, the program stops after all records are reviewed or is "
+        "interrupted by the user.")
     parser.add_argument(
-        "-n", "--n_papers",
+        "-n",
+        "--n_papers",
         type=int,
         default=None,
         help="The number of papers to be reviewed. By default, "
-             "the program stops after all documents are reviewed or is "
-             "interrupted by the user."
-    )
+        "the program stops after all documents are reviewed or is "
+        "interrupted by the user.")
+    parser.add_argument("--verbose",
+                        "-v",
+                        default=0,
+                        type=int,
+                        help="Verbosity")
     parser.add_argument(
-        "--verbose", "-v",
-        default=0,
-        type=int,
-        help="Verbosity"
-    )
-    parser.add_argument(
-        "--write_interval", "-w",
+        "--write_interval",
+        "-w",
         default=None,
         type=int,
         help="The simulation data will be written away after each set of this"
-             "many labeled records. By default only writes away data at the end"
-             "of the simulation to make it as fast as possible."
-    )
+        "many labeled records. By default only writes away data at the end"
+        "of the simulation to make it as fast as possible.")
 
     return parser

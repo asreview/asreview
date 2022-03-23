@@ -2,7 +2,6 @@ import urllib
 from pathlib import Path
 
 import pandas as pd
-
 from pytest import mark
 
 import asreview

@@ -19,9 +19,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
-from scipy.sparse.csr import csr_matrix
 
 from asreview._version import get_versions
 from asreview.settings import ASReviewSettings
@@ -31,7 +31,6 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_feature_matrix_path
 from asreview.state.paths import get_project_file_path
 from asreview.state.paths import get_settings_metadata_path
-from asreview.state.paths import get_sql_path
 
 REQUIRED_TABLES = [
     # the table with the labeling decisions and models trained
@@ -55,7 +54,7 @@ SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version",
 
 
 # TODO(State): Update docstring.
-class SqlStateV1(BaseState):
+class SQLiteState(BaseState):
     """Class for storing the review state with HDF5 storage.
 
     Arguments
@@ -76,7 +75,7 @@ class SqlStateV1(BaseState):
 
     """
     def __init__(self, read_only=True):
-        super(SqlStateV1, self).__init__(read_only=read_only)
+        super(SQLiteState, self).__init__(read_only=read_only)
 
 # INTERNAL PATHS AND CONNECTIONS
 
@@ -100,7 +99,16 @@ class SqlStateV1(BaseState):
     @property
     def _sql_fp(self):
         """Path to the sql database."""
-        return get_sql_path(self.working_dir, self.review_id)
+
+        if self.review_id is None:
+
+            with open(get_project_file_path(self.working_dir), 'r') as f:
+                project_config = json.load(f)
+            review_id = project_config['reviews'][0]['id']
+        else:
+            review_id = self.review_id
+
+        return Path(self.working_dir, 'reviews', review_id, 'results.sql')
 
     @property
     def _settings_metadata_fp(self):
@@ -115,29 +123,6 @@ class SqlStateV1(BaseState):
 
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
-    def _add_state_file_to_project(self,
-                                   review_id,
-                                   start_time=None,
-                                   review_finished=False):
-
-        if start_time is None:
-            start_time = datetime.now()
-
-        # Add the review to the project json.
-        with open(get_project_file_path(self.working_dir), "r") as f:
-            project_config = json.load(f)
-
-        review_config = {
-            "id": review_id,
-            "start_time": str(start_time),
-            "review_finished": review_finished
-        }
-
-        project_config["reviews"].append(review_config)
-
-        with open(get_project_file_path(self.working_dir), "w") as f:
-            json.dump(project_config, f)
-
     def _create_new_state_file(self, working_dir, review_id):
         """Create the files for a new state given an review_id.
 
@@ -150,8 +135,6 @@ class SqlStateV1(BaseState):
         ---------
         working_dir: str, pathlib.Path
             Project file location.
-        review_id: str
-            Identifier (UUID4) of the review.
         """
         if self.read_only:
             raise ValueError("Can't create new state file in read_only mode.")
@@ -221,9 +204,6 @@ class SqlStateV1(BaseState):
 
         with open(self._settings_metadata_fp, "w") as f:
             json.dump(self.settings_metadata, f)
-
-        # after succesfull init, add review_id to the project file
-        self._add_state_file_to_project(review_id)
 
     def _restore(self, working_dir, review_id):
         """
@@ -535,7 +515,7 @@ class SqlStateV1(BaseState):
         """Add feature matrix to project file.
 
         Feature matrices are stored in the project file. See
-        asreview.state.SqlStateV1._feature_matrix_fp for the file
+        asreview.state.SQLiteState._feature_matrix_fp for the file
         location.
 
         Arguments
