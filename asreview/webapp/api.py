@@ -25,6 +25,7 @@ from collections import Counter
 from pathlib import Path
 from urllib.request import urlretrieve
 
+from flask import abort
 from flask import Blueprint
 from flask import Response
 from flask import jsonify
@@ -67,6 +68,7 @@ from asreview.webapp.sqlock import SQLiteLock
 from asreview.project import is_project
 from asreview.webapp.io import read_data
 from asreview.utils import _get_executable
+from asreview.utils import asreview_path
 from asreview.project import _create_project_id
 from asreview.project import ASReviewProject
 from asreview.project import project_from_id
@@ -643,7 +645,15 @@ def api_get_labeled(project):  # noqa: F401
         # count labeled records and max pages
         count = len(data)
         if count == 0:
-            raise ValueError("No available record")
+            payload = {
+                "count": 0,
+                "next_page": None,
+                "previous_page": None,
+                "result": [],
+            }
+            response = jsonify(payload)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
 
         max_page_calc = divmod(count, per_page)
         if max_page_calc[1] == 0:
@@ -658,7 +668,7 @@ def api_get_labeled(project):  # noqa: F401
                 idx_end = page * per_page
                 data = data.iloc[idx_start:idx_end, :].copy()
             else:
-                raise ValueError(f"Page {page - 1} is the last page")
+                return abort(404)
 
             # set next & previous page
             if page < max_page:
@@ -1051,44 +1061,18 @@ def api_import_project():
 
     # raise error if file not given
     if 'file' not in request.files:
-        response = jsonify(message="No file found to upload.")
+        response = jsonify(message="No ASReview file found to upload.")
         return response, 400
 
-    # set the project file
-    project_file = request.files['file']
-
-    # # import the project
-    # project_info = import_project(project_file)
-
     try:
-        # Open the project file and check the id. The id needs to be
-        # unique, otherwise it is exended with -copy.
-        import_project = None
-        fp = Path(tmpdir, "project.json")
-        with open(fp, "r+") as f:
+        project = ASReviewProject.load(
+            request.files['file'],
+            asreview_path(),
+            safe_import=True
+        )
 
-            # load the project info in scope of function
-            import_project = json.load(f)
-
-            # If the uploaded project already exists,
-            # then overwrite project.json with a copy suffix.
-            while is_project(import_project["id"]):
-                # project update
-                import_project["id"] = f"{import_project['id']}-copy"
-                import_project["name"] = f"{import_project['name']} copy"
-            else:
-                # write to file
-                f.seek(0)
-                json.dump(import_project, f)
-                f.truncate()
-
-        # location to copy file to
-        fp_copy = get_project_path(import_project["id"])
-        # Move the project from the temp folder to the projects folder.
-        os.replace(tmpdir, fp_copy)
-
-    except Exception:
-        # Unknown error.
+    except Exception as err:
+        logging.error(err)
         raise ValueError("Failed to import project "
                          f"'{file_name.filename}'.")
 
