@@ -72,7 +72,7 @@ const NoteSheet = (props) => {
                 label="Note"
                 autoFocus={props.noteFieldAutoFocus()}
                 fullWidth
-                helperText="Save the note by labeling the record as relevant or irrelevant"
+                helperText="Save the note by labeling the record as relevant or irrelevant."
                 multiline
                 onChange={handleNote}
                 placeholder="Write something..."
