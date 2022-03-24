@@ -365,8 +365,8 @@ const SetupDialog = (props) => {
     isError: isProjectReadyError,
     isFetching: isPreparingProject,
   } = useQuery(
-    ["fetchProjectReady", { project_id: props.project_id }],
-    ProjectAPI.fetchProjectReady,
+    ["fetchProjectStatus", { project_id: props.project_id }],
+    ProjectAPI.fetchProjectStatus,
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
@@ -377,7 +377,7 @@ const SetupDialog = (props) => {
         } else {
           // not ready yet
           setTimeout(
-            () => queryClient.invalidateQueries("fetchProjectReady"),
+            () => queryClient.invalidateQueries("fetchProjectStatus"),
             24000
           );
         }

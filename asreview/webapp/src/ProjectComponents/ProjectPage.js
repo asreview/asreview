@@ -123,8 +123,8 @@ const ProjectPage = (props) => {
 
   const { error: checkSimulationError, isError: isCheckSimulationError } =
     useQuery(
-      ["fetchSimulationFinished", { project_id }],
-      ProjectAPI.fetchSimulationFinished,
+      ["fetchSimulationStatus", { project_id }],
+      ProjectAPI.fetchSimulationStatus,
       {
         enabled: isSimulating,
         onSuccess: (data) => {
@@ -137,7 +137,7 @@ const ProjectPage = (props) => {
           } else {
             // not finished yet
             setTimeout(
-              () => queryClient.invalidateQueries("fetchSimulationFinished"),
+              () => queryClient.invalidateQueries("fetchSimulationStatus"),
               checkIfSimulationFinishedDuration
             );
           }
@@ -151,7 +151,7 @@ const ProjectPage = (props) => {
       return ["fetchInfo", error, isError];
     } else if (isCheckSimulationError) {
       return [
-        "fetchSimulationFinished",
+        "fetchSimulationStatus",
         checkSimulationError,
         isCheckSimulationError,
       ];

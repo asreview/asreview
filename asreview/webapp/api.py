@@ -953,7 +953,9 @@ def api_start(project):  # noqa: F401
                 # specify project id
                 project.project_path,
                 # output the error of the first model
-                "--output_error"
+                "--output_error",
+                # mark the first run for status update
+                "--first_run"
             ]
             subprocess.Popen(run_command)
 
@@ -966,78 +968,51 @@ def api_start(project):  # noqa: F401
     return response
 
 
-@bp.route('/projects/<project_id>/ready', methods=["GET"])
+@bp.route('/projects/<project_id>/status', methods=["GET"])
 @project_from_id
-def api_init_model_ready(project):  # noqa: F401
-    """Check if trained model is available
+def api_status(project):  # noqa: F401
+    """Check the status of the review
     """
 
-    project_config = project.config
+    # project_config = project.config
 
-    if project_config["mode"] == PROJECT_MODE_SIMULATE:
-        logging.info("Checking if simulation starts")
+    status = project.get_review_status()
 
-        try:
-            with open_state(project.project_path) as state:
-                if state.model_has_trained:
-                    project.update_config(projectInitReady=True)
-
-                # if get_simulation_ready_path(project.project_path,
-                #                              simulation_id).exists():
-                #     logging.info("simulation ready")
-                #     project.update_review(simulation_id, status="ready")
-                    response = jsonify({'status': 1})
-                else:
-                    response = jsonify({'status': 0})
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to initiate the simulation project"), 500
-
-    else:
+    if status == "error":
         error_path = project.project_path / "error.json"
         if error_path.exists():
-            logging.error("error on training")
+            logging.error("Error on training")
             with open(error_path, "r") as f:
                 error_message = json.load(f)
-            return jsonify(message=error_message), 400
 
-        try:
-            with open_state(project.project_path) as state:
-                if state.model_has_trained:
-                    project.update_config(projectInitReady=True)
+            raise Exception(error_message)
 
-                    response = jsonify({'status': 1})
-                else:
-                    response = jsonify({'status': 0})
-
-        except Exception as err:
-            logging.error(err)
-            return jsonify(message="Failed to initiate the project"), 500
-
+    response = jsonify({'status': status})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+    # if project_config["mode"] == PROJECT_MODE_SIMULATE:
+    #     logging.info("Checking if simulation starts")
 
-@bp.route('/projects/<project_id>/simulation_finished', methods=["GET"])
-@project_from_id
-def api_simulation_finished(project):  # noqa: F401
-    """Check if simulation has finished.
-    """
-    project_config = project.config
+    #     try:
+    #         with open_state(project.project_path) as state:
+    #             if state.model_has_trained:
+    #                 project.update_config(projectInitReady=True)
 
-    try:
-        if project_config["reviewFinished"]:
-            response = jsonify({"status": 1})
-        else:
-            response = jsonify({"status": 0})
+    #             # if get_simulation_ready_path(project.project_path,
+    #             #                              simulation_id).exists():
+    #             #     logging.info("simulation ready")
+    #             #     project.update_review(simulation_id, status="ready")
+    #                 response = jsonify({'status': 1})
+    #             else:
+    #                 response = jsonify({'status': 0})
 
-    except Exception as err:
-        logging.error(err)
-        return jsonify(message="Failed to check simulation project status"), 500
+    #     except Exception as err:
+    #         logging.error(err)
+    #         return jsonify(message="Failed to initiate the simulation project"), 500
 
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
+    # else:
+
 
 
 @bp.route('/projects/import_project', methods=["POST"])

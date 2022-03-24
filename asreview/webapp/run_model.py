@@ -78,7 +78,7 @@ def get_lab_reviewer(as_data,
     return reviewer
 
 
-def train_model(project_id):
+def train_model(project):
     """Add the new labels to the review and do the modeling.
 
     It uses a lock to ensure only one model is running at the same time.
@@ -86,42 +86,42 @@ def train_model(project_id):
 
     It has one argument on the CLI, which is the base project directory.
     """
-    project_path = get_project_path(project_id)
-    logging.info(f"Project {project_id} - Train a new model for project")
+
+    logging.info(f"Project {project.project_path} - Train a new model for project")
 
     # get file locations
-    lock_file = Path(project_path, "lock.sqlite")
+    lock_file = Path(project.project_path, "lock.sqlite")
 
     # Lock so that only one training run is running at the same time.
     # It doesn't lock the flask server/client.
     with SQLiteLock(
             lock_file, blocking=False, lock_name="training",
-            project_id=project_id) as lock:
+            project_id=project.project_id) as lock:
 
         # If the lock is not acquired, another training instance is running.
         if not lock.locked():
-            logging.info(f"Project {project_id} - "
+            logging.info(f"Project {project.project_path} - "
                          "Cannot acquire lock, other instance running.")
             return
 
         # Check if there are new labeled records.
-        with open_state(project_path) as state:
+        with open_state(project.project_path) as state:
             exist_new_labeled_records = state.exist_new_labeled_records
 
         if exist_new_labeled_records:
             # collect command line arguments and pass them to the reviewer
-            as_data = read_data(project_id)
+            as_data = read_data(project.project_path)
 
             reviewer = get_lab_reviewer(
                 as_data=as_data,
-                state_file=project_path
+                state_file=project.project_path
             )
 
             # Train the model.
             reviewer.train()
         else:
             logging.info(
-                f"Project {project_id} - No new labels since last run.")
+                f"Project {project.project_path} - No new labels since last run.")
             return
 
 
@@ -129,30 +129,44 @@ def main(argv):
 
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("project_id", type=str, help="Project id")
+    parser.add_argument("project_path", type=str, help="Project id")
     parser.add_argument(
         "--output_error",
         dest='output_error',
         action='store_true',
         help="Save training error message to file.")
+    parser.add_argument(
+        "--first_run",
+        dest='first_run',
+        action='store_true',
+        help="After first run, status is updated.")
     args = parser.parse_args(argv)
 
+    project = ASReviewProject(args.project_path)
+
     try:
-        train_model(args.project_id)
+        train_model(project)
+
+        # change the project status to review
+        project.update_review(status="review")
+
     except Exception as err:
         err_type = type(err).__name__
         logging.error(f"Project {args.project_id} - {err_type}: {err}")
+        project.update_review(status="error")
 
         # write error to file if label method is prior (first iteration)
         if args.output_error:
             message = {"message": f"{err_type}: {err}"}
 
-            fp = get_project_path(args.project_id) / "error.json"
+            fp = Path(project.project_path, "error.json")
             with open(fp, 'w') as f:
                 json.dump(message, f)
 
         # raise the error for full traceback
         raise err
+    else:
+        project.update_review(status="review")
 
 
 if __name__ == "__main__":

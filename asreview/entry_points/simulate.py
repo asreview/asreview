@@ -136,7 +136,7 @@ class SimulateEntryPoint(BaseEntryPoint):
             balance_model = get_balance_model(settings.balance_strategy)
             feature_model = get_feature_model(settings.feature_extraction)
 
-            fp_tmp_simulation = args.state_file
+            project = ASReviewProject(args.state_file)
 
         # for simulation CLI
         else:
@@ -229,7 +229,7 @@ class SimulateEntryPoint(BaseEntryPoint):
 
         # Initialize the review class.
         reviewer = ReviewSimulate(as_data,
-                                  state_file=fp_tmp_simulation,
+                                  state_file=project.project_path,
                                   model=classifier_model,
                                   query_model=query_model,
                                   balance_model=balance_model,
@@ -244,15 +244,19 @@ class SimulateEntryPoint(BaseEntryPoint):
                                   write_interval=args.write_interval)
 
         # Start the review process.
-        reviewer.review()
+        project.update_review(status="review")
+        try:
+            reviewer.review()
+        except Exception as err:
+            project.update_review(status="error")
+            raise err
 
-        print("finished simlation")
+        print("Simulation finished.")
 
         # for cli simulate
         if args.dataset != "":
 
             # Mark review as finished.
-            project = ASReviewProject(fp_tmp_simulation)
             project.mark_review_finished()
             project.export(args.state_file)
 

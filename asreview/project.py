@@ -275,11 +275,7 @@ class ASReviewProject():
                 'description': project_description,
                 'authors': project_authors,
                 'created_at_unix': int(time.time()),
-
-                # project related variables
                 'datetimeCreated': str(datetime.now()),
-                'projectInitReady': False,
-                'reviewFinished': False,
                 'reviews': [],
                 'feature_matrices': []
             }
@@ -473,7 +469,7 @@ class ASReviewProject():
         except Exception:
             return []
 
-    def add_review(self, review_id, start_time=None, review_finished=False):
+    def add_review(self, review_id, start_time=None, status="setup"):
         """Add new review metadata.
 
         Arguments
@@ -496,9 +492,7 @@ class ASReviewProject():
         review_config = {
             "id": review_id,
             "start_time": str(start_time),
-            "review_finished": review_finished
-            # one of the following: ["setup", "running", "stopped"]
-            # "status": "stopped"
+            "status": status
             # "end_time": datetime.now()
         }
 
@@ -566,8 +560,6 @@ class ASReviewProject():
 
         # update the config
         self.update_config(**{
-            'projectInitReady': False,
-            'reviewFinished': False,
             'reviews': [],
             'feature_matrices': []
         })
@@ -584,7 +576,7 @@ class ASReviewProject():
         """
 
         self.update_review(review_id=review_id,
-                           review_finished=True,
+                           status="finished",
                            end_time=str(datetime.now()))
 
     def export(self, export_fp):
