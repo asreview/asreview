@@ -370,16 +370,12 @@ class ASReviewData():
         numpy.ndarray
             Array of indices that have the 'prior' property.
         """
-        state_data = state.get_dataset(['record_id', 'query_strategy'])
+        prior_indices = state.get_priors().to_list()
 
-        if "prior" not in state_data['query_strategy'].values:
-            return np.array([], dtype=int)
-
-        initial_indices = state_data['record_id'][
-            state_data['query_strategy'] == 'prior'].to_list()
         if by_index:
-            return np.array(initial_indices, dtype=int)
-        return self.df.index.values[initial_indices]
+            return np.array(prior_indices, dtype=int)
+        else:
+            return self.df.index.values[prior_indices]
 
     def to_file(self, fp, labels=None, ranking=None, writer=None):
         """Export data object to file.

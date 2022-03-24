@@ -818,7 +818,7 @@ class SQLiteState(BaseState):
         con.close()
         return data
 
-    def get_dataset(self, columns=None, drop_priors=False, drop_pending=True):
+    def get_dataset(self, columns=None, priors=True, pending=False):
         """Get a column from the results table. Most other get functions use
         this one.
 
@@ -827,9 +827,9 @@ class SQLiteState(BaseState):
         columns: list, str
             List of columns names of the results table, or a string containing
             one column name.
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -849,9 +849,9 @@ class SQLiteState(BaseState):
             contains_query_strategy = 'query_strategy' in columns
             contains_labels = 'label' in columns
 
-            if drop_priors and not contains_query_strategy:
+            if not priors and not contains_query_strategy:
                 columns.append('query_strategy')
-            if drop_pending and not contains_labels:
+            if not pending and not contains_labels:
                 columns.append('label')
 
         # Query the database.
@@ -861,11 +861,11 @@ class SQLiteState(BaseState):
         con.close()
 
         # Drop priors/pending and added columns.
-        if drop_priors:
+        if not priors:
             data = data[data['query_strategy'] != 'prior']
             if not contains_query_strategy:
                 data.drop('query_strategy', axis=1, inplace=True)
-        if drop_pending:
+        if not pending:
             data.dropna(subset=['label'], inplace=True)
             if not contains_labels:
                 data.drop('label', axis=1, inplace=True)
@@ -873,14 +873,14 @@ class SQLiteState(BaseState):
 
         return data
 
-    def get_order_of_labeling(self, drop_priors=False, drop_pending=True):
+    def get_order_of_labeling(self, priors=True, pending=False):
         """Get full array of record id's in order that they were labeled.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -888,8 +888,8 @@ class SQLiteState(BaseState):
         pd.Series:
             The record_id's in the order that they were labeled.
         """
-        return self.get_dataset('record_id', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['record_id']
+        return self.get_dataset('record_id', priors=priors,
+                                pending=pending)['record_id']
 
     def get_priors(self):
         """Get the record ids of the priors.
@@ -901,14 +901,14 @@ class SQLiteState(BaseState):
         """
         return self.get_order_of_labeling()[:self.n_priors]
 
-    def get_labels(self, drop_priors=False, drop_pending=True):
+    def get_labels(self, priors=True, pending=False):
         """Get the labels from the state file.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -917,17 +917,17 @@ class SQLiteState(BaseState):
             Series containing the labels at each labelling moment.
         """
 
-        return self.get_dataset('label', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['label']
+        return self.get_dataset('label', priors=priors,
+                                pending=pending)['label']
 
-    def get_classifiers(self, drop_priors=False, drop_pending=True):
+    def get_classifiers(self, priors=True, pending=False):
         """Get the classifiers from the state file.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -935,17 +935,17 @@ class SQLiteState(BaseState):
         pd.Series:
             Series containing the classifier used at each labeling moment.
         """
-        return self.get_dataset('classifier', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['classifier']
+        return self.get_dataset('classifier', priors=priors,
+                                pending=pending)['classifier']
 
-    def get_query_strategies(self, drop_priors=False, drop_pending=True):
+    def get_query_strategies(self, priors=True, pending=False):
         """Get the query strategies from the state file.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -954,17 +954,17 @@ class SQLiteState(BaseState):
             Series containing the query strategy used to get the record to
             query at each labeling moment.
         """
-        return self.get_dataset('query_strategy', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['query_strategy']
+        return self.get_dataset('query_strategy', priors=priors,
+                                pending=pending)['query_strategy']
 
-    def get_balance_strategies(self, drop_priors=False, drop_pending=True):
+    def get_balance_strategies(self, priors=True, pending=False):
         """Get the balance strategies from the state file.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -973,17 +973,17 @@ class SQLiteState(BaseState):
             Series containing the balance strategy used to get the training
             data at each labeling moment.
         """
-        return self.get_dataset('balance_strategy', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['balance_strategy']
+        return self.get_dataset('balance_strategy', priors=priors,
+                                pending=pending)['balance_strategy']
 
-    def get_feature_extraction(self, drop_priors=False, drop_pending=True):
+    def get_feature_extraction(self, priors=True, pending=False):
         """Get the query strategies from the state file.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -992,17 +992,17 @@ class SQLiteState(BaseState):
             Series containing the feature extraction method used for the
             classifier input at each labeling moment.
         """
-        return self.get_dataset('feature_extraction', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['feature_extraction']
+        return self.get_dataset('feature_extraction', priors=priors,
+                                pending=pending)['feature_extraction']
 
-    def get_training_sets(self, drop_priors=False, drop_pending=True):
+    def get_training_sets(self, priors=True, pending=False):
         """Get the training_sets from the state file.
 
         Arguments
         ---------
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -1011,11 +1011,11 @@ class SQLiteState(BaseState):
             Series containing the training set on which the classifier was fit
             at each labeling moment.
         """
-        return self.get_dataset('training_set', drop_priors=drop_priors,
-                                drop_pending=drop_pending)['training_set']
+        return self.get_dataset('training_set', priors=priors,
+                                pending=pending)['training_set']
 
-    def get_labeling_times(self, time_format='int', drop_priors=False,
-                           drop_pending=True):
+    def get_labeling_times(self, time_format='int', priors=True,
+                           pending=False):
         """Get the time of labeling the state file.
 
         Arguments
@@ -1023,9 +1023,9 @@ class SQLiteState(BaseState):
         time_format: 'int' or 'datetime'
             Format of the return value. If it is 'int' you get a UTC timestamp,
             if it is 'datetime' you get datetime instead of an integer.
-        drop_priors: bool
+        priors: bool
             Drop the rows containing the prior knowledge.
-        drop_pending: bool
+        pending: bool
             Drop the rows which are pending a labeling decision.
 
         Returns
@@ -1034,8 +1034,8 @@ class SQLiteState(BaseState):
             If format='int' you get a UTC timestamp (integer number of
             microseconds), if it is 'datetime' you get datetime format.
         """
-        times = self.get_dataset('labeling_time', drop_priors=drop_priors,
-                                 drop_pending=drop_pending)['labeling_time']
+        times = self.get_dataset('labeling_time', priors=priors,
+                                 pending=pending)['labeling_time']
 
         # Convert time to datetime format.
         if time_format == 'datetime':
