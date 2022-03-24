@@ -293,11 +293,11 @@ export default function ProgressRecallChart(props) {
       <CardContent className={classes.root}>
         <Stack spacing={2}>
           {!props.mobileScreen && (
-            <Typography variant="h6">Progress Recall</Typography>
+            <Typography variant="h6">Recall Plot</Typography>
           )}
           {props.mobileScreen && (
             <TypographySubtitle1Medium>
-              Progress Recall
+              Recall Plot
             </TypographySubtitle1Medium>
           )}
           <Chart
