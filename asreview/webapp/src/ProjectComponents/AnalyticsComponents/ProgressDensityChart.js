@@ -313,11 +313,11 @@ export default function ProgressDensityChart(props) {
         <Stack spacing={2}>
           <Box className={classes.title}>
             {!props.mobileScreen && (
-              <Typography variant="h6">Progress Density</Typography>
+              <Typography variant="h6">Progress Plot</Typography>
             )}
             {props.mobileScreen && (
               <TypographySubtitle1Medium>
-                Progress Density
+                Progress Plot
               </TypographySubtitle1Medium>
             )}
             <StyledTooltip
