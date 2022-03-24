@@ -320,10 +320,10 @@ def test_record_table(tmpdir):
 def test_get_last_probabilities():
     with open_state(TEST_STATE_FP) as state:
         probabilities = state.get_last_probabilities()
-        assert isinstance(probabilities, pd.DataFrame)
-        assert list(probabilities.columns) == ['proba']
-        assert probabilities['proba'].to_list()[:10] == TEST_FIRST_PROBS
-        assert probabilities['proba'].to_list()[-10:] == TEST_LAST_PROBS
+        assert isinstance(probabilities, pd.Series)
+        assert probabilities.name == 'proba'
+        assert probabilities.to_list()[:10] == TEST_FIRST_PROBS
+        assert probabilities.to_list()[-10:] == TEST_LAST_PROBS
 
 
 @pytest.mark.xfail(
@@ -341,7 +341,7 @@ def test_add_last_probabilities(tmpdir):
     probabilities = [float(num) for num in range(50)]
     with open_state(project_path, read_only=False) as state:
         state.add_last_probabilities(probabilities)
-        state_probabilities = state.get_last_probabilities()['proba'].tolist()
+        state_probabilities = state.get_last_probabilities().to_list()
         assert state_probabilities == probabilities
 
 

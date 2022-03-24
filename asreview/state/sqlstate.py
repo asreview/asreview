@@ -53,9 +53,9 @@ SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version",
                           "model_has_trained"]
 
 
-# TODO(State): Update docstring.
 class SQLiteState(BaseState):
-    """Class for storing the review state with HDF5 storage.
+    """Class for storing the review state. The results are stored in a sqlite
+    database.
 
     Arguments
     ---------
@@ -64,15 +64,23 @@ class SQLiteState(BaseState):
 
     Attributes
     ----------
+    version: str
+        Return the version number of the state.
     settings: asreview.settings.ASReviewSettings
         Return an ASReview settings object with model settings and
         active learning settings.
+    current_queries: dict:
+        The last known queries according to the state.
     n_records_labeled: int
         Get the number of labeled records, where each prior is counted
         individually.
     n_priors: int
         Number of priors. If priors have not been selected returns None.
-
+    exist_new_labeled_records: bool
+        Have there been labeled records added to the state since the last time
+        a model ranking was added to the state?
+    model_has_trained: bool
+        Has the ranking by a model been added to the state?
     """
     def __init__(self, read_only=True):
         super(SQLiteState, self).__init__(read_only=read_only)
@@ -95,10 +103,9 @@ class SQLiteState(BaseState):
             con = sqlite3.connect(str(self._sql_fp))
         return con
 
-    # TODO(State): Should this be obtained from webapp/utils/paths, viceversa?
     @property
     def _sql_fp(self):
-        """Path to the sql database."""
+        """Path to the sqlite database."""
 
         if self.review_id is None:
 
@@ -124,7 +131,7 @@ class SQLiteState(BaseState):
         return get_feature_matrix_path(self.working_dir, feature_extraction)
 
     def _create_new_state_file(self, working_dir, review_id):
-        """Create the files for a new state given an review_id.
+        """Create the files for storing a new state given an review_id.
 
         Stages:
         1: create result structure
@@ -135,6 +142,8 @@ class SQLiteState(BaseState):
         ---------
         working_dir: str, pathlib.Path
             Project file location.
+        review_id: str
+            Identifier of the review.
         """
         if self.read_only:
             raise ValueError("Can't create new state file in read_only mode.")
@@ -207,12 +216,12 @@ class SQLiteState(BaseState):
 
     def _restore(self, working_dir, review_id):
         """
-        Initialize a state from files.
+        Restore a state from files.
 
         Arguments
         ---------
         working_dir: str, pathlib.Path
-            Project file location.
+            Location of the project file.
         review_id: str
             Identifier of the review.
         """
@@ -292,12 +301,12 @@ class SQLiteState(BaseState):
 
     @property
     def version(self):
-        """Version number of the state file.
+        """Version number of the state.
 
         Returns
         -------
         str:
-            Returns the version of the state file.
+            Returns the version of the state.
 
         """
         try:
@@ -309,8 +318,6 @@ class SQLiteState(BaseState):
     @property
     def settings(self):
         """Settings of the ASReview pipeline.
-
-        Settings like models.
 
         Example
         -------
@@ -358,7 +365,7 @@ class SQLiteState(BaseState):
         Returns
         -------
         dict:
-            The last known queries according to the state file.
+            The last known queries according to the state.
         """
         str_queries = self.settings_metadata['current_queries']
         return {int(key): value for key, value in str_queries.items()}
@@ -393,7 +400,7 @@ class SQLiteState(BaseState):
     @property
     def exist_new_labeled_records(self):
         """Return True if there were records labeled since the last time the
-        model training data was saved in the state. Also returns True if no
+        model ranking was added to the state. Also returns True if no
         model was trained yet, but priors have been added."""
         labeled = self.get_labeled()
         last_training_set = self.get_last_ranking()['training_set']
@@ -409,7 +416,6 @@ class SQLiteState(BaseState):
 
     def _update_project_with_feature_extraction(self, feature_extraction):
         """If the feature extraction method is set, update the project.json."""
-        # TODO(State): Should this always be .npz?
         feature_matrix_filename = f'{feature_extraction}_feature_matrix.npz'
 
         with open(get_project_file_path(self.working_dir), "r") as f:
@@ -443,7 +449,7 @@ class SQLiteState(BaseState):
             json.dump(self.settings_metadata, f)
 
     def add_record_table(self, record_ids):
-        # Add the record table to the sql.
+        """ Add the record table to the sql. """
         record_sql_input = [(int(record_id), ) for record_id in record_ids]
 
         con = self._connect_to_sql()
@@ -477,7 +483,8 @@ class SQLiteState(BaseState):
 
     def add_last_ranking(self, ranked_record_ids, classifier, query_strategy,
                          balance_strategy, feature_extraction, training_set):
-        """Save the ranking of the last iteration of the model."""
+        """Save the ranking of the last iteration of the model, in the ranking
+        order."""
         record_ids = self.get_record_table()
 
         if len(record_ids) != len(ranked_record_ids):
@@ -554,9 +561,6 @@ class SQLiteState(BaseState):
 
     def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
         """Add all the data of one labeling action."""
-
-        # TODO (State): Add custom datasets.
-        # TODO (State): Add models being trained.
 
         # Check if the state is still valid.
         self._is_valid_state()
@@ -650,7 +654,14 @@ class SQLiteState(BaseState):
         con.close()
 
     def delete_record_labeling_data(self, record_id):
-        """Delete the labeling data for the given record id."""
+        """Delete the labeling data for the given record id.
+
+        Arguments
+        ----------
+        record_id : str
+            Identifier of the record to delete.
+
+        """
         current_time = datetime.now()
 
         con = self._connect_to_sql()
@@ -672,7 +683,7 @@ class SQLiteState(BaseState):
         return change_table
 
     def get_record_table(self):
-        """Get the record table of the state file.
+        """Get the record table of the state.
 
         Returns
         -------
@@ -690,14 +701,14 @@ class SQLiteState(BaseState):
 
         Returns
         -------
-        pd.DataFrame:
-            Dataframe with column 'proba' containing the probabilities.
+        pd.Series:
+            Series with name 'proba' containing the probabilities.
         """
         con = self._connect_to_sql()
         last_probabilities = pd.read_sql_query(
             'SELECT * FROM last_probabilities', con)
         con.close()
-        return last_probabilities
+        return last_probabilities['proba']
 
     def get_last_ranking(self):
         """Get the ranking from the state."""
@@ -828,9 +839,9 @@ class SQLiteState(BaseState):
             List of columns names of the results table, or a string containing
             one column name.
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -879,9 +890,9 @@ class SQLiteState(BaseState):
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records are pending a labeling decision.
 
         Returns
         -------
@@ -902,14 +913,14 @@ class SQLiteState(BaseState):
         return self.get_order_of_labeling()[:self.n_priors]
 
     def get_labels(self, priors=True, pending=False):
-        """Get the labels from the state file.
+        """Get the labels from the state.
 
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -921,14 +932,14 @@ class SQLiteState(BaseState):
                                 pending=pending)['label']
 
     def get_classifiers(self, priors=True, pending=False):
-        """Get the classifiers from the state file.
+        """Get the classifiers from the state.
 
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -939,14 +950,14 @@ class SQLiteState(BaseState):
                                 pending=pending)['classifier']
 
     def get_query_strategies(self, priors=True, pending=False):
-        """Get the query strategies from the state file.
+        """Get the query strategies from the state.
 
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -958,14 +969,14 @@ class SQLiteState(BaseState):
                                 pending=pending)['query_strategy']
 
     def get_balance_strategies(self, priors=True, pending=False):
-        """Get the balance strategies from the state file.
+        """Get the balance strategies from the state.
 
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -977,14 +988,14 @@ class SQLiteState(BaseState):
                                 pending=pending)['balance_strategy']
 
     def get_feature_extraction(self, priors=True, pending=False):
-        """Get the query strategies from the state file.
+        """Get the query strategies from the state.
 
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -996,14 +1007,14 @@ class SQLiteState(BaseState):
                                 pending=pending)['feature_extraction']
 
     def get_training_sets(self, priors=True, pending=False):
-        """Get the training_sets from the state file.
+        """Get the training_sets from the state.
 
         Arguments
         ---------
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -1016,7 +1027,7 @@ class SQLiteState(BaseState):
 
     def get_labeling_times(self, time_format='int', priors=True,
                            pending=False):
-        """Get the time of labeling the state file.
+        """Get the time of labeling the state.
 
         Arguments
         ---------
@@ -1024,9 +1035,9 @@ class SQLiteState(BaseState):
             Format of the return value. If it is 'int' you get a UTC timestamp,
             if it is 'datetime' you get datetime instead of an integer.
         priors: bool
-            Drop the rows containing the prior knowledge.
+            Whether to keep the records containing the prior knowledge.
         pending: bool
-            Drop the rows which are pending a labeling decision.
+            Whether to keep the records which are pending a labeling decision.
 
         Returns
         -------
@@ -1047,7 +1058,9 @@ class SQLiteState(BaseState):
 # Get pool, labeled and pending in slightly more optimized way than via
 # get_dataset.
     def get_pool(self):
-        """Return the pool of unlabeled records in the ranking order.
+        """Get the pool of unlabeled records, not pending a labeling decision,
+        in the ranking order. If you only want the records in the pool, this
+        is more efficient than via 'get_pool_labeled_pending'.
 
         Returns
         -------
@@ -1082,6 +1095,16 @@ class SQLiteState(BaseState):
         return df['record_id']
 
     def get_labeled(self):
+        """Get the record_ids and labels of the labeled records in order of
+        labeling. If you only want the labeled records, this is more efficient
+        than via 'get_pool_labeled_pending'.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe containing the record_ids and labels of the labeled
+            records, in the order that they were labeled.
+        """
         con = self._connect_to_sql()
         query = """SELECT record_id, label FROM results
          WHERE label is not null"""
@@ -1090,6 +1113,16 @@ class SQLiteState(BaseState):
         return df
 
     def get_pending(self):
+        """Get the record_ids of the records pending a labeling decision.
+        If you only want the pending records, this is more efficient
+        than via 'get_pool_labeled_pending'.
+
+        Returns
+        -------
+        pd.Series
+            A series containing the record_ids of the records whose label is
+            pending.
+        """
         con = self._connect_to_sql()
         query = """SELECT record_id FROM results WHERE label is null"""
         df = pd.read_sql_query(query, con)

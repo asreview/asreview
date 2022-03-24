@@ -35,12 +35,12 @@ class BaseState(ABC):
         return str(self.to_dict())
 
     @abstractmethod
-    def _create_new_state_file(self, fp, review_id):
+    def _create_new_state_file(self, working_dir, review_id):
         """Create empty internal structure for state.
 
         Arguments
         ---------
-        fp: str
+        working_dir: str, pathlib.Path
             Location of project file.
         review_id: str
             Identifier of the review.
@@ -48,25 +48,25 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def _restore(self, fp, review_id):
+    def _restore(self, working_dir, review_id):
         """Restore state from a state file.
 
         Arguments
         ---------
-        fp: str
-            Path to project file.
+        working_dir: str, pathlib.Path
+            Location of project file.
         review_id: str
             Identifier of the review.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def add_record_table(self, record_table):
-        """Add properties from as_data to the state.
+    def add_record_table(self, record_ids):
+        """Add the record table to the state.
 
         Arguments
         ---------
-        record_table: list-like
+        record_ids: list-like
             List containing all record ids of the dataset.
         """
         raise NotImplementedError
@@ -134,8 +134,8 @@ class BaseState(ABC):
 
         Returns
         -------
-        pd.DataFrame:
-            Dataframe with column 'proba' containing the probabilities.
+        pd.Series:
+            Series with name 'proba' containing the probabilities.
         """
         raise NotImplementedError
 
@@ -169,7 +169,7 @@ class BaseState(ABC):
     @property
     @abstractmethod
     def settings(self):
-        """Get settings from state
+        """Get settings from the state.
         """
         raise NotImplementedError
 
@@ -187,7 +187,7 @@ class BaseState(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_labeling_data(self, record_ids, labels, notes=None):
+    def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
         """Add the data corresponding to a labeling action to the state file.
 
         Arguments
@@ -198,10 +198,12 @@ class BaseState(ABC):
             A list of labels of the labeled records as int.
         notes: list of str/None
             A list of text notes to save with the labeled records.
+        prior: bool
+            Whether the added record are prior knowledge.
         """
         raise NotImplementedError
 
-    def change_decision(self, record_id):
+    def update_decision(self, record_id):
         """Change the label of a record from 0 to 1 or vice versa.
 
         Arguments
@@ -363,17 +365,10 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    # @abstractmethod
-    # def delete_last_query(self):
-    #     """Delete the last query from the state object."""
-    #     raise NotImplementedError
-    #
-
     @abstractmethod
     def close(self):
         """Close the files opened by the state.
 
-        Also sets the end time if not in read-only mode.
         """
         raise NotImplementedError
 
@@ -383,7 +378,7 @@ class BaseState(ABC):
         Returns
         -------
         dict:
-            Dictionary with all relevant variables.
+            Dictionary with all settings and results.
         """
         state_data = self.get_dataset()
         state_dict = {
