@@ -170,7 +170,7 @@ const ProjectTable = (props) => {
             // reset query if error
             if (querySimulationError.isError) {
               queryClient.resetQueries(
-                `fetchSimulationStatus-${project_id[key]}`
+                `fetchProjectStatus-${project_id[key]}`
               );
               setQuerySimulationError({
                 isError: false,
@@ -180,10 +180,10 @@ const ProjectTable = (props) => {
             // update query array
             simulationQueries.push({
               queryKey: [
-                `fetchSimulationStatus-${project_id[key]}`,
+                `fetchProjectStatus-${project_id[key]}`,
                 { project_id: project_id[key] },
               ],
-              queryFn: ProjectAPI.fetchSimulationStatus,
+              queryFn: ProjectAPI.fetchProjectStatus,
               enabled: project_id[key] !== null,
               onError: (error) => {
                 setQuerySimulationError({
@@ -201,7 +201,7 @@ const ProjectTable = (props) => {
                   setTimeout(
                     () =>
                       queryClient.invalidateQueries(
-                        `fetchSimulationStatus-${project_id[key]}`
+                        `fetchProjectStatus-${project_id[key]}`
                       ),
                     checkIfSimulationFinishedDuration
                   );
