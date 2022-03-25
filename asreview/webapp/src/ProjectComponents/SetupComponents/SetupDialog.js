@@ -370,7 +370,7 @@ const SetupDialog = (props) => {
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
-        if (data["status"] === 1) {
+        if (data["status"] === "review") {
           // model ready
           setTrainingStarted(false);
           setTrainingFinished(true);

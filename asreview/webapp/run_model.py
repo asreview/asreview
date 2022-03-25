@@ -22,6 +22,7 @@ from asreview.models.balance import get_balance_model
 from asreview.models.classifiers import get_classifier
 from asreview.models.feature_extraction import get_feature_model
 from asreview.models.query import get_query_model
+from asreview.project import ASReviewProject
 from asreview.project import get_project_path
 from asreview.project import open_state
 from asreview.review.base import BaseReview

@@ -444,7 +444,7 @@ class ASReviewProject():
         # remove state file if present
         if get_reviews_path(self.project_path).is_dir() and \
                 any(get_reviews_path(self.project_path).iterdir()):
-            self.delete_state()
+            self.delete_review()
 
     def clean_tmp_files(self):
         """Clean temporary files in a project.
@@ -537,7 +537,7 @@ class ASReviewProject():
         # update the file with project info
         self.config = config
 
-    def delete_state(self, remove_folders=False):
+    def delete_review(self, remove_folders=False):
 
         try:
             # remove the folder tree

@@ -974,9 +974,10 @@ def api_status(project):  # noqa: F401
     """Check the status of the review
     """
 
-    # project_config = project.config
-
-    status = project.get_review_status()
+    try:
+        status = project.reviews[0]['status']
+    except Exception:
+        status = None
 
     if status == "error":
         error_path = project.project_path / "error.json"

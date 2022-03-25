@@ -128,7 +128,7 @@ const ProjectPage = (props) => {
       {
         enabled: isSimulating,
         onSuccess: (data) => {
-          if (data["status"] === 1) {
+          if (data["status"] === "finished") {
             // refresh analytics
             refetchAnalytics();
             // simulation finished

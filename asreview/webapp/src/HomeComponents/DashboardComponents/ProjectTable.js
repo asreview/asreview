@@ -192,7 +192,7 @@ const ProjectTable = (props) => {
                 });
               },
               onSuccess: (data) => {
-                if (data["status"] === 1) {
+                if (data["status"] === "finished") {
                   // simulation finished
                   queryClient.invalidateQueries("fetchDashboardStats");
                   queryClient.invalidateQueries("fetchProjects");
