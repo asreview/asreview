@@ -127,7 +127,10 @@ SCHEMA = {
         },
         "name": {
             "$id": "#/properties/name",
-            "type": "string",
+            "type": [
+                "string",
+                "null"
+            ],
             "title": "The name schema",
             "description": "The name of the project.",
             "default": "",
