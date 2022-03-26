@@ -190,7 +190,7 @@ SCHEMA = {
                     }
                 ]
             ],
-            "additionalItems": true,
+            "additionalItems": True,
             "items": {
                 "$id": "#/properties/reviews/items",
                 "anyOf": [
@@ -255,7 +255,7 @@ SCHEMA = {
                                 ]
                             }
                         },
-                        "additionalProperties": true
+                        "additionalProperties": True
                     }
                 ]
             }
@@ -274,7 +274,7 @@ SCHEMA = {
                     }
                 ]
             ],
-            "additionalItems": true,
+            "additionalItems": True,
             "items": {
                 "$id": "#/properties/feature_matrices/items",
                 "anyOf": [
@@ -316,7 +316,7 @@ SCHEMA = {
                                 ]
                             }
                         },
-                        "additionalProperties": true
+                        "additionalProperties": True
                     }
                 ]
             }
@@ -332,7 +332,7 @@ SCHEMA = {
             ]
         }
     },
-    "additionalProperties": true
+    "additionalProperties": True
 }
 
 
