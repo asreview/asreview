@@ -137,7 +137,10 @@ SCHEMA = {
         },
         "description": {
             "$id": "#/properties/description",
-            "type": "string",
+            "type": [
+                "string",
+                "null"
+            ],
             "title": "The description schema",
             "description": "The description of the project.",
             "default": "",
@@ -147,7 +150,10 @@ SCHEMA = {
         },
         "authors": {
             "$id": "#/properties/authors",
-            "type": "string",
+            "type": [
+                "string",
+                "null"
+            ],
             "title": "The authors schema",
             "description": "The authors of the project.",
             "default": "",
@@ -245,7 +251,10 @@ SCHEMA = {
                             },
                             "status": {
                                 "$id": "#/properties/reviews/items/anyOf/0/properties/status",
-                                "type": "string",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
                                 "title": "The status of the review.",
                                 "description": "The status of the review. Options are setup, review, finished.",
                                 "enum": ["setup", "review", "finished"],
