@@ -118,7 +118,7 @@ const DataForm = (props) => {
                 </React.Fragment>
               }
               secondaryDefault="Contains all records related to a particular topic"
-              secondaryAdded={`Contains ${data?.n_rows} records`}
+              secondaryAdded={`Contains ${data?.n_rows} records with ~${data?.n_duplicates} duplicates`}
               toggleAddCard={props.toggleAddDataset}
             />
             <DataFormCard
