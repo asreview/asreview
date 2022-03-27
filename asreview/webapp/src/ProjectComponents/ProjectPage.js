@@ -30,6 +30,7 @@ import {
   drawerWidth,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../globals.js";
 
 const PREFIX = "ProjectPage";
@@ -82,7 +83,7 @@ const ProjectPage = (props) => {
     {
       enabled: project_id !== undefined,
       onSuccess: (data) => {
-        if (!data["projectInitReady"]) {
+        if (data["reviews"][0]["status"] === projectStatuses.SETUP) {
           // set project id
           props.setProjectId(project_id);
           // open project setup dialog
@@ -233,7 +234,6 @@ const ProjectPage = (props) => {
               path="export"
               element={
                 <ExportPage
-                  enableExportDataset={data?.projectInitReady}
                   isSimulating={isSimulating}
                   mobileScreen={props.mobileScreen}
                 />

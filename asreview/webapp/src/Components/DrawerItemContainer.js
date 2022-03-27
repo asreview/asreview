@@ -18,7 +18,7 @@ import { Help, Payment, Settings } from "@mui/icons-material";
 import { DrawerItem } from "../Components";
 
 import { ProjectAPI } from "../api/index.js";
-import { donateURL, projectModes } from "../globals.js";
+import { donateURL, projectModes, projectStatuses } from "../globals.js";
 import Finished from "../images/ElasHoldingSIGNS_Finished.svg";
 import InReview from "../images/ElasHoldingSIGNS_InReview.svg";
 import SetUp from "../images/ElasHoldingSIGNS_SetUp.svg";
@@ -101,17 +101,17 @@ const DrawerItemContainer = (props) => {
 
   const returnElasState = () => {
     // setup
-    if (projectInfo && !projectInfo.projectInitReady) {
+    if (projectInfo?.reviews[0].status === projectStatuses.SETUP) {
       return SetUp;
     }
 
     // review
-    if (!projectInfo?.reviewFinished) {
+    if (projectInfo?.reviews[0].status === projectStatuses.REVIEW) {
       return InReview;
     }
 
     // finished
-    if (projectInfo?.reviewFinished) {
+    if (projectInfo?.reviews[0].status === projectStatuses.FINISHED) {
       return Finished;
     }
   };

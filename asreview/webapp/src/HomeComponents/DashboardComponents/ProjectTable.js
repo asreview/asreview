@@ -31,6 +31,7 @@ import {
   checkIfSimulationFinishedDuration,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../../globals";
 
 const PREFIX = "ProjectTable";
@@ -157,7 +158,7 @@ const ProjectTable = (props) => {
         const simulationProjects = data.filter(
           (element) =>
             element.mode === projectModes.SIMULATION &&
-            element.projectInitReady &&
+            element.reviews[0].status !== projectStatuses.SETUP &&
             !element.reviewFinished
         );
         if (!simulationProjects.length) {
@@ -222,7 +223,7 @@ const ProjectTable = (props) => {
   useQueries(querySimulationFinished);
 
   const openProject = (project, path) => {
-    if (!project["projectInitReady"]) {
+    if (project["reviews"][0]["status"] === "setup") {
       // set project id
       props.setProjectId(project["id"]);
       // open project setup dialog
@@ -281,26 +282,26 @@ const ProjectTable = (props) => {
    * Return status label and style
    */
   const statusLabel = (project) => {
-    if (project["projectInitReady"]) {
-      if (project["reviewFinished"]) {
-        return "Finished";
-      } else {
-        return "In Review";
-      }
-    } else {
+    if (project.reviews[0].status === projectStatuses.SETUP) {
       return "Setup";
+    }
+    if (project.reviews[0].status === projectStatuses.REVIEW) {
+      return "In Review";
+    }
+    if (project.reviews[0].status === projectStatuses.FINISHED) {
+      return "Finished";
     }
   };
 
   const statusStyle = (project) => {
-    if (project["projectInitReady"]) {
-      if (project["reviewFinished"]) {
-        return "dashboard-page-table-chip finished";
-      } else {
-        return "dashboard-page-table-chip inreview";
-      }
-    } else {
+    if (project.reviews[0].status === projectStatuses.SETUP) {
       return "dashboard-page-table-chip setup";
+    }
+    if (project.reviews[0].status === projectStatuses.REVIEW) {
+      return "dashboard-page-table-chip inreview";
+    }
+    if (project.reviews[0].status === projectStatuses.FINISHED) {
+      return "dashboard-page-table-chip finished";
     }
   };
 
@@ -340,17 +341,20 @@ const ProjectTable = (props) => {
                   const isSimulating = () => {
                     return (
                       row["mode"] === projectModes.SIMULATION &&
-                      row["projectInitReady"] &&
-                      !row["reviewFinished"]
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
 
                   const showAnalyticsButton = () => {
-                    return row["projectInitReady"];
+                    return (
+                      row["reviews"][0]["status"] !== projectStatuses.SETUP
+                    );
                   };
 
                   const showReviewButton = () => {
-                    return row["projectInitReady"] && !row["reviewFinished"];
+                    return (
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
+                    );
                   };
 
                   const onClickProjectAnalytics = () => {
@@ -363,7 +367,7 @@ const ProjectTable = (props) => {
 
                   const onClickProjectExport = () => {
                     if (
-                      !row["projectInitReady"] ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP ||
                       row["projectNeedsUpgrade"]
                     ) {
                       queryClient.prefetchQuery(

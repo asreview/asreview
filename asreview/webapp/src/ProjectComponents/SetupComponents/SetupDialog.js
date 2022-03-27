@@ -37,6 +37,7 @@ import {
   mapStateToProps,
   mapDispatchToProps,
   projectModes,
+  projectStatuses,
 } from "../../globals.js";
 import { useToggle } from "../../hooks/useToggle";
 
@@ -373,7 +374,7 @@ const SetupDialog = (props) => {
     {
       enabled: trainingStarted,
       onSuccess: (data) => {
-        if (data["status"] === "review") {
+        if (data["status"] === projectStatuses.REVIEW) {
           // model ready
           setTrainingStarted(false);
           setTrainingFinished(true);
