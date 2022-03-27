@@ -169,9 +169,7 @@ const ProjectTable = (props) => {
           for (let key in project_id) {
             // reset query if error
             if (querySimulationError.isError) {
-              queryClient.resetQueries(
-                `fetchProjectStatus-${project_id[key]}`
-              );
+              queryClient.resetQueries(`fetchProjectStatus-${project_id[key]}`);
               setQuerySimulationError({
                 isError: false,
                 message: null,

@@ -296,9 +296,7 @@ export default function ProgressRecallChart(props) {
             <Typography variant="h6">Recall Plot</Typography>
           )}
           {props.mobileScreen && (
-            <TypographySubtitle1Medium>
-              Recall Plot
-            </TypographySubtitle1Medium>
+            <TypographySubtitle1Medium>Recall Plot</TypographySubtitle1Medium>
           )}
           <Chart
             options={options}
