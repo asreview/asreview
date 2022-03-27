@@ -282,7 +282,7 @@ const ProjectTable = (props) => {
    * Return status label and style
    */
   const statusLabel = (project) => {
-    if (project.reviews[0].status === projectStatuses.SETUP) {
+    if (project.reviews[0] === undefined || project.reviews[0].status === projectStatuses.SETUP) {
       return "Setup";
     }
     if (project.reviews[0].status === projectStatuses.REVIEW) {
@@ -294,7 +294,7 @@ const ProjectTable = (props) => {
   };
 
   const statusStyle = (project) => {
-    if (project.reviews[0].status === projectStatuses.SETUP) {
+    if (project.reviews[0] === undefined || project.reviews[0].status === projectStatuses.SETUP) {
       return "dashboard-page-table-chip setup";
     }
     if (project.reviews[0].status === projectStatuses.REVIEW) {
@@ -347,13 +347,13 @@ const ProjectTable = (props) => {
 
                   const showAnalyticsButton = () => {
                     return (
-                      row["reviews"][0]["status"] !== projectStatuses.SETUP
+                      row["reviews"][0] === undefined || row["reviews"][0]["status"] !== projectStatuses.SETUP
                     );
                   };
 
                   const showReviewButton = () => {
                     return (
-                      row["reviews"][0]["status"] === projectStatuses.REVIEW
+                      row["reviews"][0] !== undefined && row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
 
