@@ -151,12 +151,15 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     with open(Path(fp, 'project.json'), 'r') as f:
         project_config_old = json.load(f)
 
-    project_config_new = upgrade_project_config(project_config_old, review_id, start_time, Path(feature_matrix_fp).name,
-                         feature_extraction_method)
+    project_config_new = upgrade_project_config(project_config_old, review_id,
+                                                start_time,
+                                                Path(feature_matrix_fp).name,
+                                                feature_extraction_method)
 
     # dump the project json
     with open(Path(fp, 'project.json'), 'w') as f:
         json.dump(project_config_new, f)
+
 
 def move_old_files_to_legacy_folder(fp):
     """Move the old files to a legacy folder.
@@ -182,8 +185,11 @@ def move_old_files_to_legacy_folder(fp):
             file_path.unlink()
 
 
-def upgrade_project_config(config, review_id=None, start_time=None, feature_matrix_name=None,
-                         feature_extraction_method=None):
+def upgrade_project_config(config,
+                           review_id=None,
+                           start_time=None,
+                           feature_matrix_name=None,
+                           feature_extraction_method=None):
     """Update the project.json file to contain the review information , the
     feature matrix information and the new state version number.
 
@@ -278,8 +284,10 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
     # Add the record_ids not found in the pool to the end of the ranking.
     with open_state_legacy(json_fp) as json_state:
         record_table = get_json_record_table(json_state)
-    records_not_in_pool = [record_id for record_id in record_table
-                           if record_id not in pool_ranking]
+    records_not_in_pool = [
+        record_id for record_id in record_table
+        if record_id not in pool_ranking
+    ]
     pool_ranking += records_not_in_pool
 
     # Set the training set to -1 (prior) for records from old pool.
