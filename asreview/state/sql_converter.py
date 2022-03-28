@@ -220,6 +220,10 @@ def upgrade_project_config(config, review_id=None, start_time=None, feature_matr
     # Update the state version.
     config['state_version'] = SQLSTATE_VERSION
 
+    # set created_at_unix to start time (empty: None)
+    if "created_at_unix" not in config:
+        config["created_at_unix"] = start_time
+
     # delete deprecated metadata
     config.pop("projectInitReady", None)
     config.pop("projectHasPriorKnowledge", None)
