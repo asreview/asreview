@@ -233,7 +233,7 @@ class BaseState(ABC):
         else:
             query_i_classified = 0
 
-        train_idx = np.array(train_idx, dtype=np.int)
+        train_idx = np.array(train_idx, dtype=int)
         startup_vals = {
             "labels": labels,
             "train_idx": np.unique(train_idx),

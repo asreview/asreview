@@ -108,8 +108,8 @@ class TripleBalance(BaseBalance):
         numpy.ndarray,numpy.ndarray:
             X_train, y_train: the resampled matrix, labels.
         """
-        max_idx = np.array(shared["query_src"].get("max", []), dtype=np.int)
-        rand_idx = np.array([], dtype=np.int)
+        max_idx = np.array(shared["query_src"].get("max", []), dtype=int)
+        rand_idx = np.array([], dtype=int)
         for qtype in shared["query_src"]:
             if qtype != "max":
                 rand_idx = np.append(rand_idx, shared["query_src"][qtype])

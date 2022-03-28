@@ -22,7 +22,7 @@ except ImportError:
     raise ImportError("To use the legacy hdf5 state file, downgrade ASReview "
                       "to version 0.x and make sure package h5py is installed.")
 import numpy as np
-from scipy.sparse.csr import csr_matrix
+from scipy.sparse import csr_matrix
 
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState
@@ -58,7 +58,7 @@ class HDF5StateLegacy(BaseState):
 
     def set_labels(self, y):
         if "labels" not in self.f:
-            self.f.create_dataset("labels", y.shape, dtype=np.int, data=y)
+            self.f.create_dataset("labels", y.shape, dtype=int, data=y)
         else:
             self.f["labels"][...] = y
 
@@ -66,7 +66,7 @@ class HDF5StateLegacy(BaseState):
         if "final_labels" not in self.f:
             self.f.create_dataset("final_labels",
                                   y.shape,
-                                  dtype=np.int,
+                                  dtype=int,
                                   data=y)
         else:
             self.f["final_labels"][...] = y
@@ -92,15 +92,15 @@ class HDF5StateLegacy(BaseState):
         g = g['new_labels']
 
         np_methods = np.array(list(map(np.string_, methods)))
-        _append_to_dataset('idx', idx, g, dtype=np.int)
-        _append_to_dataset('labels', labels, g, dtype=np.int)
+        _append_to_dataset('idx', idx, g, dtype=int)
+        _append_to_dataset('labels', labels, g, dtype=int)
         _append_to_dataset('methods', np_methods, g, dtype='S20')
 
     def add_proba(self, pool_idx, train_idx, proba, query_i):
         g = _result_group(self.f, query_i)
-        g.create_dataset("pool_idx", data=pool_idx, dtype=np.int)
-        g.create_dataset("train_idx", data=train_idx, dtype=np.int)
-        g.create_dataset("proba", data=proba, dtype=np.float)
+        g.create_dataset("pool_idx", data=pool_idx, dtype=int)
+        g.create_dataset("train_idx", data=train_idx, dtype=int)
+        g.create_dataset("proba", data=proba, dtype=float)
 
     @property
     def settings(self):
@@ -185,15 +185,15 @@ class HDF5StateLegacy(BaseState):
         if variable == "inclusions":
             array = np.array(g["new_labels"]["labels"], dtype=int)
         if variable == "proba":
-            array = np.array(g["proba"], dtype=np.float)
+            array = np.array(g["proba"], dtype=float)
         if variable == "labels":
-            array = np.array(self.f["labels"], dtype=np.int)
+            array = np.array(self.f["labels"], dtype=int)
         if variable == "final_labels":
-            array = np.array(self.f["final_labels"], dtype=np.int)
+            array = np.array(self.f["final_labels"], dtype=int)
         if variable == "pool_idx":
-            array = np.array(g["pool_idx"], dtype=np.int)
+            array = np.array(g["pool_idx"], dtype=int)
         if variable == "train_idx":
-            array = np.array(g["train_idx"], dtype=np.int)
+            array = np.array(g["train_idx"], dtype=int)
         if array is None:
             return None
         if idx is not None:
