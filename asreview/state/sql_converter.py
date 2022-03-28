@@ -250,6 +250,11 @@ def create_last_ranking_table(sql_fp, pool_fp, kwargs_fp, json_fp):
                            if record_id not in pool_ranking]
     pool_ranking += records_not_in_pool
 
+    # Convert the records in the pool to the new record ids (starting from 0).
+    old_to_new_record_ids = {old_id: idx
+                             for idx, old_id in enumerate(record_table)}
+    pool_ranking = [old_to_new_record_ids[record] for record in pool_ranking]
+
     # Set the training set to -1 (prior) for records from old pool.
     training_set = -1
     time = None
