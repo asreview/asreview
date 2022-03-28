@@ -983,12 +983,15 @@ def api_get_status(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/status_update', methods=["PUT"])
 @project_from_id
-def api_update_status(project):
+def api_status_update(project):
     """Update the status of the review"""
 
     status = request.form.get("status", type=str)
 
-    project.update_review(status=status)        
+    if status == "finished":
+        project.update_review(status=status)
+    else:
+        raise ValueError("Can only update status to 'finished'")
 
     response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')

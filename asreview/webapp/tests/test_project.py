@@ -147,7 +147,7 @@ def test_project_file(tmp_path, client, url):
     assert response_export_project.status_code == 200
 
     # Test finish project
-    response_finish = client.get(f"{api_url}/finish")
+    response_finish = client.put(f"{api_url}/status_update", data={"status": "finished"})
     assert response_finish.status_code == 200
 
     # Test delete project
