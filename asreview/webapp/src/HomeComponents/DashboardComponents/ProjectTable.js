@@ -109,7 +109,7 @@ const columns = [
   { id: "name", label: "Project", width: "55%" },
   { id: "created_at_unix", label: "Date", width: "15%" },
   { id: "mode", label: "Mode", width: "15%" },
-  { id: "reviewFinished", label: "Status", width: "15%" },
+  { id: "status", label: "Status", width: "15%" },
 ];
 
 const ProjectTable = (props) => {
@@ -158,8 +158,7 @@ const ProjectTable = (props) => {
         const simulationProjects = data.filter(
           (element) =>
             element.mode === projectModes.SIMULATION &&
-            element.reviews[0].status !== projectStatuses.SETUP &&
-            !element.reviewFinished
+            element.reviews[0].status === projectStatuses.REVIEW
         );
         if (!simulationProjects.length) {
           console.log("No simulation running");
@@ -191,7 +190,7 @@ const ProjectTable = (props) => {
                 });
               },
               onSuccess: (data) => {
-                if (data["status"] === "finished") {
+                if (data["status"] === projectStatuses.FINISHED) {
                   // simulation finished
                   queryClient.invalidateQueries("fetchDashboardStats");
                   queryClient.invalidateQueries("fetchProjects");
@@ -282,7 +281,10 @@ const ProjectTable = (props) => {
    * Return status label and style
    */
   const statusLabel = (project) => {
-    if (project.reviews[0] === undefined || project.reviews[0].status === projectStatuses.SETUP) {
+    if (
+      project.reviews[0] === undefined ||
+      project.reviews[0].status === projectStatuses.SETUP
+    ) {
       return "Setup";
     }
     if (project.reviews[0].status === projectStatuses.REVIEW) {
@@ -294,7 +296,10 @@ const ProjectTable = (props) => {
   };
 
   const statusStyle = (project) => {
-    if (project.reviews[0] === undefined || project.reviews[0].status === projectStatuses.SETUP) {
+    if (
+      project.reviews[0] === undefined ||
+      project.reviews[0].status === projectStatuses.SETUP
+    ) {
       return "dashboard-page-table-chip setup";
     }
     if (project.reviews[0].status === projectStatuses.REVIEW) {
@@ -347,13 +352,15 @@ const ProjectTable = (props) => {
 
                   const showAnalyticsButton = () => {
                     return (
-                      row["reviews"][0] === undefined || row["reviews"][0]["status"] !== projectStatuses.SETUP
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] !== projectStatuses.SETUP
                     );
                   };
 
                   const showReviewButton = () => {
                     return (
-                      row["reviews"][0] !== undefined && row["reviews"][0]["status"] === projectStatuses.REVIEW
+                      row["reviews"][0] !== undefined &&
+                      row["reviews"][0]["status"] === projectStatuses.REVIEW
                     );
                   };
 

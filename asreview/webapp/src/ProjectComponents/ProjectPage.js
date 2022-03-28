@@ -95,7 +95,7 @@ const ProjectPage = (props) => {
           // if simulation is running
           if (
             data["mode"] === projectModes.SIMULATION &&
-            !data["reviewFinished"]
+            data["reviews"][0]["status"] === projectStatuses.REVIEW
           ) {
             setIsSimulating(true);
           }
@@ -187,28 +187,34 @@ const ProjectPage = (props) => {
           )}
 
           {/* Review */}
-          {isSuccess && !data?.projectNeedsUpgrade && !data?.reviewFinished && (
-            <Route
-              path="review"
-              element={
-                <ReviewPage
-                  mobileScreen={props.mobileScreen}
-                  projectMode={data?.mode}
-                  fontSize={props.fontSize}
-                  undoEnabled={props.undoEnabled}
-                  keyPressEnabled={props.keyPressEnabled}
-                />
-              }
-            />
-          )}
+          {isSuccess &&
+            !data?.projectNeedsUpgrade &&
+            data?.reviews[0].status === projectStatuses.REVIEW && (
+              <Route
+                path="review"
+                element={
+                  <ReviewPage
+                    mobileScreen={props.mobileScreen}
+                    projectMode={data?.mode}
+                    fontSize={props.fontSize}
+                    undoEnabled={props.undoEnabled}
+                    keyPressEnabled={props.keyPressEnabled}
+                  />
+                }
+              />
+            )}
 
           {/* Review finished */}
-          {isSuccess && !data?.projectNeedsUpgrade && data?.reviewFinished && (
-            <Route
-              path="review"
-              element={<ReviewPageFinished mobileScreen={props.mobileScreen} />}
-            />
-          )}
+          {isSuccess &&
+            !data?.projectNeedsUpgrade &&
+            data?.reviews[0].status === projectStatuses.FINISHED && (
+              <Route
+                path="review"
+                element={
+                  <ReviewPageFinished mobileScreen={props.mobileScreen} />
+                }
+              />
+            )}
 
           {/* History */}
           {isSuccess && !data?.projectNeedsUpgrade && (
