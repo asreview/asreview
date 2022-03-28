@@ -41,7 +41,7 @@ def is_old_project(fp):
         return True
 
 
-def get_old_project_status(fp):
+def get_old_project_status(config):
 
     if config.get('reviewFinished', False):
         return "finished"
@@ -179,8 +179,8 @@ def move_old_files_to_legacy_folder(fp):
             file_path.unlink()
 
 
-def upgrade_project_config(config, review_id, start_time, feature_matrix_fp,
-                         feature_extraction_method):
+def upgrade_project_config(config, review_id=None, start_time=None, feature_matrix_fp=None,
+                         feature_extraction_method=None):
     """Update the project.json file to contain the review information , the
     feature matrix information and the new state version number.
 
