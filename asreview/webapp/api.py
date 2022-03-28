@@ -951,7 +951,7 @@ def api_start(project):  # noqa: F401
 
 @bp.route('/projects/<project_id>/status', methods=["GET"])
 @project_from_id
-def api_status(project):  # noqa: F401
+def api_get_status(project):  # noqa: F401
     """Check the status of the review
     """
 
@@ -970,6 +970,20 @@ def api_status(project):  # noqa: F401
             raise Exception(error_message)
 
     response = jsonify({'status': status})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+@bp.route('/projects/<project_id>/status_update', methods=["PUT"])
+@project_from_id
+def api_update_status(project):
+    """Update the status of the review"""
+
+    status = request.form.get("status", type=str)
+
+    project.update_review(status=status)        
+
+    response = jsonify({'success': True})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
@@ -1076,28 +1090,6 @@ def export_project(project):
                      as_attachment=True,
                      download_name=f"{project.project_id}.asreview",
                      max_age=0)
-
-
-@bp.route('/projects/<project_id>/finish', methods=["GET"])
-@project_from_id
-def api_finish_project(project):
-    """Mark a project as finished or not"""
-
-    # read the file with project info
-    project_config = project.config
-
-    try:
-        project_config["reviewFinished"] = not project_config["reviewFinished"]
-    except KeyError:
-        # missing key in projects created in older versions
-        project_config["reviewFinished"] = True
-
-    # update the file with project info
-    project.config = project_config
-
-    response = jsonify({'success': True})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
 
 
 def _get_stats(project):
