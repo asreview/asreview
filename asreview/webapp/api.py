@@ -1383,7 +1383,7 @@ def api_get_document(project):  # noqa: F401
             pool_empty = False
         else:
             # end of pool
-            project.update_config(reviewFinished=True)
+            project.update_review(status="finished")
             item = None
             pool_empty = True
 
