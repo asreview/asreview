@@ -10,7 +10,7 @@ class ProjectAPI {
       axios
         .get(url)
         .then((result) => {
-          resolve(result.data["result"]);
+          resolve(result["data"]);
         })
         .catch((error) => {
           reject(axiosErrorHandler(error));

@@ -8,6 +8,8 @@ import {
   MoreVert,
 } from "@mui/icons-material";
 
+import { projectStatuses } from "../../globals.js";
+
 const PREFIX = "TableRowButton";
 
 const classes = {
@@ -40,6 +42,11 @@ export default function TableRowButton(props) {
   const handleClickEditDetails = () => {
     handleCloseRowMenu();
     props.onClickProjectDetails();
+  };
+
+  const handleClickUpdateStatus = () => {
+    handleCloseRowMenu();
+    props.updateProjectStatus();
   };
 
   const handleClickDelete = () => {
@@ -93,6 +100,13 @@ export default function TableRowButton(props) {
           >
             {!props.isSimulating() && (
               <MenuItem onClick={handleClickEditDetails}>Edit details</MenuItem>
+            )}
+            {!props.disableProjectStatusChange() && (
+              <MenuItem onClick={handleClickUpdateStatus}>
+                {props.projectStatus === projectStatuses.REVIEW
+                  ? "Mark as finished"
+                  : "Mark as in review"}
+              </MenuItem>
             )}
             <MenuItem onClick={handleClickDelete}>Delete forever</MenuItem>
           </Menu>

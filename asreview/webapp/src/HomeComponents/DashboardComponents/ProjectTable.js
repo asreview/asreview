@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery, useQueries, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueries, useQueryClient } from "react-query";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -155,7 +155,7 @@ const ProjectTable = (props) => {
         // reset query for fetching simulation project(s) status
         setQuerySimulationFinished([]);
         // get simulation project(s) running in the background
-        const simulationProjects = data.filter(
+        const simulationProjects = data.result.filter(
           (element) =>
             element.mode === projectModes.SIMULATION &&
             element.reviews[0].status === projectStatuses.REVIEW
@@ -221,6 +221,49 @@ const ProjectTable = (props) => {
    */
   useQueries(querySimulationFinished);
 
+  const { mutate: mutateStatus } = useMutation(ProjectAPI.mutateProjectStatus, {
+    onError: (error) => {
+      props.setFeedbackBar({
+        open: true,
+        message: error.message,
+      });
+    },
+    onSuccess: (data, variables) => {
+      // update cached data
+      queryClient.setQueryData("fetchProjects", (prev) => {
+        return {
+          ...prev,
+          result: prev.result.map((project) => {
+            return {
+              ...project,
+              reviews: project.reviews.map((review) => {
+                return {
+                  ...review,
+                  status:
+                    project.id === variables.project_id
+                      ? review.status === projectStatuses.REVIEW
+                        ? projectStatuses.FINISHED
+                        : projectStatuses.REVIEW
+                      : review.status,
+                };
+              }),
+            };
+          }),
+        };
+      });
+    },
+  });
+
+  const handleChangeStatus = (project) => {
+    mutateStatus({
+      project_id: project["id"],
+      status:
+        project.reviews[0].status === projectStatuses.REVIEW
+          ? projectStatuses.FINISHED
+          : projectStatuses.REVIEW,
+    });
+  };
+
   const openProject = (project, path) => {
     if (project["reviews"][0]["status"] === "setup") {
       // set project id
@@ -280,18 +323,18 @@ const ProjectTable = (props) => {
   /**
    * Return status label and style
    */
-  const statusLabel = (project) => {
+  const status = (project) => {
     if (
       project.reviews[0] === undefined ||
       project.reviews[0].status === projectStatuses.SETUP
     ) {
-      return "Setup";
+      return [projectStatuses.SETUP, "Setup"];
     }
     if (project.reviews[0].status === projectStatuses.REVIEW) {
-      return "In Review";
+      return [projectStatuses.REVIEW, "In Review"];
     }
     if (project.reviews[0].status === projectStatuses.FINISHED) {
-      return "Finished";
+      return [projectStatuses.FINISHED, "Finished"];
     }
   };
 
@@ -340,7 +383,7 @@ const ProjectTable = (props) => {
               !isFetching &&
               isFetched &&
               isSuccess &&
-              data
+              data.result
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   const isSimulating = () => {
@@ -361,6 +404,14 @@ const ProjectTable = (props) => {
                     return (
                       row["reviews"][0] !== undefined &&
                       row["reviews"][0]["status"] === projectStatuses.REVIEW
+                    );
+                  };
+
+                  const disableProjectStatusChange = () => {
+                    return (
+                      row["mode"] === projectModes.SIMULATION ||
+                      row["reviews"][0] === undefined ||
+                      row["reviews"][0]["status"] === projectStatuses.SETUP
                     );
                   };
 
@@ -389,6 +440,10 @@ const ProjectTable = (props) => {
                   const onClickProjectDetails = () => {
                     openProject(row, "details");
                   };
+
+                  const updateProjectStatus = () => {
+                    handleChangeStatus(row);
+                  };
                   return (
                     <TableRow
                       hover
@@ -412,6 +467,9 @@ const ProjectTable = (props) => {
                           <Box sx={{ flex: 1 }}></Box>
                           {hoverRowId === row.id && (
                             <TableRowButton
+                              disableProjectStatusChange={
+                                disableProjectStatusChange
+                              }
                               isSimulating={isSimulating}
                               showAnalyticsButton={showAnalyticsButton}
                               showReviewButton={showReviewButton}
@@ -419,7 +477,9 @@ const ProjectTable = (props) => {
                               onClickProjectReview={onClickProjectReview}
                               onClickProjectExport={onClickProjectExport}
                               onClickProjectDetails={onClickProjectDetails}
+                              projectStatus={status(row)[0]}
                               toggleDeleteDialog={toggleDeleteDialog}
+                              updateProjectStatus={updateProjectStatus}
                             />
                           )}
                         </Box>
@@ -446,7 +506,7 @@ const ProjectTable = (props) => {
                         <Chip
                           size="small"
                           className={statusStyle(row)}
-                          label={statusLabel(row)}
+                          label={status(row)[1]}
                         />
                       </TableCell>
                     </TableRow>
@@ -463,7 +523,7 @@ const ProjectTable = (props) => {
           !isFetching &&
           isFetched &&
           isSuccess &&
-          data?.length === 0 && (
+          data.result?.length === 0 && (
             <Box
               sx={{
                 alignItems: "center",
@@ -492,11 +552,11 @@ const ProjectTable = (props) => {
         !isFetching &&
         isFetched &&
         isSuccess &&
-        data?.length !== 0 && (
+        data.result?.length !== 0 && (
           <TablePagination
             rowsPerPageOptions={[5, 10, 15]}
             component="div"
-            count={data?.length}
+            count={data.result?.length}
             rowsPerPage={rowsPerPage}
             labelRowsPerPage="Projects per page:"
             page={page}
