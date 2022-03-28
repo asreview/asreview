@@ -71,7 +71,6 @@ from asreview.state.errors import StateNotFoundError
 from asreview.state.paths import get_data_file_path
 from asreview.state.paths import get_data_path
 from asreview.state.paths import get_simulation_ready_path
-from asreview.state.sql_converter import upgrade_project_config
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
 from asreview.state.sql_converter import upgrade_project_config
@@ -180,7 +179,7 @@ def api_get_projects_stats():  # noqa: F401
                     stats_counter["n_finished"] += 1
                 else:
                     stats_counter["n_setup"] += 1
-            except Exception as err:
+            except Exception:
                 stats_counter["n_setup"] += 1
 
         except Exception as err:
