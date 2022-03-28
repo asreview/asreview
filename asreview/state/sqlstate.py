@@ -871,35 +871,25 @@ class SQLiteState(BaseState):
         if type(columns) == str:
             columns = [columns]
 
-        # Make sure the right columns are available to drop priors/pending.
-        if columns is None:
-            contains_query_strategy = True
-            contains_labels = True
-        else:
-            contains_query_strategy = 'query_strategy' in columns
-            contains_labels = 'label' in columns
+        if (not priors) or (not pending):
+            sql_where = []
+            if not priors:
+                sql_where.append("query_strategy is not 'prior'")
+            if not pending:
+                sql_where.append("label is not NULL")
 
-            if not priors and not contains_query_strategy:
-                columns.append('query_strategy')
-            if not pending and not contains_labels:
-                columns.append('label')
+            sql_where_str = f'WHERE {sql_where[0]}'
+            if len(sql_where) == 2:
+                sql_where_str += f' AND {sql_where[1]}'
+        else:
+            sql_where_str = ""
 
         # Query the database.
         query_string = '*' if columns is None else ','.join(columns)
         con = self._connect_to_sql()
-        data = pd.read_sql_query(f'SELECT {query_string} FROM results', con)
+        data = pd.read_sql_query(
+            f'SELECT {query_string} FROM results {sql_where_str}', con)
         con.close()
-
-        # Drop priors/pending and added columns.
-        if not priors:
-            data = data[data['query_strategy'] != 'prior']
-            if not contains_query_strategy:
-                data.drop('query_strategy', axis=1, inplace=True)
-        if not pending:
-            data.dropna(subset=['label'], inplace=True)
-            if not contains_labels:
-                data.drop('label', axis=1, inplace=True)
-        data.reset_index(drop=True, inplace=True)
 
         return data
 
@@ -1180,20 +1170,16 @@ class SQLiteState(BaseState):
                 ON results.record_id=record_table.record_id
                 LEFT JOIN last_ranking
                 ON record_table.record_id=last_ranking.record_id
+                ORDER BY label_order, ranking
                 """
 
         df = pd.read_sql_query(query, con)
         con.close()
         labeled = df.loc[~df['label'].isna()] \
-            .sort_values('label_order') \
             .loc[:, ['record_id', 'label']] \
             .astype(int)
-        pool = df.loc[df['label_order'].isna()] \
-            .sort_values('ranking') \
-            .loc[:, 'record_id'] \
-            .astype(int)
+        pool = df.loc[df['label_order'].isna(), 'record_id'].astype(int)
         pending = df.loc[df['label'].isna() & ~df['query_strategy'].isna()] \
-            .sort_values('label_order') \
             .loc[:, 'record_id'] \
             .astype(int)
 
