@@ -41,7 +41,7 @@ def is_old_project(fp):
         return True
 
 
-def get_old_project_status(fp):
+def get_old_project_status(config):
 
     if config.get('reviewFinished', False):
         return "finished"
