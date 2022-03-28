@@ -19,9 +19,9 @@ from datetime import datetime
 from io import BytesIO
 
 import numpy as np
+from scipy.sparse import csr_matrix
 from scipy.sparse import load_npz
 from scipy.sparse import save_npz
-from scipy.sparse.csr import csr_matrix
 
 from asreview.settings import ASReviewSettings
 from asreview.state.legacy.base import BaseState
@@ -228,19 +228,19 @@ class DictState(BaseState):
             if variable == "label_methods":
                 dtype = str
             else:
-                dtype = np.int
+                dtype = int
             array = np.array([x[array_id] for x in res["labelled"]],
                              dtype=dtype)
         elif variable == "labels":
-            array = np.array(self._state_dict["labels"], dtype=np.int)
+            array = np.array(self._state_dict["labels"], dtype=int)
         elif variable == "final_labels":
-            array = np.array(self._state_dict["final_labels"], dtype=np.int)
+            array = np.array(self._state_dict["final_labels"], dtype=int)
         elif variable == "proba":
-            array = np.array(res["proba"], dtype=np.float)
+            array = np.array(res["proba"], dtype=float)
         elif variable == "train_idx":
-            array = np.array(res["train_idx"], dtype=np.int)
+            array = np.array(res["train_idx"], dtype=int)
         elif variable == "pool_idx":
-            array = np.array(res["pool_idx"], dtype=np.int)
+            array = np.array(res["pool_idx"], dtype=int)
         if array is None:
             return None
         if idx is not None:
