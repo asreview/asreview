@@ -54,8 +54,9 @@ SETTINGS_METADATA_KEYS = ["settings", "state_version", "software_version",
 
 
 class SQLiteState(BaseState):
-    """Class for storing the review state. The results are stored in a sqlite
-    database.
+    """Class for storing the review state.
+
+    The results are stored in a sqlite database.
 
     Arguments
     ---------
@@ -88,12 +89,12 @@ class SQLiteState(BaseState):
 # INTERNAL PATHS AND CONNECTIONS
 
     def _connect_to_sql(self):
-        """Get a connection to the sql database.
+        """Get a connection to the SQLite database.
 
         Returns
         -------
         sqlite3.Connection
-            Connection to the the sql database.
+            Connection to the the SQLite database.
             The connection is read only if self.read_only is true.
         """
         if self.read_only:
@@ -105,7 +106,7 @@ class SQLiteState(BaseState):
 
     @property
     def _sql_fp(self):
-        """Path to the sqlite database."""
+        """Get the path to the sqlite database."""
 
         if self.review_id is None:
 
@@ -119,12 +120,12 @@ class SQLiteState(BaseState):
 
     @property
     def _settings_metadata_fp(self):
-        """Path to the settings and metadata json file."""
+        """Get the path to the settings and metadata json file."""
         return get_settings_metadata_path(self.working_dir, self.review_id)
 
     @property
     def _feature_matrix_fp(self):
-        """Path to the .npz file of the feature matrix"""
+        """Get the path to the .npz file of the feature matrix"""
         with open(self._settings_metadata_fp, "r") as f:
             feature_extraction = json.load(f)["settings"]["feature_extraction"]
 
@@ -270,7 +271,7 @@ class SQLiteState(BaseState):
                           if table not in table_names]
         if missing_tables:
             raise StateError(
-                f"The sql file should contain tables named "
+                f"The SQL file should contain tables named "
                 f"'{' '.join(missing_tables)}'.")
 
         # Check if all required columns are present in results.
@@ -399,9 +400,12 @@ class SQLiteState(BaseState):
 
     @property
     def exist_new_labeled_records(self):
-        """Return True if there were records labeled since the last time the
-        model ranking was added to the state. Also returns True if no
-        model was trained yet, but priors have been added."""
+        """Return True if there are new labeled records.
+
+        Return True if there are any record labels added since the last time
+        the model ranking was added to the state. Also returns True if no
+        model was trained yet, but priors have been added.
+        """
         labeled = self.get_labeled()
         last_training_set = self.get_last_ranking()['training_set']
         if last_training_set.empty:
@@ -415,7 +419,7 @@ class SQLiteState(BaseState):
         return self.settings_metadata['model_has_trained']
 
     def _update_project_with_feature_extraction(self, feature_extraction):
-        """If the feature extraction method is set, update the project.json."""
+        """Update the project.json if the feature extraction method is set."""
         feature_matrix_filename = f'{feature_extraction}_feature_matrix.npz'
 
         with open(get_project_file_path(self.working_dir), "r") as f:
@@ -449,7 +453,7 @@ class SQLiteState(BaseState):
             json.dump(self.settings_metadata, f)
 
     def add_record_table(self, record_ids):
-        """ Add the record table to the sql. """
+        """Add the record table to the SQL."""
         record_sql_input = [(int(record_id), ) for record_id in record_ids]
 
         con = self._connect_to_sql()
@@ -483,8 +487,11 @@ class SQLiteState(BaseState):
 
     def add_last_ranking(self, ranked_record_ids, classifier, query_strategy,
                          balance_strategy, feature_extraction, training_set):
-        """Save the ranking of the last iteration of the model, in the ranking
-        order."""
+        """Save the ranking of the last iteration of the model.
+
+        Save the ranking of the last iteration of the model, in the ranking
+        order, so the record on row 0 is ranked first by the model.
+        """
         record_ids = self.get_record_table()
 
         if len(record_ids) != len(ranked_record_ids):
@@ -617,7 +624,9 @@ class SQLiteState(BaseState):
         con.close()
 
     def _add_labeling_data_simulation_mode(self, rows):
-        """Add the labeling data and the model data at the same time to the
+        """Add labeling and model data to the results table.
+
+        Add the labeling data and the model data at the same time to the
         results table. This is used for the simulation mode, since the model
         data is available at the time of labeling.
 
@@ -675,8 +684,11 @@ class SQLiteState(BaseState):
         con.close()
 
     def get_decision_changes(self):
-        """Get the record ids of the records whose labels have been changed
-        after the original labeling action."""
+        """Get the record ids for any decision changes.
+
+        Get the record ids of the records whose labels have been changed
+        after the original labeling action.
+        """
         con = self._connect_to_sql()
         change_table = pd.read_sql_query('SELECT * FROM decision_changes', con)
         con.close()
@@ -718,7 +730,9 @@ class SQLiteState(BaseState):
         return last_ranking
 
     def _move_ranking_data_to_results(self, record_ids):
-        """Move the data with the given record_ids from the last_ranking table
+        """Move data from the ranking to the results table.
+
+        Move the data with the given record_ids from the last_ranking table
         to the results table.
 
         Arguments
@@ -745,7 +759,9 @@ class SQLiteState(BaseState):
                              "before using this function.")
 
     def query_top_ranked(self, n):
-        """Get the top n instances from the pool according to the last ranking.
+        """Get the top ranked records from the ranking table.
+
+        Get the top n instances from the pool according to the last ranking.
         Add the model data to the results table.
 
         Arguments
@@ -830,8 +846,11 @@ class SQLiteState(BaseState):
         return data
 
     def get_dataset(self, columns=None, priors=True, pending=False):
-        """Get a column from the results table. Most other get functions use
-        this one.
+        """Get a subset from the results table.
+
+        Can be used to get any column subset from the results table.
+        Most other get functions use this one, except some that use a direct
+        SQL query for efficiency.
 
         Arguments
         ---------
@@ -1027,7 +1046,7 @@ class SQLiteState(BaseState):
 
     def get_labeling_times(self, time_format='int', priors=True,
                            pending=False):
-        """Get the time of labeling the state.
+        """Get the time of labeling from the state.
 
         Arguments
         ---------
@@ -1058,7 +1077,9 @@ class SQLiteState(BaseState):
 # Get pool, labeled and pending in slightly more optimized way than via
 # get_dataset.
     def get_pool(self):
-        """Get the pool of unlabeled records, not pending a labeling decision,
+        """Get the unlabeled, not-pending records in ranking order.
+
+        Get the pool of unlabeled records, not pending a labeling decision,
         in the ranking order. If you only want the records in the pool, this
         is more efficient than via 'get_pool_labeled_pending'.
 
@@ -1095,7 +1116,9 @@ class SQLiteState(BaseState):
         return df['record_id']
 
     def get_labeled(self):
-        """Get the record_ids and labels of the labeled records in order of
+        """Get the labeled records in order of labeling.
+
+        Get the record_ids and labels of the labeled records in order of
         labeling. If you only want the labeled records, this is more efficient
         than via 'get_pool_labeled_pending'.
 
@@ -1114,6 +1137,7 @@ class SQLiteState(BaseState):
 
     def get_pending(self):
         """Get the record_ids of the records pending a labeling decision.
+
         If you only want the pending records, this is more efficient
         than via 'get_pool_labeled_pending'.
 
@@ -1130,8 +1154,11 @@ class SQLiteState(BaseState):
         return df['record_id']
 
     def get_pool_labeled_pending(self):
-        """Return the labeled and unlabeled records and the records pending a
-        labeling decision.
+        """Return the unlabeled pool, labeled and pending records.
+
+        Convenience function to get the pool, labeled and pending records in
+        one SQL query. If you only want one of these, it is more efficient to
+        use the methods 'get_pool', 'get_labeled' or 'get_pending'.
 
         Returns
         -------
