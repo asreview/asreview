@@ -74,6 +74,7 @@ from asreview.state.paths import get_simulation_ready_path
 from asreview.state.sql_converter import upgrade_project_config
 from asreview.state.sql_converter import is_old_project
 from asreview.state.sql_converter import upgrade_asreview_project_file
+from asreview.state.sql_converter import upgrade_project_config
 from asreview.utils import _get_executable
 from asreview.utils import asreview_path
 from asreview.webapp.io import read_data

@@ -237,7 +237,7 @@ def test_first_model_ready(client):
     response = client.get("/api/projects/project-id/status")
     json_data = response.get_json()
 
-    assert json_data["status"] == 1
+    print(json_data)
     assert json_data["status"] == "review"
 
 
@@ -263,7 +263,8 @@ def test_export_project(client):
 def test_finish_project(client):
     """Test mark a project as finished or not"""
 
-    response = client.get("/api/projects/project-id/finish")
+    response = client.put("/api/projects/project-id/status_update",
+                          data={"status": "finished"})
     assert response.status_code == 200
 
 
