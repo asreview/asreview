@@ -43,18 +43,21 @@ def is_old_project(fp):
 
 def get_old_project_status(config):
 
+    # project is marked as finished
     if config.get('reviewFinished', False):
         return "finished"
 
+    # project init is not ready
+    if "projectInitReady" in config and not config["projectInitReady"]:
+        return "setup"
+
+    # project init flag is not available
     if "projectInitReady" not in config:
         if "projectHasPriorKnowledge" in config:
             if config["projectHasPriorKnowledge"]:
                 return "review"
             else:
                 return "setup"
-
-    if not config["projectInitReady"]:
-        return "setup"
 
     return "review"
 
@@ -148,7 +151,7 @@ def upgrade_asreview_project_file(fp, from_version=0, to_version=1):
     with open(Path(fp, 'project.json'), 'r') as f:
         project_config_old = json.load(f)
 
-    project_config_new = upgrade_project_config(project_config_old, review_id, start_time, feature_matrix_fp,
+    project_config_new = upgrade_project_config(project_config_old, review_id, start_time, Path(feature_matrix_fp).name,
                          feature_extraction_method)
 
     # dump the project json
@@ -179,7 +182,7 @@ def move_old_files_to_legacy_folder(fp):
             file_path.unlink()
 
 
-def upgrade_project_config(config, review_id=None, start_time=None, feature_matrix_fp=None,
+def upgrade_project_config(config, review_id=None, start_time=None, feature_matrix_name=None,
                          feature_extraction_method=None):
     """Update the project.json file to contain the review information , the
     feature matrix information and the new state version number.
@@ -206,7 +209,6 @@ def upgrade_project_config(config, review_id=None, start_time=None, feature_matr
     }]
 
     # Add the feature matrix information.
-    feature_matrix_name = Path(feature_matrix_fp).name
     config['feature_matrices'] = [{
         'id': feature_extraction_method,
         'filename': feature_matrix_name
@@ -219,9 +221,9 @@ def upgrade_project_config(config, review_id=None, start_time=None, feature_matr
     config['state_version'] = SQLSTATE_VERSION
 
     # delete deprecated metadata
-    del config["projectInitReady"]
-    del config["projectHasPriorKnowledge"]
-    del config["projectHasDataset"]
+    config.pop("projectInitReady", None)
+    config.pop("projectHasPriorKnowledge", None)
+    config.pop("projectHasDataset", None)
 
     return config
 

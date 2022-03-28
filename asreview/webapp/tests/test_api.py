@@ -228,16 +228,17 @@ def test_start(client):
     assert response.status_code == 200
 
 
-def test_ready(client):
+def test_first_model_ready(client):
     """Test check if trained model is available"""
 
     # wait the model ready
     time.sleep(8)
 
-    response = client.get("/api/projects/project-id/ready")
+    response = client.get("/api/projects/project-id/status")
     json_data = response.get_json()
 
     assert json_data["status"] == 1
+    assert json_data["status"] == "review"
 
 
 def test_export_result(client):

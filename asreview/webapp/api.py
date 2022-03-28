@@ -146,7 +146,14 @@ def api_get_projects():  # noqa: F401
 def api_get_projects_stats():  # noqa: F401
     """Get dashboard statistics of all projects"""
 
-    stats_counter = Counter()
+    stats_counter = {
+        "n_reviewed": 0,
+        "n_excluded": 0,
+        "n_included": 0,
+        "n_in_review": 0,
+        "n_finished": 0,
+        "n_setup": 0
+    }
 
     for project in list_asreview_projects():
 
