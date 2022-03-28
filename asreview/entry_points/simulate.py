@@ -252,14 +252,12 @@ class SimulateEntryPoint(BaseEntryPoint):
             raise err
 
         print("Simulation finished.")
+        project.mark_review_finished()
 
-        # for cli simulate
+        # create .ASReview file out of simulation folder
         if args.dataset != "":
 
-            # Mark review as finished.
-            project.mark_review_finished()
             project.export(args.state_file)
-
             shutil.rmtree(fp_tmp_simulation)
 
 
