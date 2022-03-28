@@ -7,7 +7,7 @@ from asreview.models.balance import list_balance_strategies
 
 def generate_data(n_feature=20, n_sample=10):
     X = np.random.rand(n_sample, n_feature)
-    n_sample_zero = np.int(n_sample / 2)
+    n_sample_zero = int(n_sample / 2)
     n_sample_one = n_sample - n_sample_zero
     y = np.append(np.zeros(n_sample_zero), np.ones(n_sample_one))
     np.random.shuffle(y)

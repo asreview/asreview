@@ -1,4 +1,4 @@
-# Copyright 2019-2020 The ASReview Authors. All Rights Reserved.
+# Copyright 2019-2022 The ASReview Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ from asreview.config import DEFAULT_QUERY_STRATEGY
 from asreview.config import PROJECT_MODE_EXPLORE
 from asreview.config import PROJECT_MODE_SIMULATE
 from asreview.data import ASReviewData
+from asreview.data.statistics import n_duplicates
 from asreview.datasets import DatasetManager
 from asreview.datasets import get_dataset_metadata
 from asreview.exceptions import BadFileFormatError
@@ -442,6 +443,7 @@ def api_get_project_data(project):  # noqa: F401
         statistics = {
             "n_rows": as_data.df.shape[0],
             "n_cols": as_data.df.shape[1],
+            "n_duplicates": n_duplicates(as_data),
             "filename": filename,
         }
 
