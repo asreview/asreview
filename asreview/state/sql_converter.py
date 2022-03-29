@@ -217,8 +217,6 @@ def convert_json_settings_metadata(fp, json_fp):
         # The 'triple' balance strategy is no longer implemented.
         if data_dict['settings']['balance_strategy'] == 'triple':
             data_dict['settings']['balance_strategy'] = 'double'
-        data_dict['current_queries'] = json_state._state_dict[
-            'current_queries']
         data_dict['state_version'] = SQLSTATE_VERSION
         data_dict['software_version'] = json_state._state_dict[
             'software_version']

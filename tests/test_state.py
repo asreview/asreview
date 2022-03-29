@@ -131,12 +131,6 @@ def test_settings_state():
         assert isinstance(state.settings, ASReviewSettings)
 
 
-def test_current_queries():
-    with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.current_queries, dict)
-        assert len(state.current_queries.keys()) > 0
-
-
 def test_n_records_labeled():
     with open_state(TEST_STATE_FP) as state:
         assert state.n_records_labeled == len(TEST_LABELS)

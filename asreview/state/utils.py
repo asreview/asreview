@@ -30,13 +30,11 @@ from asreview.state.sqlstate import SQLiteState
 V3STATE_VERSION = "1.0"
 
 
-# TODO(State): Create an 'add_project_json' function.
 def is_zipped_project_file(fp):
     """Check if it is a zipped asreview project file."""
     if Path(fp).is_file():
         state_ext = Path(fp).suffix
 
-        # TODO(State): Make link.
         if state_ext in ['.h5', '.hdf5', '.he5', '.json']:
             raise ValueError(
                 f'State file with extension {state_ext} is no longer '

@@ -70,8 +70,6 @@ class SQLiteState(BaseState):
     settings: asreview.settings.ASReviewSettings
         Return an ASReview settings object with model settings and
         active learning settings.
-    current_queries: dict:
-        The last known queries according to the state.
     n_records_labeled: int
         Get the number of labeled records, where each prior is counted
         individually.
@@ -355,29 +353,6 @@ class SQLiteState(BaseState):
         else:
             raise ValueError(
                 "'settings' should be an ASReviewSettings object.")
-
-    @property
-    def current_queries(self):
-        """Get the current queries made by the model.
-
-        This is useful to get back exactly to the state it was in before
-        shutting down a review.
-
-        Returns
-        -------
-        dict:
-            The last known queries according to the state.
-        """
-        str_queries = self.settings_metadata['current_queries']
-        return {int(key): value for key, value in str_queries.items()}
-
-    @current_queries.setter
-    def current_queries(self, current_queries):
-        str_queries = {
-            str(key): value
-            for key, value in current_queries.items()
-        }
-        self._add_settings_metadata("current_queries", str_queries)
 
     @property
     def n_records_labeled(self):

@@ -141,33 +141,6 @@ class BaseState(ABC):
 
     @property
     @abstractmethod
-    def current_queries(self):
-        """Get the current queries made by the model.
-
-        This is useful to get back exactly to the state it was in before
-        shutting down a review.
-
-        Returns
-        -------
-        dict:
-            The last known queries according to the state file.
-        """
-        raise NotImplementedError
-
-    @current_queries.setter
-    @abstractmethod
-    def current_queries(self, current_queries):
-        """Set the current queries made by the model.
-
-        Arguments
-        ---------
-        current_queries: dict
-            The last known queries, with {query_idx: query_method}.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
     def settings(self):
         """Get settings from the state.
         """
