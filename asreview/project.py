@@ -180,29 +180,6 @@ def open_state(asreview_file_or_dir, review_id=None, read_only=True):
     else:
         project = ASReviewProject(asreview_file_or_dir)
 
-    # if not get_reviews_path(asreview_file_or_dir).is_dir():
-    #     if read_only:
-    #         raise StateNotFoundError(
-    #             f"No review found in project folder {asreview_file_or_dir}"
-    #         )
-    #     else:
-    #         project.create(asreview_file_or_dir)
-    #         review_id = uuid4().hex
-
-    # # Check if file is a valid project folder.
-    # is_valid_project_folder(project.project_path)
-
-    # Get the review_id of the first review if none is given.
-    # If there is no review yet, create a review id.
-    # if review_id is None:
-    #     print(get_reviews_path(project.project_path))
-    #     review_id = next(get_reviews_path(project.project_path).iterdir()).name
-
-    # if reviews:
-    #     review_id = reviews[0].name
-    # else:
-    #     review_id = uuid4().hex
-
     # init state class
     state = SQLiteState(read_only=read_only)
 
