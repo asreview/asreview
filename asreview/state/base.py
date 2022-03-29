@@ -176,13 +176,17 @@ class BaseState(ABC):
         """
         raise NotImplementedError
 
-    def update_decision(self, record_id):
-        """Change the label of a record from 0 to 1 or vice versa.
+    def update_decision(self, record_id, label, note=None):
+        """Change the label of an already labeled record.
 
         Arguments
         ---------
         record_id: int
             Id of the record whose label should be changed.
+        label: 0 / 1
+            New label of the record.
+        note: str
+            Note to add to the record.
         """
         raise NotImplementedError
 

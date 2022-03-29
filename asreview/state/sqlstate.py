@@ -356,11 +356,25 @@ class SQLiteState(BaseState):
 
     @property
     def n_records_labeled(self):
+        """Number labeled records.
+
+        Returns
+        -------
+        int
+            Number of labeled records, priors counted individually.
+        """
         labeled = self.get_labeled()
         return len(labeled)
 
     @property
     def n_priors(self):
+        """Number of records added as prior knowledge.
+
+        Returns
+        -------
+        int
+            Number of records which were added as prior knowledge.
+        """
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute(
@@ -428,7 +442,13 @@ class SQLiteState(BaseState):
             json.dump(self.settings_metadata, f)
 
     def add_record_table(self, record_ids):
-        """Add the record table to the SQL."""
+        """Add the record table to the state.
+
+        Arguments
+        ---------
+        record_ids: list, np.array
+            List containing all record ids of the dataset.
+        """
         record_sql_input = [(int(record_id), ) for record_id in record_ids]
 
         con = self._connect_to_sql()
@@ -439,7 +459,13 @@ class SQLiteState(BaseState):
         con.commit()
 
     def add_last_probabilities(self, probabilities):
-        """Save the probabilities of the last model."""
+        """Save the probabilities produced by the last classifier.
+
+        Arguments
+        ---------
+        probabilities: list, np.array
+            List containing the probabilities for every record.
+        """
         proba_sql_input = [(proba, ) for proba in probabilities]
 
         con = self._connect_to_sql()
@@ -466,6 +492,21 @@ class SQLiteState(BaseState):
 
         Save the ranking of the last iteration of the model, in the ranking
         order, so the record on row 0 is ranked first by the model.
+
+        Arguments
+        ---------
+        ranked_record_ids: list, numpy.ndarray
+            A list of records ids in the order that they were ranked.
+        classifier: str
+            Name of the classifier of the model.
+        query_strategy: str
+            Name of the query strategy of the model.
+        balance_strategy: str
+            Name of the balance strategy of the model.
+        feature_extraction: str
+            Name of the feature extraction method of the model.
+        training_set: int
+            Number of labeled records available at the time of training.
         """
         record_ids = self.get_record_table()
 
@@ -533,7 +574,15 @@ class SQLiteState(BaseState):
         return load_npz(self._feature_matrix_fp)
 
     def add_note(self, note, record_id):
-        """Add a text note to save with a labeled record."""
+        """Add a text note to save with a labeled record.
+
+        Arguments
+        ---------
+        note: str
+            Text note to save.
+        record_id: int
+            Identifier of the record to which the note should be added.
+        """
         con = self._connect_to_sql()
         cur = con.cursor()
         cur.execute("UPDATE results SET notes = ? WHERE record_id = ?",
@@ -542,7 +591,19 @@ class SQLiteState(BaseState):
         con.close()
 
     def add_labeling_data(self, record_ids, labels, notes=None, prior=False):
-        """Add all the data of one labeling action."""
+        """Add the data corresponding to a labeling action to the state file.
+
+        Arguments
+        ---------
+        record_ids: list, numpy.ndarray
+            A list of ids of the labeled records as int.
+        labels: list, numpy.ndarray
+            A list of labels of the labeled records as int.
+        notes: list of str/None
+            A list of text notes to save with the labeled records.
+        prior: bool
+            Whether the added record are prior knowledge.
+        """
 
         # Check if the state is still valid.
         self._is_valid_state()
@@ -621,7 +682,17 @@ class SQLiteState(BaseState):
         con.close()
 
     def update_decision(self, record_id, label, note=None):
-        """Change the label of a record from 0 to 1 or vice versa."""
+        """Change the label of an already labeled record.
+
+        Arguments
+        ---------
+        record_id: int
+            Id of the record whose label should be changed.
+        label: 0 / 1
+            New label of the record.
+        note: str
+            Note to add to the record.
+        """
 
         con = self._connect_to_sql()
         cur = con.cursor()
@@ -663,6 +734,12 @@ class SQLiteState(BaseState):
 
         Get the record ids of the records whose labels have been changed
         after the original labeling action.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with columns 'record_id', 'new_label', and 'time' for
+            each record of which the labeling decision was changed.
         """
         con = self._connect_to_sql()
         change_table = pd.read_sql_query('SELECT * FROM decision_changes', con)
@@ -698,7 +775,16 @@ class SQLiteState(BaseState):
         return last_probabilities['proba']
 
     def get_last_ranking(self):
-        """Get the ranking from the state."""
+        """Get the ranking from the state.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with columns 'record_id', 'ranking', 'classifier',
+            'query_strategy', 'balance_strategy', 'feature_extraction',
+            'training_set' and 'time'. It has one row for each record in the
+            dataset, and is ordered by ranking.
+        """
         con = self._connect_to_sql()
         last_ranking = pd.read_sql_query('SELECT * FROM last_ranking', con)
         con.close()
