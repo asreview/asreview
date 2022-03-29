@@ -697,8 +697,6 @@ def api_get_labeled_stats(project):  # noqa: F401
 
         with open_state(project.project_path) as s:
             data = s.get_dataset(["label", "query_strategy"])
-            # Drop pending records.
-            data = data[~data['label'].isna()]
             data_prior = data[data["query_strategy"] == "prior"]
 
         response = jsonify({
@@ -1056,18 +1054,14 @@ def api_export_dataset(project):
     try:
         # get labels and ranking from state file
         with open_state(project.project_path) as s:
-            proba = s.get_last_probabilities()
-            labeled_data = s.get_dataset(['record_id', 'label'])
-            record_table = s.get_record_table()
+            pool, labeled, pending = s.get_pool_labeled_pending()
 
-        prob_df = pd.concat([record_table, proba], axis=1)
-
-        ranking = pd. \
-            merge(prob_df, labeled_data, on='record_id', how='left'). \
-            fillna(0.5). \
-            sort_values(['label', 'proba'], ascending=False)['record_id']
-
-        labeled = labeled_data.values.tolist()
+        included = labeled[labeled['label'] == 1]
+        excluded = labeled[labeled['label'] != 1]
+        export_order = included['record_id'].to_list() + \
+            pending.to_list() + \
+            pool.to_list() + \
+            excluded['record_id'].to_list()
 
         # get writer corresponding to specified file format
         writers = list_writers()
@@ -1082,8 +1076,8 @@ def api_export_dataset(project):
 
         as_data.to_file(
             fp=tmp_path_dataset,
-            labels=labeled,
-            ranking=ranking,
+            labels=labeled.values.tolist(),
+            ranking=export_order,
             writer=writer)
 
         return send_file(

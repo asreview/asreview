@@ -65,7 +65,7 @@ TEST_LAST_PROBS = [0.7116408177006979, 0.7119557616570122, 0.71780127925996,
                    0.7127075014419986, 0.7085644453092131, 0.7067520535764322,
                    0.7103161247883791, 0.7192568428839242, 0.7118104532649111,
                    0.7150387267232563]
-TEST_POOL_START = [158, 302, 537, 568, 417, 172, 660, 336, 330, 429]
+TEST_POOL_START = [157, 301, 536, 567, 416, 171, 659, 335, 329, 428]
 
 
 def test_init_project_folder(tmpdir):
@@ -131,12 +131,6 @@ def test_settings_state():
         assert isinstance(state.settings, ASReviewSettings)
 
 
-def test_current_queries():
-    with open_state(TEST_STATE_FP) as state:
-        assert isinstance(state.current_queries, dict)
-        assert len(state.current_queries.keys()) > 0
-
-
 def test_n_records_labeled():
     with open_state(TEST_STATE_FP) as state:
         assert state.n_records_labeled == len(TEST_LABELS)
@@ -173,6 +167,37 @@ def test_get_dataset():
         # list containing column name.
         assert state.get_dataset(
             'training_set')['training_set'].to_list() == TEST_TRAINING_SETS
+
+
+def test_get_dataset_drop_prior():
+    with open_state(TEST_STATE_FP) as state:
+        assert len(state.get_dataset(priors=False)) == \
+               len(TEST_RECORD_IDS) - TEST_N_PRIORS
+        assert (state.get_dataset(priors=False)['query_strategy'] !=
+                'prior').all()
+        assert 'query_strategy' in state.get_dataset(priors=False).columns
+        assert 'query_strategy' not in state.get_dataset('label',
+                                                         priors=False)
+
+
+def test_get_dataset_drop_pending(tmpdir):
+    record_table = range(1, 11)
+    test_ranking = range(10, 0, -1)
+    project_path = Path(tmpdir, 'test.asreview')
+    ASReviewProject.create(project_path)
+    with open_state(project_path, read_only=False) as state:
+        state.add_record_table(record_table)
+        state.add_last_ranking(test_ranking, 'nb',
+                               'max', 'double', 'tfidf', 4)
+        state.add_labeling_data([4, 5, 6], [1, 0, 1],
+                                prior=True)
+        state.query_top_ranked(3)
+
+        assert 'label' in state.get_dataset(pending=False).columns
+        assert 'label' not in state.get_dataset('balance_strategy',
+                                                pending=False)
+        assert len(state.get_dataset(pending=False)) == 3
+        assert state.get_dataset(pending=False)['label'].notna().all()
 
 
 def test_get_data_by_query_number():
@@ -240,7 +265,7 @@ def test_get_labels():
         assert all(state.get_labels() == TEST_LABELS)
 
 
-def test_get_labels_wo_priors():
+def test_get_labels_no_priors():
     with open_state(TEST_STATE_FP) as state:
         labels = state.get_labels(priors=False)
         assert isinstance(labels, pd.Series)
@@ -289,10 +314,10 @@ def test_record_table(tmpdir):
 def test_get_last_probabilities():
     with open_state(TEST_STATE_FP) as state:
         probabilities = state.get_last_probabilities()
-        assert isinstance(probabilities, pd.DataFrame)
-        assert list(probabilities.columns) == ['proba']
-        assert probabilities['proba'].to_list()[:10] == TEST_FIRST_PROBS
-        assert probabilities['proba'].to_list()[-10:] == TEST_LAST_PROBS
+        assert isinstance(probabilities, pd.Series)
+        assert probabilities.name == 'proba'
+        assert probabilities.to_list()[:10] == TEST_FIRST_PROBS
+        assert probabilities.to_list()[-10:] == TEST_LAST_PROBS
 
 
 @pytest.mark.xfail(
@@ -310,7 +335,7 @@ def test_add_last_probabilities(tmpdir):
     probabilities = [float(num) for num in range(50)]
     with open_state(project_path, read_only=False) as state:
         state.add_last_probabilities(probabilities)
-        state_probabilities = state.get_last_probabilities()['proba'].tolist()
+        state_probabilities = state.get_last_probabilities().to_list()
         assert state_probabilities == probabilities
 
 
@@ -323,7 +348,7 @@ def test_move_ranking_data_to_results(tmpdir):
                                'max', 'double', 'tfidf', 4)
         state._move_ranking_data_to_results([4, 6, 5, 7])
 
-        data = state.get_dataset()
+        data = state.get_dataset(pending=True)
         assert data['record_id'].to_list() == [4, 6, 5, 7]
         assert data['label'].to_list() == [None] * 4
         assert data['classifier'].to_list() == ['nb'] * 4
@@ -340,7 +365,7 @@ def test_query_top_ranked(tmpdir):
         top_ranked = state.query_top_ranked(5)
 
         assert top_ranked == [2, 1, 0, 3, 4]
-        data = state.get_dataset()
+        data = state.get_dataset(pending=True)
         assert data['record_id'].to_list() == [2, 1, 0, 3, 4]
         assert data['classifier'].to_list() == ['nb'] * 5
         assert data['query_strategy'].to_list() == ['max'] * 5
@@ -365,7 +390,7 @@ def test_add_labeling_data(tmpdir):
         state.add_labeling_data(TEST_RECORD_IDS[3:6], TEST_LABELS[3:6],
                                 notes=TEST_NOTES[3:6], prior=True)
 
-        data = state.get_dataset()
+        data = state.get_dataset(pending=True)
         assert data['record_id'].to_list() == TEST_RECORD_IDS[:6]
         assert data['label'].to_list() == TEST_LABELS[:6]
         assert data['classifier'].to_list() == [None] * 6
@@ -376,18 +401,18 @@ def test_add_labeling_data(tmpdir):
         assert data['notes'].to_list() == TEST_NOTES[:6]
 
         state.query_top_ranked(3)
-        data = state.get_dataset()
+        data = state.get_dataset(pending=True)
         assert data['label'].to_list()[:6] == TEST_LABELS[:6]
         assert data['label'][6:].isna().all()
         assert data['record_id'].to_list() == TEST_RECORD_IDS[:6] + [0, 1, 2]
 
         state.add_labeling_data([1], [1])
-        labels = state.get_labels()
+        labels = state.get_labels(pending=True)
         assert labels.to_list()[:6] == TEST_LABELS[:6]
         assert labels[7] == 1
 
         state.add_labeling_data([0, 2], [0, 1], notes=['note0', 'note2'])
-        data = state.get_dataset()
+        data = state.get_dataset(pending=True)
         assert data['label'].to_list() == TEST_LABELS[:6] + [0, 1, 1]
         assert data['notes'].to_list() == TEST_NOTES[:6] + \
                ['note0', None, 'note2']
