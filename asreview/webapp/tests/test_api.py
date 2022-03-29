@@ -275,6 +275,7 @@ def test_finish_project(client):
                           data={"status": "finished"})
     assert response.status_code == 200
 
+
 def test_get_progress_info(client):
     """Test get progress info on the article"""
 
